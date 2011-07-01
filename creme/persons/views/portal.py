@@ -27,7 +27,7 @@ from creme_core.models import Relation
 from creme_config.utils import generate_portal_url
 
 from persons.models import Contact, Organisation
-from persons.constants import REL_OBJ_CUSTOMER_OF #REL_SUB_CUSTOMER_OF
+from persons.constants import REL_OBJ_CUSTOMER_SUPPLIER #REL_SUB_CUSTOMER_OF
 
 
 def portal(request):
@@ -43,7 +43,7 @@ def portal(request):
         #stats.append((_(u'Number of customers of %s') % managed_orga, customers_count))
 
     customers_stats = Organisation.get_all_managed_by_creme() \
-                                  .filter(relations__type=REL_OBJ_CUSTOMER_OF) \
+                                  .filter(relations__type=REL_OBJ_CUSTOMER_SUPPLIER) \
                                   .annotate(customers_count=Count('relations')) \
                                   .values_list('name', 'customers_count')
     if customers_stats:

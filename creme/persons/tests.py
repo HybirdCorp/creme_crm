@@ -34,8 +34,8 @@ class PersonsTestCase(CremeTestCase):
 
         rel_sub_employed = get_relationtype_or_fail(REL_SUB_EMPLOYED_BY)
         rel_obj_employed = get_relationtype_or_fail(REL_OBJ_EMPLOYED_BY)
-        rel_sub_customer = get_relationtype_or_fail(REL_SUB_CUSTOMER_OF)
-        rel_obj_customer = get_relationtype_or_fail(REL_OBJ_CUSTOMER_OF)
+        rel_sub_customer_supplier = get_relationtype_or_fail(REL_SUB_CUSTOMER_SUPPLIER)
+        rel_obj_customer_supplier = get_relationtype_or_fail(REL_OBJ_CUSTOMER_SUPPLIER)
 
         self.assertEqual(rel_sub_employed.symmetric_type_id, rel_obj_employed.id)
         self.assertEqual(rel_obj_employed.symmetric_type_id, rel_sub_employed.id)
@@ -47,8 +47,8 @@ class PersonsTestCase(CremeTestCase):
         self.assertEqual([ct_id_orga],    [ct.id for ct in rel_obj_employed.subject_ctypes.all()])
 
         ct_id_set = set((ct_id_contact, ct_id_orga))
-        self.assertEqual(ct_id_set, set(ct.id for ct in rel_sub_customer.subject_ctypes.all()))
-        self.assertEqual(ct_id_set, set(ct.id for ct in rel_obj_customer.subject_ctypes.all()))
+        self.assertEqual(ct_id_set, set(ct.id for ct in rel_sub_customer_supplier.subject_ctypes.all()))
+        self.assertEqual(ct_id_set, set(ct.id for ct in rel_obj_customer_supplier.subject_ctypes.all()))
 
         try:
             efilter = EntityFilter.objects.get(pk=FILTER_MANAGED_ORGA)
@@ -376,7 +376,7 @@ class PersonsTestCase(CremeTestCase):
             self.fail(str(e))
 
     def test_become_customer01(self):
-        self._become_test('/persons/%s/become_customer', REL_SUB_CUSTOMER_OF)
+        self._become_test('/persons/%s/become_customer', REL_SUB_CUSTOMER_SUPPLIER)
 
     def test_become_customer02(self): #creds errors
         self.login(is_superuser=False)
@@ -413,7 +413,7 @@ class PersonsTestCase(CremeTestCase):
         self._become_test('/persons/%s/become_inactive_customer', REL_SUB_INACTIVE)
 
     def test_become_supplier(self):
-        self._become_test('/persons/%s/become_supplier', REL_SUB_SUPPLIER)
+        self._become_test('/persons/%s/become_supplier', REL_OBJ_CUSTOMER_SUPPLIER)
 
     def test_leads_customers01(self):
         self.login()
@@ -624,7 +624,7 @@ class PersonsTestCase(CremeTestCase):
         customer01 = Organisation.objects.create(user=self.user, name='orga02')
         self.failIf(self._get_neglected_orgas())
 
-        rtype_customer = RelationType.objects.get(pk=REL_SUB_CUSTOMER_OF)
+        rtype_customer = RelationType.objects.get(pk=REL_SUB_CUSTOMER_SUPPLIER)
         Relation.objects.create(user=self.user, subject_entity=customer01, object_entity=mng_orga, type=rtype_customer)
         self.assertEqual([customer01.id], [orga.id for orga in self._get_neglected_orgas()])
 
@@ -640,7 +640,7 @@ class PersonsTestCase(CremeTestCase):
 
     def _build_customer_orga(self, mng_orga, name):
         customer = Organisation.objects.create(user=self.user, name=name)
-        Relation.objects.create(user=self.user, subject_entity=customer, object_entity=mng_orga, type_id=REL_SUB_CUSTOMER_OF)
+        Relation.objects.create(user=self.user, subject_entity=customer, object_entity=mng_orga, type_id=REL_SUB_CUSTOMER_SUPPLIER)
 
         return customer
 

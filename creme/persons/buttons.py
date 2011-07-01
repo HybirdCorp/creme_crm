@@ -24,7 +24,7 @@ from creme_core.models import Relation
 from creme_core.gui.button_menu import Button
 
 from persons.models import Organisation, Contact
-from persons.constants import REL_SUB_CUSTOMER_OF, REL_SUB_PROSPECT, REL_SUB_SUSPECT, REL_SUB_INACTIVE, REL_SUB_SUPPLIER
+from persons.constants import REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT, REL_SUB_SUSPECT, REL_SUB_INACTIVE, REL_OBJ_CUSTOMER_SUPPLIER
 
 
 class CrmButton(Button):
@@ -57,7 +57,7 @@ class CrmButton(Button):
 class BecomeCustomerButton(CrmButton):
     id_              = Button.generate_id('persons', 'become_customer')
     verbose_name     = _(u'Transform into a customer')
-    relation_type_id = REL_SUB_CUSTOMER_OF
+    relation_type_id = REL_SUB_CUSTOMER_SUPPLIER
     what = "customer"
     become_url = "/persons/%s/become_customer"
 
@@ -89,7 +89,7 @@ class BecomeInactiveButton(CrmButton):
 class BecomeSupplierButton(CrmButton):
     id_              = Button.generate_id('persons', 'become_supplier')
     verbose_name     = _(u'Transform into a supplier')
-    relation_type_id = REL_SUB_SUPPLIER
+    relation_type_id = REL_OBJ_CUSTOMER_SUPPLIER
     what = "supplier"
     become_url = "/persons/%s/become_supplier"
 
