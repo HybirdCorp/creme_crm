@@ -353,7 +353,7 @@ class RelationEntityField(JSONField):
         return ((model.pk, unicode(model)) for model in models)
 
     def _get_allowed_rtypes_objects(self):
-        return RelationType.objects.filter(id__in=self._allowed_rtypes) if self._allowed_rtypes else RelationType.objects.all()
+        return (RelationType.objects.filter(id__in=self._allowed_rtypes) if self._allowed_rtypes else RelationType.objects.all()).order_by('predicate')
 
     def _set_allowed_rtypes(self, allowed=(REL_SUB_HAS, )):
         self._allowed_rtypes = frozenset(allowed)
