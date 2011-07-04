@@ -17,8 +17,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-import datetime, time
-
 import re
 
 from django.db import IntegrityError
@@ -26,6 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.fields import FieldDoesNotExist
 from django.utils.translation import ugettext as _
 from django.utils import formats
+from creme_core.utils.dates import get_dt_from_str
 
 from creme_core.utils.meta import is_date_field
 
@@ -39,22 +38,22 @@ passwd_pattern = re.compile(r'password=(?P<password>\w+)')
 re_html_br     = re.compile(r'<br[/\s]*>')
 
 class CreateFromEmailBackend(object):
-    password       = u""  #Password in body to verify permission
-    limit_froms    = ()   #Email addresses
-    in_sandbox     = True #Show in sandox (if False can be shown only in history & the creation will be automatic)
-    body_map       = {}   #Mapping email body's key <==> model's key, value in the dict is the default value
-    model          = None #Target model
-    type           = CREATE
-    subject        = u""  #Matched subject
-    blocks         = (WaitingActionBlock, )#Rendered blocks
+    password        = u""  #Password in body to verify permission
+    limit_froms     = ()   #Email addresses
+    in_sandbox      = True #Show in sandox (if False can be shown only in history & the creation will be automatic)
+    body_map        = {}   #Mapping email body's key <==> model's key, value in the dict is the default value
+    model           = None #Target model
+    type            = CREATE
+    subject         = u""  #Matched subject
+    blocks          = (WaitingActionBlock, )#Rendered blocks
 
     def __init__(self):
         self.body_map.update({'password': self.password})
 
     def authorize_senders(self, senders):
         return not self.limit_froms or set(senders) & set(self.limit_froms)
-    
-    def create(self, email, request=None):
+
+    def create(self, email, current_user=None):
         data = self.body_map.copy()
 
         if self.authorize_senders(email.senders):
@@ -87,7 +86,7 @@ class CreateFromEmailBackend(object):
                 for key in data.keys():
                     for i, line in enumerate(bodyc):
 #                        r = re.search(r"""[\t ]*%s[\t ]*=(?P<%s>['"/@ \t.;?!\\\w]+)""" % (key, key), line)
-                        r = re.search(ur"""[\t ]*%s[\t ]*=(?P<%s>['"/@ \t.;?!\\\w&]+)""" % (key, key), line, flags=re.UNICODE)
+                        r = re.search(ur"""[\t ]*%s[\t ]*=(?P<%s>['"/@ \t.;?!-\\\w&]+)""" % (key, key), line, flags=re.UNICODE)
 
                         if r:
                             data[key] = r.groupdict().get(key)
@@ -103,7 +102,6 @@ class CreateFromEmailBackend(object):
                     action.save()
                 else:
                     self._create_instance_n_history(data)
-                
 
     def create_from_waiting_action_n_history(self, action):
         return self._create_instance_n_history(action.get_data())
@@ -116,12 +114,7 @@ class CreateFromEmailBackend(object):
         for field_name, field_value in data.iteritems():
             try:
                 if is_date_field(model_get_field(field_name)):
-                    for format in formats.get_format('DATETIME_INPUT_FORMATS'):#TODO: Extract this into a method?
-                        try:
-                            data[field_name] = datetime.datetime(*time.strptime(field_value.strip(), format)[:6])
-                            break
-                        except ValueError:
-                            continue
+                    data[field_name] = get_dt_from_str(field_value.strip())
             except FieldDoesNotExist:
                 continue
 
