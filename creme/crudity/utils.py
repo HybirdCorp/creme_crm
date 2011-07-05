@@ -32,16 +32,16 @@ def get_unicode_decoded_str(str, encodings): #TODO: rename 'str'
 
     return u"".join([i if ord(i) < 128 else '?' for i in str]) #TODO: use genexpr
 
-def strip_html_(str): #TODO: rename 'str'
+def strip_html_(html_content):
     is_html = True
     while is_html:
-        reg = re.search(html_mark, str)
+        reg = re.search(html_mark, html_content)
         if reg:
-            str = str.replace(reg.groupdict().get('html'), '')
+            html_content = html_content.replace(reg.groupdict().get('html'), '')
         else:
             is_html = False
 
-    return str
+    return html_content
 
 def unescape(text):
    """Removes HTML or XML character references
