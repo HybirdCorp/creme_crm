@@ -27,7 +27,7 @@ from creme_core.registry import creme_registry
 from creme_core.forms import CremeModelForm
 
 from creme_config.utils import generate_portal_url
-
+from creme_config.models.setting import SettingKey
 
 class NotRegisteredInConfig(Exception):
     pass
@@ -96,7 +96,11 @@ class AppConfigRegistry(object):
 
 class _ConfigRegistry(object):
     def __init__(self):
-        self._apps = {}
+        self._apps = _apps = {}
+
+        #Add app to creme_config if it has at least a visible SettingKey
+        for app_label in SettingKey.objects.filter(hidden=False).values_list('app_label', flat=True).distinct():
+            _apps[app_label] = AppConfigRegistry(app_label, creme_registry.get_app(app_label).verbose_name)
 
     def get_app(self, app_name):
         return self._apps[app_name]
@@ -122,7 +126,7 @@ class _ConfigRegistry(object):
 
     def register_blocks(self, *blocks_to_register):
         app_registries = self._apps
-        
+
         for app_name, block in blocks_to_register:
             app_conf = app_registries.get(app_name)
 
