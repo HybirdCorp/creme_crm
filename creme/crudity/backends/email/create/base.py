@@ -29,6 +29,7 @@ from creme_core.utils.dates import get_dt_from_str
 from creme_core.utils.meta import is_date_field
 
 from crudity import CREATE
+from crudity.constants import LEFT_MULTILINE_SEP, RIGHT_MULTILINE_SEP
 from crudity.models.actions import WaitingAction
 from crudity.models.history import History
 from crudity.blocks import WaitingActionBlock
@@ -36,6 +37,10 @@ from crudity.utils import strip_html, strip_html_
 
 passwd_pattern = re.compile(r'password=(?P<password>\w+)')
 re_html_br     = re.compile(r'<br[/\s]*>')
+
+assert len(LEFT_MULTILINE_SEP) == len(RIGHT_MULTILINE_SEP)
+
+MULTILINE_SEP_LEN = len(RIGHT_MULTILINE_SEP)
 
 class CreateFromEmailBackend(object):
     password        = u""  #Password in body to verify permission
@@ -62,12 +67,36 @@ class CreateFromEmailBackend(object):
 
             if email.body_html:
                 #TODO: Not really good to have parse twice to strip...
-                body = re.sub(re_html_br, '\n', body)
+                body = re.sub(re_html_br, '\n', body).replace('&nbsp;', ' ')#'Manually' replace &nbsp; because we don't want \xA0 unicode char
                 body = strip_html(body)
                 body = strip_html_(body)
 
             body = body.replace('\r', '')
-            splited_body = [line for line in body.split('\n') if line.strip()]
+
+            #Multiline handling
+            left_idx = body.find(LEFT_MULTILINE_SEP)
+            while left_idx > -1:
+                right_idx = body.find(RIGHT_MULTILINE_SEP)
+
+                if right_idx < left_idx:#A RIGHT_MULTILINE_SEP is specified before LEFT_MULTILINE_SEP
+                    body = body[:right_idx]+body[right_idx+MULTILINE_SEP_LEN:]
+                    left_idx = body.find(LEFT_MULTILINE_SEP)
+                    continue
+
+                malformed_idx = (body[:left_idx]+body[left_idx+MULTILINE_SEP_LEN:right_idx]).find(LEFT_MULTILINE_SEP)#The body excepted current LEFT_MULTILINE_SEP
+                if malformed_idx > -1:#This means that a next occurrence of multiline is opened before closing current one
+                    body = body[:left_idx]+body[left_idx+MULTILINE_SEP_LEN:]
+                    left_idx = body.find(LEFT_MULTILINE_SEP)
+                    continue
+
+                if right_idx > -1:
+                    body = body[:left_idx]+body[left_idx:right_idx+MULTILINE_SEP_LEN].replace('\n','\\n').replace(LEFT_MULTILINE_SEP, '').replace(RIGHT_MULTILINE_SEP, '')+body[right_idx+MULTILINE_SEP_LEN:]
+                    left_idx = body.find(LEFT_MULTILINE_SEP)
+                else:
+                    left_idx = -1
+            #End Multiline handling
+
+            splited_body = [line.replace('\t', '') for line in body.split('\n') if line.strip()]
             bodyc= splited_body
             bodyp = [line.replace(' ', '') for line in splited_body]
 
@@ -89,7 +118,7 @@ class CreateFromEmailBackend(object):
                         r = re.search(ur"""[\t ]*%s[\t ]*=(?P<%s>['"/@ \t.;?!-\\\w&]+)""" % (key, key), line, flags=re.UNICODE)
 
                         if r:
-                            data[key] = r.groupdict().get(key)
+                            data[key] = r.groupdict().get(key).replace('\\n', '\n')#TODO: Check if the target field is a simple-line field ?
                             bodyc.pop(i)
                             break
 
