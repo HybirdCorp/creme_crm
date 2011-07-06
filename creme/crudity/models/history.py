@@ -19,10 +19,10 @@
 ################################################################################
 
 #from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User
 from django.db.models.fields.related import ForeignKey
 from django.db.models.fields import TextField, PositiveIntegerField
 from django.utils.translation import ugettext_lazy as _
-
 
 from creme_core.models.fields import CreationDateTimeField
 from creme_core.models.base import CremeModel
@@ -35,6 +35,7 @@ class History(CremeModel):
     created     = CreationDateTimeField(_(u'Creation date'))
     type        = PositiveIntegerField()
     description = TextField(_(u'Description'), blank=True, null=True)
+    user        = ForeignKey(User, verbose_name=_(u"Owner"), blank=True, null=True, default=None)#Case of sandboxes are by user
 
     class Meta:
         app_label = "crudity"

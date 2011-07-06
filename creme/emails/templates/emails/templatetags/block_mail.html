@@ -1,6 +1,5 @@
 {% load i18n %}
 {% load creme_core_tags %}{% load creme_block %}
-{% load email_tags %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=2 %}
         {% with object|get_meta_value:"verbose_name" as tmp %}{% with tmp|format:_("Information %s") as title %}
@@ -49,7 +48,7 @@
         </tr>
         <tr>
             <th class="th_info {% cycle header_color %}">{% trans "Email body" %}</th>
-            <td class="td_info">{{object|get_email_body}}</td>
+            <td class="td_info"><iframe frameborder="0" src="/emails/mail/get_entity_body/{{object.id}}" width="100%" height="100%" style="min-height:350px"></iframe></td>
         </tr>
     </tbody>
 </table>
