@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,5 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from actions import *
-from history import *
+from django.utils.translation import ugettext as _
+from creme_config.models.setting import SettingKey, SettingValue
+
+from creme_core.management.commands.creme_populate import BasePopulator
+
+from crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
+
+
+class Populator(BasePopulator):
+    def populate(self, *args, **kwargs):
+        sk = SettingKey.create(pk=SETTING_CRUDITY_SANDBOX_BY_USER,
+                       description=_(u"Are waiting actions are by user?"),
+                       app_label='crudity', type=SettingKey.BOOL
+                              )
+        SettingValue.objects.create(key=sk, user=None, value='False')

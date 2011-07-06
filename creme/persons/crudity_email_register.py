@@ -41,8 +41,8 @@ class CreateContactFromEmail(CreateFromEmailBackend):
     model          = Contact
     subject        = CREATE_CONTACT_SUBJECT
 
-    def __init__(self):
-        super(CreateFromEmailBackend, self).__init__()
+#    def __init__(self):
+#        super(CreateContactFromEmail, self).__init__()
 
 crud_register = {
     CREATE: [
