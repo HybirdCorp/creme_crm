@@ -32,12 +32,14 @@ from crudity.models import WaitingAction, History
 class CrudityQuerysetBlock(QuerysetBlock):
     def __init__(self, *args, **kwargs):
         super(CrudityQuerysetBlock, self).__init__()
-        self.is_sandbox_by_user = SettingValue.objects.get(key=SETTING_CRUDITY_SANDBOX_BY_USER, user=None).value#No cache need sub-blocks are created on the fly
 
     def detailview_display(self, context):
         if not context['user'].has_perm('crudity'):
             raise PermissionDenied(_('Error: you are not allowed to view this block: %s' % self.id_))
 
+    @property
+    def is_sandbox_by_user(self):
+        return SettingValue.objects.get(key=SETTING_CRUDITY_SANDBOX_BY_USER, user=None).value#No cache need sub-blocks are created on the fly
 
 class WaitingActionBlock(CrudityQuerysetBlock):
     dependencies  = ()
