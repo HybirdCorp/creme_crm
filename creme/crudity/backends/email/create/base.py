@@ -22,7 +22,7 @@ import re
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.contrib.contenttypes.models import ContentType
-from django.db.models.fields import FieldDoesNotExist
+from django.db.models.fields import FieldDoesNotExist, TextField
 from django.utils.translation import ugettext as _
 
 from creme_config.models.setting import SettingValue
@@ -165,12 +165,19 @@ class CreateFromEmailBackend(object):
 
         model_get_field = self.model._meta.get_field
 
-        for field_name, field_value in data.iteritems():
+        for field_name, field_value in data.items():
             try:
-                if is_date_field(model_get_field(field_name)):
-                    data[field_name] = get_dt_from_str(field_value.strip())
+                field = model_get_field(field_name)
             except FieldDoesNotExist:
+                #TODO: data.pop(field_name) when virtual fields are added in crudity, because for example user_id is not a "real field" (model._meta.get_field)
                 continue
+
+            if not isinstance(field, TextField):
+                data[field_name] = field_value = field_value.replace('\n', ' ')
+
+            if is_date_field(model_get_field(field_name)):
+                data[field_name] = get_dt_from_str(field_value.strip())
+
 
         instance.__dict__.update(data)
         is_created = True
