@@ -28,7 +28,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from crudity.backends.registry import from_email_crud_registry
 from crudity.backends.email.create.base import drop_from_email_backend
-from crudity.frontends.pop import pop_frontend
+from crudity.fetchers.pop import pop_frontend
 
 def _fetch_emails(user):
     message_count, emails = pop_frontend.fetch(delete=True)
