@@ -431,6 +431,17 @@ PERSONS_CONTACT_FROM_EMAIL = {
     }
 }
 
+PERSONS_CONTACT_FROM_EMAIL_INFOPATH = {
+    CREATE: {
+        "password"   : u"",  #Password to be authorized in backend
+        "limit_froms": (),   #If recipient email's address not in this drop email, let empty to allow all email addresses
+        "in_sandbox" : True, #True : Show in sandbox & history, False show only in history (/!\ creation will be automatic if False)
+        "body_map"   : {     #Allowed keys format : "key": "default value"
+        },
+        "subject": u""       #Target subject, nb: in the subject all spaces will be deleted, and it'll be converted to uppercase
+    }
+}
+
 EMAILS_ENTITYEMAIL_FROM_EMAIL = {
     CREATE: {
         "limit_froms": (),   #If recipient email's address not in this drop email, let empty to allow all email addresses

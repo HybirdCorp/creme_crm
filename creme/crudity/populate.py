@@ -32,4 +32,5 @@ class Populator(BasePopulator):
                        description=_(u"Are waiting actions are by user?"),
                        app_label='crudity', type=SettingKey.BOOL
                               )
-        SettingValue.objects.create(key=sk, user=None, value='False')
+        SettingValue.objects.create(key=sk, user=None, value=False)
+

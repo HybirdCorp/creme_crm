@@ -82,20 +82,30 @@ class CreateFromEmailBackend(object):
                 return User.objects.filter(is_superuser=True).order_by('-pk')[0]#No need to catch IndexError
         return None
 
+    def strip_html(self, html):
+        html = re.sub(re_html_br, '\n', html).replace('&nbsp;', ' ')#'Manually' replace &nbsp; because we don't want \xA0 unicode char
+        html = strip_html(html)
+        html = strip_html_(html)
+        return html
+
+    def is_allowed_password(self, split_body):
+        password = self.password
+        allowed = False
+        #Search first the password
+        for i, line in enumerate(split_body):
+            line = line.replace(' ', '')
+            r = re.search(passwd_pattern, line)
+
+            if r and r.groupdict().get('password') == password:
+                allowed = True
+                break
+        return allowed
+
     def create(self, email, current_user=None):
         data = self.body_map.copy()
 
         if self.authorize_senders(email.senders):
-            password = self.password
-            body = email.body_html or email.body
-
-            if email.body_html:
-                #TODO: Not really good to have parse twice to strip...
-                body = re.sub(re_html_br, '\n', body).replace('&nbsp;', ' ')#'Manually' replace &nbsp; because we don't want \xA0 unicode char
-                body = strip_html(body)
-                body = strip_html_(body)
-
-            body = body.replace('\r', '')
+            body = (self.strip_html(email.body_html) or email.body).replace('\r', '')
 
             #Multiline handling
             left_idx = body.find(LEFT_MULTILINE_SEP)
@@ -120,42 +130,32 @@ class CreateFromEmailBackend(object):
                     left_idx = -1
             #End Multiline handling
 
-            splited_body = [line.replace('\t', '') for line in body.split('\n') if line.strip()]
-            bodyc= splited_body
-            bodyp = [line.replace(' ', '') for line in splited_body]
+            split_body = [line.replace('\t', '') for line in body.split('\n') if line.strip()]
 
-            allowed = False
-
-            #Search first the password
-            for i, line in enumerate(bodyp):
-                r = re.search(passwd_pattern, line)
-
-                if r and r.groupdict().get('password') == password:
-                    allowed = True
-#                    bodyp.pop(i)
-                    break
-
-            if allowed:
+            if self.is_allowed_password(split_body):
                 for key in data.keys():
-                    for i, line in enumerate(bodyc):
+                    for i, line in enumerate(split_body):
 #                        r = re.search(r"""[\t ]*%s[\t ]*=(?P<%s>['"/@ \t.;?!\\\w]+)""" % (key, key), line)
                         r = re.search(ur"""[\t ]*%s[\t ]*=(?P<%s>['"/@ \t.;?!-\\\w&]+)""" % (key, key), line, flags=re.UNICODE)
 
                         if r:
                             data[key] = r.groupdict().get(key).replace('\\n', '\n')#TODO: Check if the target field is a simple-line field ?
-                            bodyc.pop(i)
+                            split_body.pop(i)
                             break
 
-                if self.in_sandbox:
-                    action         = WaitingAction()
-                    action.data    = action.set_data(data)
-                    action.type    = CREATE
-                    action.ct      = ContentType.objects.get_for_model(self.model)
-                    action.be_name = self.subject
-                    action.user    = self.get_owner(email.senders[0])
-                    action.save()
-                else:
-                    self._create_instance_n_history(data, user=self.get_owner(email.senders[0]))
+                self._create(data, email.senders[0])
+
+    def _create(self, data, sender):
+        if self.in_sandbox:
+            action         = WaitingAction()
+            action.data    = action.set_data(data)
+            action.type    = CREATE
+            action.ct      = ContentType.objects.get_for_model(self.model)
+            action.be_name = self.subject
+            action.user    = self.get_owner(sender)
+            action.save()
+        else:
+            self._create_instance_n_history(data, user=self.get_owner(sender))
 
     def create_from_waiting_action_n_history(self, action):
         return self._create_instance_n_history(action.get_data(), action.user)

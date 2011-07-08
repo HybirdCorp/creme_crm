@@ -69,5 +69,5 @@ class SettingValue(Model):
         return self.key.cast(self.value_str)
 
     def _set_value(self, value):
-        self.value_str = value
+        self.value_str = str(value)
     value = property(_get_value, _set_value); del _get_value, _set_value
