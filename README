@@ -9,7 +9,7 @@ You can find more information on Creme on its official web site: http://cremecrm
 DEPENDENCIES:
     - Core
         - Python 2.6
-        - Django 1.2.5
+        - Django 1.3
         - Django-mediagenerator 1.10.2
         - South 0.7
         - pytz-2011e
