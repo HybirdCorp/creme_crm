@@ -4,6 +4,7 @@ from datetime import datetime, date
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import RelationType, Relation, CremePropertyType, CremeProperty, CremeEntity
 from creme_core.tests.base import CremeTestCase
@@ -775,6 +776,28 @@ class ActTestCase(LoggedTestCase):
         self.assertEqual(12,   due_date.month)
         self.assertEqual(25,   due_date.day)
 
+    def test_create02(self):#due date < start
+        response = self.client.get('/commercial/act/add')
+        self.assertEqual(200, response.status_code)
+
+        name = 'Act#1'
+        atype = ActType.objects.create(title='Show')
+        segment = self._create_segment()
+        response = self.client.post('/commercial/act/add', follow=True,
+                                    data={
+                                            'user':           self.user.pk,
+                                            'name':           name,
+                                            'expected_sales': 1000,
+                                            'start':          '2011-11-20',
+                                            'due_date':       '2011-09-25',
+                                            'act_type':       atype.id,
+                                            'segment':        segment.id,
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assert_(response.context['form'].errors)
+        self.assertEqual(0, Act.objects.count())
+
     def create_act(self, expected_sales=1000):
         return Act.objects.create(user=self.user, name='NAME',
                                   expected_sales=expected_sales, cost=50,
@@ -828,6 +851,40 @@ class ActTestCase(LoggedTestCase):
         self.assertEqual(2011, due_date.year)
         self.assertEqual(12,   due_date.month)
         self.assertEqual(25,   due_date.day)
+
+    def test_edit02(self):#due_date < start date
+        act = self.create_act()
+        response = self.client.get('/commercial/act/edit/%s' % act.id)
+        self.assertEqual(200, response.status_code)
+
+        name = 'Act#1'
+        expected_sales = 2000
+        cost = 100
+        goal = 'Win'
+        atype = ActType.objects.create(title='Demo')
+        segment = self._create_segment()
+        response = self.client.post('/commercial/act/edit/%s' % act.id, follow=True,
+                                    data={
+                                            'user':            self.user.pk,
+                                            'name':            name,
+                                            'start':           '2011-11-20',
+                                            'due_date':        '2011-09-25',
+                                            'expected_sales':  expected_sales,
+                                            'cost':            cost,
+                                            'goal':            goal,
+                                            'act_type':        atype.id,
+                                            'segment':         segment.id,
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assert_(response.context['form'].errors)
+
+        act = Act.objects.get(pk=act.id)
+        due_date = act.due_date
+        self.assertEqual(2011, due_date.year)
+        self.assertEqual(12,   due_date.month)
+        self.assertEqual(26,   due_date.day)
+
 
     def test_listview(self):
         self.populate('creme_core', 'persons', 'commercial')

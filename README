@@ -7,25 +7,40 @@ You can find more information on Creme on its official web site: http://cremecrm
 
 
 DEPENDENCIES:
-- Python 2.6
-- Django 1.2.5
-- Django-mediagenerator 1.10.2
-- pdflatex (if you use the app creme.billing and want PDF export)
-- pygraphviz (if you use the app creme.graphs and want graph export)
-- Java >= 1.4 (only needed to build the compressed version of CSS and JavaScript files at installation time)
-- PIL >= 1.1.7 (for the app creme.activesync)
-- restkit 2.2.1 (for the app creme.activesync)
-- pytz-2011e
+    - Core
+        - Python 2.6
+        - Django 1.2.5
+        - Django-mediagenerator 1.10.2
+        - South 0.7
+        - pytz-2011e
+        - Java >= 1.4 (only needed to build the compressed version of CSS and JavaScript files at installation time)
+
+    - Optionnal
+        - creme.billing:
+            - pdflatex (if you want PDF export)
+            - pygraphviz (if you want graph export)
+
+        - creme.activesync:
+            - PIL >= 1.1.7
+            - restkit 2.2.1
+            - pycrypto 2.3
+
 
 RECOMMENDATIONS
 It's recommended to use a database engine that supports transactions.
+
 
 INSTALL:
 You have to know how to install a Django application.
 See the creme/settings.py and set your parameters (or put them in a new file called creme/local_settings.py instead).
 When you have chosen the creme apps you want (by commenting the unwanted ones), and configured the DB parameters
-run the following command in the creme/ directory:
+run the following commands in the creme/ directory:
 >> python manage.py syncdb
+
+If you have already a database corresponding to Creme 1.0 (else skip the following command), backup your database and run:
+>> python manage.py migrate 0001 --fake --all
+
+>> python manage.py migrate
 >> python manage.py generatemedia
 [Do not worry about 'URL not found' messages]
 >> python manage.py creme_populate -v

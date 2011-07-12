@@ -30,11 +30,11 @@ creme_registry.register_app('products', _(u'Products and services'), '/products'
 creme_registry.register_entity_models(Product, Service)
 
 reg_item = creme_menu.register_app('products', '/products/').register_item
-reg_item('/products/',            _(u'Portal'),        'products')
-reg_item('/products/products',    _(u'All products'),  'products')
-reg_item('/products/product/add', _(u'Add a product'), 'products.add_product')
-reg_item('/products/services',    _(u'All services'),  'products')
-reg_item('/products/service/add', _(u'Add a service'), 'products.add_service')
+reg_item('/products/',            _(u'Portal of products and services'), 'products')
+reg_item('/products/products',    _(u'All products'),                    'products')
+reg_item('/products/product/add', _(u'Add a product'),                   'products.add_product')
+reg_item('/products/services',    _(u'All services'),                    'products')
+reg_item('/products/service/add', _(u'Add a service'),                   'products.add_service')
 
 reg_icon = icon_registry.register
 reg_icon(Product, 'images/product_%(size)s.png')

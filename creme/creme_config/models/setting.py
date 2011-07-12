@@ -56,7 +56,7 @@ class SettingKey(Model):
 
         return sk
 
-#TODO: Add a nulll and blank attribute ??
+#TODO: Add a nulll and blank attribute ?? And a unique together with key, user
 class SettingValue(Model):
     key       = ForeignKey(SettingKey)
     user      = ForeignKey(User, blank=True, null=True)
@@ -69,5 +69,5 @@ class SettingValue(Model):
         return self.key.cast(self.value_str)
 
     def _set_value(self, value):
-        self.value_str = value
+        self.value_str = str(value)
     value = property(_get_value, _set_value); del _get_value, _set_value

@@ -28,6 +28,7 @@ from creme_core.forms.base import FieldBlockManager, CremeForm
 from creme_core.forms.widgets import Label
 
 from activesync.models.active_sync import CremeClient
+from activesync.cipher import Cipher
 from activesync.constants import (USER_MOBILE_SYNC_SERVER_URL,
                                     USER_MOBILE_SYNC_SERVER_DOMAIN,
                                     USER_MOBILE_SYNC_SERVER_SSL,
@@ -56,7 +57,7 @@ class UserSettingsConfigForm(CremeForm):
         super(UserSettingsConfigForm, self).__init__(user, *args, **kwargs)
         self.user = user
         user_id   = user.id
-        
+
         fields    = self.fields
         sv_get    = SettingValue.objects.get
         sv_doesnotexist = SettingValue.DoesNotExist
@@ -84,7 +85,7 @@ class UserSettingsConfigForm(CremeForm):
             pass
 
         try:
-            fields['password'].initial = sv_get(key__id=USER_MOBILE_SYNC_SERVER_PWD, user=user).value
+            fields['password'].initial = Cipher.decrypt_from_db(sv_get(key__id=USER_MOBILE_SYNC_SERVER_PWD, user=user).value)
         except sv_doesnotexist:
             pass
 
@@ -156,8 +157,9 @@ class UserSettingsConfigForm(CremeForm):
         password = clean_get('password')
         if password:
             user_password_cfg, is_created = sv_get_or_create(key_id=USER_MOBILE_SYNC_SERVER_PWD, user=user)
-            user_password_cfg.value = password
-            user_password_cfg.save()#TODO: Needs to be crypted ?
+#            user_password_cfg.value = password
+            user_password_cfg.value = Cipher.encrypt_for_db(password)
+            user_password_cfg.save()
         else:
             sv_filter(key__id=USER_MOBILE_SYNC_SERVER_PWD, user=user).delete()
 

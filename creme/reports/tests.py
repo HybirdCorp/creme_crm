@@ -7,7 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation
 from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION
-from creme_core.constants import REL_SUB_RELATED_TO
+from creme_core.constants import REL_SUB_HAS
 from creme_core.tests.base import CremeTestCase
 
 from persons.models import Contact, Organisation
@@ -41,7 +41,7 @@ class ReportsTestCase(CremeTestCase):
         create_hfi = HeaderFilterItem.objects.create
         create_hfi(pk='hfi1', order=1, name='last_name',             title='Last name',  type=HFI_FIELD,    header_filter=hf, filter_string="last_name__icontains")
         create_hfi(pk='hfi2', order=2, name='user',                  title='User',       type=HFI_FIELD,    header_filter=hf, filter_string="user__username__icontains")
-        create_hfi(pk='hfi3', order=3, name='related_to',            title='Related to', type=HFI_RELATION, header_filter=hf, filter_string="", relation_predicat_id=REL_SUB_RELATED_TO)
+        create_hfi(pk='hfi3', order=3, name='related_to',            title='Related to', type=HFI_RELATION, header_filter=hf, filter_string="", relation_predicat_id=REL_SUB_HAS)
         create_hfi(pk='hfi4', order=4, name='get_pretty_properties', title='Properties', type=HFI_FUNCTION, header_filter=hf, filter_string="")
         #hf.set_items([HeaderFilterItem.build_4_field(model=Contact, name='last_name'),
                       #HeaderFilterItem.build_4_field(model=Contact, name='user'),
@@ -100,7 +100,7 @@ class ReportsTestCase(CremeTestCase):
         self.assertEqual('user', columns[1].name)
 
         field = columns[2]
-        self.assertEqual(REL_SUB_RELATED_TO, field.name)
+        self.assertEqual(REL_SUB_HAS, field.name)
         self.assertEqual('Related to',       field.title)
         self.assertEqual(HFI_RELATION,       field.type)
         self.failIf(field.selected)
@@ -135,7 +135,7 @@ class ReportsTestCase(CremeTestCase):
         self.assertEqual(response.status_code, 200)
 
         mod_report = Report.objects.get(pk=report.id) #seems useless but...
-        self.assertEqual(['user', 'last_name', REL_SUB_RELATED_TO, 'get_pretty_properties'],
+        self.assertEqual(['user', 'last_name', REL_SUB_HAS, 'get_pretty_properties'],
                          [f.name for f in mod_report.columns.order_by('order')])
 
     def test_report_change_field_order02(self):
@@ -152,7 +152,7 @@ class ReportsTestCase(CremeTestCase):
         self.assertEqual(response.status_code, 200)
 
         mod_report = Report.objects.get(pk=report.id) #seems useless but...
-        self.assertEqual(['last_name', REL_SUB_RELATED_TO, 'user', 'get_pretty_properties'],
+        self.assertEqual(['last_name', REL_SUB_HAS, 'user', 'get_pretty_properties'],
                          [f.name for f in mod_report.columns.order_by('order')])
 
     def test_report_change_field_order03(self): #move 'up' the first field -> error
@@ -187,7 +187,7 @@ class ReportsTestCase(CremeTestCase):
         ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text='Kawaii')
         CremeProperty.objects.create(type=ptype, creme_entity=rei)
 
-        Relation.objects.create(user=self.user, type_id=REL_SUB_RELATED_TO,
+        Relation.objects.create(user=self.user, type_id=REL_SUB_HAS,
                                 subject_entity=misato, object_entity=nerv)
 
     def test_report_csv02(self):

@@ -22,16 +22,24 @@ from django.conf import settings
 
 from crudity import CREATE
 from crudity.backends.email import CreateFromEmailBackend
+from crudity.backends.email.create.infopath import InfopathCreateFromEmail
 
 from persons.models.contact import Contact
 
-create_contact_settings = settings.PERSONS_CONTACT_FROM_EMAIL.get(CREATE)
-
+create_contact_settings    = settings.PERSONS_CONTACT_FROM_EMAIL.get(CREATE)
 CREATE_CONTACT_PASSWORD    = create_contact_settings.get("password")
 CREATE_CONTACT_LIMIT_FROMS = create_contact_settings.get("limit_froms")
 CREATE_CONTACT_IN_SANDBOX  = create_contact_settings.get("in_sandbox", True)
 CREATE_CONTACT_BODY_MAP    = create_contact_settings.get("body_map", {})
 CREATE_CONTACT_SUBJECT     = create_contact_settings.get("subject")
+
+create_contact_infopath_settings    = settings.PERSONS_CONTACT_FROM_EMAIL_INFOPATH.get(CREATE)
+CREATE_CONTACT_INFOPATH_PASSWORD    = create_contact_infopath_settings.get("password")
+CREATE_CONTACT_INFOPATH_LIMIT_FROMS = create_contact_infopath_settings.get("limit_froms")
+CREATE_CONTACT_INFOPATH_IN_SANDBOX  = create_contact_infopath_settings.get("in_sandbox", True)
+CREATE_CONTACT_INFOPATH_BODY_MAP    = create_contact_infopath_settings.get("body_map", {})
+CREATE_CONTACT_INFOPATH_SUBJECT     = create_contact_infopath_settings.get("subject")
+
 
 class CreateContactFromEmail(CreateFromEmailBackend):
     password       = CREATE_CONTACT_PASSWORD
@@ -41,11 +49,19 @@ class CreateContactFromEmail(CreateFromEmailBackend):
     model          = Contact
     subject        = CREATE_CONTACT_SUBJECT
 
-    def __init__(self):
-        super(CreateFromEmailBackend, self).__init__()
+
+class CreateContactFromEmailInfopath(InfopathCreateFromEmail):
+    password       = CREATE_CONTACT_INFOPATH_PASSWORD
+    limit_froms    = CREATE_CONTACT_INFOPATH_LIMIT_FROMS
+    in_sandbox     = CREATE_CONTACT_INFOPATH_IN_SANDBOX
+    body_map       = CREATE_CONTACT_INFOPATH_BODY_MAP
+    model          = Contact
+    subject        = CREATE_CONTACT_INFOPATH_SUBJECT
+
 
 crud_register = {
     CREATE: [
-        (CreateContactFromEmail.subject, CreateContactFromEmail()),
+        (CreateContactFromEmail.subject,         CreateContactFromEmail()),
+        (CreateContactFromEmailInfopath.subject, CreateContactFromEmailInfopath()),
     ],
 }

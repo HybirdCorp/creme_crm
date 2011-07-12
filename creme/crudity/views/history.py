@@ -42,7 +42,7 @@ def history(request):
         if btype and bmodel:
             blocks.append(HistoryBlock(get_ct(bmodel), btype).detailview_display(context))
 
-    return render_to_response("crudity/history.html", {'blocks': blocks}, context_instance=context)
+    return render_to_response("crudity/history.html", {'blocks': set(blocks)}, context_instance=context)
 
 @jsonify
 @login_required

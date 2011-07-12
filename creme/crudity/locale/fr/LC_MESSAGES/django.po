@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-10-25 11:26+0200\n"
+"POT-Creation-Date: 2011-07-11 16:02+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -30,50 +30,71 @@ msgstr "Lire"
 msgid "Update"
 msgstr "Mettre à jour"
 
-#: __init__.py:32 templates/crudity/templatetags/block_waiting_action.html:24
-#: templates/crudity/templatetags/block_waiting_action.html:25
+#: __init__.py:32 templates/crudity/templatetags/block_waiting_action.html:23
+#: templates/crudity/templatetags/block_waiting_action.html:24
 msgid "Delete"
 msgstr "Effacer"
 
-#: blocks.py:30 models/actions.py:44 templates/crudity/history.html:11
-#: templates/crudity/waiting_actions.html:5
+#: blocks.py:38
+#, python-format
+msgid "Error: you are not allowed to view this block: %s"
+msgstr "Erreur: vous n'êtes pas autorisé à voir ce block: %s"
+
+#: blocks.py:46 models/actions.py:49 templates/crudity/waiting_actions.html:4
 #: templates/crudity/frags/ajax/waiting_actions.html:6
-#: templates/crudity/frags/ajax/waiting_actions.html:9
+#: templates/crudity/frags/ajax/waiting_actions.html:7
 msgid "Waiting actions"
 msgstr "Actions en attente"
 
-#: blocks.py:55 creme_core_register.py:37 models/history.py:41
-#: models/history.py:42 templates/crudity/history.html:6
-#: templates/crudity/history.html.py:14
+#: blocks.py:79 creme_core_register.py:33 models/history.py:42
+#: models/history.py:43 templates/crudity/history.html:6
+#: templates/crudity/history.html.py:13
 msgid "History"
 msgstr "Historique"
 
-#: creme_core_register.py:30
+#: creme_core_register.py:28
 msgid "External data management"
 msgstr "Gestion des données externes"
 
-#: creme_core_register.py:36
+#: creme_core_register.py:32
 msgid "Email waiting actions"
 msgstr "Actions en attente pour les emails"
 
-#: backends/email/create/base.py:113
+#: populate.py:32
+msgid "Are waiting actions are by user?"
+msgstr "Est-ce que les actions en attente sont par utilisateur?"
+
+#: backends/email/create/base.py:190
 #, python-format
 msgid "Creation of %(entity)s"
 msgstr "Creation de %(entity)s"
 
-#: models/actions.py:38
+#: models/actions.py:42
 msgid "Ressource's type"
 msgstr "Type de ressource"
 
-#: models/actions.py:39
+#: models/actions.py:43
 msgid "Backend's name"
 msgstr "Nom du backend"
 
-#: models/actions.py:43
+#: models/actions.py:44 models/history.py:38
+msgid "Owner"
+msgstr ""
+
+#: models/actions.py:48
 msgid "Waiting action"
 msgstr "Action en attente"
 
-#: models/history.py:34 templates/crudity/templatetags/block_history.html:18
+#: models/actions.py:73
+#, fuzzy, python-format
+msgid "You are not allowed to validate/delete the waiting action <%s>"
+msgstr "Erreur: vous n'êtes pas autorisé à voir ce block: %s"
+
+#: models/actions.py:74
+msgid "OK"
+msgstr ""
+
+#: models/history.py:34 templates/crudity/templatetags/block_history.html:17
 msgid "Entity"
 msgstr "Entité"
 
@@ -81,73 +102,77 @@ msgstr "Entité"
 msgid "Creation date"
 msgstr "Date de création"
 
-#: models/history.py:37 templates/crudity/templatetags/block_history.html:20
+#: models/history.py:37 templates/crudity/templatetags/block_history.html:19
 msgid "Description"
 msgstr "Description"
 
-#: templates/crudity/frags/ajax/waiting_actions.html:16
+#: templates/crudity/frags/ajax/waiting_actions.html:11
 msgid "Refresh"
 msgstr "Rafraîchir"
 
-#: templates/crudity/templatetags/block_history.html:11
+#: templates/crudity/templatetags/block_history.html:10
 #, python-format
 msgid "%(counter)s History item - %(ct_name)s - %(type)s"
 msgid_plural "%(counter)s History items - %(ct_name)s - %(type)s"
 msgstr[0] "%(counter)s entrée d'historique - %(ct_name)s - %(type)s"
 msgstr[1] "%(counter)s entrées d'historique - %(ct_name)s - %(type)s"
 
-#: templates/crudity/templatetags/block_history.html:19
+#: templates/crudity/templatetags/block_history.html:18
 msgid "Created"
 msgstr "Créé"
 
-#: templates/crudity/templatetags/block_history.html:21
+#: templates/crudity/templatetags/block_history.html:20
 msgid "View entity's file"
 msgstr "Voir la fiche de l'entité"
 
-#: templates/crudity/templatetags/block_history.html:30
+#: templates/crudity/templatetags/block_history.html:28
 #, python-format
 msgid "View '%(history_entity)s' details"
 msgstr "Voir les détails de '%(history_entity)s'"
 
-#: templates/crudity/templatetags/block_history.html:30
+#: templates/crudity/templatetags/block_history.html:28
 msgid "View"
 msgstr "Voir"
 
-#: templates/crudity/templatetags/block_history.html:36
+#: templates/crudity/templatetags/block_history.html:34
 #, python-format
 msgid "No waiting action for %(crud_type)s %(ct_name)s"
 msgstr "Aucune action en attente pour %(crud_type)s %(ct_name)s"
 
-#: templates/crudity/templatetags/block_waiting_action.html:11
+#: templates/crudity/templatetags/block_waiting_action.html:10
 #, python-format
 msgid "%(counter)s Waiting action - %(ct_name)s - %(type)s"
 msgid_plural "%(counter)s Waiting actions - %(ct_name)s - %(type)s"
 msgstr[0] "%(counter)s action en attente - %(ct_name)s - %(type)s"
 msgstr[1] "%(counter)s actions en attente - %(ct_name)s - %(type)s"
 
+#: templates/crudity/templatetags/block_waiting_action.html:19
 #: templates/crudity/templatetags/block_waiting_action.html:20
-#: templates/crudity/templatetags/block_waiting_action.html:21
 msgid "Validate"
 msgstr "Valider"
 
-#: templates/crudity/templatetags/block_waiting_action.html:31
+#: templates/crudity/templatetags/block_waiting_action.html:30
 msgid "Select all"
 msgstr "Tout sélectionner"
 
-#: templates/crudity/templatetags/block_waiting_action.html:33
+#: templates/crudity/templatetags/block_waiting_action.html:32
 msgid "Data"
 msgstr "Donnée"
 
-#: templates/crudity/templatetags/block_waiting_action.html:34
+#: templates/crudity/templatetags/block_waiting_action.html:33
 msgid "Actions"
 msgstr "Actions"
 
-#: templates/crudity/templatetags/block_waiting_action.html:62
+#: templates/crudity/templatetags/block_waiting_action.html:60
 #, python-format
 msgid "No waiting action for %(type)s %(ct_name)s"
 msgstr "Aucune action en attente pour %(type)s %(ct_name)s"
 
-#: views/email.py:68
+#: views/actions.py:53
+msgid "Operation successfully completed"
+msgstr ""
+
+#: views/email.py:71
 msgid "Emails"
 msgstr "Courriels"
 

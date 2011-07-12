@@ -160,6 +160,7 @@ INSTALLED_APPS = (
 
     #EXTERNAL APPS
     'mediagenerator', #It manages js/css/images
+    'south',          #It manages DB migrations
 
     #CREME CORE APPS
     'creme.creme_core',
@@ -420,6 +421,17 @@ CREME_GET_EMAIL_JOB_USER_ID  = 1#User used to synchronize mails with management 
 from crudity import CREATE
 
 PERSONS_CONTACT_FROM_EMAIL = {
+    CREATE: {
+        "password"   : u"",  #Password to be authorized in backend
+        "limit_froms": (),   #If recipient email's address not in this drop email, let empty to allow all email addresses
+        "in_sandbox" : True, #True : Show in sandbox & history, False show only in history (/!\ creation will be automatic if False)
+        "body_map"   : {     #Allowed keys format : "key": "default value"
+        },
+        "subject": u""       #Target subject, nb: in the subject all spaces will be deleted, and it'll be converted to uppercase
+    }
+}
+
+PERSONS_CONTACT_FROM_EMAIL_INFOPATH = {
     CREATE: {
         "password"   : u"",  #Password to be authorized in backend
         "limit_froms": (),   #If recipient email's address not in this drop email, let empty to allow all email addresses

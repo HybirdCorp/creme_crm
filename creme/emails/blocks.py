@@ -24,7 +24,6 @@ from django.template.context import RequestContext #
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.constants import REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO
 from creme_core.models import Relation, CremeEntity
 from creme_core.gui.block import Block, QuerysetBlock, list4url
 from creme_core.utils import jsonify #
@@ -186,6 +185,7 @@ class MailsHistoryBlock(QuerysetBlock):
     verbose_name  = _(u"Emails history")
     template_name = 'emails/templatetags/block_mails_history.html'
     configurable  = True
+    relation_type_deps = (REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO)
 
     def detailview_display(self, context):
         entity = context['object']
@@ -238,7 +238,12 @@ class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
     def detailview_display(self, context):
         super(WaitingSynchronizationMailsBlock, self).detailview_display(context)
         context.update({'MAIL_STATUS': MAIL_STATUS, 'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id, 'rtypes': ','.join([REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO])})
-        return self._render(self.get_block_template_context(context, EntityEmail.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_WAITING),
+
+        waiting_mails = EntityEmail.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_WAITING)
+        if self.is_sandbox_by_user:
+            waiting_mails = waiting_mails.filter(user=context['user'])
+
+        return self._render(self.get_block_template_context(context, waiting_mails,
 #                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
                                                             update_url='/emails/sync_blocks/reload'
                                                             ))
@@ -252,7 +257,12 @@ class SpamSynchronizationMailsBlock(_SynchronizationMailsBlock):
     def detailview_display(self, context):
         super(SpamSynchronizationMailsBlock, self).detailview_display(context)
         context.update({'MAIL_STATUS': MAIL_STATUS, 'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id})
-        return self._render(self.get_block_template_context(context, EntityEmail.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_SPAM),
+
+        waiting_mails = EntityEmail.objects.filter(status=MAIL_STATUS_SYNCHRONIZED_SPAM)
+        if self.is_sandbox_by_user:
+            waiting_mails = waiting_mails.filter(user=context['user'])
+
+        return self._render(self.get_block_template_context(context, waiting_mails,
 #                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_
                                                             update_url='/emails/sync_blocks/reload'
                                                            ))

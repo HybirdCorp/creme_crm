@@ -646,6 +646,8 @@ class EntityFiltersTestCase(CremeTestCase):
         create(subject_entity=c[9], type=loves, object_entity=c[4],  user=self.user)
         create(subject_entity=c[1], type=loves, object_entity=bebop, user=self.user)
 
+        create(subject_entity=c[7], type=self.hates, object_entity=c[9],  user=self.user)
+
         return loves
 
     def test_relations01(self): #no ct/entity
@@ -709,6 +711,27 @@ class EntityFiltersTestCase(CremeTestCase):
 
         loves.delete()
         self.assertEqual([self.hates.id], [cond.name for cond in efilter.conditions.all()])
+
+    def test_relations06(self): #several conditions on relations (with OR)
+        loves = self._aux_test_relations()
+        gendo = self.contacts[9]
+
+        efilter = EntityFilter.create(pk='test-filter01', name='Filter 01', model=Contact, use_or=True)
+        build = EntityFilterCondition.build_4_relation
+        efilter.set_conditions([build(rtype=loves,      has=True, entity=self.contacts[4]),
+                                build(rtype=self.hates, has=True, entity=gendo),
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts[7].id, gendo.id])
+
+    def test_relations07(self): #several conditions on relations (with AND)
+        loves = self._aux_test_relations()
+
+        efilter = EntityFilter.create(pk='test-filter01', name='Filter 01', model=Contact, use_or=False)
+        build = EntityFilterCondition.build_4_relation
+        efilter.set_conditions([build(rtype=loves,      has=True, entity=self.contacts[4]),
+                                build(rtype=self.hates, has=True, entity=self.contacts[9]),
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts[7].id])
 
     def test_relations_subfilter01(self):
         loves = self._aux_test_relations()
@@ -778,6 +801,50 @@ class EntityFiltersTestCase(CremeTestCase):
 
         loves.delete()
         self.assertEqual([self.hates.id], [cond.name for cond in efilter.conditions.all()])
+
+    def test_relations_subfilter05(self): #several conditions (with OR)
+        loves = self._aux_test_relations()
+
+        build_4_field = EntityFilterCondition.build_4_field
+
+        sub_efilter01 = EntityFilter.create(pk='test-filter01', name='Filter Rei', model=Contact)
+        sub_efilter01.set_conditions([build_4_field(model=Contact, operator=EntityFilterCondition.STARTSWITH, name='last_name',  values=['Ayanami']),
+                                      build_4_field(model=Contact, operator=EntityFilterCondition.EQUALS,     name='first_name', values=['Rei'])
+                                    ])
+        self.assertExpectedFiltered(sub_efilter01, Contact, [self.contacts[4].id])
+
+        sub_efilter02 = EntityFilter.create(pk='test-filter02', name='Filter Gendo', model=Contact)
+        sub_efilter02.set_conditions([build_4_field(model=Contact, operator=EntityFilterCondition.EQUALS, name='first_name', values=[u'Gendô'])])
+        self.assertExpectedFiltered(sub_efilter02, Contact, [self.contacts[9].id])
+
+        efilter = EntityFilter.create(pk='test-filter03', name='Filter with 2 sublovers', model=Contact, use_or=True)
+        build = EntityFilterCondition.build_4_relation_subfilter
+        efilter.set_conditions([build(rtype=loves,      has=True, subfilter=sub_efilter01),
+                                build(rtype=self.hates, has=True, subfilter=sub_efilter02),
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts[7].id, self.contacts[9].id])
+
+    def test_relations_subfilter06(self): #several conditions (with AND)
+        loves = self._aux_test_relations()
+
+        build_4_field = EntityFilterCondition.build_4_field
+
+        sub_efilter01 = EntityFilter.create(pk='test-filter01', name='Filter Rei', model=Contact)
+        sub_efilter01.set_conditions([build_4_field(model=Contact, operator=EntityFilterCondition.STARTSWITH, name='last_name',  values=['Ayanami']),
+                                      build_4_field(model=Contact, operator=EntityFilterCondition.EQUALS,     name='first_name', values=['Rei'])
+                                    ])
+        self.assertExpectedFiltered(sub_efilter01, Contact, [self.contacts[4].id])
+
+        sub_efilter02 = EntityFilter.create(pk='test-filter02', name='Filter Gendo', model=Contact)
+        sub_efilter02.set_conditions([build_4_field(model=Contact, operator=EntityFilterCondition.EQUALS, name='first_name', values=[u'Gendô'])])
+        self.assertExpectedFiltered(sub_efilter02, Contact, [self.contacts[9].id])
+
+        efilter = EntityFilter.create(pk='test-filter03', name='Filter with 2 sublovers', model=Contact, use_or=False)
+        build = EntityFilterCondition.build_4_relation_subfilter
+        efilter.set_conditions([build(rtype=loves,      has=True, subfilter=sub_efilter01),
+                                build(rtype=self.hates, has=True, subfilter=sub_efilter02),
+                               ])
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts[7].id])
 
     def test_date01(self): # GTE operator
         efilter = EntityFilter.create('test-filter01', 'After 2000-1-1', Contact)

@@ -31,7 +31,7 @@ from django.conf import settings
 
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
-from persons.constants import REL_SUB_CUSTOMER_OF
+from persons.constants import REL_SUB_CUSTOMER_SUPPLIER
 
 
 LOCK_NAME = "com_approaches_sending_emails"
@@ -49,7 +49,7 @@ class Command(BaseCommand):
                 - In the organisation opportunities
     """
 
-    list_target_orga = [(Q(relations__type=REL_SUB_CUSTOMER_OF, relations__object_entity__properties__type=PROP_IS_MANAGED_BY_CREME), 30),]
+    list_target_orga = [(Q(relations__type=REL_SUB_CUSTOMER_SUPPLIER, relations__object_entity__properties__type=PROP_IS_MANAGED_BY_CREME), 30),]
 
 
     def handle(self, *args, **options):

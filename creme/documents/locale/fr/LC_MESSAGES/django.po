@@ -7,101 +7,92 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-23 17:54+0200\n"
+"POT-Creation-Date: 2011-07-11 16:03+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: blocks.py:56
 msgid "Linked documents"
 msgstr "Documents liés"
 
-#: creme_core_register.py:33 models/document.py:43
+#: creme_core_register.py:31 models/document.py:43
 msgid "Documents"
 msgstr "Documents"
 
-#: creme_core_register.py:36
-msgid "Portal"
-msgstr "Portail"
+#: creme_core_register.py:34
+msgid "Portal of documents"
+msgstr "Portail des documents"
 
-#: creme_core_register.py:37
-#: templates/documents/templatetags/block_documents.html:9
+#: creme_core_register.py:35
 msgid "All documents"
 msgstr "Lister les documents"
 
-#: creme_core_register.py:38
+#: creme_core_register.py:36
 #: templates/documents/templatetags/block_linked_docs.html:11
 #: templates/documents/templatetags/block_linked_docs.html:12
 #: templates/documents/templatetags/block_linked_docs.html:17
 msgid "Add a document"
 msgstr "Ajouter un document"
 
-#: creme_core_register.py:39
+#: creme_core_register.py:37
 msgid "All folders"
 msgstr "Lister les classeurs"
 
-#: creme_core_register.py:40
+#: creme_core_register.py:38
 msgid "Add a folder"
 msgstr "Ajouter un classeur"
 
-#: populate.py:40
+#: populate.py:39
 msgid "related to the document"
 msgstr "concerne le document"
 
-#: populate.py:41
+#: populate.py:40
 msgid "document related to"
 msgstr "document concerné par"
 
-#: populate.py:43
+#: populate.py:42
 msgid "Documents related to entities"
 msgstr "Documents crées à partir des fiches"
 
-#: populate.py:44
+#: populate.py:43
 msgid "Documents received by email"
 msgstr "Documents reçus par email"
 
-#: populate.py:48
+#: populate.py:47
 msgid "Folder containing all the documents related to entities"
 msgstr "Classeur contenant tous les documents créés à partir des fiches"
 
-#: populate.py:52
+#: populate.py:51
 msgid "Document view"
 msgstr "Vue de Document"
 
-#: populate.py:54 populate.py:59 models/document.py:33 models/folder.py:36
-msgid "Title"
-msgstr "Titre"
-
-#: populate.py:55
-msgid "Folder - Title"
-msgstr "Classeur - Titre"
-
-#: populate.py:57
+#: populate.py:56
 msgid "Folder view"
 msgstr "Vue de Classeur"
-
-#: populate.py:60 models/document.py:34 models/folder.py:37
-msgid "Description"
-msgstr "Description"
-
-#: populate.py:61
-msgid "Category - Name"
-msgstr "Nom de la catégorie"
 
 #: forms/folder.py:39
 #, python-format
 msgid "Folder's category must be the same than its parent's one: %s"
 msgstr "La catégorie du classeur doit être la même que celle du parent: %s"
 
+#: models/document.py:33 models/folder.py:38
+msgid "Title"
+msgstr "Titre"
+
+#: models/document.py:34 models/folder.py:39
+msgid "Description"
+msgstr "Description"
+
 #: models/document.py:35
 msgid "File"
 msgstr "Fichier"
 
-#: models/document.py:36 models/folder.py:45
+#: models/document.py:36 models/folder.py:48
 msgid "Folder"
 msgstr "Classeur"
 
@@ -111,23 +102,23 @@ msgstr "Classeur"
 msgid "Document"
 msgstr "Document"
 
-#: models/folder.py:38
+#: models/folder.py:40
 msgid "Parent folder"
 msgstr "Classeur parent"
 
-#: models/folder.py:39
+#: models/folder.py:41
 msgid "Category"
 msgstr "Catégorie"
 
-#: models/folder.py:46
+#: models/folder.py:49
 msgid "Folders"
 msgstr "Classeurs"
 
-#: models/folder.py:64
+#: models/folder.py:67
 msgid "Copy"
 msgstr "Copie"
 
-#: models/folder.py:72
+#: models/folder.py:75
 msgid "Explore"
 msgstr "Explorer"
 
@@ -148,16 +139,16 @@ msgid "Document Portal"
 msgstr "Portail Document"
 
 #: templates/documents/portal.html:7
-#: templates/documents/templatetags/block_documents.html:10
+#: templates/documents/templatetags/block_documents.html:8
 msgid "List of documents"
 msgstr "Liste des documents"
 
-#: templates/documents/view_document.html:9
+#: templates/documents/view_document.html:7
 #, python-format
 msgid "Download '%(object)s'"
 msgstr "Télécharger '%(object)s'"
 
-#: templates/documents/view_document.html:9
+#: templates/documents/view_document.html:7
 msgid "Download"
 msgstr "Télécharger"
 
@@ -179,20 +170,20 @@ msgstr "%s Document contenu"
 msgid "%s Contained Documents"
 msgstr "%s Documents contenus"
 
-#: templates/documents/templatetags/block_documents.html:18
+#: templates/documents/templatetags/block_documents.html:15
 #: templates/documents/templatetags/block_linked_docs.html:27
 msgid "Name"
 msgstr "Nom"
 
-#: templates/documents/templatetags/block_documents.html:19
+#: templates/documents/templatetags/block_documents.html:16
 msgid "Actions"
 msgstr "Actions"
 
-#: templates/documents/templatetags/block_documents.html:29
+#: templates/documents/templatetags/block_documents.html:26
 msgid "Can't edit"
 msgstr "Modification interdite"
 
-#: templates/documents/templatetags/block_documents.html:39
+#: templates/documents/templatetags/block_documents.html:36
 msgid "No document in this folder for the moment"
 msgstr "Pas de document dans le classeur pour le moment"
 
@@ -234,6 +225,15 @@ msgstr "Nombre de document(s)"
 #: views/portal.py:33
 msgid "Number of folders"
 msgstr "Nombre de classeur(s)"
+
+#~ msgid "Folder - Title"
+#~ msgstr "Classeur - Titre"
+
+#~ msgid "Category - Name"
+#~ msgstr "Nom de la catégorie"
+
+#~ msgid "Portal"
+#~ msgstr "Portail"
 
 #~ msgid "is the current document of"
 #~ msgstr "est le document courant de"

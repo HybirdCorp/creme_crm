@@ -66,6 +66,9 @@ class CreateEntityEmailFromEmail(CreateFromEmailBackend):
         if not self.authorize_senders(email.senders):
             return
 
+        if self.is_sandbox_by_user:
+            current_user = self.get_owner(sender=email.senders[0])
+
         current_user_id = current_user.id
         folder_cat, is_cat_created = FolderCategory.objects.get_or_create(pk=DOCUMENTS_FROM_EMAILS)
         folder, is_fold_created = Folder.objects.get_or_create(title=_(u"%(username)s's files received by email") % {'username': current_user.username},
@@ -107,7 +110,8 @@ class CreateEntityEmailFromEmail(CreateFromEmailBackend):
         history = History.objects.create(
             entity = mail,
             type = self.type,
-            description = _(u"Creation of %(entity)s") % {'entity': mail}
+            description = _(u"Creation of %(entity)s") % {'entity': mail},
+            user = current_user
         )
 
 

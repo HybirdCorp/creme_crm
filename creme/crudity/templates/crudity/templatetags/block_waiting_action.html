@@ -7,7 +7,7 @@
         <thead>
             <tr>
                 <th colspan="{{colspan}}">
-                    {% blocktrans count page.paginator.count as counter with waiting_ct.name as ct_name with waiting_type|get_crud_type_verbose as type %}{{counter}} Waiting action - {{ct_name}} - {{type}}{% plural %}{{counter}} Waiting actions - {{ct_name}} - {{type}}{% endblocktrans %}
+                    {% blocktrans count counter=page.paginator.count with waiting_ct.name as ct_name and waiting_type|get_crud_type_verbose as type %}{{counter}} Waiting action - {{ct_name}} - {{type}}{% plural %}{{counter}} Waiting actions - {{ct_name}} - {{type}}{% endblocktrans %}
                 </th>
             </tr>
         </thead>
@@ -57,7 +57,7 @@
                 {% endfor %}
             {% else %}
                 <tr>
-                    <td class="block_line_dark">{% blocktrans with waiting_type|get_crud_type_verbose as type with waiting_ct.name as ct_name %}No waiting action for {{type}} {{ct_name}}{% endblocktrans %}</td>
+                    <td class="block_line_dark">{% blocktrans with type=waiting_type|get_crud_type_verbose ct_name=waiting_ct.name %}No waiting action for {{type}} {{ct_name}}{% endblocktrans %}</td>
                 </tr>
             {% endif %}
         </tbody>

@@ -31,11 +31,11 @@ creme_registry.register_entity_models(Document, Folder)
 creme_registry.register_app('documents', _(u'Documents'), '/documents')
 
 reg_item = creme_menu.register_app('documents', '/documents/').register_item
-reg_item('/documents/',             _(u'Portal'),        'documents')
-reg_item('/documents/documents',    _(u'All documents'), 'documents')
-reg_item('/documents/document/add', _('Add a document'), 'documents.add_document')
-reg_item('/documents/folders',      _(u'All folders'),   'documents')
-reg_item('/documents/folder/add',   _('Add a folder'),   'documents.add_folder')
+reg_item('/documents/',             _(u'Portal of documents'), 'documents')
+reg_item('/documents/documents',    _(u'All documents'),       'documents')
+reg_item('/documents/document/add', _('Add a document'),       'documents.add_document')
+reg_item('/documents/folders',      _(u'All folders'),         'documents')
+reg_item('/documents/folder/add',   _('Add a folder'),         'documents.add_folder')
 
 block_registry.register(folder_docs_block, linked_docs_block)
 

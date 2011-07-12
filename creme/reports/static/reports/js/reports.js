@@ -231,6 +231,14 @@ creme.reports.link_related_report = function(report_id, field_id, block_url) {
     creme.utils.innerPopupNReload('/reports/report/'+report_id+'/field/'+field_id+'/link_related_report', block_url);
 }
 
+creme.reports.getContentTypeForPredicate = function(predicate, success_cb, error_cb) {
+    creme.ajax.json.get('/creme_core/relation/predicate/' + predicate + '/content_types/json',
+            {
+                fields:['id', 'unicode'],
+                sort:'name'
+            }, success_cb, error_cb);
+}
+
 creme.reports.link_relation_report = function(report_id, field_id, predicate, block_url) {
     var success_cb = function(data, textStatus, req) {
         var $select = $('<select />');
@@ -255,7 +263,7 @@ creme.reports.link_relation_report = function(report_id, field_id, predicate, bl
 
     }
 
-    creme.forms.RelationSelector.contentTypeRequest(predicate, success_cb, error_cb);
+    creme.reports.getContentTypeForPredicate(predicate, success_cb, error_cb);
 }
 
 creme.reports.changeOrder = function(report_id, field_id, direction, block_url) {

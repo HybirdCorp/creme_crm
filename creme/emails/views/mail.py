@@ -21,9 +21,10 @@
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _, ugettext
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
+from creme_core.models.entity import CremeEntity
 
 from creme_core.views import generic
 from creme_core.utils import jsonify, get_from_POST_or_404
@@ -81,22 +82,26 @@ def synchronisation(request):
                             }
                        )
 
-def _retrieve_emails_ids(request):
-    return request.POST.getlist('ids')
-
-def _set_email_status(id, status):
-    email = get_object_or_404(EntityEmail, pk=id)
-    email.status = status
-    email.save()
-
-#TODO: use the update() method of querysets ??
-def _set_emails_status(request, status):
-    for id in _retrieve_emails_ids(request):
-        _set_email_status(id, status)
-
 def set_emails_status(request, status):
-    _set_emails_status(request, status)
-    return HttpResponse()
+    user = request.user
+    errors = []
+    emails = EntityEmail.objects.filter(id__in=request.POST.getlist('ids'))
+    CremeEntity.populate_credentials(emails, user)
+
+    for email in emails:
+        if not email.can_change(user):
+            errors.append(ugettext(u'You are not allowed to edit this entity: %s') % email.allowed_unicode(user))
+        else:
+            email.status = status
+            email.save()
+    if errors:
+        message = ",".join(errors)
+        status  = 400
+    else:
+        status = 200
+        message = _(u"Operation successfully completed")
+
+    return HttpResponse(message, mimetype="text/javascript", status=status)
 
 #Commented 1 march 2011
 #@login_required
@@ -115,19 +120,16 @@ def set_emails_status(request, status):
 @login_required
 @permission_required('emails')
 def spam(request):
-    #TODO: There no verifications because email is not a CremeEntity!!!
     return set_emails_status(request, MAIL_STATUS_SYNCHRONIZED_SPAM)
 
 @login_required
 @permission_required('emails')
 def validated(request):
-    #TODO: There no verifications because email is not a CremeEntity!!!
     return set_emails_status(request, MAIL_STATUS_SYNCHRONIZED)
 
 @login_required
 @permission_required('emails')
 def waiting(request):
-    #TODO: There no verifications because email is not a CremeEntity!!!
     return set_emails_status(request, MAIL_STATUS_SYNCHRONIZED_WAITING)
 
 @jsonify
@@ -183,3 +185,11 @@ def resend_mails(request):
 @permission_required('emails')
 def popupview(request, mail_id):
     return generic.view_real_entity(request, mail_id, '/emails/mail', 'emails/view_entity_mail_popup.html')
+
+@login_required
+@permission_required('emails')
+def get_entity_mail_body(request, entity_id):
+    """Used to show an html document in an iframe """
+    email = get_object_or_404(EntityEmail, pk=entity_id)
+    email.can_view_or_die(request.user)
+    return HttpResponse(email.get_body())

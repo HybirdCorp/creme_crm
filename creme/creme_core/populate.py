@@ -37,8 +37,6 @@ class Populator(BasePopulator):
 
         CremePropertyType.create(PROP_IS_MANAGED_BY_CREME, _(u'managed by Creme'))
 
-        RelationType.create((REL_SUB_RELATED_TO, _(u'related to')),
-                            (REL_OBJ_RELATED_TO, _(u'related to')))
         RelationType.create((REL_SUB_HAS,        _(u'owns')),
                             (REL_OBJ_HAS,        _(u'belongs to')))
 
