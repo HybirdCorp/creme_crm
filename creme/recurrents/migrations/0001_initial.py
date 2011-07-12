@@ -6,8 +6,12 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    depends_on = (
+        ("creme_core", "0001_initial"),
+    )
+
     def forwards(self, orm):
-        
+
         # Adding model 'Periodicity'
         db.create_table('recurrents_periodicity', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -33,7 +37,7 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        
+
         # Deleting model 'Periodicity'
         db.delete_table('recurrents_periodicity')
 

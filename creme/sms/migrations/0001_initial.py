@@ -6,8 +6,12 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    depends_on = (
+        ("creme_core", "0001_initial"),
+    )
+
     def forwards(self, orm):
-        
+
         # Adding model 'MessagingList'
         db.create_table('sms_messaginglist', (
             ('cremeentity_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['creme_core.CremeEntity'], unique=True, primary_key=True)),
@@ -86,7 +90,7 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        
+
         # Deleting model 'MessagingList'
         db.delete_table('sms_messaginglist')
 

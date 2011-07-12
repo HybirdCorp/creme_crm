@@ -6,8 +6,12 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    depends_on = (
+        ("creme_core", "0001_initial"),
+    )
+
     def forwards(self, orm):
-        
+
         # Adding model 'WaitingAction'
         db.create_table('crudity_waitingaction', (
             ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
@@ -30,7 +34,7 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        
+
         # Deleting model 'WaitingAction'
         db.delete_table('crudity_waitingaction')
 
