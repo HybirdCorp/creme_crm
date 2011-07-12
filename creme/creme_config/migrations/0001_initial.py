@@ -6,8 +6,12 @@ from django.db import models
 
 class Migration(SchemaMigration):
 
+    depends_on = (
+        ("creme_core", "0001_initial"),
+    )
+
     def forwards(self, orm):
-        
+
         # Adding model 'SettingKey'
         db.create_table('creme_config_settingkey', (
             ('id', self.gf('django.db.models.fields.CharField')(max_length=100, primary_key=True)),
@@ -29,7 +33,7 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        
+
         # Deleting model 'SettingKey'
         db.delete_table('creme_config_settingkey')
 
