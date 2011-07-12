@@ -36,4 +36,4 @@ def set_global_info(key, value):
     _globals[currentThread()] = {key: value}
 
 def clear_global_info():
-    del _globals[currentThread()]
+    _globals.pop(currentThread(), None)#Don't use del _globals[currentThread()], it causes problems with dev server.

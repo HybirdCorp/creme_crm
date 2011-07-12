@@ -32,10 +32,10 @@ creme.emails.mass_action = function(url, selector, block_url, complete_cb) {
                                     creme.utils.showDialog(gettext("Process done"));
                                 },
                                complete:function(req, st){
+                                   if(block_url && typeof(block_url) != "undefined") {
+                                        creme.utils.loadBlock(block_url);
+                                   }
                                    if(st!='error') {
-                                       if(block_url && typeof(block_url) != "undefined") {
-                                            creme.utils.loadBlock(block_url);
-                                       }
                                        if(complete_cb && $.isFunction(complete_cb)) {
                                            complete_cb();
                                        }

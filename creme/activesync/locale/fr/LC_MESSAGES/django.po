@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-21 10:52+0200\n"
+"POT-Creation-Date: 2011-07-11 15:50+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,7 +24,7 @@ msgstr ""
 msgid "Mobile synchronization"
 msgstr "Synchronisation mobile"
 
-#: blocks.py:45 forms/user_settings.py:64
+#: blocks.py:45 forms/user_settings.py:65
 msgid "Undefined"
 msgstr "Non-défini"
 
@@ -35,10 +35,6 @@ msgstr "Configuration par défaut"
 #: blocks.py:128
 msgid "User synchronization history"
 msgstr "Historique de la synchronisation de l'utilisateur"
-
-#: contacts.py:132
-msgid "Contact's organisation created"
-msgstr "Organisation d'un contact créée"
 
 #: creme_core_register.py:35
 msgid "Contact synchronisation"
@@ -84,29 +80,29 @@ msgstr "Il semble qu'il n'y ait pas de connection internet"
 msgid "Wrong configuration (wrong server url?)"
 msgstr "Mauvaise configuration (url du serveur erronée?)"
 
-#: errors.py:52
+#: errors.py:53
 msgid "You haven't the right to create contacts in Creme"
 msgstr "Vous n'avez pas le droit de créer des contacts dans Crème"
 
-#: errors.py:53
+#: errors.py:54
 #, python-format
 msgid "You haven't the right to create contact <%s> in Creme"
 msgstr "Vous n'avez pas le droit de créer le contact <%s> dans Crème"
 
-#: errors.py:54
+#: errors.py:55
 msgid "You haven't the right to change contacts in Creme"
 msgstr "Vous n'avez pas le droit d'éditer des contacts dans Crème"
 
-#: errors.py:55
+#: errors.py:56
 #, python-format
 msgid "You haven't the right to change the contact <%s> in Creme"
 msgstr "Vous n'avez pas le droit d'éditer le contact <%s> dans Crème"
 
-#: errors.py:56
+#: errors.py:57
 msgid "You haven't the right to delete contacts in Creme"
 msgstr "Vous n'avez pas le droit d'effacer des contacts dans Crème"
 
-#: errors.py:57
+#: errors.py:58
 #, python-format
 msgid "You haven't the right to delete the contact <%s> in Creme"
 msgstr "Vous n'avez pas le droit d'effacer le contact <%s> dans Crème"
@@ -129,141 +125,163 @@ msgid_plural "Successes"
 msgstr[0] "Succès"
 msgstr[1] "Succès"
 
-#: sync.py:298
+#: sync.py:290
 msgid "There is a server error, please try again later..."
 msgstr "Il y a une erreur sur le serveur, veuillez essayer plus tard..."
 
-#: commands/airsync.py:101
+#: commands/airsync.py:134
 #, python-format
 msgid "There was an error during synchronization phase. Error code : %s"
 msgstr ""
 "Il y a eu une erreur pendant la phase de synchronisation. Code erreur : %s"
 
-#: commands/airsync.py:120 commands/airsync.py:149 commands/airsync.py:331
+#: commands/airsync.py:153 commands/airsync.py:182 commands/airsync.py:363
 msgid "There was an error during synchronization phase. Try again later."
 msgstr ""
 "Il y a eu une erreur pendant la phase de synchronisation. Essayez plus tard."
 
-#: commands/airsync.py:163
+#: commands/airsync.py:194
 #, python-format
-msgid "There is %s new items from the server"
-msgstr "%s éléments ont été créés par rapport au serveur"
+msgid "There is %(count)s new %(model)s from the server"
+msgstr "Il y a %(count)s nouveau(x) %(model)s venant du serveur"
 
-#: commands/airsync.py:164
+#: commands/airsync.py:195
 #, python-format
-msgid "There is %s changed items from the server"
-msgstr "%s éléments ont été modifiés par rapport au serveur"
+msgid "There is %(count)s changed %(model)s from the server"
+msgstr "%(count)s %(model)s ont été modifiés par rapport au serveur"
 
-#: commands/airsync.py:165
+#: commands/airsync.py:196
 #, python-format
-msgid "There is %s deleted items from the server"
-msgstr "%s éléments ont été effacés par rapport au serveur"
+msgid "There is %(count)s deleted %(model)s from the server"
+msgstr "%(count)s %(model)s ont été effacés par rapport au serveur"
 
-#: commands/airsync.py:191
+#: commands/airsync.py:224
 #, python-format
 msgid "Successfully created %s"
 msgstr "%s créé avec succès"
 
-#: commands/airsync.py:243
+#: commands/airsync.py:277
 #, python-format
-msgid "Successfully updated %(contact)s"
-msgstr "%(contact)s mis à jour avec succès"
+msgid "Successfully updated %(entity)s"
+msgstr "%(entity)s mis à jour avec succès"
 
-#: commands/airsync.py:269
-msgid ""
-"The server deletes the contact but Creme modified it, so it will be synced "
-"at the next synchronization."
-msgstr ""
-
-#: commands/airsync.py:275
+#: commands/airsync.py:303
 #, python-format
 msgid ""
-"%s. For keeping a consistent state between Creme and the server, this "
-"contact have be added again on the server. If you want to avoid this, delete "
-"the contact in Creme and synchronize again."
+"The server deletes the %s but Creme modified it, so it will be synced at the "
+"next synchronization."
 msgstr ""
-"%s. Pour maintenir un état cohérent entre Creme et le serveur, ce contact "
-"a été ajouté de nouveau sur le serveur. Si vous voulez "
-"éviter cela, supprimez le contact dans Creme avant la prochaine synchronisation."
+"Le serveur avait effacé %s alors que Crème l'a modifié, il sera donc re-"
+"synchronisé lors de la prochaine synchronisation."
 
-#: commands/airsync.py:278
+#: commands/airsync.py:309
+#, python-format
+msgid ""
+"%(error)s. For keeping a consistent state between Creme and the server, this "
+"%(model_verbose)s have be added again on the server. If you want to avoid "
+"this, delete the %(model_verbose)s in Creme and synchronize again."
+msgstr ""
+"%(error)s. Pour maintenir un état cohérent entre Creme et le serveur, ce "
+"%(model_verbose)s a été ajouté de nouveau sur le serveur. Si vous voulez "
+"éviter cela, supprimez le %(model_verbose)s dans Creme avant la prochaine "
+"synchronisation."
+
+#: commands/airsync.py:312
 #, python-format
 msgid "Successfully deleted %s"
 msgstr "%s effacé avec succès"
 
-#: commands/airsync.py:301
+#: commands/airsync.py:333
 #, python-format
 msgid "There was an error during synchronization phase. Try again later. (%s)"
 msgstr ""
 "Il y a eu une erreur pendant la phase de synchronisation. Essayez plus tard. "
 "(%s)"
 
-#: commands/airsync.py:374
+#: commands/airsync.py:401
+#, python-format
+msgid ""
+"The server has denied to add <%s>. (It happens for example for activities "
+"which are on a read-only calendar)"
+msgstr ""
+"Le serveur a refusé l'ajout de <%s>. (Cela arrive, par exemple, pour des "
+"activités qui sont destinées à un calendrier en lecture seule)."
+
+#: commands/airsync.py:440
+#, python-format
+msgid ""
+"The server has denied changes on <%s>. (It happens for example for "
+"activities which are on a read-only calendar)"
+msgstr ""
+"Le serveur a refusé les modifications de <%s>. (Cela arrive, par exemple, "
+"pour des activités qui sont destinées à un calendrier en lecture seule)."
+
+#: commands/airsync.py:464
 #, python-format
 msgid "Adding %s on the server"
 msgstr "Ajout de %s sur le serveur"
 
-#: commands/airsync.py:378
+#: commands/airsync.py:469
 #, python-format
 msgid ""
-"The contact <%s> was not added on the server because you haven't the right "
-"to view it"
+"The entity <%s> was not added on the server because you haven't the right to "
+"view it"
 msgstr ""
-"Le contact <%s> n'a pas été ajouté sur le serveur car vous n'avez pas le "
-"droit de le voir"
+"L'entité <%s> n'a pas été ajouté sur le serveur car vous n'avez pas le droit "
+"de le voir"
 
-#: commands/airsync.py:404
+#: commands/airsync.py:494
 #, python-format
 msgid "Sending changes of %s on the server"
 msgstr "Envoi des changements de %s sur le serveur"
 
-#: commands/airsync.py:408
+#: commands/airsync.py:498
 #, python-format
 msgid ""
-"The contact <%s> was not updated on the server because you haven't the right "
+"The entity <%s> was not updated on the server because you haven't the right "
 "to view it"
 msgstr ""
-"Le contact <%s> n'a pas été mis à jour sur le serveur car vous n'avez pas le "
+"L'entité <%s> n'a pas été mis à jour sur le serveur car vous n'avez pas le "
 "droit de le voir"
 
-#: commands/airsync.py:432
+#: commands/airsync.py:520
 #, python-format
 msgid "Deleting %s on the server"
 msgstr "Effacement de %s sur le serveur"
 
-#: forms/mobile_sync.py:33 forms/user_settings.py:44
+#: forms/mobile_sync.py:33 forms/user_settings.py:45
 msgid "Server url examples"
 msgstr "Exemples d'url de serveurs"
 
-#: forms/mobile_sync.py:33 forms/user_settings.py:44
+#: forms/mobile_sync.py:33 forms/user_settings.py:45
 msgid "Some common configurations"
 msgstr "Configurations communes"
 
-#: forms/mobile_sync.py:34 forms/user_settings.py:45
+#: forms/mobile_sync.py:34 forms/user_settings.py:46
 #: templates/activesync/frags/ajax/main_sync.html:30
 #: templates/activesync/templatetags/block_mobile_sync_config.html:20
 #: templates/activesync/templatetags/block_user_mobile_sync.html:19
 msgid "Server url"
 msgstr "Url du serveur"
 
-#: forms/mobile_sync.py:35 forms/user_settings.py:46
+#: forms/mobile_sync.py:35 forms/user_settings.py:47
 #: templates/activesync/frags/ajax/main_sync.html:38
 #: templates/activesync/templatetags/block_mobile_sync_config.html:24
 #: templates/activesync/templatetags/block_user_mobile_sync.html:23
 msgid "Domain"
 msgstr "Domaine"
 
-#: forms/mobile_sync.py:36 forms/user_settings.py:47
+#: forms/mobile_sync.py:36 forms/user_settings.py:48
 #: templates/activesync/templatetags/block_mobile_sync_config.html:28
 #: templates/activesync/templatetags/block_user_mobile_sync.html:27
 msgid "Is secure"
 msgstr "Est sécurisé"
 
-#: forms/user_settings.py:43
+#: forms/user_settings.py:44
 msgid "NB"
 msgstr "N.B."
 
-#: forms/user_settings.py:43
+#: forms/user_settings.py:44
 msgid ""
 "Note that if you change your server url or your login, synchronization will "
 "be reset. You will not loose all your synchronized contacts but there will "
@@ -274,75 +292,79 @@ msgstr ""
 "contacts synchronisés mais ils seront de nouveau ajoutés sur votre 'nouveau' "
 "compte à la prochaine synchronisation."
 
-#: forms/user_settings.py:45 forms/user_settings.py:46
+#: forms/user_settings.py:46 forms/user_settings.py:47
 #, python-format
 msgid "Let empty to get the default configuration (currently '%s')."
 msgstr ""
 "Laissez vide pour obtenir la configuration par défaut actuellement (%s)."
 
-#: forms/user_settings.py:47
+#: forms/user_settings.py:48
 #, python-format
 msgid "Let default to get the default configuration  (currently '%s')."
 msgstr "Laissez pour obtenir la configuration par défaut (actuellement '%s')"
 
-#: forms/user_settings.py:47
+#: forms/user_settings.py:48
 msgid "Default"
 msgstr "Défaut"
 
-#: forms/user_settings.py:47 forms/user_settings.py:102
+#: forms/user_settings.py:48 forms/user_settings.py:103
 msgid "Yes"
 msgstr "Oui"
 
-#: forms/user_settings.py:47 forms/user_settings.py:102
+#: forms/user_settings.py:48 forms/user_settings.py:103
 msgid "No"
 msgstr "Non"
 
-#: forms/user_settings.py:48 templates/activesync/frags/ajax/main_sync.html:34
+#: forms/user_settings.py:49 templates/activesync/frags/ajax/main_sync.html:34
 msgid "Login"
 msgstr "Nom d'utilisateur"
 
-#: forms/user_settings.py:49
+#: forms/user_settings.py:50
 #: templates/activesync/templatetags/block_user_mobile_sync.html:35
 msgid "Password"
 msgstr "Mot de passe"
 
-#: forms/user_settings.py:52
+#: forms/user_settings.py:53
 msgid "Mobile synchronization configuration"
 msgstr "Configuration de synchronisation mobile"
 
-#: models/active_sync.py:48
+#: mappings/contact.py:130
+msgid "Contact's organisation created"
+msgstr "Organisation d'un contact créée"
+
+#: models/active_sync.py:51
 msgid "Creation"
 msgstr "Création"
 
-#: models/active_sync.py:49
+#: models/active_sync.py:52
 msgid "Update"
 msgstr "Mise à jour"
 
-#: models/active_sync.py:50
+#: models/active_sync.py:53
 msgid "Deletion"
 msgstr "Effacement"
 
-#: models/active_sync.py:56
+#: models/active_sync.py:59
 msgid "In Creme"
 msgstr "Dans Crème"
 
-#: models/active_sync.py:57
+#: models/active_sync.py:60
 msgid "On server"
 msgstr "Sur le serveur"
 
-#: models/active_sync.py:99
+#: models/active_sync.py:103
 msgid "Last sync"
 msgstr "Dernière synchronisation"
 
-#: models/active_sync.py:118 models/active_sync.py:161
+#: models/active_sync.py:123 models/active_sync.py:167
 msgid "Creation date"
 msgstr "Date de création"
 
-#: models/active_sync.py:162
+#: models/active_sync.py:168
 msgid "Entity changes"
 msgstr "Changements sur l'entité"
 
-#: models/active_sync.py:197
+#: models/active_sync.py:204
 msgid "This entity doesn't exist anymore"
 msgstr "Cette entité n'existe plus"
 
@@ -444,18 +466,22 @@ msgid "Created"
 msgstr "Date de création"
 
 #: templates/activesync/templatetags/block_user_synchronization_history.html:16
+msgid "What"
+msgstr "Quoi"
+
+#: templates/activesync/templatetags/block_user_synchronization_history.html:17
 msgid "Entity"
 msgstr "Entité"
 
-#: templates/activesync/templatetags/block_user_synchronization_history.html:17
+#: templates/activesync/templatetags/block_user_synchronization_history.html:18
 msgid "Changes"
 msgstr "Changements"
 
-#: templates/activesync/templatetags/block_user_synchronization_history.html:18
+#: templates/activesync/templatetags/block_user_synchronization_history.html:19
 msgid "Where"
 msgstr "Où"
 
-#: templates/activesync/templatetags/block_user_synchronization_history.html:43
+#: templates/activesync/templatetags/block_user_synchronization_history.html:46
 msgid "Empty history for the moment"
 msgstr "Historique vide pour le moment"
 

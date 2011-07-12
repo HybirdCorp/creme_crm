@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from tempfile import NamedTemporaryFile
+from django.contrib.auth.models import User
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext
 
-from creme_core.models import CremeEntity, RelationType, Relation, HeaderFilter
+from creme_core.models import CremeEntity, RelationType, Relation, HeaderFilter, HistoryLine
 from creme_core.tests.base import CremeTestCase
 
 from documents.models import *

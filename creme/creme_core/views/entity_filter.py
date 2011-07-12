@@ -68,7 +68,7 @@ def edit(request, efilter_id):
     allowed, msg = efilter.can_edit_or_delete(user)
 
     if not allowed:
-        raise Http404(msg)
+        raise Http404(msg)#TODO:Permission denied instead ?
 
     if request.method == 'POST':
         efilter_form = EntityFilterEditForm(user=user, data=request.POST, instance=efilter)

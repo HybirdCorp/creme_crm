@@ -26,10 +26,10 @@ from django.db.models.signals import post_save, post_init, pre_delete
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User
 
 from creme_core.models import CremeEntity, RelationType, Relation
 from creme_core.global_info import get_global_info
+from creme_core.models.fields import CremeUserForeignKey
 
 
 _get_ct = ContentType.objects.get_for_model
@@ -90,7 +90,7 @@ _PRINTERS = {
 class HistoryLine(Model):
     entity       = ForeignKey(CremeEntity, null=True, on_delete=SET_NULL)
     entity_ctype = ForeignKey(ContentType)  #we do not use entity.entity_type because we keep history of the deleted entities
-    entity_owner = ForeignKey(User)         #we do not use entity.user because we keep history of the deleted entities
+    entity_owner = CremeUserForeignKey()    #we do not use entity.user because we keep history of the deleted entities
     username     = CharField(max_length=30) #not a Fk to a User object because we want to keep the same line after the deletion of a User.
     date         = DateTimeField()
     type         = PositiveSmallIntegerField() #see TYPE_*

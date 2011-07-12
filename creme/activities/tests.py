@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import RelationType, Relation, SetCredentials
-from creme_core.constants import REL_SUB_RELATED_TO
+from creme_core.constants import REL_SUB_HAS
 from creme_core.tests.base import CremeTestCase
 from creme_core.utils import create_or_update
 
@@ -560,7 +560,7 @@ class ActivitiesTestCase(CremeTestCase):
         r1 = create_rel(subject_entity=contact, type_id=REL_SUB_PART_2_ACTIVITY,   object_entity=activity, user=self.user)
         r2 = create_rel(subject_entity=contact, type_id=REL_SUB_ACTIVITY_SUBJECT,  object_entity=activity, user=self.user)
         r3 = create_rel(subject_entity=contact, type_id=REL_SUB_LINKED_2_ACTIVITY, object_entity=activity, user=self.user)
-        r4 = create_rel(subject_entity=contact, type_id=REL_SUB_RELATED_TO,        object_entity=activity, user=self.user)
+        r4 = create_rel(subject_entity=contact, type_id=REL_SUB_HAS,               object_entity=activity, user=self.user)
         self.assertEqual(3, contact.relations.filter(pk__in=[r1.id, r2.id, r3.id]).count())
 
         post = self.client.post

@@ -528,6 +528,7 @@ class UserTestCase(CremeTestCase):
 
     def test_user_delete01(self):
         CremeEntity.objects.all().delete()#In creme_core populate some entities are created, so we avoid an IntegrityError
+        HistoryLine.objects.all().delete()
         User.objects.all().exclude(pk=self.user.pk).delete()#Ensure there is only one user
 
         self.assertEqual(1, User.objects.all().count())
@@ -725,7 +726,7 @@ class RelationTypeTestCase(CremeTestCase):
     def test_create01(self):
         url = '/creme_config/relation_type/add/'
         self.assertEqual(200, self.client.get(url).status_code)
-        rel_type_core_populate_count = 4
+        rel_type_core_populate_count = 2
 
         self.assertEqual(rel_type_core_populate_count, RelationType.objects.count())#4 from creme_core populate
 
@@ -772,7 +773,7 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        rel_type = RelationType.objects.all()[4]
+        rel_type = RelationType.objects.all()[2]
         self.assertEqual([ct_orga.id],    [ct.id for ct in rel_type.subject_ctypes.all()])
         self.assertEqual([ct_contact.id], [ct.id for ct in rel_type.object_ctypes.all()])
         self.assertEqual([pt_sub.id],     [pt.id for pt in rel_type.subject_properties.all()])

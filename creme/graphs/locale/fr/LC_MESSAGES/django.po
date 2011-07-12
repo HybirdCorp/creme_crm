@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-16 11:01+0200\n"
+"POT-Creation-Date: 2011-07-11 16:04+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,29 +24,25 @@ msgstr "Nœuds racines d'un graphe"
 msgid "Peripheral types of relation of a graph"
 msgstr "Types de relation périphériques d'un graphe"
 
-#: creme_core_register.py:31 models/graph.py:40
+#: creme_core_register.py:30 models/graph.py:40
 msgid "Graphs"
 msgstr "Graphes"
 
-#: creme_core_register.py:35
-msgid "Portal"
-msgstr "Portail"
+#: creme_core_register.py:34
+msgid "Portal of graphs"
+msgstr "Portail des graphes"
 
-#: creme_core_register.py:36
+#: creme_core_register.py:35
 msgid "All graphs"
 msgstr "Liste des graphes"
 
-#: creme_core_register.py:37
+#: creme_core_register.py:36
 msgid "Add a graph"
 msgstr "Ajouter un graphe"
 
-#: populate.py:35
+#: populate.py:33
 msgid "Graph view"
 msgstr "Vue de Graphe"
-
-#: populate.py:37
-msgid "Name"
-msgstr "Nom"
 
 #: forms/graph.py:38 models/graph.py:32
 msgid "Types of the peripheral relations"
@@ -65,7 +61,6 @@ msgid "Name of the graph"
 msgstr "Nom du graphe"
 
 #: models/graph.py:39 templates/graphs/portal.html:4
-#: templates/graphs/view_graph.html:6
 msgid "Graph"
 msgstr "Graphe"
 
@@ -77,12 +72,12 @@ msgstr "Portail Graphes"
 msgid "List of Graphs"
 msgstr "Liste des Graphes"
 
-#: templates/graphs/view_graph.html:17
+#: templates/graphs/view_graph.html:15
 #, python-format
 msgid "Download '%(object)s' as PNG file"
 msgstr "Télécharger '%(object)s' sous forme de fichier PNG"
 
-#: templates/graphs/view_graph.html:17
+#: templates/graphs/view_graph.html:15
 msgid "Download PNG"
 msgstr "Télécharger PNG"
 
@@ -176,6 +171,12 @@ msgstr "Ajouter des nœuds racines à <%s>"
 #, python-format
 msgid "Edit root node for <%s>"
 msgstr "Éditer le nœud racine pour <%s>"
+
+#~ msgid "Name"
+#~ msgstr "Nom"
+
+#~ msgid "Portal"
+#~ msgstr "Portail"
 
 #~ msgid "Add root nodes"
 #~ msgstr "Ajouter des nœuds racines"

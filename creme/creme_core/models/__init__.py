@@ -10,8 +10,6 @@ from custom_field import *
 from header_filter import HeaderFilter, HeaderFilterItem
 from entity_filter import EntityFilter, EntityFilterCondition
 
-from auth import EntityCredentials, UserRole, SetCredentials, UserProfile, TeamM2M
-
 from lock import Mutex
 
 from i18n import Language
@@ -24,3 +22,5 @@ from reminder import DateReminder
 
 from history import HistoryLine, HistoryConfigItem
 from search import SearchField, SearchConfigItem
+
+from auth import EntityCredentials, UserRole, SetCredentials, UserProfile, TeamM2M

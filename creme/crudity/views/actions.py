@@ -17,11 +17,13 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from django.core.exceptions import PermissionDenied
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.template.context import RequestContext
+from django.utils.translation import ugettext as _
 
 from creme_core.utils import get_ct_or_404, jsonify
 
@@ -35,17 +37,36 @@ def _retrieve_actions_ids(request):
 @login_required
 @permission_required('crudity')
 def delete(request):
-    for id in _retrieve_actions_ids(request):
-        action = get_object_or_404(WaitingAction, pk=id)
-        action.delete()
+    actions_ids = _retrieve_actions_ids(request)
+    user = request.user
+    errors = []
 
-    return HttpResponse()
+    for action in WaitingAction.objects.filter(id__in=actions_ids):
+        allowed, message = action.can_validate_or_delete(user)
+        if allowed:
+            action.delete()
+        else:
+            errors.append(message)
+
+    if not errors:
+        status = 200
+        message = _(u"Operation successfully completed")
+    else:
+        status = 400
+        message = ",".join(errors)
+
+    return HttpResponse(message, mimetype="text/javascript", status=status)
 
 @jsonify
 @permission_required('crudity')
 def validate(request):
     for id in _retrieve_actions_ids(request):
         action = get_object_or_404(WaitingAction, pk=id)
+        allowed, message = action.can_validate_or_delete(request.user)
+
+        if not allowed:
+            raise PermissionDenied(message)
+
         be = from_email_crud_registry.get(action.type, action.be_name)
 
         is_created = True

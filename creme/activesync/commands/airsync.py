@@ -136,7 +136,7 @@ class AirSync(Base):
 
             collection = xml.find('%(ns0)sCollections/%(ns0)sCollection' % d_ns)
             collection_find = collection.find
-            
+
             self.last_synckey = folder.sync_key = collection_find('%(ns0)sSyncKey' % d_ns).text
             self.status       = collection_find('%(ns0)sStatus' % d_ns).text
 #            server_id         = collection_find('%(ns0)sCollectionId' % d_ns).text
@@ -191,9 +191,9 @@ class AirSync(Base):
             delete_nodes  = commands_node.findall('%(ns0)sDelete' % d_ns) if commands_node else []
 
             #TODO: Singular / Plural
-            self.add_info_message(_(u"There is %s new %s from the server")     % (len(add_nodes),    creme_model_verbose_name))
-            self.add_info_message(_(u"There is %s changed %s from the server") % (len(change_nodes), creme_model_verbose_name))
-            self.add_info_message(_(u"There is %s deleted %s from the server") % (len(delete_nodes), creme_model_verbose_name))
+            self.add_info_message(_(u"There is %(count)s new %(model)s from the server")     % {'count': len(add_nodes),    'model': creme_model_verbose_name})
+            self.add_info_message(_(u"There is %(count)s changed %(model)s from the server") % {'count': len(change_nodes), 'model': creme_model_verbose_name})
+            self.add_info_message(_(u"There is %(count)s deleted %(model)s from the server") % {'count': len(delete_nodes), 'model': creme_model_verbose_name})
 
             save_entity = creme_model_AS_values['save']
 
@@ -237,7 +237,7 @@ class AirSync(Base):
             for change_node in change_nodes:
                 c_server_id = change_node.find('%(ns0)sServerId' % d_ns).text
                 entity     = None
-                
+
                 try:
                     entity_mapping = exch_map_manager_get(exchange_entity_id=c_server_id, user=user)
                     entity = entity_mapping.get_entity()
@@ -438,15 +438,15 @@ class AirSync(Base):
                 ### Error messages
                 for unchanged_entity in unchanged_entities:
                     add_error_message(_(u"The server has denied changes on <%s>. (It happens for example for activities which are on a read-only calendar)") % (unchanged_entity))
-                
+
             ## Delete part
             ### We delete the mapping for deleted entities
             ### TODO: Verify the status ?
             CremeExchangeMapping.objects.filter(was_deleted=True, user=user, creme_entity_ct=ct_creme_model).delete()
 
 
-                
-            
+
+
 def add_object(o, serializer):
     return "<Add><ClientId>%s</ClientId><ApplicationData>%s</ApplicationData></Add>" % (o.id, serializer(o))
 
@@ -519,7 +519,7 @@ def get_deleted_objects(user, airsync_cmd, creme_model):
             add_history_delete_on_server((entity_repr, ct))
             add_info_message(_(u"Deleting %s on the server") % entity_repr)
         objects_append(delete_object(server_id))
-        
+
     return objects
 
 
@@ -528,4 +528,4 @@ def get_deleted_objects(user, airsync_cmd, creme_model):
 
 
 
-        
+

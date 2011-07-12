@@ -17,12 +17,15 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-from django.core.exceptions import PermissionDenied
 
+from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.gui.block import QuerysetBlock
 
+from creme_config.models.setting import SettingValue
+
+from crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
 from crudity.models import WaitingAction, History
 
 
@@ -34,6 +37,9 @@ class CrudityQuerysetBlock(QuerysetBlock):
         if not context['user'].has_perm('crudity'):
             raise PermissionDenied(_('Error: you are not allowed to view this block: %s' % self.id_))
 
+    @property
+    def is_sandbox_by_user(self):
+        return SettingValue.objects.get(key=SETTING_CRUDITY_SANDBOX_BY_USER, user=None).value#No cache need sub-blocks are created on the fly
 
 class WaitingActionBlock(CrudityQuerysetBlock):
     dependencies  = ()
@@ -54,8 +60,14 @@ class WaitingActionBlock(CrudityQuerysetBlock):
         super(WaitingActionBlock, self).detailview_display(context)
         type = self.type
         ct   = self.ct
+
+        waiting_actions = WaitingAction.objects.filter(ct=ct, type=type)
+
+        if self.is_sandbox_by_user:
+            waiting_actions = waiting_actions.filter(user=context['user'])
+
         return self._render(self.get_block_template_context(context,
-                                                            WaitingAction.objects.filter(ct=ct, type=type),
+                                                            waiting_actions,
                                                             waiting_type=type,
                                                             waiting_ct=ct,
                                                             update_url='/crudity/waiting_actions_blocks/%s/reload' % (self.id_,),
@@ -81,8 +93,13 @@ class HistoryBlock(CrudityQuerysetBlock):
         super(HistoryBlock, self).detailview_display(context)
         type = self.type
         ct   = self.ct
+
+        histories = History.objects.filter(entity__entity_type=ct, type=type)
+        if self.is_sandbox_by_user:
+            histories = histories.filter(user=context['user'])
+
         return self._render(self.get_block_template_context(context,
-                                                            History.objects.filter(entity__entity_type=ct, type=type),
+                                                            histories,
                                                             type=type,
                                                             ct=ct,
                                                             update_url='/crudity/history_block/%s/reload' % (self.id_,),

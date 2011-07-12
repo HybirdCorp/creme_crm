@@ -40,7 +40,7 @@ from creme_core.utils.queries import get_q_from_dict
 from creme_core.utils.date_range import date_range_registry
 from creme_core.forms.widgets import (CTEntitySelector, SelectorList, RelationSelector, ListViewWidget, ListEditionWidget,
                                       CalendarWidget, TimeWidget, DateRangeWidget, ColorPickerWidget, DurationWidget)
-from creme_core.constants import REL_SUB_RELATED_TO, REL_SUB_HAS
+from creme_core.constants import REL_SUB_HAS
 
 
 __all__ = ('MultiGenericEntityField', 'GenericEntityField',
@@ -270,7 +270,7 @@ class RelationEntityField(JSONField):
         'nopropertymatch' : _(u"This entity has no property that matches relation type constraints")
     }
 
-    def __init__(self, allowed_rtypes=(REL_SUB_RELATED_TO, REL_SUB_HAS), *args, **kwargs):
+    def __init__(self, allowed_rtypes=(REL_SUB_HAS, ), *args, **kwargs):
         super(RelationEntityField, self).__init__(*args, **kwargs)
         self._allowed_rtypes = frozenset(allowed_rtypes)
         self._build_widget()
@@ -353,9 +353,9 @@ class RelationEntityField(JSONField):
         return ((model.pk, unicode(model)) for model in models)
 
     def _get_allowed_rtypes_objects(self):
-        return RelationType.objects.filter(id__in=self._allowed_rtypes) if self._allowed_rtypes else RelationType.objects.all()
+        return (RelationType.objects.filter(id__in=self._allowed_rtypes) if self._allowed_rtypes else RelationType.objects.all()).order_by('predicate')
 
-    def _set_allowed_rtypes(self, allowed=(REL_SUB_RELATED_TO, REL_SUB_HAS)):
+    def _set_allowed_rtypes(self, allowed=(REL_SUB_HAS, )):
         self._allowed_rtypes = frozenset(allowed)
         self._build_widget()
 
@@ -363,7 +363,7 @@ class RelationEntityField(JSONField):
 
 
 class MultiRelationEntityField(RelationEntityField):
-#    def __init__(self, allowed_rtypes=(REL_SUB_RELATED_TO, REL_SUB_HAS), *args, **kwargs):
+#    def __init__(self, allowed_rtypes=(REL_SUB_HAS, ), *args, **kwargs):
 #        super(MultiRelationEntityField, self).__init__(allowed_rtypes, *args, **kwargs)
 #        self.widget = SelectorList(self.widget)
 

@@ -234,9 +234,13 @@ class UserAssignationForm(CremeForm):
 
         mutex = Mutex.get_n_lock('creme_config-forms-user-transfer_user')
         CremeUserForeignKey._TRANSFER_TO_USER = target_user
-        self.user_to_delete.delete()
-        CremeUserForeignKey._TRANSFER_TO_USER = None
-        mutex.release()
+        try:
+            self.user_to_delete.delete()
+        except Exception, e:
+            raise e
+        finally:
+            CremeUserForeignKey._TRANSFER_TO_USER = None
+            mutex.release()
 
         if not self.is_team:
             target_user.update_credentials()

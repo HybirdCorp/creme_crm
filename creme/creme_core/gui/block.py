@@ -127,7 +127,7 @@ class Block(object):
 
     def _build_template_context(self, context, block_name, block_context, **extra_kwargs):
         context['block_name'] = block_name
-        context['state']      = BlocksManager.get(context).get_state(self.id_)
+        context['state']      = BlocksManager.get(context).get_state(self.id_, context['user'])
         context.update(extra_kwargs)
 
         return context
@@ -388,15 +388,15 @@ class BlocksManager(object):
     def get(context):
         return context[BlocksManager.var_name] #will raise exception if not created: OK
 
-    def get_state(self, block_id):
+    def get_state(self, block_id, user):
         """Get the state for a block and fill a cache to avoid multiple requests"""
         _state_cache = self._state_cache
         if not _state_cache:
-            _state_cache = self._state_cache = BlockState.get_for_block_ids([block.id_ for block in self._blocks])
+            _state_cache = self._state_cache = BlockState.get_for_block_ids([block.id_ for block in self._blocks], user)
 
         state = _state_cache.get(block_id)
         if state is None:
-            state = self._state_cache[block_id] = BlockState.get_for_block_id(block_id)
+            state = self._state_cache[block_id] = BlockState.get_for_block_id(block_id, user)
             debug("State not set in cache for '%s'" % block_id)
 
         return state

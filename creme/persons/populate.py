@@ -47,8 +47,10 @@ class Populator(BasePopulator):
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_EMPLOYED_BY, _(u'is an employee of'),          [Contact]),
                             (REL_OBJ_EMPLOYED_BY, _(u'employs'),                    [Organisation]))
-        RelationType.create((REL_SUB_CUSTOMER_OF, _(u'is a customer of'),           [Contact, Organisation]),
-                            (REL_OBJ_CUSTOMER_OF, _(u'has as customer'),            [Contact, Organisation]))
+
+        RelationType.create((REL_SUB_CUSTOMER_SUPPLIER, _(u'is a customer of'),           [Contact, Organisation]),
+                            (REL_OBJ_CUSTOMER_SUPPLIER, _(u'is a supplier of'),           [Contact, Organisation]))
+
         RelationType.create((REL_SUB_MANAGES,     _(u'manages'),                    [Contact]),
                             (REL_OBJ_MANAGES,     _(u'managed by'),                 [Organisation]))
         RelationType.create((REL_SUB_PROSPECT,    _(u'is a prospect of'),           [Contact, Organisation]),
@@ -57,8 +59,6 @@ class Populator(BasePopulator):
                             (REL_OBJ_SUSPECT,     _(u'has as suspect'),             [Contact, Organisation]))
         RelationType.create((REL_SUB_PARTNER,     _(u'is a partner of'),            [Contact, Organisation]),
                             (REL_OBJ_PARTNER,     _(u'has as partner'),             [Contact, Organisation]))
-        RelationType.create((REL_SUB_SUPPLIER,    _(u'is a supplier of'),           [Contact, Organisation]),
-                            (REL_OBJ_SUPPLIER,    _(u'has as supplier'),            [Contact, Organisation]))
         RelationType.create((REL_SUB_INACTIVE,    _(u'is an inactive customer of'), [Contact, Organisation]),
                             (REL_OBJ_INACTIVE,    _(u'has as inactive customer'),   [Contact, Organisation]))
         RelationType.create((REL_SUB_SUBSIDIARY,  _(u'has as subsidiary'),          [Organisation]),
@@ -110,7 +110,7 @@ class Populator(BasePopulator):
                       HeaderFilterItem.build_4_field(model=Organisation, name='phone'),
                       HeaderFilterItem.build_4_field(model=Organisation, name='email'),
                       HeaderFilterItem.build_4_field(model=Organisation, name='user__username'),
-                      HeaderFilterItem.build_4_relation(get_rtype(pk=REL_SUB_CUSTOMER_OF)),
+                      HeaderFilterItem.build_4_relation(get_rtype(pk=REL_SUB_CUSTOMER_SUPPLIER)),
                       HeaderFilterItem.build_4_relation(get_rtype(pk=REL_SUB_PROSPECT)),
                       HeaderFilterItem.build_4_relation(get_rtype(pk=REL_SUB_SUSPECT)),
                      ])
@@ -158,8 +158,8 @@ class Populator(BasePopulator):
         SearchConfigItem.create(Organisation, ['name', 'phone', 'email', 'sector__title', 'legal_form__title'])
 
         #Populate blocks
-        rbi_1 = RelationBlockItem.create(REL_SUB_CUSTOMER_OF)
-        rbi_2 = RelationBlockItem.create(REL_OBJ_CUSTOMER_OF)
+        rbi_1 = RelationBlockItem.create(REL_SUB_CUSTOMER_SUPPLIER)
+        rbi_2 = RelationBlockItem.create(REL_OBJ_CUSTOMER_SUPPLIER)
 
         if not BlockConfigItem.objects.filter(content_type=orga_ct).exists():
             blocks_2_save = [

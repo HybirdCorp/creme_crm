@@ -111,7 +111,7 @@
                     {% if not column.type and show_actions %}
                         <td title="actions" class="list_view_actions">{% get_entity_actions entity %}</td>
                     {% else %}
-                        {% comment %}<td title="" name="{{column.name}}" {% if column.is_hidden %}style="display:none;"{% endif %}>{% if column.is_hidden %}{{column|hf_get_html_output:entity|safe}}{% else %}{{column|hf_get_html_output:entity|safe|linebreaks}}{% endif %}</td>{% endcomment %}
+                        {# <td title="" name="{{column.name}}" {% if column.is_hidden %}style="display:none;"{% endif %}>{% if column.is_hidden %}{{column|hf_get_html_output:entity|safe}}{% else %}{{column|hf_get_html_output:entity|safe|linebreaks}}{% endif %}</td> #}
                         <td title="" name="{{column.name}}" {% if column.is_hidden %}style="display:none;"{% endif %}>{% get_listview_cell column entity user %}</td>
                     {% endif %}
                 {% endfor %}

@@ -36,7 +36,7 @@ creme_registry.register_entity_models(Contact, Organisation)
 creme_registry.register_app('persons', _(u'Accounts and Contacts'), '/persons')
 
 reg_item = creme_menu.register_app('persons', '/persons/').register_item
-reg_item('/persons/',                 _(u'Portal'),                              'persons')
+reg_item('/persons/',                 _(u'Portal of accounts and contacts'),     'persons')
 reg_item('/persons/contacts',         _(u'All contacts'),                        'persons')
 reg_item('/persons/leads_customers',  _(u'My customers / prospects / suspects'), 'persons')
 reg_item('/persons/contact/add',      _(u'Add a contact'),                       'persons.add_contact')

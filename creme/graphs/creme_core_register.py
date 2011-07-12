@@ -31,9 +31,9 @@ creme_registry.register_app('graphs', _(u'Graphs'), '/graphs')
 creme_registry.register_entity_models(Graph)
 
 reg_item = creme_menu.register_app('graphs', '/graphs/').register_item
-reg_item('/graphs/',           _(u'Portal'),      'graphs')
-reg_item('/graphs/graphs',     _(u'All graphs'),  'graphs')
-reg_item('/graphs/graph/add',  _(u'Add a graph'), 'graphs.add_graph')
+reg_item('/graphs/',           _(u'Portal of graphs'), 'graphs')
+reg_item('/graphs/graphs',     _(u'All graphs'),       'graphs')
+reg_item('/graphs/graph/add',  _(u'Add a graph'),      'graphs.add_graph')
 
 block_registry.register(root_nodes_block, orbital_rtypes_block)
 

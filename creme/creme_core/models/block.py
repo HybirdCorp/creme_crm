@@ -140,7 +140,7 @@ class InstanceBlockConfigItem(CremeModel):
 
 class BlockState(CremeModel):
     user               = ForeignKey(User)
-    block_id           = CharField(_(u"Block ID"), max_length=100, unique=True)
+    block_id           = CharField(_(u"Block ID"), max_length=100)
     is_open            = BooleanField(default=True)#Is block has to appear as opened or closed
     show_empty_fields  = BooleanField(default=True)#Are empty fields in block have to be shown or not
 
@@ -148,37 +148,44 @@ class BlockState(CremeModel):
         app_label = 'creme_core'
         verbose_name = _(u'Block state')
         verbose_name_plural = _(u'Blocks states')
+        unique_together = ("user", "block_id")
 
     @staticmethod
-    def get_for_block_id(block_id):
+    def get_for_block_id(block_id, user):
         """Returns current state of a block"""
         try:
-            return BlockState.objects.get(block_id=block_id)
+            return BlockState.objects.get(block_id=block_id, user=user)
         except BlockState.DoesNotExist:
-            is_default_open = SettingValue.objects.get(key=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN).value
-            is_default_fields_displayed = SettingValue.objects.get(key=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value
-            return BlockState(block_id=block_id, is_open=is_default_open, show_empty_fields=is_default_fields_displayed)
+            states = SettingValue.objects.filter(key__in=[SETTING_BLOCK_DEFAULT_STATE_IS_OPEN, SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS])
+
+            is_default_open             = states.get(key=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN).value
+            is_default_fields_displayed = states.get(key=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value
+
+#            is_default_open = SettingValue.objects.get(key=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN).value
+#            is_default_fields_displayed = SettingValue.objects.get(key=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value
+            return BlockState(block_id=block_id, is_open=is_default_open, show_empty_fields=is_default_fields_displayed, user=user)
 
     @staticmethod
-    def get_for_block_ids(block_ids):
+    def get_for_block_ids(block_ids, user):
         """Get current states of blocks
 
             @params block_ids: a list of block ids
+            @params user: owner of a blockstate
             @returns: a dict with block_id as key and state as value
         """
         states = {}
+
         is_default_open = SettingValue.objects.get(key=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN).value
         is_default_fields_displayed = SettingValue.objects.get(key=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value#TODO: Method for get_default_states?
 
-        for state in BlockState.objects.filter(block_id__in=block_ids):
+        for state in BlockState.objects.filter(block_id__in=block_ids, user=user):
             states[state.block_id] = state
 
-        block_state = partial(BlockState, is_open=is_default_open, show_empty_fields=is_default_fields_displayed)
+        block_state = partial(BlockState, is_open=is_default_open, show_empty_fields=is_default_fields_displayed, user=user)
         for block_id in set(block_ids) - set(states.keys()):#Blocks with unset state
             states[block_id] = block_state(block_id=block_id)
 
         return states
-
 
     @property
     def classes(self):

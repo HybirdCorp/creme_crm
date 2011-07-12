@@ -12,7 +12,7 @@
 
 {% block content %}
     {% with 'images/edit_64.png' as logo %}
-    {% comment %}{% templatize "Éditer: {{object}}" as title %} TODO {% endcomment %}
+    {# {% templatize "Éditer: {{object}}" as title %} TODO #}
     {% with _("Edit") as title %}
         {% include "creme_core/generics/blockform/base.html" %}
     {% endwith %}

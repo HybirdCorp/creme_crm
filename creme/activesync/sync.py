@@ -28,6 +28,7 @@ from django.conf import settings
 
 from creme_config.models.setting import SettingValue
 
+from activesync.cipher import Cipher
 from activesync.constants import (MAPI_DOMAIN, MAPI_SERVER_SSL, MAPI_SERVER_URL,
                                     USER_MOBILE_SYNC_SERVER_DOMAIN,
                                     USER_MOBILE_SYNC_SERVER_LOGIN,
@@ -43,7 +44,7 @@ from activesync.errors import (CremeActiveSyncError,
                                SYNC_ERR_WRONG_CFG_INVALID_SERVER_URL)#TODO: * ?
 from activesync.messages import MessageInfo, MessageSucceed, MessageError, _INFO, _ERROR, _SUCCESS
 
-                               
+
 from activesync.models.active_sync import CremeClient, AS_Folder
 from activesync.commands import FolderSync, Provision, AirSync
 from activesync import constants as as_constants
@@ -81,7 +82,7 @@ class Synchronization(object):
 
         #TODO: If messages will be used somewhere else activate the django messaging system
         self._messages = defaultdict(list)
-                        
+
         sv_get = SettingValue.objects.get
         sv_doesnotexist = SettingValue.DoesNotExist
 
@@ -110,7 +111,7 @@ class Synchronization(object):
                 self.domain = sv_get(key__id=MAPI_DOMAIN).value
             except sv_doesnotexist:
                 self.domain = None
-            
+
         try:
             self.server_ssl = sv_get(key__id=USER_MOBILE_SYNC_SERVER_SSL, user=user).value
         except sv_doesnotexist:
@@ -125,9 +126,9 @@ class Synchronization(object):
                 raise sv_doesnotexist
         except sv_doesnotexist:
             raise CremeActiveSyncError(SYNC_ERR_WRONG_CFG_NO_LOGIN)
-        
+
         try:
-            self.pwd = sv_get(key__id=USER_MOBILE_SYNC_SERVER_PWD, user=user).value
+            self.pwd = Cipher.decrypt_from_db(sv_get(key__id=USER_MOBILE_SYNC_SERVER_PWD, user=user).value)
             if self.pwd.strip() == u"":
                 raise sv_doesnotexist
         except sv_doesnotexist:
@@ -181,7 +182,7 @@ class Synchronization(object):
 
         client     = self.client
         user       = self.user
-        
+
         self._data['debug']['info'].append("Begin with policy_key :%s" % policy_key)
 
         _fs = self._folder_sync(policy_key, folder_sync_key)#Try to sync server folders
@@ -196,7 +197,7 @@ class Synchronization(object):
 
             folder.parent_id=added_folder.get('parentid')
             folder.display_name=added_folder.get('displayname')
-            
+
             creme_model = FOLDERS_TYPES_CREME_TYPES_MAPPING.get(folder.type)
             creme_model_AS_values = CREME_AS_MAPPING.get(creme_model)
             if creme_model_AS_values is not None:
@@ -226,7 +227,7 @@ class Synchronization(object):
         client.save()
 
     def _sync(self, policy_key, as_folder, synckey=None, fetch=True):
-        
+
         as_ = AirSync(*self.params)
         as_.send(policy_key, as_folder, synckey, fetch)
 
@@ -234,7 +235,7 @@ class Synchronization(object):
 
         if ACTIVE_SYNC_DEBUG:
             self._data['debug']['xml'].extend(as_._data['debug']['xml'])
-            
+
         return as_
 
     def _folder_sync(self, policy_key, sync_key=0):
@@ -289,6 +290,5 @@ class Synchronization(object):
             self.add_error_message(_(u'There is a server error, please try again later...'))
             raise CremeActiveSyncError(SYNC_ERR_ABORTED)
 
-        
-        
-        
+
+

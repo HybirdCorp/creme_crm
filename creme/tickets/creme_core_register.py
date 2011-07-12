@@ -32,9 +32,9 @@ creme_registry.register_app('tickets', _(u'Tickets'), '/tickets')
 creme_registry.register_entity_models(Ticket)
 
 reg_item = creme_menu.register_app('tickets', '/tickets/').register_item
-reg_item('/tickets/',           _(u'Portal'),       'tickets')
-reg_item('/tickets/tickets',    _(u'All tickets'),  'tickets')
-reg_item('/tickets/ticket/add', _(u'Add a ticket'), 'tickets.add_ticket')
+reg_item('/tickets/',           _(u'Portal of tickets'), 'tickets')
+reg_item('/tickets/tickets',    _(u'All tickets'),       'tickets')
+reg_item('/tickets/ticket/add', _(u'Add a ticket'),      'tickets.add_ticket')
 
 block_registry.register_4_model(Ticket, TicketBlock())
 

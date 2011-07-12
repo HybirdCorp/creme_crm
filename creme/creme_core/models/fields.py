@@ -29,11 +29,24 @@ from django.db.models import DateTimeField, CharField, SET
 from django.db.models.fields.related import ForeignKey
 
 class PhoneField(CharField):
-    pass
+    def south_field_triple(self):
+        """Field description for South. (see http://south.aeracode.org/docs/customfields.html#south-field-triple)"""
+        from south.modelsinspector import introspector
+        field_class = "django.db.models.fields.CharField"
+        args, kwargs = introspector(self)
+
+        return (field_class, args, kwargs)
 
 #TODO: Make a real api for this
 class DurationField(CharField):
-    pass
+    def south_field_triple(self):
+        """Field description for South. (see http://south.aeracode.org/docs/customfields.html#south-field-triple)"""
+        from south.modelsinspector import introspector
+        field_class = "django.db.models.fields.CharField"
+        args, kwargs = introspector(self)
+
+        return (field_class, args, kwargs)
+
 
 def _transfer_assignation():
     return CremeUserForeignKey._TRANSFER_TO_USER
@@ -48,6 +61,14 @@ class CremeUserForeignKey(ForeignKey):
 
     def get_internal_type(self):
         return "ForeignKey"
+
+    def south_field_triple(self):
+        """Field description for South. (see http://south.aeracode.org/docs/customfields.html#south-field-triple)"""
+        from south.modelsinspector import introspector
+        field_class = "django.db.models.fields.related.ForeignKey"
+        args, kwargs = introspector(self)
+
+        return (field_class, args, kwargs)
 
 # Code copied/modified from django_extensions one:
 #    http://code.google.com/p/django-command-extensions/

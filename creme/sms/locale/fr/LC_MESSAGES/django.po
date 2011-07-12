@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-16 11:04+0200\n"
+"POT-Creation-Date: 2011-07-11 16:07+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,7 +24,7 @@ msgstr "Listes de diffusion"
 msgid "Unlinked recipients"
 msgstr "Destinataires manuels"
 
-#: blocks.py:84 forms/messaging_list.py:44 forms/messaging_list.py:94
+#: blocks.py:84 forms/messaging_list.py:44 forms/messaging_list.py:87
 #: models/messaging_list.py:31
 msgid "Contacts recipients"
 msgstr "Contacts destinataires"
@@ -37,52 +37,47 @@ msgstr "Messages envoyés"
 msgid "Sendings"
 msgstr "Envois"
 
-#: creme_core_register.py:32 templates/sms/portal.html:4
+#: creme_core_register.py:31 templates/sms/portal.html:4
 msgid "SMS"
 msgstr "SMS"
 
-#: creme_core_register.py:35
-msgid "Portal"
-msgstr "Portail"
+#: creme_core_register.py:34
+msgid "Portal of SMS"
+msgstr "Portail des SMS"
 
-#: creme_core_register.py:36
+#: creme_core_register.py:35
 msgid "All campaigns"
 msgstr "Lister les campagnes"
 
-#: creme_core_register.py:37
+#: creme_core_register.py:36
 msgid "Add a campaign"
 msgstr "Ajouter une campagne"
 
-#: creme_core_register.py:38
+#: creme_core_register.py:37
 msgid "All messaging lists"
 msgstr "Lister les listes de diffusion"
 
-#: creme_core_register.py:39
+#: creme_core_register.py:38
 msgid "Add a messaging list"
 msgstr "Ajouter une liste de diffusion"
 
-#: creme_core_register.py:40
+#: creme_core_register.py:39
 msgid "All message templates"
 msgstr "Lister les patrons de message"
 
-#: creme_core_register.py:41
+#: creme_core_register.py:40
 msgid "Add a message template"
 msgstr "Ajouter un patron de message"
 
-#: populate.py:35
+#: populate.py:33
 msgid "Messaging list view"
 msgstr "Vue de Liste de Diffusion"
 
-#: populate.py:36 populate.py:39 populate.py:42 models/account.py:31
-#: models/template.py:28
-msgid "Name"
-msgstr "Nom"
-
-#: populate.py:38
+#: populate.py:36
 msgid "Campaign view"
 msgstr "Vue de Campagne"
 
-#: populate.py:41
+#: populate.py:39
 msgid "Message template view"
 msgstr "Vue de patron de message"
 
@@ -100,7 +95,6 @@ msgid "Following lists are already related to this campaign: %s"
 msgstr "La(es) liste(s) suivante(s) est déja présente dans la campagne: %s"
 
 #: forms/message.py:33 models/message.py:58 models/template.py:34
-#: templates/sms/view_template.html:4
 msgid "Message template"
 msgstr "Patron de message"
 
@@ -108,11 +102,11 @@ msgstr "Patron de message"
 msgid "Contacts"
 msgstr "Contacts"
 
-#: forms/messaging_list.py:60
+#: forms/messaging_list.py:59
 msgid "Filters"
 msgstr "Filtres"
 
-#: forms/messaging_list.py:68
+#: forms/messaging_list.py:59
 msgid "All"
 msgstr "Tout"
 
@@ -156,6 +150,10 @@ msgstr "Message"
 #, python-format
 msgid "Message is too long (%(length)s > %(max_length)s)"
 msgstr "Message trop long (%(length)s > %(max_length)s)"
+
+#: models/account.py:31 models/template.py:28
+msgid "Name"
+msgstr "Nom"
 
 #: models/account.py:32
 msgid "Credit"
@@ -289,15 +287,6 @@ msgstr "Portail Campagnes de SMS"
 msgid "List of campaigns"
 msgstr "Liste des campagnes"
 
-#: templates/sms/view_campaign.html:6
-msgid "Campaign"
-msgstr "Campagne"
-
-#: templates/sms/view_messaginglist.html:6
-#: templates/sms/templatetags/block_messaging_lists.html:6
-msgid "Messaging list"
-msgstr "Liste de diffusion"
-
 #: templates/sms/templatetags/block_contacts.html:7
 #, python-format
 msgid "%s Contact recipient"
@@ -390,6 +379,10 @@ msgstr "%s Liste de diffusion associée"
 #, python-format
 msgid "%s Related messaging lists"
 msgstr "%s Listes de diffusion associées"
+
+#: templates/sms/templatetags/block_messaging_lists.html:6
+msgid "Messaging list"
+msgstr "Liste de diffusion"
 
 #: templates/sms/templatetags/block_messaging_lists.html:9
 msgid "Add existing messaging lists"
@@ -493,6 +486,9 @@ msgstr "Nouveaux destinataires pour <%s>"
 #, python-format
 msgid "New sending for <%s>"
 msgstr "Nouvel envoi pour <%s>"
+
+#~ msgid "Campaign"
+#~ msgstr "Campagne"
 
 #~ msgid "Add lists"
 #~ msgstr "Ajouter des listes"
