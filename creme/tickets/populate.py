@@ -24,7 +24,7 @@ from django.utils.translation import ugettext as _
 from django.conf import settings
 
 from creme_core.models import (RelationType, SearchConfigItem, HeaderFilterItem, HeaderFilter,
-                               BlockConfigItem, RelationBlockItem, ButtonMenuItem)
+                               BlockDetailviewLocation, RelationBlockItem, ButtonMenuItem) #BlockConfigItem
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -67,9 +67,9 @@ class Populator(BasePopulator):
 
         SearchConfigItem.create(Ticket, ['title', 'description', 'status__name', 'priority__name', 'criticity__name'])
 
-        #TODO: helper code in creme_config ??? (see 'persons' app)
         rbi = RelationBlockItem.create(REL_OBJ_LINKED_2_TICKET)
-        BlockConfigItem.create(pk='tickets-linked2_block',  model=Ticket, block_id=rbi.block_id, order=1, on_portal=False)
+        #BlockConfigItem.create(pk='tickets-linked2_block',  model=Ticket, block_id=rbi.block_id, order=1, on_portal=False)
+        BlockDetailviewLocation.create(block_id=rbi.block_id, order=1, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
 
         if 'creme.persons' in settings.INSTALLED_APPS:
             try:

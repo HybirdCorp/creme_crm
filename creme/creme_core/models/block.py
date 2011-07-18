@@ -23,8 +23,8 @@ from functools import partial
 
 from django.contrib.auth.models import User
 
-from django.db.models import (CharField, ForeignKey, PositiveIntegerField,
-                              BooleanField, TextField)
+from django.db.models import (CharField, ForeignKey, PositiveIntegerField, 
+                              PositiveSmallIntegerField, BooleanField, TextField)
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
@@ -34,28 +34,111 @@ from creme_core.models import CremeModel, RelationType, CremeEntity
 from creme_config.models.setting import SettingValue
 
 
-class BlockConfigItem(CremeModel):
-    id           = CharField(primary_key=True, max_length=100)
+__all__ = ('BlockDetailviewLocation', 'BlockPortalLocation', #'BlockConfigItem'
+           'RelationBlockItem', 'InstanceBlockConfigItem',
+           'BlockState',
+          )
+
+#class BlockConfigItem(CremeModel):
+    #id           = CharField(primary_key=True, max_length=100)
+    #content_type = ForeignKey(ContentType, verbose_name=_(u"Related type"), null=True)
+    #block_id     = CharField(_(u"Block ID"), max_length=100, blank=False, null=False)
+    #order        = PositiveIntegerField(_(u"Priority"))
+    #on_portal    = BooleanField(_(u"Displayed on portal ?"))
+
+    #class Meta:
+        #app_label = 'creme_core'
+        #verbose_name = _(u'Block to display')
+        #verbose_name_plural = _(u'Blocks to display')
+
+    #@staticmethod
+    #def create(pk, block_id, order, on_portal, model=None):
+        #kwargs = {
+                #'content_type': ContentType.objects.get_for_model(model) if model else None,
+                #'block_id':     block_id
+            #}
+
+        #if not BlockConfigItem.objects.filter(**kwargs).exists():
+            #kwargs.update(pk=pk, order=order, on_portal=on_portal)
+            #BlockConfigItem.objects.create(**kwargs)
+
+
+class BlockDetailviewLocation(CremeModel):
     content_type = ForeignKey(ContentType, verbose_name=_(u"Related type"), null=True)
-    block_id     = CharField(_(u"Block ID"), max_length=100, blank=False, null=False)
-    order        = PositiveIntegerField(_(u"Priority"))
-    on_portal    = BooleanField(_(u"Displayed on portal ?"))
+    block_id     = CharField(max_length=100)
+    order        = PositiveIntegerField()
+    zone         = PositiveSmallIntegerField()
+
+    TOP    = 1
+    LEFT   = 2
+    RIGHT  = 3
+    BOTTOM = 4
+
+    ZONES = (TOP, LEFT, RIGHT, BOTTOM)
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Block to display')
-        verbose_name_plural = _(u'Blocks to display')
+
+    def __repr__(self):
+        return 'BlockDetailviewLocation(id=%s, content_type_id=%s, block_id=%s, order=%s, zone=%s)' % (
+                self.id, self.content_type_id, self.block_id, self.order, self.zone
+            )
 
     @staticmethod
-    def create(pk, block_id, order, on_portal, model=None):
-        kwargs = {
-                'content_type': ContentType.objects.get_for_model(model) if model else None,
-                'block_id':     block_id
-            }
+    def create(block_id, order, zone, model=None):
+        ct = ContentType.objects.get_for_model(model) if model else None
 
-        if not BlockConfigItem.objects.filter(**kwargs).exists():
-            kwargs.update(pk=pk, order=order, on_portal=on_portal)
-            BlockConfigItem.objects.create(**kwargs)
+        try:
+            loc = BlockDetailviewLocation.objects.get(content_type=ct, block_id=block_id)
+        except Exception:
+            loc = BlockDetailviewLocation.objects.create(content_type=ct, block_id=block_id, order=order, zone=zone)
+        else:
+            loc.order = order
+            loc.zone  = zone
+            loc.save()
+
+        return loc
+
+    @staticmethod
+    def create_empty_config(model=None):
+        ct = ContentType.objects.get_for_model(model) if model else None
+
+        if not BlockDetailviewLocation.objects.filter(content_type=ct).exists():
+            create = BlockDetailviewLocation.objects.create
+
+            for zone in BlockDetailviewLocation.ZONES:
+                create(content_type=ct, block_id='', order=1, zone=zone)
+
+
+class BlockPortalLocation(CremeModel):
+    app_name = CharField(max_length=40)
+    block_id = CharField(max_length=100)
+    order    = PositiveIntegerField()
+
+    class Meta:
+        app_label = 'creme_core'
+
+    def __repr__(self):
+        return 'BlockPortalLocation(id=%s, app_name=%s)' % (
+                self.id, self.app_name
+            )
+
+    @staticmethod
+    def create(block_id, order, app_name=''):
+        try:
+            loc = BlockPortalLocation.objects.get(app_name=app_name, block_id=block_id)
+        except Exception:
+            loc = BlockPortalLocation.objects.create(app_name=app_name, block_id=block_id, order=order)
+        else:
+            loc.order = order
+            loc.save()
+
+        return loc
+
+    @staticmethod
+    def create_empty_config(app_name=''):
+        if not BlockPortalLocation.objects.filter(app_name=app_name).exists():
+            BlockPortalLocation.objects.create(app_name=app_name, block_id='', order=1)
 
 
 class RelationBlockItem(CremeModel):
@@ -68,7 +151,7 @@ class RelationBlockItem(CremeModel):
         verbose_name_plural = _(u'Specific relation blocks')
 
     def delete(self):
-        BlockConfigItem.objects.filter(block_id=self.block_id).delete()
+        BlockDetailviewLocation.objects.filter(block_id=self.block_id).delete()
 
         super(RelationBlockItem, self).delete()
 
@@ -100,7 +183,7 @@ class InstanceBlockConfigItem(CremeModel):
         return unicode(self.verbose or self.entity)
 
     def delete(self):
-        BlockConfigItem.objects.filter(block_id=self.block_id).delete()
+        BlockDetailviewLocation.objects.filter(block_id=self.block_id).delete()
 
         super(InstanceBlockConfigItem, self).delete()
 
@@ -155,6 +238,7 @@ class BlockState(CremeModel):
         try:
             return BlockState.objects.get(block_id=block_id)
         except BlockState.DoesNotExist:
+            #TODO: imprve queries (group, value directly etc...)
             is_default_open = SettingValue.objects.get(key=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN).value
             is_default_fields_displayed = SettingValue.objects.get(key=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value
             return BlockState(block_id=block_id, is_open=is_default_open, show_empty_fields=is_default_fields_displayed)
@@ -178,7 +262,6 @@ class BlockState(CremeModel):
             states[block_id] = block_state(block_id=block_id)
 
         return states
-
 
     @property
     def classes(self):

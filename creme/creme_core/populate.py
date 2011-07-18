@@ -27,6 +27,7 @@ from creme_config.models.setting import SettingKey, SettingValue
 from creme_core.models import *
 from creme_core.utils import create_or_update as create
 from creme_core.constants import *
+from creme_core.blocks import history_block
 from creme_core.management.commands.creme_populate import BasePopulator
 
 
@@ -58,13 +59,20 @@ class Populator(BasePopulator):
                         })
 
         sk = SettingKey.create(pk=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN,
-                       description=_(u"By default, is blocks are open?"),
-                       app_label='creme_core', type=SettingKey.BOOL
+                               description=_(u"By default, is blocks are open?"),
+                               app_label='creme_core', type=SettingKey.BOOL
                               )
         SettingValue.objects.create(key=sk, user=None, value=True)
 
         sk2 = SettingKey.create(pk=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
-                       description=_(u"By default, are empty fields are displayed?"),
-                       app_label='creme_core', type=SettingKey.BOOL
+                                description=_(u"By default, are empty fields are displayed?"),
+                                app_label='creme_core', type=SettingKey.BOOL
                               )
         SettingValue.objects.create(key=sk2, user=None, value=True)
+
+        #BlockDetailviewLocation.create_empty_config() #default detailview
+        #BlockPortalLocation.create_empty_config() #default portal
+        #BlockPortalLocation.create_empty_config('creme_core') #home
+        BlockDetailviewLocation.create(block_id=history_block.id_, order=8, zone=BlockDetailviewLocation.RIGHT)
+        BlockPortalLocation.create(block_id=history_block.id_, order=8)
+        BlockPortalLocation.create(block_id=history_block.id_, order=8, app_name='creme_core')

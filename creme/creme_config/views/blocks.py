@@ -25,17 +25,23 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import BlockConfigItem, RelationBlockItem, InstanceBlockConfigItem, BlockState
+from creme_core.registry import creme_registry, NotRegistered
+from creme_core.models import BlockDetailviewLocation, BlockPortalLocation, RelationBlockItem, InstanceBlockConfigItem, BlockState
 from creme_core.views.generic import add_model_with_popup, inner_popup
 from creme_core.utils import get_from_POST_or_404
 
-from creme_config.forms.blocks import BlocksAddForm, BlocksEditForm, BlocksPortalEditForm, RelationBlockAddForm
+from creme_config.forms.blocks import *
 
 
 @login_required
 @permission_required('creme_config.can_admin')
-def add(request):
-    return add_model_with_popup(request, BlocksAddForm, _(u'New blocks configuration'))
+def add_detailview(request):
+    return add_model_with_popup(request, BlockDetailviewLocationsAddForm, _(u'New blocks configuration')) #TODO: title detail view ???
+
+@login_required
+@permission_required('creme_config.can_admin')
+def add_portal(request):
+    return add_model_with_popup(request, BlockPortalLocationsAddForm, _(u'New blocks configuration')) #TODO: title portal ???
 
 @login_required
 @permission_required('creme_config.can_admin')
@@ -51,54 +57,103 @@ def portal(request):
 
 @login_required
 @permission_required('creme_config.can_admin')
-def _edit(request, ct_id, form_class, portal):
+def edit_detailview(request, ct_id):
     ct_id = int(ct_id)
-    bci = BlockConfigItem.objects.filter(content_type=ct_id or None).order_by('order')
 
-    if not bci: #TODO: a default config must exist (it works for now because there is always 'assistants' app)
+    if ct_id:
+        ct = ContentType.objects.get_for_id(ct_id)
+        title = _(u'Edit configuration for %s') % ct
+    else: #ct_id == 0
+        ct = None
+        title = _(u'Edit default configuration')
+
+    b_locs = BlockDetailviewLocation.objects.filter(content_type=ct).order_by('order')
+
+    if not b_locs: #TODO: a default config must exist (it works for now because there is always 'assistants' app)
         raise Http404('This configuration does not exist (any more ?)')
 
     if request.method == 'POST':
-        blocks_form = form_class(ct_id=ct_id, block_config_items=bci, user=request.user, data=request.POST)
+        locs_form = BlockDetailviewLocationsEditForm(ct=ct, block_locations=b_locs, user=request.user, data=request.POST)
 
-        if blocks_form.is_valid():
-            blocks_form.save()
+        if locs_form.is_valid():
+            locs_form.save()
     else:
-        blocks_form = form_class(ct_id=ct_id, block_config_items=bci, user=request.user)
-
-    if ct_id:
-        title = _(u'Edit portal configuration for %s') if portal else _(u'Edit configuration for %s')
-        title = title % ContentType.objects.get_for_id(ct_id)
-    else:
-        title = _(u'Edit home configuration') if portal else _(u'Edit default configuration')
+        locs_form = BlockDetailviewLocationsEditForm(ct=ct, block_locations=b_locs, user=request.user)
 
     return inner_popup(request,
                        'creme_core/generics/blockform/edit_popup.html',
                        {
-                        'form':  blocks_form,
+                        'form':  locs_form,
                         'title': title,
                        },
-                       is_valid=blocks_form.is_valid(),
+                       is_valid=locs_form.is_valid(),
                        reload=False,
                        delegate_reload=True,
                        context_instance=RequestContext(request)
                       )
 
-def edit(request, ct_id):
-    return _edit(request, ct_id, BlocksEditForm, portal=False)
+@login_required
+@permission_required('creme_config.can_admin')
+def edit_portal(request, app_name):
+    if  app_name == 'default':
+        app_name = ''
+        title = _(u'Edit default portal configuration')
+    elif app_name == 'creme_core':
+        title = _(u'Edit home configuration')
+    else:
+        try:
+            app = creme_registry.get_app(app_name)
+        except NotRegistered:
+            raise Http404(str(e))
 
-def edit_portal(request, ct_id):
-    return _edit(request, ct_id, BlocksPortalEditForm, portal=True)
+        title = _(u'Edit portal configuration for <%s>') % app.verbose_name
+
+    b_locs = BlockPortalLocation.objects.filter(app_name=app_name).order_by('order')
+
+    if not b_locs: #TODO: a default config must exist (it works for now because there is always 'assistants' app)
+        raise Http404('This configuration does not exist (any more ?)')
+
+    if request.method == 'POST':
+        locs_form = BlockPortalLocationsEditForm(app_name=app_name, block_locations=b_locs, user=request.user, data=request.POST)
+
+        if locs_form.is_valid():
+            locs_form.save()
+    else:
+        locs_form = BlockPortalLocationsEditForm(app_name=app_name, block_locations=b_locs, user=request.user)
+
+    return inner_popup(request,
+                       'creme_core/generics/blockform/edit_popup.html',
+                       {
+                        'form':  locs_form,
+                        'title': title,
+                       },
+                       is_valid=locs_form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                       context_instance=RequestContext(request)
+                      )
 
 @login_required
 @permission_required('creme_config.can_admin')
-def delete(request):
+def delete_detailview(request):
     ct_id = get_from_POST_or_404(request.POST, 'id', int)
 
     if not ct_id:
         raise Http404('Default config can not be deleted')
 
-    BlockConfigItem.objects.filter(content_type=ct_id).delete()
+    BlockDetailviewLocation.objects.filter(content_type=ct_id).delete()
+
+    return HttpResponse()
+
+@login_required
+@permission_required('creme_config.can_admin')
+def delete_portal(request):
+    app_name = get_from_POST_or_404(request.POST, 'id')
+
+    if app_name == 'creme_core':
+        raise Http404('Home config can not be deleted')
+
+    BlockPortalLocation.objects.filter(app_name=app_name).delete()
 
     return HttpResponse()
 

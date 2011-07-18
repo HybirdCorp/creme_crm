@@ -23,7 +23,8 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import *
-from creme_core.gui.block import Block, QuerysetBlock
+from creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock
+from creme_core.registry import creme_registry
 
 from creme_config.models import  SettingValue
 
@@ -175,35 +176,52 @@ class TeamsBlock(_ConfigAdminBlock):
                                                            ))
 
 
-class BlocksConfigBlock(_ConfigAdminBlock):
-    id_           = QuerysetBlock.generate_id('creme_config', 'blocks_config')
-    dependencies  = (BlockConfigItem,)
+class BlockDetailviewLocationsBlock(_ConfigAdminBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'blocks_dv_locations')
+    dependencies  = (BlockDetailviewLocation,)
     page_size     = _PAGE_SIZE - 1 #'-1' because there is always the line for default config on each page
-    verbose_name  = _(u'Blocks configuration')
-    template_name = 'creme_config/templatetags/block_blocksconfig.html'
+    verbose_name  = u'Blocks locations on detailviews'
+    template_name = 'creme_config/templatetags/block_blocklocations.html'
 
     def detailview_display(self, context):
-        ct_user = ContentType.objects.get_for_model(User)
-        #Why .exclude(content_type__in=[...]) doesn't work ?...
-        ct_ids = BlockConfigItem.objects.exclude(content_type=None)\
-                                        .exclude(content_type=ct_user)\
-                                        .distinct()\
-                                        .values_list('content_type_id', flat=True)
+        ct_ids = BlockDetailviewLocation.objects.exclude(content_type=None)\
+                                                .distinct()\
+                                                .values_list('content_type_id', flat=True)
 
         return self._render(self.get_block_template_context(context, ContentType.objects.filter(pk__in=ct_ids),
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                                                            ))
 
 
+class BlockPortalLocationsBlock(PaginatedBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'blocks_portal_locations')
+    dependencies  = (BlockPortalLocation,)
+    page_size     = _PAGE_SIZE - 2 #'-1' because there is always the line for default config & home config on each page
+    verbose_name  = u'Blocks locations on portals'
+    template_name = 'creme_config/templatetags/block_blockportallocations.html'
+    permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
+
+    def detailview_display(self, context):
+        get_app = creme_registry.get_app
+        apps = [get_app(name) for name in BlockPortalLocation.objects.exclude(app_name='creme_core')\
+                                                             .distinct()\
+                                                             .values_list('app_name', flat=True)
+                                  if name
+               ]
+
+        return self._render(self.get_block_template_context(context, apps,
+                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                                           ))
+
+
 class RelationBlocksConfigBlock(_ConfigAdminBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'relation_blocks_config')
-    dependencies  = (RelationBlockItem, BlockConfigItem) #BlockConfigItem because they can be deleted if we delete a RelationBlockItem
+    dependencies  = (RelationBlockItem, BlockDetailviewLocation) #BlockDetailviewLocation because they can be deleted if we delete a RelationBlockItem
     verbose_name  = _(u'Relation blocks configuration')
     template_name = 'creme_config/templatetags/block_relationblocksconfig.html'
 
     def detailview_display(self, context):
-        ct_ids = BlockConfigItem.objects.exclude(content_type=None).distinct().values_list('content_type_id', flat=True)
-
+        #ct_ids = BlockConfigItem.objects.exclude(content_type=None).distinct().values_list('content_type_id', flat=True)
         return self._render(self.get_block_template_context(context, RelationBlockItem.objects.all(),
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                                                            ))
@@ -211,7 +229,7 @@ class RelationBlocksConfigBlock(_ConfigAdminBlock):
 
 class InstanceBlocksConfigBlock(_ConfigAdminBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'instance_blocks_config')
-    dependencies  = (InstanceBlockConfigItem, BlockConfigItem) #BlockConfigItem because they can be deleted if we delete a InstanceBlockConfigItem
+    dependencies  = (InstanceBlockConfigItem, BlockDetailviewLocation) #BlockDetailviewLocation because they can be deleted if we delete a InstanceBlockConfigItem
     verbose_name  = _(u'Instance blocks configuration')
     template_name = 'creme_config/templatetags/block_instanceblocksconfig.html'
 
@@ -323,14 +341,16 @@ blocks_list = (
         CustomRelationTypesBlock(),
         CustomFieldsPortalBlock(),
         custom_fields_block,
-        BlocksConfigBlock(),
+        #BlocksConfigBlock(),
+        BlockDetailviewLocationsBlock(),
+        BlockPortalLocationsBlock(),
         RelationBlocksConfigBlock(),
+        InstanceBlocksConfigBlock(),
         ButtonMenuBlock(),
         UsersBlock(),
         TeamsBlock(),
         SearchConfigBlock(),
         HistoryConfigBlock(),
-        InstanceBlocksConfigBlock(),
         UserRolesBlock(),
         DefaultCredentialsBlock(),
         UserPreferedMenusBlock(),

@@ -21,12 +21,12 @@
 from django.utils.translation import ugettext as _
 from creme_config.models.setting import SettingKey, SettingValue
 
-from creme_core.models import (RelationType, BlockConfigItem, CremePropertyType,
+from creme_core.models import (RelationType, CremePropertyType, BlockDetailviewLocation, #BlockConfigItem
                                SearchConfigItem, ButtonMenuItem, HeaderFilterItem, HeaderFilter)
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
-from persons.models import Contact
+from persons.models import Contact, Organisation
 
 from opportunities.models import Opportunity
 
@@ -52,7 +52,10 @@ class Populator(BasePopulator):
         for i, title in enumerate((_('Phone calls'), _('Show'), _('Demo'))):
             create(ActType, i + 1, title=title, is_custom=False)
 
-        create(BlockConfigItem, 'commercial-approaches_block', content_type=None, block_id=approaches_block.id_, order=10,  on_portal=False)
+        #create(BlockConfigItem, 'commercial-approaches_block', content_type=None, block_id=approaches_block.id_, order=10,  on_portal=False)
+        BlockDetailviewLocation.create(block_id=approaches_block.id_, order=10, zone=BlockDetailviewLocation.RIGHT)
+        BlockDetailviewLocation.create(block_id=approaches_block.id_, order=10, zone=BlockDetailviewLocation.RIGHT, model=Contact)
+        BlockDetailviewLocation.create(block_id=approaches_block.id_, order=10, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
 
         hf = HeaderFilter.create(pk='commercial-hf_act', name=_(u"Com Action view"), model=Act)
         hf.set_items([HeaderFilterItem.build_4_field(model=Act, name='name'),
@@ -63,8 +66,7 @@ class Populator(BasePopulator):
         hf = HeaderFilter.create(pk='commercial-hf_strategy', name=_(u"Strategy view"), model=Strategy)
         hf.set_items([HeaderFilterItem.build_4_field(model=Strategy, name='name')])
 
-        hf   = HeaderFilter.create(pk='commercial-hf_objpattern', name=_(u"Objective pattern view"), model=ActObjectivePattern)
-        pref = 'commercial-hfi_objpattern_'
+        hf = HeaderFilter.create(pk='commercial-hf_objpattern', name=_(u"Objective pattern view"), model=ActObjectivePattern)
         hf.set_items([HeaderFilterItem.build_4_field(model=ActObjectivePattern, name='name'),
                       HeaderFilterItem.build_4_field(model=ActObjectivePattern, name='segment'),
                      ])
