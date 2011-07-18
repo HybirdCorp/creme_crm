@@ -23,7 +23,8 @@ from logging import info
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme_core.models import RelationType, ButtonMenuItem, SearchConfigItem, SearchField, HeaderFilterItem, HeaderFilter
+from creme_core.models import (RelationType, BlockDetailviewLocation, BlockPortalLocation,
+                               ButtonMenuItem, SearchConfigItem, SearchField, HeaderFilterItem, HeaderFilter)
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -102,6 +103,34 @@ class Populator(BasePopulator):
 
         SearchConfigItem.create(Opportunity, ['name', 'made_sales', 'sales_phase__name', 'origin__name'])
 
+        if 'creme.activities' in settings.INSTALLED_APPS:
+            info('Activities app is installed => we use the "Future activities" & "Past activities" blocks')
+
+            from activities.blocks import future_activities_block, past_activities_block
+
+            BlockDetailviewLocation.create(block_id=future_activities_block.id_, order=20, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+            BlockDetailviewLocation.create(block_id=past_activities_block.id_,   order=21, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+            BlockPortalLocation.create(app_name='opportunities', block_id=future_activities_block.id_, order=20)
+            BlockPortalLocation.create(app_name='opportunities', block_id=past_activities_block.id_,   order=21)
+
+        if 'creme.assistants' in settings.INSTALLED_APPS:
+            info('Assistants app is installed => we use the assistants blocks on detail views and portal')
+
+            from assistants.blocks import alerts_block, actions_it_block, actions_nit_block, memos_block, todos_block, messages_block
+
+            BlockDetailviewLocation.create(block_id=todos_block.id_,       order=100, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+            BlockDetailviewLocation.create(block_id=memos_block.id_,       order=200, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+            BlockDetailviewLocation.create(block_id=alerts_block.id_,      order=300, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+            BlockDetailviewLocation.create(block_id=actions_it_block.id_,  order=400, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+            BlockDetailviewLocation.create(block_id=actions_nit_block.id_, order=410, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+            BlockDetailviewLocation.create(block_id=messages_block.id_,    order=500, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+
+            BlockPortalLocation.create(app_name='opportunities', block_id=memos_block.id_,       order=100)
+            BlockPortalLocation.create(app_name='opportunities', block_id=alerts_block.id_,      order=200)
+            BlockPortalLocation.create(app_name='opportunities', block_id=actions_it_block.id_,  order=300)
+            BlockPortalLocation.create(app_name='opportunities', block_id=actions_nit_block.id_, order=310)
+            BlockPortalLocation.create(app_name='opportunities', block_id=messages_block.id_,    order=400)
+
         if 'creme.reports' in settings.INSTALLED_APPS:
             info('Reports app is installed => we create an Opportunity report, with 2 graphs, and related blocks')
             self.create_reports()
@@ -110,12 +139,12 @@ class Populator(BasePopulator):
         from django.contrib.contenttypes.models import ContentType
         from django.contrib.auth.models import User
 
-        from creme_core import autodiscover as creme_core_autodiscover
-        from creme_core.models import EntityFilter, EntityFilterCondition, BlockConfigItem, InstanceBlockConfigItem
+        #from creme_core import autodiscover as creme_core_autodiscover
+        from creme_core.models import EntityFilter, EntityFilterCondition, InstanceBlockConfigItem #BlockConfigItem
         from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION
-        from creme_core.gui.block import block_registry
+        #from creme_core.gui.block import block_registry
         from creme_core.utils.meta import get_verbose_field_name
-        from creme_core.utils.id_generator import generate_string_id_and_save
+        #from creme_core.utils.id_generator import generate_string_id_and_save
 
         from persons.constants import FILTER_MANAGED_ORGA
 
@@ -173,28 +202,33 @@ class Populator(BasePopulator):
         opp_report_graph_2 = create(ReportGraph, name=graph_name_2, report=opp_report, abscissa='closing_date', ordinate='estimated_sales__sum', type=RGT_RANGE, is_count=False, user=admin, days=90)
 
 
-        old_bci = BlockConfigItem.objects.filter(content_type=opp_ct)
-        if old_bci:
-            info('Delete the old block config for Opportunies')
-            old_bci.delete()
+        #old_bci = BlockConfigItem.objects.filter(content_type=opp_ct)
+        #if old_bci:
+            #info('Delete the old block config for Opportunies')
+            #old_bci.delete()
 
         #Create 2 instance block items for the 2 graphs
 #            opp_rgraph1_vcolumn = '%s#%s' % (REL_OBJ_EMIT_ORGA, HFI_RELATION)
-        rgraph_1_instance_block = create(InstanceBlockConfigItem, entity=opp_report_graph_1, block_id=ReportGraphBlock.generate_id('creme_config', u"%s_" % (opp_report_graph_1.id, )), verbose = u"%s - %s" % (opp_report_graph_1, _(u'None')), data='')
-        rgraph_2_instance_block = create(InstanceBlockConfigItem, entity=opp_report_graph_2, block_id=ReportGraphBlock.generate_id('creme_config', u"%s_" % (opp_report_graph_2.id, )), verbose = u"%s - %s" % (opp_report_graph_2, _(u'None')), data='')
+        rgraph_1_instance_block = create(InstanceBlockConfigItem, entity=opp_report_graph_1, block_id=ReportGraphBlock.generate_id('creme_config', u"%s_" % (opp_report_graph_1.id, )), verbose=u"%s - %s" % (opp_report_graph_1, _(u'None')), data='')
+        rgraph_2_instance_block = create(InstanceBlockConfigItem, entity=opp_report_graph_2, block_id=ReportGraphBlock.generate_id('creme_config', u"%s_" % (opp_report_graph_2.id, )), verbose=u"%s - %s" % (opp_report_graph_2, _(u'None')), data='')
 
         rgraph_1_instance_block_id = rgraph_1_instance_block.block_id
         rgraph_2_instance_block_id = rgraph_2_instance_block.block_id
 
-        blocks_to_save = [
-            BlockConfigItem(content_type=opp_ct, block_id=rgraph_1_instance_block_id, order=1, on_portal=True),
-            BlockConfigItem(content_type=opp_ct, block_id=rgraph_2_instance_block_id, order=2, on_portal=True)
-        ]
+        #blocks_to_save = [
+            #BlockConfigItem(content_type=opp_ct, block_id=rgraph_1_instance_block_id, order=1, on_portal=True),
+            #BlockConfigItem(content_type=opp_ct, block_id=rgraph_2_instance_block_id, order=2, on_portal=True)
+        #]
 
-        creme_core_autodiscover()
-        block_ids = [id_ for id_, block in block_registry if block.configurable]
-        for i, block_id in enumerate(block_ids):
-            blocks_to_save.append(BlockConfigItem(content_type=opp_ct, block_id=block_id, order=i+3, on_portal=False))
+        #creme_core_autodiscover()
+        #block_ids = [id_ for id_, block in block_registry if block.configurable]
+        #for i, block_id in enumerate(block_ids):
+            #blocks_to_save.append(BlockConfigItem(content_type=opp_ct, block_id=block_id, order=i+3, on_portal=False))
 
-        #Set instance graphs on opportunity portal
-        generate_string_id_and_save(BlockConfigItem, blocks_to_save, 'creme_config-userbci')
+        ##Set instance graphs on opportunity portal
+        #generate_string_id_and_save(BlockConfigItem, blocks_to_save, 'creme_config-userbci')
+
+        BlockDetailviewLocation.create(block_id=rgraph_1_instance_block_id, order=1, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+        BlockDetailviewLocation.create(block_id=rgraph_2_instance_block_id, order=2, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+        BlockPortalLocation.create(app_name='opportunities', block_id=rgraph_1_instance_block_id, order=1)
+        BlockPortalLocation.create(app_name='opportunities', block_id=rgraph_2_instance_block_id, order=2)

@@ -23,7 +23,7 @@ from logging import info
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 
-from creme_core.models import RelationType, BlockConfigItem, SearchConfigItem, HeaderFilterItem, HeaderFilter
+from creme_core.models import RelationType, SearchConfigItem, HeaderFilterItem, HeaderFilter #BlockConfigItem
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -59,7 +59,7 @@ class Populator(BasePopulator):
                       HeaderFilterItem.build_4_field(model=Folder, name='category__name'),
                      ])
 
-        BlockConfigItem.create(pk='documents-linked_docs_block', block_id=linked_docs_block.id_, order=1000, on_portal=False)
+        #BlockConfigItem.create(pk='documents-linked_docs_block', block_id=linked_docs_block.id_, order=1000, on_portal=False)
 
         SearchConfigItem.create(Document, ['title', 'description', 'folder__title'])
         SearchConfigItem.create(Folder,   ['title', 'description', 'category__name'])

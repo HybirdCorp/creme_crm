@@ -22,17 +22,18 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext as _
 
-from creme_core.models import RelationType, BlockConfigItem, ButtonMenuItem, SearchConfigItem, HeaderFilterItem, HeaderFilter
+from creme_core.models import (RelationType, BlockDetailviewLocation, BlockPortalLocation,
+                               ButtonMenuItem, SearchConfigItem, HeaderFilterItem, HeaderFilter) #BlockConfigItem
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
-from creme_core.utils.id_generator import generate_string_id_and_save
+#from creme_core.utils.id_generator import generate_string_id_and_save
 
-from creme_config.constants import USER_SETTINGS_BLOCK_PREFIX
+#from creme_config.constants import USER_SETTINGS_BLOCK_PREFIX
 
-from persons.models import Contact
+from persons.models import Contact, Organisation
 
 from activities.models import *
-from activities.blocks import future_activities_block, past_activities_block, user_calendars_block
+from activities.blocks import future_activities_block, past_activities_block #, user_calendars_block
 from activities.buttons import add_meeting_button, add_phonecall_button, add_task_button
 from activities.constants import *
 
@@ -77,8 +78,18 @@ class Populator(BasePopulator):
                       HeaderFilterItem.build_4_field(model=Activity, name='status__name'),
                      ])
 
-        BlockConfigItem.create(pk='activities-future_activities_block', block_id=future_activities_block.id_, order=20, on_portal=False)
-        BlockConfigItem.create(pk='activities-past_activities_block',   block_id=past_activities_block.id_,   order=21, on_portal=False)
+        #BlockConfigItem.create(pk='activities-future_activities_block', block_id=future_activities_block.id_, order=20, on_portal=False)
+        #BlockConfigItem.create(pk='activities-past_activities_block',   block_id=past_activities_block.id_,   order=21, on_portal=False)
+        future_id = future_activities_block.id_
+        past_id   = past_activities_block.id_
+        BlockDetailviewLocation.create(block_id=future_id, order=20, zone=BlockDetailviewLocation.RIGHT, model=Contact)
+        BlockDetailviewLocation.create(block_id=past_id,   order=21, zone=BlockDetailviewLocation.RIGHT, model=Contact)
+        BlockDetailviewLocation.create(block_id=future_id, order=20, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+        BlockDetailviewLocation.create(block_id=past_id,   order=21, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+        BlockPortalLocation.create(app_name='persons',    block_id=future_id, order=20)
+        BlockPortalLocation.create(app_name='persons',    block_id=past_id,   order=21)
+        BlockPortalLocation.create(app_name='creme_core', block_id=future_id, order=20)
+        BlockPortalLocation.create(app_name='creme_core', block_id=past_id,   order=21)
 
         ButtonMenuItem.create('activities-add_meeting_button',   model=None, button=add_meeting_button,   order=10)
         ButtonMenuItem.create('activities-add_phonecall_button', model=None, button=add_phonecall_button, order=11)
@@ -89,7 +100,8 @@ class Populator(BasePopulator):
         for user in User.objects.all():
             Calendar.get_user_default_calendar(user)
 
-        if not BlockConfigItem.objects.filter(block_id__in=[user_calendars_block.id_]).exists():
-            generate_string_id_and_save(BlockConfigItem,
-                                        [BlockConfigItem(content_type=ContentType.objects.get_for_model(User), block_id=user_calendars_block.id_, order=1, on_portal=False)],
-                                        USER_SETTINGS_BLOCK_PREFIX)
+        #TODO: use a registry in creme_config
+        #if not BlockConfigItem.objects.filter(block_id__in=[user_calendars_block.id_]).exists():
+            #generate_string_id_and_save(BlockConfigItem,
+                                        #[BlockConfigItem(content_type=ContentType.objects.get_for_model(User), block_id=user_calendars_block.id_, order=1, on_portal=False)],
+                                        #USER_SETTINGS_BLOCK_PREFIX)

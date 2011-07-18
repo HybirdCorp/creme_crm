@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
 from re import compile as compile_re
 
 from django.db.models import Q
@@ -26,15 +27,18 @@ from django.template.defaulttags import TemplateLiteral
 from django.template.loader import get_template
 from django.utils.translation import ugettext, ungettext
 
-from creme_core.models import BlockConfigItem
+from creme_core.models import BlockDetailviewLocation, BlockPortalLocation
 from creme_core.gui.block import Block, block_registry, BlocksManager
 
 register = Library()
 
 
-_HOME_BLOCKS       = 'home_blocks'
-_DETAILVIEW_BLOCKS = 'detailview_blocks'
-_PORTAL_BLOCKS     = 'portal_blocks'
+_DETAIL_BLOCKS_TOP    = 'detailview_blocks_top'
+_DETAIL_BLOCKS_RIGHT  = 'detailview_blocks_right'
+_DETAIL_BLOCKS_LEFT   = 'detailview_blocks_left'
+_DETAIL_BLOCKS_BOTTOM = 'detailview_blocks_bottom'
+_HOME_BLOCKS          = 'home_blocks'
+_PORTAL_BLOCKS        = 'portal_blocks'
 
 
 def _arg_in_quotes_or_die(arg, tag_name):
@@ -436,33 +440,67 @@ def do_detailview_blocks_importer(parser, token):
 class DetailviewBlocksImporterNode(TemplateNode):
     def render(self, context):
         blocks_manager = BlocksManager.get(context)
-        bc_items = BlockConfigItem.objects.filter(Q(content_type=None) | Q(content_type=context['object'].entity_type)) \
-                                          .order_by('order')
-        block_ids = [bc_item.block_id for bc_item in bc_items if bc_item.content_type_id is not None]
+        locs = BlockDetailviewLocation.objects.filter(Q(content_type=None) | Q(content_type=context['object'].entity_type)) \
+                                             .order_by('order')
 
-        if not block_ids: #TODO: use a 'or' instead of 'if'
-            block_ids = [bc_item.block_id for bc_item in bc_items] #we fallback to the default config.
+        #we fallback to the default config is there is no config for this content type.
+        locs = [loc for loc in locs if loc.content_type_id is not None] or locs
+        loc_map = defaultdict(list)
 
-        blocks_manager.add_group(_DETAILVIEW_BLOCKS , *block_registry.get_blocks([id_ for id_ in block_ids if id_]))
+        for loc in locs:
+            block_id = loc.block_id
+
+            if block_id:
+                loc_map[loc.zone].append(block_id)
+
+        add_group  = blocks_manager.add_group
+        get_blocks = block_registry.get_blocks
+
+        for group_name, zone in ((_DETAIL_BLOCKS_TOP,    BlockDetailviewLocation.TOP),
+                                 (_DETAIL_BLOCKS_LEFT,   BlockDetailviewLocation.LEFT),
+                                 (_DETAIL_BLOCKS_RIGHT,  BlockDetailviewLocation.RIGHT),
+                                 (_DETAIL_BLOCKS_BOTTOM, BlockDetailviewLocation.BOTTOM)):
+            add_group(group_name, *get_blocks(loc_map[zone]))
 
         return ''
 
 
+_ZONES_MAP = {
+        'top':    _DETAIL_BLOCKS_TOP,
+        'left':   _DETAIL_BLOCKS_LEFT,
+        'right':  _DETAIL_BLOCKS_RIGHT,
+        'bottom': _DETAIL_BLOCKS_BOTTOM,
+    }
+
 @register.tag(name="display_detailview_blocks")
 def do_detailview_blocks_displayer(parser, token):
-    return DetailviewBlocksDisplayerNode()
+    """{% display_detailview_blocks right %}"""
+    split = token.contents.split()
+    tag_name = split[0]
+
+    if len(split) != 2:
+        raise TemplateSyntaxError, "%r tag requires 1 arguments" % tag_name
+
+    group_name = _ZONES_MAP.get(split[1])
+    if not group_name:
+        raise TemplateSyntaxError, "%r argument must be in: %s" % (tag_name, '/'.join(_ZONES_MAP.iterkeys()))
+
+    return DetailviewBlocksDisplayerNode(group_name)
 
 class DetailviewBlocksDisplayerNode(TemplateNode):
+    def __init__(self, group_name):
+        self.group_name = group_name
+
     def block_outputs(self, context):
         model = context['object'].__class__
 
-        for block in BlocksManager.get(context).pop_group(_DETAILVIEW_BLOCKS ):
+        for block in BlocksManager.get(context).pop_group(self.group_name):
             target_ctypes = block.target_ctypes
 
             if target_ctypes and not model in target_ctypes:
                 yield "THIS BLOCK CAN'T BE DISPLAY ON THIS CONTENT TYPE (YOU HAVE A CONFIG PROBLEM): %s" % block.id_
             else:
-                 yield block.detailview_display(context)
+                yield block.detailview_display(context)
 
     def render(self, context):
         return ''.join(op for op in self.block_outputs(context))
@@ -505,41 +543,34 @@ def _parse_one_var_tag(token): #TODO: move in creme_core.utils
 
 @register.tag(name="import_portal_blocks")
 def do_portal_blocks_importer(parser, token):
-    """Eg: {% import_portal_blocks ct_ids %}"""
-    return PortalBlocksImporterNode(_parse_one_var_tag(token))
+    """Eg: {% import_portal_blocks app_name %}"""
+    split = token.contents.split()
+
+    if len(split) != 2:
+        raise TemplateSyntaxError, "%r tag requires 1 arguments" % split[0]
+
+    appname_str = split[1]
+
+    return PortalBlocksImporterNode(TemplateLiteral(parser.compile_filter(appname_str), appname_str))
 
 class PortalBlocksImporterNode(TemplateNode):
-    def __init__(self, ct_ids_varname):
-        self.ct_ids_varname = ct_ids_varname
+    def __init__(self, appname_var):
+        self.appname_var = appname_var
 
     def render(self, context):
         blocks_manager = BlocksManager.get(context)
-        ct_ids = context[self.ct_ids_varname]
-        bc_items = BlockConfigItem.objects.filter(Q(content_type=None) | Q(content_type__in=ct_ids)) \
+        app_name = self.appname_var.eval(context)
+        locs = BlockPortalLocation.objects.filter(Q(app_name='') | Q(app_name=app_name)) \
                                           .order_by('order')
 
-        ctypes_filter     = set(ct_ids)
-        configured_ctypes = set(bci.content_type_id for bci in bc_items)
-        if not all(ct_id in configured_ctypes for ct_id in ct_ids):
-            ctypes_filter.add(None) #NB: at least one ContentType has no specific configuration => we use default config too.
-
-        #Blocks for all ContentTypes are merged (merging algo is quite stupid but it is satisfactory)
-        block_ids   = []
-        used_blocks = set()
-
-        for bc_item in bc_items:
-            if bc_item.on_portal:
-                block_id = bc_item.block_id
-
-                if (block_id not in used_blocks) and (bc_item.content_type_id in ctypes_filter):
-                    used_blocks.add(block_id)
-                    block_ids.append(block_id)
+        #we fallback to the default config is there is no config for this app.
+        block_ids = [loc.block_id for loc in locs if loc.app_name] or [loc.block_id for loc in locs]
 
         blocks_manager.add_group(_PORTAL_BLOCKS, *block_registry.get_blocks([id_ for id_ in block_ids if id_]))
 
         return ''
 
-
+#TODO: use TemplateLiteral
 @register.tag(name="display_portal_blocks")
 def do_portal_blocks_displayer(parser, token):
     """Eg: {% display_portal_blocks ct_ids %}"""
@@ -572,7 +603,9 @@ def do_home_blocks_importer(parser, token):
 class HomeBlocksImporterNode(TemplateNode):
     def render(self, context):
         blocks_manager = BlocksManager.get(context)
-        block_ids = BlockConfigItem.objects.filter(content_type=None, on_portal=True).order_by('order').values_list('block_id', flat=True)
+        block_ids = BlockPortalLocation.objects.filter(app_name='creme_core') \
+                                                .order_by('order') \
+                                                .values_list('block_id', flat=True)
         blocks_manager.add_group(_HOME_BLOCKS, *block_registry.get_blocks([id_ for id_ in block_ids if id_]))
 
         return ''
@@ -665,7 +698,7 @@ class BlocksDisplayerNode(TemplateNode):
     def __init__(self, alias):
         self.alias = alias
 
-    def block_outputs(self, context):
+    def block_outputs(self, context): #TODO: useless (inline the call)
         for block in BlocksManager.get(context).pop_group(self.alias):
             yield block.detailview_display(context)
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-23 18:44+0200\n"
+"POT-Creation-Date: 2011-07-13 22:51+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -39,35 +39,35 @@ msgstr "Cœur"
 msgid "Home"
 msgstr "Accueil"
 
-#: populate.py:35
+#: populate.py:36
 msgid "French"
 msgstr "Français"
 
-#: populate.py:36
+#: populate.py:37
 msgid "English"
 msgstr "Anglais"
 
-#: populate.py:38
+#: populate.py:39
 msgid "managed by Creme"
 msgstr "est géré par Creme"
 
-#: populate.py:40 populate.py:41
+#: populate.py:41 populate.py:42
 msgid "related to"
 msgstr "est en relation avec"
 
-#: populate.py:42
+#: populate.py:43
 msgid "owns"
 msgstr "possède"
 
-#: populate.py:43
+#: populate.py:44
 msgid "belongs to"
 msgstr "appartient à"
 
-#: populate.py:61
+#: populate.py:62
 msgid "By default, is blocks are open?"
 msgstr "Par défaut, est-ce que les blocs apparaîssent ouverts?"
 
-#: populate.py:67
+#: populate.py:68
 msgid "By default, are empty fields are displayed?"
 msgstr "Par défaut, est-ce que les champs vides sont affichés?"
 
@@ -676,71 +676,58 @@ msgstr "Date de création"
 msgid "Last modification"
 msgstr "Dernière modification"
 
-#: models/block.py:39 models/button_menu.py:30 models/custom_field.py:50
+#: models/block.py:67 models/button_menu.py:30 models/custom_field.py:50
 #: models/search.py:32
 msgid "Related type"
 msgstr "Type associé"
 
-#: models/block.py:40 models/block.py:62 models/block.py:89
-#: models/block.py:143
+#: models/block.py:145 models/block.py:172 models/block.py:226
 msgid "Block ID"
 msgstr "Identifiant de bloc"
 
-#: models/block.py:41 models/button_menu.py:32 models/search.py:91
-msgid "Priority"
-msgstr "Priorité"
-
-#: models/block.py:42
-msgid "Displayed on portal ?"
-msgstr "Affiché sur la page d'accueil ?"
-
-#: models/block.py:46
-msgid "Block to display"
-msgstr "Bloc à afficher"
-
-#: models/block.py:47
-msgid "Blocks to display"
-msgstr "Blocs à afficher"
-
-#: models/block.py:63
+#: models/block.py:146
 msgid "Related type of relation"
 msgstr "Type de relation associé"
 
-#: models/block.py:67
+#: models/block.py:150
 msgid "Specific relation block"
 msgstr "Bloc de relation spécifique"
 
-#: models/block.py:68
+#: models/block.py:151
 msgid "Specific relation blocks"
 msgstr "Blocs de relation spécifique"
 
-#: models/block.py:90
+#: models/block.py:173
 msgid "Block related entity"
 msgstr "Entité associée au bloc"
 
-#: models/block.py:92
+#: models/block.py:175
 msgid "Verbose"
 msgstr "Verbeux"
 
-#: models/block.py:96
+#: models/block.py:179
 msgid "Instance's Block to display"
 msgstr "Bloc d'instance à afficher"
 
-#: models/block.py:97
+#: models/block.py:180
 msgid "Instance's Blocks to display"
 msgstr "Blocs d'instance à afficher"
 
-#: models/block.py:149
+#: models/block.py:232
 msgid "Block state"
 msgstr "Etat de bloc"
 
-#: models/block.py:150
+#: models/block.py:233
 msgid "Blocks states"
 msgstr "Etats de blocs"
 
 #: models/button_menu.py:31
 msgid "Button ID"
 msgstr "Identifiant de bouton"
+
+#: models/button_menu.py:32 models/search.py:91
+msgid "Priority"
+msgstr "Priorité"
 
 #: models/button_menu.py:36
 msgid "Button to display"
@@ -1839,10 +1826,19 @@ msgstr "Liste des %s"
 msgid "The desired list does not have any view, please create one."
 msgstr "La liste souhaitée n'a aucune vue, veuillez en créer au moins une."
 
-#: views/generic/portal.py:36
+#: views/generic/portal.py:37
 #, python-format
 msgid "You are not allowed to access to the app: %s"
 msgstr "Vous n'avez pas accés à cette application: %s"
+
+#~ msgid "Displayed on portal ?"
+#~ msgstr "Affiché sur la page d'accueil ?"
+
+#~ msgid "Block to display"
+#~ msgstr "Bloc à afficher"
+
+#~ msgid "Blocks to display"
+#~ msgstr "Blocs à afficher"
 
 #~ msgid "Call"
 #~ msgstr "Appeler"

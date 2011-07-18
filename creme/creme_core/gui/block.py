@@ -72,7 +72,7 @@ class Block(object):
     id_           = None               #overload with an unicode object ; use generate_id()
     dependencies  = ()                 #list of the models on which the block depends (ie: generally the block displays these models)
     relation_type_deps = ()            #list of id of RelationType objects on which the block depends ; only used for Blocks which have 'Relation' in their dependencies
-    verbose_name  = 'BLOCK'            #used in the user configuration (see BlockConfigItem)
+    verbose_name  = 'BLOCK'            #used in the user configuration (see BlockDetailviewLocation/BlockPortalLocation)
     template_name = 'OVERLOAD_ME.html' #used to render the block of course
     context_class = _BlockContext      #store the context in the session.
     configurable  = False              #True: the Block can be add/removed to detailview/portal by configuration (see creme_config)
@@ -466,25 +466,29 @@ class _BlockRegistry(object):
         specific_ids = filter(SpecificRelationsBlock.id_is_specific, block_ids)
         instance_ids = filter(InstanceBlockConfigItem.id_is_specific, block_ids)
 
-        if specific_ids:
-            relation_blocks_items = dict((rbi.block_id, rbi) for rbi in RelationBlockItem.objects.filter(block_id__in=specific_ids))
-        else:
-            relation_blocks_items = {}
+        #if specific_ids:
+            #relation_blocks_items = dict((rbi.block_id, rbi) for rbi in RelationBlockItem.objects.filter(block_id__in=specific_ids))
+        #else:
+            #relation_blocks_items = {}
+        relation_blocks_items = dict((rbi.block_id, rbi) for rbi in RelationBlockItem.objects.filter(block_id__in=specific_ids)) if specific_ids else {}
 
-        if instance_ids:
-            instance_blocks_items = dict((ibi.block_id, ibi) for ibi in InstanceBlockConfigItem.objects.filter(block_id__in=instance_ids))
-        else:
-            instance_blocks_items = {}
+        #if instance_ids:
+            #instance_blocks_items = dict((ibi.block_id, ibi) for ibi in InstanceBlockConfigItem.objects.filter(block_id__in=instance_ids))
+        #else:
+            #instance_blocks_items = {}
+        instance_blocks_items = dict((ibi.block_id, ibi) for ibi in InstanceBlockConfigItem.objects.filter(block_id__in=instance_ids)) if instance_ids else {}
 
         blocks = []
 
         for id_ in block_ids:
             rbi = relation_blocks_items.get(id_)
-            ibi = instance_blocks_items.get(id_)
+            ibi = instance_blocks_items.get(id_) #TODO: do only if needed....
 
             if rbi:
+                #TODO: move in a method of RelationBlockItem
                 blocks.append(SpecificRelationsBlock(rbi.block_id, rbi.relation_type_id))
             elif ibi:
+                #TODO: move in a method of InstanceBlockConfigItem
                 path, klass = InstanceBlockConfigItem.get_import_path(id_)
 
                 try:

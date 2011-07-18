@@ -75,26 +75,26 @@
         {% import_object_block as 'object_block' %}
     {% endblock %}
 
-    {% block before_detail_view_1 %}{% endblock %}
+    {% block detail_view_top_1 %}{% endblock %}
+    {% display_detailview_blocks top %}
+    {% block detail_view_top_2 %}{% endblock %}
 
     <div style="float:left;width:49.9%;margin-left:0px;">
         {% block detail_view_left_1 %}
             {% display_block_detailview 'object_block' %}
         {% endblock %}
+        {% display_detailview_blocks left %}
         {% block detail_view_left_2 %}{% endblock %}
-        {% block detail_view_left_3 %}{% endblock %}
     </div>
     <div style="float:right;width:49.9%;margin-right:0px;">
         {% block detail_view_right_1 %}{% endblock %}
-
-        {% block detail_view_right_2 %}
-            {% display_detailview_blocks %}
-        {% endblock %}
-
-        {% block detail_view_right_3 %}{% endblock %}
+        {% display_detailview_blocks right %}
+        {% block detail_view_right_2 %}{% endblock %}
     </div>
 
-    {% block after_detail_view_1 %}{% endblock %}
+    {% block detail_view_bottom_1 %}{% endblock %}
+    {% display_detailview_blocks bottom %}
+    {% block detail_view_bottom_2 %}{% endblock %}
 
     {% get_blocks_dependencies %}
 {% endblock %}
