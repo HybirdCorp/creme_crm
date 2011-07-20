@@ -20,6 +20,7 @@
 
 import re
 import htmlentitydefs
+import uuid
 
 html_mark = re.compile(r"""(?P<html>(</|<!|<|&lt;)[-="' ;/.#:@\w]*(>|/>|&gt;))""")
 
@@ -108,3 +109,6 @@ def strip_html(text):
                     return unicode(entity, "iso-8859-1")
         return text # leave as is
     return re.sub("(?s)<[^>]*>|&#?\w+;", fixup, text)
+
+def generate_guid_for_field(urn, model, field_name):
+    return "{%s}" % str(uuid.uuid5(uuid.NAMESPACE_X500, str('%s.%s.%s' % (urn, model._meta.object_name, field_name)) )).upper()

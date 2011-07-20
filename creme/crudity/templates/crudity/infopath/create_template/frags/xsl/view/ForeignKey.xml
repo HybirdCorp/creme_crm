@@ -1,0 +1,15 @@
+{% load i18n %}
+{% with field.name as field_name %}
+    <select class="xdComboBox xdBehavior_Select" title="" size="1" tabIndex="0" xd:xctname="dropdown" xd:CtrlId="{{ field_name }}" xd:binding="my:{{ field_name }}" xd:boundProp="value" style="WIDTH: 100%">
+        <xsl:attribute name="value">
+            <xsl:value-of select="my:{{ field_name }}"/>
+        </xsl:attribute>
+        <option><xsl:if test="my:{{ field_name }}=&quot;&quot;"><xsl:attribute name="selected">selected</xsl:attribute></xsl:if>{% trans "Select..." %}</option>
+        {% for value, verbose in choices %}
+            <option value="{{ value }}">
+                <xsl:if test="my:{{ field_name }}=&quot;{{ value }}&quot;">
+                    <xsl:attribute name="selected">selected</xsl:attribute>
+                </xsl:if>{{ verbose }}</option>
+        {% endfor %}
+    </select>
+{% endwith %}

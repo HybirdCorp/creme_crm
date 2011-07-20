@@ -25,6 +25,8 @@ DEPENDENCIES:
             - restkit 2.2.1
             - pycrypto 2.3
 
+        - creme.crudity:
+            - lcab (if you want Infopath forms exports)
 
 RECOMMENDATIONS
 It's recommended to use a database engine that supports transactions.

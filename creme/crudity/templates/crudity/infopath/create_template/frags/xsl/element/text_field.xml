@@ -1,0 +1,5 @@
+{% with field.name as field_name %}
+    <xsl:element name="my:{{ field_name }}">
+        <xsl:apply-templates select="my:{{ field_name }}/text() | my:{{ field_name }}/*[namespace-uri()='http://www.w3.org/1999/xhtml']" mode="RichText"/>
+    </xsl:element>
+{% endwith %}

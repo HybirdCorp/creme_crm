@@ -21,12 +21,21 @@ from itertools import ifilter
 import re
 from xml.etree import ElementTree as ET
 from pyexpat import ExpatError
+from django.template.context import Context
 
-from crudity import CREATE
-from crudity.backends.email.create.base import CreateFromEmailBackend, re_html_br, passwd_pattern
-from crudity.utils import strip_html, strip_html_
+from creme_core.gui.button_menu import Button
+
+from crudity.backends.email.create.base import CreateFromEmailBackend
 
 remove_pattern = re.compile('[\t\n\r\f\v]')
+
+class InfopathCreateFormButton(Button):
+    id_           = Button.generate_id('crudity', 'infopath_create_form')
+    verbose_name  = u""
+    template_name = 'crudity/templatetags/button_infopath_create_form.html'
+
+infopath_create_form_button = InfopathCreateFormButton()
+
 
 class InfopathCreateFromEmail(CreateFromEmailBackend):
     blocks = ()
@@ -76,4 +85,6 @@ class InfopathCreateFromEmail(CreateFromEmailBackend):
                     data[tag] = node.text
         return data
 
+    def get_buttons(self):
+        return [infopath_create_form_button.render(Context({'backend': self})), ]
 

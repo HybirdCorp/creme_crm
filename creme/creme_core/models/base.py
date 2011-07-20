@@ -90,7 +90,7 @@ class CremeAbstractEntity(CremeModel):
 
     is_deleted = BooleanField(blank=True, default=False, editable=False)
     is_actived = BooleanField(blank=True, default=False, editable=False)
-    user        = CremeUserForeignKey(verbose_name=_(u"User"))
+    user       = CremeUserForeignKey(verbose_name=_(u"User"))
 
     _real_entity = None
 
