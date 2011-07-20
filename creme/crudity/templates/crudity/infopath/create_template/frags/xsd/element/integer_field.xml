@@ -1,0 +1,1 @@
+<xsd:element name="{{ field.name }}" type="xsd:integer"/>

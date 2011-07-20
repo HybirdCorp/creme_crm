@@ -7,7 +7,6 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models.query_utils import Q
 
 from creme_core.models.entity import CremeEntity
-from creme_core.tests.base import CremeTestCase
 
 from creme_config.models.setting import SettingValue
 from persons.models.contact import Contact
@@ -16,29 +15,10 @@ from crudity import CREATE
 from crudity.models import History, WaitingAction
 from crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
 from crudity.fetchers.pop import PopEmail
-from crudity.backends.email.create.base import CreateFromEmailBackend
 from crudity.backends.email.create.infopath import InfopathCreateFromEmail
 from crudity.backends.registry import from_email_crud_registry
+from crudity.tests.base import CrudityTestCase
 
-class CrudityTestCase(CremeTestCase):
-    def setUp(self):
-        self.login()
-        self.populate('crudity',)
-
-    def _set_sandbox_by_user(self):
-        sv = SettingValue.objects.get(key=SETTING_CRUDITY_SANDBOX_BY_USER, user=None)
-        sv.value = "True"
-        sv.save()
-
-    def _get_create_from_email_backend(self, password="", in_sandbox=True, subject="", model=CremeEntity, body_map={}, limit_froms=(), backend_klass=CreateFromEmailBackend):
-        backend = backend_klass()
-        backend.password = password
-        backend.in_sandbox = in_sandbox
-        backend.subject = subject
-        backend.model = model
-        backend.body_map = body_map
-        backend.limit_froms = limit_froms
-        return backend
 
 class CreateFromEmailBackendTestCase(CrudityTestCase):
     def test_create01(self):#Unallowed user
@@ -510,6 +490,32 @@ entity
 
         self.assertEqual(user, CremeEntity.objects.get(~Q(pk__in=existing_ce)).user)
         self.assertEqual(other_user, History.objects.all()[0].user)
+
+    def test_create16(self):#Text mail with creation
+        user = self.user
+
+        backend = self._get_create_from_email_backend(password = u"creme", in_sandbox = False,
+                                                      subject = "create_contact",
+                                                      body_map = {
+                                                            "user_id": user.id,
+                                                            "created": "",
+                                                            "is_actived": "",
+                                                            "url_site":"",
+                                                      },
+                                                      model=Contact)
+        contact_count = Contact.objects.count()
+        self.assertEqual(0, WaitingAction.objects.count())
+        self.assertEqual(contact_count, Contact.objects.count())
+        backend.create(PopEmail(body=u"password=creme\nuser_id=%s\ncreated=01-02-2003\nis_actived=false\nurl_site=plop" % (user.id,), senders=('creme@crm.org',), subject="create_contact"))
+        self.assertEqual(0, WaitingAction.objects.count())
+        self.assertEqual(contact_count+1, Contact.objects.count())
+
+        ce = Contact.objects.all()[contact_count]
+
+        self.assertEqual(user, ce.user)
+        self.assertEqual(datetime(year=2003, month=02, day=01), ce.created)
+        self.assertEqual(False, ce.is_actived)
+        self.assertEqual("plop", ce.url_site)
 
     def test_is_sandbox_by_user_property01(self):
         self._set_sandbox_by_user()

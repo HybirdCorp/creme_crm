@@ -1,0 +1,7 @@
+<xsd:element name="{{ field.name }}">
+    <xsd:complexType mixed="true">
+        <xsd:sequence>
+            <xsd:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/1999/xhtml" processContents="lax"/>
+        </xsd:sequence>
+    </xsd:complexType>
+</xsd:element>

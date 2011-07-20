@@ -22,7 +22,7 @@ import re
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.contrib.contenttypes.models import ContentType
-from django.db.models.fields import FieldDoesNotExist, TextField
+from django.db.models.fields import FieldDoesNotExist, TextField, BooleanField
 from django.utils.translation import ugettext as _
 
 from creme_config.models.setting import SettingValue
@@ -32,7 +32,7 @@ from creme_core.utils.meta import is_date_field
 
 from persons.models.contact import Contact
 
-from crudity import CREATE
+from crudity import CREATE, VERBOSE_CRUD
 from crudity.constants import LEFT_MULTILINE_SEP, RIGHT_MULTILINE_SEP, SETTING_CRUDITY_SANDBOX_BY_USER
 from crudity.models.actions import WaitingAction
 from crudity.models.history import History
@@ -176,8 +176,12 @@ class CreateFromEmailBackend(object):
                 data[field_name] = field_value = field_value.replace('\n', ' ')
 
             if is_date_field(model_get_field(field_name)):
-                data[field_name] = get_dt_from_str(field_value.strip())
+                data[field_name] = field_value = get_dt_from_str(field_value.strip())
 
+            if isinstance(field, BooleanField):
+                data[field_name] = field_value = field.to_python(field_value.strip()[0:1].lower()) #Trick to obtain 't'/'f' or '1'/'0'
+
+            data[field_name] = field.to_python(field_value)
 
         instance.__dict__.update(data)
         is_created = True
@@ -193,6 +197,13 @@ class CreateFromEmailBackend(object):
             is_created = False
 
         return is_created
+
+    def get_buttons(self):
+        return []
+
+    @property
+    def verbose_name(self):
+        return u"%s %s" % (VERBOSE_CRUD.get(self.type), self.model._meta.object_name)
 
 
 class DropFromEmailBackend(object):
