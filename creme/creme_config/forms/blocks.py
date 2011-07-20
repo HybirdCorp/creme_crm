@@ -18,79 +18,102 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from itertools import chain
 from logging import debug
 
-from django.forms import IntegerField, MultipleChoiceField, ChoiceField
+from django.forms import IntegerField, MultipleChoiceField, ChoiceField, ValidationError
 from django.forms.widgets import HiddenInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType, BlockConfigItem, RelationBlockItem, InstanceBlockConfigItem
+from creme_core.registry import creme_registry
+from creme_core.models import RelationType, BlockDetailviewLocation, BlockPortalLocation, RelationBlockItem, InstanceBlockConfigItem
 from creme_core.forms import CremeForm, CremeModelForm
 from creme_core.forms.widgets import OrderedMultipleChoiceWidget
 from creme_core.gui.block import block_registry, SpecificRelationsBlock
 from creme_core.utils import creme_entity_content_types
-from creme_core.utils.id_generator import generate_string_id_and_save
 
 
-def _save_detailview_blocksconfig(ct_id, block_ids):
-    BCI_filter    = BlockConfigItem.objects.filter
-    ct            = ContentType.objects.get_for_id(ct_id) if ct_id else None  #can't filter correctly with ct_id = 0/None -> use ContentType object
-    blocks_2_save = []
-
-    #No block for this content type -> fake block_id
-    if not block_ids:
-        #No pk to BCI objects --> can delete() on queryset directly
-        BCI_filter(content_type=ct).delete()
-        blocks_2_save.append(BlockConfigItem(content_type=ct, block_id='', order=1, on_portal=False))
-    else:
-        old_ids = set(BCI_filter(content_type=ct).values_list('block_id', flat=True))
-        new_ids = set(block_ids)
-        blocks_to_del = old_ids - new_ids
-        blocks_to_add = new_ids - old_ids
-
-        #No pk to BCI objects --> can delete() on queryset directly
-        BCI_filter(content_type=ct, block_id__in=blocks_to_del).delete()
-
-        for i, block_id in enumerate(block_ids):
-            order = i + 1 #TODO: use 'start' arg in enumerate with Python 2.6
-
-            if block_id in blocks_to_add:
-                blocks_2_save.append(BlockConfigItem(content_type=ct, block_id=block_id, order=order, on_portal=False))
-            else:
-                bci = BlockConfigItem.objects.get(content_type=ct, block_id=block_id) #TODO: queries could be regrouped...
-
-                if bci.order != order:
-                    bci.order = order
-                    bci.save()
-
-    generate_string_id_and_save(BlockConfigItem, blocks_2_save, 'creme_config-userbci')
+__all__ = ('BlockDetailviewLocationsAddForm', 'BlockDetailviewLocationsEditForm',
+           'BlockPortalLocationsAddForm', 'BlockPortalLocationsEditForm',
+           'RelationBlockAddForm',
+          )
 
 
-class BlocksAddForm(CremeForm):
+class BlockLocationsField(MultipleChoiceField):
+    def __init__(self, required=False, choices=(), widget=OrderedMultipleChoiceWidget, *args, **kwargs):
+        super(BlockLocationsField, self).__init__(required=required, choices=choices, widget=widget, *args, **kwargs)
+
+
+class _BlockLocationsForm(CremeForm):
+    #TODO: use transaction ???
+    def _save_locations(self, location_model, location_builder, blocks_partitions, old_locations=()):
+        needed = sum(len(block_ids) or 1 for block_ids in blocks_partitions.itervalues()) #at least 1 block per zone (even if it can be fake block)
+        lendiff = needed - len(old_locations)
+
+        if lendiff < 0:
+            locations_store = old_locations[:needed]
+            location_model.objects.filter(pk__in=[loc.id for loc in old_locations[needed:]]).delete()
+        else:
+            locations_store = list(old_locations)
+
+            if lendiff > 0:
+               locations_store.extend(location_builder() for i in xrange(lendiff))
+
+        store_it = iter(locations_store)
+
+        for zone, block_ids in blocks_partitions.iteritems():
+            if not block_ids: #No block for this zone -> fake block_id
+                block_ids = ('',)
+
+            for order, block_id in enumerate(block_ids, start=1):
+                location = store_it.next()
+                location.block_id = block_id
+                location.order    = order
+                location.zone     = zone #NB: BlockPortalLocation has not 'zone' attr, but we do not care ! :)
+
+                location.save()
+
+
+class _BlockDetailviewLocationsForm(_BlockLocationsForm):
+    def _save_detail_locations(self, ct, old_locations=(), top=(), left=(), right=(), bottom=()):
+        self._save_locations(BlockDetailviewLocation,
+                             lambda: BlockDetailviewLocation(content_type=ct),
+                             {
+                                 BlockDetailviewLocation.TOP:    top,
+                                 BlockDetailviewLocation.LEFT:   left,
+                                 BlockDetailviewLocation.RIGHT:  right,
+                                 BlockDetailviewLocation.BOTTOM: bottom,
+                             },
+                             old_locations
+                            )
+
+
+class BlockDetailviewLocationsAddForm(_BlockDetailviewLocationsForm):
     ct_id = ChoiceField(label=_(u'Related resource'), choices=(), required=True)
 
     def __init__(self, *args, **kwargs):
-        super(BlocksAddForm, self).__init__(*args, **kwargs)
+        super(BlockDetailviewLocationsAddForm, self).__init__(*args, **kwargs)
 
         entity_ct_ids = set(ct.id for ct in creme_entity_content_types())
-        used_ct_ids   = set(BlockConfigItem.objects.exclude(content_type=None).distinct().values_list('content_type_id', flat=True))
+        used_ct_ids   = set(BlockDetailviewLocation.objects.exclude(content_type=None).distinct().values_list('content_type_id', flat=True))
         self.fields['ct_id'].choices = [(ct.id, ct) for ct in ContentType.objects.filter(pk__in=entity_ct_ids - used_ct_ids)]
 
     def save(self, *args, **kwargs):
-        _save_detailview_blocksconfig(self.cleaned_data['ct_id'], block_ids=[])
+        self._save_detail_locations(ContentType.objects.get_for_id(self.cleaned_data['ct_id']))
 
 
-class BlocksEditForm(CremeForm):
-    block_ids = MultipleChoiceField(label=_(u'Block to display'), required=False,
-                                    choices=(), widget=OrderedMultipleChoiceWidget
-                                   )
+class BlockDetailviewLocationsEditForm(_BlockDetailviewLocationsForm):
+    top    = BlockLocationsField(label=_(u'Blocks to display on top'))
+    left   = BlockLocationsField(label=_(u'Blocks to display on left side'))
+    right  = BlockLocationsField(label=_(u'Blocks to display on right side'))
+    bottom = BlockLocationsField(label=_(u'Blocks to display on bottom'))
 
-    def __init__(self, ct_id, block_config_items, *args, **kwargs):
-        super(BlocksEditForm, self).__init__(*args, **kwargs)
-        self.ct_id = ct_id
-
-        configured_model = ContentType.objects.get_for_id(ct_id).model_class() if ct_id else None
+    def __init__(self, ct, block_locations, *args, **kwargs):
+        super(BlockDetailviewLocationsEditForm, self).__init__(*args, **kwargs)
+        self.ct = ct
+        self.locations = block_locations
+        configured_model = ct.model_class() if ct else None
 
         choices = [(block.id_, block.verbose_name)
                         for block in block_registry.get_compatible_blocks(model=configured_model)
@@ -102,45 +125,75 @@ class BlocksEditForm(CremeForm):
                             for ibi in InstanceBlockConfigItem.objects.all()
                       )
 
-        block_ids = self.fields['block_ids']
-        block_ids.initial = [bci.block_id for bci in block_config_items]
-        block_ids.choices = choices
+        fields = self.fields
+
+        for fname, zone in (('top', BlockDetailviewLocation.TOP), ('left', BlockDetailviewLocation.LEFT),
+                            ('right', BlockDetailviewLocation.RIGHT), ('bottom', BlockDetailviewLocation.BOTTOM)):
+            block_ids = fields[fname]
+            block_ids.initial = [bl.block_id for bl in block_locations if bl.zone == zone]
+            block_ids.choices = choices
+
+    def clean(self):
+        cdata = self.cleaned_data
+        all_block_ids = set()
+
+        for block_id in chain(cdata['top'], cdata['left'], cdata['right'], cdata['bottom']):
+            if block_id in all_block_ids:
+                raise ValidationError(ugettext(u'The following block should be displayed only once: <%s>') % \
+                                        block_registry[block_id].verbose_name
+                                     )
+
+            all_block_ids.add(block_id)
+
+        return cdata
 
     def save(self, *args, **kwargs):
-        _save_detailview_blocksconfig(self.ct_id, block_ids=self.cleaned_data['block_ids'])
+        cdata = self.cleaned_data
+        self._save_detail_locations(self.ct, self.locations,
+                                    cdata['top'], cdata['left'], cdata['right'], cdata['bottom']
+                                   )
 
 
-class BlocksPortalEditForm(CremeForm):
-    block_ids = MultipleChoiceField(label=_(u'Blocks to display on the portal'), required=False,
-                                    choices=(), widget=OrderedMultipleChoiceWidget)
+class _BlockPortalLocationsForm(_BlockLocationsForm):
+    def _save_portal_locations(self, app_name, old_locations=(), block_ids=()):
+        self._save_locations(BlockPortalLocation,
+                             lambda: BlockPortalLocation(app_name=app_name),
+                             {1: block_ids}, #1 is a "nameless" zone
+                             old_locations,
+                            )
 
-    def __init__(self, ct_id, block_config_items, *args, **kwargs):
-        super(BlocksPortalEditForm, self).__init__(*args, **kwargs)
-        self._block_config_items = block_config_items
+class BlockPortalLocationsAddForm(_BlockPortalLocationsForm):
+    app_name = ChoiceField(label=_(u'Related application'), choices=(), required=True)
 
-        get_block = block_registry.get_block
-        choices   = []
+    def __init__(self, *args, **kwargs):
+        super(BlockPortalLocationsAddForm, self).__init__(*args, **kwargs)
 
-        for bci in block_config_items:
-            id_   = bci.block_id
-            block = get_block(id_)
+        excluded_apps = set(BlockPortalLocation.objects.values_list('app_name', flat=True))
+        excluded_apps.add('creme_core')
+        excluded_apps.add('creme_config')
+        self.fields['app_name'].choices = [(app.name, app.verbose_name)
+                                               for app in creme_registry.iter_apps()
+                                                   if not app.name in excluded_apps
+                                          ]
 
-            if hasattr(block, 'portal_display'):
-                choices.append((id_, block.verbose_name))
+    def save(self, *args, **kwargs):
+        self._save_portal_locations(self.cleaned_data['app_name'])
 
-        block_ids = self.fields['block_ids']
-        block_ids.choices = choices
-        block_ids.initial = [bci.block_id for bci in block_config_items if bci.on_portal]
 
-    def save(self):
-        on_portal_ids = set(self.cleaned_data['block_ids'])
+class BlockPortalLocationsEditForm(_BlockPortalLocationsForm):
+    blocks = BlockLocationsField(label=_(u'Blocks to display on the portal'))
 
-        for bci in self._block_config_items:
-            on_portal = (bci.block_id in on_portal_ids)
+    def __init__(self, app_name, block_locations, *args, **kwargs):
+        super(BlockPortalLocationsEditForm, self).__init__(*args, **kwargs)
+        self.app_name = app_name
+        self.locations = block_locations
 
-            if bci.on_portal != on_portal:
-                bci.on_portal = on_portal
-                bci.save()
+        blocks = self.fields['blocks']
+        blocks.choices = [(block_id, block.verbose_name) for block_id, block in block_registry if hasattr(block, 'portal_display')]
+        blocks.initial = [bl.block_id for bl in block_locations]
+
+    def save(self, *args, **kwargs):
+        self._save_portal_locations(self.app_name, self.locations, self.cleaned_data['blocks'])
 
 
 class RelationBlockAddForm(CremeModelForm):

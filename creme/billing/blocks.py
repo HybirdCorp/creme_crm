@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from django.db.models.query_utils import Q
 from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.translation import ugettext_lazy as _
@@ -29,11 +30,16 @@ from creme_core.models import CremeEntity, Relation
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
 from persons.models import Contact, Organisation
+from persons.blocks import AddressBlock
 
-from billing.models import (ProductLine, ServiceLine, Invoice, SalesOrder, Quote, PaymentInformation, Base,
-                            PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE, TemplateBase)
-
-from billing.constants import REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED, REL_SUB_BILL_ISSUED, REL_OBJ_BILL_ISSUED, DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA, REL_OBJ_HAS_LINE, REL_SUB_HAS_LINE
+#from billing.models import (ProductLine, ServiceLine, Invoice, CreditNote, SalesOrder, Quote, PaymentInformation, Base,
+                            #PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE, TemplateBase)
+from billing.models import *
+from billing.models.line import PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
+#from billing.constants import (REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED, REL_SUB_BILL_ISSUED,
+                               #REL_OBJ_BILL_ISSUED, REL_OBJ_HAS_LINE, REL_SUB_HAS_LINE,
+                               #DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)
+from billing.constants import *
 
 
 #NB PaginatedBlock and not QuerysetBlock to avoid the retrieving of a sliced
@@ -44,6 +50,7 @@ class ProductLinesBlock(PaginatedBlock):
     verbose_name  = _(u'Product lines')
     template_name = 'billing/templatetags/block_product_line.html'
     relation_type_deps = (REL_SUB_HAS_LINE, )
+    target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder)
 
     def detailview_display(self, context):
         document = context['object']
@@ -60,6 +67,7 @@ class ServiceLinesBlock(PaginatedBlock):
     verbose_name  = _(u'Service lines')
     template_name = 'billing/templatetags/block_service_line.html'
     relation_type_deps = (REL_SUB_HAS_LINE, )
+    target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder)
 
     def detailview_display(self, context):
         document = context['object']
@@ -75,6 +83,7 @@ class TotalBlock(Block):
     dependencies  = (ProductLine, ServiceLine)
     verbose_name  = _(u'Total')
     template_name = 'billing/templatetags/block_total.html'
+    target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder)
 
     #TODO: move in Block ??
     def detailview_display(self, context):
@@ -86,6 +95,7 @@ class TargetBlock(Block):
     dependencies  = (Invoice, SalesOrder, Quote)
     verbose_name  = _(u'Target Organisation')
     template_name = 'billing/templatetags/block_target.html'
+    target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder)
 
     #TODO: move in Block ??
     def detailview_display(self, context):
@@ -98,7 +108,7 @@ class ReceivedInvoicesBlock(QuerysetBlock):
     relation_type_deps = (REL_OBJ_BILL_RECEIVED, )
     verbose_name  = _(u"Received invoices")
     template_name = 'billing/templatetags/block_received_invoices.html'
-    configurable  = True
+    #configurable  = True
     target_ctypes = (Contact, Organisation)
 
     def detailview_display(self, context):
@@ -120,7 +130,7 @@ class ReceivedBillingDocumentBlock(QuerysetBlock):#TODO: Check out and exclude T
     relation_type_deps = (REL_OBJ_BILL_RECEIVED, )
     verbose_name  = _(u"Received billing documents")
     template_name = 'billing/templatetags/block_received_billing_document.html'
-    configurable  = True
+    #configurable  = True
     target_ctypes = (Contact, Organisation)
     order_by      = 'name'
 
@@ -147,21 +157,20 @@ class PaymentInformationBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('billing', 'payment_information')
     verbose_name  = _(u"Payment information")
     template_name = "billing/templatetags/block_payment_information.html"
-    configurable  = True
+    #configurable  = True
     target_ctypes = (Organisation, )
     order_by      = 'name'
 
     def detailview_display(self, context):
         organisation = context['object']
-
         has_to_be_displayed = True
+
         try:
             has_to_be_displayed_cfg = SettingValue.objects.get(key__id=DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA).value
             is_managed_by_creme     = organisation.properties.filter(type=PROP_IS_MANAGED_BY_CREME)
 
-            if has_to_be_displayed_cfg and not is_managed_by_creme:
-                    has_to_be_displayed = False
-
+            if has_to_be_displayed_cfg and not is_managed_by_creme: #TODO: move out 'try.. except' block
+                has_to_be_displayed = False
         except SettingValue.DoesNotExist:
             #Populate error ?
             pass
@@ -169,12 +178,11 @@ class PaymentInformationBlock(QuerysetBlock):
         if not has_to_be_displayed:
             return ""
 
-
-        btc= self.get_block_template_context(context,
-                                             PaymentInformation.objects.filter(organisation=organisation),
-                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, organisation.pk),
-                                             ct_id=ContentType.objects.get_for_model(PaymentInformation).id
-                                            )
+        btc = self.get_block_template_context(context,
+                                              PaymentInformation.objects.filter(organisation=organisation),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, organisation.pk),
+                                              ct_id=ContentType.objects.get_for_model(PaymentInformation).id
+                                             )
 
         return self._render(btc)
 
@@ -183,8 +191,8 @@ class BillingPaymentInformationBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('billing', 'billing_payment_information')
     verbose_name  = _(u"Default payment information")
     template_name = "billing/templatetags/block_billing_payment_information.html"
-    configurable  = False
-    target_ctypes = (Base, )
+    #configurable  = False
+    target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder)
     dependencies  = (Relation, )
     relation_type_deps = (REL_OBJ_BILL_ISSUED, REL_SUB_BILL_ISSUED, REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED)
     order_by      = 'name'
@@ -198,21 +206,39 @@ class BillingPaymentInformationBlock(QuerysetBlock):
         else:
             pi_qs = PaymentInformation.objects.none()
 
-        btc= self.get_block_template_context(context,
-                                             pi_qs,
-                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, billing.pk),
-                                             ct_id=ContentType.objects.get_for_model(PaymentInformation).id,
-                                             organisation=organisation,
-                                            )
+        btc = self.get_block_template_context(context,
+                                              pi_qs,
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, billing.pk),
+                                              ct_id=ContentType.objects.get_for_model(PaymentInformation).id,
+                                              organisation=organisation,
+                                             )
 
         return self._render(btc)
 
 
-product_lines_block                = ProductLinesBlock()
-service_lines_block                = ServiceLinesBlock()
-total_block                        = TotalBlock()
-target_block                       = TargetBlock()
-received_invoices_block            = ReceivedInvoicesBlock()
-payment_information_block          = PaymentInformationBlock()
-billing_payment_information_block  = BillingPaymentInformationBlock()
-received_billing_document_block    = ReceivedBillingDocumentBlock()
+class BillingAddressBlock(AddressBlock):
+    id_  = Block.generate_id('billing', 'address')
+    target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder)
+
+
+product_lines_block             = ProductLinesBlock()
+service_lines_block             = ServiceLinesBlock()
+total_block                     = TotalBlock()
+target_block                    = TargetBlock()
+received_invoices_block         = ReceivedInvoicesBlock()
+payment_information_block       = PaymentInformationBlock()
+billing_payment_block           = BillingPaymentInformationBlock()
+received_billing_document_block = ReceivedBillingDocumentBlock()
+billing_address_block           = BillingAddressBlock()
+
+block_list = (
+        product_lines_block,
+        service_lines_block,
+        total_block,
+        target_block,
+        received_invoices_block,
+        payment_information_block,
+        billing_payment_block,
+        received_billing_document_block,
+        billing_address_block,
+    )

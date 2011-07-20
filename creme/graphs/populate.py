@@ -20,10 +20,12 @@
 
 from django.utils.translation import ugettext as _
 
-from creme_core.models import SearchConfigItem, HeaderFilterItem, HeaderFilter
+from creme_core.models import SearchConfigItem, HeaderFilterItem, HeaderFilter, BlockDetailviewLocation
+from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme_core.management.commands.creme_populate import BasePopulator
 
-from models import Graph
+from graphs.models import Graph
+from graphs.blocks import root_nodes_block, orbital_rtypes_block
 
 
 class Populator(BasePopulator):
@@ -32,5 +34,12 @@ class Populator(BasePopulator):
     def populate(self, *args, **kwargs):
         hf = HeaderFilter.create(pk='graphs-hf', name=_(u'Graph view'), model=Graph)
         hf.set_items([HeaderFilterItem.build_4_field(model=Graph, name='name')])
+
+        BlockDetailviewLocation.create(block_id=customfields_block.id_,   order=40,  zone=BlockDetailviewLocation.LEFT,  model=Graph)
+        BlockDetailviewLocation.create(block_id=root_nodes_block.id_,     order=60,  zone=BlockDetailviewLocation.LEFT,  model=Graph)
+        BlockDetailviewLocation.create(block_id=orbital_rtypes_block.id_, order=65,  zone=BlockDetailviewLocation.LEFT,  model=Graph)
+        BlockDetailviewLocation.create(block_id=properties_block.id_,     order=450, zone=BlockDetailviewLocation.LEFT,  model=Graph)
+        BlockDetailviewLocation.create(block_id=relations_block.id_,      order=500, zone=BlockDetailviewLocation.LEFT,  model=Graph)
+        BlockDetailviewLocation.create(block_id=history_block.id_,        order=20,  zone=BlockDetailviewLocation.RIGHT, model=Graph)
 
         SearchConfigItem.create(Graph, ['name'])

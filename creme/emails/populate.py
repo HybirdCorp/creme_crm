@@ -20,13 +20,16 @@
 
 from django.utils.translation import ugettext as _
 
-from creme_core.models import RelationType, SearchConfigItem, ButtonMenuItem, HeaderFilterItem, HeaderFilter
-from creme_core.utils import create_or_update as create
+from creme_core.models import (RelationType, SearchConfigItem, BlockDetailviewLocation,
+                               ButtonMenuItem, HeaderFilterItem, HeaderFilter)
+from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
+
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from persons.models import Organisation, Contact
 
 from emails.models import MailingList, EmailCampaign, EmailTemplate, EntityEmail
+from emails.blocks import *
 from emails.buttons import entityemail_link_button
 from emails.constants import (REL_SUB_MAIL_RECEIVED, REL_OBJ_MAIL_RECEIVED,
                               REL_SUB_MAIL_SENDED, REL_OBJ_MAIL_SENDED, REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO)
@@ -61,6 +64,29 @@ class Populator(BasePopulator):
                       HeaderFilterItem.build_4_field(model=EntityEmail, name='recipient'),
                       HeaderFilterItem.build_4_field(model=EntityEmail, name='subject'),
                      ])
+
+        BlockDetailviewLocation.create(block_id=customfields_block.id_,     order=40,  zone=BlockDetailviewLocation.LEFT,  model=MailingList)
+        BlockDetailviewLocation.create(block_id=email_recipients_block.id_, order=80,  zone=BlockDetailviewLocation.LEFT,  model=MailingList)
+        BlockDetailviewLocation.create(block_id=contacts_block.id_,         order=90,  zone=BlockDetailviewLocation.LEFT,  model=MailingList)
+        BlockDetailviewLocation.create(block_id=organisations_block.id_,    order=95,  zone=BlockDetailviewLocation.LEFT,  model=MailingList)
+        BlockDetailviewLocation.create(block_id=child_lists_block.id_,      order=100, zone=BlockDetailviewLocation.LEFT,  model=MailingList)
+        BlockDetailviewLocation.create(block_id=parent_lists_block.id_,     order=105, zone=BlockDetailviewLocation.LEFT,  model=MailingList)
+        BlockDetailviewLocation.create(block_id=properties_block.id_,       order=450, zone=BlockDetailviewLocation.LEFT,  model=MailingList)
+        BlockDetailviewLocation.create(block_id=relations_block.id_,        order=500, zone=BlockDetailviewLocation.LEFT,  model=MailingList)
+        BlockDetailviewLocation.create(block_id=history_block.id_,          order=20,  zone=BlockDetailviewLocation.RIGHT, model=MailingList)
+
+        BlockDetailviewLocation.create(block_id=sendings_block.id_,      order=2,   zone=BlockDetailviewLocation.TOP,   model=EmailCampaign)
+        BlockDetailviewLocation.create(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.LEFT,  model=EmailCampaign)
+        BlockDetailviewLocation.create(block_id=mailing_lists_block.id_, order=120, zone=BlockDetailviewLocation.LEFT,  model=EmailCampaign)
+        BlockDetailviewLocation.create(block_id=properties_block.id_,    order=450, zone=BlockDetailviewLocation.LEFT,  model=EmailCampaign)
+        BlockDetailviewLocation.create(block_id=relations_block.id_,     order=500, zone=BlockDetailviewLocation.LEFT,  model=EmailCampaign)
+        BlockDetailviewLocation.create(block_id=history_block.id_,       order=20,  zone=BlockDetailviewLocation.RIGHT, model=EmailCampaign)
+
+        BlockDetailviewLocation.create(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.LEFT,  model=EmailTemplate)
+        BlockDetailviewLocation.create(block_id=attachments_block.id_,   order=60,  zone=BlockDetailviewLocation.LEFT,  model=EmailTemplate)
+        BlockDetailviewLocation.create(block_id=properties_block.id_,    order=450, zone=BlockDetailviewLocation.LEFT,  model=EmailTemplate)
+        BlockDetailviewLocation.create(block_id=relations_block.id_,     order=500, zone=BlockDetailviewLocation.LEFT,  model=EmailTemplate)
+        BlockDetailviewLocation.create(block_id=history_block.id_,       order=20,  zone=BlockDetailviewLocation.RIGHT, model=EmailTemplate)
 
         ButtonMenuItem.create(pk='emails-entity_email_link_button', model=EntityEmail, button=entityemail_link_button, order=20)
 

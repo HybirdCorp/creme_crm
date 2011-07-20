@@ -26,7 +26,7 @@ from creme_core.gui.block import QuerysetBlock, list4url
 
 from persons.models import Contact
 
-from models import Activity, Calendar
+from models import Activity, Meeting, PhoneCall, Task, Calendar
 from constants import *
 
 
@@ -36,6 +36,7 @@ class ParticipantsBlock(QuerysetBlock):
     relation_type_deps = (REL_OBJ_PART_2_ACTIVITY,)
     verbose_name  = _(u'Participants')
     template_name = 'activities/templatetags/block_participants.html'
+    target_ctypes = (Activity, Meeting, PhoneCall, Task)
 
     def detailview_display(self, context):
         activity = context['object']
@@ -67,6 +68,7 @@ class SubjectsBlock(QuerysetBlock):
     relation_type_deps = (REL_OBJ_ACTIVITY_SUBJECT,)
     verbose_name  = _(u'Subjects')
     template_name = 'activities/templatetags/block_subjects.html'
+    target_ctypes = (Activity, Meeting, PhoneCall, Task)
 
     def detailview_display(self, context):
         activity = context['object']
@@ -88,7 +90,7 @@ class FutureActivitiesBlock(QuerysetBlock):
     relation_type_deps = (REL_SUB_LINKED_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY)
     verbose_name  = _(u'Future activities')
     template_name = 'activities/templatetags/block_future_activities.html'
-    configurable  = True
+    #configurable  = True
 
     _RTYPES_2_POP = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
 
@@ -152,8 +154,9 @@ class PastActivitiesBlock(FutureActivitiesBlock):
 class UserCalendars(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activities', 'user_calendars')
     dependencies  = (Calendar, )
-    verbose_name  = _(u'My calendars')
+    verbose_name  = u'My calendars'
     template_name = 'activities/templatetags/block_user_calendars.html'
+    configurable  = False
     order_by      = 'name'
     permission    = None #NB: used by the view creme_core.views.blocks.reload_basic ; None means 'No special permission required'
 
@@ -171,3 +174,11 @@ subjects_block          = SubjectsBlock()
 future_activities_block = FutureActivitiesBlock()
 past_activities_block   = PastActivitiesBlock()
 user_calendars_block    = UserCalendars()
+
+block_list = (
+        participants_block,
+        subjects_block,
+        future_activities_block,
+        past_activities_block,
+        user_calendars_block,
+    )

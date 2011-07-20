@@ -18,7 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from logging import info
+
 from django.utils.translation import ugettext as _
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
@@ -26,19 +29,21 @@ from creme_core import autodiscover as creme_core_autodiscover
 from creme_core.models import (RelationType, CremeProperty, CremePropertyType,
                                HeaderFilter, HeaderFilterItem,
                                EntityFilter, EntityFilterCondition,
-                               ButtonMenuItem, SearchConfigItem, RelationBlockItem, BlockConfigItem)
+                               ButtonMenuItem, SearchConfigItem, RelationBlockItem, #BlockConfigItem)
+                               BlockDetailviewLocation, BlockPortalLocation)
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme_core.utils import create_or_update as create
-from creme_core.utils.id_generator import generate_string_id_and_save
-from creme_core.gui.block import block_registry
+#from creme_core.utils.id_generator import generate_string_id_and_save
+#from creme_core.gui.block import block_registry
+from creme_core.blocks import relations_block, properties_block, customfields_block, history_block
 from creme_core.management.commands.creme_populate import BasePopulator
 
-from assistants.blocks import *
+#from assistants.blocks import *
 
 from persons.models import *
 from persons.constants import *
-from persons.buttons import (become_customer_button, become_prospect_button, become_suspect_button,
-                             become_inactive_button, become_supplier_button, add_linked_contact_button)
+from persons.blocks import *
+from persons.buttons import *
 
 
 class Populator(BasePopulator):
@@ -47,10 +52,8 @@ class Populator(BasePopulator):
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_EMPLOYED_BY, _(u'is an employee of'),          [Contact]),
                             (REL_OBJ_EMPLOYED_BY, _(u'employs'),                    [Organisation]))
-
-        RelationType.create((REL_SUB_CUSTOMER_SUPPLIER, _(u'is a customer of'),           [Contact, Organisation]),
-                            (REL_OBJ_CUSTOMER_SUPPLIER, _(u'is a supplier of'),           [Contact, Organisation]))
-
+        RelationType.create((REL_SUB_CUSTOMER_SUPPLIER, _(u'is a customer of'),     [Contact, Organisation]),
+                            (REL_OBJ_CUSTOMER_SUPPLIER, _(u'is a supplier of'),     [Contact, Organisation]))
         RelationType.create((REL_SUB_MANAGES,     _(u'manages'),                    [Contact]),
                             (REL_OBJ_MANAGES,     _(u'managed by'),                 [Organisation]))
         RelationType.create((REL_SUB_PROSPECT,    _(u'is a prospect of'),           [Contact, Organisation]),
@@ -161,16 +164,60 @@ class Populator(BasePopulator):
         rbi_1 = RelationBlockItem.create(REL_SUB_CUSTOMER_SUPPLIER)
         rbi_2 = RelationBlockItem.create(REL_OBJ_CUSTOMER_SUPPLIER)
 
-        if not BlockConfigItem.objects.filter(content_type=orga_ct).exists():
-            blocks_2_save = [
-                BlockConfigItem(content_type=orga_ct, block_id=rbi_1.block_id, order=1, on_portal=False),
-                BlockConfigItem(content_type=orga_ct, block_id=rbi_2.block_id, order=2, on_portal=False),
-            ]
+        #if not BlockConfigItem.objects.filter(content_type=orga_ct).exists():
+            #blocks_2_save = [
+                #BlockConfigItem(content_type=orga_ct, block_id=rbi_1.block_id, order=1, on_portal=False),
+                #BlockConfigItem(content_type=orga_ct, block_id=rbi_2.block_id, order=2, on_portal=False),
+            #]
 
-            #TODO: move some code in some BlockConfigItem helpers ??
-            creme_core_autodiscover()
-            blocks_2_save.extend(BlockConfigItem(content_type=orga_ct, block_id=block.id_, order=i + 3, on_portal=False)
-                                    for i, block in enumerate(block_registry.get_compatible_blocks(Organisation))
-                                )
+            ##TODO: move some code in some BlockConfigItem helpers ??
+            #creme_core_autodiscover()
+            #blocks_2_save.extend(BlockConfigItem(content_type=orga_ct, block_id=block.id_, order=i + 3, on_portal=False)
+                                    #for i, block in enumerate(block_registry.get_compatible_blocks(Organisation))
+                                #)
 
-            generate_string_id_and_save(BlockConfigItem, blocks_2_save, 'creme_config-userbci')
+            #generate_string_id_and_save(BlockConfigItem, blocks_2_save, 'creme_config-userbci')
+        BlockDetailviewLocation.create(block_id=orga_coord_block.id_,    order=30,  zone=BlockDetailviewLocation.LEFT,  model=Organisation)
+        BlockDetailviewLocation.create(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.LEFT,  model=Organisation)
+        BlockDetailviewLocation.create(block_id=address_block.id_,       order=50,  zone=BlockDetailviewLocation.LEFT,  model=Organisation)
+        BlockDetailviewLocation.create(block_id=other_address_block.id_, order=60,  zone=BlockDetailviewLocation.LEFT,  model=Organisation)
+        BlockDetailviewLocation.create(block_id=managers_block.id_,      order=100, zone=BlockDetailviewLocation.LEFT,  model=Organisation)
+        BlockDetailviewLocation.create(block_id=employees_block.id_,     order=120, zone=BlockDetailviewLocation.LEFT,  model=Organisation)
+        BlockDetailviewLocation.create(block_id=properties_block.id_,    order=450, zone=BlockDetailviewLocation.LEFT,  model=Organisation)
+        BlockDetailviewLocation.create(block_id=relations_block.id_,     order=500, zone=BlockDetailviewLocation.LEFT,  model=Organisation)
+        BlockDetailviewLocation.create(block_id=rbi_1.block_id,          order=1,   zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+        BlockDetailviewLocation.create(block_id=rbi_2.block_id,          order=2,   zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+        BlockDetailviewLocation.create(block_id=history_block.id_,       order=20,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+
+        BlockDetailviewLocation.create(block_id=contact_coord_block.id_,  order=30,  zone=BlockDetailviewLocation.LEFT,  model=Contact)
+        BlockDetailviewLocation.create(block_id=customfields_block.id_,   order=40,  zone=BlockDetailviewLocation.LEFT,  model=Contact)
+        BlockDetailviewLocation.create(block_id=address_block.id_,        order=50,  zone=BlockDetailviewLocation.LEFT,  model=Contact)
+        BlockDetailviewLocation.create(block_id=other_address_block.id_,  order=60,  zone=BlockDetailviewLocation.LEFT,  model=Contact)
+        BlockDetailviewLocation.create(block_id=properties_block.id_,     order=450, zone=BlockDetailviewLocation.LEFT,  model=Contact)
+        BlockDetailviewLocation.create(block_id=relations_block.id_,      order=500, zone=BlockDetailviewLocation.LEFT,  model=Contact)
+        BlockDetailviewLocation.create(block_id=history_block.id_,        order=20,  zone=BlockDetailviewLocation.RIGHT, model=Contact)
+
+        if 'creme.assistants' in settings.INSTALLED_APPS:
+            info('Assistants app is installed => we use the assistants blocks on detail views and portal')
+
+            from assistants.blocks import alerts_block, actions_it_block, actions_nit_block, memos_block, todos_block, messages_block
+
+            BlockDetailviewLocation.create(block_id=todos_block.id_,       order=100, zone=BlockDetailviewLocation.RIGHT, model=Contact)
+            BlockDetailviewLocation.create(block_id=memos_block.id_,       order=200, zone=BlockDetailviewLocation.RIGHT, model=Contact)
+            BlockDetailviewLocation.create(block_id=alerts_block.id_,      order=300, zone=BlockDetailviewLocation.RIGHT, model=Contact)
+            BlockDetailviewLocation.create(block_id=actions_it_block.id_,  order=400, zone=BlockDetailviewLocation.RIGHT, model=Contact)
+            BlockDetailviewLocation.create(block_id=actions_nit_block.id_, order=410, zone=BlockDetailviewLocation.RIGHT, model=Contact)
+            BlockDetailviewLocation.create(block_id=messages_block.id_,    order=500, zone=BlockDetailviewLocation.RIGHT, model=Contact)
+
+            BlockDetailviewLocation.create(block_id=todos_block.id_,       order=100, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+            BlockDetailviewLocation.create(block_id=memos_block.id_,       order=200, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+            BlockDetailviewLocation.create(block_id=alerts_block.id_,      order=300, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+            BlockDetailviewLocation.create(block_id=actions_it_block.id_,  order=400, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+            BlockDetailviewLocation.create(block_id=actions_nit_block.id_, order=410, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+            BlockDetailviewLocation.create(block_id=messages_block.id_,    order=500, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+
+            BlockPortalLocation.create(app_name='persons', block_id=memos_block.id_,       order=100)
+            BlockPortalLocation.create(app_name='persons', block_id=alerts_block.id_,      order=200)
+            BlockPortalLocation.create(app_name='persons', block_id=actions_it_block.id_,  order=300)
+            BlockPortalLocation.create(app_name='persons', block_id=actions_nit_block.id_, order=310)
+            BlockPortalLocation.create(app_name='persons', block_id=messages_block.id_,    order=400)

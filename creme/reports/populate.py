@@ -20,10 +20,12 @@
 
 from django.utils.translation import ugettext as _
 
-from creme_core.models import SearchConfigItem, HeaderFilterItem, HeaderFilter
+from creme_core.models import SearchConfigItem, HeaderFilterItem, HeaderFilter, BlockDetailviewLocation
+from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from reports.models import Report
+from reports.blocks import report_fields_block, report_graphs_block
 
 
 class Populator(BasePopulator):
@@ -34,5 +36,12 @@ class Populator(BasePopulator):
         hf.set_items([HeaderFilterItem.build_4_field(model=Report, name='name'),
                       HeaderFilterItem.build_4_field(model=Report, name='ct__name'),
                      ])
+
+        BlockDetailviewLocation.create(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.LEFT,  model=Report)
+        BlockDetailviewLocation.create(block_id=report_fields_block.id_, order=50,  zone=BlockDetailviewLocation.LEFT,  model=Report)
+        BlockDetailviewLocation.create(block_id=report_graphs_block.id_, order=60,  zone=BlockDetailviewLocation.LEFT,  model=Report)
+        BlockDetailviewLocation.create(block_id=properties_block.id_,    order=450, zone=BlockDetailviewLocation.LEFT,  model=Report)
+        BlockDetailviewLocation.create(block_id=relations_block.id_,     order=500, zone=BlockDetailviewLocation.LEFT,  model=Report)
+        BlockDetailviewLocation.create(block_id=history_block.id_,       order=20,  zone=BlockDetailviewLocation.RIGHT, model=Report)
 
         SearchConfigItem.create(Report, ['name', 'ct__name'])

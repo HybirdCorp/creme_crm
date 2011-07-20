@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,7 @@ from creme_core.models.block import InstanceBlockConfigItem
 from creme_core.models.relation import RelationType
 from creme_core.models.entity import CremeEntity
 
-from reports.models import Field
+from reports.models import Report, Field
 from reports.models.graph import ReportGraph, verbose_report_graph_types, fetch_graph_from_instance_block
 
 
@@ -37,6 +37,7 @@ class ReportFieldsBlock(Block):
     dependencies  = (Field,)
     verbose_name  = _(u"Columns of the report")
     template_name = 'reports/templatetags/block_report_fields.html'
+    target_ctypes = (Report,)
 
     def detailview_display(self, context):
         object = context['object']
@@ -53,12 +54,12 @@ class ReportGraphsBlock(QuerysetBlock):
     verbose_name  = _(u"Report's graphs")
     template_name = 'reports/templatetags/block_report_graphs.html'
     order_by      = 'name'
+    target_ctypes = (Report,)
 
     def detailview_display(self, context):
         report  = context['object']
         request = context['request']
         user    = context['user']
-
         user_can_admin = user.has_perm('reports.can_admin')
 
         btc = self.get_block_template_context(context, ReportGraph.objects.filter(report=report),
@@ -76,7 +77,7 @@ class ReportGraphsBlock(QuerysetBlock):
 class ReportGraphBlock(Block):
 #    id_           = Block.generate_id('reports', 'graph')
     dependencies  = (ReportGraph,)
-    verbose_name  = _(u"Report's graphs")
+    verbose_name  = _(u"Report's graph")
     template_name = 'reports/templatetags/block_report_graph.html'
     order_by      = 'name'
 

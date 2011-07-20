@@ -1,4 +1,5 @@
 {% extends "creme_core/generics/view_entity.html" %}
+{% comment %}
 {% load creme_block %}
 
 {% block creme_blocks_import %}
@@ -10,7 +11,7 @@
     {% import_block from_app 'commercial' named 'charms' as 'charms_block' %}
 {% endblock %}
 
-{% block before_detail_view_1 %}
+{% block detail_view_top_1 %}
     {% display_block_detailview 'segments_block' %}
 {% endblock %}
 
@@ -19,3 +20,4 @@
     {% display_block_detailview 'assets_block' %}
     {% display_block_detailview 'charms_block' %}
 {% endblock %}
+{% endcomment %}

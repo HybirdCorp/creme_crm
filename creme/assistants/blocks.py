@@ -30,7 +30,7 @@ from assistants.models import Action, Alert, Memo, ToDo, UserMessage
 
 
 class _AssistantsBlock(QuerysetBlock):
-    configurable = True
+    #configurable = True
 
     @staticmethod
     def _populate_related_real_entities(assistants, user):

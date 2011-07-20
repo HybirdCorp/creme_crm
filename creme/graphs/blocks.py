@@ -23,7 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.models import CremeEntity
 from creme_core.gui.block import QuerysetBlock
 
-from graphs.models import RootNode
+from graphs.models import Graph, RootNode
 
 
 class RootNodesBlock(QuerysetBlock):
@@ -31,6 +31,7 @@ class RootNodesBlock(QuerysetBlock):
     dependencies  = (RootNode,)
     verbose_name  = _(u'Roots nodes of a graph')
     template_name = 'graphs/templatetags/block_root_nodes.html'
+    target_ctypes = (Graph,)
 
     def detailview_display(self, context):
         graph = context['object']
@@ -50,6 +51,7 @@ class OrbitalRelationTypesBlock(QuerysetBlock):
     dependencies  = (RootNode,)
     verbose_name  = _(u'Peripheral types of relation of a graph')
     template_name = 'graphs/templatetags/block_orbital_rtypes.html'
+    target_ctypes = (Graph,)
 
     def detailview_display(self, context):
         graph = context['object']

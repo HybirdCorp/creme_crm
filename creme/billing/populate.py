@@ -21,7 +21,9 @@
 from django.utils.translation import ugettext as _
 
 from creme_core.utils import create_or_update as create
-from creme_core.models import RelationType, SearchConfigItem, ButtonMenuItem, HeaderFilterItem, HeaderFilter
+from creme_core.models import (RelationType, SearchConfigItem, BlockDetailviewLocation,
+                               ButtonMenuItem, HeaderFilterItem, HeaderFilter)
+from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from creme_config.models import SettingKey, SettingValue
@@ -32,6 +34,7 @@ from products.models import Product, Service
 
 from billing.models import *
 from billing.constants import *
+from billing.blocks import *
 from billing.buttons import generate_invoice_number_button
 
 
@@ -124,11 +127,29 @@ class Populator(BasePopulator):
         create_hf_lines('billing-hg_product_lines',  _(u"Product lines view"), ProductLine, include_type=False)
         create_hf_lines('billing-hg_service_lines',  _(u"Service lines view"), ServiceLine, include_type=False)
 
-        for model in (Invoice, CreditNote, Quote, SalesOrder):
+        models = (Invoice, CreditNote, Quote, SalesOrder)
+
+        for model in models:
+            BlockDetailviewLocation.create(block_id=product_lines_block.id_,   order=10,  zone=BlockDetailviewLocation.TOP,   model=model)
+            BlockDetailviewLocation.create(block_id=service_lines_block.id_,   order=20,  zone=BlockDetailviewLocation.TOP,   model=model)
+
+            BlockDetailviewLocation.create(block_id=customfields_block.id_,    order=40,  zone=BlockDetailviewLocation.LEFT,  model=model)
+            BlockDetailviewLocation.create(block_id=billing_payment_block.id_, order=60,  zone=BlockDetailviewLocation.LEFT,  model=model)
+            BlockDetailviewLocation.create(block_id=billing_address_block.id_, order=70,  zone=BlockDetailviewLocation.LEFT,  model=model)
+            BlockDetailviewLocation.create(block_id=properties_block.id_,      order=450, zone=BlockDetailviewLocation.LEFT,  model=model)
+            BlockDetailviewLocation.create(block_id=relations_block.id_,       order=500, zone=BlockDetailviewLocation.LEFT,  model=model)
+            BlockDetailviewLocation.create(block_id=total_block.id_,           order=500, zone=BlockDetailviewLocation.LEFT,  model=model)
+
+            BlockDetailviewLocation.create(block_id=target_block.id_,          order=2,   zone=BlockDetailviewLocation.RIGHT, model=model)
+            BlockDetailviewLocation.create(block_id=total_block.id_,           order=3,   zone=BlockDetailviewLocation.RIGHT, model=model)
+            BlockDetailviewLocation.create(block_id=history_block.id_,         order=20,  zone=BlockDetailviewLocation.RIGHT, model=model)
+
+
+        for model in models:
             SearchConfigItem.create(model, ['name', 'number', 'status__name'])
 
         sk = SettingKey.create(pk=DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA,
                                description=_(u"Display payment information bloc only on creme managed organisations' detailview"),
                                app_label='billing', type=SettingKey.BOOL
-                      )
+                              )
         SettingValue.objects.create(key=sk, user=None, value=True)

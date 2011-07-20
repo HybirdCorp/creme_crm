@@ -1,5 +1,5 @@
 {% extends "creme_core/generics/view_entity.html" %}
-{% load creme_block %}
+{% comment %}{% load creme_block %}{% endcomment %}
 
 {% block extrahead %}
     <script type="text/javascript">
@@ -25,6 +25,7 @@
     </script>
 {% endblock %}
 
+{% comment %}
 {% block creme_blocks_import %}
     {{block.super}}
 
@@ -36,3 +37,4 @@
     {% display_block_detailview 'objectives_block' %}
     {% display_block_detailview 'opps_block' %}
 {% endblock %}
+{% endcomment %}

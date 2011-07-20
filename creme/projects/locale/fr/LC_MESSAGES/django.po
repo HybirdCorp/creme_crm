@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-11 16:06+0200\n"
+"POT-Creation-Date: 2011-07-20 13:39+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,19 +20,23 @@ msgstr ""
 msgid "Extra project information"
 msgstr "Informations supplémentaires sur un projet"
 
-#: blocks.py:42
+#: blocks.py:43
 msgid "Extra project task information"
 msgstr "Informations supplémentaires sur une tâche de projet"
 
-#: blocks.py:70
+#: blocks.py:54
+msgid "Parents of a Task"
+msgstr "Parents d'une tâche"
+
+#: blocks.py:73
 msgid "Tasks of a project"
 msgstr "Tâches d'un projet"
 
-#: blocks.py:90
+#: blocks.py:94
 msgid "Resources assigned to a task"
 msgstr "Ressource(s) affectée(s) à une tâche"
 
-#: blocks.py:110
+#: blocks.py:115
 msgid "Working periods for this task"
 msgstr "Période(s) travaillée(s) sur cette tâche"
 
@@ -92,87 +96,82 @@ msgstr "Lister les projets"
 msgid "Add a project"
 msgstr "Ajouter un projet"
 
-#: populate.py:37
+#: populate.py:39
 msgid "is one of the leaders of this project"
 msgstr "est un des responsables du projet"
 
-#: populate.py:38
+#: populate.py:40
 msgid "has as leader"
 msgstr "a pour responsable"
 
-#: populate.py:40
+#: populate.py:42
 msgid "Invitation to tender"
 msgstr "Appel d'offre"
 
-#: populate.py:40
+#: populate.py:42
 msgid "Response to an invitation to tender"
 msgstr "Un appel d'offre a été lancé"
 
-#: populate.py:41
+#: populate.py:43
 msgid "Initialization"
 msgstr "Initialisation"
 
-#: populate.py:41
+#: populate.py:43
 msgid "The project is starting"
 msgstr "Le projet démarre"
 
-#: populate.py:42
+#: populate.py:44
 msgid "Preliminary phase"
 msgstr "Avant-phase"
 
-#: populate.py:42
+#: populate.py:44
 msgid "The project is in the process of analysis and design"
 msgstr "Le projet est en phase d'analyse et de conception"
 
-#: populate.py:43
+#: populate.py:45
 msgid "Achievement"
 msgstr "Réalisation"
 
-#: populate.py:43
+#: populate.py:45
 msgid "The project is being implemented"
 msgstr "Le projet est en phase de réalisation"
 
-#: populate.py:44
+#: populate.py:46
 msgid "Tests"
 msgstr "Tests"
 
-#: populate.py:44
+#: populate.py:46
 msgid "The project is in the testing process (unit / integration / functional)"
 msgstr ""
 "Le projet est en phase de tests (unitaires / intégration / fonctionnels)"
 
-#: populate.py:45
+#: populate.py:47
 msgid "User acceptance tests"
 msgstr "Recette"
 
-#: populate.py:45
+#: populate.py:47
 msgid "The project is in the user acceptance testing process"
 msgstr "Le projet est en recette"
 
-#: populate.py:46
+#: populate.py:48
 msgid "Finished"
 msgstr "Terminé"
 
-#: populate.py:46
+#: populate.py:48
 msgid "The project is finished"
 msgstr "Le projet est terminé"
 
-#: populate.py:51
+#: populate.py:53
 msgid "Project view"
 msgstr "Vue de Projet"
 
-#: populate.py:57
+#: populate.py:59
 msgid "Task view"
 msgstr "Vue de Tâche"
 
-#: populate.py:63
+#: populate.py:65
 msgid "Resource view"
 msgstr "Vue de Ressource"
-
-#: tests.py:184 tests.py:281 tests.py:297 tests.py:318
-#, python-format
-msgid "Select a valid choice. %(value)s is not an available choice."
-msgstr ""
 
 #: forms/project.py:39
 msgid "Start date"
@@ -431,7 +430,7 @@ msgstr "Actions"
 msgid "%(cost)s € / hour"
 msgstr "%(cost)s € / heure"
 
-#: templates/projects/templatetags/block_resources.html:43
+#: templates/projects/templatetags/block_resources.html:42
 msgid "No resource assigned to this task"
 msgstr "Aucune ressource n'est affecté à cette tâche"
 

@@ -25,15 +25,16 @@ from django.utils.simplejson import JSONEncoder
 from creme_core.models import CremeEntity, Relation
 from creme_core.gui.block import QuerysetBlock
 
-from models import Document
-from constants import REL_SUB_RELATED_2_DOC
+from documents.models import Folder, Document
+from documents.constants import REL_SUB_RELATED_2_DOC
 
 
 class FolderDocsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('documents', 'folder_docs')
     dependencies  = (Document,)
-    verbose_name  = u'Folder documents'
+    verbose_name  = _(u'Folder documents')
     template_name = 'documents/templatetags/block_documents.html'
+    target_ctypes = (Folder,)
 
     def detailview_display(self, context):
         folder = context['object']
@@ -55,7 +56,7 @@ class LinkedDocsBlock(QuerysetBlock):
     relation_type_deps = (REL_SUB_RELATED_2_DOC, )
     verbose_name  = _(u'Linked documents')
     template_name = 'documents/templatetags/block_linked_docs.html'
-    configurable  = True
+    #configurable  = True
 
     def detailview_display(self, context):
         entity = context['object']

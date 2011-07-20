@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,6 +28,7 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.models import CremeEntity
 
 
+#TODO: remove 'models' arg (and use app_name to get the related contenttypes) ??
 @login_required
 def app_portal(request, app_name, template, models, stats, config_url=None, extra_template_dict=None):
     has_perm = request.user.has_perm
@@ -43,6 +44,7 @@ def app_portal(request, app_name, template, models, stats, config_url=None, extr
         ct_ids = [get_ct(models).id]
 
     template_dict = {
+                        'app_name':     app_name,
                         'ct_ids':       ct_ids,
                         'stats':        stats,
                         'config_url':   config_url,
@@ -54,4 +56,5 @@ def app_portal(request, app_name, template, models, stats, config_url=None, extr
 
     return render_to_response(template,
                               template_dict,
-                              context_instance=RequestContext(request))
+                              context_instance=RequestContext(request)
+                             )

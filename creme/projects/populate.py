@@ -20,13 +20,15 @@
 
 from django.utils.translation import ugettext as _
 
+from creme_core.models import RelationType, SearchConfigItem, HeaderFilterItem, HeaderFilter, BlockDetailviewLocation
+from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme_core.utils import create_or_update as create
-from creme_core.models import RelationType, SearchConfigItem, HeaderFilterItem, HeaderFilter
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from persons.models import Contact
 
 from projects.models import ProjectStatus, TaskStatus, Project, ProjectTask, Resource
+from projects.blocks import *
 from projects.constants import REL_OBJ_PROJECT_MANAGER, REL_SUB_PROJECT_MANAGER, TASK_STATUS
 
 
@@ -64,6 +66,22 @@ class Populator(BasePopulator):
         hf.set_items([HeaderFilterItem.build_4_field(model=Resource, name='linked_contact'),
                       HeaderFilterItem.build_4_field(model=Resource, name='hourly_cost'),
                      ])
+
+        BlockDetailviewLocation.create(block_id=project_tasks_block.id_, order=2,   zone=BlockDetailviewLocation.TOP,   model=Project)
+        BlockDetailviewLocation.create(block_id=project_extra_info.id_,  order=30,  zone=BlockDetailviewLocation.LEFT,  model=Project)
+        BlockDetailviewLocation.create(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.LEFT,  model=Project)
+        BlockDetailviewLocation.create(block_id=properties_block.id_,    order=450, zone=BlockDetailviewLocation.LEFT,  model=Project)
+        BlockDetailviewLocation.create(block_id=relations_block.id_,     order=500, zone=BlockDetailviewLocation.LEFT,  model=Project)
+        BlockDetailviewLocation.create(block_id=history_block.id_,       order=20,  zone=BlockDetailviewLocation.RIGHT, model=Project)
+
+        BlockDetailviewLocation.create(block_id=task_resources_block.id_,      order=2,   zone=BlockDetailviewLocation.TOP,   model=ProjectTask)
+        BlockDetailviewLocation.create(block_id=task_workingperiods_block.id_, order=4,   zone=BlockDetailviewLocation.TOP,   model=ProjectTask)
+        BlockDetailviewLocation.create(block_id=task_extra_info.id_,           order=30,  zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
+        BlockDetailviewLocation.create(block_id=customfields_block.id_,        order=40,  zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
+        BlockDetailviewLocation.create(block_id=parent_tasks_block.id_,        order=50,  zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
+        BlockDetailviewLocation.create(block_id=properties_block.id_,          order=450, zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
+        BlockDetailviewLocation.create(block_id=relations_block.id_,           order=500, zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
+        BlockDetailviewLocation.create(block_id=history_block.id_,             order=20,  zone=BlockDetailviewLocation.RIGHT, model=ProjectTask)
 
         SearchConfigItem.create(Project,     ['name', 'description', 'status__name'])
         SearchConfigItem.create(Resource,    ['linked_contact__first_name', 'linked_contact__last_name', 'hourly_cost'])
