@@ -20,7 +20,8 @@
 
 from django.utils.translation import ugettext as _
 
-from creme_core.models import SearchConfigItem, RelationType, HeaderFilterItem, HeaderFilter
+from creme_core.models import SearchConfigItem, RelationType, HeaderFilterItem, HeaderFilter, BlockDetailviewLocation
+from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -29,6 +30,7 @@ from persons.models import Contact
 from opportunities.models import Opportunity
 
 from events.models import EventType, Event
+from events.blocks import resuts_block
 from events.constants import *
 
 
@@ -72,5 +74,11 @@ class Populator(BasePopulator):
                       HeaderFilterItem.build_4_field(model=Event, name='start_date'),
                       HeaderFilterItem.build_4_field(model=Event, name='end_date'),
                      ])
+
+        BlockDetailviewLocation.create(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.LEFT,  model=Event)
+        BlockDetailviewLocation.create(block_id=properties_block.id_,    order=450, zone=BlockDetailviewLocation.LEFT,  model=Event)
+        BlockDetailviewLocation.create(block_id=relations_block.id_,     order=500, zone=BlockDetailviewLocation.LEFT,  model=Event)
+        BlockDetailviewLocation.create(block_id=resuts_block.id_,        order=2,   zone=BlockDetailviewLocation.RIGHT, model=Event)
+        BlockDetailviewLocation.create(block_id=history_block.id_,       order=20,  zone=BlockDetailviewLocation.RIGHT, model=Event)
 
         SearchConfigItem.create(Event, ['name', 'description', 'type__name'])

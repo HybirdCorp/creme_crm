@@ -1,7 +1,7 @@
 {% extends "creme_core/generics/view_entity.html" %}
 {% load i18n %}
 {% load media %}
-{% load creme_core_tags %}{% load creme_block %}
+{% load creme_core_tags %}{% comment %}{% load creme_block %}{% endcomment %}
 
 {% block extra_menu_buttons %}
     {% if not object.is_closed %}
@@ -22,6 +22,7 @@
     {% endif %}
 {% endblock %}
 
+{% comment %}
 {% block creme_blocks_import %}
     {{block.super}}
 
@@ -36,3 +37,4 @@
 {% block after_object_as_table_1 %}
     {% display_block_detailview 'project_xtra_block' %}
 {% endblock %}
+{% endcomment %}

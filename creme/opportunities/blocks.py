@@ -29,6 +29,7 @@ from persons.models import Contact, Organisation
 from products.models import Product, Service
 
 from billing.models import Quote, Invoice, SalesOrder
+from billing.blocks import ProductLinesBlock, ServiceLinesBlock, TotalBlock
 
 from opportunities.constants import *
 from opportunities.models import Opportunity
@@ -50,6 +51,7 @@ class _LinkedStuffBlock(QuerysetBlock):
     #relation_type_deps = SET ME
     #verbose_name  = SET ME
     #template_name = SET ME
+    target_ctypes = (Opportunity,)
 
     _ct = _get_ct(Contact) #overload if needed
 
@@ -155,7 +157,7 @@ class TargetOrganisationsBlock(_LinkedStuffBlock):
     relation_type_deps = (REL_OBJ_TARGETS_ORGA, )
     verbose_name  = _(u"Opportunities which target the organisation")
     template_name = 'opportunities/templatetags/block_opportunities.html'
-    configurable  = True
+    #configurable  = True
     target_ctypes = (Organisation,)
 
     _ct = _get_ct(Opportunity)
@@ -164,15 +166,40 @@ class TargetOrganisationsBlock(_LinkedStuffBlock):
         return Opportunity.objects.filter(relations__object_entity=entity.id, relations__type=REL_SUB_TARGETS_ORGA)
 
 
-target_organisations_block = TargetOrganisationsBlock()
+class OppProductLinesBlock(ProductLinesBlock):
+    id_           = Block.generate_id('opportunities', 'product_lines')
+    target_ctypes = (Opportunity,)
+
+
+class OppServiceLinesBlock(ServiceLinesBlock):
+    id_           = Block.generate_id('opportunities', 'service_lines')
+    target_ctypes = (Opportunity,)
+
+
+class OppTotalBlock(TotalBlock):
+    id_           = Block.generate_id('opportunities', 'total')
+    target_ctypes = (Opportunity,)
+
+
+linked_contacts_block = LinkedContactsBlock()
+linked_products_block = LinkedProductsBlock()
+linked_services_block = LinkedServicesBlock()
+responsibles_block    = ResponsiblesBlock()
+quotes_block          = QuotesBlock()
+salesorders_block     = SalesOrdersBlock()
+invoices_block        = InvoicesBlock()
+total_block           = OppTotalBlock()
 
 blocks_list = (
-    LinkedContactsBlock(),
-    LinkedProductsBlock(),
-    LinkedServicesBlock(),
-    ResponsiblesBlock(),
-    QuotesBlock(),
-    SalesOrdersBlock(),
-    InvoicesBlock(),
-    target_organisations_block,
+    linked_contacts_block,
+    linked_products_block,
+    linked_services_block,
+    responsibles_block,
+    quotes_block,
+    salesorders_block,
+    invoices_block,
+    total_block,
+    TargetOrganisationsBlock(),
+    OppProductLinesBlock(),
+    OppServiceLinesBlock(),
 )

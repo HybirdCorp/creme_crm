@@ -35,14 +35,15 @@ from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme_core.utils import create_or_update as create
 #from creme_core.utils.id_generator import generate_string_id_and_save
 #from creme_core.gui.block import block_registry
+from creme_core.blocks import relations_block, properties_block, customfields_block, history_block
 from creme_core.management.commands.creme_populate import BasePopulator
 
 #from assistants.blocks import *
 
 from persons.models import *
 from persons.constants import *
-from persons.buttons import (become_customer_button, become_prospect_button, become_suspect_button,
-                             become_inactive_button, become_supplier_button, add_linked_contact_button)
+from persons.blocks import *
+from persons.buttons import *
 
 
 class Populator(BasePopulator):
@@ -178,9 +179,25 @@ class Populator(BasePopulator):
                                 #)
 
             #generate_string_id_and_save(BlockConfigItem, blocks_2_save, 'creme_config-userbci')
-        BlockDetailviewLocation.create(block_id=rbi_1.block_id, order=1, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
-        BlockDetailviewLocation.create(block_id=rbi_2.block_id, order=2, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+        BlockDetailviewLocation.create(block_id=orga_coord_block.id_,    order=30,  zone=BlockDetailviewLocation.LEFT,  model=Organisation)
+        BlockDetailviewLocation.create(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.LEFT,  model=Organisation)
+        BlockDetailviewLocation.create(block_id=address_block.id_,       order=50,  zone=BlockDetailviewLocation.LEFT,  model=Organisation)
+        BlockDetailviewLocation.create(block_id=other_address_block.id_, order=60,  zone=BlockDetailviewLocation.LEFT,  model=Organisation)
+        BlockDetailviewLocation.create(block_id=managers_block.id_,      order=100, zone=BlockDetailviewLocation.LEFT,  model=Organisation)
+        BlockDetailviewLocation.create(block_id=employees_block.id_,     order=120, zone=BlockDetailviewLocation.LEFT,  model=Organisation)
+        BlockDetailviewLocation.create(block_id=properties_block.id_,    order=450, zone=BlockDetailviewLocation.LEFT,  model=Organisation)
+        BlockDetailviewLocation.create(block_id=relations_block.id_,     order=500, zone=BlockDetailviewLocation.LEFT,  model=Organisation)
+        BlockDetailviewLocation.create(block_id=rbi_1.block_id,          order=1,   zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+        BlockDetailviewLocation.create(block_id=rbi_2.block_id,          order=2,   zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+        BlockDetailviewLocation.create(block_id=history_block.id_,       order=20,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
 
+        BlockDetailviewLocation.create(block_id=contact_coord_block.id_,  order=30,  zone=BlockDetailviewLocation.LEFT,  model=Contact)
+        BlockDetailviewLocation.create(block_id=customfields_block.id_,   order=40,  zone=BlockDetailviewLocation.LEFT,  model=Contact)
+        BlockDetailviewLocation.create(block_id=address_block.id_,        order=50,  zone=BlockDetailviewLocation.LEFT,  model=Contact)
+        BlockDetailviewLocation.create(block_id=other_address_block.id_,  order=60,  zone=BlockDetailviewLocation.LEFT,  model=Contact)
+        BlockDetailviewLocation.create(block_id=properties_block.id_,     order=450, zone=BlockDetailviewLocation.LEFT,  model=Contact)
+        BlockDetailviewLocation.create(block_id=relations_block.id_,      order=500, zone=BlockDetailviewLocation.LEFT,  model=Contact)
+        BlockDetailviewLocation.create(block_id=history_block.id_,        order=20,  zone=BlockDetailviewLocation.RIGHT, model=Contact)
 
         if 'creme.assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail views and portal')

@@ -1,8 +1,9 @@
 {% extends "creme_core/generics/view_entity.html" %}
-{% load creme_block %}
+{% comment %}{% load creme_block %}{% endcomment %}
 
 {% block add_new_button %}{% endblock %}
 
+{% comment %}
 {% block creme_blocks_import %}
     {{block.super}}
 
@@ -21,3 +22,4 @@
     {% display_block_detailview 'task_xtra_block' %}
     {% display_block_detailview 'parent_tasks_block' %}
 {% endblock %}
+{% endcomment %}

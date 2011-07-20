@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'GRAPHS' APP
-# Copyright (C) 2010 Hybird
+# Copyright (C) 2011 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 #, fuzzy
@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-05-16 11:01+0200\n"
+"POT-Creation-Date: 2011-07-19 12:16+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,33 +20,29 @@ msgstr ""
 msgid "Roots nodes of a graph"
 msgstr "Nœuds racines d'un graphe"
 
-#: blocks.py:51
+#: blocks.py:52
 msgid "Peripheral types of relation of a graph"
 msgstr "Types de relation périphériques d'un graphe"
 
-#: creme_core_register.py:31 models/graph.py:40
+#: creme_core_register.py:30 models/graph.py:40
 msgid "Graphs"
 msgstr "Graphes"
 
-#: creme_core_register.py:35
+#: creme_core_register.py:34
 msgid "Portal"
 msgstr "Portail"
 
-#: creme_core_register.py:36
+#: creme_core_register.py:35
 msgid "All graphs"
 msgstr "Liste des graphes"
 
-#: creme_core_register.py:37
+#: creme_core_register.py:36
 msgid "Add a graph"
 msgstr "Ajouter un graphe"
 
 #: populate.py:35
 msgid "Graph view"
 msgstr "Vue de Graphe"
-
-#: populate.py:37
-msgid "Name"
-msgstr "Nom"
 
 #: forms/graph.py:38 models/graph.py:32
 msgid "Types of the peripheral relations"
@@ -65,7 +61,6 @@ msgid "Name of the graph"
 msgstr "Nom du graphe"
 
 #: models/graph.py:39 templates/graphs/portal.html:4
-#: templates/graphs/view_graph.html:6
 msgid "Graph"
 msgstr "Graphe"
 
@@ -176,6 +171,9 @@ msgstr "Ajouter des nœuds racines à <%s>"
 #, python-format
 msgid "Edit root node for <%s>"
 msgstr "Éditer le nœud racine pour <%s>"
+
+#~ msgid "Name"
+#~ msgstr "Nom"
 
 #~ msgid "Add root nodes"
 #~ msgstr "Ajouter des nœuds racines"

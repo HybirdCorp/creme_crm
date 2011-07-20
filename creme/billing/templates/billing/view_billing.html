@@ -1,9 +1,9 @@
 {% extends "creme_core/generics/view_entity.html" %}
 {% load i18n %}
 {% load media %}
-{% load creme_block %}
+{% comment %} {% load creme_block %} {% endcomment %}
 
-{% block creme_blocks_import %}
+{% comment %}{% block creme_blocks_import %}
     {{block.super}}
 
     {% import_block from_app 'billing' named 'product_lines' as 'product_lines_block' %}
@@ -12,7 +12,7 @@
     {% import_block from_app 'billing' named 'target' as 'target_block' %}
     {% import_block from_app 'persons' named 'address' as 'address_block' %}
     {% import_block from_app 'billing' named 'billing_payment_information' as 'billing_payment_information_block' %}
-{% endblock %}
+{% endblock %}{% endcomment %}
 
 {% block entity_buttons %}
     {% if can_download %}
@@ -23,6 +23,7 @@
     {{block.super}}
 {% endblock %}
 
+{% comment %}
 {% block detail_view_top_1 %}
     {% display_block_detailview 'product_lines_block' %}
     {% display_block_detailview 'service_lines_block' %}
@@ -41,3 +42,4 @@
     {% display_block_detailview 'target_block' %}
     {% display_block_detailview 'total_block' %}
 {% endblock %}
+{% endcomment %}

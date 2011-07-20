@@ -1,7 +1,7 @@
 {% extends "creme_core/generics/view_entity.html" %}
 {% load i18n %}
 {% load media %}
-{% load creme_block %}
+{% comment %}{% load creme_block %}{% endcomment %}
 
 {% block entity_buttons %}
     <a href="/events/event/{{object.id}}/contacts">
@@ -10,6 +10,7 @@
     {{block.super}}
 {% endblock %}
 
+{% comment %}
 {% block creme_blocks_import %}
     {{block.super}}
 
@@ -19,3 +20,4 @@
 {% block detail_view_right_1 %}
     {% display_block_detailview 'results_block' %}
 {% endblock %}
+{% endcomment %}

@@ -24,6 +24,7 @@ from creme_config.models.setting import SettingKey, SettingValue
 from creme_core.models import (RelationType, CremePropertyType, BlockDetailviewLocation, #BlockConfigItem
                                SearchConfigItem, ButtonMenuItem, HeaderFilterItem, HeaderFilter)
 from creme_core.utils import create_or_update as create
+from creme_core.blocks import relations_block, properties_block, customfields_block, history_block
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from persons.models import Contact, Organisation
@@ -31,7 +32,7 @@ from persons.models import Contact, Organisation
 from opportunities.models import Opportunity
 
 from commercial.models import *
-from commercial.blocks import approaches_block
+from commercial.blocks import *
 from commercial.constants import *
 from commercial.buttons import complete_goal_button
 
@@ -56,6 +57,29 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=approaches_block.id_, order=10, zone=BlockDetailviewLocation.RIGHT)
         BlockDetailviewLocation.create(block_id=approaches_block.id_, order=10, zone=BlockDetailviewLocation.RIGHT, model=Contact)
         BlockDetailviewLocation.create(block_id=approaches_block.id_, order=10, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+
+        BlockDetailviewLocation.create(block_id=act_objectives_block.id_,        order=10,  zone=BlockDetailviewLocation.LEFT,  model=Act)
+        BlockDetailviewLocation.create(block_id=related_opportunities_block.id_, order=20,  zone=BlockDetailviewLocation.LEFT,  model=Act)
+        BlockDetailviewLocation.create(block_id=customfields_block.id_,          order=40,  zone=BlockDetailviewLocation.LEFT,  model=Act)
+        BlockDetailviewLocation.create(block_id=properties_block.id_,            order=450, zone=BlockDetailviewLocation.LEFT,  model=Act)
+        BlockDetailviewLocation.create(block_id=relations_block.id_,             order=500, zone=BlockDetailviewLocation.LEFT,  model=Act)
+        BlockDetailviewLocation.create(block_id=history_block.id_,               order=20,  zone=BlockDetailviewLocation.RIGHT, model=Act)
+
+        BlockDetailviewLocation.create(block_id=pattern_components_block.id_, order=10,  zone=BlockDetailviewLocation.TOP,   model=ActObjectivePattern)
+        BlockDetailviewLocation.create(block_id=customfields_block.id_,       order=40,  zone=BlockDetailviewLocation.LEFT,  model=ActObjectivePattern)
+        BlockDetailviewLocation.create(block_id=properties_block.id_,         order=450, zone=BlockDetailviewLocation.LEFT,  model=ActObjectivePattern)
+        BlockDetailviewLocation.create(block_id=relations_block.id_,          order=500, zone=BlockDetailviewLocation.LEFT,  model=ActObjectivePattern)
+        BlockDetailviewLocation.create(block_id=history_block.id_,            order=20,  zone=BlockDetailviewLocation.RIGHT, model=ActObjectivePattern)
+
+        BlockDetailviewLocation.create(block_id=segment_descriptions_block.id_, order=10,  zone=BlockDetailviewLocation.TOP,   model=Strategy)
+        BlockDetailviewLocation.create(block_id=customfields_block.id_,         order=40,  zone=BlockDetailviewLocation.LEFT,  model=Strategy)
+        BlockDetailviewLocation.create(block_id=evaluated_orgas_block.id_,      order=50,  zone=BlockDetailviewLocation.LEFT,  model=Strategy)
+        BlockDetailviewLocation.create(block_id=assets_block.id_,               order=60,  zone=BlockDetailviewLocation.LEFT,  model=Strategy)
+        BlockDetailviewLocation.create(block_id=charms_block.id_,               order=70,  zone=BlockDetailviewLocation.LEFT,  model=Strategy)
+        BlockDetailviewLocation.create(block_id=properties_block.id_,           order=450, zone=BlockDetailviewLocation.LEFT,  model=Strategy)
+        BlockDetailviewLocation.create(block_id=relations_block.id_,            order=500, zone=BlockDetailviewLocation.LEFT,  model=Strategy)
+        BlockDetailviewLocation.create(block_id=history_block.id_,              order=20,  zone=BlockDetailviewLocation.RIGHT, model=Strategy)
+
 
         hf = HeaderFilter.create(pk='commercial-hf_act', name=_(u"Com Action view"), model=Act)
         hf.set_items([HeaderFilterItem.build_4_field(model=Act, name='name'),

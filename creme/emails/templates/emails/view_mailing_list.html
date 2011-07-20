@@ -1,4 +1,5 @@
 {% extends "creme_core/generics/view_entity.html" %}
+{% comment %}
 {% load creme_block %}
 
 {% block creme_blocks_import %}
@@ -18,3 +19,4 @@
     {% display_block_detailview 'child_lists_block' %}
     {% display_block_detailview 'parent_lists_block' %}
 {% endblock %}
+{% endcomment %}

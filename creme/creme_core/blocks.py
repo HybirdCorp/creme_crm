@@ -75,7 +75,7 @@ class RelationsBlock(QuerysetBlock):
 class CustomFieldsBlock(Block):
     id_           = Block.generate_id('creme_core', 'customfields')
     #dependencies  = ()
-    verbose_name  = u'Custom fields'
+    verbose_name  = _(u'Custom fields')
     template_name = 'creme_core/templatetags/block_customfields.html'
 
 
@@ -85,7 +85,7 @@ class HistoryBlock(QuerysetBlock):
     order_by      = '-date'
     verbose_name  = _(u'History')
     template_name = 'creme_core/templatetags/block_history.html'
-    configurable  = True
+    #configurable  = True
 
     #TODO: factorise (see assistants.block) ??
     @staticmethod

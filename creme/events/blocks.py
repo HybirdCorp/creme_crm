@@ -18,14 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.utils.translation import ugettext_lazy as _
+
 from creme_core.gui.block import Block
+
+from events.models import Event
 
 
 class ResutsBlock(Block):
     id_           = Block.generate_id('events', 'results')
     #dependencies  = (Relation,) ??
-    verbose_name  = u'Results of an event'
+    verbose_name  = _(u'Results of an event')
     template_name = 'events/block_results.html'
+    target_ctypes = (Event,)
 
 
 resuts_block = ResutsBlock()

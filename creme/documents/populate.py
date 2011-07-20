@@ -23,12 +23,13 @@ from logging import info
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 
-from creme_core.models import RelationType, SearchConfigItem, HeaderFilterItem, HeaderFilter #BlockConfigItem
+from creme_core.models import RelationType, BlockDetailviewLocation, SearchConfigItem, HeaderFilterItem, HeaderFilter #BlockConfigItem
 from creme_core.utils import create_or_update as create
+from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from documents.models import Document, FolderCategory, Folder
-from documents.blocks import linked_docs_block
+from documents.blocks import folder_docs_block #linked_docs_block
 from documents.constants import *
 
 
@@ -60,6 +61,11 @@ class Populator(BasePopulator):
                      ])
 
         #BlockConfigItem.create(pk='documents-linked_docs_block', block_id=linked_docs_block.id_, order=1000, on_portal=False)
+        BlockDetailviewLocation.create(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT,  model=Folder)
+        BlockDetailviewLocation.create(block_id=folder_docs_block.id_,  order=50,  zone=BlockDetailviewLocation.LEFT,  model=Folder)
+        BlockDetailviewLocation.create(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.LEFT,  model=Folder)
+        BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT,  model=Folder)
+        BlockDetailviewLocation.create(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Folder)
 
         SearchConfigItem.create(Document, ['title', 'description', 'folder__title'])
         SearchConfigItem.create(Folder,   ['title', 'description', 'category__name'])
