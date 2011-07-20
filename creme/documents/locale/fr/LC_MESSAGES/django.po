@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-11 16:03+0200\n"
+"POT-Creation-Date: 2011-07-20 13:38+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: blocks.py:56
+#: blocks.py:35
+msgid "Folder documents"
+msgstr "Documents du classeur"
+
+#: blocks.py:57
 msgid "Linked documents"
 msgstr "Documents liés"
 
@@ -47,31 +51,31 @@ msgstr "Lister les classeurs"
 msgid "Add a folder"
 msgstr "Ajouter un classeur"
 
-#: populate.py:39
+#: populate.py:40
 msgid "related to the document"
 msgstr "concerne le document"
 
-#: populate.py:40
+#: populate.py:41
 msgid "document related to"
 msgstr "document concerné par"
 
-#: populate.py:42
+#: populate.py:43
 msgid "Documents related to entities"
 msgstr "Documents crées à partir des fiches"
 
-#: populate.py:43
+#: populate.py:44
 msgid "Documents received by email"
 msgstr "Documents reçus par email"
 
-#: populate.py:47
+#: populate.py:48
 msgid "Folder containing all the documents related to entities"
 msgstr "Classeur contenant tous les documents créés à partir des fiches"
 
-#: populate.py:51
+#: populate.py:52
 msgid "Document view"
 msgstr "Vue de Document"
 
-#: populate.py:56
+#: populate.py:57
 msgid "Folder view"
 msgstr "Vue de Classeur"
 

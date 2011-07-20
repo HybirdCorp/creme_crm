@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'GRAPHS' APP
-# Copyright (C) 2010 Hybird
+# Copyright (C) 2011 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 #, fuzzy
@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-11 16:04+0200\n"
+"POT-Creation-Date: 2011-07-20 13:31+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,7 +20,7 @@ msgstr ""
 msgid "Roots nodes of a graph"
 msgstr "Nœuds racines d'un graphe"
 
-#: blocks.py:51
+#: blocks.py:52
 msgid "Peripheral types of relation of a graph"
 msgstr "Types de relation périphériques d'un graphe"
 
@@ -40,7 +40,7 @@ msgstr "Liste des graphes"
 msgid "Add a graph"
 msgstr "Ajouter un graphe"
 
-#: populate.py:33
+#: populate.py:35
 msgid "Graph view"
 msgstr "Vue de Graphe"
 
@@ -72,12 +72,12 @@ msgstr "Portail Graphes"
 msgid "List of Graphs"
 msgstr "Liste des Graphes"
 
-#: templates/graphs/view_graph.html:15
+#: templates/graphs/view_graph.html:17
 #, python-format
 msgid "Download '%(object)s' as PNG file"
 msgstr "Télécharger '%(object)s' sous forme de fichier PNG"
 
-#: templates/graphs/view_graph.html:15
+#: templates/graphs/view_graph.html:17
 msgid "Download PNG"
 msgstr "Télécharger PNG"
 

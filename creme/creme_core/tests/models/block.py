@@ -1,0 +1,174 @@
+# -*- coding: utf-8 -*-
+
+from django.contrib.contenttypes.models import ContentType
+
+from creme_core.models import BlockDetailviewLocation, BlockPortalLocation
+from creme_core.blocks import relations_block, properties_block, history_block
+from creme_core.tests.base import CremeTestCase
+
+from persons.models import Contact, Organisation
+
+
+__all__ = ('BlockTestCase',)
+
+
+class BlockTestCase(CremeTestCase):
+    def test_populate(self):
+        self.populate('creme_core')
+
+        #locs = BlockDetailviewLocation.objects.all()
+        #self.assertEqual([('', 1, None)] * 4, [(bl.block_id, bl.order, bl.content_type) for bl in locs])
+        #self.assertEqual(set([BlockDetailviewLocation.TOP, BlockDetailviewLocation.LEFT, BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM]),
+                         #set(bl.zone for bl in locs)
+                        #)
+        #self.assertEqual([history_block.id_], [loc.block_id for loc in BlockDetailviewLocation.objects.all()])
+        self.assertEqual(set([relations_block.id_, properties_block.id_, history_block.id_]),
+                         set(loc.block_id for loc in BlockDetailviewLocation.objects.all())
+                        )
+
+        #self.assertEqual(1, BlockPortalLocation.objects.filter(app_name='').count())
+        self.assertEqual([history_block.id_], [loc.block_id for loc in BlockPortalLocation.objects.filter(app_name='')])
+        #self.assertEqual(1, BlockPortalLocation.objects.filter(app_name='creme_core').count())
+        self.assertEqual([history_block.id_], [loc.block_id for loc in BlockPortalLocation.objects.filter(app_name='creme_core')])
+
+    def test_create_detailview01(self):
+        order = 25
+        zone = BlockDetailviewLocation.TOP
+        block_id = relations_block.id_
+        loc = BlockDetailviewLocation.create(block_id=block_id, order=order, zone=zone)
+
+        try:
+            loc = BlockDetailviewLocation.objects.get(pk=loc.pk)
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assert_(loc.content_type is None)
+        self.assertEqual(block_id, loc.block_id)
+        self.assertEqual(order,    loc.order)
+        self.assertEqual(zone,     loc.zone)
+
+    def test_create_detailview02(self):
+        order = 4
+        zone = BlockDetailviewLocation.LEFT
+        block_id = properties_block.id_
+        loc = BlockDetailviewLocation.create(block_id=block_id, order=order, zone=zone, model=Contact)
+
+        try:
+            loc = BlockDetailviewLocation.objects.get(pk=loc.pk)
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assertEqual(Contact,  loc.content_type.model_class())
+        self.assertEqual(block_id, loc.block_id)
+        self.assertEqual(order,    loc.order)
+        self.assertEqual(zone,     loc.zone)
+
+    def test_create_detailview03(self):
+        block_id = properties_block.id_
+        BlockDetailviewLocation.create(block_id=block_id, order=5, zone=BlockDetailviewLocation.RIGHT, model=Contact)
+
+        order = 4
+        zone = BlockDetailviewLocation.LEFT
+        BlockDetailviewLocation.create(block_id=block_id, order=order, zone=zone, model=Contact)
+
+        locs = BlockDetailviewLocation.objects.filter(block_id=block_id, content_type=ContentType.objects.get_for_model(Contact))
+        self.assertEqual(1, len(locs))
+
+        loc = locs[0]
+        self.assertEqual(order, loc.order)
+        self.assertEqual(zone,  loc.zone)
+
+    def test_create_empty_detailview_config01(self):
+        self.assertEqual(0, BlockDetailviewLocation.objects.count())
+
+        BlockDetailviewLocation.create_empty_config()
+        locs = BlockDetailviewLocation.objects.all()
+        self.assertEqual([('', 1, None)] * 4, [(bl.block_id, bl.order, bl.content_type) for bl in locs])
+        self.assertEqual(set([BlockDetailviewLocation.TOP, BlockDetailviewLocation.LEFT, BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM]),
+                         set(bl.zone for bl in locs)
+                        )
+
+    def test_create_empty_detailview_config02(self):
+        block_id = relations_block.id_
+        BlockDetailviewLocation.create(block_id=block_id, order=1, zone=BlockDetailviewLocation.RIGHT)
+
+        BlockDetailviewLocation.create_empty_config()
+        self.assertEqual([block_id], [bl.block_id for bl in BlockDetailviewLocation.objects.all()])
+
+    def test_create_empty_detailview_config03(self):
+        zone = BlockDetailviewLocation.BOTTOM
+        model = Organisation
+
+        BlockDetailviewLocation.create_empty_config()
+        BlockDetailviewLocation.create_empty_config(model=model)
+
+        locs = BlockDetailviewLocation.objects.filter(content_type=ContentType.objects.get_for_model(model))
+        self.assertEqual(set([BlockDetailviewLocation.TOP, BlockDetailviewLocation.LEFT, BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM]),
+                         set(bl.zone for bl in locs)
+                        )
+        self.assertEqual(4, len(locs))
+
+        loc = [loc for loc in locs if loc.zone == zone][0]
+        self.assertEqual(model,  loc.content_type.model_class())
+ 
+    def test_create_portal01(self):
+        app_name = 'persons'
+        order = 25
+        block_id = history_block.id_
+        loc = BlockPortalLocation.create(app_name=app_name, block_id=block_id, order=order)
+
+        try:
+            loc = BlockPortalLocation.objects.get(pk=loc.pk, app_name=app_name, block_id=block_id, order=order)
+        except Exception, e:
+            self.fail(str(e))
+
+    def test_create_portal02(self):
+        order = 10
+        block_id = history_block.id_
+        loc = BlockPortalLocation.create(block_id=block_id, order=order)
+
+        try:
+            loc = BlockPortalLocation.objects.get(pk=loc.pk, app_name='', block_id=block_id, order=order)
+        except Exception, e:
+            self.fail(str(e))
+
+    def test_create_portal03(self):
+        app_name = 'billing'
+        block_id = history_block.id_
+        BlockPortalLocation.create(block_id=block_id, order=3, app_name=app_name)
+
+        order = 10
+        BlockPortalLocation.create(block_id=block_id, order=order, app_name=app_name)
+
+        locs = BlockPortalLocation.objects.filter(app_name=app_name, block_id=block_id)
+        self.assertEqual(1, len(locs))
+        self.assertEqual(order, locs[0].order)
+
+    def test_create_empty_portal_config01(self):
+        app_name = 'creme_core'
+        self.assertEqual(0, BlockPortalLocation.objects.count())
+
+        BlockPortalLocation.create_empty_config(app_name)
+        locs = BlockPortalLocation.objects.all()
+        self.assertEqual(1, len(locs))
+
+        loc = locs[0]
+        self.assertEqual(app_name, loc.app_name)
+        self.assertEqual('',       loc.block_id)
+        self.assertEqual(1,        loc.order)
+
+    def test_create_empty_portal_config02(self):
+        for i in (1, 2):
+            BlockPortalLocation.create_empty_config('creme_core')
+
+        self.assertEqual(1, BlockPortalLocation.objects.count())
+
+    def test_create_empty_portal_config03(self):
+        BlockPortalLocation.create_empty_config()
+        locs = BlockPortalLocation.objects.all()
+        self.assertEqual(1, len(locs))
+
+        loc = locs[0]
+        self.assertEqual('', loc.app_name)
+
+#TODO: test other models

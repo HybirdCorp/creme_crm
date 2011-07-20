@@ -1,4 +1,5 @@
 {% extends "creme_core/generics/view_entity.html" %}
+{% comment %}
 {% load creme_block %}
 
 {% block creme_blocks_import %}
@@ -12,3 +13,4 @@
     {% display_block_detailview 'recipients_block' %}
     {% display_block_detailview 'contacts_block' %}
 {% endblock %}
+{% endcomment %}

@@ -24,7 +24,7 @@ from creme_core.registry import creme_registry
 from creme_core.gui import creme_menu, block_registry, button_registry, icon_registry, bulk_update_registry
 
 from activities.models import Activity, PhoneCall, Meeting, Task
-from activities.blocks import participants_block, subjects_block, future_activities_block, past_activities_block, user_calendars_block
+from activities.blocks import block_list
 from activities.buttons import add_meeting_button, add_phonecall_button, add_task_button
 from activities.signals import connect_to_signals
 
@@ -43,7 +43,7 @@ reg_item('/activities/activity/add/task',      _(u'Add a task'),             'ac
 reg_item('/activities/activity/add/activity',  _(u'Add an activity'),        'activities.add_activity')
 reg_item('/activities/activities',             _(u'All activities'),         'activities')
 
-block_registry.register(participants_block, subjects_block, future_activities_block, past_activities_block, user_calendars_block)
+block_registry.register(*block_list)
 
 button_registry.register(add_meeting_button, add_phonecall_button, add_task_button)
 

@@ -19,9 +19,10 @@
 ################################################################################
 
 from django.utils.translation import ugettext as _
-from creme_config.models.setting import SettingKey, SettingValue
 
 from creme_core.management.commands.creme_populate import BasePopulator
+
+from creme_config.models import SettingKey, SettingValue
 
 from crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
 
@@ -29,8 +30,7 @@ from crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
 class Populator(BasePopulator):
     def populate(self, *args, **kwargs):
         sk = SettingKey.create(pk=SETTING_CRUDITY_SANDBOX_BY_USER,
-                       description=_(u"Are waiting actions are by user?"),
-                       app_label='crudity', type=SettingKey.BOOL
+                               description=_(u"Are waiting actions are by user?"),
+                               app_label='crudity', type=SettingKey.BOOL
                               )
         SettingValue.objects.create(key=sk, user=None, value=False)
-

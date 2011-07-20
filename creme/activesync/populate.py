@@ -17,13 +17,14 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.management.commands.creme_populate import BasePopulator
 #from creme_core.utils import create_or_update_models_instance as create
-from creme_core.models.block import BlockConfigItem
-from creme_core.utils.id_generator import generate_string_id_and_save
+#from creme_core.models.block import BlockConfigItem
+#from creme_core.utils.id_generator import generate_string_id_and_save
 
 from creme_config.constants import USER_SETTINGS_BLOCK_PREFIX
 from creme_config.models.setting import SettingKey, SettingValue
@@ -31,12 +32,11 @@ from creme_config.models.setting import SettingKey, SettingValue
 from activesync.constants import (MAPI_DOMAIN, MAPI_SERVER_SSL, MAPI_SERVER_URL, USER_MOBILE_SYNC_SERVER_URL,
                                   USER_MOBILE_SYNC_SERVER_DOMAIN, USER_MOBILE_SYNC_SERVER_SSL,
                                   USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD)
-from activesync.blocks import user_mobile_sync_config_block
+#from activesync.blocks import user_mobile_sync_config_block
 
 
 class Populator(BasePopulator):
     def populate(self, *args, **kwargs):
-
         sk_mapi_server_url = SettingKey.create(pk=MAPI_SERVER_URL,
                        description="", hidden=True,
                        app_label='activesync', type=SettingKey.STRING
@@ -80,7 +80,8 @@ class Populator(BasePopulator):
                app_label='activesync', type=SettingKey.STRING
                )
 
-        if not BlockConfigItem.objects.filter(block_id__in=[user_mobile_sync_config_block.id_]).exists():
-            generate_string_id_and_save(BlockConfigItem,
-                                        [BlockConfigItem(content_type=ContentType.objects.get_for_model(User), block_id=user_mobile_sync_config_block.id_, order=2, on_portal=False)],
-                                        USER_SETTINGS_BLOCK_PREFIX)
+        #TODO: use a true registry
+        #if not BlockConfigItem.objects.filter(block_id__in=[user_mobile_sync_config_block.id_]).exists():
+            #generate_string_id_and_save(BlockConfigItem,
+                                        #[BlockConfigItem(content_type=ContentType.objects.get_for_model(User), block_id=user_mobile_sync_config_block.id_, order=2, on_portal=False)],
+                                        #USER_SETTINGS_BLOCK_PREFIX)

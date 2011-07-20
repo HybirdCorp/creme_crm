@@ -1,6 +1,6 @@
 {% extends "creme_core/generics/view_entity.html" %}
 {% load i18n %}
-{% load creme_block %}
+{% comment %}{% load creme_block %}{% endcomment %}
 
 {% block logo %}
     {% if object.url_site %}
@@ -12,6 +12,7 @@
     {% endif %}{% endif %}
 {% endblock %}
 
+{% comment %}
 {% block creme_blocks_import %}
     {{block.super}}
     {% import_block from_app 'persons' named 'orga_coordinates' as 'coordinates_block' %}
@@ -36,3 +37,4 @@
     {% display_block_detailview 'properties_block' %}
     {% display_block_detailview 'relations_block' %}
 {% endblock %}
+{% endcomment %}

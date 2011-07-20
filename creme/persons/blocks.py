@@ -42,8 +42,9 @@ class ContactBlock(Block):
 class ContactCoordinatesBlock(Block):
     id_           = Block.generate_id('persons', 'contact_coordinates')
     dependencies  = (Contact,)
-    verbose_name  = u'Coordinates of a contact'
+    verbose_name  = _(u'Coordinates of a contact')
     template_name = 'persons/templatetags/block_contact_coordinates.html'
+    target_ctypes = (Contact,)
 
 
 class OrganisationBlock(Block):
@@ -56,8 +57,9 @@ class OrganisationBlock(Block):
 class OrgaCoordinatesBlock(Block):
     id_           = Block.generate_id('persons', 'orga_coordinates')
     dependencies  = (Organisation,)
-    verbose_name  = u'Coordinates of an organisation'
+    verbose_name  = _(u'Coordinates of an organisation')
     template_name = 'persons/templatetags/block_orga_coordinates.html'
+    target_ctypes = (Organisation,)
 
 
 class ManagersBlock(QuerysetBlock):
@@ -66,6 +68,7 @@ class ManagersBlock(QuerysetBlock):
     relation_type_deps = (REL_OBJ_MANAGES, )
     verbose_name  = _(u"Organisation managers")
     template_name = 'persons/templatetags/block_managers.html'
+    target_ctypes = (Organisation,)
 
     def _get_people_qs(self, orga):
         return orga.get_managers()
@@ -107,6 +110,7 @@ class NeglectedOrganisationsBlock(PaginatedBlock):
     dependencies  = (Activity,)
     verbose_name  = u"Neglected organisations"
     template_name = 'persons/templatetags/block_neglected_orgas.html'
+    configurable  = False
 
     def _get_neglected(self, now):
         user_contacts     = Contact.objects.filter(is_user__isnull=False).values_list('id', flat=True)
@@ -165,6 +169,7 @@ class AddressBlock(Block):
     dependencies  = (Address,)
     verbose_name  = _(u'Address')
     template_name = 'persons/templatetags/block_address.html'
+    target_ctypes = (Contact, Organisation)
 
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(context,
@@ -177,6 +182,7 @@ class OtherAddressBlock(QuerysetBlock):
     dependencies  = (Address,)
     verbose_name  = _(u'Other Address')
     template_name = 'persons/templatetags/block_other_address.html'
+    target_ctypes = (Contact, Organisation)
     page_size = 1
 
     def detailview_display(self, context):
@@ -189,12 +195,21 @@ class OtherAddressBlock(QuerysetBlock):
                                                             ct_id=ContentType.objects.get_for_model(Address).id,
                                                            ))
 
+
+contact_coord_block = ContactCoordinatesBlock()
+orga_coord_block    = OrgaCoordinatesBlock()
+address_block       = AddressBlock()
+other_address_block = OtherAddressBlock()
+managers_block      = ManagersBlock()
+employees_block     = EmployeesBlock()
+#NeglectedOrganisationsBlock()
+
 block_list = (
-        ContactCoordinatesBlock(),
-        OrgaCoordinatesBlock(),
-        AddressBlock(),
-        OtherAddressBlock(),
-        ManagersBlock(),
-        EmployeesBlock(),
+        contact_coord_block,
+        orga_coord_block,
+        address_block,
+        other_address_block,
+        managers_block,
+        employees_block,
         NeglectedOrganisationsBlock(),
     )

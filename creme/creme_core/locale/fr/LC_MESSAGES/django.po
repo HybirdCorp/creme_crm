@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-11 16:01+0200\n"
+"POT-Creation-Date: 2011-07-20 14:50+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,6 +26,12 @@ msgstr "Propriétés"
 msgid "Relations"
 msgstr "Relations"
 
+#: blocks.py:78 forms/bulk.py:103 forms/header_filter.py:44
+#: models/custom_field.py:59
+#: templates/creme_core/templatetags/block_customfields.html:7
+msgid "Custom fields"
+msgstr "Champs personnalisés"
+
 #: blocks.py:86 templates/creme_core/templatetags/block_history.html:5
 msgid "History"
 msgstr "Historique"
@@ -39,33 +45,33 @@ msgstr "Cœur"
 msgid "Home"
 msgstr "Accueil"
 
-#: populate.py:35
+#: populate.py:36
 msgid "French"
 msgstr "Français"
 
-#: populate.py:36
+#: populate.py:37
 msgid "English"
 msgstr "Anglais"
 
-#: populate.py:38
+#: populate.py:39
 msgid "managed by Creme"
 msgstr "est géré par Creme"
 
-#: populate.py:40
+#: populate.py:41
 msgid "owns"
 msgstr "possède"
 
-#: populate.py:41
+#: populate.py:42
 msgid "belongs to"
 msgstr "appartient à"
 
-#: populate.py:59
-msgid "By default, is blocks are open?"
-msgstr "Par défaut, est-ce que les blocs apparaîssent ouverts?"
+#: populate.py:60
+msgid "By default, are blocks open ?"
+msgstr "Par défaut, est-ce que les blocs apparaîssent ouverts ?"
 
-#: populate.py:65
-msgid "By default, are empty fields are displayed?"
-msgstr "Par défaut, est-ce que les champs vides sont affichés?"
+#: populate.py:66
+msgid "By default, are empty fields are displayed ?"
+msgstr "Par défaut, est-ce que les champs vides sont affichés ?"
 
 #: forms/base.py:158 forms/base.py:179
 msgid "General information"
@@ -104,11 +110,6 @@ msgstr "Entités non éditables"
 #: forms/bulk.py:103 forms/header_filter.py:43
 msgid "Regular fields"
 msgstr "Champs normaux"
-
-#: forms/bulk.py:103 forms/header_filter.py:44 models/custom_field.py:59
-#: templates/creme_core/templatetags/block_customfields.html:7
-msgid "Custom fields"
-msgstr "Champs personnalisés"
 
 #: forms/bulk.py:133
 msgid "Select a valid field."
@@ -484,15 +485,6 @@ msgstr "La date début doit être avant la date de fin."
 msgid "Customized"
 msgstr "Personnalisé"
 
-#: forms/fields.py:822
-msgid "Enter a whole number."
-msgstr ""
-
-#: forms/fields.py:823
-#, python-format
-msgid "Ensure this value is greater than or equal to %(limit_value)s."
-msgstr ""
-
 #: forms/header_filter.py:46
 msgid "Functions"
 msgstr "Fonctions"
@@ -681,71 +673,58 @@ msgstr "Date de création"
 msgid "Last modification"
 msgstr "Dernière modification"
 
-#: models/block.py:39 models/button_menu.py:30 models/custom_field.py:50
+#: models/block.py:67 models/button_menu.py:30 models/custom_field.py:50
 #: models/search.py:32
 msgid "Related type"
 msgstr "Type associé"
 
-#: models/block.py:40 models/block.py:62 models/block.py:89
-#: models/block.py:143
+#: models/block.py:145 models/block.py:172 models/block.py:226
 msgid "Block ID"
 msgstr "Identifiant de bloc"
 
-#: models/block.py:41 models/button_menu.py:32 models/search.py:91
-msgid "Priority"
-msgstr "Priorité"
-
-#: models/block.py:42
-msgid "Displayed on portal ?"
-msgstr "Affiché sur la page d'accueil ?"
-
-#: models/block.py:46
-msgid "Block to display"
-msgstr "Bloc à afficher"
-
-#: models/block.py:47
-msgid "Blocks to display"
-msgstr "Blocs à afficher"
-
-#: models/block.py:63
+#: models/block.py:146
 msgid "Related type of relation"
 msgstr "Type de relation associé"
 
-#: models/block.py:67
+#: models/block.py:150
 msgid "Specific relation block"
 msgstr "Bloc de relation spécifique"
 
-#: models/block.py:68
+#: models/block.py:151
 msgid "Specific relation blocks"
 msgstr "Blocs de relation spécifique"
 
-#: models/block.py:90
+#: models/block.py:173
 msgid "Block related entity"
 msgstr "Entité associée au bloc"
 
-#: models/block.py:92
+#: models/block.py:175
 msgid "Verbose"
 msgstr "Verbeux"
 
-#: models/block.py:96
+#: models/block.py:179
 msgid "Instance's Block to display"
 msgstr "Bloc d'instance à afficher"
 
-#: models/block.py:97
+#: models/block.py:180
 msgid "Instance's Blocks to display"
 msgstr "Blocs d'instance à afficher"
 
-#: models/block.py:149
+#: models/block.py:232
 msgid "Block state"
 msgstr "Etat de bloc"
 
-#: models/block.py:150
+#: models/block.py:233
 msgid "Blocks states"
 msgstr "Etats de blocs"
 
 #: models/button_menu.py:31
 msgid "Button ID"
 msgstr "Identifiant de bouton"
+
+#: models/button_menu.py:32 models/search.py:91
+msgid "Priority"
+msgstr "Priorité"
 
 #: models/button_menu.py:36
 msgid "Button to display"
@@ -1438,19 +1417,16 @@ msgid "New relations"
 msgstr "Nouvelles relations"
 
 #: templates/creme_core/templatetags/block_relations.html:14
-#, fuzzy
 msgid "Delete all relations"
-msgstr "Type de relation associé"
+msgstr "Supprimer toutes les relations"
 
 #: templates/creme_core/templatetags/block_relations.html:18
-#, fuzzy
 msgid "Can't delete all"
-msgstr "Suppression interdite"
+msgstr "Suppression de tout interdite"
 
 #: templates/creme_core/templatetags/block_relations.html:19
-#, fuzzy
 msgid "Delete all relations (forbidden)"
-msgstr "Cloner (interdit)"
+msgstr "Supprimer toutes les relations (interdit)"
 
 #: templates/creme_core/templatetags/block_relations.html:45
 msgid "No relation for the moment"
@@ -1684,50 +1660,6 @@ msgstr "%s seconde(s)"
 msgid "In the future"
 msgstr "Dans le futur"
 
-#: tests/models/header_filter.py:44 tests/views/entity.py:39
-#, fuzzy
-msgid "First name"
-msgstr "Nom du champ"
-
-#: tests/models/header_filter.py:69
-msgid "Photograph"
-msgstr ""
-
-#: tests/models/history.py:180
-msgid "Phone number"
-msgstr ""
-
-#: tests/models/history.py:186
-msgid "Email"
-msgstr ""
-
-#: tests/models/history.py:191
-#, fuzzy
-msgid "Description"
-msgstr "Supression"
-
-#: tests/models/history.py:195
-msgid "Sector"
-msgstr ""
-
-#: tests/models/history.py:201
-#, fuzzy
-msgid "Date of creation of the organisation"
-msgstr "Aucune relation pour le moment"
-
-#: tests/models/history.py:205
-msgid "Subject to VAT"
-msgstr ""
-
-#: tests/views/entity.py:38
-#, fuzzy
-msgid "Username"
-msgstr "Utilisateur"
-
-#: tests/views/entity.py:40
-msgid "Last name"
-msgstr ""
-
 #: utils/date_range.py:87
 msgid "Previous year"
 msgstr "Année précédente"
@@ -1889,16 +1821,22 @@ msgstr "Liste des %s"
 msgid "The desired list does not have any view, please create one."
 msgstr "La liste souhaitée n'a aucune vue, veuillez en créer au moins une."
 
-#: views/generic/portal.py:36
+#: views/generic/portal.py:37
 #, python-format
 msgid "You are not allowed to access to the app: %s"
 msgstr "Vous n'avez pas accés à cette application: %s"
+
+#~ msgid "Displayed on portal ?"
+#~ msgstr "Affiché sur la page d'accueil ?"
 
 #~ msgid "related to"
 #~ msgstr "est en relation avec"
 
 #~ msgid "Entity#%s can not be deleted because of its dependencies."
 #~ msgstr "La fiche#%s ne peut être effacé à cause de ses dépendances."
+
+#~ msgid "Blocks to display"
+#~ msgstr "Blocs à afficher"
 
 #~ msgid "Search results"
 #~ msgstr "Resultats de recherche"

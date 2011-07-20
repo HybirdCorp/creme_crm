@@ -27,7 +27,9 @@ register(EntityFilter)
 register(Language)
 
 register(PreferedMenuItem)
-register(BlockConfigItem)
+#register(BlockConfigItem)
+register(BlockDetailviewLocation)
+register(BlockPortalLocation)
 register(ButtonMenuItem)
 
 register(DateReminder)
