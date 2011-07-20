@@ -1,6 +1,7 @@
 {% extends "creme_core/generics/view_entity.html" %}
 {% load i18n %}
 {% load media %}
+{% comment %}
 {% load creme_block %}
 
 {% block creme_blocks_import %}
@@ -14,6 +15,7 @@
     {% display_block_detailview 'fields_block' %}
     {% display_block_detailview 'graphs_block' %}
 {% endblock %}
+{% endcomment %}
 
 {% block entity_buttons %}
     <a href="/reports/report/{{object.id}}/preview">

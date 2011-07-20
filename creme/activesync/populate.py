@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
@@ -31,12 +32,11 @@ from creme_config.models.setting import SettingKey, SettingValue
 from activesync.constants import (MAPI_DOMAIN, MAPI_SERVER_SSL, MAPI_SERVER_URL, USER_MOBILE_SYNC_SERVER_URL,
                                   USER_MOBILE_SYNC_SERVER_DOMAIN, USER_MOBILE_SYNC_SERVER_SSL,
                                   USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD)
-from activesync.blocks import user_mobile_sync_config_block
+#from activesync.blocks import user_mobile_sync_config_block
 
 
 class Populator(BasePopulator):
     def populate(self, *args, **kwargs):
-
         sk_mapi_server_url = SettingKey.create(pk=MAPI_SERVER_URL,
                        description="", hidden=True,
                        app_label='activesync', type=SettingKey.STRING

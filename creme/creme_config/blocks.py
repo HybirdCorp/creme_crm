@@ -36,8 +36,9 @@ class GenericModelsBlock(QuerysetBlock):
     dependencies  = (CremeModel,)
     order_by      = 'id'
     page_size     = _PAGE_SIZE
-    verbose_name  = _(u'Model configuration')
+    verbose_name  = u'Model configuration'
     template_name = 'creme_config/templatetags/block_models.html'
+    configurable  = False
 
     def detailview_display(self, context):
         #NB: credentials are OK : we are sure to use the custom reloading view
@@ -63,6 +64,7 @@ class SettingsBlock(QuerysetBlock):
     page_size     = _PAGE_SIZE
     verbose_name  = u'App settings'
     template_name = 'creme_config/templatetags/block_settings.html'
+    configurable  = False
 
     def detailview_display(self, context):
         app_name = context['app_name']
@@ -76,8 +78,9 @@ class SettingsBlock(QuerysetBlock):
 
 
 class _ConfigAdminBlock(QuerysetBlock):
-    page_size  = _PAGE_SIZE
-    permission = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
+    page_size    = _PAGE_SIZE
+    permission   = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
+    configurable = False
 
 
 class PropertyTypesBlock(_ConfigAdminBlock):
@@ -139,6 +142,7 @@ class CustomFieldsBlock(QuerysetBlock):
     page_size     = _PAGE_SIZE
     verbose_name  = _(u'Custom fields configuration')
     template_name = 'creme_config/templatetags/block_custom_fields.html'
+    configurable  = False
 
     def detailview_display(self, context):
         #NB: credentials are OK : we are sure to use the custom reloading view if 'content_type' is in the context
@@ -182,6 +186,7 @@ class BlockDetailviewLocationsBlock(_ConfigAdminBlock):
     page_size     = _PAGE_SIZE - 1 #'-1' because there is always the line for default config on each page
     verbose_name  = u'Blocks locations on detailviews'
     template_name = 'creme_config/templatetags/block_blocklocations.html'
+    configurable  = False
 
     def detailview_display(self, context):
         ct_ids = BlockDetailviewLocation.objects.exclude(content_type=None)\
@@ -200,6 +205,7 @@ class BlockPortalLocationsBlock(PaginatedBlock):
     verbose_name  = u'Blocks locations on portals'
     template_name = 'creme_config/templatetags/block_blockportallocations.html'
     permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
+    configurable  = False
 
     def detailview_display(self, context):
         get_app = creme_registry.get_app
@@ -217,7 +223,7 @@ class BlockPortalLocationsBlock(PaginatedBlock):
 class RelationBlocksConfigBlock(_ConfigAdminBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'relation_blocks_config')
     dependencies  = (RelationBlockItem, BlockDetailviewLocation) #BlockDetailviewLocation because they can be deleted if we delete a RelationBlockItem
-    verbose_name  = _(u'Relation blocks configuration')
+    verbose_name  = u'Relation blocks configuration'
     template_name = 'creme_config/templatetags/block_relationblocksconfig.html'
 
     def detailview_display(self, context):
@@ -230,7 +236,7 @@ class RelationBlocksConfigBlock(_ConfigAdminBlock):
 class InstanceBlocksConfigBlock(_ConfigAdminBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'instance_blocks_config')
     dependencies  = (InstanceBlockConfigItem, BlockDetailviewLocation) #BlockDetailviewLocation because they can be deleted if we delete a InstanceBlockConfigItem
-    verbose_name  = _(u'Instance blocks configuration')
+    verbose_name  = u'Instance blocks configuration'
     template_name = 'creme_config/templatetags/block_instanceblocksconfig.html'
 
     def detailview_display(self, context):
@@ -243,7 +249,7 @@ class ButtonMenuBlock(_ConfigAdminBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'button_menu')
     dependencies  = (ButtonMenuItem,)
     page_size     = _PAGE_SIZE - 1 #'-1' because there is always the line for default config on each page
-    verbose_name  = _(u'Button menu configuration')
+    verbose_name  = u'Button menu configuration'
     template_name = 'creme_config/templatetags/block_button_menu.html'
 
     def detailview_display(self, context):
@@ -257,7 +263,7 @@ class ButtonMenuBlock(_ConfigAdminBlock):
 class SearchConfigBlock(_ConfigAdminBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'searchconfig')
     dependencies  = (SearchConfigItem,)
-    verbose_name  = _(u'Search configuration')
+    verbose_name  = u'Search configuration'
     template_name = 'creme_config/templatetags/block_searchconfig.html'
     order_by      = 'content_type'
 
@@ -288,7 +294,7 @@ class UserRolesBlock(_ConfigAdminBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'user_roles')
     dependencies  = (UserRole,)
     order_by      = 'name'
-    verbose_name  = _(u'User roles configuration')
+    verbose_name  = u'User roles configuration'
     template_name = 'creme_config/templatetags/block_user_roles.html'
 
     def detailview_display(self, context):
@@ -300,8 +306,9 @@ class UserRolesBlock(_ConfigAdminBlock):
 class DefaultCredentialsBlock(Block):
     id_           = Block.generate_id('creme_config', 'default_credentials')
     dependencies  = (EntityCredentials,)
-    verbose_name  = _(u'Default credentials')
+    verbose_name  = u'Default credentials'
     template_name = 'creme_config/templatetags/block_default_credentials.html'
+    configurable  = False
     permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
 
     def detailview_display(self, context):
@@ -314,8 +321,9 @@ class DefaultCredentialsBlock(Block):
 class UserPreferedMenusBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'user_prefered_menus')
     dependencies  = ()
-    verbose_name  = _(u'My prefered menus')
+    verbose_name  = u'My prefered menus'
     template_name = 'creme_config/templatetags/block_user_prefered_menus.html'
+    configurable  = False
     order_by      = 'order'
     permission    = None #NB: used by the view creme_core.views.blocks.reload_basic ; None means 'No special permission required'
 

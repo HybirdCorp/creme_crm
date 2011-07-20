@@ -74,6 +74,7 @@ class MailingListsBlock(_RelatedEntitesBlock):
     dependencies  = (MailingList,)
     verbose_name  = _(u'Mailing lists')
     template_name = 'emails/templatetags/block_mailing_lists.html'
+    target_ctypes = (EmailCampaign,)
 
     def _get_queryset(self, entity): #entity=campaign
         return entity.mailing_lists.all()
@@ -84,6 +85,7 @@ class EmailRecipientsBlock(QuerysetBlock):
     dependencies  = (EmailRecipient,)
     verbose_name  = _(u'Unlinked recipients')
     template_name = 'emails/templatetags/block_recipients.html'
+    target_ctypes = (MailingList,)
 
     def detailview_display(self, context):
         mailing_list = context['object']
@@ -98,6 +100,7 @@ class ContactsBlock(_RelatedEntitesBlock):
     dependencies  = (Contact,)
     verbose_name  = _(u'Contacts recipients')
     template_name = 'emails/templatetags/block_contacts.html'
+    target_ctypes = (MailingList,)
 
     def _get_queryset(self, entity): #entity=mailing_list
         return entity.contacts.select_related('civility')
@@ -108,6 +111,7 @@ class OrganisationsBlock(_RelatedEntitesBlock):
     dependencies  = (Organisation,)
     verbose_name  = _(u'Organisations recipients')
     template_name = 'emails/templatetags/block_organisations.html'
+    target_ctypes = (MailingList,)
 
     def _get_queryset(self, entity): #entity=mailing_list
         return entity.organisations.all()
@@ -118,6 +122,7 @@ class ChildListsBlock(_RelatedEntitesBlock):
     dependencies  = (MailingList,)
     verbose_name  = _(u'Child mailing lists')
     template_name = 'emails/templatetags/block_child_lists.html'
+    target_ctypes = (MailingList,)
 
     def _get_queryset(self, entity): #entity=mailing_list
         return entity.children.all()
@@ -128,6 +133,7 @@ class ParentListsBlock(_RelatedEntitesBlock):
     dependencies  = (MailingList,)
     verbose_name  = _(u'Parent mailing lists')
     template_name = 'emails/templatetags/block_parent_lists.html'
+    target_ctypes = (MailingList,)
 
     def _get_queryset(self, entity): #entity=mailing_list
         return entity.parents_set.all()
@@ -138,6 +144,7 @@ class AttachmentsBlock(_RelatedEntitesBlock):
     dependencies  = (Document,)
     verbose_name  = _(u'Attachments')
     template_name = 'emails/templatetags/block_attachments.html'
+    target_ctypes = (EmailTemplate,)
 
     def _get_queryset(self, entity): #entity=mailtemplate
         return entity.attachments.all()
@@ -149,6 +156,7 @@ class SendingsBlock(QuerysetBlock):
     order_by      = '-sending_date'
     verbose_name  = _(u'Sendings')
     template_name = 'emails/templatetags/block_sendings.html'
+    target_ctypes = (EmailCampaign,)
 
     def detailview_display(self, context):
         campaign = context['object']
@@ -162,8 +170,9 @@ class MailsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'mails')
     dependencies  = (LightWeightEmail,)
     page_size     = 12
-    verbose_name  = _(u"Emails of a sending")
+    verbose_name  = u"Emails of a sending"
     template_name = 'emails/templatetags/block_mails.html'
+    configurable  = False
 
     def detailview_display(self, context):
         sending = context['object']
@@ -185,7 +194,7 @@ class MailsHistoryBlock(QuerysetBlock):
     order_by      = '-sending_date'
     verbose_name  = _(u"Emails history")
     template_name = 'emails/templatetags/block_mails_history.html'
-    configurable  = True
+    #configurable  = True
 
     def detailview_display(self, context):
         entity = context['object']
@@ -210,7 +219,7 @@ class LwMailsHistoryBlock(QuerysetBlock):
     order_by      = '-sending_date'
     verbose_name  = _(u"Campaings emails history")
     template_name = 'emails/templatetags/block_lw_mails_history.html'
-    configurable  = True
+    #configurable  = True
 
     def detailview_display(self, context):
         pk = context['object'].pk
@@ -223,6 +232,7 @@ class LwMailsHistoryBlock(QuerysetBlock):
 class _SynchronizationMailsBlock(CrudityQuerysetBlock):
     dependencies  = (EntityEmail,)
     order_by      = '-reception_date'
+    configurable  = False
 
     @jsonify
     def detailview_ajax(self, request):
@@ -232,7 +242,7 @@ class _SynchronizationMailsBlock(CrudityQuerysetBlock):
 
 class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
     id_           = QuerysetBlock.generate_id('emails', 'waiting_synchronisation')
-    verbose_name  = _(u'Incoming Emails to sync')
+    verbose_name  = u'Incoming Emails to sync'
     template_name = 'emails/templatetags/block_synchronization.html'
 
     def detailview_display(self, context):
@@ -246,7 +256,7 @@ class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
 
 class SpamSynchronizationMailsBlock(_SynchronizationMailsBlock):
     id_           = QuerysetBlock.generate_id('emails', 'synchronised_as_spam')
-    verbose_name  = _(u'Spam emails')
+    verbose_name  = u'Spam emails'
     template_name = 'emails/templatetags/block_synchronization_spam.html'
 
     def detailview_display(self, context):
@@ -264,6 +274,7 @@ class SignaturesBlock(QuerysetBlock):
     order_by      = 'name'
     verbose_name  = u'Email signatures'
     template_name = 'emails/templatetags/block_signatures.html'
+    configurable  = False
 
     def portal_display(self, context, ct_ids):
         if not context['user'].has_perm('emails'):
@@ -274,19 +285,27 @@ class SignaturesBlock(QuerysetBlock):
                                                            ))
 
 
-mails_block = MailsBlock()
+mailing_lists_block    = MailingListsBlock()
+email_recipients_block = EmailRecipientsBlock()
+contacts_block         = ContactsBlock()
+organisations_block    = OrganisationsBlock()
+child_lists_block      = ChildListsBlock()
+parent_lists_block     = ParentListsBlock()
+attachments_block      = AttachmentsBlock()
+sendings_block         = SendingsBlock()
+mails_block            = MailsBlock()
 #mail_waiting_sync_block = WaitingSynchronizationMailsBlock()
 #mail_spam_sync_block    = SpamSynchronizationMailsBlock()
 
 blocks_list = (
-        MailingListsBlock(),
-        EmailRecipientsBlock(),
-        ContactsBlock(),
-        OrganisationsBlock(),
-        ChildListsBlock(),
-        ParentListsBlock(),
-        AttachmentsBlock(),
-        SendingsBlock(),
+        mailing_lists_block,
+        email_recipients_block,
+        contacts_block,
+        organisations_block,
+        child_lists_block,
+        parent_lists_block,
+        attachments_block,
+        sendings_block,
         mails_block,
         MailsHistoryBlock(),
         LwMailsHistoryBlock(),

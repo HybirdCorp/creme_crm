@@ -178,7 +178,7 @@ INSTALLED_APPS = (
     'creme.recurrents',
     'creme.billing',       #need 'creme.products'
     'creme.opportunities', #need 'creme.billing'
-    'creme.commercial',
+    'creme.commercial',    #need 'creme.opportunities'
     'creme.events',
     'creme.crudity',
     'creme.emails', #need 'creme.crudity'

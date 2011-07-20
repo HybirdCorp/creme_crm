@@ -25,6 +25,7 @@ from django.conf import settings
 
 from creme_core.models import (RelationType, BlockDetailviewLocation, BlockPortalLocation,
                                ButtonMenuItem, SearchConfigItem, SearchField, HeaderFilterItem, HeaderFilter)
+from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -37,6 +38,7 @@ from products.models import Product, Service
 from billing.models import SalesOrder, Invoice, Quote
 
 from opportunities.models import SalesPhase, Origin, Opportunity
+from opportunities.blocks import *
 from opportunities.buttons import linked_opportunity_button
 from opportunities.constants import *
 
@@ -103,6 +105,19 @@ class Populator(BasePopulator):
 
         SearchConfigItem.create(Opportunity, ['name', 'made_sales', 'sales_phase__name', 'origin__name'])
 
+        BlockDetailviewLocation.create(block_id=customfields_block.id_,    order=40,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
+        BlockDetailviewLocation.create(block_id=linked_contacts_block.id_, order=50,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
+        BlockDetailviewLocation.create(block_id=linked_products_block.id_, order=60,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
+        BlockDetailviewLocation.create(block_id=linked_services_block.id_, order=62,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
+        BlockDetailviewLocation.create(block_id=responsibles_block.id_,    order=60,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
+        BlockDetailviewLocation.create(block_id=quotes_block.id_,          order=70,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
+        BlockDetailviewLocation.create(block_id=salesorders_block.id_,     order=72,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
+        BlockDetailviewLocation.create(block_id=invoices_block.id_,        order=74,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
+        BlockDetailviewLocation.create(block_id=properties_block.id_,      order=450, zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
+        BlockDetailviewLocation.create(block_id=relations_block.id_,       order=500, zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
+        BlockDetailviewLocation.create(block_id=total_block.id_,           order=2,   zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+        BlockDetailviewLocation.create(block_id=history_block.id_,         order=20,  zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+
         if 'creme.activities' in settings.INSTALLED_APPS:
             info('Activities app is installed => we use the "Future activities" & "Past activities" blocks')
 
@@ -112,6 +127,7 @@ class Populator(BasePopulator):
             BlockDetailviewLocation.create(block_id=past_activities_block.id_,   order=21, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
             BlockPortalLocation.create(app_name='opportunities', block_id=future_activities_block.id_, order=20)
             BlockPortalLocation.create(app_name='opportunities', block_id=past_activities_block.id_,   order=21)
+
 
         if 'creme.assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail views and portal')
@@ -228,7 +244,7 @@ class Populator(BasePopulator):
         ##Set instance graphs on opportunity portal
         #generate_string_id_and_save(BlockConfigItem, blocks_to_save, 'creme_config-userbci')
 
-        BlockDetailviewLocation.create(block_id=rgraph_1_instance_block_id, order=1, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
-        BlockDetailviewLocation.create(block_id=rgraph_2_instance_block_id, order=2, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+        BlockDetailviewLocation.create(block_id=rgraph_1_instance_block_id, order=4, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+        BlockDetailviewLocation.create(block_id=rgraph_2_instance_block_id, order=6, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
         BlockPortalLocation.create(app_name='opportunities', block_id=rgraph_1_instance_block_id, order=1)
         BlockPortalLocation.create(app_name='opportunities', block_id=rgraph_2_instance_block_id, order=2)

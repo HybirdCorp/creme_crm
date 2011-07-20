@@ -75,7 +75,7 @@ class Block(object):
     verbose_name  = 'BLOCK'            #used in the user configuration (see BlockDetailviewLocation/BlockPortalLocation)
     template_name = 'OVERLOAD_ME.html' #used to render the block of course
     context_class = _BlockContext      #store the context in the session.
-    configurable  = False              #True: the Block can be add/removed to detailview/portal by configuration (see creme_config)
+    configurable  = True               #True: the Block can be add/removed to detailview/portal by configuration (see creme_config)
     target_ctypes = ()                 #Tuple of CremeEntity classes that can have this type of block. Empty tuple means that all types are ok. eg: (Contact, Organisation)
 
     @staticmethod

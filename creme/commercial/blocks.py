@@ -23,19 +23,20 @@ from itertools import chain
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
-from creme_config.models.setting import SettingValue
 
 from creme_core.models import CremeEntity, Relation
 from creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, list4url
 
+from creme_config.models import SettingValue
+
 from opportunities.models import Opportunity
+from opportunities.constants import REL_SUB_TARGETS_ORGA
+
+from persons.models.organisation import Organisation
 
 from commercial.models import *
 from commercial.constants import REL_OBJ_OPPORT_LINKED, DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW
 
-from persons.models.organisation import Organisation
-
-from opportunities.constants import REL_SUB_TARGETS_ORGA
 
 class ApproachesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('commercial', 'approaches')
@@ -43,7 +44,7 @@ class ApproachesBlock(QuerysetBlock):
     order_by      = 'title'
     verbose_name  = _(u'Commercial approaches')
     template_name = 'commercial/templatetags/block_approaches.html'
-    configurable  = True
+    #configurable  = True
 
     #TODO: factorise with assistants blocks (CremeEntity method ??)
     @staticmethod
@@ -106,8 +107,9 @@ class SegmentsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('commercial', 'segments')
     dependencies  = (MarketSegment,)
     order_by      = 'name'
-    verbose_name  = _(u'Market segments')
+    verbose_name  = u'Market segments'
     template_name = 'commercial/templatetags/block_segments.html'
+    configurable  = False
     permission    = 'commercial' #NB: used by the view creme_core.views.blocks.reload_basic
 
     def detailview_display(self, context):
@@ -122,6 +124,7 @@ class SegmentDescriptionsBlock(PaginatedBlock):
     dependencies  = (MarketSegment,) #MarketSegmentDescription ??
     verbose_name  = _(u'Market segment descriptions')
     template_name = 'commercial/templatetags/block_segment_info.html'
+    target_ctypes = (Strategy,)
 
     def detailview_display(self, context):
         strategy = context['object']
@@ -137,6 +140,7 @@ class AssetsBlock(QuerysetBlock):
     order_by      = 'name'
     verbose_name  = _(u'Commercial assets')
     template_name = 'commercial/templatetags/block_assets.html'
+    target_ctypes = (Strategy,)
 
     def detailview_display(self, context):
         strategy = context['object']
@@ -151,6 +155,7 @@ class CharmsBlock(QuerysetBlock):
     order_by      = 'name'
     verbose_name  = _(u'Segment charms')
     template_name = 'commercial/templatetags/block_charms.html'
+    target_ctypes = (Strategy,)
 
     def detailview_display(self, context):
         strategy = context['object']
@@ -166,6 +171,7 @@ class EvaluatedOrgasBlock(QuerysetBlock):
     order_by      = 'name'
     verbose_name  = _(u'Evaluated organisations')
     template_name = 'commercial/templatetags/block_evalorgas.html'
+    target_ctypes = (Strategy,)
 
     def detailview_display(self, context):
         strategy = context['object']
@@ -183,6 +189,7 @@ class AssetsMatrixBlock(Block):
     #dependencies  = (CommercialAsset,) #useless (custom reload view....)
     verbose_name  = u'Assets / segments matrix'
     template_name = 'commercial/templatetags/block_assets_matrix.html'
+    configurable  = False
 
     def detailview_display(self, context):
         #NB: credentials are OK : we are sure to use the custom relaod view if 'strategy' & 'orga' are in the context
@@ -201,6 +208,7 @@ class CharmsMatrixBlock(Block):
     #dependencies  = (MarketSegmentCharm,) #useless (custom reload view....)
     verbose_name  = u'Charms / segments matrix'
     template_name = 'commercial/templatetags/block_charms_matrix.html'
+    configurable  = False
 
     def detailview_display(self, context):
         #NB: credentials are OK : we are sure to use the custom relaod view if 'strategy' & 'orga' are in the context
@@ -218,6 +226,7 @@ class AssetsCharmsMatrixBlock(Block):
     #dependencies  = (CommercialAsset, MarketSegmentCharm,) #useless (custom reload view....)
     verbose_name  = u'Assets / Charms segments matrix'
     template_name = 'commercial/templatetags/block_assets_charms_matrix.html'
+    configurable  = False
 
     def detailview_display(self, context):
         #NB: credentials are OK : we are sure to use the custom relaod view if 'strategy' & 'orga' are in the context
@@ -233,8 +242,9 @@ class ActObjectivesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('commercial', 'objectives')
     dependencies  = (ActObjective,)
     order_by      = 'name'
-    verbose_name  = u'Objectives of an Act'
+    verbose_name  = _(u'Objectives of an Act')
     template_name = 'commercial/templatetags/block_objectives.html'
+    target_ctypes = (Act,)
 
     def detailview_display(self, context):
         act_id = context['object'].id
@@ -249,8 +259,9 @@ class RelatedOpportunitiesBlock(PaginatedBlock):
     id_           = PaginatedBlock.generate_id('commercial', 'opportunities')
     dependencies  = (Relation,)
     relation_type_deps = (REL_OBJ_OPPORT_LINKED,)
-    verbose_name  = u'Opportunities related to an Act'
+    verbose_name  = _(u'Opportunities related to an Act')
     template_name = 'commercial/templatetags/block_opportunities.html'
+    target_ctypes = (Act,)
 
     _ct = ContentType.objects.get_for_model(Opportunity)
 
@@ -270,8 +281,9 @@ class RelatedOpportunitiesBlock(PaginatedBlock):
 class PatternComponentsBlock(Block):
     id_           = Block.generate_id('commercial', 'pattern_components')
     dependencies  = (ActObjectivePatternComponent,)
-    verbose_name  = u'Objective patterns components'
+    verbose_name  = _(u'Objective patterns components')
     template_name = 'commercial/templatetags/block_components.html'
+    target_ctypes = (ActObjectivePattern,)
 
     def detailview_display(self, context):
         pattern = context['object']
@@ -292,22 +304,29 @@ class PatternComponentsBlock(Block):
                                                            ))
 
 
-approaches_block           = ApproachesBlock()
-assets_matrix_block        = AssetsMatrixBlock()
-charms_matrix_block        = CharmsMatrixBlock()
-assets_charms_matrix_block = AssetsCharmsMatrixBlock()
+approaches_block            = ApproachesBlock()
+segment_descriptions_block  = SegmentDescriptionsBlock()
+assets_block                = AssetsBlock()
+charms_block                = CharmsBlock()
+evaluated_orgas_block       = EvaluatedOrgasBlock()
+assets_matrix_block         = AssetsMatrixBlock()
+charms_matrix_block         = CharmsMatrixBlock()
+assets_charms_matrix_block  = AssetsCharmsMatrixBlock()
+act_objectives_block        = ActObjectivesBlock()
+related_opportunities_block = RelatedOpportunitiesBlock()
+pattern_components_block    = PatternComponentsBlock()
 
 blocks_list = (
     approaches_block,
     SegmentsBlock(),
-    SegmentDescriptionsBlock(),
-    AssetsBlock(),
-    CharmsBlock(),
-    EvaluatedOrgasBlock(),
+    segment_descriptions_block,
+    assets_block,
+    charms_block,
+    evaluated_orgas_block,
     assets_matrix_block,
     charms_matrix_block,
     assets_charms_matrix_block,
-    ActObjectivesBlock(),
-    RelatedOpportunitiesBlock(),
-    PatternComponentsBlock(),
+    act_objectives_block,
+    related_opportunities_block,
+    pattern_components_block,
 )

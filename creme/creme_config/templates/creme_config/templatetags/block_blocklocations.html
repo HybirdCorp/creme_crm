@@ -26,7 +26,7 @@
                 <tr>
                     <td class="{{row_color}}">{{ct}}</td>
                     <td class="{{row_color}}">{% get_line_editor at_url '/creme_config/blocks/detailview/edit/{{ct.id}}' with_perms 1 %}</td>
-                    <td class="{{row_color}}">{% get_line_deletor at_url '/creme_config/blocks/delete' with_args "{'id': '{{ct.id}}'}" with_perms 1 %}</td>
+                    <td class="{{row_color}}">{% get_line_deletor at_url '/creme_config/blocks/detailview/delete' with_args "{'id': '{{ct.id}}'}" with_perms 1 %}</td>
                 </tr>
             {% endfor %}
         {% endif %}

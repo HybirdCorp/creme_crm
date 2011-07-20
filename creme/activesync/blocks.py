@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,30 +19,32 @@
 ################################################################################
 
 from django.utils.translation import ugettext_lazy as _
-from activesync.models.active_sync import UserSynchronizationHistory, USER_HISTORY_TYPE_VERBOSE, USER_HISTORY_WHERE_VERBOSE
 
 from creme_core.gui.block import Block, QuerysetBlock
 
 from creme_config.models.setting import SettingValue
 
+from persons.models.contact import Contact
+
+from activesync.models.active_sync import UserSynchronizationHistory, USER_HISTORY_TYPE_VERBOSE, USER_HISTORY_WHERE_VERBOSE
 from activesync.constants import (USER_MOBILE_SYNC_SERVER_URL, MAPI_SERVER_URL, USER_MOBILE_SYNC_SERVER_DOMAIN,
                                   MAPI_DOMAIN, USER_MOBILE_SYNC_SERVER_SSL, MAPI_SERVER_SSL,
                                   USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD
                                   )
-from creme_core.models.entity import CremeEntity
-from persons.models.contact import Contact
+
 
 class UserMobileSyncConfigBlock(Block):
     id_           = Block.generate_id('activesync', 'user_mobile_sync')
     dependencies  = ()
-    verbose_name  = _(u'Mobile synchronization')
+    verbose_name  = u'Mobile synchronization configuration for a user'
     template_name = 'activesync/templatetags/block_user_mobile_sync.html'
+    configurable  = False
     permission    = None
 
     def detailview_display(self, context):
         request = context.get('request')
 
-        undefined = _(u"Undefined")
+        undefined = _(u"Undefined") #TODO: use ugettext insated of ugettext_lazy
         default   = _(u"Default configuration")
 
         url      = undefined
@@ -52,8 +54,7 @@ class UserMobileSyncConfigBlock(Block):
         password = ""
 
         if request:
-            user    = request.user
-
+            user   = request.user
             sv_get = SettingValue.objects.get
 
             try:
@@ -102,12 +103,12 @@ class UserMobileSyncConfigBlock(Block):
 class MobileSyncConfigBlock(Block):
     id_           = Block.generate_id('activesync', 'mobile_sync_config')
     dependencies  = ()
-    verbose_name  = _(u'Mobile synchronization')
+    verbose_name  = u'Mobile synchronization configuration'
     template_name = 'activesync/templatetags/block_mobile_sync_config.html'
+    configurable  = False
     permission    = 'activesync.can_admin'
 
     def detailview_display(self, context):
-
         sv_get = SettingValue.objects.get
 
         #Nb: Those values had been populated
@@ -125,8 +126,9 @@ class MobileSyncConfigBlock(Block):
 class UserSynchronizationHistoryBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activesync', 'user_synchronization_history')
     dependencies  = (UserSynchronizationHistory,)
-    verbose_name  = _(u'User synchronization history')
+    verbose_name  = u'User synchronization history'
     template_name = 'activesync/templatetags/block_user_synchronization_history.html'
+    configurable  = False
     order_by      = '-created'
 
     def detailview_display(self, context):
@@ -137,7 +139,6 @@ class UserSynchronizationHistoryBlock(QuerysetBlock):
                                               history_where_verbose=USER_HISTORY_WHERE_VERBOSE,
                                               contact_klass=Contact,
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, user.pk))
-
 
         return self._render(btc)
 

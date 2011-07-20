@@ -23,7 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.models import CremeEntity
 from creme_core.gui.block import Block, QuerysetBlock
 
-from projects.models import ProjectTask, Resource, WorkingPeriod
+from projects.models import Project, ProjectTask, Resource, WorkingPeriod
 
 
 class ProjectExtraInfo(Block):
@@ -31,9 +31,10 @@ class ProjectExtraInfo(Block):
     dependencies  = (ProjectTask,)
     verbose_name  = _(u'Extra project information')
     template_name = 'projects/templatetags/block_project_extra_info.html'
+    target_ctypes = (Project,)
 
-    def detailview_display(self, context):
-        return self._render(self.get_block_template_context(context)) #TODO: move to Block.detailview_display() ??
+    #def detailview_display(self, context):
+        #return self._render(self.get_block_template_context(context)) #todo: move to Block.detailview_display() ??
 
 
 class TaskExtraInfo(Block):
@@ -41,16 +42,18 @@ class TaskExtraInfo(Block):
     dependencies  = (WorkingPeriod,)
     verbose_name  = _(u'Extra project task information')
     template_name = 'projects/templatetags/block_task_extra_info.html'
+    target_ctypes = (ProjectTask,)
 
-    def detailview_display(self, context):
-        return self._render(self.get_block_template_context(context)) #TODO: move to Block.detailview_display() ??
+    #def detailview_display(self, context):
+        #return self._render(self.get_block_template_context(context)) #todo: move to Block.detailview_display() ??
 
 
 class ParentTasksBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('projects', 'parent_tasks')
     dependencies  = (ProjectTask,)
-    verbose_name  = u'Parents of a Task'
+    verbose_name  = _(u'Parents of a Task')
     template_name = 'projects/templatetags/block_parent_tasks.html'
+    target_ctypes = (ProjectTask,)
 
     def detailview_display(self, context):
         task = context['object']
@@ -64,11 +67,12 @@ class ParentTasksBlock(QuerysetBlock):
         return self._render(btc)
 
 
-class ProjectTaskBlock(QuerysetBlock):
+class ProjectTasksBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('projects', 'project_tasks')
     dependencies  = (ProjectTask,)
     verbose_name  = _(u'Tasks of a project')
     template_name = 'projects/templatetags/block_tasks.html'
+    target_ctypes = (Project,)
 
     def detailview_display(self, context):
         project = context['object']
@@ -84,11 +88,12 @@ class ProjectTaskBlock(QuerysetBlock):
         return self._render(btc)
 
 
-class ResourceTaskBlock(QuerysetBlock):
+class TaskResourcesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('projects', 'resources')
     dependencies  = (Resource, WorkingPeriod) #NB: deleting a Resource -> delete all related WorkingPeriods
     verbose_name  = _(u'Resources assigned to a task')
     template_name = 'projects/templatetags/block_resources.html'
+    target_ctypes = (ProjectTask,)
 
     def detailview_display(self, context):
         task = context['object']
@@ -104,11 +109,12 @@ class ResourceTaskBlock(QuerysetBlock):
         return self._render(btc)
 
 
-class WorkingPeriodTaskBlock(QuerysetBlock):
+class TaskWorkingPeriodsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('projects', 'working_periods')
     dependencies  = (WorkingPeriod,)
     verbose_name  = _(u'Working periods for this task')
     template_name = 'projects/templatetags/block_working_periods.html'
+    target_ctypes = (ProjectTask,)
 
     def detailview_display(self, context):
         task = context['object']
@@ -116,11 +122,19 @@ class WorkingPeriodTaskBlock(QuerysetBlock):
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
                                                             ))
 
-block_list = [
-        ProjectExtraInfo(),
-        TaskExtraInfo(),
-        ProjectTaskBlock(),
-        ResourceTaskBlock(),
-        WorkingPeriodTaskBlock(),
-        ParentTasksBlock(),
-    ]
+
+project_extra_info        = ProjectExtraInfo()
+task_extra_info           = TaskExtraInfo()
+project_tasks_block       = ProjectTasksBlock()
+task_resources_block      = TaskResourcesBlock()
+task_workingperiods_block = TaskWorkingPeriodsBlock()
+parent_tasks_block        = ParentTasksBlock()
+
+block_list = (
+        project_extra_info,
+        task_extra_info,
+        project_tasks_block,
+        task_resources_block,
+        task_workingperiods_block,
+        parent_tasks_block,
+    )

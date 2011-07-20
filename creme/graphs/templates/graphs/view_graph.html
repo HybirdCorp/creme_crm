@@ -1,14 +1,16 @@
 {% extends "creme_core/generics/view_entity.html" %}
 {% load i18n %}
 {% load media %}
-{% load creme_block %}
+{% comment %}{% load creme_block %}{% endcomment %}
 
+{% comment %}
 {% block creme_blocks_import %}
     {{block.super}}
 
     {% import_block from_app 'graphs' named 'root_nodes' as 'rootnodes_block' %}
     {% import_block from_app 'graphs' named 'orbital_rtypes' as 'orbital_rtypes_block' %}
 {% endblock %}
+{% endcomment %}
 
 {% block entity_buttons %}
     <a href="/graphs/graph/{{object.id}}/png">
@@ -17,7 +19,9 @@
     {{block.super}}
 {% endblock %}
 
+{% comment %}
 {% block after_object_as_table_1 %}
     {% display_block_detailview 'rootnodes_block' %}
     {% display_block_detailview 'orbital_rtypes_block' %}
 {% endblock %}
+{% endcomment %}

@@ -30,7 +30,7 @@ from creme_core.gui.block import QuerysetBlock
 
 from persons.models import Contact
 
-from sms.models import Recipient, Sending, Message, MessagingList
+from sms.models import SMSCampaign, Recipient, Sending, Message, MessagingList
 
 
 #TODO: move populate_credentials() code to a Block class in creme_core ???
@@ -59,6 +59,7 @@ class MessagingListsBlock(_RelatedEntitesBlock):
     dependencies  = (MessagingList,)
     verbose_name  = _(u'Messaging lists')
     template_name = 'sms/templatetags/block_messaging_lists.html'
+    target_ctypes = (SMSCampaign,)
 
     def _get_queryset(self, entity): #entity=campaign
         return entity.lists.all()
@@ -69,6 +70,7 @@ class RecipientsBlock(QuerysetBlock):
     dependencies  = (Recipient,)
     verbose_name  = _(u'Unlinked recipients')
     template_name = 'sms/templatetags/block_recipients.html'
+    target_ctypes = (MessagingList,)
 
     def detailview_display(self, context):
         pk = context['object'].pk
@@ -83,6 +85,7 @@ class ContactsBlock(_RelatedEntitesBlock):
     dependencies  = (Contact,)
     verbose_name  = _(u'Contacts recipients')
     template_name = 'sms/templatetags/block_contacts.html'
+    target_ctypes = (MessagingList,)
 
     def _get_queryset(self, entity): #entity=mlist
         return entity.contacts.all()
@@ -119,6 +122,7 @@ class SendingsBlock(QuerysetBlock):
     order_by      = '-date'
     verbose_name  = _(u'Sendings')
     template_name = 'sms/templatetags/block_sendings.html'
+    target_ctypes = (SMSCampaign,)
 
     def detailview_display(self, context):
         campaign = context['object']
