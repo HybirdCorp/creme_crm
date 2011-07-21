@@ -26,7 +26,9 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.registry import creme_registry, NotRegistered
-from creme_core.models import BlockDetailviewLocation, BlockPortalLocation, RelationBlockItem, InstanceBlockConfigItem, BlockState
+#from creme_core.models import (BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
+                               #RelationBlockItem, InstanceBlockConfigItem, BlockState)
+from creme_core.models.block import *
 from creme_core.views.generic import add_model_with_popup, inner_popup
 from creme_core.utils import get_from_POST_or_404
 
@@ -133,6 +135,37 @@ def edit_portal(request, app_name):
                        context_instance=RequestContext(request)
                       )
 
+def _edit_mypage(request, title, user=None):
+    if request.method == 'POST':
+        locs_form = BlockMypageLocationsForm(owner=user, user=request.user, data=request.POST)
+
+        if locs_form.is_valid():
+            locs_form.save()
+    else:
+        locs_form = BlockMypageLocationsForm(owner=user, user=request.user)
+
+    return inner_popup(request,
+                       'creme_core/generics/blockform/edit_popup.html',
+                       {
+                        'form':  locs_form,
+                        'title': title,
+                       },
+                       is_valid=locs_form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                       context_instance=RequestContext(request)
+                      )
+
+@login_required
+@permission_required('creme_config.can_admin')
+def edit_default_mypage(request):
+    return _edit_mypage(request, _(u'Edit default "My page"'))
+
+@login_required
+@permission_required('creme_config.can_admin')
+def edit_mypage(request):
+    return _edit_mypage(request, _(u'Edit "My page"'), user=request.user)
+
 @login_required
 @permission_required('creme_config.can_admin')
 def delete_detailview(request):
@@ -154,6 +187,19 @@ def delete_portal(request):
         raise Http404('Home config can not be deleted')
 
     BlockPortalLocation.objects.filter(app_name=app_name).delete()
+
+    return HttpResponse()
+
+@login_required
+@permission_required('creme_config.can_admin')
+def delete_default_mypage(request):
+    get_object_or_404(BlockMypageLocation, pk=get_from_POST_or_404(request.POST, 'id'), user=None).delete()
+
+    return HttpResponse()
+
+@login_required
+def delete_mypage(request):
+    get_object_or_404(BlockMypageLocation, pk=get_from_POST_or_404(request.POST, 'id'), user=request.user).delete()
 
     return HttpResponse()
 

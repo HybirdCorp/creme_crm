@@ -63,7 +63,7 @@ class Populator(BasePopulator):
         SettingValue.objects.create(key=sk, user=None, value=True)
 
         sk2 = SettingKey.create(pk=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
-                                description=_(u"By default, are empty fields are displayed ?"),
+                                description=_(u"By default, are empty fields displayed ?"),
                                 app_label='creme_core', type=SettingKey.BOOL
                               )
         SettingValue.objects.create(key=sk2, user=None, value=True)
@@ -75,3 +75,4 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=history_block.id_,    order=8,   zone=BlockDetailviewLocation.RIGHT)
         BlockPortalLocation.create(block_id=history_block.id_, order=8)
         BlockPortalLocation.create(block_id=history_block.id_, order=8, app_name='creme_core')
+        BlockMypageLocation.create(block_id=history_block.id_, order=8)

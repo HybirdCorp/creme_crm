@@ -21,20 +21,20 @@
 from imp import find_module
 from functools import partial
 
-from django.contrib.auth.models import User
-
 from django.db.models import (CharField, ForeignKey, PositiveIntegerField, 
                               PositiveSmallIntegerField, BooleanField, TextField)
+from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.constants import SETTING_BLOCK_DEFAULT_STATE_IS_OPEN, SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS
 from creme_core.models import CremeModel, RelationType, CremeEntity
+from creme_core.constants import SETTING_BLOCK_DEFAULT_STATE_IS_OPEN, SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS
 
 from creme_config.models.setting import SettingValue
 
 
-__all__ = ('BlockDetailviewLocation', 'BlockPortalLocation', #'BlockConfigItem'
+__all__ = ('BlockDetailviewLocation', 'BlockPortalLocation', 'BlockMypageLocation', #'BlockConfigItem'
            'RelationBlockItem', 'InstanceBlockConfigItem',
            'BlockState',
           )
@@ -139,6 +139,53 @@ class BlockPortalLocation(CremeModel):
     def create_empty_config(app_name=''):
         if not BlockPortalLocation.objects.filter(app_name=app_name).exists():
             BlockPortalLocation.objects.create(app_name=app_name, block_id='', order=1)
+
+
+class BlockMypageLocation(CremeModel):
+    user     = ForeignKey(User, null=True)
+    block_id = CharField(max_length=100)
+    order    = PositiveIntegerField()
+
+    class Meta:
+        app_label = 'creme_core'
+
+    def __repr__(self):
+        return 'BlockMypageLocation(id=%s, user=%s)' % (
+                self.id, self.user_id
+            )
+
+    @staticmethod
+    def _copy_default_config(sender, instance, created, **kwargs):
+        if created:
+            create = BlockMypageLocation.objects.create
+
+            for loc in BlockMypageLocation.objects.filter(user=None):
+                create(user=instance, block_id=loc.block_id, order=loc.order)
+
+    @staticmethod
+    def create(block_id, order, user=None):
+        try:
+            loc = BlockMypageLocation.objects.get(user=user, block_id=block_id)
+        except Exception:
+            loc = BlockMypageLocation.objects.create(user=user, block_id=block_id, order=order)
+        else:
+            loc.order = order
+            loc.save()
+
+        return loc
+
+    @property
+    def block_verbose_name(self):
+        from creme_core.gui.block import block_registry
+        try:
+            return block_registry[self.block_id].verbose_name
+        except:
+            return '???'
+
+
+post_save.connect(BlockMypageLocation._copy_default_config, sender=User,
+                  dispatch_uid='creme_core-blockmypagelocation._copy_default_config'
+                 )
 
 
 class RelationBlockItem(CremeModel):

@@ -1,0 +1,26 @@
+{% extends "creme_core/base.html" %}
+{% load i18n %}
+{% load media %}
+{% load creme_block %}
+
+{% block extrahead %}
+    <script>
+        $(document).ready(function() {
+            creme.utils.bindShowHideTbody();
+        });
+    </script>
+{% endblock %}
+
+{% block content %}
+    <table class="table_header" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="5%"><img src="{% media_url 'images/home_64.png' %}" alt="{% trans "My page" %}"/></td>
+            <td width="95%"><h1>{% trans "My page" %}</h1></td>
+        </tr>
+    </table>
+
+    {% import_mypage_blocks %}
+    {% display_mypage_blocks %}
+
+    {% get_blocks_dependencies %}
+{% endblock %}

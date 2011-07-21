@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-20 14:50+0200\n"
+"POT-Creation-Date: 2011-07-21 15:19+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -45,6 +45,11 @@ msgstr "Cœur"
 msgid "Home"
 msgstr "Accueil"
 
+#: creme_core_register.py:43 templates/creme_core/my_page.html:17
+#: templates/creme_core/my_page.html:18
+msgid "My page"
+msgstr "Ma page"
+
 #: populate.py:36
 msgid "French"
 msgstr "Français"
@@ -70,7 +75,7 @@ msgid "By default, are blocks open ?"
 msgstr "Par défaut, est-ce que les blocs apparaîssent ouverts ?"
 
 #: populate.py:66
-msgid "By default, are empty fields are displayed ?"
+msgid "By default, are empty fields displayed ?"
 msgstr "Par défaut, est-ce que les champs vides sont affichés ?"
 
 #: forms/base.py:158 forms/base.py:179
@@ -678,43 +683,43 @@ msgstr "Dernière modification"
 msgid "Related type"
 msgstr "Type associé"
 
-#: models/block.py:145 models/block.py:172 models/block.py:226
+#: models/block.py:192 models/block.py:219 models/block.py:273
 msgid "Block ID"
 msgstr "Identifiant de bloc"
 
-#: models/block.py:146
+#: models/block.py:193
 msgid "Related type of relation"
 msgstr "Type de relation associé"
 
-#: models/block.py:150
+#: models/block.py:197
 msgid "Specific relation block"
 msgstr "Bloc de relation spécifique"
 
-#: models/block.py:151
+#: models/block.py:198
 msgid "Specific relation blocks"
 msgstr "Blocs de relation spécifique"
 
-#: models/block.py:173
+#: models/block.py:220
 msgid "Block related entity"
 msgstr "Entité associée au bloc"
 
-#: models/block.py:175
+#: models/block.py:222
 msgid "Verbose"
 msgstr "Verbeux"
 
-#: models/block.py:179
+#: models/block.py:226
 msgid "Instance's Block to display"
 msgstr "Bloc d'instance à afficher"
 
-#: models/block.py:180
+#: models/block.py:227
 msgid "Instance's Blocks to display"
 msgstr "Blocs d'instance à afficher"
 
-#: models/block.py:232
+#: models/block.py:279
 msgid "Block state"
 msgstr "Etat de bloc"
 
-#: models/block.py:233
+#: models/block.py:280
 msgid "Blocks states"
 msgstr "Etats de blocs"
 
@@ -1957,9 +1962,6 @@ msgstr "Vous n'avez pas accés à cette application: %s"
 
 #~ msgid "The pages of a role and its subordinates"
 #~ msgstr "Les fiches d'un rôle et de ses subordonnés"
-
-#~ msgid "His page"
-#~ msgstr "Sa fiche"
 
 #~ msgid "The other pages"
 #~ msgstr "Les autres fiches"

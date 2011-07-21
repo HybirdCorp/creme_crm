@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.auth.models import User
 
-from creme_core.models import BlockDetailviewLocation, BlockPortalLocation
+from creme_core.models import BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation
 from creme_core.blocks import relations_block, properties_block, history_block
 from creme_core.tests.base import CremeTestCase
 
@@ -16,20 +17,12 @@ class BlockTestCase(CremeTestCase):
     def test_populate(self):
         self.populate('creme_core')
 
-        #locs = BlockDetailviewLocation.objects.all()
-        #self.assertEqual([('', 1, None)] * 4, [(bl.block_id, bl.order, bl.content_type) for bl in locs])
-        #self.assertEqual(set([BlockDetailviewLocation.TOP, BlockDetailviewLocation.LEFT, BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM]),
-                         #set(bl.zone for bl in locs)
-                        #)
-        #self.assertEqual([history_block.id_], [loc.block_id for loc in BlockDetailviewLocation.objects.all()])
         self.assertEqual(set([relations_block.id_, properties_block.id_, history_block.id_]),
                          set(loc.block_id for loc in BlockDetailviewLocation.objects.all())
                         )
-
-        #self.assertEqual(1, BlockPortalLocation.objects.filter(app_name='').count())
         self.assertEqual([history_block.id_], [loc.block_id for loc in BlockPortalLocation.objects.filter(app_name='')])
-        #self.assertEqual(1, BlockPortalLocation.objects.filter(app_name='creme_core').count())
         self.assertEqual([history_block.id_], [loc.block_id for loc in BlockPortalLocation.objects.filter(app_name='creme_core')])
+        self.assertEqual([history_block.id_], [loc.block_id for loc in BlockMypageLocation.objects.filter(user=None)])
 
     def test_create_detailview01(self):
         order = 25
@@ -170,5 +163,54 @@ class BlockTestCase(CremeTestCase):
 
         loc = locs[0]
         self.assertEqual('', loc.app_name)
+
+    def test_create_mypage01(self):
+        self.login()
+
+        user = self.user
+        order = 25
+        block_id = history_block.id_
+        loc = BlockMypageLocation.create(user=user, block_id=block_id, order=order)
+
+        try:
+            BlockMypageLocation.objects.get(pk=loc.pk, user=user, block_id=block_id, order=order)
+        except Exception, e:
+            self.fail(str(e))
+
+    def test_create_mypage02(self):
+        order = 10
+        block_id = history_block.id_
+        loc = BlockMypageLocation.create(block_id=block_id, order=order)
+
+        try:
+            BlockMypageLocation.objects.get(pk=loc.pk, user=None, block_id=block_id, order=order)
+        except Exception, e:
+            self.fail(str(e))
+
+    def test_create_mypage03(self):
+        block_id = history_block.id_
+        BlockMypageLocation.create(block_id=block_id, order=3)
+
+        order = 10
+        loc = BlockMypageLocation.create(block_id=block_id, order=order)
+
+        try:
+            BlockMypageLocation.objects.get(pk=loc.pk, user=None, block_id=block_id, order=order)
+        except Exception, e:
+            self.fail(str(e))
+
+    def test_mypage_new_user(self):
+        block_id = history_block.id_
+        order = 3
+        BlockMypageLocation.create(block_id=block_id, order=order)
+
+        user = User.objects.create(username='Kirika')
+        user.set_password('password')
+        user.save()
+
+        try:
+            BlockMypageLocation.objects.get(user=user, block_id=block_id, order=order)
+        except Exception, e:
+            self.fail('%s (all locations: %s)' % (e, BlockMypageLocation.objects.all()))
 
 #TODO: test other models
