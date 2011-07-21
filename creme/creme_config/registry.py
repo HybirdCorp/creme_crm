@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from itertools import chain
 
 from django.db.models import FieldDoesNotExist
@@ -28,6 +29,7 @@ from creme_core.forms import CremeModelForm
 
 from creme_config.utils import generate_portal_url
 from creme_config.models.setting import SettingKey
+
 
 class NotRegisteredInConfig(Exception):
     pass
@@ -90,6 +92,7 @@ class AppConfigRegistry(object):
     def register_block(self, block):
         self._blocks.append(block)
 
+    #@property TODO
     def blocks(self):
         return self._blocks
 
@@ -97,6 +100,7 @@ class AppConfigRegistry(object):
 class _ConfigRegistry(object):
     def __init__(self):
         self._apps = _apps = {}
+        self._userblocks = []
 
         #Add app to creme_config if it has at least a visible SettingKey
         for app_label in SettingKey.objects.filter(hidden=False).values_list('app_label', flat=True).distinct():
@@ -123,8 +127,7 @@ class _ConfigRegistry(object):
     def apps(self):
         return self._apps.itervalues()
 
-
-    def register_blocks(self, *blocks_to_register):
+    def register_blocks(self, *blocks_to_register): #TODO: factorise with register()
         app_registries = self._apps
 
         for app_name, block in blocks_to_register:
@@ -134,6 +137,13 @@ class _ConfigRegistry(object):
                 app_registries[app_name] = app_conf = AppConfigRegistry(app_name, creme_registry.get_app(app_name).verbose_name)
 
             app_conf.register_block(block)
+
+    def register_userblocks(self, *blocks_to_register):
+        self._userblocks.extend(blocks_to_register)
+
+    @property
+    def userblocks(self):
+        return iter(self._userblocks)
 
 
 config_registry = _ConfigRegistry()
