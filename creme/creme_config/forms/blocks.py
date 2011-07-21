@@ -27,7 +27,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.registry import creme_registry
-from creme_core.models import RelationType, BlockDetailviewLocation, BlockPortalLocation, RelationBlockItem, InstanceBlockConfigItem
+from creme_core.models import (RelationType, BlockDetailviewLocation, BlockPortalLocation,
+                               BlockMypageLocation, RelationBlockItem, InstanceBlockConfigItem)
 from creme_core.forms import CremeForm, CremeModelForm
 from creme_core.forms.widgets import OrderedMultipleChoiceWidget
 from creme_core.gui.block import block_registry, SpecificRelationsBlock
@@ -36,6 +37,7 @@ from creme_core.utils import creme_entity_content_types
 
 __all__ = ('BlockDetailviewLocationsAddForm', 'BlockDetailviewLocationsEditForm',
            'BlockPortalLocationsAddForm', 'BlockPortalLocationsEditForm',
+           'BlockMypageLocationsForm',
            'RelationBlockAddForm',
           )
 
@@ -194,6 +196,26 @@ class BlockPortalLocationsEditForm(_BlockPortalLocationsForm):
 
     def save(self, *args, **kwargs):
         self._save_portal_locations(self.app_name, self.locations, self.cleaned_data['blocks'])
+
+
+class BlockMypageLocationsForm(_BlockLocationsForm):
+    blocks = BlockLocationsField(label=_(u"""Blocks to display on the "My Page" of the users"""))
+
+    def __init__(self, owner, *args, **kwargs):
+        super(BlockMypageLocationsForm, self).__init__(*args, **kwargs)
+        self.owner = owner
+        self.locations = locations = BlockMypageLocation.objects.filter(user=owner)
+
+        blocks = self.fields['blocks']
+        blocks.choices = [(block_id, block.verbose_name) for block_id, block in block_registry if hasattr(block, 'home_display')]
+        blocks.initial = [bl.block_id for bl in locations]
+
+    def save(self, *args, **kwargs):
+        self._save_locations(BlockMypageLocation,
+                             lambda: BlockMypageLocation(user=self.owner),
+                             {1: self.cleaned_data['blocks']}, #1 is a "nameless" zone
+                             self.locations
+                            )
 
 
 class RelationBlockAddForm(CremeModelForm):

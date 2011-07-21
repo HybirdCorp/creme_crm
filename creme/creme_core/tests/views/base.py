@@ -44,6 +44,10 @@ class MiscViewsTestCase(ViewsTestCase):
         self.login()
         self.assertEqual(200, self.client.get('/').status_code)
 
+    def test_my_page(self):
+        self.login()
+        self.assertEqual(200, self.client.get('/my_page').status_code)
+
     def test_clean(self):
         self.login()
 

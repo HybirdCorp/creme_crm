@@ -8,6 +8,7 @@ from django.utils import simplejson
 from creme_core.models import *
 from creme_core import autodiscover
 from creme_core import gui
+from creme_core.blocks import history_block
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme_core.tests.base import CremeTestCase
 
@@ -64,7 +65,7 @@ class UserRoleTestCase(CremeTestCase):
 
         other_user = User.objects.create(username='chloe', role=role)
         contact    = Contact.objects.create(user=self.user, first_name='Yuki', last_name='Kajiura')
-        self.failIf(contact.can_view(other_user))
+        self.assertFalse(contact.can_view(other_user))
 
         self.assertEqual(0, role.credentials.count())
 
@@ -100,7 +101,7 @@ class UserRoleTestCase(CremeTestCase):
 
         other_user = User.objects.create(username='chloe', role=role)
         contact    = Contact.objects.create(user=self.user, first_name='Yuki', last_name='Kajiura')
-        self.failIf(contact.can_view(other_user)) #role.allowed_apps does not contain 'persons'
+        self.assertFalse(contact.can_view(other_user)) #role.allowed_apps does not contain 'persons'
 
         response = self.client.get('/creme_config/role/edit/%s' % role.id)
         self.assertEqual(200,  response.status_code)
@@ -180,7 +181,7 @@ class UserRoleTestCase(CremeTestCase):
 
         yuki = Contact.objects.get(pk=yuki.id) #refresh caches
         altena = Contact.objects.get(pk=altena.id)
-        self.failIf(yuki.can_view(other_user)) #no more SetCredentials
+        self.assertFalse(yuki.can_view(other_user)) #no more SetCredentials
         self.assert_(altena.can_view(other_user))
 
     def test_delete01(self):
@@ -199,23 +200,23 @@ class UserRoleTestCase(CremeTestCase):
                                     data={'id': role.id}
                                    )
         self.assertEqual(200, response.status_code)
-        self.failIf(UserRole.objects.count())
+        self.assertFalse(UserRole.objects.count())
 
-        self.failIf(EntityCredentials.get_default_creds().can_view())
+        self.assertFalse(EntityCredentials.get_default_creds().can_view())
         self.assertEqual(0, EntityCredentials.objects.count())
         self.assertEqual(0, SetCredentials.objects.count())
         self.assertEqual(1, User.objects.filter(pk=other_user.id).count())
 
         yuki = Contact.objects.get(pk=yuki.id) #refresh caches
-        self.failIf(yuki.can_view(other_user)) #defaultCreds are applied
+        self.assertFalse(yuki.can_view(other_user)) #defaultCreds are applied
 
     def test_set_default_creds(self):
         defcreds = EntityCredentials.get_default_creds()
-        self.failIf(defcreds.can_view())
-        self.failIf(defcreds.can_change())
-        self.failIf(defcreds.can_delete())
-        self.failIf(defcreds.can_link())
-        self.failIf(defcreds.can_unlink())
+        self.assertFalse(defcreds.can_view())
+        self.assertFalse(defcreds.can_change())
+        self.assertFalse(defcreds.can_delete())
+        self.assertFalse(defcreds.can_link())
+        self.assertFalse(defcreds.can_unlink())
 
         response = self.client.get('/creme_config/role/set_default_creds/')
         self.assertEqual(200, response.status_code)
@@ -358,7 +359,7 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(role2.id,   other_user.role_id)
 
         mireille = Contact.objects.get(pk=mireille.id) #refresh cache
-        self.failIf(mireille.can_view(other_user))
+        self.assertFalse(mireille.can_view(other_user))
 
     def test_change_password(self):
         other_user = User.objects.create(username='kirika')
@@ -406,7 +407,7 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(1, len(teams))
 
         team = teams[0]
-        self.failIf(team.is_superuser)
+        self.assertFalse(team.is_superuser)
         self.assertEqual('',  team.first_name)
         self.assertEqual('',  team.last_name)
         self.assertEqual('',  team.email)
@@ -1273,11 +1274,116 @@ class BlocksConfigTestCase(CremeTestCase):
         response = self.client.post('/creme_config/blocks/portal/delete', data={'id': app_name})
         self.assertEqual(404, response.status_code)
 
+    def test_edit_default_mypage(self):
+        url = '/creme_config/blocks/mypage/edit/default'
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        try:
+            blocks_field = response.context['form'].fields['blocks']
+        except KeyError, e:
+            self.fail(str(e))
+
+        choices = blocks_field.choices
+        self.assert_(len(choices) >= 2)
+        self.assertEqual(list(BlockMypageLocation.objects.filter(user=None).values_list('block_id', flat=True)),
+                        blocks_field.initial
+                        )
+
+        block_id1 = choices[0][0]
+        block_id2 = choices[1][0]
+
+        index1 = self._find_field_index(blocks_field, block_id1)
+        index2 = self._find_field_index(blocks_field, block_id2)
+
+        response = self.client.post(url,
+                                    data={
+                                            'blocks_check_%s' % index1: 'on',
+                                            'blocks_value_%s' % index1: block_id1,
+                                            'blocks_order_%s' % index1: 1,
+
+                                            'blocks_check_%s' % index2: 'on',
+                                            'blocks_value_%s' % index2: block_id2,
+                                            'blocks_order_%s' % index2: 2,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        b_locs = list(BlockMypageLocation.objects.filter(user=None))
+        self.assertEqual(2, len(b_locs))
+        self.assertEqual(1, self._find_location(block_id1, b_locs).order)
+        self.assertEqual(2, self._find_location(block_id2, b_locs).order)
+
+    def test_edit_mypage(self):
+        user = self.user
+        url = '/creme_config/blocks/mypage/edit'
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        try:
+            blocks_field = response.context['form'].fields['blocks']
+        except KeyError, e:
+            self.fail(str(e))
+
+        choices = blocks_field.choices
+        self.assert_(len(choices) >= 2)
+        self.assertEqual(list(BlockMypageLocation.objects.filter(user=None).values_list('block_id', flat=True)),
+                         blocks_field.initial
+                        )
+
+        block_id1 = choices[0][0]
+        block_id2 = choices[1][0]
+
+        index1 = self._find_field_index(blocks_field, block_id1)
+        index2 = self._find_field_index(blocks_field, block_id2)
+
+        response = self.client.post(url,
+                                    data={
+                                            'blocks_check_%s' % index1: 'on',
+                                            'blocks_value_%s' % index1: block_id1,
+                                            'blocks_order_%s' % index1: 1,
+
+                                            'blocks_check_%s' % index2: 'on',
+                                            'blocks_value_%s' % index2: block_id2,
+                                            'blocks_order_%s' % index2: 2,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        b_locs = list(BlockMypageLocation.objects.filter(user=user))
+        self.assertEqual(2, len(b_locs))
+        self.assertEqual(1, self._find_location(block_id1, b_locs).order)
+        self.assertEqual(2, self._find_location(block_id2, b_locs).order)
+
+    def test_delete_default_mypage01(self):
+        loc = BlockMypageLocation.objects.create(user=None, block_id=history_block.id_, order=1)
+        response = self.client.post('/creme_config/blocks/mypage/default/delete', data={'id': loc.id})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0,   BlockMypageLocation.objects.filter(pk=loc.pk).count())
+
+    def test_delete_default_mypage02(self): #'user' must be 'None'
+        loc = BlockMypageLocation.objects.create(user=self.user, block_id=history_block.id_, order=1)
+        response = self.client.post('/creme_config/blocks/mypage/default/delete', data={'id': loc.id})
+        self.assertEqual(404, response.status_code)
+        self.assertEqual(1,   BlockMypageLocation.objects.filter(pk=loc.pk).count())
+
+    def test_delete_mypage01(self):
+        loc = BlockMypageLocation.objects.create(user=self.user, block_id=history_block.id_, order=1)
+        response = self.client.post('/creme_config/blocks/mypage/delete', data={'id': loc.id})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(0,   BlockMypageLocation.objects.filter(pk=loc.pk).count())
+
+    def test_delete_mypage02(self): #BlockMypageLocation must belongs to the user
+        loc = BlockMypageLocation.objects.create(user=self.other_user, block_id=history_block.id_, order=1)
+        response = self.client.post('/creme_config/blocks/mypage/delete', data={'id': loc.id})
+        self.assertEqual(404, response.status_code)
+        self.assertEqual(1,   BlockMypageLocation.objects.filter(pk=loc.pk).count())
+
     def test_add_relationblock(self):
         rt, srt = RelationType.create(('test-subfoo', 'subject_predicate'),
                                       ('test-objfoo', 'object_predicate'), is_custom=False
                                      )
-        self.failIf(RelationBlockItem.objects.count())
+        self.assertFalse(RelationBlockItem.objects.count())
 
         url = '/creme_config/relation_block/add/'
         self.assertEqual(200, self.client.get(url).status_code)
@@ -1298,8 +1404,8 @@ class BlocksConfigTestCase(CremeTestCase):
         loc = BlockDetailviewLocation.create(block_id=rbi.block_id, order=5, zone=BlockDetailviewLocation.RIGHT, model=Contact)
 
         self.assertEqual(200, self.client.post('/creme_config/relation_block/delete', data={'id': rbi.id}).status_code)
-        self.failIf(RelationBlockItem.objects.filter(pk=rbi.pk).count())
-        self.failIf(BlockDetailviewLocation.objects.filter(pk=loc.pk).count())
+        self.assertFalse(RelationBlockItem.objects.filter(pk=rbi.pk).count())
+        self.assertFalse(BlockDetailviewLocation.objects.filter(pk=loc.pk).count())
 
     def test_delete_instanceblock(self): ##(r'^instance_block/delete$',  'blocks.delete_instance_block')
         naru = Contact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
@@ -1308,8 +1414,8 @@ class BlocksConfigTestCase(CremeTestCase):
         loc = BlockDetailviewLocation.create(block_id=ibi.block_id, order=5, zone=BlockDetailviewLocation.RIGHT, model=Contact)
 
         self.assertEqual(200, self.client.post('/creme_config/instance_block/delete', data={'id': ibi.id}).status_code)
-        self.failIf(InstanceBlockConfigItem.objects.filter(pk=ibi.pk).count())
-        self.failIf(BlockDetailviewLocation.objects.filter(pk=loc.pk).count())
+        self.assertFalse(InstanceBlockConfigItem.objects.filter(pk=ibi.pk).count())
+        self.assertFalse(BlockDetailviewLocation.objects.filter(pk=loc.pk).count())
 
 
 class SettingsTestCase(CremeTestCase):
@@ -1327,7 +1433,7 @@ class SettingsTestCase(CremeTestCase):
         sk = SettingKey.objects.create(pk='persons-page_size', description=u"Page size",
                                        app_label='persons', type=SettingKey.INT
                                       )
-        self.failIf(sk.hidden)
+        self.assertFalse(sk.hidden)
 
         size = 156
         sv = SettingValue.objects.create(key=sk, user=None, value=size)
@@ -1395,7 +1501,7 @@ class SettingsTestCase(CremeTestCase):
         response = self.client.post('/creme_config/setting/edit/%s' % sv.id, data={}) #False -> empty POST
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
-        self.failIf(SettingValue.objects.get(pk=sv.pk).value)
+        self.assertFalse(SettingValue.objects.get(pk=sv.pk).value)
 
     def test_edit04(self): #hidden => not editable
         self.login()
@@ -1436,7 +1542,7 @@ class HistoryConfigTestCase(CremeTestCase):
 
     def test_add01(self):
         self.login()
-        self.failIf(HistoryConfigItem.objects.count())
+        self.assertFalse(HistoryConfigItem.objects.count())
 
         rtype01, srtype01 = RelationType.create(('test-subject_foo', 'fooes'), ('test-object_foo', 'fooed'))
         rtype02, srtype02 = RelationType.create(('test-subject_bar', 'bars'),  ('test-object_bar', 'bared'))
@@ -1475,7 +1581,7 @@ class HistoryConfigTestCase(CremeTestCase):
 
         response = self.client.post('/creme_config/history/delete', data={'id': hci.id})
         self.assertEqual(200, response.status_code)
-        self.failIf(HistoryConfigItem.objects.filter(pk=hci.id).count())
+        self.assertFalse(HistoryConfigItem.objects.filter(pk=hci.id).count())
 
 
 #TODO: complete test cases...

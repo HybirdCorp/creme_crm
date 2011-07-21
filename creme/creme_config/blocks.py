@@ -220,6 +220,38 @@ class BlockPortalLocationsBlock(PaginatedBlock):
                                                            ))
 
 
+class BlockDefaultMypageLocationsBlock(PaginatedBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'blocks_default_mypage_locations')
+    dependencies  = (BlockMypageLocation,)
+    page_size     = _PAGE_SIZE
+    verbose_name  = u'Default blocks locations on "My page"'
+    template_name = 'creme_config/templatetags/block_blockdefmypagelocations.html'
+    permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
+    configurable  = False
+
+    def detailview_display(self, context):
+        return self._render(self.get_block_template_context(context,
+                                                            BlockMypageLocation.objects.filter(user=None).order_by('order'),
+                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                                           ))
+
+
+class BlockMypageLocationsBlock(PaginatedBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'blocks_mypage_locations')
+    dependencies  = (BlockMypageLocation,)
+    page_size     = _PAGE_SIZE
+    verbose_name  = u'Blocks locations on "My page"'
+    template_name = 'creme_config/templatetags/block_blockmypagelocations.html'
+    permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
+    configurable  = False
+
+    def detailview_display(self, context):
+        return self._render(self.get_block_template_context(context,
+                                                            BlockMypageLocation.objects.filter(user=context['user']).order_by('order'),
+                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                                           ))
+
+
 class RelationBlocksConfigBlock(_ConfigAdminBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'relation_blocks_config')
     dependencies  = (RelationBlockItem, BlockDetailviewLocation) #BlockDetailviewLocation because they can be deleted if we delete a RelationBlockItem
@@ -352,6 +384,8 @@ blocks_list = (
         #BlocksConfigBlock(),
         BlockDetailviewLocationsBlock(),
         BlockPortalLocationsBlock(),
+        BlockDefaultMypageLocationsBlock(),
+        BlockMypageLocationsBlock(),
         RelationBlocksConfigBlock(),
         InstanceBlocksConfigBlock(),
         ButtonMenuBlock(),

@@ -27,7 +27,7 @@ from django.template.defaulttags import TemplateLiteral
 from django.template.loader import get_template
 from django.utils.translation import ugettext, ungettext
 
-from creme_core.models import BlockDetailviewLocation, BlockPortalLocation
+from creme_core.models import BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation
 from creme_core.gui.block import Block, block_registry, BlocksManager
 from creme_core.models.relation import Relation
 
@@ -39,6 +39,7 @@ _DETAIL_BLOCKS_RIGHT  = 'detailview_blocks_right'
 _DETAIL_BLOCKS_LEFT   = 'detailview_blocks_left'
 _DETAIL_BLOCKS_BOTTOM = 'detailview_blocks_bottom'
 _HOME_BLOCKS          = 'home_blocks'
+_MYPAGE_BLOCKS        = 'mypage_blocks'
 _PORTAL_BLOCKS        = 'portal_blocks'
 
 
@@ -339,6 +340,42 @@ class LineEditorNode(TemplateNode):
 
         return self.template.render(context)
 
+#-------------------------------------------------------------------------------
+_LISTVIEW_BUTTON_RE = compile_re(r'with_ct_id (.*?) with_label (.*?) with_q_filter (.*?)$')
+
+@register.tag(name="get_listview_button")
+def do_line_lister(parser, token):
+    """Eg: {% get_listview_button with_ct_id ct_id with_label _("List of related products") with_q_filter q_filter %}"""
+    try:
+        tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
+    except ValueError:
+        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+
+    match = _LISTVIEW_BUTTON_RE.search(arg)
+    if not match:
+        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+
+    ctype_id_str, label_str, q_filter_str = match.groups()
+    compile_filter = parser.compile_filter
+
+    return ListViewButtonNode(ctype_id_var=TemplateLiteral(compile_filter(ctype_id_str), ctype_id_str),
+                              label_var=TemplateLiteral(compile_filter(label_str), label_str),
+                              q_filter_var=TemplateLiteral(compile_filter(q_filter_str), q_filter_str),
+                             )
+
+class ListViewButtonNode(TemplateNode):
+    def __init__(self, ctype_id_var, label_var, q_filter_var):
+        self.template = get_template('creme_core/templatetags/widgets/block_listview_button.html')
+        self.ctype_id_var = ctype_id_var
+        self.label_var    = label_var
+        self.q_filter_var = q_filter_var
+
+    def render(self, context):
+        context['ct_id']    = self.ctype_id_var.eval(context)
+        context['label']    = self.label_var.eval(context)
+        context['q_filter'] = self.q_filter_var.eval(context) or {}
+
+        return self.template.render(context)
 
 #-------------------------------------------------------------------------------
 _BLOCK_IMPORTER_RE = compile_re(r'from_app (.*?) named (.*?) as (.*?)$')
@@ -380,7 +417,8 @@ class BlockImporterNode(TemplateNode):
         return ''
 
 
-#-------------------------------------------------------------------------------
+# UTILS ------------------------------------------------------------------------
+
 def _parse_block_alias(block_alias):
     first_char = block_alias[0]
     if not (first_char == block_alias[-1] and first_char in ('"', "'")):
@@ -392,6 +430,8 @@ def _parse_block_alias(block_alias):
         raise TemplateSyntaxError, "%r tag's argument should be be composed with chars in {[A-Za-z][0-9]-_}" % tag_name
 
     return block_alias
+
+# DETAILVIEW BLOCKS ------------------------------------------------------------
 
 @register.tag(name="display_block_detailview")
 def do_block_detailviewer(parser, token):
@@ -512,6 +552,7 @@ class DetailviewBlocksDisplayerNode(TemplateNode):
     def render(self, context):
         return ''.join(op for op in self.block_outputs(context))
 
+# PORTAL BLOCKS ----------------------------------------------------------------
 
 @register.tag(name="display_block_portal")
 def do_block_portalviewer(parser, token):
@@ -547,6 +588,7 @@ def _parse_one_var_tag(token): #TODO: move in creme_core.utils
         raise TemplateSyntaxError, "%r tag's argument should be composed with chars in {[A-Za-z][0-9]-_}" % tag_name
 
     return var_name
+
 
 @register.tag(name="import_portal_blocks")
 def do_portal_blocks_importer(parser, token):
@@ -602,6 +644,7 @@ class PortalBlocksDisplayerNode(TemplateNode):
     def render(self, context):
         return ''.join(op for op in self.block_outputs(context))
 
+# HOME & MYPAGE BLOCKS ---------------------------------------------------------
 
 @register.tag(name="import_home_blocks")
 def do_home_blocks_importer(parser, token):
@@ -618,23 +661,52 @@ class HomeBlocksImporterNode(TemplateNode):
         return ''
 
 
+@register.tag(name="import_mypage_blocks")
+def do_mypage_blocks_importer(parser, token):
+    return MypageBlocksImporterNode()
+
+class MypageBlocksImporterNode(TemplateNode):
+    def render(self, context):
+        blocks_manager = BlocksManager.get(context)
+        block_ids = BlockMypageLocation.objects.filter(user=context['user']) \
+                                               .order_by('order') \
+                                               .values_list('block_id', flat=True)
+        blocks_manager.add_group(_MYPAGE_BLOCKS, *block_registry.get_blocks([id_ for id_ in block_ids if id_]))
+
+        return ''
+
+
 @register.tag(name="display_home_blocks")
 def do_home_blocks_displayer(parser, token):
     return HomeBlocksDisplayerNode()
 
 class HomeBlocksDisplayerNode(TemplateNode):
+    GROUP_NAME   = _HOME_BLOCKS
+    BAD_CONF_MSG = "THIS BLOCK CAN'T BE DISPLAY ON HOME (YOU HAVE A CONFIG PROBLEM): %s"
+
     def block_outputs(self, context):
-        for block in BlocksManager.get(context).pop_group(_HOME_BLOCKS):
+        for block in BlocksManager.get(context).pop_group(self.GROUP_NAME):
             home_display = getattr(block, 'home_display', None)
 
             if home_display is not None:
                 yield home_display(context)
             else:
-                yield "THIS BLOCK CAN'T BE DISPLAY ON HOME (YOU HAVE A CONFIG PROBLEM): %s" % block.id_
+                yield self.BAD_CONF_MSG % block.id_
 
     def render(self, context):
         return ''.join(op for op in self.block_outputs(context))
 
+
+@register.tag(name="display_mypage_blocks")
+def do_mypage_blocks_displayer(parser, token):
+    return MypageBlocksDisplayerNode()
+
+class MypageBlocksDisplayerNode(HomeBlocksDisplayerNode):
+    GROUP_NAME   = _MYPAGE_BLOCKS
+    BAD_CONF_MSG = "THIS BLOCK CAN'T BE DISPLAY ON MYPAGE (YOU HAVE A CONFIG PROBLEM): %s"
+
+
+# BLOCKS DEPENDENCIES ------------------------------------------------------------------
 
 @register.inclusion_tag('creme_core/templatetags/blocks_dependencies.html', takes_context=True)
 def get_blocks_dependencies(context):
@@ -712,39 +784,3 @@ class BlocksDisplayerNode(TemplateNode):
     def render(self, context):
         return ''.join(op for op in self.block_outputs(context))
 
-#-------------------------------------------------------------------------------
-_LISTVIEW_BUTTON_RE = compile_re(r'with_ct_id (.*?) with_label (.*?) with_q_filter (.*?)$')
-
-@register.tag(name="get_listview_button")
-def do_line_relator(parser, token):
-    """Eg: {% get_listview_button with_ct_id ct_id with_label _("List of related products") with_q_filter q_filter %}"""
-    try:
-        tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
-    except ValueError:
-        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
-
-    match = _LISTVIEW_BUTTON_RE.search(arg)
-    if not match:
-        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
-
-    ctype_id_str, label_str, q_filter_str = match.groups()
-    compile_filter = parser.compile_filter
-
-    return ListViewButtonNode(ctype_id_var=TemplateLiteral(compile_filter(ctype_id_str), ctype_id_str),
-                              label_var=TemplateLiteral(compile_filter(label_str), label_str),
-                              q_filter_var=TemplateLiteral(compile_filter(q_filter_str), q_filter_str),
-                             )
-
-class ListViewButtonNode(TemplateNode):
-    def __init__(self, ctype_id_var, label_var, q_filter_var):
-        self.template = get_template('creme_core/templatetags/widgets/block_listview_button.html')
-        self.ctype_id_var = ctype_id_var
-        self.label_var    = label_var
-        self.q_filter_var = q_filter_var
-
-    def render(self, context):
-        context['ct_id']    = self.ctype_id_var.eval(context)
-        context['label']    = self.label_var.eval(context)
-        context['q_filter'] = self.q_filter_var.eval(context) or dict()
-
-        return self.template.render(context)

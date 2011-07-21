@@ -40,6 +40,7 @@ ContentType.__unicode__ = lambda self: ugettext(self.name)
 creme_registry.register_app('creme_core', _(u'Core'), '/')
 
 creme_menu.register_app('creme_core', '/', _(u'Home'), force_order=0)
+creme_menu.register_app('my_page', '/my_page', _(u'My page'), force_order=1) #hack....
 
 block_registry.register(relations_block, properties_block, customfields_block, history_block)
 

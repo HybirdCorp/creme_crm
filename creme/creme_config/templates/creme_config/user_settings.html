@@ -13,7 +13,6 @@
     </script>
 {% endblock %}
 
-
 {% block content %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
@@ -27,9 +26,11 @@
     <div class=zone_spacer_5px></div>
 
     {% import_block from_app 'creme_config' named 'user_prefered_menus' as 'prefered_menus_block' %}
+    {% import_block from_app 'creme_config' named 'blocks_mypage_locations' as 'blocks_mypage_locations_block' %}
     {% import_usersettings_blocks %}
 
     {% display_block_detailview 'prefered_menus_block' %}
+    {% display_block_detailview 'blocks_mypage_locations_block' %}
     {% display_usersettings_blocks %}
 
     {% get_blocks_dependencies %}

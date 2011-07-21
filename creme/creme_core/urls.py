@@ -96,7 +96,8 @@ creme_core_patterns += patterns('creme_core.views.generic',
 )
 
 urlpatterns = patterns('creme_core.views',
-    (r'^$','index.index'),
+    (r'^$',        'index.home'),
+    (r'^my_page$', 'index.my_page'),
 
     (r'^download_file/(?P<location>.*)$', 'file_handling.download_file'), #TODO : To be replaced
 
