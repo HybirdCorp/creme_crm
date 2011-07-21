@@ -32,12 +32,10 @@ from creme_core.blocks import properties_block, relations_block, customfields_bl
 from creme_core.management.commands.creme_populate import BasePopulator
 #from creme_core.utils.id_generator import generate_string_id_and_save
 
-#from creme_config.constants import USER_SETTINGS_BLOCK_PREFIX
-
 from persons.models import Contact, Organisation
 
 from activities.models import *
-from activities.blocks import participants_block, subjects_block, future_activities_block, past_activities_block #, user_calendars_block
+from activities.blocks import participants_block, subjects_block, future_activities_block, past_activities_block
 from activities.buttons import add_meeting_button, add_phonecall_button, add_task_button
 from activities.constants import *
 
@@ -126,9 +124,3 @@ class Populator(BasePopulator):
 
         for user in User.objects.all():
             Calendar.get_user_default_calendar(user)
-
-        #TODO: use a registry in creme_config
-        #if not BlockConfigItem.objects.filter(block_id__in=[user_calendars_block.id_]).exists():
-            #generate_string_id_and_save(BlockConfigItem,
-                                        #[BlockConfigItem(content_type=ContentType.objects.get_for_model(User), block_id=user_calendars_block.id_, order=1, on_portal=False)],
-                                        #USER_SETTINGS_BLOCK_PREFIX)
