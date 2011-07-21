@@ -20,6 +20,7 @@
 
 from imp import find_module
 from functools import partial
+from logging import warn
 
 from django.db.models import (CharField, ForeignKey, PositiveIntegerField, 
                               PositiveSmallIntegerField, BooleanField, TextField)
@@ -159,8 +160,11 @@ class BlockMypageLocation(CremeModel):
         if created:
             create = BlockMypageLocation.objects.create
 
-            for loc in BlockMypageLocation.objects.filter(user=None):
-                create(user=instance, block_id=loc.block_id, order=loc.order)
+            try:
+                for loc in BlockMypageLocation.objects.filter(user=None):
+                    create(user=instance, block_id=loc.block_id, order=loc.order)
+            except Exception:
+                warn('Can not create block config for this user: %s (if it is the first user, do not worry because it is normal)' % instance)
 
     @staticmethod
     def create(block_id, order, user=None):
