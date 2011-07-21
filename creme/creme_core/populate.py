@@ -73,6 +73,9 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=properties_block.id_, order=450, zone=BlockDetailviewLocation.LEFT)
         BlockDetailviewLocation.create(block_id=relations_block.id_,  order=500, zone=BlockDetailviewLocation.LEFT)
         BlockDetailviewLocation.create(block_id=history_block.id_,    order=8,   zone=BlockDetailviewLocation.RIGHT)
+
         BlockPortalLocation.create(block_id=history_block.id_, order=8)
         BlockPortalLocation.create(block_id=history_block.id_, order=8, app_name='creme_core')
+
         BlockMypageLocation.create(block_id=history_block.id_, order=8)
+        BlockMypageLocation.create(block_id=history_block.id_, order=8, user=root)
