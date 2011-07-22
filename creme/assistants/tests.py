@@ -549,6 +549,8 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertEqual(0,   UserMessage.objects.count())
 
     def test_activity_createview01(self): #test activity form hooking
+        self.populate('activities', 'assistants')
+
         user       = self.user
         other_user = self.other_user
         self.assertEqual(0, UserMessage.objects.count())
