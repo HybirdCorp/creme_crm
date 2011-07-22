@@ -300,6 +300,11 @@ class MarketSegmentDescription(CremeModel):
         verbose_name = _(u'Market segment description')
         verbose_name_plural = _(u'Market segment descriptions')
 
+    def __repr__(self):
+        return u'MarketSegmentDescription(strategy_id=%s, segment_id=%s, product=%s, place=%s, price=%s, promotion=%s)' % (
+                self.strategy_id, self.segment_id, self.product, self.place, self.price, self.promotion
+            )
+
     def __unicode__(self):
         return self.segment.name
 
