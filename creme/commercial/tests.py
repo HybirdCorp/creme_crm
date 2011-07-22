@@ -254,20 +254,21 @@ class StrategyTestCase(LoggedTestCase):
 
     def test_segment_link(self):
         strategy01 = Strategy.objects.create(user=self.user, name='Strat#1')
-        industry = self._create_segment_desc(strategy01, 'Industry')
+        industry = self._create_segment_desc(strategy01, 'Industry').segment
         self.assertEqual(1, strategy01.segment_info.count())
 
         strategy02 = Strategy.objects.create(user=self.user, name='Strat#2')
         self.assertEqual(0,   strategy02.segment_info.count())
 
-        response = self.client.get('/commercial/strategy/%s/link/segment/' % strategy02.id)
+        url = '/commercial/strategy/%s/link/segment/' % strategy02.id
+        response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
         product = 'Description about product'
         place = 'Description about place'
         price = 'Description about price'
         promotion = 'Description about promotion'
-        response = self.client.post('/commercial/strategy/%s/link/segment/' % strategy02.id,
+        response = self.client.post(url,
                                     data={
                                             'segment':   industry.id,
                                             'product':   product,
@@ -276,17 +277,18 @@ class StrategyTestCase(LoggedTestCase):
                                             'promotion': promotion,
                                          }
                                    )
+        self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
         seginfo = strategy02.segment_info.all()
         self.assertEqual(1, len(seginfo))
 
         description = seginfo[0]
-        self.assertEqual(industry.segment_id, description.segment_id)
-        self.assertEqual(product,             description.product)
-        self.assertEqual(place,               description.place)
-        self.assertEqual(price,               description.price)
-        self.assertEqual(promotion,           description.promotion)
+        self.assertEqual(industry,  description.segment)
+        self.assertEqual(product,   description.product)
+        self.assertEqual(place,     description.place)
+        self.assertEqual(price,     description.price)
+        self.assertEqual(promotion, description.promotion)
 
     def test_segment_edit(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
@@ -1087,9 +1089,13 @@ class ActTestCase(LoggedTestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, ActObjective.objects.get(pk=objective.id).counter)
 
+        response = self.client.post('/commercial/objective/%s/incr' % objective.id, data={'diff': 2})
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(3, ActObjective.objects.get(pk=objective.id).counter)
+
         response = self.client.post('/commercial/objective/%s/incr' % objective.id, data={'diff': -3})
         self.assertEqual(200, response.status_code)
-        self.assertEqual(-2,  ActObjective.objects.get(pk=objective.id).counter)
+        self.assertEqual(0, ActObjective.objects.get(pk=objective.id).counter)
 
     def test_count_relations(self):
         self.populate('commercial') #'creme_core', 'persons'

@@ -185,7 +185,7 @@ class ActObjectivePattern(CremeEntity):
     def _post_save_clone(self, source):
         for pattern_component in source.get_components_tree():
             pattern_component.clone(self)
-            
+
 
 class ActObjectivePatternComponent(CremeModel):
     pattern      = ForeignKey(ActObjectivePattern, related_name='components')
