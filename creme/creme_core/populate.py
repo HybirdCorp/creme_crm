@@ -47,7 +47,7 @@ class Populator(BasePopulator):
         except User.DoesNotExist:
             login = password = 'root'
 
-            root = User(username=login, is_superuser=True)
+            root = User(pk=1, username=login, is_superuser=True)
             root.set_password(password)
             root.save()
 

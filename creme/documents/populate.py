@@ -43,7 +43,7 @@ class Populator(BasePopulator):
         category_entities = create(FolderCategory, DOCUMENTS_FROM_ENTITIES, name=_(u"Documents related to entities"))
         create(FolderCategory, DOCUMENTS_FROM_EMAILS, name=_(u"Documents received by email"))
 
-        if not Folder.objects.filter(title="Creme"):
+        if not Folder.objects.filter(title="Creme").exists():
             user = User.objects.get(pk=1)
             create(Folder, title="Creme", description=_(u"Folder containing all the documents related to entities"), category=category_entities, user=user)
         else:
