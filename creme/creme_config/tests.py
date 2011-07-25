@@ -252,14 +252,14 @@ class UserTestCase(CremeTestCase):
         response = self.client.get('/creme_config/user/add/')
         self.assertEqual(200, response.status_code)
 
-        orga = Organisation.objects.create(user=self.user, name='Soldat')
+        orga = Organisation.objects.create(user=self.user, name='Olympus')
         CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
 
-        username   = 'kirika'
-        first_name = 'Kirika'
-        last_name  = u'Yūmura'
+        username   = 'deunan'
+        first_name = 'Deunan'
+        last_name  = u'Knut'
         password   = 'password'
-        email      = 'kirika@noir.jp'
+        email      = 'd.knut@eswat.ol'
         response = self.client.post('/creme_config/user/add/', follow=True,
                                     data={
                                         'username':     username,
@@ -296,10 +296,10 @@ class UserTestCase(CremeTestCase):
         SetCredentials.objects.create(role=role, value=SetCredentials.CRED_VIEW,
                                       set_type=SetCredentials.ESET_ALL)
 
-        orga = Organisation.objects.create(user=self.user, name='Soldat')
+        orga = Organisation.objects.create(user=self.user, name='Olympus')
         CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
 
-        username = 'kirika'
+        username = 'deunan'
         password = 'password'
         response = self.client.post('/creme_config/user/add/', follow=True,
                                     data={
@@ -329,25 +329,25 @@ class UserTestCase(CremeTestCase):
         role1.save()
         SetCredentials.objects.create(role=role1, value=SetCredentials.CRED_VIEW,
                                       set_type=SetCredentials.ESET_ALL)
-        other_user = User.objects.create(username='kirika', role=role1)
+        other_user = User.objects.create(username='deunan', role=role1)
 
-        mireille = Contact.objects.create(user=self.user, first_name='Mireille', last_name='Bouquet')
-        self.assert_(mireille.can_view(other_user))
+        briareos = Contact.objects.create(user=self.user, first_name='Briareos', last_name='Hecatonchires')
+        self.assert_(briareos.can_view(other_user))
 
         response = self.client.get('/creme_config/user/edit/%s' % other_user.id)
         self.assertEqual(200, response.status_code)
 
-        first_name = 'Kirika'
-        last_name  = u'Yūmura'
-        email      = 'kirika@noir.jp'
+        first_name = 'Deunan'
+        last_name  = u'Knut'
+        email      = 'd.knut@eswat.ol'
         role2 = UserRole.objects.create(name='Slave')
         response = self.client.post('/creme_config/user/edit/%s' % other_user.id, follow=True,
                                     data={
-                                        'first_name':   first_name,
-                                        'last_name':    last_name,
-                                        'email':        email,
-                                        'role':         role2.id,
-                                        }
+                                            'first_name':   first_name,
+                                            'last_name':    last_name,
+                                            'email':        email,
+                                            'role':         role2.id,
+                                         }
         )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
@@ -358,11 +358,11 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(email,      other_user.email)
         self.assertEqual(role2.id,   other_user.role_id)
 
-        mireille = Contact.objects.get(pk=mireille.id) #refresh cache
-        self.assertFalse(mireille.can_view(other_user))
+        briareos = Contact.objects.get(pk=briareos.id) #refresh cache
+        self.assertFalse(briareos.can_view(other_user))
 
     def test_change_password(self):
-        other_user = User.objects.create(username='kirika')
+        other_user = User.objects.create(username='deunan')
 
         response = self.client.get('/creme_config/user/edit/password/%s' % other_user.id)
         self.assertEqual(200, response.status_code)
@@ -643,6 +643,13 @@ class PropertyTypeTestCase(CremeTestCase):
     def test_portal(self):
         self.assertEqual(200, self.client.get('/creme_config/property_type/portal/').status_code)
 
+    def _find_property_type(self, prop_types, text):
+        for prop_type in prop_types:
+            if prop_type.text == text:
+                return prop_type
+
+        self.fail('No property <%s>' % text)
+
     def test_create01(self):
         url = '/creme_config/property_type/add/'
         self.assertEqual(200, self.client.get(url).status_code)
@@ -657,9 +664,8 @@ class PropertyTypeTestCase(CremeTestCase):
         prop_types = CremePropertyType.objects.all()
         self.assertEqual(2, len(prop_types))
 
-        prop_type = prop_types[1]
-        self.assertEqual(text, prop_type.text)
-        self.assertEqual(0,    prop_type.subject_ctypes.count())
+        prop_type = self._find_property_type(prop_types, text)
+        self.assertEqual(0, prop_type.subject_ctypes.count())
 
     def test_create02(self):
         get_ct = ContentType.objects.get_for_model
@@ -674,9 +680,7 @@ class PropertyTypeTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        prop_type = CremePropertyType.objects.all()[1]
-        self.assertEqual(text, prop_type.text)
-
+        prop_type = self._find_property_type(CremePropertyType.objects.all(), text)
         ctypes = prop_type.subject_ctypes.all()
         self.assertEqual(2,           len(ctypes))
         self.assertEqual(set(ct_ids), set(ct.id for ct in ctypes))
@@ -726,6 +730,13 @@ class RelationTypeTestCase(CremeTestCase):
     def test_portal(self):
         self.assertEqual(200, self.client.get('/creme_config/relation_type/portal/').status_code)
 
+    def _find_relation_type(self, relation_types, predicate):
+        for relation_type in relation_types:
+            if relation_type.predicate == predicate:
+                return relation_type
+
+        self.fail('No relation type <%s>' % predicate)
+
     def test_create01(self):
         url = '/creme_config/relation_type/add/'
         self.assertEqual(200, self.client.get(url).status_code)
@@ -746,8 +757,7 @@ class RelationTypeTestCase(CremeTestCase):
         rel_types = RelationType.objects.all()
         self.assertEqual(rel_type_core_populate_count + 2, len(rel_types))#4 from creme_core populate + 2freshly created
 
-        rel_type = rel_types[rel_type_core_populate_count]
-        self.assertEqual(subject_pred, rel_type.predicate)
+        rel_type = self._find_relation_type(rel_types, subject_pred)
         self.assert_(rel_type.is_custom)
         self.assertEqual(object_pred, rel_type.symmetric_type.predicate)
         self.assertEqual(0,           rel_type.subject_ctypes.count())
@@ -763,9 +773,10 @@ class RelationTypeTestCase(CremeTestCase):
         ct_orga    = get_ct(Organisation)
         ct_contact = get_ct(Contact)
 
+        subject_pred = 'employs'
         response = self.client.post('/creme_config/relation_type/add/',
                                     data={
-                                            'subject_predicate':  'employs',
+                                            'subject_predicate':  subject_pred,
                                             'object_predicate':   'is employed by',
                                             'subject_ctypes':     [ct_orga.id],
                                             'subject_properties': [pt_sub.id],
@@ -776,7 +787,7 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        rel_type = RelationType.objects.all()[2]
+        rel_type = self._find_relation_type(RelationType.objects.all(), subject_pred)
         self.assertEqual([ct_orga.id],    [ct.id for ct in rel_type.subject_ctypes.all()])
         self.assertEqual([ct_contact.id], [ct.id for ct in rel_type.object_ctypes.all()])
         self.assertEqual([pt_sub.id],     [pt.id for pt in rel_type.subject_properties.all()])
