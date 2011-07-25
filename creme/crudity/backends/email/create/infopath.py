@@ -17,15 +17,16 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+import re, logging
 from itertools import ifilter
-import re
 from xml.etree import ElementTree as ET
 from pyexpat import ExpatError
+
 from django.core.files.base import ContentFile
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models.fields import FieldDoesNotExist
 from django.db.models.fields.files import FileField, ImageField
-from django.db.models.fields.related import ForeignKey
+from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.template.context import Context
 
 from creme_core.gui.button_menu import Button
@@ -75,7 +76,8 @@ class InfopathCreateFromEmail(CreateFromEmailBackend):
 
         try:
             xml = ET.fromstring(content)
-        except ExpatError:
+        except ExpatError, e:
+            logging.error(e)
             return None
 
         data = self.body_map.copy()
@@ -118,8 +120,22 @@ class InfopathCreateFromEmail(CreateFromEmailBackend):
                 img_entity.save()
                 setattr(instance, field_name, img_entity)
 
-            if issubclass(field.__class__, FileField):
+            elif issubclass(field.__class__, FileField):
                 filename, blob = decode_b64binary(field_value)
                 upload_path = field.upload_to.split('/')
                 setattr(instance, field_name, handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename))
 
+    def _create_instance_after_save(self, instance, data):
+        model_get_field = self.model._meta.get_field
+        need_new_save = False
+
+        for field_name, field_value in data.iteritems():
+            try:
+                field = model_get_field(field_name)
+            except FieldDoesNotExist, e:
+                continue
+
+            if issubclass(field.__class__, ManyToManyField):
+                setattr(instance, field_name, field.rel.to._default_manager.filter(pk__in=field_value.split()))
+
+        return need_new_save
