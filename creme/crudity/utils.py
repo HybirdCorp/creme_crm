@@ -17,9 +17,11 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+import base64
 
 import re
 import htmlentitydefs
+import struct
 import uuid
 
 html_mark = re.compile(r"""(?P<html>(</|<!|<|&lt;)[-="' ;/.#:@\w]*(>|/>|&gt;))""")
@@ -112,3 +114,22 @@ def strip_html(text):
 
 def generate_guid_for_field(urn, model, field_name):
     return "{%s}" % str(uuid.uuid5(uuid.NAMESPACE_X500, str('%s.%s.%s' % (urn, model._meta.object_name, field_name)) )).upper()
+
+def decode_b64binary(blob_b64):
+    """Decode base64binary encoded files (Usually found in xsd:base64Binary http://www.w3.org/TR/xmlschema-2/#base64Binary)
+        @returns file name
+        @returns decoded content (a string with binaries data)
+    """
+    blob_str = base64.decodestring(blob_b64)
+    blob_str_len = len(blob_str)
+
+    header, filesize, filename_len, rest  = struct.unpack('16sII%ss' % (blob_str_len - 16 - 2 * 4), blob_str)
+    filename_len *= 2
+
+    header, filesize, filename_len, filename, blob  = struct.unpack('16sII%ss%ss' % (filename_len, (blob_str_len - 16 - 2 * 4 - filename_len)), blob_str)
+
+    filename = "".join([unichr(i) for i in struct.unpack('%sh' % (len(filename)/2), filename) if i > 0])
+    filename = str(filename.encode('utf8'))
+    return filename, blob
+
+

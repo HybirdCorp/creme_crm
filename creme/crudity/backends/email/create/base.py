@@ -160,6 +160,9 @@ class CreateFromEmailBackend(object):
     def create_from_waiting_action_n_history(self, action):
         return self._create_instance_n_history(action.get_data(), action.user)
 
+    def _create_instance_before_save(self, instance, data):
+        pass
+
     def _create_instance_n_history(self, data, user=None):
         instance = self.model()
 
@@ -184,8 +187,10 @@ class CreateFromEmailBackend(object):
             data[field_name] = field.to_python(field_value)
 
         instance.__dict__.update(data)
+
         is_created = True
         try:
+            self._create_instance_before_save(instance, data)
             instance.save()
             history = History()
             history.entity = instance
@@ -193,7 +198,8 @@ class CreateFromEmailBackend(object):
             history.user = user
             history.description = _(u"Creation of %(entity)s") % {'entity': instance}
             history.save()
-        except IntegrityError:
+        except IntegrityError, e:
+            print e
             is_created = False
 
         return is_created
@@ -205,6 +211,9 @@ class CreateFromEmailBackend(object):
     def verbose_name(self):
         return u"%s %s" % (VERBOSE_CRUD.get(self.type), self.model._meta.object_name)
 
+    @property
+    def is_configured(self):
+        return self.subject and self.body_map
 
 class DropFromEmailBackend(object):
     type = None

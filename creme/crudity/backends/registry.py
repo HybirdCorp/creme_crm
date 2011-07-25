@@ -49,7 +49,7 @@ class FromEmailCRUDRegistry(object):
 
     def register(self, key, to_register):
         crud_registry = self._registers.get(key)
-        
+
         if crud_registry is not None:
             crud_registry(*to_register)
 
@@ -58,15 +58,16 @@ class FromEmailCRUDRegistry(object):
 
         for name, backend in backends:
             assert issubclass(backend.__class__, CreateFromEmailBackend)
+            name = name.upper()
             if creates.has_key(name):
                 if name == "*":
                     raise NotValidFromEmailCRUDBackend("Only one fallback backend allowed")
                 else:
                     warning("Duplicate create CRUD backend or backend registered twice : %s", name) #exception instead ???
-                    
+
             creates[name] = backend
 
-            
+
     def get_create(self, name):
         return self._registry[CREATE].get(name)
 

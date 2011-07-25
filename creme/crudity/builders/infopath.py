@@ -26,14 +26,16 @@ import subprocess
 from tempfile import gettempdir
 from itertools import chain
 
+from media_managers.models.image import Image
+
 try:
     from cStringIO import StringIO
 except ImportError:
     from StringIO import StringIO
 
 from django.conf import settings
-from django.db.models.fields import FieldDoesNotExist, EmailField, TextField
 from django.db import models
+from django.db.models.fields import FieldDoesNotExist, EmailField
 from django.core.files.base import File
 from django.template.loader import render_to_string
 from django.template.context import RequestContext
@@ -67,10 +69,10 @@ _ELEMENT_TEMPLATE = {
     models.DateTimeField:              lambda element_type: get_element_template(element_type, "datetime_field.xml"),
     models.DecimalField:               lambda element_type: get_element_template(element_type, "decimal_field.xml"),
     models.EmailField:                 lambda element_type: get_element_template(element_type, "string_field.xml"),
-    models.FileField:                  get_none,#TODO
+    models.FileField:                  lambda element_type: get_element_template(element_type, "foreignkey_field.xml"),
     models.FilePathField:              get_none,
     models.FloatField:                 lambda element_type: get_element_template(element_type, "decimal_field.xml"),
-    models.ImageField:                 get_none,#TODO
+    models.ImageField:                 lambda element_type: get_element_template(element_type, "foreignkey_field.xml"),
     models.IntegerField:               lambda element_type: get_element_template(element_type, "integer_field.xml"),
     models.IPAddressField:             get_none,
     models.NullBooleanField:           lambda element_type: get_element_template(element_type, "boolean_field.xml"),
@@ -82,7 +84,7 @@ _ELEMENT_TEMPLATE = {
     models.TimeField:                  lambda element_type: get_element_template(element_type, "time_field.xml"),
     models.URLField:                   lambda element_type: get_element_template(element_type, "url_field.xml"),
     models.XMLField:                   get_none,#Deprecated
-    models.ForeignKey:                 lambda element_type: get_element_template(element_type, "integer_field.xml"),
+    models.ForeignKey:                 lambda element_type: get_element_template(element_type, "foreignkey_field.xml"),
     models.ManyToManyField:            get_none,
     models.OneToOneField:              get_none,
 
@@ -100,7 +102,8 @@ _TEMPLATE_NILLABLE_TYPES = (#Types which could be nil="true" in template.xml
     models.TimeField,
     models.DateField,
     models.DateTimeField,
-    models.FileField
+    models.FileField,
+    models.ForeignKey
 )
 
 
@@ -148,14 +151,24 @@ class InfopathFormField(object):
     def _get_editing(self):
         model_field = self.model_field
         template_name = None
+        tpl_dict = {'field': self}
 
-        if isinstance(model_field, TextField):
+        if isinstance(model_field, models.TextField):
             template_name = "crudity/infopath/create_template/frags/editing/text_field.xml"
 
-        if is_date_field(model_field):
+        elif is_date_field(model_field):
             template_name = "crudity/infopath/create_template/frags/editing/date_field.xml"
 
-        return render_to_string(template_name, {'field': self}, context_instance=RequestContext(self.request)) if template_name is not None else None
+        elif isinstance(model_field, models.FileField):
+            tpl_dict.update({'allowed_file_types': settings.ALLOWED_EXTENSIONS})
+            template_name = "crudity/infopath/create_template/frags/editing/file_field.xml"
+
+        elif isinstance(model_field, models.ImageField) or\
+          (isinstance(model_field, models.ForeignKey) and issubclass(model_field.rel.to, Image)):
+            tpl_dict.update({'allowed_file_types': settings.ALLOWED_IMAGES_EXTENSIONS})
+            template_name = "crudity/infopath/create_template/frags/editing/file_field.xml"
+
+        return render_to_string(template_name, tpl_dict, context_instance=RequestContext(self.request)) if template_name is not None else None
 
     def get_view_element(self):
         template_name = XSL_VIEW_FIELDS_TEMPLATES_PATH % self.model_field.get_internal_type()
@@ -175,6 +188,10 @@ class InfopathFormField(object):
         model_field = self.model_field
         return bool(model_field.null and isinstance(model_field, _TEMPLATE_NILLABLE_TYPES))
 
+    @property
+    def is_file_field(self):
+        model_field = self.model_field
+        return issubclass(model_field.__class__, models.FileField) or (isinstance(model_field, models.ForeignKey) and issubclass(model_field.rel.to, Image))
 
 class InfopathFormBuilder(object):
     def __init__(self, request, backend):
@@ -203,6 +220,13 @@ class InfopathFormBuilder(object):
             build_field  = partial(InfopathFormField, self.urn, backend.model, request=self.request)
             self._fields = [build_field(field_name) for field_name in backend.body_map.iterkeys() if field_name != "password"]
         return self._fields
+
+    @property
+    def file_fields(self):
+        """File fields have extra xml tags
+        N.B: ForeignKey of (Creme) Image type is considered as file type
+        """
+        return [field for field in self.fields if field.is_file_field]
 
     def _get_backend_dir(self):
         dir = gettempdir()
@@ -251,7 +275,7 @@ class InfopathFormBuilder(object):
 
     def render(self):
         response =  HttpResponse(self._render(), mimetype="application/vnd.ms-infopath")
-        response['Content-Disposition'] = 'attachment; filename=%s.xsn' % self.backend.subject
+        response['Content-Disposition'] = 'attachment; filename=%s.xsn' % self.backend.verbose_filename
         return response
 
     def _render_manifest_xsf(self, request):
@@ -262,6 +286,7 @@ class InfopathFormBuilder(object):
                                     'lang_code':       self._get_lang_code(request.LANGUAGE_CODE),
                                     'form_name':       self.backend.subject,
                                     'fields':          self.fields,
+                                    'file_fields':     self.file_fields,
                                     'to':              settings.CREME_GET_EMAIL,
                                     'password':        self.backend.password
                                 },

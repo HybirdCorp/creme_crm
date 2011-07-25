@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:my="{{ creme_namespace }}" version="1.0">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="{{ creme_namespace }}" xmlns:xd="http://schemas.microsoft.com/office/infopath/2003" version="1.0">
 	<xsl:output encoding="UTF-8" method="xml"/>
 	<xsl:template match="text() | *[namespace-uri()='http://www.w3.org/1999/xhtml']" mode="RichText">
 		<xsl:copy-of select="."/>
@@ -21,7 +21,7 @@
 	<xsl:template match="my:CremeCRMCrudity" mode="_0">
 		<xsl:copy>
             {% for field in fields %}
-                {{ field.xsl_element }}
+                {{ field.xsl_element|default_if_none:"" }}
             {% endfor %}
 		</xsl:copy>
 	</xsl:template>

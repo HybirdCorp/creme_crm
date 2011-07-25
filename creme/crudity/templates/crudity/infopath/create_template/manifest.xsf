@@ -66,6 +66,18 @@
                     {{ field.editing|default_if_none:"" }}
                 {% endfor %}
 			</xsf:editing>
+            {% if file_fields %}
+                <xsf:menuArea name="msoStructuralEditingContextMenu">
+                    {% for file_field in file_fields %}
+                        {% with file_field.name as file_field_name %}
+                            <xsf:button action="xFileAttachment::attach" xmlToEdit="{{ file_field_name }}" caption="&amp;Joindre..." showIf="immediate"></xsf:button>
+                            <xsf:button action="xFileAttachment::open" xmlToEdit="{{ file_field_name }}" caption="&amp;Ouvrir" showIf="immediate"></xsf:button>
+                            <xsf:button action="xFileAttachment::saveAs" xmlToEdit="{{ file_field_name }}" caption="Enre&amp;gistrer sous..." showIf="immediate"></xsf:button>
+                            <xsf:button action="xFileAttachment::remove" xmlToEdit="{{ file_field_name }}" caption="Supprim&amp;er" showIf="immediate"></xsf:button>
+                        {% endwith %}
+                    {% endfor %}
+                </xsf:menuArea>
+            {% endif %}
 		</xsf:view>
 	</xsf:views>
 	<xsf:applicationParameters application="InfoPath Design Mode">
@@ -76,15 +88,15 @@
 	</xsf:documentSchemas>
 	<xsf:fileNew>
 		<xsf:initialXmlDocument caption="create_contact" href="template.xml"></xsf:initialXmlDocument>
-	</xsf:fileNew>
-{#	<xsf:listProperties>#}
-{#		<xsf:fields>#}
-{#            {% for field in fields %}#}
-{#   TODO: Don't know why cause UnicodeError...             <xsf:field name="{{ field.model_field.verbose_name|title }}" columnName="{{ field.uuid }}" node="" type=""></xsf:field>#}
-{#                <xsf:field name="{{ field.name|title }}" columnName="{{ field.uuid }}" node="/my:CremeCRMCrudity/my:{{ field.name }}" type=""></xsf:field>#}
-{#            {% endfor %}#}
-{#		</xsf:fields>#}
-{#	</xsf:listProperties>#}
+	</xsf:fileNew>{% comment %}
+	<xsf:listProperties>
+		<xsf:fields>
+            {% for field in fields %}
+   TODO: Don't know why cause UnicodeError...             <xsf:field name="{{ field.model_field.verbose_name|title }}" columnName="{{ field.uuid }}" node="" type=""></xsf:field>
+                <xsf:field name="{{ field.name|title }}" columnName="{{ field.uuid }}" node="/my:CremeCRMCrudity/my:{{ field.name }}" type=""></xsf:field>
+            {% endfor %}
+		</xsf:fields>
+	</xsf:listProperties>{% endcomment %}
 	<xsf:customValidation>
         {% for field in fields %}
             {{ field.validation|join:"" }}

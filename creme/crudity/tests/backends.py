@@ -9,6 +9,10 @@ from django.db.models.query_utils import Q
 from creme_core.models.entity import CremeEntity
 
 from creme_config.models.setting import SettingValue
+from crudity.utils import decode_b64binary
+from documents.crudity_email_register import CreateDocumentFromEmailInfopath
+from documents.models.document import Document
+from documents.models.folder import Folder
 from persons.models.contact import Contact
 
 from crudity import CREATE
@@ -587,6 +591,59 @@ entity
                                                         })
         self.assertEqual(superuser2, backend.get_owner(sender="another_user@cremecrm.com"))
 
+    def test_is_configured01(self):
+        backend = self._get_create_from_email_backend(password = u"creme", subject = "", body_map = {})
+        self.assertFalse(backend.is_configured)
+
+        backend2 = self._get_create_from_email_backend(password = u"creme", subject = "", body_map = {"created": ""})
+        self.assertFalse(backend2.is_configured)
+
+        backend3 = self._get_create_from_email_backend(password = u"creme", subject = "create_ce", body_map = {"created": ""})
+        self.assert_(backend3.is_configured)
+
+    def test_create_contact01(self):#Text mail sandboxed
+        user = self.user
+        count = Contact.objects.count()
+
+        backend = self._get_create_from_email_backend(password = u"creme", subject = "create_contact",
+                                                      body_map = {
+                                                                    'user_id': user.id, 'is_actived': True,
+                                                                    "first_name":"", "last_name":"",
+                                                                    "email": "none@none.com", "description": "",
+                                                                    "birthday":"", "created":"", 'url_site': "",},
+                                                      model=Contact)
+
+        body = [u"password=creme", "user_id=%s"  % (user.id,),
+                "created=01/02/2003", "last_name=Bros",
+                "first_name=Mario", "email=mario@bros.com",
+                "url_site=http://mario.com", "birthday=02/08/1987",
+                u"description=[[A plumber]]",
+        ]
+
+        self.assertEqual(0, WaitingAction.objects.count())
+        backend.create(PopEmail(body="\n".join(body), senders=('creme@crm.org',), subject="create_contact"))
+        self.assertEqual(1, WaitingAction.objects.count())
+
+        wa = WaitingAction.objects.all()[0]
+
+        expected_data = {u"user_id": u"%s"  % (user.id,), u"created": u"01/02/2003", u"last_name": u"Bros",
+                        u"first_name": u"Mario", u"email": u"mario@bros.com", u"url_site": u"http://mario.com",
+                        u"is_actived": u"True", u"birthday": u"02/08/1987", u"description": u"A plumber",
+                        }
+        self.assertEqual(expected_data, wa.get_data())
+
+        backend.create_from_waiting_action_n_history(wa)
+        contact = Contact.objects.all()[count]
+        self.assertEqual(user.id, contact.user_id)
+        self.assertEqual(datetime(year=2003, month=02, day=01), contact.created)
+        self.assertEqual("Bros", contact.last_name)
+        self.assertEqual("Mario", contact.first_name)
+        self.assertEqual("mario@bros.com", contact.email)
+        self.assertEqual("http://mario.com", contact.url_site)
+        self.assertEqual(True, contact.is_actived)
+        self.assertEqual(datetime(year=1987, month=8, day=02).date(), contact.birthday)
+        self.assertEqual("A plumber", contact.description)
+
 
 class WaitingActionTestCase(CrudityTestCase):
     def test_can_validate_or_delete01(self):#Sandbox for everyone
@@ -634,8 +691,8 @@ class WaitingActionTestCase(CrudityTestCase):
 
 
 class InfopathCreateFromEmailBackendTestCase(CrudityTestCase):
-    def _get_create_from_email_backend(self, *args, **kwargs):
-        return super(InfopathCreateFromEmailBackendTestCase, self)._get_create_from_email_backend(backend_klass=InfopathCreateFromEmail, *args, **kwargs)
+    def _get_create_from_email_backend(self, backend_klass=InfopathCreateFromEmail, *args, **kwargs):
+        return super(InfopathCreateFromEmailBackendTestCase, self)._get_create_from_email_backend(backend_klass=backend_klass, *args, **kwargs)
 
     def _build_attachment(self, filename="", content_type='application/x-microsoft-infopathform', content=""):
         return (filename, SimpleUploadedFile(filename, content, content_type=content_type))
@@ -912,3 +969,116 @@ class InfopathCreateFromEmailBackendTestCase(CrudityTestCase):
         self.assertEqual(1, ce.created.day)
         self.assertEqual(2, ce.created.month)
         self.assertEqual(2003, ce.created.year)
+
+    def test_create_contact01(self):#sandboxed with image
+        user = self.user
+
+        xml_content = """
+        <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\User\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">
+            <my:user_id>%s</my:user_id>
+            <my:created xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">2003-02-01</my:created>
+            <my:first_name>Mario</my:first_name>
+            <my:last_name>Bros</my:last_name>
+            <my:url_site>http://mario.com</my:url_site>
+            <my:email>mario@bros.com</my:email>
+            <my:birthday xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">02/08/1987</my:birthday>
+            <my:image>x0lGQRQAAAABAAAAAAAAAHwCAAAGAAAAYgAuAHAAbgBnAAAAiVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABuwAAAbsBOuzj4gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAH5SURBVDiNpZM9a1RBFIbfd87M3N3szW6iYoIYlYBgY6FNwMafIOJPsLCwEm3UQoKFYhk7/4lYGqxtRPAr6kIS3KjZTbIfc+/MsfAjyV5FwYFTnAPnmfc9Z4aqiv85drzQeJQ9YENOmpaZEsPm7OEZdtvb7dWL6xf+CuAtnjp6eebaKAVLA5SD1Hu9/LYJYvZPCsy+LCErY1QKYK2AgHACgEf6NwsZGmKo4j2gChKCBoAhRO7zOhRFAp7oTX35S7Wqor5UP39oYfohatoyM2aOJMtQoAgFhl+Hq0URi9AtyI4eSz08j1f1zD4FNPGcn3eni1GAs4KYdjdjGnLEJ4KK9uhDAAWxMoOiG9eNIXzdQ2xlMfC1DMYI2ATwOwAccpc5ZJmvNnuPeq0GI3QI30sVgCpf9VcG7wadsAYF8MOBEQPnLayxSIU67WMT23izF8C9L5G3efbElbmnqOlEMQhIUbXz7PNHBmXc0sdpA/f0rq5ULexmXVWNACBOYBKC7qTj0alPm7gx3rwPQJKObkKHSUFArACKEgIYwRCrGFQGtNcCQU4uTh7s2/4l15IFmZZ5Nak1Wgvvbc8vWbFfKIwkyxhir4/+J72jJcd/Ixdpc+QHoo1OS3XipIkIjt8cGXv5Vr5RAVQkLtLnyKcUan4GLGhKU+y82Ol8A49h31zz9A1IAAAAAElFTkSuQmCC</my:image>
+            <my:description>
+                <div xmlns="http://www.w3.org/1999/xhtml">A plumber</div>
+            </my:description>
+        </my:CremeCRMCrudity>""" % user.id
+
+        backend = self._get_create_from_email_backend(password = u"creme", subject = "create_ce_infopath",
+                                                      body_map = {
+                                                                    'user_id': user.id, 'is_actived': True,
+                                                                    "first_name":"", "last_name":"",
+                                                                    "email": "none@none.com", "description": "",
+                                                                    "birthday":"", "created":"", 'url_site': "",
+                                                                    "image": ""},
+                                                      model=Contact)
+
+        q_contact_existing_ids = ~Q(pk__in=list(Contact.objects.all().values_list('pk', flat=True)))
+        self.assertEqual(0, WaitingAction.objects.count())
+        backend.create(PopEmail(body=u"password=creme", senders=('user@cremecrm.com',), subject="create_ce_infopath", attachments=[self._build_attachment(content=xml_content)]))
+        self.assertEqual(1, WaitingAction.objects.count())
+
+        wa = WaitingAction.objects.all()[0]
+
+        img_content = "x0lGQRQAAAABAAAAAAAAAHwCAAAGAAAAYgAuAHAAbgBnAAAAiVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABuwAAAbsBOuzj4gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAH5SURBVDiNpZM9a1RBFIbfd87M3N3szW6iYoIYlYBgY6FNwMafIOJPsLCwEm3UQoKFYhk7/4lYGqxtRPAr6kIS3KjZTbIfc+/MsfAjyV5FwYFTnAPnmfc9Z4aqiv85drzQeJQ9YENOmpaZEsPm7OEZdtvb7dWL6xf+CuAtnjp6eebaKAVLA5SD1Hu9/LYJYvZPCsy+LCErY1QKYK2AgHACgEf6NwsZGmKo4j2gChKCBoAhRO7zOhRFAp7oTX35S7Wqor5UP39oYfohatoyM2aOJMtQoAgFhl+Hq0URi9AtyI4eSz08j1f1zD4FNPGcn3eni1GAs4KYdjdjGnLEJ4KK9uhDAAWxMoOiG9eNIXzdQ2xlMfC1DMYI2ATwOwAccpc5ZJmvNnuPeq0GI3QI30sVgCpf9VcG7wadsAYF8MOBEQPnLayxSIU67WMT23izF8C9L5G3efbElbmnqOlEMQhIUbXz7PNHBmXc0sdpA/f0rq5ULexmXVWNACBOYBKC7qTj0alPm7gx3rwPQJKObkKHSUFArACKEgIYwRCrGFQGtNcCQU4uTh7s2/4l15IFmZZ5Nak1Wgvvbc8vWbFfKIwkyxhir4/+J72jJcd/Ixdpc+QHoo1OS3XipIkIjt8cGXv5Vr5RAVQkLtLnyKcUan4GLGhKU+y82Ol8A49h31zz9A1IAAAAAElFTkSuQmCC"
+
+        expected_data = {u"user_id": u"%s"  % (user.id,), u"created": u"2003-02-01", u"last_name": u"Bros",
+                        u"first_name": u"Mario", u"email": u"mario@bros.com", u"url_site": u"http://mario.com",
+                        u"is_actived": u"True", u"birthday": u"02/08/1987", u"description": u"A plumber",
+                        u"image": img_content,
+                        }
+
+        self.assertEqual(expected_data, wa.get_data())
+
+        backend.create_from_waiting_action_n_history(wa)
+        contact = Contact.objects.filter(q_contact_existing_ids)[0]
+
+        self.assertEqual(user.id, contact.user_id)
+        self.assertEqual(datetime(year=2003, month=02, day=01), contact.created)
+        self.assertEqual("Bros", contact.last_name)
+        self.assertEqual("Mario", contact.first_name)
+        self.assertEqual("mario@bros.com", contact.email)
+        self.assertEqual("http://mario.com", contact.url_site)
+        self.assertEqual(True, contact.is_actived)
+        self.assertEqual(datetime(year=1987, month=8, day=02).date(), contact.birthday)
+        self.assertEqual("A plumber", contact.description)
+        self.assert_(contact.image)
+
+        filename, blob = decode_b64binary(img_content)
+
+        self.assertEqual(blob, contact.image.image.read())
+
+    def test_create_document01(self):#sandboxed with image
+        user = self.user
+
+        folder = Folder.objects.create(user=user, title="test_create_document01")
+
+        xml_content = """
+        <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\User\Desktop\Infopath\create_document.xsn" name="urn:schemas-microsoft-com:office:infopath:create-document:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">
+            <my:user_id>%s</my:user_id>
+            <my:title>My doc</my:title>
+            <my:folder_id>%s</my:folder_id>
+            <my:filedata>x0lGQRQAAAABAAAAAAAAAHwCAAAGAAAAYgAuAHAAbgBnAAAAiVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABuwAAAbsBOuzj4gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAH5SURBVDiNpZM9a1RBFIbfd87M3N3szW6iYoIYlYBgY6FNwMafIOJPsLCwEm3UQoKFYhk7/4lYGqxtRPAr6kIS3KjZTbIfc+/MsfAjyV5FwYFTnAPnmfc9Z4aqiv85drzQeJQ9YENOmpaZEsPm7OEZdtvb7dWL6xf+CuAtnjp6eebaKAVLA5SD1Hu9/LYJYvZPCsy+LCErY1QKYK2AgHACgEf6NwsZGmKo4j2gChKCBoAhRO7zOhRFAp7oTX35S7Wqor5UP39oYfohatoyM2aOJMtQoAgFhl+Hq0URi9AtyI4eSz08j1f1zD4FNPGcn3eni1GAs4KYdjdjGnLEJ4KK9uhDAAWxMoOiG9eNIXzdQ2xlMfC1DMYI2ATwOwAccpc5ZJmvNnuPeq0GI3QI30sVgCpf9VcG7wadsAYF8MOBEQPnLayxSIU67WMT23izF8C9L5G3efbElbmnqOlEMQhIUbXz7PNHBmXc0sdpA/f0rq5ULexmXVWNACBOYBKC7qTj0alPm7gx3rwPQJKObkKHSUFArACKEgIYwRCrGFQGtNcCQU4uTh7s2/4l15IFmZZ5Nak1Wgvvbc8vWbFfKIwkyxhir4/+J72jJcd/Ixdpc+QHoo1OS3XipIkIjt8cGXv5Vr5RAVQkLtLnyKcUan4GLGhKU+y82Ol8A49h31zz9A1IAAAAAElFTkSuQmCC</my:filedata>
+            <my:description>
+                <div xmlns="http://www.w3.org/1999/xhtml">A document</div>
+            </my:description>
+        </my:CremeCRMCrudity>""" % (user.id, folder.id)
+
+
+        backend = self._get_create_from_email_backend(password = u"creme", subject = "create_ce_infopath",
+                                                      body_map = {'user_id': user.id, "filedata":"", "title":"", "description": "", "folder_id": ""},
+                                                      model=Document,
+                                                      backend_klass=CreateDocumentFromEmailInfopath)
+
+        q_document_existing_ids = ~Q(pk__in=list(Document.objects.all().values_list('pk', flat=True)))
+        self.assertEqual(0, WaitingAction.objects.count())
+        backend.create(PopEmail(body=u"password=creme", senders=('user@cremecrm.com',), subject="create_ce_infopath", attachments=[self._build_attachment(content=xml_content)]))
+        self.assertEqual(1, WaitingAction.objects.count())
+
+        wa = WaitingAction.objects.all()[0]
+
+        img_content = "x0lGQRQAAAABAAAAAAAAAHwCAAAGAAAAYgAuAHAAbgBnAAAAiVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABuwAAAbsBOuzj4gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAH5SURBVDiNpZM9a1RBFIbfd87M3N3szW6iYoIYlYBgY6FNwMafIOJPsLCwEm3UQoKFYhk7/4lYGqxtRPAr6kIS3KjZTbIfc+/MsfAjyV5FwYFTnAPnmfc9Z4aqiv85drzQeJQ9YENOmpaZEsPm7OEZdtvb7dWL6xf+CuAtnjp6eebaKAVLA5SD1Hu9/LYJYvZPCsy+LCErY1QKYK2AgHACgEf6NwsZGmKo4j2gChKCBoAhRO7zOhRFAp7oTX35S7Wqor5UP39oYfohatoyM2aOJMtQoAgFhl+Hq0URi9AtyI4eSz08j1f1zD4FNPGcn3eni1GAs4KYdjdjGnLEJ4KK9uhDAAWxMoOiG9eNIXzdQ2xlMfC1DMYI2ATwOwAccpc5ZJmvNnuPeq0GI3QI30sVgCpf9VcG7wadsAYF8MOBEQPnLayxSIU67WMT23izF8C9L5G3efbElbmnqOlEMQhIUbXz7PNHBmXc0sdpA/f0rq5ULexmXVWNACBOYBKC7qTj0alPm7gx3rwPQJKObkKHSUFArACKEgIYwRCrGFQGtNcCQU4uTh7s2/4l15IFmZZ5Nak1Wgvvbc8vWbFfKIwkyxhir4/+J72jJcd/Ixdpc+QHoo1OS3XipIkIjt8cGXv5Vr5RAVQkLtLnyKcUan4GLGhKU+y82Ol8A49h31zz9A1IAAAAAElFTkSuQmCC"
+
+        expected_data = {u"user_id": u"%s"  % (user.id,), u"title": u"My doc",
+                         u"folder_id": u"%s" % (folder.id,), u"description": u"A document",
+                        u"filedata": img_content,
+                        }
+
+        self.assertEqual(expected_data, wa.get_data())
+
+        backend.create_from_waiting_action_n_history(wa)
+        document = Document.objects.filter(q_document_existing_ids)[0]
+
+        self.assertEqual(user.id, document.user_id)
+        self.assertEqual(folder.id, document.folder_id)
+        self.assertEqual(u"My doc", document.title)
+        self.assertEqual(u"A document", document.description)
+        self.assert_(document.filedata)
+
+        filename, blob = decode_b64binary(img_content)
+
+        self.assertEqual(blob, document.filedata.read())
