@@ -117,7 +117,7 @@ class HistoryLine(Model):
         app_label = 'creme_core'
 
     def __repr__(self):
-        return 'HistoryLine(entity_id=%s, entity_owner_id=%s, date=%s, type=%s, value=%s)' %(
+        return 'HistoryLine(entity_id=%s, entity_owner_id=%s, date=%s, type=%s, value=%s)' % (
                     self.entity_id, self.entity_owner_id, self.date, self.type, self.value
                 )
 

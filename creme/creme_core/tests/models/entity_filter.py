@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import date
+from logging import info
 
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
@@ -52,6 +53,14 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual(len(ids), len(filtered), str(filtered) + msg)
         self.assertEqual(set(ids), set(c.id for c in filtered))
 
+    def _get_ikari_case_sensitive(self):
+        ikaris = Contact.objects.filter(last_name__exact="Ikari")
+
+        if len(ikaris) == 3:
+            info('INFO: your DB is Case insentive')
+
+        return [ikari.id for ikari in ikaris]
+
     def test_filter_field_equals01(self):
         self.assertEqual(len(self.contacts), Contact.objects.count())
 
@@ -64,7 +73,7 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual(1, efilter.conditions.count())
 
         efilter =  EntityFilter.objects.get(pk=efilter.id) #refresh
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[7].id, self.contacts[8].id])
+        self.assertExpectedFiltered(efilter, Contact, self._get_ikari_case_sensitive())
 
     def test_filter_field_equals02(self):
         efilter = EntityFilter.create('test-filter01', 'Spike & Faye', Contact)
@@ -97,7 +106,9 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                     name='last_name', values=['Ikari']
                                                                    )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i not in (7, 8)])
+
+        exclude = set(self._get_ikari_case_sensitive())
+        self.assertExpectedFiltered(efilter, Contact, [c.id for c in self.contacts if c.id not in exclude])
 
     def test_filter_field_not_iequals(self):
         pk = 'test-filter01'

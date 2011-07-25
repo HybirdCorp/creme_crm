@@ -17,6 +17,7 @@ __all__ = ('HistoryTestCase',)
 class HistoryTestCase(ViewsTestCase):
     def setUp(self):
         self.populate('creme_core')
+        self.old_time = datetime.now().replace(microsecond=0)
 
     def _build_organisation(self, name, extra_args=None, **kwargs):
         data = {'name': name}
@@ -54,6 +55,14 @@ class HistoryTestCase(ViewsTestCase):
 
         return contact
 
+    def _assert_between_dates(self, hline):
+        now = datetime.now()
+        hdate = hline.date
+        old_time = self.old_time
+        self.assert_(old_time <= hdate <= now,
+                     'old_time=%s ; hline.date=%s ; now=%s' % (old_time, hdate, now)
+                    )
+
     def test_creation01(self):
         self.login()
 
@@ -69,13 +78,12 @@ class HistoryTestCase(ViewsTestCase):
         self.assertEqual(self.user.username,        hline.username)
         self.assertEqual(HistoryLine.TYPE_CREATION, hline.type)
         self.assertEqual([],                        hline.modifications)
-        self.assert_((datetime.now() - hline.date) < timedelta(seconds=1))
+        self._assert_between_dates(hline)
 
     def test_creation02(self): #double save() beacuse of addresses caused problems
         self.login()
 
         old_count = HistoryLine.objects.count()
-
         country = 'Japan'
         gainax = self._build_organisation(user=self.other_user.id, name='Gainax',
                                           extra_args={'billing_address-country': country}
@@ -92,7 +100,7 @@ class HistoryTestCase(ViewsTestCase):
         self.assertEqual(self.other_user,           hline.entity_owner)
         self.assertEqual(HistoryLine.TYPE_CREATION, hline.type)
         self.assertEqual([],                        hline.modifications)
-        self.assert_((datetime.now() - hline.date) < timedelta(seconds=1))
+        self._assert_between_dates(hline)
 
     def test_edition01(self):
         self.login()
@@ -161,7 +169,7 @@ about this fantastic animation studio."""
                                    )
         self.assertNoFormError(response)
 
-        hline = HistoryLine.objects.latest('date')
+        hline = HistoryLine.objects.filter(type=HistoryLine.TYPE_EDITION, entity=gainax).latest('date')
         modifs = hline.modifications
         self.assert_(isinstance(modifs, list))
         self.assertEqual(6, len(modifs))
@@ -249,8 +257,8 @@ about this fantastic animation studio."""
         self.assertEqual(self.other_user,           hline.entity_owner)
         self.assertEqual(self.user.username,        hline.username)
         self.assertEqual(HistoryLine.TYPE_DELETION, hline.type)
-        self.assert_((datetime.now() - hline.date) < timedelta(seconds=1))
         self.assertEqual([],                        hline.modifications)
+        self._assert_between_dates(hline)
 
         creation_line = HistoryLine.objects.get(pk=creation_line.id) #refresh
         self.assert_(hline.entity is None)
@@ -325,6 +333,5 @@ about this fantastic animation studio."""
         self.assertEqual(unicode(ghibli),          hline.entity_repr)
         self.assertEqual([],                       hline.modifications)
         self.assertEqual(edition_hline.id,         hline.related_line.id)
-
-        self.assert_((datetime.now() - hline.date) < timedelta(seconds=1))
+        self._assert_between_dates(hline)
         self.assert_(hline.date != ghibli.modified)
