@@ -1,0 +1,5 @@
+{% with field.name as field_name %}
+    <span hideFocus="1" class="xdRichTextBox" title="" contentEditable="true" tabIndex="0" xd:xctname="RichText" xd:CtrlId="{{ field_name }}" xd:binding="my:{{ field_name }}" style="WIDTH: 100%; WHITE-SPACE: normal; HEIGHT: 50px">
+        <xsl:copy-of select="my:{{ field_name }}/node()"/>
+    </span>
+{% endwith %}

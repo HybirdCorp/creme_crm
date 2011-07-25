@@ -1,0 +1,19 @@
+{% with field.name as field_name %}
+<div style="WIDTH: 100%" class="xdDTPicker" title="" noWrap="1" xd:xctname="DTPicker" xd:CtrlId="{{ field_name }}"><span hideFocus="1" class="xdDTText xdBehavior_FormattingNoBUI" contentEditable="true" tabIndex="0" xd:xctname="DTPicker_DTText" xd:binding="my:{{ field_name }}" xd:boundProp="xd:num" xd:datafmt="&quot;datetime&quot;,&quot;dateFormat:Short Date;noSeconds:1;&quot;" xd:innerCtrl="_DTText">
+        <xsl:attribute name="xd:num">
+            <xsl:value-of select="my:{{ field_name }}"/>
+        </xsl:attribute>
+        <xsl:choose>
+            <xsl:when test="function-available('xdFormatting:formatString')">
+                <xsl:value-of select="xdFormatting:formatString(my:{{ field_name }},&quot;datetime&quot;,&quot;dateFormat:Short Date;noSeconds:1;&quot;)"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="my:{{ field_name }}"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </span>
+    <button class="xdDTButton" xd:xctname="DTPicker_DTButton" xd:innerCtrl="_DTButton" tabIndex="-1">
+        <img src="res://infopath.exe/calendar.gif"/>
+    </button>
+</div>
+{% endwith %}

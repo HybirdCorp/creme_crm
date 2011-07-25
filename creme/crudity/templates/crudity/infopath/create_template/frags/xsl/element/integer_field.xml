@@ -1,0 +1,18 @@
+{% with field.name as field_name %}
+    {% if field.model_field.null %}
+        <xsl:element name="my:{{ field_name }}">
+            <xsl:choose>
+                <xsl:when test="my:{{ field_name }}/text()[1]">
+                    <xsl:copy-of select="my:{{ field_name }}/text()[1]"/>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:attribute name="xsi:nil">true</xsl:attribute>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:element>
+    {% else %}
+        <xsl:element name="my:{{ field_name }}">
+            <xsl:copy-of select="my:{{ field_name }}/text()[1]"/>
+        </xsl:element>
+    {% endif %}
+{% endwith %}

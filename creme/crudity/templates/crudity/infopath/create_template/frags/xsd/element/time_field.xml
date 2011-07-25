@@ -1,0 +1,1 @@
+<xsd:element name="{{ field.name }}" {% if field.model_field.null %}nillable="true"{% endif %} type="xsd:time"/>

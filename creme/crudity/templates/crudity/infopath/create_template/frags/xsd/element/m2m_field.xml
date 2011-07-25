@@ -1,0 +1,10 @@
+{% with field.name as field_name %}
+    <xsd:element name="{{ field_name }}">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="my:{{ field_name }}_value" minOccurs="0" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="{{ field_name }}_value" nillable="true" type="xsd:integer"/>
+{% endwith %}

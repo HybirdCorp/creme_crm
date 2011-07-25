@@ -1,0 +1,118 @@
+{% load i18n %}<?xml version="1.0" encoding="UTF-8"?>
+<xsf:xDocumentClass trustSetting="automatic" trustLevel="restricted" solutionFormatVersion="2.0.0.0" solutionVersion="1.0.0.16" productVersion="12.0.0" publishUrl="D:\My Dropbox\infopath\create_contact4\create_contact.xsn" name="{{ form_urn }}" xmlns:xsf="http://schemas.microsoft.com/office/infopath/2003/solutionDefinition" xmlns:xsf2="http://schemas.microsoft.com/office/infopath/2006/solutionDefinition/extensions" xmlns:msxsl="urn:schemas-microsoft-com:xslt" xmlns:xd="http://schemas.microsoft.com/office/infopath/2003" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xdUtil="http://schemas.microsoft.com/office/infopath/2003/xslt/Util" xmlns:xdXDocument="http://schemas.microsoft.com/office/infopath/2003/xslt/xDocument" xmlns:xdMath="http://schemas.microsoft.com/office/infopath/2003/xslt/Math" xmlns:xdDate="http://schemas.microsoft.com/office/infopath/2003/xslt/Date" xmlns:xdExtension="http://schemas.microsoft.com/office/infopath/2003/xslt/extension" xmlns:xdEnvironment="http://schemas.microsoft.com/office/infopath/2006/xslt/environment" xmlns:xdUser="http://schemas.microsoft.com/office/infopath/2006/xslt/User" xmlns:my="{{ creme_namespace }}" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+	<xsf:package>
+		<xsf:files>
+			<xsf:file name="myschema.xsd">
+				<xsf:fileProperties>
+					<xsf:property name="namespace" type="string" value="{{ creme_namespace }}"></xsf:property>
+					<xsf:property name="editability" type="string" value="full"></xsf:property>
+					<xsf:property name="rootElement" type="string" value="CremeCRMCrudity"></xsf:property>
+					<xsf:property name="useOnDemandAlgorithm" type="string" value="yes"></xsf:property>
+				</xsf:fileProperties>
+			</xsf:file>
+			<xsf:file name="template.xml"></xsf:file>
+			<xsf:file name="view1.xsl">
+				<xsf:fileProperties>
+					<xsf:property name="lang" type="string" value="{{ lang_code }}"></xsf:property>
+					<xsf:property name="mode" type="string" value="1"></xsf:property>
+					<xsf:property name="componentId" type="string" value="15"></xsf:property>
+					<xsf:property name="xmlToEditName" type="string" value="10"></xsf:property>
+				</xsf:fileProperties>
+			</xsf:file>
+			<xsf:file name="upgrade.xsl"></xsf:file>
+			<xsf:file name="creme.png">
+				<xsf:fileProperties>
+					<xsf:property name="fileType" type="string" value="viewComponent"></xsf:property>
+				</xsf:fileProperties>
+			</xsf:file>
+		</xsf:files>
+	</xsf:package>
+	<xsf:importParameters enabled="yes"></xsf:importParameters>
+	<xsf:documentVersionUpgrade>
+		<xsf:useTransform transform="upgrade.xsl" minVersionToUpgrade="0.0.0.0" maxVersionToUpgrade="1.0.0.13"></xsf:useTransform>
+	</xsf:documentVersionUpgrade>
+	<xsf:extensions>
+		<xsf:extension name="SolutionDefinitionExtensions">
+			<xsf2:solutionDefinition runtimeCompatibility="client" allowClientOnlyCode="no">
+				<xsf2:offline openIfQueryFails="yes" cacheQueries="yes"></xsf2:offline>
+                <xsf2:listPropertiesExtension>
+					<xsf2:fieldsExtension>
+                        {% for field in fields %}
+                            <xsf2:fieldExtension columnId="" readWrite="no" columnName="{{ field.uuid }}"></xsf2:fieldExtension>
+                        {% endfor %}
+					</xsf2:fieldsExtension>
+				</xsf2:listPropertiesExtension>
+				<xsf2:solutionPropertiesExtension branch="mail">
+					<xsf2:mail formName="{{ form_name }}"></xsf2:mail>
+				</xsf2:solutionPropertiesExtension>
+				<xsf2:featureRestrictionsExtension>
+					<xsf2:exportToPDForXPS ui="disabled"></xsf2:exportToPDForXPS>
+				</xsf2:featureRestrictionsExtension>
+				<xsf2:dataConnections>
+					<xsf2:emailAdapterExtension ref="Email submit" emailAttachmentType="xml"></xsf2:emailAdapterExtension>
+				</xsf2:dataConnections>
+			</xsf2:solutionDefinition>
+		</xsf:extension>
+	</xsf:extensions>
+	<xsf:views default="Vue 1">
+		<xsf:view name="Vue 1" caption="Vue 1">
+			<xsf:mainpane transform="view1.xsl"></xsf:mainpane>
+			<xsf:unboundControls>
+				<xsf:button name="BUTTON_OK"></xsf:button>
+				<xsf:button name="CTRL15_5"></xsf:button>
+			</xsf:unboundControls>
+			<xsf:editing>
+                {% for field in fields %}
+                    {{ field.editing|default_if_none:"" }}
+                {% endfor %}
+			</xsf:editing>
+            {% if file_fields %}
+                <xsf:menuArea name="msoStructuralEditingContextMenu">
+                    {% for file_field in file_fields %}
+                        {% with file_field.name as file_field_name %}
+                            <xsf:button action="xFileAttachment::attach" xmlToEdit="{{ file_field_name }}" caption="&amp;Joindre..." showIf="immediate"></xsf:button>
+                            <xsf:button action="xFileAttachment::open" xmlToEdit="{{ file_field_name }}" caption="&amp;Ouvrir" showIf="immediate"></xsf:button>
+                            <xsf:button action="xFileAttachment::saveAs" xmlToEdit="{{ file_field_name }}" caption="Enre&amp;gistrer sous..." showIf="immediate"></xsf:button>
+                            <xsf:button action="xFileAttachment::remove" xmlToEdit="{{ file_field_name }}" caption="Supprim&amp;er" showIf="immediate"></xsf:button>
+                        {% endwith %}
+                    {% endfor %}
+                </xsf:menuArea>
+            {% endif %}
+		</xsf:view>
+	</xsf:views>
+	<xsf:applicationParameters application="InfoPath Design Mode">
+		<xsf:solutionProperties fullyEditableNamespace="{{ creme_namespace }}" lastOpenView="view1.xsl" scriptLanguage="managedCode" lastVersionNeedingTransform="1.0.0.13"></xsf:solutionProperties>
+	</xsf:applicationParameters>
+	<xsf:documentSchemas>
+		<xsf:documentSchema rootSchema="yes" location="{{ creme_namespace }} myschema.xsd"></xsf:documentSchema>
+	</xsf:documentSchemas>
+	<xsf:fileNew>
+		<xsf:initialXmlDocument caption="create_contact" href="template.xml"></xsf:initialXmlDocument>
+	</xsf:fileNew>{% comment %}
+	<xsf:listProperties>
+		<xsf:fields>
+            {% for field in fields %}
+   TODO: Don't know why cause UnicodeError...             <xsf:field name="{{ field.model_field.verbose_name|title }}" columnName="{{ field.uuid }}" node="" type=""></xsf:field>
+                <xsf:field name="{{ field.name|title }}" columnName="{{ field.uuid }}" node="/my:CremeCRMCrudity/my:{{ field.name }}" type=""></xsf:field>
+            {% endfor %}
+		</xsf:fields>
+	</xsf:listProperties>{% endcomment %}
+	<xsf:customValidation>
+        {% for field in fields %}
+            {{ field.validation|join:"" }}
+        {% endfor %}
+	</xsf:customValidation>
+	<xsf:featureRestrictions>
+		<xsf:save ui="disabled"></xsf:save>
+		<xsf:exportToWeb ui="disabled"></xsf:exportToWeb>
+		<xsf:exportToExcel ui="disabled"></xsf:exportToExcel>
+	</xsf:featureRestrictions>
+	<xsf:submit caption="&amp;{% trans "Send" %}" disableMenuItem="no" onAfterSubmit="openNew" showStatusDialog="yes">
+		<xsf:emailAdapter name="Email submit" submitAllowed="yes">
+			<xsf:to value="{{ to }}" valueType="literal"></xsf:to>
+			<xsf:subject value="{{ form_name }}" valueType="literal"></xsf:subject>
+			<xsf:intro value="password={{ password }}"></xsf:intro>
+			<xsf:attachmentFileName value="CremeForm" valueType="literal"></xsf:attachmentFileName>
+		</xsf:emailAdapter>
+	</xsf:submit>
+</xsf:xDocumentClass>

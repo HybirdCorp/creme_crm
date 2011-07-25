@@ -1,0 +1,5 @@
+{% with field.name as field_name %}
+    <xsl:element name="my:{{ field_name }}">
+        <xsl:copy-of select="my:{{ field_name }}/text()[1]"/>
+    </xsl:element>
+{% endwith %}

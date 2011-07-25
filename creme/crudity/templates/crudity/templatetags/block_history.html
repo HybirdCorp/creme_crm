@@ -7,7 +7,7 @@
         <thead>
             <tr>
                 <th colspan="{{colspan}}">
-                    {% blocktrans count page.paginator.count as counter with ct.name as ct_name with type|get_crud_type_verbose as type %}{{counter}} History item - {{ct_name}} - {{type}}{% plural %}{{counter}} History items - {{ct_name}} - {{type}}{% endblocktrans %}
+                    {% blocktrans count page.paginator.count as counter with ct.name as ct_name and type|get_crud_type_verbose as type %}{{counter}} History item - {{ct_name}} - {{type}}{% plural %}{{counter}} History items - {{ct_name}} - {{type}}{% endblocktrans %}
                 </th>
             </tr>
         </thead>
@@ -31,7 +31,7 @@
                 {% endfor %}
             {% else %}
                 <tr>
-                    <td class="block_line_dark">{% blocktrans with type|get_crud_type_verbose as crud_type with ct.name as ct_name %}No waiting action for {{crud_type}} {{ct_name}}{% endblocktrans %}</td>
+                    <td class="block_line_dark">{% blocktrans with type|get_crud_type_verbose as crud_type and ct.name as ct_name %}No waiting action for {{crud_type}} {{ct_name}}{% endblocktrans %}</td>
                 </tr>
             {% endif %}
         </tbody>
