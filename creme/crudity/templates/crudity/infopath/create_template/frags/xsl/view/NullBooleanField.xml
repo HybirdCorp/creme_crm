@@ -1,0 +1,10 @@
+{% with field.name as field_name %}
+    <input class="xdBehavior_Boolean" title="" value="" type="checkbox" tabIndex="0" xd:xctname="CheckBox" xd:CtrlId="{{ field_name }}" xd:binding="my:{{ field_name }}" xd:boundProp="xd:value" xd:offValue="false" xd:onValue="true">
+        <xsl:attribute name="xd:value">
+            <xsl:value-of select="my:{{ field_name }}"/>
+        </xsl:attribute>
+        <xsl:if test="my:{{ field_name }}=&quot;true&quot;">
+            <xsl:attribute name="CHECKED">CHECKED</xsl:attribute>
+        </xsl:if>
+    </input>
+{% endwith %}

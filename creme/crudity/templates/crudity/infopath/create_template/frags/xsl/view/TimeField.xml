@@ -1,0 +1,15 @@
+{% with field.name as field_name %}
+    <span hideFocus="1" class="xdTextBox xdBehavior_Formatting" title="" contentEditable="true" tabIndex="0" xd:xctname="PlainText" xd:CtrlId="{{ field_name }}" xd:binding="my:{{ field_name }}" xd:boundProp="xd:num" xd:datafmt="&quot;time&quot;,&quot;&quot;" style="WIDTH: 100%">
+        <xsl:attribute name="xd:num">
+            <xsl:value-of select="my:{{ field_name }}"/>
+        </xsl:attribute>
+        <xsl:choose>
+            <xsl:when test="function-available('xdFormatting:formatString')">
+                <xsl:value-of select="xdFormatting:formatString(my:{{ field_name }},&quot;time&quot;,&quot;&quot;)"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="my:{{ field_name }}"/>
+            </xsl:otherwise>
+        </xsl:choose>
+    </span>
+{% endwith %}

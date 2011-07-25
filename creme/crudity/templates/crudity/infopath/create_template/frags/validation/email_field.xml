@@ -1,0 +1,4 @@
+{% load i18n %}
+<xsf:errorCondition match="/my:CremeCRMCrudity/my:{{ field.name }}" expressionContext="." expression="not(xdUtil:Match(string(.), &quot;[a-zA-Z0-9_\-\.]+@[a-zA-Z0-9\-]+\.[a-zA-Z]{2,4}&quot;))">
+    <xsf:errorMessage type="modal" shortMessage="{% trans "Invalid email" %}">{% trans "Enter a valid email address. For example: creme@crm.org" %}</xsf:errorMessage>
+</xsf:errorCondition>

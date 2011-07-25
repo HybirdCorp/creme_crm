@@ -205,9 +205,12 @@ TRUE_DELETE = True
 
 AUTHENTICATION_BACKENDS = ('creme_core.auth.backend.EntityBackend',)
 
-ALLOWED_EXTENSIONS = [
+ALLOWED_IMAGES_EXTENSIONS = (
+    'gif', 'png', 'jpeg', 'jpg', 'jpe', 'bmp', 'psd', 'tif', 'tiff', 'tga', 'svg',
+)
+ALLOWED_EXTENSIONS = (
                       'pdf', 'rtf', 'xps', 'eml',
-                      'gif', 'png', 'jpeg', 'jpg', 'jpe', 'bmp', 'psd', 'tif', 'tiff', 'tga',
+                      'psd',
                       'gtar', 'gz', 'tar', 'zip', 'rar', 'ace', 'torrent', 'tgz', 'bz2',
                       '7z', 'txt', 'c', 'cpp', 'hpp', 'diz', 'csv', 'ini', 'log', 'js',
                       'xml', 'xls', 'xlsx', 'xlsm', 'xlsb', 'doc', 'docx', 'docm', 'dot',
@@ -215,7 +218,7 @@ ALLOWED_EXTENSIONS = [
                       'odp', 'ods', 'odt', 'rtf', 'rm', 'ram', 'wma', 'wmv', 'swf', 'mov',
                       'm4v', 'm4a', 'mp4', '3gp', '3g2', 'qt', 'avi', 'mpeg', 'mpg', 'mp3',
                       'ogg', 'ogm',
-                      ]
+                      ) + ALLOWED_IMAGES_EXTENSIONS
 
 #EMAILS ########################################################################
 
@@ -432,6 +435,17 @@ PERSONS_CONTACT_FROM_EMAIL = {
 }
 
 PERSONS_CONTACT_FROM_EMAIL_INFOPATH = {
+    CREATE: {
+        "password"   : u"",  #Password to be authorized in backend
+        "limit_froms": (),   #If recipient email's address not in this drop email, let empty to allow all email addresses
+        "in_sandbox" : True, #True : Show in sandbox & history, False show only in history (/!\ creation will be automatic if False)
+        "body_map"   : {     #Allowed keys format : "key": "default value"
+        },
+        "subject": u""       #Target subject, nb: in the subject all spaces will be deleted, and it'll be converted to uppercase
+    }
+}
+
+DOCUMENTS_DOCUMENT_FROM_EMAIL_INFOPATH = {
     CREATE: {
         "password"   : u"",  #Password to be authorized in backend
         "limit_froms": (),   #If recipient email's address not in this drop email, let empty to allow all email addresses

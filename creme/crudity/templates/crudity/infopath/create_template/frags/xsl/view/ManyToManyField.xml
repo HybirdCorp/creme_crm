@@ -1,0 +1,51 @@
+{% with field.name as field_name %}
+{% with field_name|add:"_value" as field_name_value %}
+<div>
+    <xsl:choose>
+        <xsl:when test="function-available('ipApp:GetMajorVersion') and ipApp:GetMajorVersion() &gt;= 12">
+            <span style="WIDTH: 100%; HEIGHT: 100px" class="xdMultiSelectList" title="" xd:CtrlId="CTRL23" xd:xctname="multiselectlistbox" xd:boundProp="xd:num" xd:datafmt="&quot;number&quot;,&quot;numDigits:0;negativeOrder:1;&quot;" tabIndex="-1" xd:ref="my:{{ field_name }}/my:{{ field_name_value }}">
+                {% for value, verbose in choices %}
+                    <span class="xdMultiSelectListItem">
+                        <input type="checkbox" title="{{ verbose }}" xd:onValue="{{ value }}" xd:boundProp="xd:value" xd:binding="my:{{ field_name }}/my:{{ field_name_value }}[.=&quot;{{ value }}&quot;][1]" xd:xctname="CheckBox" tabIndex="0">
+                            <xsl:attribute name="xd:value">
+                                <xsl:value-of select="my:{{ field_name }}/my:{{ field_name_value }}[.=&quot;{{ value }}&quot;][1]"/>
+                            </xsl:attribute>
+                            <xsl:if test="my:{{ field_name }}/my:{{ field_name_value }}=&quot;{{ value }}&quot;">
+                                <xsl:attribute name="CHECKED">CHECKED</xsl:attribute>
+                            </xsl:if>
+                        </input>{{ verbose }}</span>
+                {% endfor %}
+                <xsl:for-each select="my:{{ field_name }}/my:{{ field_name_value }}[{{ field.get_m2m_xsl_choices_str }}]">
+                    <xsl:if test="normalize-space(.)!=''">
+                        <span class="xdMultiSelectListItem">
+                            <input type="checkbox" CHECKED="CHECKED" xd:onValue="{.}" xd:boundProp="xd:value" xd:binding="." xd:xctname="CheckBox" tabIndex="0">
+                                <xsl:attribute name="xd:value">
+                                    <xsl:value-of select="."/>
+                                </xsl:attribute>
+                                <xsl:attribute name="title">
+                                    <xsl:value-of select="."/>
+                                </xsl:attribute>
+                            </input>
+                            <xsl:value-of select="."/>
+                        </span>
+                    </xsl:if>
+                </xsl:for-each>
+            </span>
+        </xsl:when>
+        <xsl:otherwise>
+            <span class="xdRepeating" xd:xctname="BulletedList" title="" xd:CtrlId="{{ field_name }}" xd:boundProp="xd:num" xd:datafmt="&quot;number&quot;,&quot;numDigits:0;negativeOrder:1;&quot;" style="WIDTH: 100%; HEIGHT: 100px; HEIGHT: auto;">
+                <ol style="MARGIN-TOP: 0px; MARGIN-BOTTOM: 0px; LIST-STYLE-TYPE: disc">
+                    <xsl:for-each select="my:{{ field_name }}/my:{{ field_name_value }}">
+                        <li>
+                            <span class="xdListItem" hideFocus="1" contentEditable="true" tabIndex="0" xd:CtrlId="{{ field_name }}" xd:xctname="ListItem_Plain" xd:binding="." style="WIDTH: 100%; HEIGHT: 100px; HEIGHT:auto; WIDTH: 100%; WHITE-SPACE: normal; WORD-WRAP: break-word;">
+                                <xsl:value-of select="."/>
+                            </span>
+                        </li>
+                    </xsl:for-each>
+                </ol>
+            </span>
+        </xsl:otherwise>
+    </xsl:choose>
+</div>
+{% endwith %}
+{% endwith %}

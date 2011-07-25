@@ -1,0 +1,5 @@
+{% with field.name as field_name %}
+    <span hideFocus="1" class="xdTextBox" title="" tabIndex="0" xd:CtrlId="{{ field_name }}" xd:xctname="PlainText" xd:binding="my:{{ field_name }}" style="WIDTH: 100%">
+        <xsl:value-of select="my:{{ field_name }}"/>
+    </span>
+{% endwith %}

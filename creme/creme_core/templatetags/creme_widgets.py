@@ -84,7 +84,7 @@ _SIZE_MAP = {
         'tiny':   16,
     }
 
-def _get_image_for_model(model, size):
+def _get_image_path_for_model(model, size):
     path  = icon_registry.get(model, _SIZE_MAP[size])
 
     if not path:
@@ -95,6 +95,10 @@ def _get_image_for_model(model, size):
     except KeyError:
         path = ''
 
+    return path
+
+def _get_image_for_model(model, size):
+    path = _get_image_path_for_model(model, size)
     return u'<img src="%(src)s" alt="%(title)s" title="%(title)s" />' % {
                     #'src':   media_url(path),
                     'src':   path,
@@ -110,3 +114,8 @@ def get_image_for_object(obj, size): #size='default' ??
 def get_image_for_ctype(ctype, size):
     """{% get_image_for_ctype ctype 'small' %}"""
     return _get_image_for_model(ctype.model_class(), size)
+
+@register.simple_tag
+def get_image_path_for_ctype(ctype, size):
+    """{% get_image_path_for_ctype ctype 'small' %}"""
+    return _get_image_path_for_model(ctype.model_class(), size)

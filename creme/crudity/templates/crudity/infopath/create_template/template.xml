@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?mso-infoPathSolution name="{{ form_urn }}" href="manifest.xsf" solutionVersion="1.0.0.16" productVersion="12.0.0" PIVersion="1.0.0.0" ?>
+<?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?>
+<?mso-infoPath-file-attachment-present?>
+<my:CremeCRMCrudity xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:my="{{ creme_namespace }}" xmlns:xd="http://schemas.microsoft.com/office/infopath/2003">
+    {% for field in fields %}
+        {% if field.xsd_element %}
+            {% if not field.is_m2m_field %}
+                <my:{{ field.name }}{% if field.is_nillable %} xsi:nil="true"{% endif %}></my:{{ field.name }}>
+            {% else %}
+                <my:{{ field.name }}>
+                    <my:{{ field.name }}_value xsi:nil="true"></my:{{ field.name }}_value>
+                </my:{{ field.name }}>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+</my:CremeCRMCrudity>

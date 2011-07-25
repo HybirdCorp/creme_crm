@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 
@@ -27,6 +28,7 @@ from creme_config.models.setting import SettingValue
 
 from crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
 from crudity.models import WaitingAction, History
+from emails.models.mail import EntityEmail
 
 
 class CrudityQuerysetBlock(QuerysetBlock):
@@ -70,6 +72,7 @@ class WaitingActionBlock(CrudityQuerysetBlock):
                                                             waiting_actions,
                                                             waiting_type=type,
                                                             waiting_ct=ct,
+                                                            email_ct=ContentType.objects.get_for_model(EntityEmail),
                                                             update_url='/crudity/waiting_actions_blocks/%s/reload' % (self.id_,),
                                                            ))
 
