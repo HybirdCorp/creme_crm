@@ -184,7 +184,13 @@ td p {
     color:  #22439f;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
+    margin-left: 0.1em;
 }
+
+.menu_button:first-child {
+    margin-left: 0em;
+}
+
 .menu_button:hover {
     color: #f46758;
 /*    border: 1px solid #f7b5ad;*/

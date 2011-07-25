@@ -21,11 +21,19 @@ from itertools import ifilter
 import re
 from xml.etree import ElementTree as ET
 from pyexpat import ExpatError
+from django.core.files.base import ContentFile
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.db.models.fields import FieldDoesNotExist
+from django.db.models.fields.files import FileField, ImageField
+from django.db.models.fields.related import ForeignKey
 from django.template.context import Context
 
 from creme_core.gui.button_menu import Button
+from creme_core.views.file_handling import handle_uploaded_file
 
 from crudity.backends.email.create.base import CreateFromEmailBackend
+from crudity.utils import decode_b64binary
+from media_managers.models.image import Image
 
 remove_pattern = re.compile('[\t\n\r\f\v]')
 
@@ -38,7 +46,7 @@ infopath_create_form_button = InfopathCreateFormButton()
 
 
 class InfopathCreateFromEmail(CreateFromEmailBackend):
-    blocks = ()
+#    blocks = ()
     MIME_TYPES = ['application/x-microsoft-infopathform']
 
     def create(self, email, current_user=None):
@@ -86,5 +94,32 @@ class InfopathCreateFromEmail(CreateFromEmailBackend):
         return data
 
     def get_buttons(self):
-        return [infopath_create_form_button.render(Context({'backend': self})), ]
+        return [infopath_create_form_button.render(Context({'backend': self})), ] if self.is_configured else []
+
+    @property
+    def verbose_filename(self):
+        return str("CremeCRM_%s" % self.verbose_name.encode('utf8').replace(' ', '_'))
+
+    def _create_instance_before_save(self, instance, data):
+        model_get_field = self.model._meta.get_field
+
+        for field_name, field_value in data.iteritems():
+            try:
+                field = model_get_field(field_name)
+            except FieldDoesNotExist:
+                continue
+
+            if isinstance(field, ForeignKey) and issubclass(field.rel.to, Image):
+                filename, blob = decode_b64binary(field_value)
+                upload_path = field.rel.to._meta.get_field('image').upload_to.split('/')#TODO: 'image' bof bof...
+                img_entity = Image()
+                img_entity.image = handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename)
+                img_entity.user  = instance.user
+                img_entity.save()
+                setattr(instance, field_name, img_entity)
+
+            if issubclass(field.__class__, FileField):
+                filename, blob = decode_b64binary(field_value)
+                upload_path = field.upload_to.split('/')
+                setattr(instance, field_name, handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename))
 

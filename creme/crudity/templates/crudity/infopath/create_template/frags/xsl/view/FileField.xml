@@ -1,0 +1,7 @@
+{% with field.name as field_name %}
+    <span hideFocus="1" style="WIDTH: 100%;" class="xdFileAttachment" tabIndex="0" xd:xctname="FileAttachment" xd:CtrlId="{{ field_name }}" xd:binding="my:{{ field_name }}" xd:boundProp="xd:inline" tabStop="true">
+        <xsl:if test="function-available('xdImage:getImageUrl')">
+            <xsl:attribute name="src"><xsl:value-of select="xdImage:getImageUrl(my:{{ field_name }})"/></xsl:attribute>
+        </xsl:if>
+    </span>
+{% endwith %}

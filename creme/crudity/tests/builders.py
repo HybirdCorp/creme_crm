@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
 
 import re
 import os
@@ -11,9 +12,11 @@ from django.utils import translation
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models.entity import CremeEntity
+from crudity.backends.email.create.infopath import InfopathCreateFromEmail
 from crudity.backends.registry import from_email_crud_registry
 from crudity.builders.infopath import InfopathFormBuilder, InfopathFormField
 from crudity.tests.backends import CrudityTestCase
+from documents.models.document import Document
 from persons.models.contact import Contact
 
 
@@ -105,6 +108,29 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         mail_form_name = backend.subject
         self.assertEqual(mail_form_name, xml_find('%(ns)sextensions/%(ns)sextension/%(ns2)ssolutionDefinition/%(ns2)ssolutionPropertiesExtension/%(ns2)smail' % d_ns).get('formName'))
 
+    def test_manifest_xsf_02(self):#Test Image fk field
+        body_map= {'user_id': 1, "image":""}
+        backend = self._get_create_from_email_backend(subject="create_contact",
+                                                      body_map=body_map,
+                                                      model=Contact)
+        builder = self._get_builder(backend)
+
+        content = builder._render_manifest_xsf(self.request)
+        self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'], builder.get_namespace())#Can't be got with ElementTree, because it's a namespace
+        d_ns    = {'xsf': "{http://schemas.microsoft.com/office/infopath/2003/solutionDefinition}"}
+        xml     = XML(content)
+
+        xmlToEdit_node = xml.find('%(xsf)sviews/%(xsf)sview/%(xsf)sediting/%(xsf)sxmlToEdit' % d_ns)
+
+        self.assert_(xmlToEdit_node is not None)
+        self.assertEqual("image", xmlToEdit_node.get('name'))
+        self.assertEqual("/my:CremeCRMCrudity/my:image", xmlToEdit_node.get('item'))
+
+        button_nodes = xml.findall('%(xsf)sviews/%(xsf)sview/%(xsf)smenuArea/%(xsf)sbutton' % d_ns)
+        self.assert_(button_nodes)
+        xmlToEdit_set = set(['image',])
+        self.assertEqual(xmlToEdit_set, set(button_node.get('xmlToEdit') for button_node in button_nodes))
+
 #TODO: Remove me
 #    def test_manifest_xsf_02(self):#Test fields values
 #        body_map={'user_id': 1, 'is_actived': True, "first_name":"",
@@ -143,7 +169,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
     def test_myschema_xsd01(self):
         body_map={'user_id': 1, 'is_actived': True, "first_name":"",
                   "last_name":"", "email": "none@none.com",
-                  "description": "", "birthday":"", "created":"", 'url_site': ""}
+                  "description": "", "birthday":"", "created":"", 'url_site': "", "image":""}
         backend = self._get_create_from_email_backend(subject="create_contact",
                                                       body_map=body_map,
                                                       model=Contact)
@@ -171,6 +197,44 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                         "birthday":    {'name': 'birthday', 'type': 'xsd:date', 'nillable': 'true'},#"""<xsd:element name="birthday" nillable="true" type="xsd:date"/>""",
                         "created":     {'name': 'created', 'type': 'xsd:dateTime'},#"""<xsd:element name="created" type="xsd:dateTime"/>""",
                         "url_site":    {'name': 'url_site', 'type': 'xsd:anyURI'},
+                        "image":       {'name': 'image', 'type': 'xsd:base64Binary', 'nillable': 'true'},
+                        }
+        element_nodes = xml.findall('%(xsd)selement' % d_ns)
+        for element_node in element_nodes:
+            xsd_element_attrs = xsd_elements.get(element_node.get('name'))
+            if xsd_element_attrs is not None:
+                self.assertEqual(set(xsd_element_attrs.keys()), set(element_node.keys()))
+                for attr in element_node.keys():
+                    self.assertEqual(xsd_element_attrs[attr], element_node.get(attr))
+            else:
+                self.fail("There is at least an extra node named: %s" % element_node.get('name'))
+
+    def test_myschema_xsd02(self):#test with Document
+        body_map={'user_id': 1, "title": "",
+                  "description": "", "folder":"", "filedata": ""}
+        backend = self._get_create_from_email_backend(subject="create_doc",
+                                                      body_map=body_map,
+                                                      model=Document)
+        builder = self._get_builder(backend)
+        d_ns    = {'xsd': "{http://www.w3.org/2001/XMLSchema}"}
+
+        content = builder._render_myschema_xsd(self.request)
+        xml     = XML(content)
+
+        self.assertEqual(builder.namespace, xml.get('targetNamespace'))
+        self.assertEqual(builder.namespace, re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'])#Can't be got with ElementTree, because it's a namespace
+
+        ref_attrs = set(node.get('ref') for node in xml.findall('%(xsd)selement/%(xsd)scomplexType/%(xsd)ssequence/%(xsd)selement' % d_ns))
+        expected_ref_attrs = set('my:%s' % key for key in body_map.iterkeys())
+        self.assertEqual(expected_ref_attrs, ref_attrs)
+
+        xsd_elements = {
+                        'CremeCRMCrudity': {'name': 'CremeCRMCrudity'},
+                        'user_id':     {'name': 'user_id', 'type': 'xsd:integer'},#"""<xsd:element name="user_id" type="xsd:integer"/>""",
+                        "title":       {'name': 'title', 'type': 'my:requiredString'},#"""<xsd:element name="first_name" type="xsd:requiredString"/>""",
+                        "description": {'name': 'description'},#"""<xsd:element name="description"><xsd:complexType mixed="true"><xsd:sequence><xsd:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/1999/xhtml" processContents="lax"/></xsd:sequence></xsd:complexType></xsd:element>""",
+                        'folder':      {'name': 'folder', 'type': 'xsd:integer'},
+                        "filedata":    {'name': 'filedata', 'type': 'my:requiredBase64Binary'},
                         }
         element_nodes = xml.findall('%(xsd)selement' % d_ns)
         for element_node in element_nodes:
@@ -185,7 +249,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
     def test_template_xml01(self):
         body_map={'user_id': 1, 'is_actived': True, "first_name":"",
                   "last_name":"", "email": "none@none.com",
-                  "description": "", "birthday":"", "created":"", 'url_site': ""}
+                  "description": "", "birthday":"", "created":"", 'url_site': "", "image": ""}
         backend = self._get_create_from_email_backend(subject="create_contact",
                                                       body_map=body_map,
                                                       model=Contact)
@@ -206,7 +270,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
     def test_upgrade_xsl01(self):
         body_map={'user_id': 1, 'is_actived': True, "first_name":"",
                   "last_name":"", "email": "none@none.com",
-                  "description": "", "birthday":"", "created":"", 'url_site': ""}
+                  "description": "", "birthday":"", "created":"", 'url_site': "", "image": ""}
         backend = self._get_create_from_email_backend(subject="create_contact",
                                                       body_map=body_map,
                                                       model=Contact)
@@ -223,24 +287,22 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         xsl_fields_names = set(element_node.get('name') for element_node in element_nodes)
         self.assertEqual(fields_names, xsl_fields_names)
 
-    def _get_view_xsl(self, body_map):
-        backend = self._get_create_from_email_backend(subject="create_contact",
-                                                      body_map=body_map,
-                                                      model=Contact)
+    def _get_view_xsl(self, backend, body_map):
+        backend.body_map = body_map
         builder = self._get_builder(backend)
 
         content = builder._render_view_xsl(self.request)
         self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'], builder.namespace)#Can't be got with ElementTree, because it's a namespace
         return XML(content.encode('utf-8'))
 
-    def _test_view_xsl_01(self, field_name, attrs={}, node_type="span"):
+    def _test_view_xsl_01(self, backend, field_name, attrs={}, node_type="span"):
         d_ns    = {'xsl': "{http://www.w3.org/1999/XSL/Transform}", 'xd': "{http://schemas.microsoft.com/office/infopath/2003}"}
-        xml     = self._get_view_xsl({field_name: ""})
+        xml     = self._get_view_xsl(backend, {field_name: ""})
         node_vb =  xml.find('%(xsl)stemplate/div/div/table/tbody/tr/td/div/font/strong' % d_ns)
         self.assert_(node_vb is not None)
-        self.assertEqual(Contact._meta.get_field(field_name).verbose_name, node_vb.text)
+        self.assertEqual(backend.model._meta.get_field(field_name).verbose_name, node_vb.text)
 
-        node_content =  xml.find(('%(xsl)stemplate/div/div/table/tbody/tr/td/div/font/' % d_ns)+node_type)#TODO span
+        node_content =  xml.find(('%(xsl)stemplate/div/div/table/tbody/tr/td/div/font/' % d_ns)+node_type)
         for attr, expected_value in attrs.items():
             self.assertEqual(expected_value, node_content.get(attr % d_ns))
 
@@ -297,15 +359,29 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                 "%(xd)sCtrlId":    "created",
                 "%(xd)sxctname":   "DTPicker",
             },"div"),
+            "image": ({
+                "class":           "xdFileAttachment",
+                "%(xd)sCtrlId":    "image",
+                "%(xd)sxctname":   "FileAttachment",
+                "%(xd)sbinding":   "my:image",
+            },"span"),
         }
+
+        backend = self._get_create_from_email_backend(subject="create_contact",
+                                      body_map={},
+                                      model=Contact)
+
         for field_name, attrs_nodetype in fields.iteritems():
             attrs, node_type = attrs_nodetype
-            self._test_view_xsl_01(field_name, attrs, node_type)
+            self._test_view_xsl_01(backend, field_name, attrs, node_type)
 
     def test_view_xsl02(self):#Deeper with DateField
         d_ns    = {'xsl': "{http://www.w3.org/1999/XSL/Transform}", 'xd': "{http://schemas.microsoft.com/office/infopath/2003}"}
         field_name = "birthday"
-        xml     = self._get_view_xsl({field_name: ""})
+        backend = self._get_create_from_email_backend(subject="create_contact",
+                              body_map={field_name: ""},
+                              model=Contact)
+        xml     = self._get_view_xsl(backend, {field_name: ""})
         node_vb =  xml.find('%(xsl)stemplate/div/div/table/tbody/tr/td/div/font/strong' % d_ns)
         self.assert_(node_vb is not None)
         self.assertEqual(Contact._meta.get_field(field_name).verbose_name, node_vb.text)
@@ -316,7 +392,10 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
     def test_view_xsl03(self):#Deeper with ForeignKey
         d_ns    = {'xsl': "{http://www.w3.org/1999/XSL/Transform}", 'xd': "{http://schemas.microsoft.com/office/infopath/2003}"}
         field_name = "user_id"
-        xml     = self._get_view_xsl({field_name: ""})
+        backend = self._get_create_from_email_backend(subject="create_contact",
+                      body_map={field_name: ""},
+                      model=Contact)
+        xml     = self._get_view_xsl(backend, {field_name: ""})
 
         node_vb =  xml.find('%(xsl)stemplate/div/div/table/tbody/tr/td/div/font/strong' % d_ns)
         self.assert_(node_vb is not None)
@@ -336,15 +415,53 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         options_set = set((option.find('%(xsl)sif' % d_ns).get('test'),re.search(r'if>(?P<username>.*)</option>', tostring(option,  encoding='utf8').decode('utf8')).groupdict()['username']) for option in options)
         self.assertEqual(users_set, options_set)
 
+    def test_view_xsl04(self):#Simple attr verification for Document
+        fields = {
+            "title": ({
+                "class":         "xdTextBox",
+                "%(xd)sCtrlId":  "title",
+                "%(xd)sxctname": "PlainText",
+                "%(xd)sbinding": "my:title",
+            }, "span"),
+            "description": ({
+                "class":         "xdRichTextBox",
+                "%(xd)sCtrlId":  "description",
+                "%(xd)sxctname": "RichText",
+                "%(xd)sbinding": "my:description",
+                "contentEditable": "true",
+            },"span"),
+            "filedata": ({
+                "class":           "xdFileAttachment",
+                "%(xd)sCtrlId":    "filedata",
+                "%(xd)sxctname":   "FileAttachment",
+                "%(xd)sbinding":   "my:filedata",
+            },"span"),
+            "folder": ({
+                "class":           "xdComboBox xdBehavior_Select",
+                "%(xd)sCtrlId":    "folder",
+                "%(xd)sxctname":   "dropdown",
+                "%(xd)sbinding":   "my:folder",
+            },"select"),
+        }
+
+        backend = self._get_create_from_email_backend(subject="create_doc",
+                                      body_map={},
+                                      model=Document)
+
+        for field_name, attrs_nodetype in fields.iteritems():
+            attrs, node_type = attrs_nodetype
+            self._test_view_xsl_01(backend, field_name, attrs, node_type)
+
     def test_render01(self):
         body_map={'user_id': 1, 'is_actived': True, "first_name":"",
           "last_name":"", "email": "none@none.com",
           "description": "", "birthday":"", "created":"", 'url_site': ""}
         backend = self._get_create_from_email_backend(subject="create_contact",
                                                       body_map=body_map,
-                                                      model=Contact)
+                                                      model=Contact,
+                                                      backend_klass=InfopathCreateFromEmail)
         builder = self._get_builder(backend)
-        builder.render()
+        list(builder.render())#list is really not useful in reality, but as builder.render() create a generator it has to be parsed once
 
         backend_dir = builder._get_backend_dir()
         dir_exists = os.path.exists
@@ -373,13 +490,13 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         subject="create_contact"
         backend = self._get_create_from_email_backend(subject=subject,
                                                       body_map={},
-                                                      model=Contact)
+                                                      model=Contact,
+                                                      backend_klass=InfopathCreateFromEmail)
 
         from_email_crud_registry.register_creates((subject, backend))
 
         response = self.client.get('/crudity/infopath/create_form/%s' % subject)
         self.assertEqual(200, response.status_code)
-
 
 
 class InfopathFormFieldTestCase(CrudityTestCase):
@@ -413,11 +530,7 @@ class InfopathFormFieldTestCase(CrudityTestCase):
         self.assertNotEqual(uuid1, uuid3)
         self.assertNotEqual(uuid2, uuid3)
 
-        #And again Backend 1
-        backend4 = self._get_create_from_email_backend(subject="create_ce")
-        builder4 = InfopathFormBuilder(request=request, backend=backend4)
-
-        uuid4 = InfopathFormField(builder4.urn, CremeEntity, 'user_id', request).uuid
+        uuid4 = InfopathFormField(builder1.urn, CremeEntity, 'user_id', request).uuid
         self.assertEqual(uuid1, uuid4)
 
     def test_get_field01(self):

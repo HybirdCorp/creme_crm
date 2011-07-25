@@ -25,6 +25,7 @@ from crudity.builders.infopath import InfopathFormBuilder
 @login_required
 @permission_required('crudity')
 def create_form(request, subject):
+    subject = subject.upper()
     create_be = from_email_crud_registry.get_creates()
     backend = create_be.get(subject)
 
