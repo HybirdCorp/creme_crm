@@ -9,6 +9,7 @@ from django.db.models.query_utils import Q
 from creme_core.models.entity import CremeEntity
 
 from creme_config.models.setting import SettingValue
+from creme_core.models.i18n import Language
 from crudity.utils import decode_b64binary
 from documents.crudity_email_register import CreateDocumentFromEmailInfopath
 from documents.models.document import Document
@@ -1031,6 +1032,131 @@ class InfopathCreateFromEmailBackendTestCase(CrudityTestCase):
         filename, blob = decode_b64binary(img_content)
 
         self.assertEqual(blob, contact.image.image.read())
+
+    def test_create_contact02(self):#sandboxed with m2m
+        user = self.user
+
+        languages = Language.objects.all()
+        if not languages or len(languages) < 2:
+            Language.objects.all().delete()
+            languages = [Language.objects.create(code=u'en', name=u'English'),
+                         Language.objects.create(code=u'fr', name=u'French'),
+                         Language.objects.create(code=u'es', name=u'Spanish')]
+
+        xml_content = """
+        <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\User\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xml:lang="fr">
+            <my:user_id>%s</my:user_id>
+            <my:created xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">2003-02-01</my:created>
+            <my:first_name>Mario</my:first_name>
+            <my:last_name>Bros</my:last_name>
+            <my:url_site>http://mario.com</my:url_site>
+            <my:email>mario@bros.com</my:email>
+            <my:birthday xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">02/08/1987</my:birthday>
+            <my:language>
+                <my:language_value xsi:nil="true"></my:language_value>
+                <my:language_value>%s</my:language_value>
+                <my:language_value>%s</my:language_value>
+            </my:language>
+            <my:description>
+                <div xmlns="http://www.w3.org/1999/xhtml">A plumber</div>
+            </my:description>
+        </my:CremeCRMCrudity>""" % (user.id, languages[0].id, languages[1].id)
+
+        backend = self._get_create_from_email_backend(password = u"creme", subject = "create_ce_infopath",
+                                                      body_map = {
+                                                                    'user_id': user.id, 'is_actived': True,
+                                                                    "first_name":"", "last_name":"",
+                                                                    "email": "none@none.com", "description": "",
+                                                                    "birthday":"", "created":"", 'url_site': "",
+                                                                    "language": ""},
+                                                      model=Contact)
+
+        q_contact_existing_ids = ~Q(pk__in=list(Contact.objects.all().values_list('pk', flat=True)))
+        self.assertEqual(0, WaitingAction.objects.count())
+        backend.create(PopEmail(body=u"password=creme", senders=('user@cremecrm.com',), subject="create_ce_infopath", attachments=[self._build_attachment(content=xml_content)]))
+        self.assertEqual(1, WaitingAction.objects.count())
+
+        wa = WaitingAction.objects.all()[0]
+
+        expected_data = {u"user_id": u"%s"  % (user.id,), u"created": u"2003-02-01", u"last_name": u"Bros",
+                        u"first_name": u"Mario", u"email": u"mario@bros.com", u"url_site": u"http://mario.com",
+                        u"is_actived": u"True", u"birthday": u"02/08/1987", u"description": u"A plumber",
+                        u"language": u"\n%s\n%s" % (languages[0].id, languages[1].id),
+                        }
+
+        self.assertEqual(expected_data, wa.get_data())
+
+        backend.create_from_waiting_action_n_history(wa)
+        contact = Contact.objects.filter(q_contact_existing_ids)[0]
+
+        self.assertEqual(user.id, contact.user_id)
+        self.assertEqual(datetime(year=2003, month=02, day=01), contact.created)
+        self.assertEqual("Bros", contact.last_name)
+        self.assertEqual("Mario", contact.first_name)
+        self.assertEqual("mario@bros.com", contact.email)
+        self.assertEqual("http://mario.com", contact.url_site)
+        self.assertEqual(True, contact.is_actived)
+        self.assertEqual(datetime(year=1987, month=8, day=02).date(), contact.birthday)
+        self.assertEqual("A plumber", contact.description)
+        self.assertEqual(set(languages[:2]), set(contact.language.all()))
+
+    def test_create_contact03(self):#unsandboxed with m2m
+        user = self.user
+
+        languages = Language.objects.all()
+        if not languages or len(languages) < 2:
+            Language.objects.all().delete()
+            languages = [Language.objects.create(code=u'en', name=u'English'),
+                         Language.objects.create(code=u'fr', name=u'French'),
+                         Language.objects.create(code=u'es', name=u'Spanish')]
+
+        xml_content = """
+        <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\User\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xml:lang="fr">
+            <my:user_id>%s</my:user_id>
+            <my:created xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">2003-02-01</my:created>
+            <my:first_name>Mario</my:first_name>
+            <my:last_name>Bros</my:last_name>
+            <my:url_site>http://mario.com</my:url_site>
+            <my:email>mario@bros.com</my:email>
+            <my:birthday xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">02/08/1987</my:birthday>
+            <my:language>
+                <my:language_value xsi:nil="true"></my:language_value>
+                <my:language_value>%s</my:language_value>
+                <my:language_value>%s</my:language_value>
+            </my:language>
+            <my:description>
+                <div xmlns="http://www.w3.org/1999/xhtml">A plumber</div>
+            </my:description>
+        </my:CremeCRMCrudity>""" % (user.id, languages[0].id, languages[1].id)
+
+        backend = self._get_create_from_email_backend(password = u"creme", subject = "create_ce_infopath",
+                                                      body_map = {
+                                                                    'user_id': user.id, 'is_actived': True,
+                                                                    "first_name":"", "last_name":"",
+                                                                    "email": "none@none.com", "description": "",
+                                                                    "birthday":"", "created":"", 'url_site': "",
+                                                                    "language": ""},
+                                                      model=Contact,
+                                                      in_sandbox=False,)
+
+        q_contact_existing_ids = ~Q(pk__in=list(Contact.objects.all().values_list('pk', flat=True)))
+        self.assertEqual(0, WaitingAction.objects.count())
+        backend.create(PopEmail(body=u"password=creme", senders=('user@cremecrm.com',), subject="create_ce_infopath", attachments=[self._build_attachment(content=xml_content)]))
+        self.assertEqual(0, WaitingAction.objects.count())
+        self.assertEqual(1, Contact.objects.filter(q_contact_existing_ids).count())
+
+        contact = Contact.objects.filter(q_contact_existing_ids)[0]
+
+        self.assertEqual(user.id, contact.user_id)
+        self.assertEqual(datetime(year=2003, month=02, day=01), contact.created)
+        self.assertEqual("Bros", contact.last_name)
+        self.assertEqual("Mario", contact.first_name)
+        self.assertEqual("mario@bros.com", contact.email)
+        self.assertEqual("http://mario.com", contact.url_site)
+        self.assertEqual(True, contact.is_actived)
+        self.assertEqual(datetime(year=1987, month=8, day=02).date(), contact.birthday)
+        self.assertEqual("A plumber", contact.description)
+        self.assertEqual(set(languages[:2]), set(contact.language.all()))
 
     def test_create_document01(self):#sandboxed with image
         user = self.user

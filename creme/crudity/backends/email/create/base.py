@@ -161,7 +161,14 @@ class CreateFromEmailBackend(object):
         return self._create_instance_n_history(action.get_data(), action.user)
 
     def _create_instance_before_save(self, instance, data):
+        """Called before the instance is saved"""
         pass
+
+    def _create_instance_after_save(self, instance, data):
+        """Called after the instance was saved
+        @returns a boolean to check if a re-save is needed
+        """
+        return False
 
     def _create_instance_n_history(self, data, user=None):
         instance = self.model()
@@ -175,13 +182,13 @@ class CreateFromEmailBackend(object):
                 #TODO: data.pop(field_name) when virtual fields are added in crudity, because for example user_id is not a "real field" (model._meta.get_field)
                 continue
 
-            if not isinstance(field, TextField):
+            if not isinstance(field, TextField) and isinstance(field_value, basestring):
                 data[field_name] = field_value = field_value.replace('\n', ' ')
 
             if is_date_field(model_get_field(field_name)):
                 data[field_name] = field_value = get_dt_from_str(field_value.strip())
 
-            if isinstance(field, BooleanField):
+            if isinstance(field, BooleanField) and isinstance(field_value, basestring):
                 data[field_name] = field_value = field.to_python(field_value.strip()[0:1].lower()) #Trick to obtain 't'/'f' or '1'/'0'
 
             data[field_name] = field.to_python(field_value)
@@ -192,6 +199,9 @@ class CreateFromEmailBackend(object):
         try:
             self._create_instance_before_save(instance, data)
             instance.save()
+            need_new_save = self._create_instance_after_save(instance, data)
+            if need_new_save:
+                instance.save()
             history = History()
             history.entity = instance
             history.type = self.type

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+from itertools import chain
 
 import re
 import os
@@ -12,6 +13,7 @@ from django.utils import translation
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models.entity import CremeEntity
+from creme_core.models.i18n import Language
 from crudity.backends.email.create.infopath import InfopathCreateFromEmail
 from crudity.backends.registry import from_email_crud_registry
 from crudity.builders.infopath import InfopathFormBuilder, InfopathFormField
@@ -131,45 +133,31 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         xmlToEdit_set = set(['image',])
         self.assertEqual(xmlToEdit_set, set(button_node.get('xmlToEdit') for button_node in button_nodes))
 
-#TODO: Remove me
-#    def test_manifest_xsf_02(self):#Test fields values
-#        body_map={'user_id': 1, 'is_actived': True, "first_name":"",
-#                  "last_name":"", "email": "none@none.com",
-#                  "description": "", "birthday":"",}
-#        backend = self._get_create_from_email_backend(subject="create_contact",
-#                                                      body_map=body_map,
-#                                                      model=Contact)
-#        builder = self._get_builder(backend)
-#        d_ns    = {'ns': "{http://schemas.microsoft.com/office/infopath/2003/solutionDefinition}", 'ns2': "{http://schemas.microsoft.com/office/infopath/2006/solutionDefinition/extensions}"}
-#
-#        xml     = XML(builder._render_manifest_xsf(self.request))
-#
-#        extensions_cn = set(node.get('columnName') for node in xml.findall('%(ns)sextensions/%(ns)sextension/%(ns2)ssolutionDefinition/%(ns2)slistPropertiesExtension/%(ns2)sfieldsExtension/%(ns2)sfieldExtension' % d_ns))
-#        fields_cn = set(node.get('columnName') for node in xml.findall('%(ns)slistProperties/%(ns)sfields/%(ns)sfield' % d_ns))
-#
-#        self.assertEqual(extensions_cn, fields_cn)
-#
-#        field_nodes = xml.findall('%(ns)slistProperties/%(ns)sfields/%(ns)sfield' % d_ns)
-#
-#        #BEGIN TODO
-##        model_get_field = Contact._meta.get_field
-##        model_get_field_vb = lambda field_name: model_get_field(field_name).verbose_name
-##        verbose_names = set(model_get_field_vb(name) for name in ['user','is_actived', "first_name", "last_name", "email", "description", "birthday"])
-##        field_nodes_vb = set(field.get('name') for field in field_nodes)
-#        #TODO: Uncomment lines above, and remove those ones below, when the unicode decode error will be fixed in the template
-#        verbose_names = set(['user_id','is_actived', "first_name", "last_name", "email", "description", "birthday"])
-#        field_nodes_vb = set(field.get('name').lower() for field in field_nodes)
-#        self.assertEqual(verbose_names, field_nodes_vb)
-#        #END TODO
-#
-#        paths = set('/my:CremeCRMCrudity/my:%s' % name for name in body_map.iterkeys())
-#        node_attrs = set(field.get('node') for field in field_nodes)
-#        self.assertEqual(paths, node_attrs)
+    def test_manifest_xsf_03(self):#Test m2m field
+        body_map= {'user_id': 1, "language":""}
+        backend = self._get_create_from_email_backend(subject="create_contact",
+                                                      body_map=body_map,
+                                                      model=Contact)
+        builder = self._get_builder(backend)
+
+        content = builder._render_manifest_xsf(self.request)
+        self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'], builder.get_namespace())#Can't be got with ElementTree, because it's a namespace
+        d_ns    = {'xsf': "{http://schemas.microsoft.com/office/infopath/2003/solutionDefinition}"}
+        xml     = XML(content)
+
+        xmlToEdit_node = xml.find('%(xsf)sviews/%(xsf)sview/%(xsf)sediting/%(xsf)sxmlToEdit' % d_ns)
+
+        self.assert_(xmlToEdit_node is not None)
+        self.assertEqual("language", xmlToEdit_node.get('name'))
+        self.assertEqual("/my:CremeCRMCrudity/my:language/my:language_value", xmlToEdit_node.get('item'))
+
+        editWith_node = xmlToEdit_node.find('%(xsf)seditWith' % d_ns)
+        self.assertEqual("xTextList", editWith_node.get('component'))
 
     def test_myschema_xsd01(self):
         body_map={'user_id': 1, 'is_actived': True, "first_name":"",
                   "last_name":"", "email": "none@none.com",
-                  "description": "", "birthday":"", "created":"", 'url_site': "", "image":""}
+                  "description": "", "birthday":"", "created":"", 'url_site': "", "image":"", "language": ""}
         backend = self._get_create_from_email_backend(subject="create_contact",
                                                       body_map=body_map,
                                                       model=Contact)
@@ -183,22 +171,25 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         self.assertEqual(builder.namespace, re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'])#Can't be got with ElementTree, because it's a namespace
 
         ref_attrs = set(node.get('ref') for node in xml.findall('%(xsd)selement/%(xsd)scomplexType/%(xsd)ssequence/%(xsd)selement' % d_ns))
-        expected_ref_attrs = set('my:%s' % key for key in body_map.iterkeys())
+        expected_ref_attrs = set('my:%s' % key for key in chain(body_map.iterkeys(), ['language_value']))#chain because language_value is not declared in body_map, only language has to (m2m)
         self.assertEqual(expected_ref_attrs, ref_attrs)
 
         xsd_elements = {
                         'CremeCRMCrudity': {'name': 'CremeCRMCrudity'},
-                        'user_id':     {'name': 'user_id', 'type': 'xsd:integer'},#"""<xsd:element name="user_id" type="xsd:integer"/>""",
-                        'is_actived':  {'name': 'is_actived', 'type': 'xsd:boolean'},#"""<xsd:element name="is_actived" type="xsd:boolean"/>""",
-                        "first_name":  {'name': 'first_name', 'type': 'my:requiredString'},#"""<xsd:element name="first_name" type="xsd:requiredString"/>""",
-                        "last_name":   {'name': 'last_name', 'type': 'my:requiredString'},#"""<xsd:element name="last_name" type="xsd:requiredString"/>""",
-                        "email":       {'name': 'email', 'type': 'xsd:string'},#"""<xsd:element name="email" type="xsd:string"/>""",
-                        "description": {'name': 'description'},#"""<xsd:element name="description"><xsd:complexType mixed="true"><xsd:sequence><xsd:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/1999/xhtml" processContents="lax"/></xsd:sequence></xsd:complexType></xsd:element>""",
-                        "birthday":    {'name': 'birthday', 'type': 'xsd:date', 'nillable': 'true'},#"""<xsd:element name="birthday" nillable="true" type="xsd:date"/>""",
-                        "created":     {'name': 'created', 'type': 'xsd:dateTime'},#"""<xsd:element name="created" type="xsd:dateTime"/>""",
-                        "url_site":    {'name': 'url_site', 'type': 'xsd:anyURI'},
-                        "image":       {'name': 'image', 'type': 'xsd:base64Binary', 'nillable': 'true'},
+                        'user_id':        {'name': 'user_id', 'type': 'xsd:integer'},#"""<xsd:element name="user_id" type="xsd:integer"/>""",
+                        'is_actived':     {'name': 'is_actived', 'type': 'xsd:boolean'},#"""<xsd:element name="is_actived" type="xsd:boolean"/>""",
+                        "first_name":     {'name': 'first_name', 'type': 'my:requiredString'},#"""<xsd:element name="first_name" type="xsd:requiredString"/>""",
+                        "last_name":      {'name': 'last_name', 'type': 'my:requiredString'},#"""<xsd:element name="last_name" type="xsd:requiredString"/>""",
+                        "email":          {'name': 'email', 'type': 'xsd:string'},#"""<xsd:element name="email" type="xsd:string"/>""",
+                        "description":    {'name': 'description'},#"""<xsd:element name="description"><xsd:complexType mixed="true"><xsd:sequence><xsd:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/1999/xhtml" processContents="lax"/></xsd:sequence></xsd:complexType></xsd:element>""",
+                        "birthday":       {'name': 'birthday', 'type': 'xsd:date', 'nillable': 'true'},#"""<xsd:element name="birthday" nillable="true" type="xsd:date"/>""",
+                        "created":        {'name': 'created', 'type': 'xsd:dateTime'},#"""<xsd:element name="created" type="xsd:dateTime"/>""",
+                        "url_site":       {'name': 'url_site', 'type': 'xsd:anyURI'},
+                        "image":          {'name': 'image', 'type': 'xsd:base64Binary', 'nillable': 'true'},
+                        "language":       {'name': 'language'},
+                        "language_value": {'name': 'language_value', "nillable": "true", "type": "xsd:integer"},
                         }
+
         element_nodes = xml.findall('%(xsd)selement' % d_ns)
         for element_node in element_nodes:
             xsd_element_attrs = xsd_elements.get(element_node.get('name'))
@@ -286,6 +277,29 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         element_nodes = xml.findall("%(xsl)stemplate/%(xsl)scopy/%(xsl)selement/" % d_ns)
         xsl_fields_names = set(element_node.get('name') for element_node in element_nodes)
         self.assertEqual(fields_names, xsl_fields_names)
+
+    def test_upgrade_xsl02(self):#m2m
+        body_map={'user_id': 1, "language": ""}
+        backend = self._get_create_from_email_backend(subject="create_contact",
+                                                      body_map=body_map,
+                                                      model=Contact)
+        builder = self._get_builder(backend)
+
+        content = builder._render_upgrade_xsl(self.request)
+        self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'], builder.namespace)#Can't be got with ElementTree, because it's a namespace
+
+        d_ns    = {'xsl': "{http://www.w3.org/1999/XSL/Transform}"}
+        xml     = XML(content)
+
+        fields_names = set("my:%s" % field_name for field_name in body_map.iterkeys())
+        template_nodes = filter(lambda x: x.get('match') == "my:CremeCRMCrudity", xml.findall("%(xsl)stemplate" % d_ns))
+        self.assert_(template_nodes)
+        when_node = template_nodes[0].find("%(xsl)scopy/%(xsl)schoose/%(xsl)swhen" % d_ns)
+        self.assertEqual("my:language", when_node.get('test'))
+
+        exptected_template_nodes_name = set(['my:language', 'my:language_value'])
+        template_nodes_names = filter(lambda x: x.get('match') in exptected_template_nodes_name,xml.findall('%(xsl)stemplate' % d_ns))
+        self.assertEqual(exptected_template_nodes_name, set(template_nodes_name.get('match') for template_nodes_name in template_nodes_names))
 
     def _get_view_xsl(self, backend, body_map):
         backend.body_map = body_map
@@ -451,6 +465,49 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         for field_name, attrs_nodetype in fields.iteritems():
             attrs, node_type = attrs_nodetype
             self._test_view_xsl_01(backend, field_name, attrs, node_type)
+
+    def test_view_xsl05(self):#Deeper with m2m
+        languages = Language.objects.all()
+        self.populate('creme_core')
+        self.assert_(languages)
+
+        d_ns    = {'xsl': "{http://www.w3.org/1999/XSL/Transform}", 'xd': "{http://schemas.microsoft.com/office/infopath/2003}"}
+        field_name = "language"
+        backend = self._get_create_from_email_backend(subject="create_contact",
+                      body_map={field_name: ""},
+                      model=Contact)
+        xml     = self._get_view_xsl(backend, {field_name: ""})
+
+        node_vb =  xml.find('%(xsl)stemplate/div/div/table/tbody/tr/td/div/font/strong' % d_ns)
+        self.assert_(node_vb is not None)
+        self.assertEqual(Contact._meta.get_field(field_name).verbose_name, node_vb.text)
+
+        target_node =  xml.find('%(xsl)stemplate/div/div/table/tbody/tr/td/div/font/div' % d_ns)
+        self.assert_(target_node is not None)
+
+        input_nodes = target_node.findall('%(xsl)schoose/%(xsl)swhen/span/span/input' % d_ns)
+        self.assert_(input_nodes)
+        expected_titles = set(unicode(language) for language in languages)
+        self.assertEqual(expected_titles, set(input_node.get('title') for input_node in input_nodes))
+
+        expected_bindings = set('my:language/my:language_value[.="%s"][1]' % l.id for l in languages)
+        self.assertEqual(expected_bindings, set(input_node.get('%(xd)sbinding' % d_ns) for input_node in input_nodes))
+
+        expected_selects = set('my:language/my:language_value[.="%s"][1]' % language.id for language in languages)
+        self.assertEqual(expected_selects,
+                         set(input_node.get("select") for input_node in target_node.findall('%(xsl)schoose/%(xsl)swhen/span/span/input/%(xsl)sattribute/%(xsl)svalue-of' % d_ns))
+                         )
+
+        expected_tests = set('my:language/my:language_value="%s"' % language.id for language in languages)
+        self.assertEqual(expected_tests,
+                         set(input_node.get("test") for input_node in target_node.findall('%(xsl)schoose/%(xsl)swhen/span/span/input/%(xsl)sif' % d_ns))
+                         )
+
+        for_each_node = target_node.find('%(xsl)schoose/%(xsl)swhen/span/%(xsl)sfor-each' % d_ns)
+        self.assert_(for_each_node is not None)
+
+        expected_fe_selects = "my:language/my:language_value[%s]" % (" and ".join(['.!="%s"' % l.id for l in languages]))
+        self.assertEqual(expected_fe_selects, for_each_node.get('select'))
 
     def test_render01(self):
         body_map={'user_id': 1, 'is_actived': True, "first_name":"",

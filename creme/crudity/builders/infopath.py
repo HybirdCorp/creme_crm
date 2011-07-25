@@ -26,8 +26,6 @@ import subprocess
 from tempfile import gettempdir
 from itertools import chain
 
-from media_managers.models.image import Image
-
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -47,6 +45,8 @@ from creme_core.utils.meta import is_date_field
 
 from crudity import VERBOSE_CRUD
 from crudity.utils import generate_guid_for_field
+
+from media_managers.models.image import Image
 
 #Don't forget to include xml templates when generating locales !! (django-admin.py makemessages -l fr -e html,xml)
 
@@ -85,7 +85,7 @@ _ELEMENT_TEMPLATE = {
     models.URLField:                   lambda element_type: get_element_template(element_type, "url_field.xml"),
     models.XMLField:                   get_none,#Deprecated
     models.ForeignKey:                 lambda element_type: get_element_template(element_type, "foreignkey_field.xml"),
-    models.ManyToManyField:            get_none,
+    models.ManyToManyField:            lambda element_type: get_element_template(element_type, "m2m_field.xml"),
     models.OneToOneField:              get_none,
 
     fields.PhoneField:                 lambda element_type: get_element_template(element_type, "string_field.xml"),
@@ -168,6 +168,9 @@ class InfopathFormField(object):
             tpl_dict.update({'allowed_file_types': settings.ALLOWED_IMAGES_EXTENSIONS})
             template_name = "crudity/infopath/create_template/frags/editing/file_field.xml"
 
+        elif isinstance(model_field, models.ManyToManyField):
+            template_name = "crudity/infopath/create_template/frags/editing/m2m_field.xml"
+
         return render_to_string(template_name, tpl_dict, context_instance=RequestContext(self.request)) if template_name is not None else None
 
     def get_view_element(self):
@@ -192,6 +195,14 @@ class InfopathFormField(object):
     def is_file_field(self):
         model_field = self.model_field
         return issubclass(model_field.__class__, models.FileField) or (isinstance(model_field, models.ForeignKey) and issubclass(model_field.rel.to, Image))
+
+    @property
+    def is_m2m_field(self):
+        return isinstance(self.model_field, models.ManyToManyField)
+
+    def get_m2m_xsl_choices_str(self):
+        return " and ".join(['.!="%s"' % c[0] for c in self._get_choices()])
+
 
 class InfopathFormBuilder(object):
     def __init__(self, request, backend):
