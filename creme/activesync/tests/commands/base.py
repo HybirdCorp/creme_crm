@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,23 +19,24 @@
 ################################################################################
 
 from threading import Thread
-from django.contrib.auth.models import User
 
+from django.contrib.auth.models import User
 from django.test import TestCase
 
 from activesync.tests.commands.fake_server import SimpleASHTTPServer
 
-def start_server(port, server):
+
+def start_server(port, testcase):
     server = SimpleASHTTPServer(port)
+    testcase.server = server
     server.run()
 
 class BaseASTestCase(TestCase):
-
     def setUp(self):
         self.port  = 8003
         self.url   = 'http://127.0.0.1:%s' % self.port
         self.server = None
-        self.thread_httpd = Thread(target=start_server, kwargs={'port': self.port, 'server': self.server})
+        self.thread_httpd = Thread(target=start_server, kwargs={'port': self.port, 'testcase': self})
         print "Starting server"
         self.thread_httpd.start()
         self.user = User.objects.create(username='name')
