@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,20 +17,21 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 import BaseHTTPServer
 from StringIO import StringIO
 import sys
 import os
 
+from django.core.files import File
+
 from activesync.wbxml import WBXMLEncoder
 from activesync.wbxml.dtd import AirsyncDTD_Reverse
 
-from django.core.files import File
 
 DEFAULT_CHUNK_SIZE = File.DEFAULT_CHUNK_SIZE
 
 class PostAwareHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
-
     def _open_n_read_encode(self, filename, mode='r'):
         path = filename
         content = StringIO()
@@ -57,7 +58,7 @@ class PostAwareHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 if not os.path.exists(test_file):
                     self.send_error(404, "Test file <%s> not found" % test_file)
                     return
-            
+
             self.server.test_files = test_files
 
 
@@ -68,13 +69,12 @@ class PostAwareHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(len(encoded)))
         self.end_headers()
         self.wfile.write(encoded)
-        
+
 
 class SimpleASHTTPServer(BaseHTTPServer.HTTPServer):
-
     test_index = 0
     test_files = None
-    
+
     def __init__(self, port):
         #Always localhost
 #        super(SimpleASHTTPServer, self).__init__(('', port), PostAwareHTTPRequestHandler)
@@ -89,5 +89,4 @@ class SimpleASHTTPServer(BaseHTTPServer.HTTPServer):
     def finish_request(self, request, client_address):
         """Finish one request by instantiating RequestHandlerClass."""
         self.RequestHandlerClass(request, client_address, self)
-        self.test_index+=1
-
+        self.test_index += 1
