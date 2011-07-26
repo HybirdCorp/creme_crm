@@ -32,7 +32,13 @@
                 </tbody>
             </table>
         </th>
-        <th style="width: 20%;" align="right"></th>
+        <th style="width: 20%;" align="right">
+            <div class="buttons">
+                {% for rendered_button in buttons %}
+                    {{ rendered_button }}
+                {% endfor %}
+            </div>
+        </th>
     {% end_get_block_header %}
         <tbody class="collapsable">
             {% if page.paginator.count %}
@@ -67,7 +73,7 @@
                                 {% else %}
                                  /
                                 {% endif %}
-                                {{k}} : {{v}}
+                                {{k}} : {{v|truncate:50}}
                                 {% if forloop.counter|mod:4 == 0 %}
                                     </p>
                                 {% endif %}

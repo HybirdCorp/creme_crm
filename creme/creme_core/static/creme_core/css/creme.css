@@ -934,6 +934,22 @@ textarea:disabled, textarea[readonly] {
     color: #fff;
 }
 
+/* DOWNLOAD */
+.buttons a.download, button.download {
+    color: #4c4c96;
+}
+.buttons a.download:hover, button.download:hover {
+    background: #9292e1;
+    border: 1px solid #9c9cf8;
+    color: #25254a;
+    text-shadow:1px 1px 3px #d7d7d7;
+}
+.buttons a.download:active {
+    background-color: #4c4c96;
+    border: 1px solid #4c4c96;
+    color: #fff;
+}
+
 /* Toggle view */
 .buttons a.view_more{
     min-width: 0;

@@ -19,6 +19,7 @@
 ################################################################################
 
 import os
+import sys
 import shutil
 from datetime import datetime
 from functools import partial
@@ -200,6 +201,10 @@ class InfopathFormField(object):
     def is_m2m_field(self):
         return isinstance(self.model_field, models.ManyToManyField)
 
+    @property
+    def is_bool_field(self):
+        return isinstance(self.model_field, models.BooleanField)
+
     def get_m2m_xsl_choices_str(self):
         return " and ".join(['.!="%s"' % c[0] for c in self._get_choices()])
 
@@ -274,12 +279,38 @@ class InfopathFormBuilder(object):
             with open(path_join(backend_path, file_name), 'wb') as f:
                 f.write(content.encode('utf8'))
 
-
         final_files_paths = (path_join(backend_path, cab_file) for cab_file in chain(cab_files.iterkeys(), media_files))
+        infopath_form_filepath = path_join(backend_path, "%s.xsn" % self.backend.subject)
 
         #TODO:Windows
-        infopath_form_filepath = path_join(backend_path, "%s.xsn" % self.backend.subject)
-        subprocess.call(chain(["lcab", "-qn"], final_files_paths, [infopath_form_filepath]))
+        if sys.platform.startswith('win'):
+            ddf_file_content = render_to_string("crudity/infopath/create_template/create_cab.ddf",
+                                                {
+                                                    'file_name': "%s.xsn" % self.backend.subject,
+                                                    'backend_path':backend_path,
+                                                },
+                                                context_instance=RequestContext(request))
+
+            ddf_path = path_join(backend_path, "create_cab.ddf")
+            with open(ddf_path, 'wb') as f:
+                f.write(ddf_file_content)
+
+            cabify_content = render_to_string("crudity/infopath/create_template/cabify.bat",
+                                    {
+                                        'ddf_path': ddf_path,
+                                    },
+                                    context_instance=RequestContext(request))
+
+
+            cabify_path = path_join(backend_path, "cabify.bat")
+            with open(cabify_path, 'wb') as f:
+                f.write(cabify_content)
+
+            subprocess.call([cabify_path])
+
+        else:
+            subprocess.call(chain(["lcab", "-qn"], final_files_paths, [infopath_form_filepath]))
+
         with open(infopath_form_filepath, 'rb') as f:
             for chunk in f.read(File.DEFAULT_CHUNK_SIZE):
                 yield chunk

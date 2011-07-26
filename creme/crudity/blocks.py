@@ -48,11 +48,12 @@ class WaitingActionBlock(CrudityQuerysetBlock):
     verbose_name  = _(u'Waiting actions')
     template_name = 'crudity/templatetags/block_waiting_action.html'
 
-    def __init__(self, ct, waiting_type):
+    def __init__(self, ct, waiting_type, buttons=None):
         super(WaitingActionBlock, self).__init__()
         self.ct   = ct
         self.type = waiting_type
         self.id_  = self.generate_id()
+        self.buttons = buttons
 
     def generate_id(self):
         return 'block_crudity-%s-%s' % (self.ct.id, self.type)
@@ -73,6 +74,7 @@ class WaitingActionBlock(CrudityQuerysetBlock):
                                                             waiting_type=type,
                                                             waiting_ct=ct,
                                                             email_ct=ContentType.objects.get_for_model(EntityEmail),
+                                                            buttons=self.buttons,
                                                             update_url='/crudity/waiting_actions_blocks/%s/reload' % (self.id_,),
                                                            ))
 

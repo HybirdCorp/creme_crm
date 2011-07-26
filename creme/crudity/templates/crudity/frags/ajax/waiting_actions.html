@@ -14,19 +14,6 @@
         </td>
     </tr>
 </table>
-<table style="padding: 5px 0 7px 0;">
-    <tbody>
-        <tr>
-            <td>
-                {% for name, backend in backends %}
-                    {% for rendered_button in backend.get_buttons %}
-                        {{ rendered_button }}
-                    {% endfor %}
-                {% endfor %}
-            </td>
-        </tr>
-    </tbody>
-</table>
 {% for waiting_block in blocks %}
     {{waiting_block}}
 {% endfor %}
