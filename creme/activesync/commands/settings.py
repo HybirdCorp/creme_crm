@@ -29,13 +29,11 @@ class Settings(Base):
         self._create_connection()
 
     def send(self, headers=None, *args, **kwargs):
-
-        settings_headers={}
+        settings_headers = {}
         if headers:
             settings_headers.update(headers)
 
-        xml = super(Settings, self).send({'get_user_infos': True, 'set_device_infos':False}, headers=headers)
-
+        xml = super(Settings, self).send({'get_user_infos': True, 'set_device_infos': False}, headers=headers)
         ns = "{Settings:}"
 
         self.smtp_address = None
