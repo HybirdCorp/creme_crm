@@ -1,16 +1,16 @@
 ;*** Sample Source Code MakeCAB Directive file example
 ;
 .OPTION EXPLICIT     ; Generate errors
-.Set CabinetNameTemplate=contact.cab
+.Set CabinetNameTemplate={{file_name}}
 .set DiskDirectoryTemplate=DISK* ; All cabinets go in a single directory
 .Set CompressionType=MSZIP;** All files are compressed in cabinet files
 .Set UniqueFiles="ON"
 .Set Cabinet=on
 .Set DiskDirectory1=.
-creme.png
-manifest.xsf
-myschema.xsd
-template.xml
-upgrade.xsl
-view1.xsl
+"{{backend_path}}\creme.png"
+"{{backend_path}}\manifest.xsf"
+"{{backend_path}}\myschema.xsd"
+"{{backend_path}}\template.xml"
+"{{backend_path}}\upgrade.xsl"
+"{{backend_path}}\view1.xsl"
 ;*** <the end>

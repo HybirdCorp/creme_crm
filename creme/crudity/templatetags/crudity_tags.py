@@ -17,8 +17,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-
 from django import template
+from django.template.defaultfilters import truncatewords
 
 from crudity import VERBOSE_CRUD
 
@@ -27,3 +27,11 @@ register = template.Library()
 @register.filter(name="get_crud_type_verbose")
 def get_crud_type_verbose(type):
     return VERBOSE_CRUD.get(int(type))
+
+@register.filter(name="truncate")
+def truncate(word, truncate_at):
+    words = truncatewords(word, truncate_at)
+    truncated = word[:truncate_at]
+    if len(words.split()) == 1 and not len(truncated) == len(word):
+        words = u"%s..." % truncated
+    return words

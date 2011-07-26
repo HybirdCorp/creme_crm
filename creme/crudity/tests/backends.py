@@ -6,17 +6,16 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models.query_utils import Q
 
-from creme_core.models.entity import CremeEntity
+from creme_core.models import CremeEntity, Language
 
 from creme_config.models.setting import SettingValue
-from creme_core.models.i18n import Language
-from crudity.utils import decode_b64binary
 from documents.crudity_email_register import CreateDocumentFromEmailInfopath
-from documents.models.document import Document
-from documents.models.folder import Folder
-from persons.models.contact import Contact
+from documents.models import Document, Folder
+from persons.models import Contact
 
 from crudity import CREATE
+from crudity.backends import ImproperlyConfiguredBackend
+from crudity.utils import decode_b64binary
 from crudity.models import History, WaitingAction
 from crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
 from crudity.fetchers.pop import PopEmail
@@ -645,6 +644,16 @@ entity
         self.assertEqual(datetime(year=1987, month=8, day=02).date(), contact.birthday)
         self.assertEqual("A plumber", contact.description)
 
+#    def test_cfg_check01(self):#Misconfigured
+#        user = self.user
+#        self.assertRaises(ImproperlyConfiguredBackend, self._get_create_from_email_backend, password = u"creme", in_sandbox = False,
+#                                                      subject = "create_contact",
+#                                                      body_map = {
+#                                                            "user_id": user.id,
+#                                                            "di_resu": user.id,
+#
+#                                                      },
+#                                                      model=Contact)
 
 class WaitingActionTestCase(CrudityTestCase):
     def test_can_validate_or_delete01(self):#Sandbox for everyone

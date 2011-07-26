@@ -24,7 +24,7 @@ from crudity import CREATE
 from crudity.backends.email import CreateFromEmailBackend
 from crudity.backends.email.create.infopath import InfopathCreateFromEmail
 
-from persons.models.contact import Contact
+from persons.models import Contact, Organisation
 
 create_contact_settings    = settings.PERSONS_CONTACT_FROM_EMAIL.get(CREATE)
 CREATE_CONTACT_PASSWORD    = create_contact_settings.get("password")
@@ -39,6 +39,13 @@ CREATE_CONTACT_INFOPATH_LIMIT_FROMS = create_contact_infopath_settings.get("limi
 CREATE_CONTACT_INFOPATH_IN_SANDBOX  = create_contact_infopath_settings.get("in_sandbox", True)
 CREATE_CONTACT_INFOPATH_BODY_MAP    = create_contact_infopath_settings.get("body_map", {})
 CREATE_CONTACT_INFOPATH_SUBJECT     = create_contact_infopath_settings.get("subject")
+
+create_organisation_infopath_settings    = settings.PERSONS_ORGANISATION_FROM_EMAIL_INFOPATH.get(CREATE)
+CREATE_ORGANISATION_INFOPATH_PASSWORD    = create_organisation_infopath_settings.get("password")
+CREATE_ORGANISATION_INFOPATH_LIMIT_FROMS = create_organisation_infopath_settings.get("limit_froms")
+CREATE_ORGANISATION_INFOPATH_IN_SANDBOX  = create_organisation_infopath_settings.get("in_sandbox", True)
+CREATE_ORGANISATION_INFOPATH_BODY_MAP    = create_organisation_infopath_settings.get("body_map", {})
+CREATE_ORGANISATION_INFOPATH_SUBJECT     = create_organisation_infopath_settings.get("subject")
 
 
 class CreateContactFromEmail(CreateFromEmailBackend):
@@ -59,9 +66,19 @@ class CreateContactFromEmailInfopath(InfopathCreateFromEmail):
     subject        = CREATE_CONTACT_INFOPATH_SUBJECT
 
 
+class CreateOrganisationFromEmailInfopath(InfopathCreateFromEmail):
+    password       = CREATE_ORGANISATION_INFOPATH_PASSWORD
+    limit_froms    = CREATE_ORGANISATION_INFOPATH_LIMIT_FROMS
+    in_sandbox     = CREATE_ORGANISATION_INFOPATH_IN_SANDBOX
+    body_map       = CREATE_ORGANISATION_INFOPATH_BODY_MAP
+    model          = Organisation
+    subject        = CREATE_ORGANISATION_INFOPATH_SUBJECT
+
+
 crud_register = {
     CREATE: [
-        (CreateContactFromEmail.subject,         CreateContactFromEmail()),
-        (CreateContactFromEmailInfopath.subject, CreateContactFromEmailInfopath()),
+        (CreateContactFromEmail.subject,              CreateContactFromEmail()),
+        (CreateContactFromEmailInfopath.subject,      CreateContactFromEmailInfopath()),
+        (CreateOrganisationFromEmailInfopath.subject, CreateOrganisationFromEmailInfopath()),
     ],
 }

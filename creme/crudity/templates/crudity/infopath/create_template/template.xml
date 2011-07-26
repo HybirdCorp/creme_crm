@@ -6,7 +6,7 @@
     {% for field in fields %}
         {% if field.xsd_element %}
             {% if not field.is_m2m_field %}
-                <my:{{ field.name }}{% if field.is_nillable %} xsi:nil="true"{% endif %}></my:{{ field.name }}>
+                <my:{{ field.name }}{% if field.is_nillable %} xsi:nil="true"{% endif %}>{% if field.is_bool_field %}{{ field.model_field.default|lower }}{% endif %}</my:{{ field.name }}>
             {% else %}
                 <my:{{ field.name }}>
                     <my:{{ field.name }}_value xsi:nil="true"></my:{{ field.name }}_value>

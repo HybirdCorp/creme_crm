@@ -79,7 +79,7 @@ DATETIME_INPUT_FORMATS  = (
     '%d-%m-%Y %H:%M:%S', '%d/%m/%Y %H:%M:%S',
     '%d-%m-%Y %H:%M',    '%d/%m/%Y %H:%M',
     '%Y-%m-%dT%H:%M:%S.%fZ',#Needed for some activesync servers (/!\ %f python >=2.6)
-
+    "%Y-%m-%dT%H:%M:%S",#Needed for infopath
 )
 
 #I18N / L10N [END]##############################################################
@@ -422,7 +422,19 @@ CREME_GET_EMAIL_JOB_USER_ID  = None #Only for job. Default user id which will ha
 CREME_GET_EMAIL_JOB_USER_ID  = 1#User used to synchronize mails with management command
 
 from crudity import CREATE
+##Activities
+ACTIVITIES_MEETING_FROM_EMAIL_INFOPATH = {
+    CREATE: {
+        "password"   : u"",  #Password to be authorized in backend
+        "limit_froms": (),   #If recipient email's address not in this drop email, let empty to allow all email addresses
+        "in_sandbox" : True, #True : Show in sandbox & history, False show only in history (/!\ creation will be automatic if False)
+        "body_map"   : {     #Allowed keys format : "key": "default value"
+        },
+        "subject": u""       #Target subject, nb: in the subject all spaces will be deleted, and it'll be converted to uppercase
+    }
+}
 
+##Persons
 PERSONS_CONTACT_FROM_EMAIL = {
     CREATE: {
         "password"   : u"",  #Password to be authorized in backend
@@ -445,6 +457,18 @@ PERSONS_CONTACT_FROM_EMAIL_INFOPATH = {
     }
 }
 
+PERSONS_ORGANISATION_FROM_EMAIL_INFOPATH = {
+    CREATE: {
+        "password"   : u"",  #Password to be authorized in backend
+        "limit_froms": (),   #If recipient email's address not in this drop email, let empty to allow all email addresses
+        "in_sandbox" : True, #True : Show in sandbox & history, False show only in history (/!\ creation will be automatic if False)
+        "body_map"   : {     #Allowed keys format : "key": "default value"
+        },
+        "subject": u""       #Target subject, nb: in the subject all spaces will be deleted, and it'll be converted to uppercase
+    }
+}
+
+##Documents
 DOCUMENTS_DOCUMENT_FROM_EMAIL_INFOPATH = {
     CREATE: {
         "password"   : u"",  #Password to be authorized in backend
@@ -456,6 +480,7 @@ DOCUMENTS_DOCUMENT_FROM_EMAIL_INFOPATH = {
     }
 }
 
+##Emails
 EMAILS_ENTITYEMAIL_FROM_EMAIL = {
     CREATE: {
         "limit_froms": (),   #If recipient email's address not in this drop email, let empty to allow all email addresses

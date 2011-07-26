@@ -1,5 +1,5 @@
 {% if not field.is_file_field %}
-    <xsd:element name="{{ field.name }}" type="xsd:integer"/>
+    <xsd:element name="{{ field.name }}" {% if field.is_nillable %}nillable="true" {% endif %}type="xsd:integer"/>
 {% else %}
     {% if field.is_nillable %}
         <xsd:element name="{{ field.name }}" nillable="true" type="xsd:base64Binary"/>

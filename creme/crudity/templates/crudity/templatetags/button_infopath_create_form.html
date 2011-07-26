@@ -3,7 +3,7 @@
 {% load creme_core_tags %}
 {% load crudity_tags %}
 {# No particular permission is required, the view already check if user has perm to access to the view #}
-<a class="menu_button" href="/crudity/infopath/create_form/{{ backend.subject }}">
+<a class="download" href="/crudity/infopath/create_form/{{ backend.subject }}">
     <img src="{% media_url 'images/download_22.png' %}" border="0" title="{% trans "Download" %}" alt="{% trans "Download" %}" />
     {% blocktrans with backend.model|get_meta_value:"verbose_name" as verbose_name and backend.type|get_crud_type_verbose as type %}Get Infopath form for "{{ type }} {{ verbose_name }}"{% endblocktrans %}
 </a>

@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 import re
+import logging
 
 from django.contrib.auth.models import User
 from django.db import IntegrityError
@@ -29,6 +30,7 @@ from creme_config.models.setting import SettingValue
 
 from creme_core.utils.dates import get_dt_from_str
 from creme_core.utils.meta import is_date_field
+from crudity.backends import ImproperlyConfiguredBackend
 
 from persons.models.contact import Contact
 
@@ -57,8 +59,24 @@ class CreateFromEmailBackend(object):
     blocks          = (WaitingActionBlock, )#Rendered blocks
 
     def __init__(self):
+        self._check_configuration()
         self.body_map.update({'password': self.password})
         self._sandbox_by_user = None
+
+    def _check_configuration(self):
+        """Check if declared fields exists in the model
+        TODO: Check the requirement, default value ?
+        """
+        if self.is_configured:
+            model = self.model
+            for field_name in self.body_map.iterkeys():
+                try:
+                    return model._meta.get_field(field_name)
+                except FieldDoesNotExist, e:
+                    for field in model._meta.fields:
+                        if field.get_attname() == field_name:
+                            return field
+                    raise ImproperlyConfiguredBackend(e)
 
     def _get_is_sandbox_by_user(self):
         if self._sandbox_by_user is None:
@@ -146,6 +164,8 @@ class CreateFromEmailBackend(object):
                 self._create(data, email.senders[0])
 
     def _create(self, data, sender):
+        data.pop("password", None)
+
         if self.in_sandbox:
             action         = WaitingAction()
             action.data    = action.set_data(data)
@@ -209,7 +229,7 @@ class CreateFromEmailBackend(object):
             history.description = _(u"Creation of %(entity)s") % {'entity': instance}
             history.save()
         except IntegrityError, e:
-            print e
+            logging.error(e)
             is_created = False
 
         return is_created
@@ -223,7 +243,7 @@ class CreateFromEmailBackend(object):
 
     @property
     def is_configured(self):
-        return self.subject and self.body_map
+        return bool(self.subject and self.body_map)
 
 class DropFromEmailBackend(object):
     type = None
