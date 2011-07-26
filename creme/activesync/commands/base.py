@@ -17,10 +17,11 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from collections import defaultdict
+from httplib import socket
 
 import restkit.errors
-from httplib import socket
 
 from django.conf import settings
 from django.template.loader import render_to_string
@@ -29,10 +30,9 @@ from activesync.errors import SYNC_ERR_FORBIDDEN, CremeActiveSyncError, SYNC_ERR
 from activesync.models.active_sync import UserSynchronizationHistory, CREATE, UPDATE, DELETE, IN_CREME, ON_SERVER
 from activesync.wbxml.dtd import AirsyncDTD_Reverse, AirsyncDTD_Forward
 from activesync.wbxml.codec import WBXMLEncoder, WBXMLDecoder, prettify
-
 from activesync.connection import Connection
-
 from activesync.messages import _INFO, _ERROR, _SUCCESS, MessageInfo, MessageSucceed, MessageError
+
 
 ACTIVE_SYNC_DEBUG = settings.ACTIVE_SYNC_DEBUG
 
@@ -43,17 +43,17 @@ class Base(object):
     decoder       = lambda s, x : WBXMLDecoder(AirsyncDTD_Forward).decode(x) # wbxml to xml decoder
 
     def __init__(self, url, login, pwd, device_id, user):
-        self.url       = url
-        self.user      = user
-        self.login  = login
-        self.password  = pwd
+        self.url = url
+        self.user = user
+        self.login = login
+        self.password = pwd
         self.device_id = device_id
-        self._data     = {
-            'debug': {
-                'xml': [],
-                'errors': [],
-            },
-        }
+        self._data = {
+                        'debug': {
+                                    'xml':    [],
+                                    'errors': [],
+                                 },
+                     }
         self._messages = defaultdict(list)
 
     ###### UI helpers #######

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,6 @@
 from datetime import date
 from os.path import join, dirname, abspath
 from xml.etree.ElementTree import XML, tostring
-from creme_core.tests.base import CremeTestCase
 
 try:
     from cStringIO import StringIO
@@ -33,13 +32,15 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.files import File
 
-from creme_core.models.relation import Relation, RelationType
+from creme_core.models import Relation, RelationType
+from creme_core.tests.base import CremeTestCase
+
+from persons.models import Address, Contact, Organisation, Civility
+from persons.constants import REL_SUB_EMPLOYED_BY
 
 from activesync.mappings.utils import serialize_entity
 from activesync.mappings.contact import CREME_CONTACT_MAPPING
 
-from persons.models import Address, Contact, Organisation, Civility
-from persons.constants import REL_SUB_EMPLOYED_BY
 
 DEFAULT_CHUNK_SIZE = File.DEFAULT_CHUNK_SIZE
 
@@ -50,7 +51,6 @@ class MappingTestCase(CremeTestCase):
 
     def _open_n_read(self, filename, mode='r'):
         path = join(self.xml_path, filename)
-
         content = StringIO()
 
         with open(path, mode) as f:
@@ -68,43 +68,43 @@ class MappingTestCase(CremeTestCase):
         user = User.objects.create(username='user')
 
         civility = Civility.objects.create(title='Mister')
-        contact = Contact()
-        contact.first_name = "Creme"
-        contact.last_name  = "Fulbert"
-        contact.civility   = civility
-        contact.skype      = "skype_number"
-        contact.phone      = "+33 000000000"
-        contact.mobile     = "+33 000000001"
-        contact.email      = "fulbert@creme.com"
-        contact.url_site   = "http://creme.com"
-        contact.birthday   = date(year=2011, month=01, day=02)
-        contact.user       = user
-        contact.save()
+        contact = Contact.objects.create(
+                            first_name="Creme",
+                            last_name="Fulbert",
+                            civility=civility,
+                            skype="skype_number",
+                            phone="+33 000000000",
+                            mobile="+33 000000001",
+                            email="fulbert@creme.com",
+                            url_site="http://creme.com",
+                            birthday=date(year=2011, month=01, day=02),
+                            user=user,
+                    )
 
-        contact.billing_address = Address.objects.create(**{
-            'name':       'Billing Address',
-            'address':    'Hybird office',
-            'po_box':     '13000',
-            'city':       'Marseille',
-            'state':      'state',
-            'zipcode':    'zip code',
-            'country':    'France',
-            'department': u'Bouches-du-rhône',
-            'content_type_id': ContentType.objects.get_for_model(Contact).id,
-            'object_id': contact.id
-         })
-        contact.shipping_address = Address.objects.create(**{
-            'name':       'Shipping Address',
-            'address':    'Hybird office',
-            'po_box':     '13000',
-            'city':       'Marseille',
-            'state':      'state',
-            'zipcode':    'zip code',
-            'country':    'France',
-            'department': u'Bouches-du-rhône',
-            'content_type_id': ContentType.objects.get_for_model(Contact).id,
-            'object_id': contact.id
-         })
+        contact.billing_address = Address.objects.create(
+                name='Billing Address',
+                address='Hybird office',
+                po_box='13000',
+                city='Marseille',
+                state='state',
+                zipcode='zip code',
+                country='France',
+                department=u'Bouches-du-rhône',
+                content_type_id=ContentType.objects.get_for_model(Contact).id,
+                object_id=contact.id
+             )
+        contact.shipping_address = Address.objects.create(
+                name='Shipping Address',
+                address='Hybird office',
+                po_box='13000',
+                city='Marseille',
+                state='state',
+                zipcode='zip code',
+                country='France',
+                department=u'Bouches-du-rhône',
+                content_type_id=ContentType.objects.get_for_model(Contact).id,
+                object_id=contact.id
+            )
         contact.save()
 
         organisation = Organisation.objects.create(name='Hybird', user=user)

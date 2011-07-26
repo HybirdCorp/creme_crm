@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.conf import settings
 from restkit import Resource, BasicAuth, set_logging
+
+from django.conf import settings
+
 
 #set_logging("debug")
 set_logging("error")
@@ -28,10 +30,11 @@ set_logging("error")
 class Connection(Resource):
     def __init__(self,  url, pool_instance=None, **kwargs):
         super(Connection, self).__init__(url, follow_redirect=True,
-                                        max_follow_redirect=10,
-                                        pool_instance=pool_instance,
-                                        timeout=settings.CONNECTION_TIMEOUT,
-                                        **kwargs)
+                                         max_follow_redirect=10,
+                                         pool_instance=pool_instance,
+                                         timeout=settings.CONNECTION_TIMEOUT,
+                                         **kwargs
+                                       )
 
     def post(self, path=None, payload=None, headers=None, cmd="", device_id=None, device_type="SmartPhone", **params):
         min_headers = {
@@ -49,7 +52,10 @@ class Connection(Resource):
         if headers:
             min_headers.update(headers)
 
-        return super(Connection, self).post(path=path, payload=payload, headers=min_headers, Cmd=cmd, DeviceId=device_id, DeviceType=device_type, **params)
+        return super(Connection, self).post(path=path, payload=payload, headers=min_headers,
+                                            Cmd=cmd, DeviceId=device_id, DeviceType=device_type,
+                                            **params
+                                           )
 
     @staticmethod
     def create(url, user, pwd, *args, **kwargs):
@@ -63,4 +69,3 @@ class Connection(Resource):
 
     def send(self, cmd, content, device_id, *args, **kwargs):
         return self.post(cmd=cmd, payload=content, device_id=device_id, *args, **kwargs).body_string()
-

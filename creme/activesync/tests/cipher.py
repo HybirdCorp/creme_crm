@@ -20,9 +20,11 @@
 
 import random
 
-from activesync.cipher import Cipher
-from creme_config.models.setting import SettingValue, SettingKey
 from creme_core.tests.base import CremeTestCase
+
+from creme_config.models import SettingValue, SettingKey
+
+from activesync.cipher import Cipher
 
 
 class CipherTestCase(CremeTestCase):
@@ -41,19 +43,19 @@ class CipherTestCase(CremeTestCase):
         ciphertext = Cipher.encrypt(text)
         self.assertEqual(text, Cipher.decrypt(ciphertext))
 
-        text = "".join([str(i) for i in xrange(50)])
+        text = "".join(str(i) for i in xrange(50))
         ciphertext = Cipher.encrypt(text)
         self.assertEqual(text, Cipher.decrypt(ciphertext))
 
     def test_cipher04(self):
         for i in xrange(143):
-            text = ''.join(chr(random.randint(0, 0xFF)) for i in range(i))#Test with text with not always the same length
+            text = ''.join(chr(random.randint(0, 0xFF)) for i in xrange(i))#Test with text with not always the same length
             ciphertext = Cipher.encrypt(text)
             self.assertEqual(text, Cipher.decrypt(ciphertext))
 
     def test_cipher05(self):
         for i in xrange(143):
-            text = ''.join(chr(random.randint(0, 255)) for i in range(i))#Test with text with not always the same length
+            text = ''.join(chr(random.randint(0, 255)) for i in xrange(i))#Test with text with not always the same length
             ciphertext = Cipher.encrypt(text)
             self.assertEqual(text, Cipher.decrypt(ciphertext))
 
@@ -64,7 +66,7 @@ class CipherTestCase(CremeTestCase):
 
     def test_cipher_for_db02(self):
         for i in xrange(143):
-            text = ''.join(chr(random.randint(0, 255)) for i in range(i))#Test with text with not always the same length
+            text = ''.join(chr(random.randint(0, 255)) for i in xrange(i))#Test with text with not always the same length
             ciphertext = Cipher.encrypt_for_db(text)
             self.assertEqual(text, Cipher.decrypt_from_db(ciphertext))
 
@@ -73,9 +75,7 @@ class CipherTestCase(CremeTestCase):
         password = "my password"
         skey_id = 'CipherTestCase-test_ciphered_setting_value01'
         skey = SettingKey.objects.create(id=skey_id, type=SettingKey.STRING)
-
-        sv = SettingValue.objects.get_or_create(key_id=skey, user=self.user)[0]
-
+        sv = SettingValue.objects.get_or_create(key=skey, user=self.user)[0]
         self.assertEqual(1, SettingValue.objects.count())
 
         sv.value = Cipher.encrypt_for_db(password)
@@ -83,5 +83,3 @@ class CipherTestCase(CremeTestCase):
 
         sv = SettingValue.objects.get(key=skey, user=self.user)
         self.assertEqual(password, Cipher.decrypt_from_db(sv.value))
-
-
