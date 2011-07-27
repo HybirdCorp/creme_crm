@@ -454,7 +454,7 @@ entity
         backend.create(PopEmail(body=u"password=creme\nuser_id=%s\ncreated=01/02/2003\n" % (user.id,), senders=('other_user@cremecrm.com',), subject="create_ce"))
         self.assertEqual(0, WaitingAction.objects.count())
         self.assertEqual(ce_count + 1, CremeEntity.objects.count())
-        self.assertEqual(1, History.objects.filter(user=contact_other_user).count())
+        self.assertEqual(1, History.objects.filter(user=other_user).count())
         self.assertEqual(0, History.objects.filter(user=None).count())
 
         try:
