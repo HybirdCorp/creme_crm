@@ -1,16 +1,48 @@
 {% load i18n %}
 {% load media %}
-{% load creme_block %}{% load creme_core_tags %}
+{% load creme_block creme_core_tags creme_widgets %}
 {% load crudity_tags %}
+<style type="text/css">
+    {% comment %}Generify this{% endcomment %}
+    .email_header_block
+    {
+        background: url({% get_image_path_for_ctype email_ct 'normal' %}) no-repeat;
+        width: 48px;
+        height:48px;
+    }
+
+    .email_header_block img
+    {
+        float: right;
+        position: relative;
+        top: 14px;
+    }
+</style>
 {% with 4 as colspan %}
     <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
-        <thead>
-            <tr>
-                <th colspan="{{colspan}}">
-                    {% blocktrans count page.paginator.count as counter with ct.name as ct_name and type|get_crud_type_verbose as type %}{{counter}} History item - {{ct_name}} - {{type}}{% plural %}{{counter}} History items - {{ct_name}} - {{type}}{% endblocktrans %}
-                </th>
-            </tr>
-        </thead>
+        {% get_block_header colspan=colspan %}
+            <th style="width: 80%;" class="collapser" align="left">
+                <table cellspacing="0" cellpadding="0">
+                    <tbody>
+                        <tr>
+                            <th class="email_header_block">{% get_image_for_ctype ct 'small' %}
+                                </th>
+                            <th>{% blocktrans count page.paginator.count as counter with ct.name as ct_name and type|get_crud_type_verbose as type %}{{counter}} History item - {{ct_name}} - {{type}}{% plural %}{{counter}} History items - {{ct_name}} - {{type}}{% endblocktrans %}</th>
+                        </tr>
+                    </tbody>
+                </table>
+            </th>
+            <th style="width: 20%;" align="right">
+                <div class="buttons"></div>
+            </th>
+        {% end_get_block_header %}
+{#        <thead>#}
+{#            <tr>#}
+{#                <th colspan="{{colspan}}">#}
+{#                    {% blocktrans count page.paginator.count as counter with ct.name as ct_name and type|get_crud_type_verbose as type %}{{counter}} History item - {{ct_name}} - {{type}}{% plural %}{{counter}} History items - {{ct_name}} - {{type}}{% endblocktrans %}#}
+{#                </th>#}
+{#            </tr>#}
+{#        </thead>#}
         <tbody class="collapsable">
             {% if page.paginator.count %}
                 <tr>

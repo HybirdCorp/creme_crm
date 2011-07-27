@@ -107,6 +107,7 @@ class HistoryBlock(CrudityQuerysetBlock):
                                                             histories,
                                                             type=type,
                                                             ct=ct,
+                                                            email_ct=ContentType.objects.get_for_model(EntityEmail),
                                                             update_url='/crudity/history_block/%s/reload' % (self.id_,),
                                                            ))
 

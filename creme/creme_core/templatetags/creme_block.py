@@ -66,7 +66,8 @@ def do_block_header(parser, token):
         raise TemplateSyntaxError("%r tag argument is on the model: %s12" % (tag_name, _COLSPAN_ARG))
 
     try:
-        colspan = int(arg[len(_COLSPAN_ARG):])
+#        colspan = int(arg[len(_COLSPAN_ARG):])
+        colspan = TemplateLiteral(parser.compile_filter(arg[len(_COLSPAN_ARG):]), arg[len(_COLSPAN_ARG):])
     except Exception, e:
         raise TemplateSyntaxError(str(e))
 
@@ -83,7 +84,7 @@ class HeaderNode(TemplateNode):
 
     def render(self, context):
         context['content'] = self.nodelist.render(context)
-        context['colspan'] = self.colspan
+        context['colspan'] = self.colspan.eval(context)
 
         return self.header_tpl.render(context)
 
