@@ -282,7 +282,6 @@ class InfopathFormBuilder(object):
         final_files_paths = (path_join(backend_path, cab_file) for cab_file in chain(cab_files.iterkeys(), media_files))
         infopath_form_filepath = path_join(backend_path, "%s.xsn" % self.backend.subject)
 
-        #TODO:Windows
         if sys.platform.startswith('win'):
             ddf_file_content = render_to_string("crudity/infopath/create_template/create_cab.ddf",
                                                 {
@@ -307,7 +306,9 @@ class InfopathFormBuilder(object):
                 f.write(cabify_content)
 
             subprocess.call([cabify_path])
-
+            #clean because  .Set GenerateInf=off doesn't seems to work...
+            os.unlink(path_join(settings.CREME_ROOT, "setup.inf"))
+            os.unlink(path_join(settings.CREME_ROOT, "setup.rpt"))
         else:
             subprocess.call(chain(["lcab", "-qn"], final_files_paths, [infopath_form_filepath]))
 

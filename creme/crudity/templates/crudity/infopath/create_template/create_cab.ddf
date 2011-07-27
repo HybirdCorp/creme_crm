@@ -6,7 +6,7 @@
 .Set CompressionType=MSZIP;** All files are compressed in cabinet files
 .Set UniqueFiles="ON"
 .Set Cabinet=on
-.Set DiskDirectory1=.
+.Set DiskDirectory1={{backend_path}}
 "{{backend_path}}\creme.png"
 "{{backend_path}}\manifest.xsf"
 "{{backend_path}}\myschema.xsd"
