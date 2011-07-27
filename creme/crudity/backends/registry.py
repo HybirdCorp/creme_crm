@@ -62,7 +62,7 @@ class FromEmailCRUDRegistry(object):
             if creates.has_key(name):
                 if name == "*":
                     raise NotValidFromEmailCRUDBackend("Only one fallback backend allowed")
-                else:
+                elif backend.is_configured:
                     warning("Duplicate create CRUD backend or backend registered twice : %s", name) #exception instead ???
 
             creates[name] = backend
