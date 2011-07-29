@@ -187,6 +187,7 @@ INSTALLED_APPS = (
     'creme.tickets',
     #'creme.cti',
     'creme.activesync',
+    'creme.vcfs',
 )
 
 from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
@@ -504,6 +505,9 @@ PICTURE_LIMIT_SIZE = 55000 #E.g: 55Ko Active sync servers don't handle pictures 
 
 #CTI ---------------------------------------------------------------------------
 ABCTI_URL = 'http://127.0.0.1:8087'
+
+#VCF ---------------------------------------------------------------------------
+VCF_IMAGE_MAX_SIZE = 3145728 #Limit size (byte) of remote photo files (i.e : when the photo in the vcf file is just a url)
 
 #APPS CONFIGURATION [END]#######################################################
 

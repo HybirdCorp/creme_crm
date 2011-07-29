@@ -43,6 +43,7 @@ urlpatterns = patterns('',
     (r'^tickets/',        include('creme.tickets.urls')),
     (r'^activesync/',     include('creme.activesync.urls')),
     (r'^cti/',            include('creme.cti.urls')),
+    (r'^vcfs/',           include('creme.vcfs.urls')),
 
     (r'^admin/(.*)', include(admin.site.urls)),
 )
