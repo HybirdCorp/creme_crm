@@ -9,7 +9,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import RelationType, Relation, CremePropertyType, CremeProperty, SetCredentials
-from creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_RELATED_TO
+from creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_HAS
 from creme_core.models.entity import CremeEntity
 from creme_core.tests.base import CremeTestCase
 
@@ -1436,7 +1436,7 @@ class BillingTestCase(CremeTestCase):
 
         ce = CremeEntity.objects.create(user=self.user)
 
-        Relation.objects.create(subject_entity=invoice, object_entity=ce, type_id=REL_SUB_RELATED_TO, user=self.user)
+        Relation.objects.create(subject_entity=invoice, object_entity=ce, type_id=REL_SUB_HAS, user=self.user)
 
         self.assertRaises(ProtectedError, invoice.delete)
 
