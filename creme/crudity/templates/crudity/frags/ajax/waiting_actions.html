@@ -4,10 +4,10 @@
 <table class="table_header" cellpadding="0" cellspacing="0">
     <tr>
         <td width="5%"><img src="{% media_url 'images/email_64.png' %}" alt="{% trans "Waiting actions" %}"/></td>
-        <td width="70%"><h1>{{frontend_verbose}} - {% trans "Waiting actions" %}</h1></td>
+        <td width="70%"><h1>{% trans "Waiting actions" %}</h1></td>
         <td width="25%" align="right">
             <span>
-                <a onclick="creme.reload_synchronisation($('#sub_content'), '/crudity/email/waiting_actions');">
+                <a onclick="creme.reload_synchronisation($('#sub_content'), '/crudity/waiting_actions');">
                     <img src="{% media_url 'images/refresh_64.png' %}" title="{% trans "Refresh" %}" alt="{% trans "Refresh" %}"/>
                 </a>&nbsp;
             </span>
@@ -15,7 +15,7 @@
     </tr>
 </table>
 {% for waiting_block in blocks %}
-    {{waiting_block}}
+    {{waiting_block|safe}}
 {% endfor %}
 
 {% get_blocks_dependencies %}

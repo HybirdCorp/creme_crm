@@ -18,8 +18,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#Used as a multiline delimiter. /!\ They have to have the same length
-LEFT_MULTILINE_SEP  = '[['
-RIGHT_MULTILINE_SEP = ']]'
+from collections import defaultdict
 
-SETTING_CRUDITY_SANDBOX_BY_USER = 'crudity-crudity_sandbox_by_user'
+class CrudityFetcher(object):
+    def __init__(self, *args, **kwargs):
+        self._inputs = defaultdict(dict)
+
+    def register_inputs(self, *inputs):
+        for input in inputs:
+            self._inputs[input.name][input.method] = input
+
+    def fetch(self, *args, **kwargs):
+        """Make the fetcher do his job.
+            @returns: iterable of fetcher managed type (i.e: emails objects for email fetcher for example).
+        """
+        pass
+
+

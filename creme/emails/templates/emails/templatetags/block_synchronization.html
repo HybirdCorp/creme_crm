@@ -19,7 +19,7 @@
         </th>
         <th style="width: 10%;" align="right">
             <div class="buttons">
-                <a class="negative" onclick="creme.emails.mass_action('/creme_core/delete_js', '[name=select_one]:checked', {% get_block_reload_uri %});">
+                <a class="negative" onclick="creme.emails.mass_action('/creme_core/delete_js', '[name=select_one]:checked', {% get_block_reload_uri %}, null, function(v){return v.join(',')});">
                     <img src="{% media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}" />
                     {% trans "Delete" %}
                 </a>
@@ -30,4 +30,16 @@
             </div>
         </th>
     {% end_get_block_header %}
+{% endblock %}
+
+{% block mail_action %}
+    <a class="negative" onclick="creme.emails.mass_action('/emails/mail/spam', 'input[name=select_one][value={{ mail.id }}]', {% get_block_reload_uri %});" style="cursor: pointer;">
+        <img src="{% media_url 'images/spam_22.png' %}" border="0" title="{% trans "Mark as spam" %}" alt="{% trans "Mark as spam" %}" />
+    </a>
+    <a onclick="creme.emails.mass_action('/emails/mail/validated', 'input[name=select_one][value={{ mail.id }}]', {% get_block_reload_uri %});" style="cursor: pointer;">
+        <img src="{% media_url 'images/jewel_ok_22.png' %}" border="0" title="{% trans "Mark as treated" %}" alt="{% trans "Mark as treated" %}" />
+    </a>
+    <a onclick="creme.emails.mass_relation('/creme_core/relation/add_to_entities/{{entityemail_ct_id}}/{{rtypes}}/', 'input[name=select_one][value={{ mail.id }}]', {% get_block_reload_uri %});" style="cursor: pointer;">
+        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Link to" %}" alt="{% trans "Link to" %}" />
+    </a>
 {% endblock %}

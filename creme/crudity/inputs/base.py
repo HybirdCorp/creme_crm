@@ -18,8 +18,38 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#Used as a multiline delimiter. /!\ They have to have the same length
-LEFT_MULTILINE_SEP  = '[['
-RIGHT_MULTILINE_SEP = ']]'
+class CrudityInput(object):
+    name   = u""
+    method = u""
 
-SETTING_CRUDITY_SANDBOX_BY_USER = 'crudity-crudity_sandbox_by_user'
+    verbose_name   = u""
+    verbose_method = u""
+
+    def __init__(self):
+        self.backends = {}
+        self._buttons = []
+
+    def add_backend(self, backend):
+        backend.add_buttons(*self._buttons)
+        self.backends[backend.subject] = backend
+
+    def get_backends(self):
+        return self.backends.values()
+
+    def get_backend(self, subject):
+        return self.backends.get(subject)
+
+    def handle(self, data):
+        """Call the method of the Input defined in subclasses
+         @return: True if data were used else False
+        """
+        if hasattr(self, self.method):
+            return getattr(self, self.method)(data)
+        return False
+
+    def register_buttons(self, *buttons):
+        self._buttons.extend(buttons)
+
+    def authorize_senders(self, backend, senders):
+        return not backend.limit_froms or set(senders) & set(backend.limit_froms)
+

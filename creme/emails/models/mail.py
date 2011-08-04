@@ -46,8 +46,6 @@ from django.template.loader import render_to_string
 from creme_core.models import CremeModel, CremeEntity, Relation
 from creme_core.views.file_handling import handle_uploaded_file
 
-from crudity.fetchers.pop import pop_frontend
-
 from documents.models import Document, Folder, FolderCategory
 from documents.constants import REL_OBJ_RELATED_2_DOC
 

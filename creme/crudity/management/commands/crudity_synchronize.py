@@ -18,17 +18,32 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.core.management.base import BaseCommand
 
-from creme_core.registry import creme_registry
-from creme_core.gui.menu import creme_menu
 
+LOCK_NAME = "crudity_synchronization"
 
-creme_registry.register_app("crudity", _(u'External data management'), '/crudity')
+#NB: python manage.py crudity_synchronize
 
-reg_item = creme_menu.register_app("crudity", '/crudity/').register_item
-#reg_item('/crudity/',                       _(u'Portal'))
-reg_item('/crudity/waiting_actions',  _(u'Email waiting actions'), 'crudity')
-reg_item('/crudity/history',                _(u'History'),               'crudity')
+class Command(BaseCommand):
+    help = "Synchronize all externals source sent to Creme into Creme."
 
+    def handle(self, *args, **options):
+        from creme_core.models.lock import Mutex, MutexLockedException
+        from crudity.views.actions import _fetch
+        try:
+            lock = Mutex.get_n_lock(LOCK_NAME)
+        except MutexLockedException, e:
+            print 'A process is already running'
+        else:
+            try:
+                user = User.objects.get(pk=settings.CREME_GET_EMAIL_JOB_USER_ID)
+                print "There are %s new item(s)" % _fetch(user)
+
+            except User.DoesNotExist:
+                pass
+        finally:
+            Mutex.graceful_release(LOCK_NAME)
 

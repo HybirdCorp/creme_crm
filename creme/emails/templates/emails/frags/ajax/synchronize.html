@@ -19,7 +19,7 @@
         </td>
     </tr>
 </table>
-<div class="help_box">{% blocktrans count messages_count as msg_count %}{{msg_count}} new message{% plural %}{{msg_count}} new messages{% endblocktrans %}<br/></div>
+{#<div class="help_box">{% blocktrans count messages_count as msg_count %}{{msg_count}} new message{% plural %}{{msg_count}} new messages{% endblocktrans %}<br/></div>#}
 
 {% import_block from_app 'emails' named 'waiting_synchronisation' as 'waiting_synchronisation_block' %}
 {% import_block from_app 'emails' named 'synchronised_as_spam' as 'synchronised_as_spam_block' %}

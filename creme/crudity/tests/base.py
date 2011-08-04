@@ -1,13 +1,35 @@
 # -*- coding: utf-8 -*-
 
-from creme_core.tests.base import CremeTestCase
-from creme_core.models.entity import CremeEntity
-
 from creme_config.models.setting import SettingValue
-from crudity.backends.email.create.base import CreateFromEmailBackend
+
+from creme_core.tests.base import CremeTestCase
+from persons.models import Contact, Organisation
+
+from documents.models import Document
 
 from crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
+from crudity.backends.models import CrudityBackend
+from crudity.fetchers.base import CrudityFetcher
+from crudity.inputs.base import CrudityInput
 
+class FakeFetcher(CrudityFetcher):
+    pass
+
+
+class FakeInput(CrudityInput):
+    pass
+
+
+class ContactFakeBackend(CrudityBackend):
+    model = Contact
+
+
+class OrganisationFakeBackend(CrudityBackend):
+    model = Organisation
+
+
+class DocumentFakeBackend(CrudityBackend):
+    model = Document
 
 class CrudityTestCase(CremeTestCase):
     def setUp(self):
@@ -18,13 +40,3 @@ class CrudityTestCase(CremeTestCase):
         sv = SettingValue.objects.get(key=SETTING_CRUDITY_SANDBOX_BY_USER, user=None)
         sv.value = "True"
         sv.save()
-
-    def _get_create_from_email_backend(self, password="", in_sandbox=True, subject="", model=CremeEntity, body_map={}, limit_froms=(), backend_klass=CreateFromEmailBackend):
-        backend = backend_klass()
-        backend.password = password
-        backend.in_sandbox = in_sandbox
-        backend.subject = subject
-        backend.model = model
-        backend.body_map = body_map
-        backend.limit_froms = limit_froms
-        return backend

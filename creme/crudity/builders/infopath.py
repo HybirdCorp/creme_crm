@@ -26,6 +26,8 @@ from functools import partial
 import subprocess
 from tempfile import gettempdir
 from itertools import chain
+from unicodedata import normalize
+from crudity.backends.models import CrudityBackend
 
 try:
     from cStringIO import StringIO
@@ -40,11 +42,11 @@ from django.template.loader import render_to_string
 from django.template.context import RequestContext
 from django.http import HttpResponse
 from django.template import TemplateDoesNotExist
+from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import fields
 from creme_core.utils.meta import is_date_field
 
-from crudity import VERBOSE_CRUD
 from crudity.utils import generate_guid_for_field
 
 from media_managers.models.image import Image
@@ -318,7 +320,7 @@ class InfopathFormBuilder(object):
 
     def render(self):
         response =  HttpResponse(self._render(), mimetype="application/vnd.ms-infopath")
-        response['Content-Disposition'] = 'attachment; filename=%s.xsn' % self.backend.verbose_filename
+        response['Content-Disposition'] = 'attachment; filename=%s.xsn' % normalize('NFKD', unicode(CrudityBackend.normalize_subject(self.backend.subject))).encode('ascii', 'ignore')
         return response
 
     def _render_manifest_xsf(self, request):
@@ -366,6 +368,6 @@ class InfopathFormBuilder(object):
                         {
                             'creme_namespace': self.namespace,
                             'fields':          self.fields,
-                            'form_title':      u"%s %s" % (VERBOSE_CRUD.get(backend.type), backend.model._meta.verbose_name)
+                            'form_title':      u"%s %s" % (_(u"Create"), backend.model._meta.verbose_name)
                         },
                         context_instance=RequestContext(request))
