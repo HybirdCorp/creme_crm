@@ -18,16 +18,4 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
 
-CREATE = 1
-READ   = 2
-UPDATE = 3
-DELETE = 4
-
-VERBOSE_CRUD = {
-    CREATE : _(u"Create"),
-    READ   : _(u"Read"),
-    UPDATE : _(u"Update"),
-    DELETE : _(u"Delete"),
-}

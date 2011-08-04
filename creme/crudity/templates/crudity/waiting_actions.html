@@ -1,7 +1,15 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
 
-{% block page_title %} - {{frontend_verbose}} - {% trans "Waiting actions" %}{% endblock %}
+{% block page_title %} - {% trans "Waiting actions" %}{% endblock %}
+
+{% block extrahead %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            creme.utils.bindShowHideTbody();
+        });
+    </script>
+{% endblock %}
 
 {% block content %}
     {% include "crudity/frags/ajax/waiting_actions.html" %}

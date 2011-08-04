@@ -18,35 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.conf import settings
-from django.contrib.auth.models import User
-from django.core.management.base import BaseCommand
+from activities.models.activity import Meeting
 
+from crudity.backends.models import CrudityBackend
 
-LOCK_NAME = "synchronizing_emails"
+class MeetingBackend(CrudityBackend):
+    model = Meeting
 
-#NB: python manage.py emails_synchronize
-
-class Command(BaseCommand):
-    help = "Synchronize all externals mails sent to Creme into Creme."
-
-    def handle(self, *args, **options):
-        from creme_core.models.lock import Mutex, MutexLockedException
-        from crudity.views.email import _fetch_emails
-
-        try:
-            lock = Mutex.get_n_lock(LOCK_NAME)
-
-        except MutexLockedException, e:
-            print 'A process is already running'
-
-        else:
-            try:
-                user = User.objects.get(pk=settings.CREME_GET_EMAIL_JOB_USER_ID)
-                print "There are %s new message(s)" % _fetch_emails(user)
-
-            except User.DoesNotExist:
-                pass
-        finally:
-            Mutex.graceful_release(LOCK_NAME)
-
+backends = [MeetingBackend, ]

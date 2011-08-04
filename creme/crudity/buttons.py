@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,4 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from create import CreateFromEmailBackend
+from creme_core.gui.button_menu import Button
+
+class InfopathCreateFormButton(Button):
+    id_           = Button.generate_id('crudity', 'infopath_create_form')
+    verbose_name  = u""
+    template_name = 'crudity/templatetags/button_infopath_create_form.html'
+
+infopath_create_form_button = InfopathCreateFormButton()
+
+

@@ -23,11 +23,21 @@ from crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
 
 def post_save_setting_value(sender, instance, **kwargs):
     """Set is_sandbox_by_user value on CreateFromEmailBackend subclasses because they are singletons"""
-    from crudity.backends.registry import from_email_crud_registry
+    from crudity.registry import crudity_registry
     from crudity.models import WaitingAction
 
     if instance.key_id == SETTING_CRUDITY_SANDBOX_BY_USER:
-        for backend in from_email_crud_registry.iter_creates_values():
+        fetchers = crudity_registry.get_fetchers()
+        inputs = []
+        for fetcher in fetchers:
+            for inputs_dict in fetcher.get_inputs():
+                inputs.extend(inputs_dict.values())
+
+        backends = []
+        for input in inputs:
+            backends.extend(input.get_backends())
+
+        for backend in backends:
             backend.is_sandbox_by_user = instance.value
 
         if instance.value:
