@@ -17,18 +17,21 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
+from django.http import HttpResponse, Http404
+from django.shortcuts import get_object_or_404, render_to_response, get_list_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.template.context import RequestContext
+from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 
 from creme_core.utils import get_ct_or_404, jsonify
+from crudity.backends.models import CrudityBackend
 
 from crudity.models.actions import WaitingAction
-from crudity.backends.registry import from_email_crud_registry
+from crudity.registry import crudity_registry
 from crudity.blocks import WaitingActionBlock
 
 def _retrieve_actions_ids(request):
@@ -60,19 +63,17 @@ def delete(request):
 @jsonify
 @permission_required('crudity')
 def validate(request):
-    for id in _retrieve_actions_ids(request):
-        action = get_object_or_404(WaitingAction, pk=id)
+    actions = get_list_or_404(WaitingAction, pk__in=_retrieve_actions_ids(request))
+
+    for action in actions:
         allowed, message = action.can_validate_or_delete(request.user)
 
         if not allowed:
             raise PermissionDenied(message)
 
-        be = from_email_crud_registry.get(action.type, action.be_name)
+        backend = crudity_registry.get_configured_backend(action.subject)
 
-        is_created = True
-
-        if be:
-            is_created = be.create_from_waiting_action_n_history(action)
+        is_created = backend.create(action)
 
         if is_created:
             action.delete()
@@ -83,10 +84,56 @@ def validate(request):
 
 @jsonify
 @permission_required('crudity')
-def reload(request, ct_id, waiting_type):
+def reload(request, ct_id, backend_subject):
     ct = get_ct_or_404(ct_id)
-    block = WaitingActionBlock(ct, waiting_type)
+    backend = crudity_registry.get_configured_backend(backend_subject)
+    if not backend:
+        raise Http404()
+
+    block = WaitingActionBlock(backend)
 
     ctx = RequestContext(request)
 
     return [(block.id_, block.detailview_display(ctx))]
+
+def _fetch(user):
+    count = 0
+    for fetcher in crudity_registry.get_fetchers():
+        all_data = fetcher.fetch()
+        inputs    = fetcher.get_inputs()
+        for data in all_data:
+            handled = False
+            for crud_inputs in inputs:
+                for input_type, input in crud_inputs.iteritems():
+                    handled = input.handle(data)
+                    if handled:
+                        break
+                if handled:
+                    count += 1
+                    break
+            if not handled:
+                default_backend = fetcher.get_default_backend()
+                if default_backend is not None:
+                    count += 1
+                    default_backend.fetcher_fallback(data, user)
+    return count
+
+@login_required
+@permission_required('crudity')
+def fetch(request, template="crudity/waiting_actions.html", ajax_template="crudity/frags/ajax/waiting_actions.html", extra_tpl_ctx=None, extra_req_ctx=None):
+    context = RequestContext(request)
+
+    if extra_req_ctx:
+        context.update(extra_req_ctx)
+
+    _fetch(request.user)
+
+    tpl_dict = {'blocks': ["".join(block(backend).detailview_display(context) for block in backend.blocks) or WaitingActionBlock(backend).detailview_display(context) for backend in crudity_registry.get_configured_backends() if backend.in_sandbox]}
+
+    if extra_tpl_ctx:
+        tpl_dict.update(extra_tpl_ctx)
+
+    if request.is_ajax():
+        return HttpResponse(render_to_string(ajax_template, tpl_dict, context_instance=context))
+
+    return render_to_response(template, tpl_dict, context_instance=context)

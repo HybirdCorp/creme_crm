@@ -421,72 +421,28 @@ CREME_GET_EMAIL_JOB_USER_ID  = None #Only for job. Default user id which will ha
 
 CREME_GET_EMAIL_JOB_USER_ID  = 1#User used to synchronize mails with management command
 
-from crudity import CREATE
-##Activities
-ACTIVITIES_MEETING_FROM_EMAIL_INFOPATH = {
-    CREATE: {
-        "password"   : u"",  #Password to be authorized in backend
-        "limit_froms": (),   #If recipient email's address not in this drop email, let empty to allow all email addresses
-        "in_sandbox" : True, #True : Show in sandbox & history, False show only in history (/!\ creation will be automatic if False)
-        "body_map"   : {     #Allowed keys format : "key": "default value"
-        },
-        "subject": u""       #Target subject, nb: in the subject all spaces will be deleted, and it'll be converted to uppercase
-    }
-}
+CRUDITY_BACKENDS = []#Configuration for backends (a list of dict)
 
-##Persons
-PERSONS_CONTACT_FROM_EMAIL = {
-    CREATE: {
-        "password"   : u"",  #Password to be authorized in backend
-        "limit_froms": (),   #If recipient email's address not in this drop email, let empty to allow all email addresses
-        "in_sandbox" : True, #True : Show in sandbox & history, False show only in history (/!\ creation will be automatic if False)
-        "body_map"   : {     #Allowed keys format : "key": "default value"
-        },
-        "subject": u""       #Target subject, nb: in the subject all spaces will be deleted, and it'll be converted to uppercase
-    }
-}
+#Here a template of a crudity backend configuration:
+#CRUDITY_BACKENDS = [
+#    {
+#        "fetcher": "email",            #The name of the fetcher (which is registered with)
+#        "input": "infopath",           #The name of the input (which is registered with)
+#        "method": "create",            #The method of the input to call
+#        "model": "activities.meeting", #The targeted model
+#        "password": "meeting",         #Password to be authorized in the input
+#        "limit_froms": (),             #A white list of sender (Example with an email: If a recipient email's address not in this drop email, let empty to allow all email addresses)
+#        "in_sandbox": True,            #True : Show in sandbox & history, False show only in history (/!\ creation will be automatic if False)
+#        "body_map"   : {               #Allowed keys format : "key": "default value".
+#            "title": "",               ## Key has to be a real field name of the model
+#            "user_id": 1,
+#        },
+#        "subject": u"CREATEACTIVITYIP" #Target subject, nb: in the subject all spaces will be deleted, and it'll be converted to uppercase.
+#                                       #You can specify * as a fallback (no previous backend handle the data returned by the fetcher, but be careful you're backend has to have the method:'fetcher_fallback').
+#    },
+#]
 
-PERSONS_CONTACT_FROM_EMAIL_INFOPATH = {
-    CREATE: {
-        "password"   : u"",  #Password to be authorized in backend
-        "limit_froms": (),   #If recipient email's address not in this drop email, let empty to allow all email addresses
-        "in_sandbox" : True, #True : Show in sandbox & history, False show only in history (/!\ creation will be automatic if False)
-        "body_map"   : {     #Allowed keys format : "key": "default value"
-        },
-        "subject": u""       #Target subject, nb: in the subject all spaces will be deleted, and it'll be converted to uppercase
-    }
-}
 
-PERSONS_ORGANISATION_FROM_EMAIL_INFOPATH = {
-    CREATE: {
-        "password"   : u"",  #Password to be authorized in backend
-        "limit_froms": (),   #If recipient email's address not in this drop email, let empty to allow all email addresses
-        "in_sandbox" : True, #True : Show in sandbox & history, False show only in history (/!\ creation will be automatic if False)
-        "body_map"   : {     #Allowed keys format : "key": "default value"
-        },
-        "subject": u""       #Target subject, nb: in the subject all spaces will be deleted, and it'll be converted to uppercase
-    }
-}
-
-##Documents
-DOCUMENTS_DOCUMENT_FROM_EMAIL_INFOPATH = {
-    CREATE: {
-        "password"   : u"",  #Password to be authorized in backend
-        "limit_froms": (),   #If recipient email's address not in this drop email, let empty to allow all email addresses
-        "in_sandbox" : True, #True : Show in sandbox & history, False show only in history (/!\ creation will be automatic if False)
-        "body_map"   : {     #Allowed keys format : "key": "default value"
-        },
-        "subject": u""       #Target subject, nb: in the subject all spaces will be deleted, and it'll be converted to uppercase
-    }
-}
-
-##Emails
-EMAILS_ENTITYEMAIL_FROM_EMAIL = {
-    CREATE: {
-        "limit_froms": (),   #If recipient email's address not in this drop email, let empty to allow all email addresses
-        "in_sandbox" : True, #True : Show in sandbox & history, False show only in history (/!\ creation will be automatic if False)
-    }
-}
 
 #ACTIVESYNC ------------------------------------------------------------------------
 #TODO: Rename and transform this into an AS-Version verification => A2:Body doesn't seems to work with AS version > 2.5

@@ -1,23 +1,23 @@
-# -*- coding: utf-8 -*-
-
-################################################################################
-#    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+## -*- coding: utf-8 -*-
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+#################################################################################
+##    Creme is a free/open-source Customer Relationship Management software
+##    Copyright (C) 2009-2010  Hybird
+##
+##    This program is free software: you can redistribute it and/or modify
+##    it under the terms of the GNU Affero General Public License as published by
+##    the Free Software Foundation, either version 3 of the License, or
+##    (at your option) any later version.
+##
+##    This program is distributed in the hope that it will be useful,
+##    but WITHOUT ANY WARRANTY; without even the implied warranty of
+##    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+##    GNU Affero General Public License for more details.
+##
+##    You should have received a copy of the GNU Affero General Public License
+##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#################################################################################
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
-
 import os
 from itertools import chain
 
@@ -26,44 +26,24 @@ from django.utils.translation import ugettext as _
 from creme_core.models import Relation
 from creme_core.views.file_handling import handle_uploaded_file
 
-from django.conf import settings
-
+from crudity.backends.models import CrudityBackend
+from crudity.inputs.base import CrudityInput
 from crudity.models import History
-from crudity import CREATE
-from crudity.backends.email import CreateFromEmailBackend
 
-from documents.models import Document, Folder, FolderCategory
 from documents.constants import REL_OBJ_RELATED_2_DOC, DOCUMENTS_FROM_EMAILS
+from documents.models import Document, Folder, FolderCategory
 
-from emails.models.mail import EntityEmail, MAIL_STATUS_SYNCHRONIZED_WAITING
 from emails.blocks import WaitingSynchronizationMailsBlock, SpamSynchronizationMailsBlock
+from emails.models.mail import EntityEmail, MAIL_STATUS_SYNCHRONIZED_WAITING
 
 
-create_email_settings = settings.EMAILS_ENTITYEMAIL_FROM_EMAIL.get(CREATE)
-
-CREATE_ENTITYEMAIL_LIMIT_FROMS = create_email_settings.get("limit_froms")
-CREATE_ENTITYEMAIL_IN_SANDBOX  = create_email_settings.get("in_sandbox", True)
-CREATE_ENTITYEMAIL_BODY_MAP    = create_email_settings.get("body_map", {})
-
-
-class CreateEntityEmailFromEmail(CreateFromEmailBackend):
-    """This backend is implemented as the default backend so there are no
-    password or subject verification
-    """
-    password        = None
-    limit_froms     = CREATE_ENTITYEMAIL_LIMIT_FROMS
-    in_sandbox      = CREATE_ENTITYEMAIL_IN_SANDBOX
-    body_map        = CREATE_ENTITYEMAIL_BODY_MAP
+class EntityEmailBackend(CrudityBackend):
     model           = EntityEmail
-    subject         = None
-    attachment_path = ['upload','emails','attachments']
     blocks          = (WaitingSynchronizationMailsBlock, SpamSynchronizationMailsBlock)
+    attachment_path = ['upload','emails','attachments']
 
-    #def __init__(self):
-        #super(CreateEntityEmailFromEmail, self).__init__()
-
-    def create(self, email, current_user):
-        if not self.authorize_senders(email.senders):
+    def fetcher_fallback(self, email, current_user, *args, **kwargs):
+        if not CrudityInput().authorize_senders(self, email.senders):
             return
 
         if self.is_sandbox_by_user:
@@ -109,14 +89,10 @@ class CreateEntityEmailFromEmail(CreateFromEmailBackend):
 
         history = History.objects.create(
             entity = mail,
-            type = self.type,
+            action = "create",
+            source = "email - raw",
             description = _(u"Creation of %(entity)s") % {'entity': mail},
             user = current_user
         )
 
-
-crud_register = {
-    CREATE: [
-        ("*", CreateEntityEmailFromEmail()),
-    ],
-}
+backends = [EntityEmailBackend, ]

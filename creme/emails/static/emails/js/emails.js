@@ -22,9 +22,17 @@
 
 creme.emails = {};
 
-creme.emails.mass_action = function(url, selector, block_url, complete_cb) {
+creme.emails.mass_action = function(url, selector, block_url, complete_cb, values_post_process_cb) {
     var values = $(selector).getValues();
 
+    if(values_post_process_cb && $.isFunction(values_post_process_cb)){
+        values = values_post_process_cb(values);
+    }
+
+    if(values.length == 0){
+        creme.utils.showDialog(gettext("Nothing is selected."));
+        return;
+    }
     creme.utils.ajaxDelete(url,
                            {'ids': values},
                            {

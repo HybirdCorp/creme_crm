@@ -19,15 +19,21 @@
 ################################################################################
 from django.contrib.auth.decorators import permission_required, login_required
 from django.http import Http404
-from crudity.backends.registry import from_email_crud_registry
+from crudity.backends.models import CrudityBackend
+from crudity.registry import crudity_registry
 from crudity.builders.infopath import InfopathFormBuilder
 
 @login_required
 @permission_required('crudity')
 def create_form(request, subject):
-    subject = subject.upper()
-    create_be = from_email_crud_registry.get_creates()
-    backend = create_be.get(subject)
+    subject = CrudityBackend.normalize_subject(subject)
+    backend = None
+
+    for fetcher in crudity_registry.get_fetchers():
+        input = fetcher.get_input('infopath', 'create')
+        if input is not None:
+            backend = input.get_backend(subject)
+            break
 
     if backend is None:
         raise Http404(u"This backend is not registered")

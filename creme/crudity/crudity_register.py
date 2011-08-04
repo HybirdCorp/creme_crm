@@ -18,8 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#Used as a multiline delimiter. /!\ They have to have the same length
-LEFT_MULTILINE_SEP  = '[['
-RIGHT_MULTILINE_SEP = ']]'
+from crudity.fetchers.pop import pop_fetcher
+from crudity.inputs.email import create_email_input, create_infopath_input
 
-SETTING_CRUDITY_SANDBOX_BY_USER = 'crudity-crudity_sandbox_by_user'
+
+fetchers = {"email": [pop_fetcher]}
+
+inputs = {"email": [create_email_input, create_infopath_input]}
+
+backends = []

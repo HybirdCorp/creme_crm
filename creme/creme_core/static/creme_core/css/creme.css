@@ -92,6 +92,11 @@ a {
     color: #22439f;
     text-decoration: none;
     background-color: transparent;
+    -webkit-transition: color .4s linear;
+	-moz-transition: color .4s linear;
+	-o-transition: color .4s linear;
+	-ms-transition: color .4s linear;
+	transition: color .4s linear;
 }
 
 a:hover {
@@ -185,6 +190,7 @@ td p {
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
     margin-left: 0.1em;
+    cursor: pointer;
 }
 
 .menu_button:first-child {
@@ -639,6 +645,7 @@ div.sidebar1separator2 {
 }
 
 .button_link:hover {
+    cursor: pointer;
     text-decoration: none;
     border: 1px solid #306075;
 }
@@ -971,4 +978,18 @@ textarea:disabled, textarea[readonly] {
 
 .collapser {
     cursor: pointer;
+}
+
+.zoom_box {
+	-webkit-transition: width 2s ease, height 2s ease;
+	-moz-transition: width 2s ease, height 2s ease;
+	-o-transition: width 2s ease, height 2s ease;
+	-ms-transition: width 2s ease, height 2s ease;
+	transition: width 2s ease, height 2s ease;
+}
+
+.zoom_box:active {
+	width: 200%;
+	height: 200%;
+    z-index: 2000;
 }

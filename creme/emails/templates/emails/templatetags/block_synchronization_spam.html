@@ -11,11 +11,17 @@
                     <img src="{% media_url 'images/email_22.png' %}" border="0" title="{% trans "Marked as 'to be treated'" %}" alt="{% trans "Marked as 'to be treated'" %}" />
                     {% trans "Marked as 'to be treated'" %}
                 </a>
-                <a class="negative" onclick="creme.emails.mass_action('/creme_core/delete_js', '[name=select_one]:checked', {% get_block_reload_uri %});">
+                <a class="negative" onclick="creme.emails.mass_action('/creme_core/delete_js', '[name=select_one]:checked', {% get_block_reload_uri %}, null, function(v){return v.join(',')});">
                     <img src="{% media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}" />
                     {% trans "Delete" %}
                 </a>
             </div>
         </th>
     {% end_get_block_header %}
+{% endblock %}
+
+{% block mail_action %}
+    <a onclick="creme.emails.mass_action('/emails/mail/waiting',  'input[name=select_one][value={{ mail.id }}]', {% get_block_reload_uri %});" style="cursor: pointer;">
+        <img src="{% media_url 'images/email_22.png' %}" border="0" title="{% trans "Marked as 'to be treated'" %}" alt="{% trans "Marked as 'to be treated'" %}" />
+    </a>
 {% endblock %}

@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from creme_core.tests.base import CremeTestCase
-from crudity.utils import decode_b64binary
+
+from crudity.utils import decode_b64binary, get_unicode_decoded_str
+from persons.models.contact import Contact
 
 
 class UtilsTestCase(CremeTestCase):
@@ -14,3 +16,30 @@ class UtilsTestCase(CremeTestCase):
         encoded_utf8_name = "x0lGQRQAAAABAAAAAAAAAHwCAAANAAAAcgDpAGcAZwDgAOgA6wB4AS4AcABuAGcAAACJUE5HDQoaCgAAAA1JSERSAAAAEAAAABAIBgAAAB/z/2EAAAAEc0JJVAgICAh8CGSIAAAACXBIWXMAAAG7AAABuwE67OPiAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAflJREFUOI2lkz1rVEEUht93zszc3ezNbqJighiVgGBjoU3Axp8g4k+wsLASbdRCgoViGTv/iVgarG1E8CvqQhLcqNlNsh9z78yx8CPJXkXBgVOcA+eZ9z1nhqqK/zl2vNB4lD1gQ06alpkSw+bs4Rl229vt1YvrF/4K4C2eOnp55tooBUsDlIPUe738tgli9k8KzL4sIStjVApgrYCAcAKAR/o3CxkaYqjiPaAKEoIGgCFE7vM6FEUCnuhNfflLtaqivlQ/f2hh+iFq2jIzZo4ky1CgCAWGX4erRRGL0C3Ijh5LPTyPV/XMPgU08Zyfd6eLUYCzgph2N2MacsQngor26EMABbEyg6Ib140hfN1DbGUx8LUMxgjYBPA7ABxylzlkma82e496rQYjdAjfSxWAKl/1VwbvBp2wBgXww4ERA+ctrLFIhTrtYxPbeLMXwL0vkbd59sSVuaeo6UQxCEhRtfPs80cGZdzSx2kD9/SurlQt7GZdVY0AIE5gEoLupOPRqU+buDHevA9Ako5uQodJQUCsAIoSAhjBEKsYVAa01wJBTi5OHuzb/iXXkgWZlnk1qTVaC+9tzy9ZsV8ojCTLGGKvj/4nvaMlx38jF2lz5AeijU5LdeKkiQiO3xwZe/lWvlEBVCQu0ufIpxRqfgYsaEpT7LzY6XwDj2HfXPP0DUgAAAAASUVORK5CYII="
         filename, blob = decode_b64binary(encoded_utf8_name)
         self.assertEqual(img_blob, blob)
+
+    def test_get_unicode_decoded_str01(self):
+        self.login()
+        payload = """password=contact
+                first_name=aaaaa
+                last_name=
+                email="""
+        s = get_unicode_decoded_str(payload, set(['iso-8859-1']))
+        self.assertEqual(payload, s)
+        try:
+            c = Contact.objects.create(user=self.user, first_name=s)
+        except Exception, e:
+            self.fail(e)
+
+    def test_get_unicode_decoded_str02(self):
+        self.login()
+        payload = """password=contact
+                first_name=éàè
+                last_name=
+                email="""
+        s = get_unicode_decoded_str(payload, set(['iso-8859-1']))
+        self.assertEqual(unicode, type(s))
+        try:
+            c = Contact.objects.create(user=self.user, first_name=s)
+        except Exception, e:
+            self.fail(e)
+

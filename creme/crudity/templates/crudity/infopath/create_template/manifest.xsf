@@ -87,7 +87,7 @@
 		<xsf:documentSchema rootSchema="yes" location="{{ creme_namespace }} myschema.xsd"></xsf:documentSchema>
 	</xsf:documentSchemas>
 	<xsf:fileNew>
-		<xsf:initialXmlDocument caption="create_contact" href="template.xml"></xsf:initialXmlDocument>
+		<xsf:initialXmlDocument caption="{{ form_name }}" href="template.xml"></xsf:initialXmlDocument>
 	</xsf:fileNew>{% comment %}
 	<xsf:listProperties>
 		<xsf:fields>

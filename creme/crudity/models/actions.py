@@ -20,28 +20,31 @@
 
 from base64 import encodestring, decodestring
 
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
+from pickle import loads, dumps
+
+from django.db.models.signals import post_save
 from django.db.models.fields import TextField, PositiveIntegerField, CharField
 from django.db.models.fields.related import ForeignKey
+from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.encoding import smart_str
-from django.db.models.signals import post_save
+#from django.utils.simplejson import loads, dumps
 
-from creme_core.models.base import CremeModel
 from creme_config.models.setting import SettingValue
+from creme_core.models.base import CremeModel
 from creme_core.models.fields import CremeUserForeignKey
 
-from crudity import VERBOSE_CRUD
 from crudity.signals import post_save_setting_value
 
 __all__ = ("WaitingAction",)
 
 class WaitingAction(CremeModel):
-    type    = PositiveIntegerField()
+    action  = CharField(_(u"Action"), max_length=100)#Action (i.e: create, update...)
+    source  = CharField(_(u"Source"), max_length=100)#Source (i.e: email raw, email from infopath, sms raw...)
     data    = TextField(blank=True, null=True)
     ct      = ForeignKey(ContentType, verbose_name=_(u"Ressource's type"), blank=False, null=False)#Redundant, but faster bd recovery
-    be_name = CharField(_(u"Backend's name"), max_length=100)#Backend's name with which he has registered
+    subject = CharField(_(u"Subject"), max_length=100)
     user    = CremeUserForeignKey(verbose_name=_(u"Owner"), blank=True, null=True, default=None)#Case of sandboxes are by user
 
     class Meta:
@@ -49,24 +52,17 @@ class WaitingAction(CremeModel):
         verbose_name = _(u"Waiting action")
         verbose_name_plural = _(u"Waiting actions")
 
-    def __unicode__(self):
-        return u"%s - %s" % (unicode(self._meta.verbose_name), VERBOSE_CRUD.get(self.type))
-
-    def set_data(self, data):#force data to be a dict...
-        _data = []
-        for k, v in data.items():
-            _data.append(u"%s:%s" % (k, encodestring(smart_str(v))))
-        return "#".join(_data)
-
     def get_data(self):
-        data = self.data
-        _data = {}
-        if data:
-            for d in data.split('#'):
-                k, v = d.split(':')
-                _data[k] = decodestring(v).decode('utf-8')
+        data = loads(self.data.encode('utf-8'))
+        if isinstance(data, dict):
+            d = {}
+            for k,v in data.iteritems():
+                d[k] = v.decode('utf8') if isinstance(v, basestring) else v
+            data = d
+        return data
 
-        return _data
+    def set_data(self, data):
+        return dumps(data)
 
     def can_validate_or_delete(self, user):
         """self.user not None means that sandbox is by user"""
