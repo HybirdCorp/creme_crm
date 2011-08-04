@@ -25,9 +25,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.utils import get_ct_or_404, jsonify
 
-from crudity.backends.registry import from_email_crud_registry
+from crudity.registry import crudity_registry
 from crudity.blocks import HistoryBlock
-
 
 @login_required
 @permission_required('crudity')
@@ -36,17 +35,16 @@ def history(request):
     context = RequestContext(request)
     get_ct  = ContentType.objects.get_for_model
 
-    for name, backend in from_email_crud_registry.iteritems(): #'name' unused....
+    for backend in crudity_registry.get_backends():
         bmodel = backend.model
-        btype  = backend.type
-        if btype and bmodel:
-            blocks.append(HistoryBlock(get_ct(bmodel), btype).detailview_display(context))
+        if bmodel:
+            blocks.append(HistoryBlock(get_ct(bmodel)).detailview_display(context))
 
-    return render_to_response("crudity/history.html", {'blocks': set(blocks)}, context_instance=context)
+    return render_to_response("crudity/history.html", {'blocks': blocks}, context_instance=context)
 
 @jsonify
 @login_required
 @permission_required('crudity')
-def reload(request, ct_id, type):
-    block = HistoryBlock(get_ct_or_404(ct_id), type)
+def reload(request, ct_id):
+    block = HistoryBlock(get_ct_or_404(ct_id))
     return [(block.id_, block.detailview_display(RequestContext(request)))]

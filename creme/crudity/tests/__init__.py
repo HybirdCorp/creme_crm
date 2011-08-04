@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from base import *
+from registry import *
 from backends import *
-from builders import *
+from inputs import *
+from models import *
 from utils import *
+from builders import *
+from views import *

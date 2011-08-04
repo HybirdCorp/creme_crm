@@ -14,10 +14,14 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models.entity import CremeEntity
 from creme_core.models.i18n import Language
-from crudity.backends.email.create.infopath import InfopathCreateFromEmail
-from crudity.backends.registry import from_email_crud_registry
+
+#from crudity.backends.email.create.infopath import InfopathCreateFromEmail
+#from crudity.registry import crudity_registry, CRUDityRegistry
+from crudity.backends.models import CrudityBackend
 from crudity.builders.infopath import InfopathFormBuilder, InfopathFormField
-from crudity.tests.backends import CrudityTestCase
+from crudity.registry import crudity_registry
+from crudity.tests.base import CrudityTestCase, ContactFakeBackend, DocumentFakeBackend, FakeFetcher, FakeInput
+
 from documents.models.document import Document
 from persons.models.contact import Contact
 
@@ -25,6 +29,7 @@ from persons.models.contact import Contact
 class InfopathFormBuilderTestCase(CrudityTestCase):
     def setUp(self):
         super(InfopathFormBuilderTestCase, self).setUp()
+#        crudity_registry = CRUDityRegistry()
         self.response = self.client.get('/')#Url doesn't matter
         self.request  = self.response.context['request']
 
@@ -32,12 +37,16 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         builder = InfopathFormBuilder(request=self.request, backend=backend)
         return builder
 
+    def _get_backend(self, backend_klass, **backend_cfg):
+        return backend_klass(config=backend_cfg)
+
     def test_builder_01(self):
-        backend = self._get_create_from_email_backend(model=None)
-        self.assertRaises(AssertionError, self._get_builder, backend)
+        class DummyCrudityBackend(CrudityBackend):
+            pass
+        self.assertRaises(AssertionError, self._get_builder, DummyCrudityBackend({}))
 
     def test_builder_02(self):
-        backend = self._get_create_from_email_backend(subject="create_ce")
+        backend = self._get_backend(ContactFakeBackend, subject="create_ce")
         builder = self._get_builder(backend)
 
         now = builder.now
@@ -49,7 +58,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         self.assertEqual(expected_urn, builder.urn)
 
     def test_builder_get_lang(self):
-        backend = self._get_create_from_email_backend(subject="create_ce")
+        backend = self._get_backend(ContactFakeBackend, subject="create_ce")
         builder = self._get_builder(backend)
 
         translation.activate("fr")
@@ -58,12 +67,11 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         self.assertEqual("1036", builder._get_lang_code(request.LANGUAGE_CODE))
 
     def test_builder_fields_property(self):
-        backend = self._get_create_from_email_backend(subject="create_contact",
+        backend = self._get_backend(ContactFakeBackend, subject="create_contact",
                                                       model=Contact,
                                                       body_map={'user_id': 1, 'is_actived': True, "first_name":"",
                                                                 "last_name":"", "email": "none@none.com",
-                                                                "description": "", "birthday":"",
-                                                                "password": "creme"})
+                                                                "description": "", "birthday":""}, password="creme")
         builder = self._get_builder(backend)
 
         for field in builder.fields:
@@ -75,7 +83,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             self.assertEqual(Contact, field.model)
 
     def test_manifest_xsf_01(self):#Test some base values
-        backend = self._get_create_from_email_backend(subject="create_ce")
+        backend = self._get_backend(ContactFakeBackend, subject="create_ce")
         builder = self._get_builder(backend)
         xsf_ns  = "{http://schemas.microsoft.com/office/infopath/2003/solutionDefinition}"
         d_ns    = {'ns': xsf_ns, 'ns2': "{http://schemas.microsoft.com/office/infopath/2006/solutionDefinition/extensions}"}
@@ -112,7 +120,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     def test_manifest_xsf_02(self):#Test Image fk field
         body_map= {'user_id': 1, "image":""}
-        backend = self._get_create_from_email_backend(subject="create_contact",
+        backend = self._get_backend(ContactFakeBackend, subject="create_contact",
                                                       body_map=body_map,
                                                       model=Contact)
         builder = self._get_builder(backend)
@@ -135,7 +143,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     def test_manifest_xsf_03(self):#Test m2m field
         body_map= {'user_id': 1, "language":""}
-        backend = self._get_create_from_email_backend(subject="create_contact",
+        backend = self._get_backend(ContactFakeBackend, subject="create_contact",
                                                       body_map=body_map,
                                                       model=Contact)
         builder = self._get_builder(backend)
@@ -158,7 +166,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         body_map={'user_id': 1, 'is_actived': True, "first_name":"",
                   "last_name":"", "email": "none@none.com",
                   "description": "", "birthday":"", "created":"", 'url_site': "", "image":"", "language": ""}
-        backend = self._get_create_from_email_backend(subject="create_contact",
+        backend = self._get_backend(ContactFakeBackend, subject="create_contact",
                                                       body_map=body_map,
                                                       model=Contact)
         builder = self._get_builder(backend)
@@ -203,7 +211,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
     def test_myschema_xsd02(self):#test with Document
         body_map={'user_id': 1, "title": "",
                   "description": "", "folder":"", "filedata": ""}
-        backend = self._get_create_from_email_backend(subject="create_doc",
+        backend = self._get_backend(DocumentFakeBackend, subject="create_doc",
                                                       body_map=body_map,
                                                       model=Document)
         builder = self._get_builder(backend)
@@ -241,7 +249,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         body_map={'user_id': 1, 'is_actived': True, "first_name":"",
                   "last_name":"", "email": "none@none.com",
                   "description": "", "birthday":"", "created":"", 'url_site': "", "image": ""}
-        backend = self._get_create_from_email_backend(subject="create_contact",
+        backend = self._get_backend(ContactFakeBackend, subject="create_contact",
                                                       body_map=body_map,
                                                       model=Contact)
         builder = self._get_builder(backend)
@@ -262,7 +270,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         body_map={'user_id': 1, 'is_actived': True, "first_name":"",
                   "last_name":"", "email": "none@none.com",
                   "description": "", "birthday":"", "created":"", 'url_site': "", "image": ""}
-        backend = self._get_create_from_email_backend(subject="create_contact",
+        backend = self._get_backend(ContactFakeBackend, subject="create_contact",
                                                       body_map=body_map,
                                                       model=Contact)
         builder = self._get_builder(backend)
@@ -280,7 +288,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     def test_upgrade_xsl02(self):#m2m
         body_map={'user_id': 1, "language": ""}
-        backend = self._get_create_from_email_backend(subject="create_contact",
+        backend = self._get_backend(ContactFakeBackend, subject="create_contact",
                                                       body_map=body_map,
                                                       model=Contact)
         builder = self._get_builder(backend)
@@ -381,7 +389,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             },"span"),
         }
 
-        backend = self._get_create_from_email_backend(subject="create_contact",
+        backend = self._get_backend(ContactFakeBackend, subject="create_contact",
                                       body_map={},
                                       model=Contact)
 
@@ -392,7 +400,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
     def test_view_xsl02(self):#Deeper with DateField
         d_ns    = {'xsl': "{http://www.w3.org/1999/XSL/Transform}", 'xd': "{http://schemas.microsoft.com/office/infopath/2003}"}
         field_name = "birthday"
-        backend = self._get_create_from_email_backend(subject="create_contact",
+        backend = self._get_backend(ContactFakeBackend, subject="create_contact",
                               body_map={field_name: ""},
                               model=Contact)
         xml     = self._get_view_xsl(backend, {field_name: ""})
@@ -406,7 +414,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
     def test_view_xsl03(self):#Deeper with ForeignKey
         d_ns    = {'xsl': "{http://www.w3.org/1999/XSL/Transform}", 'xd': "{http://schemas.microsoft.com/office/infopath/2003}"}
         field_name = "user_id"
-        backend = self._get_create_from_email_backend(subject="create_contact",
+        backend = self._get_backend(ContactFakeBackend, subject="create_contact",
                       body_map={field_name: ""},
                       model=Contact)
         xml     = self._get_view_xsl(backend, {field_name: ""})
@@ -458,7 +466,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             },"select"),
         }
 
-        backend = self._get_create_from_email_backend(subject="create_doc",
+        backend = self._get_backend(DocumentFakeBackend, subject="create_doc",
                                       body_map={},
                                       model=Document)
 
@@ -473,7 +481,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
         d_ns    = {'xsl': "{http://www.w3.org/1999/XSL/Transform}", 'xd': "{http://schemas.microsoft.com/office/infopath/2003}"}
         field_name = "language"
-        backend = self._get_create_from_email_backend(subject="create_contact",
+        backend = self._get_backend(ContactFakeBackend, subject="create_contact",
                       body_map={field_name: ""},
                       model=Contact)
         xml     = self._get_view_xsl(backend, {field_name: ""})
@@ -513,10 +521,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         body_map={'user_id': 1, 'is_actived': True, "first_name":"",
           "last_name":"", "email": "none@none.com",
           "description": "", "birthday":"", "created":"", 'url_site': ""}
-        backend = self._get_create_from_email_backend(subject="create_contact",
-                                                      body_map=body_map,
-                                                      model=Contact,
-                                                      backend_klass=InfopathCreateFromEmail)
+        backend = self._get_backend(ContactFakeBackend, subject="create_contact",
+                                                      body_map=body_map)
         builder = self._get_builder(backend)
         list(builder.render())#list is really not useful in reality, but as builder.render() create a generator it has to be parsed once
 
@@ -534,9 +540,10 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
         self.assert_(dir_exists(join(backend_dir, '%s.xsn' % backend.subject)))
 
-    def test_get_create_form_view01(self):#Backend not registered
+    def test_get_create_form_view01(self):
+        """Backend not registered"""
         subject="create_contact"
-        backend = self._get_create_from_email_backend(subject=subject,
+        backend = self._get_backend(ContactFakeBackend, subject=subject,
                                                       body_map={},
                                                       model=Contact)
 
@@ -545,29 +552,35 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     def test_get_create_form_view02(self):
         subject="create_contact"
-        backend = self._get_create_from_email_backend(subject=subject,
-                                                      body_map={},
-                                                      model=Contact,
-                                                      backend_klass=InfopathCreateFromEmail)
+        backend = self._get_backend(ContactFakeBackend, subject=subject,
+                                                      body_map={})
 
-        from_email_crud_registry.register_creates((subject, backend))
+        crudity_registry.register_fetchers("test", [FakeFetcher()])
+        input = FakeInput()
+        input.method = "create"
+        input.name = "infopath"
+        input.add_backend(backend)
+        crudity_registry.register_inputs("test", [input])
 
         response = self.client.get('/crudity/infopath/create_form/%s' % subject)
         self.assertEqual(200, response.status_code)
 
 
 class InfopathFormFieldTestCase(CrudityTestCase):
+    def _get_backend(self, backend_klass, **backend_cfg):
+        return backend_klass(config=backend_cfg)
+
     def test_uuid01(self):#uuid for a field has to be unique and the same BY FORM (so by backend)
         request  = self.client.get('/').context['request']
         #Backend 1
-        backend1 = self._get_create_from_email_backend(subject="create_ce")
+        backend1 = self._get_backend(ContactFakeBackend, subject="create_ce")
         builder1 = InfopathFormBuilder(request=request, backend=backend1)
         uuid1 = InfopathFormField(builder1.urn, CremeEntity, 'user_id', request).uuid
         for i in xrange(10):
             self.assertEqual(uuid1, InfopathFormField(builder1.urn, CremeEntity, 'user_id', request).uuid)
 
         #Backend 2
-        backend2 = self._get_create_from_email_backend(subject="create_ce2")
+        backend2 = self._get_backend(ContactFakeBackend, subject="create_ce2")
         builder2 = InfopathFormBuilder(request=request, backend=backend2)
 
         uuid2 = InfopathFormField(builder2.urn, CremeEntity, 'user_id', request).uuid
@@ -577,7 +590,7 @@ class InfopathFormFieldTestCase(CrudityTestCase):
         self.assertNotEqual(uuid2, uuid1)
 
         #Backend 3
-        backend3 = self._get_create_from_email_backend(subject="create_contact", model=Contact)
+        backend3 = self._get_backend(ContactFakeBackend, subject="create_contact", model=Contact)
         builder3 = InfopathFormBuilder(request=request, backend=backend3)
 
         uuid3 = InfopathFormField(builder3.urn, Contact, 'user_id', request).uuid
@@ -595,9 +608,8 @@ class InfopathFormFieldTestCase(CrudityTestCase):
         body_map = {'user_id': 1, 'is_actived': True, "first_name":"",
                     "last_name":"", "email": "none@none.com", "description": "", "birthday":"",}
 
-        backend = self._get_create_from_email_backend(subject="create_contact",
-                                                      body_map=body_map,
-                                                      model=Contact)
+        backend = self._get_backend(ContactFakeBackend, subject="create_contact",
+                                                      body_map=body_map)
         builder = InfopathFormBuilder(request=request, backend=backend)
 
         model_get_field = Contact._meta.get_field
@@ -615,9 +627,8 @@ class InfopathFormFieldTestCase(CrudityTestCase):
     def test_get_choices01(self):
         request  = self.client.get('/').context['request']
         body_map = {'user_id': 1,}
-        backend = self._get_create_from_email_backend(subject="create_contact",
-                                                      body_map=body_map,
-                                                      model=Contact)
+        backend = self._get_backend(ContactFakeBackend, subject="create_contact",
+                                                      body_map=body_map)
         builder = InfopathFormBuilder(request=request, backend=backend)
 
         user_choices_set = set((user.pk, unicode(user)) for user in User.objects.all())

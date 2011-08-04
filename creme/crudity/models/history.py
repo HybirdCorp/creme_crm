@@ -21,7 +21,7 @@
 #from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 from django.db.models.fields.related import ForeignKey
-from django.db.models.fields import TextField, PositiveIntegerField
+from django.db.models.fields import TextField, PositiveIntegerField, CharField
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models.fields import CreationDateTimeField, CremeUserForeignKey
@@ -33,7 +33,8 @@ __all__ = ("History", )
 class History(CremeModel):
     entity      = ForeignKey(CremeEntity, verbose_name=_(u"Entity"), blank=False, null=False)
     created     = CreationDateTimeField(_(u'Creation date'))
-    type        = PositiveIntegerField()
+    action      = CharField(_(u"Action"), max_length=100)#Action (i.e: create, update...)
+    source      = CharField(_(u"Source"), max_length=100)#Source (i.e: email raw, email from infopath, sms raw...)
     description = TextField(_(u'Description'), blank=True, null=True)
     user        = CremeUserForeignKey(verbose_name=_(u"Owner"), blank=True, null=True, default=None)#Case of sandboxes are by user
 

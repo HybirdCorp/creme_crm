@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-11 16:03+0200\n"
+"POT-Creation-Date: 2011-08-03 12:24+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,10 +17,14 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1\n"
 
-#: static/emails/js/emails.js:32 static/emails/js/emails.js.py:75
+#: static/emails/js/emails.js:29
+msgid "Nothing is selected."
+msgstr "Rien n'est sélectionné."
+
+#: static/emails/js/emails.js:36 static/emails/js/emails.js.py:79
 msgid "Process done"
 msgstr "Opération terminée"
 
-#: static/emails/js/emails.js:52
+#: static/emails/js/emails.js:56
 msgid "Please select at least one entity."
 msgstr "Veuillez sélectionner au moins un enregistrement."

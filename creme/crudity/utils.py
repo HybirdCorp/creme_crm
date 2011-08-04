@@ -26,14 +26,14 @@ import uuid
 
 html_mark = re.compile(r"""(?P<html>(</|<!|<|&lt;)[-="' ;/.#:@\w]*(>|/>|&gt;))""")
 
-def get_unicode_decoded_str(str, encodings): #TODO: rename 'str'
+def get_unicode_decoded_str(content, encodings):
     for encoding in encodings:
         try:
-            return unicode(str, encoding) if not isinstance(str, unicode) else str
+            return unicode(content, encoding) if not isinstance(content, unicode) else content
         except:
             continue
 
-    return u"".join([i if ord(i) < 128 else '?' for i in str]) #TODO: use genexpr
+    return u"".join(i if ord(i) < 128 else '?' for i in content)
 
 def strip_html_(html_content):
     is_html = True
@@ -67,17 +67,17 @@ def unescape(text):
             pass
       else:
          # named entity
-         try: #TODO: var = text[1:-1]
-            if text[1:-1] == "amp":
+         frag = text[1:-1]
+         try:
+            if frag == "amp":
                text = "&amp;amp;"
-            elif text[1:-1] == "gt":
+            elif frag == "gt":
                text = "&amp;gt;"
-            elif text[1:-1] == "lt":
+            elif frag == "lt":
                text = "&amp;lt;"
             else:
-               text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+               text = unichr(htmlentitydefs.name2codepoint[frag])
          except KeyError:
-#            print "keyerror"
             pass
       return text # leave as is
    return re.sub("&#?\w+;", fixup, text)

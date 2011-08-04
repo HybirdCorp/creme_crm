@@ -29,7 +29,7 @@ from creme_core.models.entity import CremeEntity
 from creme_core.views import generic
 from creme_core.utils import jsonify, get_from_POST_or_404
 
-from crudity.views.email import fetch_emails
+from crudity.views.actions import fetch
 
 from emails.models import LightWeightEmail
 from emails.models.mail import (EntityEmail,
@@ -37,7 +37,7 @@ from emails.models.mail import (EntityEmail,
                                 MAIL_STATUS_SYNCHRONIZED_SPAM,
                                 MAIL_STATUS_SYNCHRONIZED,
                                 MAIL_STATUS_SYNCHRONIZED_WAITING)
-from emails.blocks import SpamSynchronizationMailsBlock, WaitingSynchronizationMailsBlock
+from emails.blocks import SpamSynchronizationMailsBlock, WaitingSynchronizationMailsBlock, mail_waiting_sync_block, mail_spam_sync_block
 
 from emails.forms.mail import EntityEmailForm
 
@@ -75,7 +75,7 @@ def view_lightweight_mail(request, mail_id):
 @permission_required('emails')
 def synchronisation(request):
     #TODO: Apply permissions?
-    return fetch_emails(request, template="emails/synchronize.html",
+    return fetch(request, template="emails/synchronize.html",
                         ajax_template="emails/frags/ajax/synchronize.html",
                         extra_tpl_ctx={
                                 'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id,
@@ -103,20 +103,6 @@ def set_emails_status(request, status):
 
     return HttpResponse(message, mimetype="text/javascript", status=status)
 
-#Commented 1 march 2011
-#@login_required
-#@permission_required('emails')
-#def delete(request):
-#    #TODO: There no verifications because email is not a CremeEntity!!!
-#    #TODO: regroup queries
-#    user = request.user
-#    for id in _retrieve_emails_ids(request):
-#        email = get_object_or_404(EntityEmail, pk=id)
-#        email.can_delete_or_die(user)
-#        email.delete()
-#
-#    return HttpResponse()
-
 @login_required
 @permission_required('emails')
 def spam(request):
@@ -135,9 +121,8 @@ def waiting(request):
 @jsonify
 @permission_required('emails')
 def reload_sync_blocks(request):
-    #TODO: why this specific view ? why not importing blocks singletons ?
-    waiting_block = WaitingSynchronizationMailsBlock()
-    spam_block    = SpamSynchronizationMailsBlock()
+    waiting_block = mail_waiting_sync_block#WaitingSynchronizationMailsBlock()
+    spam_block    = mail_spam_sync_block#SpamSynchronizationMailsBlock()
     ctx = RequestContext(request)
     return [(waiting_block.id_, waiting_block.detailview_display(ctx)),
             (spam_block.id_, spam_block.detailview_display(ctx))
@@ -172,10 +157,10 @@ def create_n_send(request, entity_id):
 def resend_mails(request):
     ids = get_from_POST_or_404(request.POST, 'ids').split(',')
 
-    #TODO: regroup queries
-    for id in ids:
+    emails = EntityEmail.objects.get(pk__in=ids)
+    for email in emails:
         try:
-            EntityEmail.objects.get(pk=id).send()
+            email.send()
         except EntityEmail.DoesNotExist:
             pass
 

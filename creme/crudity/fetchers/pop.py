@@ -31,6 +31,7 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
 
 from crudity.utils import get_unicode_decoded_str
+from crudity.fetchers.base import CrudityFetcher
 
 CREME_GET_EMAIL_SERVER       = settings.CREME_GET_EMAIL_SERVER
 CREME_GET_EMAIL_USERNAME     = settings.CREME_GET_EMAIL_USERNAME
@@ -55,7 +56,7 @@ class PopEmail(object):
 #Better ?
 #PopEmail = namedtuple('PopEmail', 'body body_html senders tos ccs subjects dates attachment_paths', verbose=False)
 
-class PopFrontend(object):
+class PopFetcher(CrudityFetcher):
     server       = CREME_GET_EMAIL_SERVER
     username     = CREME_GET_EMAIL_USERNAME
     password     = CREME_GET_EMAIL_PASSWORD
@@ -63,9 +64,6 @@ class PopFrontend(object):
     is_ssl       = CREME_GET_EMAIL_SSL,
     ssl_keyfile  = CREME_GET_EMAIL_SSL_KEYFILE,
     ssl_certfile = CREME_GET_EMAIL_SSL_CERTFILE
-
-    def __init__(self):
-        pass
 
     def fetch(self, delete=True):
         client = None
@@ -168,6 +166,6 @@ class PopFrontend(object):
 
         client.quit()
 
-        return (message_count, emails)
+        return emails
 
-pop_frontend = PopFrontend()
+pop_fetcher = PopFetcher()

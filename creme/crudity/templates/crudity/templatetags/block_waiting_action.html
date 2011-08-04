@@ -2,17 +2,17 @@
 {% load media %}
 {% load creme_block creme_core_tags creme_widgets %}
 {% load crudity_tags %}
-{% with 3 as colspan %}
+{% with 5 as colspan %}
     <style type="text/css">
         {% comment %}Generify this{% endcomment %}
-        .email_header_block
+        .type_header_block
         {
             background: url({% get_image_path_for_ctype email_ct 'normal' %}) no-repeat;
             width: 48px;
             height:48px;
         }
 
-        .email_header_block img
+        .type_header_block img
         {
             float: right;
             position: relative;
@@ -25,40 +25,40 @@
             <table cellspacing="0" cellpadding="0">
                 <tbody>
                     <tr>
-                        <th class="email_header_block">{% get_image_for_ctype waiting_ct 'small' %}
+                        <th class="type_header_block">{% get_image_for_ctype waiting_ct 'small' %}
                             </th>
-                        <th>{% blocktrans count counter=page.paginator.count with waiting_ct.name as ct_name and waiting_type|get_crud_type_verbose as type %}{{counter}} Waiting action - {{ct_name}} - {{type}}{% plural %}{{counter}} Waiting actions - {{ct_name}} - {{type}}{% endblocktrans %}</th>
+                        <th>{% blocktrans count counter=page.paginator.count with waiting_ct.model_class|get_meta_value:"verbose_name" as ct_name and backend.verbose_source as backend_source %}{{counter}} Waiting action - {{ct_name}} - {{ backend_source }}{% plural %}{{counter}} Waiting actions - {{ct_name}} - {{ backend_source }}{% endblocktrans %} <span style="font-weight: normal;">(<span style="font-size:smaller;">{{ backend.subject }}</span>)</span></th>
                     </tr>
                 </tbody>
             </table>
         </th>
-        <th style="width: 20%;" align="right">
+        {% for rendered_button in buttons %}
+            {% if forloop.counter|mod:2 == 1 %}<th align="right"><div class="buttons">{% endif %}
+            {{ rendered_button }}
+            {% if forloop.counter|mod:2 == 0 %}</div></th>{% endif %}
+            {% if forloop.last %}<a style="opacity: 0; filter:Alpha(Opacity=0);">&nbsp;</a>{% endif %}{% comment %}This is for alignment{% endcomment %}
+        {% endfor %}
+        <th align="right">
             <div class="buttons">
-                {% for rendered_button in buttons %}
-                    {{ rendered_button }}
-                {% endfor %}
+                <a class="add" onclick="creme.emails.mass_action('/crudity/waiting_actions/validate', '[name=select_one]:checked', {% get_block_reload_uri %});">
+                            <img src="{% media_url 'images/jewel_ok_22.png' %}" border="0" title="{% trans "Validate" %}" alt="{% trans "Validate" %}" />
+                            {% trans "Validate the selection" %}
+                </a>
+                <a class="negative" onclick="creme.emails.mass_action('/crudity/waiting_actions/delete', '[name=select_one]:checked', {% get_block_reload_uri %});">
+                    <img src="{% media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}" />
+                    {% trans "Delete the selection" %}
+                </a>
             </div>
         </th>
     {% end_get_block_header %}
         <tbody class="collapsable">
             {% if page.paginator.count %}
                 <tr>
-                    <th colspan="{{colspan}}" class="block_header_line_dark" align="left">
-                        <a class="button_link" onclick="creme.emails.mass_action('/crudity/waiting_actions/validate', '[name=select_one]:checked', {% get_block_reload_uri %});">
-                            <img src="{% media_url 'images/jewel_ok_22.png' %}" border="0" title="{% trans "Validate" %}" alt="{% trans "Validate" %}" />
-                            {% trans "Validate" %}
-                        </a>
-                        <a class="button_link" onclick="creme.emails.mass_action('/crudity/waiting_actions/delete', '[name=select_one]:checked', {% get_block_reload_uri %});">
-                            <img src="{% media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}" />
-                            {% trans "Delete" %}
-                        </a>
-                    </th>
-                </tr>
-                <tr>
                     <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">
                         <center><input name="select_all" value="all" type="checkbox" title="{% trans "Select all" %}" onclick="creme.utils.toggleCheckallState(this, '#{{block_name}} [name=select_one]');"/></center>
                     </th>
                     <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Data" %}</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Type" %}</th>
                     <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Actions" %}</th>
                 </tr>
                 {% for waiting_action in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
@@ -73,12 +73,17 @@
                                 {% else %}
                                  /
                                 {% endif %}
-                                {{k}} : {{v|truncate:50}}
+                                {% if v|isiterable %}
+                                    {{k}} : {{v.0|truncate:50}}
+                                {% else %}
+                                    {{k}} : {{v|truncate:50}}
+                                {% endif %}
                                 {% if forloop.counter|mod:4 == 0 %}
                                     </p>
                                 {% endif %}
                             {% endfor %}
                         </td>
+                        <td class="{{row_color}}">{{ backend.verbose_method }}</td>
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                             {% get_line_deletor at_url '/crudity/waiting_actions/delete' with_args "{'ids': ['{{waiting_action.pk}}'] }" with_perms 1 %}
                         </td>
@@ -86,7 +91,7 @@
                 {% endfor %}
             {% else %}
                 <tr>
-                    <td class="block_line_dark">{% blocktrans with type=waiting_type|get_crud_type_verbose ct_name=waiting_ct.name %}No waiting action for {{type}} {{ct_name}}{% endblocktrans %}</td>
+                    <td class="block_line_dark">{% blocktrans with ct_name=waiting_ct.model_class|get_meta_value:"verbose_name" backend_source=backend.verbose_source %}No waiting action for {{ct_name}} from {{ backend_source }}{% endblocktrans %}</td>
                 </tr>
             {% endif %}
         </tbody>
