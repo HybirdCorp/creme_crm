@@ -31,6 +31,15 @@ def inner_popup(request, template, template_dict, context_instance, is_valid=Tru
     debug("Inner_popup for: %s", request.path)
 
     template_dict['hide_submit'] = True
+
+    REQUEST = request.REQUEST
+    persist = REQUEST.getlist('persist')
+    tpl_persist = {}
+    for persist_key in persist:
+        tpl_persist[persist_key] = REQUEST.getlist(persist_key)
+
+    template_dict['persisted'] = tpl_persist
+
     html = mark_safe(html) if html else render_to_string(template, template_dict, context_instance, *args, **kwargs)
 
     return HttpResponse(render_to_string('creme_core/generics/inner_popup.html',
@@ -41,6 +50,7 @@ def inner_popup(request, template, template_dict, context_instance, is_valid=Tru
                                             'whoami':          request.REQUEST.get('whoami'),
                                             'callback_url':    callback_url,
                                             'reload':          JSONEncoder().encode(reload),
+                                            'persisted':       tpl_persist,
                                             'delegate_reload': delegate_reload,
                                          },
                                          context_instance, *args, **kwargs

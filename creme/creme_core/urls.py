@@ -11,7 +11,7 @@ entity_patterns = patterns('creme_core.views', #TODO: move delete* to entity.py
     (r'^json$',                                             'entity.get_creme_entity_as_json'),
     (r'^search_n_view$',                                    'entity.search_and_view'),
     (r'^get_info_fields/(?P<ct_id>\d+)/json$',              'entity.get_info_fields'),
-    (r'^bulk_update/(?P<ct_id>\d+)/(?P<ids>([\d]+[,]*)+)$', 'entity.bulk_update'),
+    (r'^bulk_update/(?P<ct_id>\d+)/$',                      'entity.bulk_update'),
     (r'^get_fields$',                                       'entity.get_fields'),
     (r'^get_custom_fields$',                                'entity.get_custom_fields'),
     (r'^get_function_fields$',                              'entity.get_function_fields'),
@@ -23,8 +23,8 @@ relation_patterns = patterns('creme_core.views.relation',
     (r'^add/(?P<subject_id>\d+)$',                                                                         'add_relations'),
     (r'^add/(?P<subject_id>\d+)/(?P<relation_type_id>[\w-]+)$',                                            'add_relations'),
     (r'^add_from_predicate/save$',                                                                         'add_relations_with_same_type'),
-    (r'^add_to_entities/(?P<model_ct_id>\d+)/(?P<relations_types>([-_\w]+[,]*)+)/(?P<ids>([\d]+[,]*)+)$',  'add_relations_bulk'),#Beware of the order!!!
-    (r'^add_to_entities/(?P<model_ct_id>\d+)/(?P<ids>([\d]+[,])+)$',                                       'add_relations_bulk'),
+    (r'^add_to_entities/(?P<model_ct_id>\d+)/(?P<relations_types>([-_\w]+[,]*)+)/$',                       'add_relations_bulk'),#Beware of the order!!!
+    (r'^add_to_entities/(?P<model_ct_id>\d+)/$',                                                           'add_relations_bulk'),
      #TODO: 'simple' param as GET param ??
     (r'^objects2link/rtype/(?P<rtype_id>[\w-]+)/entity/(?P<subject_id>\d+)/(?P<object_ct_id>\d+)$',        'objects_to_link_selection'),
     (r'^objects2link/rtype/(?P<rtype_id>[\w-]+)/entity/(?P<subject_id>\d+)/(?P<object_ct_id>\d+)/simple$', 'objects_to_link_selection', {'o2m': True}),
@@ -38,7 +38,7 @@ relation_patterns = patterns('creme_core.views.relation',
 
 property_patterns = patterns('creme_core.views.creme_property',
 #    (r'^add_to_entities$',        'add_to_entities'),
-    (r'^add_to_entities/(?P<ct_id>\d+)/(?P<ids>([\d]+[,]*)+)$', 'add_properties_bulk'),
+    (r'^add_to_entities/(?P<ct_id>\d+)/$',                      'add_properties_bulk'),
     (r'^get_types$',                                            'get_property_types_for_ct'),#TODO: Remove me?
     (r'^add/(?P<entity_id>\d+)$',                               'add_to_entity'),
 )

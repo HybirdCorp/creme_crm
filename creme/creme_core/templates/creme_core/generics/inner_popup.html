@@ -25,6 +25,12 @@
     <div name="inner_body">
         <input type="hidden" name="whoami" value="{{whoami}}"/>
         <input type="hidden" name="is_valid" value="{{is_valid}}"/>
+        {% for persist_key, persist_values in persisted.items %}
+            {% for persist_value in persist_values %}
+                <input type="hidden" name="{{ persist_key }}" value="{{persist_value}}"/>
+                <input type="hidden" name="persist" value="{{ persist_key }}"/>
+            {% endfor %}
+        {% endfor %}
         {{html}}
     </div>
 </div>

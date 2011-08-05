@@ -514,7 +514,12 @@ class EntityViewsTestCase(ViewsTestCase):
 class BulkEditTestCase(ViewsTestCase):
     def setUp(self):
         self.contact_ct = ContentType.objects.get_for_model(Contact)
-        self.url = '/creme_core/entity/bulk_update/%s/%s'
+        self.url = '/creme_core/entity/bulk_update/%s/'
+
+    def _format_entities_ids(self, key, *ids):
+        if ids:
+            return u"?persist=%s&ids=%s" % (key, "&ids=".join(str(id_) for id_ in ids))
+        return u""
 
     def create_contact(self, user, **kwargs):
         return Contact.objects.create(user=user, **kwargs)
@@ -530,13 +535,13 @@ class BulkEditTestCase(ViewsTestCase):
         contact_ct_id = self.contact_ct.id
 
         self.assertEqual(404, self.client.get('/creme_core/entity/bulk_update/%s/'  % contact_ct_id).status_code)
-        self.assertEqual(404, self.client.get('/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, 0)).status_code)
+        self.assertEqual(404, self.client.get('/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, self._format_entities_ids('ids', 0))).status_code)
 
-        response = self.client.get('/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, ",".join([str(i) for i in xrange(10)])))
+        response = self.client.get('/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, self._format_entities_ids('ids', *range(10))))
         self.assertEqual(404, response.status_code)
 
         mario = self.create_contact(user=self.user, first_name="Mario", last_name="Bros")
-        self.assertEqual(200, self.client.get('/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, mario.id)).status_code)
+        self.assertEqual(200, self.client.get('/creme_core/entity/bulk_update/%s/%s' % (contact_ct_id, self._format_entities_ids('ids', mario.id))).status_code)
 
     def test_edit_entities_bulk02(self):
         self.login()
@@ -548,7 +553,7 @@ class BulkEditTestCase(ViewsTestCase):
         mario = self.create_contact(user=self.user, first_name="Mario", last_name="Bros", position=plumber)
         luigi = self.create_contact(user=self.user, first_name="Luigi", last_name="Bros", position=ghost_hunter)
 
-        url = self.url % (self.contact_ct.id, ",".join([str(mario.id), str(luigi.id)]))
+        url = self.url % (self.contact_ct.id) + self._format_entities_ids('ids', str(mario.id), str(luigi.id))
         self.assertEqual(200, self.client.get(url).status_code)
 
         response = self.client.post(url, data={
@@ -571,7 +576,7 @@ class BulkEditTestCase(ViewsTestCase):
         luigi = self.create_contact(user=self.user, first_name="Luigi", last_name="Bros", sector=games)
         nintendo = Organisation.objects.create(user=self.user, name='Nintendo', sector=games)
 
-        url = self.url % (self.contact_ct.id, ",".join([str(mario.id), str(luigi.id), str(nintendo.id)]))
+        url = self.url % (self.contact_ct.id) + self._format_entities_ids('ids', mario.id, luigi.id, nintendo.id)
         self.assertEqual(200, self.client.get(url).status_code)
 
         response = self.client.post(url, data={
@@ -591,7 +596,7 @@ class BulkEditTestCase(ViewsTestCase):
         mario = self.create_contact(user=self.user, first_name="Mario", last_name="Bros")
         luigi = self.create_contact(user=self.user, first_name="Luigi", last_name="Bros")
 
-        url = self.url % (self.contact_ct.id, ",".join([str(mario.id), str(luigi.id)]))
+        url = self.url % (self.contact_ct.id)  + self._format_entities_ids('ids', mario.id, luigi.id)
         self.assertEqual(200, self.client.get(url).status_code)
 
         response = self.client.post(url, data={
@@ -612,7 +617,7 @@ class BulkEditTestCase(ViewsTestCase):
         mario = self.create_contact(user=self.user, first_name="Mario", last_name="Bros")
         luigi = self.create_contact(user=self.user, first_name="Luigi", last_name="Bros")
 
-        url = self.url % (self.contact_ct.id, ",".join([str(mario.id), str(luigi.id)]))
+        url = self.url % (self.contact_ct.id) +  self._format_entities_ids('ids', mario.id, luigi.id)
         self.assertEqual(200, self.client.get(url).status_code)
 
         response = self.client.post(url, data={
@@ -630,7 +635,7 @@ class BulkEditTestCase(ViewsTestCase):
         mario = self.create_contact(user=self.user, first_name="Mario", last_name="Bros", description="Luigi's brother")
         luigi = self.create_contact(user=self.user, first_name="Luigi", last_name="Bros", description="Mario's brother")
 
-        url = self.url % (self.contact_ct.id, ",".join([str(mario.id), str(luigi.id)]))
+        url = self.url % (self.contact_ct.id)  + self._format_entities_ids('ids', mario.id, luigi.id)
         self.assertEqual(200, self.client.get(url).status_code)
 
         response = self.client.post(url, data={
@@ -653,7 +658,7 @@ class BulkEditTestCase(ViewsTestCase):
         mario_desc = u"Luigi's brother"
         mario = self.create_contact(user=self.other_user, first_name="Mario", last_name="Bros", description=mario_desc)
         luigi = self.create_contact(user=self.user,       first_name="Luigi", last_name="Bros", description="Mario's brother")
-        url = self.url % (self.contact_ct.id, ",".join([str(mario.id), str(luigi.id)]))
+        url = self.url % (self.contact_ct.id)  + self._format_entities_ids('ids', mario.id, luigi.id)
 
         response = self.client.post(url, data={
                                                 'field_name':      'description',
@@ -671,7 +676,7 @@ class BulkEditTestCase(ViewsTestCase):
 
         mario = self.create_contact(user=self.user, first_name="Mario", last_name="Bros")
         luigi = self.create_contact(user=self.user, first_name="Luigi", last_name="Bros")
-        url = self.url % (self.contact_ct.id, ",".join([str(mario.id), str(luigi.id)]))
+        url = self.url % (self.contact_ct.id)  + self._format_entities_ids('ids', mario.id, luigi.id)
 
         response = self.client.post(url, data={
                                                 'field_name':   'birthday',
@@ -706,7 +711,7 @@ class BulkEditTestCase(ViewsTestCase):
         unallowed = Image.objects.create(user=self.other_user, image=tmpfile, name='unallowed')
         allowed   = Image.objects.create(user=self.user, image=tmpfile, name='allowed')
 
-        url = self.url % (self.contact_ct.id, ",".join([str(mario.id), str(luigi.id)]))
+        url = self.url % (self.contact_ct.id)  + self._format_entities_ids('ids', mario.id, luigi.id)
         self.assertEqual(200, self.client.get(url).status_code)
 
         response = self.client.post(url, data={
@@ -731,7 +736,7 @@ class BulkEditTestCase(ViewsTestCase):
     def get_2_contacts_n_url(self):
         mario = self.create_contact(user=self.user, first_name="Mario", last_name="Bros")
         luigi = self.create_contact(user=self.user, first_name="Luigi", last_name="Bros")
-        url   = self.url % (self.contact_ct.id, ",".join([str(mario.id), str(luigi.id)]))
+        url   = self.url % (self.contact_ct.id)  + self._format_entities_ids('ids', mario.id, luigi.id)
 
         return mario, luigi, url
 

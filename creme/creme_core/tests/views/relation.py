@@ -165,7 +165,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                 object_entity=self.object02
                                )
 
-        url = '/creme_core/relation/add_to_entities/%s/%s,%s,' % (self.ct_id, self.subject01.id, self.subject02.id)
+        url = '/creme_core/relation/add_to_entities/%s/?ids=%s&ids=%s&persist=ids' % (self.ct_id, self.subject01.id, self.subject02.id)
         self.assertEqual(200, self.client.get(url).status_code)
 
         response = self.client.post(url, data={
@@ -193,7 +193,7 @@ class RelationViewsTestCase(ViewsTestCase):
         unviewable = CremeEntity.objects.create(user=self.other_user)
         self.failIf(unviewable.can_view(self.user))
 
-        url = '/creme_core/relation/add_to_entities/%s/%s,%s,' % (self.ct_id, self.subject01.id, unviewable.id)
+        url = '/creme_core/relation/add_to_entities/%s/?ids=%s&ids=%s&persist=ids' % (self.ct_id, self.subject01.id, unviewable.id)
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
@@ -226,7 +226,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assert_(unlinkable.can_view(self.user))
         self.failIf(unlinkable.can_link(self.user))
 
-        response = self.client.get('/creme_core/relation/add_to_entities/%s/%s,%s,' % (self.ct_id, self.subject01.id, unlinkable.id))
+        response = self.client.get('/creme_core/relation/add_to_entities/%s/?ids=%s&ids=%s&persist=ids' % (self.ct_id, self.subject01.id, unlinkable.id))
         self.assertEqual(200, response.status_code)
 
         try:
@@ -239,7 +239,7 @@ class RelationViewsTestCase(ViewsTestCase):
     def test_add_relations_bulk04(self):
         self._aux_test_add_relations(is_superuser=False)
 
-        url = '/creme_core/relation/add_to_entities/%s/%s,' % (self.ct_id, self.subject01.id)
+        url = '/creme_core/relation/add_to_entities/%s/?ids=%s&persist=ids' % (self.ct_id, self.subject01.id)
         self.assertEqual(200, self.client.get(url).status_code)
 
         self._set_all_creds_except_one(excluded=SetCredentials.CRED_LINK)
@@ -273,7 +273,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                 object_entity=self.object02
                                )
 
-        url = '/creme_core/relation/add_to_entities/%s/%s,%s,/%s,%s,' % (
+        url = '/creme_core/relation/add_to_entities/%s/%s,%s,/?ids=%s&ids=%s&persist=ids' % (
                     self.ct_id, self.rtype01.id, self.rtype02.id, self.subject01.id, self.subject02.id
                 )
         self.assertEqual(200, self.client.get(url).status_code)
@@ -301,7 +301,7 @@ class RelationViewsTestCase(ViewsTestCase):
     def test_add_relations_bulk_fixedrtypes02(self):
         self._aux_test_add_relations()
 
-        url = '/creme_core/relation/add_to_entities/%s/%s/%s,%s,' % (
+        url = '/creme_core/relation/add_to_entities/%s/%s/?ids=%s&ids=%s&persist=ids' % (
                     self.ct_id, self.rtype01.id, self.subject01.id, self.subject02.id
                 )
         self.assertEqual(200, self.client.get(url).status_code)

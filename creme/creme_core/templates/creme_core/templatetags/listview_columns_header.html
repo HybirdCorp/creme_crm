@@ -33,7 +33,7 @@
                                        onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});"/>
                                 &nbsp;{% trans "and" %}&nbsp;
                                 <input name="{{column.name}}" id="id_{{column.name}}{{whoami}}_2" title="{{column.title}}" type="{{widget_type}}"
-                                       style="width:80px" value="{% if search %}{{widget_ctx.values.end}}{% endif %}" 
+                                       style="width:80px" value="{% if search %}{{widget_ctx.values.end}}{% endif %}"
                                        onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});"/>
                             </span>
                             <script type="text/javascript">

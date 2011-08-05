@@ -106,10 +106,10 @@ def get_info_fields(request, ct_id):
     return [(field.name, printer(field)) for field in model._meta.fields if field.name not in EXCLUDED_FIELDS and not isinstance(field, ForeignKey)]
 
 @login_required
-def bulk_update(request, ct_id, ids):
+def bulk_update(request, ct_id):#TODO: Factorise with add_properties_bulk and add_relations_bulk?
     user = request.user
     model    = get_object_or_404(ContentType, pk=ct_id).model_class()
-    entities = get_list_or_404(model, pk__in=[id for id in ids.split(',') if id])
+    entities = get_list_or_404(model, pk__in=request.REQUEST.getlist('ids'))
 
     CremeEntity.populate_real_entities(entities)
     CremeEntity.populate_credentials(entities, user)
