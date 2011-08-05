@@ -188,7 +188,7 @@ def update_activity_date(request):
             return HttpResponse("error", mimetype="text/javascript", status=400)
 
         participants = [act.object_entity for act in activity.get_participant_relations()]
-        collisions = check_activity_collisions(activity.start, activity.end, participants)
+        collisions = check_activity_collisions(activity.start, activity.end, participants, exclude_activity_id=activity.id)
         if collisions:
             return HttpResponse(JSONEncoder().encode(u", ".join(collisions)), mimetype="text/javascript", status=409)
 
@@ -235,7 +235,7 @@ def delete_user_calendar(request):
     status, msg = 200, ""
 
     user = request.user
-    
+
     if (user.is_superuser or calendar.user == user) and calendar.is_custom:
         calendar.delete()
     else:

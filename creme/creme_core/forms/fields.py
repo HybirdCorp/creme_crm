@@ -39,7 +39,7 @@ from creme_core.utils import creme_entity_content_types
 from creme_core.utils.queries import get_q_from_dict
 from creme_core.utils.date_range import date_range_registry
 from creme_core.forms.widgets import (CTEntitySelector, SelectorList, RelationSelector, ListViewWidget, ListEditionWidget,
-                                      CalendarWidget, TimeWidget, DateRangeWidget, ColorPickerWidget, DurationWidget)
+                                      CalendarWidget, TimeWidget, DateRangeWidget, ColorPickerWidget, DurationWidget, DateTimeWidget)
 from creme_core.constants import REL_SUB_HAS
 
 
@@ -727,7 +727,7 @@ class CremeDateField(DateField):
 
 
 class CremeDateTimeField(DateTimeField):
-    widget = CalendarWidget
+    widget = DateTimeWidget
 
 
 class MultiEmailField(Field):
