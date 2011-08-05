@@ -57,19 +57,19 @@ msgstr "Transformer en client"
 
 #: buttons.py:67
 msgid "Transform into a prospect"
-msgstr "Transfomer en prospect"
+msgstr "Transformer en prospect"
 
 #: buttons.py:75
 msgid "Transform into a suspect"
-msgstr "Transfomer en suspect"
+msgstr "Transformer en suspect"
 
 #: buttons.py:83
 msgid "Transform into an inactive customer"
-msgstr "Transfomer en client inactif"
+msgstr "Transformer en client inactif"
 
 #: buttons.py:91
 msgid "Transform into a supplier"
-msgstr "Transfomer en fournisseur"
+msgstr "Transformer en fournisseur"
 
 #: buttons.py:102
 msgid "Add a related contact"
