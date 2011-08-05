@@ -32,10 +32,10 @@ from creme_core.utils import get_ct_or_404, get_from_POST_or_404
 
 
 @login_required
-def add_properties_bulk(request, ct_id, ids):
+def add_properties_bulk(request, ct_id):#TODO: Factorise with add_relations_bulk and bulk_update?
     user     = request.user
     model    = get_ct_or_404(ct_id).model_class()
-    entities = get_list_or_404(model, pk__in=[id for id in ids.split(',') if id])
+    entities = get_list_or_404(model, pk__in=request.REQUEST.getlist('ids'))
 
     CremeEntity.populate_real_entities(entities)
     CremeEntity.populate_credentials(entities, user)

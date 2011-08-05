@@ -26,7 +26,14 @@
                 {{hidden}}
             {% endif %}
         {% endfor %}
-
+        <div style="display: none; visibility: hidden;">
+            {% for persist_key, persist_values in persisted.items %}
+                {% for persist_value in persist_values %}
+                    <input type="hidden" name="{{ persist_key }}" value="{{persist_value}}"/>
+                    <input type="hidden" name="persist" value="{{ persist_key }}"/>
+                {% endfor %}
+            {% endfor %}
+        </div>
         {% if form.non_field_errors %}
             <table class="table_detail_view ui-corner-all">
                 <thead>

@@ -61,7 +61,7 @@ creme.emails.mass_relation = function(url, selector, block_url) {
         return false;
     }
 
-    url += values.join(',') + ',';
+    url = creme.utils.appendInUrl(url, '?persist=ids&ids='+values.join('ids='));
 
     creme.utils.innerPopupNReload(url, block_url);
 };

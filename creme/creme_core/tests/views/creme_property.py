@@ -10,6 +10,11 @@ __all__ = ('PropertyViewsTestCase', )
 
 
 class PropertyViewsTestCase(ViewsTestCase):
+    def _format_entities_ids(self, key, *ids):
+        if ids:
+            return u"?persist=%s&ids=%s" % (key, "&ids=".join(str(id_) for id_ in ids))
+        return u""
+
     def test_add(self):
         self.login()
 
@@ -67,11 +72,12 @@ class PropertyViewsTestCase(ViewsTestCase):
             self.assertEqual(0, entity.properties.count())
 
         comma_sep_ids = ','.join([str(entity.id) for entity in entities])
+        formatted_ids = self._format_entities_ids("ids", *[str(entity.id) for entity in entities])
 
-        response = self.client.get('/creme_core/property/add_to_entities/%s/%s' % (centity_ct_id, comma_sep_ids))
+        response = self.client.get('/creme_core/property/add_to_entities/%s/%s' % (centity_ct_id, formatted_ids))
         self.assertEqual(200, response.status_code)
 
-        response = self.client.post('/creme_core/property/add_to_entities/%s/%s' % (centity_ct_id, comma_sep_ids),
+        response = self.client.post('/creme_core/property/add_to_entities/%s/%s' % (centity_ct_id, formatted_ids),
                                     data={
                                         'entities': comma_sep_ids,
                                         'types': [ptype01.id, ptype02.id],
@@ -97,7 +103,8 @@ class PropertyViewsTestCase(ViewsTestCase):
         ptype01 = CremePropertyType.create(str_pk='test-prop_foobar01', text='wears strange hats')
         ptype02 = CremePropertyType.create(str_pk='test-prop_foobar02', text='wears strange pants')
 
-        comma_sep_ids = '%s,%s,%s,%s' % (entity01.id, entity02.id, entity03.id,  entity04.id)
+        formatted_ids = self._format_entities_ids("ids", entity01.id, entity02.id, entity03.id,  entity04.id)
+
         centity_ct_id = ContentType.objects.get_for_model(CremeEntity).id
 
         self.failIf(entity01.can_change(self.user))
@@ -105,7 +112,7 @@ class PropertyViewsTestCase(ViewsTestCase):
 
         self.assertTrue(entity03.can_change(self.user))
 
-        url = '/creme_core/property/add_to_entities/%s/%s' % (centity_ct_id, comma_sep_ids)
+        url = '/creme_core/property/add_to_entities/%s/%s' % (centity_ct_id, formatted_ids)
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
@@ -156,7 +163,7 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.assert_(uneditable.can_view(self.user))
         self.failIf(uneditable.can_change(self.user))
 
-        response = self.client.get('/creme_core/property/add_to_entities/%s/%s' % (centity_ct_id, uneditable.id))
+        response = self.client.get('/creme_core/property/add_to_entities/%s/%s' % (centity_ct_id, self._format_entities_ids("ids", uneditable.id)))
         self.assertEqual(200, response.status_code)
 
         try:
@@ -175,7 +182,7 @@ class PropertyViewsTestCase(ViewsTestCase):
         centity_ct_id = ContentType.objects.get_for_model(CremeEntity).id
         entity01 = CremeEntity.objects.create(user=self.user)
 
-        url = '/creme_core/property/add_to_entities/%s/%s' % (centity_ct_id, entity01.id)
+        url = '/creme_core/property/add_to_entities/%s/%s' % (centity_ct_id, self._format_entities_ids("ids", entity01.id))
         self.assertEqual(200, self.client.get(url).status_code)
 
         self._set_all_creds_except_one(excluded=SetCredentials.CRED_CHANGE)

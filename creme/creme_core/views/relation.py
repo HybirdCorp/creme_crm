@@ -198,10 +198,10 @@ def add_relations(request, subject_id, relation_type_id=None):
                       )
 
 @login_required
-def add_relations_bulk(request, model_ct_id, ids, relations_types=None):
+def add_relations_bulk(request, model_ct_id, relations_types=None):#TODO: Factorise with add_properties_bulk and bulk_update?
     user = request.user
     model    = get_object_or_404(ContentType, pk=model_ct_id).model_class()
-    entities = get_list_or_404(model, pk__in=[id for id in ids.split(',') if id])
+    entities = get_list_or_404(model, pk__in=request.REQUEST.getlist('ids'))
 
     CremeEntity.populate_real_entities(entities)
     CremeEntity.populate_credentials(entities, user)

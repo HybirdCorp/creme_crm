@@ -320,7 +320,7 @@ creme.utils.loadBlock = function(url) {//TODO: move to creme.blocks
 
 if(typeof(creme.utils.stackedPopups)=="undefined") creme.utils.stackedPopups = [];//Avoid the re-declaration in case of reload of creme_utils.js
 
-creme.utils.showInnerPopup = function(url, options, div_id) {
+creme.utils.showInnerPopup = function(url, options, div_id, ajax_options) {
 //    console.log("creme.utils.showInnerPopup("+url+","+options+","+div_id+")");
 
     var $div = $('#'+div_id);
@@ -331,7 +331,7 @@ creme.utils.showInnerPopup = function(url, options, div_id) {
         $(document.body).append($div);
     }
     url += (url.indexOf('?') != -1) ? '&whoami='+div_id: '?whoami='+div_id;
-    $.ajax({
+    $.ajax(jQuery.extend({
         url: url,
         type: "GET",
         success: function(data) {
@@ -424,7 +424,7 @@ creme.utils.showInnerPopup = function(url, options, div_id) {
                 creme.utils.showDialog(req.responseText);
             }
         }
-    });
+    }, ajax_options));
     return div_id;
 }
 
@@ -432,10 +432,11 @@ creme.utils.handleDialogSubmit = function(dialog) {
     var div_id = dialog.attr('id');
     var $form = $('[name=inner_body]', dialog).find('form');
 
-    var post_data = {}
     var post_url = $('[name=inner_header_from_url]',dialog).val();
 
+    /* Commented 05 august 2011
     //TODO: use jquery.serialise
+    var post_data = {}
     $form.find('input[name!=], select[name!=], button[name!=], textarea[name!=]').each(function() {
        var $node = $(this);
        var $node_value = $node.val();
@@ -445,11 +446,17 @@ creme.utils.handleDialogSubmit = function(dialog) {
        if($node.is(':checked') && !$node.is(':radio')) post_data[$node.attr('name')] = $node.is(':checked'); //Works if the checkbox is not required in form (99% of cases)
     });
     post_data['whoami'] = div_id;
+    */
+
+    var data = $form.serialize();
+    if(data.length > 0) data += "&";
+    data += "whoami="+div_id;
 
     $.ajax({
           type: $form.attr('method'),
           url: post_url,
-          data : post_data,
+//          data : post_data,
+          data : data,
           beforeSend : function(request) {
               creme.utils.loading('loading', false, {});
           },
