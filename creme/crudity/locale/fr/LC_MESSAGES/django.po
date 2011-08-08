@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-04 14:42+0200\n"
+"POT-Creation-Date: 2011-08-08 16:21+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -47,7 +47,7 @@ msgstr "Actions en attente pour les emails"
 msgid "Are waiting actions are by user?"
 msgstr "Est-ce que les actions en attente sont par utilisateur?"
 
-#: backends/models.py:201
+#: backends/models.py:205
 #, python-format
 msgid "Creation of %(entity)s"
 msgstr "Creation de %(entity)s"
@@ -115,19 +115,6 @@ msgstr "Description"
 #: templates/crudity/frags/ajax/waiting_actions.html:11
 msgid "Refresh"
 msgstr "Rafraîchir"
-
-#: templates/crudity/infopath/create_template/frags/validation/email_field.xml:3
-msgid "Invalid email"
-msgstr "Email invalide"
-
-#: templates/crudity/infopath/create_template/frags/validation/email_field.xml:3
-msgid "Enter a valid email address. For example: creme@crm.org"
-msgstr "Entrez une adresse email valide. Par exemple: creme@crm.org"
-
-#: templates/crudity/infopath/create_template/frags/xsl/view/ForeignKey.xml:8
-#: tests/builders.py:434
-msgid "Select..."
-msgstr "Sélectionner..."
 
 #: templates/crudity/templatetags/block_history.html:31
 #, python-format
@@ -202,18 +189,34 @@ msgstr "Actions"
 msgid "No waiting action for %(ct_name)s from %(backend_source)s"
 msgstr "Aucune action en attente pour %(ct_name)s venant de %(backend_source)s"
 
+#: templates/crudity/templatetags/button_email_template_create.html:6
 #: templates/crudity/templatetags/button_infopath_create_form.html:6
 msgid "Download"
 msgstr "Télécharger"
+
+#: templates/crudity/templatetags/button_email_template_create.html:7
+#, python-format
+msgid "Email template for \"%(verbose_name)s\""
+msgstr "Modèle de mail pour \"%(verbose_name)s\""
 
 #: templates/crudity/templatetags/button_infopath_create_form.html:7
 #, python-format
 msgid "Infopath form for \"%(verbose_name)s\""
 msgstr "Formulaire Infopath pour \"%(verbose_name)s\""
 
+#: tests/builders.py:434
+msgid "Select..."
+msgstr "Sélectionner..."
+
 #: views/actions.py:56
 msgid "Operation successfully completed"
 msgstr ""
+
+#~ msgid "Invalid email"
+#~ msgstr "Email invalide"
+
+#~ msgid "Enter a valid email address. For example: creme@crm.org"
+#~ msgstr "Entrez une adresse email valide. Par exemple: creme@crm.org"
 
 #~ msgid "Read"
 #~ msgstr "Lire"

@@ -14,4 +14,6 @@ urlpatterns = patterns('crudity.views',
     (r'^history_block/block_crudity-(?P<ct_id>\d+)/reload$', 'history.reload'),
 
     (r'^infopath/create_form/(?P<subject>\w+)$', 'infopath.create_form'),
+
+    (r'^download_email_template/(?P<subject>\w+)$', 'email.download_email_template'),
 )

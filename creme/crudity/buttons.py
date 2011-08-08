@@ -27,4 +27,9 @@ class InfopathCreateFormButton(Button):
 
 infopath_create_form_button = InfopathCreateFormButton()
 
+class EmailTemplateCreateButton(Button):
+    id_           = Button.generate_id('crudity', 'email_template_create')
+    verbose_name  = u""
+    template_name = 'crudity/templatetags/button_email_template_create.html'
 
+email_template_create_button = EmailTemplateCreateButton()
