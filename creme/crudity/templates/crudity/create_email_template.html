@@ -1,0 +1,20 @@
+X-Mozilla-Draft-Info: internal/draft; vcard=0; receipt=0; DSN=0; uuencode=0
+User-Agent: Mozilla/5.0 (X11; Linux i686; rv:5.0) Gecko/20110627 Thunderbird/5.0
+MIME-Version: 1.0
+To: {{ to }}
+Subject: {{ backend.subject }}
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
+{% if contact.email %}From: =?ISO-8859-1?Q?{{ contact }}?= <{{ contact.email }}>{% endif %}
+
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+    <title>{{ backend.subject }}</title>
+  </head>
+  <body bgcolor="#FFFFFF" text="#3366FF">
+  {% for field_name, default_value in backend.body_map.iteritems %}
+    {{ field_name }}={{ default_value|default:"" }}<br>
+  {% endfor %}
+  </body>
+</html>

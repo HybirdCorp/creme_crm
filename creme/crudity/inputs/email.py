@@ -37,7 +37,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.gui.button_menu import Button
 from creme_core.gui.button_menu import Button
 from creme_core.views.file_handling import handle_uploaded_file
-from crudity.buttons import infopath_create_form_button
+from crudity.buttons import infopath_create_form_button, email_template_create_button
 
 from persons.models.contact import Contact
 
@@ -245,5 +245,7 @@ class CreateInfopathInput(CreateEmailInput):
         return data
 
 create_email_input    = CreateEmailInput()
+create_email_input.register_buttons(email_template_create_button)
+
 create_infopath_input = CreateInfopathInput()
 create_infopath_input.register_buttons(infopath_create_form_button)
