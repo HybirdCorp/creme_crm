@@ -48,7 +48,7 @@ class Contact(CremeEntity):
     position        = ForeignKey(Position, verbose_name=_(u'Position'), blank=True, null=True)
     sector          = ForeignKey(Sector, verbose_name=_(u'Line of business'), blank=True, null=True)
     email           = EmailField(_(u'Email'), max_length=100, blank=True, null=True)
-    url_site        = URLField(_(u'Web Site'), max_length=100, blank=True, null=True)
+    url_site        = URLField(_(u'Web Site'), max_length=100, blank=True, null=True, verify_exists=False)
     language        = ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'), blank=True, null=True)
     billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'), blank=True, null=True, related_name='billing_address_contact_set')
     shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'), blank=True, null=True, related_name='shipping_address_contact_set')
