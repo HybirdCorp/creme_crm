@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from functools import partial
 from itertools import chain
 
 from django.contrib.contenttypes.models import ContentType
@@ -29,7 +30,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.models import CremeModel, CremeEntity, EntityFilter
 from creme_core.models.custom_field import CustomField, _TABLES
 from creme_core.utils.meta import (get_field_infos, get_model_field_infos,
-                                   filter_entities_on_ct, get_fk_entity, get_m2m_entities, get_related_field)
+                                   filter_entities_on_ct, get_fk_entity, get_m2m_entities, get_related_field, get_verbose_field_name)
 from creme_core.models.header_filter import HFI_FUNCTION, HFI_RELATION, HFI_FIELD, HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED
 
 from reports.report_aggregation_registry import field_aggregation_registry
@@ -236,6 +237,23 @@ class Field(CremeModel):
                     res = [res]
 
                 return res
+
+            elif report and not selected:
+                scope = filter_entities_on_ct(related_entities, report.ct)
+                sub_model = report.ct.model_class()
+
+                if report.filter is not None:
+                    scope = report.filter.filter(sub_model.objects.filter(pk__in=[e.id for e in scope]))
+
+                sub_columns = report.columns.all()
+
+                _get_verbose_field_name = partial(get_verbose_field_name, model=sub_model, separator="-")
+                no_value = _(u"N/A")
+
+                return u", ".join([" - ".join(u"%s: %s" % (_get_verbose_field_name(field_name=sub_column.name), get_field_infos(sub_entity, sub_column.name)[1] or no_value)
+                                    for sub_column in sub_columns)
+                                  for sub_entity in scope
+                                  ])  or empty_value
 
             if selected:
 #                return related_entities
