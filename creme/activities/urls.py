@@ -25,7 +25,7 @@ urlpatterns = patterns('activities.views',
     (r'^calendar/my$',                                                  'calendar.user_calendar'),#for compatibility
     (r'^calendar/user$',                                                'calendar.user_calendar'),
 #    (r'^calendar/users_activities/(?P<usernames>([\w]+){1}(,[\w]+)*)$', 'calendar.get_users_activities'),
-    (r'^calendar/users_activities/(?P<usernames>([\w]+){1}(,[\w]+)*)/(?P<calendars_ids>([\d]+){0,1}(,[\d]+)*)$', 'calendar.get_users_activities'),
+    (r'^calendar/users_activities/(?P<usernames>([\w% ]+){1}(,[\w% ]+)*)/(?P<calendars_ids>([\d]+){0,1}(,[\d]+)*)$', 'calendar.get_users_activities'),
     (r'^calendar/activity/update',                                      'calendar.update_activity_date'),
     (r'^calendar/add$',                                                 'calendar.add_user_calendar'),
     (r'^calendar/(?P<calendar_id>\d+)/edit$',                           'calendar.add_user_calendar'),
