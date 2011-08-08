@@ -20,7 +20,7 @@
         {% endwith %}
         {% if actions.others %}
 <!--            <ul style="float: left; position: absolute; z-index: 10;" class="ui-widget ui-widget-content ui-corner-all ui-state-default">-->
-            <ul style="float: left; position: absolute; z-index: 10;" class="ui-widget ui-widget-content ui-corner-all">
+            <ul style="float: left; position: absolute; z-index: 10; display: none;" class="ui-widget ui-widget-content ui-corner-all">
                 {% for action in actions.others %}
                     <li>
                         {% if action.is_allowed %}
