@@ -1450,6 +1450,23 @@ class BillingTestCase(CremeTestCase):
             #Works with Postgres with autocommit option enabled in settings
             self.fail("Exception:%s. Maybe the db doesn't support transaction ?" % e)
 
+#    def test_delete02(self):#Check everything is cleaned
+#        self.login()
+#        invoice, source, target = self.create_invoice_n_orgas('Invoice001')
+#
+#        service_line = ServiceLine.objects.create(user=self.user)
+#        service_line.related_document = invoice
+#
+#        ce = CremeEntity.objects.create(user=self.user)
+#
+#        Relation.objects.create(subject_entity=invoice, object_entity=ce, type_id=REL_SUB_HAS, user=self.user)
+#
+#        self.assertRaises(Invoice.DoesNotExist, Invoice.objects.get, pk=invoice.pk)
+#        Organisation.objects.get(pk=source.pk)
+#        Organisation.objects.get(pk=target.pk)
+#        ServiceLine.objects.get(pk=service_line.pk)
+#        CremeEntity.objects.get(pk=ce.id)
+
 #TODO: add tests for other billing document (Quote, SalesOrder, CreditNote), clone on all of this (with Lines)
 
 
