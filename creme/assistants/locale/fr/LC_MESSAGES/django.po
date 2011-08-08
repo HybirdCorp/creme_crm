@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-11 15:51+0200\n"
+"POT-Creation-Date: 2011-08-08 16:12+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -399,7 +399,7 @@ msgstr "Nouveau mémo"
 #: templates/assistants/block_messages.html:22
 #: templates/assistants/block_todos.html:22
 msgid "Created"
-msgstr "Crée le"
+msgstr "Créé le"
 
 #: templates/assistants/block_memos.html:43
 msgid "No memo for the moment"
