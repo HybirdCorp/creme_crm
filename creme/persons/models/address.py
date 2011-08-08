@@ -35,17 +35,17 @@ class Address(CremeModel):
     name       = CharField(_(u"Name"), max_length=100, blank=True, null=True)
     address    = TextField(_(u"Address"), blank=True, null=True)
     po_box     = CharField(_(u"PO box"), max_length=50, blank=True, null=True)
-    city       = CharField(_(u"City"), max_length=100, blank=True, null=True)
-    state      = CharField(_(u"State"), max_length=100, blank=True, null=True)
     zipcode    = CharField(_(u"Zip code"), max_length=100, blank=True, null=True)
-    country    = CharField(_(u"Country"), max_length=40, blank=True, null=True)
+    city       = CharField(_(u"City"), max_length=100, blank=True, null=True)
     department = CharField(_(u"Department"), max_length=100, blank=True, null=True)
+    state      = CharField(_(u"State"), max_length=100, blank=True, null=True)
+    country    = CharField(_(u"Country"), max_length=40, blank=True, null=True)
 
     content_type = ForeignKey(ContentType, related_name="object_set")
     object_id    = PositiveIntegerField()
     owner        = GenericForeignKey(ct_field="content_type", fk_field="object_id")
 
-    research_fields = CremeEntity.research_fields + ['address', 'po_box', 'city', 'state', 'zipcode', 'country', 'department']
+    research_fields = CremeEntity.research_fields + ['address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country']
     header_filter_exclude_fields = CremeEntity.header_filter_exclude_fields + ['object_id', ]
 
     class Meta:
@@ -64,7 +64,7 @@ class Address(CremeModel):
     def get_related_entity(self): #for generic views
         return self.owner
 
-    _INFO_FIELD_NAMES = ('name', 'address', 'po_box', 'city', 'state', 'zipcode', 'country', 'department')
+    _INFO_FIELD_NAMES = ('name', 'address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country')
 
     #TODO: unitest ??
     def __nonzero__(self): #used by forms to detect empty addresses
