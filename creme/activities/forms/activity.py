@@ -182,12 +182,13 @@ class ActivityCreateForm(CremeEntityForm):
         my_participation = self.cleaned_data.get('my_participation', False)
         user = self.user
 
-        try:
-            user_contact = Contact.objects.get(is_user=user)
-        except Contact.DoesNotExist:
-            debug('No Contact linked to this user: %s', user)
-        else:
-            self.participants.append(validate_linkable_entity(user_contact, user))
+        if my_participation:
+            try:
+                user_contact = Contact.objects.get(is_user=user)
+            except Contact.DoesNotExist:
+                debug('No Contact linked to this user: %s', user)
+            else:
+                self.participants.append(validate_linkable_entity(user_contact, user))
 
         return my_participation
 
