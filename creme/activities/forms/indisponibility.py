@@ -27,11 +27,12 @@ from creme_core.forms import CremeEntityForm, CremeDateTimeField
 
 from activities.models import Activity
 from activities.constants import ACTIVITYTYPE_INDISPO
+from creme_core.forms.widgets import DateTimeWidget
 
 
 class IndisponibilityCreateForm(CremeEntityForm):
-    start = CremeDateTimeField(label=_(u'Start'))
-    end   = CremeDateTimeField(label=_(u'End'))
+    start = CremeDateTimeField(label=_(u'Start'), widget=DateTimeWidget)
+    end   = CremeDateTimeField(label=_(u'End'),   widget=DateTimeWidget)
 
     class Meta(CremeEntityForm.Meta):
         model = Activity

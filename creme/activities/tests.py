@@ -294,6 +294,7 @@ class ActivitiesTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
         self.assert_(response.redirect_chain)
+        self.assertEqual(u"http://testserver%s" % contact01.get_absolute_url(), response.redirect_chain[-1][0])#Redirect to related entity detailview
 
         try:
             meeting = Meeting.objects.get(title=title)
