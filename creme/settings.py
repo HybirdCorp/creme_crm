@@ -291,7 +291,7 @@ GLOBAL_MEDIA_DIRS = (join(dirname(__file__), 'static'),)
 
 #TODO: create a static/css/creme-minimal.css for login/logout ??
 CREME_CORE_CSS = ('main.css',
-                    'creme_core/css/jquery-css/creme-theme/jquery-ui-1.7.2.custom.css',
+                    'creme_core/css/jquery-css/creme-theme/jquery-ui-1.8.15.custom.css',
                     'creme_core/css/fg-menu-3.0/fg.menu.css',
                     'creme_core/css/jquery.gccolor.1.0.3/gccolor.css',
 
@@ -314,13 +314,11 @@ CREME_I18N_JS = ('l10n.js',
 CREME_CORE_JS = ('main.js',
                     {'filter': 'mediagenerator.filters.media_url.MediaURL'}, #to get the media_url() function in JS.
 
-                    'creme_core/js/jquery/jquery-1.3.2.js',
-                    #'creme_core/js/jquery/ui/ui.core.js', #delete file ??
-                    #'creme_core/js/jquery/ui/ui.draggable.js', #delete file ??
-                    'creme_core/js/jquery/ui/jquery-ui-1.7.2.custom.min.js', #TODO: use a non minified version ?
+                    'creme_core/js/jquery/jquery-1.6.2.js',
+                    'creme_core/js/jquery/ui/jquery-ui-1.8.15.custom.js',
                     'creme_core/js/jquery/extensions/cookie.js',
                     'creme_core/js/jquery/extensions/fg-menu-3.0/fg.menu.js',
-                    'creme_core/js/jquery/extensions/fg-menu-3.0/jquery.hotkeys-0.7.8.js',
+                    'creme_core/js/jquery/extensions/fg-menu-3.0/jquery.hotkeys-0.8.js',
                     'activities/js/jquery/extensions/fullcalendar-1.4.5.js', #TODO: move with activities.js (beware it causes errors for now)
                     'creme_core/js/jquery/extensions/gccolor-1.0.3.js',
                     'creme_core/js/jquery/extensions/json-2.2.js',
@@ -377,6 +375,12 @@ CREME_OPT_JS = ( #OPTIONNAL APPS
                 ('creme.emails',  'emails/js/emails.js'),
                 ('creme.cti',     'cti/js/cti.js'),
                )
+
+TEST_CREME_CORE_JS = (#js Unit test files
+    'test_core.js',
+    'creme_core/js/tests/qunit.js',
+    'creme_core/js/tests/utils.js',
+) if DEBUG else ()
 
 ROOT_MEDIA_FILTERS = {
     'js':  'mediagenerator.filters.yuicompressor.YUICompressor',
@@ -474,7 +478,7 @@ except ImportError:
     pass
 
 #MEDIA GENERATOR [FINAL SETTINGS]
-MEDIA_BUNDLES = (CREME_CORE_CSS, CREME_I18N_JS, CREME_CORE_JS + tuple(js for app, js in CREME_OPT_JS if app in INSTALLED_APPS))
+MEDIA_BUNDLES = (CREME_CORE_CSS, CREME_I18N_JS, CREME_CORE_JS + tuple(js for app, js in CREME_OPT_JS if app in INSTALLED_APPS), TEST_CREME_CORE_JS)
 
 LOCALE_PATHS = [join(CREME_ROOT, "locale")]
 for app_name in INSTALLED_APPS:

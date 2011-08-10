@@ -2,9 +2,10 @@
 {% load creme_core_tags %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
-    <thead>
-        <tr><th colspan="2" align="left">{% trans "Target" %}</th></tr>
-    </thead>
+    {% get_block_header colspan=2 %}
+        <th style="width: 80%;" align="left" class="collapser">{% get_basic_block_header _("Target") %}</th>
+        <th style="width: 20%;" align="right"></th>
+    {% end_get_block_header %}
     <tbody class="collapsable">
         <tr>
              <th class="block_header_line_dark th_info" align="center" valign="center"><h1>{% trans "Target organisation" %}</h1></th>

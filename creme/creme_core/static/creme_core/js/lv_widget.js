@@ -35,6 +35,7 @@ creme.lv_widget.init_widget = function(id, q_filter, extra_attrs) {
         $div
         .attr('id', id+'_div')
         .text(gettext("Select") + ' : ' + $('label[for=' + id + ']').text())
+        .addClass('defaultcur')
         .append(
             $('<img />').attr('src', media_url("images/add_16.png")).attr('alt', gettext("Add")).attr('title', gettext("Add"))
             .bind('click',
@@ -64,6 +65,7 @@ creme.lv_widget.init_widget = function(id, q_filter, extra_attrs) {
                         var dialog_id = creme.utils.showInnerPopup('/creme_core/lv_popup/' + e.data.input.attr('ct_id') + '/' + e.data.input.attr('o2m') + '?q_filter=' + q_filter, options);
                   }
             )
+            .addClass('pointer')
         )
     );
 }

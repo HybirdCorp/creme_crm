@@ -100,7 +100,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None, template='creme
         _search = bool(int(POST_get('_search')))
         current_lvs._search = _search
     except (ValueError, TypeError), error:
-        _search = current_lvs._search or True
+        _search = current_lvs._search or False
 
     ct = ContentType.objects.get_for_model(model)
     header_filters = HeaderFilterList(ct)

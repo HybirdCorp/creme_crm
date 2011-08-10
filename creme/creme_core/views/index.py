@@ -29,3 +29,5 @@ def _home(request, template):
 
 home    = lambda request: _home(request, 'creme_core/home.html')
 my_page = lambda request: _home(request, 'creme_core/my_page.html')
+test_js = lambda request: _home(request, 'creme_core/test_js.html')
+
