@@ -271,6 +271,7 @@ class ActivityCreateForm(CremeEntityForm):
 class RelatedActivityCreateForm(ActivityCreateForm):
     def __init__(self, entity_for_relation, relation_type, *args, **kwargs):
         super(RelatedActivityCreateForm, self).__init__(*args, **kwargs)
+        self.entity_for_relation = entity_for_relation
         fields = self.fields
         rtype_id = relation_type.id
 
