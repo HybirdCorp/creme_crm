@@ -97,6 +97,7 @@ a {
 	-o-transition: color .4s linear;
 	-ms-transition: color .4s linear;
 	transition: color .4s linear;
+    cursor: pointer;
 }
 
 a:hover {
@@ -816,6 +817,9 @@ textarea:disabled, textarea[readonly] {
     cursor: pointer;
 }
 
+.defaultcur {
+    cursor: default;
+}
 
 /* BUTTONS */
 
@@ -992,4 +996,8 @@ textarea:disabled, textarea[readonly] {
 	width: 200%;
 	height: 200%;
     z-index: 2000;
+}
+
+.ui-datepicker-trigger {
+    cursor: pointer;
 }

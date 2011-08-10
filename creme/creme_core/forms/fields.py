@@ -727,7 +727,7 @@ class CremeDateField(DateField):
 
 
 class CremeDateTimeField(DateTimeField):
-    widget = DateTimeWidget
+    widget = CalendarWidget
 
 
 class MultiEmailField(Field):
