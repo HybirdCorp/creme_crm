@@ -46,7 +46,13 @@ def _add_activity(request, class_form, **form_args):
         if activity_form.is_valid():
             activity_form.save()
 
-            return  HttpResponseRedirect('/activities/calendar/my')
+            related_url = None
+            if hasattr(activity_form, 'entity_for_relation'):
+                related_url = activity_form.entity_for_relation.get_absolute_url()
+            elif hasattr(activity_form.instance, 'get_absolute_url'):
+                related_url = activity_form.instance.get_absolute_url()
+
+            return  HttpResponseRedirect(related_url or '/activities/calendar/my')
     else:
         activity_form = class_form(user=request.user, **form_args)
 
