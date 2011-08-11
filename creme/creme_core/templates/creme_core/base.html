@@ -120,38 +120,19 @@
             creme.utils.go_to($('a:first',this).attr('href'), false);
         });
 
-        function bind_scroll() {
+        (function bind_scroll() {
             $(window).scroll(function(){
                 var $menu = $('.fg-menu-container');
 
                 if ($(this).scrollTop() > $('#logo_container').outerHeight()){
                     $menu.addClass('top_fixed');
+                    $menu.css("left", -$(window).scrollLeft()+"px");
                 }
                 else{
                     $menu.removeClass('top_fixed');
                 }
             });
-            $.cookie('fix_menu_checked', false, {expires: 7, path: '/', domain: '', secure: false});
-        }
-
-        $('.fg-menu-container').find('#fix_menu').click(function() {
-           var $chk = $(this);
-           if($chk.is(':checked')) {
-               $(document).unbind('scroll');
-               $('.fg-menu-container').removeClass('top_fixed');
-               $.cookie('fix_menu_checked', true, {expires: 7, path: '/', domain: '', secure: false});
-           } else {
-                bind_scroll();
-           }
-        });
-
-        var c_fix_menu_checked = $.cookie('fix_menu_checked');
-        $('.fg-menu-container').find('#fix_menu').check();
-
-        if(c_fix_menu_checked == null || c_fix_menu_checked == false || c_fix_menu_checked == "false") {
-            bind_scroll();
-            $('.fg-menu-container').find('#fix_menu').uncheck();
-        }
+        })();
       });
 
       window.onload = function() {
