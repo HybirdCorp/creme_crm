@@ -380,7 +380,7 @@ TEST_CREME_CORE_JS = (#js Unit test files
     'test_core.js',
     'creme_core/js/tests/qunit.js',
     'creme_core/js/tests/utils.js',
-) if DEBUG else ()
+)
 
 ROOT_MEDIA_FILTERS = {
     'js':  'mediagenerator.filters.yuicompressor.YUICompressor',
@@ -478,7 +478,9 @@ except ImportError:
     pass
 
 #MEDIA GENERATOR [FINAL SETTINGS]
-MEDIA_BUNDLES = (CREME_CORE_CSS, CREME_I18N_JS, CREME_CORE_JS + tuple(js for app, js in CREME_OPT_JS if app in INSTALLED_APPS), TEST_CREME_CORE_JS)
+MEDIA_BUNDLES = (CREME_CORE_CSS, CREME_I18N_JS, CREME_CORE_JS + tuple(js for app, js in CREME_OPT_JS if app in INSTALLED_APPS))
+if DEBUG:
+    MEDIA_BUNDLES += (TEST_CREME_CORE_JS,)
 
 LOCALE_PATHS = [join(CREME_ROOT, "locale")]
 for app_name in INSTALLED_APPS:
