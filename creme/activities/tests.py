@@ -822,3 +822,99 @@ class ActivitiesTestCase(CremeTestCase):
 
         self.assertUserHasDefaultCalendar(user)
 #TODO: complete test case
+
+    def test_indisponibility_createview01(self):
+        self.login()
+
+        user = self.user
+        me = Contact.objects.create(user=user, is_user=user, first_name='Ryoga', last_name='Hibiki')
+
+        self.assertEqual(200, self.client.get('/activities/indisponibility/add').status_code)
+
+        title  = 'away'
+        status = Status.objects.all()[0]
+        my_calendar = Calendar.get_user_default_calendar(self.user)
+
+        response = self.client.post('/activities/indisponibility/add',
+                                    follow=True,
+                                    data={
+                                            'user':               user.pk,
+                                            'title':              title,
+                                            'status':             status.pk,
+                                            'start':              '2010-1-10',
+                                            'end':                '2010-1-12',
+                                            'start_time':         '09:08:07',
+                                            'end_time':           '06:05:04',
+                                            'my_participation':   True,
+                                            'my_calendar':        my_calendar.pk,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        try:
+            act  = Activity.objects.get(type=ACTIVITYTYPE_INDISPO, title=title)
+        except Exception, e:
+            self.fail(str(e))
+
+        start = act.start
+        self.assertEqual(2010,  start.year)
+        self.assertEqual(1,     start.month)
+        self.assertEqual(10,    start.day)
+        self.assertEqual(9,    start.hour)
+        self.assertEqual(8,    start.minute)
+        self.assertEqual(7,    start.second)
+
+        end = act.end
+        self.assertEqual(2010,  end.year)
+        self.assertEqual(1,     end.month)
+        self.assertEqual(12,    end.day)
+        self.assertEqual(6,    end.hour)
+        self.assertEqual(5,    end.minute)
+        self.assertEqual(4,    end.second)
+
+    def test_indisponibility_createview02(self):
+        self.login()
+
+        user = self.user
+        me = Contact.objects.create(user=user, is_user=user, first_name='Ryoga', last_name='Hibiki')
+
+        self.assertEqual(200, self.client.get('/activities/indisponibility/add').status_code)
+
+        title  = 'away'
+        status = Status.objects.all()[0]
+        my_calendar = Calendar.get_user_default_calendar(self.user)
+
+        response = self.client.post('/activities/indisponibility/add',
+                                    follow=True,
+                                    data={
+                                            'user':               user.pk,
+                                            'title':              title,
+                                            'status':             status.pk,
+                                            'start':              '2010-1-10',
+                                            'end':                '2010-1-12',
+                                            'start_time':         '09:08:07',
+                                            'end_time':           '06:05:04',
+                                            'is_all_day':         True,
+                                            'my_participation':   True,
+                                            'my_calendar':        my_calendar.pk,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        try:
+            act  = Activity.objects.get(type=ACTIVITYTYPE_INDISPO, title=title)
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assert_(act.is_all_day)
+        start = act.start
+        self.assertEqual(2010,  start.year)
+        self.assertEqual(1,     start.month)
+        self.assertEqual(10,    start.day)
+
+        end = act.end
+        self.assertEqual(2010,  end.year)
+        self.assertEqual(1,     end.month)
+        self.assertEqual(12,    end.day)

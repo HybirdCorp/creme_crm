@@ -1001,3 +1001,11 @@ textarea:disabled, textarea[readonly] {
 .ui-datepicker-trigger {
     cursor: pointer;
 }
+
+.top_fixed {
+     display: block;
+     top: 0 !important;
+     z-index: 1000;
+     left: 0;
+     position: fixed;
+}
