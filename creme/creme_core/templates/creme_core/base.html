@@ -121,8 +121,9 @@
         });
 
         function bind_scroll() {
-            $(document).scroll(function(){
+            $(window).scroll(function(){
                 var $menu = $('.fg-menu-container');
+
                 if ($(this).scrollTop() > $('#logo_container').outerHeight()){
                     $menu.addClass('top_fixed');
                 }
