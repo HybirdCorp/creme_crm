@@ -463,6 +463,12 @@ creme.utils.handleDialogSubmit = function(dialog) {
           success: function(data, status) {
               data += '<input type="hidden" name="whoami" value="'+div_id+'"/>'
               $('[name=inner_body]','#'+div_id).html(data);
+              var $error_list = $('.errorlist:first', '.non_field_errors');
+              if($error_list.size() > 0){
+                var err_pos = $error_list.position();
+                scrollTo(err_pos.left, err_pos.top);
+              }
+
           },
           error: function(request, status, error) {
             creme.utils.showErrorNReload();
