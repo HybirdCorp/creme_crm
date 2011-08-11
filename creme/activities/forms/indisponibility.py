@@ -27,19 +27,22 @@ from creme_core.forms import CremeEntityForm, CremeDateTimeField
 
 from activities.models import Activity
 from activities.constants import ACTIVITYTYPE_INDISPO
-from creme_core.forms.widgets import DateTimeWidget
+from creme_core.forms.fields import CremeTimeField, CremeDateField
 
 
 class IndisponibilityCreateForm(CremeEntityForm):
-    start = CremeDateTimeField(label=_(u'Start'), widget=DateTimeWidget)
-    end   = CremeDateTimeField(label=_(u'End'),   widget=DateTimeWidget)
+    start = CremeDateField(label=_(u'Start'))
+    end   = CremeDateField(label=_(u'End'))
+
+    start_time = CremeTimeField(label=_(u'Start time'))
+    end_time   = CremeTimeField(label=_(u'End time'))
 
     class Meta(CremeEntityForm.Meta):
         model = Activity
         exclude = CremeEntityForm.Meta.exclude + ('type',)
 
     blocks = CremeEntityForm.blocks.new(
-                ('datetime', _(u'When'), ['start', 'end', 'is_all_day']),
+                ('datetime', _(u'When'), ['start', 'start_time', 'end', 'end_time', 'is_all_day']),
             )
 
     def __init__(self, *args, **kwargs):
@@ -47,8 +50,9 @@ class IndisponibilityCreateForm(CremeEntityForm):
 
         fields = self.fields
         now = datetime.datetime.now()
-        fields['start'].initial = now.replace(hour=9, minute=0, second=0, microsecond=0)
-        fields['end'].initial   = now.replace(hour=18, minute=0, second=0, microsecond=0)
+        fields['start'].initial = fields['end'].initial = now
+        fields['start_time'].initial = datetime.time(hour=9, minute=0, second=0, microsecond=0)
+        fields['end_time'].initial   = datetime.time(hour=18, minute=0, second=0, microsecond=0)
 
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -57,11 +61,20 @@ class IndisponibilityCreateForm(CremeEntityForm):
             return cleaned_data
 
         if cleaned_data.get('start') > cleaned_data.get('end'):
-            raise ValidationError(ugettext(u"End time is before start time"))
+            raise ValidationError(ugettext(u"End date is before start date"))
+
+        if self._get_dt(cleaned_data.get('start'), cleaned_data.get('start_time')) > self._get_dt(cleaned_data.get('end'), cleaned_data.get('end_time')):
+            raise ValidationError(ugettext(u"End date is before start date"))
 
         return cleaned_data
 
+    def _get_dt(self, date_value, time_value):
+        return datetime.datetime(day=date_value.day, month=date_value.month, year=date_value.year, hour=time_value.hour, minute=time_value.minute, second=time_value.second)
+
     def save(self):
+        cleaned_data = self.cleaned_data
         self.instance.type_id = ACTIVITYTYPE_INDISPO
+        self.instance.start = self._get_dt(cleaned_data.get('start'), cleaned_data.get('start_time'))
+        self.instance.end   = self._get_dt(cleaned_data.get('end'), cleaned_data.get('end_time'))
 #        self.instance.end = self.cleaned_data['end'].replace(hour=23, minute=59, second=59, microsecond=59)
         return super(IndisponibilityCreateForm, self).save()
