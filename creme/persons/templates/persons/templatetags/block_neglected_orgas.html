@@ -7,16 +7,16 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
             </tr>
             {% for orga in page.object_list %}
-                <tr>
+                <tr class="content">
                     <td class="{% cycle "block_line_dark" "block_line_light" %}">{% widget_entity_hyperlink orga user %}</td>
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">
                     {% block empty_msg %}{% trans "No neglected organisation for the moment" %}{% endblock %}
                 </td>

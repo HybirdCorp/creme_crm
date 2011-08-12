@@ -3,14 +3,14 @@
 {% load creme_core_tags %}{% load creme_block %}
 <table class="table_header" cellpadding="0" cellspacing="0">
     <tr>
-        <td width="5%"><img src="{% media_url 'images/email_64.png' %}" alt="{% trans "Emails" %}"/></td>
-        <td width="70%">
+        <td class="logo"><img src="{% media_url 'images/email_64.png' %}" alt="{% trans "Emails" %}"/></td>
+        <td class="title">
             <h1>
                 {% trans "Synchronization of incoming emails with Creme" %}
             </h1>
         </td>
 
-        <td width="25%" align="right">
+        <td class="actions">
             <span>
                 <a onclick="creme.reload_synchronisation($('#sub_content'), '/emails/synchronization');">
                     <img src="{% media_url 'images/refresh_64.png' %}" title="{% trans "Refresh" %}" alt="{% trans "Refresh" %}"/>

@@ -13,7 +13,7 @@
             {% end_get_block_header %}
             <tbody class="collapsable">
                 {% for field, value in custom_fields_n_values %}
-                    <tr>
+                    <tr class="content">
                         <th class="{% cycle "block_header_line_dark" "block_header_line_light" %} th_info">{{field.name}}</th>
                         <td class="{% cycle "block_line_dark" "block_line_light" %} td_info">{{value}}</td>
                     </tr>

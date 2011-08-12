@@ -12,14 +12,14 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>{% get_column_header _('Name') 'name' %}</tr>
+            <tr class="header">{% get_column_header _('Name') 'name' %}</tr>
             {% for segment in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}">{{segment.name}}</td>
                 </tr>
             {% endfor %}
         {% else %}
-            <tr><td class="block_line_dark">{% trans "No market segment for the moment" %}</td></tr>
+            <tr class="content empty"><td class="block_line_dark">{% trans "No market segment for the moment" %}</td></tr>
         {% endif %}
     </tbody>
     {% include 'creme_core/templatetags/widgets/block_footer.html' %}

@@ -6,11 +6,11 @@
         <th style="width: 20%;" align="right"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
-        <tr>
+        <tr class="content">
             <th class="block_header_line_dark th_info">{% trans "Total cost of the projet (€)" %}</th>
             <td class="block_line_dark td_info" align="center"><strong>{{object.get_project_cost}} €</strong></td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="block_header_line_dark th_info">{% trans "Total overtime (in hours)" %}</th>
             <td class="block_line_dark td_info" align="center">
             {% if object.get_delay %}

@@ -21,30 +21,30 @@
             </tr>
         {% endif %}
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_dark">{% trans "Between" %}</th>
                 <th class="block_header_line_dark">{% trans "And" %}</th>
                 <th class="block_header_line_dark">{% trans "Duration (hours)" %}</th>
                 <th class="block_header_line_dark">{% trans "Concerned resource(s)" %}</th>
-                <th class="block_header_line_dark">{% trans "Actions" %}</th>
+                <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
             {% for period in page.object_list %}
                 <!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}" align="center">{{period.start_date}}</td>
                     <td class="{{row_color}}" align="center">{{period.end_date}}</td>
                     <td class="{{row_color}}" align="center">{{period.duration}} h</td>
                     <td class="{{row_color}}" align="center">
                         <a href="{{period.resource.get_absolute_url}}">{{period.resource}}</a>
                     </td>
-                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                    <td class="{{row_color}} action">
                         {% get_line_editor at_url '/projects/period/edit/{{period.id}}' with_perms task_change_perm %}
                         {% get_line_deletor at_url '/projects/period/delete' with_args "{'id': {{period.pk}} }" with_perms task_change_perm %}
                     </td>
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No working period record for this task" %}</td>
             </tr>
         {% endif %}

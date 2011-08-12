@@ -7,7 +7,7 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 {% get_column_header _('Date') 'date' %}
                 {% if not object %}
                     <th class="block_header_line_dark">{% trans "Concerned entity" %}</th>
@@ -17,7 +17,7 @@
                 <th class="block_header_line_dark">{% trans "By" %}</th>
             </tr>
             {% for line in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}">{% print_field object=line field='date' %}</td>
                     {% if not object %}
                         <td class="{{row_color}}">
@@ -50,7 +50,7 @@
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No history for the moment" %}</td>
             </tr>
         {% endif %}

@@ -13,21 +13,21 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if custom %}
-            <tr>
+            <tr class="header toolbar">
                 <th class="block_header_line_dark" align="left" colspan="4">
                     {% get_line_adder at_url '/creme_config/relation_type/add/' with_label _("New custom type") with_perms 1 %}
                 </th>
             </tr>
         {% endif %}
         {% if page.paginator.count %}
-            <tr >
+            <tr class="header">
                 <th class="block_header_line_dark">{% trans "Subject(s)" %}</th>
                 <th class="block_header_line_dark">{% trans "Predicate" %}</th>
                 <th class="block_header_line_dark">{% trans "Object(s)" %}</th>
-                {% if custom %}<th class="block_header_line_dark">{% trans "Actions" %}</th>{% endif %}
+                {% if custom %}<th class="block_header_line_dark action">{% trans "Actions" %}</th>{% endif %}
             </tr>
             {% for relation_type in page.object_list %}<!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}">
                         {% widget_select_or_msg relation_type.subject_ctypes.all _('No type') %}
                         ({% widget_select_or_msg relation_type.subject_properties.all _('No property') %})
@@ -40,7 +40,7 @@
                         ({% widget_select_or_msg relation_type.object_properties.all _('No property') %})
                     </td>
                     {% if custom %}
-                        <td class="{{row_color}}">
+                        <td class="{{row_color}} action">
                             {% get_line_editor at_url '/creme_config/relation_type/edit/{{relation_type.id}}' with_perms 1 %}
                             {% get_line_deletor at_url '/creme_config/relation_type/delete' with_args "{'id':'{{relation_type.pk}}'}" with_perms 1 %}
                         </td>
@@ -48,7 +48,7 @@
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No custom type of relation for the moment" %}</td>
             </tr>
         {% endif %}

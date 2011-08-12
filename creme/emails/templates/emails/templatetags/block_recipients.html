@@ -24,20 +24,20 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_dark">{% trans "Address" %}</th>
-                <th class="block_header_line_dark">{% trans "Delete" %}</th>
+                <th class="block_header_line_dark action">{% trans "Delete" %}</th>
             </tr>
             {% for recipient in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}">{{recipient.address}}</td>
-                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                    <td class="{{row_color}} action">
                         {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id':{{recipient.pk}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No unlinked recipient for the moment" %}</td>
             </tr>
         {% endif %}

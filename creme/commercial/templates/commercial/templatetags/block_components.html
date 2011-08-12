@@ -14,13 +14,13 @@
     <tbody class="collapsable">
         {% if components %}
             {% for component in components %}<!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}">{% for i in component.deep|xrange %}&nbsp;&nbsp;&nbsp;{% endfor %}{{component}}</td>
-                    <td class="{{row_color}}">
+                    <td class="{{row_color}}">{% comment %}TODO: Add a class for inline action ? {% endcomment %}
                         {% get_line_adder at_url '/commercial/objective_pattern/component/{{component.id}}/add_child' with_label _("New sub-objective") with_perms has_perm %}
                         {% get_line_adder at_url '/commercial/objective_pattern/component/{{component.id}}/add_parent' with_label _("New parent objective") with_perms has_perm %}
                     </td>
-                    <td class="{{row_color}}">
+                    <td class="{{row_color}} action">
                         {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id' : {{component.id}} }" with_perms has_perm %}
                     </td>
                 </tr>

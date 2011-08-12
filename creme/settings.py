@@ -298,7 +298,13 @@ CREME_CORE_CSS = ('main.css',
                     'creme_core/css/creme.css',
                     'creme_core/css/creme-ui.css',
 
+                    'creme_core/css/blocks.css',
+                    'creme_core/css/home.css',
+                    'creme_core/css/my_page.css',
+                    'creme_core/css/search_results.css',
+                    'creme_core/css/portal.css',
                     'creme_core/css/list_view.css',
+                    'creme_core/css/detail_view.css',
                     'creme_core/css/navit.css',
 
                     #APPS
@@ -306,6 +312,10 @@ CREME_CORE_CSS = ('main.css',
                     'activities/css/activities.css',
                     'commercial/css/commercial.css',
                  )
+
+CREME_OPT_CSS = ( #OPTIONNAL APPS
+                ('creme.crudity', 'crudity/css/crudity.css'),
+               )
 
 CREME_I18N_JS = ('l10n.js',
                     {'filter': 'mediagenerator.filters.i18n.I18N'}, #to build the i18n catalog statically.
@@ -474,7 +484,10 @@ except ImportError:
     pass
 
 #MEDIA GENERATOR [FINAL SETTINGS]
-MEDIA_BUNDLES = (CREME_CORE_CSS, CREME_I18N_JS, CREME_CORE_JS + tuple(js for app, js in CREME_OPT_JS if app in INSTALLED_APPS))
+MEDIA_BUNDLES = (CREME_CORE_CSS + tuple(css for app, css in CREME_OPT_CSS if app in INSTALLED_APPS),
+                 CREME_I18N_JS,
+                 CREME_CORE_JS + tuple(js for app, js in CREME_OPT_JS if app in INSTALLED_APPS)
+                )
 
 LOCALE_PATHS = [join(CREME_ROOT, "locale")]
 for app_name in INSTALLED_APPS:

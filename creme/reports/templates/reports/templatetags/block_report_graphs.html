@@ -16,18 +16,18 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
-                <th class="block_header_line_dark" style="width:20px;">&nbsp;</th>
+            <tr class="header">
+                <th class="block_header_line_dark action"></th>
                 {% get_column_header _('Name') 'name' %}
                 {% get_column_header _('Column abscissa') 'abscissa' %}
                 {% get_column_header _('Column ordinate') 'ordinate' %}
                 {% get_column_header _('Type') 'type' %}
-                <th class="block_header_line_dark">{% trans 'Actions' %}</th>
+                <th class="block_header_line_dark action">{% trans 'Actions' %}</th>
             </tr>
             {% for graph in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
-                    <td class="{{row_color}}" style="width:20px;">
+                <tr class="content">
+                    <td class="{{row_color}} action">
                         <img class="pointer report_graph_{{graph.id}}" src="{% media_url 'images/expandme.gif' %}" alt="{% trans 'Expand' %}" title="{% trans 'Expand' %}"/>
                         <img class="pointer report_graph_{{graph.id}}_expanded" src="{% media_url 'images/expanded.gif' %}" alt="{% trans 'Reduce' %}" title="{% trans 'Reduce' %}" style="display:none;"/>
                     </td>
@@ -35,7 +35,7 @@
                     <td class="{{row_color}}">{{graph|verbose_abscissa:graph.abscissa}}</td>
                     <td class="{{row_color}}">{{graph|verbose_ordinate:graph.ordinate}}</td>
                     <td class="{{row_color}}">{{verbose_report_graph_types|get_value:graph.type}}{% if graph.days %} ({{graph.days}}){% endif %}</td>
-                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                    <td class="{{row_color}} action">
                         {% has_perm_to change graph as graph_edit_perm %}
                         {% has_perm_to delete graph as graph_delete_perm %}
                         {% if graph_edit_perm %}
@@ -92,7 +92,7 @@
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td colspan="4" class="block_line_dark">{% trans 'No graphs registered for the moment' %}</td>
             </tr>
         {% endif %}

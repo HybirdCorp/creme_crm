@@ -17,13 +17,13 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 {% get_column_header _('Name') 'name' %}
                 <th class="block_header_line_dark">&nbsp;</th>
-                <th class="block_header_line_dark">{% trans "Selected by default in this document" %}</th>
+                <th class="block_header_line_dark action">{% trans "Selected by default in this document" %}</th>
             </tr>
             {% for payment_info in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}">{{payment_info.name}}</td>
                     <td class="{{row_color}}">
                         <table>
@@ -37,13 +37,13 @@
                             </tr>
                         </table>
                     </td>
-                    <td class="{{row_color}}">
+                    <td class="{{row_color}} action">
                         <input type="checkbox" {% if payment_info == object.payment_info %} checked="true"{% endif %} onclick="creme.billing.setDefaultPaymentInformation('{{ payment_info.id }}', '{{ object.id }}', {% get_block_reload_uri %});"/>
                     </td>
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No payment information for the moment" %}</td>
             </tr>
         {% endif %}

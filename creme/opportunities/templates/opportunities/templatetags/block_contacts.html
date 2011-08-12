@@ -12,21 +12,21 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
-                <th class="block_header_line_dark">{% trans "Unlink" %}</th>
+                <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
             </tr>
             {% for contact in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}">{% widget_entity_hyperlink contact user %}</td>
-                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                    <td class="{{row_color}} action">
                         {% has_perm_to unlink contact as contact_unlink_perm %}
                         {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{contact.pk}} }" with_perms unlink_perm|and_op:contact_unlink_perm %}
                     </td>
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No linked contact for the moment" %}</td>
             </tr>
         {% endif %}

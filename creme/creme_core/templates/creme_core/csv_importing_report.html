@@ -31,13 +31,13 @@
                         <th style="width: 20%;" align="right"></th>
                     {% end_get_block_header %}
                     <tbody class="collapsable">
-                        <tr>
+                        <tr class="header">
                             <th class="block_header_line_dark">{% trans "Line of the CSV file" %}</th>
                             <th class="block_header_line_dark">{% trans "Induced error" %}</th>
                         </tr>
                         {% for error in errors %}
                             <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                            <tr>
+                            <tr class="content">
                                 <td class="{{row_color}}">{{error.0}}</td>
                                 <td class="{{row_color}}">{{error.1}}</td>
                             </tr>

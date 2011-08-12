@@ -7,16 +7,16 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_light">{% trans "Related entity" %}</th>
-                <th class="block_header_line_light">{% trans "Delete" %}</th>
+                <th class="block_header_line_light action">{% trans "Delete" %}</th>
             </tr>
             {% for block_type in page.object_list %}<!--{% cycle row_color %}-->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}">
                         <a href="{{block_type.entity.get_absolute_url}}">{{block_type}}</a>
                     </td>
-                    <td class="{{row_color}}">
+                    <td class="{{row_color}} action">
                         {% get_line_deletor at_url '/creme_config/instance_block/delete' with_args "{'id': '{{block_type.id}}'}" with_perms 1 %}
                     </td>
                 </tr>

@@ -10,13 +10,6 @@
         width: 48px;
         height:48px;
     }
-
-    .type_header_block img
-    {
-        float: right;
-        position: relative;
-        top: 14px;
-    }
 </style>
 {% with 6 as colspan %}
     <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
@@ -45,28 +38,28 @@
 {#        </thead>#}
         <tbody class="collapsable">
             {% if page.paginator.count %}
-                <tr>
+                <tr class="header">
                     <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Entity" %}</th>
                     <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Created" %}</th>
                     <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Action" %}</th>
                     <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Source" %}</th>
                     <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Description" %}</th>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "View entity's file" %}</th>
+                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %} action">{% trans "View entity's file" %}</th>
                 </tr>
                 {% for history in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                    <tr>
+                    <tr class="content">
                         {% with history.get_entity as history_entity %}
                             <td class="{{row_color}}">{{history_entity|allowed_unicode:user}}</td>
                             <td class="{{row_color}}">{{history.created}}</td>
                             <td class="{{row_color}}">{{history.action}}</td>
                             <td class="{{row_color}}">{{history.source}}</td>
                             <td class="{{row_color}}">{{history.description}}</td>
-                            <td class="{{row_color}}"><a href="{{history_entity.get_absolute_url}}"><img src="{% media_url 'images/view_22.png' %}" border="0" title="{% blocktrans %}View '{{history_entity}}' details{% endblocktrans %}" alt="{% trans "View" %}" /></a></td>
+                            <td class="{{row_color}} action"><a href="{{history_entity.get_absolute_url}}"><img src="{% media_url 'images/view_22.png' %}" border="0" title="{% blocktrans %}View '{{history_entity}}' details{% endblocktrans %}" alt="{% trans "View" %}" /></a></td>
                         {% endwith %}
                     </tr>
                 {% endfor %}
             {% else %}
-                <tr>
+                <tr class="content empty">
                     <td class="block_line_dark">{% blocktrans with ct.name as ct_name %}No waiting action for {{ct_name}}{% endblocktrans %}</td>
                 </tr>
             {% endif %}

@@ -13,8 +13,8 @@
     </script>
 {% endblock %}
 
-{% block before_content_1 %}
-    <div class=zone_spacer_5px>
+{% block before_content_1 %}<div class="detailview">
+    <div class="zone_spacer_5px model_buttons">
         <ul class="button_list hbox">
             {% if object.get_lv_absolute_url %}
                 <li>
@@ -57,7 +57,7 @@
         </table>
     {% endblock %}
 
-    <div class=zone_spacer_5px>
+    <div class="zone_spacer_5px file_buttons">
         {% block button_tab %}
             <ul class="button_list hbox">
                 {% get_button_menu %}
@@ -75,26 +75,31 @@
         {% import_object_block as 'object_block' %}
     {% endblock %}
 
-    {% block detail_view_top_1 %}{% endblock %}
-    {% display_detailview_blocks top %}
-    {% block detail_view_top_2 %}{% endblock %}
+    <div class="north">
+        {% block detail_view_top_1 %}{% endblock %}
+        {% display_detailview_blocks top %}
+        {% block detail_view_top_2 %}{% endblock %}
+    </div>
 
-    <div style="float:left;width:49.9%;margin-left:0px;">
+    <div class="column west">
         {% block detail_view_left_1 %}
             {% display_block_detailview 'object_block' %}
         {% endblock %}
         {% display_detailview_blocks left %}
         {% block detail_view_left_2 %}{% endblock %}
     </div>
-    <div style="float:right;width:49.9%;margin-right:0px;">
+    <div class="column east last">
         {% block detail_view_right_1 %}{% endblock %}
         {% display_detailview_blocks right %}
         {% block detail_view_right_2 %}{% endblock %}
     </div>
-
-    {% block detail_view_bottom_1 %}{% endblock %}
-    {% display_detailview_blocks bottom %}
-    {% block detail_view_bottom_2 %}{% endblock %}
-
+    <div class="clear"></div>
+    <div class="south">
+        {% block detail_view_bottom_1 %}{% endblock %}
+        {% display_detailview_blocks bottom %}
+        {% block detail_view_bottom_2 %}{% endblock %}
+    </div>
     {% get_blocks_dependencies %}
 {% endblock %}
+
+{% block after_content_3 %}</div>{% endblock %}

@@ -14,15 +14,15 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
-                <th class="block_header_line_dark">{% trans "Unlink" %}</th>
+                <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
             </tr>
             {% for relation in page.object_list %}
                 {% with relation.object_entity.get_real_entity as entity_obj %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                    <tr>
+                    <tr class="content">
                         <td class="{{row_color}}">{% widget_entity_hyperlink entity_obj user %}</td>
-                        <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        <td class="{{row_color}} action">
                             {% has_perm_to unlink entity_obj as object_unlink_perm %}
                             {% get_line_unlinker at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}} }" with_perms subject_unlink_perm|and_op:object_unlink_perm %}
                         </td>
@@ -30,7 +30,7 @@
                 {% endwith %}
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td colspan="2" class="block_line_dark">{% trans "No related entity for the moment" %}</td>
             </tr>
         {% endif %}

@@ -14,39 +14,39 @@
     <tbody class="collapsable">
         <!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}
             {% cycle "block_line_dark" "block_line_light" as row_color %} -->
-        <tr>
+        <tr class="content">
             <th class="th_info {% cycle header_color %}">{% trans "User" %}</th>
             <td class="td_info {% cycle row_color %}">{% print_field object=object field='user' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="th_info {% cycle header_color %}">{% trans "Number of reads" %}</th>
             <td class="td_info {% cycle row_color %}">{% print_field object=object field='reads' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="th_info {% cycle header_color %}">{% trans "Status" %}</th>
             <td class="td_info {% cycle row_color %}">{{object.get_status_str}}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="th_info {% cycle header_color %}">{% trans "Sender" %}</th>
             <td class="td_info {% cycle row_color %}">{% print_field object=object field='sender' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="th_info {% cycle header_color %}">{% trans "Recipient" %}</th>
             <td class="td_info {% cycle row_color %}">{% print_field object=object field='recipient' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="th_info {% cycle header_color %}">{% trans "Subject" %}</th>
             <td class="td_info {% cycle row_color %}">{% print_field object=object field='subject' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="th_info {% cycle header_color %}">{% trans "Reception date" %}</th>
             <td class="td_info {% cycle row_color %}">{% print_field object=object field='reception_date' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="th_info {% cycle header_color %}">{% trans "Attachments" %}</th>
             <td class="td_info {% cycle row_color %}">{% print_field object=object field='attachments' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="th_info {% cycle header_color %}">{% trans "Email body" %}</th>
             <td class="td_info"><iframe frameborder="0" src="/emails/mail/get_entity_body/{{object.id}}" width="100%" height="100%" style="min-height:350px"></iframe></td>
         </tr>

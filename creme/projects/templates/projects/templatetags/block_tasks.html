@@ -11,7 +11,7 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_dark">{% trans "Order" %}</th>
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
                 <th class="block_header_line_dark">{% trans "Estimated duration (hours)" %}</th>
@@ -19,10 +19,10 @@
                 <th class="block_header_line_dark">{% trans "Status" %}</th>
                 <th class="block_header_line_dark">{% trans "Parent tasks" %}</th>
                 <th class="block_header_line_dark">{% trans "Cost" %}</th>
-                <th class="block_header_line_dark">{% trans "Actions" %}</th>
+                <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
             {% for task in page.object_list %}<!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
-                <tr>{% has_perm_to view task as view_perm %}{% has_perm_to change task as change_perm %}
+                <tr class="content">{% has_perm_to view task as view_perm %}{% has_perm_to change task as change_perm %}
                     <td class="{{row_color}}" align="center">{{task.order}}</td>
                     {% if view_perm %}
                         <td class="{{row_color}}" align="center"><a href="{{task.get_absolute_url}}">{{task}}</a></td>
@@ -46,7 +46,7 @@
                         <td class="{{row_color}}" align="center">??</td>
                         <td class="{{row_color}}" align="right">?? €</td>
                     {% endif %}
-                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                    <td class="{{row_color}} action">
                         {% has_perm_to view task as view_perm %}
                         {% get_line_viewer at_url '/projects/task/{{ task.pk }}' with_label "" with_perms view_perm %}
 
@@ -59,7 +59,7 @@
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No task in this project for the moment" %}</td>
             </tr>
         {% endif %}

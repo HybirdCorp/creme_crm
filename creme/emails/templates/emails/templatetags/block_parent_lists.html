@@ -7,18 +7,18 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_dark">{% trans "Name of the list" %}</th>
             </tr>
             {% for ml in page.object_list %}
-                <tr>
+                <tr class="content">
                     <td class="{% cycle "block_line_dark" "block_line_light" as row_color %}">
                         {% widget_entity_hyperlink ml user %}
                     </td>
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No parent list for the moment" %}</td>
             </tr>
         {% endif %}

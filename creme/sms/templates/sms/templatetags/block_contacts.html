@@ -14,12 +14,12 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_dark">{% trans "Number" %}</th>
-                <th class="block_header_line_dark">{% trans "Unlink" %}</th>
+                <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
             </tr>
             {% for contact in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}">
                         {% has_perm_to view contact as contact_perm %}
                         {% if contact_perm %}
@@ -33,13 +33,13 @@
                             {{contact|allowed_unicode:user}}
                         {% endif %}
                     </td>
-                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                    <td class="{{row_color}} action">
                         {% get_line_unlinker at_url '/sms/messaging_list/{{object.pk}}/contact/delete' with_args "{'id':{{contact.pk}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No contact recipient for the moment" %}</td>
             </tr>
         {% endif %}

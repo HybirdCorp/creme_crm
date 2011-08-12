@@ -8,13 +8,13 @@
 {% block before_content_1 %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="5%"><img src="{% media_url 'images/reporting_64.png' %}" alt="{% trans "Report" %}"/></td>
-            <td width="70%">
+            <td class="logo"><img src="{% media_url 'images/reporting_64.png' %}" alt="{% trans "Report" %}"/></td>
+            <td class="title">
                 <h1>
                     {% blocktrans with object|get_meta_value:"verbose_name"|title as verbose_name and object|title as title %}Preview {{verbose_name}} : {{title}}{% endblocktrans %}
                 </h1>
             </td>
-            <td width="25%" align="right">
+            <td class="actions">
                 <span>
                     <a href="{{object.get_absolute_url}}">
                         <img src="{% media_url 'images/left_arrow_64.png' %}" title="{% blocktrans %}Back to the detailview : '{{object}}'{% endblocktrans %}" alt="{% trans "Back" %}"/>
@@ -47,7 +47,7 @@
                     </tr>
                 </thead>
                 <tbody class="collapsable">
-                    <tr>
+                    <tr class="header">
                         {% comment %}
                             <!--{% for column in object.columns.all|order_by:"order" %}
                                 <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% get_column_header column %}</th>
