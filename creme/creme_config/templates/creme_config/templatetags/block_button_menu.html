@@ -6,18 +6,18 @@
         <th style="width: 20%;"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
-        <tr>
+        <tr class="header toolbar">
             <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="100">
                 {% get_line_adder at_url '/creme_config/button_menu/add/' with_label _("New buttons configuration") with_perms 1 %}
             </th>
         </tr>
-        <tr>
+        <tr class="header">
             <th class="block_header_line_light">{% trans "Type" %}</th>
-            <th class="block_header_line_light">{% trans "Edit" %}</th>
-            <th class="block_header_line_light">{% trans "Delete" %}</th>
+            <th class="block_header_line_light action">{% trans "Edit" %}</th>
+            <th class="block_header_line_light action">{% trans "Delete" %}</th>
         </tr>
         {% comment %} ONLY IF PAGE==1 ?? {% endcomment %}
-        <tr>
+        <tr class="content">
             <td class="{{row_color}}">{% trans "Default configuration" %}</td>
             <td class="{{row_color}}">
                 {% get_line_editor at_url '/creme_config/button_menu/edit/0' with_perms 1 %}
@@ -26,12 +26,12 @@
         </tr>
         {% if page.paginator.count %}
             {% for ct in page.object_list %}<!--{% cycle row_color %}-->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}">{{ct}}</td>
-                    <td class="{{row_color}}">
+                    <td class="{{row_color}} action">
                         {% get_line_editor at_url '/creme_config/button_menu/edit/{{ct.id}}' with_perms 1 %}
                     </td>
-                    <td class="{{row_color}}">
+                    <td class="{{row_color}} action">
                         {% get_line_deletor at_url '/creme_config/button_menu/delete' with_args "{'id': '{{ct.id}}'}" with_perms 1 %}
                     </td>
                 </tr>

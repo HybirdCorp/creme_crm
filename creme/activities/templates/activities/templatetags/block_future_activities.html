@@ -24,17 +24,17 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_dark">{% trans "Status" %}</th>
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
                 <th class="block_header_line_dark">{% trans "Date" %}</th>
                 <th class="block_header_line_dark">{% trans "Subject(s)" %}</th>
                 <th class="block_header_line_dark">{% trans "Participant(s)" %}</th>
                 <th class="block_header_line_dark">{% trans "Related to" %}</th>
-                {% if object %}<th class="block_header_line_dark">{% trans "Unlink" %}</th>{% endif %}
+                {% if object %}<th class="block_header_line_dark action">{% trans "Unlink" %}</th>{% endif %}
             </tr>
             {% for activity in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>{% has_perm_to view activity as activity_view_perm %}
+                <tr class="content">{% has_perm_to view activity as activity_view_perm %}
                     {% if activity_view_perm %}
                         <td class="{{row_color}}">{% print_field object=activity field='status' %}</td>
                         <td class="{{row_color}}"><a href="{{activity.get_absolute_url}}">{{activity}}</a></td>
@@ -62,7 +62,7 @@
                         {% endwith %}
                     </td>
                     {% if object %}
-                        <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        <td class="{{row_color}} action">
                             {% has_perm_to unlink object as unlink_perm %}{% has_perm_to unlink activity as activity_unlink_perm %}
                             {% get_line_unlinker at_url '/activities/linked_activity/unlink' with_args "{'id':{{activity.pk}}, 'object_id':{{object.pk}} }" with_perms unlink_perm|and_op:activity_unlink_perm %}
                         </td>
@@ -70,7 +70,7 @@
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">
                     {% block activities_empty %}{% trans "No future related activity for the moment" %}{% endblock %}
                 </td>

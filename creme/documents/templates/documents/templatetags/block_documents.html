@@ -11,14 +11,14 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
-                <th class="block_header_line_dark">{% trans "Actions" %}</th>
+                <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
             {% for doc in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}">{% widget_entity_hyperlink doc user %}</td>
-                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                    <td class="{{row_color}} action">
                         {% has_perm_to change doc as edit_perm %}
                         {% if edit_perm %}
                             <a href="{{doc.get_edit_absolute_url}}"><img src="{% media_url 'images/edit_22.png' %}" border="0"></a>
@@ -32,7 +32,7 @@
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No document in this folder for the moment" %}</td>
             </tr>
         {% endif %}

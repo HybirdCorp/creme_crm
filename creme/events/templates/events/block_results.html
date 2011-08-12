@@ -7,19 +7,19 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% with object.get_stats as stats %}
-            <tr>
+            <tr class="content">
                 <th class="block_header_line_dark th_info"><h2>{% trans "Number of invitations" %}</h2></th>
                 <td class="block_line_dark td_info"><h2>{{stats.invations_count}}</h2></td>
             </tr>
-            <tr>
+            <tr class="content">
                 <th class="block_header_line_light th_info"><h2>{% trans "Number of accepted invitations" %}</h2></th>
                 <td class="block_line_light td_info"><h2>{{stats.accepted_count}}</h2></td>
             </tr>
-            <tr>
+            <tr class="content">
                 <th class="block_header_line_dark th_info"><h2>{% trans "Number of refused invitations" %}</h2></th>
                 <td class="block_line_dark td_info"><h2>{{stats.refused_count}}</h2></td>
             </tr>
-            <tr>
+            <tr class="content">
                 <th class="block_header_line_light th_info"><h2>{% trans "Number of visitors" %}</h2></th>
                 <td class="block_line_light td_info"><h2>{{stats.visitors_count}}</h2></td>
             </tr>

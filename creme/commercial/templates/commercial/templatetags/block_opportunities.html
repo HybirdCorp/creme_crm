@@ -12,13 +12,13 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}<!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
                 <th class="block_header_line_dark">{% trans "Made sales" %}</th>
-                <th class="block_header_line_dark">{% trans "Unlink" %}</th>
+                <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
             </tr>
             {% for opp in page.object_list %}<!--{% cycle row_color %}-->
-                <tr>{% has_perm_to view opp as opp_view_perm %}{% has_perm_to unlink opp as opp_unlink_perm %}
+                <tr class="content">{% has_perm_to view opp as opp_view_perm %}{% has_perm_to unlink opp as opp_unlink_perm %}
                     {% if opp_view_perm %}
                         <td class="{{row_color}}"><a href="{{opp.get_absolute_url}}">{{opp}}</a></td>
                         <td class="{{row_color}}">{{opp.made_sales|default:''}}</td>
@@ -26,7 +26,7 @@
                         <td class="{{row_color}}">{{opp|allowed_unicode:user}}</td>
                         <td class="{{row_color}}">??</td>
                     {% endif %}
-                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                    <td class="{{row_color}} action">
                         {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{ 'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{opp.pk}} }" with_perms unlink_perm|and_op:opp_unlink_perm %}
                     </td>
                 </tr>
@@ -36,7 +36,7 @@
                 <td class="{{row_color}}" colspan="2"><strong>{{object.get_made_sales}}</strong></td>
             </tr>
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No related opportunity for the moment" %}</td>
             </tr>
         {% endif %}

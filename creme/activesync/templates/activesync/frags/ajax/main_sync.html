@@ -58,11 +58,11 @@
     </thead>
     <tbody>
         {% for type, messages in all_messages %}
-            <tr>
+            <tr class="content">
                 <th class="th_info">{% with messages|length as messages_length%}{{ messages_length }} {% get_verbose_message_type type messages_length %}{% endwith %}</th>
             </tr>
             {% for message in messages %}
-            <tr>
+            <tr class="content">
                 <td class="td_info">
                     {% render_message message %}
                 </td>

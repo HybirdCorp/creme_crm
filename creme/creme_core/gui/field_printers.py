@@ -24,7 +24,7 @@ from django.template.defaultfilters import linebreaks
 from django.utils.html import escape
 from django.utils.formats import date_format
 from django.utils.safestring import mark_safe
-from django.utils.translation import ungettext
+from django.utils.translation import ungettext, ugettext_lazy as _
 
 from creme_core.models import CremeEntity, fields
 from creme_core.utils.meta import get_field_infos, get_model_field_infos, get_m2m_entities
@@ -127,7 +127,7 @@ class _FieldPrintersRegistry(object):
     def __init__(self):
         self._printers = {
             models.AutoField:                  simple_print,
-            models.BooleanField:               lambda entity, fval, user: '<input type="checkbox" value="%s" %s disabled/>' % (escape(fval), 'checked' if fval else ''),
+            models.BooleanField:               lambda entity, fval, user: '<input type="checkbox" value="%s" %s disabled/>%s' % (escape(fval), 'checked' if fval else '', _('Yes') if fval else _('No')),
             models.CharField:                  simple_print,
             models.CommaSeparatedIntegerField: simple_print,
             models.DateField:                  print_date,

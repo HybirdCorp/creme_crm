@@ -12,22 +12,22 @@
             </th>
         </tr>{% endcomment %}
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_light">{% trans "Description" %}</th>
                 <th class="block_header_line_light">{% trans "Value" %}</th>
-                <th class="block_header_line_light">{% trans "Edit" %}</th>
+                <th class="block_header_line_light action">{% trans "Edit" %}</th>
             </tr>
             {% for setting_value in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}">{{setting_value.key.description}}</td>
                     <td class="{{row_color}}">{{setting_value.value}}</td>{# TODO: A bool value is displayed "as it". => Display 'Yes'/'No' ? #}
-                    <td class="{{row_color}}">
+                    <td class="{{row_color}} action">
                         {% get_line_editor at_url '/creme_config/setting/edit/{{setting_value.id}}' with_perms 1 %}
                     </td>
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td colspan="4" class="block_line_dark">{% trans "No setting value for this app" %}</td>
             </tr>
         {% endif %}

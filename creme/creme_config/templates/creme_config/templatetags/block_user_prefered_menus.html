@@ -6,7 +6,7 @@
         <th style="width: 20%;" align="right"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
-        <tr>
+        <tr class="header toolbar">
             <th colspan="7" class="block_header_line_dark" align="left">
                 <a class="button_link" href="/creme_config/user/edit/settings/">
                     <img src="{% media_url 'images/edit_22.png' %}" border="0" alt="{% trans "Edit my prefered menus" %}" title="{% trans "Edit my prefered menus" %}"/>
@@ -15,18 +15,18 @@
             </th>
         </tr>
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_light">{% trans "Name" %}</th>
                 <th class="block_header_line_light">{% trans "Order" %}</th>
             </tr>
             {% for prefered_menu in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}"><a href="{{prefered_menu.url}}">{% trans prefered_menu.label %}</a></td>
                     <td class="{{row_color}}">{{page.number|sub:1|mult:page_size|add:forloop.counter}}</td>
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "You have no prefered menu for the moment" %}</td>
             </tr>
         {% endif %}

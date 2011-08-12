@@ -14,12 +14,12 @@
         {% if page.paginator.count %}
             {% for relation in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 {% with relation.object_entity as participant %}
-                    <tr>
+                    <tr class="content">
                         <td class="{{row_color}}">{% widget_entity_hyperlink participant user %}</td>
                         <td class="{{row_color}}">
                             {% if participant.is_user %}({{participant.is_user}} -> {{participant.calendar_cache}}){% endif %}
                         </td>
-                        <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        <td class="{{row_color}} action">
                             {% has_perm_to unlink participant as participant_unlink_perm %}
                             {% get_line_unlinker at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}} }" with_perms activity_unlink_perm|and_op:participant_unlink_perm %}
                         </td>
@@ -27,7 +27,7 @@
                 {% endwith %}
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No participant for the moment" %}</td>
             </tr>
         {% endif %}

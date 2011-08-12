@@ -23,22 +23,25 @@
                     <td>{{form.non_field_errors}}</td>
                 </tr>
             {% endif %}
-            <tr>
+            <tr class="header">
                 <td>{{form.date_fields.label}}</td>
                 <td>{{form.date_filter.label}}</td>
 {#                <td>{{form.begin_date.label}}</td>#}
 {#                <td>{{form.end_date.label}}</td>#}
                 {% if not inner_popup %}
-                    <td rowspan="2">
-                        <button type="submit">{% trans 'Generate' %}</button>
-                    </td>
+                    <td class="action"></td>
                 {% endif %}
             </tr>
-            <tr>
+            <tr class="content">
                 <td>{{form.date_fields.errors}} {{form.date_fields}}</td>
                 <td>{{form.date_filter.errors}} {{form.date_filter}}</td>
 {#                <td>{{form.begin_date}}</td>#}
 {#                <td>{{form.end_date}}</td>#}
+                {% if not inner_popup %}
+                    <td class="action">
+                        <button type="submit">{% trans 'Generate' %}</button>
+                    </td>
+                {% endif %}
             </tr>
         </tbody>
     </table>

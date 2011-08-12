@@ -1,0 +1,98 @@
+.table_detail_view {
+    width: 100%;
+    border: 1px solid #548295;
+    padding: 2px;
+    margin-bottom: 5px;
+}
+
+.table_detail_view th, .table_detail_view td, .table_detail_view tr, .table_detail_view thead {
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+}
+
+.table_detail_view > tbody > tr > th{
+    color:#376e86;
+    padding-left:5px;
+    padding-right:5px;
+    white-space:nowrap;
+    padding:2px 6px;
+}
+
+.table_detail_view tbody td:hover {
+    background-color: #f7d6d2;
+}
+
+.table_detail_view thead {
+    font-size:1em;
+    font-weight:bolder;
+    color:white;
+    background-color:#94c6db;
+}
+
+.table_detail_view thead .title {
+    width: 80%;
+}
+.table_detail_view thead .actions {
+    width: 20%;
+    text-align: right;
+}
+
+.table_detail_view tbody td table tbody td:hover {
+    background-color:#ffffff;
+}
+.table_detail_view .header {}
+.table_detail_view .header.toolbar {}
+.table_detail_view .header .action {}
+.table_detail_view .content {}
+.table_detail_view .content.empty {}
+.table_detail_view .content .action {
+    text-align: center;
+}
+.table_detail_view tfoot .next {}
+.table_detail_view tfoot .previous {}
+.table_detail_view tfoot .page_selector {}
+
+.table_detail_view .header .selectable,
+.table_detail_view .content .selectable {
+    text-align: center;
+}
+
+.table_detail_view .header .selectable > *,
+.table_detail_view .content .selectable > * {
+    cursor: pointer;
+}
+
+
+.block_line_light        {background-color: #f4fafd;}
+.block_line_dark         {background-color: #e6f2f7;}
+.block_header_line_light {background-color: #bdd8e4;}
+.block_header_line_dark  {background-color: #b3d2df;}
+
+.th_info{
+    max-width: 30%;
+    width: 30%;
+    text-align: left;
+
+}
+
+.td_info{
+    max-width: 70%;
+    width: 70%;
+/*    text-align: right;*/
+    text-align: left;
+}
+
+.th_info_4_columns{
+    max-width: 15%;
+    width: 15%;
+    text-align: left;
+
+}
+
+.td_info_4_columns{
+    max-width: 35%;
+    width: 35%;
+    text-align: left;
+}
+
+

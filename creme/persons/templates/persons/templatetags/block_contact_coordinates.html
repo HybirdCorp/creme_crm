@@ -12,27 +12,27 @@
     <tbody class="collapsable">
         <!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}
             {% cycle "block_line_dark" "block_line_light" as row_color %}-->
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Phone" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='phone' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Mobile" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='mobile' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Fax" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='fax' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "E-mail" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='email' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Web Site" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='url_site' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">Skype</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='skype' %}</td>
         </tr>

@@ -15,18 +15,18 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_dark">{% trans "Number" %}</th>
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
-                <th class="block_header_line_dark">{% trans "Current quote ?" %}</th>
-                <th class="block_header_line_dark">{% trans "Unlink" %}</th>
+                <th class="block_header_line_dark action">{% trans "Current quote ?" %}</th>
+                <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
             </tr>
             {% with object.get_current_quote_id as current_quote_id %}
                 {% for quote in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                    <tr>
+                    <tr class="content">
                         <td class="{{row_color}}">{{quote.number}}</td>
                         <td class="{{row_color}}">{% widget_entity_hyperlink quote user %}</td>
-                        <td class="{{row_color}}">
+                        <td class="{{row_color}} action">
                             {% if quote.pk == current_quote_id %}
                                 <strong>{% trans "Yes" %}</strong>
                             {% else %}
@@ -34,7 +34,7 @@
                                 <button type="button" {% if not link_perm or not quote_link_perm %}disabled="true"{% else %}onclick="creme.utils.postNReload('/opportunities/opportunity/{{object.pk}}/linked/quote/{{quote.pk}}/set_current/', {% get_block_reload_uri %})"{% endif %} name="set_current_quote{{quote.id}}">{% trans "Become" %}</button>
                             {% endif %}
                         </td>
-                        <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                        <td class="{{row_color}} action">
                             {% has_perm_to unlink quote as quote_unlink_perm %}{% comment %}TODO: specilized view to delete 'current doc' relation too ??{% endcomment %}
                             {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{quote.pk}} }" with_perms unlink_perm|and_op:quote_unlink_perm %}
                         </td>
@@ -42,7 +42,7 @@
                 {% endfor %}
             {% endwith %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No quote for the moment" %}</td>
             </tr>
         {% endif %}

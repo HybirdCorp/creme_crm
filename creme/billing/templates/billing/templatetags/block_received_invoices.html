@@ -12,14 +12,14 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
                 <th class="block_header_line_dark">{% trans "Expiration date" %}</th>
                 <th class="block_header_line_dark">{% trans "Status" %}</th>
                 <th class="block_header_line_dark">{% trans "Total with VAT" %}</th>
             </tr>
             {% for invoice in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
+                <tr class="content">
                     {% has_perm_to view invoice as invoice_view_perm %}
                     {% if invoice_view_perm %}
                         <td class="{{row_color}}"><a href="{{invoice.get_absolute_url}}">{{invoice}}</a></td>
@@ -35,7 +35,7 @@
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No received invoice for the moment" %}</td>
             </tr>
         {% endif %}

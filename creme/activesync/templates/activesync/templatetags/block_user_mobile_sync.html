@@ -7,7 +7,7 @@
         </tr>
     </thead>
     <tbody class="collapsable">
-        <tr>
+        <tr class="header toolbar">
             <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="100">
                 <a class="button_link" onclick="creme.utils.innerPopupNReload('/activesync/user_settings', {% get_block_reload_uri %});">
                     <img src="{% media_url 'images/edit_22.png' %}" border="0" alt="{% trans "Edit" %}"/>
@@ -15,23 +15,23 @@
                 </a>
             </th>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="block_header_line_light th_info">{% trans "Server url" %}</th>
             <td class="block_line_light td_info">{{url}}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="block_header_line_light th_info">{% trans "Domain" %}</th>
             <td class="block_line_light td_info">{{domain}}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="block_header_line_dark th_info">{% trans "Is secure" %}</th>
             <td class="block_line_dark td_info">{{ssl|print_boolean}}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="block_header_line_dark th_info">{% trans "Username" %}</th>
             <td class="block_line_dark td_info">{{username}}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="block_header_line_dark th_info">{% trans "Password" %}</th>
             <td class="block_line_dark td_info">{% for i in password|length|xrange %}*{% empty %}{% trans "Not filled in" %}{% endfor %}</td>
         </tr>

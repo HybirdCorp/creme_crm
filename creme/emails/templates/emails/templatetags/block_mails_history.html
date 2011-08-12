@@ -27,22 +27,22 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_dark">{% trans "Sender" %}</th>
                 <th class="block_header_line_dark">{% trans "Recipient" %}</th>
                 <th class="block_header_line_dark">{% trans "Subject" %}</th>
                 <th class="block_header_line_dark">{% trans "Status" %}</th>
                 <th class="block_header_line_dark">{% trans "Sending date" %}</th>
-                <th class="block_header_line_dark">{% trans "Detail" %}</th>
+                <th class="block_header_line_dark action">{% trans "Detail" %}</th>
             </tr>
             {% for mail in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}">{% print_field object=mail field='sender' %}</td>
                     <td class="{{row_color}}">{% print_field object=mail field='recipient' %}</td>
                     <td class="{{row_color}}">{{mail.subject}}</td>
                     <td class="{{row_color}}">{{mail.get_status_str}}</td>
                     <td class="{{row_color}}">{% print_field object=mail field='sending_date' %}</td>
-                    <td class="{{row_color}}">
+                    <td class="{{row_color}} action">
                         <a class="button_link" onclick="creme.utils.showInnerPopup('/emails/mail/{{mail.pk}}/popup');">
                             <img src="{% media_url 'images/view_22.png' %}" border="0" title="{% trans "Details" %}" alt="{% trans "Details" %}" />
                         </a>
@@ -60,7 +60,7 @@
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No email in the history for the moment" %}</td>
             </tr>
         {% endif %}

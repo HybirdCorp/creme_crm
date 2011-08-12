@@ -17,7 +17,7 @@
         </tr>
     </thead>
     <tbody class="collapsable">
-        <tr>
+        <tr class="header toolbar">
             <th class="block_header_line_dark" align="left">
                 <a class="button_link" href="{{graph.get_absolute_url}}">{% blocktrans %}Go to {{graph}}'s file{% endblocktrans %}</a>
             </th>
@@ -26,7 +26,7 @@
             </th>
         </tr>
         {% if x and y %}
-        <tr>
+        <tr class="content">
             <td class="{{row_color}} graph_global_container_{{instance_block_id}}" colspan="2">
                 <div>
                     <table width="100%">
@@ -71,7 +71,7 @@
             </td>
         </tr>
         {% else %}
-        <tr>
+        <tr class="content empty">
             <td colspan="2">
                 {% trans 'No values or graph is not applicable here' %}
             </td>

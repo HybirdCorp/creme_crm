@@ -12,14 +12,14 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 {% get_column_header _('Name') 'name' %}
                 <th class="block_header_line_dark">{% trans "See evaluation" %}</th>
                 <th class="block_header_line_dark">{% trans "See synthesis" %}</th>
-                <th class="block_header_line_dark">{% trans "Unlink" %}</th>
+                <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
             </tr>
             {% for orga in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>{% has_perm_to view orga as orga_view_perm %}
+                <tr class="content">{% has_perm_to view orga as orga_view_perm %}
                     <td class="{{row_color}}">{% widget_entity_hyperlink orga user %}</td>
                     {% if orga_view_perm %}
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
@@ -40,13 +40,13 @@
                             <img class="forbidden" src="{% media_url 'images/view_22.png' %}" border="0" title="{% trans "Forbidden" %}" alt="{% trans "Forbidden" %}" />
                         </td>
                     {% endif %}
-                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                    <td class="{{row_color}} action">
                         {% get_line_unlinker at_url '/commercial/strategy/{{object.id}}/organisation/delete' with_args "{'id' : {{orga.id}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No evaluated organisation for the moment" %}</td>
             </tr>
         {% endif %}
