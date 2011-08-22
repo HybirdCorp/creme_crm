@@ -85,7 +85,7 @@ class PopFetcher(CrudityFetcher):
             debug("Pop connection error : %s", e)
             if client is not None:
                 client.quit()
-            return (0, [])
+            return []
 
         getaddresses = email.utils.getaddresses
         parsedate    = email.utils.parsedate
