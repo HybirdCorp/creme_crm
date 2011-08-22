@@ -38,8 +38,8 @@
 </script>
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=4 %}
-        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Message') _('%s Messages') 'sms_48.png' _('Messages') %}</th>
-        <th style="width: 20%;" align="right">
+        <th class="collapser label">{% get_block_title _('%s Message') _('%s Messages') 'sms_48.png' _('Messages') %}</th>
+        <th class="actions">
             <div class="buttons">
                 {% if has_perm %}
                     <a class="add" onclick="sms_messages.send();">

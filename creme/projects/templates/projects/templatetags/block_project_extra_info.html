@@ -2,8 +2,8 @@
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=2 %}
-        <th style="width: 80%;" class="collapser">{% get_basic_block_header _('Other information') 'infos_48.png' _('Information') %}</th>
-        <th style="width: 20%;" align="right"></th>
+        <th class="collapser label">{% get_basic_block_header _('Other information') 'infos_48.png' _('Information') %}</th>
+        <th class="actions"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
         <tr class="content">

@@ -472,6 +472,25 @@ div.sidebar1separator2 {
     width: 98%;
 }
 
+.header .widget {
+    float: left;
+    text-align: center;
+    width: 25%;
+}
+
+.header .major {
+    width: 50%;
+}
+
+.header .widget:first-child {
+    text-align: left;
+}
+
+.header .widget.last {
+    text-align: right;
+}
+
+
 #footer {
   clear: both;
   display:block;
@@ -688,6 +707,7 @@ textarea:disabled, textarea[readonly] {
 
 .dcms_button {
     display: block;
+    width: auto !important;
 }
 
 .td_valid {
@@ -910,4 +930,10 @@ textarea:disabled, textarea[readonly] {
      z-index: 1000;
      left: 0;
      position: fixed;
+}
+
+#logo_container {
+    padding-left:0%;
+    padding-bottom:10px;
+    padding-top:10px;
 }

@@ -2,8 +2,8 @@
 {% comment %}{% load creme_widgets %}{% endcomment %}{% load creme_block %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=4 %}
-        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Setting value') _('%s Setting values') %}</th>
-        <th style="width: 20%;" align="right"></th>
+        <th class="collapser label">{% get_block_title _('%s Setting value') _('%s Setting values') %}</th>
+        <th class="actions"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% comment %}<tr>

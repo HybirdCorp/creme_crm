@@ -18,6 +18,13 @@
 <p>{% trans "Fields marked with * are required."%} </p>
 
 <div id="editforms">
+    {% if form.errors %}
+        <script type="text/javascript">
+            $(document).ready(function(){
+                creme.utils.scrollTo($('.errorlist'));
+            });
+        </script>
+    {% endif %}
     <form action="" method="POST" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>{% csrf_token %}
         {% for hidden in form.hidden_fields %}
             {% if hidden.errors %}
@@ -57,6 +64,7 @@
 
         {% block submit_buttons %}
             {% if not hide_submit %}
+                <div class="spacer"></div>
                 <input type="submit" value="{% trans "Submit"%}" />
             {% endif %}
         {% endblock %}

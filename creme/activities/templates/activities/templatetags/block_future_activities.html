@@ -2,7 +2,7 @@
 {% load creme_core_tags %}{% load creme_block %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=7 %}
-        <th style="width: 80%;" class="collapser" align="left">
+        <th class="collapser label">
             {% block activities_header %}
                 {% if is_home %}
                     {% get_block_title _('%s Future activity for me') _('%s Future activities for me') 'calendar_48.png' _('Future activities') %}
@@ -11,7 +11,7 @@
                 {% endif %}
             {% endblock %}
         </th>
-        <th style="width: 20%;" align="right">
+        <th class="actions">
             <div class="buttons">
                 {% block activities_add %}
                     {% if object %}
