@@ -3,8 +3,8 @@
 {% load creme_core_tags %}{% load creme_block %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=12 %}
-        <th style="width: 80%;" class="collapser" align="left">{% block header %}HEADER{% endblock %}</th>
-        <th style="width: 20%;" align="right">
+        <th class="collapser label">{% block header %}HEADER{% endblock %}</th>
+        <th class="actions">
             <div class="buttons">
                 {% block add_buttons %}BUTTONS HERE{% endblock %}
             </div>
@@ -12,7 +12,7 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_dark">{% trans "Quantity" %}</th>
                 <th class="block_header_line_dark">{% trans "Total discount" %}</th>
                 <th class="block_header_line_dark">{% trans "Discount" %}</th>
@@ -24,10 +24,10 @@
                 <th class="block_header_line_dark">{% trans "Total (exclusive of tax)" %}</th>
                 <th class="block_header_line_dark">{% trans "Total (inclusive of tax)" %}</th>
                 <th class="block_header_line_dark">{% trans "Paid ?" %}</th>
-                <th class="block_header_line_dark">{% trans "Actions" %}</th>
+                <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
             {% for line in page.object_list %}<!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}">{{line.quantity}}</td>
                     <td class="{{row_color}}">{% print_field object=line field='total_discount' %}</td>
                     <td class="{{row_color}}">{{line.discount}}</td>
@@ -53,7 +53,7 @@
                             </a>
                         </form>
                     </td>
-                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                    <td class="{{row_color}} action">
                         {% block line_actions %}
                             {% has_perm_to change object as has_perm %}
                             {% get_line_deletor at_url '{{line.get_delete_absolute_url}}' with_args "{'id': '{{line.id}}' }" with_perms has_perm %}
@@ -62,7 +62,7 @@
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% block empty_msg %}EMPTY{% endblock %}</td>
             </tr>
         {% endif %}

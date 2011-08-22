@@ -3,8 +3,8 @@
 {% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=2 %}
-        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Related Product') _('%s Related Products') 'product_48.png' _('Products') %}</th>
-        <th style="width: 20%;" align="right">
+        <th class="collapser label">{% get_block_title _('%s Related Product') _('%s Related Products') 'product_48.png' _('Products') %}</th>
+        <th class="actions">
             <div class="buttons">
                 {% get_line_relator to_subject object with_rtype_id predicate_id with_ct_id ct.id with_label _("Link to an existing product") with_perms link_perm %}
             </div>
@@ -12,21 +12,21 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
-                <th class="block_header_line_dark">{% trans "Unlink" %}</th>
+                <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
             </tr>
             {% for product in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}">{% widget_entity_hyperlink product user %}</td>
-                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                    <td class="{{row_color}} action">
                         {% has_perm_to unlink product as product_unlink_perm %}
                         {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{product.pk}} }" with_perms unlink_perm|and_op:product_unlink_perm %}
                     </td>
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No related product for the moment" %}</td>
             </tr>
         {% endif %}

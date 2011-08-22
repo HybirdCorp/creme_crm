@@ -5,8 +5,8 @@
 {% has_perm_to link object as subject_link_perm %}{% has_perm_to unlink object as subject_unlink_perm %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=2 %}
-        <th style="width: 80%;" class="collapser">{% get_block_title _('%s Relation') _('%s Relations') 'relations_48.png' _('Relation') %}</th>
-        <th style="width: 20%;" align="right">
+        <th class="collapser label">{% get_block_title _('%s Relation') _('%s Relations') 'relations_48.png' _('Relation') %}</th>
+        <th class="actions">
             <div class="buttons">
                 {% get_line_linker at_url '/creme_core/relation/add/{{object.id}}' with_label _("New relations") with_perms subject_link_perm %}
                 {% if subject_unlink_perm %}
@@ -25,12 +25,12 @@
     <tbody class="collapsable">
         {% if page.paginator.count %}
             {% for predicate in predicate_list %}
-                <tr><th class="{% cycle "block_header_line_dark" "block_header_line_light" %}" colspan="2">{{predicate.grouper}}</th></tr>
+                <tr class="header"><th class="{% cycle "block_header_line_dark" "block_header_line_light" %}" colspan="2">{{predicate.grouper}}</th></tr>
                 {% for relation in predicate.list %}
                     {% with relation.object_entity.get_real_entity as entity_obj %}
-                        <tr>
+                        <tr class="content">
                             <td class="{% cycle "block_line_dark" "block_line_light" %}">{% widget_entity_hyperlink entity_obj user %}</td>
-                            <td class="{% cycle "block_line_dark" "block_line_light" %}" align="center" valign="center" style="width:10%;">
+                            <td class="{% cycle "block_line_dark" "block_line_light" %} action">
                                 {% if not relation.type.is_internal %}
                                     {% has_perm_to unlink entity_obj as object_unlink_perm %}
                                     {% get_line_unlinker at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}} }" with_perms subject_unlink_perm|and_op:object_unlink_perm %}
@@ -41,7 +41,7 @@
                 {% endfor %}
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No relation for the moment" %}</td>
             </tr>
         {% endif %}

@@ -3,8 +3,8 @@
 {% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=2 %}
-        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Child List') _('%s Child Lists') 'email_48.png' 'Email' %}</th>
-        <th style="width: 20%;" align="right">
+        <th class="collapser label">{% get_block_title _('%s Child List') _('%s Child Lists') 'email_48.png' 'Email' %}</th>
+        <th class="actions">
             <div class="buttons">
                 {% get_line_linker at_url '/emails/mailing_list/{{object.pk}}/child/add' with_label _("Add a child list") with_perms has_perm %}
             </div>
@@ -12,20 +12,20 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_dark">{% trans "Name of the list" %}</th>
-                <th class="block_header_line_dark">{% trans "Unlink" %}</th>
+                <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
             </tr>
             {% for ml in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}">{% widget_entity_hyperlink ml user %}</td>
-                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                    <td class="{{row_color}} action">
                         {% get_line_unlinker at_url '/emails/mailing_list/{{object.pk}}/child/delete' with_args "{'id':{{ml.pk}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No child list for the moment" %}</td>
             </tr>
         {% endif %}

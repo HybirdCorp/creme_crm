@@ -4,8 +4,8 @@
 {% has_perm_to change strategy as has_perm %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=10 %}{% comment %}TODO: improve get_block_header to accept variable as colpsan{% endcomment %}
-        <th style="width: 80%;" align="left" class="collapser">{% trans 'Assets / Segments matrix'%}</th>
-        <th style="width: 20%;" align="right"></th>
+        <th class="collapser label">{% trans 'Assets / Segments matrix'%}</th>
+        <th class="actions"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if segment_info %}{% if assets %}

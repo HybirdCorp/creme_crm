@@ -11,12 +11,14 @@
     </script>
 {% endblock %}
 
+{% block before_content_1 %}<div class="portal the_cake_is_a_lie">{% endblock %}
+
 {% block content %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="5%">{% block logo %}{% endblock %}</td>
-            <td width="75%"><h1>{% block title %}{% endblock %}</h1></td>
-            <td width="20%" align="right">
+            <td class="logo">{% block logo %}{% endblock %}</td>
+            <td class="title"><h1>{% block title %}{% endblock %}</h1></td>
+            <td class="actions">
                 {% block header_link %}
                     <a href="{% block list_url %}{% endblock %}">
                         {% block list_msg %}{% endblock %}
@@ -56,12 +58,12 @@
     {% block statistics %}
         <table class="table_detail_view ui-corner-all">
             {% get_block_header colspan=2 %}
-                <th style="width: 80%;" class="collapser">{% get_basic_block_header _('Statistics') 'infos_48.png' _('Information') %}</th>
-                <th style="width: 20%;" align="right"></th>
+                <th class="collapser label">{% get_basic_block_header _('Statistics') 'infos_48.png' _('Information') %}</th>
+                <th class="actions"></th>
             {% end_get_block_header %}
             <tbody class="collapsable">
                 {% for statk, statv in stats %}
-                    <tr>
+                    <tr class="content">
                         <th class="{% cycle "block_header_line_dark" "block_header_line_light" %} th_info">{{statk}}</th>
                         <td class="{% cycle "block_line_dark" "block_line_light" %} td_info">{{statv}}</td>
                     </tr>
@@ -76,3 +78,5 @@
 
     {% get_blocks_dependencies %}
 {% endblock %}
+
+{% block after_content_3 %}</div>{% endblock %}

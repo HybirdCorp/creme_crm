@@ -47,8 +47,8 @@ class Populator(BasePopulator):
     dependencies = ['creme.creme_core', 'creme.creme_config', 'creme.persons', 'creme.products', 'creme.billing']
 
     def populate(self, *args, **kwargs):
-        RelationType.create((REL_SUB_TARGETS_ORGA,      _(u'targets the organisation/contact'), [Opportunity]),
-                            (REL_OBJ_TARGETS_ORGA,      _(u"targeted by the opportunity"),      [Organisation, Contact]),
+        RelationType.create((REL_SUB_TARGETS,      _(u'targets the organisation/contact'), [Opportunity]),
+                            (REL_OBJ_TARGETS,      _(u"targeted by the opportunity"),      [Organisation, Contact]),
                             is_internal=True
                            )
         RelationType.create((REL_SUB_LINKED_PRODUCT,    _(u"is linked to the opportunity"),          [Product]),
@@ -98,10 +98,11 @@ class Populator(BasePopulator):
                       HeaderFilterItem.build_4_field(model=Opportunity, name='reference'),
                       HeaderFilterItem.build_4_field(model=Opportunity, name='sales_phase__name'),
                       HeaderFilterItem.build_4_field(model=Opportunity, name='closing_date'),
-                      HeaderFilterItem.build_4_relation(rtype=RelationType.objects.get(pk=REL_SUB_TARGETS_ORGA)), #TODO: use a variable ??
+                      HeaderFilterItem.build_4_relation(rtype=RelationType.objects.get(pk=REL_SUB_TARGETS)), #TODO: use a variable ??
                      ])
 
-        ButtonMenuItem.create(pk='opportunities-linked_opp_button', model=Organisation, button=linked_opportunity_button, order=30)
+        ButtonMenuItem.create(pk='opportunities-linked_opp_button',         model=Organisation, button=linked_opportunity_button, order=30)#TODO: This pk is kept for compatibility
+        ButtonMenuItem.create(pk='opportunities-linked_opp_button_contact', model=Contact,      button=linked_opportunity_button, order=30)
 
         SearchConfigItem.create(Opportunity, ['name', 'made_sales', 'sales_phase__name', 'origin__name'])
 

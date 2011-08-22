@@ -27,17 +27,17 @@
             {% with errors|length as count %}
                 <table class="table_detail_view ui-corner-all">
                     {% get_block_header colspan=2 %}
-                        <th style="width: 80%;" class="collapser" align="left">{% get_block_title  _('%s Error') _('%s Errors') 'infos_48.png' 'Infos' count %}</th>{# TODO: i18n #}
-                        <th style="width: 20%;" align="right"></th>
+                        <th class="collapser label">{% get_block_title  _('%s Error') _('%s Errors') 'infos_48.png' 'Infos' count %}</th>{# TODO: i18n #}
+                        <th class="actions"></th>
                     {% end_get_block_header %}
                     <tbody class="collapsable">
-                        <tr>
+                        <tr class="header">
                             <th class="block_header_line_dark">{% trans "Line of the CSV file" %}</th>
                             <th class="block_header_line_dark">{% trans "Induced error" %}</th>
                         </tr>
                         {% for error in errors %}
                             <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                            <tr>
+                            <tr class="content">
                                 <td class="{{row_color}}">{{error.0}}</td>
                                 <td class="{{row_color}}">{{error.1}}</td>
                             </tr>

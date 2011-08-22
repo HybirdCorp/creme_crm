@@ -2,8 +2,8 @@
 {% load creme_core_tags creme_block %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=6 %}
-        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Payment information') _('%s Payments information') 'money_info_48.png' _('Payment information') %}</th>
-        <th style="width: 20%;" align="right">
+        <th class="collapser label">{% get_block_title _('%s Payment information') _('%s Payments information') 'money_info_48.png' _('Payment information') %}</th>
+        <th class="actions">
             <div class="buttons">
                 {% has_perm_to change object as has_perm %}
                 {% get_line_adder at_url '/billing/payment_information/add/{{ object.id }}' with_label _("Add a payment information") with_perms has_perm %}
@@ -12,16 +12,16 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 {% get_column_header _('Name') 'name' %}
                 <th class="block_header_line_dark">{% trans "RIB" %}</th>
                 <th class="block_header_line_dark">{% trans "IBAN" %}</th>
                 <th class="block_header_line_dark">{% trans "BIC" %}</th>
                 <th class="block_header_line_dark">{% trans "Is default?" %}</th>
-                <th class="block_header_line_dark">{% trans "Actions" %}</th>
+                <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
             {% for payment_info in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}">{{payment_info.name}}</td>
                     <td class="{{row_color}}">
                         <table>
@@ -50,14 +50,14 @@
                     <td class="{{row_color}}">{{payment_info.iban}}</td>
                     <td class="{{row_color}}">{{payment_info.bic}}</td>
                     <td class="{{row_color}}">{% print_field object=payment_info field='is_default' %}</td>
-                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                    <td class="{{row_color}} action">
                         {% get_line_editor at_url '/billing/payment_information/edit/{{payment_info.id}}' with_perms has_perm %}
                         {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id' : {{payment_info.id}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No payment information for the moment" %}</td>
             </tr>
         {% endif %}

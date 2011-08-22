@@ -6,12 +6,14 @@
 {# {% block page_title %} - {% trans 'Search results' %} : {{results|length}} résultat{{ results|pluralize }}{% endblock %} #}
 
 {% comment %}{% block content %}{% endcomment %}
+<div class="search_results">
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="5%"><img src="{% media_url 'images/looking_glass_64.png' %}" alt="{% trans "Search" %}"/></td>
-            <td width="95%">
+            <td class="logo"><img src="{% media_url 'images/looking_glass_64.png' %}" alt="{% trans "Search" %}"/></td>
+            <td class="title">
                 <h1>{% blocktrans count total as result_count %}Search results : {{result_count}} result{% plural %}Search results : {{result_count}} results{% endblocktrans %}</h1>
             </td>
+            <td class="actions"></td>
         </tr>
     </table>
     {% if research or models %}
@@ -32,45 +34,46 @@
             <li>{{error_message}}</li>
         </ul>
     {% endif %}
-    <br/>
     {% for result in results %}
         {% with result.entities as entities %}
             {% if entities %}
                 {% with result.fields as fields %}
-                    <table class="table_detail_view ui-corner-all">
-                        <thead>
-                            <tr>
-                                <th colspan="{{fields|length|add:1}}" valign="middle" align="left">
-                                    {{entities|length}}
-                                    {% if entities|length == 1 %}
-                                        {{result.model|get_meta_value:"verbose_name"}}
-                                    {% else %}
-                                        {{result.model|get_meta_value:"verbose_name_plural"}}
-                                    {% endif %}
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="collapsable">
-                            <tr>
-                                <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans 'Action' %}</th>
-                                {% for field in fields %}
-                                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{{field.field_verbose_name}}</th>
-                                {% endfor %}
-                            </tr>
-                            {% for res in entities %}
-                                <tr class="{% cycle "block_line_dark" "block_line_light" %}">
-                                    <td><a href="{{res.get_absolute_url}}">{% trans 'Go to the page' %}</a></td>
+                    <div class="result">
+                        <table class="table_detail_view ui-corner-all">
+                            <thead>
+                                <tr>
+                                    <th colspan="{{fields|length|add:1}}" valign="middle" align="left">
+                                        {{entities|length}}
+                                        {% if entities|length == 1 %}
+                                            {{result.model|get_meta_value:"verbose_name"}}
+                                        {% else %}
+                                            {{result.model|get_meta_value:"verbose_name_plural"}}
+                                        {% endif %}
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="collapsable">
+                                <tr class="header">
+                                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %} action">{% trans 'Action' %}</th>
                                     {% for field in fields %}
-                                        <td>{% print_field object=res field=field.field %}</td>
+                                        <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{{field.field_verbose_name}}</th>
                                     {% endfor %}
                                 </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    <br />
+                                {% for res in entities %}
+                                    <tr class="{% cycle "block_line_dark" "block_line_light" %} content">
+                                        <td class="action"><a href="{{res.get_absolute_url}}">{% trans 'Go to the page' %}</a></td>
+                                        {% for field in fields %}
+                                            <td>{% print_field object=res field=field.field %}</td>
+                                        {% endfor %}
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 {% endwith %}
             {% endif %}
         {% endwith %}
     {% endfor %}
 
 {% comment %}{% endblock %}{% endcomment %}
+</div>

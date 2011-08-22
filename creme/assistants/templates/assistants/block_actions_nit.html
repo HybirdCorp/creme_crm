@@ -2,11 +2,12 @@
 {% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=9 %}
-        <th style="width: 80%;" class="collapser">{% get_block_title _('%s Reaction not in time') _('%s Reactions not in time') 'action_48.png' _('Reaction') %}</th>
+        <th class="collapser label">{% get_block_title _('%s Reaction not in time') _('%s Reactions not in time') 'action_48.png' _('Reaction') %}</th>
+        <th class="actions"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 {% get_column_header _('Title') 'title' %}
                 {% if not object %}
                     <th class="block_header_line_dark">{% trans "Concerned entity" %}</th>
@@ -16,11 +17,11 @@
                 {% get_column_header _('Creation') 'creation_date' %}
                 {% get_column_header _('Expected action') 'expected_reaction' %}
                 {% get_column_header _('Deadline') 'deadline' %}
-                <th class="block_header_line_dark">{% trans "OK ?" %}</th>
-                <th class="block_header_line_dark">{% trans "Actions" %}</th>
+                <th class="block_header_line_dark action">{% trans "OK ?" %}</th>
+                <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
             {% for action in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color%}-->
-                <tr>{% has_perm_to change action.creme_entity as has_perm %}
+                <tr class="content">{% has_perm_to change action.creme_entity as has_perm %}
                     <td class="{{row_color}}"><strong>{% print_field object=action field='title' %}</strong></td>
                     {% if not object %}
                         <td class="{{row_color}}">{% widget_entity_hyperlink action.creme_entity user %}</td>
@@ -30,7 +31,7 @@
                     <td class="{{row_color}}">{% print_field object=action field='creation_date' %}</td>
                     <td class="{{row_color}}">{% print_field object=action field='expected_reaction' %}</td>
                     <td class="{{row_color}}">{% print_field object=action field='deadline' %}</td>
-                    <td class="{{row_color}}">
+                    <td class="{{row_color}} action">
                         {% if has_perm %}
                         <form method="post" action="/assistants/action/validate/{{action.id}}/">{% csrf_token %}
                             <input type="checkbox" name="checked_action{{action.id}}" id="checked_action{{action.id}}" />
@@ -42,14 +43,14 @@
                             <input type="checkbox" disabled="true" />
                         {% endif %}
                     </td>
-                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                    <td class="{{row_color}} action">
                         {% get_line_editor at_url '/assistants/action/edit/{{action.id}}/' with_perms has_perm %}
                         {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id' : {{action.id}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No reaction not in time" %}</td>
             </tr>
         {% endif %}

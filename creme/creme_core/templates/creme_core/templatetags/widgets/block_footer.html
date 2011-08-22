@@ -5,18 +5,18 @@
         <tr>
             <td colspan="100" class="block_header_line_dark">
                 {% if page.has_previous %}
-                    <a class="button_link" onclick="creme.utils.loadBlock({% get_block_reload_uri %} + '&{{block_name}}_page={{page.previous_page_number}}')">
+                    <a class="button_link previous" onclick="creme.utils.loadBlock({% get_block_reload_uri %} + '&{{block_name}}_page={{page.previous_page_number}}')">
                         {% trans "Previous page" %}
                     </a>
                 {% endif %}
                 {% blocktrans with page.number as page_number and page.paginator.num_pages as num_pages %}Page {{page_number}} / {{num_pages}}{% endblocktrans %}
                 {% if page.has_next %}
-                    <a class="button_link" onclick="creme.utils.loadBlock({% get_block_reload_uri %} + '&{{block_name}}_page={{page.next_page_number}}')">
+                    <a class="button_link next" onclick="creme.utils.loadBlock({% get_block_reload_uri %} + '&{{block_name}}_page={{page.next_page_number}}')">
                         {% trans "Next page" %}
                     </a>
                 {% endif %}
                 &nbsp;|&nbsp;{% trans "Go to page" %}:
-                <select onchange="creme.utils.loadBlock({% get_block_reload_uri %} + '&{{block_name}}_page='+$(this).val())">
+                <select onchange="creme.utils.loadBlock({% get_block_reload_uri %} + '&{{block_name}}_page='+$(this).val())" class="page_selector">
                     {% for p in page.paginator.num_pages|xrange:1 %}
                         <option value="{{p}}" {% if page.number == p %}selected{% endif %}>{{p}}</option>
                     {% endfor %}

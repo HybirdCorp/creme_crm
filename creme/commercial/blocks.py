@@ -30,7 +30,7 @@ from creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, list4url
 from creme_config.models import SettingValue
 
 from opportunities.models import Opportunity
-from opportunities.constants import REL_SUB_TARGETS_ORGA
+from opportunities.constants import REL_SUB_TARGETS
 
 from persons.models.organisation import Organisation
 
@@ -72,7 +72,7 @@ class ApproachesBlock(QuerysetBlock):
         if not SettingValue.objects.get(key__id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW).value and object.entity_type == ContentType.objects.get_for_model(Organisation):
             managers_ids      = object.get_managers().values_list('id',flat=True)
             employees_ids     = object.get_employees().values_list('id',flat=True)
-            opportunities_ids = Opportunity.objects.filter(relations__type=REL_SUB_TARGETS_ORGA, relations__object_entity=object).values_list('id',flat=True)
+            opportunities_ids = Opportunity.objects.filter(relations__type=REL_SUB_TARGETS, relations__object_entity=object).values_list('id',flat=True)
 
             approaches = CommercialApproach.objects.filter(ok_or_in_futur=False, entity_id__in=chain([pk], managers_ids, employees_ids, opportunities_ids)).select_related('creme_entity')
 

@@ -30,8 +30,8 @@ class LinkedOpportunityButton(Button):
     permission    = 'opportunities.add_opportunity'
 
     def get_ctypes(self):
-        from persons.models import Organisation
-        return (Organisation,)
+        from persons.models import Organisation, Contact
+        return (Organisation, Contact)
 
 
 linked_opportunity_button = LinkedOpportunityButton()

@@ -4,7 +4,7 @@
 {% load creme_block %}{% load creme_core_tags %}
 {% block top_header %}
     {% get_block_header colspan=7 %}
-        <th style="width: 80%;" class="collapser" align="left">{% get_block_title  _('%s Incoming email to treat') _('%s Incoming emails to treat') 'email_48.png' _('Emails') %}</th>
+        <th class="collapser label">{% get_block_title  _('%s Incoming email to treat') _('%s Incoming emails to treat') 'email_48.png' _('Emails') %}</th>
         <th style="width: 10%;" align="right">
             <div class="buttons">
                 <a class="link" onclick="creme.emails.mass_relation('/creme_core/relation/add_to_entities/{{entityemail_ct_id}}/{{rtypes}}/', '[name=select_one]:checked', {% get_block_reload_uri %});">

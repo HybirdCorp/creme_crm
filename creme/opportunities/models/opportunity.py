@@ -104,7 +104,7 @@ class Opportunity(CremeEntity):
         return self.name
 
     def _pre_delete(self):
-        for relation in Relation.objects.filter(type__in=[REL_SUB_TARGETS_ORGA],
+        for relation in Relation.objects.filter(type__in=[REL_SUB_TARGETS],
                                                 subject_entity=self):
             relation._delete_without_transaction()
 
@@ -183,9 +183,9 @@ class Opportunity(CremeEntity):
 
         return quote_ids[0] if quote_ids else None
 
-    def get_target_orga(self):
+    def get_target(self):
         #NB: this one generates 2 queries instead of one Organisation.objects.get(relations__object_entity=SELF, ...) !!
-        return Organisation.objects.get(relations__object_entity=self.id, relations__type=REL_OBJ_TARGETS_ORGA)
+        return CremeEntity.objects.get(relations__object_entity=self.id, relations__type=REL_OBJ_TARGETS).get_real_entity()
 
     def get_emit_orga(self):
         return Organisation.objects.get(relations__object_entity=self.id, relations__type=REL_SUB_EMIT_ORGA)
@@ -208,8 +208,8 @@ class Opportunity(CremeEntity):
     def get_invoices(self):
         return Invoice.objects.filter(relations__object_entity=self.id, relations__type=REL_SUB_LINKED_INVOICE)
 
-    def link_to_target_orga(self, orga):
-        Relation.objects.create(subject_entity=orga, type_id=REL_OBJ_TARGETS_ORGA,
+    def link_to_target(self, target):
+        Relation.objects.create(subject_entity=target, type_id=REL_OBJ_TARGETS,
                                 object_entity=self, user=self.user
                                )
 

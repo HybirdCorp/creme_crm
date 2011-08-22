@@ -16,9 +16,9 @@
 {% block content %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="5%">{% block logo %}{% endblock %}</td>
-            <td width="75%"><h1>{% block title %}{% trans "Media portal" %}{% endblock %}</h1></td>
-            <td width="20%" align="right">
+            <td class="logo">{% block logo %}{% endblock %}</td>
+            <td class="title"><h1>{% block title %}{% trans "Media portal" %}{% endblock %}</h1></td>
+            <td class="actions">
                 {% block header_link %}
                     <a href="{% block list_url %}images{% endblock %}">
                         {% block list_msg %}{% trans "List of images" %}{% endblock %}
@@ -31,12 +31,12 @@
 
     <table class="table_detail_view ui-corner-all">
         {% get_block_header colspan=2 %}
-            <th style="width: 80%;" class="collapser">{% get_basic_block_header _('Statistics') 'infos_48.png' _('Statistics') %}</th>
-            <th style="width: 20%;" align="right"></th>
+            <th class="collapser label">{% get_basic_block_header _('Statistics') 'infos_48.png' _('Statistics') %}</th>
+            <th class="actions"></th>
         {% end_get_block_header %}
         <tbody class="collapsable">
             {% for statk, statv in stats %}
-                <tr>
+                <tr class="content">
                     <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{{statk}}</th>
                     <td class="{% cycle "block_line_dark" "block_line_light" %}">{{statv}}</td>
                 </tr>
@@ -46,11 +46,11 @@
 
     <table class="table_detail_view ui-corner-all">
         {% get_block_header colspan=5%}{# TODO: { % get_block_header colspan=limit_to% } when get_block_header will handle template vars #}
-            <th style="width: 80%;" class="collapser">{% get_basic_block_header _('Last added Images') 'image_48.png' _('Image') %}</th>
-            <th style="width: 20%;" align="right"></th>
+            <th class="collapser label">{% get_basic_block_header _('Last added Images') 'image_48.png' _('Image') %}</th>
+            <th class="actions"></th>
         {% end_get_block_header %}
         <tbody class="collapsable">
-            <tr>
+            <tr class="content">
                 {% for object in objects_list %}
                     <td align="center" class="{% cycle "block_line_dark" "block_line_light" %}">
                         {% get_entity_summary object user %}

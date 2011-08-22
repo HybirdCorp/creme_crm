@@ -38,8 +38,8 @@
 </script>
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=4 %}
-        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Message') _('%s Messages') 'sms_48.png' _('Messages') %}</th>
-        <th style="width: 20%;" align="right">
+        <th class="collapser label">{% get_block_title _('%s Message') _('%s Messages') 'sms_48.png' _('Messages') %}</th>
+        <th class="actions">
             <div class="buttons">
                 {% if has_perm %}
                     <a class="add" onclick="sms_messages.send();">
@@ -65,25 +65,25 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_dark">{% trans "Number" %}</th>
                 <th class="block_header_line_dark">{% trans "Status" %}</th>
                 <th class="block_header_line_dark">{% trans "Status message" %}</th>
-                <th class="block_header_line_dark">{% trans "Delete" %}</th>
+                <th class="block_header_line_dark action">{% trans "Delete" %}</th>
             </tr>
             {% for message in page.object_list %}
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr class="creme-sms-message">
+                <tr class="creme-sms-message content">
                     <td class="{{row_color}}">{{message.phone|formatphone}}</td>
                     <td class="{{row_color}} {{message.status}}">{{message.statusname}}</td>
                     <td class="{{row_color}}">{{message.status_message}}</td>
-                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                    <td class="{{row_color}} action">
                         {% get_line_deletor at_url '/sms/campaign/sending/message/delete' with_args "{'id':{{message.pk}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No message in this sending" %}</td>
             </tr>
         {% endif %}

@@ -1,0 +1,44 @@
+.detailview {}
+
+.detailview .column {
+    float:left;
+    margin-left:0px;
+}
+
+.detailview .column.last {
+    float: right;
+    margin-right:0px;
+}
+
+.detailview .east, .detailview .west {
+    width:49.9%;
+}
+
+.detailview .clear {
+    clear: both;
+}
+
+.detailview .north, .detailview .south {
+    width:99.9%;
+}
+
+.detailview .model_buttons{}/* Buttons related to the model and not specifically the file */
+.detailview .file_buttons{}/* Buttons related specifically to the current file */
+
+
+/*.detailview .column.last:before,*/
+/*.detailview .column.last:after {*/
+    /*content:"";*/
+    /*display:table;*/
+/*}*/
+
+/*.detailview .column.last:after {*/
+    /*content:"after";*/
+    /*clear:both;*/
+/*}*/
+
+/*.detailview .column.last {*/
+    /*zoom:1; *//* For IE 6/7 (trigger hasLayout) */
+/*}*/
+
+
