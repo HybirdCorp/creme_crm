@@ -2,8 +2,8 @@
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=4 %}
-        <th style="width: 80%;" class="collapser" >{% get_basic_block_header _("Addresses") 'infos_48.png' _('Addresses') %}</th>
-        <th style="width: 20%;" align="right">
+        <th class="collapser label">{% get_basic_block_header _("Addresses") 'infos_48.png' _('Addresses') %}</th>
+        <th class="actions">
             <div class="buttons">
                 {% get_toggle_empty_field_button %}
             </div>
@@ -12,36 +12,36 @@
     <tbody class="collapsable">
         <!-- {% cycle "block_line_dark"  "block_line_light" as row_color_b %}
              {% cycle "block_line_light" "block_line_dark"  as row_color_s %}-->
-        <tr>
+        <tr class="header">
             <th colspan="2" class="block_header_line_dark" >{% trans "Billing address" %}</th>
             <th colspan="2" class="block_header_line_light">{% trans "Shipping address" %}</th>
         </tr>
         {% with object.billing_address as b_address %}{% with object.shipping_address as s_address %}
-            <tr>
+            <tr class="content">
                 <th class="block_header_line_dark  th_info_4_columns">{% trans "Address" %}</th><td class="{% cycle row_color_b %} td_info_4_columns" >{{b_address.address}}</td>
                 <th class="block_header_line_light th_info_4_columns">{% trans "Address" %}</th><td class="{% cycle row_color_s %} td_info_4_columns">{{s_address.address}}</td>
             </tr>
-            <tr>
+            <tr class="content">
                 <th class="block_header_line_dark  th_info_4_columns">{% trans "PO box" %}</th><td class="{% cycle row_color_b %} td_info_4_columns">{{b_address.po_box|default:''}}</td>
                 <th class="block_header_line_light th_info_4_columns">{% trans "PO box" %}</th><td class="{% cycle row_color_s %} td_info_4_columns">{{s_address.po_box|default:''}}</td>
             </tr>
-            <tr>
+            <tr class="content">
                 <th class="block_header_line_dark  th_info_4_columns">{% trans "Zip code" %}</th><td class="{% cycle row_color_b %} td_info_4_columns">{{b_address.zipcode|default:''}}</td>
                 <th class="block_header_line_light th_info_4_columns">{% trans "Zip code" %}</th><td class="{% cycle row_color_s %} td_info_4_columns" >{{s_address.zipcode|default:''}}</td>
             </tr>
-            <tr>
+            <tr class="content">
                 <th class="block_header_line_dark  th_info_4_columns">{% trans "City" %}</th><td class="{% cycle row_color_b %} td_info_4_columns">{{b_address.city|default:''}}</td>
                 <th class="block_header_line_light th_info_4_columns">{% trans "City" %}</th><td class="{% cycle row_color_s %} td_info_4_columns">{{s_address.city|default:''}}</td>
             </tr>
-            <tr>
+            <tr class="content">
                 <th class="block_header_line_dark  th_info_4_columns">{% trans "Department" %}</th><td class="{% cycle row_color_b %} td_info_4_columns">{{b_address.department|default:''}}</td>
                 <th class="block_header_line_light th_info_4_columns">{% trans "Department" %}</th><td class="{% cycle row_color_s %} td_info_4_columns">{{s_address.department|default:''}}</td>
             </tr>
-            <tr>
+            <tr class="content">
                 <th class="block_header_line_dark  th_info_4_columns">{% trans "State" %}</th><td class="{% cycle row_color_b %} td_info_4_columns">{{b_address.state|default:''}}</td>
                 <th class="block_header_line_light th_info_4_columns">{% trans "State" %}</th><td class="{% cycle row_color_s %} td_info_4_columns">{{s_address.state|default:''}}</td>
             </tr>
-            <tr>
+            <tr class="content">
                 <th class="block_header_line_dark  th_info_4_columns">{% trans "Country" %}</th><td class="{% cycle row_color_b %} td_info_4_columns">{{b_address.country|default:''}}</td>
                 <th class="block_header_line_light th_info_4_columns">{% trans "Country" %}</th><td class="{% cycle row_color_s %} td_info_4_columns">{{s_address.country|default:''}}</td>
             </tr>

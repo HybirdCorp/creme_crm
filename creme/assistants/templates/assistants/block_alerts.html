@@ -2,8 +2,8 @@
 {% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=7 %}
-        <th style="width: 80%;" class="collapser">{% get_block_title _('%s Alert') _('%s Alerts') 'bell_48.png' _('Alert') %}</th>
-        <th style="width: 20%;" align="right">
+        <th class="collapser label">{% get_block_title _('%s Alert') _('%s Alerts') 'bell_48.png' _('Alert') %}</th>
+        <th class="actions">
             <div class="buttons">
                 {% if object %}
                     {% has_perm_to change object as has_perm %}
@@ -14,7 +14,7 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 {% get_column_header _('Title') 'title' %}
                 {% if not object %}
                     <th class="block_header_line_dark">{% trans "Concerned entity" %}</th>
@@ -22,11 +22,11 @@
                 {% get_column_header _('User') 'user' %}
                 {% get_column_header _("Triggering") 'trigger_date' %}
                 {% get_column_header _('Details') 'description' %}
-                <th class="block_header_line_dark">{% trans "Treated ?" %}</th>
-                <th class="block_header_line_dark">{% trans "Actions" %}</th>
+                <th class="block_header_line_dark action">{% trans "Treated ?" %}</th>
+                <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
             {% for alert in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>{% has_perm_to change alert.creme_entity as has_perm %}
+                <tr class="content">{% has_perm_to change alert.creme_entity as has_perm %}
                     <td class="{{row_color}}"><strong>{% print_field object=alert field='title' %}</strong></td>
                     {% if not object %}
                         <td class="{{row_color}}">{% widget_entity_hyperlink alert.creme_entity user %}</td>
@@ -34,7 +34,7 @@
                     <td class="{{row_color}}">{% print_field object=alert field='user' %}</td>
                     <td class="{{row_color}}">{% print_field object=alert field='trigger_date' %}</td>
                     <td class="{{row_color}}"><em>{% print_field object=alert field='description' %}</em></td>
-                    <td class="{{row_color}}">
+                    <td class="{{row_color}} action">
                         {% if has_perm %}
                             <form method="post" action="/assistants/alert/validate/{{alert.id}}/">{% csrf_token %}
                                 <input type="checkbox" name="checked_alert{{alert.id}}" id="checked_alert{{alert.id}}" />
@@ -46,14 +46,14 @@
                             <input type="checkbox" disabled="true" />
                         {% endif %}
                     </td>
-                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                    <td class="{{row_color}} action">
                         {% get_line_editor at_url '/assistants/alert/edit/{{alert.id}}/' with_perms has_perm %}
                         {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id' : {{alert.id}} }" with_perms has_perm %}
                     </td>
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No alert for the moment" %}</td>
             </tr>
         {% endif %}

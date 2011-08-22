@@ -3,8 +3,8 @@
 {% load creme_core_tags creme_block %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=2 %}
-        <th style="width: 80%;" class="collapser">{% get_basic_block_header _("Image information") 'infos_48.png' _('Information') %}</th>
-        <th style="width: 20%;" align="right">
+        <th class="collapser label">{% get_basic_block_header _("Image information") 'infos_48.png' _('Information') %}</th>
+        <th class="actions">
             <div class="buttons">
                 {% get_toggle_empty_field_button %}
             </div>
@@ -13,29 +13,29 @@
     <tbody class="collapsable">
         <!--{% cycle "block_header_line_light" "block_header_line_dark" as header_row %}
             {% cycle "block_line_light" "block_line_dark" as row_color %}-->
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_row %}">{% trans "Name" %}</th>
             <td class="{% cycle row_color %}">{{object.name}}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_row %}">{% trans "Description" %}</th>
             <td class="{% cycle row_color %}">{{object.description}}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_row %}">{% trans "Height" %}</th>
             <td class="{% cycle row_color %}">{{object.height}}px</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_row %}">{% trans "Width" %}</th>
             <td class="{% cycle row_color %}">{{object.width}}px</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_row %}">{% trans "Categories" %}</th>
             <td class="{% cycle row_color %}">{% print_field object=object field='categories' %}</td>
         </tr>
-        <tr>
-            <th class="{% cycle header_row %}">&nbsp;</th>
-            <td class="{% cycle row_color %}"><a href="/download_file/{{object.image}}" alt="{{object.image}}">{% trans "Download image" %}</a></td>
+        <tr class="content">
+            <th class="{% cycle header_row %} action">&nbsp;</th>
+            <td class="{% cycle row_color %} action"><a href="/download_file/{{object.image}}" alt="{{object.image}}">{% trans "Download image" %}</a></td>
         </tr>
     </tbody>
 </table>

@@ -429,6 +429,12 @@ creme.utils.handleDialogSubmit = function(dialog) {
           success: function(data, status) {
               data += '<input type="hidden" name="whoami" value="'+div_id+'"/>'
               $('[name=inner_body]','#'+div_id).html(data);
+              var $error_list = $('.errorlist:first', '.non_field_errors');
+              if($error_list.size() > 0){
+                var err_pos = $error_list.position();
+                scrollTo(err_pos.left, err_pos.top);
+              }
+
           },
           error: function(request, status, error) {
             creme.utils.showErrorNReload();
@@ -733,9 +739,16 @@ creme.utils.RGBtoHSB = function(rgb){
     return hsb;
 };
 
-creme.utils.showErrorNReload = function()
-{
+creme.utils.showErrorNReload = function() {
     creme.utils.showDialog('<p><b>' + gettext("Error !") + '</b></p><p>' + gettext("The page will be reload !") + '</p>',
                                        {'title': gettext("Error")});
     creme.utils.sleep("creme.utils.reload(window)");
 };
+
+creme.utils.scrollTo = function($elements) {
+    var $element = $elements.first();
+    if($element.size() == 1) {
+        var elementPos = $element.position();
+        scrollTo(elementPos.left, elementPos.top);
+    }
+}

@@ -2,8 +2,8 @@
 {% load creme_core_tags creme_block %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=3 %}
-        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Payment information') _('%s Payments information') 'money_info_48.png' _('Payment information') %}</th>
-        <th style="width: 20%;" align="right">
+        <th class="collapser label">{% get_block_title _('%s Payment information') _('%s Payments information') 'money_info_48.png' _('Payment information') %}</th>
+        <th class="actions">
             <div class="buttons">
                 {% has_perm_to change object as has_perm %}
                 {% if organisation %}
@@ -17,13 +17,13 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 {% get_column_header _('Name') 'name' %}
                 <th class="block_header_line_dark">&nbsp;</th>
-                <th class="block_header_line_dark">{% trans "Selected by default in this document" %}</th>
+                <th class="block_header_line_dark action">{% trans "Selected by default in this document" %}</th>
             </tr>
             {% for payment_info in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}">{{payment_info.name}}</td>
                     <td class="{{row_color}}">
                         <table>
@@ -37,13 +37,13 @@
                             </tr>
                         </table>
                     </td>
-                    <td class="{{row_color}}">
+                    <td class="{{row_color}} action">
                         <input type="checkbox" {% if payment_info == object.payment_info %} checked="true"{% endif %} onclick="creme.billing.setDefaultPaymentInformation('{{ payment_info.id }}', '{{ object.id }}', {% get_block_reload_uri %});"/>
                     </td>
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No payment information for the moment" %}</td>
             </tr>
         {% endif %}

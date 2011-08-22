@@ -3,14 +3,14 @@
 {% load creme_block creme_core_tags creme_widgets %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=6 %}
-        <th style="width: 80%;" class="collapser" align="left">
+        <th class="collapser label">
             {% get_block_title _('%s History entry') _('%s History entries') %}
         </th>
-        <th style="width: 20%;" align="right"></th>
+        <th class="actions"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 {% get_column_header _('Type') 'type' %}
                 {% get_column_header _('Created') 'created' %}
                 {% get_column_header _('What') 'entity_ct' %}
@@ -19,7 +19,7 @@
                 {% get_column_header _('Where') 'where' %}
             </tr>
             {% for history in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}">{{history_type_verbose|get_value:history.type}}</td>
                     {% comment %}<td class="{{row_color}}">{{history|get_html_field_value:"created"}}</td>{% endcomment %}
                     <td class="{{row_color}}">{% print_field object=history field='created' %}</td>
@@ -40,7 +40,7 @@
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">
                     {% block activities_empty %}{% trans "Empty history for the moment" %}{% endblock %}
                 </td>

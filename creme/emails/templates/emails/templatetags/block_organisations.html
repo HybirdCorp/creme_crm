@@ -3,8 +3,8 @@
 {% has_perm_to change object as edit_perm %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=2 %}
-        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Organisation recipient') _('%s Organisations recipients') 'organisation_48.png' _('Organisations') %}</th>
-        <th style="width: 20%;" align="right">
+        <th class="collapser label">{% get_block_title _('%s Organisation recipient') _('%s Organisations recipients') 'organisation_48.png' _('Organisations') %}</th>
+        <th class="actions">
             <div class="buttons">
                 {% get_line_linker at_url '/emails/mailing_list/{{object.pk}}/organisation/add' with_label _("Add from existing organisations") with_perms edit_perm %}
                 {% get_line_linker at_url '/emails/mailing_list/{{object.pk}}/organisation/add_from_filter' with_label _("Add from a filter") with_perms edit_perm %}
@@ -13,12 +13,12 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_dark">{% trans "Address" %}</th>
-                <th class="block_header_line_dark">{% trans "Unlink" %}</th>
+                <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
             </tr>
             {% for orga in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}">
                         {% has_perm_to view orga as orga_perm %}
                         {% if orga_perm %}
@@ -32,13 +32,13 @@
                             {{orga|allowed_unicode:user}}
                         {% endif %}
                     </td>
-                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                    <td class="{{row_color}} action">
                         {% get_line_unlinker at_url '/emails/mailing_list/{{object.pk}}/organisation/delete' with_args "{'id':{{orga.pk}} }" with_perms edit_perm %}
                     </td>
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No organisation recipient for the moment" %}</td>
             </tr>
         {% endif %}

@@ -3,18 +3,18 @@
 {% has_perm_to change object.campaign as delete_perm %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=3 %}
-        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Email') _('%s Emails') 'email_48.png' _('Emails') %}</th>
-        <th style="width: 20%;" align="right"></th>
+        <th class="collapser label">{% get_block_title _('%s Email') _('%s Emails') 'email_48.png' _('Emails') %}</th>
+        <th class="actions"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 <th class="block_header_line_dark">{% trans "Recipient" %}</th>
                 <th class="block_header_line_dark">{% trans "Status" %}</th>
-                <th class="block_header_line_dark">{% trans "Delete" %}</th>
+                <th class="block_header_line_dark action">{% trans "Delete" %}</th>
             </tr>
             {% for mail in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
+                <tr class="content">
                     {% if mail.recipient_entity %}
                         {% has_perm_to view mail.recipient_entity as view_address_perm %}
                         {% if view_address_perm %}
@@ -26,13 +26,13 @@
                         <td class="{{row_color}}">{{mail.recipient}}</td>
                     {% endif %}
                     <td class="{{row_color}}">{{mail.get_status_str}}</td>
-                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                    <td class="{{row_color}} action">
                         {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id':'{{mail.pk}}'}" with_perms delete_perm %}
                     </td>
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">{% trans "No email in this sending" %}</td>
             </tr>
         {% endif %}

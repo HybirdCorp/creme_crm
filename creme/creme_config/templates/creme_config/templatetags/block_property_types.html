@@ -5,38 +5,38 @@
 {% endif %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=4 %}
-        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Type of property') _('%s Types of property') %}</th>
-        <th style="width: 20%;" align="right"></th>
+        <th class="collapser label">{% get_block_title _('%s Type of property') _('%s Types of property') %}</th>
+        <th class="actions"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
-        <tr>
+        <tr class="header toolbar">
             <th colspan="4" class="block_header_line_dark" align="left">
                 {% get_line_adder at_url '/creme_config/property_type/add/' with_label _("New custom type of property") with_perms 1 %}
             </th>
         </tr>
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 {% get_column_header _('Title') 'text' %}
                 <th class="block_header_line_light">{% trans "Applies on entities with following types" %}</th>
-                <th class="block_header_line_light">{% trans "Edit" %}</th>
-                <th class="block_header_line_light">{% trans "Delete" %}</th>
+                <th class="block_header_line_light action">{% trans "Edit" %}</th>
+                <th class="block_header_line_light action">{% trans "Delete" %}</th>
             </tr>
             {% for prop_type in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}">{{prop_type.text}}</td>
                     <td class="{{row_color}}">
                         {% widget_select_or_msg prop_type.subject_ctypes.all _('No related type of resource') %}
                     </td>
-                    <td class="{{row_color}}">
+                    <td class="{{row_color}} action">
                         {% if prop_type.is_custom %}{% get_line_editor at_url '/creme_config/property_type/edit/{{prop_type.id}}' with_perms 1 %}{% endif %}
                     </td>
-                    <td class="{{row_color}}">
+                    <td class="{{row_color}} action">
                         {% if prop_type.is_custom %}{% get_line_deletor at_url '/creme_config/property_type/delete' with_args "{'id': '{{prop_type.pk}}'}" with_perms 1 %}{% endif %}
                     </td>
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td colspan="4" class="block_line_dark">{% trans "No type of property for the moment" %}</td>
             </tr>
         {% endif %}

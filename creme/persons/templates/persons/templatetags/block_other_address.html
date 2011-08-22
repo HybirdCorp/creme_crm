@@ -3,8 +3,8 @@
 {% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=3 %}
-        <th style="width: 80%;" class="collapser">{% get_block_title _("%s Other Address") _("%s Others Addresses") 'infos_48.png' _('Other Address') %}</th>
-        <th style="width: 20%;" align="right">
+        <th class="collapser label">{% get_block_title _("%s Other Address") _("%s Others Addresses") 'infos_48.png' _('Other Address') %}</th>
+        <th class="actions">
             <div class="buttons">
                 {% get_line_adder at_url '/persons/address/add/{{object.id}}' with_label _("Add an Address") with_perms has_perm %}
             </div>
@@ -15,11 +15,11 @@
             {% for address in page.object_list %}
                 <!-- {% cycle "block_header_line_dark" "block_header_line_light" as header_color %}
                      {% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
+                <tr class="header">
                     <th colspan="2" class="block_header_line_dark">{{address.name}}</th>
-                    <th class="block_header_line_dark">{% trans "Actions" %}</th>
+                    <th class="block_header_line_dark action">{% trans "Actions" %}</th>
                 </tr>
-                <tr>
+                <tr class="content">
                     <th class="{% cycle header_color %} th_info">{% trans "Address" %}</th>
                     <td class="{% cycle row_color %} td_info" >{{address.address}}</td>
                     <td class="{{row_color}}" align="center" valign="center" rowspan="7">
@@ -27,33 +27,33 @@
                         {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id': {{address.id}} }" with_perms has_perm %}
                     </td>
                 </tr>
-                <tr>
+                <tr class="content">
                     <th class="{% cycle header_color %} th_info">{% trans "PO box" %}</th>
                     <td class="{% cycle row_color %} td_info">{{address.po_box}}</td>
                 </tr>
-                <tr>
+                <tr class="content">
                     <th class="{% cycle header_color %} th_info">{% trans "City" %}</th>
                     <td class="{% cycle row_color %} td_info">{{address.city}}</td>
                 </tr>
-                <tr>
+                <tr class="content">
                     <th class="{% cycle header_color %} th_info">{% trans "State" %}</th>
                     <td class="{% cycle row_color %} td_info">{{address.state}}</td>
                 </tr>
-                <tr>
+                <tr class="content">
                     <th class="{% cycle header_color %} th_info">{% trans "Zip code" %}</th>
                     <td class="{% cycle row_color %} td_info">{{address.zipcode}}</td>
                 </tr>
-                <tr>
+                <tr class="content">
                     <th class="{% cycle header_color %} th_info">{% trans "Country" %}</th>
                     <td class="{% cycle row_color %} td_info">{{address.country}}</td>
                 </tr>
-                <tr>
+                <tr class="content">
                     <th class="{% cycle header_color %} th_info">{% trans "Department" %}</th>
                     <td class="{% cycle row_color %} td_info">{{address.department}}</td>
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="{% cycle "block_line_dark" "block_line_light" %}">{% trans 'No other address set for the moment' %}</td>
             </tr>
         {% endif %}

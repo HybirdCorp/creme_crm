@@ -2,8 +2,8 @@
 {% load creme_core_tags %}{% load creme_block %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=2 %}
-        <th style="width: 80%;" class="collapser">{% get_basic_block_header _("Organisation information") 'infos_48.png' _('Information') %}</th>
-        <th style="width: 20%;" align="right">
+        <th class="collapser label">{% get_basic_block_header _("Organisation information") 'infos_48.png' _('Information') %}</th>
+        <th class="actions">
             <div class="buttons">
                 {% get_toggle_empty_field_button %}
             </div>
@@ -12,71 +12,71 @@
     <tbody class="collapsable">
         <!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}
             {% cycle "block_line_dark" "block_line_light" as row_color %}-->
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Creation date" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='created' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Last modification" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='modified' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Name of the organisation" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='name' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Staff size" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='staff_size' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Legal form" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='legal_form' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Line of business" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='sector' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Capital" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='capital' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "SIREN" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='siren' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "NAF code" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='naf' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "SIRET" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='siret' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "RCS/RM" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='rcs' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Intra VAT" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='tvaintra' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Subject to VAT" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='subject_to_vat' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Assigned to" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='user' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Description" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='description' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Date of creation of the organisation" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='creation_date' %}</td>
         </tr>
-        <tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Logo" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='image' %}</td>
         </tr>

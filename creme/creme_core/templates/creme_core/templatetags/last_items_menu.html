@@ -2,6 +2,6 @@
 <div id="last_viewed">
     <strong>{% trans "Last viewed pages:" %}&nbsp; &nbsp;</strong>
     {% for item in items %}
-        <a href="{{item.url}}">{{item.name}}</a> &nbsp; &nbsp;
+        <a class="item" href="{{item.url}}">{{item.name}}</a> &nbsp; &nbsp;
     {% endfor %}
 </div>

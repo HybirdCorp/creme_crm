@@ -5,21 +5,11 @@
         {% with blocks.general as form_block %}
             {% include "creme_core/generics/blockform/content.html" %}
         {% endwith %}
-        <table style="width: 100%;">
-            <tbody>
-                <tr>
-                    <td style="width: 50%;">
-                        {% with blocks.billing_address as form_block %}
-                            {% include "persons/frags/billing_block.html" %}
-                        {% endwith %}
-                    </td>
-                    <td style="width: 50%;">
-                        {% with blocks.shipping_address as form_block %}
-                            {% include "persons/frags/shipping_block.html" %}
-                        {% endwith %}
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        {% with blocks.billing_address as form_block %}
+            {% include "persons/frags/billing_block.html" %}
+        {% endwith %}
+        {% with blocks.shipping_address as form_block %}
+            {% include "persons/frags/shipping_block.html" %}
+        {% endwith %}
     {% endwith %}
 {% endblock %}

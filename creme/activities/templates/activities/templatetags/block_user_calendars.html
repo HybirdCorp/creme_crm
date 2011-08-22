@@ -3,10 +3,10 @@
 {% load creme_block %}{% load creme_core_tags %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=5 %}
-        <th style="width: 80%;" class="collapser" align="left">
+        <th class="collapser label">
             {% get_block_title _('%s Calendar') _('%s Calendars') 'calendar_48.png' _('Calendars') %}
         </th>
-        <th style="width: 20%;" align="right"></th>
+        <th class="actions"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
         <tr>
@@ -18,24 +18,24 @@
             </th>
         </tr>
         {% if page.paginator.count %}
-            <tr>
+            <tr class="header">
                 {% get_column_header _('Name') 'name' %}
                 {% get_column_header _('Is default ?') 'is_default' %}
                 {% get_column_header _('Is public ?') 'is_public' %}
-                <th class="block_header_line_dark">{% trans "Edit" %}</th>
-                <th class="block_header_line_dark">{% trans "Delete" %}</th>
+                <th class="block_header_line_dark action">{% trans "Edit" %}</th>
+                <th class="block_header_line_dark action">{% trans "Delete" %}</th>
             </tr>
             {% for calendar in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                <tr>
+                <tr class="content">
                     <td class="{{row_color}}">{{calendar.name}}</td>
                     <td class="{{row_color}}">{% print_field object=calendar field='is_default' %}</td>
                     <td class="{{row_color}}">{% print_field object=calendar field='is_public' %}</td>
-                    <td class="{{row_color}}">
+                    <td class="{{row_color}} action">
                         <a onclick="creme.utils.innerPopupNReload('/activities/calendar/{{calendar.id}}/edit', {% get_block_reload_uri %});">
                             <img src="{% media_url 'images/edit_22.png' %}" border="0" alt="{% trans "Edit calendar" %}" title="{% trans "Edit calendar" %}"/>
                         </a>
                     </td>
-                    <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
+                    <td class="{{row_color}} action">
                         {% if calendar.is_custom %}
                             {% get_line_deletor at_url '/activities/calendar/delete' with_args "{'id': '{{calendar.id}}'}" with_perms 1 %}
                         {% endif %}
@@ -43,7 +43,7 @@
                 </tr>
             {% endfor %}
         {% else %}
-            <tr>
+            <tr class="content empty">
                 <td class="block_line_dark">
                     {% block activities_empty %}{% trans "No future related activity for the moment" %}{% endblock %}
                 </td>
