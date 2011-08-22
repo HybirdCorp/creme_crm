@@ -2,8 +2,8 @@
 {% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=8 %}
-        <th style="width: 80%;" class="collapser">{% get_block_title _('%s Todo') _('%s Todos') 'memo_48.png' _('Todo') %}</th>
-        <th style="width: 20%;" align="right">
+        <th class="collapser label">{% get_block_title _('%s Todo') _('%s Todos') 'memo_48.png' _('Todo') %}</th>
+        <th class="actions">
             {% if object %}
                 <div class="buttons">
                     {% has_perm_to change object as has_perm %}

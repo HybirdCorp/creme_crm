@@ -2,8 +2,8 @@
 {% load creme_core_tags creme_block %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=6 %}
-        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Payment information') _('%s Payments information') 'money_info_48.png' _('Payment information') %}</th>
-        <th style="width: 20%;" align="right">
+        <th class="collapser label">{% get_block_title _('%s Payment information') _('%s Payments information') 'money_info_48.png' _('Payment information') %}</th>
+        <th class="actions">
             <div class="buttons">
                 {% has_perm_to change object as has_perm %}
                 {% get_line_adder at_url '/billing/payment_information/add/{{ object.id }}' with_label _("Add a payment information") with_perms has_perm %}

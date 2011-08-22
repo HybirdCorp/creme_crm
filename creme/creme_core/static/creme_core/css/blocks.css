@@ -14,7 +14,7 @@
     color:#376e86;
     padding-left:5px;
     padding-right:5px;
-    white-space:nowrap;
+    /*white-space:nowrap;*/
     padding:2px 6px;
 }
 
@@ -40,6 +40,20 @@
 .table_detail_view tbody td table tbody td:hover {
     background-color:#ffffff;
 }
+.table_detail_view .block_header {
+    width: 100%;
+}
+
+.table_detail_view .block_header .label {
+    width: 80%;
+    text-align: left;
+}
+
+.table_detail_view .block_header .actions {
+    width: 20%;
+    text-align: right;
+}
+
 .table_detail_view .header {}
 .table_detail_view .header.toolbar {}
 .table_detail_view .header .action {}
@@ -95,4 +109,30 @@
     text-align: left;
 }
 
+.table_detail_view input,  .table_detail_view select, .table_detail_view textarea{
+    width: 20%;
+}
+
+.table_detail_view.dual_column input, .table_detail_view.dual_column select, .table_detail_view.dual_column textarea {
+    width: 40%;
+}
+
+.table_detail_view input[type="checkbox"], .table_detail_view.dual_column input[type="checkbox"] {/* Fix for chrome & opera */
+    width: auto;
+    margin-left: 0;
+}
+
+.table_detail_view.dual_column {
+    width: 49.9%;
+    float: left;
+}
+
+.table_detail_view.dual_column.last {
+    float: right;
+}
+
+.table_detail_view.dual_column.last:after {
+    clear: both;
+    content: "";
+}
 

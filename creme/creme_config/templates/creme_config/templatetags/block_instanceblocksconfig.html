@@ -2,8 +2,8 @@
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}><!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
     {% get_block_header colspan=2 %}
-        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _("%s Instance's block created") _("%s Instances' blocks created") %}</th>
-        <th style="width: 20%;" align="right"></th>
+        <th class="collapser label">{% get_block_title _("%s Instance's block created") _("%s Instances' blocks created") %}</th>
+        <th class="actions"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}

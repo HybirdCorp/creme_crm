@@ -1,5 +1,5 @@
 {% with form_block.1 as fields %}
-    <table class="table_detail_view ui-corner-all" {% block table_attrs %}{% endblock %}>
+    <table class="table_detail_view ui-corner-all {% block table_classes %}{% endblock %}" {% block table_attrs %}{% endblock %}>
         <thead>
             <tr>
                 <th colspan="2" valign="middle">{{form_block.0}}</th>
@@ -24,5 +24,4 @@
             {% endfor %}
         </tbody>
     </table>
-    <br />
 {% endwith %}

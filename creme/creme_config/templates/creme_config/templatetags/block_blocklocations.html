@@ -2,8 +2,8 @@
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all {{state.classes}}" id={{block_name}}><!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
     {% get_block_header colspan=4 %}
-        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Configured type of resource') _('%s Configured types of resource') %}</th>
-        <th style="width: 20%;" align="right"></th>
+        <th class="collapser label">{% get_block_title _('%s Configured type of resource') _('%s Configured types of resource') %}</th>
+        <th class="actions"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
         <tr class="header toolbar">
@@ -18,7 +18,7 @@
         </tr>
         <tr class="content">{% comment %} ONLY IF PAGE==1 ?? {% endcomment %}<!--{% cycle row_color %}-->
             <td class="{{row_color}}">{% trans "Default configuration" %}</td>
-            <td class="{{row_color}}">{% get_line_editor at_url '/creme_config/blocks/detailview/edit/0' with_perms 1 %}</td>
+            <td class="{{row_color}} action">{% get_line_editor at_url '/creme_config/blocks/detailview/edit/0' with_perms 1 %}</td>
             <td class="{{row_color}}"></td>
         </tr>
         {% if page.paginator.count %}

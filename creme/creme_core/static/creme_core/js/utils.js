@@ -774,9 +774,17 @@ creme.utils.RGBtoHSB = function(rgb){
     return hsb;
 };
 
-creme.utils.showErrorNReload = function()
-{
+creme.utils.showErrorNReload = function() {
     creme.utils.showDialog('<p><b>' + gettext("Error !") + '</b></p><p>' + gettext("The page will be reload !") + '</p>',
                                        {'title': gettext("Error")});
     creme.utils.sleep("creme.utils.reload(window)");
 };
+
+creme.utils.scrollTo = function($elements) {
+//    var $element = $elements.first(); //jQuery >= 1.4
+    var $element = $elements.eq(0);
+    if($element.size() == 1) {
+        var elementPos = $element.position();
+        scrollTo(elementPos.left, elementPos.top);
+    }
+}

@@ -2,8 +2,8 @@
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}><!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
     {% get_block_header colspan=2 %}
-        <th style="width: 80%;" class="collapser" align="left">{% get_block_title _('%s Type of relation block created') _('%s Types of relation block created') %}</th>
-        <th style="width: 20%;" align="right"></th>
+        <th class="collapser label">{% get_block_title _('%s Type of relation block created') _('%s Types of relation block created') %}</th>
+        <th class="actions"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
         <tr class="header toolbar">

@@ -4,8 +4,8 @@
     {% if custom_fields_n_values %}
         <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
             {% get_block_header colspan=2 %}
-                <th style="width: 80%;" class="collapser" align="left">{% get_basic_block_header _('Custom fields') 'infos_48.png' _('Information') %}</th>
-                <th style="width: 20%;" align="right">
+                <th class="collapser label">{% get_basic_block_header _('Custom fields') 'infos_48.png' _('Information') %}</th>
+                <th class="actions">
                     <div class="buttons">
                         {% get_toggle_empty_field_button %}
                     </div>

@@ -2,20 +2,13 @@
 {% load creme_core_tags %}{% load creme_block %}
 {% load graph_tags %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
-    <thead>
-        <tr>
-            <th colspan="2" class="collapser">
-                <table class="block_header" cellspacing="0" cellpadding="0">
-                    <tbody>
-                        <tr>
-                            <td><img src="{% media_url 'images/graph_48.png' %}" alt="{% trans 'Graph' %}" title="{% trans 'Graph' %}" /></td>
-                            <td>&nbsp;{{graph}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </th>
-        </tr>
-    </thead>
+    {% get_block_header colspan=2 %}
+        <th class="collapser label">
+            {% with report_graph=graph|title %}
+                {% get_basic_block_header report_graph 'graph_48.png' _('Graph')  %}
+            {% endwith %}
+        <th class="actions"></th>
+    {% end_get_block_header %}
     <tbody class="collapsable">
         <tr class="header toolbar">
             <th class="block_header_line_dark" align="left">
