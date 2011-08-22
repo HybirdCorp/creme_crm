@@ -453,7 +453,19 @@ CRUDITY_BACKENDS = []#Configuration for backends (a list of dict)
 #    },
 #]
 
-
+CRUDITY_BACKENDS = [
+    {
+        "fetcher": "email",
+        "input": "raw",
+        "method": "create",
+        "model": "emails.entityemail",
+        "password": "",
+        "limit_froms": (),
+        "in_sandbox": True,
+        "body_map"   : {},
+        "subject": u"*"
+    },
+]
 
 #ACTIVESYNC ------------------------------------------------------------------------
 #TODO: Rename and transform this into an AS-Version verification => A2:Body doesn't seems to work with AS version > 2.5
