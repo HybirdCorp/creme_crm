@@ -21,10 +21,10 @@
 from django.forms import ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeEntityForm, CremeEntityField, CremeDateTimeField
+from creme_core.forms import CremeEntityForm, CremeDateTimeField, GenericEntityField
 from creme_core.forms.validators import validate_linkable_entity
 
-from persons.models import Organisation
+from persons.models import Organisation, Contact
 
 from opportunities.models import Opportunity
 
@@ -41,15 +41,15 @@ class OpportunityEditForm(CremeEntityForm):
 
 
 class OpportunityCreateForm(OpportunityEditForm):
-    target_orga = CremeEntityField(label=_(u"Target organisation"), model=Organisation)
-    emit_orga   = ModelChoiceField(label=_(u"Concerned organisation"), queryset=Organisation.objects.none())
+    target    = GenericEntityField(label=_(u"Target organisation / contact"), models=[Organisation, Contact], required=True)
+    emit_orga = ModelChoiceField(label=_(u"Concerned organisation"), queryset=Organisation.objects.none())
 
     def __init__(self, *args, **kwargs):
         super(OpportunityCreateForm, self).__init__(*args, **kwargs)
         self.fields['emit_orga'].queryset = Organisation.get_all_managed_by_creme() #TODO: can we move the queryset in the field directly ??
 
-    def clean_target_orga(self):
-        return validate_linkable_entity(self.cleaned_data['target_orga'], self.user)
+    def clean_target(self):
+        return validate_linkable_entity(self.cleaned_data['target'], self.user)
 
     def clean_emit_orga(self):
         return validate_linkable_entity(self.cleaned_data['emit_orga'], self.user)
@@ -61,7 +61,7 @@ class OpportunityCreateForm(OpportunityEditForm):
         super(OpportunityCreateForm, self).save(*args, **kwargs)
 
         cleaned_data = self.cleaned_data
-        instance.link_to_target_orga(cleaned_data['target_orga'])
+        instance.link_to_target(cleaned_data['target'])
         instance.link_to_emit_orga(cleaned_data['emit_orga'])
 
         form_post_save.send(sender=Opportunity, instance=instance, created=created)

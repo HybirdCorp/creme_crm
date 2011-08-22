@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-REL_SUB_TARGETS_ORGA = 'opportunities-subject_targets_orga'
-REL_OBJ_TARGETS_ORGA = 'opportunities-object_targets_orga'
+REL_SUB_TARGETS = 'opportunities-subject_targets_orga'#TODO: Those pk are kept for compatibility
+REL_OBJ_TARGETS = 'opportunities-object_targets_orga'
 
 REL_SUB_EMIT_ORGA = 'opportunities-subject_emit_orga'
 REL_OBJ_EMIT_ORGA = 'opportunities-object_emit_orga'
