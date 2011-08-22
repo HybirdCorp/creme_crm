@@ -1,9 +1,9 @@
 {% load i18n %}{% load media %}
 {% load creme_core_tags %}
 <tr id="list_thead_search" class="columns_bottom">
-    {% if not o2m %}<th><center><input name="select_all" value="all" type="checkbox" title="{% trans "Select all" %}"/></center></th>{% endif %}
+    {% if not o2m %}<th class="choices"><center><input name="select_all" value="all" type="checkbox" title="{% trans "Select all" %}"/></center></th>{% endif %}
     {% for column in columns %}
-        <th {% if column.is_hidden %}style="display:none;"{% endif %} {% if column.name in current_research_fields %}class="search"{% endif %}>
+        <th {% if column.is_hidden %}style="display:none;"{% endif %} class="{% if column.type %}column{% else %}actions{% endif %}{% if column.name in current_research_fields %} search{% endif %}{% if column.sortable %} sortable{% endif %}{% if column.has_a_filter %} {{ column.widget_ctx.type }}{% endif %}">
             {% if column.has_a_filter %}
                 {% with column.widget_ctx as widget_ctx %}
                     {% with widget_ctx.type as widget_type %}
@@ -27,14 +27,14 @@
                             </select>
                         {% else %}{% if widget_type == "datefield" %}
                             <span>
-                                {% trans "Between" %}
+                                <label for="id_{{column.name}}{{whoami}}">{% trans "Between" %}</label>
                                 <input name="{{column.name}}" id="id_{{column.name}}{{whoami}}" title="{{column.title}}" type="{{widget_type}}"
                                        style="width:80px" value="{% if search %}{{widget_ctx.values.start}}{% endif %}"
-                                       onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});"/>
-                                &nbsp;{% trans "and" %}&nbsp;
+                                       onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});" class="first"/>
+                                &nbsp;<label for="id_{{column.name}}{{whoami}}_2">{% trans "and" %}</label>&nbsp;
                                 <input name="{{column.name}}" id="id_{{column.name}}{{whoami}}_2" title="{{column.title}}" type="{{widget_type}}"
                                        style="width:80px" value="{% if search %}{{widget_ctx.values.end}}{% endif %}"
-                                       onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});"/>
+                                       onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});" class="second"/>
                             </span>
                             <script type="text/javascript">
                                 $("#id_{{column.name}}{{ whoami }}").datepicker({dateFormat:   "yy-mm-dd", showOn: "button", buttonImage: "{% media_url 'images/icon_calendar.gif' %}", buttonImageOnly: true, onSelect: function(dateText, inst){$('#id_{{column.name}}{{ whoami }}_2').val(dateText);}});
