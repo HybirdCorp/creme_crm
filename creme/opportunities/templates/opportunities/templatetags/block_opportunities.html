@@ -3,10 +3,10 @@
 {% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}{% has_perm_to create ct as creation_perm %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=5 %}
-        <th class="collapser label">{% get_block_title _('%s Opportunity which targets the organisation') _('%s Opportunities which target the organisation') 'opportunity_48.png' _('Opportunity') %}</th>
+        <th class="collapser label">{% get_block_title _('%s Opportunity which targets the organisation / the contact') _('%s Opportunities which target the organisation / the contact') 'opportunity_48.png' _('Opportunity') %}</th>
         <th class="actions">
             <div class="buttons">
-                {% get_line_adder at_url '/opportunities/opportunity/add_to_orga/{{object.id}}/popup' with_label _("Create a linked opportunity") with_perms creation_perm|and_op:link_perm %}
+                {% get_line_adder at_url '/opportunities/opportunity/add_to/{{object.id}}/popup' with_label _("Create a linked opportunity") with_perms creation_perm|and_op:link_perm %}
             </div>
         </th>
     {% end_get_block_header %}

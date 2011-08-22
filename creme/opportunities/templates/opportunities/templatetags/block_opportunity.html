@@ -21,8 +21,8 @@
             {% endif %}
         {% endfor %}
         <tr class="content">
-            <th class="{% cycle header_color %} th_info">{% trans "Target organisation" %}</th>
-            <td class="{% cycle row_color %} td_info">{% widget_entity_hyperlink object.get_target_orga user %}</td>
+            <th class="{% cycle header_color %} th_info">{% trans "Target organisation / contact" %}</th>
+            <td class="{% cycle row_color %} td_info">{% widget_entity_hyperlink object.get_target user %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Concerned organisation" %}</th>

@@ -59,7 +59,7 @@ class Command(BaseCommand):
         from commercial.constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW
         from commercial.models import CommercialApproach
 
-        from opportunities.constants import REL_SUB_TARGETS_ORGA
+        from opportunities.constants import REL_SUB_TARGETS
         from opportunities.models import Opportunity
 
         from persons.models    import Organisation, Contact
@@ -81,7 +81,7 @@ class Command(BaseCommand):
                     com_apps         = CommercialApproach.objects.filter(entity_content_type__in=[ContentType.objects.get_for_model(model) for model in (Organisation, Contact, Opportunity)], creation_date__range=(thirty_days_ago, now))
                     com_apps_filter  = com_apps.filter
 
-                    opportunities_targets_orga = Opportunity.objects.filter(relations__type=REL_SUB_TARGETS_ORGA)
+                    opportunities_targets_orga = Opportunity.objects.filter(relations__type=REL_SUB_TARGETS)
 
                     emails_to_send = []
                     emails_append  = emails_to_send.append
