@@ -21,24 +21,24 @@
 {% endif %}
 <table id="list" class="list_view" cellpadding="0" cellspacing="0">
     <thead>
-        <tr>
-            <th colspan="{{colspan}}" class="title"><h2>{{list_title}}</h2></th>
+        <tr class="title">
+            <th colspan="{{colspan}}"><h2>{{list_title}}</h2></th>
         </tr>
         {% if list_sub_title %}
-            <tr>
-                <th colspan="{{colspan}}" class="sub_title"><h4>{{list_sub_title}}</h4></th>
+            <tr class="sub_title">
+                <th colspan="{{colspan}}"><h4>{{list_sub_title}}</h4></th>
             </tr>
         {% endif %}
-        <tr>
+        <tr class="lines_modifiers">
             <th colspan="{{colspan}}">
-                <table width="100%" border="0">
+                <table>
                     <tbody>
                         <tr>
-                            <th align="left" valign="baseline" width="50%">
+                            <th class="filters">
                                 {% comment %}{% get_listview_filters %}{% endcomment %}
                                 {% get_listview_entity_filters %}
                             </th>
-                            <th align="right" valign="baseline" width="50%">
+                            <th class="views">
                                 {% get_listview_headerfilters %}
                             </th>
                         </tr>
@@ -83,18 +83,18 @@
             </th>
         </tr>
         <tr class="columns_top">
-            {% if not o2m %}<th>&nbsp;</th>{% endif %}
+            {% if not o2m %}<th class="choices">&nbsp;</th>{% endif %}
             {% for column in columns %}
                 {% if column.is_hidden %}
                     <th style="display:none;"></th>
                 {% else %}{% if column.type %}
-                    <th {% if column.name in current_research_fields %}class="search"{% endif %}>
+                    <th class="column{% if column.name in current_research_fields %} search{% endif %}{% if column.sortable %} sortable{% endif %}">
                         <button type="button" {% if column.sortable %}title="{% blocktrans with column.title as col_title %}Sort by {{col_title}}{% endblocktrans %}" onclick="creme.utils.handleSort('#sort_field', '#sort_order', '{{column.name}}', this, $(this.form).list_view('getSubmit'));"{% else %} disabled="true" {% endif %}>
                             {{column.title}}
                         </button>
                     </th>
                 {% else %}
-                    <th></th>
+                    <th class="actions"></th>
                 {% endif %}{% endif %}
             {% endfor %}
         </tr>
@@ -102,17 +102,17 @@
     </thead>
     <tbody>
         {% for entity in entities.object_list %}
-            <tr class="selectable {% cycle 'odd' '' %}">
-                {% if not o2m %}<td><input name="select_one" value="{{entity.pk}}" type="checkbox" /></td>{% endif %}
+            <tr class="selectable{% cycle ' odd' '' %}">
+                {% if not o2m %}<td class="choices"><input name="select_one" value="{{entity.pk}}" type="checkbox" /></td>{% endif %}
                 <td style="display:none;">
                     <input type="hidden" name="entity_id" value="{{entity.pk}}" />
                 </td>
                 {% for column in columns %}
                     {% if not column.type and show_actions %}
-                        <td title="actions" class="list_view_actions">{% get_entity_actions entity %}</td>
+                        <td title="actions" class="list_view_actions actions">{% get_entity_actions entity %}</td>
                     {% else %}
                         {# <td title="" name="{{column.name}}" {% if column.is_hidden %}style="display:none;"{% endif %}>{% if column.is_hidden %}{{column|hf_get_html_output:entity|safe}}{% else %}{{column|hf_get_html_output:entity|safe|linebreaks}}{% endif %}</td> #}
-                        <td title="" name="{{column.name}}" {% if column.is_hidden %}style="display:none;"{% endif %}>{% get_listview_cell column entity user %}</td>
+                        <td class="column" title="" name="{{column.name}}" {% if column.is_hidden %}style="display:none;"{% endif %}>{% get_listview_cell column entity user %}</td>
                     {% endif %}
                 {% endfor %}
             </tr>
@@ -128,20 +128,20 @@
                 <table border="0" width="100%">
                     <tbody>
                         <tr>
-                            <td>
-                                <button name="page" value="1" {% if not entities.has_previous %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button">|<</button>
-                                <button name="page" value="{{entities.previous_page_number}}"{% if not entities.has_previous %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button"><<</button>
+                            <td class="previous_buttons">
+                                <button class="first_page" name="page" value="1" {% if not entities.has_previous %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button">|<</button>
+                                <button class="previous_page" name="page" value="{{entities.previous_page_number}}"{% if not entities.has_previous %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button"><<</button>
                             </td>
-                            <td>
-                                {% trans "Page" %} <input id="user_page" value="{{entities.number}}" name="page" onkeydown="$(this.form).list_view('getKdSubmit')(event, this);" title="{% trans "'Enter' to submit" %}"/> {% trans "on" %} {{entities.paginator.num_pages}}
+                            <td class="current_page">
+                                <label for="user_page">{% trans "Page" %} </label><input id="user_page" value="{{entities.number}}" name="page" onkeydown="$(this.form).list_view('getKdSubmit')(event, this);" title="{% trans "'Enter' to submit" %}"/><label for="user_page"> {% trans "on" %} {{entities.paginator.num_pages}}</label>
                             </td>
-                            <td>
-                                <button name="page" value="{{entities.next_page_number}}"{% if not entities.has_next %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button">>></button>
-                                <button name="page" value="{{entities.paginator.num_pages}}"{% if entities.number == entities.paginator.num_pages %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button">>|</button>
+                            <td class="next_buttons">
+                                <button class="next_page" name="page" value="{{entities.next_page_number}}"{% if not entities.has_next %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button">>></button>
+                                <button class="last_page" name="page" value="{{entities.paginator.num_pages}}"{% if entities.number == entities.paginator.num_pages %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %} type="button">>|</button>
                             </td>
-                            <td>
-                                {% trans "Nb / Page" %} :
-                                <select name="rows" onchange="$(this.form).list_view('getSubmit')(this);">
+                            <td class="page_selector">
+                                <label for="id_page_selector_rows">{% trans "Nb / Page" %} :</label>
+                                <select id="id_page_selector_rows" name="rows" onchange="$(this.form).list_view('getSubmit')(this);">
                                     {% with entities.paginator.per_page as rows %}
                                         <option value="10" {% if rows == 10 %}selected{% endif %}>10</option>
                                         <option value="25" {% if rows == 25 %}selected{% endif %}>25</option>
@@ -151,7 +151,7 @@
                                     {% endwith %}
                                 </select>
                             </td>
-                            <td>
+                            <td class="page_information">
                                 {% with entities.start_index as start_index %}
                                 {% with entities.end_index as end_index %}
                                 {% with entities.paginator.count as entities_count %}

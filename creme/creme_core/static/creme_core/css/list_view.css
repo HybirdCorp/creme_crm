@@ -17,13 +17,31 @@
     padding : 0px;
 }
 
-.list_view thead .title h2 {
+.list_view thead .title th h2 {
     padding-top:0.6em;
     padding-bottom:0.6em;
 }
 
-.list_view thead .sub_title h4, .list_view thead .title h2{
+.list_view thead .sub_title th h4, .list_view thead .title th h2{
     height: 1px;
+}
+
+.list_view thead .lines_modifiers > th > table{
+    width: 100%;
+    border: 0;
+}
+
+.list_view thead .lines_modifiers .filters, .list_view thead .lines_modifiers .views {
+    vertical-align: baseline;
+    width: 50%;
+}
+
+.list_view thead .lines_modifiers .filters {
+    text-align: left;
+}
+
+.list_view thead .lines_modifiers .views {
+    text-align: right;
 }
 
 .list_view fieldset {
