@@ -22,8 +22,7 @@ from django.utils.translation import ugettext as _
 from django.conf import settings
 
 from creme_core.gui.field_printers import simple_print
-
-from mediagenerator.utils import media_url
+from creme_core.utils.media import creme_media_themed_url
 
 
 def print_phone(entity, fval, user):
@@ -35,5 +34,5 @@ def print_phone(entity, fval, user):
             'number': fval,
             'id':     entity.id,
             'label':  _(u'Call'),
-            'img':    media_url('images/phone_22.png'),
+            'img':    creme_media_themed_url('images/phone_22.png'),
         }

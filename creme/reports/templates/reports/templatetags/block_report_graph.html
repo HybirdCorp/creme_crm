@@ -1,5 +1,5 @@
-{% load i18n %}{% load media %}
-{% load creme_core_tags %}{% load creme_block %}
+{% load i18n %}
+{% load creme_core_tags creme_block %}
 {% load graph_tags %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=2 %}
@@ -53,7 +53,7 @@
                                     {% else %}
                                         <a onclick="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$('#graph_ordering_{{instance_block_id}}').val(), $('#graph_type_{{instance_block_id}}').val(), '.graph_container_{{instance_block_id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{instance_block_id}}');">
                                     {% endif %}
-                                        <img src="{% media_url 'images/refresh_22.png' %}" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" />
+                                        <img src="{% creme_media_url 'images/refresh_22.png' %}" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" />
                                     </a>
                                 </td>
                             </tr>

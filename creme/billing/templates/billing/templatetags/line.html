@@ -1,7 +1,6 @@
 {% load i18n %}
-{% load media %}
 {% load creme_core_tags %}{% load creme_block %}
-<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
+<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=12 %}
         <th class="collapser label">{% block header %}HEADER{% endblock %}</th>
         <th class="actions">
@@ -49,7 +48,7 @@
                             <input type="checkbox" name="paid" {% if line.is_paid %}checked{% endif %}>
 {#                            <a onclick="$('#updateStatus{{line.id}}').submit();">{# TODO: Ajax with block reload instead of the entire page ? #}
                             <a onclick="creme.utils.submitNReload($('#updateStatus{{line.id}}'), {% get_block_reload_uri %});">
-                                <img src="{% media_url 'images/refresh_16.png' %}" width="16" height="14" border="0">
+                                <img src="{% creme_media_url 'images/refresh_16.png' %}" width="16" height="14" border="0">
                             </a>
                         </form>
                     </td>

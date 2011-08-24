@@ -25,13 +25,15 @@ from django.conf import settings
 from creme import __version__
 
 from creme_core.gui.block import BlocksManager
+from creme_core.utils.media import get_current_theme, get_current_theme_vb
 
 
 def get_logo_url(request):
     return {'logo_url': settings.LOGO_URL}
 
-#def get_css_theme(request):
-    #return {'CSS_THEME_NAME': getattr(settings, "CSS_THEME_NAME", "/")}
+def get_css_theme(request):
+    current_theme = get_current_theme()
+    return {'THEME_NAME': current_theme, 'DEFAULT_THEME': settings.DEFAULT_THEME, 'THEME_VERBOSE_NAME': get_current_theme_vb(current_theme)}
 
 def get_today(request):
     return {'today': datetime.today()}

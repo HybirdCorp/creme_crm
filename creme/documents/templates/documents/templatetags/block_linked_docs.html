@@ -1,5 +1,5 @@
-{% load i18n %}{% load media %}
-{% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
+{% load i18n %}
+{% load creme_core_tags creme_block creme_widgets %}
 {% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=2 %}
@@ -8,12 +8,12 @@
             <div class="buttons">
                 {% if has_creation_perm and link_perm %}
                     <a class="add" href="/documents/document/add_related?callback_url={{object.get_absolute_url}}&entity_id={{object.id}}">
-                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Add a document" %}" alt="{% trans "Add a document" %}" />
+                        <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{% trans "Add a document" %}" alt="{% trans "Add a document" %}" />
                         {% trans "Add a document" %}
                     </a>
                 {% else %}
                     <span class="add forbidden">
-                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />
+                        <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />
                         {% trans "Add a document" %}
                     </span>
                 {% endif %}

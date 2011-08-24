@@ -1,6 +1,5 @@
 {% load i18n %}
-{% load media %}
-{% load creme_core_tags %}{% load creme_block %}
+{% load creme_core_tags creme_block %}
 {% has_perm_to change object as has_perm %}
 <script type="text/javascript">
     sms_sendings = {
@@ -12,7 +11,7 @@
         }
     };
 </script>
-<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
+<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=6 %}
         <th class="collapser label">{% get_block_title _('%s Sending') _('%s Sendings') 'sms_48.png' _('Sending') %}</th>
         <th class="actions">
@@ -39,16 +38,16 @@
                     <td class="{{row_color}}">{{sending.formatstatus}}</td>
                     <td class="{{row_color}} action">
                         <a onclick="creme.utils.showInnerPopup('/sms/campaign/sending/{{sending.pk}}', {width:700})">
-                            <img src="{% media_url 'images/view_22.png' %}" border="0" title="{% trans "Details" %}" alt="{% trans "Details" %}" />
+                            <img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{% trans "Details" %}" alt="{% trans "Details" %}" />
                         </a>
                     </td>
                     <td class="{{row_color}} action">
                         {% if has_perm %}
                             <a onclick="sms_sendings.sync({{sending.pk}});">
-                                <img src="{% media_url 'images/refresh_22.png' %}" border="0" title="{% trans "Synchronize" %}" alt="{% trans "Synchronize" %}" />
+                                <img src="{% creme_media_url 'images/refresh_22.png' %}" border="0" title="{% trans "Synchronize" %}" alt="{% trans "Synchronize" %}" />
                             </a>
                         {% else %}
-                            <img class="forbidden" src="{% media_url 'images/refresh_22.png' %}" border="0" title="{% trans "Can't synchronize" %}" alt="{% trans "Can't synchronize" %}" />
+                            <img class="forbidden" src="{% creme_media_url 'images/refresh_22.png' %}" border="0" title="{% trans "Can't synchronize" %}" alt="{% trans "Can't synchronize" %}" />
                         {% endif %}
                     </td>
                     <td class="{{row_color}} action">

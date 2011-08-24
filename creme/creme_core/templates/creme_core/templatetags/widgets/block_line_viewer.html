@@ -1,11 +1,11 @@
-{% load i18n %}{% load media %}
-{% load creme_block %}
+{% load i18n %}
+{% load creme_block creme_core_tags %}
 {% if line_perm %}
     <a class="view" href="{{action_url}}">
-        <img src="{% media_url 'images/view_22.png' %}" border="0" title="{% trans "View" %}" alt="{% trans "View" %}" />{{label}}
+        <img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{% trans "View" %}" alt="{% trans "View" %}" />{{label}}
     </a>
 {% else %}
     <span class="view forbidden">
-        <img src="{% media_url 'images/view_22.png' %}" border="0" title="{% trans "Can't view" %}" alt="{% trans "Can't view" %}" />{{label}}
+        <img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{% trans "Can't view" %}" alt="{% trans "Can't view" %}" />{{label}}
     </span>
 {% endif %}

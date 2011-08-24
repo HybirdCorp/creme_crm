@@ -1,4 +1,4 @@
-{% load i18n %}{% load media %}
+{% load i18n %}{% load creme_core_tags %}
 <script>
     function download_ical() {
         if($('form[name="list_view_form"]').list_view('countEntities') <= 0) {
@@ -10,5 +10,5 @@
     }
 </script>
 <a onclick="return download_ical();">
-    <img border="0" src="{% media_url 'images/calendar_ical_22.png' %}" alt="{% trans "Download in iCalendar format" %}" title="{% trans "Download in iCalendar format" %}"/>{% trans "Download in iCalendar format" %}
+    <img border="0" src="{% creme_media_url 'images/calendar_ical_22.png' %}" alt="{% trans "Download in iCalendar format" %}" title="{% trans "Download in iCalendar format" %}"/>{% trans "Download in iCalendar format" %}
 </a>&nbsp;

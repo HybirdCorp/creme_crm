@@ -1,12 +1,11 @@
 {% load i18n %}
-{% load media %}
-{% load creme_core_tags %}{% load creme_block %}{% load creme_queryset %}
+{% load creme_core_tags creme_block creme_queryset %}
 {% load report_tags %}
 {% with 6 as colspan %}
 {% has_perm_to change object as has_perm %}
 {% has_perm_to link object as link_perm %}
 {% has_perm_to unlink object as unlink_perm %}
-<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
+<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
     <thead>
         <tr>
             <th valign="middle" colspan="{{colspan}}">{% trans 'Columns of the report' %}</th>
@@ -17,16 +16,16 @@
             <th align="left" colspan="{{colspan}}" class="{% cycle "block_header_line_dark" "block_header_line_light" %}">
                 {% if has_perm %}
                     <a class="button_link" onclick="creme.utils.innerPopupNReload('/reports/report/{{object.id}}/field/add', {% get_block_reload_uri %});">
-                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Add a column" %}" alt="{% trans "Add a column" %}" />
+                        <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{% trans "Add a column" %}" alt="{% trans "Add a column" %}" />
                         {% trans "Add" %} /
-                        <img src="{% media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete a column" %}" alt="{% trans "Delete a column" %}" />
+                        <img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete a column" %}" alt="{% trans "Delete a column" %}" />
                         {% trans "Delete a column" %}
                     </a>
                 {% else %}
                     <span class="button_link forbidden">
-                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />
+                        <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />
                         {% trans "Add" %} /
-                        <img src="{% media_url 'images/delete_22.png' %}" border="0" title="{% trans "Can't delete" %}" alt="{% trans "Can't delete" %}" />
+                        <img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{% trans "Can't delete" %}" alt="{% trans "Can't delete" %}" />
                         {% trans "Delete a column" %}
                     </a>
                 {% endif %}
@@ -114,19 +113,19 @@
                                         {% if column.order != 1 %}
                                             {% if has_perm %}
                                                 <a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'up', {% get_block_reload_uri %});">
-                                                    <img src="{% media_url 'images/small_up_arrow_16.png' %}" border="0" title="{% trans "Column up" %}" alt="{% trans "Column up" %}" />
+                                                    <img src="{% creme_media_url 'images/small_up_arrow_16.png' %}" border="0" title="{% trans "Column up" %}" alt="{% trans "Column up" %}" />
                                                 </a>
                                             {% else %}
-                                                    <img class="forbidden" src="{% media_url 'images/small_up_arrow_16.png' %}" border="0" title="{% trans "Column up" %}" alt="{% trans "Column up" %}" />
+                                                    <img class="forbidden" src="{% creme_media_url 'images/small_up_arrow_16.png' %}" border="0" title="{% trans "Column up" %}" alt="{% trans "Column up" %}" />
                                             {% endif %}
                                         {% endif %}<br/>
                                         {% if column.order != object.columns.count %}
                                             {% if has_perm %}
                                                 <a onclick="creme.reports.changeOrder('{{object.id}}', '{{column.pk}}', 'down', {% get_block_reload_uri %});">
-                                                    <img src="{% media_url 'images/small_down_arrow_16.png' %}" border="0" title="{% trans "Column down" %}" alt="{% trans "Column down" %}" />
+                                                    <img src="{% creme_media_url 'images/small_down_arrow_16.png' %}" border="0" title="{% trans "Column down" %}" alt="{% trans "Column down" %}" />
                                                 </a>
                                             {% else %}
-                                                    <img class="forbidden" src="{% media_url 'images/small_down_arrow_16.png' %}" border="0" title="{% trans "Column down" %}" alt="{% trans "Column down" %}" />
+                                                    <img class="forbidden" src="{% creme_media_url 'images/small_down_arrow_16.png' %}" border="0" title="{% trans "Column down" %}" alt="{% trans "Column down" %}" />
                                             {% endif %}
                                         {% endif %}
                                     </td>

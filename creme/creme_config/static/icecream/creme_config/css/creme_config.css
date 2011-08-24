@@ -1,0 +1,16 @@
+.theme_picker {
+    padding: 2px;
+}
+
+.theme_picker label {
+    color: white;
+    font-size: 1em;
+    font-weight: bolder;
+    background-color: #94C6DB;
+    padding: 3px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    -o-border-radius: 4px;
+    border-radius: 4px;
+}
+

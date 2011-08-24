@@ -1,7 +1,6 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
-{% load media %}
-{% load creme_block %}
+{% load creme_block creme_core_tags %}
 
 {% block extrahead %}
     <script>
@@ -16,7 +15,7 @@
 {% block content %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td class="logo"><img src="{% media_url 'images/home_64.png' %}" alt="{% trans "Home" %}"/></td>
+            <td class="logo"><img src="{% creme_media_url 'images/home_64.png' %}" alt="{% trans "Home" %}"/></td>
             <td class="title"><h1>{% trans "Home" %}</h1></td>
             <td class="actions"></td>
         </tr>

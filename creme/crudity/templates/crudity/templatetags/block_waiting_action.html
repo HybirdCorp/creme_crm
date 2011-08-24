@@ -1,5 +1,4 @@
 {% load i18n %}
-{% load media %}
 {% load creme_block creme_core_tags creme_widgets %}
 {% load crudity_tags %}
 {% with 5 as colspan %}
@@ -12,7 +11,7 @@
             height:48px;
         }
     </style>
-    <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
+    <table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=colspan %}
         <th class="collapser label">
             <table cellspacing="0" cellpadding="0">
@@ -34,11 +33,11 @@
         <th align="right">
             <div class="buttons">
                 <a class="add" onclick="creme.emails.mass_action('/crudity/waiting_actions/validate', '[name=select_one]:checked', {% get_block_reload_uri %});">
-                            <img src="{% media_url 'images/jewel_ok_22.png' %}" border="0" title="{% trans "Validate" %}" alt="{% trans "Validate" %}" />
+                            <img src="{% creme_media_url 'images/jewel_ok_22.png' %}" border="0" title="{% trans "Validate" %}" alt="{% trans "Validate" %}" />
                             {% trans "Validate the selection" %}
                 </a>
                 <a class="negative" onclick="creme.emails.mass_action('/crudity/waiting_actions/delete', '[name=select_one]:checked', {% get_block_reload_uri %});">
-                    <img src="{% media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}" />
+                    <img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}" />
                     {% trans "Delete the selection" %}
                 </a>
             </div>

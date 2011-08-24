@@ -198,7 +198,7 @@ TEMPLATE_CONTEXT_PROCESSORS += (
      'creme_core.context_processors.get_version',
      'creme_core.context_processors.get_django_version',
      'creme_core.context_processors.get_today',
-     #'creme_core.context_processors.get_css_theme',
+     'creme_core.context_processors.get_css_theme',
      'creme_core.context_processors.get_blocks_manager',
 )
 
@@ -289,6 +289,9 @@ PRODUCTION_MEDIA_URL = '/static_media/'
 GENERATED_MEDIA_DIR = join(MEDIA_ROOT, 'static')
 GLOBAL_MEDIA_DIRS = (join(dirname(__file__), 'static'),)
 
+THEMES        = [('chantilly', _(u"Chantilly")), ('icecream', _(u"Ice cream")), ] #Available themes. A theme is represented by (theme_dir, theme verbose name),
+DEFAULT_THEME = 'chantilly'
+
 #TODO: create a static/css/creme-minimal.css for login/logout ??
 CREME_CORE_CSS = ('main.css',
                     'creme_core/css/jquery-css/creme-theme/jquery-ui-1.7.2.custom.css',
@@ -308,6 +311,7 @@ CREME_CORE_CSS = ('main.css',
                     'creme_core/css/navit.css',
 
                     #APPS
+                    'creme_config/css/creme_config.css',
                     'activities/css/fullcalendar.css',
                     'activities/css/activities.css',
                     'commercial/css/commercial.css',
@@ -323,7 +327,7 @@ CREME_I18N_JS = ('l10n.js',
 
 CREME_CORE_JS = ('main.js',
                     {'filter': 'mediagenerator.filters.media_url.MediaURL'}, #to get the media_url() function in JS.
-
+                    'creme_core/js/media.js',
                     'creme_core/js/jquery/jquery-1.3.2.js',
                     #'creme_core/js/jquery/ui/ui.core.js', #delete file ??
                     #'creme_core/js/jquery/ui/ui.draggable.js', #delete file ??
@@ -496,10 +500,16 @@ except ImportError:
     pass
 
 #MEDIA GENERATOR [FINAL SETTINGS]
-MEDIA_BUNDLES = (CREME_CORE_CSS + tuple(css for app, css in CREME_OPT_CSS if app in INSTALLED_APPS),
+MEDIA_BUNDLES = (
+#                 CREME_CORE_CSS + tuple(css for app, css in CREME_OPT_CSS if app in INSTALLED_APPS),
                  CREME_I18N_JS,
                  CREME_CORE_JS + tuple(js for app, js in CREME_OPT_JS if app in INSTALLED_APPS)
                 )
+
+CREME_CSS   = CREME_CORE_CSS + tuple(css for app, css in CREME_OPT_CSS if app in INSTALLED_APPS)
+MEDIA_BUNDLES += tuple((theme_dir+CREME_CSS[0], ) + tuple(theme_dir+'/'+css_file if not isinstance(css_file, dict) else css_file for css_file in CREME_CSS[1:])
+                        for theme_dir, theme_vb_name in THEMES
+                       )
 
 LOCALE_PATHS = [join(CREME_ROOT, "locale")]
 for app_name in INSTALLED_APPS:

@@ -12,6 +12,9 @@ __all__ = ('SearchViewTestCase', )
 
 
 class SearchViewTestCase(ViewsTestCase):
+    def setUp(self):
+        self.populate('creme_config')
+
     def _build_contacts(self):
         self.linus = Contact.objects.create(user=self.user, first_name='Linus', last_name='Torvalds')
         self.alan  = Contact.objects.create(user=self.user, first_name='Alan',  last_name='Cox')

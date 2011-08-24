@@ -1,7 +1,7 @@
 {% load i18n %}{% load media %}
 {% load creme_core_tags %}{% load creme_block %}
 {% has_perm_to change object as has_perm %}
-<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
+<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=5 %}
         <th class="collapser label">{% get_block_title _('%s Objective') _('%s Objectives') %}</th>
         <th class="actions">

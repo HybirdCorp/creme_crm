@@ -1,13 +1,16 @@
-{% load i18n %}{% load media %}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+{% load i18n %}{% load creme_core_tags %}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
 <html class="central_panel" xmlns="http://www.w3.org/1999/xhtml">{% comment %}NOT IN THE CONTEXT lang="{{LANGUAGE_CODE}}" xml:lang="{{LANGUAGE_CODE}}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}{% endcomment %}
 <head>
     <title>Creme CRM - {% trans 'Error !' %}</title>
-    {% include_media 'main.css' %}
-    <link rel="shortcut icon" href="{% media_url 'images/favicon.ico' %}" type="image/x-icon" />
+    <script type='text/javascript'>
+        var THEME_NAME = "{{ THEME_NAME }}";
+    </script>
+    {% include_creme_media "main.css" %}
+    <link rel="shortcut icon" href="{% creme_media_url 'images/favicon.ico' %}" type="image/x-icon" />
     <style type="text/css">
         #container-icon {
-            background-image: url({% media_url 'images/500_256.png' %});
+            background-image: url({% creme_media_url 'images/500_256.png' %});
             background-repeat: no-repeat;
             float: left;
             margin-top: -100px;

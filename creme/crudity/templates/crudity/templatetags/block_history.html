@@ -1,5 +1,4 @@
 {% load i18n %}
-{% load media %}
 {% load creme_block creme_core_tags creme_widgets %}
 {% load crudity_tags %}
 <style type="text/css">
@@ -12,7 +11,7 @@
     }
 </style>
 {% with 6 as colspan %}
-    <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
+    <table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
         {% get_block_header colspan=colspan %}
             <th class="collapser label">
                 <table cellspacing="0" cellpadding="0">
@@ -54,7 +53,7 @@
                             <td class="{{row_color}}">{{history.action}}</td>
                             <td class="{{row_color}}">{{history.source}}</td>
                             <td class="{{row_color}}">{{history.description}}</td>
-                            <td class="{{row_color}} action"><a href="{{history_entity.get_absolute_url}}"><img src="{% media_url 'images/view_22.png' %}" border="0" title="{% blocktrans %}View '{{history_entity}}' details{% endblocktrans %}" alt="{% trans "View" %}" /></a></td>
+                            <td class="{{row_color}} action"><a href="{{history_entity.get_absolute_url}}"><img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{% blocktrans %}View '{{history_entity}}' details{% endblocktrans %}" alt="{% trans "View" %}" /></a></td>
                         {% endwith %}
                     </tr>
                 {% endfor %}

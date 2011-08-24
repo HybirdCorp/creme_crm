@@ -36,7 +36,7 @@ creme.lv_widget.init_widget = function(id, q_filter, extra_attrs) {
         .attr('id', id+'_div')
         .text(gettext("Select") + ' : ' + $('label[for=' + id + ']').text())
         .append(
-            $('<img />').attr('src', media_url("images/add_16.png")).attr('alt', gettext("Add")).attr('title', gettext("Add"))
+            $('<img />').attr('src', creme_media_url("images/add_16.png")).attr('alt', gettext("Add")).attr('title', gettext("Add"))
             .bind('click',
                   {'input': input, 'input_id': id, 'lv_widget': creme.lv_widget},
                   function(e) {
@@ -108,7 +108,7 @@ creme.lv_widget.handleSelection = function(ids, targetInputId) {
                                 $('<div></div>')
 
                                     .append($('<span></span>').html(d.text).append($('<input type="hidden"/>').val(d.id)))
-                                    .append($('<img />').attr('src', media_url("images/delete_22.png"))
+                                    .append($('<img />').attr('src', creme_media_url("images/delete_22.png"))
                                                         .attr('alt', gettext("Delete"))
                                                         .attr('title', gettext("Delete"))
                                                         .css('cursor', 'pointer')

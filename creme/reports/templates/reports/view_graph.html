@@ -1,8 +1,7 @@
 {% extends "creme_core/detailview.html" %}
 {% load i18n %}
-{% load media %}
-{% load creme_core_tags %}{% load creme_widgets %}{% load creme_queryset %}
-{% load report_tags %}{% load graph_tags %}
+{% load creme_core_tags creme_widgets creme_queryset %}
+{% load report_tags graph_tags %}
 
 {% block page_title %} - {% blocktrans %}Rendered {{object}}{% endblocktrans %}{% endblock %}
 
@@ -18,7 +17,7 @@
             <td class="actions">
                 <span>
                     <a href="{{object.report.get_absolute_url}}">
-                        <img src="{% media_url 'images/left_arrow_64.png' %}" title="{% blocktrans %}Back to the detailview : '{{object}}'{% endblocktrans %}" alt="{% trans "Back" %}"/>
+                        <img src="{% creme_media_url 'images/left_arrow_64.png' %}" title="{% blocktrans %}Back to the detailview : '{{object}}'{% endblocktrans %}" alt="{% trans "Back" %}"/>
                     </a>&nbsp;
                 </span>
             </td>
@@ -53,16 +52,16 @@
                         </th>
                         <th>
                             <a onclick="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{object.id}}/'+$('#graph_ordering_{{object.id}}').val(), $('#graph_type_{{object.id}}').val(), '.graph_container_{{object.id}}', '{{object|verbose_ordinate:object.ordinate}}', '{{object|verbose_abscissa:object.abscissa}}  - {{verbose_report_graph_types|get_value:object.type}}', '#graph_gen_date_{{object.id}}');">
-                                <img src="{% media_url 'images/refresh_22.png' %}" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" />
+                                <img src="{% creme_media_url 'images/refresh_22.png' %}" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" />
                             </a>
                         </th>
                         <th>
                             {% if user_can_admin_report %}
                                 <a onclick="creme.utils.showInnerPopup('/reports/graph/{{object.id}}/block/add');">
-                                    <img src="{% media_url 'images/add_22.png' %}" alt="{% trans 'Create a block' %}" title="{% trans 'Create a block with this graph' %}" />
+                                    <img src="{% creme_media_url 'images/add_22.png' %}" alt="{% trans 'Create a block' %}" title="{% trans 'Create a block with this graph' %}" />
                                 </a>
                             {% else %}
-                                <img class="forbidden" src="{% media_url 'images/add_22.png' %}" alt="{% trans "Can't add" %}" title="{% trans "Can't add" %}" />
+                                <img class="forbidden" src="{% creme_media_url 'images/add_22.png' %}" alt="{% trans "Can't add" %}" title="{% trans "Can't add" %}" />
                             {% endif %}
                         </th>
                     </tr>

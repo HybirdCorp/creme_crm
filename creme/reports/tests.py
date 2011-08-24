@@ -17,7 +17,7 @@ from reports.models import *
 
 class ReportsTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('creme_core', 'reports')
+        self.populate('creme_core', 'creme_config', 'reports')
         self.login()
 
     def test_report_createview01(self):

@@ -3,14 +3,14 @@
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     <thead>
         <tr>
-            <th class="collapser" align="left" colspan="2"><img src="{% media_url 'images/phone_sync_48.png' %}" alt="{% trans 'Phone synchronization' %}" title="{% trans 'Phone synchronization' %}"/>{% trans "Your mobile synchronization configuration" %}</th>
+            <th class="collapser" align="left" colspan="2"><img src="{% creme_media_url 'images/phone_sync_48.png' %}" alt="{% trans 'Phone synchronization' %}" title="{% trans 'Phone synchronization' %}"/>{% trans "Your mobile synchronization configuration" %}</th>
         </tr>
     </thead>
     <tbody class="collapsable">
         <tr class="header toolbar">
             <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="100">
                 <a class="button_link" onclick="creme.utils.innerPopupNReload('/activesync/user_settings', {% get_block_reload_uri %});">
-                    <img src="{% media_url 'images/edit_22.png' %}" border="0" alt="{% trans "Edit" %}"/>
+                    <img src="{% creme_media_url 'images/edit_22.png' %}" border="0" alt="{% trans "Edit" %}"/>
                     {% trans "Edit" %}
                 </a>
             </th>

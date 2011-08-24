@@ -16,7 +16,7 @@ __all__ = ('HistoryTestCase',)
 
 class HistoryTestCase(ViewsTestCase):
     def setUp(self):
-        self.populate('creme_core')
+        self.populate('creme_core', 'creme_config')
         self.old_time = datetime.now().replace(microsecond=0)
 
     def _build_organisation(self, name, extra_args=None, **kwargs):

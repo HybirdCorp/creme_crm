@@ -1,8 +1,8 @@
-{% load i18n %}{% load media %}
-{% load creme_core_tags %}{% load creme_block %}
+{% load i18n %}
+{% load creme_core_tags creme_block %}
 {% load graph_tags %}
 {% has_perm_to change object.report as has_perm %}
-<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
+<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=6 %}
         <th class="collapser label">{% get_block_title _('%s Graph') _('%s Graphs') 'graph_48.png' 'Graph' %}</th>
         <th class="actions">
@@ -28,8 +28,8 @@
                 <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr class="content">
                     <td class="{{row_color}} action">
-                        <img class="pointer report_graph_{{graph.id}}" src="{% media_url 'images/expandme.gif' %}" alt="{% trans 'Expand' %}" title="{% trans 'Expand' %}"/>
-                        <img class="pointer report_graph_{{graph.id}}_expanded" src="{% media_url 'images/expanded.gif' %}" alt="{% trans 'Reduce' %}" title="{% trans 'Reduce' %}" style="display:none;"/>
+                        <img class="pointer report_graph_{{graph.id}}" src="{% creme_media_url 'images/expandme.gif' %}" alt="{% trans 'Expand' %}" title="{% trans 'Expand' %}"/>
+                        <img class="pointer report_graph_{{graph.id}}_expanded" src="{% creme_media_url 'images/expanded.gif' %}" alt="{% trans 'Reduce' %}" title="{% trans 'Reduce' %}" style="display:none;"/>
                     </td>
                     <td class="{{row_color}}"><a href="{{graph.get_absolute_url}}">{{graph.name}}</a></td>
                     <td class="{{row_color}}">{{graph|verbose_abscissa:graph.abscissa}}</td>
@@ -40,10 +40,10 @@
                         {% has_perm_to delete graph as graph_delete_perm %}
                         {% if graph_edit_perm %}
                             <a onclick="creme.utils.innerPopupNReload('/reports/graph/edit/{{graph.id}}', {% get_block_reload_uri %});">
-                                <img src="{% media_url 'images/edit_22.png' %}" alt="{% trans 'Edit' %}" title="{% trans 'Edit' %}" border="0">
+                                <img src="{% creme_media_url 'images/edit_22.png' %}" alt="{% trans 'Edit' %}" title="{% trans 'Edit' %}" border="0">
                             </a>
                         {% else %}
-                            <img class="forbidden" src="{% media_url 'images/edit_22.png' %}" border="0" title="{% trans "Can't edit" %}" alt="{% trans "Can't edit" %}" />
+                            <img class="forbidden" src="{% creme_media_url 'images/edit_22.png' %}" border="0" title="{% trans "Can't edit" %}" alt="{% trans "Can't edit" %}" />
                         {% endif %}
                         {% get_line_deletor at_url '/creme_core/delete_js' with_args "{'ids' : '{{graph.id}}' }" with_perms graph_delete_perm %}
                     </td>
@@ -70,16 +70,16 @@
                                         </td>
                                         <td>
                                             <a onclick="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$('#graph_ordering_{{graph.id}}').val(), $('#graph_type_{{graph.id}}').val(), '.graph_container_{{graph.id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{graph.id}}');">
-                                                <img src="{% media_url 'images/refresh_22.png' %}" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" />
+                                                <img src="{% creme_media_url 'images/refresh_22.png' %}" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" />
                                             </a>
                                         </td>
                                         <td>
                                             {% if user_can_admin_report %}
                                                 <a onclick="creme.utils.innerPopupNReload('/reports/graph/{{graph.id}}/block/add', {% get_block_reload_uri %});">
-                                                    <img src="{% media_url 'images/add_22.png' %}" alt="{% trans 'Create a block' %}" title="{% trans 'Create a block with this graph' %}" />
+                                                    <img src="{% creme_media_url 'images/add_22.png' %}" alt="{% trans 'Create a block' %}" title="{% trans 'Create a block with this graph' %}" />
                                                 </a>
                                             {% else %}
-                                                <img class="forbidden" src="{% media_url 'images/add_22.png' %}" alt="{% trans "Can't add" %}" title="{% trans "Can't add" %}" />
+                                                <img class="forbidden" src="{% creme_media_url 'images/add_22.png' %}" alt="{% trans "Can't add" %}" title="{% trans "Can't add" %}" />
                                             {% endif %}
                                         </td>
                                     </tr>

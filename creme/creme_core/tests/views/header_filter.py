@@ -16,6 +16,7 @@ __all__ = ('HeaderFilterViewsTestCase', )
 
 class HeaderFilterViewsTestCase(ViewsTestCase):
     def setUp(self):
+        self.populate('creme_config')
         self.contact_ct = ContentType.objects.get_for_model(Contact)
 
     def _find_field_index(self, formfield, name):
