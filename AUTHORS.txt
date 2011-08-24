@@ -21,3 +21,7 @@ Florian FABRE
 Régis MONTOYA
     Developper
     r3gis AT r3gis DOT fr
+
+Yann PRIME
+    Developper
+
