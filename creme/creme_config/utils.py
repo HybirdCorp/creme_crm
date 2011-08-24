@@ -17,6 +17,39 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from django.conf import settings
+
+from creme_config.constants import USER_THEME_NAME
+from creme_config.models import SettingValue, SettingKey
 
 def generate_portal_url(app_name):
     return '/creme_config/%s/portal/' % app_name
+
+def get_user_theme(user, request=None):
+    default_theme = settings.DEFAULT_THEME
+    if user.is_anonymous():
+        return default_theme
+
+    if request is not None:
+        if request.session.get('usertheme') is not None:
+            return request.session['usertheme']
+
+    theme_name = None
+    try:
+        sv = SettingValue.objects.get(user=user, key=USER_THEME_NAME)
+        if sv.value not in [theme_name for theme_name, theme_vb in settings.THEMES]:
+            SettingValue.objects.filter(user=user, key=USER_THEME_NAME).delete()
+            raise SettingValue.DoesNotExist
+        theme_name = sv.value
+
+    except SettingValue.DoesNotExist:
+        sk = SettingKey.objects.get(pk=USER_THEME_NAME)
+        sv = SettingValue.objects.create(user=user, key=sk)
+        sv.value = default_theme
+        sv.save()
+        theme_name = default_theme
+
+    if request is not None:
+        request.session['usertheme'] = theme_name
+
+    return theme_name

@@ -1,6 +1,6 @@
 {% load i18n %}
-{% load media %}
-<img src="{% media_url 'images/pin.png' %}" alt="{% trans 'Open' %}" class="pinmenu"/>
+{% load creme_core_tags %}
+<img src="{% creme_media_url 'images/pin.png' %}" alt="{% trans 'Open' %}" class="pinmenu"/>
 <ul>
     {% for appitem in menu %}
         <li><a href="{{appitem.url}}">{{appitem.app_name}}</a>

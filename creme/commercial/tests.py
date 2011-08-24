@@ -19,7 +19,7 @@ from commercial.constants import *
 
 class CommercialTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('creme_core', 'persons', 'commercial')
+        self.populate('creme_core', 'creme_config', 'persons', 'commercial')
 
     def test_populate(self):
         self.populate('creme_core', 'persons', 'commercial')
@@ -134,7 +134,7 @@ class CommercialTestCase(CremeTestCase):
 
 class LoggedTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('creme_core')
+        self.populate('creme_core', 'creme_config')
         self.login()
 
     def _create_segment(self):

@@ -33,8 +33,7 @@ from django.utils.formats import date_format
 from django.core.validators import EMPTY_VALUES
 from django.conf import settings
 
-from mediagenerator.utils import media_url
-
+from creme_core.utils.media import creme_media_themed_url as media_url
 from creme_core.utils.date_range import date_range_registry
 
 

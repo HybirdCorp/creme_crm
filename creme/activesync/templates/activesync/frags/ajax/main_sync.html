@@ -2,16 +2,16 @@
 {% load media creme_block creme_core_tags activesync_tags %}
 <table class="table_header" cellpadding="0" cellspacing="0">
     <tr>
-        <td width="5%"><img src="{% media_url 'images/phone_sync_48.png' %}" alt="{% trans 'Phone synchronization' %}" title="{% trans 'Phone synchronization' %}"/></td>
+        <td width="5%"><img src="{% creme_media_url 'images/phone_sync_48.png' %}" alt="{% trans 'Phone synchronization' %}" title="{% trans 'Phone synchronization' %}"/></td>
         <td width="75%"><h1>{% trans 'Mobile synchronization' %}</h1></td>
         <td width="20%" align="right">
             <span>
                 <a onclick="creme.utils.innerPopupNReload('/activesync/user_settings', {% get_block_reload_uri %});">
-                    <img src="{% media_url 'images/config_64.png' %}" border="0" alt="{% trans "Edit your mobile configuration" %}" title="{% trans "Edit your mobile configuration" %}"/>
+                    <img src="{% creme_media_url 'images/config_64.png' %}" border="0" alt="{% trans "Edit your mobile configuration" %}" title="{% trans "Edit your mobile configuration" %}"/>
                 </a>
                 &nbsp;
                 <a onclick="creme.reload_synchronisation($('#sub_content'), '/activesync/sync');">
-                    <img src="{% media_url 'images/refresh_64.png' %}" title="{% trans "Refresh" %}" alt="{% trans "Refresh" %}"/>
+                    <img src="{% creme_media_url 'images/refresh_64.png' %}" title="{% trans "Refresh" %}" alt="{% trans "Refresh" %}"/>
                 </a>
             </span>
         </td>

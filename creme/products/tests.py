@@ -124,7 +124,7 @@ class ProductCategoryFieldTestCase(FieldTestCase):
 
 class ProductsTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('creme_core', 'products')
+        self.populate('creme_core', 'creme_config', 'products')
 
     def test_populate(self):
         self.assert_(Category.objects.exists())

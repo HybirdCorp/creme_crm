@@ -17,7 +17,7 @@ __all__ = ('RelationViewsTestCase', )
 class RelationViewsTestCase(ViewsTestCase):
     def test_get_ctypes_of_relation(self):
         self.login()
-        self.populate('creme_core', 'persons')
+        self.populate('creme_core', 'creme_config', 'persons')
 
         response = self.client.get('/creme_core/relation/predicate/%s/content_types/json' % REL_OBJ_CUSTOMER_SUPPLIER,
                                    data={'fields': ['id', 'unicode']}
@@ -59,6 +59,7 @@ class RelationViewsTestCase(ViewsTestCase):
             self.assertEqual(object_entity.id, relation.object_entity_id)
 
     def test_add_relations01(self):
+        self.populate('creme_config')
         self._aux_test_add_relations()
         self.assertEqual(0, self.subject01.relations.count())
 
@@ -79,11 +80,13 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEntiTyHasRelation(self.subject01, self.rtype02, self.object02)
 
     def test_add_relations02(self):
+        self.populate('creme_config')
         self.login(is_superuser=False)
         subject = CremeEntity.objects.create(user=self.other_user)
         self.assertEqual(403, self.client.get('/creme_core/relation/add/%s' % subject.id).status_code)
 
     def test_add_relations03(self):
+        self.populate('creme_config')
         self._aux_test_add_relations(is_superuser=False)
         self._set_all_creds_except_one(excluded=SetCredentials.CRED_LINK)
 
@@ -112,6 +115,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(0, self.subject01.relations.count())
 
     def test_add_relations04(self): #duplicates -> error
+        self.populate('creme_config')
         self._aux_test_add_relations()
 
         response = self.client.post('/creme_core/relation/add/%s' % self.subject01.id,
@@ -136,6 +140,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(['relations'], form.errors.keys())
 
     def test_add_relations05(self): #do not recreate existing relations
+        self.populate('creme_config')
         self._aux_test_add_relations()
 
         Relation.objects.create(user=self.user,
@@ -156,6 +161,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(2, self.subject01.relations.count()) #and not 3
 
     def test_add_relations_bulk01(self):
+        self.populate('creme_config')
         self._aux_test_add_relations()
 
         #this relation should not be recreated by the view
@@ -188,6 +194,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEntiTyHasRelation(self.subject02, self.rtype02, self.object02)
 
     def test_add_relations_bulk02(self):
+        self.populate('creme_config')
         self._aux_test_add_relations(is_superuser=False)
 
         unviewable = CremeEntity.objects.create(user=self.other_user)
@@ -219,6 +226,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(0,   unviewable.relations.count())
 
     def test_add_relations_bulk03(self):
+        self.populate('creme_config')
         self._aux_test_add_relations(is_superuser=False)
 
         self._set_all_creds_except_one(excluded=SetCredentials.CRED_LINK)
@@ -237,6 +245,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(unicode(unlinkable), label.initial)
 
     def test_add_relations_bulk04(self):
+        self.populate('creme_config')
         self._aux_test_add_relations(is_superuser=False)
 
         url = '/creme_core/relation/add_to_entities/%s/?ids=%s&persist=ids' % (self.ct_id, self.subject01.id)
@@ -264,6 +273,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(['relations'], form.errors.keys())
 
     def test_add_relations_bulk_fixedrtypes01(self):
+        self.populate('creme_config')
         self._aux_test_add_relations()
 
         #this relation should not be recreated by the view
@@ -299,6 +309,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEntiTyHasRelation(self.subject02, self.rtype02, self.object02)
 
     def test_add_relations_bulk_fixedrtypes02(self):
+        self.populate('creme_config')
         self._aux_test_add_relations()
 
         url = '/creme_core/relation/add_to_entities/%s/%s/?ids=%s&ids=%s&persist=ids' % (
@@ -327,7 +338,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(['relations'], form.errors.keys())
 
     def _aux_relation_objects_to_link_selection(self):
-        self.populate('creme_core', 'persons')
+        self.populate('creme_core', 'creme_config', 'persons')
         self.login()
 
         self.assertEqual(1, Contact.objects.count())
@@ -408,6 +419,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(set([self.contact01.id, self.contact03.id, contact04.id]), set(c.id for c in contacts))
 
     def test_objects_to_link_selection04(self):
+        self.populate('creme_config')
         self.login()
 
         subject = CremeEntity.objects.create(user=self.user)
@@ -431,6 +443,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                                    )
 
     def test_add_relations_with_same_type01(self): #no errors
+        self.populate('creme_config')
         self.login()
         self._aux_add_relations_with_same_type()
 
@@ -450,6 +463,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(set(object_ids), set(r.object_entity_id for r in relations))
 
     def test_add_relations_with_same_type02(self): #an entity does not exist
+        self.populate('creme_config')
         self.login()
         self._aux_add_relations_with_same_type()
 
@@ -464,6 +478,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(2,   Relation.objects.filter(type=self.rtype.id).count())
 
     def test_add_relations_with_same_type03(self): #errors
+        self.populate('creme_config')
         self.login()
         self._aux_add_relations_with_same_type()
         post = self.client.post
@@ -507,6 +522,7 @@ class RelationViewsTestCase(ViewsTestCase):
                         )
 
     def test_add_relations_with_same_type04(self): #credentials errors
+        self.populate('creme_config')
         self.login(is_superuser=False)
         self._set_all_creds_except_one(excluded=SetCredentials.CRED_LINK)
 
@@ -548,6 +564,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(allowed02.id, relation.object_entity_id)
 
     def test_add_relations_with_same_type05(self): #ct constraint errors
+        self.populate('creme_config')
         self.login()
 
         orga01    = Organisation.objects.create(user=self.user, name='orga01')
@@ -584,6 +601,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(orga01.id, relations[0].object_entity_id)
 
     def test_add_relations_with_same_type06(self): #property constraint errors
+        self.populate('creme_config')
         self.login()
 
         subject_ptype = CremePropertyType.create(str_pk='test-prop_foobar01', text='Subject property')
@@ -626,6 +644,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(good_object.id, relations[0].object_entity_id)
 
     def test_add_relations_with_same_type07(self): #is_internal
+        self.populate('creme_config')
         self.login()
 
         subject  = CremeEntity.objects.create(user=self.user)
@@ -646,6 +665,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(0,   Relation.objects.filter(type=rtype.id).count())
 
     def test_delete01(self):
+        self.populate('creme_config')
         self.login()
 
         subject_entity = CremeEntity.objects.create(user=self.user)
@@ -662,6 +682,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(0, Relation.objects.filter(pk__in=[relation.pk, sym_relation.pk]).count())
 
     def test_delete02(self):
+        self.populate('creme_config')
         self.login(is_superuser=False)
 
         self._set_all_creds_except_one(excluded=SetCredentials.CRED_UNLINK)
@@ -679,6 +700,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(1,   Relation.objects.filter(pk=relation.pk).count())
 
     def test_delete03(self): #is internal
+        self.populate('creme_config')
         self.login()
 
         subject_entity = CremeEntity.objects.create(user=self.user)
@@ -694,6 +716,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(1, Relation.objects.filter(pk=relation.pk).count())
 
     def test_delete_similar01(self):
+        self.populate('creme_config')
         self.login()
 
         subject_entity01 = CremeEntity.objects.create(user=self.user)
@@ -728,6 +751,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(3,   Relation.objects.filter(pk__in=[relation03.pk, relation04.pk, relation05.pk]).count())
 
     def test_delete_similar02(self):
+        self.populate('creme_config')
         self.login(is_superuser=False)
         self._set_all_creds_except_one(excluded=SetCredentials.CRED_UNLINK)
 
@@ -760,6 +784,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(4,   Relation.objects.count())
 
     def test_delete_similar03(self): #is internal
+        self.populate('creme_config')
         self.login()
 
         subject_entity = CremeEntity.objects.create(user=self.user)
@@ -807,6 +832,7 @@ class RelationViewsTestCase(ViewsTestCase):
         Relation.objects.create(type=rtype03, subject_entity=subject01, object_entity=object02, user=self.other_user)#internal
 
     def test_delete_all01(self):
+        self.populate('creme_config')
         self.login()
         self._aux_test_delete_all()
         subject01 = self.subject01
@@ -826,6 +852,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(0, Relation.objects.filter(type__is_internal=False).count())
 
     def test_delete_all02(self):
+        self.populate('creme_config')
         self.login(is_superuser=False)
         self._set_all_creds_except_one(excluded=SetCredentials.CRED_UNLINK)
 

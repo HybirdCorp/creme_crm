@@ -179,7 +179,7 @@ creme.forms.DateTimePicker.init = function(self) {
     $('li.date input[type="text"]', self).datepicker({
             dateFormat: "yy-mm-dd",
             showOn: "button",
-            buttonImage: media_url("images/icon_calendar.gif"),
+            buttonImage: creme_media_url("images/icon_calendar.gif"),
             buttonImageOnly: true
         });
 }

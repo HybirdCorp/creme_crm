@@ -268,3 +268,7 @@ creme.ajax.json.parse = function(data) {
         return null;
     }
 };
+
+creme.ajax.json.ajaxFormSubmit = function($form, success_cb, error_cb, sync, parameters) {
+    creme.ajax.json.post($form.attr('action'), $form.serialize(), success_cb||function(data){$form.html(data.form);}, error_cb, sync, parameters)
+}

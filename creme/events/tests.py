@@ -17,7 +17,7 @@ from events.constants import *
 
 class EventsTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('creme_core', 'events') #'persons'
+        self.populate('creme_core', 'creme_config', 'events') #'persons'
 
     def test_populate(self):
         rtypes_pks = [REL_SUB_IS_INVITED_TO, REL_SUB_ACCEPTED_INVITATION, REL_SUB_REFUSED_INVITATION, REL_SUB_CAME_EVENT, REL_SUB_NOT_CAME_EVENT]

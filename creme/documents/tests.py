@@ -15,7 +15,7 @@ from documents.constants import *
 
 class DocumentTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('creme_core', 'documents')
+        self.populate('creme_core', 'creme_config', 'documents')
 
     def test_populate(self):
         self.assert_(RelationType.objects.filter(pk=REL_SUB_RELATED_2_DOC).exists())

@@ -1,13 +1,13 @@
-{% load i18n %}{% load media %}
+{% load i18n %}
 {% load creme_core_tags %}{% has_perm_to link object as link_perm %}
 {% if has_perm and link_perm %}
     <a class="menu_button" href="/persons/contact/add_with_relation/{{object.pk}}?callback_url=" onclick="this.href+=window.location.href">
-        <img src="{% media_url 'images/contacts_32.png' %}" border="0" title="{% trans "Linked contact" %}" alt="{% trans "Linked contact" %}" />
+        <img src="{% creme_media_url 'images/contacts_32.png' %}" border="0" title="{% trans "Linked contact" %}" alt="{% trans "Linked contact" %}" />
         {% trans "Create a linked contact" %}
     </a>
 {% else %}
     <span class="menu_button forbidden" title="{% trans "forbidden" %}">
-        <img src="{% media_url 'images/contacts_32.png' %}" border="0" title="{% trans "Linked contact" %}" alt="{% trans "Linked contact" %}" />
+        <img src="{% creme_media_url 'images/contacts_32.png' %}" border="0" title="{% trans "Linked contact" %}" alt="{% trans "Linked contact" %}" />
         {% trans "Create a linked contact" %}
     </span>
 {% endif %}

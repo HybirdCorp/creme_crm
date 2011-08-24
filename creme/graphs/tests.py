@@ -11,7 +11,7 @@ from graphs.models import *
 
 class GraphsTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('creme_core')
+        self.populate('creme_core', 'creme_config', )
 
     def login(self, is_superuser=True):
         super(GraphsTestCase, self).login(is_superuser, allowed_apps=['graphs'])

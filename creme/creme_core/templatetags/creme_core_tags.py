@@ -23,13 +23,16 @@ from re import compile as compile_re
 from logging import debug
 
 #from django import template
-from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode
+from django.conf import settings
+from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode, Token
 from django.template.defaulttags import TemplateLiteral
 from django.template.defaultfilters import escape
 from django.utils.safestring import mark_safe
 from django.contrib.contenttypes.models import ContentType
+from mediagenerator.templatetags.media import include_media
 
 from creme_core.gui.field_printers import field_printers_registry
+from creme_core.utils.media import get_creme_media_url, get_current_theme, creme_media_themed_url
 from creme_core.utils.meta import get_verbose_field_name
 
 
@@ -311,3 +314,14 @@ class HasPermToNode(TemplateNode):
         context[self.var_name] = self.perm_func(var, user)
 
         return ''
+
+@register.simple_tag(takes_context=True)
+def creme_media_url(context, url):
+    return get_creme_media_url(context['THEME_NAME'], url)
+
+@register.tag
+def include_creme_media(parser, token):
+    contents = token.split_contents()
+    contents[1] = u'"%s%s"' % (get_current_theme(), contents[1][1:-1])
+    return include_media(parser, Token(token.token_type, ' '.join(contents)))
+

@@ -10,6 +10,9 @@ __all__ = ('PropertyViewsTestCase', )
 
 
 class PropertyViewsTestCase(ViewsTestCase):
+    def setUp(self):
+        self.populate('creme_config')
+
     def _format_entities_ids(self, key, *ids):
         if ids:
             return u"?persist=%s&ids=%s" % (key, "&ids=".join(str(id_) for id_ in ids))

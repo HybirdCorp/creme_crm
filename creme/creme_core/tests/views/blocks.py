@@ -6,6 +6,9 @@ from creme_core.tests.base import CremeTestCase
 
 
 class BlockViewTestCase(CremeTestCase):
+    def setUp(self):
+        self.populate('creme_config')
+
     def test_set_state01(self):
         self.login()
 

@@ -1,6 +1,6 @@
 {% extends "creme_core/generics/view_entity.html" %}
 {% load i18n %}
-{% load media %}
+{% load creme_core_tags %}
 {% comment %}{% load creme_block %}{% endcomment %}
 
 {% comment %}
@@ -14,7 +14,7 @@
 
 {% block entity_buttons %}
     <a href="/graphs/graph/{{object.id}}/png">
-        <img src="{% media_url 'images/download_64.png' %}" title="{% blocktrans %}Download '{{object}}' as PNG file{% endblocktrans %}" alt="{% trans "Download PNG" %}"/>
+        <img src="{% creme_media_url 'images/download_64.png' %}" title="{% blocktrans %}Download '{{object}}' as PNG file{% endblocktrans %}" alt="{% trans "Download PNG" %}"/>
     </a>&nbsp;
     {{block.super}}
 {% endblock %}

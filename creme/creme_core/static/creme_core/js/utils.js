@@ -55,7 +55,7 @@ creme.utils.loading = function(div_id, is_loaded, params) {
         $div.dialog(jQuery.extend({
                 buttons: {},
                 closeOnEscape: false,
-                title: '<img src="' + media_url("images/wait.gif") + '"/>' + gettext("Loading..."),
+                title: '<img src="' + creme_media_url("images/wait.gif") + '"/>' + gettext("Loading..."),
                 modal: true,
                 resizable: false,
                 draggable: false,

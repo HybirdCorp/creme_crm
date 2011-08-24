@@ -408,21 +408,21 @@ div.sidebar1separator2 {
 }
 
 .expandlist {
-    list-style-image : url(images/expandme.gif);
+    list-style-image : url(chantilly/images/expandme.gif);
     cursor : pointer;
 }
 
 .expandedlist {
-    list-style-image : url(images/expanded.gif);
+    list-style-image : url(chantilly/images/expanded.gif);
     cursor : pointer;
 }
 
 .wait {
-    list-style-image : url(images/wait.gif);
+    list-style-image : url(chantilly/images/wait.gif);
 }
 
 .document {
-    list-style-image : url(images/doc.gif);
+    list-style-image : url(chantilly/images/doc.gif);
 }
 
 .menu_expanded {
@@ -514,7 +514,7 @@ div.sidebar1separator2 {
 }
 
 .errorlist li {
-    list-style-image: url(images/cancel_16.png);
+    list-style-image: url(chantilly/images/cancel_16.png);
     padding-top: 3px;
 }
 
@@ -529,7 +529,7 @@ div.sidebar1separator2 {
 }
 
 .successlist li {
-    list-style-image: url(images/jewel_ok_16.png);
+    list-style-image: url(chantilly/images/jewel_ok_16.png);
     padding-top: 3px;
 }
 
@@ -544,7 +544,7 @@ div.sidebar1separator2 {
 }
 
 .infolist li {
-    list-style-image: url(images/infos_16.png);
+    list-style-image: url(chantilly/images/infos_16.png);
     padding-top: 3px;
 }
 
@@ -890,7 +890,7 @@ textarea:disabled, textarea[readonly] {
 /* Toggle view */
 .buttons a.view_more{
     min-width: 0;
-    background-image: url("images/view_more_22.png");
+    background-image: url("chantilly/images/view_more_22.png");
     background-repeat: no-repeat;
     background-position: center center;
     height: 22px;
@@ -899,7 +899,7 @@ textarea:disabled, textarea[readonly] {
 
 .buttons a.view_less{
     min-width: 0;
-    background-image: url("images/view_less_22.png");
+    background-image: url("chantilly/images/view_less_22.png");
     background-repeat: no-repeat;
     background-position: center center;
     height: 22px;

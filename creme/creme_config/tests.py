@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings
+from django.contrib.sessions.models import Session
 
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
@@ -17,14 +19,16 @@ from activities.models import Calendar
 from persons.models import Contact, Organisation #need CremeEntity
 from persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 
+from creme_config.constants import USER_THEME_NAME
 from creme_config.models import *
+from creme_config.utils import get_user_theme
 
 #TODO: test views are allowed to admin only...
 
 
 class UserRoleTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('creme_core')
+        self.populate('creme_core', 'creme_config')
         self.login()
 
     def test_portal(self):
@@ -242,7 +246,7 @@ class UserRoleTestCase(CremeTestCase):
 
 class UserTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('creme_core', 'persons') #'creme_core'
+        self.populate('creme_core', 'creme_config', 'persons') #'creme_core'
         self.login()
 
     def test_portal(self):
@@ -637,7 +641,7 @@ class UserTestCase(CremeTestCase):
 
 class PropertyTypeTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('creme_core')
+        self.populate('creme_core', 'creme_config')
         self.login()
 
     def test_portal(self):
@@ -724,7 +728,7 @@ class PropertyTypeTestCase(CremeTestCase):
 
 class RelationTypeTestCase(CremeTestCase):
     def setUp(self): #in CremeConfigTestCase ??
-        self.populate('creme_core')
+        self.populate('creme_core', 'creme_config')
         self.login()
 
     def test_portal(self):
@@ -834,7 +838,7 @@ class RelationTypeTestCase(CremeTestCase):
 
 class BlocksConfigTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('creme_core')
+        self.populate('creme_core', 'creme_config')
         self.login()
 
         autodiscover()
@@ -1430,6 +1434,9 @@ class BlocksConfigTestCase(CremeTestCase):
 
 
 class SettingsTestCase(CremeTestCase):
+    def setUp(self):
+        self.populate('creme_core', 'creme_config')
+
     def test_model01(self):
         sk = SettingKey.objects.create(pk='persons-title', description=u"Page title",
                                        app_label=None, type=SettingKey.STRING,
@@ -1537,15 +1544,73 @@ class SettingsTestCase(CremeTestCase):
 
 class UserSettingsTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('creme_core')
+        self.populate('creme_core', 'creme_config')
 
     def test_user_settings(self):
         self.login()
         response = self.client.get('/creme_config/user/view/settings/')
         self.assertEqual(200, response.status_code)
 
+    def test_change_theme01(self):
+        self.login()
+#        settings.THEMES += [("chantilly2", "")]
+        theme = "chantilly"
+        self.assertEqual(1, SettingKey.objects.filter(pk=USER_THEME_NAME).count())
+        self.assertEqual(0, SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME).count())
+        response = self.client.post('/creme_config/user/edit/theme/',
+                                    data={
+                                        'themes': theme,
+                                    })
+
+        self.assertEqual(1,     SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME).count())
+        self.assertEqual(theme, SettingValue.objects.get(user=self.user, key=USER_THEME_NAME).value)
+
+#        theme = "chantilly2"
+        theme = "icecream"
+        response = self.client.post('/creme_config/user/edit/theme/',
+                            data={
+                                'themes': theme,
+                            })
+        self.assertEqual(1,     SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME).count())
+        self.assertEqual(theme, SettingValue.objects.get(user=self.user, key=USER_THEME_NAME).value)
+
+    def test_get_user_theme01(self):
+        self.login()
+        self.assertEqual(1, SettingKey.objects.filter(pk=USER_THEME_NAME).count())
+        self.assertEqual(0, SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME).count())
+        self.assertEqual(settings.DEFAULT_THEME, get_user_theme(self.user))
+        self.assertEqual(1, SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME).count())
+        sv = SettingValue.objects.get(user=self.user, key=USER_THEME_NAME)
+        sv.value = "unknown theme"
+        sv.save()
+        self.assertEqual(settings.DEFAULT_THEME, get_user_theme(self.user))
+
+    def test_get_user_theme02(self):
+        self.login()
+        class FakeRequest(object):
+            def __init__(self):
+                sessions = Session.objects.all()
+                assert 1 == len(sessions)
+                self.session = sessions[0].get_decoded()
+
+        def get_theme():
+            try:
+                return FakeRequest().session['usertheme']
+            except Exception, e:
+                pass
+
+        self.assertEqual(1, SettingKey.objects.filter(pk=USER_THEME_NAME).count())
+        self.assertEqual(0, SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME).count())
+        self.assertFalse(get_theme())
+        response = self.client.get('/')
+        self.assertEqual(1, SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME).count())
+        self.assertEqual(settings.DEFAULT_THEME, get_theme())
+
 
 class HistoryConfigTestCase(CremeTestCase):
+    def setUp(self):
+        self.populate('creme_core', 'creme_config')
+
     def test_portal(self):
         self.login()
         self.populate('creme_core')

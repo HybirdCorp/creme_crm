@@ -1,7 +1,7 @@
-{% load i18n %}{% load media %}
-{% load creme_core_tags %}{% load creme_block %}
+{% load i18n %}
+{% load creme_core_tags creme_block %}
 {% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}
-<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
+<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=5 %}
         <th class="collapser label">{% block block_header %}{% endblock %}</th>
         <th class="actions">
@@ -9,11 +9,11 @@
                 {% has_perm_to create ct as creation_perm %}
                 {% if creation_perm and link_perm %}
                     <a class="add" href="/persons/contact/add_with_relation/{{object.pk}}/{{rtype_id}}?callback_url=" onclick="this.href+=window.location.href">
-                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{{add_title}}" alt="{{add_title}}" />{{add_title}}
+                        <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{add_title}}" alt="{{add_title}}" />{{add_title}}
                     </a>
                 {% else %}
                     <span class="add forbidden">
-                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />{{add_title}}
+                        <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />{{add_title}}
                     </span>
                 {% endif %}
                 {% get_line_relator to_subject object with_rtype_id rtype_id with_ct_id ct.id with_label _("Link to existing contacts") with_perms link_perm %}
@@ -44,9 +44,9 @@
                     {% endif %}
                     <td class="{{row_color}} action">
                         {% if people_edit_perm %}
-                            <a href="{{people.get_edit_absolute_url}}"><img src="{% media_url 'images/edit_22.png' %}" border="0"></a>
+                            <a href="{{people.get_edit_absolute_url}}"><img src="{% creme_media_url 'images/edit_22.png' %}" border="0"></a>
                         {% else %}
-                            <img class="forbidden" src="{% media_url 'images/edit_22.png' %}" border="0" title="{% trans "Can't edit" %}" alt="{% trans "Can't edit" %}" />
+                            <img class="forbidden" src="{% creme_media_url 'images/edit_22.png' %}" border="0" title="{% trans "Can't edit" %}" alt="{% trans "Can't edit" %}" />
                         {% endif %}
                         {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{ 'subject_id':{{object.pk}}, 'type':'{{rtype_id}}', 'object_id':{{people.pk}} }" with_perms unlink_perm|and_op:people_unlink_perm %}
                     </td>

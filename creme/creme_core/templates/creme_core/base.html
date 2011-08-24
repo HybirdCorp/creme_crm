@@ -1,4 +1,4 @@
-{% load i18n %}{% load media %}
+{% load i18n %}
 {% load creme_menu %}{% load creme_core_tags %}{% load creme_search %}{% load creme_quickforms %}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
@@ -6,9 +6,12 @@
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=8" />
     <title>Creme CRM{% block page_title %}{% endblock %}</title>
-    {% include_media 'main.css' %}
+    <script type='text/javascript'>
+        var THEME_NAME = "{{ THEME_NAME }}";
+    </script>
+    {% include_creme_media "main.css" %}
     {% include "creme_core/frags/js_header.html" %}
-    <link rel="shortcut icon" href="{% media_url 'images/favicon.ico' %}" type="image/x-icon" />
+    <link rel="shortcut icon" href="{% creme_media_url 'images/favicon.ico' %}" type="image/x-icon" />
     <style type="text/css">
         .fg-menu-container { z-index: 100; }
     </style>
@@ -80,14 +83,14 @@
             $('.pinmenu').toggle(
              //Pin / Fixer le menu
              function() {
-                $(this).attr('src', '{% media_url "images/unpin.png" %}');
+                $(this).attr('src', '{% creme_media_url "images/unpin.png" %}');
                 desactiveEventsMenu();
                 resizePageElements($("#menu_expanded").outerWidth(), true);
                 $.cookie('menu_creme', 'expanded', {expires: 7, path: '/', domain: '', secure: false});
              },
              //Unpin / Rendre le menu flottant
              function() {
-                $(this).attr('src', '{% media_url "images/pin.png" %}');
+                $(this).attr('src', '{% creme_media_url "images/pin.png" %}');
                 activeEventsMenu();
                 resizePageElements($("#menu_collapse").outerWidth(), false);
                 $.cookie('menu_creme', 'collapse', {expires: 7, path: '/', domain: '', secure: false});
@@ -95,12 +98,12 @@
             );
 
            if($.cookie('menu_creme') == 'expanded') {
-                $('.pinmenu').attr('src', '{% media_url "images/unpin.png" %}');
+                $('.pinmenu').attr('src', '{% creme_media_url "images/unpin.png" %}');
                 desactiveEventsMenu();
                 $("#menu_expanded").show('fast',resizePageElements($("#menu_expanded").outerWidth(), true));
                 $("#menu_collapse").hide('fast');
            } else {
-               $('.pinmenu').attr('src', '{% media_url "images/pin.png" %}');
+               $('.pinmenu').attr('src', '{% creme_media_url "images/pin.png" %}');
                activeEventsMenu();
                $("#menu_expanded").hide('slow');
                $("#menu_collapse").show('fast', resizePageElements($("#menu_collapse").outerWidth(), false));
@@ -186,7 +189,7 @@
 <body {% block bodyclass %}{% endblock %}>
     {% block side_menu %}
         <div id="menu_collapse" class="ui-corner-all menu_collapse">
-            <img src="{% media_url 'images/favicon.ico' %}"/>
+            <img src="{% creme_media_url 'images/favicon.ico' %}"/>
             M<br/>
             E<br/>
             N<br/>
@@ -201,7 +204,7 @@
         <div id="menu_expanded" class="menu_expanded">
             <div id="logo_container">
                 <center>
-                    <a href="/"><img src="{% media_url logo_url %}" alt="Logo" class="logo pointer"/></a>
+                    <a href="/"><img src="{% creme_media_url logo_url %}" alt="Logo" class="logo pointer"/></a>
                 </center>
             </div>
             {% block sidebar %}
@@ -229,7 +232,7 @@
                 {% get_quickforms_panel %}
             </div>
             <div class="widget last">{% comment %}:last-child is buggy so think to add last css class to the last element{% endcomment %}
-                <a href="/"><img src="{% media_url 'images/creme_header_50.png' %}" alt="Crème" border="0" /></a>
+                <a href="/"><img src="{% creme_media_url 'images/creme_header_50.png' %}" alt="Crème" border="0" /></a>
             </div>
             <div class="spacer"></div>
         </div>
@@ -269,7 +272,7 @@
     </div>
 
     <div id="footer">
-        <a href="http://hybird.org">{% trans "About Hybird" %}</a> - 2009-2011 &nbsp;&nbsp;&nbsp;Creme v{{creme_version}} {% if django_version %}&nbsp;&nbsp;&nbsp;(Django {{django_version}}){% endif %}
+        <a href="http://hybird.org">{% trans "About Hybird" %}</a>&nbsp;&mdash;&nbsp;2009&hairsp;&ndash;&hairsp;2011 &nbsp;&nbsp;&nbsp;Creme v{{creme_version}} {% if django_version %}<i>&nbsp;&nbsp;&nbsp;(Django {{django_version}})</i>{% endif %}{% if THEME_VERBOSE_NAME %}&nbsp;&nbsp;&nbsp;{{ THEME_VERBOSE_NAME }}{% endif %}
     </div>
     <script type="text/javascript">
         $(document).ready(function(){

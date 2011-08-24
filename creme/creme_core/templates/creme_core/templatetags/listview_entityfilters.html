@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load media %}
+{% load creme_core_tags %}
 <script type="text/javascript">
     //TODO: move to a js file...
     function lv_efilter_delete(a, efilter_id) {
@@ -19,7 +19,7 @@
 </script>
 <fieldset title="{% trans "Filter the lines of the table" %}">
     <legend>
-        <img border="0" src="{% media_url 'images/filter_32.png' %}" alt="{% trans "Filter" %}" title="{% trans "Filter" %}"/>
+        <img border="0" src="{% creme_media_url 'images/filter_32.png' %}" alt="{% trans "Filter" %}" title="{% trans "Filter" %}"/>
         {% trans "Filters" %}
     </legend>
     <select name="filter" id="list_filter" onchange="$(this.form).list_view('getSubmit')(this);">
@@ -32,14 +32,14 @@
     </select>
     {% if not is_popup_view %}
         <a href="/creme_core/entity_filter/add/{{content_type_id}}">
-            <img border="0" src="{% media_url 'images/add_22.png' %}" alt="{% trans "Create a custom filter" %}" title="{% trans "Create a custom filter" %}"/>
+            <img border="0" src="{% creme_media_url 'images/add_22.png' %}" alt="{% trans "Create a custom filter" %}" title="{% trans "Create a custom filter" %}"/>
         </a>
         {% if can_edit_or_delete %}
             <a href="/creme_core/entity_filter/edit/{{efilter_id}}" id="filter_edit">
-                <img border="0" src="{% media_url 'images/edit_22.png' %}" alt="{% trans "Edit custom filter" %}" title="{% trans "Edit custom filter" %}"/>
+                <img border="0" src="{% creme_media_url 'images/edit_22.png' %}" alt="{% trans "Edit custom filter" %}" title="{% trans "Edit custom filter" %}"/>
             </a>
             <a onclick="lv_efilter_delete(this, '{{efilter_id}}');">
-                <img border="0" src="{% media_url 'images/delete_22.png' %}" alt="{% trans "Delete custom filter" %}" title="{% trans "Delete custom filter" %}"/>
+                <img border="0" src="{% creme_media_url 'images/delete_22.png' %}" alt="{% trans "Delete custom filter" %}" title="{% trans "Delete custom filter" %}"/>
             </a>
         {% endif %}
     {% endif %}

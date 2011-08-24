@@ -1,9 +1,9 @@
 {% load i18n %}
-{% load media %}
+{% load creme_core_tags %}
 {% block title %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="5%"><img src="{% media_url logo %}" alt=""/></td>
+            <td width="5%"><img src="{% creme_media_url logo %}" alt=""/></td>
             <td width="95%">
                 <h1>{{title}}</h1>
             </td>

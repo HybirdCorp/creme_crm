@@ -26,7 +26,7 @@ class BillingTestCase(CremeTestCase):
         super(BillingTestCase, self).login(is_superuser, allowed_apps=allowed_apps or ['billing'])
 
     def setUp(self):
-        self.populate('creme_core', 'billing')
+        self.populate('creme_core', 'creme_config', 'billing')
 
     def test_populate(self):
         self.assertEqual(1, RelationType.objects.filter(pk=REL_SUB_BILL_ISSUED).count())
