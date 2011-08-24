@@ -465,19 +465,8 @@ class _BlockRegistry(object):
         registered, but created on the fly"""
         specific_ids = filter(SpecificRelationsBlock.id_is_specific, block_ids)
         instance_ids = filter(InstanceBlockConfigItem.id_is_specific, block_ids)
-
-        #if specific_ids:
-            #relation_blocks_items = dict((rbi.block_id, rbi) for rbi in RelationBlockItem.objects.filter(block_id__in=specific_ids))
-        #else:
-            #relation_blocks_items = {}
         relation_blocks_items = dict((rbi.block_id, rbi) for rbi in RelationBlockItem.objects.filter(block_id__in=specific_ids)) if specific_ids else {}
-
-        #if instance_ids:
-            #instance_blocks_items = dict((ibi.block_id, ibi) for ibi in InstanceBlockConfigItem.objects.filter(block_id__in=instance_ids))
-        #else:
-            #instance_blocks_items = {}
         instance_blocks_items = dict((ibi.block_id, ibi) for ibi in InstanceBlockConfigItem.objects.filter(block_id__in=instance_ids)) if instance_ids else {}
-
         blocks = []
 
         for id_ in block_ids:
@@ -488,6 +477,7 @@ class _BlockRegistry(object):
                 #TODO: move in a method of RelationBlockItem
                 blocks.append(SpecificRelationsBlock(rbi.block_id, rbi.relation_type_id))
             elif ibi:
+                #TODO: use a cache ??
                 #TODO: move in a method of InstanceBlockConfigItem
                 path, klass = InstanceBlockConfigItem.get_import_path(id_)
 
@@ -524,6 +514,16 @@ class _BlockRegistry(object):
         """
         return (block for block in self._blocks.itervalues()
                         if block.configurable and (not block.target_ctypes or model in block.target_ctypes)
+                        #TODO: blocks only on portal or home
+                        #if hasattr(block, 'detailview_display') and \
+                           #block.configurable and \
+                           #(not block.target_ctypes or model in block.target_ctypes)
+               )
+
+    def get_compatible_portal_blocks(self, app_name):
+        method_name = 'home_display' if app_name == 'creme_core' else 'portal_display'
+        return (block for block in self._blocks.itervalues()
+                     if block.configurable and hasattr(block, method_name)
                )
 
 

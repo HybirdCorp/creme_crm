@@ -1168,6 +1168,30 @@ class BlocksConfigTestCase(CremeTestCase):
     def test_edit_portal02(self):
         app_name = 'persons'
 
+        class FoobarBlock1(gui.block.Block):
+            id_           = gui.block.Block.generate_id('creme_config', 'test_edit_portal02_1')
+            verbose_name  = u'Testing purpose'
+
+            ##NB: only portal_display() method
+            #def detailview_display(self, context): return self._render(self.get_block_template_context(context))
+            #def home_display(self, context): return '<table id="%s"></table>' % self.id_
+
+            def portal_display(self, context, ct_ids):
+                return '<table id="%s"></table>' % self.id_
+
+        class FoobarBlock2(gui.block.Block):
+            id_           = gui.block.Block.generate_id('creme_config', 'test_edit_portal02_2')
+            verbose_name  = u'Testing purpose'
+            configurable  = False # <----
+
+            def portal_display(self, context, ct_ids):
+                return '<table id="%s"></table>' % self.id_
+
+
+        foobar_block1 = FoobarBlock1()
+        foobar_block2 = FoobarBlock2()
+        gui.block.block_registry.register(foobar_block1, foobar_block2)
+
         self.client.post('/creme_config/blocks/portal/add/', data={'app_name': app_name})
         self.assertEqual(1, BlockPortalLocation.objects.filter(app_name=app_name).count())
 
@@ -1182,6 +1206,11 @@ class BlocksConfigTestCase(CremeTestCase):
 
         choices = blocks_field.choices
         self.assert_(len(choices) >= 2)
+        self._find_field_index(blocks_field, foobar_block1.id_)
+
+        for fname, fvname in blocks_field.choices:
+            if fname == foobar_block2.id_:
+                self.fail('Block is not configurable -> should not be in choices.')
 
         block_id1 = choices[0][0]
         block_id2 = choices[1][0]
@@ -1265,6 +1294,36 @@ class BlocksConfigTestCase(CremeTestCase):
         bpl = b_locs[0]
         self.assertEqual(1,  bpl.order)
         self.assertEqual('', bpl.block_id)
+
+    def test_edit_portal05(self): #home -> use 'home_display' method
+        app_name = 'creme_core'
+
+        self.assert_(BlockPortalLocation.objects.filter(app_name=app_name).exists())
+
+        class FoobarBlock(gui.block.Block):
+            id_           = gui.block.Block.generate_id('creme_config', 'test_edit_portal05')
+            verbose_name  = u'Testing purpose'
+
+            ##NB: only 'home_display' method
+            #def detailview_display(self, context): return self._render(self.get_block_template_context(context))
+            #def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
+
+            def home_display(self, context):
+                return '<table id="%s"></table>' % self.id_
+
+        foobar_block = FoobarBlock()
+        gui.block.block_registry.register(foobar_block)
+
+        url = '/creme_config/blocks/portal/edit/%s' % app_name
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        try:
+            blocks_field = response.context['form'].fields['blocks']
+        except KeyError, e:
+            self.fail(str(e))
+
+        self._find_field_index(blocks_field, foobar_block.id_)
 
     def test_delete_portal(self):
         app_name = 'persons'
