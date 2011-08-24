@@ -21,24 +21,25 @@
 from itertools import chain
 from logging import debug, error
 from xml.etree.ElementTree import tostring
-from django.contrib.contenttypes.models import ContentType
 
 from django.db.models import Q
-from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.db.models.deletion import ProtectedError
 from django.db.utils import IntegrityError
-from activesync.messages import MessageSucceedContactAdd, MessageSucceedContactUpdate, MessageInfoContactAdd
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.utils.encoding import smart_unicode
+from django.utils.translation import ugettext_lazy as _
+
+from creme_core.models.entity import CremeEntity
 
 from base import Base
 
-
-from activesync.mappings import CREME_AS_MAPPING, FOLDERS_TYPES_CREME_TYPES_MAPPING
-
-from activesync.models import (CremeExchangeMapping, CremeClient, SyncKeyHistory)
 from activesync.constants import CONFLICT_SERVER_MASTER, SYNC_AIRSYNC_STATUS_SUCCESS, SYNC_AIRSYNC_STATUS_INVALID_SYNCKEY, SYNC_AIRSYNC_STATUS_CLIENT_SERV_CONV_ERR
+from activesync.models import (CremeExchangeMapping, CremeClient, SyncKeyHistory)
+from activesync.mappings import CREME_AS_MAPPING, FOLDERS_TYPES_CREME_TYPES_MAPPING
+from activesync.messages import MessageSucceedContactAdd, MessageSucceedContactUpdate, MessageInfoContactAdd
 from activesync.errors import (SYNC_ERR_VERBOSE, SYNC_ERR_CREME_PERMISSION_DENIED_CREATE,
                                SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE_SPECIFIC, SYNC_ERR_CREME_PERMISSION_DENIED_DELETE_SPECIFIC)
-from creme_core.models.entity import CremeEntity
 
 
 class AirSync(Base):
@@ -214,7 +215,7 @@ class AirSync(Base):
                                     c_field = c_field(needs_attr=True)
 
                                 if c_field and c_field.strip() != '':
-                                    data[c_field] = d.text
+                                    data[c_field] = smart_unicode(d.text)
 
                     entity = save_entity(data, user, folder)
                     self.add_history_create_in_creme(entity)
@@ -263,7 +264,7 @@ class AirSync(Base):
                                 if callable(c_field):
                                     c_field = c_field(needs_attr=True)
 
-                                update_data[c_field] = node.text
+                                update_data[c_field] = smart_unicode(node.text)
 
                     debug("Update %s with %s", entity, update_data)
 
@@ -305,8 +306,8 @@ class AirSync(Base):
                         debug("Deleting %s", entity)
                         try:
                             entity.delete()
-                        except creme_model.CanNotBeDeleted, err:
-                            add_error_message(_(u"%(error)s. For keeping a consistent state between Creme and the server, this %(model_verbose)s have be added again on the server. If you want to avoid this, delete the %(model_verbose)s in Creme and synchronize again.") % {'error': err, 'model_verbose': creme_model_verbose_name})
+                        except ProtectedError, err:
+                            add_error_message(_(u"%(entity)s. For keeping a consistent state between Creme and the server, this %(model_verbose)s have be added again on the server. If you want to avoid this, delete the %(model_verbose)s in Creme and synchronize again.") % {'entity': entity, 'model_verbose': creme_model_verbose_name})
                         else:
                             self.add_history_delete_in_creme(entity)
                             self.add_success_message(_(u"Successfully deleted %s") % entity)

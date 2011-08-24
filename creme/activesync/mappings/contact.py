@@ -240,7 +240,8 @@ def _format_data(model_or_entity, data):
             if not datetime_formatted:
                 data[field_name] = None
         elif isinstance(value, basestring):
-            data[field_name] = value.decode('utf-8')
+            data[field_name] = value
+#            data[field_name] = value.decode('utf-8')
 
 
 def save_contact(data, user, *args, **kwargs):
