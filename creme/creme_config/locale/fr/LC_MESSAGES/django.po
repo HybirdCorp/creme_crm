@@ -444,7 +444,7 @@ msgstr "Type d'ensemble de fiches"
 
 #: forms/user_settings.py:39
 msgid "Choose your theme"
-msgstr "Choisir votre thème"
+msgstr "Choisissez votre thème"
 
 #: forms/user_settings.py:40
 msgid "Think to reload the page once you changed the theme."
