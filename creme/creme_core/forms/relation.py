@@ -22,6 +22,7 @@ from django.db.models import Q
 from django.forms import CharField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
+from creme_core.forms.base import CremeEntityForm, FieldBlockManager
 
 from creme_core.models import CremeEntity, Relation, RelationType
 from creme_core.forms import CremeForm
@@ -109,6 +110,7 @@ class RelationCreateForm(CremeForm):
 
 class MultiEntitiesRelationCreateForm(RelationCreateForm):
     entities_lbl = CharField(label=_(u"Related entities"), widget=Label())
+    blocks = FieldBlockManager(('general', _(u'General information'), ['entities_lbl', 'relations']),)
 
     def __init__(self, subjects, forbidden_subjects, user, relations_types=None, *args, **kwargs):
         subject = subjects[0] if subjects else forbidden_subjects[0]

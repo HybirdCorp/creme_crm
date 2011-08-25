@@ -36,6 +36,9 @@ class Populator(BasePopulator):
         create(Language, 1, name=_(u'French'),  code='FRA')
         create(Language, 2, name=_(u'English'), code='EN')
 
+        create(Currency, DEFAULT_CURRENCY_PK,   name=_(u"Euro"),                    local_symbol=_(u"€"), international_symbol=_(u'EUR'), is_custom=False)
+        create(Currency, 2,                     name=_(u"United States dollar"),    local_symbol=_(u"$"), international_symbol=_(u'USD'), is_custom=True)
+
         CremePropertyType.create(PROP_IS_MANAGED_BY_CREME, _(u'managed by Creme'))
 
         RelationType.create((REL_SUB_HAS, _(u'owns')),
@@ -67,6 +70,12 @@ class Populator(BasePopulator):
                                 app_label='creme_core', type=SettingKey.BOOL
                               )
         SettingValue.objects.create(key=sk2, user=None, value=True)
+
+        sk3 = SettingKey.create(pk=DISPLAY_CURRENCY_LOCAL_SYMBOL,
+                               description=_(u"Display the currency local symbol (ex: €) ? If no the international symbol will be used (ex: EUR)"),
+                               app_label='creme_core', type=SettingKey.BOOL
+                              )
+        SettingValue.objects.create(key=sk3, user=None, value=True)
 
         #BlockPortalLocation.create_empty_config() #default portal
         #BlockPortalLocation.create_empty_config('creme_core') #home

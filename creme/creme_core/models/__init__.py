@@ -13,6 +13,7 @@ from entity_filter import EntityFilter, EntityFilterCondition
 from lock import Mutex
 
 from i18n import Language
+from currency import Currency
 
 from block import *
 from prefered_menu import PreferedMenuItem
