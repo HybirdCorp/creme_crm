@@ -1,7 +1,7 @@
 {% load i18n %}{% load media %}
 {% load creme_core_tags %}{% load creme_block %}
 {% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}{% has_perm_to create ct as creation_perm %}
-<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
+<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=5 %}
         <th class="collapser label">{% get_block_title _('%s Opportunity which targets the organisation / the contact') _('%s Opportunities which target the organisation / the contact') 'opportunity_48.png' _('Opportunity') %}</th>
         <th class="actions">

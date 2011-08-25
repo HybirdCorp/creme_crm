@@ -1,7 +1,6 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
-{% load media %}
-{% load creme_core_tags %}{% load creme_block %}{% load creme_menu %}{% load creme_widgets %}
+{% load creme_core_tags creme_block creme_menu creme_widgets %}
 
 {% block page_title %} - {{object}}{% endblock %}
 
@@ -19,7 +18,7 @@
             {% if object.get_lv_absolute_url %}
                 <li>
                     <a class="menu_button" href="{{object.get_lv_absolute_url}}">
-                        <img src="{% media_url 'images/left_arrow_32.png' %}" border="0" title="{% trans "Back to the list" %}" alt="{% trans "Back to the list" %}" />
+                        <img src="{% creme_media_url 'images/left_arrow_32.png' %}" border="0" title="{% trans "Back to the list" %}" alt="{% trans "Back to the list" %}" />
                         {% trans "Back to the list" %}
                     </a>
                 </li>
@@ -28,7 +27,7 @@
                 {% if path %}{% comment %}REMOVE ?? (see view_entity.html) {% endcomment %}
                     <li>
                         <a class="menu_button" href="{{path}}/add">
-                            <img src="{% media_url 'images/add_32.png' %}" border="0" title="{% trans "Add" %}" alt="{% trans "Add" %}" />
+                            <img src="{% creme_media_url 'images/add_32.png' %}" border="0" title="{% trans "Add" %}" alt="{% trans "Add" %}" />
                             {% trans "New" %}
                         </a>
                     </li>

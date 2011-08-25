@@ -1,11 +1,8 @@
 {% load i18n %}
-{% load media %}
-{% load creme_block %}
-{% load creme_core_tags %}
-{% load media %}
+{% load creme_block creme_core_tags %}
 
 {% with 7 as colspan %}
-    <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
+    <table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
         {% block top_header %}{% endblock %}
         <tbody class="collapsable">
             {% if page.paginator.count %}
@@ -33,7 +30,7 @@
                         <td class="{{row_color}}">{{mail.reception_date}}</td>
                         <td class="{{row_color}} action">
                             <a href="{{mail.get_absolute_url}}">
-                                <img src="{% media_url 'images/view_22.png' %}" border="0" title="{% trans "See the entity" %}" alt="{% trans "See the entity" %}" />
+                                <img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{% trans "See the entity" %}" alt="{% trans "See the entity" %}" />
                             </a>
                             {# TODO: Populate credentials in blocks.py #}
                             {% has_perm_to delete mail as delete_perm %}

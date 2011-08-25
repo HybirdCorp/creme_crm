@@ -21,7 +21,7 @@ from persons.models import Contact, Organisation, Position, Sector
 
 class EntityViewsTestCase(ViewsTestCase):
     def setUp(self):
-        self.populate('creme_core')
+        self.populate('creme_core', 'creme_config')
 
     def test_get_fields(self):
         self.login()
@@ -513,6 +513,7 @@ class EntityViewsTestCase(ViewsTestCase):
 
 class BulkEditTestCase(ViewsTestCase):
     def setUp(self):
+        self.populate('creme_config')
         self.contact_ct = ContentType.objects.get_for_model(Contact)
         self.url = '/creme_core/entity/bulk_update/%s/'
 

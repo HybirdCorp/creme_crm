@@ -19,7 +19,7 @@ class ProjectsTestCase(CremeTestCase):
         super(ProjectsTestCase, self).login(is_superuser, allowed_apps=['projects'])
 
     def setUp(self):
-        self.populate('creme_core', 'activities', 'projects')
+        self.populate('creme_core', 'creme_config', 'activities', 'projects')
 
     def test_populate(self):
         rtypes = RelationType.objects.filter(pk=REL_SUB_PROJECT_MANAGER)

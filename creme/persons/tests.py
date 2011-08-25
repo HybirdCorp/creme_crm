@@ -1,21 +1,25 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime, timedelta
+try:
+    from datetime import datetime, timedelta
 
-from django.contrib.contenttypes.models import ContentType
+    from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import (RelationType, Relation, CremeProperty, SetCredentials,
-                               EntityFilter, EntityFilterCondition)
-from creme_core.constants import PROP_IS_MANAGED_BY_CREME
-from creme_core.gui.quick_forms import quickforms_registry
-from creme_core.tests.base import CremeTestCase
+    from creme_core.models import (RelationType, Relation, CremeProperty, SetCredentials,
+                                   EntityFilter, EntityFilterCondition)
+    from creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    from creme_core.gui.quick_forms import quickforms_registry
+    from creme_core.tests.base import CremeTestCase
 
-from activities.models import Meeting, PhoneCall, PhoneCallType
-from activities.constants import REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY
+    from activities.models import Meeting, PhoneCall, PhoneCallType
+    from activities.constants import REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY
 
-from persons.models import *
-from persons.constants import *
-from persons.blocks import neglected_orgas_block
+    from persons.models import *
+    from persons.constants import *
+    from persons.blocks import NeglectedOrganisationsBlock
+
+except Exception, e:
+    print e
 
 
 class PersonsTestCase(CremeTestCase):
@@ -23,7 +27,7 @@ class PersonsTestCase(CremeTestCase):
         super(PersonsTestCase, self).login(is_superuser, allowed_apps=['persons'])
 
     def setUp(self):
-        self.populate('creme_core', 'persons', 'commercial',)
+        self.populate('creme_core', 'creme_config', 'persons', 'commercial',)
 
     def test_populate(self): #test relationtype creation with constraints
         def get_relationtype_or_fail(pk):
@@ -609,10 +613,12 @@ class PersonsTestCase(CremeTestCase):
             self.assertEqual(last_name, contact.last_name)
 
     def _get_neglected_orgas(self):
+        neglected_orgas_block = NeglectedOrganisationsBlock()
         return neglected_orgas_block._get_neglected(datetime.now())
 
     def test_neglected_block01(self):
         self.login()
+        neglected_orgas_block = NeglectedOrganisationsBlock()
 
         orgas = Organisation.objects.all()
         self.assertEqual(1, len(orgas))

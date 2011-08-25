@@ -18,16 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
+from creme_core.utils import jsonify
 
 from creme_core.views.generic import add_model_with_popup, edit_model_with_popup
 
-from creme_config.forms.user_settings import UserSettingsConfigForm
+from creme_config.forms.user_settings import UserSettingsConfigForm, UserThemeForm
 from creme_config.forms.user import UserAddForm, UserChangePwForm, UserEditForm, TeamCreateForm, TeamEditForm, UserAssignationForm
 
 
@@ -82,8 +84,27 @@ def edit_own_settings(request):
 @login_required #no special permission needed
 def view_own_settings(request):
     return render_to_response('creme_config/user_settings.html',
-                              {'user': request.user},
+                              {
+                                'user':        request.user,
+                                'themes_form': UserThemeForm(request.user).as_span(),
+                              },
                               context_instance=RequestContext(request))
+
+@jsonify
+@login_required
+def edit_theme(request):
+    user = request.user
+
+    if request.method == 'POST':
+        theme_form = UserThemeForm(user=user, data=request.POST)
+
+        if theme_form.is_valid():
+            theme_form.save()
+            del request.session['usertheme']
+    else:
+        theme_form = UserThemeForm(user=user)
+
+    return {'form': theme_form.as_span()}
 
 @login_required
 @permission_required('creme_config.can_admin')

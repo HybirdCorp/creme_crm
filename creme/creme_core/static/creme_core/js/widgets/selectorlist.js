@@ -55,7 +55,7 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
 
         var selector_item = $('<ul>').addClass('ui-layout hbox').css('display', 'block');
 
-        var delete_button = $('<img/>').attr('src', media_url('images/delete_22.png'))
+        var delete_button = $('<img/>').attr('src', creme_media_url('images/delete_22.png'))
                                        .attr('alt', gettext("Delete"))
                                        .attr('title', gettext("Delete"))
                                        .attr('style', 'vertical-align:middle;')

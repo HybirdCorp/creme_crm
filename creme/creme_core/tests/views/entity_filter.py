@@ -17,6 +17,9 @@ __all__ = ('EntityFilterViewsTestCase', )
 
 
 class EntityFilterViewsTestCase(ViewsTestCase):
+    def setUp(self):
+        self.populate('creme_config')
+
     def test_create01(self): #check app credentials
         self.login(is_superuser=False)
 

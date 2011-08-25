@@ -922,15 +922,16 @@ Quelques explications :
 
 Maintenant au tour du fichier template associé, ``beavers/templates/beavers/templatetags/button_ticket.html``: ::
 
-    {% load i18n %}{% load media %}
+    {% load i18n %}
+    {% load creme_core_tags %}
     {% if has_perm %}
         <a class="menu_button" href="/beavers/ticket/add/{{object.pk}}">
-            <img src="{% media_url 'images/ticket_32.png' %}" border="0" title="{% trans "Linked ticket" %}" alt="{% trans "Linked ticket" %}" />
+            <img src="{% creme_media_url 'images/ticket_32.png' %}" border="0" title="{% trans "Linked ticket" %}" alt="{% trans "Linked ticket" %}" />
             {% trans "Notify a veterinary" %}
         </a>
     {% else %}
         <span class="menu_button forbidden" title="{% trans "forbidden" %}">
-            <img src="{% media_url 'images/ticket_32.png' %}" border="0" title="{% trans "Linked ticket" %}" alt="{% trans "Linked ticket" %}" />
+            <img src="{% creme_media_url 'images/ticket_32.png' %}" border="0" title="{% trans "Linked ticket" %}" alt="{% trans "Linked ticket" %}" />
             {% trans "Notify a veterinary" %}
         </span>
     {% endif %}

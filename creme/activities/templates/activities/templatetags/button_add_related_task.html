@@ -1,13 +1,13 @@
-{% load i18n %}{% load media %}
+{% load i18n %}
 {% load creme_core_tags %}{% has_perm_to link object as link_perm %}
 {% if has_perm and link_perm %}
     <a class="menu_button" onclick="creme.activities.select_one('/activities/activity/add_related/task?id_entity_for_relation={{object.id}};ct_entity_for_relation={{object.entity_type_id}}', '{{object.entity_type_id}}');" >
-        <img src="{% media_url 'images/task_32.png' %}" border="0" title="{% trans "Task" %}" alt="{% trans "Task" %}" />
+        <img src="{% creme_media_url 'images/task_32.png' %}" border="0" title="{% trans "Task" %}" alt="{% trans "Task" %}" />
         {% trans "Create a task" %}
     </a>
 {% else %}
     <span class="menu_button forbidden" title="{% trans "forbidden" %}">
-        <img src="{% media_url 'images/task_32.png' %}" border="0" title="{% trans "Task" %}" alt="{% trans "Task" %}" />
+        <img src="{% creme_media_url 'images/task_32.png' %}" border="0" title="{% trans "Task" %}" alt="{% trans "Task" %}" />
         {% trans "Create a task" %}
     </span>
 {% endif %}

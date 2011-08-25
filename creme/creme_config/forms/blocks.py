@@ -164,6 +164,7 @@ class _BlockPortalLocationsForm(_BlockLocationsForm):
                              old_locations,
                             )
 
+
 class BlockPortalLocationsAddForm(_BlockPortalLocationsForm):
     app_name = ChoiceField(label=_(u'Related application'), choices=(), required=True)
 
@@ -191,7 +192,9 @@ class BlockPortalLocationsEditForm(_BlockPortalLocationsForm):
         self.locations = block_locations
 
         blocks = self.fields['blocks']
-        blocks.choices = [(block_id, block.verbose_name) for block_id, block in block_registry if hasattr(block, 'portal_display')]
+        blocks.choices = [(block.id_, block.verbose_name)
+                                for block in block_registry.get_compatible_portal_blocks(app_name)
+                         ]
         blocks.initial = [bl.block_id for bl in block_locations]
 
     def save(self, *args, **kwargs):
@@ -206,8 +209,11 @@ class BlockMypageLocationsForm(_BlockLocationsForm):
         self.owner = owner
         self.locations = locations = BlockMypageLocation.objects.filter(user=owner)
 
+        #TODO: factorise ???
         blocks = self.fields['blocks']
-        blocks.choices = [(block_id, block.verbose_name) for block_id, block in block_registry if hasattr(block, 'home_display')]
+        blocks.choices = [(block.id_, block.verbose_name)
+                            for block in block_registry.get_compatible_portal_blocks('creme_core')
+                         ]
         blocks.initial = [bl.block_id for bl in locations]
 
     def save(self, *args, **kwargs):

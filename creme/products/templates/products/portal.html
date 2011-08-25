@@ -1,7 +1,7 @@
 {% extends "creme_core/generics/portal.html" %}
 {% load i18n %}
-{% load media %}
-{% block logo %}<img src="{% media_url 'images/product_64.png' %}" alt=""/>{% endblock %}
+{% load creme_core_tags %}
+{% block logo %}<img src="{% creme_media_url 'images/product_64.png' %}" alt=""/>{% endblock %}
 {% block title %}{% trans "Products & Services portal" %}{% endblock %}
 {% block list_url %}/products/products{% endblock %}
 {% block list_msg %}{% trans "List of products" %}{% endblock %}

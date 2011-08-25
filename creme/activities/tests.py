@@ -39,7 +39,7 @@ class ActivitiesTestCase(CremeTestCase):
                                       set_type=SetCredentials.ESET_ALL
                                      )
     def setUp(self):
-        self.populate('creme_core', 'activities') #'persons'
+        self.populate('creme_core', 'creme_config', 'activities') #'persons'
 
     def test_populate(self):
         rtypes_pks = [REL_SUB_LINKED_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY]

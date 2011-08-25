@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load media %}
+{% load creme_core_tags %}
 <script type="text/javascript">
     $(function() {
         creme.menu.HNavIt('#actions_menu_{{id}}');
@@ -11,7 +11,7 @@
         {% with actions.default as action %}
             {% if action %}
                 <a href="{{action.url}}">
-                    | {% if action.icon %}<img src="{% media_url action.icon %}" />{% endif %}
+                    | {% if action.icon %}<img src="{% creme_media_url action.icon %}" />{% endif %}
                     {{action.text}}
                 </a>
             {% else %}
@@ -25,12 +25,12 @@
                     <li>
                         {% if action.is_allowed %}
                             <a href="{{action.url}}" {{action.attrs}}>
-                                {% if action.icon %}<img src="{% media_url action.icon %}" />{% endif %}
+                                {% if action.icon %}<img src="{% creme_media_url action.icon %}" />{% endif %}
                                 {{action.text}}
                             </a>
                         {% else %}
                             <span class=" forbidden">
-                                {% if action.icon %}<img src="{% media_url action.icon %}" />{% endif %}
+                                {% if action.icon %}<img src="{% creme_media_url action.icon %}" />{% endif %}
                                 {{action.text}} ({% trans "forbidden" %})
                             </span>
                         {% endif %}

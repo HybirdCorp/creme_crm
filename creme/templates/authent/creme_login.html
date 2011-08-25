@@ -2,16 +2,15 @@
 <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
 <html class="central_panel" xmlns="http://www.w3.org/1999/xhtml" lang="{{LANGUAGE_CODE}}" xml:lang="{{LANGUAGE_CODE}}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 {% load i18n %}
-{% load media %}
 {% load creme_core_tags %}
 <head>
     <title>Creme CRM - {% trans 'Connection' %}</title>
-    {% include_media 'main.css' %}
-    <link rel="shortcut icon" href="{% media_url 'images/favicon.ico' %}" type="image/x-icon" />
+    {% include_creme_media "main.css" %}
+    <link rel="shortcut icon" href="{% creme_media_url 'images/favicon.ico' %}" type="image/x-icon" />
 </head>
 <body  class="central_panel" >
     <div id="container">
-        <div id="container-icon"><img src="{% media_url 'images/creme_256.png' %}"/></div>
+        <div id="container-icon"><img src="{% creme_media_url 'images/creme_256.png' %}"/></div>
         <p class="errornote">{% if error_message %}{{error_message}}{% endif %}</p>
         <div id="content-main">
             <div id="branding">

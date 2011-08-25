@@ -2,10 +2,13 @@
 <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 {% load i18n %}{% load media %}
-{% load creme_menu %}{% load creme_core_tags %}
+{% load creme_menu creme_core_tags %}
 <head>
     <title>{{title}}</title>
-    {% include_media 'main.css' %}
+    <script type='text/javascript'>
+        var THEME_NAME = "{{ THEME_NAME }}";
+    </script>
+    {% include_creme_media "main.css" %}
     {% include "creme_core/frags/js_header.html" %}
     <script language="javascript">
         function handleValidation(form) {

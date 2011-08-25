@@ -23,6 +23,7 @@ from logging import debug, info
 
 from django.db.models import Model, PositiveSmallIntegerField, CharField, TextField, DateTimeField, ForeignKey, SET_NULL
 from django.db.models.signals import post_save, post_init, pre_delete
+from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
 from django.contrib.contenttypes.models import ContentType
@@ -174,21 +175,21 @@ class HistoryLine(Model):
             field_name = field.verbose_name
 
             if len(modif) == 1:
-                vmodif = ugettext(u'Set field "%(field)s"') % {
+                vmodif = mark_safe(ugettext(u'Set field &ldquo;%(field)s&rdquo;') % {
                                         'field': field_name,
-                                    }
+                                    })
             elif len(modif) == 2:
-                vmodif = ugettext(u'Set field "%(field)s" to "%(value)s"') % {
+                vmodif = mark_safe(ugettext(u'Set field &ldquo;%(field)s&rdquo; to &ldquo;%(value)s&rdquo;') % {
                                         'field': field_name,
                                         'value': _PRINTERS.get(field.get_internal_type(), _basic_printer)(field, modif[1]),
-                                    }
+                                    })
             else:
                 printer = _PRINTERS.get(field.get_internal_type(), _basic_printer)
-                vmodif = ugettext(u'Set field "%(field)s" from "%(oldvalue)s" to "%(value)s"') % {
+                vmodif = mark_safe(ugettext(u'Set field &ldquo;%(field)s&rdquo; from &ldquo;%(oldvalue)s&rdquo; to &ldquo;%(value)s&rdquo;') % {
                                         'field':    field_name,
                                         'oldvalue': printer(field, modif[1]), #TODO: improve for fk ???
                                         'value':    printer(field, modif[2]),
-                                    }
+                                    })
 
             vmodifs.append(vmodif)
 

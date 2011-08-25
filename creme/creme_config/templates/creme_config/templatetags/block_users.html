@@ -1,6 +1,6 @@
 {% load i18n %}{% load media %}
-{% load creme_block %}
-<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
+{% load creme_block creme_core_tags %}
+<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=11 %}
         <th class="collapser label">{% get_block_title  _('%s User') _('%s Users') %}</th>
         <th class="actions"></th>
@@ -38,7 +38,7 @@
                 <td class="{{row_color}} action">
                     {% get_line_editor at_url '/creme_config/user/edit/{{user.id}}' with_perms 1 %}
                     <a onclick="creme.utils.innerPopupNReload('/creme_config/user/delete/{{ user.id }}', {% get_block_reload_uri %});">
-                        <img src="{% media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}">
+                        <img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}">
                     </a>
                 </td>
                 <td class="{{row_color}} action">

@@ -1,6 +1,5 @@
 {% load i18n %}
-{% load media %}
-{% load creme_core_tags %}{% load creme_block %}
+{% load creme_core_tags creme_block %}
 {% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=6 %}
@@ -30,7 +29,7 @@
                     <td class="{{row_color}}">{{sending.get_mails.count}}{% if sending.get_unsent_mails_count %} / <span class="errorlist">{{ sending.get_unsent_mails_count }} {% trans "not sent" %}{% endif %}</span></td>
                     <td class="{{row_color}} action">
                         <a class="button_link" onclick="creme.utils.showInnerPopup('/emails/campaign/sending/{{sending.pk}}')">
-                            <img src="{% media_url 'images/view_22.png' %}" border="0" title="{% trans "Details" %}" alt="{% trans "Details" %}" />
+                            <img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{% trans "Details" %}" alt="{% trans "Details" %}" />
                         </a>
                     </td>
                     <td class="{{row_color}} action">

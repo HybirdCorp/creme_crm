@@ -1,4 +1,5 @@
-{% load i18n %}{% load media %}
+{% load i18n %}
+{% load creme_core_tags %}
 {% with hfilter.id as hfilter_id %}
     <script type="text/javascript">
         //TODO: move to a js file...
@@ -30,7 +31,7 @@
     </script>
     <fieldset title="{% trans "Show only the desired columns" %}">
         <legend>
-            <img border="0" src="{% media_url 'images/telescope_32.png' %}" alt="{% trans "View of list" %}" title="{% trans "View of list" %}"/>
+            <img border="0" src="{% creme_media_url 'images/telescope_32.png' %}" alt="{% trans "View of list" %}" title="{% trans "View of list" %}"/>
             {% trans "View of list" %}
         </legend>
         <select name="hfilter" id="hfilter_list" onchange="$(this.form).list_view('getSubmit')(this);">
@@ -42,14 +43,14 @@
         </select>
         {% if not is_popup_view %}
             <a href="/creme_core/header_filter/add/{{content_type_id}}">
-                <img border="0" src="{% media_url 'images/add_22.png' %}" alt="{% trans "Create a custom view" %}" title="{% trans "Create a custom view" %}"/>
+                <img border="0" src="{% creme_media_url 'images/add_22.png' %}" alt="{% trans "Create a custom view" %}" title="{% trans "Create a custom view" %}"/>
             </a>
             {% if can_edit_or_delete %}
                 <a href="/creme_core/header_filter/edit/{{hfilter_id}}" id="header_filter_edit">
-                    <img border="0" src="{% media_url 'images/edit_22.png' %}" alt="{% trans "Edit custom view" %}" title="{% trans "Edit custom view" %}"/>
+                    <img border="0" src="{% creme_media_url 'images/edit_22.png' %}" alt="{% trans "Edit custom view" %}" title="{% trans "Edit custom view" %}"/>
                 </a>
                 <a onclick="lv_hf_delete(this);">
-                    <img border="0" src="{% media_url 'images/delete_22.png' %}" alt="{% trans "Delete custom view" %}" title="{% trans "Delete custom view" %}"/>
+                    <img border="0" src="{% creme_media_url 'images/delete_22.png' %}" alt="{% trans "Delete custom view" %}" title="{% trans "Delete custom view" %}"/>
                 </a>
             {% endif %}
         {% endif %}

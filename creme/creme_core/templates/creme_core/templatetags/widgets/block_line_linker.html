@@ -1,11 +1,11 @@
-{% load i18n %}{% load media %}
-{% load creme_block %}
+{% load i18n %}
+{% load creme_block creme_core_tags %}
 {% if line_perm %}
     <a class="link" onclick="creme.utils.innerPopupNReload('{{action_url}}', {% get_block_reload_uri %});">
-        <img src="{% media_url 'images/link_22.png' %}" border="0" title="{% trans "Link" %}" alt="{% trans "Link" %}" />{{label}}
+        <img src="{% creme_media_url 'images/link_22.png' %}" border="0" title="{% trans "Link" %}" alt="{% trans "Link" %}" />{{label}}
     </a>
 {% else %}
     <span class="link forbidden">
-        <img src="{% media_url 'images/link_22.png' %}" border="0" title="{% trans "Can't link" %}" alt="{% trans "Can't link" %}" />{{label}}
+        <img src="{% creme_media_url 'images/link_22.png' %}" border="0" title="{% trans "Can't link" %}" alt="{% trans "Can't link" %}" />{{label}}
     </span>
 {% endif %}

@@ -1,6 +1,5 @@
 {% load i18n %}
-{% load media %}
-{% load creme_core_tags %}{% load creme_block %}
+{% load creme_core_tags creme_block %}
 {% load sms_tags %}
 {% has_perm_to change object.campaign as has_perm %}
 <style type="text/css">
@@ -36,27 +35,27 @@
         }
     };
 </script>
-<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
+<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=4 %}
         <th class="collapser label">{% get_block_title _('%s Message') _('%s Messages') 'sms_48.png' _('Messages') %}</th>
         <th class="actions">
             <div class="buttons">
                 {% if has_perm %}
                     <a class="add" onclick="sms_messages.send();">
-                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Send" %}" alt="{% trans "Send" %}" />
+                        <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{% trans "Send" %}" alt="{% trans "Send" %}" />
                         {% trans "Send" %}
                     </a>
                     <a onclick="sms_messages.sync();">
-                        <img src="{% media_url 'images/refresh_22.png' %}" border="0" title="{% trans "Synchronize" %}" alt="{% trans "Synchronize" %}" />
+                        <img src="{% creme_media_url 'images/refresh_22.png' %}" border="0" title="{% trans "Synchronize" %}" alt="{% trans "Synchronize" %}" />
                         {% trans "Synchronize" %}
                     </a>
                 {% else %}
                     <span class="add forbidden">
-                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't send" %}" alt="{% trans "Can't send" %}" />
+                        <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't send" %}" alt="{% trans "Can't send" %}" />
                         {% trans "Send" %}
                     </span>
                     <span class="forbidden">
-                        <img src="{% media_url 'images/refresh_22.png' %}" border="0" title="{% trans "Can't synchronize" %}" alt="{% trans "Can't synchronize" %}" />
+                        <img src="{% creme_media_url 'images/refresh_22.png' %}" border="0" title="{% trans "Can't synchronize" %}" alt="{% trans "Can't synchronize" %}" />
                         {% trans "Synchronize" %}
                     </span>
                 {% endif %}

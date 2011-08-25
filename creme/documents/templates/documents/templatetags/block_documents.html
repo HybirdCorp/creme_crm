@@ -1,6 +1,6 @@
-{% load i18n %}{% load media %}
-{% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
-<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
+{% load i18n %}
+{% load creme_core_tags creme_block creme_widgets %}
+<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=2 %}
         <th class="collapser label">{% get_block_title _('%s Contained Document') _('%s Contained Documents') 'document_48.png' _('Document') %}</th>
         <th class="actions">
@@ -21,9 +21,9 @@
                     <td class="{{row_color}} action">
                         {% has_perm_to change doc as edit_perm %}
                         {% if edit_perm %}
-                            <a href="{{doc.get_edit_absolute_url}}"><img src="{% media_url 'images/edit_22.png' %}" border="0"></a>
+                            <a href="{{doc.get_edit_absolute_url}}"><img src="{% creme_media_url 'images/edit_22.png' %}" border="0"></a>
                         {% else %}
-                            <img class="forbidden" src="{% media_url 'images/edit_22.png' %}" border="0" title="{% trans "Can't edit" %}" alt="{% trans "Can't edit" %}" />
+                            <img class="forbidden" src="{% creme_media_url 'images/edit_22.png' %}" border="0" title="{% trans "Can't edit" %}" alt="{% trans "Can't edit" %}" />
                         {% endif %}
 
                         {% has_perm_to delete doc as delete_perm %}

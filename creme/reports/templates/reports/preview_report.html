@@ -1,14 +1,13 @@
 {% extends "creme_core/detailview.html" %}
 {% load i18n %}
-{% load media %}
-{% load creme_core_tags %}{% load creme_queryset %}{% load report_tags %}
+{% load creme_core_tags creme_queryset report_tags %}
 
 {% block page_title %} - {% blocktrans %}Preview {{object}}{% endblocktrans %}{% endblock %}
 
 {% block before_content_1 %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td class="logo"><img src="{% media_url 'images/reporting_64.png' %}" alt="{% trans "Report" %}"/></td>
+            <td class="logo"><img src="{% creme_media_url 'images/reporting_64.png' %}" alt="{% trans "Report" %}"/></td>
             <td class="title">
                 <h1>
                     {% blocktrans with object|get_meta_value:"verbose_name"|title as verbose_name and object|title as title %}Preview {{verbose_name}} : {{title}}{% endblocktrans %}
@@ -17,7 +16,7 @@
             <td class="actions">
                 <span>
                     <a href="{{object.get_absolute_url}}">
-                        <img src="{% media_url 'images/left_arrow_64.png' %}" title="{% blocktrans %}Back to the detailview : '{{object}}'{% endblocktrans %}" alt="{% trans "Back" %}"/>
+                        <img src="{% creme_media_url 'images/left_arrow_64.png' %}" title="{% blocktrans %}Back to the detailview : '{{object}}'{% endblocktrans %}" alt="{% trans "Back" %}"/>
                     </a>&nbsp;
 
                     {% if form.cleaned_data %}
@@ -25,7 +24,7 @@
                     {% else %}
                         <a href="/reports/report/{{object.id}}/csv">
                     {% endif %}
-                        <img src="{% media_url 'images/document_csv_64.png' %}" title="{% blocktrans %}Download '{{object}}' as CSV file{% endblocktrans %}" alt="{% trans "Download CSV" %}"/>
+                        <img src="{% creme_media_url 'images/document_csv_64.png' %}" title="{% blocktrans %}Download '{{object}}' as CSV file{% endblocktrans %}" alt="{% trans "Download CSV" %}"/>
                     </a>&nbsp;
                 </span>
             </td>
@@ -40,7 +39,7 @@
 
     {% with object.get_children_fields_flat as flat_columns %}
         <div style="position:relative; width:100%; overflow-x: scroll;">
-            <table class="table_detail_view ui-corner-all" >
+            <table class="table_detail_view ui-corner-all with-header" >
                 <thead>
                     <tr>
                         <th colspan="100">{% blocktrans %}Preview of {{limit_to}} first entities{% endblocktrans %}</th>
