@@ -7,6 +7,8 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.models import *
 from creme_core.tests.base import CremeTestCase
 
+from persons.models import Contact, Organisation
+
 
 __all__ = ('CredentialsTestCase',)
 
@@ -553,6 +555,27 @@ class CredentialsTestCase(CremeTestCase):
         self.user.is_superuser = True
         self.assert_(self.user.has_perm('creme_core.add_cremeproperty'))
 
+    def test_export_creds01(self):
+        role = self._create_role('Coder', ['creme_core', 'persons'])
+        self.user.role = role
+        self.user.save()
+
+        self.failIf(self.user.has_perm('persons.export_contact'))
+        self.failIf(self.user.has_perm('persons.export_organisation'))
+        self.failIf(self.user.has_perm_to_export(Contact)) #helper
+
+        role.exportable_ctypes.add(ContentType.objects.get_for_model(Contact))
+
+        self.user.role = UserRole.objects.get(pk=role.id) #refresh cache
+        self.assert_(self.user.has_perm('persons.export_contact'))
+        self.failIf(self.user.has_perm('persons.export_organisation'))
+        self.assert_(self.user.has_perm_to_export(Contact))
+        self.failIf(self.user.has_perm_to_export(Organisation))
+
+    def test_export_creds02(self):
+        self.user.is_superuser = True
+        self.assert_(self.user.has_perm('persons.export_contact'))
+
     def test_app_creds01(self):
         try:
             role = UserRole.objects.create(name='Salesman')
@@ -757,4 +780,27 @@ class CredentialsTestCase(CremeTestCase):
 
         self.assert_(not CremeEntity.objects.get(pk=entity3.id).can_view(self.user))
 
-    #TODO: don't write cred if equals to default creds ??????
+    def test_ct_credentials(self):
+        role = self._create_role('Coder', ['creme_core', 'persons'])
+        self.user.role = role
+        self.user.save()
+        SetCredentials.objects.create(role=role,
+                                      value=SetCredentials.CRED_VIEW,
+                                      set_type=SetCredentials.ESET_ALL,
+                                      ctype=ContentType.objects.get_for_model(Contact),
+                                     )
+
+        contact1 = Contact.objects.create(user=self.user, first_name='Musashi', last_name='Miyamoto')
+        self.assert_(contact1.can_view(self.user))
+        self.failIf(contact1.can_change(self.user))
+        self.failIf(contact1.can_delete(self.user))
+
+        contact2 = Contact.objects.create(user=self.other_user, first_name='Kojiro', last_name='Sasaki')
+        self.assert_(contact2.can_view(self.user))
+        self.failIf(contact2.can_change(self.user))
+        self.failIf(contact2.can_delete(self.user))
+
+        orga = Organisation.objects.create(user=self.user, name='Yoshioka')
+        self.failIf(orga.can_view(self.user))
+        self.failIf(orga.can_change(self.user))
+        self.failIf(orga.can_delete(self.user))

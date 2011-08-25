@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,36 +21,48 @@
 from itertools import izip
 from logging import debug
 
-from django.forms import ChoiceField, BooleanField, ModelMultipleChoiceField, MultipleChoiceField
-from django.utils.translation import ugettext_lazy as _
+from django.forms import ChoiceField, BooleanField, MultipleChoiceField
+from django.utils.translation import ugettext_lazy as _, ugettext
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
 from creme_core.models import UserRole, SetCredentials, EntityCredentials
 from creme_core.registry import creme_registry
-from creme_core.forms import CremeForm, CremeModelForm
-from creme_core.forms.fields import ListEditionField
+from creme_core.forms import CremeForm, CremeModelForm, ListEditionField
 from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
-from creme_core.utils import Q_creme_entity_content_types
+from creme_core.utils import creme_entity_content_types
 
 
-_ALL_APPS = [(app.name, app.verbose_name) for app in creme_registry.iter_apps()]
+_ALL_ENTITIES = list(creme_entity_content_types())
 
-#TODO: Sort (user-friendly) those 3 "MultipleChoiceField"
+def sorted_entity_models_choices(): #TODO: factorise with other modules ??
+    return sorted(((ct.id, unicode(ct)) for ct in _ALL_ENTITIES), key=lambda t: t[1])
+
+def EmptyMultipleChoiceField(required=False, widget=UnorderedMultipleChoiceWidget, *args, **kwargs):
+    return MultipleChoiceField(required=required, choices=(), widget=widget, *args, **kwargs)
+
+
 class UserRoleCreateForm(CremeModelForm):
-    creatable_ctypes = ModelMultipleChoiceField(label=_(u'Creatable resources'),
-                                                queryset=Q_creme_entity_content_types(),
-                                                required=False,
-                                                widget=UnorderedMultipleChoiceWidget)
-    allowed_apps     = MultipleChoiceField(label=_(u'Allowed applications'),
-                                           choices=_ALL_APPS, required=False,
-                                           widget=UnorderedMultipleChoiceWidget)
-    admin_4_apps     = MultipleChoiceField(label=_(u'Administrated applications'),
-                                           choices=_ALL_APPS, required=False,
-                                           widget=UnorderedMultipleChoiceWidget)
+    creatable_ctypes  = EmptyMultipleChoiceField(label=_(u'Creatable resources'))
+    exportable_ctypes = EmptyMultipleChoiceField(label=_(u'Exportable resources'))
+    allowed_apps      = EmptyMultipleChoiceField(label=_(u'Allowed applications'))
+    admin_4_apps      = EmptyMultipleChoiceField(label=_(u'Administrated applications'))
 
     class Meta:
         model = UserRole
         exclude = ('raw_allowed_apps', 'raw_admin_4_apps')
+
+    def __init__(self, *args, **kwargs):
+        super(UserRoleCreateForm, self).__init__(*args, **kwargs)
+        fields = self.fields
+
+        models_choices = sorted_entity_models_choices()
+        fields['creatable_ctypes'].choices  = models_choices
+        fields['exportable_ctypes'].choices = models_choices
+
+        apps = sorted(((app.name, unicode(app.verbose_name)) for app in creme_registry.iter_apps()), key=lambda t: t[1])
+        fields['allowed_apps'].choices = apps
+        fields['admin_4_apps'].choices = apps
 
     def save(self, *args, **kwargs):
         instance = self.instance
@@ -106,6 +118,7 @@ class AddCredentialsForm(CremeModelForm):
     can_link   = BooleanField(label=_(u'Can link'),   required=False, help_text=_(u'You must have the permission to link on 2 entities to create a relationship between them.'))
     can_unlink = BooleanField(label=_(u'Can unlink'), required=False, help_text=_(u'You must have the permission to unlink on 2 entities to delete a relationship between them.'))
     set_type   = ChoiceField(label=_(u'Type of entities set'), choices=SetCredentials.ESET_MAP.items())
+    ctype      = ChoiceField(label=_(u'Apply to a specific type'), choices=()) #TODO: EntityTypeChoiceField ???
 
     class Meta:
         model = SetCredentials
@@ -114,6 +127,14 @@ class AddCredentialsForm(CremeModelForm):
     def __init__(self, role, *args, **kwargs):
         super(AddCredentialsForm, self).__init__(*args, **kwargs)
         self.role = role
+
+        choices = [(0, ugettext('None'))]
+        choices += sorted_entity_models_choices()
+        self.fields['ctype'].choices = choices
+
+    def clean_ctype(self):
+        ct_id = int(self.cleaned_data['ctype'])
+        return ContentType.objects.get_for_id(ct_id) if ct_id else None
 
     def save(self, *args, **kwargs):
         instance = self.instance
