@@ -9,11 +9,27 @@
     <tbody class="collapsable">
         <tr>
              <th class="block_header_line_dark th_info" align="center" valign="center"><h1>{% trans "Total (exclusive of tax)" %}</h1></th>
-             <td class="block_line_dark td_info" align="center" valign="center"><h1>{{object.get_total}}</h1></td>
+             <td class="block_line_dark td_info" align="center" valign="center">
+                 <h1>
+                     {% if object.currency %}
+                        {{object.get_total|format_amount:object.currency.pk}}
+                     {% else %}
+                        {{object.get_total|format_amount:''}}
+                     {% endif %}
+                 </h1>
+             </td>
         </tr>
         <tr>
              <th class="block_header_line_light th_info" align="center" valign="center"><h1>{% trans "Total (inclusive of tax)" %}</h1></th>
-             <td class="block_line_light td_info" align="center" valign="center"><h1>{{object.get_total_with_tax}}</h1></td>
+             <td class="block_line_light td_info" align="center" valign="center">
+                 <h1>
+                     {% if object.currency %}
+                        {{object.get_total_with_tax|format_amount:object.currency.pk}}
+                     {% else %}
+                        {{object.get_total_with_tax|format_amount:''}}
+                     {% endif %}
+                 </h1>
+             </td>
         </tr>
     </tbody>
 </table>

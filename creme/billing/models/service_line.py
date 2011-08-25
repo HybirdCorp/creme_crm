@@ -42,9 +42,9 @@ class ServiceLine(Line):
         return u"On the fly service '%s'" % self.on_the_fly_item
 
     def get_edit_form (self):
-        from billing.forms.line import ServiceLineForm, ServiceLineOnTheFlyForm
+        from billing.forms.line import ServiceLineEditForm, ServiceLineOnTheFlyForm
 
         if self.related_item is not None:
-            return ServiceLineForm
+            return ServiceLineEditForm
         else:
             return ServiceLineOnTheFlyForm

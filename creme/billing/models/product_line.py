@@ -39,9 +39,9 @@ class ProductLine(Line):
         return u"On the fly product '%s'" % self.on_the_fly_item
 
     def get_edit_form(self):
-        from billing.forms.line import ProductLineForm, ProductLineOnTheFlyForm
+        from billing.forms.line import ProductLineEditForm, ProductLineOnTheFlyForm
 
         if self.related_item is not None:
-            return ProductLineForm
+            return ProductLineEditForm
         else:
             return ProductLineOnTheFlyForm

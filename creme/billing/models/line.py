@@ -21,13 +21,14 @@
 from decimal import Decimal
 
 from django.db.models import CharField, IntegerField, DecimalField, BooleanField, TextField
+from django.db.models.fields import PositiveIntegerField
 from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeEntity, Relation
 from creme_core.core.function_field import FunctionField
 
-from billing.constants import DEFAULT_VAT, REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM
+from billing.constants import DEFAULT_VAT, REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM, PERCENT_PK
 from billing.utils import round_to_2
 
 
@@ -58,6 +59,7 @@ class Line(CremeEntity):
     quantity        = IntegerField(_(u'Quantity'), blank=False, null=False, default=1)
     unit_price      = DecimalField(_(u'Unit price'), max_digits=10, decimal_places=2, default=default_decimal)
     discount        = DecimalField(_(u'Discount'), max_digits=10, decimal_places=2, default=default_decimal)
+    discount_unit   = PositiveIntegerField(_(u'Discount Unit'), blank=True, null=True, default=PERCENT_PK)
     credit          = DecimalField(_(u'Credit'), max_digits=10, decimal_places=2, default=default_decimal)
     total_discount  = BooleanField(_('Total discount ?'))
     vat             = DecimalField(_(u'VAT'), max_digits=4, decimal_places=2, default=DEFAULT_VAT)
@@ -78,19 +80,37 @@ class Line(CremeEntity):
             relation._delete_without_transaction()
 
     def get_price_inclusive_of_tax(self):
-        if self.total_discount:
-            total =  self.quantity * self.unit_price - self.discount
-        else:
-            total = self.quantity * (self.unit_price - self.discount)
+        total_ht = self.get_price_exclusive_of_tax()
+        vat = total_ht * self.vat / 100
+        return round_to_2(total_ht + vat)
 
-        vat = total * self.vat / 100
-        return round_to_2(total + vat)
+    def get_raw_price(self):
+        return round_to_2(self.quantity * self.unit_price)
 
     def get_price_exclusive_of_tax(self):
-        if self.total_discount:
-            return round_to_2(self.quantity * self.unit_price - self.discount)
+        document                = self.related_document
+        discount_document       = document.discount
+        discount_line           = self.discount
+        global_discount_line    = self.total_discount
+        unit_price_line         = self.unit_price
+
+        if self.discount_unit == PERCENT_PK and discount_line:
+            if global_discount_line:
+                product_qt_up = self.quantity * unit_price_line
+                total_after_first_discount = product_qt_up - (product_qt_up * discount_line / 100)
+            else:
+                total_after_first_discount = self.quantity * (unit_price_line - (unit_price_line * discount_line / 100 ))
+        elif global_discount_line:
+            total_after_first_discount = self.quantity * unit_price_line - discount_line
         else:
-            return round_to_2(self.quantity * (self.unit_price - self.discount))
+            total_after_first_discount = self.quantity * (unit_price_line - discount_line)
+
+        if discount_document:
+            total_exclusive_of_tax = total_after_first_discount - (total_after_first_discount * discount_document / 100)
+        else:
+            total_exclusive_of_tax = total_after_first_discount
+
+        return round_to_2(total_exclusive_of_tax - self.credit)
 
     def get_related_entity(self): #for generic views & delete
         return self.related_document
