@@ -23,6 +23,7 @@ from re import compile as compile_re
 from logging import debug
 
 #from django import template
+
 from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode
 from django.template.defaulttags import TemplateLiteral
 from django.template.defaultfilters import escape
@@ -30,6 +31,7 @@ from django.utils.safestring import mark_safe
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.gui.field_printers import field_printers_registry
+from creme_core.utils.currency_format import currency
 from creme_core.utils.meta import get_verbose_field_name
 
 
@@ -172,6 +174,10 @@ def to_timestamp(date):
 @register.filter(name="allowed_unicode")
 def allowed_unicode(entity, user):
     return entity.allowed_unicode(user)
+
+@register.filter(name="format_amount")
+def format_amount(amount, currency_id):
+    return currency(amount, currency_id)
 
 @register.simple_tag
 def get_entity_summary(entity, user):

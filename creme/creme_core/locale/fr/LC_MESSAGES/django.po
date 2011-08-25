@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-21 15:19+0200\n"
+"POT-Creation-Date: 2011-08-25 07:49+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,7 +21,7 @@ msgstr ""
 msgid "Properties"
 msgstr "Propriétés"
 
-#: blocks.py:49 forms/header_filter.py:45 forms/relation.py:35
+#: blocks.py:49 forms/header_filter.py:45 forms/relation.py:36
 #: gui/block.py:275 models/relation.py:191
 msgid "Relations"
 msgstr "Relations"
@@ -40,13 +40,13 @@ msgstr "Historique"
 msgid "Core"
 msgstr "Cœur"
 
-#: creme_core_register.py:42 templates/creme_core/home.html:17
-#: templates/creme_core/home.html.py:18
+#: creme_core_register.py:42 templates/creme_core/home.html:19
+#: templates/creme_core/home.html.py:20
 msgid "Home"
 msgstr "Accueil"
 
-#: creme_core_register.py:43 templates/creme_core/my_page.html:17
-#: templates/creme_core/my_page.html:18
+#: creme_core_register.py:43 templates/creme_core/my_page.html:19
+#: templates/creme_core/my_page.html:20
 msgid "My page"
 msgstr "Ma page"
 
@@ -59,26 +59,58 @@ msgid "English"
 msgstr "Anglais"
 
 #: populate.py:39
+msgid "Euro"
+msgstr ""
+
+#: populate.py:39
+msgid "€"
+msgstr ""
+
+#: populate.py:39
+msgid "EUR"
+msgstr ""
+
+#: populate.py:40
+msgid "United States dollar"
+msgstr ""
+
+#: populate.py:40
+msgid "$"
+msgstr ""
+
+#: populate.py:40
+msgid "USD"
+msgstr ""
+
+#: populate.py:42
 msgid "managed by Creme"
 msgstr "est géré par Creme"
 
-#: populate.py:41
+#: populate.py:44
 msgid "owns"
 msgstr "possède"
 
-#: populate.py:42
+#: populate.py:45
 msgid "belongs to"
 msgstr "appartient à"
 
-#: populate.py:60
+#: populate.py:63
 msgid "By default, are blocks open ?"
 msgstr "Par défaut, est-ce que les blocs apparaîssent ouverts ?"
 
-#: populate.py:66
+#: populate.py:69
 msgid "By default, are empty fields displayed ?"
 msgstr "Par défaut, est-ce que les champs vides sont affichés ?"
 
-#: forms/base.py:158 forms/base.py:179
+#: populate.py:75
+msgid ""
+"Display the currency local symbol (ex: €) ? If no the international symbol "
+"will be used (ex: EUR)"
+msgstr ""
+"Afficher la devise avec son symbole locale (ex: €) ? Sinon le symbole "
+"internationale sera utilisé (ex: EUR)."
+
+#: forms/base.py:158 forms/base.py:179 forms/relation.py:113
 msgid "General information"
 msgstr "Informations générales"
 
@@ -104,7 +136,7 @@ msgstr "Champ à mettre à jour"
 msgid "Value"
 msgstr "Valeur"
 
-#: forms/bulk.py:87 forms/creme_property.py:74 forms/relation.py:118
+#: forms/bulk.py:87 forms/creme_property.py:74 forms/relation.py:120
 msgid "NONE !"
 msgstr "AUCUNE !"
 
@@ -129,7 +161,7 @@ msgid "You can't view this value, so you can't set it."
 msgstr ""
 "Vous ne pouvez pas voir cette valeur, donc vous ne pouvez pas l'attribuer."
 
-#: forms/bulk.py:173 forms/bulk.py:176 tests/views/entity.py:603
+#: forms/bulk.py:173 forms/bulk.py:176 tests/views/entity.py:608
 msgid "This field is required."
 msgstr "Ce champ est obligatoire."
 
@@ -138,7 +170,7 @@ msgstr "Ce champ est obligatoire."
 msgid "Type of property"
 msgstr "Type de propriété"
 
-#: forms/creme_property.py:62 forms/relation.py:111
+#: forms/creme_property.py:62 forms/relation.py:112
 msgid "Related entities"
 msgstr "Entités associées"
 
@@ -325,7 +357,7 @@ msgstr "A la relation"
 msgid "Does not have the relation"
 msgstr "N'a pas la relation"
 
-#: forms/entity_filter.py:56 models/history.py:86 tests/models/history.py:206
+#: forms/entity_filter.py:56 models/history.py:86 tests/models/history.py:214
 msgid "True"
 msgstr "Vrai"
 
@@ -490,6 +522,15 @@ msgstr "La date début doit être avant la date de fin."
 msgid "Customized"
 msgstr "Personnalisé"
 
+#: forms/fields.py:822
+msgid "Enter a whole number."
+msgstr ""
+
+#: forms/fields.py:823
+#, python-format
+msgid "Ensure this value is greater than or equal to %(limit_value)s."
+msgstr ""
+
 #: forms/header_filter.py:46
 msgid "Functions"
 msgstr "Fonctions"
@@ -498,12 +539,12 @@ msgstr "Fonctions"
 msgid "You have to choose at least one element in available lists."
 msgstr "Vous devez choisir au moins un élément dans les listes disponibles"
 
-#: forms/relation.py:62
+#: forms/relation.py:63
 #, python-format
 msgid "There are duplicates: %s"
 msgstr "Il y a des doublons: %s"
 
-#: forms/relation.py:121
+#: forms/relation.py:123
 msgid "Unlinkable entities"
 msgstr "Fiches non reliables"
 
@@ -598,6 +639,16 @@ msgid_plural "seconds"
 msgstr[0] "seconde"
 msgstr[1] "secondes"
 
+#: gui/field_printers.py:130 models/custom_field.py:258
+#: templatetags/creme_listview.py:75
+msgid "Yes"
+msgstr "Oui"
+
+#: gui/field_printers.py:130 models/custom_field.py:258
+#: templatetags/creme_listview.py:79
+msgid "No"
+msgstr "Non"
+
 #: models/auth.py:216 models/entity_filter.py:80 models/i18n.py:27
 #: templates/creme_core/templatetags/block_specific_relations.html:18
 #: tests/views/entity.py:304
@@ -678,48 +729,48 @@ msgstr "Date de création"
 msgid "Last modification"
 msgstr "Dernière modification"
 
-#: models/block.py:67 models/button_menu.py:30 models/custom_field.py:50
+#: models/block.py:68 models/button_menu.py:30 models/custom_field.py:50
 #: models/search.py:32
 msgid "Related type"
 msgstr "Type associé"
 
-#: models/block.py:192 models/block.py:219 models/block.py:273
+#: models/block.py:196 models/block.py:223 models/block.py:277
 msgid "Block ID"
 msgstr "Identifiant de bloc"
 
-#: models/block.py:193
+#: models/block.py:197
 msgid "Related type of relation"
 msgstr "Type de relation associé"
 
-#: models/block.py:197
+#: models/block.py:201
 msgid "Specific relation block"
 msgstr "Bloc de relation spécifique"
 
-#: models/block.py:198
+#: models/block.py:202
 msgid "Specific relation blocks"
 msgstr "Blocs de relation spécifique"
 
-#: models/block.py:220
+#: models/block.py:224
 msgid "Block related entity"
 msgstr "Entité associée au bloc"
 
-#: models/block.py:222
+#: models/block.py:226
 msgid "Verbose"
 msgstr "Verbeux"
 
-#: models/block.py:226
+#: models/block.py:230
 msgid "Instance's Block to display"
 msgstr "Bloc d'instance à afficher"
 
-#: models/block.py:227
+#: models/block.py:231
 msgid "Instance's Blocks to display"
 msgstr "Blocs d'instance à afficher"
 
-#: models/block.py:279
+#: models/block.py:283
 msgid "Block state"
 msgstr "Etat de bloc"
 
-#: models/block.py:280
+#: models/block.py:284
 msgid "Blocks states"
 msgstr "Etats de blocs"
 
@@ -747,6 +798,19 @@ msgstr "Types de propriété"
 #: templates/creme_core/templatetags/block_properties.html:6
 msgid "Property"
 msgstr "Propriété"
+
+#: models/currency.py:27 models/currency.py:37 models/currency.py:38
+#, fuzzy
+msgid "Currency"
+msgstr "Année courante"
+
+#: models/currency.py:28
+msgid "Local symbol"
+msgstr ""
+
+#: models/currency.py:29
+msgid "International symbol"
+msgstr ""
 
 #: models/custom_field.py:49
 msgid "Field name"
@@ -780,14 +844,6 @@ msgstr "Date"
 #: models/custom_field.py:252
 msgid "Boolean (2 values: Yes/No)"
 msgstr "Booléen (2 valeurs: Oui/Non)"
-
-#: models/custom_field.py:258 templatetags/creme_listview.py:75
-msgid "Yes"
-msgstr "Oui"
-
-#: models/custom_field.py:258 templatetags/creme_listview.py:79
-msgid "No"
-msgstr "Non"
 
 #: models/custom_field.py:288
 msgid "List of choices"
@@ -1013,20 +1069,20 @@ msgstr "Supression"
 msgid "Related modification"
 msgstr "Modification liée"
 
-#: models/history.py:177 tests/models/history.py:191
-#: tests/models/history.py:201
+#: models/history.py:177 tests/models/history.py:199
+#: tests/models/history.py:209
 #, python-format
 msgid "Set field \"%(field)s\""
 msgstr "Changement de \"%(field)s\""
 
-#: models/history.py:181 tests/models/history.py:186
-#: tests/models/history.py:204
+#: models/history.py:181 tests/models/history.py:194
+#: tests/models/history.py:212
 #, python-format
 msgid "Set field \"%(field)s\" to \"%(value)s\""
 msgstr "Champ \"%(field)s\" mis à \"%(value)s\""
 
-#: models/history.py:187 tests/models/history.py:179
-#: tests/models/history.py:194
+#: models/history.py:187 tests/models/history.py:187
+#: tests/models/history.py:202
 #, python-format
 msgid "Set field \"%(field)s\" from \"%(oldvalue)s\" to \"%(value)s\""
 msgstr "Champ \"%(field)s\" passe de \"%(oldvalue)s\" à \"%(value)s\""
@@ -1093,7 +1149,7 @@ msgstr "Mémentos"
 msgid "Related user"
 msgstr "Utilisateur associé"
 
-#: models/search.py:40 templates/creme_core/search_results.html:12
+#: models/search.py:40 templates/creme_core/search_results.html:13
 #: templates/creme_core/templatetags/search_panel.html:11
 msgid "Search"
 msgstr "Recherche"
@@ -1139,19 +1195,19 @@ msgstr "Menu"
 msgid "Back to Top"
 msgstr "Revenir au début"
 
-#: templates/creme_core/base.html:270
+#: templates/creme_core/base.html:222
 msgid "Welcome,"
 msgstr "Bienvenue, "
 
-#: templates/creme_core/base.html:272
+#: templates/creme_core/base.html:224
 msgid "My settings"
 msgstr "Ma configuration"
 
-#: templates/creme_core/base.html:273
+#: templates/creme_core/base.html:225
 msgid "Log out"
 msgstr "Se déconnecter"
 
-#: templates/creme_core/base.html:322
+#: templates/creme_core/base.html:274
 msgid "About Hybird"
 msgstr "À propos d'Hybird"
 
@@ -1236,26 +1292,26 @@ msgstr ""
 msgid "View of list"
 msgstr "Vue de liste"
 
-#: templates/creme_core/search_results.html:14
+#: templates/creme_core/search_results.html:15
 #, python-format
 msgid "Search results : %(result_count)s result"
 msgid_plural "Search results : %(result_count)s results"
 msgstr[0] "Résultats de recherche : %(result_count)s résultat"
 msgstr[1] "Résultats de recherche : %(result_count)s résultats"
 
-#: templates/creme_core/search_results.html:24
+#: templates/creme_core/search_results.html:26
 msgid "Your search : "
 msgstr "Votre recherche : "
 
-#: templates/creme_core/search_results.html:25
+#: templates/creme_core/search_results.html:27
 msgid "Concerned types : "
 msgstr "Types concernés : "
 
-#: templates/creme_core/search_results.html:56
+#: templates/creme_core/search_results.html:58
 msgid "Action"
 msgstr "Action"
 
-#: templates/creme_core/search_results.html:63
+#: templates/creme_core/search_results.html:65
 msgid "Go to the page"
 msgstr "Aller sur la fiche"
 
@@ -1306,27 +1362,27 @@ msgstr "Nb / Page"
 msgid "Recordings %(start_index)s - %(end_index)s on %(entities_count)s"
 msgstr "Enregistrements %(start_index)s - %(end_index)s sur %(entities_count)s"
 
-#: templates/creme_core/generics/portal.html:23
+#: templates/creme_core/generics/portal.html:25
 msgid "Go to the list"
 msgstr "Aller à la liste"
 
-#: templates/creme_core/generics/portal.html:36
-#: templates/creme_core/generics/portal.html:37
-#: templates/creme_core/generics/portal.html:41
-#: templates/creme_core/generics/portal.html:42
+#: templates/creme_core/generics/portal.html:38
+#: templates/creme_core/generics/portal.html:39
+#: templates/creme_core/generics/portal.html:43
+#: templates/creme_core/generics/portal.html:44
 msgid "Configure"
 msgstr "Configurer"
 
-#: templates/creme_core/generics/portal.html:40
+#: templates/creme_core/generics/portal.html:42
 #: templates/creme_core/templatetags/widgets/entity_actions.html:34
 msgid "forbidden"
 msgstr "interdit"
 
-#: templates/creme_core/generics/portal.html:59
+#: templates/creme_core/generics/portal.html:61
 msgid "Statistics"
 msgstr "Statistiques"
 
-#: templates/creme_core/generics/portal.html:59
+#: templates/creme_core/generics/portal.html:61
 #: templates/creme_core/templatetags/block_customfields.html:7
 #: templates/creme_core/templatetags/block_object.html:6
 msgid "Information"
@@ -1337,13 +1393,13 @@ msgstr "Informations"
 msgid "Fields marked with * are required."
 msgstr "Les champs suivis d'un * sont obligatoires."
 
-#: templates/creme_core/generics/blockform/base.html:34
+#: templates/creme_core/generics/blockform/base.html:48
 #: templates/creme_core/generics/blockformset/base.html:42
 #: templates/creme_core/generics/form/base.html:48
 msgid "Global errors"
 msgstr "Erreurs globales"
 
-#: templates/creme_core/generics/blockform/base.html:53
+#: templates/creme_core/generics/blockform/base.html:68
 #: templates/creme_core/generics/blockformset/base.html:61
 #: templates/creme_core/generics/form/base.html:60
 msgid "Submit"
@@ -1541,10 +1597,6 @@ msgstr "Menus rapides:"
 msgid "Quick creation"
 msgstr "Création rapide"
 
-#: templates/creme_core/templatetags/treecreme_menu.html:4
-msgid "Fixed menu"
-msgstr "Menu fixe"
-
 #: templates/creme_core/templatetags/widgets/add_button.html:9
 #: templates/creme_core/templatetags/widgets/block_line_adder.html:9
 msgid "Can't add"
@@ -1664,6 +1716,50 @@ msgstr "%s seconde(s)"
 #: tests/utils.py:276 utils/date_range.py:214
 msgid "In the future"
 msgstr "Dans le futur"
+
+#: tests/models/header_filter.py:44 tests/views/entity.py:39
+#, fuzzy
+msgid "First name"
+msgstr "Nom du champ"
+
+#: tests/models/header_filter.py:69
+msgid "Photograph"
+msgstr ""
+
+#: tests/models/history.py:188
+msgid "Phone number"
+msgstr ""
+
+#: tests/models/history.py:194
+msgid "Email"
+msgstr ""
+
+#: tests/models/history.py:199
+#, fuzzy
+msgid "Description"
+msgstr "Supression"
+
+#: tests/models/history.py:203
+msgid "Sector"
+msgstr ""
+
+#: tests/models/history.py:209
+#, fuzzy
+msgid "Date of creation of the organisation"
+msgstr "Aucune relation pour le moment"
+
+#: tests/models/history.py:213
+msgid "Subject to VAT"
+msgstr ""
+
+#: tests/views/entity.py:38
+#, fuzzy
+msgid "Username"
+msgstr "Utilisateur"
+
+#: tests/views/entity.py:40
+msgid "Last name"
+msgstr ""
 
 #: utils/date_range.py:87
 msgid "Previous year"
@@ -1830,6 +1926,9 @@ msgstr "La liste souhaitée n'a aucune vue, veuillez en créer au moins une."
 #, python-format
 msgid "You are not allowed to access to the app: %s"
 msgstr "Vous n'avez pas accés à cette application: %s"
+
+#~ msgid "Fixed menu"
+#~ msgstr "Menu fixe"
 
 #~ msgid "Displayed on portal ?"
 #~ msgstr "Affiché sur la page d'accueil ?"
