@@ -14,6 +14,7 @@ __all__ = ('RelationsTestCase',)
 
 class RelationsTestCase(CremeTestCase):
     def setUp(self):
+        self.populate('creme_config')
         self.user = User.objects.create(username='name')
 
     def test_relation01(self):

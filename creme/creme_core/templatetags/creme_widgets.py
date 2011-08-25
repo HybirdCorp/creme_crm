@@ -20,9 +20,8 @@
 
 from django.template import Library
 
-from mediagenerator.utils import media_url
-
 from creme_core.gui.icon_registry import icon_registry
+from creme_core.utils.media import get_creme_media_url
 
 
 register = Library()
@@ -84,38 +83,38 @@ _SIZE_MAP = {
         'tiny':   16,
     }
 
-def _get_image_path_for_model(model, size):
+def _get_image_path_for_model(theme, model, size):
     path  = icon_registry.get(model, _SIZE_MAP[size])
 
     if not path:
         return ''
 
     try:
-        path = media_url(path)
+        path = get_creme_media_url(theme, path)
     except KeyError:
         path = ''
 
     return path
 
-def _get_image_for_model(model, size):
-    path = _get_image_path_for_model(model, size)
+def _get_image_for_model(theme, model, size):
+    path = _get_image_path_for_model(theme, model, size)
     return u'<img src="%(src)s" alt="%(title)s" title="%(title)s" />' % {
                     #'src':   media_url(path),
                     'src':   path,
                     'title': model._meta.verbose_name,
                 }
 
-@register.simple_tag
-def get_image_for_object(obj, size): #size='default' ??
+@register.simple_tag(takes_context=True)
+def get_image_for_object(context, obj, size): #size='default' ??
     """{% get_image_for_object object 'big' %}"""
-    return _get_image_for_model(obj.__class__, size)
+    return _get_image_for_model(context['THEME_NAME'], obj.__class__, size)
 
-@register.simple_tag
-def get_image_for_ctype(ctype, size):
+@register.simple_tag(takes_context=True)
+def get_image_for_ctype(context, ctype, size):
     """{% get_image_for_ctype ctype 'small' %}"""
-    return _get_image_for_model(ctype.model_class(), size)
+    return _get_image_for_model(context['THEME_NAME'], ctype.model_class(), size)
 
-@register.simple_tag
-def get_image_path_for_ctype(ctype, size):
+@register.simple_tag(takes_context=True)
+def get_image_path_for_ctype(context, ctype, size):
     """{% get_image_path_for_ctype ctype 'small' %}"""
-    return _get_image_path_for_model(ctype.model_class(), size)
+    return _get_image_path_for_model(context['THEME_NAME'], ctype.model_class(), size)

@@ -1,4 +1,4 @@
-/* 
+/*
     Document   : navit
     Created on : 1 févr. 2011, 10:38:41
     Author     : raph
@@ -66,7 +66,7 @@
 }
 
 .navit-item-top .navit-down, .navit-horiz-item-top .navit-down {
-    background-image: url('images/small_down_arrow_16.png');
+    background-image: url('chantilly/images/small_down_arrow_16.png');
     background-repeat: no-repeat;
 }
 

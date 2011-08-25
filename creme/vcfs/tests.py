@@ -39,7 +39,7 @@ from vcfs.forms import vcf
 
 class VcfTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('creme_core', 'persons', 'vcfs')
+        self.populate('creme_core', 'creme_config', 'persons', 'vcfs')
 
     def test_populate(self): #test relationtype creation with constraints
         def get_relationtype_or_fail(pk):
@@ -86,7 +86,7 @@ class VcfTestCase(CremeTestCase):
                                         'vcf_file': file,
                                      }
                                 )
-    
+
     def _no_from_error(self, response):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
@@ -112,7 +112,7 @@ class VcfTestCase(CremeTestCase):
             self.fail(str(e))
 
         self.assert_('value="1"' in unicode(form['vcf_step']))
-        
+
     def test_parsing_vcf00(self):
         self.login()
 
@@ -146,7 +146,7 @@ class VcfTestCase(CremeTestCase):
 
         vobj = vcf_lib.readOne(content)
         n_value = vobj.n.value
-        
+
         assertEqual = self.assertEqual
         assertEqual(form['civility'].field.help_text, ''.join([_(u'Read in VCF File : '), n_value.prefix]))
         assertEqual(form['first_name'].field.initial, n_value.given)
@@ -175,7 +175,7 @@ class VcfTestCase(CremeTestCase):
         content  = """BEGIN:VCARD\nFN:Prénom Nom\nORG:Corporate\nADR;TYPE=WORK:Numéro de rue;;Nom de la rue;Ville;Region;Code Postal;Pays\nTEL;TYPE=WORK:00 00 00 00 00\nEMAIL;TYPE=WORK:corp@corp.com\nURL;TYPE=WORK:www.corp.com\nEND:VCARD"""
         filedata = self._build_filedata(content)
         response = self._post_form_step_0('/vcfs/vcf', filedata.file)
-        
+
         try:
             form = response.context['form']
         except Exception, e:
@@ -200,7 +200,7 @@ class VcfTestCase(CremeTestCase):
         content  = """BEGIN:VCARD\nFN:Prénom Nom\nADR:Numéro de rue;;Nom de la rue;Ville;Région;Code Postal;Pays\nTEL:00 00 00 00 00\nEMAIL:email@email.com\nURL:www.url.com\nEND:VCARD"""
         filedata = self._build_filedata(content)
         response = self._post_form_step_0('/vcfs/vcf', filedata.file)
-        
+
         try:
             form = response.context['form']
         except Exception, e:
@@ -223,7 +223,7 @@ class VcfTestCase(CremeTestCase):
         content  = """BEGIN:VCARD\nN:Prénom Nom\nORG:Corporate\nADR;TYPE=WORK:Numéro de rue;;Nom de la rue;Ville;Region;Code Postal;Pays\nTEL;TYPE=WORK:11 11 11 11 11\nEMAIL;TYPE=WORK:email@email.com\nURL;TYPE=WORK:www.web-site.com\nEND:VCARD"""
         filedata = self._build_filedata(content)
         response = self._post_form_step_0('/vcfs/vcf', filedata.file)
-        
+
         try:
             form = response.context['form']
         except Exception, e:
@@ -282,7 +282,7 @@ class VcfTestCase(CremeTestCase):
             Contact.objects.get(first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email, url_site=url_site)
         except Exception, e:
             self.fail(str(e) + str(Contact.objects.all()))
-        
+
     def test_add_contact_vcf01(self):
         self.login()
 
@@ -294,7 +294,7 @@ class VcfTestCase(CremeTestCase):
 
         url = '/vcfs/vcf'
         response = self._post_form_step_0(url, filedata.file)
-        
+
         form = response.context['form']
         user       = form['user'].field.initial
         first_name = form['first_name'].field.initial
@@ -340,7 +340,7 @@ class VcfTestCase(CremeTestCase):
 
         url = '/vcfs/vcf'
         response = self._post_form_step_0(url, filedata.file)
-        
+
         form = response.context['form']
         user       = form['user'].field.initial
         first_name = form['first_name'].field.initial
@@ -394,10 +394,10 @@ class VcfTestCase(CremeTestCase):
 
         content  = """BEGIN:VCARD\nFN:Jean HUDARD\nTEL;TYPE=HOME:00 00 00 00 00\nTEL;TYPE=CELL:11 11 11 11 11\nTEL;TYPE=FAX:22 22 22 22 22\nTEL;TYPE=WORK:33 33 33 33 33\nEMAIL;TYPE=HOME:email@email.com\nEMAIL;TYPE=WORK:work@work.com\nURL;TYPE=HOME:www.url.com\nURL;TYPE=WORK:http://www.work.com/\nORG:Corporate\nEND:VCARD"""
         filedata = self._build_filedata(content)
-        
+
         url = '/vcfs/vcf'
         response = self._post_form_step_0(url, filedata.file)
-        
+
         form = response.context['form']
         user       = form['user'].field.initial
         first_name = form['first_name'].field.initial
@@ -460,7 +460,7 @@ class VcfTestCase(CremeTestCase):
 
         url = '/vcfs/vcf'
         response = self._post_form_step_0(url, filedata.file)
-        
+
         form = response.context['form']
         user       = form['user'].field.initial
         first_name = form['first_name'].field.initial
@@ -521,7 +521,7 @@ class VcfTestCase(CremeTestCase):
 
         url = '/vcfs/vcf'
         response = self._post_form_step_0(url, filedata.file)
-        
+
         form = response.context['form']
         user       = form['user'].field.initial
         first_name = form['first_name'].field.initial
@@ -571,7 +571,7 @@ class VcfTestCase(CremeTestCase):
             address = Address.objects.get(name=adr_last_name, address=address, city=city, zipcode=code, country=country, department=region)
         except Exception, e:
             self.fail(str(e))
-            
+
         self.assertEqual(contact.billing_address, address)
 
     def test_add_contact_vcf06(self):
@@ -586,7 +586,7 @@ class VcfTestCase(CremeTestCase):
 
         url = '/vcfs/vcf'
         response = self._post_form_step_0(url, filedata.file)
-        
+
         form = response.context['form']
         user       = form['user'].field.initial
         first_name = form['first_name'].field.initial
@@ -655,7 +655,7 @@ class VcfTestCase(CremeTestCase):
             address_orga    = Address.objects.get(name=work_adr_name, address=work_address, city=work_city, zipcode=work_code, country=work_country, department=work_region)
         except Exception, e:
             self.fail(str(e))
-            
+
         assertEqual(contact.billing_address, address_contact)
         assertEqual(orga.billing_address,    address_orga)
 
@@ -670,7 +670,7 @@ class VcfTestCase(CremeTestCase):
 
         url = '/vcfs/vcf'
         response = self._post_form_step_0(url, filedata.file)
-        
+
         form = response.context['form']
         user       = form['user'].field.initial
         first_name = form['first_name'].field.initial
@@ -737,12 +737,12 @@ class VcfTestCase(CremeTestCase):
 
         url = '/vcfs/vcf'
         response = self._post_form_step_0(url, filedata.file)
-        
+
         form = response.context['form']
         user       = form['user'].field.initial
         first_name = form['first_name'].field.initial
         last_name  = form['last_name'].field.initial
-        
+
         work_name     = form['work_name'].field.initial
         work_phone    = form['work_phone'].field.initial
         work_email    = form['work_email'].field.initial
@@ -803,7 +803,7 @@ class VcfTestCase(CremeTestCase):
 
         url = '/vcfs/vcf'
         response = self._post_form_step_0(url, filedata.file)
-        
+
         form = response.context['form']
         user       = form['user'].field.initial
         first_name = form['first_name'].field.initial
@@ -854,13 +854,13 @@ class VcfTestCase(CremeTestCase):
         contact_count = Contact.objects.count()
         orga_count    = Organisation.objects.count()
         address_count = Address.objects.count()
-        
+
         content  = """BEGIN:VCARD\nFN:Jean HUDARD\nADR;TYPE=WORK:Orga Numéro de rue;;Orga Nom de rue;Orga Ville;Orga Région;Orga Code postal;Orga Pays\nTEL;TYPE=WORK:11 11 11 11 11\nEMAIL;TYPE=WORK:work@work.com\nURL;TYPE=WORK:www.work.com\nORG:Corporate\nEND:VCARD"""
         filedata = self._build_filedata(content)
 
         url = '/vcfs/vcf'
         response = self._post_form_step_0(url, filedata.file)
-        
+
         form = response.context['form']
         user       = form['user'].field.initial
         first_name = form['first_name'].field.initial
@@ -917,7 +917,7 @@ class VcfTestCase(CremeTestCase):
             orga = Organisation.objects.get(id=orga.id)
         except Exception, e:
             self.fail(str(e))
-        
+
         billing_address = orga.billing_address
 
         vobj = vcf_lib.readOne(content)
@@ -948,7 +948,7 @@ class VcfTestCase(CremeTestCase):
 
         url = '/vcfs/vcf'
         response = self._post_form_step_0(url, filedata.file)
-        
+
         form = response.context['form']
         user       = form['user'].field.initial
         first_name = form['first_name'].field.initial
@@ -1022,7 +1022,7 @@ class VcfTestCase(CremeTestCase):
 
         url = '/vcfs/vcf'
         response = self._post_form_step_0(url, filedata.file)
-        
+
         form = response.context['form']
         user       = form['user'].field.initial
         first_name = form['first_name'].field.initial
@@ -1072,7 +1072,7 @@ class VcfTestCase(CremeTestCase):
 
         url = '/vcfs/vcf'
         response = self._post_form_step_0(url, filedata.file)
-        
+
         form = response.context['form']
         user       = form['user'].field.initial
         first_name  = form['first_name'].field.initial
@@ -1112,7 +1112,7 @@ class VcfTestCase(CremeTestCase):
 
         url = '/vcfs/vcf'
         response = self._post_form_step_0(url, filedata.file)
-        
+
         form = response.context['form']
         user       = form['user'].field.initial
         first_name = form['first_name'].field.initial
@@ -1146,7 +1146,7 @@ class VcfTestCase(CremeTestCase):
         self.assert_(contact.image)
         assertEqual(_(u'Image of %s') % contact, contact.image.name)
         contact.image.image.delete()
-        
+
     def test_add_contact_vcf15(self):
         self.login()
 
@@ -1158,13 +1158,13 @@ class VcfTestCase(CremeTestCase):
 
         contact_count = Contact.objects.count()
         image_count   = Image.objects.count()
-        
+
         content  = """BEGIN:VCARD\nFN:Jean HUDARD\nPHOTO;VALUE=URL:%s\nEND:VCARD""" % path
         filedata = self._build_filedata(content)
 
         url = '/vcfs/vcf'
         response = self._post_form_step_0(url, filedata.file)
-        
+
         form = response.context['form']
         user       = form['user'].field.initial
         first_name = form['first_name'].field.initial
@@ -1207,7 +1207,7 @@ class VcfTestCase(CremeTestCase):
 
         url = '/vcfs/vcf'
         response = self._post_form_step_0(url, filedata.file)
-        
+
         form = response.context['form']
         user       = form['user'].field.initial
         first_name = form['first_name'].field.initial
@@ -1248,7 +1248,7 @@ class VcfTestCase(CremeTestCase):
 
         url = '/vcfs/vcf'
         response = self._post_form_step_0(url, filedata.file)
-        
+
         form = response.context['form']
         user       = form['user'].field.initial
         first_name = form['first_name'].field.initial
@@ -1270,4 +1270,3 @@ class VcfTestCase(CremeTestCase):
         assertEqual = self.assertEqual
         assertEqual(contact_count + 1, Contact.objects.count())
         assertEqual(image_count,       Image.objects.count())
-        

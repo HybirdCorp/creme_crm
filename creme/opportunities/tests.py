@@ -25,7 +25,7 @@ from opportunities.constants import *
 
 class OpportunitiesTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('creme_core', 'documents', 'persons', 'commercial', 'billing', 'activities', 'opportunities')
+        self.populate('creme_core', 'creme_config', 'documents', 'persons', 'commercial', 'billing', 'activities', 'opportunities')
 
     def genericfield_format_entity(self, entity):
         return '{"ctype":"%s", "entity":"%s"}' % (entity.entity_type_id, entity.id)

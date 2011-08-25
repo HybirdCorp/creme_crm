@@ -39,7 +39,7 @@ creme.widget.DateRangeSelector = creme.widget.declare('ui-creme-daterange-select
         var $datespan = $('span.daterange-inputs', element);
         var datepicker_options = {dateFormat:      options['date_format'],
                                   showOn:          "button",
-                                  buttonImage:     media_url("images/icon_calendar.gif"),
+                                  buttonImage:     creme_media_url("images/icon_calendar.gif"),
                                   buttonImageOnly: true
                                  }
 
@@ -53,7 +53,7 @@ creme.widget.DateRangeSelector = creme.widget.declare('ui-creme-daterange-select
                 self._update(element);
             });
 
-        // Some daterange are a clone of an active one and a datepicker is already attached dom element. 
+        // Some daterange are a clone of an active one and a datepicker is already attached dom element.
         // In order to "reuse" the cloned element with another datepicker we need to "remove" it from input
         self._clean_daterpickers($datespan);
 
@@ -69,14 +69,14 @@ creme.widget.DateRangeSelector = creme.widget.declare('ui-creme-daterange-select
         element.addClass('widget-ready');
     },
 
-    _clean_daterpickers: function(datespan) 
+    _clean_daterpickers: function(datespan)
     {
     	$('.daterange-input', datespan).removeAttr('id')
     								   .removeClass('hasDatepicker');
 
     	$('img.ui-datepicker-trigger', datespan).remove();
     },
-    
+
     _update: function(element) {
         var self = creme.widget.DateRangeSelector;
         creme.widget.input(element).val(self.val(element)).change();

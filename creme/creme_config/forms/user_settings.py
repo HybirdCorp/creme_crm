@@ -17,9 +17,47 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from django.conf import settings
+from django.forms.fields import ChoiceField
+from django.forms.widgets import Select
+from django.utils.translation import ugettext_lazy as _
+
+from creme_config.constants import USER_THEME_NAME
+from creme_config.models.setting import SettingValue, SettingKey
+
+from creme_core.forms.base import CremeForm
+from creme_core.utils.media import get_current_theme
+
 from prefered_menu import PreferedMenuForm
 
 class UserSettingsConfigForm(PreferedMenuForm):
     pass
 
 
+class UserThemeForm(CremeForm):
+    themes    = ChoiceField(label=_(u"Choose your theme"), choices=settings.THEMES, widget=Select(attrs={'onchange': 'creme.ajax.json.ajaxFormSubmit($(this.form));'}),
+                            help_text=_(u"Think to reload the page once you changed the theme."))
+
+    def __init__(self, user, *args, **kwargs):
+        super(UserThemeForm, self).__init__(user, *args, **kwargs)
+        self.fields['themes'].initial = get_current_theme()
+
+    def save(self, *args, **kwargs):
+        try:
+            sv = SettingValue.objects.get(user=self.user, key=USER_THEME_NAME)
+        except SettingValue.DoesNotExist:
+            sk = SettingKey.objects.get(pk=USER_THEME_NAME)
+            sv = SettingValue.objects.create(user=self.user, key=sk)
+
+        sv.value=self.cleaned_data['themes']
+        sv.save()
+
+    def as_span(self):#TODO: In CremeForm?
+        "Returns this form rendered as HTML <span>s."
+        return self._html_output(
+            normal_row = u'<span%(html_class_attr)s>%(label)s %(field)s%(help_text)s</span>',
+            error_row = u'%s',
+            row_ender = '</span>',
+            help_text_html = u' <span class="helptext">%s</span>',
+            errors_on_separate_row = False)

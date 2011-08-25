@@ -1,13 +1,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
-{% load media %}{% load i18n %}
-{% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
+{% load i18n %}
+{% load creme_core_tags creme_block creme_widgets %}
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
     <title>Creme CRM - {{object}}</title>
-    {% include_media 'main.css' %}
+    <script type='text/javascript'>
+        var THEME_NAME = "{{ THEME_NAME }}";
+    </script>
+    {% include_creme_media "main.css" %}
     {% include "creme_core/frags/js_header.html" %}
-    <link rel="shortcut icon" href="{% media_url 'images/favicon.ico' %}" type="image/x-icon" />
+    <link rel="shortcut icon" href="{% creme_media_url 'images/favicon.ico' %}" type="image/x-icon" />
     <script type="text/javascript">
         $(document).ready(function() {
             creme.utils.bindShowHideTbody();

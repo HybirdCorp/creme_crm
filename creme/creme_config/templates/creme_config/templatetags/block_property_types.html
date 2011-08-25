@@ -3,7 +3,7 @@
 {% if not request.is_ajax %}
     <div class="help_box">{% trans 'Delete a property type, will delete associated properties' %}</div>
 {% endif %}
-<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
+<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=4 %}
         <th class="collapser label">{% get_block_title _('%s Type of property') _('%s Types of property') %}</th>
         <th class="actions"></th>

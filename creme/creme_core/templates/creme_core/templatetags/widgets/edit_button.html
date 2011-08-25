@@ -1,8 +1,9 @@
-{% load i18n %}{% load media %}
+{% load i18n %}
+{% load creme_core_tags %}
 {% if can_change %}
     <a href="{{path}}/edit/{{object.id}}">
-        <img src="{% media_url 'images/edit_64.png' %}" title="{% blocktrans %}Edit '{{object}}'{% endblocktrans %}" alt="{% trans "Edit" %}"/>
+        <img src="{% creme_media_url 'images/edit_64.png' %}" title="{% blocktrans %}Edit '{{object}}'{% endblocktrans %}" alt="{% trans "Edit" %}"/>
     </a>
 {% else %}
-    <img class="forbidden" src="{% media_url 'images/edit_64.png' %}" title="{% blocktrans %}You can't edit '{{object}}'{% endblocktrans %}" alt="{% trans "Can't edit" %}"/>
+    <img class="forbidden" src="{% creme_media_url 'images/edit_64.png' %}" title="{% blocktrans %}You can't edit '{{object}}'{% endblocktrans %}" alt="{% trans "Can't edit" %}"/>
 {% endif %}

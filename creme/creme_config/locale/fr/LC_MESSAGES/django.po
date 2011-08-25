@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-21 14:33+0200\n"
+"POT-Creation-Date: 2011-08-24 15:18+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -88,10 +88,15 @@ msgstr "Gestion des utilisateurs"
 msgid "Roles and credentials settings"
 msgstr "Gestion des rôles et des droits"
 
-#: tests.py:1083 forms/blocks.py:144
+#: tests.py:1098 forms/blocks.py:144
 #, python-format
 msgid "The following block should be displayed only once: <%s>"
 msgstr "Le bloc suivant ne devrait être affiché qu'une seule fois: <%s>"
+
+#: tests.py:1649
+#, python-format
+msgid "Select a valid choice. %s is not one of the available choices."
+msgstr ""
 
 #: forms/blocks.py:95 forms/button_menu.py:40 forms/custom_fields.py:65
 #: forms/search.py:37
@@ -437,6 +442,14 @@ msgstr ""
 msgid "Type of entities set"
 msgstr "Type d'ensemble de fiches"
 
+#: forms/user_settings.py:39
+msgid "Choose your theme"
+msgstr "Choisissez votre thème"
+
+#: forms/user_settings.py:40
+msgid "Think to reload the page once you changed the theme."
+msgstr "Pensez à recharger la page une fois le thème changé."
+
 #: templates/creme_config/blocks_portal.html:6
 #: templates/creme_config/button_menu_portal.html:6
 #: templates/creme_config/history_portal.html:6
@@ -446,7 +459,7 @@ msgstr "Type d'ensemble de fiches"
 #: templates/creme_config/search_portal.html:6
 #: templates/creme_config/user_portal.html:6
 #: templates/creme_config/user_role_portal.html:6
-#: templates/creme_config/user_settings.html:19
+#: templates/creme_config/user_settings.html:18
 #: templates/creme_config/custom_fields/portal.html:6
 #: templates/creme_config/custom_fields/view.html:6
 #: templates/creme_config/generics/app_portal.html:6
@@ -533,11 +546,11 @@ msgstr "Éditez une configuration pour spécifier des champs de recherche."
 msgid "Roles"
 msgstr "Rôles"
 
-#: templates/creme_config/user_settings.html:6
+#: templates/creme_config/user_settings.html:5
 msgid "View your settings"
 msgstr "Voir vos réglages"
 
-#: templates/creme_config/user_settings.html:21
+#: templates/creme_config/user_settings.html:20
 msgid "View and edit your Creme settings"
 msgstr "Voir et éditer vos réglages Creme"
 
@@ -951,7 +964,7 @@ msgstr "%s Équipe"
 msgid "%s Teams"
 msgstr "%s Équipes"
 
-#: templates/creme_config/templatetags/block_teams.html:11 views/user.py:47
+#: templates/creme_config/templatetags/block_teams.html:11 views/user.py:49
 msgid "New team"
 msgstr "Nouvelle équipe"
 
@@ -1029,16 +1042,16 @@ msgstr "Pas d'application administrée"
 msgid "No creation credential"
 msgstr "Pas de droit de création"
 
-#: templates/creme_config/templatetags/block_user_roles.html:33
+#: templates/creme_config/templatetags/block_user_roles.html:34
 msgid "No credential"
 msgstr "Aucun droit"
 
-#: templates/creme_config/templatetags/block_user_roles.html:35
 #: templates/creme_config/templatetags/block_user_roles.html:36
+#: templates/creme_config/templatetags/block_user_roles.html:37
 msgid "New credentials"
 msgstr "Nouveaux droits"
 
-#: templates/creme_config/templatetags/block_user_roles.html:47
+#: templates/creme_config/templatetags/block_user_roles.html:48
 msgid "No role for the moment"
 msgstr "Aucun rôle pour le moment"
 
@@ -1052,7 +1065,7 @@ msgstr "%s Utilisateur"
 msgid "%s Users"
 msgstr "%s Utilisateurs"
 
-#: templates/creme_config/templatetags/block_users.html:11 views/user.py:42
+#: templates/creme_config/templatetags/block_users.html:11 views/user.py:44
 msgid "New user"
 msgstr "Nouvel utilisateur"
 
@@ -1132,20 +1145,20 @@ msgstr "Éditer le type \"%s\""
 msgid "Edit \"%s\""
 msgstr "Éditer \"%s\""
 
-#: views/user.py:37
+#: views/user.py:39
 #, python-format
 msgid "Change password for <%s>"
 msgstr "Changer le mot de passe pour <%s>"
 
-#: views/user.py:94
+#: views/user.py:115
 msgid "You can't delete the last user."
 msgstr "Vous ne pouvez pas supprimer le dernier utilisateur."
 
-#: views/user.py:97
+#: views/user.py:118
 msgid "You have to select a team."
 msgstr "Vous devez choisir une équipe."
 
-#: views/user.py:99
+#: views/user.py:120
 #, python-format
 msgid "Delete %s and assign his files to user"
 msgstr "Supprimer %s et réassigner ses fiches"

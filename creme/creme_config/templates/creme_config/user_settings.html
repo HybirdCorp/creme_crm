@@ -1,6 +1,5 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
-{% load media %}
 {% load creme_core_tags creme_block creme_config_tags %}
 
 {% block page_title %} - {% trans "View your settings" %}{% endblock %}
@@ -16,7 +15,7 @@
 {% block content %}
     <table class="table_header" cellpadding="0" cellspacing="0">
         <tr>
-            <td width="5%"><img src="{% media_url 'images/config_64.png' %}" alt="{% trans "Configuration" %}"/></td>
+            <td width="5%"><img src="{% creme_media_url 'images/config_64.png' %}" alt="{% trans "Configuration" %}"/></td>
             <td width="70%">
                 <h1>{% trans "View and edit your Creme settings" %}</h1>
             </td>
@@ -24,6 +23,12 @@
         </tr>
     </table>
     <div class=zone_spacer_5px></div>
+
+    <div class="theme_picker">
+        <form action="/creme_config/user/edit/theme/" method="POST">
+            <span>{% csrf_token %}{{ themes_form }}</span>
+        </form>
+    </div>
 
     {% import_block from_app 'creme_config' named 'user_prefered_menus' as 'prefered_menus_block' %}
     {% import_block from_app 'creme_config' named 'blocks_mypage_locations' as 'blocks_mypage_locations_block' %}

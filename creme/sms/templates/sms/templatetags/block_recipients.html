@@ -1,9 +1,8 @@
 {% load i18n %}
-{% load media %}
-{% load creme_core_tags %}{% load creme_block %}
+{% load creme_core_tags creme_block %}
 {% load sms_tags %}
 {% has_perm_to change object as has_perm %}
-<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
+<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=2 %}
         <th class="collapser label">{% get_block_title _('%s Unlinked recipient') _('%s Unlinked recipients') %}</th>
         <th class="actions">
@@ -11,12 +10,12 @@
                 {% get_line_adder at_url '/sms/messaging_list/{{object.pk}}/recipient/add' with_label _("Add manually") with_perms has_perm %}
                 {% if has_perm %}
                     <a class="add" onclick="creme.utils.iframeInnerPopup('/sms/messaging_list/{{object.pk}}/recipient/add_csv');">
-                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Add from a CSV file" %}" alt="{% trans "Add from a CSV file" %}" />
+                        <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{% trans "Add from a CSV file" %}" alt="{% trans "Add from a CSV file" %}" />
                         {% trans "Add from a CSV file" %}
                     </a>
                 {% else %}
                     <span class="add forbidden">
-                        <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />
+                        <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />
                         {% trans "Add from a CSV file" %}
                     </span>
                 {% endif %}

@@ -1,5 +1,5 @@
 /* jQuery Image Magnify script v1.0
-* Last updated: July 13th, 2009. This notice must stay intact for usage 
+* Last updated: July 13th, 2009. This notice must stay intact for usage
 * Author: Dynamic Drive at http://www.dynamicdrive.com/
 * Visit http://www.dynamicdrive.com/ for full source code
 */
@@ -12,7 +12,7 @@ jQuery.imageMagnifier={
 		duration: 500, //default duration of animation, in millisec
 		imgopacity: 0.2 //opacify of original image when enlarged image overlays it
  	},
-	cursorcss: 'url(' + media_url("images/magnify.cur") + '), -moz-zoom-in', //Value for CSS's 'cursor' attribute, added to original image
+	cursorcss: 'url(' + creme_media_url("images/magnify.cur") + '), -moz-zoom-in', //Value for CSS's 'cursor' attribute, added to original image
 	zIndexcounter: 1100,
 	imgshells: [],
 
@@ -24,7 +24,7 @@ jQuery.imageMagnifier={
 		warpshell.newattrs.x=winattrs.x+winattrs.w/2-warpshell.newattrs.w/2
 		warpshell.newattrs.y=winattrs.y+winattrs.h/2-warpshell.newattrs.h/2
 		if (warpshell.newattrs.x<winattrs.x+5){ //no space to the left?
-			warpshell.newattrs.x=winattrs.x+5	
+			warpshell.newattrs.x=winattrs.x+5
 		}
 		else if (warpshell.newattrs.x+warpshell.newattrs.w > winattrs.x+winattrs.w){//no space to the right?
 			warpshell.newattrs.x=winattrs.x+5
@@ -52,7 +52,7 @@ jQuery.imageMagnifier={
 			$clone.stop().css({zIndex:++jQuery.imageMagnifier.zIndexcounter, left:imageinfo.attrs.x, top:imageinfo.attrs.y, width:imageinfo.attrs.w, height:imageinfo.attrs.h, opacity:0, visibility:'visible'})
 			.animate({opacity:1, left:imageinfo.newattrs.x, top:imageinfo.newattrs.y, width:imageinfo.newattrs.w, height:imageinfo.newattrs.h}, setting.duration,
 			function(){ //callback function after warping is complete
-				//none added		
+				//none added
 			}) //end animate
 		}) //end click
 		$clone.click(function(e){ //action when magnified image is clicked on

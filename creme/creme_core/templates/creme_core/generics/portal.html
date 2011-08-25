@@ -1,7 +1,6 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
-{% load media %}
-{% load creme_block %}
+{% load creme_block creme_core_tags %}
 
 {% block extrahead %}
     <script>
@@ -22,7 +21,7 @@
                 {% block header_link %}
                     <a href="{% block list_url %}{% endblock %}">
                         {% block list_msg %}{% endblock %}
-                        <img src="{% media_url 'images/right_arrow_64.png' %}" title="{% trans "Go to the list" %}" alt="{% trans "Go to the list" %}"/>
+                        <img src="{% creme_media_url 'images/right_arrow_64.png' %}" title="{% trans "Go to the list" %}" alt="{% trans "Go to the list" %}"/>
                     </a>
                 {% endblock %}
             </td>
@@ -35,12 +34,12 @@
                 <li>
                     {% if can_admin %}
                         <a class="menu_button" href="{{config_url}}">
-                            <img src="{% media_url 'images/config_32.png' %}" border="0" title="{% trans "Configure" %}" alt="{% trans "Configure" %}" />
+                            <img src="{% creme_media_url 'images/config_32.png' %}" border="0" title="{% trans "Configure" %}" alt="{% trans "Configure" %}" />
                             {% trans "Configure" %}
                         </a>
                     {% else %}
                         <span class="menu_button forbidden" title="{% trans "forbidden" %}">
-                            <img src="{% media_url 'images/config_32.png' %}" border="0" title="{% trans "Configure" %}" alt="{% trans "Configure" %}" />
+                            <img src="{% creme_media_url 'images/config_32.png' %}" border="0" title="{% trans "Configure" %}" alt="{% trans "Configure" %}" />
                             {% trans "Configure" %}
                         </span>
                     {% endif %}

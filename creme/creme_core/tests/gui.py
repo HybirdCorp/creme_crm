@@ -4,24 +4,26 @@ from time import sleep
 
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
-from activities.models.activity import Meeting, Activity
 
 from creme_core.models import *
 from creme_core.gui.listview import get_field_name_from_pattern
 from creme_core.gui.last_viewed import LastViewedItem
 from creme_core.gui.bulk_update import BulkUpdateRegistry
+from creme_core.gui import block
 from creme_core.tests.base import CremeTestCase
 
 from persons.models import Contact
 from persons.models.organisation import Organisation
 
+from activities.models import Meeting, Activity
 
-__all__ = ('GuiTestCase', 'ListViewStateTestCase')
+
+__all__ = ('GuiTestCase', 'ListViewStateTestCase', 'BlockTestCase')
 
 
 class GuiTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('creme_core')
+        self.populate('creme_core', 'creme_config')
         self.bulk_update_registry = BulkUpdateRegistry()
 
     def test_last_viewed_items(self):
@@ -86,7 +88,6 @@ class GuiTestCase(CremeTestCase):
 
         self.assertEqual(bulk_update_registry.get_excluded_fields(Contact), set(contact_excluded_fields) | set(ce_excluded_fields))
 
-
     def test_bulk_update_registry02(self):
         bulk_update_registry = self.bulk_update_registry
 
@@ -132,13 +133,11 @@ class GuiTestCase(CremeTestCase):
 
     def test_bulk_update_registry04(self):
         bulk_update_registry = self.bulk_update_registry
-
-        ce_excluded_fields       = ['created']
+        ce_excluded_fields = ['created']
 
         bulk_update_registry.register(
                                         (CremeEntity,  ce_excluded_fields),
                                      )
-
         self.assertEqual(bulk_update_registry.get_excluded_fields(Contact), set(ce_excluded_fields))
 
 
@@ -152,3 +151,131 @@ class ListViewStateTestCase(CremeTestCase):
         self.assertEqual('foo__bar',       get_field_name_from_pattern('foo__bar'))
         self.assertEqual('foo',            get_field_name_from_pattern('foo'))
         self.assertEqual('foo',            get_field_name_from_pattern('foo__isnull'))
+
+
+class BlockTestCase(CremeTestCase):
+    def test_get_compatible_blocks(self):
+        class FoobarBlock1(block.Block):
+            id_           = block.Block.generate_id('creme_core', 'test_get_compatible_blocks_1')
+            verbose_name  = u'Testing purpose'
+
+            def detailview_display(self, context):
+                return self._render(self.get_block_template_context(context))
+
+        class FoobarBlock2(block.Block):
+            id_           = block.Block.generate_id('creme_core', 'test_get_compatible_blocks_2')
+            verbose_name  = u'Testing purpose'
+            target_ctypes = (Contact, Organisation)
+
+            def detailview_display(self, context):
+                return self._render(self.get_block_template_context(context))
+
+        class FoobarBlock3(block.Block):
+            id_           = block.Block.generate_id('creme_core', 'test_get_compatible_blocks_3')
+            verbose_name  = u'Testing purpose'
+
+            target_ctypes = (Organisation,) #No contact
+
+            def detailview_display(self, context):
+                return self._render(self.get_block_template_context(context))
+
+        class FoobarBlock4(block.Block):
+            id_           = block.Block.generate_id('creme_core', 'test_get_compatible_blocks_4')
+            verbose_name  = u'Testing purpose'
+            configurable  = False # <------
+
+            def detailview_display(self, context):
+                return self._render(self.get_block_template_context(context))
+
+        #TODO
+        #class FoobarBlock5(block.Block): #No detailview_display()
+            #id_           = block.Block.generate_id('creme_core', 'test_edit_portal02_5')
+            #verbose_name  = u'Testing purpose'
+
+            #def portal_display(self, context, ct_ids):
+                #return '<table id="%s"></table>' % self.id_
+
+            #def home_display(self, context):
+                #return '<table id="%s"></table>' % self.id_
+
+        block_registry = block._BlockRegistry()
+
+        foobar_block1 = FoobarBlock1()
+        foobar_block2 = FoobarBlock2()
+        block_registry.register(foobar_block1, foobar_block2, FoobarBlock3(), FoobarBlock4())
+
+        blocks = list(block_registry.get_compatible_blocks(Contact))
+        self.assertEqual([foobar_block1, foobar_block2], blocks)
+
+    def test_get_compatible_portal_blocks01(self):
+        class FoobarBlock1(block.Block):
+            id_           = block.Block.generate_id('creme_config', 'test_get_compatible_portal_blocks01_1')
+            verbose_name  = u'Testing purpose'
+
+            ##NB: only portal_display() method
+            #def detailview_display(self, context): return self._render(self.get_block_template_context(context))
+            #def home_display(self, context): return '<table id="%s"></table>' % self.id_
+
+            def portal_display(self, context, ct_ids):
+                return '<table id="%s"></table>' % self.id_
+
+        class FoobarBlock2(block.Block):
+            id_           = block.Block.generate_id('creme_config', 'test_get_compatible_portal_blocks01_2')
+            verbose_name  = u'Testing purpose'
+            configurable  = False # <----
+
+            def portal_display(self, context, ct_ids):
+                return '<table id="%s"></table>' % self.id_
+
+        class FoobarBlock3(block.Block):
+            id_           = block.Block.generate_id('creme_config', 'test_get_compatible_portal_blocks01_3')
+            verbose_name  = u'Testing purpose'
+
+            #def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
+            def home_display(self, context):
+                return '<table id="%s"></table>' % self.id_
+
+        block_registry = block._BlockRegistry()
+
+        foobar_block1 = FoobarBlock1()
+        foobar_block2 = FoobarBlock2()
+        block_registry.register(foobar_block1, FoobarBlock2(), FoobarBlock3())
+
+        blocks = list(block_registry.get_compatible_portal_blocks('persons'))
+        self.assertEqual([foobar_block1], blocks)
+
+    def test_get_compatible_portal_blocks02(self): #home
+        class FoobarBlock1(block.Block):
+            id_           = block.Block.generate_id('creme_config', 'test_get_compatible_portal_blocks02_1')
+            verbose_name  = u'Testing purpose'
+
+            ##NB: only home_display() method
+            #def detailview_display(self, context): return self._render(self.get_block_template_context(context))
+            #def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
+            def home_display(self, context):
+                return '<table id="%s"></table>' % self.id_
+
+        class FoobarBlock2(block.Block):
+            id_           = block.Block.generate_id('creme_config', 'test_get_compatible_portal_blocks02_2')
+            verbose_name  = u'Testing purpose'
+            configurable  = False # <----
+
+            def home_display(self, context):
+                return '<table id="%s"></table>' % self.id_
+
+        class FoobarBlock3(block.Block):
+            id_           = block.Block.generate_id('creme_config', 'test_get_compatible_portal_blocks02_3')
+            verbose_name  = u'Testing purpose'
+
+            #def home_display(self, context): return '<table id="%s"></table>' % self.id_
+            def portal_display(self, context, ct_ids):
+                return '<table id="%s"></table>' % self.id_
+
+        block_registry = block._BlockRegistry()
+
+        foobar_block1 = FoobarBlock1()
+        foobar_block2 = FoobarBlock2()
+        block_registry.register(foobar_block1, FoobarBlock2(), FoobarBlock3())
+
+        blocks = list(block_registry.get_compatible_portal_blocks('creme_core'))
+        self.assertEqual([foobar_block1], blocks)

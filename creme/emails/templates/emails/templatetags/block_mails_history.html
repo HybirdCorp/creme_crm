@@ -1,24 +1,23 @@
 {% load i18n %}
-{% load media %}
-{% load creme_core_tags %}{% load creme_block %}
+{% load creme_core_tags creme_block %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=6 %}
         <th class="collapser label">{% get_block_title _("%s Email in the history") _("%s Emails in the history") 'email_48.png' _('Emails') %}</th>
         <th class="actions">
             <div class="buttons">
                 <a class="add" onclick="creme.utils.innerPopupNReload('/emails/mail/add/{{object.pk}}', {% get_block_reload_uri %});">
-                    <img src="{% media_url 'images/add_22.png' %}" border="0" title="{% trans "Send a new mail related to this file" %}" alt="{% trans "Send a new mail related to this file" %}" />
+                    <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{% trans "Send a new mail related to this file" %}" alt="{% trans "Send a new mail related to this file" %}" />
                     {% trans "Send a new mail related to this file" %}
                 </a>
                 {% has_perm_to link object as object_link_perm %}
                 {% if object_link_perm %}
                     <a class="link" onclick="creme.utils.innerPopupNReload('/creme_core/relation/add_to_entities/{{entity_email_ct_id}}/{{rtypes}}/?ids={{ object.id }}&persist=ids', {% get_block_reload_uri %});">
-                        <img src="{% media_url 'images/link_22.png' %}" border="0" title="{% trans "Link to" %}" alt="{% trans "Link to" %}" />
+                        <img src="{% creme_media_url 'images/link_22.png' %}" border="0" title="{% trans "Link to" %}" alt="{% trans "Link to" %}" />
                         {% trans "Link to an existing email" %}
                     </a>
                 {% else %}
                     <a class="link forbidden" title="{% trans "forbidden" %}">
-                        <img src="{% media_url 'images/link_22.png' %}" border="0" title="{% trans "Link to" %}" alt="{% trans "Link to" %}" />
+                        <img src="{% creme_media_url 'images/link_22.png' %}" border="0" title="{% trans "Link to" %}" alt="{% trans "Link to" %}" />
                         {% trans "Link to an existing email" %}
                     </a>
                 {% endif %}
@@ -44,7 +43,7 @@
                     <td class="{{row_color}}">{% print_field object=mail field='sending_date' %}</td>
                     <td class="{{row_color}} action">
                         <a class="button_link" onclick="creme.utils.showInnerPopup('/emails/mail/{{mail.pk}}/popup');">
-                            <img src="{% media_url 'images/view_22.png' %}" border="0" title="{% trans "Details" %}" alt="{% trans "Details" %}" />
+                            <img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{% trans "Details" %}" alt="{% trans "Details" %}" />
                         </a>
                         {% if mail.status != sent_status %}
                             <a class="button_link"
@@ -53,7 +52,7 @@
                                 {% else %}
                                     onclick="creme.emails.resend('/emails/mail/resend', ['{{mail.pk}}'], {% get_block_reload_uri %});">
                                 {% endif %}
-                                <img src="{% media_url 'images/refresh_22.png' %}" border="0" title="{% trans "Re-send" %}" alt="{% trans "Re-send" %}" />
+                                <img src="{% creme_media_url 'images/refresh_22.png' %}" border="0" title="{% trans "Re-send" %}" alt="{% trans "Re-send" %}" />
                             </a>
                         {% endif %}
                     </td>

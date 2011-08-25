@@ -1,6 +1,5 @@
 {% load i18n %}
-{% load media %}
-{% load creme_core_tags %}{% load creme_widgets %}{% load creme_listview %}
+{% load creme_core_tags creme_widgets creme_listview %}
 
 {% with header_filters.selected.items as columns %}
 
@@ -23,6 +22,19 @@
     <thead>
         <tr class="title">
             <th colspan="{{colspan}}"><h2>{{list_title}}</h2></th>
+            {% comment %}
+            <th colspan="{{colspan}}" class="title">
+                <div>
+                    <h2 style="display:inline-block;">{{list_title}}</h2>
+                    <div class="filters column-filter" style="display:inline-block;">
+                        {% get_listview_headerfilters %}
+                    </div>
+                    <div class="filters line-filter" style="display:inline-block;">
+                        {% get_listview_entity_filters %}
+                    </div>
+                </div>
+            </th>
+            {% endcomment %}
         </tr>
         {% if list_sub_title %}
             <tr class="sub_title">
@@ -51,19 +63,19 @@
                 {% if not is_popup_view %}
                     {% has_perm_to create model as creation_perm %}
                     {% if add_url and creation_perm %}
-                        <a href="{{add_url}}"><img border="0" src="{% media_url 'images/add_22.png' %}" alt="{% trans "New" %}" title="{% trans "New" %}"/>{% trans "New" %}</a>
+                        <a href="{{add_url}}"><img border="0" src="{% creme_media_url 'images/add_22.png' %}" alt="{% trans "New" %}" title="{% trans "New" %}"/>{% trans "New" %}</a>
                     {% endif %}
                     <a href="/creme_core/list_view/dl_csv/{{content_type_id}}?list_url={{request.path}}">
-                        <img border="0" src="{% media_url 'images/document_csv_22.png' %}" alt="{% trans "Download CSV" %}" title="{% trans "Download CSV" %}"/>{% trans "Download CSV" %}
+                        <img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{% trans "Download CSV" %}" title="{% trans "Download CSV" %}"/>{% trans "Download CSV" %}
                     </a>&nbsp;
                     {% if creation_perm %}
                         <a href="/creme_core/list_view/import_csv/{{content_type_id}}?list_url={{request.path}}">
-                            <img border="0" src="{% media_url 'images/document_csv_22.png' %}" alt="{% trans "Import CSV" %}" title="{% trans "Import CSV" %}"/>{% trans "Import CSV" %}
+                            <img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{% trans "Import CSV" %}" title="{% trans "Import CSV" %}"/>{% trans "Import CSV" %}
                         </a>&nbsp;
                     {% endif %}
                 {% endif %}
-                <button  value="0" type="button" name="_search"{% if not search %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %}>{% trans "Clean the search" %}</button>
-                <button  value="1" type="button" name="_search" onclick="$(this.form).list_view('getSubmit')(this);"><img border="0" src="{% media_url 'images/looking_glass_22.png' %}" alt="{% trans "Research" %}" title="{% trans "Research" %}"/>{% trans "Research" %}</button>
+                <button class="clear-search" value="0" type="button" name="_search"{% if not search %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %}>{% trans "Clean the search" %}</button>
+                <button class="do-search"    value="1" type="button" name="_search" onclick="$(this.form).list_view('getSubmit')(this);"><img border="0" src="{% creme_media_url 'images/looking_glass_22.png' %}" alt="{% trans "Research" %}" title="{% trans "Research" %}"/>{% trans "Research" %}</button>
                 {% block extra_buttons %}{% endblock %}
                 {% if extra_bt_templates|isiterable %}
                     {% for templ in extra_bt_templates %}

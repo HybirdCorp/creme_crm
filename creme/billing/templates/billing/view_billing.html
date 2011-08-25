@@ -1,6 +1,6 @@
 {% extends "creme_core/generics/view_entity.html" %}
 {% load i18n %}
-{% load media %}
+{% load creme_core_tags %}
 {% comment %} {% load creme_block %} {% endcomment %}
 
 {% comment %}{% block creme_blocks_import %}
@@ -17,7 +17,7 @@
 {% block entity_buttons %}
     {% if can_download %}
         <a href="/billing/generate_pdf/{{object.id}}" onclick="creme._export.select_one(event, this);">
-            <img src="{% media_url 'images/download_64.png' %}" title="{% blocktrans %}Download '{{object}}' to the desired format{% endblocktrans %}" alt="{% blocktrans %}Download '{{object}}' to the desired format{% endblocktrans %}" />
+            <img src="{% creme_media_url 'images/download_64.png' %}" title="{% blocktrans %}Download '{{object}}' to the desired format{% endblocktrans %}" alt="{% blocktrans %}Download '{{object}}' to the desired format{% endblocktrans %}" />
         </a>
     {% endif %}
     {{block.super}}

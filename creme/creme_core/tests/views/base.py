@@ -40,6 +40,9 @@ class ViewsTestCase(CremeTestCase):
 
 
 class MiscViewsTestCase(ViewsTestCase):
+    def setUp(self):
+        self.populate('creme_core', 'creme_config', 'persons')
+
     def test_home(self): #TODO: improve test
         self.login()
         self.assertEqual(200, self.client.get('/').status_code)
@@ -80,6 +83,6 @@ class MiscViewsTestCase(ViewsTestCase):
 
         response = self.client.get('/creme_core/list_view/dl_csv/%s' % ct.id, data={'list_url': lv_url})
         self.assertEqual(200, response.status_code)
-        self.assertEqual(['"Last name","First name"', '"Black","Jet"', '"Spiegel","Spike"', '"Valentine","Faye"', '"Wong","Edward"'],
+        self.assertEqual(['"Last name","First name"', '"Black","Jet"', '"Creme","Fulbert"', '"Spiegel","Spike"', '"Valentine","Faye"', '"Wong","Edward"'],
                          response.content.splitlines()
                         )
