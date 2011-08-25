@@ -24,6 +24,7 @@ from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from creme_config.models.setting import SettingKey, SettingValue
 
 from creme_core.models import (RelationType, BlockDetailviewLocation, BlockPortalLocation,
                                ButtonMenuItem, SearchConfigItem, HeaderFilterItem, HeaderFilter) #BlockConfigItem
@@ -124,3 +125,9 @@ class Populator(BasePopulator):
 
         for user in User.objects.all():
             Calendar.get_user_default_calendar(user)
+
+        sk = SettingKey.create(pk=DISPLAY_REVIEW_ACTIVITIES_BLOCKS,
+                               description=_(u"Display minutes information in activities blocks"),
+                               app_label='activities', type=SettingKey.BOOL
+                              )
+        SettingValue.objects.create(key=sk, user=None, value=True)

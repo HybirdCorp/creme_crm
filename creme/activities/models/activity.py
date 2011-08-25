@@ -18,15 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
 from datetime import datetime
 
-from django.db.models import CharField, IntegerField, TimeField, DateTimeField, TextField, ForeignKey, BooleanField, PositiveIntegerField
-from django.contrib.auth.models import User
+from django.db.models import CharField, IntegerField, DateTimeField, TextField, ForeignKey, BooleanField, PositiveIntegerField
 from django.db.models.fields.related import ManyToManyField
 from django.utils.translation import ugettext_lazy as _
+from creme_config.models.setting import SettingValue
 
-from creme_core.models import CremeEntity, CremeModel, Relation
+from creme_core.models import CremeEntity, CremeModel
 from creme_core.models.fields import DurationField, CremeUserForeignKey
 
 from activities.constants import *
@@ -189,7 +188,7 @@ END:VEVENT
     @staticmethod
     def _get_linked_aux(entity):
         types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
-        return Activity.objects.filter(relations__object_entity=entity, relations__type__in=types)
+        return Activity.objects.filter(relations__object_entity=entity, relations__type__in=types).distinct()
 
     @staticmethod
     def _get_linked_for_ctypes_aux(ct_ids):
@@ -221,6 +220,22 @@ END:VEVENT
         #TODO: Explicit this into description ? Move the activity to another time-slot ?
         if source.busy:
             self.busy = False
+
+    @staticmethod
+    def display_review():
+        return SettingValue.objects.get(key=DISPLAY_REVIEW_ACTIVITIES_BLOCKS).value
+
+    def count_lines_display_block(self):
+        total=1
+        if self.get_subject_relations():
+            total += 1
+        if self.get_participant_relations():
+            total += 1
+        if self.get_linkedto_relations():
+            total += 1
+        if Activity.display_review():
+            total += 1
+        return total
 
 class Meeting(Activity):
     place = CharField(_(u'Meeting place'), max_length=100, blank=True, null=True)

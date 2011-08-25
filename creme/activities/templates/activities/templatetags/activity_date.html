@@ -1,8 +1,15 @@
 {% load i18n %}
-{%  if activity.start.day != activity.end.day %}
-     {% trans "Begin" %} {{ activity.start|date:"SHORT_DATE_FORMAT" }}, {{ activity.start|date:"H:i" }}<br />
-      {% trans "End" %} {{ activity.end|date:"SHORT_DATE_FORMAT" }}, {{ activity.end|date:"H:i" }}
-{% else %}
-     {% trans "The" %} {{ activity.start|date:"SHORT_DATE_FORMAT" }}<br />
-     {% trans "begin" %} {{ activity.start|date:"H:i" }} {% trans "to" %} {{ activity.end|date:"H:i" }}
-{% endif %}
+{% with activity.start|date:"SHORT_DATE_FORMAT" as start_date %}
+{% with activity.end|date:"SHORT_DATE_FORMAT" as end_date %}
+{% with activity.start|date:"H:i" as start_hour %}
+{% with activity.end|date:"H:i" as end_hour %}
+    {%  if activity.start.day != activity.end.day %}
+        {% blocktrans %}Begin {{start_date}}, {{start_hour}}<br />
+        End {{end_date}}, {{end_hour}}{% endblocktrans %}
+    {% else %}
+        {% blocktrans %}The {{start_date}} at {{start_hour}}{% endblocktrans %}
+    {% endif %}
+{% endwith %}
+{% endwith %}
+{% endwith %}
+{% endwith %}

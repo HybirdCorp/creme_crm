@@ -19,19 +19,19 @@
 ################################################################################
 
 from functools import partial
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from logging import debug
 
 from django.forms import IntegerField, BooleanField, ModelChoiceField, ModelMultipleChoiceField
+from django.forms.fields import ChoiceField
 from django.forms.util import ValidationError, ErrorList
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.db.models import Q
 from django.contrib.auth.models import User
 from activities.models.activity import ActivityType
 
-from creme_core.models import Relation, RelationType
+from creme_core.models import Relation
 from creme_core.forms import CremeForm, CremeEntityForm
-from creme_core.forms.fields import CremeDateTimeField, CremeTimeField, MultiCremeEntityField, MultiGenericEntityField
+from creme_core.forms.fields import CremeDateTimeField, CremeTimeField, MultiCremeEntityField, MultiGenericEntityField, CremeDateField
 from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme_core.forms.validators import validate_linkable_entities, validate_linkable_entity
 
@@ -43,6 +43,11 @@ from activities.models import Activity, Calendar
 from activities.constants import *
 from activities.utils import check_activity_collisions
 
+MINUTE  = '1'
+HOUR    = '2'
+DAY     = '3'
+WEEK    = '4'
+UNITY_TAB = [(MINUTE, _(u'Minute')), (HOUR, _(u'Hour')), (DAY, _(u'Day',)), (WEEK, _(u'Week'))]
 
 def _clean_interval(cleaned_data):
     if cleaned_data.get('is_all_day'):
@@ -144,14 +149,19 @@ class ActivityCreateForm(CremeEntityForm):
     subjects            = MultiGenericEntityField(label=_(u'Subjects'), required=False)
     linked_entities     = MultiGenericEntityField(label=_(u'Entities linked to this activity'), required=False)
 
-    generate_alert   = BooleanField(label=_(u"Do you want to generate an alert or a reminder ?"), required=False)
-    alert_day        = CremeDateTimeField(label=_(u"Alert day"), required=False)
-    alert_start_time = CremeTimeField(label=_(u"Alert time"), required=False)
+    generate_datetime_alert = BooleanField(label=_(u"Do you want to generate an alert on a specific date ?"), required=False)
+    alert_day               = CremeDateTimeField(label=_(u"Alert day"), required=False)
+    alert_start_time        = CremeTimeField(label=_(u"Alert time"), required=False)
+
+    generate_period_alert   = BooleanField(label=_(u"Do you want to generate an alert in a while ?"), required=False)
+    alert_trigger_number    = IntegerField(label=_(u"Value"), required=False)
+    unity                   = ChoiceField(label=_(u"Unity"), choices=UNITY_TAB, required=False)
 
     blocks = CremeEntityForm.blocks.new(
                 ('datetime',       _(u'When'),                   ['start', 'start_time', 'end_time', 'is_all_day']),
                 ('participants',   _(u'Participants'),           ['my_participation', 'my_calendar', 'participating_users', 'other_participants', 'subjects', 'linked_entities']),
-                ('alert_datetime', _(u'Generate an alert or a reminder'), ['generate_alert', 'alert_day', 'alert_start_time']),
+                ('alert_datetime', _(u'Generate an alert on a specific date'),  ['generate_datetime_alert', 'alert_day', 'alert_start_time']),
+                ('alert_period',   _(u'Generate an alert in a while'),['generate_period_alert', 'alert_trigger_number', 'unity']),
             )
 
     def __init__(self, *args, **kwargs):
@@ -251,10 +261,17 @@ class ActivityCreateForm(CremeEntityForm):
 
         return instance
 
+    _TIME_DELTA = {
+            MINUTE: 'minutes',
+            HOUR:   'hours',
+            DAY:    'days',
+            WEEK:   'weeks',
+        }
+
     def _generate_alert(self):
         cleaned_data = self.cleaned_data
 
-        if cleaned_data['generate_alert']:
+        if cleaned_data['generate_datetime_alert']:
             activity = self.instance
 
             alert_start_time = cleaned_data.get('alert_start_time') or time()
@@ -262,6 +279,18 @@ class ActivityCreateForm(CremeEntityForm):
 
             Alert.objects.create(user=activity.user,
                                  trigger_date=alert_day.replace(hour=alert_start_time.hour, minute=alert_start_time.minute),
+                                 creme_entity=activity,
+                                 title=ugettext(u"Alert of activity"),
+                                 description=ugettext(u'Alert related to %s') % activity,
+                                )
+            
+        if cleaned_data['generate_period_alert']:
+            activity = self.instance
+            unity = cleaned_data['unity']
+            value = cleaned_data['alert_trigger_number'] or 0
+
+            Alert.objects.create(user=activity.user,
+                                 trigger_date=datetime.today() + timedelta(**{self._TIME_DELTA[unity]: value}),
                                  creme_entity=activity,
                                  title=ugettext(u"Alert of activity"),
                                  description=ugettext(u'Alert related to %s') % activity,
