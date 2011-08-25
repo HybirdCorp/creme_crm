@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
+{% load creme_core_tags creme_block creme_widgets %}
 <table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=7 %}
         <th class="collapser label">{% get_block_title _('%s Alert') _('%s Alerts') 'bell_48.png' _('Alert') %}</th>
@@ -32,7 +32,7 @@
                         <td class="{{row_color}}">{% widget_entity_hyperlink alert.creme_entity user %}</td>
                     {% endif %}
                     <td class="{{row_color}}">{% print_field object=alert field='user' %}</td>
-                    <td class="{{row_color}}">{% print_field object=alert field='trigger_date' %}</td>
+                    <td class="{% if alert.trigger_date >= today %}td_valid{% else %}td_error{% endif %}">{% print_field object=alert field='trigger_date' %}</td>
                     <td class="{{row_color}}"><em>{% print_field object=alert field='description' %}</em></td>
                     <td class="{{row_color}} action">
                         {% if has_perm %}
