@@ -24,7 +24,7 @@ from creme_core.registry import creme_registry
 from creme_core.gui import creme_menu, button_registry, block_registry, icon_registry, bulk_update_registry
 
 from billing.models import Invoice, Quote, SalesOrder, CreditNote, Base, TemplateBase, Line, ServiceLine, ProductLine
-from billing.blocks import block_list
+from billing.blocks import block_list, information_billing_block
 from billing.buttons import generate_invoice_number_button
 
 
@@ -44,6 +44,10 @@ reg_item('/billing/credit_note',     _(u'All credit notes'),  'billing')
 reg_item('/billing/lines',           _(u'All lines'),         'billing')
 reg_item('/billing/product_lines',   _(u'All product lines'), 'billing')
 reg_item('/billing/service_lines',   _(u'All service lines'), 'billing')
+
+block_registry.register_4_model(Quote, information_billing_block)
+block_registry.register_4_model(Invoice, information_billing_block)
+block_registry.register_4_model(SalesOrder, information_billing_block)
 
 block_registry.register(*block_list)
 button_registry.register(generate_invoice_number_button)

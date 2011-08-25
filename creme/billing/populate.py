@@ -45,10 +45,12 @@ class Populator(BasePopulator):
         billing_entities = [Invoice, Quote, SalesOrder, CreditNote, TemplateBase]
         line_entities = [Line, ProductLine, ServiceLine]
         RelationType.create((REL_SUB_BILL_ISSUED,   _(u"issued by"),    billing_entities),
-                            (REL_OBJ_BILL_ISSUED,   _(u"has issued"),   [Organisation])
+                            (REL_OBJ_BILL_ISSUED,   _(u"has issued"),   [Organisation]),
+                            is_internal=True
                            )
         RelationType.create((REL_SUB_BILL_RECEIVED, _(u"received by"),  billing_entities),
-                            (REL_OBJ_BILL_RECEIVED, _(u"has received"), [Organisation, Contact])
+                            (REL_OBJ_BILL_RECEIVED, _(u"has received"), [Organisation, Contact]),
+                            is_internal=True
                            )
         RelationType.create((REL_SUB_HAS_LINE, _(u"had the line"),   billing_entities),
                             (REL_OBJ_HAS_LINE, _(u"is the line of"), line_entities),

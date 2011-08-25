@@ -7,9 +7,11 @@ from django.db.models.query_utils import Q
 
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
+from billing.utils import round_to_2
 
-from creme_core.models import RelationType, Relation, CremePropertyType, CremeProperty, SetCredentials
+from creme_core.models import RelationType, Relation, CremePropertyType, CremeProperty, SetCredentials, Currency
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_HAS
+from creme_core.models.currency import Currency
 from creme_core.models.entity import CremeEntity
 from creme_core.tests.base import CremeTestCase
 
@@ -51,7 +53,8 @@ class BillingTestCase(CremeTestCase):
     def genericfield_format_entity(self, entity):
         return '{"ctype":"%s", "entity":"%s"}' % (entity.entity_type_id, entity.id)
 
-    def create_invoice(self, name, source, target):
+    def create_invoice(self, name, source, target, currency=None, discount=Decimal()):
+        currency = currency or Currency.objects.all()[0]
         response = self.client.post('/billing/invoice/add', follow=True,
                                     data={
                                             'user':            self.user.pk,
@@ -59,6 +62,8 @@ class BillingTestCase(CremeTestCase):
                                             'issuing_date':    '2010-9-7',
                                             'expiration_date': '2010-10-13',
                                             'status':          1,
+                                            'currency':        currency.id,
+                                            'discount':        discount,
                                             'source':          source.id,
                                             'target':          self.genericfield_format_entity(target),
                                             }
@@ -82,14 +87,16 @@ class BillingTestCase(CremeTestCase):
         self.assertEqual(self.client.get('/billing/invoice/add').status_code, 200)
 
         name = 'Invoice001'
+        currency = Currency.objects.all()[0]
         source = Organisation.objects.create(user=self.user, name='Source Orga')
         target = Organisation.objects.create(user=self.user, name='Target Orga')
 
         self.failIf(target.billing_address)
         self.failIf(target.shipping_address)
 
-        invoice = self.create_invoice(name, source, target)
+        invoice = self.create_invoice(name, source, target, currency)
         self.assertEqual(1, invoice.status_id)
+        self.assertEqual(currency, invoice.currency)
 
         exp_date = invoice.expiration_date
         self.assertEqual(2010, exp_date.year)
@@ -205,7 +212,7 @@ class BillingTestCase(CremeTestCase):
         #Test when not all relation with organisations exist
         invoice = Invoice.objects.create(user=self.user, name='invoice01',
                                          expiration_date=date(year=2010, month=12, day=31),
-                                         status_id=1, number='INV0001')
+                                         status_id=1, number='INV0001', currency_id=1)
 
         self.assertEqual(200, self.client.get('/billing/invoice/edit/%s' % invoice.id).status_code)
 
@@ -215,7 +222,7 @@ class BillingTestCase(CremeTestCase):
         #Test when not all relation with organisations exist
         invoice = Invoice.objects.create(user=self.user, name='invoice01',
                                          expiration_date=date(year=2010, month=12, day=31),
-                                         status_id=1, number='INV0001')
+                                         status_id=1, number='INV0001', currency_id=1)
 
         self.assertEqual(200, self.client.get('/billing/invoice/edit/%s' % invoice.id).status_code)
 
@@ -243,6 +250,7 @@ class BillingTestCase(CremeTestCase):
         source = create_orga(user=self.user, name='Source Orga 2')
         target = create_orga(user=self.user, name='Target Orga 2')
 
+        currency = Currency.objects.all()[0]
         response = self.client.post(url, follow=True,
                                     data={
                                             'user':            self.user.pk,
@@ -250,6 +258,9 @@ class BillingTestCase(CremeTestCase):
                                             'issuing_date':    '2010-9-7',
                                             'expiration_date': '2011-11-14',
                                             'status':          1,
+                                            'currency':        currency.pk,
+                                            'discount':        Decimal(),
+                                            'discount_unit':   1,
                                             'source':          source.id,
                                             'target':          self.genericfield_format_entity(target),
                                          }
@@ -293,6 +304,7 @@ class BillingTestCase(CremeTestCase):
                                             'quantity':     1,
                                             'unit_price':   unit_price,
                                             'discount':     Decimal(),
+                                            'discount_unit':1,
                                             'vat':          Decimal(),
                                             'credit':       Decimal(),
                                          }
@@ -327,6 +339,7 @@ class BillingTestCase(CremeTestCase):
                                             'quantity':        1,
                                             'unit_price':      unit_price,
                                             'discount':        Decimal(),
+                                            'discount_unit':   1,
                                             'vat':             Decimal(),
                                             'credit':          Decimal(),
                                          }
@@ -359,6 +372,7 @@ class BillingTestCase(CremeTestCase):
                                             'quantity':            1,
                                             'unit_price':          unit_price,
                                             'discount':            Decimal(),
+                                            'discount_unit':       1,
                                             'vat':                 Decimal(),
                                             'credit':              Decimal(),
                                             'has_to_register_as':  'on',
@@ -412,6 +426,7 @@ class BillingTestCase(CremeTestCase):
                                             'quantity':            1,
                                             'unit_price':          Decimal('1.0'),
                                             'discount':            Decimal(),
+                                            'discount_unit':       1,
                                             'vat':                 Decimal(),
                                             'credit':              Decimal(),
                                             'has_to_register_as':  'on',
@@ -477,6 +492,7 @@ class BillingTestCase(CremeTestCase):
                                                 'quantity':        quantity,
                                                 'unit_price':      unit_price,
                                                 'discount':        Decimal(),
+                                                'discount_unit':   1,
                                                 'vat':             Decimal(),
                                                 'credit':          Decimal(),
                                               }
@@ -514,6 +530,7 @@ class BillingTestCase(CremeTestCase):
                                             'quantity':     2,
                                             'unit_price':   unit_price,
                                             'discount':     Decimal(),
+                                            'discount_unit':1,
                                             'vat':          Decimal('19.6'),
                                             'credit':       Decimal(),
                                          }
@@ -542,6 +559,7 @@ class BillingTestCase(CremeTestCase):
                                                 'quantity':        2,
                                                 'unit_price':      unit_price,
                                                 'discount':        Decimal(),
+                                                'discount_unit':   1,
                                                 'vat':             Decimal('19.6'),
                                                 'credit':          Decimal(),
                                              }
@@ -573,6 +591,7 @@ class BillingTestCase(CremeTestCase):
                                             'quantity':           2,
                                             'unit_price':         unit_price,
                                             'discount':           Decimal(),
+                                            'discount_unit':      1,
                                             'vat':                Decimal('19.6'),
                                             'credit':             Decimal(),
                                             'has_to_register_as': 'on',
@@ -627,6 +646,7 @@ class BillingTestCase(CremeTestCase):
                                             'quantity':           2,
                                             'unit_price':         Decimal('1.33'),
                                             'discount':           Decimal(),
+                                            'discount_unit':      1,
                                             'vat':                Decimal('19.6'),
                                             'credit':             Decimal(),
                                             'has_to_register_as': 'on',
@@ -663,6 +683,7 @@ class BillingTestCase(CremeTestCase):
                                                 'quantity':        quantity,
                                                 'unit_price':      unit_price,
                                                 'discount':        Decimal(),
+                                                'discount_unit':   1,
                                                 'vat':             Decimal(),
                                                 'credit':          Decimal(),
                                               }
@@ -681,6 +702,7 @@ class BillingTestCase(CremeTestCase):
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
         self.failIf(invoice.number)
         self.assertEqual(1, invoice.status_id)
+        self.assertEqual(1, invoice.currency_id)
         issuing_date = invoice.issuing_date
         self.assert_(issuing_date)
 
@@ -713,7 +735,8 @@ class BillingTestCase(CremeTestCase):
         self.assert_(invoice.issuing_date)
         self.assertEqual(date.today(), invoice.issuing_date) #NB this test can fail if run at midnight...
 
-    def create_quote(self, name, source, target):
+    def create_quote(self, name, source, target, currency=None):
+        currency = currency or Currency.objects.all()[0]
         response = self.client.post('/billing/quote/add', follow=True,
                                     data={
                                             'user':            self.user.pk,
@@ -721,6 +744,8 @@ class BillingTestCase(CremeTestCase):
                                             'issuing_date':    '2011-3-15',
                                             'expiration_date': '2012-4-22',
                                             'status':          1,
+                                            'currency':        currency.id,
+                                            'discount':        Decimal(),
                                             'source':          source.id,
                                             'target':          self.genericfield_format_entity(target),
                                             }
@@ -781,6 +806,7 @@ class BillingTestCase(CremeTestCase):
         self.assertEqual(quote.discount,        invoice.discount)
         self.assertEqual(quote.total_vat,       invoice.total_vat)
         self.assertEqual(quote.total_no_vat,    invoice.total_no_vat)
+        self.assertEqual(quote.currency,        invoice.currency)
 
         rel_filter = Relation.objects.filter
         self.assertEqual(1, rel_filter(subject_entity=invoice, type=REL_SUB_BILL_ISSUED,   object_entity=source).count())
@@ -1073,6 +1099,7 @@ class BillingTestCase(CremeTestCase):
         pi_sony = PaymentInformation.objects.create(organisation=sony_source, name="RIB sony")
         self.assertEqual(200, self.client.get('/billing/payment_information/set_default/%s/%s' % (pi_sony.id, invoice.id)).status_code)
 
+        currency = Currency.objects.all()[0]
         response = self.client.post('/billing/invoice/edit/%s' % invoice.id, follow=True,
                                     data={
                                             'user':            self.user.pk,
@@ -1080,6 +1107,8 @@ class BillingTestCase(CremeTestCase):
                                             'issuing_date':    '2010-9-7',
                                             'expiration_date': '2010-10-13',
                                             'status':          1,
+                                            'currency':        currency.pk,
+                                            'discount':        Decimal(),
                                             'source':          sega.id,
                                             'target':          self.genericfield_format_entity(nintendo_target),
                                          }
@@ -1112,6 +1141,7 @@ class BillingTestCase(CremeTestCase):
 
         self.assertEqual(200, response.status_code)
 
+        currency = Currency.objects.all()[0]
         response = self.client.post(url, follow=True,
                                     data={
                                             'user':            self.user.pk,
@@ -1119,6 +1149,8 @@ class BillingTestCase(CremeTestCase):
                                             'issuing_date':    '2010-9-7',
                                             'expiration_date': '2010-10-13',
                                             'status':          1,
+                                            'currency':        currency.pk,
+                                            'discount':        Decimal(),
                                             'source':          source.id,
                                             'target':          self.genericfield_format_entity(target),
                                             }
@@ -1449,6 +1481,37 @@ class BillingTestCase(CremeTestCase):
         except Exception, e:
             #Works with Postgres with autocommit option enabled in settings
             self.fail("Exception:%s. Maybe the db doesn't support transaction ?" % e)
+
+    def test_discounts(self):
+        self.login()
+        create = Organisation.objects.create
+        source = create(user=self.user, name='Source Orga')
+        target = create(user=self.user, name='Target Orga')
+
+        invoice = self.create_invoice('Invoice0001', source, target, discount=10)
+
+        product_line = ProductLine.objects.create(user=self.user,
+                                                  unit_price=Decimal('1000.00'), quantity=2,
+                                                  credit=Decimal('50.00'), discount=Decimal('10.00'),
+                                                  discount_unit=PERCENT_PK, total_discount=False,
+                                                  vat=Decimal('19.60'))
+        service_line = ServiceLine.objects.create(user=self.user,
+                                                  unit_price=Decimal('20.00'), quantity=10,
+                                                  credit=Decimal('0.00'), discount=Decimal('100.00'),
+                                                  discount_unit=AMOUNT_PK, total_discount=True,
+                                                  vat=Decimal('19.60'))
+
+        Relation.objects.create(subject_entity=invoice, object_entity=product_line, type_id=REL_SUB_HAS_LINE, user=self.user)
+        Relation.objects.create(subject_entity=invoice, object_entity=service_line, type_id=REL_SUB_HAS_LINE, user=self.user)
+
+        self.assertEqual(2, len(invoice.get_lines(Line)))
+        self.assertEqual(1570, product_line.get_price_exclusive_of_tax())
+        self.assertEqual(90, service_line.get_price_exclusive_of_tax())
+
+        total_exclusive_of_tax = 1660
+
+        self.assertEqual(total_exclusive_of_tax, invoice.get_total())
+        
 
 #    def test_delete02(self):#Check everything is cleaned
 #        self.login()

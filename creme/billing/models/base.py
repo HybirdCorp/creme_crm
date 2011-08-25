@@ -17,14 +17,16 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from decimal import Decimal
 
 from itertools import chain
 from logging import debug
 
 from django.db.models import CharField, ForeignKey, DateField, DecimalField
 from django.utils.translation import ugettext_lazy as _
+from creme_core.constants import DEFAULT_CURRENCY_PK
 
-from creme_core.models import CremeEntity, Relation
+from creme_core.models import CremeEntity, Relation, Currency
 
 from persons.models import Address
 
@@ -36,15 +38,17 @@ from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED, REL_SU
 from billing.models.other_models import AdditionalInformation, PaymentTerms, PaymentInformation
 from billing.utils import round_to_2
 
+default_decimal = Decimal()
 
 class Base(CremeEntity):
     name             = CharField(_(u'Name'), max_length=100)
     number           = CharField(_(u'Number'), max_length=100, blank=True, null=True)
     issuing_date     = DateField(_(u"Issuing date"), blank=True, null=True)
-    expiration_date  = DateField(_(u"Expiration date"), blank=True, null=True) #TODO: null/blank=False (required in the form)
-    discount         = DecimalField(_(u'Discount'), max_digits=4, decimal_places=2, blank=True, null=True)
+    expiration_date  = DateField(_(u"Expiration date"), blank=True, null=True) # TODO blank, null = False, required in form
+    discount         = DecimalField(_(u'Overall discount'), max_digits=10, decimal_places=2, default=default_decimal)
     billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'), related_name='BillingAddress_set', blank=True, null=True)
     shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'), related_name='ShippingAddress_set', blank=True, null=True)
+    currency         = ForeignKey(Currency, verbose_name=_(u'Currency'), related_name='Currency_set', default=DEFAULT_CURRENCY_PK)
     comment          = CharField(_(u'Comment'), max_length=500, blank=True, null=True)
     total_vat        = DecimalField(_(u'Total with VAT'),    max_digits=14, decimal_places=2, blank=True, null=True, editable=False, default=0)
     total_no_vat     = DecimalField(_(u'Total without VAT'), max_digits=14, decimal_places=2, blank=True, null=True, editable=False, default=0)

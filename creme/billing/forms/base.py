@@ -20,8 +20,7 @@
 
 from logging import debug
 
-from django.forms import DateField, CharField
-from django.forms.widgets import Select
+from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models import Relation
@@ -52,7 +51,6 @@ class BaseEditForm(CremeEntityForm):
         super(BaseEditForm, self).__init__(*args, **kwargs)
         self.issued_relation   = None
         self.received_relation = None
-
         pk = self.instance.pk
 
         if pk is not None: #edit mode
@@ -75,6 +73,15 @@ class BaseEditForm(CremeEntityForm):
     def clean_target(self):
         return validate_linkable_entity(self.cleaned_data['target'], self.user)
 
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        discount            = self.cleaned_data.get('discount')
+
+        if discount > 100:
+            raise ValidationError(_(u"Your discount is a %. It must be between 1 and 100%"))
+
+        return cleaned_data
+
     def save(self):
         instance = self.instance
 
@@ -90,7 +97,6 @@ class BaseEditForm(CremeEntityForm):
             instance.payment_info = None
 
         instance = super(BaseEditForm, self).save()
-
 
         if self.issued_relation:
             self.issued_relation.update_links(object_entity=source, save=True)

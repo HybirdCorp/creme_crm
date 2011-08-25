@@ -42,6 +42,17 @@ from billing.models.line import PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
 from billing.constants import *
 
 
+class BillingBlock(Block):
+    id_           = Block.generate_id('billing', 'information_block')
+    dependencies  = (Quote,)
+    verbose_name  = u'Info on a billing document'
+    template_name = 'billing/templatetags/block_billing.html'
+
+    def detailview_display(self, context):
+        document = context['object']
+        is_invoice = document.entity_type_id == ContentType.objects.get_for_model(Invoice).id
+        return self._render(self.get_block_template_context(context, is_invoice = is_invoice,))
+
 #NB PaginatedBlock and not QuerysetBlock to avoid the retrieving of a sliced
 #   queryset of lines : we retrieve all the lines to compute the totals any way.
 class ProductLinesBlock(PaginatedBlock):
@@ -230,6 +241,7 @@ payment_information_block       = PaymentInformationBlock()
 billing_payment_block           = BillingPaymentInformationBlock()
 received_billing_document_block = ReceivedBillingDocumentBlock()
 billing_address_block           = BillingAddressBlock()
+information_billing_block       = BillingBlock()
 
 block_list = (
         product_lines_block,
@@ -241,4 +253,5 @@ block_list = (
         billing_payment_block,
         received_billing_document_block,
         billing_address_block,
+        information_billing_block,
     )
