@@ -54,6 +54,8 @@ TIME_ZONE = 'Europe/Paris'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'fr' #Choose in the LANGUAGES values
 
+DEFAULT_ENCODING = 'UTF8'
+
 
 DATE_FORMAT         = 'd-m-Y'
 SHORT_DATE_FORMAT   = 'd-m-Y'
