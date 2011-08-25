@@ -116,17 +116,18 @@ class FutureActivitiesBlock(QuerysetBlock):
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
                                                             predicate_id=REL_SUB_LINKED_2_ACTIVITY,
                                                             ct_id=ContentType.objects.get_for_model(Activity).id,
+                                                            display_review=Activity.display_review(),
                                                            ))
 
     def portal_display(self, context, ct_ids):
         return self._render(self.get_block_template_context(context,
                                                             self._get_queryset_for_ctypes(ct_ids, context).select_related('status'),
                                                             update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                                                            display_review=Activity.display_review(),
                                                            ))
 
     def home_display(self, context):
         user = context['request'].user
-
         #cache the Contact related to the current user (used by PastActivitiesBlock too)
         entity = context.get('user_contact')
         if entity is None:
@@ -135,7 +136,8 @@ class FutureActivitiesBlock(QuerysetBlock):
         return self._render(self.get_block_template_context(context,
                                                             self._get_queryset_for_entity(entity, context).select_related('status'),
                                                             update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
-                                                            is_home=True
+                                                            is_home=True,
+                                                            display_review=Activity.display_review(),
                                                            ))
 
 

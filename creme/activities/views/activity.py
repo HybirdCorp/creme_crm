@@ -24,7 +24,7 @@ from django.template import RequestContext
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import RelationType, EntityCredentials
-from creme_core.views.generic import view_real_entity, add_entity, inner_popup, list_view
+from creme_core.views.generic import view_real_entity, add_entity, list_view
 from creme_core.utils import get_ct_or_404, get_from_GET_or_404
 
 from activities.models import Activity
@@ -56,7 +56,7 @@ def _add_activity(request, class_form, **form_args):
     else:
         activity_form = class_form(user=request.user, **form_args)
 
-    return render_to_response('creme_core/generics/blockform/add.html',
+    return render_to_response('activities/add_activity_form.html',
                               {'form': activity_form},
                               context_instance=RequestContext(request))
 

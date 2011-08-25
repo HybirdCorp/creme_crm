@@ -220,14 +220,14 @@ class ActivitiesTestCase(CremeTestCase):
         response = self.client.post('/activities/activity/add/meeting',
                                     follow=True,
                                     data={
-                                            'user':               user.pk,
-                                            'title':              title,
-                                            'status':             status.pk,
-                                            'start':              '2010-1-10',
-                                            'my_participation':   True,
-                                            'my_calendar':        my_calendar.pk,
-                                            'generate_alert':     True,
-                                            'alert_start_time':   '10:05',
+                                            'user':                     user.pk,
+                                            'title':                    title,
+                                            'status':                   status.pk,
+                                            'start':                    '2010-1-10',
+                                            'my_participation':         True,
+                                            'my_calendar':              my_calendar.pk,
+                                            'generate_datetime_alert':  True,
+                                            'alert_start_time':         '10:05',
                                          }
                                    )
         self.assertNoFormError(response)

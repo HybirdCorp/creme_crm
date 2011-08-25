@@ -24,43 +24,24 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <tr class="header">
-                <th class="block_header_line_dark">{% trans "Status" %}</th>
-                <th class="block_header_line_dark">{% trans "Name" %}</th>
-                <th class="block_header_line_dark">{% trans "Date" %}</th>
-                <th class="block_header_line_dark">{% trans "Subject(s)" %}</th>
-                <th class="block_header_line_dark">{% trans "Participant(s)" %}</th>
-                <th class="block_header_line_dark">{% trans "Related to" %}</th>
-                {% if object %}<th class="block_header_line_dark action">{% trans "Unlink" %}</th>{% endif %}
-            </tr>
             {% for activity in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr class="content">{% has_perm_to view activity as activity_view_perm %}
-                    {% if activity_view_perm %}
-                        <td class="{{row_color}}">{% print_field object=activity field='status' %}</td>
-                        <td class="{{row_color}}"><a href="{{activity.get_absolute_url}}">{{activity}}</a></td>
-                        <td class="{{row_color}}"> {% comment %}need a <a> tag ??{% endcomment %}
+                    <td rowspan="{{ activity.count_lines_display_block }}" style="width: 25%;" class="{{row_color}}" align="center">
+                        {% if activity_view_perm %}
+                            {% print_field object=activity field='type' %}<br />
+                            {% if activity.status %}{% print_field object=activity field='status' %}<br />{% endif %}
                             <a href="{{activity.get_absolute_url}}">{% include 'activities/templatetags/activity_date.html' %}</a>
-                        </td>
-                    {% else  %}
-                        <td class="{{row_color}}">??</td>
-                        <td class="{{row_color}}">{{activity|allowed_unicode:user}}</td>
-                        <td class="{{row_color}}">??</td>
-                    {% endif %}
-                    <td class="{{row_color}}">
-                        {% with activity.get_subject_relations as relations %}
-                            {% include 'activities/templatetags/activity_relations_field.html' %}
-                        {% endwith %}
+                        {% else %}
+                            ??
+                        {% endif %}
                     </td>
-                    <td class="{{row_color}}">
-                        {% with activity.get_participant_relations as relations %}
-                            {% include 'activities/templatetags/activity_relations_field.html' %}
-                        {% endwith %}
-                    </td>
-                    <td class="{{row_color}}">
-                        {% with activity.get_linkedto_relations as relations %}
-                            {% include 'activities/templatetags/activity_relations_field.html' %}
-                        {% endwith %}
-                    </td>
+                    <th style="width: 70%;" class="{{row_color}}" {% if object %}colspan="2"{% else %}colspan="3"{% endif %}>
+                        {% if activity_view_perm %}
+                            <a href="{{activity.get_absolute_url}}">{{activity}}</a>
+                        {% else %}
+                            {{activity|allowed_unicode:user}}
+                        {% endif %}
+                    </th>
                     {% if object %}
                         <td class="{{row_color}} action">
                             {% has_perm_to unlink object as unlink_perm %}{% has_perm_to unlink activity as activity_unlink_perm %}
@@ -68,6 +49,41 @@
                         </td>
                     {% endif %}
                 </tr>
+                {% if activity.get_subject_relations %}
+                <tr>
+                    <td class="{{row_color}}" align="left" style="width: 15%;">{% trans "Subject(s)" %} : </td>
+                    <td colspan="2" class="{{row_color}}">
+                        {% with activity.get_subject_relations as relations %}
+                            {% include 'activities/templatetags/activity_relations_field.html' %}
+                        {% endwith %}
+                    </td>
+                </tr>
+                {% endif %}
+                {% if activity.get_participant_relations %}
+                    <tr>
+                        <td style="width: 15%;" class="{{row_color}}" align="left">{% trans "Participant(s)" %} : </td>
+                        <td colspan="2" class="{{row_color}}">
+                            {% with activity.get_participant_relations as relations %}
+                                {% include 'activities/templatetags/activity_relations_field.html' %}
+                            {% endwith %}
+                        </td>
+                    </tr>
+                {% endif %}
+                {% if activity.get_linkedto_relations %}
+                    <tr>
+                        <td style="width: 15%;" class="{{row_color}}" align="left">{% trans "Related to" %} : </td>
+                        <td colspan="2" class="{{row_color}}">
+                            {% with activity.get_linkedto_relations as relations %}
+                                {% include 'activities/templatetags/activity_relations_field.html' %}
+                            {% endwith %}
+                        </td>
+                    </tr>
+                {% endif %}
+                {% if display_review and activity.minutes %}
+                    <tr>
+                        <td colspan="3" class="{{row_color}}">{% print_field object=activity field='minutes' %}</td>
+                    </tr>
+                {% endif %}
             {% endfor %}
         {% else %}
             <tr class="content empty">

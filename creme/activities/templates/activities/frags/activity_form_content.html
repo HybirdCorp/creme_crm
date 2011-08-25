@@ -1,0 +1,38 @@
+{% extends "creme_core/generics/blockform/base.html" %}
+
+{% block main_content %}
+    {% with form.get_blocks as blocks %}
+        {% with blocks.general as form_block %}
+            {% include "creme_core/generics/blockform/content.html" %}
+        {% endwith %}
+
+        {% with blocks.datetime as form_block %}
+            {% include "creme_core/generics/blockform/content.html" %}
+        {% endwith %}
+
+        {% with blocks.participants as form_block %}
+            {% include "creme_core/generics/blockform/content.html" %}
+        {% endwith %}
+
+        <table style="width: 100%;">
+            <tbody>
+                <tr>
+                    <td style="width: 50%;">
+                        {% with blocks.alert_datetime as form_block %}
+                            {% include "activities/frags/alert_datetime_block.html" %}
+                        {% endwith %}
+                    </td>
+                    <td style="width: 50%;">
+                        {% with blocks.alert_period as form_block %}
+                            {% include "activities/frags/alert_period_block.html" %}
+                        {% endwith %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        {% with blocks.informed_users as form_block %}
+            {% include "creme_core/generics/blockform/content.html" %}
+        {% endwith %}
+    {% endwith %}
+{% endblock %}
