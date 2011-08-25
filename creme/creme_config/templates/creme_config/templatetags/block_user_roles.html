@@ -5,7 +5,7 @@
 {% endif %}
 <table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=7 %}
-        <th class="collapser label">{% get_block_title  _('%s Role') _('%s Roles') %}</th>
+        <th class="collapser label">{% get_block_title _('%s Role') _('%s Roles') %}</th>
         <th class="actions"></th>
     {% end_get_block_header %}
     <tbody class="collapsable">
@@ -20,6 +20,7 @@
                 <th class="block_header_line_light">{% trans "Allowed applications" %}</th>
                 <th class="block_header_line_light">{% trans "Administrated applications" %}</th>
                 <th class="block_header_line_light">{% trans "Creation credentials" %}</th>
+                <th class="block_header_line_light">{% trans "Export credentials" %}</th>
                 <th class="block_header_line_light">{% trans "Entities credentials" %}</th>
                 <th class="block_header_line_light action">{% trans "Actions" %}</th>
             </tr>
@@ -29,6 +30,7 @@
                     <td class="{{row_color}}">{% widget_select_or_msg role.get_allowed_apps_verbose _('No allowed application') %}</td>
                     <td class="{{row_color}}">{% widget_select_or_msg role.get_admin_4_apps_verbose _('No administrated application') %}</td>
                     <td class="{{row_color}}">{% widget_select_or_msg role.creatable_ctypes.all _('No creation credential') %}</td>
+                    <td class="{{row_color}}">{% widget_select_or_msg role.exportable_ctypes.all _('No export credential') %}</td>
                     <td class="{{row_color}}">{% comment %} TODO inline action? {% endcomment %}
                         {% widget_select_or_msg role.credentials.all _('No credential') %}
                         <a class="button_link" onclick="creme.utils.innerPopupNReload('/creme_config/role/add_credentials/{{role.id}}', {% get_block_reload_uri %});">

@@ -213,11 +213,12 @@ class EntityCredentials(Model):
 
 
 class UserRole(Model):
-    name             = CharField(_(u'Name'), max_length=100)
-    #superior        = ForeignKey('self', verbose_name=_(u"Superior"), null=True) #related_name='subordinates'
-    creatable_ctypes = ManyToManyField(ContentType, null=True, verbose_name=_(u'Creatable resources'))
-    raw_allowed_apps = TextField(default='') #use 'allowed_apps' property
-    raw_admin_4_apps = TextField(default='') #use 'admin_4_apps' property
+    name              = CharField(_(u'Name'), max_length=100)
+    #superior         = ForeignKey('self', verbose_name=_(u"Superior"), null=True) #related_name='subordinates'
+    creatable_ctypes  = ManyToManyField(ContentType, null=True, verbose_name=_(u'Creatable resources'), related_name='roles_allowing_creation')
+    exportable_ctypes = ManyToManyField(ContentType, null=True, verbose_name=_(u'Exportable resources'), related_name='roles_allowing_export')
+    raw_allowed_apps  = TextField(default='') #use 'allowed_apps' property
+    raw_admin_4_apps  = TextField(default='') #use 'admin_4_apps' property
 
     class Meta:
         app_label = 'creme_core'
@@ -227,6 +228,7 @@ class UserRole(Model):
         self._allowed_apps = None
         self._admin_4_apps = None
         self._creatable_ctypes_set = None
+        self._exportable_ctypes_set = None
         self._setcredentials = None
 
     def __unicode__(self):
@@ -289,6 +291,15 @@ class UserRole(Model):
 
         return (ct.id in self._creatable_ctypes_set)
 
+    def can_export(self, app_name, model_name): #TODO: factorise with can_create() ??
+        """@return True if a model with ContentType(app_name, model_name) can be exported."""
+        ct = ContentType.objects.get_by_natural_key(app_name, model_name)
+
+        if self._exportable_ctypes_set is None:
+            self._exportable_ctypes_set = frozenset(self.exportable_ctypes.values_list('id', flat=True))
+
+        return (ct.id in self._exportable_ctypes_set)
+
     def get_perms(self, user, entity):
         """@return (can_view, can_change, can_delete) 3 boolean tuple"""
         raw_perms = SetCredentials.CRED_NONE
@@ -324,8 +335,8 @@ class SetCredentials(Model):
     role     = ForeignKey(UserRole, related_name='credentials')
     value    = PositiveSmallIntegerField() #see SetCredentials.CRED_*
     set_type = PositiveIntegerField() #see SetCredentials.ESET_*
-    #content_type        = ForeignKey(ContentType, null=True)
-    #entity              = ForeignKey(CremeEntity, null=True) #id_fiche_role_ou_equipe = PositiveIntegerField( blank=True, null=True) ??
+    ctype    = ForeignKey(ContentType, null=True, blank=True)
+    #entity  = ForeignKey(CremeEntity, null=True) ??
 
     #For python 2.5 compatibility, we don't use the binary expression
     CRED_NONE   =  0
@@ -370,10 +381,17 @@ class SetCredentials(Model):
         if not perms:
             append(ugettext(u'Nothing allowed'))
 
-        return ugettext(u'For %(set)s: %(perms)s') % {
-                    'set':      SetCredentials.ESET_MAP[self.set_type],
-                    'perms':    u', '.join(perms),
-                }
+        args = {'set':   SetCredentials.ESET_MAP[self.set_type],
+                'perms': u', '.join(perms),
+               }
+
+        if self.ctype:
+            args['type'] = self.ctype
+            format_str = ugettext(u'For %(set)s of type <%(type)s>: %(perms)s')
+        else:
+            format_str = ugettext(u'For %(set)s: %(perms)s')
+
+        return format_str % args
 
     @staticmethod
     def get_perms(raw_perms):
@@ -390,6 +408,9 @@ class SetCredentials(Model):
 
     def get_raw_perms(self, user, entity):
         """@return an integer with binary flags for perms (see get_perms)"""
+        if self.ctype_id and self.ctype_id != entity.entity_type_id:
+            return SetCredentials.CRED_NONE
+
         if self.set_type == SetCredentials.ESET_ALL:
             return self.value
         else: #SetCredentials.ESET_OWN
@@ -475,7 +496,7 @@ class UserProfile(Model):
             raise PermissionDenied(ugettext('You are not allowed to configure this app: %s') % app_name)
 
     def has_perm_to_create(self, model_or_entity):
-        """Helper for has_perm( method)
+        """Helper for has_perm() method.
         eg: user.has_perm('myapp.add_mymodel') => user.has_perm_to_create(MyModel)"""
         meta = model_or_entity._meta
         return self.has_perm('%s.add_%s' % (meta.app_label, meta.object_name.lower()))
@@ -483,6 +504,16 @@ class UserProfile(Model):
     def has_perm_to_create_or_die(self, model_or_entity):
         if not self.has_perm_to_create(model_or_entity):
             raise PermissionDenied(ugettext(u'You are not allowed to create: %s') % model_or_entity._meta.verbose_name)
+
+    def has_perm_to_export(self, model_or_entity): #TODO: factorise with has_perm_to_create() ??
+        """Helper for has_perm() method.
+        eg: user.has_perm('myapp.export_mymodel') => user.has_perm_to_export(MyModel)"""
+        meta = model_or_entity._meta
+        return self.has_perm('%s.export_%s' % (meta.app_label, meta.object_name.lower()))
+
+    def has_perm_to_export_or_die(self, model_or_entity):
+        if not self.has_perm_to_export(model_or_entity):
+            raise PermissionDenied(ugettext(u'You are not allowed to export: %s') % model_or_entity._meta.verbose_name)
 
     def update_credentials(self, entity_qs=None):
         """Update the credentials (EntityCredentials objects) related to this user.

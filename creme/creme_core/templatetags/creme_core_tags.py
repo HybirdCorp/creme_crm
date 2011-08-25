@@ -262,11 +262,15 @@ _haspermto_re = compile_re(r'(\w+) (.*?) as (\w+)')
 
 def _can_create(model_or_ct, user):
     ct = model_or_ct if isinstance(model_or_ct, ContentType) else ContentType.objects.get_for_model(model_or_ct)
-
     return user.has_perm('%s.add_%s' % (ct.app_label, ct.model))
+
+def _can_export(model_or_ct, user):
+    ct = model_or_ct if isinstance(model_or_ct, ContentType) else ContentType.objects.get_for_model(model_or_ct)
+    return user.has_perm('%s.export_%s' % (ct.app_label, ct.model))
 
 _PERMS_FUNCS = {
         'create': _can_create,
+        'export': _can_export,
         'view':   lambda entity, user: entity.can_view(user),
         'change': lambda entity, user: entity.can_change(user),
         'delete': lambda entity, user: entity.can_delete(user),

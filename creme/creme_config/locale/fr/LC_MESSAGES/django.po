@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-24 15:18+0200\n"
+"POT-Creation-Date: 2011-08-25 16:38+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -88,15 +88,10 @@ msgstr "Gestion des utilisateurs"
 msgid "Roles and credentials settings"
 msgstr "Gestion des rôles et des droits"
 
-#: tests.py:1098 forms/blocks.py:144
+#: tests.py:1130 forms/blocks.py:144
 #, python-format
 msgid "The following block should be displayed only once: <%s>"
 msgstr "Le bloc suivant ne devrait être affiché qu'une seule fois: <%s>"
-
-#: tests.py:1649
-#, python-format
-msgid "Select a valid choice. %s is not one of the available choices."
-msgstr ""
 
 #: forms/blocks.py:95 forms/button_menu.py:40 forms/custom_fields.py:65
 #: forms/search.py:37
@@ -129,15 +124,15 @@ msgstr "Bloc de relation: %s"
 msgid "Instance's block: %s"
 msgstr "Bloc d'instance: %s"
 
-#: forms/blocks.py:168
+#: forms/blocks.py:169
 msgid "Related application"
 msgstr "Application associée"
 
-#: forms/blocks.py:186
+#: forms/blocks.py:187
 msgid "Blocks to display on the portal"
 msgstr "Blocs à afficher sur le portail"
 
-#: forms/blocks.py:202
+#: forms/blocks.py:205
 msgid "Blocks to display on the \"My Page\" of the users"
 msgstr "Blocs à afficher sur le \"Ma page\" des utilisateurs"
 
@@ -380,45 +375,49 @@ msgstr "Aucun utilisateur sélectionné."
 msgid "You can't delete and assign to the same user."
 msgstr "Vous ne pouvez supprimer et assigner le même utilisateur."
 
-#: forms/user_role.py:40
+#: forms/user_role.py:46
 msgid "Creatable resources"
 msgstr "Ressources créables"
 
-#: forms/user_role.py:44
+#: forms/user_role.py:47
+msgid "Exportable resources"
+msgstr "Ressources exportables"
+
+#: forms/user_role.py:48
 #: templates/creme_config/templatetags/block_user_roles.html:20
 msgid "Allowed applications"
 msgstr "Applications autorisées"
 
-#: forms/user_role.py:47
+#: forms/user_role.py:49
 #: templates/creme_config/templatetags/block_user_roles.html:21
 msgid "Administrated applications"
 msgstr "Applications administrées"
 
-#: forms/user_role.py:66
+#: forms/user_role.py:78
 msgid "Existing set credentials"
 msgstr "Droits d'ensemble existants'"
 
-#: forms/user_role.py:67
+#: forms/user_role.py:79
 msgid "Uncheck the credentials you want to delete."
 msgstr "Décochez les droits que vous voulez supprimer."
 
-#: forms/user_role.py:103 forms/user_role.py:138
+#: forms/user_role.py:115 forms/user_role.py:159
 msgid "Can view"
 msgstr "Peut voir"
 
-#: forms/user_role.py:104 forms/user_role.py:139
+#: forms/user_role.py:116 forms/user_role.py:160
 msgid "Can change"
 msgstr "Peut changer"
 
-#: forms/user_role.py:105 forms/user_role.py:140
+#: forms/user_role.py:117 forms/user_role.py:161
 msgid "Can delete"
 msgstr "Peut supprimer"
 
-#: forms/user_role.py:106 forms/user_role.py:141
+#: forms/user_role.py:118 forms/user_role.py:162
 msgid "Can link"
 msgstr "Peut lier"
 
-#: forms/user_role.py:106
+#: forms/user_role.py:118
 msgid ""
 "You must have the permission to link on 2 entities to create a relationship "
 "between them."
@@ -426,11 +425,11 @@ msgstr ""
 "Vous devez avoir le droit de relier sur 2 fiches pour créer une relation "
 "entre elles"
 
-#: forms/user_role.py:107 forms/user_role.py:142
+#: forms/user_role.py:119 forms/user_role.py:163
 msgid "Can unlink"
 msgstr "Peut délier"
 
-#: forms/user_role.py:107
+#: forms/user_role.py:119
 msgid ""
 "You must have the permission to unlink on 2 entities to delete a "
 "relationship between them."
@@ -438,9 +437,18 @@ msgstr ""
 "Vous devez avoir le droit de délier 2 fiches pour supprimer une relation "
 "entre elles"
 
-#: forms/user_role.py:108
+#: forms/user_role.py:120
 msgid "Type of entities set"
 msgstr "Type d'ensemble de fiches"
+
+#: forms/user_role.py:121
+msgid "Apply to a specific type"
+msgstr "Appliquer à un type spécifique"
+
+#: forms/user_role.py:131
+#: templates/creme_config/templatetags/block_users.html:32
+msgid "None"
+msgstr "Aucun"
 
 #: forms/user_settings.py:39
 msgid "Choose your theme"
@@ -877,7 +885,7 @@ msgstr "Objet(s)"
 
 #: templates/creme_config/templatetags/block_relation_types.html:27
 #: templates/creme_config/templatetags/block_teams.html:18
-#: templates/creme_config/templatetags/block_user_roles.html:24
+#: templates/creme_config/templatetags/block_user_roles.html:25
 #: templates/creme_config/templatetags/block_users.html:24
 msgid "Actions"
 msgstr "Actions"
@@ -1027,31 +1035,39 @@ msgid "Creation credentials"
 msgstr "Droits de création"
 
 #: templates/creme_config/templatetags/block_user_roles.html:23
+msgid "Export credentials"
+msgstr "Droits d'export"
+
+#: templates/creme_config/templatetags/block_user_roles.html:24
 msgid "Entities credentials"
 msgstr "Droits des entités"
 
-#: templates/creme_config/templatetags/block_user_roles.html:29
+#: templates/creme_config/templatetags/block_user_roles.html:30
 msgid "No allowed application"
 msgstr "Pas d'application autorisée"
 
-#: templates/creme_config/templatetags/block_user_roles.html:30
+#: templates/creme_config/templatetags/block_user_roles.html:31
 msgid "No administrated application"
 msgstr "Pas d'application administrée"
 
-#: templates/creme_config/templatetags/block_user_roles.html:31
+#: templates/creme_config/templatetags/block_user_roles.html:32
 msgid "No creation credential"
 msgstr "Pas de droit de création"
 
-#: templates/creme_config/templatetags/block_user_roles.html:34
+#: templates/creme_config/templatetags/block_user_roles.html:33
+msgid "No export credential"
+msgstr "Pas de droit d'export"
+
+#: templates/creme_config/templatetags/block_user_roles.html:36
 msgid "No credential"
 msgstr "Aucun droit"
 
-#: templates/creme_config/templatetags/block_user_roles.html:36
-#: templates/creme_config/templatetags/block_user_roles.html:37
+#: templates/creme_config/templatetags/block_user_roles.html:38
+#: templates/creme_config/templatetags/block_user_roles.html:39
 msgid "New credentials"
 msgstr "Nouveaux droits"
 
-#: templates/creme_config/templatetags/block_user_roles.html:48
+#: templates/creme_config/templatetags/block_user_roles.html:50
 msgid "No role for the moment"
 msgstr "Aucun rôle pour le moment"
 
@@ -1100,10 +1116,6 @@ msgstr "Dernière connexion"
 #: templates/creme_config/templatetags/block_users.html:23
 msgid "Date joined"
 msgstr "Date d'inscription"
-
-#: templates/creme_config/templatetags/block_users.html:32
-msgid "None"
-msgstr "Aucun"
 
 #: views/blocks.py:67 views/button_menu.py:64
 #, python-format

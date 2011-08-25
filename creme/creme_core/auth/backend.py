@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,6 +24,7 @@ from creme_core.models import EntityCredentials
 
 
 _ADD_PREFIX = 'add_'
+_EXPORT_PREFIX = 'export_'
 
 class EntityBackend(ModelBackend):
     supports_object_permissions = True
@@ -43,6 +44,9 @@ class EntityBackend(ModelBackend):
 
             if action_name.startswith(_ADD_PREFIX):
                 return user_obj.role.can_create(app_name, action_name[len(_ADD_PREFIX):])
+
+            if action_name.startswith(_EXPORT_PREFIX):
+                return user_obj.role.can_export(app_name, action_name[len(_EXPORT_PREFIX):])
 
         #return super(EntityBackend, self).has_perm(user_obj, perm)
         return False

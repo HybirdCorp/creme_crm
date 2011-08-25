@@ -14,7 +14,7 @@ from creme_core.blocks import history_block
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme_core.tests.base import CremeTestCase
 
-from activities.models import Calendar
+from activities.models import Calendar, Meeting
 
 from persons.models import Contact, Organisation #need CremeEntity
 from persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
@@ -39,15 +39,17 @@ class UserRoleTestCase(CremeTestCase):
         self.assertEqual(200,  response.status_code)
 
         get_ct = ContentType.objects.get_for_model
-        name   = 'CEO'
-        ctypes = [get_ct(Contact).id, get_ct(Organisation).id]
-        apps   = ['persons']
+        name = 'CEO'
+        creatable_ctypes = [get_ct(Contact).id, get_ct(Organisation).id]
+        exportable_ctypes = [get_ct(Contact).id, get_ct(Meeting).id]
+        apps = ['persons']
         response = self.client.post('/creme_config/role/add/', follow=True,
                                     data={
-                                            'name':             name,
-                                            'creatable_ctypes': ctypes,
-                                            'allowed_apps':     apps,
-                                            'admin_4_apps':     apps,
+                                            'name':                 name,
+                                            'creatable_ctypes':     creatable_ctypes,
+                                            'exportable_ctypes':    exportable_ctypes,
+                                            'allowed_apps':         apps,
+                                            'admin_4_apps':         apps,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -58,9 +60,10 @@ class UserRoleTestCase(CremeTestCase):
         except Exception, e:
             self.fail(str(e))
 
-        self.assertEqual(set(ctypes), set(ctype.id for ctype in role.creatable_ctypes.all()))
-        self.assertEqual(set(apps),   role.allowed_apps)
-        self.assertEqual(set(apps),   role.admin_4_apps)
+        self.assertEqual(set(creatable_ctypes),  set(ctype.id for ctype in role.creatable_ctypes.all()))
+        self.assertEqual(set(exportable_ctypes), set(ctype.id for ctype in role.exportable_ctypes.all()))
+        self.assertEqual(set(apps), role.allowed_apps)
+        self.assertEqual(set(apps), role.admin_4_apps)
 
     def test_add_credentials01(self):
         role = UserRole(name='CEO')
@@ -73,19 +76,21 @@ class UserRoleTestCase(CremeTestCase):
 
         self.assertEqual(0, role.credentials.count())
 
-        response = self.client.get('/creme_config/role/add_credentials/%s' % role.id)
-        self.assertEqual(200,  response.status_code)
+        url = '/creme_config/role/add_credentials/%s' % role.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
-        response = self.client.post('/creme_config/role/add_credentials/%s' % role.id,
-                                    data={
-                                            'can_view':   True,
-                                            'can_change': False,
-                                            'can_delete': False,
-                                            'can_link':   False,
-                                            'can_unlink': False,
-                                            'set_type':   SetCredentials.ESET_ALL,
-                                         }
+        set_type = SetCredentials.ESET_ALL
+        response = self.client.post(url, data={
+                                                'can_view':   True,
+                                                'can_change': False,
+                                                'can_delete': False,
+                                                'can_link':   False,
+                                                'can_unlink': False,
+                                                'set_type':   set_type,
+                                                'ctype':      0,
+                                              }
                                    )
+        self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
         setcreds = role.credentials.all()
@@ -93,10 +98,40 @@ class UserRoleTestCase(CremeTestCase):
 
         creds = setcreds[0]
         self.assertEqual(SetCredentials.CRED_VIEW, creds.value)
-        self.assertEqual(SetCredentials.ESET_ALL,  creds.set_type)
+        self.assertEqual(set_type, creds.set_type)
+        self.assert_(creds.ctype is None)
 
         contact = Contact.objects.get(pk=contact.id) #refresh cache
         self.assert_(contact.can_view(other_user))
+
+    def test_add_credentials02(self):
+        role = UserRole(name='CEO')
+        role.allowed_apps = ['persons']
+        role.save()
+
+        set_type = SetCredentials.ESET_OWN
+        ct_id = ContentType.objects.get_for_model(Contact).id
+        response = self.client.post('/creme_config/role/add_credentials/%s' % role.id,
+                                    data={
+                                            'can_view':   True,
+                                            'can_change': True,
+                                            'can_delete': False,
+                                            'can_link':   False,
+                                            'can_unlink': False,
+                                            'set_type':   set_type,
+                                            'ctype':      ct_id,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        setcreds = role.credentials.all()
+        self.assertEqual(1, len(setcreds))
+
+        creds = setcreds[0]
+        self.assertEqual(SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE, creds.value)
+        self.assertEqual(SetCredentials.ESET_OWN, creds.set_type)
+        self.assertEqual(ct_id,                   creds.ctype_id)
 
     def test_edit01(self):
         role = UserRole.objects.create(name='CEO')
@@ -112,27 +147,28 @@ class UserRoleTestCase(CremeTestCase):
 
         name   = role.name + '_edited'
         get_ct = ContentType.objects.get_for_model
-        ctypes = [get_ct(Contact).id, get_ct(Organisation).id]
+        creatable_ctypes = [get_ct(Contact).id, get_ct(Organisation).id]
+        exportable_ctypes = [get_ct(Contact).id, get_ct(Meeting).id]
         apps   = ['persons', 'tickets']
         admin_apps = ['persons']
         response = self.client.post('/creme_config/role/edit/%s' % role.id, follow=True,
                                     data={
-                                            'name':             name,
-                                            'creatable_ctypes': ctypes,
-                                            'allowed_apps':     apps,
-                                            'admin_4_apps':     admin_apps,
+                                            'name':                    name,
+                                            'creatable_ctypes':        creatable_ctypes,
+                                            'exportable_ctypes':       exportable_ctypes,
+                                            'allowed_apps':            apps,
+                                            'admin_4_apps':            admin_apps,
                                             'set_credentials_check_0': True,
                                             'set_credentials_value_0': SetCredentials.ESET_ALL,
                                          }
                                    )
+        self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        try:
-            role = UserRole.objects.get(name=name)
-        except Exception, e:
-            self.fail(str(e))
+        role = UserRole.objects.get(pk=role.id) #refresh
 
-        self.assertEqual(set(ctypes), set(ctype.id for ctype in role.creatable_ctypes.all()))
+        self.assertEqual(set(creatable_ctypes),  set(ctype.id for ctype in role.creatable_ctypes.all()))
+        self.assertEqual(set(exportable_ctypes), set(ctype.id for ctype in role.exportable_ctypes.all()))
         self.assertEqual(set(apps),       role.allowed_apps)
         self.assertEqual(set(admin_apps), role.admin_4_apps)
 
@@ -163,12 +199,9 @@ class UserRoleTestCase(CremeTestCase):
         self.assert_(yuki.can_view(other_user))
         self.assert_(altena.can_view(other_user))
 
-        get_ct = ContentType.objects.get_for_model
-        ctypes = [get_ct(Contact).id, get_ct(Organisation).id]
         response = self.client.post('/creme_config/role/edit/%s' % role.id, follow=True,
                                     data={
                                             'name':                    role.name,
-                                            'creatable_ctypes':        ctypes,
                                             'allowed_apps':            apps,
                                             'admin_4_apps':            [],
                                             'set_credentials_check_1': True,
@@ -178,10 +211,9 @@ class UserRoleTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        try:
-            role = UserRole.objects.get(name=role.name)
-        except Exception, e:
-            self.fail(str(e))
+        role = UserRole.objects.get(pk=role.id) #refresh
+        self.failIf(role.creatable_ctypes.all())
+        self.failIf(role.exportable_ctypes.all())
 
         yuki = Contact.objects.get(pk=yuki.id) #refresh caches
         altena = Contact.objects.get(pk=altena.id)

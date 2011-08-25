@@ -24,9 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db.models.query_utils import Q
 from django.http import HttpResponse, Http404
-#from django.utils.translation import ugettext as _
 
-#from django.utils.simplejson import JSONEncoder
 from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
 
 from creme_core.registry import creme_registry
@@ -151,10 +149,10 @@ def truncate_str(str, max_length, suffix=""):
     if len_str <= max_length and not suffix:
         return str
 
-    total = max_length-len(suffix)
+    total = max_length - len(suffix)
     if total > 0:
         return str[:total] + suffix
-    elif total==0:
+    elif total == 0:
         return suffix
     else:
         return str[:total]
