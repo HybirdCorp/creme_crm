@@ -2,13 +2,13 @@
 # Copyright (C) 2011 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-#> django-admin.py makemessages -l fr -e html -i "tests/*"
+# > django-admin.py makemessages -l fr -e html -i "tests/*"
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-26 10:13+0200\n"
+"POT-Creation-Date: 2011-08-26 18:06+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -809,7 +809,7 @@ msgstr "Boutons à afficher"
 msgid "Types of property"
 msgstr "Types de propriété"
 
-#: models/creme_property.py:90
+#: models/creme_property.py:90 models/history.py:116
 #: templates/creme_core/templatetags/block_properties.html:6
 msgid "Property"
 msgstr "Propriété"
@@ -1067,33 +1067,38 @@ msgstr "Actions"
 msgid "Entity #%s"
 msgstr "Fiche #%s"
 
-#: models/history.py:111
+#: models/history.py:112
 msgid "Creation"
 msgstr "Création"
 
-#: models/history.py:112
+#: models/history.py:113
 msgid "Edition"
 msgstr "Édition"
 
-#: models/history.py:113
+#: models/history.py:114
 msgid "Deletion"
 msgstr "Supression"
 
-#: models/history.py:114
+#: models/history.py:115
 msgid "Related modification"
 msgstr "Modification liée"
 
-#: models/history.py:178
+#: models/history.py:181
+#, python-format
+msgid "Add property “%s”"
+msgstr "Ajout de la propriété “%s”"
+
+#: models/history.py:190
 #, python-format
 msgid "Set field “%(field)s”"
 msgstr "Champ “%(field)s” modifié"
 
-#: models/history.py:182
+#: models/history.py:194
 #, python-format
 msgid "Set field “%(field)s” to “%(value)s”"
 msgstr "Champ “%(field)s” mis à “%(value)s”"
 
-#: models/history.py:188
+#: models/history.py:200
 #, python-format
 msgid "Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”"
 msgstr "Champ “%(field)s” passe de “%(oldvalue)s” à “%(value)s”"

@@ -81,7 +81,7 @@ class CustomFieldsBlock(Block):
 
 class HistoryBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_core', 'history')
-    dependencies  = (HistoryLine,) #model istself ???
+    dependencies  = (HistoryLine, CremeProperty) #model istself ???
     order_by      = '-date'
     verbose_name  = _(u'History')
     template_name = 'creme_core/templatetags/block_history.html'
