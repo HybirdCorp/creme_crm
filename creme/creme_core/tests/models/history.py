@@ -1,6 +1,7 @@
  # -*- coding: utf-8 -*-
 
 from datetime import datetime, timedelta
+from time import sleep
 
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
@@ -236,6 +237,29 @@ about this fantastic animation studio."""
         self.assertNoFormError(response)
         self.assertEqual(old_count, HistoryLine.objects.count())
 
+    def test_edition04(self): #ignore the changes : None -> ""
+        self.login()
+
+        name = 'gainax'
+        old_capital = 12000
+        gainax = Organisation.objects.create(user=self.user, name=name, capital=old_capital)
+
+        capital = old_capital * 2
+        response = self.client.post('/persons/organisation/edit/%s' % gainax.id, follow=True,
+                                    data={
+                                            'user':           self.user.id,
+                                            'name':           name,
+                                            'capital':        capital,
+                                            'subject_to_vat': True,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        hline = HistoryLine.objects.order_by('-id')[0]
+        self.assertEqual(gainax.id,                hline.entity.id)
+        self.assertEqual(HistoryLine.TYPE_EDITION, hline.type)
+        self.assertEqual([['capital', old_capital, capital]], hline.modifications)
+
     def test_deletion(self):
         self.login()
 
@@ -300,10 +324,12 @@ about this fantastic animation studio."""
         self.login()
 
         ghibli = self._build_organisation(user=self.user.id, name='Ghibli')
+        sleep(1) #ensure that 'modified' fields are different
 
         first_name = 'Hayao'
         last_name  = 'Miyazaki'
         hayao  = self._build_contact(user=self.user.id, first_name=first_name, last_name=last_name)
+        self.assert_(hayao.modified != ghibli.modified)
 
         rtype, srtype = RelationType.create(('test-subject_employed', 'is employed'), ('test-object_employed', 'employs'))
         Relation.objects.create(user=self.user, subject_entity=hayao, object_entity=ghibli, type=rtype)
@@ -336,4 +362,6 @@ about this fantastic animation studio."""
         self.assertEqual([],                       hline.modifications)
         self.assertEqual(edition_hline.id,         hline.related_line.id)
         self._assert_between_dates(hline)
-        self.assert_(hline.date != ghibli.modified)
+        self.assertEqual(Contact.objects.get(pk=hayao.id).modified, #refresh
+                         hline.date
+                        )
