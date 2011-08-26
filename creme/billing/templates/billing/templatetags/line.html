@@ -40,10 +40,12 @@
                         <td class="{{row_color}}" align="center">{% print_field object=line field='comment' %}</td>
                         <td class="{{row_color}}" align="left">
                             <table border=0 cellpadding="0" cellspacing="0" width="100%">
-                                <tr>
-                                    <td align="right" width="35%">{% ifequal line.discount_unit 1 %}{{line.discount}} %{% else %}{{line.discount|format_amount:currency_id}}{% endifequal %}</td>
-                                    <td align="center">{% if line.total_discount %}{% trans "On the line" %}{% else %}{% trans " On product/service" %}{% endif %}</td>
-                                </tr>
+                                {% if line.discount %}
+                                    <tr>
+                                        <td align="right" width="35%">{% ifequal line.discount_unit 1 %}{{line.discount}} %{% else %}{{line.discount|format_amount:currency_id}}{% endifequal %}</td>
+                                        <td align="center">{% if line.total_discount %}{% trans "On the line" %}{% else %}{% trans " On product/service" %}{% endif %}</td>
+                                    </tr>
+                                {% endif %}
                                 {% if object.discount %}
                                     <tr>
                                         <td align="right">{{ object.discount }} %</td>
