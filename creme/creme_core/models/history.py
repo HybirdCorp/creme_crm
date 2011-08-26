@@ -258,6 +258,9 @@ class HistoryLine(Model):
                     new_value = new_value and new_value.pk
 
                 if old_value != new_value:
+                    if not new_value and not old_value: #ignore useless changes like : None -> ""
+                        continue
+
                     if field.get_internal_type() not in _SERIALISABLE_FIELDS:
                         modif = (fname,)
                     elif old_value:
@@ -278,7 +281,8 @@ class HistoryLine(Model):
 
                 if relations:
                     object_entities = [r.object_entity for r in relations]
-                    now = datetime.now()
+                    #now = datetime.now()
+                    now = instance.modified
 
                     CremeEntity.populate_real_entities(object_entities) #optimisation
 
