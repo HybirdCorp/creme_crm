@@ -233,7 +233,7 @@ END:VEVENT
             total += 1
         if self.get_linkedto_relations():
             total += 1
-        if Activity.display_review():
+        if Activity.display_review() and self.minutes:
             total += 1
         return total
 
