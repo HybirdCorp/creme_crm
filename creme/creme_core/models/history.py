@@ -175,17 +175,17 @@ class HistoryLine(Model):
             field_name = field.verbose_name
 
             if len(modif) == 1:
-                vmodif = mark_safe(ugettext(u'Set field &ldquo;%(field)s&rdquo;') % {
+                vmodif = mark_safe(ugettext(u'Set field “%(field)s”') % {
                                         'field': field_name,
                                     })
             elif len(modif) == 2:
-                vmodif = mark_safe(ugettext(u'Set field &ldquo;%(field)s&rdquo; to &ldquo;%(value)s&rdquo;') % {
+                vmodif = mark_safe(ugettext(u'Set field “%(field)s” to “%(value)s”') % {
                                         'field': field_name,
                                         'value': _PRINTERS.get(field.get_internal_type(), _basic_printer)(field, modif[1]),
                                     })
             else:
                 printer = _PRINTERS.get(field.get_internal_type(), _basic_printer)
-                vmodif = mark_safe(ugettext(u'Set field &ldquo;%(field)s&rdquo; from &ldquo;%(oldvalue)s&rdquo; to &ldquo;%(value)s&rdquo;') % {
+                vmodif = mark_safe(ugettext(u'Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”') % {
                                         'field':    field_name,
                                         'oldvalue': printer(field, modif[1]), #TODO: improve for fk ???
                                         'value':    printer(field, modif[2]),

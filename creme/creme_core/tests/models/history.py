@@ -184,35 +184,37 @@ about this fantastic animation studio."""
         self.assertEqual(6, len(vmodifs))
         #print 'VMODIFS:', vmodifs
 
-        msg = _(u'Set field "%(field)s" from "%(oldvalue)s" to "%(value)s"') % {
-                            'field':    _(u'Phone number'),
-                            'oldvalue': old_phone,
-                            'value':    phone,
-                        }
+        #TODO: move in HistoryLine code ???
+        FSTRING_1_VALUE  = _(u'Set field “%(field)s”')
+        FSTRING_2_VALUES = _(u'Set field “%(field)s” to “%(value)s”')
+        FSTRING_3_VALUES = _(u'Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”')
+
+        msg = FSTRING_3_VALUES % {'field':    _(u'Phone number'),
+                                  'oldvalue': old_phone,
+                                  'value':    phone,
+                                 }
         self.assert_(msg in vmodifs, msg)
 
-        msg = _(u'Set field "%(field)s" to "%(value)s"') % { 'field': _(u'Email'),
-                                                             'value': email,
-                                                           }
+        msg = FSTRING_2_VALUES % {'field': _(u'Email'),
+                                  'value': email,
+                                 }
         self.assert_(msg in vmodifs, msg)
 
-        msg = _(u'Set field "%(field)s"') % {'field': _(u'Description')}
+        msg = FSTRING_1_VALUE % {'field': _(u'Description')}
         self.assert_(msg in vmodifs, msg)
 
-        msg = _(u'Set field "%(field)s" from "%(oldvalue)s" to "%(value)s"') % {
-                        'field':    _(u'Sector'),
-                        'oldvalue': sector01,
-                        'value':    sector02,
-                    }
+        msg = FSTRING_3_VALUES % {'field':    _(u'Sector'),
+                                  'oldvalue': sector01,
+                                  'value':    sector02,
+                                 }
         self.assert_(msg in vmodifs, msg)
 
-        msg = _(u'Set field "%(field)s"') % {'field': _(u'Date of creation of the organisation')}
+        msg = FSTRING_1_VALUE % {'field': _(u'Date of creation of the organisation')}
         self.assert_(msg in vmodifs, msg)
 
-        msg = _(u'Set field "%(field)s" to "%(value)s"') % {
-                            'field': _(u'Subject to VAT'),
-                            'value': _('True'),
-                        }
+        msg = FSTRING_2_VALUES % {'field': _(u'Subject to VAT'),
+                                  'value': _('True'),
+                                 }
         self.assert_(msg in vmodifs, msg)
 
     def test_edition03(self): #no change
