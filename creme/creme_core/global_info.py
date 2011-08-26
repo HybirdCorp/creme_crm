@@ -20,20 +20,22 @@
 
 #see  middleware.global_info.GlobalInfoMiddleware
 
+from collections import defaultdict
+
 try:
     from threading import currentThread
 except ImportError:
     from dummy_threading import currentThread
 
 
-_globals = {}
+_globals = defaultdict(dict)
 
 def get_global_info(key):
     thread_globals = _globals.get(currentThread())
     return thread_globals and thread_globals.get(key)
 
-def set_global_info(key, value):
-    _globals[currentThread()] = {key: value}
+def set_global_info(**kwargs):
+    _globals[currentThread()].update(kwargs)
 
 def clear_global_info():
     _globals.pop(currentThread(), None)#Don't use del _globals[currentThread()], it causes problems with dev server.

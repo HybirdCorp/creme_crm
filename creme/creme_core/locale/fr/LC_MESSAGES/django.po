@@ -2,12 +2,13 @@
 # Copyright (C) 2011 Hybird
 # This file is distributed under the same license as the Creme package.
 #
+#> django-admin.py makemessages -l fr -e html -i "tests/*"
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-25 16:29+0200\n"
+"POT-Creation-Date: 2011-08-26 10:13+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +18,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #: blocks.py:33 forms/csv_import.py:597 models/creme_property.py:91
-#: models/entity.py:51 tests/views/entity.py:65
+#: models/entity.py:51
 msgid "Properties"
 msgstr "Propriétés"
 
@@ -115,8 +116,7 @@ msgid "General information"
 msgstr "Informations générales"
 
 #: forms/base.py:202 forms/csv_import.py:596 models/base.py:93
-#: models/prefered_menu.py:27 tests/views/entity.py:38
-#: tests/views/entity.py:39 tests/views/entity.py:40
+#: models/prefered_menu.py:27
 msgid "User"
 msgstr "Utilisateur"
 
@@ -161,7 +161,7 @@ msgid "You can't view this value, so you can't set it."
 msgstr ""
 "Vous ne pouvez pas voir cette valeur, donc vous ne pouvez pas l'attribuer."
 
-#: forms/bulk.py:173 forms/bulk.py:176 tests/views/entity.py:609
+#: forms/bulk.py:173 forms/bulk.py:176
 msgid "This field is required."
 msgstr "Ce champ est obligatoire."
 
@@ -357,7 +357,7 @@ msgstr "A la relation"
 msgid "Does not have the relation"
 msgstr "N'a pas la relation"
 
-#: forms/entity_filter.py:56 models/history.py:87 tests/models/history.py:214
+#: forms/entity_filter.py:56 models/history.py:87
 msgid "True"
 msgstr "Vrai"
 
@@ -465,7 +465,7 @@ msgstr "Tous les utilisateurs"
 msgid "Use \"OR\" between the conditions (else \"AND\" is used)."
 msgstr "Utiliser \"OU\" entre les conditions (sinon \"ET\" est utilisé)."
 
-#: forms/entity_filter.py:799 tests/views/entity_filter.py:206
+#: forms/entity_filter.py:799
 msgid "The filter must have at least one condition."
 msgstr "Le filtre doit avoir au moins une condition."
 
@@ -521,6 +521,17 @@ msgstr "La date début doit être avant la date de fin."
 #: forms/fields.py:775 forms/widgets.py:163 forms/widgets.py:868
 msgid "Customized"
 msgstr "Personnalisé"
+
+#  Translated in Django ; leave untranslated here...
+#: forms/fields.py:822
+msgid "Enter a whole number."
+msgstr ""
+
+#  Translated in Django ; leave untranslated here...
+#: forms/fields.py:823
+#, python-format
+msgid "Ensure this value is greater than or equal to %(limit_value)s."
+msgstr ""
 
 #: forms/header_filter.py:46
 msgid "Functions"
@@ -642,7 +653,6 @@ msgstr "Non"
 
 #: models/auth.py:216 models/entity_filter.py:80 models/i18n.py:27
 #: templates/creme_core/templatetags/block_specific_relations.html:18
-#: tests/views/entity.py:304
 msgid "Name"
 msgstr "Nom"
 
@@ -726,11 +736,11 @@ msgstr "Vous n'êtes pas autorisé à configurer cet app: %s"
 msgid "You are not allowed to export: %s"
 msgstr "Vous n'avez pas la permission d'exporter: %s"
 
-#: models/base.py:85 tests/models/header_filter.py:69 tests/views/entity.py:36
+#: models/base.py:85
 msgid "Creation date"
 msgstr "Date de création"
 
-#: models/base.py:86 tests/views/entity.py:37
+#: models/base.py:86
 msgid "Last modification"
 msgstr "Dernière modification"
 
@@ -806,7 +816,7 @@ msgstr "Propriété"
 
 #: models/currency.py:27 models/currency.py:37 models/currency.py:38
 msgid "Currency"
-msgstr "Monnaie"
+msgstr "Devise"
 
 #: models/currency.py:28
 msgid "Local symbol"
@@ -935,7 +945,7 @@ msgstr "Vous n'êtes pas autorisé à modifier/supprimer ce filtre"
 msgid "A condition can not reference its own filter."
 msgstr "Une conditionne peut pas réféerencer son propre filtre."
 
-#: models/entity_filter.py:131 tests/views/entity_filter.py:408
+#: models/entity_filter.py:131
 msgid "There is a cycle with a subfilter."
 msgstr "Il y a un cycle avec un sous filtre."
 
@@ -1075,22 +1085,18 @@ msgstr "Modification liée"
 
 #: models/history.py:178
 #, python-format
-msgid "Set field &ldquo;%(field)s&rdquo;"
-msgstr "Champ &ldquo;%(field)s&rdquo; modifié"
+msgid "Set field “%(field)s”"
+msgstr "Champ “%(field)s” modifié"
 
 #: models/history.py:182
 #, python-format
-msgid "Set field &ldquo;%(field)s&rdquo; to &ldquo;%(value)s&rdquo;"
-msgstr "Champ &ldquo;%(field)s&rdquo; mis à &ldquo;%(value)s&rdquo;"
+msgid "Set field “%(field)s” to “%(value)s”"
+msgstr "Champ “%(field)s” mis à “%(value)s”"
 
 #: models/history.py:188
 #, python-format
-msgid ""
-"Set field &ldquo;%(field)s&rdquo; from &ldquo;%(oldvalue)s&rdquo; to &ldquo;"
-"%(value)s&rdquo;"
-msgstr ""
-"Champ &ldquo;%(field)s&rdquo; passe de &ldquo;%(oldvalue)s&rdquo; à &ldquo;"
-"%(value)s&rdquo;"
+msgid "Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”"
+msgstr "Champ “%(field)s” passe de “%(oldvalue)s” à “%(value)s”"
 
 #: models/i18n.py:28
 msgid "Code"
@@ -1561,7 +1567,6 @@ msgstr "Filtres"
 
 #: templates/creme_core/templatetags/listview_entityfilters.html:26
 #: templates/creme_core/templatetags/search_panel.html:12
-#: tests/views/entity_filter.py:506 tests/views/entity_filter.py:519
 #: views/entity_filter.py:117
 msgid "All"
 msgstr "Tout"
@@ -1724,25 +1729,6 @@ msgstr "%s minute(s)"
 msgid "%s second(s)"
 msgstr "%s seconde(s)"
 
-#: tests/utils.py:276 utils/date_range.py:214
-msgid "In the future"
-msgstr "Dans le futur"
-
-#: tests/models/history.py:187 tests/models/history.py:202
-#, python-format
-msgid "Set field \"%(field)s\" from \"%(oldvalue)s\" to \"%(value)s\""
-msgstr "Champ \"%(field)s\" passe de \"%(oldvalue)s\" à \"%(value)s\""
-
-#: tests/models/history.py:194 tests/models/history.py:212
-#, python-format
-msgid "Set field \"%(field)s\" to \"%(value)s\""
-msgstr "Champ \"%(field)s\" mis à \"%(value)s\""
-
-#: tests/models/history.py:199 tests/models/history.py:209
-#, python-format
-msgid "Set field \"%(field)s\""
-msgstr "Champ \"%(field)s\" modifié"
-
 #: utils/date_range.py:87
 msgid "Previous year"
 msgstr "Année précédente"
@@ -1778,6 +1764,10 @@ msgstr "Trimestre courant"
 #: utils/date_range.py:196
 msgid "Next quarter"
 msgstr "Trimestre suivant"
+
+#: utils/date_range.py:214
+msgid "In the future"
+msgstr "Dans le futur"
 
 #: utils/date_range.py:223
 msgid "In the past"
@@ -1909,6 +1899,19 @@ msgstr "La liste souhaitée n'a aucune vue, veuillez en créer au moins une."
 msgid "You are not allowed to access to the app: %s"
 msgstr "Vous n'avez pas accés à cette application: %s"
 
+#~ msgid "Set field &ldquo;%(field)s&rdquo;"
+#~ msgstr "Champ &ldquo;%(field)s&rdquo; modifié"
+
+#~ msgid "Set field &ldquo;%(field)s&rdquo; to &ldquo;%(value)s&rdquo;"
+#~ msgstr "Champ &ldquo;%(field)s&rdquo; mis à &ldquo;%(value)s&rdquo;"
+
+#~ msgid ""
+#~ "Set field &ldquo;%(field)s&rdquo; from &ldquo;%(oldvalue)s&rdquo; to "
+#~ "&ldquo;%(value)s&rdquo;"
+#~ msgstr ""
+#~ "Champ &ldquo;%(field)s&rdquo; passe de &ldquo;%(oldvalue)s&rdquo; à "
+#~ "&ldquo;%(value)s&rdquo;"
+
 #~ msgid "Fixed menu"
 #~ msgstr "Menu fixe"
 
@@ -1950,21 +1953,6 @@ msgstr "Vous n'avez pas accés à cette application: %s"
 
 #~ msgid "Add a condition"
 #~ msgstr "Ajouter une condition"
-
-#~ msgid "Add an existing filter as condition"
-#~ msgstr "Ajouter un filtre existant en tant que condition"
-
-#~ msgid "Add a filter on a relation"
-#~ msgstr "Ajouter un filtre sur une relation"
-
-#~ msgid "Add a filter on a property"
-#~ msgstr "Ajouter un filtre sur une propriété"
-
-#~ msgid "Add a filter on a date field"
-#~ msgstr "Ajouter un filtre sur un champ date"
-
-#~ msgid "Global test"
-#~ msgstr "Test global"
 
 #~ msgid "Fields"
 #~ msgstr "Champs"

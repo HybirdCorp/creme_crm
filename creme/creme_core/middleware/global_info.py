@@ -17,14 +17,17 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from creme_core.global_info import set_global_info, clear_global_info
 
 from creme_config.utils import get_user_theme
 
+
 class GlobalInfoMiddleware(object):
     def process_request(self, request):
-        set_global_info('username', request.user.username)
-        set_global_info('usertheme', get_user_theme(request.user, request))
+        set_global_info(username=request.user.username,
+                        usertheme=get_user_theme(request.user, request)
+                       )
 
     def process_response(self, request, response):
         clear_global_info()
