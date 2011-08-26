@@ -6,7 +6,7 @@ from time import sleep
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import HistoryLine, HistoryConfigItem, RelationType, Relation
+from creme_core.models import *
 from creme_core.tests.views.base import ViewsTestCase
 
 from persons.models import Contact, Organisation, Sector
@@ -365,3 +365,32 @@ about this fantastic animation studio."""
         self.assertEqual(Contact.objects.get(pk=hayao.id).modified, #refresh
                          hline.date
                         )
+
+    def test_add_property01(self):
+        self.login()
+
+        gainax = Organisation.objects.create(user=self.user, name='Gainax')
+        old_count = HistoryLine.objects.count()
+
+        sleep(1) #ensure than 'modified' field is not 'now()'
+
+        ptype = CremePropertyType.create(str_pk='test-prop_make_animes', text='Make animes')
+        prop = CremeProperty.objects.create(type=ptype, creme_entity=gainax)
+
+        hlines = list(HistoryLine.objects.order_by('id'))
+        self.assertEqual(old_count + 1, len(hlines))
+
+        hline = hlines[-1]
+        self.assertEqual(gainax.id,                 hline.entity.id)
+        self.assertEqual(unicode(gainax),           hline.entity_repr)
+        self.assertEqual(HistoryLine.TYPE_PROPERTY, hline.type)
+        self.assertEqual([ptype.id],                hline.modifications)
+        self.assert_(hline.date > gainax.modified)
+
+        FSTRING = _(u'Add property “%s”')
+        self.assertEqual([FSTRING % ptype.text], hline.verbose_modifications)
+
+        ptype_id = ptype.id
+        prop.delete(); ptype.delete()
+        hline = HistoryLine.objects.get(pk=hline.id) #refresh
+        self.assertEqual([FSTRING % ptype_id], hline.verbose_modifications)

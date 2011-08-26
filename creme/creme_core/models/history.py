@@ -28,7 +28,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, RelationType, Relation
+from creme_core.models import CremeEntity, RelationType, Relation, CremePropertyType, CremeProperty
 from creme_core.global_info import get_global_info
 from creme_core.models.fields import CremeUserForeignKey
 
@@ -106,12 +106,14 @@ class HistoryLine(Model):
     TYPE_EDITION  = 2
     TYPE_DELETION = 3
     TYPE_RELATED  = 4
+    TYPE_PROPERTY = 5
 
     _TYPE_MAP = {
             TYPE_CREATION: _(u'Creation'),
             TYPE_EDITION:  _(u'Edition'),
             TYPE_DELETION: _(u'Deletion'),
             TYPE_RELATED:  _(u'Related modification'),
+            TYPE_PROPERTY: _(u'Property'),
         }
 
     class Meta:
@@ -168,30 +170,40 @@ class HistoryLine(Model):
     def verbose_modifications(self): #TODO: use a templatetag instead ??
         vmodifs = []
 
-        get_field = self.entity_ctype.model_class()._meta.get_field
+        if self.type == HistoryLine.TYPE_PROPERTY:
+            ptype_id = self.modifications[0]
 
-        for modif in self.modifications:
-            field = get_field(modif[0])
-            field_name = field.verbose_name
+            try:
+                ptype_text = CremePropertyType.objects.get(pk=ptype_id).text #TODO: use cache
+            except CremePropertyType.DoesNotExist, e:
+                ptype_text = ptype_id
 
-            if len(modif) == 1:
-                vmodif = mark_safe(ugettext(u'Set field “%(field)s”') % {
-                                        'field': field_name,
-                                    })
-            elif len(modif) == 2:
-                vmodif = mark_safe(ugettext(u'Set field “%(field)s” to “%(value)s”') % {
-                                        'field': field_name,
-                                        'value': _PRINTERS.get(field.get_internal_type(), _basic_printer)(field, modif[1]),
-                                    })
-            else:
-                printer = _PRINTERS.get(field.get_internal_type(), _basic_printer)
-                vmodif = mark_safe(ugettext(u'Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”') % {
-                                        'field':    field_name,
-                                        'oldvalue': printer(field, modif[1]), #TODO: improve for fk ???
-                                        'value':    printer(field, modif[2]),
-                                    })
+            vmodifs.append(_(u'Add property “%s”') % ptype_text)
+        else:
+            get_field = self.entity_ctype.model_class()._meta.get_field
 
-            vmodifs.append(vmodif)
+            for modif in self.modifications:
+                field = get_field(modif[0])
+                field_name = field.verbose_name
+
+                if len(modif) == 1:
+                    vmodif = mark_safe(ugettext(u'Set field “%(field)s”') % {
+                                            'field': field_name,
+                                        })
+                elif len(modif) == 2:
+                    vmodif = mark_safe(ugettext(u'Set field “%(field)s” to “%(value)s”') % {
+                                            'field': field_name,
+                                            'value': _PRINTERS.get(field.get_internal_type(), _basic_printer)(field, modif[1]),
+                                        })
+                else: #len(modif) == 3
+                    printer = _PRINTERS.get(field.get_internal_type(), _basic_printer)
+                    vmodif = mark_safe(ugettext(u'Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”') % {
+                                            'field':    field_name,
+                                            'oldvalue': printer(field, modif[1]), #TODO: improve for fk ???
+                                            'value':    printer(field, modif[2]),
+                                        })
+
+                vmodifs.append(vmodif)
 
         return vmodifs
 
@@ -231,6 +243,13 @@ class HistoryLine(Model):
 
     @staticmethod
     def _log_creation_edition(sender, instance, created, **kwargs):
+        if isinstance(instance, CremeProperty):
+            HistoryLine._create_line_4_instance(instance.creme_entity,
+                                                HistoryLine.TYPE_PROPERTY,
+                                                date=datetime.now(),
+                                                modifs=[instance.type_id]
+                                               )
+
         if not isinstance(instance, CremeEntity):
             return
 
