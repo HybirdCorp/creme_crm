@@ -81,9 +81,6 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^list_view/import_csv/(?P<ct_id>\d+)$', 'csv_import.csv_import'),
     (r'^list_view/dl_csv/(?P<ct_id>\d+)$',     'csv_export.dl_listview_as_csv'),
 
-    # Popup helper
-    (r'^nothing/$', 'nothing.get_nothing'), #TODO: to be deleted
-
     #Research
     (r'^search$', 'search.search'),
 
