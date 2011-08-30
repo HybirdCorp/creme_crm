@@ -109,19 +109,6 @@
     text-align: left;
 }
 
-form .table_detail_view input, form .table_detail_view select, form .table_detail_view textarea{
-    width: 20%;
-}
-
-form .table_detail_view.dual_column input, form .table_detail_view.dual_column select, form .table_detail_view.dual_column textarea {
-    width: 40%;
-}
-
-.table_detail_view input[type="checkbox"], .table_detail_view.dual_column input[type="checkbox"] {/* Fix for chrome & opera */
-    width: auto;
-    margin-left: 0;
-}
-
 .table_detail_view.dual_column {
     width: 49.9%;
     float: left;

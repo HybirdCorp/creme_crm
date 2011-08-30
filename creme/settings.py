@@ -311,6 +311,7 @@ CREME_CORE_CSS = ('main.css',
                     'creme_core/css/list_view.css',
                     'creme_core/css/detail_view.css',
                     'creme_core/css/navit.css',
+                    'creme_core/css/forms.css',
 
                     #APPS
                     'creme_config/css/creme_config.css',
