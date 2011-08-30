@@ -29,12 +29,14 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext_lazy as _
+from activesync.utils import is_user_sync_calendars, is_user_sync_contacts
 
 from creme_core.models.entity import CremeEntity
 
 from base import Base
 
-from activesync.constants import CONFLICT_SERVER_MASTER, SYNC_AIRSYNC_STATUS_SUCCESS, SYNC_AIRSYNC_STATUS_INVALID_SYNCKEY, SYNC_AIRSYNC_STATUS_CLIENT_SERV_CONV_ERR
+from activesync.constants import (CONFLICT_SERVER_MASTER, SYNC_AIRSYNC_STATUS_SUCCESS, SYNC_AIRSYNC_STATUS_INVALID_SYNCKEY,\
+                                  SYNC_AIRSYNC_STATUS_CLIENT_SERV_CONV_ERR, SYNC_FOLDER_TYPE_CONTACT, SYNC_FOLDER_TYPE_APPOINTMENT)
 from activesync.models import (CremeExchangeMapping, CremeClient, SyncKeyHistory)
 from activesync.mappings import CREME_AS_MAPPING, FOLDERS_TYPES_CREME_TYPES_MAPPING
 from activesync.messages import MessageSucceedContactAdd, MessageSucceedContactUpdate, MessageInfoContactAdd
@@ -53,8 +55,17 @@ class AirSync(Base):
         super(AirSync, self).__init__(*args, **kwargs)
         self._create_connection()
 
+    def _filter_folders(self, folders):
+        if not is_user_sync_calendars(self.user):
+            folders = filter(lambda f: not f.type==SYNC_FOLDER_TYPE_APPOINTMENT, folders)
+
+        if not is_user_sync_contacts(self.user):
+            folders = filter(lambda f: not f.type==SYNC_FOLDER_TYPE_CONTACT, folders)
+
+        return folders
+
     def send(self, policy_key, folders, synckey=None, fetch=True, headers=None):
-        for folder in folders:
+        for folder in self._filter_folders(folders):
             self.send_for_folder(policy_key, folder, synckey, fetch, headers)
             folder.save()
 
@@ -204,18 +215,25 @@ class AirSync(Base):
 
                     server_id_pk  = add_node_find('%(ns0)sServerId' % d_ns).text#This is the object pk on the server map it whith cremepk
                     app_data      = add_node_find('%(ns0)sApplicationData' % d_ns)
-                    app_data_find = app_data.find
 
                     data = {'user': user}
-                    for ns, field_dict in mapping.iteritems():
-                        for c_field, x_field in field_dict.iteritems():
-                            d = app_data_find('{%s}%s' % (ns, x_field))
-                            if d is not None:
+                    if app_data is not None:
+                        app_data_find = app_data.find
+                        for ns, field_dict in mapping.iteritems():
+                            for c_field, x_field in field_dict.iteritems():
+                                d = app_data_find('{%s}%s' % (ns, x_field))
+                                if d is not None:
+                                    if callable(c_field):
+                                        c_field = c_field(needs_attr=True)
+
+                                    if c_field and c_field.strip() != '':
+                                        data[c_field] = smart_unicode(d.text)
+                    else:
+                        for ns, field_dict in mapping.iteritems():
+                            for c_field, x_field in field_dict.iteritems():
                                 if callable(c_field):
                                     c_field = c_field(needs_attr=True)
-
-                                if c_field and c_field.strip() != '':
-                                    data[c_field] = smart_unicode(d.text)
+                                data[c_field] = u""
 
                     entity = save_entity(data, user, folder)
                     self.add_history_create_in_creme(entity)
@@ -257,14 +275,21 @@ class AirSync(Base):
 
                     update_data = {}
                     app_data_node = change_node.find('%(ns0)sApplicationData' % d_ns)
-                    for ns, field_dict in mapping.iteritems():
-                        for c_field, x_field in field_dict.iteritems():
-                            node = app_data_node.find('{%(ns1)s}%(x_field)s' % {'x_field': x_field, 'ns1': ns})
-                            if node is not None:
+                    if app_data_node is not None:
+                        for ns, field_dict in mapping.iteritems():
+                            for c_field, x_field in field_dict.iteritems():
+                                node = app_data_node.find('{%(ns1)s}%(x_field)s' % {'x_field': x_field, 'ns1': ns})
+                                if node is not None:
+                                    if callable(c_field):
+                                        c_field = c_field(needs_attr=True)
+
+                                    update_data[c_field] = smart_unicode(node.text)
+                    else:
+                        for ns, field_dict in mapping.iteritems():
+                            for c_field, x_field in field_dict.iteritems():
                                 if callable(c_field):
                                     c_field = c_field(needs_attr=True)
-
-                                update_data[c_field] = smart_unicode(node.text)
+                                update_data[c_field] = u""
 
                     debug("Update %s with %s", entity, update_data)
 
@@ -304,6 +329,7 @@ class AirSync(Base):
                         self.add_info_message(_(u"The server deletes the %s but Creme modified it, so it will be synced at the next synchronization.") % creme_model_verbose_name)
                     else:
                         debug("Deleting %s", entity)
+                        entity_pk = entity.pk
                         try:
                             entity.delete()
                         except ProtectedError, err:
@@ -311,6 +337,7 @@ class AirSync(Base):
                         else:
                             self.add_history_delete_in_creme(entity)
                             self.add_success_message(_(u"Successfully deleted %s") % entity)
+                            self.update_histories_on_delete(entity_pk)
                     c_x_mapping.delete()
 
 
@@ -366,6 +393,7 @@ class AirSync(Base):
                     SyncKeyHistory.back_to_previous_key(client)
                 return
 
+            unchanged_server_id = ()
             if responses is not None:
                 ########################################################
                 # Response from server for confirm / invalidate changes
@@ -433,13 +461,14 @@ class AirSync(Base):
                 ### Updating mapping only for entities actually changed on the server
                 ### Ensure we actually update for the right(current) user
                 unchanged_server_id = [change.get('server_id') for change in change_stack]
-                exch_map_manager.filter(Q(is_creme_modified=True, user=user) & ~Q(exchange_entity_id__in=unchanged_server_id)).update(is_creme_modified=False)
-                unchanged_entities = CremeEntity.objects.filter(pk__in=exch_map_manager.filter(exchange_entity_id__in=rejected_change_ids).values_list('creme_entity_id', flat=True))
+#                exch_map_manager.filter(Q(is_creme_modified=True, user=user) & ~Q(exchange_entity_id__in=unchanged_server_id)).update(is_creme_modified=False)
 
+                unchanged_entities = CremeEntity.objects.filter(pk__in=exch_map_manager.filter(exchange_entity_id__in=rejected_change_ids).values_list('creme_entity_id', flat=True))
                 ### Error messages
                 for unchanged_entity in unchanged_entities:
                     add_error_message(_(u"The server has denied changes on <%s>. (It happens for example for activities which are on a read-only calendar)") % (unchanged_entity))
 
+            exch_map_manager.filter(Q(is_creme_modified=True, user=user) & ~Q(exchange_entity_id__in=unchanged_server_id)).update(is_creme_modified=False)
             ## Delete part
             ### We delete the mapping for deleted entities
             ### TODO: Verify the status ?
@@ -508,17 +537,19 @@ def delete_object(server_id):
 def get_deleted_objects(user, airsync_cmd, creme_model):
 #    deleted_ids = CremeExchangeMapping.objects.filter(was_deleted=True, user=user).values_list('exchange_entity_id', flat=True)
     ct = ContentType.objects.get_for_model(creme_model)
-    deleted_ids = CremeExchangeMapping.objects.filter(was_deleted=True, user=user, creme_entity_ct=ct).values_list('exchange_entity_id', 'creme_entity_repr')
+    deleted_ids = CremeExchangeMapping.objects.filter(was_deleted=True, user=user, creme_entity_ct=ct).values_list('exchange_entity_id', 'creme_entity_repr', 'creme_entity_id')
     objects = []
 
     add_info_message = airsync_cmd.add_info_message
     objects_append   = objects.append
     add_history_delete_on_server = airsync_cmd.add_history_delete_on_server
+    update_histories_on_delete = airsync_cmd.update_histories_on_delete
 
-    for server_id, entity_repr in deleted_ids:
+    for server_id, entity_repr, creme_entity_id in deleted_ids:
         if entity_repr is not None:
             add_history_delete_on_server((entity_repr, ct))
             add_info_message(_(u"Deleting %s on the server") % entity_repr)
+            update_histories_on_delete(creme_entity_id)
         objects_append(delete_object(server_id))
 
     return objects

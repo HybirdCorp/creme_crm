@@ -11,6 +11,8 @@ USER_MOBILE_SYNC_SERVER_DOMAIN  = "activesync-mapi-domain-user"
 USER_MOBILE_SYNC_SERVER_SSL     = "activesync-mapi-server_ssl-user"
 USER_MOBILE_SYNC_SERVER_LOGIN   = "activesync-mapi-server_login-user"
 USER_MOBILE_SYNC_SERVER_PWD     = "activesync-mapi-server_pwd-user"
+USER_MOBILE_SYNC_ACTIVITIES     = "activesync-sync_activities_user"#Is activities are allowed to be synced
+USER_MOBILE_SYNC_CONTACTS       = "activesync-sync_contacts_user"  #Is contacts are allowed to be synced
 
 ################################################################################
 # Folder sync / Provisionning
@@ -42,7 +44,7 @@ SYNC_FOLDER_STATUS_TIMEOUT         = 8  # The request timed out.
 SYNC_FOLDER_STATUS_INVALID_SYNCKEY = 9  # Synchronization key mismatch or invalid synchronization key.
 SYNC_FOLDER_STATUS_BAD_REQUEST     = 10 # Incorrectly formatted request
 SYNC_FOLDER_STATUS_UNKNOW_ERROR    = 11 # An unknown error occurred.
-SYNC_FOLDER_STATUS_ERROR           = 12 # Code unknown. 
+SYNC_FOLDER_STATUS_ERROR           = 12 # Code unknown.
 
 ## Folder Types
 SYNC_FOLDER_TYPE_OTHER            = 1

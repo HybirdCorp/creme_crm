@@ -25,6 +25,8 @@ from django.template.defaulttags import TemplateLiteral
 from django.template import Library
 
 from activesync.messages import MESSAGE_TYPES_VERBOSE
+from activesync.models.active_sync import USER_HISTORY_TYPE_IMG, USER_HISTORY_WHERE_IMG
+from creme_core.utils.media import creme_media_themed_url
 
 register = Library()
 
@@ -57,3 +59,11 @@ class MessageRenderNode(TemplateNode):
 @register.simple_tag
 def get_verbose_message_type(type, count=1):
     return MESSAGE_TYPES_VERBOSE.get(type, lambda count: "")(count)
+
+@register.simple_tag
+def get_history_type_img(history_type):
+    return creme_media_themed_url(USER_HISTORY_TYPE_IMG.get(history_type, ""))
+
+@register.simple_tag
+def get_history_where_img(history_where):
+    return creme_media_themed_url(USER_HISTORY_WHERE_IMG.get(history_where, ""))

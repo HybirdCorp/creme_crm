@@ -23,7 +23,7 @@ from django.forms.fields import ChoiceField, CharField, URLField
 from django.forms.widgets import PasswordInput, Select
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_config.models.setting import SettingValue
+from creme_config.models.setting import SettingValue, SettingKey
 from creme_core.forms.base import FieldBlockManager, CremeForm
 from creme_core.forms.widgets import Label
 
@@ -37,20 +37,23 @@ from activesync.constants import (USER_MOBILE_SYNC_SERVER_URL,
                                     MAPI_SERVER_URL,
                                     MAPI_DOMAIN,
                                     MAPI_SERVER_SSL,
-                                    COMMONS_SERVER_URL_CFG)
+                                    COMMONS_SERVER_URL_CFG, USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS)
 
 
 class UserSettingsConfigForm(CremeForm):
-    help         = CharField(   label=_(u"NB"),                  required=False, initial=_(u"Note that if you change your server url or your login, synchronization will be reset. You will not loose all your synchronized contacts but there will be all added on the 'new' account at next synchronization."), widget=Label)
-    url_examples = ChoiceField( label=_(u"Server url examples"), required=False, help_text=_(u"Some common configurations"), choices=chain((("", ""),), COMMONS_SERVER_URL_CFG), widget=Select(attrs={'onchange':'this.form.url.value=$(this).val();'}) )
-    url          = URLField(    label=_(u"Server url"),          required=False, help_text=_(u"Let empty to get the default configuration (currently '%s')."))
-    domain       = CharField(   label=_(u"Domain"),              required=False, help_text=_(u"Let empty to get the default configuration (currently '%s')."))
-    ssl          = ChoiceField( label=_(u"Is secure"),           required=False, help_text=_(u"Let default to get the default configuration  (currently '%s')."), choices=(('', _('Default')) ,('1', _('Yes')), ('0', _('No'))) )
-    login        = CharField(   label=_(u"Login"),               required=False)
-    password     = CharField(   label=_(u"Password"),            required=False, widget=PasswordInput)
+    help         =   CharField(   label=_(u"NB"),                  required=False, initial=_(u"Note that if you change your server url or your login, synchronization will be reset. You will not loose all your synchronized contacts but there will be all added on the 'new' account at next synchronization."), widget=Label)
+    url_examples   = ChoiceField( label=_(u"Server url examples"), required=False, help_text=_(u"Some common configurations"), choices=chain((("", ""),), COMMONS_SERVER_URL_CFG), widget=Select(attrs={'onchange':'this.form.url.value=$(this).val();'}) )
+    url            = URLField(    label=_(u"Server url"),          required=False, help_text=_(u"Let empty to get the default configuration (currently '%s')."))
+    domain         = CharField(   label=_(u"Domain"),              required=False, help_text=_(u"Let empty to get the default configuration (currently '%s')."))
+    ssl            = ChoiceField( label=_(u"Is secure"),           required=False, help_text=_(u"Let default to get the default configuration  (currently '%s')."), choices=(('', _('Default')) ,('1', _('Yes')), ('0', _('No'))) )
+    login          = CharField(   label=_(u"Login"),               required=False)
+    password       = CharField(   label=_(u"Password"),            required=False, widget=PasswordInput)
+    sync_calendars = ChoiceField( label=_(u"Synchronize activities (calendars)"), help_text=_(u"Choose if either you want to synchronize your activities in both way or not."), choices=(('0', _('No')), ('1', _('Yes'))))
+    sync_contacts  = ChoiceField( label=_(u"Synchronize contacts"),               help_text=_(u"Choose if either you want to synchronize your contacts in both way or not."),   choices=(('0', _('No')), ('1', _('Yes'))))
 
     blocks = FieldBlockManager(#('general',    _(u'Generic information'),  '*'),
                                ('mobile_sync', _(u'Mobile synchronization configuration'),   ('url', 'url_examples', 'domain', 'ssl', 'login', 'password', 'help')),
+                               ('what_sync', _(u'What to sync'),   ('sync_calendars', 'sync_contacts')),
                               )
 
     def __init__(self, user, *args, **kwargs):
@@ -86,7 +89,18 @@ class UserSettingsConfigForm(CremeForm):
 
         try:
             fields['password'].initial = Cipher.decrypt_from_db(sv_get(key__id=USER_MOBILE_SYNC_SERVER_PWD, user=user).value)
+            fields['password'].widget.render_value = True
         except sv_doesnotexist:
+            pass
+
+        try:
+            fields['sync_calendars'].initial = int(bool(sv_get(key__id=USER_MOBILE_SYNC_ACTIVITIES, user=user).value))
+        except (sv_doesnotexist, ValueError):
+            pass
+
+        try:
+            fields['sync_contacts'].initial = int(bool(sv_get(key__id=USER_MOBILE_SYNC_CONTACTS, user=user).value))
+        except (sv_doesnotexist, ValueError):
             pass
 
         try:
@@ -104,11 +118,20 @@ class UserSettingsConfigForm(CremeForm):
         except sv_doesnotexist:
             fields['ssl'].help_text %= undefined
 
-    def clean_ssl(self):
+    def _booleanify(self, value):
         try:
-            return bool(int(self.cleaned_data['ssl']))
+            return bool(int(value))
         except ValueError:
             pass
+
+    def clean_ssl(self):
+        return self._booleanify(self.cleaned_data['ssl'])
+
+    def clean_sync_calendars(self):
+        return self._booleanify(self.cleaned_data['sync_calendars'])
+
+    def clean_sync_contacts(self):
+        return self._booleanify(self.cleaned_data['sync_contacts'])
 
     def save(self):
 #        super(UserSettingsConfigForm, self).save()
@@ -153,6 +176,16 @@ class UserSettingsConfigForm(CremeForm):
             user_login_cfg.save()
         else:
             sv_filter(key__id=USER_MOBILE_SYNC_SERVER_LOGIN, user=user).delete()
+
+        user_sync_cal_cfg_sk = SettingKey.objects.get(pk=USER_MOBILE_SYNC_ACTIVITIES)
+        user_sync_cal_cfg, is_created = sv_get_or_create(key=user_sync_cal_cfg_sk, user=user)
+        user_sync_cal_cfg.value = clean_get('sync_calendars')
+        user_sync_cal_cfg.save()
+
+        user_sync_con_cfg_sk = SettingKey.objects.get(pk=USER_MOBILE_SYNC_CONTACTS)
+        user_sync_con_cfg, is_created = sv_get_or_create(key=user_sync_con_cfg_sk, user=user)
+        user_sync_con_cfg.value = clean_get('sync_contacts')
+        user_sync_con_cfg.save()
 
         password = clean_get('password')
         if password:

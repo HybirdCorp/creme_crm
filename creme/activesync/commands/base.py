@@ -106,6 +106,9 @@ class Base(object):
 
     def add_history_delete_on_server(self, entity):
         return self._add_history(entity, ON_SERVER, DELETE)
+
+    def update_histories_on_delete(self, entity_pk):
+        UserSynchronizationHistory.objects.filter(entity_pk=entity_pk).update(entity_pk=None)
     #End history helpers
 
     def _create_connection(self, *args, **kwargs):

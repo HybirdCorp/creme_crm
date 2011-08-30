@@ -29,7 +29,8 @@ from creme_config.models.setting import SettingKey, SettingValue
 
 from activesync.constants import (MAPI_DOMAIN, MAPI_SERVER_SSL, MAPI_SERVER_URL, USER_MOBILE_SYNC_SERVER_URL,
                                   USER_MOBILE_SYNC_SERVER_DOMAIN, USER_MOBILE_SYNC_SERVER_SSL,
-                                  USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD)
+                                  USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD,
+                                  USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS)
 
 
 class Populator(BasePopulator):
@@ -76,3 +77,13 @@ class Populator(BasePopulator):
                description="", hidden=True,
                app_label='activesync', type=SettingKey.STRING
                )
+
+        SettingKey.create(pk=USER_MOBILE_SYNC_ACTIVITIES,
+               description="", hidden=True,
+               app_label='activesync', type=SettingKey.BOOL
+               )
+
+        SettingKey.create(pk=USER_MOBILE_SYNC_CONTACTS,
+               description="", hidden=True,
+               app_label='activesync', type=SettingKey.BOOL)
+

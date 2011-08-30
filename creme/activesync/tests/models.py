@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.contrib.contenttypes.models import ContentType
+from activesync.models.active_sync import UserSynchronizationHistory
 
 from creme_core.models.relation import Relation
 from creme_core.tests.base import CremeTestCase
@@ -139,3 +140,24 @@ class ActiveSyncModelsTestCase(CremeTestCase):
         meeting.delete()
         mapping = CremeExchangeMapping.objects.get(pk=mapping.id)#Refresh
         self.assertTrue(mapping.was_deleted)
+
+    def test_user_synchronization_history01(self):#test the property and the cache
+        u = UserSynchronizationHistory()
+        self.assertEqual(None, u.entity)
+
+        user = self.user
+        contact = Contact.objects.create(user=user, first_name='Mario', last_name='Bros')
+        ct_contact = ContentType.objects.get_for_model(contact)
+
+        u.entity = contact
+        self.assertEqual(contact, u.entity)#Set
+        self.assertEqual(contact, u.entity)#Hit
+
+        u._entity = None
+        self.assertEqual(contact, u.entity)#Set again
+
+        u._entity   = None
+        u.entity_pk = None
+        self.assertEqual(None, u.entity)
+
+

@@ -20,8 +20,11 @@
 
 
 from django.test import TestCase
+from activesync.constants import USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS
 
-from activesync.utils import decode_AS_timezone
+from activesync.utils import decode_AS_timezone, is_user_sync_calendars, is_user_sync_contacts
+from creme_config.models.setting import SettingKey, SettingValue
+from creme_core.tests.base import CremeTestCase
 
 
 class MiscTestCase(TestCase):
@@ -83,3 +86,30 @@ class MiscTestCase(TestCase):
         'standard_name': 'TAH',
         'standard_second': 0,
         'standard_year': 0}, decoded)
+
+
+class UserSettingsTestCase(CremeTestCase):
+    def setUp(self):
+        self.populate('creme_config', 'activesync')
+
+    def test_is_user_sync_calendars01(self):
+        self.login()
+        self.assertEqual(1, SettingKey.objects.filter(pk=USER_MOBILE_SYNC_ACTIVITIES).count())
+        self.assertEqual(0, SettingValue.objects.filter(key=USER_MOBILE_SYNC_ACTIVITIES).count())
+        self.assertEqual(False, is_user_sync_calendars(self.user))#not assertFalse !
+
+        SettingValue.objects.create(key=SettingKey.objects.get(pk=USER_MOBILE_SYNC_ACTIVITIES), value_str="True", user=self.user)
+
+        self.assert_(is_user_sync_calendars(self.user))
+
+    def test_is_user_sync_contacts01(self):
+        self.login()
+        self.assertEqual(1, SettingKey.objects.filter(pk=USER_MOBILE_SYNC_CONTACTS).count())
+        self.assertEqual(0, SettingValue.objects.filter(key=USER_MOBILE_SYNC_CONTACTS).count())
+        self.assertEqual(False, is_user_sync_contacts(self.user))#not assertFalse !
+
+        SettingValue.objects.create(key=SettingKey.objects.get(pk=USER_MOBILE_SYNC_CONTACTS), value_str="True", user=self.user)
+
+        self.assert_(is_user_sync_contacts(self.user))
+
+
