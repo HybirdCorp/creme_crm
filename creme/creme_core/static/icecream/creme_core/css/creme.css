@@ -823,34 +823,6 @@ a img:hover {
     z-index: 1100; /* use z-index to display over inner popups (1000) */
 }
 
-input[type="text"], input[type="password"] {
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    border: 1px solid #6eaac4;
-}
-
-input[type="text"]:disabled, input[type="text"][readonly] {
-    border: 0px;
-    color: #6eaac4;
-    background: #ffffff;/*#F4FAFD;*/
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-}
-
-textarea {
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-    border: 1px solid #6eaac4;
-}
-
-textarea:disabled, textarea[readonly] {
-    border: 0px;
-    color: #6eaac4;
-    background: #ffffff;/*#F4FAFD;*/
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
-}
-
 /* DualColumnMultiSelect (dcms) (move to creme-ui ??)*/
 .dcms_div li.dcms_focused {
     background: #f7b5ad none repeat scroll 0 0;

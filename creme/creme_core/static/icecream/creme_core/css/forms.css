@@ -1,0 +1,41 @@
+input[type="text"], input[type="password"] {
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border: 1px solid #6eaac4;
+}
+
+input[type="text"]:disabled, input[type="text"][readonly] {
+    border: 0px;
+    color: #6eaac4;
+    background: #ffffff;/*#F4FAFD;*/
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+}
+
+textarea {
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border: 1px solid #6eaac4;
+}
+
+textarea:disabled, textarea[readonly] {
+    border: 0px;
+    color: #6eaac4;
+    background: #ffffff;/*#F4FAFD;*/
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+}
+
+form .table_detail_view input, form .table_detail_view select, form .table_detail_view textarea{
+    width: 45%;
+}
+
+form .table_detail_view.dual_column input, form .table_detail_view.dual_column select, form .table_detail_view.dual_column textarea {
+    width: 100%;
+}
+
+.table_detail_view input[type="checkbox"], .table_detail_view.dual_column input[type="checkbox"] {/* Fix for chrome & opera */
+    width: auto;
+    margin-left: 0;
+}
+

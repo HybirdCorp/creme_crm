@@ -390,12 +390,12 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
 
     var $layout = $('<table></table>');
     $('<tbody></tbody>').appendTo($layout)
-                        .append($('<tr></tr>').append($('<th></th>').append(gettext("Available")))
-                                              .append($('<th></th>'))
-                                              .append($('<th></th>').append(gettext("Chosen"))))
-                        .append($('<tr></tr>').append($('<td></td>').append($available))
-                                              .append($('<td></td>').append($buttons))
-                                              .append($('<td></td>').append($chosen)));
+                        .append($('<tr class="header"></tr>').append($('<th class="available"></th>').append(gettext("Available")))
+                                                             .append($('<th class="buttons"></th>'))
+                                                             .append($('<th class="chosen"></th>').append(gettext("Chosen"))))
+                        .append($('<tr class="content"></tr>').append($('<td class="available"></td>').append($available))
+                                                              .append($('<td class="buttons"></td>').append($buttons))
+                                                              .append($('<td class="chosen"></td>').append($chosen)));
 
     $div.append($store).append($layout);
 
