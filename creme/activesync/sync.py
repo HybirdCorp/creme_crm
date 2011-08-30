@@ -48,6 +48,7 @@ from activesync.messages import MessageInfo, MessageSucceed, MessageError, _INFO
 from activesync.models.active_sync import CremeClient, AS_Folder
 from activesync.commands import FolderSync, Provision, AirSync
 from activesync import constants as as_constants
+from activesync.utils import is_user_sync_calendars, is_user_sync_contacts
 
 from activesync.mappings import FOLDERS_TYPES_CREME_TYPES_MAPPING, CREME_AS_MAPPING
 
@@ -79,6 +80,8 @@ class Synchronization(object):
                 'info': [],
             },
         }
+        self.is_user_sync_calendars = is_user_sync_calendars(user)
+        self.is_user_sync_contacts  = is_user_sync_contacts(user)
 
         #TODO: If messages will be used somewhere else activate the django messaging system
         self._messages = defaultdict(list)
@@ -214,7 +217,9 @@ class Synchronization(object):
 
         ## Synchronizing entities
         as_ = self._sync(policy_key, folders, sync_key, True)
-        client.sync_key = as_.last_synckey
+        if hasattr(as_, 'last_synckey'): #If none of folders is synchronized (which can happen if the user has chosen "to sync nothing"...)
+            client.sync_key = as_.last_synckey
+
         self._data['debug']['info'].append("client.sync_key : %s" % client.sync_key)
 
 #        #We delete the mapping for deleted entities

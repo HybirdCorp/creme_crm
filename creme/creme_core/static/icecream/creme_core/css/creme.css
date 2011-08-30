@@ -803,6 +803,10 @@ a img:hover {
     border-radius: 10px;
 }
 
+.help_box.with-table table {
+    width: 100%;
+}
+
 .selectable {
 
 }

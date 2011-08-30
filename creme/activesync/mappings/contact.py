@@ -213,7 +213,14 @@ def create_or_update_function(contact, d, history=None):
 def create_image_from_b64(contact, d, user):
     image_b64 = d.pop('image', None)
     if image_b64 is not None:
-        if contact.image is not None:
+        contact_has_img = contact.image is not None
+
+        if image_b64 == "":
+            if contact_has_img:
+                contact.image.delete()
+            return
+
+        if contact_has_img:
             img_entity = contact.image
             img_entity.image.delete()#Deleting the old file
         else:

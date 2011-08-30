@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from forms import *
 from wbxml import *
 from image import *
 from models import *

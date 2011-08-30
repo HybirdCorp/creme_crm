@@ -24,6 +24,8 @@ import base64
 
 from PIL import Image
 from datetime import datetime
+from activesync.constants import USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS
+from creme_config.models.setting import SettingValue
 
 try:
     from cStringIO import StringIO
@@ -63,7 +65,7 @@ def b64_encode_file(file_path):
 
     value = encoded.getvalue()
     len_encoded = len(value)
-    
+
     encoded.close()
 
     return (len_encoded, value)
@@ -94,7 +96,7 @@ def get_b64encoded_img_of_max_weight(image_file_path, max_weight):
     im = Image.open(image_file_path)
 
     file_size = os.path.getsize(image_file_path)
-    
+
     if file_size*KNOW_BASE64_INCREASE <= max_weight:
         content_size, content = b64_encode_file(image_file_path)
 
@@ -143,7 +145,7 @@ def decode_AS_timezone(tz):
      'daylight_milliseconds',
      'daylight_bias'
     )
-    
+
 #    unpack('cxcxc59x' daylightName standardName
     tz_dict = dict(zip(tz_infos_keys, unpack('l64s8hl64s8hl', base64.b64decode(tz))))
 
@@ -155,4 +157,17 @@ def decode_AS_timezone(tz):
 def encode_AS_timezone(time_zone):
     #TODO: Do this function (for now just handling Europe/Paris
     return 'xP///0MARQBUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoAAAAFAAMAAAAAAAAAAAAAAEMARQBTAFQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAAAFAAIAAAAAAAAAxP///w=='
+
+def _is_user_sync(user, key):
+    try:
+        return SettingValue.objects.get(key=key, user=user).value
+    except SettingValue.DoesNotExist:
+        pass
+    return False
+
+def is_user_sync_calendars(user):
+    return _is_user_sync(user, USER_MOBILE_SYNC_ACTIVITIES)
+
+def is_user_sync_contacts(user):
+    return _is_user_sync(user, USER_MOBILE_SYNC_CONTACTS)
 

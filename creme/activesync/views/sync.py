@@ -34,11 +34,11 @@ def main_sync(request):
 
     try:
         sync = Synchronization(request.user)
-        
+
     except CremeActiveSyncError, err:
 #        raise Exception(err)
         tpl_dict = {'all_messages': {_ERROR: [MessageError(message=err)]}.iteritems()}#TODO:Bof
-        
+
     else:
         try:
             sync.synchronize()
@@ -47,13 +47,14 @@ def main_sync(request):
 
         tpl_dict = {
             'server_url': sync.server_url,
-            'login':      sync.login,
-            'domain':     sync.domain,
+            'login'     : sync.login,
+            'domain'    : sync.domain,
             'server_ssl': sync.server_ssl,
-            'last_sync':  sync.last_sync,
+            'last_sync' : sync.last_sync,
 
-            'all_messages'    :  sync.messages(),
-
+            'all_messages'  : sync.messages(),
+            'sync_calendars': sync.is_user_sync_calendars,
+            'sync_contacts' : sync.is_user_sync_contacts,
 
             #DEBUG
             'xml':        sync._data['debug']['xml'],

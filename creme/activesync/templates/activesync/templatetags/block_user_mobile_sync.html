@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load media creme_block creme_core_tags %}
+{% load creme_block creme_core_tags %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     <thead>
         <tr>
@@ -16,24 +16,32 @@
             </th>
         </tr>
         <tr class="content">
-            <th class="block_header_line_light th_info">{% trans "Server url" %}</th>
-            <td class="block_line_light td_info">{{url}}</td>
+            <th class="{% cycle "block_header_line_dark" "block_header_line_light" as header_row_color %} th_info">{% trans "Server url" %}</th>
+            <td class="{% cycle "block_line_dark" "block_line_light" as row_color %} td_info">{{url}}</td>
         </tr>
         <tr class="content">
-            <th class="block_header_line_light th_info">{% trans "Domain" %}</th>
-            <td class="block_line_light td_info">{{domain}}</td>
+            <th class="{% cycle header_row_color %} th_info">{% trans "Domain" %}</th>
+            <td class="{% cycle row_color %} td_info">{{domain}}</td>
         </tr>
         <tr class="content">
-            <th class="block_header_line_dark th_info">{% trans "Is secure" %}</th>
-            <td class="block_line_dark td_info">{{ssl|print_boolean}}</td>
+            <th class="{% cycle header_row_color %} th_info">{% trans "Is secure" %}</th>
+            <td class="{% cycle row_color %} td_info">{{ssl|print_boolean}}</td>
         </tr>
         <tr class="content">
-            <th class="block_header_line_dark th_info">{% trans "Username" %}</th>
-            <td class="block_line_dark td_info">{{username}}</td>
+            <th class="{% cycle header_row_color %} th_info">{% trans "Username" %}</th>
+            <td class="{% cycle row_color %} td_info">{{username}}</td>
         </tr>
         <tr class="content">
-            <th class="block_header_line_dark th_info">{% trans "Password" %}</th>
-            <td class="block_line_dark td_info">{% for i in password|length|xrange %}*{% empty %}{% trans "Not filled in" %}{% endfor %}</td>
+            <th class="{% cycle header_row_color %} th_info">{% trans "Password" %}</th>
+            <td class="{% cycle row_color %} td_info">{% for i in password|length|xrange %}*{% empty %}{% trans "Not filled in" %}{% endfor %}</td>
+        </tr>
+        <tr class="content">
+            <th class="{% cycle header_row_color %} th_info">{% trans "Synchronize activities (calendars)" %}</th>
+            <td class="{% cycle row_color %} td_info">{{sync_cal|print_boolean}}</td>
+        </tr>
+        <tr class="content">
+            <th class="{% cycle header_row_color %} th_info">{% trans "Synchronize contacts" %}</th>
+            <td class="{% cycle row_color %} td_info">{{sync_con|print_boolean}}</td>
         </tr>
     </tbody>
 </table>

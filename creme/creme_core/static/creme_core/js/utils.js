@@ -146,8 +146,9 @@ creme.utils.tableCollapse = function($self, trigger) {//TODO: Factorise with cre
     }
 
     var table = $self.parents('table[id!=]');
-    table.find('tbody.collapsable').hide();
-    table.find('tfoot.collapsable').hide();
+    table.find('.collapsable').hide();
+//    table.find('tbody.collapsable').hide();
+//    table.find('tfoot.collapsable').hide();
 
     table.addClass('faded');
     table.find('.block_icon').css({'height': '22px'});
@@ -164,8 +165,9 @@ creme.utils.tableExpand = function($self, trigger) {
     }
 
     var table = $self.parents('table[id!=]');
-    table.find('tbody.collapsable').show();
-    table.find('tfoot.collapsable').show();
+    table.find('.collapsable').show();
+//    table.find('tbody.collapsable').show();
+//    table.find('tfoot.collapsable').show();
 
     table.removeClass('faded');
     table.find('.block_icon').css({'height': 'auto'});

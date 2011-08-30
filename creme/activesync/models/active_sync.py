@@ -55,10 +55,21 @@ USER_HISTORY_TYPE = (
 
 USER_HISTORY_TYPE_VERBOSE = dict(USER_HISTORY_TYPE)
 
+USER_HISTORY_TYPE_IMG = {
+    CREATE: "images/add_22.png",
+    UPDATE: "images/edit_22.png",
+    DELETE: "images/delete_22.png",
+}
+
 USER_HISTORY_WHERE = (
     (IN_CREME, _(u"In Creme")),
     (ON_SERVER, _(u"On server")),
 )
+
+USER_HISTORY_WHERE_IMG = {
+    IN_CREME:  "images/creme_22.png",
+    ON_SERVER: "images/organisation_22.png",#TODO: Change this icon for a server icon
+}
 
 USER_HISTORY_WHERE_VERBOSE = dict(USER_HISTORY_WHERE)
 
@@ -89,7 +100,7 @@ class CremeExchangeMapping(CremeModel):
             entity = CremeEntity.objects.get(pk=self.creme_entity_id).get_real_entity()
         except CremeEntity.DoesNotExist:
             pass
-        
+
         return entity
 
 
@@ -169,6 +180,8 @@ class UserSynchronizationHistory(CremeModel):
     type           = models.IntegerField(u'', max_length=1, choices=USER_HISTORY_TYPE)
     where          = models.IntegerField(u'', max_length=1, choices=USER_HISTORY_WHERE)
 
+    _entity = None
+
     class Meta:
         app_label = 'activesync'
         verbose_name = u"History"
@@ -178,23 +191,45 @@ class UserSynchronizationHistory(CremeModel):
         return u"<UserSynchronizationHistory user=%s, entity_repr=%s>" % (self.user, self.entity_repr)
 
     def _get_entity(self):
+        if self.entity_pk is None:
+            return
+
+        _entity = self._entity
+
+        if _entity is not None:
+            return _entity
+
         try:
-            return CremeEntity.objects.get(pk=self.entity_pk).get_real_entity()
-        except CremeEntity.DoesNotExist:
-            return None
+            _entity = self._entity = CremeEntity.objects.get(pk=self.entity_pk).get_real_entity()
+        except CremeEntity.DoesNotExist, e:
+            pass
+        return _entity
 
     def _set_entity(self, entity):
-        self.entity_pk = entity.pk
+        self.entity_pk   = entity.pk
         self.entity_repr = unicode(entity)
-        self.entity_ct = entity.entity_type
+        self.entity_ct   = entity.entity_type
+#        self._entity     = entity
 
     entity = property(_get_entity, _set_entity); del _get_entity, _set_entity
+
+    @staticmethod
+    def populate_entities(histories):
+#        entities_pks = histories.values_list('entity_pk', flat=True)
+        entities_pks = [history.entity_pk for history in histories]
+#        entities = CremeEntity.objects.filter(pk__in=entities_pks)
+        entities = CremeEntity.objects.filter(pk__in=set(entities_pks))#Forcing the retrieve for MySQL <= v5.1.49 which "doesn't yet support 'LIMIT & IN/ALL/ANY/SOME subquery"
+        CremeEntity.populate_real_entities(entities)
+        entities_map = dict((entity.pk, entity.get_real_entity()) for entity in entities)
+
+        for hist in histories:
+            hist._entity = entities_map.get(hist.entity_pk)
 
     #TODO: Optimize db queries
     def _get_changes(self):
         changes = pickle.loads(self.entity_changes.encode('utf-8'))
         get_for_id = ContentType.objects.get_for_id
-        
+
         for k, v in changes.iteritems():
             if isinstance(v, dict):
                 model_class = get_for_id(v['ct_id']).model_class()
@@ -212,7 +247,7 @@ class UserSynchronizationHistory(CremeModel):
             if a value is a django 'Model' it will be transformed into a dict {'ct_id': ContentType id, 'pk': Its pk}
         """
         changes = self.changes
-        
+
         get_for_model = ContentType.objects.get_for_model
         django_model = models.Model
 
@@ -221,7 +256,7 @@ class UserSynchronizationHistory(CremeModel):
                 if isinstance(v_change, django_model):
                     v_change = {'ct_id': get_for_model(v_change).id, 'pk': v_change.pk}
                 changes[k_change] = v_change
-                
+
             elif changes.has_key(k_change):
                 del changes[k_change]
 
@@ -257,7 +292,7 @@ class UserSynchronizationHistory(CremeModel):
     @staticmethod
     def add_delete(user, entity, where):
         return UserSynchronizationHistory._add(user, entity, where, DELETE)
-    
+
 
 class AS_Folder(CremeModel):
     client       = models.ForeignKey(CremeClient, verbose_name=u'client')

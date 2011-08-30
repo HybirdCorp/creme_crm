@@ -23,14 +23,15 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.gui.block import Block, QuerysetBlock
 
 from creme_config.models.setting import SettingValue
+from creme_core.models.entity import CremeEntity
 
 from persons.models.contact import Contact
 
 from activesync.models.active_sync import UserSynchronizationHistory, USER_HISTORY_TYPE_VERBOSE, USER_HISTORY_WHERE_VERBOSE
 from activesync.constants import (USER_MOBILE_SYNC_SERVER_URL, MAPI_SERVER_URL, USER_MOBILE_SYNC_SERVER_DOMAIN,
                                   MAPI_DOMAIN, USER_MOBILE_SYNC_SERVER_SSL, MAPI_SERVER_SSL,
-                                  USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD
-                                  )
+                                  USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD,
+                                  USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS)
 
 
 class UserMobileSyncConfigBlock(Block):
@@ -46,12 +47,16 @@ class UserMobileSyncConfigBlock(Block):
 
         undefined = _(u"Undefined") #TODO: use ugettext insated of ugettext_lazy
         default   = _(u"Default configuration")
+        yes   = _(u"Yes")
+        no    = _(u"No")
 
         url      = undefined
         domain   = undefined
         ssl      = undefined
         username = undefined
         password = ""
+        sync_cal = undefined
+        sync_con = undefined
 
         if request:
             user   = request.user
@@ -77,7 +82,7 @@ class UserMobileSyncConfigBlock(Block):
                 ssl = sv_get(key__id=USER_MOBILE_SYNC_SERVER_SSL, user=user).value
             except SettingValue.DoesNotExist:
                 try:
-                    ssl = u"%s (%s)" % (sv_get(key__id=MAPI_SERVER_SSL).value, default)
+                    ssl = u"%s (%s)" % (yes if sv_get(key__id=MAPI_SERVER_SSL).value else no, default)
                 except SettingValue.DoesNotExist:
                     pass
 
@@ -91,6 +96,16 @@ class UserMobileSyncConfigBlock(Block):
             except SettingValue.DoesNotExist:
                 pass
 
+            try:
+                sync_cal = sv_get(key__id=USER_MOBILE_SYNC_ACTIVITIES, user=user).value
+            except SettingValue.DoesNotExist:
+                pass
+
+            try:
+                sync_con = sv_get(key__id=USER_MOBILE_SYNC_CONTACTS, user=user).value
+            except SettingValue.DoesNotExist:
+                pass
+
 
         return self._render(self.get_block_template_context(context,
                                                             url=url,
@@ -98,6 +113,8 @@ class UserMobileSyncConfigBlock(Block):
                                                             ssl=ssl,
                                                             username=username,
                                                             password=password,
+                                                            sync_cal=sync_cal,
+                                                            sync_con=sync_con,
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,))
 
 class MobileSyncConfigBlock(Block):
@@ -133,13 +150,16 @@ class UserSynchronizationHistoryBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         user = context['user']
+
         btc = self.get_block_template_context(context,
-                                              UserSynchronizationHistory.objects.filter(user=user),
+                                              UserSynchronizationHistory.objects.filter(user=user).select_related('entity_ct'),
                                               history_type_verbose=USER_HISTORY_TYPE_VERBOSE,
                                               history_where_verbose=USER_HISTORY_WHERE_VERBOSE,
                                               contact_klass=Contact,
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, user.pk))
 
+        history = btc['page'].object_list
+        UserSynchronizationHistory.populate_entities(history)
         return self._render(btc)
 
 

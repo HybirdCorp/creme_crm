@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load media %}
-{% load creme_block creme_core_tags creme_widgets %}
+{% load creme_block creme_core_tags creme_widgets activesync_tags %}
 <table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=6 %}
         <th class="collapser label">
@@ -20,15 +20,24 @@
             </tr>
             {% for history in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr class="content">
-                    <td class="{{row_color}}">{{history_type_verbose|get_value:history.type}}</td>
-                    {% comment %}<td class="{{row_color}}">{{history|get_html_field_value:"created"}}</td>{% endcomment %}
+                    <td class="{{row_color}}">
+                        {% with current_history_type_verbose=history_type_verbose|get_value:history.type %}
+                            <span class="logo"><img src="{% get_history_type_img history.type %}" title="{{ current_history_type_verbose }}" alt="{{ current_history_type_verbose }}"/></span>
+                            {{ current_history_type_verbose }}
+                        {% endwith %}
+                    </td>
                     <td class="{{row_color}}">{% print_field object=history field='created' %}</td>
-                    <td class="{{row_color}}">{{history.entity_ct}}</td>
-                    {% if history.entity %}
-                        <td class="{{row_color}}">{% widget_entity_hyperlink history.entity user %}</td>
-                    {% else %}
-                        <td class="{{row_color}}">{{history.entity_repr}}</td>{# Can't check if the user had the right view on the deleted entity... #}
-                    {% endif %}
+                    <td class="{{row_color}}">
+                        <span class="logo">{% get_image_for_ctype history.entity_ct 'small' %}</span>
+                        {{history.entity_ct}}
+                    </td>
+                    <td class="{{row_color}}">
+                        {% if history.entity %}
+                            {% widget_entity_hyperlink history.entity user %}
+                        {% else %}
+                            {{history.entity_repr}}{# Can't check if the user had the right view on the deleted entity... #}
+                        {% endif %}
+                    </td>
                     <td class="{{row_color}}">
                     {% for k, v in history.changes.iteritems %}
                             <p>{% get_field_verbose_name contact_klass k %} : {% if v.get_absolute_url %}<a href="{{ v.get_absolute_url }}">{{ v }}</a>{% else %}{{ v }}{% endif %}</p>
@@ -36,7 +45,12 @@
                             &nbsp;
                         {% endfor %}
                     </td>
-                    <td class="{{row_color}}">{{ history_where_verbose|get_value:history.where}}</td>
+                    <td class="{{row_color}}">
+                        {% with current_history_where_verbose=history_where_verbose|get_value:history.where %}
+                            <span class="logo"><img src="{% get_history_where_img history.where %}" title="{{ current_history_where_verbose }}" alt="{{ current_history_where_verbose }}"/></span>
+                            {{ current_history_where_verbose }}
+                        {% endwith %}
+                    </td>
                 </tr>
             {% endfor %}
         {% else %}

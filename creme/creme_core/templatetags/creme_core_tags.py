@@ -29,6 +29,7 @@ from django.template.defaulttags import TemplateLiteral
 from django.template.defaultfilters import escape
 from django.utils.safestring import mark_safe
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import ugettext_lazy as _
 from mediagenerator.templatetags.media import include_media
 
 from creme_core.gui.field_printers import field_printers_registry
@@ -41,7 +42,9 @@ register = Library()
 
 @register.filter(name="print_boolean") #TODO: factorise with field_printers ?
 def print_boolean(x):
-    return mark_safe('<input type="checkbox" value="%s" %s disabled/>' % (escape(x), 'checked' if x else ''))#Potentially double safe marked
+    if isinstance(x, bool):
+        return mark_safe('<input type="checkbox" value="%s" %s disabled/>%s' % (escape(x), 'checked' if x else '', _('Yes') if x else _('No')))#Potentially double safe marked
+    return x
 
 @register.filter(name="get_value")
 def get_value(dic, key, default=''):
