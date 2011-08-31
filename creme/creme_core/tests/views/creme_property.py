@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremePropertyType, CremeProperty, CremeEntity, SetCredentials
@@ -23,20 +24,25 @@ class PropertyViewsTestCase(ViewsTestCase):
 
         ptype01 = CremePropertyType.create(str_pk='test-prop_foobar01', text='wears strange hats')
         ptype02 = CremePropertyType.create(str_pk='test-prop_foobar02', text='wears strange pants')
+        ptype03 = CremePropertyType.create(str_pk='test-prop_foobar02', text='wears strange shoes')
         entity  = CremeEntity.objects.create(user=self.user)
         self.assertEqual(0, entity.properties.count())
 
-        response = self.client.get('/creme_core/property/add/%s' % entity.id)
-        self.assertEqual(200, response.status_code)
+        url = '/creme_core/property/add/%s' % entity.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
-        response = self.client.post('/creme_core/property/add/%s' % entity.id,
-                                    data={'types': [ptype01.id, ptype02.id]}
-                                   )
+        response = self.client.post(url, data={'types': [ptype01.id, ptype02.id]})
         self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
 
         properties = entity.properties.all()
         self.assertEqual(2, len(properties))
         self.assertEqual(set([ptype01.id, ptype02.id]), set(p.type_id for p in properties))
+
+        #-----------------------------------------------------------------------
+        response = self.client.post(url, data={'types': [ptype01.id, ptype03.id]}) #one new and one old property
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', 'types', [_(u'Select a valid choice. %s is not one of the available choices.') % ptype01.id])
 
     def test_delete(self):
         self.login()
@@ -107,12 +113,10 @@ class PropertyViewsTestCase(ViewsTestCase):
         ptype02 = CremePropertyType.create(str_pk='test-prop_foobar02', text='wears strange pants')
 
         formatted_ids = self._format_entities_ids("ids", entity01.id, entity02.id, entity03.id,  entity04.id)
-
         centity_ct_id = ContentType.objects.get_for_model(CremeEntity).id
 
         self.failIf(entity01.can_change(self.user))
         self.failIf(entity02.can_change(self.user))
-
         self.assertTrue(entity03.can_change(self.user))
 
         url = '/creme_core/property/add_to_entities/%s/%s' % (centity_ct_id, formatted_ids)
@@ -129,30 +133,26 @@ class PropertyViewsTestCase(ViewsTestCase):
         response = self.client.post(url, data={
                                         'entities_lbl':     'do not care',
                                         'bad_entities_lbl': 'do not care',
-                                        'entities':         '%s,%s' % (
-                                                                entity03.id,
-                                                                entity04.id,
-                                                               ),
+                                        'entities':         '%s,%s' % (entity03.id, entity04.id),
                                         'types':            [ptype01.id, ptype02.id],
                                       })
-
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        self.assertEqual(0,   entity01.properties.count())
-        self.assertEqual(0,   entity02.properties.count())
-        self.assertEqual(2,   entity03.properties.count())
-        self.assertEqual(2,   entity04.properties.count())
+        self.assertEqual(0, entity01.properties.count())
+        self.assertEqual(0, entity02.properties.count())
+        self.assertEqual(2, entity03.properties.count())
+        self.assertEqual(2, entity04.properties.count())
 
-        self.assertEntityHasntProperty(ptype01,   entity01)
-        self.assertEntityHasntProperty(ptype02,   entity01)
-        self.assertEntityHasntProperty(ptype01,   entity02)
-        self.assertEntityHasntProperty(ptype02,   entity02)
+        self.assertEntityHasntProperty(ptype01, entity01)
+        self.assertEntityHasntProperty(ptype02, entity01)
+        self.assertEntityHasntProperty(ptype01, entity02)
+        self.assertEntityHasntProperty(ptype02, entity02)
 
-        self.assertEntityHasProperty(ptype01,   entity03)
-        self.assertEntityHasProperty(ptype02,   entity03)
-        self.assertEntityHasProperty(ptype01,   entity04)
-        self.assertEntityHasProperty(ptype02,   entity04)
+        self.assertEntityHasProperty(ptype01, entity03)
+        self.assertEntityHasProperty(ptype02, entity03)
+        self.assertEntityHasProperty(ptype01, entity04)
+        self.assertEntityHasProperty(ptype02, entity04)
 
     def test_add_properties_bulk03(self):
         self.login(is_superuser=False)
