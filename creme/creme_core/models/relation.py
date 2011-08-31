@@ -25,7 +25,6 @@ from django.db import transaction
 from django.http import Http404
 from django.utils.encoding import force_unicode, smart_str
 from django.utils.html import escape
-from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
@@ -62,9 +61,7 @@ class RelationType(CremeModel):
     def __unicode__(self):
         sym_type = self.symmetric_type
         symmetric_pred = ugettext(u'No relation') if sym_type is None else sym_type.predicate
-
-#        return force_unicode(u'%s / %s' % (self.predicate, symmetric_pred))
-        return mark_safe(force_unicode(u'%s &mdash; %s' % (self.predicate, symmetric_pred)))
+        return force_unicode(u'%s — %s' % (self.predicate, symmetric_pred))#NB: — == "\xE2\x80\x94" == &mdash;
 
     def delete(self):
         sym_type = self.symmetric_type
