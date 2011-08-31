@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,59 +32,62 @@ from creme_core.forms.validators import validate_editable_entities
 from creme_core.utils import entities2unicode
 
 
-class AddPropertiesForm(CremeForm):
+class _AddPropertiesForm(CremeForm):
     types = ModelMultipleChoiceField(label=_(u'Type of property'),
-                                    queryset=CremePropertyType.objects.none(),
-                                    widget=UnorderedMultipleChoiceWidget)
+                                     queryset=CremePropertyType.objects.none(),
+                                     widget=UnorderedMultipleChoiceWidget
+                                    )
 
+    def _create_properties(self, entities, ptypes):
+        property_get_or_create = CremeProperty.objects.get_or_create
+
+        for entity in entities:
+            for ptype in ptypes:
+                property_get_or_create(type=ptype, creme_entity=entity)
+
+
+class AddPropertiesForm(_AddPropertiesForm):
     def __init__(self, entity, *args, **kwargs):
         super(AddPropertiesForm, self).__init__(*args, **kwargs)
         self.entity = entity
 
         #TODO: move queryset to a CremePropertyType method ??
+        excluded = CremeProperty.objects.filter(creme_entity=entity).values_list('type', flat=True)
         self.fields['types'].queryset = CremePropertyType.objects.filter(Q(subject_ctypes=entity.entity_type_id) |
-                                                                         Q(subject_ctypes__isnull=True))
+                                                                         Q(subject_ctypes__isnull=True)) \
+                                                                 .exclude(pk__in=excluded)
 
-    def save (self):
-        create_property = CremeProperty.objects.create
-        entity = self.entity
-
-        for prop_type in self.cleaned_data['types']:
-            create_property(type=prop_type, creme_entity=entity)
+    def save(self):
+        self._create_properties([self.entity], self.cleaned_data['types'])
 
 
-class AddPropertiesBulkForm(CremeForm):
-    types        = ModelMultipleChoiceField(label=_(u'Type of property'),
-                                            queryset=CremePropertyType.objects.none(),
-                                            widget=UnorderedMultipleChoiceWidget)
-
+class AddPropertiesBulkForm(_AddPropertiesForm):
     entities     = MultiCremeEntityField(model=None, widget=HiddenInput)
     entities_lbl = CharField(label=_(u"Related entities"), widget=Label(), required=False)
 
     def __init__(self, model, entities, forbidden_entities, *args, **kwargs):
         super(AddPropertiesBulkForm, self).__init__(*args, **kwargs)
         fields = self.fields
-
         ct = ContentType.objects.get_for_model(model)
 
-        fields['entities'].model   = model
-        fields['entities'].initial = ','.join([str(e.id) for e in entities])
+        entities_field = fields['entities']
+        entities_field.model   = model
+        entities_field.initial = ','.join(str(e.id) for e in entities)
 
         fields['types'].queryset = CremePropertyType.get_compatible_ones(ct)#TODO:Sort?
         fields['entities_lbl'].initial = entities2unicode(entities, self.user) if entities else ugettext(u'NONE !')
 
         if forbidden_entities:
-            self.fields['bad_entities_lbl'] = CharField(label=ugettext(u"Uneditable entities"),
-                                                        widget=Label,
-                                                        initial=entities2unicode(forbidden_entities, self.user)
-                                                       )
+            fields['bad_entities_lbl'] = CharField(label=ugettext(u"Uneditable entities"),
+                                                   widget=Label,
+                                                   initial=entities2unicode(forbidden_entities, self.user)
+                                                  )
 
     def clean(self):
         if self._errors:
             return self.cleaned_data
 
         cleaned_data = self.cleaned_data
-
         types_ids = cleaned_data['types'].values_list('id')
 
         if not types_ids:
@@ -98,10 +101,5 @@ class AddPropertiesBulkForm(CremeForm):
         return cleaned_data
 
     def save(self):
-        entities = self.cleaned_data['entities']
-        types    = self.cleaned_data['types']
-        property_get_or_create = CremeProperty.objects.get_or_create
-
-        for entity in entities:
-            for type in types:
-                property_get_or_create(type=type, creme_entity=entity)
+        cleaned_data = self.cleaned_data
+        self._create_properties(cleaned_data['entities'], cleaned_data['types'])
