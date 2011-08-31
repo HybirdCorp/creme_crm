@@ -1,5 +1,5 @@
-{% load i18n %}{% load media %}
-{% load creme_core_tags %}{% load creme_block %}{% load creme_widgets %}
+{% load i18n %}
+{% load creme_core_tags creme_block creme_widgets %}
 <table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=1 %}
         <th class="collapser label">{% get_block_title _("%s Neglected organisation") _("%s Neglected organisations") 'organisation_48.png' _('Neglected organisation') %}</th>
