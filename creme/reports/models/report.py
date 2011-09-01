@@ -273,7 +273,7 @@ class Field(CremeModel):
             except AttributeError:
                 pass
 
-        elif column_type == HFI_CALCULATED and query is not None:
+        elif column_type == HFI_CALCULATED:
             #No credential check
             field_name, sep, aggregate = column_name.rpartition('__')
             aggregation = field_aggregation_registry.get(aggregate)
@@ -286,8 +286,10 @@ class Field(CremeModel):
                     cf_type = cfs_info[1]
                     cfs = _TABLES[int(cf_type)].objects.filter(custom_field__id=cf_id, entity__id__in=query.values_list('id', flat=True))
                     return cfs.aggregate(aggregation.func('value')).get('value__%s' % aggregate)
-                else:
+                elif query is not None:
                     return query.aggregate(aggregation.func(field_name)).get(column_name)
+                elif entity is not None:
+                    return entity.__class__._default_manager.all().aggregate(aggregation.func(field_name)).get(column_name)
 
         elif column_type == HFI_RELATED:
             if entity is None and report and selected:
@@ -447,11 +449,13 @@ class Report(CremeEntity):
                         values.append(col_value)
 
                 if None in current_line:
-                    idx = current_line.index(None)
+                    idx = none_idx = current_line.index(None)
+
                     values.reverse()
                     for value in values:
                         current_line.insert(idx, value)
-                    current_line.remove(None)
+                        none_idx += 1
+                    current_line.pop(none_idx)
                 else:
                     current_line.extend(values)
 
