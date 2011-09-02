@@ -241,7 +241,6 @@ payment_information_block       = PaymentInformationBlock()
 billing_payment_block           = BillingPaymentInformationBlock()
 received_billing_document_block = ReceivedBillingDocumentBlock()
 billing_address_block           = BillingAddressBlock()
-information_billing_block       = BillingBlock()
 
 block_list = (
         product_lines_block,
@@ -253,5 +252,4 @@ block_list = (
         billing_payment_block,
         received_billing_document_block,
         billing_address_block,
-        information_billing_block,
     )
