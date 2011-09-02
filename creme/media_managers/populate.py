@@ -18,7 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from logging import info
+
 from django.utils.translation import ugettext as _
+from django.conf import settings
 
 from creme_core.models import SearchConfigItem, HeaderFilterItem, HeaderFilter, BlockDetailviewLocation
 from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
@@ -49,6 +52,16 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=history_block.id_,       order=100, zone=BlockDetailviewLocation.RIGHT,  model=Image)
         BlockDetailviewLocation.create(block_id=properties_block.id_,    order=450, zone=BlockDetailviewLocation.RIGHT,  model=Image)
         BlockDetailviewLocation.create(block_id=relations_block.id_,     order=500, zone=BlockDetailviewLocation.RIGHT,  model=Image)
+
+        if 'creme.assistants' in settings.INSTALLED_APPS:
+            info('Assistants app is installed => we use the assistants blocks on detail view')
+
+            from assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+
+            BlockDetailviewLocation.create(block_id=todos_block.id_,    order=600, zone=BlockDetailviewLocation.RIGHT, model=Image)
+            BlockDetailviewLocation.create(block_id=memos_block.id_,    order=700, zone=BlockDetailviewLocation.RIGHT, model=Image)
+            BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=800, zone=BlockDetailviewLocation.RIGHT, model=Image)
+            BlockDetailviewLocation.create(block_id=messages_block.id_, order=900, zone=BlockDetailviewLocation.RIGHT, model=Image)
 
         SearchConfigItem.create(Image, ['name', 'description', 'categories__name'])
 

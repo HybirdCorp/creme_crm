@@ -18,7 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from logging import info
+
 from django.utils.translation import ugettext as _
+from django.conf import settings
 
 from creme_core.models import SearchConfigItem, RelationType, HeaderFilterItem, HeaderFilter, BlockDetailviewLocation
 from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
@@ -64,9 +67,8 @@ class Populator(BasePopulator):
                      is_internal=True,
                     )
 
-        #TODO: use 'start' arg with python 2.6.....
-        for i, name in enumerate((_('Show'), _('Conference'), _('Breakfast'), _('Brunch'))):
-            create(EventType, i + 1, name=name)
+        for i, name in enumerate([_('Show'), _('Conference'), _('Breakfast'), _('Brunch')], start=1):
+            create(EventType, i, name=name)
 
         hf = HeaderFilter.create(pk='events-hf', name=_(u'Event view'), model=Event)
         hf.set_items([HeaderFilterItem.build_4_field(model=Event, name='name'),
@@ -80,5 +82,15 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=relations_block.id_,     order=500, zone=BlockDetailviewLocation.LEFT,  model=Event)
         BlockDetailviewLocation.create(block_id=resuts_block.id_,        order=2,   zone=BlockDetailviewLocation.RIGHT, model=Event)
         BlockDetailviewLocation.create(block_id=history_block.id_,       order=20,  zone=BlockDetailviewLocation.RIGHT, model=Event)
+
+        if 'creme.assistants' in settings.INSTALLED_APPS:
+            info('Assistants app is installed => we use the assistants blocks on detail view')
+
+            from assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+
+            BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=Event)
+            BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=Event)
+            BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=Event)
+            BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=Event)
 
         SearchConfigItem.create(Event, ['name', 'description', 'type__name'])

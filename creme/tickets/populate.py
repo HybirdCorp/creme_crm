@@ -24,8 +24,9 @@ from django.utils.translation import ugettext as _
 from django.conf import settings
 
 from creme_core.models import (RelationType, SearchConfigItem, HeaderFilterItem, HeaderFilter,
-                               BlockDetailviewLocation, RelationBlockItem, ButtonMenuItem) #BlockConfigItem
+                               BlockDetailviewLocation, RelationBlockItem, ButtonMenuItem)
 from creme_core.utils import create_or_update as create
+from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from tickets.models import *
@@ -43,12 +44,11 @@ class Populator(BasePopulator):
         for pk, name in BASE_STATUS:
             create(Status, pk, name=name, is_custom=False)
 
-        #TODO: use 'start' arg with python 2.6.....
-        for i, name in enumerate((_('Low'), _('Normal'), _('High'), _('Urgent'), _('Blocking'))):
-            create(Priority, i + 1, name=name)
+        for i, name in enumerate([_('Low'), _('Normal'), _('High'), _('Urgent'), _('Blocking')], start=1):
+            create(Priority, i, name=name)
 
-        for i, name in enumerate((_('Minor'), _('Major'), _('Feature'), _('Critical'), _('Enhancement'), _('Error'))):
-            create(Criticity, i + 1, name=name)
+        for i, name in enumerate([_('Minor'), _('Major'), _('Feature'), _('Critical'), _('Enhancement'), _('Error')], start=1):
+            create(Criticity, i, name=name)
 
         hf = HeaderFilter.create(pk='tickets-hf_ticket', name=_(u'Ticket view'), model=Ticket)
         hf.set_items([HeaderFilterItem.build_4_field(model=Ticket, name='title'),
@@ -68,8 +68,22 @@ class Populator(BasePopulator):
         SearchConfigItem.create(Ticket, ['title', 'description', 'status__name', 'priority__name', 'criticity__name'])
 
         rbi = RelationBlockItem.create(REL_OBJ_LINKED_2_TICKET)
-        #BlockConfigItem.create(pk='tickets-linked2_block',  model=Ticket, block_id=rbi.block_id, order=1, on_portal=False)
-        BlockDetailviewLocation.create(block_id=rbi.block_id, order=1, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
+
+        BlockDetailviewLocation.create(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT,  model=Ticket)
+        BlockDetailviewLocation.create(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.LEFT,  model=Ticket)
+        BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT,  model=Ticket)
+        BlockDetailviewLocation.create(block_id=rbi.block_id,           order=1,   zone=BlockDetailviewLocation.RIGHT, model=Ticket)
+        BlockDetailviewLocation.create(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Ticket)
+
+        if 'creme.assistants' in settings.INSTALLED_APPS:
+            info('Assistants app is installed => we use the assistants blocks on detail view')
+
+            from assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+
+            BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
+            BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
+            BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
+            BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
 
         if 'creme.persons' in settings.INSTALLED_APPS:
             try:

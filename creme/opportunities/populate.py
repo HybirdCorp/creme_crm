@@ -133,20 +133,29 @@ class Populator(BasePopulator):
         if 'creme.assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail views and portal')
 
-            from assistants.blocks import alerts_block, actions_it_block, actions_nit_block, memos_block, todos_block, messages_block
+            from assistants.blocks import alerts_block, memos_block, todos_block, messages_block #actions_it_block, actions_nit_block, 
 
             BlockDetailviewLocation.create(block_id=todos_block.id_,       order=100, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
             BlockDetailviewLocation.create(block_id=memos_block.id_,       order=200, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
             BlockDetailviewLocation.create(block_id=alerts_block.id_,      order=300, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
-            BlockDetailviewLocation.create(block_id=actions_it_block.id_,  order=400, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
-            BlockDetailviewLocation.create(block_id=actions_nit_block.id_, order=410, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+            #BlockDetailviewLocation.create(block_id=actions_it_block.id_,  order=400, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+            #BlockDetailviewLocation.create(block_id=actions_nit_block.id_, order=410, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
             BlockDetailviewLocation.create(block_id=messages_block.id_,    order=500, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
 
             BlockPortalLocation.create(app_name='opportunities', block_id=memos_block.id_,       order=100)
             BlockPortalLocation.create(app_name='opportunities', block_id=alerts_block.id_,      order=200)
-            BlockPortalLocation.create(app_name='opportunities', block_id=actions_it_block.id_,  order=300)
-            BlockPortalLocation.create(app_name='opportunities', block_id=actions_nit_block.id_, order=310)
+            #BlockPortalLocation.create(app_name='opportunities', block_id=actions_it_block.id_,  order=300)
+            #BlockPortalLocation.create(app_name='opportunities', block_id=actions_nit_block.id_, order=310)
             BlockPortalLocation.create(app_name='opportunities', block_id=messages_block.id_,    order=400)
+
+        if 'creme.emails' in settings.INSTALLED_APPS:
+            info('Emails app is installed => we use the emails blocks on detail view')
+
+            from emails.blocks import mails_history_block
+
+            BlockDetailviewLocation.create(block_id=mails_history_block.id_, order=600, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
+
+        BlockDetailviewLocation.create(block_id=targetting_opps_block.id_, order=16, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
 
         if 'creme.reports' in settings.INSTALLED_APPS:
             info('Reports app is installed => we create an Opportunity report, with 2 graphs, and related blocks')

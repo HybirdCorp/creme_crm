@@ -18,7 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from logging import info
+
 from django.utils.translation import ugettext as _
+from django.conf import settings
 
 from creme_core.models import (RelationType, SearchConfigItem, BlockDetailviewLocation,
                                ButtonMenuItem, HeaderFilterItem, HeaderFilter)
@@ -87,6 +90,21 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=properties_block.id_,    order=450, zone=BlockDetailviewLocation.LEFT,  model=EmailTemplate)
         BlockDetailviewLocation.create(block_id=relations_block.id_,     order=500, zone=BlockDetailviewLocation.LEFT,  model=EmailTemplate)
         BlockDetailviewLocation.create(block_id=history_block.id_,       order=20,  zone=BlockDetailviewLocation.RIGHT, model=EmailTemplate)
+
+        #'persons' app
+        BlockDetailviewLocation.create(block_id=mails_history_block.id_, order=600, zone=BlockDetailviewLocation.RIGHT, model=Contact)
+        BlockDetailviewLocation.create(block_id=mails_history_block.id_, order=600, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
+
+        if 'creme.assistants' in settings.INSTALLED_APPS:
+            info('Assistants app is installed => we use the assistants blocks on detail views')
+
+            from assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+
+            for model in (MailingList, EmailCampaign, EmailTemplate):
+                BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)
+                BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=model)
+                BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=model)
+                BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=model)
 
         ButtonMenuItem.create(pk='emails-entity_email_link_button', model=EntityEmail, button=entityemail_link_button, order=20)
 
