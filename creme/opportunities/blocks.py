@@ -152,7 +152,7 @@ class InvoicesBlock(_LinkedStuffBlock):
         return entity.get_invoices()
 
 
-class TargetOrganisationsBlock(_LinkedStuffBlock):
+class TargettingOpportunitiesBlock(_LinkedStuffBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'target_organisations')
     relation_type_deps = (REL_OBJ_TARGETS, )
     verbose_name  = _(u"Opportunities which target the organisation / contact")
@@ -189,6 +189,7 @@ quotes_block          = QuotesBlock()
 salesorders_block     = SalesOrdersBlock()
 invoices_block        = InvoicesBlock()
 total_block           = OppTotalBlock()
+targetting_opps_block = TargettingOpportunitiesBlock()
 
 blocks_list = (
     linked_contacts_block,
@@ -199,7 +200,7 @@ blocks_list = (
     salesorders_block,
     invoices_block,
     total_block,
-    TargetOrganisationsBlock(),
+    targetting_opps_block,
     OppProductLinesBlock(),
     OppServiceLinesBlock(),
 )

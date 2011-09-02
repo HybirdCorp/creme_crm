@@ -18,14 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext as _
-from creme_config.models.setting import SettingKey, SettingValue
+from logging import info
 
-from creme_core.models import (RelationType, CremePropertyType, BlockDetailviewLocation, #BlockConfigItem
+from django.utils.translation import ugettext as _
+from django.conf import settings
+
+from creme_core.models import (RelationType, CremePropertyType, BlockDetailviewLocation,
                                SearchConfigItem, ButtonMenuItem, HeaderFilterItem, HeaderFilter)
 from creme_core.utils import create_or_update as create
 from creme_core.blocks import relations_block, properties_block, customfields_block, history_block
 from creme_core.management.commands.creme_populate import BasePopulator
+
+from creme_config.models.setting import SettingKey, SettingValue
 
 from persons.models import Contact, Organisation
 
@@ -53,7 +57,6 @@ class Populator(BasePopulator):
         for i, title in enumerate((_('Phone calls'), _('Show'), _('Demo'))):
             create(ActType, i + 1, title=title, is_custom=False)
 
-        #create(BlockConfigItem, 'commercial-approaches_block', content_type=None, block_id=approaches_block.id_, order=10,  on_portal=False)
         BlockDetailviewLocation.create(block_id=approaches_block.id_, order=10, zone=BlockDetailviewLocation.RIGHT)
         BlockDetailviewLocation.create(block_id=approaches_block.id_, order=10, zone=BlockDetailviewLocation.RIGHT, model=Contact)
         BlockDetailviewLocation.create(block_id=approaches_block.id_, order=10, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
@@ -79,6 +82,17 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=properties_block.id_,           order=450, zone=BlockDetailviewLocation.LEFT,  model=Strategy)
         BlockDetailviewLocation.create(block_id=relations_block.id_,            order=500, zone=BlockDetailviewLocation.LEFT,  model=Strategy)
         BlockDetailviewLocation.create(block_id=history_block.id_,              order=20,  zone=BlockDetailviewLocation.RIGHT, model=Strategy)
+
+        if 'creme.assistants' in settings.INSTALLED_APPS:
+            info('Assistants app is installed => we use the assistants blocks on detail views')
+
+            from assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+
+            for model in (Act, ActObjectivePattern, Strategy):
+                BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)
+                BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=model)
+                BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=model)
+                BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=model)
 
 
         hf = HeaderFilter.create(pk='commercial-hf_act', name=_(u"Com Action view"), model=Act)

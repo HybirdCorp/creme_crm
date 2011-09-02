@@ -304,6 +304,7 @@ parent_lists_block     = ParentListsBlock()
 attachments_block      = AttachmentsBlock()
 sendings_block         = SendingsBlock()
 mails_block            = MailsBlock()
+mails_history_block    = MailsHistoryBlock()
 mail_waiting_sync_block = WaitingSynchronizationMailsBlock()
 mail_spam_sync_block    = SpamSynchronizationMailsBlock()
 
@@ -317,7 +318,7 @@ blocks_list = (
         attachments_block,
         sendings_block,
         mails_block,
-        MailsHistoryBlock(),
+        mails_history_block,
         LwMailsHistoryBlock(),
         mail_waiting_sync_block,
         mail_spam_sync_block,
