@@ -127,7 +127,7 @@ class HistoryBlock(QuerysetBlock):
 
     def home_display(self, context):
         btc = self.get_block_template_context(context,
-                                              HistoryLine.objects.all(),
+                                              HistoryLine.objects.exclude(type=HistoryLine.TYPE_SYM_RELATION),
                                               update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
                                              )
         self._populate_related_real_entities(btc['page'].object_list, context['request'].user)
