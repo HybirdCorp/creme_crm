@@ -199,6 +199,7 @@ class Populator(BasePopulator):
             #BlockDetailviewLocation.create(block_id=actions_nit_block.id_, order=410, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
             BlockDetailviewLocation.create(block_id=messages_block.id_,    order=500, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
 
+            BlockPortalLocation.create(app_name='persons', block_id=history_block.id_,     order=20)
             BlockPortalLocation.create(app_name='persons', block_id=memos_block.id_,       order=100)
             BlockPortalLocation.create(app_name='persons', block_id=alerts_block.id_,      order=200)
             #BlockPortalLocation.create(app_name='persons', block_id=actions_it_block.id_,  order=300)
