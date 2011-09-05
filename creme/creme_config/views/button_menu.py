@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -80,11 +80,6 @@ def edit(request, ct_id):
 @permission_required('creme_config.can_admin')
 def delete(request):
     ct_id = get_from_POST_or_404(request.POST, 'id')
-
-    #Set a constant to recognize default config, because POST QueryDict can be empty ?
-    if not ct_id: #default config can't be deleted
-        raise Http404 #bof
-
     ButtonMenuItem.objects.filter(content_type=ct_id).delete()
 
     return HttpResponse()

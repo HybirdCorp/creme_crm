@@ -88,3 +88,6 @@ class Populator(BasePopulator):
 
         BlockMypageLocation.create(block_id=history_block.id_, order=8)
         BlockMypageLocation.create(block_id=history_block.id_, order=8, user=root)
+
+        if not ButtonMenuItem.objects.filter(content_type=None).exists():
+            ButtonMenuItem.objects.create(pk='creme_core-void', content_type=None, button_id='', order=1)
