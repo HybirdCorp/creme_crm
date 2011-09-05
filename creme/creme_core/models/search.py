@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2011  Hybird
@@ -16,6 +17,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from collections import defaultdict
 
 from django.db.models import CharField, ForeignKey, PositiveIntegerField
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -56,9 +59,6 @@ class SearchConfigItem(CremeModel):
     def populate_searchfields(search_config_items):
         #list(search_config_items) is needed because of mysql
         all_searchfields = SearchField.objects.filter(search_config_item__in=list(search_config_items)).order_by('order')
-
-        from collections import defaultdict
-
         sfci_dict = defaultdict(list)
 
         for sf in all_searchfields:
