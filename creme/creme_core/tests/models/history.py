@@ -1,16 +1,18 @@
  # -*- coding: utf-8 -*-
 
-from datetime import datetime, timedelta
-from time import sleep
+try:
+    from datetime import datetime, timedelta
+    from time import sleep
 
-from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
+    from django.utils.translation import ugettext as _
+    from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import *
-from creme_core.tests.views.base import ViewsTestCase
+    from creme_core.models import *
+    from creme_core.tests.views.base import ViewsTestCase
 
-from persons.models import Contact, Organisation, Sector
-
+    from persons.models import Contact, Organisation, Sector
+except Exception, e:
+    print 'Error:', e
 
 __all__ = ('HistoryTestCase',)
 
@@ -19,6 +21,7 @@ class HistoryTestCase(ViewsTestCase):
     def setUp(self):
         self.populate('creme_core', 'creme_config')
         self.old_time = datetime.now().replace(microsecond=0)
+        self.login()
 
     def _build_organisation(self, name, extra_args=None, **kwargs):
         data = {'name': name}
@@ -65,8 +68,6 @@ class HistoryTestCase(ViewsTestCase):
                     )
 
     def test_creation01(self):
-        self.login()
-
         old_count = HistoryLine.objects.count()
         gainax = self._build_organisation(user=self.other_user.id, name='Gainax')
         hlines = list(HistoryLine.objects.order_by('id'))
@@ -82,8 +83,6 @@ class HistoryTestCase(ViewsTestCase):
         self._assert_between_dates(hline)
 
     def test_creation02(self): #double save() beacuse of addresses caused problems
-        self.login()
-
         old_count = HistoryLine.objects.count()
         country = 'Japan'
         gainax = self._build_organisation(user=self.other_user.id, name='Gainax',
@@ -104,8 +103,6 @@ class HistoryTestCase(ViewsTestCase):
         self._assert_between_dates(hline)
 
     def test_edition01(self):
-        self.login()
-
         old_count = HistoryLine.objects.count()
 
         name = 'gainax'
@@ -134,8 +131,6 @@ class HistoryTestCase(ViewsTestCase):
 
     #TODO: change 'name' but keep the old unicode() ???
     def test_edition02(self):
-        self.login()
-
         old_count = HistoryLine.objects.count()
 
         sector01 = Sector.objects.create(title='Studio')
@@ -219,8 +214,6 @@ about this fantastic animation studio."""
         self.assert_(msg in vmodifs, msg)
 
     def test_edition03(self): #no change
-        self.login()
-
         name = 'gainax'
         capital = 12000
         gainax = self._build_organisation(user=self.user.id, name=name, capital=capital)
@@ -238,8 +231,6 @@ about this fantastic animation studio."""
         self.assertEqual(old_count, HistoryLine.objects.count())
 
     def test_edition04(self): #ignore the changes : None -> ""
-        self.login()
-
         name = 'gainax'
         old_capital = 12000
         gainax = Organisation.objects.create(user=self.user, name=name, capital=old_capital)
@@ -261,8 +252,6 @@ about this fantastic animation studio."""
         self.assertEqual([['capital', old_capital, capital]], hline.modifications)
 
     def test_deletion(self):
-        self.login()
-
         old_count = HistoryLine.objects.count()
         gainax = Organisation.objects.create(user=self.other_user, name='Gainax')
         entity_repr = unicode(gainax)
@@ -291,8 +280,6 @@ about this fantastic animation studio."""
         self.assertEqual(entity_repr, hline.entity_repr)
 
     def test_related_edition01(self):
-        self.login()
-
         ghibli = self._build_organisation(user=self.user.id, name='Ghibli')
 
         first_name = 'Hayao'
@@ -321,8 +308,6 @@ about this fantastic animation studio."""
         self.assert_(hline.related_line is None)
 
     def test_related_edition02(self):
-        self.login()
-
         ghibli = self._build_organisation(user=self.user.id, name='Ghibli')
         sleep(1) #ensure that 'modified' fields are different
 
@@ -367,8 +352,6 @@ about this fantastic animation studio."""
                         )
 
     def test_add_property01(self):
-        self.login()
-
         gainax = Organisation.objects.create(user=self.user, name='Gainax')
         old_count = HistoryLine.objects.count()
 
@@ -385,6 +368,7 @@ about this fantastic animation studio."""
         self.assertEqual(unicode(gainax),           hline.entity_repr)
         self.assertEqual(HistoryLine.TYPE_PROPERTY, hline.type)
         self.assertEqual([ptype.id],                hline.modifications)
+        self.assertEqual(False,                     hline.is_about_relation)
         self.assert_(hline.date > gainax.modified)
 
         FSTRING = _(u'Add property “%s”')
@@ -394,3 +378,47 @@ about this fantastic animation studio."""
         prop.delete(); ptype.delete()
         hline = HistoryLine.objects.get(pk=hline.id) #refresh
         self.assertEqual([FSTRING % ptype_id], hline.verbose_modifications)
+
+    def test_add_relation(self):
+        nerv = Organisation.objects.create(user=self.user, name='Nerv')
+        rei  = Contact.objects.create(user=self.user, first_name='Rei', last_name='Ayanami')
+        old_count = HistoryLine.objects.count()
+
+        sleep(1) #ensure than relation is younger than entities
+
+        rtype, srtype = RelationType.create(('test-subject_employed', 'is employed'), ('test-object_employed', 'employs'))
+        relation = Relation.objects.create(user=self.user, subject_entity=rei, object_entity=nerv, type=rtype)
+        relation = Relation.objects.get(pk=relation.pk) #refresh to get the right modified value
+
+        hlines = list(HistoryLine.objects.order_by('id'))
+        self.assertEqual(old_count + 2, len(hlines))
+
+        hline = hlines[-2]
+        self.assertEqual(rei.id,                    hline.entity.id)
+        self.assertEqual(unicode(rei),              hline.entity_repr)
+        self.assertEqual(HistoryLine.TYPE_RELATION, hline.type)
+        self.assertEqual([rtype.id],                hline.modifications)
+        self.assertEqual(relation.modified,         hline.date)
+        self.assertEqual(True,                      hline.is_about_relation)
+
+        hline_sym = hlines[-1]
+        self.assertEqual(nerv.id,                        hline_sym.entity.id)
+        self.assertEqual(unicode(nerv),                  hline_sym.entity_repr)
+        self.assertEqual(HistoryLine.TYPE_SYM_RELATION,  hline_sym.type)
+        self.assertEqual([srtype.id],                    hline_sym.modifications)
+        self.assertEqual(relation.modified,              hline_sym.date)
+        self.assertEqual(True,                           hline.is_about_relation)
+
+        self.assertEqual(hline_sym.id, hline.related_line.id)
+        self.assertEqual(hline.id,     hline_sym.related_line.id)
+
+        FSTRING = _(u'Add a relation “%s”')
+        self.assertEqual([FSTRING % rtype.predicate], hline.verbose_modifications)
+        self.assertEqual([FSTRING % srtype.predicate], hline_sym.verbose_modifications)
+
+        rtype_id = rtype.id
+        relation.delete(); rtype.delete(); self.failIf(RelationType.objects.filter(pk=rtype_id).exists())
+        hline = HistoryLine.objects.get(pk=hline.id) #refresh
+        self.assertEqual([FSTRING % rtype_id], hline.verbose_modifications)
+
+    #TODO: test populate related lines + query counter ??
