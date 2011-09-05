@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-26 18:06+0200\n"
+"POT-Creation-Date: 2011-09-05 12:36+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,7 +23,7 @@ msgid "Properties"
 msgstr "Propriétés"
 
 #: blocks.py:49 forms/header_filter.py:45 forms/relation.py:36
-#: gui/block.py:275 models/relation.py:193
+#: gui/block.py:275 models/relation.py:190
 msgid "Relations"
 msgstr "Relations"
 
@@ -136,7 +136,7 @@ msgstr "Champ à mettre à jour"
 msgid "Value"
 msgstr "Valeur"
 
-#: forms/bulk.py:87 forms/creme_property.py:74 forms/relation.py:120
+#: forms/bulk.py:87 forms/creme_property.py:78 forms/relation.py:120
 msgid "NONE !"
 msgstr "AUCUNE !"
 
@@ -165,24 +165,23 @@ msgstr ""
 msgid "This field is required."
 msgstr "Ce champ est obligatoire."
 
-#: forms/creme_property.py:36 forms/creme_property.py:57
-#: models/creme_property.py:41
+#: forms/creme_property.py:36 models/creme_property.py:41
 msgid "Type of property"
 msgstr "Type de propriété"
 
-#: forms/creme_property.py:62 forms/relation.py:112
+#: forms/creme_property.py:66 forms/relation.py:112
 msgid "Related entities"
 msgstr "Entités associées"
 
-#: forms/creme_property.py:77
+#: forms/creme_property.py:81
 msgid "Uneditable entities"
 msgstr "Fiches non éditables"
 
-#: forms/creme_property.py:91
+#: forms/creme_property.py:94
 msgid "No property types"
 msgstr "Pas de type de propriété"
 
-#: forms/creme_property.py:94
+#: forms/creme_property.py:97
 msgid "Some property types doesn't not exist"
 msgstr "Certains types de propriété n'existent pas"
 
@@ -642,12 +641,12 @@ msgstr[0] "seconde"
 msgstr[1] "secondes"
 
 #: gui/field_printers.py:130 models/custom_field.py:258
-#: templatetags/creme_listview.py:75
+#: templatetags/creme_core_tags.py:46 templatetags/creme_listview.py:75
 msgid "Yes"
 msgstr "Oui"
 
 #: gui/field_printers.py:130 models/custom_field.py:258
-#: templatetags/creme_listview.py:79
+#: templatetags/creme_core_tags.py:46 templatetags/creme_listview.py:79
 msgid "No"
 msgstr "Non"
 
@@ -809,7 +808,7 @@ msgstr "Boutons à afficher"
 msgid "Types of property"
 msgstr "Types de propriété"
 
-#: models/creme_property.py:90 models/history.py:116
+#: models/creme_property.py:90 models/history.py:118
 #: templates/creme_core/templatetags/block_properties.html:6
 msgid "Property"
 msgstr "Propriété"
@@ -1067,38 +1066,48 @@ msgstr "Actions"
 msgid "Entity #%s"
 msgstr "Fiche #%s"
 
-#: models/history.py:112
+#: models/history.py:114
 msgid "Creation"
 msgstr "Création"
 
-#: models/history.py:113
+#: models/history.py:115
 msgid "Edition"
 msgstr "Édition"
 
-#: models/history.py:114
+#: models/history.py:116
 msgid "Deletion"
 msgstr "Supression"
 
-#: models/history.py:115
+#: models/history.py:117
 msgid "Related modification"
 msgstr "Modification liée"
 
-#: models/history.py:181
+#: models/history.py:119 models/history.py:120 models/relation.py:189
+#: templates/creme_core/templatetags/block_relations.html:7
+msgid "Relation"
+msgstr "Relation"
+
+#: models/history.py:186
 #, python-format
 msgid "Add property “%s”"
 msgstr "Ajout de la propriété “%s”"
 
-#: models/history.py:190
+#: models/history.py:196
+#, python-format
+msgid "Add a relation “%s”"
+msgstr "Ajout de la relation: “%s”"
+
+#: models/history.py:205
 #, python-format
 msgid "Set field “%(field)s”"
 msgstr "Champ “%(field)s” modifié"
 
-#: models/history.py:194
+#: models/history.py:209
 #, python-format
 msgid "Set field “%(field)s” to “%(value)s”"
 msgstr "Champ “%(field)s” mis à “%(value)s”"
 
-#: models/history.py:200
+#: models/history.py:215
 #, python-format
 msgid "Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”"
 msgstr "Champ “%(field)s” passe de “%(oldvalue)s” à “%(value)s”"
@@ -1127,31 +1136,26 @@ msgstr "Url"
 msgid "Order"
 msgstr "Ordre"
 
-#: models/relation.py:54
+#: models/relation.py:53
 msgid "Predicate"
 msgstr "Prédicat"
 
-#: models/relation.py:59
+#: models/relation.py:58
 msgid "Type of relation"
 msgstr "Type de relation"
 
-#: models/relation.py:60
+#: models/relation.py:59
 msgid "Types of relation"
 msgstr "Types de relation"
 
-#: models/relation.py:64
+#: models/relation.py:63
 msgid "No relation"
 msgstr "Aucune relation"
 
-#: models/relation.py:171
+#: models/relation.py:168
 msgid "You can't add/delete the relations with this type (internal type)"
 msgstr ""
 "Vous ne pouvez pas ajouter/supprimer les relations de ce type (type interne)"
-
-#: models/relation.py:192
-#: templates/creme_core/templatetags/block_relations.html:7
-msgid "Relation"
-msgstr "Relation"
 
 #: models/reminder.py:39
 msgid "Reminder"
@@ -1453,16 +1457,16 @@ msgstr "Modifications"
 msgid "By"
 msgstr "Par"
 
-#: templates/creme_core/templatetags/block_history.html:41
+#: templates/creme_core/templatetags/block_history.html:57
 msgid "Edition of :"
 msgstr "Édition de :"
 
-#: templates/creme_core/templatetags/block_history.html:43
+#: templates/creme_core/templatetags/block_history.html:59
 #, python-format
 msgid "Edit \"%(entity)s\""
 msgstr "Éditer \"%(entity)s\""
 
-#: templates/creme_core/templatetags/block_history.html:56
+#: templates/creme_core/templatetags/block_history.html:73
 msgid "No history for the moment"
 msgstr "Aucun historique pour le moment"
 

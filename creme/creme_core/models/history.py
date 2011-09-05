@@ -29,8 +29,8 @@ from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, RelationType, Relation, CremePropertyType, CremeProperty
-from creme_core.global_info import get_global_info
 from creme_core.models.fields import CremeUserForeignKey
+from creme_core.global_info import get_global_info
 
 
 _get_ct = ContentType.objects.get_for_model
@@ -102,18 +102,22 @@ class HistoryLine(Model):
     _related_line_id = None
     _related_line = False
 
-    TYPE_CREATION = 1
-    TYPE_EDITION  = 2
-    TYPE_DELETION = 3
-    TYPE_RELATED  = 4
-    TYPE_PROPERTY = 5
+    TYPE_CREATION     = 1
+    TYPE_EDITION      = 2
+    TYPE_DELETION     = 3
+    TYPE_RELATED      = 4
+    TYPE_PROPERTY     = 5
+    TYPE_RELATION     = 6
+    TYPE_SYM_RELATION = 7
 
     _TYPE_MAP = {
-            TYPE_CREATION: _(u'Creation'),
-            TYPE_EDITION:  _(u'Edition'),
-            TYPE_DELETION: _(u'Deletion'),
-            TYPE_RELATED:  _(u'Related modification'),
-            TYPE_PROPERTY: _(u'Property'),
+            TYPE_CREATION:     {'has_related_line': False, 'verbose_name': _(u'Creation')},
+            TYPE_EDITION:      {'has_related_line': False, 'verbose_name': _(u'Edition')},
+            TYPE_DELETION:     {'has_related_line': False, 'verbose_name': _(u'Deletion')},
+            TYPE_RELATED:      {'has_related_line': True,  'verbose_name': _(u'Related modification')},
+            TYPE_PROPERTY:     {'has_related_line': False, 'verbose_name': _(u'Property')},
+            TYPE_RELATION:     {'has_related_line': True,  'verbose_name': _(u'Relation')},
+            TYPE_SYM_RELATION: {'has_related_line': True,  'verbose_name': _(u'Relation')},
         }
 
     class Meta:
@@ -140,14 +144,9 @@ class HistoryLine(Model):
 
     def _read_attrs(self):
         value = jsonloads(self.value)
-        self._entity_repr   = value.pop(0)
-
-        if self.type == HistoryLine.TYPE_RELATED:
-            self._modifications = []
-            self._related_line_id = value[0]
-        else:
-            self._modifications = value
-            self._related_line_id = 0
+        self._entity_repr = value.pop(0)
+        self._related_line_id = value.pop(0) if HistoryLine._TYPE_MAP[self.type]['has_related_line'] else 0
+        self._modifications = value
 
     @property
     def entity_repr(self): #TODO factorise ?
@@ -157,7 +156,11 @@ class HistoryLine(Model):
         return self._entity_repr
 
     def get_type_str(self):
-        return HistoryLine._TYPE_MAP[self.type]
+        return HistoryLine._TYPE_MAP[self.type]['verbose_name']
+
+    @property
+    def is_about_relation(self):
+        return self.type in (HistoryLine.TYPE_RELATION, HistoryLine.TYPE_SYM_RELATION)
 
     @property
     def modifications(self):
@@ -166,11 +169,13 @@ class HistoryLine(Model):
 
         return self._modifications
 
+    #TODO: use _TYPE_MAP ???
     @property
     def verbose_modifications(self): #TODO: use a templatetag instead ??
         vmodifs = []
+        htype = self.type
 
-        if self.type == HistoryLine.TYPE_PROPERTY:
+        if htype == HistoryLine.TYPE_PROPERTY:
             ptype_id = self.modifications[0]
 
             try:
@@ -179,6 +184,16 @@ class HistoryLine(Model):
                 ptype_text = ptype_id
 
             vmodifs.append(_(u'Add property “%s”') % ptype_text)
+        elif htype in (HistoryLine.TYPE_RELATION, HistoryLine.TYPE_SYM_RELATION):
+            rtype_id = self.modifications[0]
+            related_line = self.related_line
+
+            try:
+                predicate = RelationType.objects.get(pk=rtype_id).predicate #TODO: use cache
+            except RelationType.DoesNotExist, e:
+                predicate = rtype_id
+
+            vmodifs.append(_(u'Add a relation “%s”') % predicate)
         else:
             get_field = self.entity_ctype.model_class()._meta.get_field
 
@@ -249,10 +264,27 @@ class HistoryLine(Model):
                                                 date=datetime.now(),
                                                 modifs=[instance.type_id]
                                                )
+        elif isinstance(instance, Relation):
+            rtype_id = instance.type_id
 
-        if not isinstance(instance, CremeEntity):
-            return
+            if '-subject_' in rtype_id and not created:
+                hline = HistoryLine._create_line_4_instance(instance.subject_entity,
+                                                            HistoryLine.TYPE_RELATION,
+                                                            date=instance.modified,
+                                                           )
+                hline_sym = HistoryLine._create_line_4_instance(instance.object_entity,
+                                                                HistoryLine.TYPE_SYM_RELATION,
+                                                                date=instance.modified,
+                                                                modifs=[instance.type.symmetric_type_id],
+                                                                related_line_id=hline.id,
+                                                               )
+                hline.value = HistoryLine._encode_attrs(hline.entity, modifs=[rtype_id], related_line_id=hline_sym.id)
+                hline.save()
+        elif isinstance(instance, CremeEntity):
+            HistoryLine._log_creation_edition_entity(instance, created, **kwargs) #TODO: classmethod instead ???
 
+    @staticmethod
+    def _log_creation_edition_entity(instance, created, **kwargs):
         if created:
             HistoryLine._create_line_4_instance(instance, HistoryLine.TYPE_CREATION)
         else:
