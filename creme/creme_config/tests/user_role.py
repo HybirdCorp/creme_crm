@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from django.utils.translation import ugettext as _ ###################################
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
+try:
+    from django.contrib.auth.models import User
+    from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import * #########################
-from creme_core.tests.base import CremeTestCase
+    from creme_core.models import UserRole, SetCredentials, EntityCredentials, CremeEntity
+    from creme_core.tests.base import CremeTestCase
 
-from activities.models import Meeting
+    from activities.models import Meeting
 
-from persons.models import Contact, Organisation #need CremeEntity
-
-from creme_config.models import * #################################
+    from persons.models import Contact, Organisation #need CremeEntity
+except Exception, e:
+    print 'Error:', e
 
 
 __all__ = ('UserRoleTestCase',)

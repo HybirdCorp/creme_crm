@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,13 +31,16 @@ from creme_core.utils.media import get_current_theme
 
 from prefered_menu import PreferedMenuForm
 
+
 class UserSettingsConfigForm(PreferedMenuForm):
     pass
 
 
 class UserThemeForm(CremeForm):
-    themes    = ChoiceField(label=_(u"Choose your theme"), choices=settings.THEMES, widget=Select(attrs={'onchange': 'creme.ajax.json.ajaxFormSubmit($(this.form));'}),
-                            help_text=_(u"Think to reload the page once you changed the theme."))
+    themes = ChoiceField(label=_(u"Choose your theme"), choices=settings.THEMES,
+                         widget=Select(attrs={'onchange': 'creme.ajax.json.ajaxFormSubmit($(this.form));'}),
+                         help_text=_(u"Think to reload the page once you changed the theme.")
+                        )
 
     def __init__(self, user, *args, **kwargs):
         super(UserThemeForm, self).__init__(user, *args, **kwargs)
@@ -50,14 +53,14 @@ class UserThemeForm(CremeForm):
             sk = SettingKey.objects.get(pk=USER_THEME_NAME)
             sv = SettingValue.objects.create(user=self.user, key=sk)
 
-        sv.value=self.cleaned_data['themes']
+        sv.value = self.cleaned_data['themes']
         sv.save()
 
     def as_span(self):#TODO: In CremeForm?
         "Returns this form rendered as HTML <span>s."
-        return self._html_output(
-            normal_row = u'<span%(html_class_attr)s>%(label)s %(field)s%(help_text)s</span>',
-            error_row = u'%s',
-            row_ender = '</span>',
-            help_text_html = u' <span class="helptext">%s</span>',
-            errors_on_separate_row = False)
+        return self._html_output(normal_row=u'<span%(html_class_attr)s>%(label)s %(field)s%(help_text)s</span>',
+                                 error_row=u'%s',
+                                 row_ender='</span>',
+                                 help_text_html=u' <span class="helptext">%s</span>',
+                                 errors_on_separate_row=False,
+                                )
