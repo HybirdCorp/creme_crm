@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,19 +39,18 @@ class PreferedMenuForm(CremeForm):
 
         get_app  = creme_registry.get_app
         has_perm = user2edit.has_perm if user2edit else lambda perm_label: True
-
-        apps = set((item.url, u'%s - %s' % (get_app(appitem.app_name).verbose_name, item.name))
-                    for appitem in creme_menu
-                        if has_perm(appitem.app_name)
-                            for item in appitem.items
-                                if has_perm(item.perm)
-                  )
-
         menu_entries = self.fields['menu_entries']
-        menu_entries.choices = apps
-        menu_entries.choices.sort()
-
-        menu_entries.initial = PreferedMenuItem.objects.filter(user=user2edit).order_by('order').values_list('url', flat=True)
+        menu_entries.choices = sorted(((item.url, u'%s - %s' % (get_app(appitem.app_name).verbose_name, item.name))
+                                            for appitem in creme_menu
+                                                if has_perm(appitem.app_name)
+                                                    for item in appitem.items
+                                                        if has_perm(item.perm)
+                                      ),
+                                      key=lambda t: t[1]
+                                     )
+        menu_entries.initial = PreferedMenuItem.objects.filter(user=user2edit) \
+                                                       .order_by('order') \
+                                                       .values_list('url', flat=True)
 
     def save(self):
         user = self.user2edit
