@@ -5,6 +5,7 @@
 from blocks import *
 from button_menu import *
 from creme_property_type import *
+from custom_fields import *
 from history import *
 from portal import *
 from prefered_menu import *

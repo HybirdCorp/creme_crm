@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,7 +43,7 @@ class CustomFieldsBaseForm(CremeModelForm):
     def clean(self):
         cdata = self.cleaned_data
 
-        if cdata['field_type'] in (CustomField.ENUM, CustomField.MULTI_ENUM) and not cdata['enum_values'].strip():
+        if cdata.get('field_type') in (CustomField.ENUM, CustomField.MULTI_ENUM) and not cdata['enum_values'].strip():
             raise ValidationError(ugettext(u'The choices list must not be empty if you choose the type "Choices list".'))
 
         return cdata
