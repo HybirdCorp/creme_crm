@@ -23,7 +23,9 @@ from django.db.models.fields.related import ForeignKey
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeModel
+
 from persons.models.organisation import Organisation
+
 
 class SettlementTerms(CremeModel):
     name = CharField(_(u'Settlement terms'), max_length=100)
@@ -35,8 +37,6 @@ class SettlementTerms(CremeModel):
         app_label = 'billing'
         verbose_name = _(u'Settlement terms')
         verbose_name_plural = _(u'Settlement terms')
-
-
 
 
 
