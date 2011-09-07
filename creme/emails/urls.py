@@ -57,7 +57,7 @@ urlpatterns = patterns('emails.views',
     #mails history block
     (r'^mails_history/(?P<mail_id>\w+)$',   'mail.view_lightweight_mail'),
     (r'^mail/add/(?P<entity_id>\w+)$',      'mail.create_n_send'),
-    (r'^mail/get_body/(?P<entity_id>\w+)$', 'mail.get_lightweight_mail_body'),
+    (r'^mail/get_body/(?P<mail_id>\w+)$',   'mail.get_lightweight_mail_body'),
     (r'^mail/get_entity_body/(?P<entity_id>\w+)$', 'mail.get_entity_mail_body'),
     (r'^mail/resend$',                      'mail.resend_mails'),
 #    (r'^mail/delete$',                     'mail.delete'),

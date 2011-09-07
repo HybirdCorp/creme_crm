@@ -24,8 +24,8 @@ from django.template.context import RequestContext
 from django.utils.translation import ugettext as _, ugettext
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
-from creme_core.models.entity import CremeEntity
 
+from creme_core.models.entity import CremeEntity
 from creme_core.views import generic
 from creme_core.utils import jsonify, get_from_POST_or_404
 
@@ -38,14 +38,14 @@ from emails.models.mail import (EntityEmail,
                                 MAIL_STATUS_SYNCHRONIZED,
                                 MAIL_STATUS_SYNCHRONIZED_WAITING)
 from emails.blocks import SpamSynchronizationMailsBlock, WaitingSynchronizationMailsBlock, mail_waiting_sync_block, mail_spam_sync_block
-
 from emails.forms.mail import EntityEmailForm
+
 
 @login_required
 @permission_required('emails')
-def get_lightweight_mail_body(request, entity_id):
+def get_lightweight_mail_body(request, mail_id):
     """Used to show an html document in an iframe """
-    email = get_object_or_404(LightWeightEmail, pk=entity_id)
+    email = get_object_or_404(LightWeightEmail, pk=mail_id)
     email.sending.campaign.can_view_or_die(request.user)
     return HttpResponse(email.get_body())
 
@@ -54,7 +54,7 @@ def get_lightweight_mail_body(request, entity_id):
 def view_lightweight_mail(request, mail_id):
     email = get_object_or_404(LightWeightEmail, pk=mail_id)
 
-    #TODO: disable the link in the template in not allowed
+    #TODO: disable the link in the template if view is not allowed
     email.sending.campaign.can_view_or_die(request.user)
 
     template = "emails/view_email.html"
@@ -76,11 +76,11 @@ def view_lightweight_mail(request, mail_id):
 def synchronisation(request):
     #TODO: Apply permissions?
     return fetch(request, template="emails/synchronize.html",
-                        ajax_template="emails/frags/ajax/synchronize.html",
-                        extra_tpl_ctx={
-                                'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id,
-                            }
-                       )
+                 ajax_template="emails/frags/ajax/synchronize.html",
+                 extra_tpl_ctx={
+                        'entityemail_ct_id': ContentType.objects.get_for_model(EntityEmail).id,
+                    }
+                )
 
 def set_emails_status(request, status):
     user = request.user
@@ -94,6 +94,7 @@ def set_emails_status(request, status):
         else:
             email.status = status
             email.save()
+
     if errors:
         message = ",".join(errors)
         status  = 400
@@ -161,7 +162,7 @@ def resend_mails(request):
     for email in emails:
         try:
             email.send()
-        except EntityEmail.DoesNotExist:
+        except EntityEmail.DoesNotExist: #TODO: wtf ??
             pass
 
     return {}
@@ -173,7 +174,7 @@ def popupview(request, mail_id):
 
 @login_required
 @permission_required('emails')
-def get_entity_mail_body(request, entity_id):
+def get_entity_mail_body(request, entity_id): #TODO: rename entity_id -> mail_id
     """Used to show an html document in an iframe """
     email = get_object_or_404(EntityEmail, pk=entity_id)
     email.can_view_or_die(request.user)

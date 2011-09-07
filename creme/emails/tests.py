@@ -1,24 +1,40 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime, timedelta
-from StringIO import StringIO
+try:
+    from datetime import datetime, timedelta
+    from StringIO import StringIO
 
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
+    from django.contrib.auth.models import User
+    from django.contrib.contenttypes.models import ContentType
 
-from creme_core.tests.base import CremeTestCase
-from creme_core.models import EntityFilter, EntityFilterCondition
+    from creme_core.tests.base import CremeTestCase
+    from creme_core.models import EntityFilter, EntityFilterCondition
 
-from persons.models import Contact, Organisation
+    from persons.models import Contact, Organisation
 
-from emails.models import *
-from emails.models.sending import SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED
+    from emails.models import *
+    from emails.models.sending import SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED
+    from emails.constants import *
+except Exception, e:
+    print 'Error:', e
+
+
+class EmailsTestCase(CremeTestCase):
+    def test_populate(self):
+        self.populate('emails')
+        self.get_relationtype_or_fail(REL_SUB_MAIL_RECEIVED, [EntityEmail], [Organisation, Contact])
+        self.get_relationtype_or_fail(REL_SUB_MAIL_SENDED,   [EntityEmail], [Organisation, Contact])
+        self.get_relationtype_or_fail(REL_SUB_RELATED_TO,    [EntityEmail])
+
+    def test_portal(self):
+        self.populate('creme_core', 'creme_config', 'emails')
+        self.login()
+        self.assertEqual(self.client.get('/emails/').status_code, 200)
 
 
 class CampaignTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('creme_core', 'creme_config')
-#        self.populate('creme_core', 'emails')
+        self.populate('creme_core', 'creme_config', 'emails')
         self.login()
 
     def test_create(self):
@@ -58,11 +74,19 @@ class CampaignTestCase(CremeTestCase):
         self.assertEqual(200,  response.status_code)
         self.assertEqual(name, EmailCampaign.objects.get(pk=camp.id).name)
 
-    #TODO: test portal, listviews
+    def test_listview(self):
+        response = self.client.get('/emails/campaigns')
+        self.assertEqual(200, response.status_code)
+
+        try:
+            response.context['entities']
+        except KeyError, e:
+            self.fail(str(e))
+
 
 class MailingListsTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('creme_core', 'creme_config')
+        self.populate('creme_core', 'creme_config', 'emails')
         self.login()
 
     def test_create01(self):
@@ -101,10 +125,19 @@ class MailingListsTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(name, MailingList.objects.get(pk=mlist.id).name)
 
+    def test_listview(self):
+        response = self.client.get('/emails/mailing_lists')
+        self.assertEqual(200, response.status_code)
+
+        try:
+            response.context['entities']
+        except KeyError, e:
+            self.fail(str(e))
+
     def test_ml_and_campaign(self):
         campaign = EmailCampaign.objects.create(user=self.user, name='camp01')
         mlist    = MailingList.objects.create(user=self.user,   name='ml01')
-        self.failIf(campaign.mailing_lists.all())
+        self.assertFalse(campaign.mailing_lists.all())
 
         url = '/emails/campaign/%s/mailing_list/add' % campaign.id
         self.assertEqual(200, self.client.get(url).status_code)
@@ -126,11 +159,11 @@ class MailingListsTestCase(CremeTestCase):
                                     follow=True, data={'id': mlist.id}
                                    )
         self.assertEqual(200, response.status_code)
-        self.failIf(campaign.mailing_lists.all())
+        self.assertFalse(campaign.mailing_lists.all())
 
     def test_recipients01(self):
         mlist = MailingList.objects.create(user=self.user, name='ml01')
-        self.failIf(mlist.emailrecipient_set.all())
+        self.assertFalse(mlist.emailrecipient_set.all())
 
         url = '/emails/mailing_list/%s/recipient/add' % mlist.id
         self.assertEqual(200, self.client.get(url).status_code)
@@ -318,23 +351,23 @@ class MailingListsTestCase(CremeTestCase):
         mlist01 = create_ml(user=self.user, name='ml01')
         mlist02 = create_ml(user=self.user, name='ml02')
 
-        self.failIf(mlist01.children.all())
-        self.failIf(mlist02.children.all())
+        self.assertFalse(mlist01.children.all())
+        self.assertFalse(mlist02.children.all())
 
         url = '/emails/mailing_list/%s/child/add' % mlist01.id
         self.assertEqual(200, self.client.get(url).status_code)
 
         self.assertEqual(200, self.client.post(url, data={'child': mlist02.id}).status_code)
         self.assertEqual([mlist02.id], [ml.id for ml in mlist01.children.all()])
-        self.failIf(mlist02.children.all())
+        self.assertFalse(mlist02.children.all())
 
         #########################
         response = self.client.post('/emails/mailing_list/%s/child/delete' % mlist01.id,
                                     data={'id': mlist02.id}, follow=True
                                    )
         self.assertEqual(200, response.status_code)
-        self.failIf(mlist01.children.all())
-        self.failIf(mlist02.children.all())
+        self.assertFalse(mlist01.children.all())
+        self.assertFalse(mlist02.children.all())
 
     def test_ml_tree02(self):
         create_ml = MailingList.objects.create
@@ -368,7 +401,7 @@ class MailingListsTestCase(CremeTestCase):
 
 class TemplatesTestCase(CremeTestCase):
     def setUp(self):
-        self.populate('creme_core', 'creme_config', )
+        self.populate('creme_core', 'creme_config', 'emails')
         self.login()
 
     def test_createview01(self): #TODO: test attachments too
@@ -397,6 +430,43 @@ class TemplatesTestCase(CremeTestCase):
         self.assertEqual(subject, template.subject)
         self.assertEqual(body,    template.body)
 
+    def test_editview01(self):
+        name    = 'my template'
+        subject = 'Insert a joke *here*'
+        body    = 'blablabla'
+        template = EmailTemplate.objects.create(user=self.user, name=name, subject=subject, body=body)
+
+        url = '/emails/template/edit/%s' % template.id
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        name    = name.title()
+        subject = subject.title()
+        body    += ' edited'
+        response = self.client.post(url, follow=True,
+                                    data={
+                                            'user':    self.user.pk,
+                                            'name':    name,
+                                            'subject': subject,
+                                            'body':    body,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        template = EmailTemplate.objects.get(pk=template.pk)
+        self.assertEqual(name,    template.name)
+        self.assertEqual(subject, template.subject)
+        self.assertEqual(body,    template.body)
+
+    def test_listview(self):
+        response = self.client.get('/emails/templates')
+        self.assertEqual(200, response.status_code)
+
+        try:
+            response.context['entities']
+        except KeyError, e:
+            self.fail(str(e))
+
 
 class SendingsTestCase(CremeTestCase):
     def setUp(self):
@@ -409,7 +479,7 @@ class SendingsTestCase(CremeTestCase):
         # EmailSending should not contain duplicates.
         camp = EmailCampaign.objects.create(user=self.user, name='camp01')
 
-        self.failIf(camp.sendings_set.all())
+        self.assertFalse(camp.sendings_set.all())
 
         create_ml = MailingList.objects.create
         mlist01 = create_ml(user=self.user, name='ml01')
@@ -469,7 +539,7 @@ class SendingsTestCase(CremeTestCase):
                                             'template': template.id,
                                     }
                                    )
-        self.failIf(response.context['form'].errors)
+        self.assertFalse(response.context['form'].errors)
         self.assertEqual(response.status_code, 200)
 
         sendings = EmailCampaign.objects.get(pk=camp.id).sendings_set.all()
@@ -489,6 +559,10 @@ class SendingsTestCase(CremeTestCase):
         related_set = set(mail.recipient_entity_id for mail in mails)
         self.assert_(all(c.id in related_set for c in contacts))
         self.assert_(all(o.id in related_set for o in orgas))
+
+        mail = mails[0]
+        self.assertEqual(200, self.client.get('/emails/mails_history/%s' % mail.id).status_code)
+        self.assertEqual(200, self.client.get('/emails/mail/get_body/%s' % mail.id).status_code)
 
         #TODO: use the Django fake email framework to test even better
 
@@ -589,7 +663,7 @@ class SignaturesTestCase(CremeTestCase):
 
     def test_create01(self):
         self.login()
-        self.failIf(EmailSignature.objects.count())
+        self.assertFalse(EmailSignature.objects.count())
 
         url = '/emails/signature/add'
         self.assertEqual(200, self.client.get(url).status_code)
@@ -611,7 +685,7 @@ class SignaturesTestCase(CremeTestCase):
 
         self.assertEqual(body,         signature.body)
         self.assertEqual(self.user.id, signature.user_id)
-        self.failIf(signature.images.count())
+        self.assertFalse(signature.images.count())
 
     #TODO: create with images....
 
@@ -639,7 +713,7 @@ class SignaturesTestCase(CremeTestCase):
         self.assertEqual(name,         signature.name)
         self.assertEqual(body,         signature.body)
         self.assertEqual(self.user.id, signature.user_id)
-        self.failIf(signature.images.count())
+        self.assertFalse(signature.images.count())
 
     #TODO: edit with images....
 
@@ -660,7 +734,7 @@ class SignaturesTestCase(CremeTestCase):
 
         signature = EmailSignature.objects.create(user=self.user, name="Spike's one", body='See U space cowboy')
         self.assertEqual(200, self.client.post('/emails/signature/delete', data={'id': signature.id}, follow=True).status_code)
-        self.failIf(EmailSignature.objects.filter(pk=signature.id).count())
+        self.assertFalse(EmailSignature.objects.filter(pk=signature.id).count())
 
     def test_delete02(self): #'perm' error
         self.login(is_superuser=False)
@@ -678,7 +752,7 @@ class SignaturesTestCase(CremeTestCase):
                                                 )
 
         self.assertEqual(200, self.client.post('/emails/signature/delete', data={'id': signature.id}, follow=True).status_code)
-        self.failIf(EmailSignature.objects.filter(pk=signature.id).count())
+        self.assertFalse(EmailSignature.objects.filter(pk=signature.id).count())
 
         try:
             template = EmailTemplate.objects.get(pk=template.id)
@@ -686,3 +760,5 @@ class SignaturesTestCase(CremeTestCase):
             self.fail(str(e))
 
         self.assert_(template.signature is None)
+
+#TODO: test EntityEmail
