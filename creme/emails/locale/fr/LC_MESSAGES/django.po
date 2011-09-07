@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'EMAILS' APP
-# Copyright (C) 2010 Hybird
+# Copyright (C) 2011 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 #, fuzzy
@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-12 16:46+0200\n"
+"POT-Creation-Date: 2011-09-07 17:02+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -45,13 +45,13 @@ msgstr "Listes de diffusion parentes"
 
 #: blocks.py:144 forms/mail.py:56 forms/template.py:50 forms/template.py:121
 #: forms/template.py:123 models/mail.py:87 models/sending.py:79
-#: models/template.py:37 templates/emails/view_email.html:61
-#: templates/emails/view_entity_mail_popup.html:58
+#: models/template.py:37 templates/emails/view_email.html:60
+#: templates/emails/view_entity_mail_popup.html:57
 #: templates/emails/templatetags/block_mail.html:46
 msgid "Attachments"
 msgstr "Fichiers attachés"
 
-#: blocks.py:156 templates/emails/templatetags/block_sendings.html:7
+#: blocks.py:156 templates/emails/templatetags/block_sendings.html:6
 msgid "Sendings"
 msgstr "Envois"
 
@@ -63,16 +63,20 @@ msgstr "Historique des mails"
 msgid "Campaings emails history"
 msgstr "Historique des mails des campagnes"
 
+#: blocks.py:285 models/signature.py:42
+msgid "Email signatures"
+msgstr "Signatures de courriel"
+
 #: buttons.py:33
 msgid "Link this email to"
 msgstr "Relier cet email à"
 
-#: creme_core_register.py:32 models/mail.py:169 templates/emails/portal.html:6
-#: templates/emails/frags/ajax/synchronize.html:6
-#: templates/emails/templatetags/block_lw_mails_history.html:6
+#: creme_core_register.py:32 models/mail.py:169 templates/emails/portal.html:7
+#: templates/emails/frags/ajax/synchronize.html:5
+#: templates/emails/templatetags/block_lw_mails_history.html:5
 #: templates/emails/templatetags/block_mails.html:6
-#: templates/emails/templatetags/block_mails_history.html:6
-#: templates/emails/templatetags/block_synchronization.html:7
+#: templates/emails/templatetags/block_mails_history.html:5
+#: templates/emails/templatetags/block_synchronization.html:6
 msgid "Emails"
 msgstr "Courriels"
 
@@ -127,43 +131,43 @@ msgstr "Reçu avec le courriel %s"
 msgid "Creation of %(entity)s"
 msgstr "Création de %(entity)s"
 
-#: populate.py:42
+#: populate.py:46
 msgid "(email) received by"
 msgstr "(courriel) a été reçu par"
 
-#: populate.py:43
+#: populate.py:47
 msgid "received the email"
 msgstr "a reçu le courriel"
 
-#: populate.py:45
+#: populate.py:49
 msgid "(email) sended"
 msgstr "(courriel) a été envoyé"
 
-#: populate.py:46
+#: populate.py:50
 msgid "sended the email"
 msgstr "a envoyé le courriel"
 
-#: populate.py:48
+#: populate.py:52
 msgid "(email) related to"
 msgstr "(courriel) relatif à"
 
-#: populate.py:49
+#: populate.py:53
 msgid "related to the email"
 msgstr "relatif au courriel"
 
-#: populate.py:51
+#: populate.py:55
 msgid "Mailing list view"
 msgstr "Vue de Liste de Diffusion"
 
-#: populate.py:54
+#: populate.py:58
 msgid "Campaign view"
 msgstr "Vue de Campagne"
 
-#: populate.py:57
+#: populate.py:61
 msgid "Email template view"
 msgstr "Vue de patron de courriel"
 
-#: populate.py:62
+#: populate.py:66
 msgid "Email view"
 msgstr "Vue de Courriel"
 
@@ -185,10 +189,10 @@ msgstr "La(es) liste(s) suivante(s) est déja présente dans la campagne: %s"
 msgid "The email address for %(entity)s is invalid"
 msgstr "L'adresse email pour %(entity)s est invalide"
 
-#: forms/mail.py:48 models/mail.py:78 templates/emails/view_email.html:29
-#: templates/emails/view_entity_mail_popup.html:42
+#: forms/mail.py:48 models/mail.py:78 templates/emails/view_email.html:28
+#: templates/emails/view_entity_mail_popup.html:41
 #: templates/emails/templatetags/block_mail.html:30
-#: templates/emails/templatetags/block_mails_history.html:31
+#: templates/emails/templatetags/block_mails_history.html:30
 msgid "Sender"
 msgstr "Émetteur"
 
@@ -280,10 +284,10 @@ msgid "Email template"
 msgstr "Patron de courriel"
 
 #: forms/sending.py:43 forms/sending.py:48 models/mail.py:84
-#: templates/emails/view_email.html:53
-#: templates/emails/templatetags/block_lw_mails_history.html:12
-#: templates/emails/templatetags/block_mails_history.html:35
-#: templates/emails/templatetags/block_sendings.html:17
+#: templates/emails/view_email.html:52
+#: templates/emails/templatetags/block_lw_mails_history.html:11
+#: templates/emails/templatetags/block_mails_history.html:34
+#: templates/emails/templatetags/block_sendings.html:16
 msgid "Sending date"
 msgstr "Date d'envoi"
 
@@ -317,7 +321,7 @@ msgid "Images embedded in emails (but not as attached)."
 msgstr "Images incorporées aux courriels (et non pas en pièce jointe)."
 
 #: forms/template.py:49 models/sending.py:77 models/signature.py:33
-#: models/template.py:34 templates/emails/view_email.html:49
+#: models/template.py:34 templates/emails/view_email.html:48
 #: templates/emails/templatetags/block_signatures.html:16
 msgid "Body"
 msgstr "Corps"
@@ -373,48 +377,48 @@ msgstr "Synchronisé - Marqué comme SPAM"
 msgid "Synchronized - Untreated"
 msgstr "Synchronisé - Non traité"
 
-#: models/mail.py:75 templates/emails/view_email.html:41
-#: templates/emails/view_entity_mail_popup.html:34
+#: models/mail.py:75 templates/emails/view_email.html:40
+#: templates/emails/view_entity_mail_popup.html:33
 #: templates/emails/templatetags/block_mail.html:22
 msgid "Number of reads"
 msgstr "Nombre de lecture(s)"
 
-#: models/mail.py:76 templates/emails/view_email.html:33
-#: templates/emails/view_entity_mail_popup.html:38
-#: templates/emails/templatetags/_block_synchronization.html:16
-#: templates/emails/templatetags/block_lw_mails_history.html:14
+#: models/mail.py:76 templates/emails/view_email.html:32
+#: templates/emails/view_entity_mail_popup.html:37
+#: templates/emails/templatetags/_block_synchronization.html:13
+#: templates/emails/templatetags/block_lw_mails_history.html:13
 #: templates/emails/templatetags/block_mail.html:26
 #: templates/emails/templatetags/block_mails.html:13
-#: templates/emails/templatetags/block_mails_history.html:34
+#: templates/emails/templatetags/block_mails_history.html:33
 msgid "Status"
 msgstr "Statut"
 
 #: models/mail.py:79 models/recipient.py:36
-#: templates/emails/view_email.html:25
-#: templates/emails/view_entity_mail_popup.html:46
+#: templates/emails/view_email.html:24
+#: templates/emails/view_entity_mail_popup.html:45
 #: templates/emails/templatetags/block_mail.html:34
 #: templates/emails/templatetags/block_mails.html:12
-#: templates/emails/templatetags/block_mails_history.html:32
+#: templates/emails/templatetags/block_mails_history.html:31
 msgid "Recipient"
 msgstr "Destinataire"
 
 #: models/mail.py:81 models/sending.py:76 models/template.py:33
-#: templates/emails/view_email.html:45
-#: templates/emails/view_entity_mail_popup.html:50
-#: templates/emails/templatetags/_block_synchronization.html:19
-#: templates/emails/templatetags/block_lw_mails_history.html:13
+#: templates/emails/view_email.html:44
+#: templates/emails/view_entity_mail_popup.html:49
+#: templates/emails/templatetags/_block_synchronization.html:16
+#: templates/emails/templatetags/block_lw_mails_history.html:12
 #: templates/emails/templatetags/block_mail.html:38
-#: templates/emails/templatetags/block_mails_history.html:33
+#: templates/emails/templatetags/block_mails_history.html:32
 msgid "Subject"
 msgstr "Sujet"
 
-#: models/mail.py:85 templates/emails/view_entity_mail_popup.html:54
+#: models/mail.py:85 templates/emails/view_entity_mail_popup.html:53
 #: templates/emails/templatetags/block_mail.html:42
 msgid "Reception date"
 msgstr "Date de réception"
 
 #: models/mail.py:86 models/sending.py:78 models/template.py:36
-#: templates/emails/view_email.html:57
+#: templates/emails/view_email.html:56
 #: templates/emails/templatetags/block_signatures.html:5
 msgid "Signature"
 msgstr "Signature"
@@ -507,11 +511,10 @@ msgstr ""
 "patron de courriel."
 
 #: models/sending.py:140
-#, fuzzy
 msgid "[CremeCRM] Campaign email sending error."
-msgstr "%s Courriel des campagnes dans l'historique"
+msgstr "[CremeCRM] Erreur d'envoi de campagne de courriel."
 
-#: models/sending.py:243 templates/emails/view_email.html:37
+#: models/sending.py:243 templates/emails/view_email.html:36
 msgid "Related sending"
 msgstr "Envoi associé"
 
@@ -529,7 +532,7 @@ msgstr "Courriels  de campagne"
 msgid "Name"
 msgstr "Nom"
 
-#: models/signature.py:32 templates/emails/view_entity_mail_popup.html:30
+#: models/signature.py:32 templates/emails/view_entity_mail_popup.html:29
 #: templates/emails/templatetags/block_mail.html:18
 msgid "User"
 msgstr "Utilisateur"
@@ -537,10 +540,6 @@ msgstr "Utilisateur"
 #: models/signature.py:41
 msgid "Email signature"
 msgstr "Signature de courriel"
-
-#: models/signature.py:42
-msgid "Email signatures"
-msgstr "Signatures de courriel"
 
 #: models/template.py:35
 msgid "Use rich text editor"
@@ -550,62 +549,62 @@ msgstr "Utilise l'éditeur de texte riche"
 msgid "Email templates"
 msgstr "Patrons de courriel"
 
-#: templates/emails/portal.html:7
+#: templates/emails/portal.html:8
 msgid "Emails & Campaigns portal"
 msgstr "Portail Courriels & Campagnes"
 
-#: templates/emails/portal.html:9
+#: templates/emails/portal.html:10
 msgid "List of campaigns"
 msgstr "Liste des campagnes"
 
 #: templates/emails/synchronize.html:4
-#: templates/emails/frags/ajax/synchronize.html:9
+#: templates/emails/frags/ajax/synchronize.html:8
 msgid "Synchronization of incoming emails with Creme"
 msgstr "Synchronisation des mails externes dans Creme"
 
-#: templates/emails/view_entity_mail_popup.html:22
+#: templates/emails/view_entity_mail_popup.html:21
 msgid "Full detailview"
 msgstr "Fiche complète"
 
-#: templates/emails/view_entity_mail_popup.html:62
+#: templates/emails/view_entity_mail_popup.html:61
 #: templates/emails/templatetags/block_mail.html:50
 msgid "Email body"
 msgstr "Corps du courriel"
 
-#: templates/emails/frags/ajax/synchronize.html:16
+#: templates/emails/frags/ajax/synchronize.html:15
 msgid "Refresh"
 msgstr "Rafraîchir"
 
-#: templates/emails/templatetags/_block_synchronization.html:14
+#: templates/emails/templatetags/_block_synchronization.html:11
 msgid "Select all"
 msgstr "Tout sélectionner"
 
-#: templates/emails/templatetags/_block_synchronization.html:17
+#: templates/emails/templatetags/_block_synchronization.html:14
 msgid "Sender(s)"
 msgstr "Émetteur(s)"
 
-#: templates/emails/templatetags/_block_synchronization.html:18
+#: templates/emails/templatetags/_block_synchronization.html:15
 msgid "Recipient(s)"
 msgstr "Destinataire(s)"
 
-#: templates/emails/templatetags/_block_synchronization.html:20
+#: templates/emails/templatetags/_block_synchronization.html:17
 msgid "Received on"
 msgstr "Reçu le"
 
-#: templates/emails/templatetags/_block_synchronization.html:21
+#: templates/emails/templatetags/_block_synchronization.html:18
 #: templates/emails/templatetags/block_signatures.html:18
 msgid "Actions"
 msgstr "Actions"
 
-#: templates/emails/templatetags/_block_synchronization.html:27
+#: templates/emails/templatetags/_block_synchronization.html:24
 msgid "Select this line"
 msgstr "Sélectionner cette ligne"
 
-#: templates/emails/templatetags/_block_synchronization.html:36
+#: templates/emails/templatetags/_block_synchronization.html:33
 msgid "See the entity"
 msgstr "Voir la fiche"
 
-#: templates/emails/templatetags/_block_synchronization.html:47
+#: templates/emails/templatetags/_block_synchronization.html:44
 msgid "No received email to synchronize"
 msgstr "Aucun courriel reçu à synchroniser"
 
@@ -680,7 +679,7 @@ msgstr "Ajouter à partir d'un filtre"
 
 #: templates/emails/templatetags/block_contacts.html:17
 #: templates/emails/templatetags/block_organisations.html:17
-#: templates/emails/templatetags/block_recipients.html:28
+#: templates/emails/templatetags/block_recipients.html:27
 msgid "Address"
 msgstr "Adresse"
 
@@ -693,29 +692,29 @@ msgstr "pas d'adresse email"
 msgid "No contact recipient for the moment"
 msgstr "Aucun contact destinataire pour le moment"
 
-#: templates/emails/templatetags/block_lw_mails_history.html:6
+#: templates/emails/templatetags/block_lw_mails_history.html:5
 #, python-format
 msgid "%s Campaigns email in the history"
 msgstr "%s Courriel des campagnes dans l'historique"
 
-#: templates/emails/templatetags/block_lw_mails_history.html:6
+#: templates/emails/templatetags/block_lw_mails_history.html:5
 #, python-format
 msgid "%s Campaigns emails in the history"
 msgstr "%s Courriels des campagnes dans l'historique"
 
-#: templates/emails/templatetags/block_lw_mails_history.html:15
-#: templates/emails/templatetags/block_mails_history.html:36
+#: templates/emails/templatetags/block_lw_mails_history.html:14
+#: templates/emails/templatetags/block_mails_history.html:35
 msgid "Detail"
 msgstr "Détail"
 
-#: templates/emails/templatetags/block_lw_mails_history.html:24
-#: templates/emails/templatetags/block_mails_history.html:47
-#: templates/emails/templatetags/block_sendings.html:21
-#: templates/emails/templatetags/block_sendings.html:33
+#: templates/emails/templatetags/block_lw_mails_history.html:23
+#: templates/emails/templatetags/block_mails_history.html:46
+#: templates/emails/templatetags/block_sendings.html:20
+#: templates/emails/templatetags/block_sendings.html:32
 msgid "Details"
 msgstr "Détails"
 
-#: templates/emails/templatetags/block_lw_mails_history.html:31
+#: templates/emails/templatetags/block_lw_mails_history.html:30
 msgid "No campaign email in the history for the moment"
 msgstr "Aucun courriel des campagnes dans l'historique pour le moment"
 
@@ -757,12 +756,12 @@ msgid "%s Emails"
 msgstr "%s Courriels"
 
 #: templates/emails/templatetags/block_mails.html:14
-#: templates/emails/templatetags/block_recipients.html:29
-#: templates/emails/templatetags/block_sendings.html:22
+#: templates/emails/templatetags/block_recipients.html:28
+#: templates/emails/templatetags/block_sendings.html:21
+#: templates/emails/templatetags/block_synchronization.html:22
 #: templates/emails/templatetags/block_synchronization.html:23
-#: templates/emails/templatetags/block_synchronization.html:24
+#: templates/emails/templatetags/block_synchronization_spam.html:14
 #: templates/emails/templatetags/block_synchronization_spam.html:15
-#: templates/emails/templatetags/block_synchronization_spam.html:16
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -774,26 +773,26 @@ msgstr "Adresse de fiche non visible"
 msgid "No email in this sending"
 msgstr "Aucun mail dans cet envoi"
 
-#: templates/emails/templatetags/block_mails_history.html:6
+#: templates/emails/templatetags/block_mails_history.html:5
 #, python-format
 msgid "%s Email in the history"
 msgstr "%s Courriel dans l'historique"
 
-#: templates/emails/templatetags/block_mails_history.html:6
+#: templates/emails/templatetags/block_mails_history.html:5
 #, python-format
 msgid "%s Emails in the history"
 msgstr "%s Courriels dans l'historique"
 
+#: templates/emails/templatetags/block_mails_history.html:9
 #: templates/emails/templatetags/block_mails_history.html:10
-#: templates/emails/templatetags/block_mails_history.html:11
 msgid "Send a new mail related to this file"
 msgstr "Envoyer un nouveau courriel en rapport avec cette fiche"
 
-#: templates/emails/templatetags/block_mails_history.html:16
-#: templates/emails/templatetags/block_mails_history.html:21
+#: templates/emails/templatetags/block_mails_history.html:15
+#: templates/emails/templatetags/block_mails_history.html:20
+#: templates/emails/templatetags/block_synchronization.html:10
 #: templates/emails/templatetags/block_synchronization.html:11
-#: templates/emails/templatetags/block_synchronization.html:12
-#: templates/emails/templatetags/block_synchronization.html:43
+#: templates/emails/templatetags/block_synchronization.html:42
 #: templates/emails/templatetags/button_entityemail_link.html:4
 #: templates/emails/templatetags/button_entityemail_link.html:5
 #: templates/emails/templatetags/button_entityemail_link.html:9
@@ -801,25 +800,25 @@ msgstr "Envoyer un nouveau courriel en rapport avec cette fiche"
 msgid "Link to"
 msgstr "Relier à"
 
-#: templates/emails/templatetags/block_mails_history.html:17
-#: templates/emails/templatetags/block_mails_history.html:22
+#: templates/emails/templatetags/block_mails_history.html:16
+#: templates/emails/templatetags/block_mails_history.html:21
 msgid "Link to an existing email"
 msgstr "Lier à un email existant"
 
-#: templates/emails/templatetags/block_mails_history.html:20
+#: templates/emails/templatetags/block_mails_history.html:19
 #: templates/emails/templatetags/button_entityemail_link.html:8
 msgid "forbidden"
 msgstr "interdit"
 
-#: templates/emails/templatetags/block_mails_history.html:52
+#: templates/emails/templatetags/block_mails_history.html:51
 msgid "This mail was synchronized. Are you sure you want to send it ?"
-msgstr ""
+msgstr "Ce courriel a été synchronisé. Êtes-vous sûr de vouloir l'envoyer ?"
 
-#: templates/emails/templatetags/block_mails_history.html:56
+#: templates/emails/templatetags/block_mails_history.html:55
 msgid "Re-send"
 msgstr "Ré-envoyer"
 
-#: templates/emails/templatetags/block_mails_history.html:64
+#: templates/emails/templatetags/block_mails_history.html:63
 msgid "No email in the history for the moment"
 msgstr "Aucun courriel dans l'historique pour le moment"
 
@@ -855,66 +854,65 @@ msgstr "%s Listes parentes"
 msgid "No parent list for the moment"
 msgstr "Aucune liste parente pour le moment"
 
-#: templates/emails/templatetags/block_recipients.html:7
+#: templates/emails/templatetags/block_recipients.html:6
 #, python-format
 msgid "%s Unlinked recipient"
 msgstr "%s Destinataire manuel"
 
-#: templates/emails/templatetags/block_recipients.html:7
+#: templates/emails/templatetags/block_recipients.html:6
 #, python-format
 msgid "%s Unlinked recipients"
 msgstr "%s Destinataires manuels"
 
-#: templates/emails/templatetags/block_recipients.html:10
+#: templates/emails/templatetags/block_recipients.html:9
 msgid "Add manually"
 msgstr "Ajouter à la main"
 
+#: templates/emails/templatetags/block_recipients.html:12
 #: templates/emails/templatetags/block_recipients.html:13
-#: templates/emails/templatetags/block_recipients.html:14
-#: templates/emails/templatetags/block_recipients.html:19
+#: templates/emails/templatetags/block_recipients.html:18
 msgid "Add from a CSV file"
 msgstr "Ajouter à partir d'un fichier CSV"
 
-#: templates/emails/templatetags/block_recipients.html:18
+#: templates/emails/templatetags/block_recipients.html:17
 msgid "Can't add"
 msgstr "Ajout interdit"
 
-#: templates/emails/templatetags/block_recipients.html:41
+#: templates/emails/templatetags/block_recipients.html:40
 msgid "No unlinked recipient for the moment"
 msgstr "Aucun destinataire pour le moment"
 
-#: templates/emails/templatetags/block_sendings.html:7
+#: templates/emails/templatetags/block_sendings.html:6
 #, python-format
 msgid "%s Sending"
 msgstr "%s Envoi"
 
-#: templates/emails/templatetags/block_sendings.html:7
+#: templates/emails/templatetags/block_sendings.html:6
 #, python-format
 msgid "%s Sendings"
 msgstr "%s Envois"
 
-#: templates/emails/templatetags/block_sendings.html:10
+#: templates/emails/templatetags/block_sendings.html:9
 msgid "New sending"
 msgstr "Nouvel envoi"
 
-#: templates/emails/templatetags/block_sendings.html:18
+#: templates/emails/templatetags/block_sendings.html:17
 msgid "Type"
 msgstr "Type"
 
-#: templates/emails/templatetags/block_sendings.html:19
+#: templates/emails/templatetags/block_sendings.html:18
 msgid "State"
 msgstr "État"
 
-#: templates/emails/templatetags/block_sendings.html:20
+#: templates/emails/templatetags/block_sendings.html:19
 msgid "Number of email(s)"
 msgstr "Nombre de message(s)"
 
-#: templates/emails/templatetags/block_sendings.html:30
-#, fuzzy
+#: templates/emails/templatetags/block_sendings.html:29
 msgid "not sent"
-msgstr "Non envoyé"
+msgstr "non envoyé"
 
-#: templates/emails/templatetags/block_sendings.html:43
+#: templates/emails/templatetags/block_sendings.html:42
 msgid "No sending for the moment"
 msgstr "Aucun envoi pour le moment"
 
@@ -936,45 +934,45 @@ msgstr "Nouvelle signature"
 msgid "No signature for the moment"
 msgstr "Aucune signature pour le moment"
 
-#: templates/emails/templatetags/block_synchronization.html:7
+#: templates/emails/templatetags/block_synchronization.html:6
 #, python-format
 msgid "%s Incoming email to treat"
 msgstr "%s Courriel entrant à traiter"
 
-#: templates/emails/templatetags/block_synchronization.html:7
+#: templates/emails/templatetags/block_synchronization.html:6
 #, python-format
 msgid "%s Incoming emails to treat"
 msgstr "%s Courriels entrants à traiter"
 
+#: templates/emails/templatetags/block_synchronization.html:14
 #: templates/emails/templatetags/block_synchronization.html:15
-#: templates/emails/templatetags/block_synchronization.html:16
-#: templates/emails/templatetags/block_synchronization.html:40
+#: templates/emails/templatetags/block_synchronization.html:39
 msgid "Mark as treated"
 msgstr "Marquer comme traité"
 
+#: templates/emails/templatetags/block_synchronization.html:26
 #: templates/emails/templatetags/block_synchronization.html:27
-#: templates/emails/templatetags/block_synchronization.html:28
-#: templates/emails/templatetags/block_synchronization.html:37
+#: templates/emails/templatetags/block_synchronization.html:36
 msgid "Mark as spam"
 msgstr "Marquer comme spam"
 
-#: templates/emails/templatetags/block_synchronization_spam.html:7
+#: templates/emails/templatetags/block_synchronization_spam.html:6
 #, python-format
 msgid "%s Incoming email marked as spam"
 msgstr "%s Courriel entrant marqué comme spam"
 
-#: templates/emails/templatetags/block_synchronization_spam.html:7
+#: templates/emails/templatetags/block_synchronization_spam.html:6
 #, python-format
 msgid "%s Incoming emails marked as spam"
 msgstr "%s Courriels entrants marqués comme spam"
 
-#: templates/emails/templatetags/block_synchronization_spam.html:7
+#: templates/emails/templatetags/block_synchronization_spam.html:6
 msgid "Spam"
 msgstr "Spam"
 
+#: templates/emails/templatetags/block_synchronization_spam.html:10
 #: templates/emails/templatetags/block_synchronization_spam.html:11
-#: templates/emails/templatetags/block_synchronization_spam.html:12
-#: templates/emails/templatetags/block_synchronization_spam.html:25
+#: templates/emails/templatetags/block_synchronization_spam.html:24
 msgid "Marked as 'to be treated'"
 msgstr "Marquer comme à traiter"
 
@@ -990,11 +988,11 @@ msgstr "Détails du courriel"
 #: views/mail.py:93
 #, python-format
 msgid "You are not allowed to edit this entity: %s"
-msgstr ""
+msgstr "Vous n'êtes pas authorisé à modifier cette fiche: %s"
 
 #: views/mail.py:102
 msgid "Operation successfully completed"
-msgstr ""
+msgstr "Opération effectuée avec succés"
 
 #: views/mail.py:150
 #, python-format

@@ -32,6 +32,7 @@ from django.utils.simplejson import JSONEncoder
 from creme_core.models import (CremeEntity, Relation, RelationType,
                                RelationBlockItem, InstanceBlockConfigItem, BlockState)
 
+
 def list4url(list_):
     """Special url list-to-string function"""
     return ','.join(str(i) for i in list_)
@@ -53,16 +54,27 @@ class _BlockContext(object): #TODO: rename to Context ?? (so Context-> TemplateC
 
 
 class Block(object):
-    """ A block of informations, often related to a model.
-    Blocks can be diplayed on a detailview (and so are related to a CremeEntity),
-    but they can be optionnally be displayed on portals (related to an app's
-    content types) and on the homepage (related to all the apps).
+    """ A block of informations.
+    Blocks can be displayed on (see creme_core.templatetags.creme_block):
+        - a detailview (and so are related to a CremeEntity),
+        - a portal (related to the content types of an app)
+        - the homepage - ie the portal of creme_core (related to all the apps).
+
+    A Block can be directly displayed on a page (this is the only solution for
+    pages that are not a detailview, a portal or the home). But the better
+    solution is to use the configuration system (see creme_core.models.blocks
+    & creme_config).
 
     Reloading after a change (deleting, adding, updating, etc...) in the block
     can be done with ajax if the correct view is set : for this, each block has
     a unique id in a page.
 
-    Optionnal methods (both must exist/not exist in the same time):
+    When you inherit the Block class, you have to define these optionnal methods
+    to allow the different possibility of display:
+
+    def detailview_display(self, context):
+        return 'VOID BLOCK FOR DETAILVIEW: %s' % self.verbose_name
+
     def portal_display(self, context, ct_ids):
         return 'VOID BLOCK FOR PORTAL: %s' % self.verbose_name
 
@@ -77,6 +89,7 @@ class Block(object):
     context_class = _BlockContext      #store the context in the session.
     configurable  = True               #True: the Block can be add/removed to detailview/portal by configuration (see creme_config)
     target_ctypes = ()                 #Tuple of CremeEntity classes that can have this type of block. Empty tuple means that all types are ok. eg: (Contact, Organisation)
+    target_apps = ()                   #Tuple of name of the Apps that can have this Block on their portal. Empty tuple means that all Apps are ok. eg: ('persons',)
 
     @staticmethod
     def generate_id(app_name, name): #### _generate_id ????
@@ -85,9 +98,8 @@ class Block(object):
     def _render(self, template_context):
         return get_template(self.template_name).render(Context(template_context))
 
-    def detailview_display(self, context):
-        """Overload this method to display a specific block (like Todo etc...) """
-        #return u'VOID BLOCK FOR DETAILVIEW: %s, %s' % (self.id_, self.verbose_name)
+    def _simple_detailview_display(self, context):
+        """Helper method to build a basic detailview_display() method for classes that inherit Block."""
         return self._render(self.get_block_template_context(context))
 
     def __get_context(self, request, base_url, block_name):
@@ -155,6 +167,10 @@ class Block(object):
             request.session.modified = True
 
         return template_context
+
+
+class SimpleBlock(Block):
+     detailview_display = Block._simple_detailview_display
 
 
 class _PaginatedBlockContext(_BlockContext):
@@ -499,7 +515,7 @@ class _BlockRegistry(object):
         block = self._object_blocks.get(model)
 
         if not block:
-            block = Block()
+            block = SimpleBlock()
             block.id_ = Block.generate_id(model._meta.app_label, model.__name__.upper() + '_AUTO')
             block.dependencies = (model,)
             block.template_name = 'creme_core/templatetags/block_object.html'
@@ -513,17 +529,17 @@ class _BlockRegistry(object):
         @param model Constraint on a CremeEntity class ; means blocks must be compatible with all kind of CremeEntity
         """
         return (block for block in self._blocks.itervalues()
-                        if block.configurable and (not block.target_ctypes or model in block.target_ctypes)
-                        #TODO: blocks only on portal or home
-                        #if hasattr(block, 'detailview_display') and \
-                           #block.configurable and \
-                           #(not block.target_ctypes or model in block.target_ctypes)
+                        if block.configurable and \
+                           hasattr(block, 'detailview_display') and \
+                           (not block.target_ctypes or model in block.target_ctypes)
                )
 
     def get_compatible_portal_blocks(self, app_name):
         method_name = 'home_display' if app_name == 'creme_core' else 'portal_display'
         return (block for block in self._blocks.itervalues()
-                     if block.configurable and hasattr(block, method_name)
+                     if block.configurable and \
+                        hasattr(block, method_name) and \
+                        (not block.target_apps or app_name in block.target_apps)
                )
 
 

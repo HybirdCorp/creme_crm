@@ -24,7 +24,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, Relation, CremeProperty, HistoryLine #EntityCredentials
-from creme_core.gui.block import Block, QuerysetBlock, BlocksManager, list4url
+from creme_core.gui.block import SimpleBlock, QuerysetBlock, BlocksManager, list4url
 
 
 class PropertiesBlock(QuerysetBlock):
@@ -72,8 +72,8 @@ class RelationsBlock(QuerysetBlock):
         return self._render(btc)
 
 
-class CustomFieldsBlock(Block):
-    id_           = Block.generate_id('creme_core', 'customfields')
+class CustomFieldsBlock(SimpleBlock):
+    id_           = SimpleBlock.generate_id('creme_core', 'customfields')
     #dependencies  = ()
     verbose_name  = _(u'Custom fields')
     template_name = 'creme_core/templatetags/block_customfields.html'

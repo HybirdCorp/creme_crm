@@ -180,6 +180,9 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=relations_block.id_,      order=500, zone=BlockDetailviewLocation.LEFT,  model=Contact)
         BlockDetailviewLocation.create(block_id=history_block.id_,        order=20,  zone=BlockDetailviewLocation.RIGHT, model=Contact)
 
+        BlockPortalLocation.create(app_name='persons', block_id=neglected_orgas_block.id_, order=10)
+        BlockPortalLocation.create(app_name='persons', block_id=history_block.id_,         order=30)
+
         if 'creme.assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail views and portal')
 
@@ -199,7 +202,6 @@ class Populator(BasePopulator):
             #BlockDetailviewLocation.create(block_id=actions_nit_block.id_, order=410, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
             BlockDetailviewLocation.create(block_id=messages_block.id_,    order=500, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
 
-            BlockPortalLocation.create(app_name='persons', block_id=history_block.id_,     order=20)
             BlockPortalLocation.create(app_name='persons', block_id=memos_block.id_,       order=100)
             BlockPortalLocation.create(app_name='persons', block_id=alerts_block.id_,      order=200)
             #BlockPortalLocation.create(app_name='persons', block_id=actions_it_block.id_,  order=300)

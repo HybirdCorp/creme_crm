@@ -18,13 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.gui.block import Block
+from creme_core.gui.block import SimpleBlock
 
 from tickets.models import Ticket
 
 
-class TicketBlock(Block):
-    id_           = Block.generate_id('tickets', 'ticket')
+class TicketBlock(SimpleBlock):
+    id_           = SimpleBlock.generate_id('tickets', 'ticket')
     dependencies  = (Ticket,)
     verbose_name  = u'Info on a ticket'
     template_name = 'tickets/templatetags/block_ticket.html'

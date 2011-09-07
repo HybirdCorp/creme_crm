@@ -62,6 +62,11 @@ class BlocksConfigTestCase(CremeTestCase):
 
         self.fail('No "%s" field' % name)
 
+    def _assertNoInChoices(self, formfield, id_, error_msg):
+        for fid, fvname in formfield.choices:
+            if fid == id_:
+                self.fail(error_msg + ' -> should not be in choices.')
+
     def _find_location(self, block_id, locations):
         for location in locations:
             if location.block_id == block_id:
@@ -80,6 +85,26 @@ class BlocksConfigTestCase(CremeTestCase):
         self.client.post('/creme_config/blocks/detailview/add/', data={'ct_id': ct.id})
         self.assertEqual(4, BlockDetailviewLocation.objects.filter(content_type=ct).count())
 
+        class FoobarBlock1(Block):
+            id_           = Block.generate_id('creme_config', 'test_edit_detailview02_1')
+            verbose_name  = u'Testing purpose'
+
+            def detailview_display(self, context):     return self._render(self.get_block_template_context(context))
+            def home_display(self, context):           return '<table id="%s"></table>' % self.id_
+            def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
+
+        class FoobarBlock2(Block):
+            id_           = Block.generate_id('creme_config', 'test_edit_detailview02_2')
+            verbose_name  = u'Testing purpose'
+
+            #def detailview_display(self, context):    NO
+            def home_display(self, context):           return '<table id="%s"></table>' % self.id_
+            def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
+
+        foobar_block1 = FoobarBlock1()
+        foobar_block2 = FoobarBlock2()
+        block_registry.register(foobar_block1, foobar_block2)
+
         url = '/creme_config/blocks/detailview/edit/%s' % ct.id
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
@@ -95,6 +120,8 @@ class BlocksConfigTestCase(CremeTestCase):
 
         blocks = list(block_registry.get_compatible_blocks(model)) #TODO test get_compatible_blocks() in creme_core
         self.assert_(len(blocks) >= 5)
+        self._find_field_index(top_field, foobar_block1.id_)
+        self._assertNoInChoices(top_field, foobar_block2.id_, 'Block has no detailview_display() method')
 
         block_top_id1   = blocks[0].id_
         block_top_id2   = blocks[1].id_
@@ -374,10 +401,28 @@ class BlocksConfigTestCase(CremeTestCase):
             def portal_display(self, context, ct_ids):
                 return '<table id="%s"></table>' % self.id_
 
+        class FoobarBlock3(Block):
+            id_           = Block.generate_id('creme_config', 'test_edit_portal02_3')
+            verbose_name  = u'Testing purpose'
+            target_apps   = (app_name, 'billing') # <-- OK
+
+            def portal_display(self, context, ct_ids):
+                return '<table id="%s"></table>' % self.id_
+
+        class FoobarBlock4(Block):
+            id_           = Block.generate_id('creme_config', 'test_edit_portal02_4')
+            verbose_name  = u'Testing purpose'
+            target_apps   = ('billing', 'documents') # <-- KO
+
+            def portal_display(self, context, ct_ids):
+                return '<table id="%s"></table>' % self.id_
+
 
         foobar_block1 = FoobarBlock1()
         foobar_block2 = FoobarBlock2()
-        block_registry.register(foobar_block1, foobar_block2)
+        foobar_block3 = FoobarBlock3()
+        foobar_block4 = FoobarBlock4()
+        block_registry.register(foobar_block1, foobar_block2, foobar_block3, foobar_block4)
 
         self.client.post('/creme_config/blocks/portal/add/', data={'app_name': app_name})
         self.assertEqual(1, BlockPortalLocation.objects.filter(app_name=app_name).count())
@@ -394,10 +439,9 @@ class BlocksConfigTestCase(CremeTestCase):
         choices = blocks_field.choices
         self.assert_(len(choices) >= 2)
         self._find_field_index(blocks_field, foobar_block1.id_)
-
-        for fname, fvname in blocks_field.choices:
-            if fname == foobar_block2.id_:
-                self.fail('Block is not configurable -> should not be in choices.')
+        self._assertNoInChoices(blocks_field, foobar_block2.id_, 'Block is not configurable')
+        self._find_field_index(blocks_field, foobar_block3.id_)
+        self._assertNoInChoices(blocks_field, foobar_block4.id_, 'Block is not compatible with this app')
 
         block_id1 = choices[0][0]
         block_id2 = choices[1][0]
@@ -630,7 +674,7 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(0,   BlockMypageLocation.objects.filter(pk=loc.pk).count())
 
-    def test_delete_mypage02(self): #BlockMypageLocation must belongs to the user
+    def test_delete_mypage02(self): #BlockMypageLocation must belong to the user
         loc = BlockMypageLocation.objects.create(user=self.other_user, block_id=history_block.id_, order=1)
         response = self.client.post('/creme_config/blocks/mypage/delete', data={'id': loc.id})
         self.assertEqual(404, response.status_code)

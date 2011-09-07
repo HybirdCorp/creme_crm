@@ -329,7 +329,8 @@ class HasPermToNode(TemplateNode):
 
 @register.simple_tag(takes_context=True)
 def creme_media_url(context, url):
-    return get_creme_media_url(context['THEME_NAME'], url)
+    #return get_creme_media_url(context['THEME_NAME'], url)
+    return get_creme_media_url(context.get('THEME_NAME', 'chantilly'), url)
 
 @register.tag
 def include_creme_media(parser, token):

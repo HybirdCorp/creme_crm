@@ -23,7 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, Relation
-from creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, list4url
+from creme_core.gui.block import Block, SimpleBlock, PaginatedBlock, QuerysetBlock, list4url
 
 from activities.models import Activity
 from activities.constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY
@@ -32,30 +32,30 @@ from persons.models import Contact, Organisation, Address
 from persons.constants import *
 
 
-class ContactBlock(Block):
-    id_           = Block.generate_id('persons', 'contact')
+class ContactBlock(SimpleBlock):
+    id_           = SimpleBlock.generate_id('persons', 'contact')
     dependencies  = (Contact,)
     verbose_name  = u'Info on a contact'
     template_name = 'persons/templatetags/block_contact.html'
 
 
-class ContactCoordinatesBlock(Block):
-    id_           = Block.generate_id('persons', 'contact_coordinates')
+class ContactCoordinatesBlock(SimpleBlock):
+    id_           = SimpleBlock.generate_id('persons', 'contact_coordinates')
     dependencies  = (Contact,)
     verbose_name  = _(u'Coordinates of a contact')
     template_name = 'persons/templatetags/block_contact_coordinates.html'
     target_ctypes = (Contact,)
 
 
-class OrganisationBlock(Block):
-    id_           = Block.generate_id('persons', 'organisation')
+class OrganisationBlock(SimpleBlock):
+    id_           = SimpleBlock.generate_id('persons', 'organisation')
     dependencies  = (Organisation,)
     verbose_name  = u'Info on a organisation'
     template_name = 'persons/templatetags/block_organisation.html'
 
 
-class OrgaCoordinatesBlock(Block):
-    id_           = Block.generate_id('persons', 'orga_coordinates')
+class OrgaCoordinatesBlock(SimpleBlock):
+    id_           = SimpleBlock.generate_id('persons', 'orga_coordinates')
     dependencies  = (Organisation,)
     verbose_name  = _(u'Coordinates of an organisation')
     template_name = 'persons/templatetags/block_orga_coordinates.html'
@@ -108,9 +108,9 @@ class NeglectedOrganisationsBlock(PaginatedBlock):
     """Customers/propsects organisations that have no Activity in the future."""
     id_           = QuerysetBlock.generate_id('persons', 'neglected_orgas')
     dependencies  = (Activity,)
-    verbose_name  = u"Neglected organisations"
+    verbose_name  = _(u"Neglected organisations")
     template_name = 'persons/templatetags/block_neglected_orgas.html'
-    configurable  = False
+    target_apps   = ('persons',)
 
     def _get_neglected(self, now):
         user_contacts     = Contact.objects.filter(is_user__isnull=False).values_list('id', flat=True)
@@ -164,8 +164,8 @@ class NeglectedOrganisationsBlock(PaginatedBlock):
         return self._render(btc)
 
 
-class AddressBlock(Block):
-    id_           = Block.generate_id('persons', 'address')
+class AddressBlock(SimpleBlock):
+    id_           = SimpleBlock.generate_id('persons', 'address')
     dependencies  = (Address,)
     verbose_name  = _(u'Address')
     template_name = 'persons/templatetags/block_address.html'
@@ -196,13 +196,13 @@ class OtherAddressBlock(QuerysetBlock):
                                                            ))
 
 
-contact_coord_block = ContactCoordinatesBlock()
-orga_coord_block    = OrgaCoordinatesBlock()
-address_block       = AddressBlock()
-other_address_block = OtherAddressBlock()
-managers_block      = ManagersBlock()
-employees_block     = EmployeesBlock()
-#NeglectedOrganisationsBlock()
+contact_coord_block   = ContactCoordinatesBlock()
+orga_coord_block      = OrgaCoordinatesBlock()
+address_block         = AddressBlock()
+other_address_block   = OtherAddressBlock()
+managers_block        = ManagersBlock()
+employees_block       = EmployeesBlock()
+neglected_orgas_block = NeglectedOrganisationsBlock()
 
 block_list = (
         contact_coord_block,
@@ -211,5 +211,5 @@ block_list = (
         other_address_block,
         managers_block,
         employees_block,
-        NeglectedOrganisationsBlock(),
+        neglected_orgas_block,
     )

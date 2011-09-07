@@ -25,7 +25,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import Relation, CremeEntity
-from creme_core.gui.block import Block, QuerysetBlock, list4url
+from creme_core.gui.block import SimpleBlock, QuerysetBlock, list4url
 from creme_core.utils import jsonify #
 
 from persons.models import Contact, Organisation
@@ -40,8 +40,8 @@ from emails.models.mail import (MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCH
 from crudity.blocks import CrudityQuerysetBlock
 
 
-class EntityEmailBlock(Block):
-    id_           = Block.generate_id('emails', 'entity_email')
+class EntityEmailBlock(SimpleBlock):
+    id_           = SimpleBlock.generate_id('emails', 'entity_email')
     dependencies  = (EntityEmail,)
     verbose_name  = u'Info on a e-mail'
     template_name = 'emails/templatetags/block_mail.html'
@@ -282,9 +282,9 @@ class SignaturesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'signatures')
     dependencies  = (EmailSignature,)
     order_by      = 'name'
-    verbose_name  = u'Email signatures'
+    verbose_name  = _(u'Email signatures')
     template_name = 'emails/templatetags/block_signatures.html'
-    configurable  = False
+    target_apps   = ('emails',)
 
     def portal_display(self, context, ct_ids):
         if not context['user'].has_perm('emails'):
@@ -295,18 +295,19 @@ class SignaturesBlock(QuerysetBlock):
                                                            ))
 
 
-mailing_lists_block    = MailingListsBlock()
-email_recipients_block = EmailRecipientsBlock()
-contacts_block         = ContactsBlock()
-organisations_block    = OrganisationsBlock()
-child_lists_block      = ChildListsBlock()
-parent_lists_block     = ParentListsBlock()
-attachments_block      = AttachmentsBlock()
-sendings_block         = SendingsBlock()
-mails_block            = MailsBlock()
-mails_history_block    = MailsHistoryBlock()
+mailing_lists_block     = MailingListsBlock()
+email_recipients_block  = EmailRecipientsBlock()
+contacts_block          = ContactsBlock()
+organisations_block     = OrganisationsBlock()
+child_lists_block       = ChildListsBlock()
+parent_lists_block      = ParentListsBlock()
+attachments_block       = AttachmentsBlock()
+sendings_block          = SendingsBlock()
+mails_block             = MailsBlock()
+mails_history_block     = MailsHistoryBlock()
 mail_waiting_sync_block = WaitingSynchronizationMailsBlock()
 mail_spam_sync_block    = SpamSynchronizationMailsBlock()
+signatures_block        = SignaturesBlock()
 
 blocks_list = (
         mailing_lists_block,
@@ -322,5 +323,5 @@ blocks_list = (
         LwMailsHistoryBlock(),
         mail_waiting_sync_block,
         mail_spam_sync_block,
-        SignaturesBlock(),
+        signatures_block,
     )

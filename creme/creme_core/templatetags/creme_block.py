@@ -453,6 +453,9 @@ class BlockDetailViewerNode(TemplateNode):
         block = BlocksManager.get(context).pop_group(self.alias)[0]
 
         return block.detailview_display(context)
+        #detailview_display = getattr(block, 'detailview_display', None)
+        #return detailview_display(context) if detailview_display else \
+               #"THIS BLOCK CAN'T BE DISPLAY ON DETAILVIEW (YOU HAVE A CONFIG PROBLEM): %s" % block.id_
 
 
 @register.tag(name="import_object_block")
@@ -543,12 +546,17 @@ class DetailviewBlocksDisplayerNode(TemplateNode):
         model = context['object'].__class__
 
         for block in BlocksManager.get(context).pop_group(self.group_name):
-            target_ctypes = block.target_ctypes
+            detailview_display = getattr(block, 'detailview_display', None)
+            if not detailview_display:
+                yield "THIS BLOCK CAN'T BE DISPLAY ON DETAILVIEW (YOU HAVE A CONFIG PROBLEM): %s" % block.id_
+                continue
 
+            target_ctypes = block.target_ctypes
             if target_ctypes and not model in target_ctypes:
                 yield "THIS BLOCK CAN'T BE DISPLAY ON THIS CONTENT TYPE (YOU HAVE A CONFIG PROBLEM): %s" % block.id_
-            else:
-                yield block.detailview_display(context)
+                continue
+
+            yield detailview_display(context)
 
     def render(self, context):
         return ''.join(op for op in self.block_outputs(context))
