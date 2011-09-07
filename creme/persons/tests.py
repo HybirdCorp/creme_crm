@@ -17,9 +17,8 @@ try:
     from persons.models import *
     from persons.constants import *
     from persons.blocks import NeglectedOrganisationsBlock
-
 except Exception, e:
-    print e
+    print 'Error:', e
 
 
 class PersonsTestCase(CremeTestCase):
@@ -27,65 +26,56 @@ class PersonsTestCase(CremeTestCase):
         super(PersonsTestCase, self).login(is_superuser, allowed_apps=['persons'])
 
     def setUp(self):
-        self.populate('creme_core', 'creme_config', 'persons', 'commercial',)
+        self.populate('creme_core', 'creme_config', 'persons')
 
-    def test_populate(self): #test relationtype creation with constraints
-        def get_relationtype_or_fail(pk):
-            try:
-                return RelationType.objects.get(pk=pk)
-            except RelationType.DoesNotExist:
-                self.fail('Bad populate: unfoundable RelationType with pk=%s' % pk)
-
-        rel_sub_employed = get_relationtype_or_fail(REL_SUB_EMPLOYED_BY)
-        rel_obj_employed = get_relationtype_or_fail(REL_OBJ_EMPLOYED_BY)
-        rel_sub_customer_supplier = get_relationtype_or_fail(REL_SUB_CUSTOMER_SUPPLIER)
-        rel_obj_customer_supplier = get_relationtype_or_fail(REL_OBJ_CUSTOMER_SUPPLIER)
-
-        self.assertEqual(rel_sub_employed.symmetric_type_id, rel_obj_employed.id)
-        self.assertEqual(rel_obj_employed.symmetric_type_id, rel_sub_employed.id)
-
-        get_ct = ContentType.objects.get_for_model
-        ct_id_contact = get_ct(Contact).id
-        ct_id_orga    = get_ct(Organisation).id
-        self.assertEqual([ct_id_contact], [ct.id for ct in rel_sub_employed.subject_ctypes.all()])
-        self.assertEqual([ct_id_orga],    [ct.id for ct in rel_obj_employed.subject_ctypes.all()])
-
-        ct_id_set = set((ct_id_contact, ct_id_orga))
-        self.assertEqual(ct_id_set, set(ct.id for ct in rel_sub_customer_supplier.subject_ctypes.all()))
-        self.assertEqual(ct_id_set, set(ct.id for ct in rel_obj_customer_supplier.subject_ctypes.all()))
+    def test_populate(self):
+        self.get_relationtype_or_fail(REL_SUB_EMPLOYED_BY,       [Contact],               [Organisation])
+        self.get_relationtype_or_fail(REL_SUB_CUSTOMER_SUPPLIER, [Contact, Organisation], [Contact, Organisation])
+        self.get_relationtype_or_fail(REL_SUB_MANAGES,           [Contact],               [Organisation])
+        self.get_relationtype_or_fail(REL_SUB_PROSPECT,          [Contact, Organisation], [Contact, Organisation])
+        self.get_relationtype_or_fail(REL_SUB_SUSPECT,           [Contact, Organisation], [Contact, Organisation])
+        self.get_relationtype_or_fail(REL_SUB_PARTNER,           [Contact, Organisation], [Contact, Organisation])
+        self.get_relationtype_or_fail(REL_SUB_INACTIVE,          [Contact, Organisation], [Contact, Organisation])
+        self.get_relationtype_or_fail(REL_SUB_SUBSIDIARY,        [Organisation],          [Organisation])
 
         try:
             efilter = EntityFilter.objects.get(pk=FILTER_MANAGED_ORGA)
         except EntityFilter.DoesNotExist:
             self.fail('Managed organisations filter does not exist')
 
-        self.failIf(efilter.is_custom)
-        self.assertEqual(ct_id_orga, efilter.entity_type_id)
+        self.assertFalse(efilter.is_custom)
+        self.assertEqual(Organisation, efilter.entity_type.model_class())
         self.assertEqual([EntityFilterCondition.EFC_PROPERTY], [c.type for c in efilter.conditions.all()])
+
+    def test_portal(self):
+        self.login()
+        self.assertEqual(self.client.get('/persons/').status_code, 200)
 
     def test_contact_createview01(self):
         self.login()
 
-        response = self.client.get('/persons/contact/add')
-        self.assertEqual(response.status_code, 200)
+        url = '/persons/contact/add'
+        self.assertEqual(200, self.client.get(url).status_code)
 
         count = Contact.objects.count()
         first_name = 'Spike'
         last_name  = 'Spiegel'
-        response = self.client.post('/persons/contact/add', follow=True,
-                            data={
-                                    'user':       self.user.pk,
-                                    'first_name': first_name,
-                                    'last_name':  last_name,
-                                 }
-                           )
+        response = self.client.post(url, follow=True,
+                                    data={
+                                            'user':       self.user.pk,
+                                            'first_name': first_name,
+                                            'last_name':  last_name,
+                                         }
+                                   )
         self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
         self.assertEqual(count + 1, Contact.objects.count())
 
         try:
             contact = Contact.objects.get(first_name=first_name)
         except Exception, e:
             self.fail(str(e))
+
         self.assertEqual(last_name,  contact.last_name)
         self.assert_(contact.billing_address is None)
         self.assert_(contact.shipping_address is None)
@@ -94,8 +84,7 @@ class PersonsTestCase(CremeTestCase):
         self.assertEqual(len(response.redirect_chain), 1)
         self.assert_(response.redirect_chain[0][0].endswith('/persons/contact/%s' % contact.id))
 
-        response = self.client.get('/persons/contact/%s' % contact.id)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, self.client.get('/persons/contact/%s' % contact.id).status_code)
 
     def test_contact_createview02(self): # addresses
         self.login()
@@ -113,6 +102,7 @@ class PersonsTestCase(CremeTestCase):
                                          }
                                    )
         self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
 
         contact = Contact.objects.get(first_name=first_name)
         self.assert_(contact.billing_address is not None)
@@ -174,6 +164,7 @@ class PersonsTestCase(CremeTestCase):
                                          }
                                    )
         self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
 
         contact = Contact.objects.get(pk=contact.id) #refresh object
         self.assertEqual(billing_address_id,  contact.billing_address_id)
@@ -293,12 +284,14 @@ class PersonsTestCase(CremeTestCase):
                                          }
                                    )
         self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
         self.assertEqual(count + 1, Organisation.objects.count())
 
         try:
             orga = Organisation.objects.get(name=name)
         except Exception, e:
             self.fail(str(e))
+
         self.assertEqual(description,  orga.description)
         self.assert_(orga.billing_address is None)
         self.assert_(orga.shipping_address is None)
@@ -327,6 +320,7 @@ class PersonsTestCase(CremeTestCase):
                                          }
                                    )
         self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
         self.assert_(response.redirect_chain)
 
         edited_orga = Organisation.objects.get(pk=orga.id)
@@ -482,6 +476,7 @@ class PersonsTestCase(CremeTestCase):
                                          }
                                    )
         self.assertEqual(response.status_code, 200)
+        self.assertNoFormError(response)
 
     def test_address_createview(self):
         self.login()
@@ -490,7 +485,7 @@ class PersonsTestCase(CremeTestCase):
         self.assertEqual(0, Address.objects.filter(object_id=orga.id).count())
 
         response = self.client.get('/persons/address/add/%s' % orga.id)
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code,)
 
         name = 'Address#1'
         address_value = '21 jump street'
@@ -532,24 +527,24 @@ class PersonsTestCase(CremeTestCase):
         self._create_address(orga, name, address_value, po_box, city, state, zipcode, country, department)
         address = Address.objects.filter(object_id=orga.id)[0]
 
-        response = self.client.get('/persons/address/edit/%s' % address.id)
-        self.assertEqual(response.status_code, 200)
+        url = '/persons/address/edit/%s' % address.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
         city = 'Groville'
         country = 'Groland'
-        response = self.client.post('/persons/address/edit/%s' % address.id,
-                                    data={
-                                            'name':       name,
-                                            'address':    address,
-                                            'po_box':     po_box,
-                                            'city':       city,
-                                            'state':      state,
-                                            'zipcode':    zipcode,
-                                            'country':    country,
-                                            'department': department,
-                                         }
+        response = self.client.post(url, data={
+                                                'name':       name,
+                                                'address':    address,
+                                                'po_box':     po_box,
+                                                'city':       city,
+                                                'state':      state,
+                                                'zipcode':    zipcode,
+                                                'country':    country,
+                                                'department': department,
+                                             }
                                    )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
 
         address = Address.objects.get(pk=address.id)
         self.assertEqual(city,    address.city)
@@ -566,12 +561,6 @@ class PersonsTestCase(CremeTestCase):
         response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': address.id})
         self.assertEqual(0, Address.objects.filter(object_id=orga.id).count())
 
-    def test_portal(self):
-        self.login()
-
-        response = self.client.get('/persons/')
-        self.assertEqual(response.status_code, 200)
-
     def test_quickform01(self):
         self.login()
 
@@ -583,7 +572,6 @@ class PersonsTestCase(CremeTestCase):
 
         ct = ContentType.objects.get_for_model(Contact)
         url = '/creme_core/quickforms/%s/%s' % (ct.id, len(data))
-
         self.assertEqual(200, self.client.get(url).status_code)
 
         response = self.client.post(url,
@@ -625,10 +613,10 @@ class PersonsTestCase(CremeTestCase):
 
         mng_orga = orgas[0]
         self.assert_(CremeProperty.objects.filter(type=PROP_IS_MANAGED_BY_CREME, creme_entity=mng_orga).exists())
-        self.failIf(self._get_neglected_orgas())
+        self.assertFalse(self._get_neglected_orgas())
 
         customer01 = Organisation.objects.create(user=self.user, name='orga02')
-        self.failIf(self._get_neglected_orgas())
+        self.assertFalse(self._get_neglected_orgas())
 
         rtype_customer = RelationType.objects.get(pk=REL_SUB_CUSTOMER_SUPPLIER)
         Relation.objects.create(user=self.user, subject_entity=customer01, object_entity=mng_orga, type=rtype_customer)
@@ -712,7 +700,7 @@ class PersonsTestCase(CremeTestCase):
 
         rtype_actlink = RelationType.objects.get(pk=REL_SUB_LINKED_2_ACTIVITY)
         Relation.objects.create(user=user, subject_entity=employee, object_entity=meeting, type=rtype_actlink)
-        self.failIf(self._get_neglected_orgas())
+        self.assertFalse(self._get_neglected_orgas())
 
     def test_neglected_block05(self): #2 people linked to customer are linked to a future activity
         self.populate('activities')
@@ -737,10 +725,10 @@ class PersonsTestCase(CremeTestCase):
         self.assertEqual(1, len(self._get_neglected_orgas()))
 
         Relation.objects.create(user=user, subject_entity=manager, object_entity=phonecall, type_id=REL_SUB_PART_2_ACTIVITY)
-        self.failIf(self._get_neglected_orgas())
+        self.assertFalse(self._get_neglected_orgas())
 
         Relation.objects.create(user=user, subject_entity=employee, object_entity=meeting, type_id=REL_SUB_ACTIVITY_SUBJECT)
-        self.failIf(self._get_neglected_orgas())
+        self.assertFalse(self._get_neglected_orgas())
 
     def test_neglected_block06(self): #future activity, but not with managed organisation !
         self.populate('activities')
