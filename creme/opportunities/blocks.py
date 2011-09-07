@@ -22,7 +22,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, Relation
-from creme_core.gui.block import Block, QuerysetBlock
+from creme_core.gui.block import SimpleBlock, QuerysetBlock
 
 from persons.models import Contact, Organisation
 
@@ -38,8 +38,8 @@ from opportunities.models import Opportunity
 _get_ct = ContentType.objects.get_for_model
 
 
-class OpportunityBlock(Block):
-    id_           = Block.generate_id('opportunities', 'opportunity')
+class OpportunityBlock(SimpleBlock):
+    id_           = SimpleBlock.generate_id('opportunities', 'opportunity')
     dependencies  = (Opportunity,)
     verbose_name  = u'Info on an opportunity'
     template_name = 'opportunities/templatetags/block_opportunity.html'
@@ -167,17 +167,17 @@ class TargettingOpportunitiesBlock(_LinkedStuffBlock):
 
 
 class OppProductLinesBlock(ProductLinesBlock):
-    id_           = Block.generate_id('opportunities', 'product_lines')
+    id_           = ProductLinesBlock.generate_id('opportunities', 'product_lines')
     target_ctypes = (Opportunity,)
 
 
 class OppServiceLinesBlock(ServiceLinesBlock):
-    id_           = Block.generate_id('opportunities', 'service_lines')
+    id_           = ServiceLinesBlock.generate_id('opportunities', 'service_lines')
     target_ctypes = (Opportunity,)
 
 
 class OppTotalBlock(TotalBlock):
-    id_           = Block.generate_id('opportunities', 'total')
+    id_           = TotalBlock.generate_id('opportunities', 'total')
     target_ctypes = (Opportunity,)
 
 

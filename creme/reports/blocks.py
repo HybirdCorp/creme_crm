@@ -40,13 +40,14 @@ class ReportFieldsBlock(Block):
     target_ctypes = (Report,)
 
     def detailview_display(self, context):
-        object = context['object']
+        report = context['object']
         return self._render(self.get_block_template_context(context,
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, object.pk),
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
                                                             HFI_FIELD=HFI_FIELD,
                                                             HFI_RELATION=HFI_RELATION,
                                                             HFI_RELATED=HFI_RELATED)
                             )
+
 
 class ReportGraphsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('reports', 'graphs')

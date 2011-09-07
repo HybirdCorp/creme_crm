@@ -18,13 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.gui.block import Block
+from creme_core.gui.block import SimpleBlock
 
 from media_managers.models import Image
 
 
-class ImageBlock(Block):
-    id_           = Block.generate_id('media_managers', 'image')
+class ImageBlock(SimpleBlock):
+    id_           = SimpleBlock.generate_id('media_managers', 'image')
     dependencies  = (Image,)
     verbose_name  = u'Info on an image'
     template_name = 'media_managers/block_image.html'

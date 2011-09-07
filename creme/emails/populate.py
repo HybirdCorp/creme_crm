@@ -23,7 +23,8 @@ from logging import info
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme_core.models import (RelationType, SearchConfigItem, BlockDetailviewLocation,
+from creme_core.models import (RelationType, SearchConfigItem,
+                               BlockDetailviewLocation, BlockPortalLocation,
                                ButtonMenuItem, HeaderFilterItem, HeaderFilter)
 from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 
@@ -95,6 +96,9 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=mails_history_block.id_, order=600, zone=BlockDetailviewLocation.RIGHT, model=Contact)
         BlockDetailviewLocation.create(block_id=mails_history_block.id_, order=600, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
 
+        BlockPortalLocation.create(app_name='emails', block_id=signatures_block.id_, order=10)
+        BlockPortalLocation.create(app_name='emails', block_id=history_block.id_,    order=30)
+
         if 'creme.assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail views')
 
@@ -105,6 +109,10 @@ class Populator(BasePopulator):
                 BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=model)
                 BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=model)
                 BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=model)
+
+            BlockPortalLocation.create(app_name='emails', block_id=memos_block.id_,    order=100)
+            BlockPortalLocation.create(app_name='emails', block_id=alerts_block.id_,   order=200)
+            BlockPortalLocation.create(app_name='emails', block_id=messages_block.id_, order=300)
 
         ButtonMenuItem.create(pk='emails-entity_email_link_button', model=EntityEmail, button=entityemail_link_button, order=20)
 

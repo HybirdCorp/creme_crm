@@ -25,7 +25,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_config.models.setting import SettingValue
 
-from creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock
+from creme_core.gui.block import Block, SimpleBlock, PaginatedBlock, QuerysetBlock
 from creme_core.models import CremeEntity, Relation
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
@@ -50,8 +50,9 @@ class BillingBlock(Block):
 
     def detailview_display(self, context):
         document = context['object']
-        is_invoice = document.entity_type_id == ContentType.objects.get_for_model(Invoice).id
+        is_invoice = document.entity_type_id == ContentType.objects.get_for_model(Invoice).id #TODO: isinstance....
         return self._render(self.get_block_template_context(context, is_invoice = is_invoice,))
+
 
 #NB PaginatedBlock and not QuerysetBlock to avoid the retrieving of a sliced
 #   queryset of lines : we retrieve all the lines to compute the totals any way.
@@ -89,28 +90,20 @@ class ServiceLinesBlock(PaginatedBlock):
                                                             ))
 
 
-class TotalBlock(Block):
-    id_           = Block.generate_id('billing', 'total')
+class TotalBlock(SimpleBlock):
+    id_           = SimpleBlock.generate_id('billing', 'total')
     dependencies  = (ProductLine, ServiceLine)
     verbose_name  = _(u'Total')
     template_name = 'billing/templatetags/block_total.html'
     target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder)
 
-    #TODO: move in Block ??
-    def detailview_display(self, context):
-        return self._render(self.get_block_template_context(context))
 
-
-class TargetBlock(Block):
-    id_           = Block.generate_id('billing', 'target')
+class TargetBlock(SimpleBlock):
+    id_           = SimpleBlock.generate_id('billing', 'target')
     dependencies  = (Invoice, SalesOrder, Quote)
     verbose_name  = _(u'Target Organisation')
     template_name = 'billing/templatetags/block_target.html'
     target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder)
-
-    #TODO: move in Block ??
-    def detailview_display(self, context):
-        return self._render(self.get_block_template_context(context))
 
 
 class ReceivedInvoicesBlock(QuerysetBlock):
@@ -124,11 +117,10 @@ class ReceivedInvoicesBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         person = context['object']
-
-        btc= self.get_block_template_context(context,
-                                             Invoice.objects.filter(relations__object_entity=person.id, relations__type=REL_SUB_BILL_RECEIVED),
-                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
-                                            )
+        btc = self.get_block_template_context(context,
+                                              Invoice.objects.filter(relations__object_entity=person.id, relations__type=REL_SUB_BILL_RECEIVED),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
+                                             )
 
         CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
 
