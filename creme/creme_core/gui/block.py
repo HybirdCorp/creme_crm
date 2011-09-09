@@ -28,6 +28,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.utils.simplejson import JSONEncoder
+from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import (CremeEntity, Relation, RelationType,
                                RelationBlockItem, InstanceBlockConfigItem, BlockState)
@@ -430,26 +431,29 @@ class _BlockRegistry(object):
         self._object_blocks = {}
 
     def register(self, *blocks):
-        _blocks = self._blocks
+        setdefault = self._blocks.setdefault
 
         for block in blocks:
-            block_id = block.id_
+            if setdefault(block.id_, block) is not block:
+                raise _BlockRegistry.RegistrationError("Duplicate block's id or block registered twice : %s" % block.id_)
 
-            if _blocks.has_key(block_id): #TODO: use setdefault() (see register_4_model())
-                #warning("Duplicate block's id or block registered twice : %s", block_id) #exception instead ???
-                raise _BlockRegistry.RegistrationError("Duplicate block's id or block registered twice : %s", block_id)
+    def register_4_model(self, model, block): #TODO: had an 'overload' arg ??
+        ct = ContentType.objects.get_for_model(model)
+        block.id_ = self._generate_modelblock_id(ct)
 
-            _blocks[block_id] = block
+        if not block.dependencies:
+            block.dependencies  = (model,)
 
-    def register_4_model(self, model, block):
-        if self._object_blocks.setdefault(model, block) is not block:
-            raise _BlockRegistry.RegistrationError("Duplicate block's id or block registered twice : %s", block.id_)
+        self._object_blocks[ct.id] = block
 
-    def get_block(self, block_id):
+    def _generate_modelblock_id(self, ct):
+        return u'modelblock_%s-%s' % (ct.app_label, ct.model)
+
+    def _get_block(self, block_id): #TODO: if code with InstanceBlockConfigItem is remove, maybe remove this method too...
         block = self._blocks.get(block_id)
 
         if block is None:
-            if InstanceBlockConfigItem.id_is_specific(block_id):
+            if InstanceBlockConfigItem.id_is_specific(block_id): #TODO: this code is duplicated (see get_blocks) + is it useful here ???
                 try:
                     ibi = InstanceBlockConfigItem.objects.get(block_id=block_id)
                 except InstanceBlockConfigItem.DoesNotExist:
@@ -463,7 +467,6 @@ class _BlockRegistry(object):
 
                 block_class = getattr(block_import, klass)
                 block = block_class(block_id, ibi)
-
             else:
                 warning('Block seems deprecated: %s', block_id)
                 block = Block()
@@ -491,9 +494,9 @@ class _BlockRegistry(object):
 
             if rbi:
                 #TODO: move in a method of RelationBlockItem
-                blocks.append(SpecificRelationsBlock(rbi.block_id, rbi.relation_type_id))
+                block = SpecificRelationsBlock(rbi.block_id, rbi.relation_type_id)
             elif ibi:
-                #TODO: use a cache ??
+                #TODO: use a cache ?? a registry like model blocks ??
                 #TODO: move in a method of InstanceBlockConfigItem
                 path, klass = InstanceBlockConfigItem.get_import_path(id_)
 
@@ -503,24 +506,28 @@ class _BlockRegistry(object):
                     continue
 
                 block_class = getattr(block_import, klass)
-                blocks.append(block_class(id_, ibi))
+                block = block_class(id_, ibi)
+            elif id_.startswith('modelblock_'): #TODO: constant ?
+                block = self.get_block_4_object(ContentType.objects.get_by_natural_key(*id_[len('modelblock_'):].split('-')))
             else:
-                blocks.append(self.get_block(id_))
+                block = self._get_block(id_)
+
+            blocks.append(block)
 
         return blocks
 
-    def get_block_4_object(self, obj):
+    def get_block_4_object(self, obj_or_ct):
         """Return the Block that display fields for a CremeEntity"""
-        model = obj.__class__
-        block = self._object_blocks.get(model)
+        ct = obj_or_ct if isinstance(obj_or_ct, ContentType) else ContentType.objects.get_for_model(obj_or_ct)
+        block = self._object_blocks.get(ct.id)
 
         if not block:
             block = SimpleBlock()
-            block.id_ = Block.generate_id(model._meta.app_label, model.__name__.upper() + '_AUTO')
-            block.dependencies = (model,)
+            block.id_ = self._generate_modelblock_id(ct)
+            block.dependencies = (ct.model_class(),)
             block.template_name = 'creme_core/templatetags/block_object.html'
 
-            self._object_blocks[model] = block
+            self._object_blocks[ct.id] = block
 
         return block
 

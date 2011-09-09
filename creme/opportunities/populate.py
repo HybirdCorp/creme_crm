@@ -106,6 +106,7 @@ class Populator(BasePopulator):
 
         SearchConfigItem.create(Opportunity, ['name', 'made_sales', 'sales_phase__name', 'origin__name'])
 
+        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Opportunity)
         BlockDetailviewLocation.create(block_id=customfields_block.id_,    order=40,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
         BlockDetailviewLocation.create(block_id=linked_contacts_block.id_, order=50,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
         BlockDetailviewLocation.create(block_id=linked_products_block.id_, order=60,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)

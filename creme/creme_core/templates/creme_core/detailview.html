@@ -71,7 +71,7 @@
 
     {% block creme_blocks_import %}
         {% import_detailview_blocks %}
-        {% import_object_block as 'object_block' %}
+        {% comment %}{% import_object_block as 'object_block' %}{% endcomment %}
     {% endblock %}
 
     <div class="north">
@@ -81,8 +81,8 @@
     </div>
 
     <div class="column west">
-        {% block detail_view_left_1 %}
-            {% display_block_detailview 'object_block' %}
+        {% block detail_view_left_1 %}{% comment %} ARE THIS BLOCKS _1 _2 _3 STILL USEFUL ??{% endcomment %}
+            {% comment %}{% display_block_detailview 'object_block' %}{% endcomment %}
         {% endblock %}
         {% display_detailview_blocks left %}
         {% block detail_view_left_2 %}{% endblock %}

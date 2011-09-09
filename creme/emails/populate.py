@@ -27,7 +27,6 @@ from creme_core.models import (RelationType, SearchConfigItem,
                                BlockDetailviewLocation, BlockPortalLocation,
                                ButtonMenuItem, HeaderFilterItem, HeaderFilter)
 from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
-
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from persons.models import Organisation, Contact
@@ -45,12 +44,10 @@ class Populator(BasePopulator):
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_MAIL_RECEIVED, _(u"(email) received by"), [EntityEmail]),
                             (REL_OBJ_MAIL_RECEIVED, _(u"received the email"),  [Organisation, Contact]))
-
-        RelationType.create((REL_SUB_MAIL_SENDED, _(u"(email) sended"),   [EntityEmail]),
-                            (REL_OBJ_MAIL_SENDED, _(u"sended the email"), [Organisation, Contact]))
-
-        RelationType.create((REL_SUB_RELATED_TO, _(u'(email) related to'), [EntityEmail]),
-                            (REL_OBJ_RELATED_TO, _(u'related to the email'),         []))
+        RelationType.create((REL_SUB_MAIL_SENDED, _(u"(email) sended"),        [EntityEmail]),
+                            (REL_OBJ_MAIL_SENDED, _(u"sended the email"),      [Organisation, Contact]))
+        RelationType.create((REL_SUB_RELATED_TO, _(u'(email) related to'),     [EntityEmail]),
+                            (REL_OBJ_RELATED_TO, _(u'related to the email'),   []))
 
         hf = HeaderFilter.create(pk='emails-hf_mailinglist', name=_(u"Mailing list view"), model=MailingList)
         hf.set_items([HeaderFilterItem.build_4_field(model=MailingList, name='name')])
@@ -69,6 +66,7 @@ class Populator(BasePopulator):
                       HeaderFilterItem.build_4_field(model=EntityEmail, name='subject'),
                      ])
 
+        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=MailingList)
         BlockDetailviewLocation.create(block_id=customfields_block.id_,     order=40,  zone=BlockDetailviewLocation.LEFT,  model=MailingList)
         BlockDetailviewLocation.create(block_id=email_recipients_block.id_, order=80,  zone=BlockDetailviewLocation.LEFT,  model=MailingList)
         BlockDetailviewLocation.create(block_id=contacts_block.id_,         order=90,  zone=BlockDetailviewLocation.LEFT,  model=MailingList)
@@ -80,12 +78,14 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=history_block.id_,          order=20,  zone=BlockDetailviewLocation.RIGHT, model=MailingList)
 
         BlockDetailviewLocation.create(block_id=sendings_block.id_,      order=2,   zone=BlockDetailviewLocation.TOP,   model=EmailCampaign)
+        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=EmailCampaign)
         BlockDetailviewLocation.create(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.LEFT,  model=EmailCampaign)
         BlockDetailviewLocation.create(block_id=mailing_lists_block.id_, order=120, zone=BlockDetailviewLocation.LEFT,  model=EmailCampaign)
         BlockDetailviewLocation.create(block_id=properties_block.id_,    order=450, zone=BlockDetailviewLocation.LEFT,  model=EmailCampaign)
         BlockDetailviewLocation.create(block_id=relations_block.id_,     order=500, zone=BlockDetailviewLocation.LEFT,  model=EmailCampaign)
         BlockDetailviewLocation.create(block_id=history_block.id_,       order=20,  zone=BlockDetailviewLocation.RIGHT, model=EmailCampaign)
 
+        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=EmailTemplate)
         BlockDetailviewLocation.create(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.LEFT,  model=EmailTemplate)
         BlockDetailviewLocation.create(block_id=attachments_block.id_,   order=60,  zone=BlockDetailviewLocation.LEFT,  model=EmailTemplate)
         BlockDetailviewLocation.create(block_id=properties_block.id_,    order=450, zone=BlockDetailviewLocation.LEFT,  model=EmailTemplate)

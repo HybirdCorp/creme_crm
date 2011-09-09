@@ -125,14 +125,16 @@ class BlocksConfigTestCase(CremeTestCase):
 
         block_top_id1   = blocks[0].id_
         block_top_id2   = blocks[1].id_
-        block_left_id   = blocks[2].id_
+        block_left_id1  = 'modelblock'
+        block_left_id2  = blocks[2].id_
         block_right_id  = blocks[3].id_
         block_bottom_id = blocks[4].id_
 
-        block_top_index1 = self._find_field_index(top_field, block_top_id1)
-        block_top_index2 = self._find_field_index(top_field, block_top_id2)
-        block_left_index = self._find_field_index(left_field, block_left_id)
-        block_right_index = self._find_field_index(right_field, block_right_id)
+        block_top_index1   = self._find_field_index(top_field, block_top_id1)
+        block_top_index2   = self._find_field_index(top_field, block_top_id2)
+        block_left_index1  = self._find_field_index(left_field, block_left_id1)
+        block_left_index2  = self._find_field_index(left_field, block_left_id2)
+        block_right_index  = self._find_field_index(right_field, block_right_id)
         block_bottom_index = self._find_field_index(bottom_field, block_bottom_id)
 
         response = self.client.post(url,
@@ -145,9 +147,13 @@ class BlocksConfigTestCase(CremeTestCase):
                                             'top_value_%s' % block_top_index2: block_top_id2,
                                             'top_order_%s' % block_top_index2: 2,
 
-                                            'left_check_%s' % block_left_index: 'on',
-                                            'left_value_%s' % block_left_index: block_left_id,
-                                            'left_order_%s' % block_left_index: 1,
+                                            'left_check_%s' % block_left_index1: 'on',
+                                            'left_value_%s' % block_left_index1: block_left_id1,
+                                            'left_order_%s' % block_left_index1: 1,
+
+                                            'left_check_%s' % block_left_index2: 'on',
+                                            'left_value_%s' % block_left_index2: block_left_id2,
+                                            'left_order_%s' % block_left_index2: 2,
 
                                             'right_check_%s' % block_right_index: 'on',
                                             'right_value_%s' % block_right_index: block_right_id,
@@ -159,6 +165,7 @@ class BlocksConfigTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
 
         b_locs = BlockDetailviewLocation.objects.filter(content_type=ct)
 
@@ -168,8 +175,9 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertEqual(2, self._find_location(block_top_id2, locations).order)
 
         locations = [b_loc for b_loc in b_locs if  b_loc.zone == BlockDetailviewLocation.LEFT]
-        self.assertEqual(1, len(locations))
-        self.assertEqual(1, self._find_location(block_left_id, locations).order)
+        self.assertEqual(2, len(locations))
+        self.assertEqual(1, self._find_location(block_left_id1, locations).order)
+        self.assertEqual(2, self._find_location(block_left_id2, locations).order)
 
         locations = [b_loc for b_loc in b_locs if  b_loc.zone == BlockDetailviewLocation.RIGHT]
         self.assertEqual(1, len(locations))

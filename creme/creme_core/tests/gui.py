@@ -10,7 +10,7 @@ try:
     from creme_core.gui.listview import get_field_name_from_pattern
     from creme_core.gui.last_viewed import LastViewedItem
     from creme_core.gui.bulk_update import BulkUpdateRegistry
-    from creme_core.gui.block import Block, _BlockRegistry
+    from creme_core.gui.block import Block, SimpleBlock, _BlockRegistry
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Contact
@@ -151,49 +151,43 @@ class ListViewStateTestCase(CremeTestCase):
 class BlockTestCase(CremeTestCase):
     def test_get_compatible_blocks(self):
         class FoobarBlock1(Block):
-            id_           = Block.generate_id('creme_core', 'test_get_compatible_blocks_1')
+            id_           = Block.generate_id('creme_core', 'foobar1')
             verbose_name  = u'Testing purpose'
 
             def detailview_display(self, context): return self._render(self.get_block_template_context(context))
 
 
-        class FoobarBlock2(Block):
-            id_           = Block.generate_id('creme_core', 'test_get_compatible_blocks_2')
+        class FoobarBlock2(SimpleBlock):
+            id_           = Block.generate_id('creme_core', 'foobar2')
             verbose_name  = u'Testing purpose'
             target_ctypes = (Contact, Organisation)
 
-            def detailview_display(self, context): return self._render(self.get_block_template_context(context))
 
-
-        class FoobarBlock3(Block):
-            id_           = Block.generate_id('creme_core', 'test_get_compatible_blocks_3')
+        class FoobarBlock3(SimpleBlock):
+            id_           = Block.generate_id('creme_core', 'foobar3')
             verbose_name  = u'Testing purpose'
 
             target_ctypes = (Organisation,) #No contact
 
-            def detailview_display(self, context): return self._render(self.get_block_template_context(context))
 
-
-        class FoobarBlock4(Block):
-            id_           = Block.generate_id('creme_core', 'test_get_compatible_blocks_4')
+        class FoobarBlock4(SimpleBlock):
+            id_           = Block.generate_id('creme_core', 'foobar4')
             verbose_name  = u'Testing purpose'
             configurable  = False # <------
 
-            def detailview_display(self, context): return self._render(self.get_block_template_context(context))
-
 
         class FoobarBlock5(Block): #No detailview_display()
-            id_           = Block.generate_id('creme_core', 'test_get_compatible_blocks_5')
+            id_           = Block.generate_id('creme_core', 'foobar5')
             verbose_name  = u'Testing purpose'
 
             def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
             def home_display(self, context):           return '<table id="%s"></table>' % self.id_
 
+
         block_registry = _BlockRegistry()
         foobar_block1 = FoobarBlock1()
-        foobar_block2 = FoobarBlock2()
-        foobar_block5 = FoobarBlock5()
-        self.assert_(not hasattr(foobar_block5, 'detailview_display'))
+        foobar_block2 = FoobarBlock2(); self.assert_(hasattr(foobar_block2, 'detailview_display'))
+        foobar_block5 = FoobarBlock5(); self.assertFalse(hasattr(foobar_block5, 'detailview_display'))
 
         block_registry.register(foobar_block1, foobar_block2, FoobarBlock3(), FoobarBlock4(), foobar_block5)
         self.assertEqual([foobar_block1, foobar_block2],
@@ -208,7 +202,6 @@ class BlockTestCase(CremeTestCase):
             ##NB: only portal_display() method
             #def detailview_display(self, context): return self._render(self.get_block_template_context(context))
             #def home_display(self, context): return '<table id="%s"></table>' % self.id_
-
             def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
 
 
@@ -261,8 +254,7 @@ class BlockTestCase(CremeTestCase):
             ##NB: only home_display() method
             #def detailview_display(self, context): return self._render(self.get_block_template_context(context))
             #def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
-            def home_display(self, context):
-                return '<table id="%s"></table>' % self.id_
+            def home_display(self, context): return '<table id="%s"></table>' % self.id_
 
         class FoobarBlock2(Block):
             id_           = Block.generate_id('creme_config', 'test_get_compatible_portal_blocks02_2')
@@ -277,8 +269,7 @@ class BlockTestCase(CremeTestCase):
             verbose_name  = u'Testing purpose'
 
             #def home_display(self, context): return '<table id="%s"></table>' % self.id_
-            def portal_display(self, context, ct_ids):
-                return '<table id="%s"></table>' % self.id_
+            def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
 
         block_registry = _BlockRegistry()
 

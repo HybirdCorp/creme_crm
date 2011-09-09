@@ -41,9 +41,6 @@ from crudity.blocks import CrudityQuerysetBlock
 
 
 class EntityEmailBlock(SimpleBlock):
-    id_           = SimpleBlock.generate_id('emails', 'entity_email')
-    dependencies  = (EntityEmail,)
-    verbose_name  = u'Info on a e-mail'
     template_name = 'emails/templatetags/block_mail.html'
 
 

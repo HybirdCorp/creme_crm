@@ -20,11 +20,5 @@
 
 from creme_core.gui.block import SimpleBlock
 
-from media_managers.models import Image
-
-
 class ImageBlock(SimpleBlock):
-    id_           = SimpleBlock.generate_id('media_managers', 'image')
-    dependencies  = (Image,)
-    verbose_name  = u'Info on an image'
     template_name = 'media_managers/block_image.html'

@@ -20,11 +20,5 @@
 
 from creme_core.gui.block import SimpleBlock
 
-from tickets.models import Ticket
-
-
 class TicketBlock(SimpleBlock):
-    id_           = SimpleBlock.generate_id('tickets', 'ticket')
-    dependencies  = (Ticket,)
-    verbose_name  = u'Info on a ticket'
     template_name = 'tickets/templatetags/block_ticket.html'

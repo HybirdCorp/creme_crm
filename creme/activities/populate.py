@@ -27,11 +27,10 @@ from django.contrib.contenttypes.models import ContentType
 from creme_config.models.setting import SettingKey, SettingValue
 
 from creme_core.models import (RelationType, BlockDetailviewLocation, BlockPortalLocation,
-                               ButtonMenuItem, SearchConfigItem, HeaderFilterItem, HeaderFilter) #BlockConfigItem
+                               ButtonMenuItem, SearchConfigItem, HeaderFilterItem, HeaderFilter)
 from creme_core.utils import create_or_update as create
 from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme_core.management.commands.creme_populate import BasePopulator
-#from creme_core.utils.id_generator import generate_string_id_and_save
 
 from persons.models import Contact, Organisation
 
@@ -84,6 +83,7 @@ class Populator(BasePopulator):
         models = (Activity, Meeting, PhoneCall, Task)
 
         for model in models:
+            BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=model)
             BlockDetailviewLocation.create(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT,  model=model)
             BlockDetailviewLocation.create(block_id=participants_block.id_, order=100, zone=BlockDetailviewLocation.LEFT,  model=model)
             BlockDetailviewLocation.create(block_id=subjects_block.id_,     order=120, zone=BlockDetailviewLocation.LEFT,  model=model)

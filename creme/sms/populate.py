@@ -44,6 +44,7 @@ class Populator(BasePopulator):
         hf = HeaderFilter.create(pk='sms-hf_template', name=_(u'Message template view'), model=MessageTemplate)
         hf.set_items([HeaderFilterItem.build_4_field(model=MessageTemplate, name='name')])
 
+        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=SMSCampaign)
         BlockDetailviewLocation.create(block_id=sendings_block.id_,        order=2,   zone=BlockDetailviewLocation.TOP,   model=SMSCampaign)
         BlockDetailviewLocation.create(block_id=customfields_block.id_,    order=40,  zone=BlockDetailviewLocation.LEFT,  model=SMSCampaign)
         BlockDetailviewLocation.create(block_id=messaging_lists_block.id_, order=50,  zone=BlockDetailviewLocation.LEFT,  model=SMSCampaign)
@@ -51,6 +52,7 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=relations_block.id_,       order=500, zone=BlockDetailviewLocation.LEFT,  model=SMSCampaign)
         BlockDetailviewLocation.create(block_id=history_block.id_,         order=20,  zone=BlockDetailviewLocation.RIGHT, model=SMSCampaign)
 
+        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=MessagingList)
         BlockDetailviewLocation.create(block_id=customfields_block.id_,    order=40,  zone=BlockDetailviewLocation.LEFT,  model=MessagingList)
         BlockDetailviewLocation.create(block_id=recipients_block.id_,      order=50,  zone=BlockDetailviewLocation.LEFT,  model=MessagingList)
         BlockDetailviewLocation.create(block_id=contacts_block.id_,        order=55,  zone=BlockDetailviewLocation.LEFT,  model=MessagingList)
