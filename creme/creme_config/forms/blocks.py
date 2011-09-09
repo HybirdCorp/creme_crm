@@ -33,6 +33,7 @@ from creme_core.forms import CremeForm, CremeModelForm
 from creme_core.forms.widgets import OrderedMultipleChoiceWidget
 from creme_core.gui.block import block_registry, SpecificRelationsBlock
 from creme_core.utils import creme_entity_content_types
+from creme_core.constants import MODELBLOCK_ID
 
 
 __all__ = ('BlockDetailviewLocationsAddForm', 'BlockDetailviewLocationsEditForm',
@@ -117,9 +118,10 @@ class BlockDetailviewLocationsEditForm(_BlockDetailviewLocationsForm):
         self.locations = block_locations
         configured_model = ct.model_class() if ct else None
 
-        choices = [(block.id_, block.verbose_name)
-                        for block in block_registry.get_compatible_blocks(model=configured_model)
-                  ]
+        choices = [(MODELBLOCK_ID, ugettext('Information on the entity'))]
+        choices.extend((block.id_, block.verbose_name)
+                            for block in block_registry.get_compatible_blocks(model=configured_model)
+                      )
         choices.extend((rbi.block_id, ugettext(u'Relation block: %s') % rbi.relation_type.predicate)
                             for rbi in RelationBlockItem.objects.all()
                       ) #TODO: filter compatible relation types

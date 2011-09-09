@@ -1,6 +1,5 @@
 {% extends "creme_core/detailview.html" %}
-
-{% load creme_block creme_widgets %}
+{% load creme_widgets %}{% comment %}creme_block{% endcomment %}
 
 {% block add_new_button %}
     {% if path %}
@@ -17,17 +16,11 @@
     {% endif %}
 {% endblock %}
 
-{% block creme_blocks_import %}
+{% comment %}{% block creme_blocks_import %}
     {{block.super}}
-    {% comment %}{% import_block from_app 'creme_core' named 'customfields' as 'customfields_block' %}{% endcomment %}
-    {% comment %}{% import_block from_app 'creme_core' named 'relations' as 'relations_block' %}{% endcomment %}
-    {% comment %}{% import_block from_app 'creme_core' named 'properties' as 'properties_block' %}{% endcomment %}
-{% endblock %}
+{% endblock %}{% endcomment %}
 
-{% block detail_view_left_1 %}
+{% comment %}{% block detail_view_left_1 %}
     {% display_block_detailview 'object_block' %}
-    {% comment %}{% display_block_detailview 'customfields_block' %}{% endcomment %}
     {% block after_object_as_table_1 %}{% endblock %}
-    {% comment %}{% display_block_detailview 'properties_block' %}{% endcomment %}
-    {% comment %}{% display_block_detailview 'relations_block' %}{% endcomment %}
-{% endblock %}
+{% endblock %}{% endcomment %}

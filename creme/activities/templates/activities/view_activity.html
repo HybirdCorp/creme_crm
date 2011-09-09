@@ -1,25 +1,3 @@
 {% extends "creme_core/generics/view_entity.html" %}
 {% load creme_widgets %}
-{% comment %}{% load creme_block creme_widgets %}{% load activities_tags %}{% endcomment %}
-
 {% block add_new_button %}<li>{% get_clone_button object request.user %}</li>{% endblock %}
-
-{% comment %}
-{% block creme_blocks_import %}
-    {{block.super}}
-
-    {% import_block from_app 'activities' named 'participants' as 'participants_block' %}
-    {% import_block from_app 'activities' named 'subjects' as 'subjects_block' %}
-{% endblock %}
-
-{% block detail_view_left_1 %}
-    {% display_block_detailview 'object_block' %}
-    {% display_block_detailview 'customfields_block' %}
-
-    {% display_block_detailview 'participants_block' %}
-    {% display_block_detailview 'subjects_block' %}
-
-    {% display_block_detailview 'properties_block' %}
-    {% display_block_detailview 'relations_block' %}
-{% endblock %}
-{% endcomment %}

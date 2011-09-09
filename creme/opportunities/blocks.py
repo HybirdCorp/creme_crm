@@ -39,9 +39,6 @@ _get_ct = ContentType.objects.get_for_model
 
 
 class OpportunityBlock(SimpleBlock):
-    id_           = SimpleBlock.generate_id('opportunities', 'opportunity')
-    dependencies  = (Opportunity,)
-    verbose_name  = u'Info on an opportunity'
     template_name = 'opportunities/templatetags/block_opportunity.html'
 
 

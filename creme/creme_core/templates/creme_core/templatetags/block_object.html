@@ -1,8 +1,8 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
-<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
+<table class="table_detail_view ui-corner-all {{state.classes}}" id={{block_name}}>
     {% get_block_header colspan=2 %}
-        {% with title=object|get_meta_value:"verbose_name"|format:"Informations %s" %}
+        {% with title=object|get_meta_value:"verbose_name"|format:"Information %s" %}
             <th class="collapser label">{% get_basic_block_header title 'infos_48.png' _('Information') %}</th>
         {% endwith %}
         <th class="actions">

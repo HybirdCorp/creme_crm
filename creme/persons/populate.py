@@ -160,6 +160,7 @@ class Populator(BasePopulator):
         rbi_1 = RelationBlockItem.create(REL_SUB_CUSTOMER_SUPPLIER)
         rbi_2 = RelationBlockItem.create(REL_OBJ_CUSTOMER_SUPPLIER)
 
+        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Organisation)
         BlockDetailviewLocation.create(block_id=orga_coord_block.id_,    order=30,  zone=BlockDetailviewLocation.LEFT,  model=Organisation)
         BlockDetailviewLocation.create(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.LEFT,  model=Organisation)
         BlockDetailviewLocation.create(block_id=address_block.id_,       order=50,  zone=BlockDetailviewLocation.LEFT,  model=Organisation)
@@ -172,6 +173,7 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=rbi_2.block_id,          order=2,   zone=BlockDetailviewLocation.RIGHT, model=Organisation)
         BlockDetailviewLocation.create(block_id=history_block.id_,       order=30,  zone=BlockDetailviewLocation.RIGHT, model=Organisation)
 
+        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Contact)
         BlockDetailviewLocation.create(block_id=contact_coord_block.id_,  order=30,  zone=BlockDetailviewLocation.LEFT,  model=Contact)
         BlockDetailviewLocation.create(block_id=customfields_block.id_,   order=40,  zone=BlockDetailviewLocation.LEFT,  model=Contact)
         BlockDetailviewLocation.create(block_id=address_block.id_,        order=50,  zone=BlockDetailviewLocation.LEFT,  model=Contact)

@@ -30,38 +30,15 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeModel, RelationType, CremeEntity
-from creme_core.constants import SETTING_BLOCK_DEFAULT_STATE_IS_OPEN, SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS
+from creme_core.constants import SETTING_BLOCK_DEFAULT_STATE_IS_OPEN, SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS, MODELBLOCK_ID
 
 from creme_config.models.setting import SettingValue
 
 
-__all__ = ('BlockDetailviewLocation', 'BlockPortalLocation', 'BlockMypageLocation', #'BlockConfigItem'
+__all__ = ('BlockDetailviewLocation', 'BlockPortalLocation', 'BlockMypageLocation',
            'RelationBlockItem', 'InstanceBlockConfigItem',
            'BlockState',
           )
-
-#class BlockConfigItem(CremeModel):
-    #id           = CharField(primary_key=True, max_length=100)
-    #content_type = ForeignKey(ContentType, verbose_name=_(u"Related type"), null=True)
-    #block_id     = CharField(_(u"Block ID"), max_length=100, blank=False, null=False)
-    #order        = PositiveIntegerField(_(u"Priority"))
-    #on_portal    = BooleanField(_(u"Displayed on portal ?"))
-
-    #class Meta:
-        #app_label = 'creme_core'
-        #verbose_name = _(u'Block to display')
-        #verbose_name_plural = _(u'Blocks to display')
-
-    #@staticmethod
-    #def create(pk, block_id, order, on_portal, model=None):
-        #kwargs = {
-                #'content_type': ContentType.objects.get_for_model(model) if model else None,
-                #'block_id':     block_id
-            #}
-
-        #if not BlockConfigItem.objects.filter(**kwargs).exists():
-            #kwargs.update(pk=pk, order=order, on_portal=on_portal)
-            #BlockConfigItem.objects.create(**kwargs)
 
 
 class BlockDetailviewLocation(CremeModel):
@@ -99,6 +76,14 @@ class BlockDetailviewLocation(CremeModel):
             loc.save()
 
         return loc
+
+    @staticmethod
+    def create_4_model_block(order, zone, model=None):
+        return BlockDetailviewLocation.create(MODELBLOCK_ID, order, zone, model)
+
+    @staticmethod
+    def id_is_4_model(block_id):
+        return block_id == MODELBLOCK_ID
 
     @staticmethod
     def create_empty_config(model=None):
@@ -239,8 +224,8 @@ class InstanceBlockConfigItem(CremeModel):
         super(InstanceBlockConfigItem, self).delete()
 
     @staticmethod
-    def id_is_specific(id_):
-        return id_.startswith(u'instanceblock-')
+    def id_is_specific(block_id):
+        return block_id.startswith(u'instanceblock-') #TODO: use constant
 
     @staticmethod
     def generate_id(import_path, app_name, name):

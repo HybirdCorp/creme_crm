@@ -38,6 +38,7 @@ class Populator(BasePopulator):
         hf = HeaderFilter.create(pk='graphs-hf', name=_(u'Graph view'), model=Graph)
         hf.set_items([HeaderFilterItem.build_4_field(model=Graph, name='name')])
 
+        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Graph)
         BlockDetailviewLocation.create(block_id=customfields_block.id_,   order=40,  zone=BlockDetailviewLocation.LEFT,  model=Graph)
         BlockDetailviewLocation.create(block_id=root_nodes_block.id_,     order=60,  zone=BlockDetailviewLocation.LEFT,  model=Graph)
         BlockDetailviewLocation.create(block_id=orbital_rtypes_block.id_, order=65,  zone=BlockDetailviewLocation.LEFT,  model=Graph)

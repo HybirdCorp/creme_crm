@@ -40,6 +40,7 @@ class Populator(BasePopulator):
                       HeaderFilterItem.build_4_field(model=Report, name='ct__name'),
                      ])
 
+        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Report)
         BlockDetailviewLocation.create(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.LEFT,  model=Report)
         BlockDetailviewLocation.create(block_id=report_fields_block.id_, order=50,  zone=BlockDetailviewLocation.LEFT,  model=Report)
         BlockDetailviewLocation.create(block_id=report_graphs_block.id_, order=60,  zone=BlockDetailviewLocation.LEFT,  model=Report)

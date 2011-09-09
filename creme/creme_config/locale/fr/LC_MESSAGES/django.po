@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-25 16:38+0200\n"
+"POT-Creation-Date: 2011-09-09 17:55+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -88,51 +88,55 @@ msgstr "Gestion des utilisateurs"
 msgid "Roles and credentials settings"
 msgstr "Gestion des rôles et des droits"
 
-#: tests.py:1130 forms/blocks.py:144
-#, python-format
-msgid "The following block should be displayed only once: <%s>"
-msgstr "Le bloc suivant ne devrait être affiché qu'une seule fois: <%s>"
-
-#: forms/blocks.py:95 forms/button_menu.py:40 forms/custom_fields.py:65
+#: forms/blocks.py:96 forms/button_menu.py:40 forms/custom_fields.py:65
 #: forms/search.py:37
 msgid "Related resource"
 msgstr "Ressource associée"
 
-#: forms/blocks.py:109
+#: forms/blocks.py:110
 msgid "Blocks to display on top"
 msgstr "Blocs à afficher en haut"
 
-#: forms/blocks.py:110
+#: forms/blocks.py:111
 msgid "Blocks to display on left side"
 msgstr "Blocs à afficher à gauche"
 
-#: forms/blocks.py:111
+#: forms/blocks.py:112
 msgid "Blocks to display on right side"
 msgstr "Blocs à afficher à droite"
 
-#: forms/blocks.py:112
+#: forms/blocks.py:113
 msgid "Blocks to display on bottom"
 msgstr "Blocs à afficher en bas"
 
-#: forms/blocks.py:123
+#: forms/blocks.py:121
+msgid "Information on the entity"
+msgstr "Informations sur la fiche"
+
+#: forms/blocks.py:125
 #, python-format
 msgid "Relation block: %s"
 msgstr "Bloc de relation: %s"
 
-#: forms/blocks.py:126
+#: forms/blocks.py:128
 #, python-format
 msgid "Instance's block: %s"
 msgstr "Bloc d'instance: %s"
 
-#: forms/blocks.py:169
+#: forms/blocks.py:146
+#, python-format
+msgid "The following block should be displayed only once: <%s>"
+msgstr "Le bloc suivant ne devrait être affiché qu'une seule fois: <%s>"
+
+#: forms/blocks.py:171
 msgid "Related application"
 msgstr "Application associée"
 
-#: forms/blocks.py:187
+#: forms/blocks.py:189
 msgid "Blocks to display on the portal"
 msgstr "Blocs à afficher sur le portail"
 
-#: forms/blocks.py:205
+#: forms/blocks.py:207
 msgid "Blocks to display on the \"My Page\" of the users"
 msgstr "Blocs à afficher sur le \"Ma page\" des utilisateurs"
 
@@ -450,11 +454,11 @@ msgstr "Appliquer à un type spécifique"
 msgid "None"
 msgstr "Aucun"
 
-#: forms/user_settings.py:39
+#: forms/user_settings.py:40
 msgid "Choose your theme"
 msgstr "Choisissez votre thème"
 
-#: forms/user_settings.py:40
+#: forms/user_settings.py:42
 msgid "Think to reload the page once you changed the theme."
 msgstr "Pensez à recharger la page une fois le thème changé."
 
@@ -617,7 +621,7 @@ msgstr "Nom"
 #: templates/creme_config/templatetags/block_blockportallocations.html:17
 #: templates/creme_config/templatetags/block_button_menu.html:17
 #: templates/creme_config/templatetags/block_custom_fields.html:19
-#: templates/creme_config/templatetags/block_custom_fields_portal.html:19
+#: templates/creme_config/templatetags/block_custom_fields_portal.html:18
 #: templates/creme_config/templatetags/block_historyconfig.html:17
 #: templates/creme_config/templatetags/block_instanceblocksconfig.html:12
 #: templates/creme_config/templatetags/block_models.html:35
@@ -636,7 +640,7 @@ msgstr "Aucun bloc pour le moment"
 #: templates/creme_config/templatetags/block_blocklocations.html:5
 #: templates/creme_config/templatetags/block_button_menu.html:5
 #: templates/creme_config/templatetags/block_custom_fields.html:5
-#: templates/creme_config/templatetags/block_custom_fields_portal.html:6
+#: templates/creme_config/templatetags/block_custom_fields_portal.html:5
 #: templates/creme_config/templatetags/block_searchconfig.html:5
 #, python-format
 msgid "%s Configured type of resource"
@@ -645,7 +649,7 @@ msgstr "%s Type de ressource configuré"
 #: templates/creme_config/templatetags/block_blocklocations.html:5
 #: templates/creme_config/templatetags/block_button_menu.html:5
 #: templates/creme_config/templatetags/block_custom_fields.html:5
-#: templates/creme_config/templatetags/block_custom_fields_portal.html:6
+#: templates/creme_config/templatetags/block_custom_fields_portal.html:5
 #: templates/creme_config/templatetags/block_searchconfig.html:5
 #, python-format
 msgid "%s Configured types of resource"
@@ -660,7 +664,7 @@ msgstr "Nouvelle configuration de blocs"
 #: templates/creme_config/templatetags/block_blocklocations.html:15
 #: templates/creme_config/templatetags/block_button_menu.html:15
 #: templates/creme_config/templatetags/block_custom_fields.html:17
-#: templates/creme_config/templatetags/block_custom_fields_portal.html:17
+#: templates/creme_config/templatetags/block_custom_fields_portal.html:16
 #: templates/creme_config/templatetags/block_historyconfig.html:16
 #: templates/creme_config/templatetags/block_searchconfig.html:16
 msgid "Type"
@@ -670,7 +674,7 @@ msgstr "Type"
 #: templates/creme_config/templatetags/block_blockportallocations.html:16
 #: templates/creme_config/templatetags/block_button_menu.html:16
 #: templates/creme_config/templatetags/block_custom_fields.html:18
-#: templates/creme_config/templatetags/block_custom_fields_portal.html:26
+#: templates/creme_config/templatetags/block_custom_fields_portal.html:25
 #: templates/creme_config/templatetags/block_default_credentials.html:14
 #: templates/creme_config/templatetags/block_models.html:34
 #: templates/creme_config/templatetags/block_property_types.html:21
@@ -719,15 +723,15 @@ msgid "New custom field"
 msgstr "Nouveau champ personnalisé"
 
 #: templates/creme_config/templatetags/block_custom_fields.html:31
-#: templates/creme_config/templatetags/block_custom_fields_portal.html:36
+#: templates/creme_config/templatetags/block_custom_fields_portal.html:35
 msgid "No type of entity has custom field for the moment"
 msgstr "Aucun type d'entité n'a de champ personnalisé pour le moment"
 
-#: templates/creme_config/templatetags/block_custom_fields_portal.html:12
+#: templates/creme_config/templatetags/block_custom_fields_portal.html:11
 msgid "New custom field configuration"
 msgstr "Nouvelle configuration de champ personnalisé"
 
-#: templates/creme_config/templatetags/block_custom_fields_portal.html:18
+#: templates/creme_config/templatetags/block_custom_fields_portal.html:17
 msgid "Details"
 msgstr "Détails"
 
@@ -1284,9 +1288,6 @@ msgstr "Éditer les droits par défaut"
 
 #~ msgid "Information"
 #~ msgstr "Informations"
-
-#~ msgid "Information on %(object)s"
-#~ msgstr "Informations sur %(object)s"
 
 #~ msgid "Superiors"
 #~ msgstr "Supérieurs"

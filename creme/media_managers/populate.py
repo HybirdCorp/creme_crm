@@ -48,6 +48,7 @@ class Populator(BasePopulator):
                       HeaderFilterItem.build_4_field(model=Image, name='categories'),
                      ])
 
+        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.RIGHT, model=Contact)
         BlockDetailviewLocation.create(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.RIGHT,  model=Image)
         BlockDetailviewLocation.create(block_id=history_block.id_,       order=100, zone=BlockDetailviewLocation.RIGHT,  model=Image)
         BlockDetailviewLocation.create(block_id=properties_block.id_,    order=450, zone=BlockDetailviewLocation.RIGHT,  model=Image)

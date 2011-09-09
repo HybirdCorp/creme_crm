@@ -10,3 +10,5 @@ SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS = 'creme_core-default_block_state_
 
 DEFAULT_CURRENCY_PK = 1
 DISPLAY_CURRENCY_LOCAL_SYMBOL = 'creme_core-display_currency_local_symbol'
+
+MODELBLOCK_ID = 'modelblock'

@@ -33,9 +33,6 @@ from persons.constants import *
 
 
 class ContactBlock(SimpleBlock):
-    id_           = SimpleBlock.generate_id('persons', 'contact')
-    dependencies  = (Contact,)
-    verbose_name  = u'Info on a contact'
     template_name = 'persons/templatetags/block_contact.html'
 
 
@@ -48,9 +45,6 @@ class ContactCoordinatesBlock(SimpleBlock):
 
 
 class OrganisationBlock(SimpleBlock):
-    id_           = SimpleBlock.generate_id('persons', 'organisation')
-    dependencies  = (Organisation,)
-    verbose_name  = u'Info on a organisation'
     template_name = 'persons/templatetags/block_organisation.html'
 
 

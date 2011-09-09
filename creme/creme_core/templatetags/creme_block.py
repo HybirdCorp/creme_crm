@@ -491,7 +491,8 @@ def do_detailview_blocks_importer(parser, token):
 class DetailviewBlocksImporterNode(TemplateNode):
     def render(self, context):
         blocks_manager = BlocksManager.get(context)
-        locs = BlockDetailviewLocation.objects.filter(Q(content_type=None) | Q(content_type=context['object'].entity_type)) \
+        entity = context['object']
+        locs = BlockDetailviewLocation.objects.filter(Q(content_type=None) | Q(content_type=entity.entity_type)) \
                                              .order_by('order')
 
         #we fallback to the default config is there is no config for this content type.
@@ -501,7 +502,10 @@ class DetailviewBlocksImporterNode(TemplateNode):
         for loc in locs:
             block_id = loc.block_id
 
-            if block_id:
+            if block_id: #populate scripts can leave void block ids
+                if BlockDetailviewLocation.id_is_4_model(block_id):
+                    block_id = block_registry.get_block_4_object(entity).id_
+
                 loc_map[loc.zone].append(block_id)
 
         add_group  = blocks_manager.add_group
@@ -548,7 +552,7 @@ class DetailviewBlocksDisplayerNode(TemplateNode):
         for block in BlocksManager.get(context).pop_group(self.group_name):
             detailview_display = getattr(block, 'detailview_display', None)
             if not detailview_display:
-                yield "THIS BLOCK CAN'T BE DISPLAY ON DETAILVIEW (YOU HAVE A CONFIG PROBLEM): %s" % block.id_
+                yield "THIS BLOCK CAN'T BE DISPLAY ON DETAILVIEW (YOU HAVE A CONFIG PROBLEM): %s" % (block.id_ or block.__class__.__name__)
                 continue
 
             target_ctypes = block.target_ctypes
