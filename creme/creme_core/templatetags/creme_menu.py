@@ -112,6 +112,7 @@ def get_last_items_menu(request):
 def get_button_menu(context):
     entity = context['object']
     bmi = ButtonMenuItem.objects.filter(Q(content_type=entity.entity_type) | Q(content_type__isnull=True)) \
+                                .exclude(button_id='') \
                                 .order_by('order') \
                                 .values_list('button_id', flat=True)
 
