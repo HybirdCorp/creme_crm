@@ -28,11 +28,11 @@ from django.utils import translation
 from django.conf import settings
 
 
-PROJECT_PREFIX = 'creme.'
+#PROJECT_PREFIX = 'creme.'
 
 
 class BasePopulator(object):
-    dependencies = [] #eg ['creme.appname1', 'creme.appname2']
+    dependencies = [] #eg ['appname1', 'appname2']
 
     def __init__(self, is_verbose, app):
         self.is_verbose = is_verbose
@@ -84,9 +84,14 @@ class Command(BaseCommand):
 
     def _do_populate_action(self, name, is_verbose, applications, *args, **options):
         if not applications:
-            applications = [app for app in settings.INSTALLED_APPS if app.startswith(PROJECT_PREFIX)]
+            #applications = [app for app in settings.INSTALLED_APPS if app.startswith(PROJECT_PREFIX)]
+            applications = settings.INSTALLED_CREME_APPS
         else:
-            applications = [PROJECT_PREFIX + app if not app.startswith(PROJECT_PREFIX) else app for app in applications]
+            #applications = [PROJECT_PREFIX + app if not app.startswith(PROJECT_PREFIX) else app for app in applications]
+            not_creme_apps = [app for app in applications if app not in settings.INSTALLED_CREME_APPS]
+            if not_creme_apps:
+                print not_creme_apps, 'seem(s) not to be a Creme app (see settings.INSTALLED_CREME_APPS): aborting'
+                return
 
         populates = []
 

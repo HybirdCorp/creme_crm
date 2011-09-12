@@ -28,7 +28,7 @@ from recurrents.models import RecurrentGenerator, Periodicity
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.creme_core']
+    dependencies = ['creme_core']
 
     def populate(self, *args, **kwargs):
         create(Periodicity, 1, name=_(u'Daily'),     value_in_days=1,   description=_(u'Every day'))

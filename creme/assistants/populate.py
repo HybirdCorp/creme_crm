@@ -28,7 +28,7 @@ from assistants.blocks import alerts_block, memos_block, todos_block, messages_b
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.creme_core']
+    dependencies = ['creme_core']
 
     def populate(self, *args, **kwargs):
         for pk, title in USERMESSAGE_PRIORITIES.iteritems():

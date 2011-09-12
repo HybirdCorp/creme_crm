@@ -32,7 +32,7 @@ from reports.blocks import report_fields_block, report_graphs_block
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.creme_core']
+    dependencies = ['creme_core']
 
     def populate(self, *args, **kwargs):
         hf = HeaderFilter.create(pk='reports-hf', name=_(u'Report view'), model=Report)
@@ -48,7 +48,7 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=relations_block.id_,     order=500, zone=BlockDetailviewLocation.LEFT,  model=Report)
         BlockDetailviewLocation.create(block_id=history_block.id_,       order=20,  zone=BlockDetailviewLocation.RIGHT, model=Report)
 
-        if 'creme.assistants' in settings.INSTALLED_APPS:
+        if 'assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail view')
 
             from assistants.blocks import alerts_block, memos_block, todos_block, messages_block

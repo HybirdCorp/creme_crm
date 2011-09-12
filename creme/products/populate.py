@@ -28,7 +28,7 @@ from products.models import Product, Service, Category, SubCategory
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.creme_core']
+    dependencies = ['creme_core']
 
     def populate(self, *args, **kwargs):
         hf = HeaderFilter.create(pk='products-hf_product', name=_(u'Product view'), model=Product)

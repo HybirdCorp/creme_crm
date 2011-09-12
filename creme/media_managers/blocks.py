@@ -37,8 +37,6 @@ class ImageViewBlock(SimpleBlock):
     template_name = 'media_managers/templatetags/block_image_view.html'
     target_ctypes = (Image,)
 
-    #def detailview_display(self, context):
-
 
 #TODO: transform to a paginated block with all allowed images ??
 class LastImagesBlock(Block):

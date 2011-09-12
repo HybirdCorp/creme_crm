@@ -39,7 +39,7 @@ from emails.constants import (REL_SUB_MAIL_RECEIVED, REL_OBJ_MAIL_RECEIVED,
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.creme_core']
+    dependencies = ['creme_core']
 
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_MAIL_RECEIVED, _(u"(email) received by"), [EntityEmail]),
@@ -99,7 +99,7 @@ class Populator(BasePopulator):
         BlockPortalLocation.create(app_name='emails', block_id=signatures_block.id_, order=10)
         BlockPortalLocation.create(app_name='emails', block_id=history_block.id_,    order=30)
 
-        if 'creme.assistants' in settings.INSTALLED_APPS:
+        if 'assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail views')
 
             from assistants.blocks import alerts_block, memos_block, todos_block, messages_block

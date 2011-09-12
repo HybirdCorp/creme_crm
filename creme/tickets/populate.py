@@ -35,7 +35,7 @@ from tickets.constants import REL_SUB_LINKED_2_TICKET, REL_OBJ_LINKED_2_TICKET
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.creme_core']
+    dependencies = ['creme_core']
 
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_LINKED_2_TICKET, _(u'is linked to the ticket')),
@@ -76,7 +76,7 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=rbi.block_id,           order=1,   zone=BlockDetailviewLocation.RIGHT, model=Ticket)
         BlockDetailviewLocation.create(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Ticket)
 
-        if 'creme.assistants' in settings.INSTALLED_APPS:
+        if 'assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail view')
 
             from assistants.blocks import alerts_block, memos_block, todos_block, messages_block
@@ -86,7 +86,7 @@ class Populator(BasePopulator):
             BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
             BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
 
-        if 'creme.persons' in settings.INSTALLED_APPS:
+        if 'persons' in settings.INSTALLED_APPS:
             try:
                 from persons.models import Contact, Organisation
             except ImportError, e:
