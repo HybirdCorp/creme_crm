@@ -43,7 +43,7 @@ from persons.buttons import *
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.creme_core']
+    dependencies = ['creme_core']
 
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_EMPLOYED_BY, _(u'is an employee of'),          [Contact]),
@@ -185,7 +185,7 @@ class Populator(BasePopulator):
         BlockPortalLocation.create(app_name='persons', block_id=neglected_orgas_block.id_, order=10)
         BlockPortalLocation.create(app_name='persons', block_id=history_block.id_,         order=30)
 
-        if 'creme.assistants' in settings.INSTALLED_APPS:
+        if 'assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail views and portal')
 
             from assistants.blocks import alerts_block, memos_block, todos_block, messages_block #actions_it_block, actions_nit_block, 

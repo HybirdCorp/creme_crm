@@ -2,7 +2,7 @@
 
 from django.conf.urls.defaults import patterns
 
-urlpatterns = patterns('creme.assistants.views',
+urlpatterns = patterns('assistants.views',
     (r'^memo/add/(?P<entity_id>\d+)/$', 'memo.add'),
     (r'^memo/edit/(?P<memo_id>\d+)/$',  'memo.edit'),
 

@@ -44,7 +44,7 @@ from opportunities.constants import *
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.creme_core', 'creme.creme_config', 'creme.persons', 'creme.products', 'creme.billing']
+    dependencies = ['creme_core', 'creme_config', 'persons', 'products', 'billing']
 
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_TARGETS,      _(u'targets the organisation/contact'), [Opportunity]),
@@ -120,7 +120,7 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=total_block.id_,           order=2,   zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
         BlockDetailviewLocation.create(block_id=history_block.id_,         order=20,  zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
 
-        if 'creme.activities' in settings.INSTALLED_APPS:
+        if 'activities' in settings.INSTALLED_APPS:
             info('Activities app is installed => we use the "Future activities" & "Past activities" blocks')
 
             from activities.blocks import future_activities_block, past_activities_block
@@ -131,7 +131,7 @@ class Populator(BasePopulator):
             BlockPortalLocation.create(app_name='opportunities', block_id=past_activities_block.id_,   order=21)
 
 
-        if 'creme.assistants' in settings.INSTALLED_APPS:
+        if 'assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail views and portal')
 
             from assistants.blocks import alerts_block, memos_block, todos_block, messages_block #actions_it_block, actions_nit_block, 
@@ -149,7 +149,7 @@ class Populator(BasePopulator):
             #BlockPortalLocation.create(app_name='opportunities', block_id=actions_nit_block.id_, order=310)
             BlockPortalLocation.create(app_name='opportunities', block_id=messages_block.id_,    order=400)
 
-        if 'creme.emails' in settings.INSTALLED_APPS:
+        if 'emails' in settings.INSTALLED_APPS:
             info('Emails app is installed => we use the emails blocks on detail view')
 
             from emails.blocks import mails_history_block
@@ -158,7 +158,7 @@ class Populator(BasePopulator):
 
         BlockDetailviewLocation.create(block_id=targetting_opps_block.id_, order=16, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
 
-        if 'creme.reports' in settings.INSTALLED_APPS:
+        if 'reports' in settings.INSTALLED_APPS:
             info('Reports app is installed => we create an Opportunity report, with 2 graphs, and related blocks')
             self.create_reports()
 

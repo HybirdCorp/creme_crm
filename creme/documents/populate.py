@@ -35,7 +35,7 @@ from documents.constants import *
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.creme_core']
+    dependencies = ['creme_core']
 
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_RELATED_2_DOC, _(u'related to the document')),
@@ -68,7 +68,7 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT,  model=Folder)
         BlockDetailviewLocation.create(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Folder)
 
-        if 'creme.assistants' in settings.INSTALLED_APPS:
+        if 'assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail view')
 
             from assistants.blocks import alerts_block, memos_block, todos_block, messages_block

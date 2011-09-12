@@ -38,7 +38,7 @@ from events.constants import *
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.creme_core']
+    dependencies = ['creme_core']
 
     def populate(self, *args, **kwargs):
         create_rtype = RelationType.create
@@ -84,7 +84,7 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=resuts_block.id_,        order=2,   zone=BlockDetailviewLocation.RIGHT, model=Event)
         BlockDetailviewLocation.create(block_id=history_block.id_,       order=20,  zone=BlockDetailviewLocation.RIGHT, model=Event)
 
-        if 'creme.assistants' in settings.INSTALLED_APPS:
+        if 'assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail view')
 
             from assistants.blocks import alerts_block, memos_block, todos_block, messages_block

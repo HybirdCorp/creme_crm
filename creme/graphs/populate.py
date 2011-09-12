@@ -32,7 +32,7 @@ from graphs.blocks import root_nodes_block, orbital_rtypes_block
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.creme_core']
+    dependencies = ['creme_core']
 
     def populate(self, *args, **kwargs):
         hf = HeaderFilter.create(pk='graphs-hf', name=_(u'Graph view'), model=Graph)
@@ -46,7 +46,7 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=relations_block.id_,      order=500, zone=BlockDetailviewLocation.LEFT,  model=Graph)
         BlockDetailviewLocation.create(block_id=history_block.id_,        order=20,  zone=BlockDetailviewLocation.RIGHT, model=Graph)
 
-        if 'creme.assistants' in settings.INSTALLED_APPS:
+        if 'assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail view')
 
             from assistants.blocks import alerts_block, memos_block, todos_block, messages_block

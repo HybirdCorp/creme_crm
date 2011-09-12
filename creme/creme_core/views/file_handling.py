@@ -96,14 +96,11 @@ def download_file(request, location, mimetype=None):
             else:
                 name = '.'.join(type)
             type = type[len(type)-1]
-#    file = open(creme.settings.MEDIA_ROOT+'/'+location,'rb+')
-#    datas = file.read()
-#    file.close()
-    with open(settings.MEDIA_ROOT+'/'+location.replace('../','').replace('..\\',''),'rb+') as f:
-        datas = f.read()
 
-    response = HttpResponse(datas, mimetype=type)
-#    response = HttpResponse(mimetype=type)
+    with open(settings.MEDIA_ROOT+'/'+location.replace('../','').replace('..\\',''),'rb+') as f:
+        data = f.read()
+
+    response = HttpResponse(data, mimetype=type)
     response['Content-Disposition'] = "attachment; filename=%s" % (name.replace(' ','_'))
     return response
 

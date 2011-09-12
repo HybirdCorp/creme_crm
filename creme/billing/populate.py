@@ -41,7 +41,7 @@ from billing.buttons import generate_invoice_number_button
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.creme_core', 'creme.persons']
+    dependencies = ['creme_core', 'persons']
 
     def populate(self, *args, **kwargs):
         billing_entities = [Invoice, Quote, SalesOrder, CreditNote, TemplateBase]
@@ -149,7 +149,7 @@ class Populator(BasePopulator):
             BlockDetailviewLocation.create(block_id=total_block.id_,           order=3,   zone=BlockDetailviewLocation.RIGHT, model=model)
             BlockDetailviewLocation.create(block_id=history_block.id_,         order=20,  zone=BlockDetailviewLocation.RIGHT, model=model)
 
-        if 'creme.assistants' in settings.INSTALLED_APPS:
+        if 'assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail views')
 
             from assistants.blocks import alerts_block, memos_block, todos_block, messages_block

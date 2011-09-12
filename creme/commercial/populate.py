@@ -42,7 +42,7 @@ from commercial.buttons import complete_goal_button
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.creme_core', 'creme.persons']
+    dependencies = ['creme_core', 'persons']
 
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_SOLD_BY,       _(u'has sold')),
@@ -86,7 +86,7 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=relations_block.id_,            order=500, zone=BlockDetailviewLocation.LEFT,  model=Strategy)
         BlockDetailviewLocation.create(block_id=history_block.id_,              order=20,  zone=BlockDetailviewLocation.RIGHT, model=Strategy)
 
-        if 'creme.assistants' in settings.INSTALLED_APPS:
+        if 'assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail views')
 
             from assistants.blocks import alerts_block, memos_block, todos_block, messages_block

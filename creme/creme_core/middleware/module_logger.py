@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,9 +28,10 @@ from django.conf import settings
 class LogImportedModulesMiddleware(object):
     def process_response(self, request, response):
         if connection.queries:
-            prefix = 'creme.'
-            pl = len(prefix)
-            creme_app_names = frozenset(app[pl:] for app in settings.INSTALLED_APPS if app.startswith(prefix))
+            #prefix = 'creme.'
+            #pl = len(prefix)
+            #creme_app_names = frozenset(app[pl:] for app in settings.INSTALLED_APPS if app.startswith(prefix))
+            creme_app_names = settings.INSTALLED_CREME_APPS
 
             outputs = []
             modules_set = set()
@@ -39,8 +40,8 @@ class LogImportedModulesMiddleware(object):
                 if not module_obj:
                     continue
 
-                if module_name.startswith(prefix):
-                    module_name = module_name[pl:]
+                #if module_name.startswith(prefix):
+                    #module_name = module_name[pl:]
 
                 if module_name in modules_set:
                     continue

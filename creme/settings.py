@@ -94,7 +94,7 @@ SITE_DOMAIN = 'http://mydomain' #No end slash!
 
 APPEND_SLASH = False
 
-ROOT_URLCONF = 'creme.urls'
+ROOT_URLCONF = 'urls' # means urls.py
 
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/creme_login/'
@@ -139,10 +139,10 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.locale.LocaleMiddleware',
 
-    'creme.creme_core.middleware.global_info.GlobalInfoMiddleware', #after AuthenticationMiddleware
-    'creme.creme_core.middleware.exceptions.Beautiful403Middleware',
-    #'creme.creme_core.middleware.sql_logger.SQLLogToConsoleMiddleware',       #debuging purpose
-    #'creme.creme_core.middleware.module_logger.LogImportedModulesMiddleware', #debuging purpose
+    'creme_core.middleware.global_info.GlobalInfoMiddleware', #after AuthenticationMiddleware
+    'creme_core.middleware.exceptions.Beautiful403Middleware',
+    #'creme_core.middleware.sql_logger.SQLLogToConsoleMiddleware',       #debuging purpose
+    #'creme_core.middleware.module_logger.LogImportedModulesMiddleware', #debuging purpose
 )
 
 TEMPLATE_DIRS = (
@@ -152,7 +152,7 @@ TEMPLATE_DIRS = (
     # Don't forget to use absolute paths, not relative paths.
 )
 
-INSTALLED_APPS = (
+INSTALLED_DJANGO_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -163,34 +163,37 @@ INSTALLED_APPS = (
     #EXTERNAL APPS
     'mediagenerator', #It manages js/css/images
     'south',          #It manages DB migrations
+)
 
+INSTALLED_CREME_APPS = (
     #CREME CORE APPS
-    'creme.creme_core',
-    'creme.creme_config',
-    'creme.media_managers',
-    'creme.documents',
-    'creme.assistants',
-    'creme.activities',
-    'creme.persons',
+    'creme_core',
+    'creme_config',
+    'media_managers',
+    'documents',
+    'assistants',
+    'activities',
+    'persons',
 
     #CREME OPTIONNAL APPS (can be safely commented)
-    'creme.graphs',
-    'creme.reports',
-    'creme.products',
-    'creme.recurrents',
-    'creme.billing',       #need 'creme.products'
-    'creme.opportunities', #need 'creme.billing'
-    'creme.commercial',    #need 'creme.opportunities'
-    'creme.events',
-    'creme.crudity',
-    'creme.emails', #need 'creme.crudity'
-    #'creme.sms', #Work In Progress
-    'creme.projects',
-    'creme.tickets',
-    #'creme.cti',
-    'creme.activesync',
-    'creme.vcfs',
+    'graphs',
+    'reports',
+    'products',
+    'recurrents',
+    'billing',       #need 'products'
+    'opportunities', #need 'billing'
+    'commercial',    #need 'opportunities'
+    'events',
+    'crudity',
+    'emails', #need 'crudity'
+    #'sms', #Work In Progress
+    'projects',
+    'tickets',
+    #'cti',
+    'activesync',
+    'vcfs',
 )
+
 
 from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
 TEMPLATE_CONTEXT_PROCESSORS += (
@@ -321,7 +324,7 @@ CREME_CORE_CSS = ('main.css',
                  )
 
 CREME_OPT_CSS = ( #OPTIONNAL APPS
-                ('creme.crudity', 'crudity/css/crudity.css'),
+                ('crudity', 'crudity/css/crudity.css'),
                )
 
 CREME_I18N_JS = ('l10n.js',
@@ -389,10 +392,10 @@ CREME_CORE_JS = ('main.js',
                 )
 
 CREME_OPT_JS = ( #OPTIONNAL APPS
-                ('creme.billing', 'billing/js/billing.js'),
-                ('creme.reports', 'reports/js/reports.js'),
-                ('creme.emails',  'emails/js/emails.js'),
-                ('creme.cti',     'cti/js/cti.js'),
+                ('billing', 'billing/js/billing.js'),
+                ('reports', 'reports/js/reports.js'),
+                ('emails',  'emails/js/emails.js'),
+                ('cti',     'cti/js/cti.js'),
                )
 
 ROOT_MEDIA_FILTERS = {
@@ -502,20 +505,30 @@ try:
 except ImportError:
     pass
 
-#MEDIA GENERATOR [FINAL SETTINGS]
+
+#GENERAL [FINAL SETTINGS -------------------------------------------------------
+
+LOCALE_PATHS = [join(CREME_ROOT, "locale")] + [join(CREME_ROOT, app, "locale") for app in INSTALLED_CREME_APPS]
+
+INSTALLED_APPS = INSTALLED_DJANGO_APPS + INSTALLED_CREME_APPS
+
+
+#MEDIA GENERATOR [FINAL SETTINGS]-----------------------------------------------
 MEDIA_BUNDLES = (
 #                 CREME_CORE_CSS + tuple(css for app, css in CREME_OPT_CSS if app in INSTALLED_APPS),
                  CREME_I18N_JS,
-                 CREME_CORE_JS + tuple(js for app, js in CREME_OPT_JS if app in INSTALLED_APPS)
+                 #CREME_CORE_JS + tuple(js for app, js in CREME_OPT_JS if app in INSTALLED_APPS)
+                 CREME_CORE_JS + tuple(js for app, js in CREME_OPT_JS if app in INSTALLED_CREME_APPS)
                 )
 
-CREME_CSS   = CREME_CORE_CSS + tuple(css for app, css in CREME_OPT_CSS if app in INSTALLED_APPS)
-MEDIA_BUNDLES += tuple((theme_dir+CREME_CSS[0], ) + tuple(theme_dir+'/'+css_file if not isinstance(css_file, dict) else css_file for css_file in CREME_CSS[1:])
+#CREME_CSS = CREME_CORE_CSS + tuple(css for app, css in CREME_OPT_CSS if app in INSTALLED_APPS)
+CREME_CSS = CREME_CORE_CSS + tuple(css for app, css in CREME_OPT_CSS if app in INSTALLED_CREME_APPS)
+MEDIA_BUNDLES += tuple((theme_dir + CREME_CSS[0], ) + tuple(theme_dir + '/' + css_file if not isinstance(css_file, dict) else css_file for css_file in CREME_CSS[1:])
                         for theme_dir, theme_vb_name in THEMES
                        )
 
-LOCALE_PATHS = [join(CREME_ROOT, "locale")]
-for app_name in INSTALLED_APPS:
-    prefix, sep, app = app_name.rpartition('.')
-    if prefix == "creme":
-        LOCALE_PATHS.append(join(CREME_ROOT, app, "locale"))
+#LOCALE_PATHS = [join(CREME_ROOT, "locale")]
+#for app_name in INSTALLED_APPS:
+    #prefix, sep, app = app_name.rpartition('.')
+    #if prefix == "creme":
+        #LOCALE_PATHS.append(join(CREME_ROOT, app, "locale"))

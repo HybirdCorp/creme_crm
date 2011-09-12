@@ -36,7 +36,7 @@ from projects.constants import REL_OBJ_PROJECT_MANAGER, REL_SUB_PROJECT_MANAGER,
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme.creme_core', 'creme.persons', 'creme.activities']
+    dependencies = ['creme_core', 'persons', 'activities']
 
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_PROJECT_MANAGER, _(u'is one of the leaders of this project'), [Contact]),
@@ -88,7 +88,7 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=relations_block.id_,           order=500, zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
         BlockDetailviewLocation.create(block_id=history_block.id_,             order=20,  zone=BlockDetailviewLocation.RIGHT, model=ProjectTask)
 
-        if 'creme.assistants' in settings.INSTALLED_APPS:
+        if 'assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail views')
 
             from assistants.blocks import alerts_block, memos_block, todos_block, messages_block

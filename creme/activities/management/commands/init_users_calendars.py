@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,12 +23,13 @@ from django.contrib.auth.models  import User
 from django.db.models import Q
 from django.db.utils import IntegrityError
 
+
 class Command(BaseCommand):
     help = 'Create user defaults calendars and link them to unlinked activities.'
     args = ''
 
     def handle(self, *args, **options):
-        from creme.persons.models.contact import Contact
+        from persons.models.contact import Contact
 
         from activities.models.activity import Calendar, Activity
         from activities.constants import REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_PART_2_ACTIVITY#, REL_OBJ_LINKED_2_ACTIVITY
@@ -59,5 +60,3 @@ class Command(BaseCommand):
                     print "Link %s (pk=%s) to calendar : %s" % (activity, activity.pk, user_calendar)
                 except IntegrityError:
                     pass
-
-
