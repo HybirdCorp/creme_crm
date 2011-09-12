@@ -23,15 +23,13 @@ creme.blocks = {
 };
 
 creme.blocks.register = function(block_id) {
-
     var $block = $(block_id);
+
     if ($block.size() == 1) {
         this.__registeredBlocks[block_id] = $block;
-    }
-    else {
+    } else {
         console.log('creme.blocks.register::block_id is not unique:' + block_id);
     }
-
 };
 
 creme.blocks.get_block = function(block_id) {
@@ -59,14 +57,13 @@ creme.blocks.saveState = function(block, state) {
         creme.ajax.json.post('/creme_core/blocks/reload/set_state/' + block[0].id + '/', stateToSend, function(data, status) {
             if (isOpen) {
                 block.removeClass(collapsed_class);
-            }
-            else {
+            } else {
                 block.addClass(collapsed_class);
             }
+
             if (showEmptyFields) {
                 block.removeClass(hide_fields_class);
-            }
-            else {
+            } else {
                 block.addClass(hide_fields_class);
             }
         }, null, true);
@@ -88,8 +85,7 @@ creme.blocks._applyShowFieldState = function(block) {
 
         if (block.hasClass(this.hide_fields_class)) {
             $lines.hide();
-        }
-        else {
+        } else {
             $lines.show();
             block.removeClass(this.hide_fields_class);
         }
@@ -103,8 +99,7 @@ creme.blocks.toggleEmptyFields = function(button) {
 
     if ($button.hasClass('view_less')) {
         $button.removeClass('view_less').addClass('view_more');
-    }
-    else {
+    } else {
         $button.removeClass('view_more').addClass('view_less');
         state = {action : "show"};
         $block.removeClass(this.hide_fields_class);
@@ -133,6 +128,5 @@ creme.blocks.bindEvents = function() {
         });
 
         creme.blocks.applyState(block);
-
     }
 };

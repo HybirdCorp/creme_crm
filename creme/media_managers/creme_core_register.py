@@ -24,7 +24,7 @@ from creme_core.registry import creme_registry
 from creme_core.gui import creme_menu, block_registry, icon_registry, bulk_update_registry
 
 from media_managers.models import Image
-from media_managers.blocks import ImageBlock
+from media_managers.blocks import ImageBlock, last_images_block, image_view_block
 
 
 creme_registry.register_app('media_managers', _(u'Media managers'), '/media')
@@ -36,6 +36,7 @@ reg_item('/media_managers/image/add', _(u'Add an image'),             'media_man
 reg_item('/media_managers/images',    _(u'All images'),               'media_managers')
 
 block_registry.register_4_model(Image, ImageBlock())
+block_registry.register(last_images_block, image_view_block)
 
 icon_registry.register(Image, 'images/image_%(size)s.png')
 
