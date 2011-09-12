@@ -1,63 +1,8 @@
-{% extends "creme_core/base.html" %}
+{% extends "creme_core/generics/portal.html" %}
 {% load i18n %}
-{% load creme_core_tags creme_block %}
+{% load creme_core_tags %}
 
-{% block extrahead %}
-    <script>
-        $(document).ready(function(){
-            creme.utils.bindShowHideTbody();
-        });
-    </script>
-{% endblock %}
-
-{% comment %} FACTORISE WITH creme_core/generics/portal.py ?? {% endcomment %}
-
-{% block content %}
-    <table class="table_header" cellpadding="0" cellspacing="0">
-        <tr>
-            <td class="logo">{% block logo %}{% endblock %}</td>
-            <td class="title"><h1>{% block title %}{% trans "Media portal" %}{% endblock %}</h1></td>
-            <td class="actions">
-                {% block header_link %}
-                    <a href="{% block list_url %}images{% endblock %}">
-                        {% block list_msg %}{% trans "List of images" %}{% endblock %}
-                        <img src="{% creme_media_url 'images/right_arrow_64.png' %}" title="{% trans "Go to the list" %}" alt="{% trans "Go to the list" %}"/>
-                    </a>
-                {% endblock %}
-            </td>
-        </tr>
-    </table>
-
-    <table class="table_detail_view ui-corner-all">
-        {% get_block_header colspan=2 %}
-            <th class="collapser label">{% get_basic_block_header _('Statistics') 'infos_48.png' _('Statistics') %}</th>
-            <th class="actions"></th>
-        {% end_get_block_header %}
-        <tbody class="collapsable">
-            {% for statk, statv in stats %}
-                <tr class="content">
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{{statk}}</th>
-                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{statv}}</td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-
-    <table class="table_detail_view ui-corner-all">
-        {% get_block_header colspan=5%}{# TODO: { % get_block_header colspan=limit_to% } when get_block_header will handle template vars #}
-            <th class="collapser label">{% get_basic_block_header _('Last added Images') 'image_48.png' _('Image') %}</th>
-            <th class="actions"></th>
-        {% end_get_block_header %}
-        <tbody class="collapsable">
-            <tr class="content">
-                {% for object in objects_list %}
-                    <td align="center" class="{% cycle "block_line_dark" "block_line_light" %}">
-                        {% get_entity_summary object user %}
-                        <br/>
-                        <a href="{{object.get_absolute_url}}">{% trans "See" %}</a>
-                    </td>
-                {% endfor %}
-            </tr>
-        </tbody>
-    </table>
-{% endblock %}
+{% block logo %}<img src="{% creme_media_url 'images/image_64.png' %}" alt="{% trans "Images" %}"/>{% endblock %}
+{% block title %}{% trans "Media portal" %}{% endblock %}
+{% block list_url %}images{% endblock %}
+{% block list_msg %}{% trans "List of images" %}{% endblock %}

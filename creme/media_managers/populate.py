@@ -23,12 +23,13 @@ from logging import info
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme_core.models import SearchConfigItem, HeaderFilterItem, HeaderFilter, BlockDetailviewLocation
+from creme_core.models import SearchConfigItem, HeaderFilterItem, HeaderFilter, BlockDetailviewLocation, BlockPortalLocation
 from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from media_managers.models import MediaCategory, Image
+from media_managers.blocks import *
 
 
 class Populator(BasePopulator):
@@ -48,11 +49,15 @@ class Populator(BasePopulator):
                       HeaderFilterItem.build_4_field(model=Image, name='categories'),
                      ])
 
-        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.RIGHT, model=Contact)
-        BlockDetailviewLocation.create(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.RIGHT,  model=Image)
-        BlockDetailviewLocation.create(block_id=history_block.id_,       order=100, zone=BlockDetailviewLocation.RIGHT,  model=Image)
-        BlockDetailviewLocation.create(block_id=properties_block.id_,    order=450, zone=BlockDetailviewLocation.RIGHT,  model=Image)
-        BlockDetailviewLocation.create(block_id=relations_block.id_,     order=500, zone=BlockDetailviewLocation.RIGHT,  model=Image)
+        BlockDetailviewLocation.create(block_id=image_view_block.id_,   order=40,  zone=BlockDetailviewLocation.LEFT,   model=Image)
+        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.RIGHT, model=Image)
+        BlockDetailviewLocation.create(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.RIGHT,  model=Image)
+        BlockDetailviewLocation.create(block_id=history_block.id_,      order=100, zone=BlockDetailviewLocation.RIGHT,  model=Image)
+        BlockDetailviewLocation.create(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.RIGHT,  model=Image)
+        BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.RIGHT,  model=Image)
+
+        BlockPortalLocation.create(app_name='media_managers', block_id=last_images_block.id_, order=10)
+        BlockPortalLocation.create(app_name='media_managers', block_id=history_block.id_,     order=30)
 
         if 'creme.assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail view')
@@ -63,6 +68,10 @@ class Populator(BasePopulator):
             BlockDetailviewLocation.create(block_id=memos_block.id_,    order=700, zone=BlockDetailviewLocation.RIGHT, model=Image)
             BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=800, zone=BlockDetailviewLocation.RIGHT, model=Image)
             BlockDetailviewLocation.create(block_id=messages_block.id_, order=900, zone=BlockDetailviewLocation.RIGHT, model=Image)
+
+            BlockPortalLocation.create(app_name='media_managers', block_id=memos_block.id_,    order=100)
+            BlockPortalLocation.create(app_name='media_managers', block_id=alerts_block.id_,   order=200)
+            BlockPortalLocation.create(app_name='media_managers', block_id=messages_block.id_, order=400)
 
         SearchConfigItem.create(Image, ['name', 'description', 'categories__name'])
 

@@ -18,7 +18,43 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.gui.block import SimpleBlock
+from django.utils.translation import ugettext_lazy as _
+
+from creme_core.models import EntityCredentials
+from creme_core.gui.block import Block, SimpleBlock, list4url
+
+from media_managers.models import Image
+
 
 class ImageBlock(SimpleBlock):
-    template_name = 'media_managers/block_image.html'
+    template_name = 'media_managers/templatetags/block_image.html'
+
+
+class ImageViewBlock(SimpleBlock):
+    id_           = Block.generate_id('media_managers', 'image_view')
+    dependencies  = (Image,)
+    verbose_name  = _(u"Image view")
+    template_name = 'media_managers/templatetags/block_image_view.html'
+    target_ctypes = (Image,)
+
+    #def detailview_display(self, context):
+
+
+#TODO: transform to a paginated block with all allowed images ??
+class LastImagesBlock(Block):
+    id_           = Block.generate_id('media_managers', 'last_images')
+    dependencies  = (Image,)
+    verbose_name  = _(u"Last added images")
+    template_name = 'media_managers/templatetags/block_last_images.html'
+    target_apps   = ('media_managers',)
+
+    def portal_display(self, context, ct_ids):
+        images = EntityCredentials.filter(context['user'], Image.objects.order_by('created'))[:5] #TODO: make '5' configurable
+        return self._render(self.get_block_template_context(context,
+                                                            update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                                                            objects_list=images,
+                                                           ))
+
+
+image_view_block  = ImageViewBlock()
+last_images_block = LastImagesBlock()

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,20 +22,16 @@ from django.utils.translation import ugettext as _
 
 from creme_core.views.generic import app_portal
 
+from creme_config.utils import generate_portal_url
+
 from media_managers.models import Image
 
 
 def portal_media_managers(request):
-    """
-        @Permissions : Acces or Admin to produits app
-    """
     stats = (
                 (_("Number of images"),  Image.objects.all().count()),
             )
 
-    limit_to = 5
-
-    return app_portal(request, 'media_managers/', 'media_managers/portal.html',
-                      Image, stats,
-                      extra_template_dict={'objects_list':Image.objects.all().order_by('created')[:limit_to], 'limit_to':limit_to})
-
+    return app_portal(request, 'media_managers', 'media_managers/portal.html',
+                      Image, stats, config_url=generate_portal_url('media_managers')
+                     )

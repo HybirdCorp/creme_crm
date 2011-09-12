@@ -100,7 +100,7 @@ class EmployeesBlock(ManagersBlock):
 
 class NeglectedOrganisationsBlock(PaginatedBlock):
     """Customers/propsects organisations that have no Activity in the future."""
-    id_           = QuerysetBlock.generate_id('persons', 'neglected_orgas')
+    id_           = PaginatedBlock.generate_id('persons', 'neglected_orgas')
     dependencies  = (Activity,)
     verbose_name  = _(u"Neglected organisations")
     template_name = 'persons/templatetags/block_neglected_orgas.html'
