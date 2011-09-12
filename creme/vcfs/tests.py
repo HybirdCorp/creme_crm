@@ -1,40 +1,25 @@
 # -*- coding: utf-8 -*-
 
-################################################################################
-#    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
+try:
+    from os import path as os_path
+    from tempfile import NamedTemporaryFile
 
-import os
-from tempfile import NamedTemporaryFile
+    from django.utils.translation import ugettext as _
+    from django.conf import settings
+    from django.contrib.contenttypes.models import ContentType
 
-from django.utils.translation import ugettext as _
-from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
+    from creme_core.tests.base import CremeTestCase
+    from creme_core.models import Relation, RelationType
 
-from creme_core.tests.base import CremeTestCase
-from creme_core.models import Relation, RelationType
+    from media_managers.models import Image
 
-from media_managers.models import Image
+    from persons.models import Contact, Organisation, Address
+    from persons.constants import *
 
-from persons.models import Contact, Organisation, Address
-from persons.constants import *
-
-from vcfs import vcf_lib
-from vcfs.forms import vcf
+    from vcfs import vcf_lib
+    from vcfs.forms import vcf
+except Exception, e:
+    print 'Error:', e
 
 
 class VcfTestCase(CremeTestCase):
@@ -53,19 +38,18 @@ class VcfTestCase(CremeTestCase):
         rel_sub_customer_supplier = get_relationtype_or_fail(REL_SUB_CUSTOMER_SUPPLIER)
         rel_obj_customer_supplier = get_relationtype_or_fail(REL_OBJ_CUSTOMER_SUPPLIER)
 
-        assertEqual = self.assertEqual
-        assertEqual(rel_sub_employed.symmetric_type_id, rel_obj_employed.id)
-        assertEqual(rel_obj_employed.symmetric_type_id, rel_sub_employed.id)
+        self.assertEqual(rel_sub_employed.symmetric_type_id, rel_obj_employed.id)
+        self.assertEqual(rel_obj_employed.symmetric_type_id, rel_sub_employed.id)
 
         get_ct = ContentType.objects.get_for_model
         ct_id_contact = get_ct(Contact).id
         ct_id_orga    = get_ct(Organisation).id
-        assertEqual([ct_id_contact], [ct.id for ct in rel_sub_employed.subject_ctypes.all()])
-        assertEqual([ct_id_orga],    [ct.id for ct in rel_obj_employed.subject_ctypes.all()])
+        self.assertEqual([ct_id_contact], [ct.id for ct in rel_sub_employed.subject_ctypes.all()])
+        self.assertEqual([ct_id_orga],    [ct.id for ct in rel_obj_employed.subject_ctypes.all()])
 
         ct_id_set = set((ct_id_contact, ct_id_orga))
-        assertEqual(ct_id_set, set(ct.id for ct in rel_sub_customer_supplier.subject_ctypes.all()))
-        assertEqual(ct_id_set, set(ct.id for ct in rel_obj_customer_supplier.subject_ctypes.all()))
+        self.assertEqual(ct_id_set, set(ct.id for ct in rel_sub_customer_supplier.subject_ctypes.all()))
+        self.assertEqual(ct_id_set, set(ct.id for ct in rel_obj_customer_supplier.subject_ctypes.all()))
 
     def _build_filedata(self, content_str):
         tmpfile = NamedTemporaryFile()
@@ -78,8 +62,7 @@ class VcfTestCase(CremeTestCase):
         return tmpfile
 
     def _post_form_step_0(self, url, file):
-        return self.client.post(url,
-                                follow=True,
+        return self.client.post(url, follow=True,
                                 data={
                                         'user':     self.user,
                                         'vcf_step': 0,
@@ -87,7 +70,7 @@ class VcfTestCase(CremeTestCase):
                                      }
                                 )
 
-    def _no_from_error(self, response):
+    def _assertFormOK(self, response):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
         self.assert_(response.redirect_chain)
@@ -128,9 +111,8 @@ class VcfTestCase(CremeTestCase):
         self.assert_('value="1"' in unicode(form['vcf_step']))
 
         firt_name, sep, last_name = vcf_lib.readOne(content).fn.value.partition(' ')
-        assertEqual = self.assertEqual
-        assertEqual(form['first_name'].field.initial, firt_name)
-        assertEqual(form['last_name'].field.initial,  last_name)
+        self.assertEqual(form['first_name'].field.initial, firt_name)
+        self.assertEqual(form['last_name'].field.initial,  last_name)
 
     def test_parsing_vcf01(self):
         self.login()
@@ -147,27 +129,26 @@ class VcfTestCase(CremeTestCase):
         vobj = vcf_lib.readOne(content)
         n_value = vobj.n.value
 
-        assertEqual = self.assertEqual
-        assertEqual(form['civility'].field.help_text, ''.join([_(u'Read in VCF File : '), n_value.prefix]))
-        assertEqual(form['first_name'].field.initial, n_value.given)
-        assertEqual(form['last_name'].field.initial,  n_value.family)
+        self.assertEqual(form['civility'].field.help_text, ''.join([_(u'Read in VCF File : '), n_value.prefix]))
+        self.assertEqual(form['first_name'].field.initial, n_value.given)
+        self.assertEqual(form['last_name'].field.initial,  n_value.family)
 
         tel = vobj.contents['tel']
-        assertEqual(form['phone'].field.initial,  tel[0].value)
-        assertEqual(form['mobile'].field.initial, tel[1].value)
-        assertEqual(form['fax'].field.initial,    tel[2].value)
+        self.assertEqual(form['phone'].field.initial,  tel[0].value)
+        self.assertEqual(form['mobile'].field.initial, tel[1].value)
+        self.assertEqual(form['fax'].field.initial,    tel[2].value)
 
-        assertEqual(form['position'].field.help_text, ''.join([_(u'Read in VCF File : '), vobj.title.value]))
-        assertEqual(form['email'].field.initial,       vobj.email.value)
-        assertEqual(form['url_site'].field.initial,    vobj.url.value)
+        self.assertEqual(form['position'].field.help_text, ''.join([_(u'Read in VCF File : '), vobj.title.value]))
+        self.assertEqual(form['email'].field.initial,       vobj.email.value)
+        self.assertEqual(form['url_site'].field.initial,    vobj.url.value)
 
         adr_value = vobj.adr.value
-        assertEqual(form['adr_last_name'].field.initial, n_value.family)
-        assertEqual(form['address'].field.initial,       ' '.join([adr_value.box, adr_value.street]))
-        assertEqual(form['city'].field.initial,          adr_value.city)
-        assertEqual(form['country'].field.initial,       adr_value.country)
-        assertEqual(form['code'].field.initial,          adr_value.code)
-        assertEqual(form['region'].field.initial,        adr_value.region)
+        self.assertEqual(form['adr_last_name'].field.initial, n_value.family)
+        self.assertEqual(form['address'].field.initial,       ' '.join([adr_value.box, adr_value.street]))
+        self.assertEqual(form['city'].field.initial,          adr_value.city)
+        self.assertEqual(form['country'].field.initial,       adr_value.country)
+        self.assertEqual(form['code'].field.initial,          adr_value.code)
+        self.assertEqual(form['region'].field.initial,        adr_value.region)
 
     def test_parsing_vcf02(self):
         self.login()
@@ -182,17 +163,16 @@ class VcfTestCase(CremeTestCase):
             self.fail(str(e))
 
         vobj = vcf_lib.readOne(content)
-        assertEqual = self.assertEqual
-        assertEqual(form['work_name'].field.initial,     vobj.org.value[0])
-        assertEqual(form['work_phone'].field.initial,    vobj.tel.value)
-        assertEqual(form['work_email'].field.initial,    vobj.email.value)
-        assertEqual(form['work_url_site'].field.initial, vobj.url.value)
-        assertEqual(form['work_adr_name'].field.initial, vobj.org.value[0])
-        assertEqual(form['work_address'].field.initial,  ' '.join([vobj.adr.value.box, vobj.adr.value.street]))
-        assertEqual(form['work_city'].field.initial,     vobj.adr.value.city)
-        assertEqual(form['work_region'].field.initial,   vobj.adr.value.region)
-        assertEqual(form['work_code'].field.initial,     vobj.adr.value.code)
-        assertEqual(form['work_country'].field.initial,  vobj.adr.value.country)
+        self.assertEqual(form['work_name'].field.initial,     vobj.org.value[0])
+        self.assertEqual(form['work_phone'].field.initial,    vobj.tel.value)
+        self.assertEqual(form['work_email'].field.initial,    vobj.email.value)
+        self.assertEqual(form['work_url_site'].field.initial, vobj.url.value)
+        self.assertEqual(form['work_adr_name'].field.initial, vobj.org.value[0])
+        self.assertEqual(form['work_address'].field.initial,  ' '.join([vobj.adr.value.box, vobj.adr.value.street]))
+        self.assertEqual(form['work_city'].field.initial,     vobj.adr.value.city)
+        self.assertEqual(form['work_region'].field.initial,   vobj.adr.value.region)
+        self.assertEqual(form['work_code'].field.initial,     vobj.adr.value.code)
+        self.assertEqual(form['work_country'].field.initial,  vobj.adr.value.country)
 
     def test_parsing_vcf03(self):
         self.login()
@@ -210,11 +190,10 @@ class VcfTestCase(CremeTestCase):
         help_prefix = _(u'Read in VCF File without type : ')
         adr_value = vobj.adr.value
         adr = ', '.join([adr_value.box, adr_value.street, adr_value.city, adr_value.region, adr_value.code, adr_value.country])
-        assertEqual = self.assertEqual
-        assertEqual(form['address'].field.help_text,  ''.join([help_prefix, adr]))
-        assertEqual(form['phone'].field.help_text,    ''.join([help_prefix, vobj.tel.value]))
-        assertEqual(form['email'].field.help_text,    ''.join([help_prefix, vobj.email.value]))
-        assertEqual(form['url_site'].field.help_text, ''.join([help_prefix, vobj.url.value]))
+        self.assertEqual(form['address'].field.help_text,  ''.join([help_prefix, adr]))
+        self.assertEqual(form['phone'].field.help_text,    ''.join([help_prefix, vobj.tel.value]))
+        self.assertEqual(form['email'].field.help_text,    ''.join([help_prefix, vobj.email.value]))
+        self.assertEqual(form['url_site'].field.help_text, ''.join([help_prefix, vobj.url.value]))
 
     def test_parsing_vcf04(self):
         self.login()
@@ -253,11 +232,9 @@ class VcfTestCase(CremeTestCase):
         fax        = form['fax'].field.initial
         email      = form['email'].field.initial
         url_site   = form['url_site'].field.initial
-
         self.assert_('value="1"' in unicode(form['vcf_step']))
 
-        response = self.client.post(url,
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':        user,
                                             'vcf_step':    1,
@@ -271,12 +248,10 @@ class VcfTestCase(CremeTestCase):
                                             'create_or_attach_orga': False,
                                          }
                                     )
-        self._no_from_error(response)
-
-        assertEqual = self.assertEqual
-        assertEqual(contact_count + 1, Contact.objects.count())
-        assertEqual(orga_count,        Organisation.objects.count())
-        assertEqual(address_count,     Address.objects.count())
+        self._assertFormOK(response)
+        self.assertEqual(contact_count + 1, Contact.objects.count())
+        self.assertEqual(orga_count,        Organisation.objects.count())
+        self.assertEqual(address_count,     Address.objects.count())
 
         try:
             Contact.objects.get(first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email, url_site=url_site)
@@ -304,9 +279,7 @@ class VcfTestCase(CremeTestCase):
         fax        = form['fax'].field.initial
         email      = form['email'].field.initial
         url_site   = form['url_site'].field.initial
-
-        response = self.client.post(url,
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':        user,
                                             'vcf_step':    1,
@@ -321,13 +294,10 @@ class VcfTestCase(CremeTestCase):
                                          }
                                     )
         validation_text = _(u'Required, if you want to create organisation')
-        assertFormError = self.assertFormError
-        assertFormError(response, 'form', 'work_name', validation_text)
-        assertFormError(response, 'form', 'relation',  validation_text)
-
-        assertEqual = self.assertEqual
-        assertEqual(contact_count, Contact.objects.count())
-        assertEqual(orga_count,    Organisation.objects.count())
+        self.assertFormError(response, 'form', 'work_name', validation_text)
+        self.assertFormError(response, 'form', 'relation',  validation_text)
+        self.assertEqual(contact_count, Contact.objects.count())
+        self.assertEqual(orga_count,    Organisation.objects.count())
 
     def test_add_contact_vcf02(self):
         self.login()
@@ -355,9 +325,7 @@ class VcfTestCase(CremeTestCase):
         work_phone    = form['work_phone'].field.initial
         work_email    = form['work_email'].field.initial
         work_url_site = form['work_url_site'].field.initial
-
-        response = self.client.post(url,
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':          user,
                                             'vcf_step':      1,
@@ -375,11 +343,9 @@ class VcfTestCase(CremeTestCase):
                                             'work_url_site': work_url_site,
                                          }
                                     )
-        self._no_from_error(response)
-
-        assertEqual = self.assertEqual
-        assertEqual(contact_count + 1, Contact.objects.count())
-        assertEqual(orga_count,        Organisation.objects.count())
+        self._assertFormOK(response)
+        self.assertEqual(contact_count + 1, Contact.objects.count())
+        self.assertEqual(orga_count,        Organisation.objects.count())
 
         try:
             Contact.objects.get(first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email, url_site=url_site)
@@ -413,9 +379,7 @@ class VcfTestCase(CremeTestCase):
         work_email    = form['work_email'].field.initial
         work_url_site = form['work_url_site'].field.initial
 
-
-        response = self.client.post(url,
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':          user,
                                             'vcf_step':      1,
@@ -434,11 +398,10 @@ class VcfTestCase(CremeTestCase):
                                             'work_url_site': work_url_site,
                                          }
                                     )
-        self._no_from_error(response)
+        self._assertFormOK(response)
 
-        assertEqual = self.assertEqual
-        assertEqual(contact_count + 1, Contact.objects.count())
-        assertEqual(orga_count + 1,    Organisation.objects.count())
+        self.assertEqual(contact_count + 1, Contact.objects.count())
+        self.assertEqual(orga_count + 1,    Organisation.objects.count())
 
         try:
             orga = Organisation.objects.get(name=work_name, phone=work_phone, email=work_email, url_site=work_url_site)
@@ -477,8 +440,7 @@ class VcfTestCase(CremeTestCase):
         work_email    = form['work_email'].field.initial
         work_url_site = form['work_url_site'].field.initial
 
-        response = self.client.post(url,
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':          user,
                                             'vcf_step':      1,
@@ -498,11 +460,9 @@ class VcfTestCase(CremeTestCase):
                                             'work_url_site': work_url_site,
                                          }
                                     )
-        self._no_from_error(response)
-
-        assertEqual = self.assertEqual
-        assertEqual(contact_count + 1, Contact.objects.count())
-        assertEqual(orga_count + 1,    Organisation.objects.count())
+        self._assertFormOK(response)
+        self.assertEqual(contact_count + 1, Contact.objects.count())
+        self.assertEqual(orga_count + 1,    Organisation.objects.count())
 
         try:
             contact = Contact.objects.get(first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email)
@@ -539,8 +499,7 @@ class VcfTestCase(CremeTestCase):
         code          = form['code'].field.initial
         region        = form['region'].field.initial
 
-        response = self.client.post(url,
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':          user,
                                             'vcf_step':      1,
@@ -560,11 +519,10 @@ class VcfTestCase(CremeTestCase):
                                             'create_or_attach_orga': False,
                                          }
                                     )
-        self._no_from_error(response)
+        self._assertFormOK(response)
 
-        assertEqual = self.assertEqual
-        assertEqual(contact_count + 1, Contact.objects.count())
-        assertEqual(address_count + 1, Address.objects.count())
+        self.assertEqual(contact_count + 1, Contact.objects.count())
+        self.assertEqual(address_count + 1, Address.objects.count())
 
         try:
             contact = Contact.objects.get(first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email)
@@ -612,8 +570,7 @@ class VcfTestCase(CremeTestCase):
         work_code      = form['work_code'].field.initial
         work_region    = form['work_region'].field.initial
 
-        response = self.client.post(url,
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':          user,
                                             'vcf_step':      1,
@@ -641,12 +598,11 @@ class VcfTestCase(CremeTestCase):
                                             'work_region':   work_region,
                                          }
                                     )
-        self._no_from_error(response)
+        self._assertFormOK(response)
 
-        assertEqual = self.assertEqual
-        assertEqual(contact_count + 1, Contact.objects.count())
-        assertEqual(orga_count + 1,    Organisation.objects.count())
-        assertEqual(address_count + 2, Address.objects.count())
+        self.assertEqual(contact_count + 1, Contact.objects.count())
+        self.assertEqual(orga_count + 1,    Organisation.objects.count())
+        self.assertEqual(address_count + 2, Address.objects.count())
 
         try:
             contact         = Contact.objects.get(first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email)
@@ -656,8 +612,8 @@ class VcfTestCase(CremeTestCase):
         except Exception, e:
             self.fail(str(e))
 
-        assertEqual(contact.billing_address, address_contact)
-        assertEqual(orga.billing_address,    address_orga)
+        self.assertEqual(contact.billing_address, address_contact)
+        self.assertEqual(orga.billing_address,    address_orga)
 
     def test_add_contact_vcf07(self):
         self.login()
@@ -718,12 +674,11 @@ class VcfTestCase(CremeTestCase):
                                          }
                                     )
         validation_text = _(u'Create organisation not checked')
-        assertFormError = self.assertFormError
-        assertFormError(response, 'form', 'update_orga_name',     validation_text)
-        assertFormError(response, 'form', 'update_orga_phone',    validation_text)
-        assertFormError(response, 'form', 'update_orga_email',    validation_text)
-        assertFormError(response, 'form', 'update_orga_fax',      validation_text)
-        assertFormError(response, 'form', 'update_orga_url_site', validation_text)
+        self.assertFormError(response, 'form', 'update_orga_name',     validation_text)
+        self.assertFormError(response, 'form', 'update_orga_phone',    validation_text)
+        self.assertFormError(response, 'form', 'update_orga_email',    validation_text)
+        self.assertFormError(response, 'form', 'update_orga_fax',      validation_text)
+        self.assertFormError(response, 'form', 'update_orga_url_site', validation_text)
 
         self.assertEqual(contact_count, Contact.objects.count())
 
@@ -755,8 +710,7 @@ class VcfTestCase(CremeTestCase):
         work_code      = form['work_code'].field.initial
         work_region    = form['work_region'].field.initial
 
-        response = self.client.post(url,
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':                 user,
                                             'vcf_step':             1,
@@ -783,13 +737,12 @@ class VcfTestCase(CremeTestCase):
                                          }
                                     )
         validation_text = _(u'Organisation not selected')
-        assertFormError = self.assertFormError
-        assertFormError(response, 'form', 'update_orga_name',     validation_text)
-        assertFormError(response, 'form', 'update_orga_phone',    validation_text)
-        assertFormError(response, 'form', 'update_orga_email',    validation_text)
-        assertFormError(response, 'form', 'update_orga_fax',      validation_text)
-        assertFormError(response, 'form', 'update_orga_url_site', validation_text)
-        assertFormError(response, 'form', 'update_orga_address',  validation_text)
+        self.assertFormError(response, 'form', 'update_orga_name',     validation_text)
+        self.assertFormError(response, 'form', 'update_orga_phone',    validation_text)
+        self.assertFormError(response, 'form', 'update_orga_email',    validation_text)
+        self.assertFormError(response, 'form', 'update_orga_fax',      validation_text)
+        self.assertFormError(response, 'form', 'update_orga_url_site', validation_text)
+        self.assertFormError(response, 'form', 'update_orga_address',  validation_text)
 
         self.assertEqual(contact_count, Contact.objects.count())
 
@@ -811,8 +764,7 @@ class VcfTestCase(CremeTestCase):
 
         orga_id = form['organisation'].field.initial
 
-        response = self.client.post(url,
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':                 user,
                                             'vcf_step':             1,
@@ -830,11 +782,10 @@ class VcfTestCase(CremeTestCase):
                                          }
                                     )
         validation_text = _(u'Required, if you want to update organisation')
-        assertFormError = self.assertFormError
-        assertFormError(response, 'form', 'work_phone',    validation_text)
-        assertFormError(response, 'form', 'work_email',    validation_text)
-        assertFormError(response, 'form', 'work_fax',      validation_text)
-        assertFormError(response, 'form', 'work_url_site', validation_text)
+        self.assertFormError(response, 'form', 'work_phone',    validation_text)
+        self.assertFormError(response, 'form', 'work_email',    validation_text)
+        self.assertFormError(response, 'form', 'work_fax',      validation_text)
+        self.assertFormError(response, 'form', 'work_url_site', validation_text)
 
     def test_add_contact_vcf10(self):
         self.login()
@@ -879,8 +830,7 @@ class VcfTestCase(CremeTestCase):
         work_code      = form['work_code'].field.initial
         work_region    = form['work_region'].field.initial
 
-        response = self.client.post(url,
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':                 user,
                                             'vcf_step':             1,
@@ -906,12 +856,11 @@ class VcfTestCase(CremeTestCase):
                                             'update_orga_address':  True,
                                          }
                                     )
-        self._no_from_error(response)
+        self._assertFormOK(response)
 
-        assertEqual = self.assertEqual
-        assertEqual(contact_count + 1, Contact.objects.count())
-        assertEqual(orga_count,        Organisation.objects.count())
-        assertEqual(address_count,     Address.objects.count())
+        self.assertEqual(contact_count + 1, Contact.objects.count())
+        self.assertEqual(orga_count,        Organisation.objects.count())
+        self.assertEqual(address_count,     Address.objects.count())
 
         try:
             orga = Organisation.objects.get(id=orga.id)
@@ -923,16 +872,16 @@ class VcfTestCase(CremeTestCase):
         vobj = vcf_lib.readOne(content)
         adr = vobj.adr.value
         org = vobj.org.value[0]
-        assertEqual(orga.name,                  org)
-        assertEqual(orga.phone,                 vobj.tel.value)
-        assertEqual(orga.email,                 vobj.email.value)
-        assertEqual(orga.url_site,              'http://www.work.com/')
-        assertEqual(billing_address.name,       org)
-        assertEqual(billing_address.address,    ' '.join([adr.box, adr.street]))
-        assertEqual(billing_address.city,       adr.city)
-        assertEqual(billing_address.country,    adr.country)
-        assertEqual(billing_address.zipcode,    adr.code)
-        assertEqual(billing_address.department, adr.region)
+        self.assertEqual(orga.name,                  org)
+        self.assertEqual(orga.phone,                 vobj.tel.value)
+        self.assertEqual(orga.email,                 vobj.email.value)
+        self.assertEqual(orga.url_site,              'http://www.work.com/')
+        self.assertEqual(billing_address.name,       org)
+        self.assertEqual(billing_address.address,    ' '.join([adr.box, adr.street]))
+        self.assertEqual(billing_address.city,       adr.city)
+        self.assertEqual(billing_address.country,    adr.country)
+        self.assertEqual(billing_address.zipcode,    adr.code)
+        self.assertEqual(billing_address.department, adr.region)
 
     def test_add_contact_vcf11(self):
         self.login()
@@ -957,15 +906,14 @@ class VcfTestCase(CremeTestCase):
         orga_id       = form['organisation'].field.initial
 
         work_name     = form['work_name'].field.initial
-        work_adr_name  = form['work_adr_name'].field.initial
-        work_address   = form['work_address'].field.initial
-        work_city      = form['work_city'].field.initial
-        work_country   = form['work_country'].field.initial
-        work_code      = form['work_code'].field.initial
-        work_region    = form['work_region'].field.initial
+        work_adr_name = form['work_adr_name'].field.initial
+        work_address  = form['work_address'].field.initial
+        work_city     = form['work_city'].field.initial
+        work_country  = form['work_country'].field.initial
+        work_code     = form['work_code'].field.initial
+        work_region   = form['work_region'].field.initial
 
-        response = self.client.post(url,
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':                 user,
                                             'vcf_step':             1,
@@ -984,12 +932,11 @@ class VcfTestCase(CremeTestCase):
                                             'update_orga_address':  True,
                                          }
                                     )
-        self._no_from_error(response)
+        self._assertFormOK(response)
 
-        assertEqual = self.assertEqual
-        assertEqual(contact_count + 1, Contact.objects.count())
-        assertEqual(orga_count,        Organisation.objects.count())
-        assertEqual(address_count + 1, Address.objects.count())
+        self.assertEqual(contact_count + 1, Contact.objects.count())
+        self.assertEqual(orga_count,        Organisation.objects.count())
+        self.assertEqual(address_count + 1, Address.objects.count())
 
         try:
             address = Address.objects.get(name=work_adr_name, address=work_address, city=work_city, zipcode=work_code, country=work_country, department=work_region)
@@ -1000,14 +947,14 @@ class VcfTestCase(CremeTestCase):
         vobj = vcf_lib.readOne(content)
         adr = vobj.adr.value
 
-        assertEqual(address.name,       vobj.org.value[0])
-        assertEqual(address.address,    ' '.join([adr.box, adr.street]))
-        assertEqual(address.city,       adr.city)
-        assertEqual(address.country,    adr.country)
-        assertEqual(address.zipcode,    adr.code)
-        assertEqual(address.department, adr.region)
+        self.assertEqual(address.name,       vobj.org.value[0])
+        self.assertEqual(address.address,    ' '.join([adr.box, adr.street]))
+        self.assertEqual(address.city,       adr.city)
+        self.assertEqual(address.country,    adr.country)
+        self.assertEqual(address.zipcode,    adr.code)
+        self.assertEqual(address.department, adr.region)
 
-        assertEqual(orga.billing_address.id, address.id)
+        self.assertEqual(orga.billing_address.id, address.id)
 
     def test_add_contact_vcf12(self):
         self.login()
@@ -1033,8 +980,7 @@ class VcfTestCase(CremeTestCase):
         email      = form['email'].field.initial
         url_site   = form['url_site'].field.initial
 
-        response = self.client.post(url,
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':          user,
                                             'vcf_step':      1,
@@ -1048,13 +994,12 @@ class VcfTestCase(CremeTestCase):
                                             'create_or_attach_orga': False,
                                          }
                                     )
-        self._no_from_error(response)
+        self._assertFormOK(response)
 
-        assertEqual = self.assertEqual
-        assertEqual(contact_count + 1, Contact.objects.count())
-        assertEqual(image_count,       Image.objects.count())
-        assertEqual(orga_count,        Organisation.objects.count())
-        assertEqual(address_count,     Address.objects.count())
+        self.assertEqual(contact_count + 1, Contact.objects.count())
+        self.assertEqual(image_count,       Image.objects.count())
+        self.assertEqual(orga_count,        Organisation.objects.count())
+        self.assertEqual(address_count,     Address.objects.count())
 
         try:
             Contact.objects.get(first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email, url_site='http://www.url.com/')
@@ -1080,8 +1025,7 @@ class VcfTestCase(CremeTestCase):
         civility_id = form['civility'].field.initial
         position_id = form['position'].field.initial
 
-        response = self.client.post(url,
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':       user,
                                             'vcf_step':   1,
@@ -1091,7 +1035,7 @@ class VcfTestCase(CremeTestCase):
                                             'position':   position_id,
                                          }
                                     )
-        self._no_from_error(response)
+        self._assertFormOK(response)
         self.assertEqual(contact_count + 1, Contact.objects.count())
 
         try:
@@ -1130,13 +1074,12 @@ class VcfTestCase(CremeTestCase):
                                             'image_encoded': image,
                                          }
                                     )
-        self._no_from_error(response)
+        self._assertFormOK(response)
 
-        assertEqual = self.assertEqual
-        assertEqual(contact_count + 1, Contact.objects.count())
-        assertEqual(image_count + 1,   Image.objects.count())
-        assertEqual(orga_count,        Organisation.objects.count())
-        assertEqual(address_count,     Address.objects.count())
+        self.assertEqual(contact_count + 1, Contact.objects.count())
+        self.assertEqual(image_count + 1,   Image.objects.count())
+        self.assertEqual(orga_count,        Organisation.objects.count())
+        self.assertEqual(address_count,     Address.objects.count())
 
         try:
             contact = Contact.objects.get(first_name=first_name, last_name=last_name)
@@ -1144,7 +1087,7 @@ class VcfTestCase(CremeTestCase):
             self.fail(str(e))
 
         self.assert_(contact.image)
-        assertEqual(_(u'Image of %s') % contact, contact.image.name)
+        self.assertEqual(_(u'Image of %s') % contact, contact.image.name)
         contact.image.image.delete()
 
     def test_add_contact_vcf15(self):
@@ -1152,12 +1095,13 @@ class VcfTestCase(CremeTestCase):
 
         vcf.URL_START = vcf.URL_START + ('file',)
 
-        os_path = os.path
-        path_base = os_path.join(settings.CREME_ROOT, 'static', 'images', '500.png')
+        path_base = os_path.join(settings.CREME_ROOT, 'static', 'chantilly', 'images', '500.png')
+        self.assert_(os_path.exists(path_base))
         path = 'file:///' + os_path.normpath(path_base)
 
         contact_count = Contact.objects.count()
-        image_count   = Image.objects.count()
+        #image_count   = Image.objects.count()
+        self.assertEqual(0, Image.objects.count())
 
         content  = """BEGIN:VCARD\nFN:Jean HUDARD\nPHOTO;VALUE=URL:%s\nEND:VCARD""" % path
         filedata = self._build_filedata(content)
@@ -1169,32 +1113,34 @@ class VcfTestCase(CremeTestCase):
         user       = form['user'].field.initial
         first_name = form['first_name'].field.initial
         last_name  = form['last_name'].field.initial
-        image      = form['image_encoded'].field.initial
+        enc_image  = form['image_encoded'].field.initial
 
-        response = self.client.post(url,
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':          user,
                                             'vcf_step':      1,
                                             'first_name':    first_name,
                                             'last_name':     last_name,
-                                            'image_encoded': image,
+                                            'image_encoded': enc_image,
                                          }
                                     )
-        self._no_from_error(response)
+        self._assertFormOK(response)
 
-        assertEqual = self.assertEqual
-        assertEqual(contact_count + 1, Contact.objects.count())
-        assertEqual(image_count + 1,   Image.objects.count())
+        self.assertEqual(contact_count + 1, Contact.objects.count())
+        #self.assertEqual(image_count + 1,   Image.objects.count())
 
         try:
             contact = Contact.objects.get(first_name=first_name, last_name=last_name)
         except Exception, e:
             self.fail(str(e))
 
-        self.assert_(contact.image)
-        assertEqual(_(u'Image of %s') % contact, contact.image.name)
-        contact.image.image.delete()
+        images = Image.objects.all()
+        self.assertEqual(1, len(images))
+
+        image = images[0]
+        self.assertEqual(image,                       contact.image)
+        self.assertEqual(_(u'Image of %s') % contact, image.name)
+        image.delete()
 
     def test_add_contact_vcf16(self):
         self.login()
@@ -1224,11 +1170,10 @@ class VcfTestCase(CremeTestCase):
                                             'image_encoded': image,
                                          }
                                     )
-        self._no_from_error(response)
+        self._assertFormOK(response)
 
-        assertEqual = self.assertEqual
-        assertEqual(contact_count + 1, Contact.objects.count())
-        assertEqual(image_count,       Image.objects.count())
+        self.assertEqual(contact_count + 1, Contact.objects.count())
+        self.assertEqual(image_count,       Image.objects.count())
 
     def test_add_contact_vcf17(self):
         self.login()
@@ -1236,7 +1181,6 @@ class VcfTestCase(CremeTestCase):
         settings.VCF_IMAGE_MAX_SIZE = 10240 #(10 kB)
         vcf.URL_START = vcf.URL_START + ('file',)
 
-        os_path = os.path
         path_base = os_path.join(settings.CREME_ROOT, 'static', 'images', '500.png')
         path = 'file:///' + os_path.normpath(path_base)
 
@@ -1255,8 +1199,7 @@ class VcfTestCase(CremeTestCase):
         last_name  = form['last_name'].field.initial
         image      = form['image_encoded'].field.initial
 
-        response = self.client.post(url,
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':          user,
                                             'vcf_step':      1,
@@ -1265,8 +1208,7 @@ class VcfTestCase(CremeTestCase):
                                             'image_encoded': image,
                                          }
                                     )
-        self._no_from_error(response)
+        self._assertFormOK(response)
 
-        assertEqual = self.assertEqual
-        assertEqual(contact_count + 1, Contact.objects.count())
-        assertEqual(image_count,       Image.objects.count())
+        self.assertEqual(contact_count + 1, Contact.objects.count())
+        self.assertEqual(image_count,       Image.objects.count())
