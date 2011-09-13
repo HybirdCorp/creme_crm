@@ -54,12 +54,12 @@ class CremeTestCase(TestCase):
             self.fail('Bad populate: unfoundable RelationType with pk=%s' % pk)
 
         get_ct = ContentType.objects.get_for_model
-        self.assertEqual(set(get_ct(model).id for model in sub_models),
-                         set(rt.subject_ctypes.values_list('id', flat=True))
-                        )
-        self.assertEqual(set(get_ct(model).id for model in obj_models),
-                         set(rt.object_ctypes.values_list('id', flat=True))
-                        )
+        self.assertListEqual(sorted((get_ct(model) for model in sub_models), key=lambda ct: ct.id),
+                             list(rt.subject_ctypes.order_by('id'))
+                            )
+        self.assertListEqual(sorted((get_ct(model) for model in obj_models), key=lambda ct: ct.id),
+                             list(rt.object_ctypes.order_by('id'))
+                            )
 
         self.assertEqual(set(sub_props), set(rt.subject_properties.values_list('id', flat=True)))
         self.assertEqual(set(obj_props), set(rt.object_properties.values_list('id', flat=True)))
