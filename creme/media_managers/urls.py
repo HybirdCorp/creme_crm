@@ -8,7 +8,7 @@ urlpatterns = patterns('media_managers.views',
 
     (r'^images$',                          'image.listview'),
     (r'^images/popup$',                    'image.listview_popup'),
-    (r'^images/(?P<image_id>\d+)/get_url', 'image.get_url'),
+    (r'^images/(?P<image_id>\d+)/get_url', 'image.get_url'), #TODO: 'images' -> 'image' ??
 
     (r'^tiny_mce/image$',                'image.select_image_tiny_mce'),
 

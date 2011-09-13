@@ -85,9 +85,9 @@ class VcfImportForm(CremeModelWithUserForm):
     country       = CharField(label=_('Country'),      required=False)
     code          = CharField(label=_('Zip code'),     required=False)
     region        = CharField(label=_('Region'),       required=False)
-    
-    create_or_attach_orga   = BooleanField(label=_('Create or attach organisation'), required=False, initial=False)
-    organisation            = CremeEntityField(label=_('Organisation'),    required=False, model=Organisation)
+
+    create_or_attach_orga = BooleanField(label=_('Create or attach organisation'), required=False, initial=False)
+    organisation          = CremeEntityField(label=_('Organisation'), required=False, model=Organisation)
 
     #TODO : Composite field
     update_orga_name     = BooleanField(label=_('Update name'),     required=False, initial=False, help_text=_(u'Update organisation selected name'))
@@ -116,7 +116,7 @@ class VcfImportForm(CremeModelWithUserForm):
         ('organisation',                 _(u'Organisation'),                 ['create_or_attach_orga', 'organisation', 'relation', 'update_orga_name', 'work_name', 'update_orga_phone', 'work_phone', 'update_orga_fax', 'work_fax', 'update_orga_email', 'work_email', 'update_orga_url_site', 'work_url_site']),
         ('organisation_billing_address', _(u'Organisation billing address'), ['update_orga_address', 'work_adr_name', 'work_address', 'work_city', 'work_country', 'work_code', 'work_region']),
     )
-    
+
     tel_dict = {'HOME': 'phone',
                 'CELL': 'mobile',
                 'FAX':  'fax',
@@ -248,7 +248,7 @@ class VcfImportForm(CremeModelWithUserForm):
         if cleaned_data['create_or_attach_orga'] and not cleaned_data[field_name]:
             raise ValidationError(_(u'Required, if you want to create organisation'))
         return cleaned_data[field_name]
-    
+
     clean_work_name = lambda self: self.clean_field('work_name')
     clean_relation  = lambda self: self.clean_field('relation')
 
@@ -286,7 +286,7 @@ class VcfImportForm(CremeModelWithUserForm):
         user         = cleaned_data['user']
         save_contact = False
         save_org     = False
-        
+
         contact = Contact.objects.create(user=user,
                                          civility=cleaned_data['civility'],
                                          first_name=cleaned_data['first_name'],
@@ -309,7 +309,7 @@ class VcfImportForm(CremeModelWithUserForm):
                     if int(urlopen(image_encoded).info()['content-length']) <= settings.VCF_IMAGE_MAX_SIZE:
                         os_path = os.path
                         img_name = ''.join([img_name, os_path.splitext(image_encoded)[1]])
-                        
+
                         img_path = os_path.join(IMG_UPLOAD_PATH, img_name)
                         img_path = os_path.normpath(img_path)
 
@@ -319,7 +319,6 @@ class VcfImportForm(CremeModelWithUserForm):
                         urlretrieve(image_encoded, path)
                 except:
                     img_path = ''
-                
             else: #TODO: manage urls encoded in base64 ??
                 try:
                     #TODO: factorise with activesync ??
@@ -377,7 +376,6 @@ class VcfImportForm(CremeModelWithUserForm):
                                 setattr(billing_address, value, cleaned_data[key])
 
                         organisation.billing_address.save()
-
                     else:
                         organisation.billing_address = Address.objects.create(name=cleaned_data['work_adr_name'],
                                                                               address=cleaned_data['work_address'],
