@@ -19,7 +19,6 @@
 ################################################################################
 
 from django.http import HttpResponse
-
 from django.template import RequestContext, Template
 from django.shortcuts import render_to_response, get_object_or_404
 from django.conf import settings
@@ -30,7 +29,7 @@ from creme_core.views.generic import add_entity, edit_entity, list_view, view_en
 from creme_core.utils import jsonify
 
 from media_managers.models import Image
-from media_managers.forms.image import ImageForm
+from media_managers.forms.image import ImageCreateForm, ImageEditForm
 
 
 @login_required
@@ -49,12 +48,12 @@ def add(request):
 
     return_path = '/media_managers/image/%s%%s?from_id=%s' % (popup, req_get('from_id', ''))
 
-    return add_entity(request, ImageForm, return_path, **kwargs)
+    return add_entity(request, ImageCreateForm, return_path, **kwargs)
 
 @login_required
 @permission_required('media_managers')
 def edit(request, image_id):
-    return edit_entity(request, image_id, Image, ImageForm)
+    return edit_entity(request, image_id, Image, ImageEditForm)
 
 @login_required
 @permission_required('media_managers')

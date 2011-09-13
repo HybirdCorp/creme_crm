@@ -22,35 +22,7 @@ except Exception, e:
     print 'Error:', e
 
 
-class VcfTestCase(CremeTestCase):
-    def setUp(self):
-        self.populate('creme_core', 'creme_config', 'persons', 'vcfs')
-
-    def test_populate(self): #test relationtype creation with constraints
-        def get_relationtype_or_fail(pk):
-            try:
-                return RelationType.objects.get(pk=pk)
-            except RelationType.DoesNotExist:
-                self.fail('Bad populate: unfoundable RelationType with pk=%s' % pk)
-
-        rel_sub_employed = get_relationtype_or_fail(REL_SUB_EMPLOYED_BY)
-        rel_obj_employed = get_relationtype_or_fail(REL_OBJ_EMPLOYED_BY)
-        rel_sub_customer_supplier = get_relationtype_or_fail(REL_SUB_CUSTOMER_SUPPLIER)
-        rel_obj_customer_supplier = get_relationtype_or_fail(REL_OBJ_CUSTOMER_SUPPLIER)
-
-        self.assertEqual(rel_sub_employed.symmetric_type_id, rel_obj_employed.id)
-        self.assertEqual(rel_obj_employed.symmetric_type_id, rel_sub_employed.id)
-
-        get_ct = ContentType.objects.get_for_model
-        ct_id_contact = get_ct(Contact).id
-        ct_id_orga    = get_ct(Organisation).id
-        self.assertEqual([ct_id_contact], [ct.id for ct in rel_sub_employed.subject_ctypes.all()])
-        self.assertEqual([ct_id_orga],    [ct.id for ct in rel_obj_employed.subject_ctypes.all()])
-
-        ct_id_set = set((ct_id_contact, ct_id_orga))
-        self.assertEqual(ct_id_set, set(ct.id for ct in rel_sub_customer_supplier.subject_ctypes.all()))
-        self.assertEqual(ct_id_set, set(ct.id for ct in rel_obj_customer_supplier.subject_ctypes.all()))
-
+class VcfsTestCase(CremeTestCase):
     def _build_filedata(self, content_str):
         tmpfile = NamedTemporaryFile()
         tmpfile.write(content_str)
@@ -70,11 +42,9 @@ class VcfTestCase(CremeTestCase):
                                      }
                                 )
 
-    def _assertFormOK(self, response):
-        self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
-        self.assert_(response.redirect_chain)
-        self.assertEqual(1, len(response.redirect_chain))
+class VcfTestCase(VcfsTestCase):
+    def setUp(self):
+        self.populate('creme_core', 'creme_config')
 
     def test_add_vcf(self):
         self.login()
@@ -209,6 +179,17 @@ class VcfTestCase(CremeTestCase):
             self.fail(str(e))
 
         self.assertEqual(form['organisation'].field.initial, orga.id)
+
+
+class ContactTestCase(VcfsTestCase):
+    def setUp(self):
+        self.populate('creme_core', 'creme_config', 'persons')
+
+    def _assertFormOK(self, response):
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+        self.assert_(response.redirect_chain)
+        self.assertEqual(1, len(response.redirect_chain))
 
     def test_add_contact_vcf00(self):
         self.login()
