@@ -742,11 +742,14 @@ class ActivitiesTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         response = self.client.post('/activities/get_relationtype_choices', data={'ct_id': get_ct(Contact).id})
         self.assertEqual(200, response.status_code)
+
+        content = simplejson.loads(response.content)
+        self.assertTrue(isinstance(content, list))
         self.assertEqual([{"pk": REL_SUB_ACTIVITY_SUBJECT,  "predicate": _(u"is subject of the activity")},
                           {"pk": REL_SUB_LINKED_2_ACTIVITY, "predicate": _(u"related to the activity")},
                           {"pk": REL_SUB_PART_2_ACTIVITY,   "predicate": _(u"participates to the activity")}
                          ],
-                         simplejson.loads(response.content)
+                         sorted(content, key=lambda d: d['pk'])
                         )
 
         response = self.client.post('/activities/get_relationtype_choices', data={'ct_id': get_ct(Organisation).id})
@@ -754,9 +757,8 @@ class ActivitiesTestCase(CremeTestCase):
         self.assertEqual([{"pk": REL_SUB_ACTIVITY_SUBJECT,  "predicate": _(u"is subject of the activity")},
                           {"pk": REL_SUB_LINKED_2_ACTIVITY, "predicate": _(u"related to the activity")},
                          ],
-                         simplejson.loads(response.content)
+                         sorted(simplejson.loads(response.content), key=lambda d: d['pk'])
                         )
-
 
     def assertUserHasDefaultCalendar(self, user):
         try:
