@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,10 @@ from traceback import format_exception
 from optparse import make_option, OptionParser
 from imp import find_module
 
+from django.db import connections, DEFAULT_DB_ALIAS
+from django.db.models.signals import pre_save
 from django.core.management.base import BaseCommand
+from django.core.management.color import no_style
 from django.utils import translation
 from django.conf import settings
 
@@ -82,6 +85,10 @@ class Command(BaseCommand):
 
         return 1 if a_depends_of_b else -1
 
+    def _signal_handler(self, sender, instance, **kwargs):
+        if instance.pk and not isinstance(instance.pk, basestring): # models with string pk should manage pk manually, so we can optimise
+            self.models.add(sender)
+
     def _do_populate_action(self, name, is_verbose, applications, *args, **options):
         if not applications:
             #applications = [app for app in settings.INSTALLED_APPS if app.startswith(PROJECT_PREFIX)]
@@ -93,6 +100,7 @@ class Command(BaseCommand):
                 print not_creme_apps, 'seem(s) not to be a Creme app (see settings.INSTALLED_CREME_APPS): aborting'
                 return
 
+        #-----------------------------------------------------------------------
         populates = []
 
         for app in applications:
@@ -111,6 +119,12 @@ class Command(BaseCommand):
 
         populates.sort(cmp=lambda a, b: self._depencies_sort(a, b))
 
+        #-----------------------------------------------------------------------
+        self.models = set()
+        dispatch_uid = 'creme_core-populate_command'
+
+        pre_save.connect(self._signal_handler, dispatch_uid=dispatch_uid)
+
         for populate in populates:
             if is_verbose:
                 print 'populate', populate.app, ' ...'
@@ -125,6 +139,23 @@ class Command(BaseCommand):
 
             if is_verbose:
                 print 'populate', populate.app, 'done.'
+
+        pre_save.disconnect(dispatch_uid=dispatch_uid)
+
+        #-----------------------------------------------------------------------
+        if is_verbose:
+            print 'update sequences for models :', [model.__name__ for model in self.models]
+
+        connection = connections[options.get('database', DEFAULT_DB_ALIAS)]
+        cursor = connection.cursor()
+
+        for line in connection.ops.sequence_reset_sql(no_style(), self.models):
+            cursor.execute(line)
+
+        #connection.close() #seem useless (& do not work with mysql)
+
+        if is_verbose:
+            print 'update sequences done.'
 
     def _get_populate_module(self, app):
         find_module('populate', __import__(app, globals(), locals(), [app.split('.')[-1]]).__path__)
