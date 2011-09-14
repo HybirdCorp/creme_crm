@@ -97,7 +97,10 @@ class VcfImportForm(CremeModelWithUserForm):
     update_orga_url_site = BooleanField(label=_('Update web site'), required=False, initial=False, help_text=_(u'Update organisation selected web site'))
     update_orga_address  = BooleanField(label=_('Update address'),  required=False, initial=False, help_text=_(u'Update organisation selected address'))
 
-    relation      = ModelChoiceField(label=_('Position in the organisation'), queryset=RelationType.objects.filter(subject_ctypes=_get_ct(Contact), object_ctypes=_get_ct(Organisation)), initial=RelationType.objects.get(pk=REL_SUB_EMPLOYED_BY), required=False)
+    relation      = ModelChoiceField(label=_('Position in the organisation'),
+                                     queryset=RelationType.objects.filter(subject_ctypes=_get_ct(Contact), object_ctypes=_get_ct(Organisation)),
+                                     initial=REL_SUB_EMPLOYED_BY, required=False
+                                    )
     work_name     = CharField(label=_('Name'),         required=False)
     work_phone    = CharField(label=_('Phone number'), required=False)
     work_fax      = CharField(label=_('Fax'),          required=False)
