@@ -205,7 +205,7 @@ class EntityFilter(Model): #CremeModel ???
         if check_cycles:
             self.check_cycle(conditions)
 
-        old_conditions = EntityFilterCondition.objects.filter(filter=self)
+        old_conditions = EntityFilterCondition.objects.filter(filter=self).order_by('id')
         conds2del = []
 
         for old_condition, condition in map(None, old_conditions, conditions):

@@ -207,7 +207,7 @@ class CremeEntity(CremeAbstractEntity):
 
         if relations is None:
             debug('CremeEntity.get_relations(): Cache MISS for id=%s type=%s', self.id, relation_type_id)
-            relations = self.relations.filter(type=relation_type_id)
+            relations = self.relations.filter(type=relation_type_id).order_by('id')
 
             if real_obj_entities:
                 relations = list(relations.select_related('object_entity'))

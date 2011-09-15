@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 
-from datetime import date
+try:
+    from datetime import date
 
-from django.core.serializers.json import simplejson
-from django.utils.translation import ugettext as _
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
+    from django.core.serializers.json import simplejson
+    from django.utils.translation import ugettext as _
+    from django.contrib.auth.models import User
+    from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import EntityFilter, EntityFilterCondition, CustomField, RelationType, CremePropertyType
-from creme_core.tests.views.base import ViewsTestCase
+    from creme_core.models import EntityFilter, EntityFilterCondition, CustomField, RelationType, CremePropertyType
+    from creme_core.tests.views.base import ViewsTestCase
 
-from persons.models import Contact, Organisation
+    from persons.models import Contact, Organisation
+except Exception, e:
+    print 'Error:', e
 
 
 __all__ = ('EntityFilterViewsTestCase', )
@@ -146,7 +149,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(self.user.id, efilter.user.id)
         self.assert_(efilter.use_or)
 
-        conditions = efilter.conditions.all()
+        conditions = efilter.conditions.order_by('id')
         self.assertEqual(8, len(conditions))
         iter_conds = iter(conditions)
 

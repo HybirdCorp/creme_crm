@@ -15,7 +15,7 @@ try:
     from creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_HAS
     from creme_core.models.currency import Currency
     from creme_core.models.entity import CremeEntity
-    from creme_core.tests.base import CremeTestCase
+    from creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
 
     from persons.models import Contact, Organisation, Address
 
@@ -27,42 +27,12 @@ except Exception, e:
     print 'Error:', e
 
 
-class BillingTestCase(CremeTestCase):
+class _BillingTestCase(object):
     def login(self, is_superuser=True, allowed_apps=None):
-        super(BillingTestCase, self).login(is_superuser, allowed_apps=allowed_apps or ['billing'])
+        super(_BillingTestCase, self).login(is_superuser, allowed_apps=allowed_apps or ['billing'])
 
     def setUp(self):
         self.populate('creme_core', 'creme_config', 'billing')
-
-    def _create_product(self):
-         return Product.objects.create(user=self.user, name=u"SwordFish",
-                                       code=1, unit_price=Decimal("3"),
-                                       category=Category.objects.all()[0],
-                                       sub_category=SubCategory.objects.all()[0],
-                                       )
-
-    def _create_service(self):
-        return Service.objects.create(user=self.user, name=u"Mushroom hunting",
-                                      unit_price=Decimal("6"),
-                                      category=Category.objects.all()[0],
-                                      sub_category=SubCategory.objects.all()[0]
-                                     )
-
-    def test_populate(self):
-        billing_classes = [Invoice, Quote, SalesOrder, CreditNote, TemplateBase]
-        lines_clases = [Line, ProductLine, ServiceLine]
-        self.get_relationtype_or_fail(REL_SUB_BILL_ISSUED,       billing_classes, [Organisation])
-        self.get_relationtype_or_fail(REL_SUB_BILL_RECEIVED,     billing_classes, [Organisation, Contact])
-        self.get_relationtype_or_fail(REL_SUB_HAS_LINE,          billing_classes, lines_clases)
-        self.get_relationtype_or_fail(REL_SUB_LINE_RELATED_ITEM, lines_clases,    [Product, Service])
-
-        self.assertEqual(1, SalesOrderStatus.objects.filter(pk=1).count())
-        self.assertEqual(2, InvoiceStatus.objects.filter(pk__in=(1, 2)).count())
-        self.assertEqual(1, CreditNoteStatus.objects.filter(pk=1).count())
-
-    def test_portal(self):
-        self.login()
-        self.assertEqual(self.client.get('/billing/').status_code, 200)
 
     def genericfield_format_entity(self, entity):
         return '{"ctype":"%s", "entity":"%s"}' % (entity.entity_type_id, entity.id)
@@ -94,6 +64,47 @@ class BillingTestCase(CremeTestCase):
         self.assert_(response.redirect_chain[0][0].endswith('/billing/invoice/%s' % invoice.id))
 
         return invoice
+
+    def create_invoice_n_orgas(self, name):
+        create = Organisation.objects.create
+        source = create(user=self.user, name='Source Orga')
+        target = create(user=self.user, name='Target Orga')
+
+        invoice = self.create_invoice(name, source, target)
+
+        return invoice, source, target
+
+
+class BillingTestCase(_BillingTestCase, CremeTestCase):
+    def _create_product(self):
+         return Product.objects.create(user=self.user, name=u"SwordFish",
+                                       code=1, unit_price=Decimal("3"),
+                                       category=Category.objects.all()[0],
+                                       sub_category=SubCategory.objects.all()[0],
+                                      )
+
+    def _create_service(self):
+        return Service.objects.create(user=self.user, name=u"Mushroom hunting",
+                                      unit_price=Decimal("6"),
+                                      category=Category.objects.all()[0],
+                                      sub_category=SubCategory.objects.all()[0]
+                                     )
+
+    def test_populate(self):
+        billing_classes = [Invoice, Quote, SalesOrder, CreditNote, TemplateBase]
+        lines_clases = [Line, ProductLine, ServiceLine]
+        self.get_relationtype_or_fail(REL_SUB_BILL_ISSUED,       billing_classes, [Organisation])
+        self.get_relationtype_or_fail(REL_SUB_BILL_RECEIVED,     billing_classes, [Organisation, Contact])
+        self.get_relationtype_or_fail(REL_SUB_HAS_LINE,          billing_classes, lines_clases)
+        self.get_relationtype_or_fail(REL_SUB_LINE_RELATED_ITEM, lines_clases,    [Product, Service])
+
+        self.assertEqual(1, SalesOrderStatus.objects.filter(pk=1).count())
+        self.assertEqual(2, InvoiceStatus.objects.filter(pk__in=(1, 2)).count())
+        self.assertEqual(1, CreditNoteStatus.objects.filter(pk=1).count())
+
+    def test_portal(self):
+        self.login()
+        self.assertEqual(self.client.get('/billing/').status_code, 200)
 
     def test_invoice_createview01(self):
         self.login()
@@ -239,15 +250,6 @@ class BillingTestCase(CremeTestCase):
                                          status_id=1, number='INV0001', currency_id=1)
 
         self.assertEqual(200, self.client.get('/billing/invoice/edit/%s' % invoice.id).status_code)
-
-    def create_invoice_n_orgas(self, name):
-        create = Organisation.objects.create
-        source = create(user=self.user, name='Source Orga')
-        target = create(user=self.user, name='Target Orga')
-
-        invoice = self.create_invoice(name, source, target)
-
-        return invoice, source, target
 
     def test_invoice_editview03(self):
         self.login()
@@ -1412,44 +1414,6 @@ class BillingTestCase(CremeTestCase):
 #        rel_filter = Relation.objects.filter
 #        self.assertEqual(1, rel_filter(subject_entity=invoice, type=REL_SUB_BILL_ISSUED,   object_entity=source).count())
 
-    def test_delete01(self):
-        self.login()
-        invoice, source, target = self.create_invoice_n_orgas('Invoice001')
-
-        service_line = ServiceLine.objects.create(user=self.user)
-        service_line.related_document = invoice
-
-        invoice.delete()
-        self.assertFalse(Invoice.objects.filter(pk=invoice.pk))
-        self.assertFalse(ServiceLine.objects.filter(pk=service_line.pk))
-
-        try:
-            Organisation.objects.get(pk=source.pk)
-            Organisation.objects.get(pk=target.pk)
-        except Organisation.DoesNotExist, e:
-            self.fail(e)
-
-    def test_delete02(self):#Can't be deleted
-        self.login()
-        invoice, source, target = self.create_invoice_n_orgas('Invoice001')
-
-        service_line = ServiceLine.objects.create(user=self.user, related_document=invoice)
-
-        ce = CremeEntity.objects.create(user=self.user)
-        Relation.objects.create(subject_entity=invoice, object_entity=ce, type_id=REL_SUB_HAS, user=self.user)
-
-        self.assertRaises(ProtectedError, invoice.delete)
-
-        try:
-            Invoice.objects.get(pk=invoice.pk)
-            Organisation.objects.get(pk=source.pk)
-            Organisation.objects.get(pk=target.pk)
-            ServiceLine.objects.get(pk=service_line.pk)
-            CremeEntity.objects.get(pk=ce.id)
-        except Exception, e:
-            #Works with Postgres with autocommit option enabled in settings
-            self.fail("Exception: (%s). Maybe the db doesn't support transaction ?" % e)
-
     def test_discounts(self):
         self.login()
         create = Organisation.objects.create
@@ -1494,6 +1458,51 @@ class BillingTestCase(CremeTestCase):
 #        ServiceLine.objects.get(pk=service_line.pk)
 #        CremeEntity.objects.get(pk=ce.id)
 
+
+class BillingDeleteTestCase(_BillingTestCase, CremeTransactionTestCase):
+    def test_delete01(self):
+        self.login()
+        invoice, source, target = self.create_invoice_n_orgas('Invoice001')
+
+        service_line = ServiceLine.objects.create(user=self.user)
+        service_line.related_document = invoice
+
+        invoice.delete()
+        self.assertFalse(Invoice.objects.filter(pk=invoice.pk))
+        self.assertFalse(ServiceLine.objects.filter(pk=service_line.pk))
+
+        try:
+            Organisation.objects.get(pk=source.pk)
+            Organisation.objects.get(pk=target.pk)
+        except Organisation.DoesNotExist, e:
+            self.fail(e)
+
+    def test_delete02(self):#Can't be deleted
+        self.login()
+        invoice, source, target = self.create_invoice_n_orgas('Invoice001')
+
+        service_line = ServiceLine.objects.create(user=self.user)
+        service_line.related_document = invoice
+        rel1 = Relation.objects.get(subject_entity=invoice.id, object_entity=service_line.id)
+
+        #This relation prohibit the deletion of the invoice
+        ce = CremeEntity.objects.create(user=self.user)
+        rel2 = Relation.objects.create(subject_entity=invoice, object_entity=ce, type_id=REL_SUB_HAS, user=self.user)
+
+
+        self.assertRaises(ProtectedError, invoice.delete)
+
+        try:
+            Invoice.objects.get(pk=invoice.pk)
+            Organisation.objects.get(pk=source.pk)
+            Organisation.objects.get(pk=target.pk)
+
+            CremeEntity.objects.get(pk=ce.id)
+            Relation.objects.get(pk=rel2.id)
+
+            ServiceLine.objects.get(pk=service_line.pk)
+            Relation.objects.get(pk=rel1.id)
+        except Exception, e:
+            self.fail("Exception: (%s). Maybe the db doesn't support transaction ?" % e)
+
 #TODO: add tests for other billing document (Quote, SalesOrder, CreditNote), clone on all of this (with Lines)
-
-

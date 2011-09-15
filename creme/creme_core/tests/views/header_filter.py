@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from django.core.serializers.json import simplejson
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
+try:
+    from django.core.serializers.json import simplejson
+    from django.contrib.auth.models import User
+    from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import HeaderFilter, HeaderFilterItem, CremeEntity, RelationType, CustomField
-from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION
-from creme_core.tests.views.base import ViewsTestCase
+    from creme_core.models import HeaderFilter, HeaderFilterItem, CremeEntity, RelationType, CustomField
+    from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION
+    from creme_core.tests.views.base import ViewsTestCase
 
-from persons.models import Contact, Organisation
+    from persons.models import Contact, Organisation
+except Exception, e:
+    print 'Error:', e
 
 
 __all__ = ('HeaderFilterViewsTestCase', )
@@ -128,7 +131,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         self.assertEqual(self.user, hfilter.user)
 
-        hfitems = hfilter.header_filter_items.all()
+        hfitems = hfilter.header_filter_items.order_by('order')
         self.assertEqual(4, len(hfitems))
 
         hfitem = hfitems[0]
@@ -212,7 +215,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         hf = HeaderFilter.objects.get(pk=hf.id)
         self.assertEqual(name, hf.name)
 
-        hfitems = hf.header_filter_items.all()
+        hfitems = hf.header_filter_items.order_by('order')
         self.assertEqual(2,            len(hfitems))
         self.assertEqual('first_name', hfitems[0].name)
         self.assertEqual('last_name',  hfitems[1].name)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,7 @@ from creme_core.utils import jsonify
 
 from products.models import Product, Category, SubCategory
 from products.forms.product import ProductCreateForm
+
 
 @login_required
 @permission_required('products')
@@ -52,4 +53,4 @@ def listview(request):
 @login_required
 def get_subcategories(request, category_id):
     get_object_or_404(Category, pk=category_id)
-    return [[id, name] for id, name in SubCategory.objects.filter(category=category_id).values_list('id', 'name')]
+    return list(SubCategory.objects.filter(category=category_id).order_by('id').values_list('id', 'name'))

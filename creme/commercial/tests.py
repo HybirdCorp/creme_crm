@@ -1,20 +1,23 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime, date
+try:
+    from datetime import datetime, date
 
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import ugettext_lazy as _
+    from django.contrib.auth.models import User
+    from django.contrib.contenttypes.models import ContentType
+    from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import RelationType, Relation, CremePropertyType, CremeProperty, CremeEntity
-from creme_core.tests.base import CremeTestCase
+    from creme_core.models import RelationType, Relation, CremePropertyType, CremeProperty, CremeEntity
+    from creme_core.tests.base import CremeTestCase
 
-from persons.models import Contact, Organisation
+    from persons.models import Contact, Organisation
 
-from opportunities.models import Opportunity, SalesPhase
+    from opportunities.models import Opportunity, SalesPhase
 
-from commercial.models import *
-from commercial.constants import *
+    from commercial.models import *
+    from commercial.constants import *
+except Exception, e:
+    print 'Error:', e
 
 
 class CommercialTestCase(CremeTestCase):
@@ -1340,22 +1343,22 @@ class ActObjectivePatternTestCase(LoggedTestCase):
     def test_add_parent_pattern_component01(self):
         pattern = self._create_pattern()
         comp01 = ActObjectivePatternComponent.objects.create(name='Sent mails', pattern=pattern, success_rate=5)
-        response = self.client.get('/commercial/objective_pattern/component/%s/add_parent' % comp01.id)
-        self.assertEqual(200, response.status_code)
+
+        url = '/commercial/objective_pattern/component/%s/add_parent' % comp01.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
         name = 'Signed opportunities'
         success_rate = 50
-        response = self.client.post('/commercial/objective_pattern/component/%s/add_parent' % comp01.id,
-                                    data={
-                                            'name':         name,
-                                            'success_rate': success_rate,
-                                         }
+        response = self.client.post(url, data={
+                                                'name':         name,
+                                                'success_rate': success_rate,
+                                              }
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
         pattern = ActObjectivePattern.objects.get(pk=pattern.id)
-        components = pattern.components.all()
+        components = pattern.components.order_by('id')
         self.assertEqual(2, len(components))
 
         child = components[0]
@@ -1385,7 +1388,7 @@ class ActObjectivePatternTestCase(LoggedTestCase):
         self.assertEqual(200, response.status_code)
 
         pattern = ActObjectivePattern.objects.get(pk=pattern.id)
-        components = pattern.components.all()
+        components = pattern.components.order_by('id')
         self.assertEqual(3, len(components))
 
         grandpa = components[0]

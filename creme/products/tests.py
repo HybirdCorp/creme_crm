@@ -1,15 +1,19 @@
 # -*- coding: utf-8 -*-
 
-from decimal import Decimal
+try:
+    from decimal import Decimal
 
-from django.core.serializers.json import simplejson
+    from django.core.serializers.json import simplejson
 
-from creme_core import autodiscover
-from creme_core.tests.base import CremeTestCase
-from creme_core.tests.forms import FieldTestCase
+    from creme_core import autodiscover
+    from creme_core.tests.base import CremeTestCase
+    from creme_core.tests.forms import FieldTestCase
 
-from products.models import Category, SubCategory, Product, Service
-from products.forms.product import ProductCategoryField
+    from products.models import Category, SubCategory, Product, Service
+    from products.forms.product import ProductCategoryField
+except Exception, e:
+    print 'Error:', e
+
 
 class ProductCategoryFieldTestCase(FieldTestCase):
     def test_categories(self):
@@ -72,9 +76,7 @@ class ProductCategoryFieldTestCase(FieldTestCase):
         cat21 = SubCategory.objects.create(name='sub21', description='description', category=cat2)
 
         field = ProductCategoryField(categories=[cat1.id])
-
         value = '{"category":"%s","subcategory":"%s"}' % (cat2.id, cat21.id)
-
         self.assertFieldValidationError(ProductCategoryField, 'categorynotallowed', field.clean, value)
 
     # data injection : category doesn't exist
@@ -83,9 +85,7 @@ class ProductCategoryFieldTestCase(FieldTestCase):
         cat11 = SubCategory.objects.create(name='sub11', description='description', category=cat1)
 
         field = ProductCategoryField(categories=[cat1.id, 0])
-
         value = '{"category":"%s","subcategory":"%s"}' % (0, cat11.id)
-
         # same error has unallowed, cause unknown category cannot be in list
         self.assertFieldValidationError(ProductCategoryField, 'categorynotallowed', field.clean, value)
 
@@ -94,9 +94,7 @@ class ProductCategoryFieldTestCase(FieldTestCase):
         cat1 = Category.objects.create(name='cat1', description='description')
 
         field = ProductCategoryField(categories=[cat1.id])
-
         value = '{"category":"%s","subcategory":"%s"}' % (cat1.id, 0)
-
         self.assertFieldValidationError(ProductCategoryField, 'doesnotexist', field.clean, value)
 
     # data injection : use incompatible category/subcategory pair
@@ -107,9 +105,7 @@ class ProductCategoryFieldTestCase(FieldTestCase):
         cat21 = SubCategory.objects.create(name='sub21', description='description', category=cat2)
 
         field = ProductCategoryField(categories=[cat1.id, cat2.id])
-
         value = '{"category":"%s","subcategory":"%s"}' % (cat1.id, cat21.id)
-
         self.assertFieldValidationError(ProductCategoryField, 'subcategorynotallowed', field.clean, value)
 
     def test_clean(self):
@@ -117,10 +113,9 @@ class ProductCategoryFieldTestCase(FieldTestCase):
         cat11 = SubCategory.objects.create(name='sub11', description='description', category=cat1)
 
         field = ProductCategoryField(categories=[cat1.id])
-
         value = '{"category":"%s","subcategory":"%s"}' % (cat1.id, cat11.id);
-
         self.assertEquals(cat11, field.clean(value))
+
 
 class ProductsTestCase(CremeTestCase):
     def setUp(self):
@@ -161,10 +156,9 @@ class ProductsTestCase(CremeTestCase):
         response = self.client.get('/products/sub_category/%s/json' % cat.id)
         self.assertEqual(200, response.status_code)
 
-        content = simplejson.loads(response.content)
-
-        self.assertEqual(content, [[subcat1.id, name1],
-                                   [subcat2.id, name2]])
+        self.assertEqual([[subcat1.id, name1], [subcat2.id, name2]],
+                         simplejson.loads(response.content)
+                        )
 
     def test_product_createview(self):
         self.login()
