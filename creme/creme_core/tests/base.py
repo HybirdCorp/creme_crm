@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
@@ -8,7 +8,7 @@ from creme_core.models import UserRole, RelationType, CremePropertyType
 from creme_core.management.commands.creme_populate import Command as PopulateCommand
 
 
-class CremeTestCase(TestCase):
+class _CremeTestCase(object):
     def login(self, is_superuser=True, allowed_apps=('creme_core',), creatable_models=None):
         password = 'test'
 
@@ -77,3 +77,8 @@ class CremeTestCase(TestCase):
                          set(pt.subject_ctypes.values_list('id', flat=True))
                         )
         return pt
+
+
+class CremeTestCase(_CremeTestCase, TestCase): pass
+
+class CremeTransactionTestCase(_CremeTestCase, TransactionTestCase): pass

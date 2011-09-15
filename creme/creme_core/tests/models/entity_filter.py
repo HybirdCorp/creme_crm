@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 
-from datetime import date
-from logging import info
+try:
+    from datetime import date
+    from logging import info
 
-from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
+    from django.utils.translation import ugettext as _
+    from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import *
-from creme_core.models.header_filter import *
-from creme_core.tests.base import CremeTestCase
+    from creme_core.models import *
+    from creme_core.models.header_filter import *
+    from creme_core.tests.base import CremeTestCase
 
-from persons.models import Contact, Organisation, Civility
+    from persons.models import Contact, Organisation, Civility
+except Exception, e:
+    print 'Error:', e
 
 
 __all__ = ('EntityFiltersTestCase',)
@@ -489,7 +492,7 @@ class EntityFiltersTestCase(CremeTestCase):
         EntityFilter.create('test-filter02', 'Faye', Contact) \
                     .set_conditions([build(model=Contact, operator=EntityFilterCondition.EQUALS, name='first_name', values=['Faye'])])
 
-        conditions = efilter.conditions.all()
+        conditions = efilter.conditions.order_by('id')
         self.assertEqual(2, len(conditions))
 
         for kwargs, condition in zip([kwargs1, kwargs2], conditions):

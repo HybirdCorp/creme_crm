@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from functools import partial
 from itertools import chain
 
@@ -96,7 +97,6 @@ class Field(CremeModel):
             cols.append(field)
         return cols
 
-
     def get_children_fields_with_hierarchy(self):
         """
             @return: A "hierarchical" dict in the format :
@@ -129,15 +129,17 @@ class Field(CremeModel):
              'field': <Field: self>,
              'report': <Report: self.report>}
         """
-        field_dict = {'field' : self, 'children' : [], 'report' : None}
+        field_dict = {'field': self, 'children': [], 'report': None}
         report = self.report
+
         if report:
-            fields = report.columns.all().order_by('order')
+            fields = report.columns.order_by('order')
             field_dict['children'] = [field.get_children_fields_with_hierarchy() for field in fields]
             field_dict['report'] = report
 
         return field_dict
 
+    #TODO: map of functions instead of if.. elif.. elif ... ???
     def get_value(self, entity=None, selected=None, query=None, user=None):
         column_type = self.type
         column_name = self.name
@@ -145,9 +147,10 @@ class Field(CremeModel):
         selected = selected or self.selected
         empty_value = u""
         HIDDEN_VALUE = settings.HIDDEN_VALUE
-        check_user = user is not None and not user.is_superuser#Don't check for superuser
+        check_user = user is not None and not user.is_superuser #Don't check for superuser
 
         if column_type == HFI_FIELD:
+            #TODO: factorise "entity is None"
             if entity is None and report and selected:
                 return FkClass([empty_value for c in report.columns.all()])#Only fk requires a multi-padding
             elif entity is None:
@@ -217,6 +220,7 @@ class Field(CremeModel):
         elif column_type == HFI_RELATION:
             related_entities = entity.get_related_entities(column_name, True) if entity is not None else []
 
+            #TODO: factorise "if report"
             if report and selected:#TODO: Apply self.report filter AND/OR filter_entities_on_ct(related_entities, ct) ?
 #                scope = related_entities
                 scope = filter_entities_on_ct(related_entities, report.ct)
@@ -511,9 +515,9 @@ class Report(CremeEntity):
     @staticmethod
     def get_related_fields_choices(model):
         allowed_related_fields = model.allowed_related
-
         related_fields = chain(model._meta.get_all_related_objects(), model._meta.get_all_related_many_to_many_objects())
 
         return [(related_field.var_name, unicode(related_field.model._meta.verbose_name))
-                for related_field in related_fields
-                if related_field.var_name in allowed_related_fields]
+                    for related_field in related_fields
+                        if related_field.var_name in allowed_related_fields
+               ]

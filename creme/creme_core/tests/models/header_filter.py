@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
 
-#from datetime import date
+try:
+    from django.utils.translation import ugettext as _
+    from django.contrib.contenttypes.models import ContentType
 
-from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
+    from creme_core.models import CustomField, CustomFieldEnumValue
+    from creme_core.models.header_filter import *
+    from creme_core.tests.base import CremeTestCase
 
-from creme_core.models import *
-from creme_core.models.header_filter import *
-from creme_core.tests.base import CremeTestCase
-
-from persons.models import Contact, Organisation
+    from persons.models import Contact, Organisation
+except Exception, e:
+    print 'Error:', e
 
 
 __all__ = ('HeaderFiltersTestCase',)
@@ -198,7 +199,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         loves_id = loves.id
         loves.delete()
         self.assertEqual(0, RelationType.objects.filter(pk=loves_id).count())
-        self.assertEqual([hfi01.id, hfi04.id], [hfi.id for hfi in hf.header_filter_items.all()])
+        self.assertEqual([hfi01.id, hfi04.id], [hfi.id for hfi in hf.header_filter_items.order_by('order')])
 
     def test_delete_customfield(self):
         self.login()
@@ -215,4 +216,4 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual(3, hf.header_filter_items.count())
 
         custom_field01.delete()
-        self.assertEqual([hfi01.id, hfi03.id], [hfi.id for hfi in hf.header_filter_items.all()])
+        self.assertEqual([hfi01.id, hfi03.id], [hfi.id for hfi in hf.header_filter_items.order_by('order')])

@@ -1,34 +1,33 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime, date
-from itertools import chain
-from decimal import Decimal
+try:
+    from datetime import datetime, date
+    from itertools import chain
+    from decimal import Decimal
 
-from django.contrib.contenttypes.models import ContentType
-from django.db.models.query_utils import Q
-from django.utils.datastructures import SortedDict as OrderedDict
-from django.utils.translation import ugettext as _
+    from django.contrib.contenttypes.models import ContentType
+    from django.db.models.query_utils import Q
+    from django.utils.datastructures import SortedDict as OrderedDict
+    from django.utils.translation import ugettext as _
 
-from billing.constants import REL_OBJ_BILL_ISSUED, REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-from billing.models.invoice import Invoice
-from billing.models.other_models import InvoiceStatus
-from billing.models.product_line import ProductLine
+    from creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation, Language
+    from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CALCULATED
+    from creme_core.constants import REL_SUB_HAS, PROP_IS_MANAGED_BY_CREME
+    from creme_core.tests.base import CremeTestCase
+    from creme_core.utils.meta import get_verbose_field_name, get_field_infos
 
-from creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation
-from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CALCULATED
-from creme_core.constants import REL_SUB_HAS, PROP_IS_MANAGED_BY_CREME
-from creme_core.models.i18n import Language
-from creme_core.tests.base import CremeTestCase
-from creme_core.utils.meta import get_verbose_field_name, get_field_infos
+    from billing.models import Invoice, InvoiceStatus, ProductLine
+    from billing.constants import REL_OBJ_BILL_ISSUED, REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
-from opportunities.constants import REL_SUB_EMIT_ORGA
-from opportunities.models.opportunity import Opportunity, SalesPhase
+    from opportunities.models import Opportunity, SalesPhase
+    from opportunities.constants import REL_SUB_EMIT_ORGA
 
-from persons.constants import REL_SUB_EMPLOYED_BY, REL_OBJ_CUSTOMER_SUPPLIER, REL_SUB_CUSTOMER_SUPPLIER
-from persons.models import Contact, Organisation
-from persons.models.other_models import LegalForm
+    from persons.models import Contact, Organisation, LegalForm
+    from persons.constants import REL_SUB_EMPLOYED_BY, REL_OBJ_CUSTOMER_SUPPLIER, REL_SUB_CUSTOMER_SUPPLIER
 
-from reports.models import *
+    from reports.models import *
+except Exception, e:
+    print 'Error:', e
 
 
 class ReportsTestCase(CremeTestCase):
@@ -85,7 +84,7 @@ class ReportsTestCase(CremeTestCase):
     def create_simple_report(self, name):
         ct = ContentType.objects.get_for_model(Contact)
         report = Report.objects.create(name=name, ct=ct, user=self.user)
-        field_id=Field.objects.create(name=u'id', title=u'Id', order=1, type=HFI_FIELD)
+        field_id = sField.objects.create(name=u'id', title=u'Id', order=1, type=HFI_FIELD)
         report.columns.add(field_id)
         return report
 
@@ -275,8 +274,9 @@ class ReportsTestCase(CremeTestCase):
 
     def test_get_predicates_choices_4_ct(self):
         response = self.client.post('/reports/get_predicates_choices_4_ct', data={'ct_id': ContentType.objects.get_for_model(Report).id})
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
 
+    #TODO: fr -> en
     def _setUp_big_report(self):
         ct_invoice     = ContentType.objects.get_for_model(Invoice)
         ct_orga        = ContentType.objects.get_for_model(Organisation)
@@ -291,6 +291,7 @@ class ReportsTestCase(CremeTestCase):
             {"name": "closing_date", "title": "Date de signature r\u00e9elle", "selected": False, "report": None, "type": HFI_FIELD, "order": 3},
         ]
         opp_fields = [Field.objects.create(**d) for d in opp_fields_data]
+        #TODO WTF ???
         report_opp = self.report_opp = Report.objects.create(**{"filter": None, "name": "Rapport des opportunit\u00e9s", "ct": ct_opportunity, "user": user})
         report_opp.columns = opp_fields
 
@@ -334,8 +335,7 @@ class ReportsTestCase(CremeTestCase):
     def _setUp_data_for_big_report(self):
         now = datetime.now()
         managed_by_creme = CremePropertyType.objects.get(pk=PROP_IS_MANAGED_BY_CREME)
-
-        user=self.user
+        user = self.user
 
         #Organisations
         self.nintendo_lf = LegalForm.objects.get_or_create(title=u"Nintendo SA")[0]
@@ -366,24 +366,25 @@ class ReportsTestCase(CremeTestCase):
         Relation.objects.create(subject_entity=self.crash, object_entity=self.sony, type_id=REL_SUB_EMPLOYED_BY, user=user)
 
         self.issuing_date = now.date()
+
         #Invoices
+        # TODO: improve billing to make this code simpler
         def create_invoice(source, target, name="", total_vat=Decimal("0")):
             self.invoice_status = InvoiceStatus.objects.get_or_create(name=_(u"Draft"))[0]
             invoice = Invoice.objects.create(user=user, status=self.invoice_status, issuing_date=self.issuing_date, name=name, total_vat=total_vat)
 #            invoice._productlines_cache = [ProductLine(quantity=Decimal("1"), unit_price=total_vat)]
 
-            pl=ProductLine(quantity=Decimal("1"), unit_price=total_vat, user=user, vat=Decimal("0"))
-            pl.save()
+            pl = ProductLine.objects.create(quantity=Decimal("1"), unit_price=total_vat, user=user, vat=Decimal("0"))
             pl.related_document = invoice
+            #TODO: pl = ProductLine.objects.create(related_document=invoice, quantity=Decimal("1"), unit_price=total_vat, user=user, vat=Decimal("0"))
             invoice._productlines_cache = [pl]
             invoice.save()
 
             Relation.objects.create(subject_entity=invoice,
-                            type_id=REL_SUB_BILL_ISSUED,
-                            object_entity=source,
-                            user=user
-                           )
-
+                                    type_id=REL_SUB_BILL_ISSUED,
+                                    object_entity=source,
+                                    user=user
+                                   )
             Relation.objects.create(subject_entity=invoice,
                                     type_id=REL_SUB_BILL_RECEIVED,
                                     object_entity=target,
@@ -392,13 +393,12 @@ class ReportsTestCase(CremeTestCase):
             return invoice
 
         self.invoices = {
-            self.nintendo.pk: [
-                create_invoice(self.nintendo, self.virgin, name="Invoice 1", total_vat=Decimal("10")),
-                create_invoice(self.nintendo, self.sega,   name="Invoice 2", total_vat=Decimal("2")),
-            ],
-            self.virgin.pk: [],
-            self.sega.pk:   [],
-            self.sony.pk:   [],
+            self.nintendo.pk: [create_invoice(self.nintendo, self.virgin, name="Invoice 1", total_vat=Decimal("10")),
+                               create_invoice(self.nintendo, self.sega,   name="Invoice 2", total_vat=Decimal("2")),
+                              ],
+            self.virgin.pk:   [],
+            self.sega.pk:     [],
+            self.sony.pk:     [],
         }
 
         def _create_opportunity(name="", reference=""):
@@ -407,7 +407,6 @@ class ReportsTestCase(CremeTestCase):
             return Opportunity.objects.create(user=user, sales_phase=sales_phase, name=name, reference=reference, closing_date=self.closing_date)
 
         self.create_opportunity = create_opportunity = _create_opportunity
-
         self.opportunities = [create_opportunity(name="Opportunity %s" % i, reference=i) for i in xrange(1, 11)]
 
     def test_big_report_fetch01(self):
@@ -418,62 +417,66 @@ class ReportsTestCase(CremeTestCase):
 
         targeted_organisations = [self.nintendo, self.sega, self.virgin, self.sony]
         targeted_contacts      = [self.crash, self.sonic, self.mario, self.luigi]
-#        targeted_contacts      = [self.crash, ]#Temp
 
         #Target only own created organisations
-        Organisation.objects.filter(~Q(id__in=[o.id for o in targeted_organisations])).delete()
-        Contact.objects.filter(~Q(id__in=[c.id for c in targeted_contacts])).delete()
+        Organisation.objects.exclude(id__in=[o.id for o in targeted_organisations]).delete()
+        Contact.objects.exclude(id__in=[c.id for c in targeted_contacts]).delete()
 
         #Test opportunities report
-        report_opp = self.report_opp
         ##Headers
-        self.assertEqual(set([u'name', u'reference', u'closing_date']), set(f.name for f in report_opp.get_children_fields_flat()))
+        self.assertEqual(set([u'name', u'reference', u'closing_date']),
+                         set(f.name for f in self.report_opp.get_children_fields_flat())
+                        )
         ##Data
-        self.assertEqual([[u"Opportunity %s" % i, u"%s" % i, unicode(self.closing_date)] for i in xrange(1, 11)], report_opp.fetch_all_lines(user=user))
+        self.assertEqual([[u"Opportunity %s" % i, u"%s" % i, unicode(self.closing_date)] for i in xrange(1, 11)],
+                         self.report_opp.fetch_all_lines(user=user)
+                        )
 
         #Test invoices report
-        report_invoice = self.report_invoice
         ##Headers
         invoice_headers = ["name",  "issuing_date", "status__name", "total_vat__sum"]
-        self.assertEqual(invoice_headers, list(f.name for f in report_invoice.get_children_fields_flat()))
+        self.assertEqual(invoice_headers, list(f.name for f in self.report_invoice.get_children_fields_flat()))
 
         nintendo_invoice_1 = [u"Invoice 1", unicode(self.issuing_date), unicode(self.invoice_status.name), Decimal("12.00")]
         nintendo_invoice_2 = [u"Invoice 2", unicode(self.issuing_date), unicode(self.invoice_status.name), Decimal("12.00")]
-
-        invoice_data = [
-            nintendo_invoice_1,
-            nintendo_invoice_2,
-        ]
-        self.assertEqual(invoice_data, report_invoice.fetch_all_lines(user=user))
+        self.assertEqual([nintendo_invoice_1, nintendo_invoice_2],
+                         self.report_invoice.fetch_all_lines(user=user)
+                        )
 
         #Test organisations report
         ##Headers
         ##REL_OBJ_BILL_ISSUED replaced by invoice_headers because of explosion of subreport
-        report_orga = self.report_orga
-        orga_headers = list(chain([u"name", u"user__username", u"legal_form__title"], invoice_headers, [REL_OBJ_CUSTOMER_SUPPLIER, REL_SUB_EMIT_ORGA, u"capital__min", u'get_pretty_properties']))
-        self.assertEqual(orga_headers, list(f.name for f in report_orga.get_children_fields_flat()))
+        orga_headers = list(chain([u"name", u"user__username", u"legal_form__title"],
+                                  invoice_headers,
+                                  [REL_OBJ_CUSTOMER_SUPPLIER, REL_SUB_EMIT_ORGA, u"capital__min", u'get_pretty_properties']
+                                 )
+                           )
+        self.assertEqual(orga_headers, list(f.name for f in self.report_orga.get_children_fields_flat()))
 
         Relation.objects.create(subject_entity=self.nintendo,
-            type_id=REL_OBJ_CUSTOMER_SUPPLIER,
-            object_entity=self.sony,
-            user=user
-        )
-
+                                type_id=REL_OBJ_CUSTOMER_SUPPLIER,
+                                object_entity=self.sony,
+                                user=user
+                               )
         Relation.objects.create(subject_entity=self.nintendo,
-            type_id=REL_OBJ_CUSTOMER_SUPPLIER,
-            object_entity=self.sega,
-            user=user
-        )
+                                type_id=REL_OBJ_CUSTOMER_SUPPLIER,
+                                object_entity=self.sega,
+                                user=user
+                               )
 
         opportunity_nintendo_1 = self.create_opportunity(name="Opportunity nintendo 1", reference=u"1.1")
         Relation.objects.create(subject_entity=self.nintendo,
-            type_id=REL_SUB_EMIT_ORGA,
-            object_entity=opportunity_nintendo_1,
-            user=user
-        )
+                                type_id=REL_SUB_EMIT_ORGA,
+                                object_entity=opportunity_nintendo_1,
+                                user=user
+                               )
 
-        opp_nintendo_values = " - ".join([u"%s: %s" % (get_verbose_field_name(model=Opportunity, separator="-", field_name=field_name), get_field_infos(opportunity_nintendo_1, field_name)[1]) for field_name in [u'name', u'reference', u'closing_date']])
-        min_capital = min([o.capital for o in targeted_organisations])
+        opp_nintendo_values = " - ".join(u"%s: %s" % (get_verbose_field_name(model=Opportunity, separator="-", field_name=field_name),
+                                                      get_field_infos(opportunity_nintendo_1, field_name)[1]
+                                                     )
+                                           for field_name in [u'name', u'reference', u'closing_date']
+                                        )
+        min_capital = min(o.capital for o in targeted_organisations)
 
         ##Data
         nintendo = self.nintendo
@@ -488,15 +491,15 @@ class ReportsTestCase(CremeTestCase):
             ("sony",              list(chain([sony.name,     unicode(sony.user.username),     self.sony_lf.title],     [u"" for i in nintendo_invoice_2], [u"",                                        u""],               [min_capital, sony.get_pretty_properties()]))),
             ("virgin",            list(chain([virgin.name,   unicode(virgin.user.username),   self.virgin_lf.title],   [u"" for i in nintendo_invoice_2], [u"",                                        u""],               [min_capital, virgin.get_pretty_properties()]))),
         ])
-        self.assertEqual(orga_data.values(), report_orga.fetch_all_lines(user=user))
+        self.assertEqual(orga_data.values(), self.report_orga.fetch_all_lines(user=user))
 
         #Test contacts report
         ##Headers
-        report_contact  = self.report_contact
-        contact_headers = list(chain(["last_name", "first_name", "language__name"], orga_headers))
-        self.assertEqual(contact_headers, list(f.name for f in report_contact.get_children_fields_flat()))
+        self.assertEqual(list(chain(["last_name", "first_name", "language__name"], orga_headers)),
+                         list(f.name for f in self.report_contact.get_children_fields_flat())
+                        )
 
-        self.maxDiff = None
+        #self.maxDiff = None
 
         ##Data
         crash = self.crash
@@ -504,15 +507,15 @@ class ReportsTestCase(CremeTestCase):
         mario = self.mario
         sonic = self.sonic
 
-        contact_data = [
-            list(chain([crash.last_name, crash.first_name, u""], orga_data['sony'])),
-            list(chain([luigi.last_name, luigi.first_name, u""], orga_data['nintendo_invoice1'])),
-            list(chain([luigi.last_name, luigi.first_name, u""], orga_data['nintendo_invoice2'])),
-            list(chain([mario.last_name, mario.first_name, u", ".join(mario.language.values_list("name", flat=True))], orga_data['nintendo_invoice1'])),
-            list(chain([mario.last_name, mario.first_name, u", ".join(mario.language.values_list("name", flat=True))], orga_data['nintendo_invoice2'])),
-            list(chain([sonic.last_name, sonic.first_name, u""], orga_data['sega'])),
-        ]
-        self.assertEqual(contact_data, report_contact.fetch_all_lines())
+        self.assertEqual([list(chain([crash.last_name, crash.first_name, u""], orga_data['sony'])),
+                          list(chain([luigi.last_name, luigi.first_name, u""], orga_data['nintendo_invoice1'])),
+                          list(chain([luigi.last_name, luigi.first_name, u""], orga_data['nintendo_invoice2'])),
+                          list(chain([mario.last_name, mario.first_name, u", ".join(mario.language.values_list("name", flat=True))], orga_data['nintendo_invoice1'])),
+                          list(chain([mario.last_name, mario.first_name, u", ".join(mario.language.values_list("name", flat=True))], orga_data['nintendo_invoice2'])),
+                          list(chain([sonic.last_name, sonic.first_name, u""], orga_data['sega'])),
+                        ],
+                       self.report_contact.fetch_all_lines()
+                      )
 
         #TODO: test HFI_RELATED, HFI_CUSTOM
 
