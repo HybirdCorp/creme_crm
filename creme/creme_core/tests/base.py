@@ -33,7 +33,7 @@ class _CremeTestCase(object):
                                      (basic_user, superuser)
 
         logged = self.client.login(username=self.user.username, password=password)
-        self.assert_(logged, 'Not logged in')
+        self.assertTrue(logged, 'Not logged in')
 
     def populate(self, *args):
         PopulateCommand().handle(application=args)

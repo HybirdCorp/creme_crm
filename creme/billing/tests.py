@@ -1433,6 +1433,7 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
                                                   discount_unit=AMOUNT_PK, total_discount=True,
                                                   vat=Decimal('19.60'))
 
+        #TODO: use 'related_document' ??
         Relation.objects.create(subject_entity=invoice, object_entity=product_line, type_id=REL_SUB_HAS_LINE, user=self.user)
         Relation.objects.create(subject_entity=invoice, object_entity=service_line, type_id=REL_SUB_HAS_LINE, user=self.user)
 
@@ -1488,7 +1489,6 @@ class BillingDeleteTestCase(_BillingTestCase, CremeTransactionTestCase):
         #This relation prohibit the deletion of the invoice
         ce = CremeEntity.objects.create(user=self.user)
         rel2 = Relation.objects.create(subject_entity=invoice, object_entity=ce, type_id=REL_SUB_HAS, user=self.user)
-
 
         self.assertRaises(ProtectedError, invoice.delete)
 
