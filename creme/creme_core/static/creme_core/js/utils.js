@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2010  Hybird
+    Copyright (C) 2009-2011  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -648,19 +648,29 @@ creme.utils.submitNReload = function(form, reload_url, options) {
     creme.ajax.submit(form, true, options);
 }
 
-creme.utils.handleResearch = function(url, target_node_id, scope) {
-    var _data = {};
-    $(scope.targets).each(function() {
-       _data[this] = $('[name='+this+']', scope.from).val();
-    });
+creme.utils.handleResearch = function(target_node_id, from) {
+    var research =  $('[name=research]', from).val();
+    var _data = {'ct_id':    $('[name=ct_id]', from).val(),
+                 'research': research
+                };
 
     $.ajax({
-        url: url,
+        url: '/creme_core/search',
         type: 'POST',
         data: _data,
         dataType: 'html',
         success: function(data, status, req) {
             $('#' + target_node_id).html(data);
+
+            //highlight the word that we are searching
+            research = research.toLowerCase();
+            $('div.result').find("td, td *")
+                           .contents()
+                           .filter(function() {
+                                    if(this.nodeType != Node.TEXT_NODE) return false;
+                                    return this.textContent.toLowerCase().indexOf(research) >= 0;
+                                })
+                           .wrap($('<mark/>'));
         },
         error: function(req, status, errorThrown) {
         },
@@ -668,12 +678,6 @@ creme.utils.handleResearch = function(url, target_node_id, scope) {
             document.title = gettext("Search results...");
         }
     });
-}
-
-creme.utils.handleResearchKd = function(e, url, target_node_id, scope) {
-    if (e.keyCode == '13'){
-        creme.utils.handleResearch(url, target_node_id, scope);
-    }
 }
 
 creme.utils.handleQuickForms = function(url, $scope_from, targets) {

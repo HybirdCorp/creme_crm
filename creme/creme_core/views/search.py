@@ -104,12 +104,12 @@ def search(request):
                                                              .filter(_build_q_research(model, research, fields))
                                                              .distinct()
                                       )
-            total   += len(entities)
+            total += len(entities)
 
             results.append({
-                'model'   : model,
-                'fields'  : fields,
-                'entities' : entities
+                'model':    model,
+                'fields':   fields,
+                'entities': entities
             })
 
     t_ctx['total'] = total
