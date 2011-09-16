@@ -311,7 +311,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assert_(efilter.is_custom)
         self.assert_(efilter.user is None)
 
-        conditions = efilter.conditions.all()
+        conditions = efilter.conditions.order_by('id')
         self.assertEqual(8, len(conditions))
         iter_conds = iter(conditions)
 
