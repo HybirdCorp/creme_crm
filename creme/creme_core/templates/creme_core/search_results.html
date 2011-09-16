@@ -22,7 +22,7 @@
                     <td><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span></td>
                     <td>
                         {% if research %}{% trans 'Your search : ' %}{{research}}<br/>{% endif %}
-                        {% if models %}{% trans 'Concerned types : ' %}{{models|join:","}}<br/>{% endif %}
+                        {% if models %}{% trans 'Concerned types : ' %}{{models|join:", "}}<br/>{% endif %}
                     </td>
                 </tr>
             </table>
@@ -73,6 +73,5 @@
             {% endif %}
         {% endwith %}
     {% endfor %}
-
 {% comment %}{% endblock %}{% endcomment %}
 </div>
