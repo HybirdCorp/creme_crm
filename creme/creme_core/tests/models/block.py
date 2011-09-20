@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User
+try:
+    from django.contrib.contenttypes.models import ContentType
+    from django.contrib.auth.models import User
 
-from creme_core.models import BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation
-from creme_core.blocks import relations_block, properties_block, history_block
-from creme_core.tests.base import CremeTestCase
+    from creme_core.models import BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation
+    from creme_core.blocks import relations_block, properties_block, customfields_block, history_block
+    from creme_core.tests.base import CremeTestCase
 
-from persons.models import Contact, Organisation
+    from persons.models import Contact, Organisation
+except Exception, e:
+    print 'Error:', e
 
 
 __all__ = ('BlockTestCase',)
@@ -17,7 +20,7 @@ class BlockTestCase(CremeTestCase):
     def test_populate(self):
         self.populate('creme_core')
 
-        self.assertEqual(set([relations_block.id_, properties_block.id_, history_block.id_]),
+        self.assertEqual(set(['modelblock', customfields_block.id_, relations_block.id_, properties_block.id_, history_block.id_]),
                          set(loc.block_id for loc in BlockDetailviewLocation.objects.all())
                         )
         self.assertEqual([history_block.id_], [loc.block_id for loc in BlockPortalLocation.objects.filter(app_name='')])
