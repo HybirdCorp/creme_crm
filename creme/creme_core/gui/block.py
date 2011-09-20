@@ -345,11 +345,11 @@ class BlocksManager(object):
         if self._dep_solving_mode:
             raise BlocksManager.Error("Can't add block to manager after dependence resolution is done.")
 
-        self._blocks.extend(blocks)
-
         group = self._blocks_groups[group_name]
         if group:
             raise BlocksManager.Error("This block's group name already exists: %s" % group_name)
+
+        self._blocks.extend(blocks)
         group.extend(blocks)
 
         dep_map = self._dependencies_map
