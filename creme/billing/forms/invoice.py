@@ -22,6 +22,7 @@ from billing.constants import DEFAULT_DRAFT_INVOICE_STATUS
 from billing.models import Invoice, InvoiceStatus
 from base import BaseCreateForm, BaseEditForm
 
+from persons.workflow import transform_target_into_customer
 
 class InvoiceCreateForm(BaseCreateForm):
     class Meta:
@@ -33,6 +34,11 @@ class InvoiceCreateForm(BaseCreateForm):
 
         self.fields['status'].queryset = InvoiceStatus.objects.filter(pk=DEFAULT_DRAFT_INVOICE_STATUS)
 
+    def save(self):
+        instance = super(InvoiceCreateForm, self).save()
+        cleaned_data = self.cleaned_data
+        transform_target_into_customer(cleaned_data['source'],cleaned_data['target'],instance.user)
+        return instance
 
 class InvoiceEditForm(BaseEditForm):
     class Meta:

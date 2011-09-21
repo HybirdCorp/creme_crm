@@ -162,7 +162,7 @@ INSTALLED_DJANGO_APPS = (
 
     #EXTERNAL APPS
     'mediagenerator', #It manages js/css/images
-    'south',          #It manages DB migrations
+    #'south',          #It manages DB migrations
 )
 
 INSTALLED_CREME_APPS = (

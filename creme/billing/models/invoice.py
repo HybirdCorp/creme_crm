@@ -25,6 +25,7 @@ from base import Base
 from other_models import InvoiceStatus, SettlementTerms
 from product_line import ProductLine
 from service_line import ServiceLine
+from persons.workflow import transform_target_into_customer
 
 
 class Invoice(Base):
@@ -97,5 +98,8 @@ class Invoice(Base):
     def build(self, template):
         # Specific recurrent generation rules
         self.status = InvoiceStatus.objects.get(pk=template.status_id) #TODO: "self.status_id = template.status_id" instead ???
-        return super(Invoice, self).build(template)
+        invoice = super(Invoice, self).build(template)
+        transform_target_into_customer(invoice.get_source(),invoice.get_target(),invoice.user)
+        return invoice
+
 
