@@ -31,6 +31,8 @@ from creme_core.views.generic import add_entity, add_model_with_popup, edit_enti
 from creme_core.utils import get_ct_or_404
 
 from persons.models import Organisation
+from persons.workflow import transform_target_into_customer, transform_target_into_prospect
+
 
 from billing.models import Quote, Invoice, SalesOrder
 from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
@@ -96,6 +98,12 @@ _CURRENT_DOC_DICT = {
             SalesOrder: False
         }
 
+_WORKFLOW_DICT = {
+            Quote:      transform_target_into_prospect,
+            Invoice:    transform_target_into_customer,
+            SalesOrder: None
+        }
+
 @login_required
 @permission_required('opportunities')
 def generate_new_doc(request, opp_id, ct_id):
@@ -137,6 +145,10 @@ def generate_new_doc(request, opp_id, ct_id):
 
     if _CURRENT_DOC_DICT[klass]:
         create_relation(subject_entity=document, type_id=REL_SUB_CURRENT_DOC, object_entity=opp, user=user)
+
+    workflow_action = _WORKFLOW_DICT[klass]
+    if workflow_action:
+        workflow_action(opp.get_emit_orga(), opp.get_target(), user)
 
     if request.is_ajax():
         return HttpResponse("", mimetype="text/javascript")

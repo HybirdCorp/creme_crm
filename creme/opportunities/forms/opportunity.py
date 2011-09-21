@@ -25,6 +25,7 @@ from creme_core.forms import CremeEntityForm, CremeDateTimeField, GenericEntityF
 from creme_core.forms.validators import validate_linkable_entity
 
 from persons.models import Organisation, Contact
+from persons.workflow import transform_target_into_prospect
 
 from opportunities.models import Opportunity
 
@@ -63,6 +64,7 @@ class OpportunityCreateForm(OpportunityEditForm):
         cleaned_data = self.cleaned_data
         instance.link_to_target(cleaned_data['target'])
         instance.link_to_emit_orga(cleaned_data['emit_orga'])
+        transform_target_into_prospect(cleaned_data['emit_orga'],cleaned_data['target'],instance.user)
 
         form_post_save.send(sender=Opportunity, instance=instance, created=created)
 

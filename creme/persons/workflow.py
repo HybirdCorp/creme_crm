@@ -1,0 +1,38 @@
+# -*- coding: utf-8 -*-
+
+################################################################################
+#    Creme is a free/open-source Customer Relationship Management software
+#    Copyright (C) 2009-2011  Hybird
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+################################################################################
+
+from creme_core.models import Relation
+from constants import REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
+
+def transform_target_into_prospect(source,target,user):
+    """Transform the target into a source prospect. Use REL_SUB_PROSPECT for it. Be careful source is subject of
+    REL_SUB_PROSPECT relation and source is object of relation """
+    if  Relation.objects.filter(subject_entity=target, type=REL_SUB_PROSPECT, object_entity=source).count() == 0 :
+        Relation.objects.create(subject_entity=target, type_id=REL_SUB_PROSPECT,
+                                object_entity=source, user=user )
+
+
+def transform_target_into_customer(source,target,user):
+    """Transform the target into a source customer. Use REL_SUB_CUSTOMER_SUPPLIER for it. Be careful source is subject of
+    REL_SUB_CUSTOMER_SUPPLIER relation and source is object of relation """
+
+    if  Relation.objects.filter(subject_entity=target, type=REL_SUB_CUSTOMER_SUPPLIER, object_entity=source).count() == 0 :
+        Relation.objects.create(subject_entity=target, type_id=REL_SUB_CUSTOMER_SUPPLIER,
+                                object_entity=source, user=user )
