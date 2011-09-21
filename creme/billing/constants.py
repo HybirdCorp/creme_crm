@@ -26,10 +26,10 @@ DEFAULT_INVOICE_STATUS = 2
 
 DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA = 'billing-display_payment_info_only_creme_orga'
 
-PERCENT_PK  = 1
+PERCENT_PK = 1
 AMOUNT_PK  = 2
 
-DISCOUNT_UNIT = {
-                PERCENT_PK: _(u"Percent"),
-                AMOUNT_PK: _(u"Amount"),
-              }
+DISCOUNT_UNIT = {PERCENT_PK: _(u"Percent"),
+                 AMOUNT_PK:  _(u"Amount"),
+                }
+
