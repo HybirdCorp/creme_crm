@@ -24,7 +24,8 @@ from django.utils.translation import ugettext as _
 from django.conf import settings
 
 from creme_core.models import (RelationType, BlockDetailviewLocation, BlockPortalLocation,
-                               ButtonMenuItem, SearchConfigItem, SearchField, HeaderFilterItem, HeaderFilter)
+                               ButtonMenuItem, SearchConfigItem, HeaderFilterItem, HeaderFilter,
+                               EntityFilterCondition, EntityFilter)
 from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme_core.utils import create_or_update as create
 from creme_core.management.commands.creme_populate import BasePopulator
@@ -78,8 +79,8 @@ class Populator(BasePopulator):
 
         create(SalesPhase, 1, name=_(u"Forthcoming"),       description="...")
         create(SalesPhase, 2, name=_(u"Abandoned"),         description="...")
-        create(SalesPhase, 3, name=_(u"Won"),               description="...")
-        create(SalesPhase, 4, name=_(u"Lost"),              description="...")
+        won = create(SalesPhase, 3, name=_(u"Won"),               description="...")
+        lost = create(SalesPhase, 4, name=_(u"Lost"),              description="...")
         create(SalesPhase, 5, name=_(u"Under negotiation"), description="...")
         create(SalesPhase, 6, name=_(u"In progress"),       description="...")
 
@@ -93,13 +94,31 @@ class Populator(BasePopulator):
         create(Origin, 8, name=_(u"Partner"),          description="...")
         create(Origin, 9, name=_(u"Other"),            description="...")
 
+#        hf = HeaderFilter.create(pk='opportunities-hf', name=_(u'Opportunity view'), model=Opportunity)
+#        hf.set_items([HeaderFilterItem.build_4_field(model=Opportunity, name='name'),
+#                      HeaderFilterItem.build_4_field(model=Opportunity, name='reference'),
+#                      HeaderFilterItem.build_4_field(model=Opportunity, name='sales_phase__name'),
+#                      HeaderFilterItem.build_4_field(model=Opportunity, name='closing_date'),
+#                      HeaderFilterItem.build_4_relation(rtype=RelationType.objects.get(pk=REL_SUB_TARGETS)), #TODO: use a variable ??
+#                     ])
+
         hf = HeaderFilter.create(pk='opportunities-hf', name=_(u'Opportunity view'), model=Opportunity)
         hf.set_items([HeaderFilterItem.build_4_field(model=Opportunity, name='name'),
-                      HeaderFilterItem.build_4_field(model=Opportunity, name='reference'),
-                      HeaderFilterItem.build_4_field(model=Opportunity, name='sales_phase__name'),
-                      HeaderFilterItem.build_4_field(model=Opportunity, name='closing_date'),
                       HeaderFilterItem.build_4_relation(rtype=RelationType.objects.get(pk=REL_SUB_TARGETS)), #TODO: use a variable ??
-                     ])
+                      HeaderFilterItem.build_4_field(model=Opportunity, name='sales_phase'),
+                      HeaderFilterItem.build_4_field(model=Opportunity, name='estimated_sales'),
+                      HeaderFilterItem.build_4_field(model=Opportunity, name='made_sales'),
+                      HeaderFilterItem.build_4_field(model=Opportunity, name='expected_closing_date'),
+                      ])
+
+        efilter1 = EntityFilter.create('opportunities-opportunities_won', name=_(u"Opportunities won"), model=Opportunity)
+        efilter1.set_conditions([EntityFilterCondition.build_4_field(model=Opportunity, operator=EntityFilterCondition.EQUALS, name='sales_phase', values=[won.pk])])
+
+        efilter2 = EntityFilter.create('opportunities-opportunities_lost', name=_(u"Opportunities lost"), model=Opportunity)
+        efilter2.set_conditions([EntityFilterCondition.build_4_field(model=Opportunity, operator=EntityFilterCondition.EQUALS, name='sales_phase', values=[lost.pk])])
+
+        efilter3 = EntityFilter.create('opportunities-neither_won_nor_lost_opportunities', name=_(u"Neither won nor lost opportunities"), model=Opportunity)
+        efilter3.set_conditions([EntityFilterCondition.build_4_field(model=Opportunity, operator=EntityFilterCondition.EQUALS_NOT, name='sales_phase', values=[won.pk, lost.pk])])
 
         ButtonMenuItem.create(pk='opportunities-linked_opp_button',         model=Organisation, button=linked_opportunity_button, order=30)#TODO: This pk is kept for compatibility
         ButtonMenuItem.create(pk='opportunities-linked_opp_button_contact', model=Contact,      button=linked_opportunity_button, order=30)
