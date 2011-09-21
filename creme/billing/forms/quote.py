@@ -21,15 +21,20 @@
 from billing.models import Quote
 from base import BaseCreateForm, BaseEditForm
 
+from persons.workflow import transform_target_into_prospect
+
 
 class QuoteCreateForm(BaseCreateForm):
     class Meta:
         model = Quote
         exclude = BaseCreateForm.Meta.exclude + ('number',)
 
-    #def save(self):
-        #instance = super(QuoteCreateForm, self).save()
-        #return instance
+    def save(self):
+        instance = super(QuoteCreateForm, self).save()
+        cleaned_data = self.cleaned_data
+        transform_target_into_prospect(cleaned_data['source'],cleaned_data['target'],instance.user)
+
+        return instance
 
 class QuoteEditForm(BaseEditForm):
     class Meta:

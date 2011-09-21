@@ -13,6 +13,8 @@ from creme_core.tests.base import CremeTestCase
 from creme_config.models import SettingKey, SettingValue
 
 from persons.models import Organisation, Contact
+from persons.constants import REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
+
 
 from products.models import Product, Service
 
@@ -147,6 +149,7 @@ class OpportunitiesTestCase(CremeTestCase):
         filter_ = Relation.objects.filter
         self.assertEqual(1, filter_(subject_entity=target,  type=REL_OBJ_TARGETS, object_entity=opportunity).count())
         self.assertEqual(1, filter_(subject_entity=emitter, type=REL_SUB_EMIT_ORGA,    object_entity=opportunity).count())
+        self.assertEqual(1, filter_(subject_entity=target, type=REL_SUB_PROSPECT,    object_entity=emitter).count())
 
     def test_opportunity_createview02(self):
         self.login()
@@ -189,6 +192,7 @@ class OpportunitiesTestCase(CremeTestCase):
         filter_ = Relation.objects.filter
         self.assertEqual(1, filter_(subject_entity=target,  type=REL_OBJ_TARGETS, object_entity=opportunity).count())
         self.assertEqual(1, filter_(subject_entity=emitter, type=REL_SUB_EMIT_ORGA,    object_entity=opportunity).count())
+        self.assertEqual(1, filter_(subject_entity=target, type=REL_SUB_PROSPECT,    object_entity=emitter).count())
 
     def test_opportunity_createview03(self):#Only contact & orga models are allowed
         self.login()
@@ -288,6 +292,22 @@ class OpportunitiesTestCase(CremeTestCase):
         filter_ = Relation.objects.filter
         self.assertEqual(1, filter_(subject_entity=target,  type=REL_OBJ_TARGETS, object_entity=opportunity).count())
         self.assertEqual(1, filter_(subject_entity=emitter, type=REL_SUB_EMIT_ORGA,    object_entity=opportunity).count())
+        self.assertEqual(1, filter_(subject_entity=target, type=REL_SUB_PROSPECT,    object_entity=emitter).count())
+
+        name = 'Opportunity Two linked to %s' % target
+        response = self.client.post(url, data={
+                                                'user':         self.user.pk,
+                                                'name':         name,
+                                                'sales_phase':  salesphase_id,
+                                                'closing_date': '2011-03-12',
+                                                'target':       self.genericfield_format_entity(target),
+                                                'emit_orga':    emitter.id,
+                                              }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(302, response.status_code)
+        self.assertEqual(1, filter_(subject_entity=target, type=REL_SUB_PROSPECT,    object_entity=emitter).count())
+
 
     def test_add_to_orga02(self):
         self.login()
@@ -325,6 +345,7 @@ class OpportunitiesTestCase(CremeTestCase):
         filter_ = Relation.objects.filter
         self.assertEqual(1, filter_(subject_entity=target,  type=REL_OBJ_TARGETS, object_entity=opportunity).count())
         self.assertEqual(1, filter_(subject_entity=emitter, type=REL_SUB_EMIT_ORGA,    object_entity=opportunity).count())
+        self.assertEqual(1, filter_(subject_entity=target, type=REL_SUB_PROSPECT,    object_entity=emitter).count())
 
     def test_add_to_orga03(self): #with bad creds
         self.login(is_superuser=False, allowed_apps=['opportunities'])
@@ -378,6 +399,23 @@ class OpportunitiesTestCase(CremeTestCase):
         filter_ = Relation.objects.filter
         self.assertEqual(1, filter_(subject_entity=target,  type=REL_OBJ_TARGETS, object_entity=opportunity).count())
         self.assertEqual(1, filter_(subject_entity=emitter, type=REL_SUB_EMIT_ORGA,    object_entity=opportunity).count())
+        self.assertEqual(1, filter_(subject_entity=target, type=REL_SUB_PROSPECT, object_entity=emitter).count())
+
+        name = 'Opportunity 2 linked to %s' % target
+        response = self.client.post(url, data={
+                                                'user':         self.user.pk,
+                                                'name':         name,
+                                                'sales_phase':  salesphase_id,
+                                                'closing_date': '2011-03-12',
+                                                'target':       self.genericfield_format_entity(target),
+                                                'emit_orga':    emitter.id,
+                                              }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(302, response.status_code)
+
+        self.assertEqual(1, filter_(subject_entity=target, type=REL_SUB_PROSPECT, object_entity=emitter).count())
+
 
     def test_add_to_contact02(self):
         self.login()
@@ -414,6 +452,7 @@ class OpportunitiesTestCase(CremeTestCase):
         filter_ = Relation.objects.filter
         self.assertEqual(1, filter_(subject_entity=target,  type=REL_OBJ_TARGETS, object_entity=opportunity).count())
         self.assertEqual(1, filter_(subject_entity=emitter, type=REL_SUB_EMIT_ORGA,    object_entity=opportunity).count())
+        self.assertEqual(1, filter_(subject_entity=target, type=REL_SUB_PROSPECT,    object_entity=emitter).count())
 
     def test_add_to_contact03(self): #with bad creds
         self.login(is_superuser=False, allowed_apps=['opportunities'])
@@ -491,6 +530,9 @@ class OpportunitiesTestCase(CremeTestCase):
         self.assertEqual(1, count_relations(type_id=REL_SUB_LINKED_QUOTE,  object_id=opportunity))
         self.assertEqual(1, count_relations(type_id=REL_SUB_CURRENT_DOC,   object_id=opportunity))
 
+        filter_ = Relation.objects.filter
+        self.assertEqual(1, filter_(subject_entity=target, type=REL_SUB_PROSPECT,    object_entity=emitter).count())
+
     def test_opportunity_generate_new_doc02(self):
         self.login()
 
@@ -517,7 +559,35 @@ class OpportunitiesTestCase(CremeTestCase):
         self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_LINKED_QUOTE,  object_entity=opportunity).count())
         self.assertEqual(0, filter_(subject_entity=quote1, type=REL_SUB_CURRENT_DOC,   object_entity=opportunity).count())
 
+        self.assertEqual(1, filter_(subject_entity=target, type=REL_SUB_PROSPECT,    object_entity=emitter).count())
+
     #def test_opportunity_generate_new_doc03(self): #TODO test with credentials problems
+
+    def test_opportunity_generate_new_doc04(self):
+        self.login()
+
+        opportunity, target, emitter = self.create_opportunity('Opportunity01')
+        ct = ContentType.objects.get_for_model(Invoice)
+
+        self.client.post('/opportunities/opportunity/generate_new_doc/%s/%s' % (opportunity.id, ct.id))
+        invoice1 = Invoice.objects.all()[0]
+
+        self.client.post('/opportunities/opportunity/generate_new_doc/%s/%s' % (opportunity.id, ct.id))
+        invoices = Invoice.objects.exclude(pk=invoice1.id)
+        self.assertEqual(1, len(invoices))
+
+        invoices2 = invoices[0]
+
+        filter_ = Relation.objects.filter
+        self.assertEqual(1, filter_(subject_entity=invoices2, type=REL_SUB_BILL_ISSUED,   object_entity=emitter).count())
+        self.assertEqual(1, filter_(subject_entity=invoices2, type=REL_SUB_BILL_RECEIVED, object_entity=target).count())
+        self.assertEqual(1, filter_(subject_entity=invoices2, type=REL_SUB_LINKED_INVOICE,  object_entity=opportunity).count())
+
+        self.assertEqual(1, filter_(subject_entity=invoice1, type=REL_SUB_BILL_ISSUED,   object_entity=emitter).count())
+        self.assertEqual(1, filter_(subject_entity=invoice1, type=REL_SUB_BILL_RECEIVED, object_entity=target).count())
+        self.assertEqual(1, filter_(subject_entity=invoice1, type=REL_SUB_LINKED_INVOICE,  object_entity=opportunity).count())
+
+        self.assertEqual(1, filter_(subject_entity=target, type=REL_SUB_CUSTOMER_SUPPLIER,    object_entity=emitter).count())
 
     def test_set_current_quote(self):
         self.login()
