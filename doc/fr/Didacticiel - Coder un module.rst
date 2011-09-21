@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 3-06-2011 pour la version 1.1 de Creme
+:Version: 21-09-2011 pour la version 1.1 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 
@@ -28,8 +28,8 @@ Creme est développé en utilisant un cadriciel (framework) Python spécialisé 
 la création de sites et applications Web : Django_.
 Si vous comptez réellement développer des modules pour Creme, la connaissance de
 Django sera sûrement nécessaire. Heureusement la documentation de celui-ci est vraiment
-complète et bien faite ; vous la trouverez ici : http://docs.djangoproject.com/en/1.2/.
-Dans un premier temps, avoir lu le `didacticiel <http://docs.djangoproject.com/en/1.2/intro/tutorial01/>`_
+complète et bien faite ; vous la trouverez ici : http://docs.djangoproject.com/en/1.3/.
+Dans un premier temps, avoir lu le `didacticiel <http://docs.djangoproject.com/en/1.3/intro/tutorial01/>`_
 devrait suffire.
 
 Creme utilise aussi la bibliothèque Javascript JQuery_ ; il se peut que pour
@@ -188,42 +188,35 @@ Installer notre module
 
 Si ce n'est pas déjà fait, créez dans le répertoire ``creme/`` un fichier nommé
 ``local_settings.py``. Éditez le maintenant en copiant depuis le fichier de
-configuration générale ``creme/settings.py`` le tuple INSTALLED_APPS. ::
+configuration générale ``creme/settings.py`` le tuple INSTALLED_CREME_APPS. ::
 
-    INSTALLED_APPS = (
-        'django.contrib.auth',
-        'django.contrib.contenttypes',
-        'django.contrib.sessions',
-        'django.contrib.admin',
-        'django.contrib.admindocs',
-        'django_extensions',
+    INSTALLED_CREME_APPS = (
+        #CREME CORE APPS
+        'creme_core',
+        'creme_config',
+        'media_managers',
+        'documents',
+        'assistants',
+        'activities',
+        'persons',
 
-        #EXTERNAL APPS
-        'mediagenerator', #manages js/css/images
+        #CREME OPTIONNAL APPS (can be safely commented)
+        'graphs',
+        'reports',
+        'products',
+        'recurrents',
+        'billing',
+        'opportunities',
+        'commercial',
+        'events',
+        'crudity',
+        'emails',
+        'projects',
+        'tickets',
+        'activesync',
+        'vcfs',
 
-        'creme.creme_core',
-        'creme.creme_config',
-        'creme.persons',
-        'creme.activities',
-        'creme.assistants',
-        'creme.documents',
-        'creme.billing',
-        'creme.products',
-        'creme.tickets',
-        'creme.media_managers',
-        'creme.crudity',
-
-        'creme.opportunities',
-        'creme.recurrents',
-        'creme.projects',
-        'creme.commercial',
-        'creme.graphs',
-        'creme.reports',
-        'creme.emails',
-        'creme.sms',
-        'creme.events',
-
-        'creme.beavers', # <-- NEW
+        'beavers', # <-- NEW
     )
 
 Notez que par rapport à la configuration de base, nous avons ajouté à la fin du
@@ -306,8 +299,8 @@ des chemins de base pour chaque app. Rajoutons donc la configuration de notre ap
 après celle de l'app "tickets" par exemple : ::
 
     [...]
-    (r'^tickets/',        include('creme.tickets.urls')),
-    (r'^beavers/',        include('creme.beavers.urls')), # <- NEW
+    (r'^vcfs/',           include('vcfs.urls')),
+    (r'^beavers/',        include('beavers.urls')), # <- NEW
 
     [...]
 
@@ -557,7 +550,7 @@ la vue de liste. Créons un nouveau fichier : ``beavers/populate.py``. ::
 
 
     class Populator(BasePopulator):
-        dependencies = ['creme.creme_core']
+        dependencies = ['creme_core']
 
         def populate(self, *args, **kwargs):
             hf = HeaderFilter.create(pk='beavers-hf_beaver', name=_(u'Beaver view'), model=Beaver)
