@@ -23,11 +23,11 @@ from decimal import Decimal
 from itertools import chain
 from logging import debug
 
-from django.db.models import CharField, ForeignKey, DateField, DecimalField
+from django.db.models import CharField, TextField, ForeignKey, DateField, DecimalField
 from django.utils.translation import ugettext_lazy as _
-from creme_core.constants import DEFAULT_CURRENCY_PK
 
 from creme_core.models import CremeEntity, Relation, Currency
+from creme_core.constants import DEFAULT_CURRENCY_PK
 
 from persons.models import Address
 
@@ -38,6 +38,7 @@ from algo import ConfigBillingAlgo
 from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED, REL_SUB_HAS_LINE, REL_OBJ_LINE_RELATED_ITEM
 from billing.models.other_models import AdditionalInformation, PaymentTerms, PaymentInformation
 from billing.utils import round_to_2
+
 
 default_decimal = Decimal()
 
@@ -50,7 +51,7 @@ class Base(CremeEntity):
     billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'), related_name='BillingAddress_set', blank=True, null=True)
     shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'), related_name='ShippingAddress_set', blank=True, null=True)
     currency         = ForeignKey(Currency, verbose_name=_(u'Currency'), related_name='Currency_set', default=DEFAULT_CURRENCY_PK)
-    comment          = CharField(_(u'Comment'), max_length=500, blank=True, null=True)
+    comment          = TextField(_(u'Comment'), blank=True, null=True)
     total_vat        = DecimalField(_(u'Total with VAT'),    max_digits=14, decimal_places=2, blank=True, null=True, editable=False, default=0)
     total_no_vat     = DecimalField(_(u'Total without VAT'), max_digits=14, decimal_places=2, blank=True, null=True, editable=False, default=0)
     additional_info  = ForeignKey(AdditionalInformation, verbose_name=_(u'Additional Information'), related_name='AdditionalInformation_set', blank=True, null=True)
