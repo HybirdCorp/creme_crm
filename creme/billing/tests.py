@@ -18,6 +18,8 @@ try:
     from creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
 
     from persons.models import Contact, Organisation, Address
+    from persons.constants import REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
+
 
     from products.models import Product, Service, Category, SubCategory
 
@@ -131,6 +133,7 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
         rel_filter = Relation.objects.filter
         self.assertEqual(1, rel_filter(subject_entity=invoice, type=REL_SUB_BILL_ISSUED,   object_entity=source).count())
         self.assertEqual(1, rel_filter(subject_entity=invoice, type=REL_SUB_BILL_RECEIVED, object_entity=target).count())
+        self.assertEqual(1, rel_filter(subject_entity=target, type=REL_SUB_CUSTOMER_SUPPLIER, object_entity=source).count())
 
         self.assertEqual(source.id, invoice.get_source().id)
         self.assertEqual(target.id, invoice.get_target().id)
@@ -142,6 +145,9 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
         self.assert_(s_addr)
         self.assertEqual(b_addr.id, invoice.billing_address_id)
         self.assertEqual(s_addr.id, invoice.shipping_address_id)
+
+        invoice2 = self.create_invoice('Invoice002', source, target, currency)
+        self.assertEqual(1, rel_filter(subject_entity=target, type=REL_SUB_CUSTOMER_SUPPLIER, object_entity=source).count())
 
     def test_invoice_createview02(self):
         self.login()
@@ -795,6 +801,10 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
         rel_filter = Relation.objects.filter
         self.assertEqual(1, rel_filter(subject_entity=quote, type=REL_SUB_BILL_ISSUED,   object_entity=source).count())
         self.assertEqual(1, rel_filter(subject_entity=quote, type=REL_SUB_BILL_RECEIVED, object_entity=target).count())
+        self.assertEqual(1, rel_filter(subject_entity=target, type=REL_SUB_PROSPECT,    object_entity=source).count())
+
+        quote, source, target = self.create_quote_n_orgas('My Quote Two')
+        self.assertEqual(1, rel_filter(subject_entity=target, type=REL_SUB_PROSPECT,    object_entity=source).count())
 
     def test_convert01(self):
         self.login()
@@ -821,6 +831,7 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
         rel_filter = Relation.objects.filter
         self.assertEqual(1, rel_filter(subject_entity=invoice, type=REL_SUB_BILL_ISSUED,   object_entity=source).count())
         self.assertEqual(1, rel_filter(subject_entity=invoice, type=REL_SUB_BILL_RECEIVED, object_entity=target).count())
+        self.assertEqual(1, rel_filter(subject_entity=target, type=REL_SUB_CUSTOMER_SUPPLIER, object_entity=source).count())
 
     def test_convert02(self): #SalesOrder + not superuser
         self.login(is_superuser=False, allowed_apps=['billing', 'persons'])

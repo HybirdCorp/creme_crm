@@ -194,6 +194,7 @@ class Base(CremeEntity):
         self._build_lines(template, ServiceLine)
         self._build_relations(template)
         self._build_properties(template)
+        return self
 
     def _build_object(self, template):
         debug("=> Clone base object")
