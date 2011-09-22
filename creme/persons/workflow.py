@@ -19,20 +19,31 @@
 ################################################################################
 
 from creme_core.models import Relation
+
 from constants import REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
 
-def transform_target_into_prospect(source,target,user):
-    """Transform the target into a source prospect. Use REL_SUB_PROSPECT for it. Be careful source is subject of
-    REL_SUB_PROSPECT relation and source is object of relation """
-    if  Relation.objects.filter(subject_entity=target, type=REL_SUB_PROSPECT, object_entity=source).count() == 0 :
-        Relation.objects.create(subject_entity=target, type_id=REL_SUB_PROSPECT,
-                                object_entity=source, user=user )
+
+def transform_target_into_prospect(source, target, user):
+    """Transform the target into a source prospect. Use REL_SUB_PROSPECT for it.
+    Be careful target is subject of REL_SUB_PROSPECT relation and source is
+    object of relation.
+    """
+    if not Relation.objects.filter(subject_entity=target, type=REL_SUB_PROSPECT, object_entity=source).exists():
+        Relation.objects.create(subject_entity=target,
+                                type_id=REL_SUB_PROSPECT,
+                                object_entity=source,
+                                user=user
+                               )
 
 
-def transform_target_into_customer(source,target,user):
-    """Transform the target into a source customer. Use REL_SUB_CUSTOMER_SUPPLIER for it. Be careful source is subject of
-    REL_SUB_CUSTOMER_SUPPLIER relation and source is object of relation """
-
-    if  Relation.objects.filter(subject_entity=target, type=REL_SUB_CUSTOMER_SUPPLIER, object_entity=source).count() == 0 :
-        Relation.objects.create(subject_entity=target, type_id=REL_SUB_CUSTOMER_SUPPLIER,
-                                object_entity=source, user=user )
+def transform_target_into_customer(source, target, user):
+    """Transform the target into a source customer. Use REL_SUB_CUSTOMER_SUPPLIER for it.
+    Be careful target is subject of REL_SUB_CUSTOMER_SUPPLIER relation and
+    source is object of relation.
+    """
+    if not Relation.objects.filter(subject_entity=target, type=REL_SUB_CUSTOMER_SUPPLIER, object_entity=source).exists():
+        Relation.objects.create(subject_entity=target,
+                                type_id=REL_SUB_CUSTOMER_SUPPLIER,
+                                object_entity=source,
+                                user=user
+                               )

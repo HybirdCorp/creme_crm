@@ -57,7 +57,7 @@ class JSONField(CharField):
         'invalidformat': _(u'Invalid format'),
     }
 
-    def __init(self, *args, **kwargs):
+    def __init(self, *args, **kwargs): #TODO: useless
         super(JSONField, self).__init__(*args, **kwargs)
 
     def clean_value(self, data, name, type, default=None):#TODO:Is a 'required' could be better in place of default ?
