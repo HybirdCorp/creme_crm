@@ -11,15 +11,12 @@ try:
     from billing.utils import round_to_2
 
     from creme_core import autodiscover
-    from creme_core.models import RelationType, Relation, CremePropertyType, CremeProperty, SetCredentials, Currency
+    from creme_core.models import CremeEntity, RelationType, Relation, CremePropertyType, CremeProperty, SetCredentials, Currency
     from creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_HAS
-    from creme_core.models.currency import Currency
-    from creme_core.models.entity import CremeEntity
     from creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
 
     from persons.models import Contact, Organisation, Address
     from persons.constants import REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
-
 
     from products.models import Product, Service, Category, SubCategory
 
@@ -34,7 +31,7 @@ class _BillingTestCase(object):
         super(_BillingTestCase, self).login(is_superuser, allowed_apps=allowed_apps or ['billing'])
 
     def setUp(self):
-        self.populate('creme_core', 'creme_config', 'billing')
+        self.populate('creme_core', 'creme_config', 'persons', 'billing')
 
     def genericfield_format_entity(self, entity):
         return '{"ctype":"%s", "entity":"%s"}' % (entity.entity_type_id, entity.id)
@@ -106,34 +103,30 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
 
     def test_portal(self):
         self.login()
-        self.assertEqual(self.client.get('/billing/').status_code, 200)
+        self.assertEqual(200, self.client.get('/billing/').status_code)
 
     def test_invoice_createview01(self):
         self.login()
 
-        self.assertEqual(self.client.get('/billing/invoice/add').status_code, 200)
+        self.assertEqual(200, self.client.get('/billing/invoice/add').status_code)
 
         name = 'Invoice001'
         currency = Currency.objects.all()[0]
         source = Organisation.objects.create(user=self.user, name='Source Orga')
         target = Organisation.objects.create(user=self.user, name='Target Orga')
 
-        self.failIf(target.billing_address)
-        self.failIf(target.shipping_address)
+        self.assertFalse(target.billing_address)
+        self.assertFalse(target.shipping_address)
 
         invoice = self.create_invoice(name, source, target, currency)
-        self.assertEqual(1, invoice.status_id)
+        self.assertEqual(1,        invoice.status_id)
         self.assertEqual(currency, invoice.currency)
-
-        exp_date = invoice.expiration_date
-        self.assertEqual(2010, exp_date.year)
-        self.assertEqual(10,   exp_date.month)
-        self.assertEqual(13,   exp_date.day)
+        self.assertEqual(date(year=2010, month=10, day=13), invoice.expiration_date)
 
         rel_filter = Relation.objects.filter
-        self.assertEqual(1, rel_filter(subject_entity=invoice, type=REL_SUB_BILL_ISSUED,   object_entity=source).count())
-        self.assertEqual(1, rel_filter(subject_entity=invoice, type=REL_SUB_BILL_RECEIVED, object_entity=target).count())
-        self.assertEqual(1, rel_filter(subject_entity=target, type=REL_SUB_CUSTOMER_SUPPLIER, object_entity=source).count())
+        self.assertEqual(1, rel_filter(subject_entity=invoice, type=REL_SUB_BILL_ISSUED,       object_entity=source).count())
+        self.assertEqual(1, rel_filter(subject_entity=invoice, type=REL_SUB_BILL_RECEIVED,     object_entity=target).count())
+        self.assertEqual(1, rel_filter(subject_entity=target,  type=REL_SUB_CUSTOMER_SUPPLIER, object_entity=source).count())
 
         self.assertEqual(source.id, invoice.get_source().id)
         self.assertEqual(target.id, invoice.get_target().id)
@@ -141,8 +134,8 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
         target = Organisation.objects.get(pk=target.id)
         b_addr = target.billing_address
         s_addr = target.shipping_address
-        self.assert_(b_addr)
-        self.assert_(s_addr)
+        self.assertTrue(b_addr)
+        self.assertTrue(s_addr)
         self.assertEqual(b_addr.id, invoice.billing_address_id)
         self.assertEqual(s_addr.id, invoice.shipping_address_id)
 
@@ -154,8 +147,9 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
 
         name = 'Invoice001'
 
-        source = Organisation.objects.create(user=self.user, name='Source Orga')
-        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=source)
+        #source = Organisation.objects.create(user=self.user, name='Source Orga')
+        #CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=source)
+        source = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
 
         target = Organisation.objects.create(user=self.user, name='Target Orga')
         target.shipping_address = Address.objects.create(name='ShippingAddr', owner=target)
@@ -1131,17 +1125,24 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
         self.login()
 
         name = 'Invoice001'
-        source = Organisation.objects.create(user=self.user, name='Source Orga')
-        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=source)
+        #source = Organisation.objects.create(user=self.user, name='Source Orga')
+        #CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=source)
+        source = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
 
         target = Organisation.objects.create(user=self.user, name='Target Orga')
 
         url = '/billing/invoice/add/%s' % target.id
         response = self.client.get(url)
-
-        self.assertEqual(source.id, response.context['form']['source'].field.initial)
-#        self.assertEqual(target.id, response.context['form']['target'].field.initial) #Why doesn't work ?
         self.assertEqual(200, response.status_code)
+
+        try:
+            form = response.context['form']
+        except Exception, e:
+            self.fail(str(e))
+
+        self.assertEqual(source.id, form['source'].field.initial)
+        #self.assertEqual(target.id, form['target'].field.initial) #TODO: should work ?
+        self.assertEqual(target, form.initial.get('target'))
 
         currency = Currency.objects.all()[0]
         response = self.client.post(url, follow=True,

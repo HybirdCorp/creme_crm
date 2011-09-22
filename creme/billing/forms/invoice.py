@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,11 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from persons.workflow import transform_target_into_customer
+
 from billing.constants import DEFAULT_DRAFT_INVOICE_STATUS
 from billing.models import Invoice, InvoiceStatus
-from base import BaseCreateForm, BaseEditForm
+from billing.forms.base import BaseCreateForm, BaseEditForm
 
-from persons.workflow import transform_target_into_customer
 
 class InvoiceCreateForm(BaseCreateForm):
     class Meta:
@@ -34,11 +35,12 @@ class InvoiceCreateForm(BaseCreateForm):
 
         self.fields['status'].queryset = InvoiceStatus.objects.filter(pk=DEFAULT_DRAFT_INVOICE_STATUS)
 
-    def save(self):
-        instance = super(InvoiceCreateForm, self).save()
+    def save(self, *args, **kwargs):
+        instance = super(InvoiceCreateForm, self).save(*args, **kwargs)
         cleaned_data = self.cleaned_data
-        transform_target_into_customer(cleaned_data['source'],cleaned_data['target'],instance.user)
+        transform_target_into_customer(cleaned_data['source'], cleaned_data['target'], instance.user)
         return instance
+
 
 class InvoiceEditForm(BaseEditForm):
     class Meta:
