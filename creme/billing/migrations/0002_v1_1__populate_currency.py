@@ -1,27 +1,26 @@
 # encoding: utf-8
 import datetime
+
 from south.db import db
 from south.v2 import DataMigration
+
 from django.db import models
 
-class Migration(DataMigration):
 
+class Migration(DataMigration):
     depends_on = (
         ("creme_core", "0006_v1_1__add_currency"),
     )
 
     def forwards(self, orm):
-        "Write your forwards methods here."
         # DEFAULT_CURRENCY_PK = 1
         try:
             orm['creme_core.Currency'].objects.get(pk=1)
         except:
             orm['creme_core.Currency'].objects.create(pk=1, name='OVERWRITE_ME', local_symbol='OVERWRITE_ME', international_symbol='OVERWRITE_ME')
 
-
     def backwards(self, orm):
-        "Write your backwards methods here."
-
+        pass
 
     models = {
         'auth.group': {

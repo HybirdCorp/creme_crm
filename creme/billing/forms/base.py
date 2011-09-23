@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,6 +30,7 @@ from creme_core.utils import find_first
 
 from persons.models.organisation import Organisation, Address, Contact
 
+from billing.models import Line
 from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
 
@@ -51,6 +52,8 @@ class BaseEditForm(CremeEntityForm):
         super(BaseEditForm, self).__init__(*args, **kwargs)
         self.issued_relation   = None
         self.received_relation = None
+        self.old_user_id = self.instance.user_id
+
         pk = self.instance.pk
 
         if pk is not None: #edit mode
@@ -75,10 +78,9 @@ class BaseEditForm(CremeEntityForm):
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        discount            = self.cleaned_data.get('discount')
 
-        if discount > 100:
-            raise ValidationError(_(u"Your discount is a %. It must be between 1 and 100%"))
+        if cleaned_data.get('discount') > 100:
+            raise ValidationError(ugettext(u"Your discount is a %. It must be between 1 and 100%"))
 
         return cleaned_data
 
@@ -115,6 +117,13 @@ class BaseEditForm(CremeEntityForm):
                                     object_entity=target,
                                     user=user
                                    )
+
+        #TODO: do this in model/with signal to avoid errors ???
+        if self.old_user_id and self.old_user_id != user.id:
+            #do not use queryset.update() to call the CremeEntity.save() method TODO: change with future Credentials system ??
+            for line in instance.get_lines(Line):
+                line.user = instance.user
+                line.save()
 
         return instance
 
