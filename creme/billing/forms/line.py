@@ -24,7 +24,7 @@ from django.forms.fields import ChoiceField
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.forms import  BooleanField, ValidationError
 
-from creme_core.forms import CremeEntityForm, FieldBlockManager
+from creme_core.forms import CremeModelForm, FieldBlockManager #CremeEntityForm
 from creme_core.forms.fields import CremeEntityField
 from creme_core.forms.widgets import ListViewWidget
 
@@ -40,15 +40,17 @@ from creme import form_post_save #TODO: move in creme_core ??
 default_decimal = Decimal()
 
 
-class LineForm(CremeEntityForm):
+#class LineForm(CremeEntityForm):
+class LineForm(CremeModelForm): #not CremeEntityForm in order to avoid 'user' field
     discount_unit = ChoiceField(label=_(u"Discount unit"), choices=DISCOUNT_UNIT.items(), required=False)
 
     blocks = FieldBlockManager(('general', _(u'Line information'), ['related_item', 'comment', 'quantity', 'unit_price',
-                                                                    'discount', 'discount_unit', 'credit', 'total_discount', 'vat', 'user'])
+                                                                    'discount', 'discount_unit', 'credit', 'total_discount', 'vat'
+                                                                   ]),
                               )
 
     class Meta:
-        exclude = ('document', 'is_paid')
+        exclude = ('user', 'document', 'is_paid')
 
     def __init__(self, entity, *args, **kwargs):
         super(LineForm, self).__init__(*args, **kwargs)
@@ -65,13 +67,16 @@ class LineForm(CremeEntityForm):
         unit_price          = get_data('unit_price')
 
         if discount_unit == str(PERCENT_PK) and discount > 100:
-            raise ValidationError(_(u"If you choose % for your discount unit, your discount must be between 1 and 100%"))
+            raise ValidationError(ugettext(u"If you choose % for your discount unit, your discount must be between 1 and 100%"))
 
         if discount_unit == str(AMOUNT_PK):
+            #TODO: factorise "if overall_discount"
             if overall_discount and discount > (quantity * unit_price):
-                raise ValidationError(_(u"Your overall discount is superior than the total line (unit price * quantity)"))
+                raise ValidationError(ugettext(u"Your overall discount is superior than the total line (unit price * quantity)"))
             elif not overall_discount and discount > unit_price:
-                raise ValidationError(_(u"Your discount is superior than the unit price"))
+                raise ValidationError(ugettext(u"Your discount is superior than the unit price"))
+
+        #TODO: return cleaned_data ??
 
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -84,6 +89,7 @@ class LineForm(CremeEntityForm):
         instance = self.instance
         created = not bool(instance.pk)
         instance.is_paid = False
+        instance.user = self._document.user #TODO: move in Line.save() [idea: can not save if related_document is None]
 
         super(LineForm, self).save()
         instance.related_document = self._document
@@ -125,12 +131,11 @@ class ProductLineEditForm(ProductLineForm):
 class ProductLineOnTheFlyForm(LineForm):
     has_to_register_as = BooleanField(label=_(u"Save as product ?"), required=False,
                                       help_text=_(u"Here you can save a on-the-fly Product as a true Product ; in this case, category and sub-category are required."))
-
-    sub_category = ProductCategoryField(label=_(u'Sub-category'), required=False)
+    sub_category       = ProductCategoryField(label=_(u'Sub-category'), required=False)
 
     blocks = FieldBlockManager(
         ('general',     _(u'Line information'),    ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
-                                                    'discount', 'discount_unit', 'credit', 'total_discount', 'vat', 'user']),
+                                                    'discount', 'discount_unit', 'credit', 'total_discount', 'vat']),
         ('additionnal', _(u'Additional features'), ['has_to_register_as', 'sub_category'])
      )
 
@@ -143,9 +148,10 @@ class ProductLineOnTheFlyForm(LineForm):
         self.instance.type = PRODUCT_LINE_TYPE
 
         if self.instance.pk is not None:
+            #TODO: better to add 'additionnal' block when pk is None ???
             self.blocks = FieldBlockManager(
                     ('general', ugettext(u'Line information'), ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
-                                                                'discount', 'discount_unit', 'credit', 'total_discount', 'vat', 'user']),
+                                                                'discount', 'discount_unit', 'credit', 'total_discount', 'vat']),
                 )
         elif not self.user.has_perm_to_create(Product):
             fields = self.fields
@@ -186,7 +192,8 @@ class ProductLineOnTheFlyForm(LineForm):
             sub_category = get_data('sub_category')
 
             product = Product.objects.create(name=get_data('on_the_fly_item', ''),
-                                             user=get_data('user'),
+                                             #user=get_data('user'),
+                                             user=self.user, #TODO: can chose the owner of the product
                                              code=0,
                                              unit_price=get_data('unit_price', 0),
                                              category=sub_category.category,
@@ -203,7 +210,7 @@ class ProductLineOnTheFlyForm(LineForm):
                                           'discount_unit':  get_data('discount_unit', 1),
                                           'total_discount': get_data('total_discount', False),
                                           'vat':            get_data('vat', DEFAULT_VAT),
-                                          'user':           product.user_id,
+                                          #'user':           product.user_id,
                                           'comment':        get_data('comment', '')
                                         }
                                   )
@@ -248,12 +255,11 @@ class ServiceLineEditForm(ServiceLineForm):
 class ServiceLineOnTheFlyForm(LineForm):
     has_to_register_as = BooleanField(label=_(u"Save as service ?"), required=False,
                                       help_text=_(u"Here you can save a on-the-fly Service as a true Service ; in this case, category is required."))
-
-    sub_category = ProductCategoryField(label=_(u'Sub-category'), required=False)
+    sub_category      = ProductCategoryField(label=_(u'Sub-category'), required=False)
 
     blocks = FieldBlockManager(
         ('general',     _(u'Line information'),    ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
-                                                    'discount', 'discount_unit', 'credit', 'total_discount', 'vat', 'user']),
+                                                    'discount', 'discount_unit', 'credit', 'total_discount', 'vat']),
         ('additionnal', _(u'Additional features'), ['has_to_register_as','sub_category'])
      )
 
@@ -269,7 +275,7 @@ class ServiceLineOnTheFlyForm(LineForm):
             #TODO: remove the block 'additionnal' instead ??
             self.blocks = FieldBlockManager(
                     ('general', _(u'Line information'), ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
-                                                         'discount', 'discount_unit', 'credit', 'total_discount', 'vat', 'user']),
+                                                         'discount', 'discount_unit', 'credit', 'total_discount', 'vat']),
                 )
         elif not self.user.has_perm_to_create(Service):
             fields = self.fields
@@ -310,7 +316,8 @@ class ServiceLineOnTheFlyForm(LineForm):
             sub_category = get_data('sub_category')
 
             service = Service.objects.create(name=get_data('on_the_fly_item', ''),
-                                             user=get_data('user'),
+                                             #user=get_data('user'),
+                                             user=self.user, #TODO: can chose the owner
                                              reference='',
                                              category=sub_category.category,
                                              sub_category=sub_category,
@@ -327,7 +334,7 @@ class ServiceLineOnTheFlyForm(LineForm):
                                           'discount_unit':  get_data('discount_unit', 1),
                                           'total_discount': get_data('total_discount', False),
                                           'vat':            get_data('vat', DEFAULT_VAT),
-                                          'user':           service.user_id,
+                                          #'user':           service.user_id,
                                           'comment':        get_data('comment', ''),
                                         }
                                   )

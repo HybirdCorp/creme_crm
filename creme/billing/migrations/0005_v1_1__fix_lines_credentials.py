@@ -1,34 +1,44 @@
 # encoding: utf-8
+
 import datetime
 
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
 
 from django.db import models
 
 
-class Migration(SchemaMigration):
+class Migration(DataMigration):
     def forwards(self, orm):
-        # Adding field 'Base.currency'
-        db.add_column('billing_base', 'currency', self.gf('django.db.models.fields.related.ForeignKey')(default=1, related_name='Currency_set', to=orm['creme_core.Currency']), keep_default=False)
+        get_relation = orm['creme_core.relation'].objects.get
+        get_entity = orm['creme_core.cremeentity'].objects.get
+        creds_objects = orm['creme_core.entitycredentials'].objects
+        REL_OBJ_HAS_LINE = 'billing-object_had_line'
+        counter = 0
 
-        # Changing field 'Base.discount'
-        db.alter_column('billing_base', 'discount', self.gf('django.db.models.fields.DecimalField')(max_digits=10, decimal_places=2))
+        for line in orm['billing.line'].objects.all():
+            try:
+                billing_entity = get_relation(subject_entity=line.id, type=REL_OBJ_HAS_LINE).object_entity
 
-        # Adding field 'Line.discount_unit'
-        db.add_column('billing_line', 'discount_unit', self.gf('django.db.models.fields.PositiveIntegerField')(default=1, null=True, blank=True), keep_default=False)
+                if line.user_id != billing_entity.user_id:
+                    line.user_id = billing_entity.user_id
+                    line.save()
 
+                    for creds in creds_objects.filter(entity=line.id):
+                        new_value = creds_objects.get(entity=billing_entity, user=creds.user_id).value
+
+                        if creds.value != new_value:
+                            creds.value = new_value
+                            creds.save()
+
+                    counter += 1
+            except Exception, e:
+                print "Error:", e
+
+        print counter, 'line(s) fixed.'
 
     def backwards(self, orm):
-        # Deleting field 'Base.currency'
-        db.delete_column('billing_base', 'currency_id')
-
-        # Changing field 'Base.discount'
-        db.alter_column('billing_base', 'discount', self.gf('django.db.models.fields.DecimalField')(null=True, max_digits=4, decimal_places=2))
-
-        # Deleting field 'Line.discount_unit'
-        db.delete_column('billing_line', 'discount_unit')
-
+        pass
 
     models = {
         'auth.group': {
@@ -73,7 +83,7 @@ class Migration(SchemaMigration):
             'Meta': {'ordering': "('id',)", 'object_name': 'Base', '_ormbases': ['creme_core.CremeEntity']},
             'additional_info': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'AdditionalInformation_set'", 'null': 'True', 'to': "orm['billing.AdditionalInformation']"}),
             'billing_address': ('django.db.models.fields.related.ForeignKey', [], {'blank': 'True', 'related_name': "'BillingAddress_set'", 'null': 'True', 'to': "orm['persons.Address']"}),
-            'comment': ('django.db.models.fields.CharField', [], {'max_length': '500', 'null': 'True', 'blank': 'True'}),
+            'comment': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
             'cremeentity_ptr': ('django.db.models.fields.related.OneToOneField', [], {'to': "orm['creme_core.CremeEntity']", 'unique': 'True', 'primary_key': 'True'}),
             'currency': ('django.db.models.fields.related.ForeignKey', [], {'default': '1', 'related_name': "'Currency_set'", 'to': "orm['creme_core.Currency']"}),
             'discount': ('django.db.models.fields.DecimalField', [], {'default': "'0'", 'max_digits': '10', 'decimal_places': '2'}),
@@ -220,6 +230,19 @@ class Migration(SchemaMigration):
             'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
         },
+        'creme_core.cremeproperty': {
+            'Meta': {'object_name': 'CremeProperty'},
+            'creme_entity': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'properties'", 'to': "orm['creme_core.CremeEntity']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['creme_core.CremePropertyType']"})
+        },
+        'creme_core.cremepropertytype': {
+            'Meta': {'object_name': 'CremePropertyType'},
+            'id': ('django.db.models.fields.CharField', [], {'max_length': '100', 'primary_key': 'True'}),
+            'is_custom': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'subject_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'subject_ctypes_creme_property_set'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['contenttypes.ContentType']"}),
+            'text': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '200'})
+        },
         'creme_core.currency': {
             'Meta': {'object_name': 'Currency'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
@@ -228,9 +251,58 @@ class Migration(SchemaMigration):
             'local_symbol': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
+        'creme_core.entitycredentials': {
+            'Meta': {'object_name': 'EntityCredentials'},
+            'entity': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'credentials'", 'null': 'True', 'to': "orm['creme_core.CremeEntity']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True'}),
+            'value': ('django.db.models.fields.CharField', [], {'max_length': "'5'"})
+        },
+        'creme_core.relation': {
+            'Meta': {'object_name': 'Relation'},
+            'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
+            'entity_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']"}),
+            'header_filter_search_field': ('django.db.models.fields.CharField', [], {'max_length': '200'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_actived': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'is_deleted': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
+            'object_entity': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'relations_where_is_object'", 'to': "orm['creme_core.CremeEntity']"}),
+            'subject_entity': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'relations'", 'to': "orm['creme_core.CremeEntity']"}),
+            'symmetric_relation': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['creme_core.Relation']", 'null': 'True', 'blank': 'True'}),
+            'type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['creme_core.RelationType']", 'null': 'True', 'blank': 'True'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
+        },
+        'creme_core.relationtype': {
+            'Meta': {'object_name': 'RelationType'},
+            'id': ('django.db.models.fields.CharField', [], {'max_length': '100', 'primary_key': 'True'}),
+            'is_custom': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'is_internal': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            'object_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'relationtype_objects_set'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['contenttypes.ContentType']"}),
+            'object_properties': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'relationtype_objects_set'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['creme_core.CremePropertyType']"}),
+            'predicate': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'subject_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'relationtype_subjects_set'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['contenttypes.ContentType']"}),
+            'subject_properties': ('django.db.models.fields.related.ManyToManyField', [], {'blank': 'True', 'related_name': "'relationtype_subjects_set'", 'null': 'True', 'symmetrical': 'False', 'to': "orm['creme_core.CremePropertyType']"}),
+            'symmetric_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['creme_core.RelationType']", 'null': 'True', 'blank': 'True'})
+        },
+        'creme_core.setcredentials': {
+            'Meta': {'object_name': 'SetCredentials'},
+            'ctype': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']", 'null': 'True', 'blank': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'role': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'credentials'", 'to': "orm['creme_core.UserRole']"}),
+            'set_type': ('django.db.models.fields.PositiveIntegerField', [], {}),
+            'value': ('django.db.models.fields.PositiveSmallIntegerField', [], {})
+        },
+        'creme_core.teamm2m': {
+            'Meta': {'object_name': 'TeamM2M'},
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'team': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'team_m2m_teamside'", 'to': "orm['auth.User']"}),
+            'teammate': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'team_m2m'", 'to': "orm['auth.User']"})
+        },
         'creme_core.userrole': {
             'Meta': {'object_name': 'UserRole'},
-            'creatable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['contenttypes.ContentType']", 'null': 'True', 'symmetrical': 'False'}),
+            'creatable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'roles_allowing_creation'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
+            'exportable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'roles_allowing_export'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'raw_admin_4_apps': ('django.db.models.fields.TextField', [], {'default': "''"}),

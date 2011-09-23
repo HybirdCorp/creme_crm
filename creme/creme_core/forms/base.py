@@ -215,6 +215,7 @@ class CremeEntityForm(CremeModelWithUserForm):
         assert self.instance, CremeEntity
         self._build_customfields()
 
+        #TODO: move in CremeModelForm ???
         #Populate help_text in form widgets
         #Rule is form field help text or model field help text
         for field_name, form_field in self.fields.iteritems():
