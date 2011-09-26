@@ -21,7 +21,7 @@
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from creme_config.constants import USER_THEME_NAME
-from creme_config.models.setting import SettingKey
+from creme_config.models import SettingKey
 
 
 class Populator(BasePopulator):
@@ -30,4 +30,3 @@ class Populator(BasePopulator):
                                description="", hidden=True,
                                app_label='creme_config', type=SettingKey.STRING
                               )
-  

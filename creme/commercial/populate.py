@@ -25,11 +25,11 @@ from django.conf import settings
 
 from creme_core.models import (RelationType, CremePropertyType, BlockDetailviewLocation,
                                SearchConfigItem, ButtonMenuItem, HeaderFilterItem, HeaderFilter)
-from creme_core.utils import create_or_update as create
+from creme_core.utils import create_if_needed
 from creme_core.blocks import relations_block, properties_block, customfields_block, history_block
 from creme_core.management.commands.creme_populate import BasePopulator
 
-from creme_config.models.setting import SettingKey, SettingValue
+from creme_config.models import SettingKey, SettingValue
 
 from persons.models import Contact, Organisation
 
@@ -54,8 +54,8 @@ class Populator(BasePopulator):
 
         CremePropertyType.create(PROP_IS_A_SALESMAN, _(u'is a salesman'), [Contact])
 
-        for i, title in enumerate((_('Phone calls'), _('Show'), _('Demo'))):
-            create(ActType, i + 1, title=title, is_custom=False)
+        for i, title in enumerate([_('Phone calls'), _('Show'), _('Demo')], start=1):
+            create_if_needed(ActType, {'pk': i}, title=title, is_custom=False)
 
         BlockDetailviewLocation.create(block_id=approaches_block.id_, order=10, zone=BlockDetailviewLocation.RIGHT)
         BlockDetailviewLocation.create(block_id=approaches_block.id_, order=10, zone=BlockDetailviewLocation.RIGHT, model=Contact)
@@ -112,19 +112,19 @@ class Populator(BasePopulator):
                       HeaderFilterItem.build_4_field(model=ActObjectivePattern, name='segment'),
                      ])
 
-        ButtonMenuItem.create(pk='commercial-complete_goal_button', model=None, button=complete_goal_button, order=60)
+        ButtonMenuItem.create_if_needed(pk='commercial-complete_goal_button', model=None, button=complete_goal_button, order=60)
 
-        SearchConfigItem.create(Act, ['name', 'expected_sales', 'cost', 'goal'])
-        SearchConfigItem.create(Strategy, ['name'])
+        SearchConfigItem.create_if_needed(Act, ['name', 'expected_sales', 'cost', 'goal'])
+        SearchConfigItem.create_if_needed(Strategy, ['name'])
 
-        sk_com_app_email = SettingKey.create(pk=IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED,
+        sk = SettingKey.create(pk=IS_COMMERCIAL_APPROACH_EMAIL_NOTIFICATION_ENABLED,
                                description=_(u"Enable email reminder for commercial approaches"),
                                app_label='commercial', type=SettingKey.BOOL
-                               )
-        SettingValue.objects.create(key=sk_com_app_email, user=None, value=True)
+                              )
+        SettingValue.create_if_needed(key=sk, user=None, value=True)
 
-        sk_com_app_only_orga = SettingKey.create(pk=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW,
+        sk = SettingKey.create(pk=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW,
                                description=_(u"Display only organisations' commercial approaches on organisations' file. (Otherwise, display organisations', managers', employees', related opportunities' commercial approaches)"),
                                app_label='commercial', type=SettingKey.BOOL
-                               )
-        SettingValue.objects.create(key=sk_com_app_only_orga, user=None, value=True)
+                              )
+        SettingValue.create_if_needed(key=sk, user=None, value=True)

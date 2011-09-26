@@ -68,19 +68,24 @@ class SearchConfigItem(CremeModel):
             sfci._searchfields = sfci_dict[sfci.id]
 
     @staticmethod
-    def create(model, fields, user=None):
-        """Create a config item & its fields
-        SearchConfigItem.create(SomeDjangoModel, ['SomeDjangoModel_field1', 'SomeDjangoModel_field2', ..])
+    def create_if_needed(model, fields, user=None):
+        """Create a config item & its fields if one does not already exists.
+        SearchConfigItem.create_if_needed(SomeDjangoModel, ['SomeDjangoModel_field1', 'SomeDjangoModel_field2', ..])
         """
         ct = ContentType.objects.get_for_model(model)
+        sci, created = SearchConfigItem.objects.get_or_create(content_type=ct, user=user)
 
-        SearchConfigItem.objects.filter(content_type=ct, user=user).delete()
+        if created:
+            create_sf = SearchField.objects.create
 
-        sci = SearchConfigItem.objects.create(content_type=ct, user=user)
-        create_sf = SearchField.objects.create
+            for i, field in enumerate(fields, start=1):
+                create_sf(field=field,
+                          field_verbose_name=get_verbose_field_name(model, field),
+                          order=i,
+                          search_config_item=sci,
+                         )
 
-        for i, field in enumerate(fields):
-            create_sf(field=field, field_verbose_name=get_verbose_field_name(model, field), order=i, search_config_item=sci)
+        return sci
 
 
 #TODO: is this model really useful ??? (store fields in a textfield in SearchConfigItem ?)

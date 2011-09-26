@@ -26,7 +26,7 @@ from creme_core.models import CremeModel
 
 
 class ButtonMenuItem(CremeModel):
-    id           = CharField(primary_key=True, max_length=100)
+    id           = CharField(primary_key=True, max_length=100) #TODO: pk string still useful ???
     content_type = ForeignKey(ContentType, verbose_name=_(u"Related type"), null=True) #null means: all ContentTypes are accepted.
     button_id    = CharField(_(u"Button ID"), max_length=100, blank=False, null=False)
     order        = PositiveIntegerField(_(u"Priority"))
@@ -37,10 +37,17 @@ class ButtonMenuItem(CremeModel):
         verbose_name_plural = _(u'Buttons to display')
 
     @staticmethod
-    def create(pk, model, button, order):
+    def create_if_needed(pk, model, button, order):
         """Creation helper ; useful for populate.py scripts.
         @param model Can be None for 'all models'
         """
-        from creme_core.utils import create_or_update
-        ct = ContentType.objects.get_for_model(model) if model else None
-        return create_or_update(ButtonMenuItem, pk, content_type=ct, button_id=button.id_, order=order)
+        kwargs = {'content_type': ContentType.objects.get_for_model(model) if model else None,
+                  'button_id':    button.id_,
+                 }
+
+        try:
+            bmi = ButtonMenuItem.objects.get(**kwargs)
+        except ButtonMenuItem.DoesNotExist:
+            bmi = ButtonMenuItem.objects.create(pk=pk, order=order, **kwargs)
+
+        return bmi

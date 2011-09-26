@@ -58,4 +58,4 @@ class Populator(BasePopulator):
             BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=Report)
             BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=Report)
 
-        SearchConfigItem.create(Report, ['name', 'ct__name'])
+        SearchConfigItem.create_if_needed(Report, ['name', 'ct__name'])

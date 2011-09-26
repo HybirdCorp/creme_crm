@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from django.contrib.contenttypes.models import ContentType
+try:
+    from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import *
-from creme_core.tests.views.base import ViewsTestCase
+    from creme_core.models import *
+    from creme_core.tests.views.base import ViewsTestCase
 
-from persons.models import Contact, Organisation
+    from persons.models import Contact, Organisation
+except Exception, e:
+    print 'Error:', e
 
 
 __all__ = ('SearchViewTestCase', )
@@ -20,11 +23,11 @@ class SearchViewTestCase(ViewsTestCase):
         self.alan  = Contact.objects.create(user=self.user, first_name='Alan',  last_name='Cox')
 
     def _setup_contacts(self):
-        SearchConfigItem.create(Contact, ['first_name', 'last_name']) #TODO: unitest this method
+        SearchConfigItem.create_if_needed(Contact, ['first_name', 'last_name'])
         self._build_contacts()
 
     def _setup_orgas(self):
-        SearchConfigItem.create(Organisation, ['name'])
+        SearchConfigItem.create_if_needed(Organisation, ['name'])
 
         self.linusfo = Organisation.objects.create(user=self.user, name='FoobarLinusFoundation')
         self.coxco   = Organisation.objects.create(user=self.user, name='StuffCoxCorp')

@@ -25,7 +25,7 @@ from django.contrib.auth.models import User
 from django.conf import settings
 
 from creme_core.models import RelationType, BlockDetailviewLocation, SearchConfigItem, HeaderFilterItem, HeaderFilter
-from creme_core.utils import create_or_update as create
+from creme_core.utils import create_if_needed
 from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -39,14 +39,16 @@ class Populator(BasePopulator):
 
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_RELATED_2_DOC, _(u'related to the document')),
-                            (REL_OBJ_RELATED_2_DOC, _(u'document related to'),       [Document]))
+                            (REL_OBJ_RELATED_2_DOC, _(u'document related to'),      [Document])
+                           )
 
-        category_entities = create(FolderCategory, DOCUMENTS_FROM_ENTITIES, name=_(u"Documents related to entities"))
-        create(FolderCategory, DOCUMENTS_FROM_EMAILS, name=_(u"Documents received by email"))
+        entities_cat = create_if_needed(FolderCategory, {'pk': DOCUMENTS_FROM_ENTITIES}, name=_(u"Documents related to entities"))
+        create_if_needed(FolderCategory,                {'pk': DOCUMENTS_FROM_EMAILS},   name=_(u"Documents received by email"))
 
         if not Folder.objects.filter(title="Creme").exists():
-            user = User.objects.get(pk=1)
-            create(Folder, title="Creme", description=_(u"Folder containing all the documents related to entities"), category=category_entities, user=user)
+            Folder.objects.create(user=User.objects.get(pk=1), title="Creme", category=entities_cat,
+                                  description=_(u"Folder containing all the documents related to entities")
+                                 )
         else:
             info("A Folder with title 'Creme' already exists => no re-creation")
 
@@ -78,5 +80,5 @@ class Populator(BasePopulator):
             BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=Folder)
             BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=Folder)
 
-        SearchConfigItem.create(Document, ['title', 'description', 'folder__title'])
-        SearchConfigItem.create(Folder,   ['title', 'description', 'category__name'])
+        SearchConfigItem.create_if_needed(Document, ['title', 'description', 'folder__title'])
+        SearchConfigItem.create_if_needed(Folder,   ['title', 'description', 'category__name'])

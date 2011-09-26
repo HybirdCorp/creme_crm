@@ -19,12 +19,12 @@
 ################################################################################
 
 from creme_core.models import BlockDetailviewLocation, BlockPortalLocation
-from creme_core.utils import create_or_update as create
+from creme_core.utils import create_if_needed
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from assistants.constants import USERMESSAGE_PRIORITIES
 from assistants.models import UserMessagePriority
-from assistants.blocks import alerts_block, memos_block, todos_block, messages_block #actions_it_block, actions_nit_block, 
+from assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
 
 class Populator(BasePopulator):
@@ -32,26 +32,20 @@ class Populator(BasePopulator):
 
     def populate(self, *args, **kwargs):
         for pk, title in USERMESSAGE_PRIORITIES.iteritems():
-            create(UserMessagePriority, pk, title=unicode(title), is_custom=False)
+            create_if_needed(UserMessagePriority, {'pk': pk}, title=unicode(title), is_custom=False)
 
-        BlockDetailviewLocation.create(block_id=todos_block.id_,       order=100, zone=BlockDetailviewLocation.RIGHT)
-        BlockDetailviewLocation.create(block_id=memos_block.id_,       order=200, zone=BlockDetailviewLocation.RIGHT)
-        BlockDetailviewLocation.create(block_id=alerts_block.id_,      order=300, zone=BlockDetailviewLocation.RIGHT)
-        #BlockDetailviewLocation.create(block_id=actions_it_block.id_,  order=400, zone=BlockDetailviewLocation.RIGHT)
-        #BlockDetailviewLocation.create(block_id=actions_nit_block.id_, order=410, zone=BlockDetailviewLocation.RIGHT)
-        BlockDetailviewLocation.create(block_id=messages_block.id_,    order=500, zone=BlockDetailviewLocation.RIGHT)
+        BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT)
+        BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT)
+        BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT)
+        BlockDetailviewLocation.create(block_id=messages_block.id_, order=500, zone=BlockDetailviewLocation.RIGHT)
 
-        BlockPortalLocation.create(block_id=memos_block.id_,       order=100)
-        BlockPortalLocation.create(block_id=alerts_block.id_,      order=200)
-        #BlockPortalLocation.create(block_id=actions_it_block.id_,  order=300)
-        #BlockPortalLocation.create(block_id=actions_nit_block.id_, order=310)
-        BlockPortalLocation.create(block_id=messages_block.id_,    order=400)
+        BlockPortalLocation.create(block_id=memos_block.id_,    order=100)
+        BlockPortalLocation.create(block_id=alerts_block.id_,   order=200)
+        BlockPortalLocation.create(block_id=messages_block.id_, order=400)
 
-        BlockPortalLocation.create(app_name='creme_core', block_id=memos_block.id_,       order=100)
-        BlockPortalLocation.create(app_name='creme_core', block_id=alerts_block.id_,      order=200)
-        #BlockPortalLocation.create(app_name='creme_core', block_id=actions_it_block.id_,  order=300)
-        #BlockPortalLocation.create(app_name='creme_core', block_id=actions_nit_block.id_, order=310)
-        BlockPortalLocation.create(app_name='creme_core', block_id=messages_block.id_,    order=400)
+        BlockPortalLocation.create(app_name='creme_core', block_id=memos_block.id_,    order=100)
+        BlockPortalLocation.create(app_name='creme_core', block_id=alerts_block.id_,   order=200)
+        BlockPortalLocation.create(app_name='creme_core', block_id=messages_block.id_, order=400)
 
         BlockPortalLocation.create(block_id=memos_block.id_,    order=100)
         BlockPortalLocation.create(block_id=alerts_block.id_,   order=200)

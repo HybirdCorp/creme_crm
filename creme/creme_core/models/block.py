@@ -63,17 +63,13 @@ class BlockDetailviewLocation(CremeModel):
             )
 
     @staticmethod
-    def create(block_id, order, zone, model=None):
+    def create(block_id, order, zone, model=None): #TODO: rename 'create_if_needed'
         ct = ContentType.objects.get_for_model(model) if model else None
 
         try:
             loc = BlockDetailviewLocation.objects.get(content_type=ct, block_id=block_id)
         except Exception:
             loc = BlockDetailviewLocation.objects.create(content_type=ct, block_id=block_id, order=order, zone=zone)
-        else:
-            loc.order = order
-            loc.zone  = zone
-            loc.save()
 
         return loc
 

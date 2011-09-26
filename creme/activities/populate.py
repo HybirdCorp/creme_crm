@@ -24,13 +24,14 @@ from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from creme_config.models.setting import SettingKey, SettingValue
 
 from creme_core.models import (RelationType, BlockDetailviewLocation, BlockPortalLocation,
                                ButtonMenuItem, SearchConfigItem, HeaderFilterItem, HeaderFilter)
-from creme_core.utils import create_or_update as create
+from creme_core.utils import create_if_needed
 from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme_core.management.commands.creme_populate import BasePopulator
+
+from creme_config.models import SettingKey, SettingValue
 
 from persons.models import Contact, Organisation
 
@@ -54,23 +55,23 @@ class Populator(BasePopulator):
                             (REL_OBJ_PART_2_ACTIVITY,  _(u'(activity) has as participant'), [Activity, Meeting, PhoneCall, Task])
                            )
 
-        create(PhoneCallType, PHONECALLTYPE_INCOMING, name=_(u"Incoming"), description=_(u"Incoming call"))
-        create(PhoneCallType, PHONECALLTYPE_OUTGOING, name=_(u"Outgoing"), description=_(u"Outgoing call"))
-        create(PhoneCallType, PHONECALLTYPE_OTHER,    name=_(u"Other"),    description=_(u"Example: a conference"))
+        create_if_needed(PhoneCallType, {'pk': PHONECALLTYPE_INCOMING}, name=_(u"Incoming"), description=_(u"Incoming call"))
+        create_if_needed(PhoneCallType, {'pk': PHONECALLTYPE_OUTGOING}, name=_(u"Outgoing"), description=_(u"Outgoing call"))
+        create_if_needed(PhoneCallType, {'pk': PHONECALLTYPE_OTHER},    name=_(u"Other"),    description=_(u"Example: a conference"))
 
-        create(Status, STATUS_PLANNED,     name=_(u"Planned"),     description=_(u"Planned"))
-        create(Status, STATUS_IN_PROGRESS, name=_(u"In progress"), description=_(u"In progress"))
-        create(Status, STATUS_DONE,        name=_(u"Done"),        description=_(u"Done"))
-        create(Status, STATUS_DELAYED,     name=_(u"Delayed"),     description=_(u"Delayed"))
-        create(Status, STATUS_CANCELLED,   name=_(u"Cancelled"),   description=_(u"Cancelled"))
+        create_if_needed(Status, {'pk': STATUS_PLANNED},     name=_(u"Planned"),     description=_(u"Planned"))
+        create_if_needed(Status, {'pk': STATUS_IN_PROGRESS}, name=_(u"In progress"), description=_(u"In progress"))
+        create_if_needed(Status, {'pk': STATUS_DONE},        name=_(u"Done"),        description=_(u"Done"))
+        create_if_needed(Status, {'pk': STATUS_DELAYED},     name=_(u"Delayed"),     description=_(u"Delayed"))
+        create_if_needed(Status, {'pk': STATUS_CANCELLED},   name=_(u"Cancelled"),   description=_(u"Cancelled"))
 
-        create(ActivityType, ACTIVITYTYPE_TASK,      name=_(u"Task"),            color="987654", default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
-        create(ActivityType, ACTIVITYTYPE_MEETING,   name=_(u"Meeting"),         color="456FFF", default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
-        create(ActivityType, ACTIVITYTYPE_PHONECALL, name=_(u"Phone call"),      color="A24BBB", default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
-        create(ActivityType, ACTIVITYTYPE_GATHERING, name=_(u"Gathering"),       color="F23C39", default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
-        create(ActivityType, ACTIVITYTYPE_SHOW,      name=_(u"Show"),            color="8DE501", default_day_duration=1, default_hour_duration="00:00:00", is_custom=False)
-        create(ActivityType, ACTIVITYTYPE_DEMO,      name=_(u"Demonstration"),   color="4EEF65", default_day_duration=0, default_hour_duration="01:00:00", is_custom=False)
-        create(ActivityType, ACTIVITYTYPE_INDISPO,   name=_(u"Indisponibility"), color="CC0000", default_day_duration=1, default_hour_duration="00:00:00", is_custom=False)
+        create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_TASK},      name=_(u"Task"),            color="987654", default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
+        create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_MEETING},   name=_(u"Meeting"),         color="456FFF", default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
+        create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_PHONECALL}, name=_(u"Phone call"),      color="A24BBB", default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
+        create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_GATHERING}, name=_(u"Gathering"),       color="F23C39", default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
+        create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_SHOW},      name=_(u"Show"),            color="8DE501", default_day_duration=1, default_hour_duration="00:00:00", is_custom=False)
+        create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_DEMO},      name=_(u"Demonstration"),   color="4EEF65", default_day_duration=0, default_hour_duration="01:00:00", is_custom=False)
+        create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_INDISPO},   name=_(u"Indisponibility"), color="CC0000", default_day_duration=1, default_hour_duration="00:00:00", is_custom=False)
 
         hf   = HeaderFilter.create(pk='activities-hf', name=_(u'Activity view'), model=Activity)
         hf.set_items([HeaderFilterItem.build_4_field(model=Activity, name='title'),
@@ -97,12 +98,10 @@ class Populator(BasePopulator):
             from assistants.blocks import alerts_block, memos_block, todos_block, messages_block #actions_it_block, actions_nit_block, 
 
             for model in models:
-                BlockDetailviewLocation.create(block_id=todos_block.id_,       order=100, zone=BlockDetailviewLocation.RIGHT, model=model)
-                BlockDetailviewLocation.create(block_id=memos_block.id_,       order=200, zone=BlockDetailviewLocation.RIGHT, model=model)
-                BlockDetailviewLocation.create(block_id=alerts_block.id_,      order=300, zone=BlockDetailviewLocation.RIGHT, model=model)
-                #BlockDetailviewLocation.create(block_id=actions_it_block.id_,  order=400, zone=BlockDetailviewLocation.RIGHT, model=model)
-                #BlockDetailviewLocation.create(block_id=actions_nit_block.id_, order=410, zone=BlockDetailviewLocation.RIGHT, model=model)
-                BlockDetailviewLocation.create(block_id=messages_block.id_,    order=500, zone=BlockDetailviewLocation.RIGHT, model=model)
+                BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)
+                BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=model)
+                BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=model)
+                BlockDetailviewLocation.create(block_id=messages_block.id_, order=500, zone=BlockDetailviewLocation.RIGHT, model=model)
 
         future_id = future_activities_block.id_
         past_id   = past_activities_block.id_
@@ -115,11 +114,11 @@ class Populator(BasePopulator):
         BlockPortalLocation.create(app_name='creme_core', block_id=future_id, order=20)
         BlockPortalLocation.create(app_name='creme_core', block_id=past_id,   order=21)
 
-        ButtonMenuItem.create('activities-add_meeting_button',   model=None, button=add_meeting_button,   order=10)
-        ButtonMenuItem.create('activities-add_phonecall_button', model=None, button=add_phonecall_button, order=11)
-        ButtonMenuItem.create('activities-add_task_button',      model=None, button=add_task_button,      order=12)
+        ButtonMenuItem.create_if_needed('activities-add_meeting_button',   model=None, button=add_meeting_button,   order=10)
+        ButtonMenuItem.create_if_needed('activities-add_phonecall_button', model=None, button=add_phonecall_button, order=11)
+        ButtonMenuItem.create_if_needed('activities-add_task_button',      model=None, button=add_task_button,      order=12)
 
-        SearchConfigItem.create(Activity, ['title', 'description', 'type__name'])
+        SearchConfigItem.create_if_needed(Activity, ['title', 'description', 'type__name'])
 
         for user in User.objects.all():
             Calendar.get_user_default_calendar(user)
@@ -128,4 +127,4 @@ class Populator(BasePopulator):
                                description=_(u"Display minutes information in activities blocks"),
                                app_label='activities', type=SettingKey.BOOL
                               )
-        SettingValue.objects.create(key=sk, user=None, value=True)
+        SettingValue.create_if_needed(key=sk, user=None, value=True)

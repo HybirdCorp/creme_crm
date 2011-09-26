@@ -25,7 +25,7 @@ from django.conf import settings
 
 from creme_core.models import SearchConfigItem, RelationType, HeaderFilterItem, HeaderFilter, BlockDetailviewLocation
 from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
-from creme_core.utils import create_or_update as create
+from creme_core.utils import create_if_needed
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from persons.models import Contact
@@ -68,7 +68,7 @@ class Populator(BasePopulator):
                     )
 
         for i, name in enumerate([_('Show'), _('Conference'), _('Breakfast'), _('Brunch')], start=1):
-            create(EventType, i, name=name)
+            create_if_needed(EventType, {'pk': i}, name=name)
 
         hf = HeaderFilter.create(pk='events-hf', name=_(u'Event view'), model=Event)
         hf.set_items([HeaderFilterItem.build_4_field(model=Event, name='name'),
@@ -78,11 +78,11 @@ class Populator(BasePopulator):
                      ])
 
         BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Event)
-        BlockDetailviewLocation.create(block_id=customfields_block.id_,  order=40,  zone=BlockDetailviewLocation.LEFT,  model=Event)
-        BlockDetailviewLocation.create(block_id=properties_block.id_,    order=450, zone=BlockDetailviewLocation.LEFT,  model=Event)
-        BlockDetailviewLocation.create(block_id=relations_block.id_,     order=500, zone=BlockDetailviewLocation.LEFT,  model=Event)
-        BlockDetailviewLocation.create(block_id=resuts_block.id_,        order=2,   zone=BlockDetailviewLocation.RIGHT, model=Event)
-        BlockDetailviewLocation.create(block_id=history_block.id_,       order=20,  zone=BlockDetailviewLocation.RIGHT, model=Event)
+        BlockDetailviewLocation.create(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT,  model=Event)
+        BlockDetailviewLocation.create(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.LEFT,  model=Event)
+        BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT,  model=Event)
+        BlockDetailviewLocation.create(block_id=resuts_block.id_,       order=2,   zone=BlockDetailviewLocation.RIGHT, model=Event)
+        BlockDetailviewLocation.create(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Event)
 
         if 'assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail view')
@@ -94,4 +94,4 @@ class Populator(BasePopulator):
             BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=Event)
             BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=Event)
 
-        SearchConfigItem.create(Event, ['name', 'description', 'type__name'])
+        SearchConfigItem.create_if_needed(Event, ['name', 'description', 'type__name'])

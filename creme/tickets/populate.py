@@ -25,7 +25,7 @@ from django.conf import settings
 
 from creme_core.models import (RelationType, SearchConfigItem, HeaderFilterItem, HeaderFilter,
                                BlockDetailviewLocation, RelationBlockItem, ButtonMenuItem)
-from creme_core.utils import create_or_update as create
+from creme_core.utils import create_if_needed
 from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -42,13 +42,13 @@ class Populator(BasePopulator):
                             (REL_OBJ_LINKED_2_TICKET, _(u'(ticket) linked to the entitity'), [Ticket]))
 
         for pk, name in BASE_STATUS:
-            create(Status, pk, name=name, is_custom=False)
+            create_if_needed(Status, {'pk': pk}, name=name, is_custom=False)
 
         for i, name in enumerate([_('Low'), _('Normal'), _('High'), _('Urgent'), _('Blocking')], start=1):
-            create(Priority, i, name=name)
+            create_if_needed(Priority, {'pk': i}, name=name)
 
         for i, name in enumerate([_('Minor'), _('Major'), _('Feature'), _('Critical'), _('Enhancement'), _('Error')], start=1):
-            create(Criticity, i, name=name)
+            create_if_needed(Criticity, {'pk': i}, name=name)
 
         hf = HeaderFilter.create(pk='tickets-hf_ticket', name=_(u'Ticket view'), model=Ticket)
         hf.set_items([HeaderFilterItem.build_4_field(model=Ticket, name='title'),
@@ -65,7 +65,7 @@ class Populator(BasePopulator):
                       HeaderFilterItem.build_4_field(model=TicketTemplate, name='criticity__name'),
                      ])
 
-        SearchConfigItem.create(Ticket, ['title', 'description', 'status__name', 'priority__name', 'criticity__name'])
+        SearchConfigItem.create_if_needed(Ticket, ['title', 'description', 'status__name', 'priority__name', 'criticity__name'])
 
         rbi = RelationBlockItem.create(REL_OBJ_LINKED_2_TICKET)
 
@@ -94,7 +94,7 @@ class Populator(BasePopulator):
             else:
                 from tickets.buttons import linked_2_ticket_button
 
-                ButtonMenuItem.create(pk='tickets-linked_contact_button', model=Contact,      button=linked_2_ticket_button, order=50)
-                ButtonMenuItem.create(pk='tickets-linked_orga_button',    model=Organisation, button=linked_2_ticket_button, order=50)
+                ButtonMenuItem.create_if_needed(pk='tickets-linked_contact_button', model=Contact,      button=linked_2_ticket_button, order=50)
+                ButtonMenuItem.create_if_needed(pk='tickets-linked_orga_button',    model=Organisation, button=linked_2_ticket_button, order=50)
 
                 info("'Persons' app is installed => add button 'Linked to a ticket' to Contact & Organisation")

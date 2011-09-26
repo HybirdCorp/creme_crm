@@ -25,7 +25,7 @@ from django.contrib.auth.models import User
 from creme_config.models.setting import SettingKey, SettingValue
 
 from creme_core.models import *
-from creme_core.utils import create_or_update as create
+from creme_core.utils import create_if_needed
 from creme_core.constants import *
 from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
 from creme_core.management.commands.creme_populate import BasePopulator
@@ -33,11 +33,11 @@ from creme_core.management.commands.creme_populate import BasePopulator
 
 class Populator(BasePopulator):
     def populate(self, *args, **kwargs):
-        create(Language, 1, name=_(u'French'),  code='FRA')
-        create(Language, 2, name=_(u'English'), code='EN')
+        create_if_needed(Language, {'pk': 1}, name=_(u'French'),  code='FRA')
+        create_if_needed(Language, {'pk': 2}, name=_(u'English'), code='EN')
 
-        create(Currency, DEFAULT_CURRENCY_PK,   name=_(u"Euro"),                    local_symbol=_(u"€"), international_symbol=_(u'EUR'), is_custom=False)
-        create(Currency, 2,                     name=_(u"United States dollar"),    local_symbol=_(u"$"), international_symbol=_(u'USD'), is_custom=True)
+        create_if_needed(Currency, {'pk': DEFAULT_CURRENCY_PK}, name=_(u"Euro"),                 local_symbol=_(u"€"), international_symbol=_(u'EUR'), is_custom=False)
+        create_if_needed(Currency, {'pk': 2},                   name=_(u"United States dollar"), local_symbol=_(u"$"), international_symbol=_(u'USD'), is_custom=True)
 
         CremePropertyType.create(PROP_IS_MANAGED_BY_CREME, _(u'managed by Creme'))
 
@@ -63,23 +63,23 @@ class Populator(BasePopulator):
                                description=_(u"By default, are blocks open ?"),
                                app_label='creme_core', type=SettingKey.BOOL
                               )
-        SettingValue.objects.create(key=sk, user=None, value=True)
+        SettingValue.create_if_needed(key=sk, user=None, value=True)
 
-        sk2 = SettingKey.create(pk=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
-                                description=_(u"By default, are empty fields displayed ?"),
-                                app_label='creme_core', type=SettingKey.BOOL
+        sk = SettingKey.create(pk=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
+                               description=_(u"By default, are empty fields displayed ?"),
+                               app_label='creme_core', type=SettingKey.BOOL
                               )
-        SettingValue.objects.create(key=sk2, user=None, value=True)
+        SettingValue.create_if_needed(key=sk, user=None, value=True)
 
-        sk3 = SettingKey.create(pk=DISPLAY_CURRENCY_LOCAL_SYMBOL,
+        sk = SettingKey.create(pk=DISPLAY_CURRENCY_LOCAL_SYMBOL,
                                description=_(u"Display the currency local symbol (ex: €) ? If no the international symbol will be used (ex: EUR)"),
                                app_label='creme_core', type=SettingKey.BOOL
                               )
-        SettingValue.objects.create(key=sk3, user=None, value=True)
+        SettingValue.create_if_needed(key=sk, user=None, value=True)
 
         #BlockPortalLocation.create_empty_config() #default portal
         #BlockPortalLocation.create_empty_config('creme_core') #home
-        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT) #TODO: unit test
+        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT)
         BlockDetailviewLocation.create(block_id=customfields_block.id_, order=40,  zone=BlockDetailviewLocation.LEFT)
         BlockDetailviewLocation.create(block_id=properties_block.id_,   order=450, zone=BlockDetailviewLocation.LEFT)
         BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT)

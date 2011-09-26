@@ -1,21 +1,26 @@
 # -*- coding: utf-8 -*-
 
-import string
-import pytz
-from datetime import datetime, date, timedelta
+try:
+    import string
+    import pytz
+    from datetime import datetime, date, timedelta
 
-from django.db.models import fields
-from django.utils.translation import ugettext as _
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
+    from django.db.models import fields
+    from django.utils.translation import ugettext as _
+    from django.contrib.auth.models import User
+    from django.contrib.contenttypes.models import ContentType
 
-from creme_core import models
-from creme_core.utils import *
-from creme_core.utils import meta, chunktools
-from creme_core.utils.date_range import date_range_registry
-from creme_core.utils.dates import(get_dt_from_iso8601_str, get_dt_from_iso8601_str, get_dt_to_iso8601_str,
-                                   get_naive_dt_from_tzdate, get_creme_dt_from_utc_dt, get_utc_dt_from_creme_dt)
-from creme_core.tests.base import CremeTestCase
+    from creme_core.models import CremePropertyType, CremeProperty, CremeEntity, PreferedMenuItem
+    from creme_core.utils import *
+    from creme_core.utils import meta, chunktools
+    from creme_core.utils.date_range import date_range_registry
+    from creme_core.utils.dates import(get_dt_from_iso8601_str, get_dt_from_iso8601_str, get_dt_to_iso8601_str,
+                                       get_naive_dt_from_tzdate, get_creme_dt_from_utc_dt, get_utc_dt_from_creme_dt)
+    from creme_core.tests.base import CremeTestCase
+
+    from persons.models import Civility
+except Exception, e:
+    print 'Error:', e
 
 
 class MiscTestCase(CremeTestCase):
@@ -48,15 +53,78 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual("",      truncate_str("abcdef", -1, suffix="aaaaaa"))
         self.assertEqual("a",     truncate_str("b",       1, suffix="a"))
 
+    #def test_create_if_needed01(self):
+        #title = 'Mister'
+        #pk = 1
+        #civ = create_if_needed(Civility, pk=pk, title=title)
+
+        #self.assertIsInstance(civ, Civility)
+        #self.assertEqual(pk,       civ.pk)
+        #self.assertEqual(title,    civ.title)
+
+        #try:
+            #civ = Civility.objects.get(pk=pk)
+        #except Civility.DoesNotExist:
+            #self.fail('Not saved ?!')
+
+        #self.assertEqual(title, civ.title)
+
+        #civ = create_if_needed(Civility, pk=pk, title=title + '2')
+        #self.assertEqual(title, civ.title)
+    def test_create_if_needed01(self):
+        title = 'Mister'
+        pk = 1
+        civ = create_if_needed(Civility, {'pk': pk}, title=title)
+
+        self.assertIsInstance(civ, Civility)
+        self.assertEqual(pk,       civ.pk)
+        self.assertEqual(title,    civ.title)
+
+        try:
+            civ = Civility.objects.get(pk=pk)
+        except Civility.DoesNotExist:
+            self.fail('Not saved ?!')
+
+        self.assertEqual(title, civ.title)
+
+        civ = create_if_needed(Civility, {'pk': pk}, title=title + '2')
+        self.assertEqual(title, civ.title)
+
+    def test_create_if_needed02(self):
+        self.login()
+        user = self.user
+        url = '/foo/bar'
+        label = 'Oh yeah'
+        order = 3
+        pmi = create_if_needed(PreferedMenuItem, {'user': user, 'url': url}, label=label, order=order)
+
+        self.assertIsInstance(pmi, PreferedMenuItem)
+        self.assertEqual(user,   pmi.user)
+        self.assertEqual(url,    pmi.url)
+        self.assertEqual(label,  pmi.label)
+        self.assertEqual(order,  pmi.order)
+
+        try:
+            pmi = PreferedMenuItem.objects.get(pk=pmi.pk)
+        except PreferedMenuItem.DoesNotExist:
+            self.fail('Not saved ?!')
+
+        self.assertEqual(label,  pmi.label)
+        self.assertEqual(order,  pmi.order)
+
+        pmi = create_if_needed(PreferedMenuItem, {'user': user, 'url': url}, label=label + ' new', order=order + 2)
+        self.assertEqual(label,  pmi.label)
+        self.assertEqual(order,  pmi.order)
+
 
 class MetaTestCase(CremeTestCase):
     def test_get_field_infos(self):
         text = 'TEXT'
 
         user   = User.objects.create(username='name')
-        ptype  = models.CremePropertyType.objects.create(text=text, is_custom=True)
-        entity = models.CremeEntity.objects.create(user=user)
-        prop   = models.CremeProperty(type=ptype, creme_entity=entity)
+        ptype  = CremePropertyType.objects.create(text=text, is_custom=True)
+        entity = CremeEntity.objects.create(user=user)
+        prop   = CremeProperty(type=ptype, creme_entity=entity)
 
         self.assertEqual((fields.CharField,    text), meta.get_field_infos(prop, 'type__text'))
         self.assertEqual((fields.BooleanField, True), meta.get_field_infos(prop, 'type__is_custom'))
@@ -67,18 +135,18 @@ class MetaTestCase(CremeTestCase):
         self.assertEqual(fields.CharField, meta.get_field_infos(prop, 'creme_entity__entity_type__name')[0])
 
     def test_get_model_field_infos(self):
-        self.assertEqual([], meta.get_model_field_infos(models.CremeEntity, 'foobar'))
-        self.assertEqual([], meta.get_model_field_infos(models.CremeEntity, 'foo__bar'))
+        self.assertEqual([], meta.get_model_field_infos(CremeEntity, 'foobar'))
+        self.assertEqual([], meta.get_model_field_infos(CremeEntity, 'foo__bar'))
 
         #[{'field': <django.db.models.fields.related.ForeignKey object at ...>,
         #  'model': <class 'creme_core.models.creme_property.CremePropertyType'>}]
         try:
-            info = meta.get_model_field_infos(models.CremeProperty, 'type')
+            info = meta.get_model_field_infos(CremeProperty, 'type')
             self.assertEqual(1, len(info))
 
             desc = info[0]
             self.assert_(isinstance(desc['field'], fields.related.ForeignKey))
-            self.assertEqual(models.CremePropertyType, desc['model'])
+            self.assertEqual(CremePropertyType, desc['model'])
         except Exception, e:
             self.fail(str(e))
 
@@ -87,12 +155,12 @@ class MetaTestCase(CremeTestCase):
         # {'field': <django.db.models.fields.CharField object at ...>,
         #   'model': None}]
         try:
-            info = meta.get_model_field_infos(models.CremeProperty, 'type__text')
+            info = meta.get_model_field_infos(CremeProperty, 'type__text')
             self.assertEqual(2, len(info))
 
             desc = info[0]
             self.assert_(isinstance(desc['field'], fields.related.ForeignKey))
-            self.assertEqual(models.CremePropertyType, desc['model'])
+            self.assertEqual(CremePropertyType, desc['model'])
 
             desc = info[1]
             self.assert_(isinstance(desc['field'], fields.CharField))
@@ -107,12 +175,12 @@ class MetaTestCase(CremeTestCase):
         # {'field': <django.db.models.fields.CharField object at 0x99d302c>,
         #  'model': None}]
         try:
-            info = meta.get_model_field_infos(models.CremeProperty, 'creme_entity__entity_type__name')
+            info = meta.get_model_field_infos(CremeProperty, 'creme_entity__entity_type__name')
             self.assertEqual(3, len(info))
 
             desc = info[0]
             self.assert_(isinstance(desc['field'], fields.related.ForeignKey))
-            self.assertEqual(models.CremeEntity, desc['model'])
+            self.assertEqual(CremeEntity, desc['model'])
 
             desc = info[1]
             self.assert_(isinstance(desc['field'], fields.related.ForeignKey))
@@ -125,7 +193,7 @@ class MetaTestCase(CremeTestCase):
             self.fail(str(e))
 
     def test_get_date_fields(self):
-        entity = models.CremeEntity()
+        entity = CremeEntity()
         get_field = entity._meta.get_field
         self.assert_(meta.is_date_field(get_field('created')))
         self.failIf(meta.is_date_field(get_field('user')))
