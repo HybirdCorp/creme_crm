@@ -56,4 +56,4 @@ class Populator(BasePopulator):
             BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=Graph)
             BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=Graph)
 
-        SearchConfigItem.create(Graph, ['name'])
+        SearchConfigItem.create_if_needed(Graph, ['name'])

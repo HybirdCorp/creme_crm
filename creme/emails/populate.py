@@ -114,9 +114,9 @@ class Populator(BasePopulator):
             BlockPortalLocation.create(app_name='emails', block_id=alerts_block.id_,   order=200)
             BlockPortalLocation.create(app_name='emails', block_id=messages_block.id_, order=300)
 
-        ButtonMenuItem.create(pk='emails-entity_email_link_button', model=EntityEmail, button=entityemail_link_button, order=20)
+        ButtonMenuItem.create_if_needed(pk='emails-entity_email_link_button', model=EntityEmail, button=entityemail_link_button, order=20)
 
-        SearchConfigItem.create(EmailCampaign, ['name', 'mailing_lists__name'])
-        SearchConfigItem.create(MailingList,   ['name', 'children__name', 'contacts__first_name', 'contacts__last_name', 'organisations__name'])
-        SearchConfigItem.create(EmailTemplate, ['name', 'subject', 'body', 'attachments__title'])
-        SearchConfigItem.create(EntityEmail,   ['sender', 'recipient', 'subject'])
+        SearchConfigItem.create_if_needed(EmailCampaign, ['name', 'mailing_lists__name'])
+        SearchConfigItem.create_if_needed(MailingList,   ['name', 'children__name', 'contacts__first_name', 'contacts__last_name', 'organisations__name'])
+        SearchConfigItem.create_if_needed(EmailTemplate, ['name', 'subject', 'body', 'attachments__title'])
+        SearchConfigItem.create_if_needed(EntityEmail,   ['sender', 'recipient', 'subject'])

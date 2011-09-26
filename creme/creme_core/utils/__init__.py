@@ -20,12 +20,11 @@
 
 from logging import debug
 
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
 from django.db.models.query_utils import Q
 from django.http import HttpResponse, Http404
-
-from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
+from django.contrib.contenttypes.models import ContentType
 
 from creme_core.registry import creme_registry
 
@@ -63,6 +62,15 @@ def create_or_update(model, pk=None, **attrs):
         setattr(instance, key, val)
 
     instance.save()
+
+    return instance
+
+def create_if_needed(model, get_dict, **attrs):
+    try:
+        instance = model.objects.get(**get_dict)
+    except model.DoesNotExist:
+        attrs.update(get_dict)
+        instance = model.objects.create(**attrs)
 
     return instance
 

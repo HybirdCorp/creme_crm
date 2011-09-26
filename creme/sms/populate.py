@@ -71,5 +71,5 @@ class Populator(BasePopulator):
                 BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=model)
                 BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=model)
 
-        SearchConfigItem.create(SMSCampaign, ['name'])
-        SearchConfigItem.create(MessagingList, ['name'])
+        SearchConfigItem.create_if_needed(SMSCampaign, ['name'])
+        SearchConfigItem.create_if_needed(MessagingList, ['name'])

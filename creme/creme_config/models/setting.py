@@ -52,7 +52,7 @@ class SettingKey(Model):
         from creme_core.utils import create_or_update
 
         sk = create_or_update(SettingKey, pk=pk, description=description, app_label=app_label, type=type, hidden=hidden)
-        sk.settingvalue_set.all().delete()
+        #sk.settingvalue_set.all().delete()
 
         return sk
 
@@ -71,3 +71,12 @@ class SettingValue(Model):
     def _set_value(self, value):
         self.value_str = str(value)
     value = property(_get_value, _set_value); del _get_value, _set_value
+
+    @staticmethod
+    def create_if_needed(key, user, value): #TODO: unit test
+        try:
+            sv = SettingValue.objects.get(key=key, user=user)
+        except SettingValue.DoesNotExist:
+            sv = SettingValue.objects.create(key=key, user=user, value=value)
+
+        return sv

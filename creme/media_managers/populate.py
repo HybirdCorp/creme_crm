@@ -25,7 +25,7 @@ from django.conf import settings
 
 from creme_core.models import SearchConfigItem, HeaderFilterItem, HeaderFilter, BlockDetailviewLocation, BlockPortalLocation
 from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
-from creme_core.utils import create_or_update as create
+from creme_core.utils import create_if_needed
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from media_managers.models import MediaCategory, Image
@@ -37,9 +37,9 @@ class Populator(BasePopulator):
 
     def populate(self, *args, **kwargs):
         #TODO: created by 'products' & 'persons' app ?? (pk_string)
-        create(MediaCategory, pk=1, name=_(u"Product image"),      is_custom=False)
-        create(MediaCategory, pk=2, name=_(u"Organisation logo"),  is_custom=False)
-        create(MediaCategory, pk=3, name=_(u"Contact photograph"), is_custom=False)
+        create_if_needed(MediaCategory, {'pk': 1}, name=_(u"Product image"),      is_custom=False)
+        create_if_needed(MediaCategory, {'pk': 2}, name=_(u"Organisation logo"),  is_custom=False)
+        create_if_needed(MediaCategory, {'pk': 3}, name=_(u"Contact photograph"), is_custom=False)
 
         hf = HeaderFilter.create(pk='media_managers-hf_image', name=_(u'Image view'), model=Image)
         hf.set_items([HeaderFilterItem.build_4_field(model=Image, name='name'),
@@ -73,5 +73,4 @@ class Populator(BasePopulator):
             BlockPortalLocation.create(app_name='media_managers', block_id=alerts_block.id_,   order=200)
             BlockPortalLocation.create(app_name='media_managers', block_id=messages_block.id_, order=400)
 
-        SearchConfigItem.create(Image, ['name', 'description', 'categories__name'])
-
+        SearchConfigItem.create_if_needed(Image, ['name', 'description', 'categories__name'])

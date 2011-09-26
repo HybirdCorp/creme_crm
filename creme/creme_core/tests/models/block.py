@@ -61,11 +61,10 @@ class BlockTestCase(CremeTestCase):
 
     def test_create_detailview03(self):
         block_id = properties_block.id_
-        BlockDetailviewLocation.create(block_id=block_id, order=5, zone=BlockDetailviewLocation.RIGHT, model=Contact)
-
-        order = 4
-        zone = BlockDetailviewLocation.LEFT
+        order = 5
+        zone = BlockDetailviewLocation.RIGHT
         BlockDetailviewLocation.create(block_id=block_id, order=order, zone=zone, model=Contact)
+        BlockDetailviewLocation.create(block_id=block_id, order=4, zone=BlockDetailviewLocation.LEFT, model=Contact)
 
         locs = BlockDetailviewLocation.objects.filter(block_id=block_id, content_type=ContentType.objects.get_for_model(Contact))
         self.assertEqual(1, len(locs))
@@ -73,6 +72,29 @@ class BlockTestCase(CremeTestCase):
         loc = locs[0]
         self.assertEqual(order, loc.order)
         self.assertEqual(zone,  loc.zone)
+
+    def test_create_4_model_block01(self):
+        order = 5
+        zone = BlockDetailviewLocation.RIGHT
+        model = Contact
+        loc = BlockDetailviewLocation.create_4_model_block(order=order, zone=zone, model=model)
+
+        self.assertEqual(1, BlockDetailviewLocation.objects.count())
+
+        try:
+            loc = BlockDetailviewLocation.objects.get(pk=loc.id)
+        except BlockDetailviewLocation.DoesNotExist, e:
+            self.fail(str(e))
+
+        self.assertEqual('modelblock', loc.block_id)
+        self.assertEqual(order,        loc.order)
+        self.assertEqual(zone,         loc.zone)
+
+    def test_create_4_model_block02(self): #model = None
+        loc = BlockDetailviewLocation.create_4_model_block(order=8, zone=BlockDetailviewLocation.BOTTOM, model=None)
+        self.assertEqual(1, BlockDetailviewLocation.objects.count())
+        self.assertEqual('modelblock', loc.block_id)
+        self.assertIsNone(loc.content_type)
 
     def test_create_empty_detailview_config01(self):
         self.assertEqual(0, BlockDetailviewLocation.objects.count())

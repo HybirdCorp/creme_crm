@@ -18,13 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
-
 from creme_core.management.commands.creme_populate import BasePopulator
-#from creme_core.utils import create_or_update_models_instance as create
 
-from creme_config.constants import USER_SETTINGS_BLOCK_PREFIX
 from creme_config.models.setting import SettingKey, SettingValue
 
 from activesync.constants import (MAPI_DOMAIN, MAPI_SERVER_SSL, MAPI_SERVER_URL, USER_MOBILE_SYNC_SERVER_URL,
@@ -35,55 +30,49 @@ from activesync.constants import (MAPI_DOMAIN, MAPI_SERVER_SSL, MAPI_SERVER_URL,
 
 class Populator(BasePopulator):
     def populate(self, *args, **kwargs):
-        sk_mapi_server_url = SettingKey.create(pk=MAPI_SERVER_URL,
-                       description="", hidden=True,
-                       app_label='activesync', type=SettingKey.STRING
-                       )
-        SettingValue.objects.create(key=sk_mapi_server_url, user=None, value="")
+        sk = SettingKey.create(pk=MAPI_SERVER_URL,
+                               description="", hidden=True,
+                               app_label='activesync', type=SettingKey.STRING
+                              )
+        SettingValue.create_if_needed(key=sk, user=None, value="")
 
-        sk_mapi_domain = SettingKey.create(pk=MAPI_DOMAIN,
-                       description="", hidden=True,
-                       app_label='activesync', type=SettingKey.STRING
-                       )
-        SettingValue.objects.create(key=sk_mapi_domain, user=None, value="")
+        sk = SettingKey.create(pk=MAPI_DOMAIN,
+                               description="", hidden=True,
+                               app_label='activesync', type=SettingKey.STRING
+                              )
+        SettingValue.create_if_needed(key=sk, user=None, value="")
 
-        sk_mapi_ssl = SettingKey.create(pk=MAPI_SERVER_SSL,
-                       description="", hidden=True,
-                       app_label='activesync', type=SettingKey.BOOL
-                       )
-        SettingValue.objects.create(key=sk_mapi_ssl, user=None, value=False)
+        sk = SettingKey.create(pk=MAPI_SERVER_SSL,
+                               description="", hidden=True,
+                               app_label='activesync', type=SettingKey.BOOL
+                              )
+        SettingValue.create_if_needed(key=sk, user=None, value=False)
 
         SettingKey.create(pk=USER_MOBILE_SYNC_SERVER_URL,
-                       description="", hidden=True,
-                       app_label='activesync', type=SettingKey.STRING
-                       )
-
+                          description="", hidden=True,
+                          app_label='activesync', type=SettingKey.STRING
+                         )
         SettingKey.create(pk=USER_MOBILE_SYNC_SERVER_DOMAIN,
-               description="", hidden=True,
-               app_label='activesync', type=SettingKey.STRING
-               )
-
+                          description="", hidden=True,
+                          app_label='activesync', type=SettingKey.STRING
+                         )
         SettingKey.create(pk=USER_MOBILE_SYNC_SERVER_SSL,
-               description="", hidden=True,
-               app_label='activesync', type=SettingKey.BOOL
-               )
-
+                          description="", hidden=True,
+                          app_label='activesync', type=SettingKey.BOOL
+                         )
         SettingKey.create(pk=USER_MOBILE_SYNC_SERVER_LOGIN,
-               description="", hidden=True,
-               app_label='activesync', type=SettingKey.STRING
-               )
-
+                          description="", hidden=True,
+                          app_label='activesync', type=SettingKey.STRING
+                         )
         SettingKey.create(pk=USER_MOBILE_SYNC_SERVER_PWD,
-               description="", hidden=True,
-               app_label='activesync', type=SettingKey.STRING
-               )
-
+                          description="", hidden=True,
+                          app_label='activesync', type=SettingKey.STRING
+                         )
         SettingKey.create(pk=USER_MOBILE_SYNC_ACTIVITIES,
-               description="", hidden=True,
-               app_label='activesync', type=SettingKey.BOOL
-               )
-
+                          description="", hidden=True,
+                          app_label='activesync', type=SettingKey.BOOL
+                         )
         SettingKey.create(pk=USER_MOBILE_SYNC_CONTACTS,
-               description="", hidden=True,
-               app_label='activesync', type=SettingKey.BOOL)
-
+                          description="", hidden=True,
+                          app_label='activesync', type=SettingKey.BOOL
+                         )

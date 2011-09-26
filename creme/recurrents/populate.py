@@ -20,7 +20,7 @@
 
 from django.utils.translation import ugettext as _
 
-from creme_core.utils import create_or_update as create
+from creme_core.utils import create_if_needed
 from creme_core.models import SearchConfigItem, HeaderFilterItem, HeaderFilter
 from creme_core.management.commands.creme_populate import BasePopulator
 
@@ -31,15 +31,15 @@ class Populator(BasePopulator):
     dependencies = ['creme_core']
 
     def populate(self, *args, **kwargs):
-        create(Periodicity, 1, name=_(u'Daily'),     value_in_days=1,   description=_(u'Every day'))
-        create(Periodicity, 2, name=_(u'Weekly'),    value_in_days=7,   description=_(u'Every week'))
-        create(Periodicity, 3, name=_(u'Monthly'),   value_in_days=30,  description=_(u'Every month'))
-        create(Periodicity, 4, name=_(u'Quarterly'), value_in_days=90,  description=_(u'Every trimester'))
-        create(Periodicity, 5, name=_(u'Biannual'),  value_in_days=180, description=_(u'Every semester'))
-        create(Periodicity, 6, name=_(u'Annual'),    value_in_days=365, description=_(u'Every year'))
+        create_if_needed(Periodicity, {'pk': 1}, name=_(u'Daily'),     value_in_days=1,   description=_(u'Every day'))
+        create_if_needed(Periodicity, {'pk': 2}, name=_(u'Weekly'),    value_in_days=7,   description=_(u'Every week'))
+        create_if_needed(Periodicity, {'pk': 3}, name=_(u'Monthly'),   value_in_days=30,  description=_(u'Every month'))
+        create_if_needed(Periodicity, {'pk': 4}, name=_(u'Quarterly'), value_in_days=90,  description=_(u'Every trimester'))
+        create_if_needed(Periodicity, {'pk': 5}, name=_(u'Biannual'),  value_in_days=180, description=_(u'Every semester'))
+        create_if_needed(Periodicity, {'pk': 6}, name=_(u'Annual'),    value_in_days=365, description=_(u'Every year'))
 
         hf = HeaderFilter.create(pk='recurrents-hf', name=_(u'Generator view'), model=RecurrentGenerator)
         hf.set_items([HeaderFilterItem.build_4_field(model=RecurrentGenerator, name='name')])
 
-        SearchConfigItem.create(RecurrentGenerator, ['name', 'description', 'periodicity__name', 'ct__name'])
+        SearchConfigItem.create_if_needed(RecurrentGenerator, ['name', 'description', 'periodicity__name', 'ct__name'])
 
