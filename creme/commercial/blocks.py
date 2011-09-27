@@ -242,7 +242,7 @@ class ActObjectivesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('commercial', 'objectives')
     dependencies  = (ActObjective,)
     order_by      = 'name'
-    verbose_name  = _(u'Objectives of an Act')
+    verbose_name  = _(u'Objectives of a Commercial Action')
     template_name = 'commercial/templatetags/block_objectives.html'
     target_ctypes = (Act,)
 
@@ -259,7 +259,7 @@ class RelatedOpportunitiesBlock(PaginatedBlock):
     id_           = PaginatedBlock.generate_id('commercial', 'opportunities')
     dependencies  = (Relation,)
     relation_type_deps = (REL_OBJ_OPPORT_LINKED,)
-    verbose_name  = _(u'Opportunities related to an Act')
+    verbose_name  = _(u'Opportunities related to a Commercial Action')
     template_name = 'commercial/templatetags/block_opportunities.html'
     target_ctypes = (Act,)
 
@@ -281,7 +281,7 @@ class RelatedOpportunitiesBlock(PaginatedBlock):
 class PatternComponentsBlock(Block):
     id_           = Block.generate_id('commercial', 'pattern_components')
     dependencies  = (ActObjectivePatternComponent,)
-    verbose_name  = _(u'Objective patterns components')
+    verbose_name  = _(u'Components of an Objective Pattern')
     template_name = 'commercial/templatetags/block_components.html'
     target_ctypes = (ActObjectivePattern,)
 
