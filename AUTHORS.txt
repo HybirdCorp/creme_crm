@@ -3,7 +3,7 @@ Jean-Michel ARMAND:
     jmarmand AT hybird DOT org
 
 Raphaël BECK:
-    Developper
+    Developper / Documentation writer
     rbeck AT hybird DOT org
 
 Jonathan CARUANA
@@ -11,7 +11,7 @@ Jonathan CARUANA
     jcaruana AT hybird DOT org
 
 Guillaume ENGLERT
-    Developper / Artist
+    Developper / Artist / Documentation writer
     genglert AT hybird DOT org
 
 Florian FABRE
@@ -25,3 +25,6 @@ Régis MONTOYA
 Yann PRIME
     Developper
 
+Rémy RAKIC
+    Developper / Designer
+    rrakic AT hybird DOT org
