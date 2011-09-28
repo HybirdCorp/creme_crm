@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from collections import defaultdict
 from datetime import datetime
 
@@ -26,7 +27,7 @@ from django.core.exceptions import ValidationError
 from django.core import validators
 from django.conf import settings
 
-from creme_config.models.setting import SettingValue
+from creme_config.models import SettingValue
 
 from activesync.cipher import Cipher
 from activesync.constants import (MAPI_DOMAIN, MAPI_SERVER_SSL, MAPI_SERVER_URL,
@@ -43,14 +44,12 @@ from activesync.errors import (CremeActiveSyncError,
                                SYNC_ERR_ABORTED,
                                SYNC_ERR_WRONG_CFG_INVALID_SERVER_URL)#TODO: * ?
 from activesync.messages import MessageInfo, MessageSucceed, MessageError, _INFO, _ERROR, _SUCCESS
-
-
 from activesync.models.active_sync import CremeClient, AS_Folder
 from activesync.commands import FolderSync, Provision, AirSync
 from activesync import constants as as_constants
 from activesync.utils import is_user_sync_calendars, is_user_sync_contacts
-
 from activesync.mappings import FOLDERS_TYPES_CREME_TYPES_MAPPING, CREME_AS_MAPPING
+
 
 INFO    = 'info'
 ERROR   = 'error'
@@ -59,6 +58,7 @@ SUCCESS = 'success'
 url_validator = validators.URLValidator()
 
 ACTIVE_SYNC_DEBUG = settings.ACTIVE_SYNC_DEBUG
+
 
 class Synchronization(object):
     """
@@ -86,7 +86,7 @@ class Synchronization(object):
         #TODO: If messages will be used somewhere else activate the django messaging system
         self._messages = defaultdict(list)
 
-        sv_get = SettingValue.objects.get
+        sv_get = SettingValue.objects.get #TODO: group the queries
         sv_doesnotexist = SettingValue.DoesNotExist
 
         try:
