@@ -35,7 +35,7 @@ def edit_entity(request, object_id, model, edit_form, template='creme_core/gener
     entity.can_change_or_die(user)
 
     if request.method == 'POST':
-        form = edit_form(user=user, data=request.POST, instance=entity)
+        form = edit_form(user=user, data=request.POST, files=request.FILES or None, instance=entity)
 
         if form.is_valid():
             form.save()

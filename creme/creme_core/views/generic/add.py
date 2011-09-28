@@ -35,7 +35,7 @@ def add_entity(request, form_class, url_redirect='', template='creme_core/generi
     @param url_redirect: string or format string with ONE argument replaced by the id of the created entity.
     @param function_post_save: allow processing on the just saved entity. Its signature: function_post_save(request, entity)
     """
-    #initial_dict = {'user': request.user.id} #TODO: let the form doing it
+    #initial_dict = {'user': request.user.id}
     #if extra_initial:
         #initial_dict.update(extra_initial)
 
