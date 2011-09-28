@@ -477,6 +477,20 @@ div.sidebar1separator2 {
     width: 98%;
 }
 
+/*.header .widget {
+    float: left;
+    text-align: center;
+    width: 25%;
+}*/
+
+.header .widget.major {
+    float: left;
+}
+
+.header .widget.last {
+    float: right;
+}
+
 #footer {
   clear: both;
   display:block;
@@ -544,7 +558,7 @@ div.sidebar1separator2 {
     background-color: #b4e6fb;
 }
 
-/* Partie droite de l'ihm - inutile le css est déclaré inline et plus important
+/* Right side of the UI - useless css is inline & more important
 div#sub_content > div:nth-child(5) {
     width: 49%;
 } */
@@ -567,7 +581,6 @@ div#sub_content > div:nth-child(5) {
     padding: 2px;
     margin-bottom: 5px;
 }
-
 
 .table_detail_view th, .table_detail_view td, .table_detail_view tr, .table_detail_view thead {
     -moz-border-radius: 4px;

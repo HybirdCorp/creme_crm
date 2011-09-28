@@ -141,7 +141,7 @@ creme.utils.tableCollapse = function($self, trigger) {//TODO: Factorise with cre
     //TODO: Include trigger in options?
     //TODO: Make constants with tbody.collapsable, .block_icon, ... ?
 
-    if(typeof(trigger) == "undefined"){
+    if(typeof(trigger) == "undefined") {
         trigger = true;
     }
 
@@ -151,16 +151,15 @@ creme.utils.tableCollapse = function($self, trigger) {//TODO: Factorise with cre
 //    table.find('tfoot.collapsable').hide();
 
     table.addClass('faded');
-    table.find('.block_icon').css({'height': '22px'});
+//     table.find('.block_icon').css({'height': '22px'});
 
-    if(trigger)//Sometimes triggering the event is not necessary.
-    {
+    if(trigger) { //Sometimes triggering the event is not necessary.
         table.trigger('creme-table-collapse', {action: 'hide'});
     }
 }
 
 creme.utils.tableExpand = function($self, trigger) {
-    if(typeof(trigger) == "undefined"){
+    if(typeof(trigger) == "undefined") {
         trigger = true;
     }
 
@@ -170,10 +169,9 @@ creme.utils.tableExpand = function($self, trigger) {
 //    table.find('tfoot.collapsable').show();
 
     table.removeClass('faded');
-    table.find('.block_icon').css({'height': 'auto'});
+//     table.find('.block_icon').css({'height': 'auto'});
 
-    if(trigger)//Sometimes triggering the event is not necessary.
-    {
+    if(trigger) { //Sometimes triggering the event is not necessary.
         table.trigger('creme-table-collapse', {action: 'show'});
     }
 }
@@ -192,12 +190,10 @@ creme.utils.bindShowHideTbody = function() {
 }
 
 
-creme.utils.simpleConfirm = function(cb, msg)
-{
+creme.utils.simpleConfirm = function(cb, msg) {
     var buttons = {};
     buttons[gettext("Ok")] = function() {
-        if(typeof(cb) != "undefined" && $.isFunction(cb))
-        {
+        if(typeof(cb) != "undefined" && $.isFunction(cb)) {
             cb();
             $(this).dialog("destroy");
             $(this).remove();
