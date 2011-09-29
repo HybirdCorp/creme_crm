@@ -17,7 +17,7 @@ class Migration(DataMigration):
         try:
             orm['creme_core.Currency'].objects.get(pk=1)
         except:
-            orm['creme_core.Currency'].objects.create(pk=1, name='OVERWRITE_ME', local_symbol='OVERWRITE_ME', international_symbol='OVERWRITE_ME')
+            orm['creme_core.Currency'].objects.create(pk=1, name=u'Euro', local_symbol=u'€', international_symbol=u'EUR')
 
     def backwards(self, orm):
         pass
