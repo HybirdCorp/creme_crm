@@ -288,7 +288,10 @@ class RelationEntityField(JSONField):
             return value
 
         rtype, entity = value
-        relation = {'rtype': rtype.pk, 'ctype': entity.entity_type, 'entity': entity.pk}
+        if entity:
+            relation = {'rtype': rtype.pk, 'ctype': entity.entity_type, 'entity': entity.pk}
+        else:
+            relation = {'rtype': rtype.pk, 'ctype': None, 'entity': None}
 
         return self.format_json(relation)
 
@@ -384,7 +387,10 @@ class MultiRelationEntityField(RelationEntityField):
         entities = []
 
         for rtype, entity in value:
-            entities.append({'rtype': rtype.pk, 'ctype': entity.entity_type, 'entity': entity.pk})
+            if entity:
+                entities.append({'rtype': rtype.pk, 'ctype': entity.entity_type_id, 'entity': entity.pk})
+            else:
+                entities.append({'rtype': rtype.pk, 'ctype': None, 'entity': None})
 
         return self.format_json(entities)
 

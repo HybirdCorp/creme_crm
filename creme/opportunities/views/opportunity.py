@@ -19,7 +19,6 @@
 ################################################################################
 
 from datetime import datetime
-from itertools import chain
 
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render_to_response, get_object_or_404
@@ -30,16 +29,15 @@ from creme_core.models import Relation, CremeEntity
 from creme_core.views.generic import add_entity, add_model_with_popup, edit_entity, view_entity, list_view
 from creme_core.utils import get_ct_or_404
 
-from persons.models import Organisation
+from products.models import Product, Service
 from persons.workflow import transform_target_into_customer, transform_target_into_prospect
 
-
-from billing.models import Quote, Invoice, SalesOrder
+from billing.models import Quote, Invoice, SalesOrder, ProductLine, ServiceLine
 from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
 from opportunities.models import Opportunity
 from opportunities.forms.opportunity import OpportunityCreateForm, OpportunityEditForm
-from opportunities.constants import REL_OBJ_LINKED_QUOTE, REL_OBJ_LINKED_INVOICE, REL_OBJ_LINKED_SALESORDER, REL_SUB_CURRENT_DOC
+from opportunities.constants import REL_OBJ_LINKED_QUOTE, REL_OBJ_LINKED_INVOICE, REL_OBJ_LINKED_SALESORDER, REL_SUB_CURRENT_DOC, REL_OBJ_LINKED_SERVICE, REL_OBJ_LINKED_PRODUCT
 
 
 @login_required
@@ -135,10 +133,32 @@ def generate_new_doc(request, opp_id, ct_id):
     document.name = u'%s(%s)' % (document.number, opp.name)
     document.save()
 
-    for line in chain(opp.product_lines, opp.service_lines):
-        new_line = line.clone()
-        new_line.document = document
+#    for line in chain(opp.product_lines, opp.service_lines):
+#        new_line = line.clone()
+#        new_line.document = document
+#        new_line.save()
+
+    def generate_lines(klass, item, document):
+        new_line = klass()
+        new_line.unit_price = item.unit_price
+        new_line.user = document.user
         new_line.save()
+
+        new_line.related_item       = item
+        new_line.related_document   = document
+        
+        # update totals information in document
+        document.save()
+
+    relations = Relation.objects.filter(subject_entity=opp, type__in=[REL_OBJ_LINKED_PRODUCT, REL_OBJ_LINKED_SERVICE]).select_related('object_entity')
+    Relation.populate_real_object_entities(relations)
+    
+    for relation in relations:
+        item = relation.object_entity.get_real_entity()
+        if isinstance(item, Product):
+            generate_lines(ProductLine, item, document)
+        elif isinstance(item, Service):
+            generate_lines(ServiceLine, item, document)
 
     for relation in Relation.objects.filter(object_entity=opp.id, type=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct_doc):
         relation.delete()

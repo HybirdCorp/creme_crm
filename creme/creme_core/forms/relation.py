@@ -46,6 +46,7 @@ class RelationCreateForm(CremeForm):
             relations_types = RelationType.get_compatible_ones(subject.entity_type).order_by('predicate').values_list('id', flat=True)
 
         self.fields['relations'].allowed_rtypes = relations_types
+        self.fields['relations'].initial = [(RelationType.objects.get(pk=relations_types[0]), None)]
 
     def _check_duplicates(self, relations, user):
         future_relations = set()
