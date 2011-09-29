@@ -22,7 +22,8 @@ from logging import info
 
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
-from creme_config.models.setting import SettingKey, SettingValue
+
+from creme_config.models import SettingKey, SettingValue
 
 from creme_core.models import *
 from creme_core.utils import create_if_needed
@@ -36,8 +37,8 @@ class Populator(BasePopulator):
         create_if_needed(Language, {'pk': 1}, name=_(u'French'),  code='FRA')
         create_if_needed(Language, {'pk': 2}, name=_(u'English'), code='EN')
 
-        create_if_needed(Currency, {'pk': DEFAULT_CURRENCY_PK}, name=_(u"Euro"),                 local_symbol=_(u"€"), international_symbol=_(u'EUR'), is_custom=False)
-        create_if_needed(Currency, {'pk': 2},                   name=_(u"United States dollar"), local_symbol=_(u"$"), international_symbol=_(u'USD'), is_custom=True)
+        create_if_needed(Currency, {'pk': DEFAULT_CURRENCY_PK}, name=_(u'Euro'),                 local_symbol=_(u'€'), international_symbol=_(u'EUR'), is_custom=False)
+        create_if_needed(Currency, {'pk': 2},                   name=_(u'United States dollar'), local_symbol=_(u'$'), international_symbol=_(u'USD'), is_custom=True)
 
         CremePropertyType.create(PROP_IS_MANAGED_BY_CREME, _(u'managed by Creme'))
 
