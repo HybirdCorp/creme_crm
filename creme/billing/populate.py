@@ -165,7 +165,6 @@ class Populator(BasePopulator):
             BlockDetailviewLocation.create(block_id=billing_address_block.id_, order=70,  zone=BlockDetailviewLocation.LEFT,  model=model)
             BlockDetailviewLocation.create(block_id=properties_block.id_,      order=450, zone=BlockDetailviewLocation.LEFT,  model=model)
             BlockDetailviewLocation.create(block_id=relations_block.id_,       order=500, zone=BlockDetailviewLocation.LEFT,  model=model)
-            BlockDetailviewLocation.create(block_id=total_block.id_,           order=500, zone=BlockDetailviewLocation.LEFT,  model=model)
 
             BlockDetailviewLocation.create(block_id=target_block.id_,          order=2,   zone=BlockDetailviewLocation.RIGHT, model=model)
             BlockDetailviewLocation.create(block_id=total_block.id_,           order=3,   zone=BlockDetailviewLocation.RIGHT, model=model)
