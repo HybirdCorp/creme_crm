@@ -43,6 +43,9 @@ _CONTACT_CT_ID = ContentType.objects.get_for_model(Contact).id
 @login_required
 def get_relationtype_choices(request):
     can_part = bool(get_from_POST_or_404(request.POST, 'ct_id', int) == _CONTACT_CT_ID)
-    data = list(RelationType.objects.filter(pk__in=_RTYPE_CHOICES[can_part]).values('pk', 'predicate'))
-
+#    data = list(RelationType.objects.filter(pk__in=_RTYPE_CHOICES[can_part]).values('pk', 'predicate'))
+    
+    choices = _RTYPE_CHOICES[can_part]
+    query_dict = dict(RelationType.objects.filter(pk__in=choices).values_list('pk', 'predicate'))
+    data = [{'pk': pk, 'predicate': query_dict[pk]} for pk in choices]
     return HttpResponse(JSONEncoder().encode(data), mimetype='text/javascript')

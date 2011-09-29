@@ -745,11 +745,11 @@ class ActivitiesTestCase(CremeTestCase):
 
         content = simplejson.loads(response.content)
         self.assertTrue(isinstance(content, list))
-        self.assertEqual([{"pk": REL_SUB_ACTIVITY_SUBJECT,  "predicate": _(u"is subject of the activity")},
-                          {"pk": REL_SUB_LINKED_2_ACTIVITY, "predicate": _(u"related to the activity")},
-                          {"pk": REL_SUB_PART_2_ACTIVITY,   "predicate": _(u"participates to the activity")}
+        self.assertEqual([{"pk": REL_SUB_PART_2_ACTIVITY,   "predicate": _(u"participates to the activity")},
+                          {"pk": REL_SUB_ACTIVITY_SUBJECT,  "predicate": _(u"is subject of the activity")},
+                          {"pk": REL_SUB_LINKED_2_ACTIVITY, "predicate": _(u"related to the activity")}
                          ],
-                         sorted(content, key=lambda d: d['pk'])
+                         content
                         )
 
         response = self.client.post('/activities/get_relationtype_choices', data={'ct_id': get_ct(Organisation).id})
@@ -757,7 +757,7 @@ class ActivitiesTestCase(CremeTestCase):
         self.assertEqual([{"pk": REL_SUB_ACTIVITY_SUBJECT,  "predicate": _(u"is subject of the activity")},
                           {"pk": REL_SUB_LINKED_2_ACTIVITY, "predicate": _(u"related to the activity")},
                          ],
-                         sorted(simplejson.loads(response.content), key=lambda d: d['pk'])
+                         simplejson.loads(response.content)
                         )
 
     def assertUserHasDefaultCalendar(self, user):
