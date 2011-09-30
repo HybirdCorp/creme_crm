@@ -1,0 +1,59 @@
+== Version 1.1 ==
+
+  Users side :
+  ------------
+    # Blocks:
+        * New blocks :
+            - 'History' (timeline).
+            - 'Received billing documents'.
+        * Blocks with state (open/close & show/hide empty fields) :
+            - Blocks are now faded when folded ; icon is reduced, and buttons reduced.
+            - Empty fields can be hidden.
+        * New blocks locations system :
+            - Nearly all blocks are now configurable (can be placed, or even removed).
+            - Detailviews : the blocks can be located on top, left side, right side or bottom.
+            - Portal & home : are now separated from the content types blocks configuration.
+            - New view "My page" : it looks like the "Home" view, but each user can set the present blocks.
+        * All relations blocks are reloaded when a change occurs on a block dependent from relations.
+    # Deletion of users (& teams) with files assignation to an other user.
+    # UI :
+        * Improved scrolling for the side menu.
+        * Portals have not yet the same name in the prefered menu.
+        * Can delete all (allowed) relations on relation block in one click.
+        * Lots of choices are now smartly ordered (eg: predicates in relation creation popup).
+    # Credentials improved :
+        * Credentials by type of Entity (ContentType).
+        * Exportable types credentials (to export a listview for these types as CSV files).
+    # Theme manager ; 2 themes are embedded : the old one become "Chantilly", and a new one has been created ("Ice cream").
+    # Apps :
+        * Crudity :
+            - Crudity can handle forms submitted by infopath.
+            - Multi-line in Crudity emails and better dates handling.
+            - Crudity sandbox can be by user.
+            - Parser improved.
+        * Billing : currency management. For each billing Entity you choose the currency, and the displays of amounts are better.
+        * Activesync : Can limit mobile synchronization to contacts or calendars.
+        * Vcfs (NEW app) : you can now import a Contact (and the related Organisation) from a vCard.
+    # Bug fixes:
+        * Credentials problem in billing lines.
+        * Billing lines were not added to the billing documents created from an Opportunity with related Products/Services
+        * Image file duplicated when an Image was edited.
+        * ...
+
+  Developpers side :
+  ------------------
+    # Helper methods to build HeaderFilterItem objects.
+    # Template tag 'get_html_field_value' replaced by a new one, 'print_field'.
+    # New object block system: all blocks (at least on detailviews) are now 'true' blocks.
+    # Database migration system with South.
+    # Django official version for Creme is now 1.3.
+    # Deletion system is now better (thanks to Django 1.3) :
+        * New delete handlers for FK.
+        * Delete management for models with internals relations types.
+        * Base delete can handle auto file deletion.
+    # Removed Lock model & add Mutex model.
+    # Configuration portal of an app can be generated with only SettingKey/SettingValue.
+    # User settings blocks are now registrable in creme_config.
+    # Fix the small but annoying bugs that prevented Creme to run correctly with PostgreSQL.
+    # Documentation for people who want to install Creme on Windows.
+    # Code cleanup (in .js files for example), lots of unit tests were added.
