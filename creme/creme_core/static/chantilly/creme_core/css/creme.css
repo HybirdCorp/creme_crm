@@ -216,7 +216,7 @@ ul.button_list li {
 }
 ul.button_list.hbox {
     display: inline;
-    line-height: 34px;
+    line-height: 30px;
 }
 ul.button_list.hbox li {
     position: relative;
@@ -475,19 +475,24 @@ div.sidebar1separator2 {
 .header .widget {
     float: left;
     text-align: center;
-    width: 25%;
+/*    width: 25%;*/
 }
 
-.header .major {
+/*.header .major {
     width: 50%;
-}
+}*/
 
-.header .widget:first-child {
+/*.header .widget:first-child {
     text-align: left;
+}*/
+
+.header .widget.major {
+    float: left;
 }
 
 .header .widget.last {
-    text-align: right;
+    /*text-align: right;*/
+    float: right;
 }
 
 
