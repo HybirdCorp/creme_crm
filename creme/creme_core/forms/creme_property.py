@@ -88,7 +88,7 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
             return self.cleaned_data
 
         cleaned_data = self.cleaned_data
-        types_ids = cleaned_data['types'].values_list('id')
+        types_ids = cleaned_data['types'].values_list('id', flat=True)
 
         if not types_ids:
             raise ValidationError(ugettext(u'No property types'))

@@ -30,6 +30,7 @@ from django.template.defaultfilters import escape
 from django.utils.safestring import mark_safe
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
+
 from mediagenerator.templatetags.media import include_media
 
 from creme_core.gui.field_printers import field_printers_registry

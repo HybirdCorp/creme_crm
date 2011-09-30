@@ -64,6 +64,8 @@ class _CremeTestCase(object):
         self.assertEqual(set(sub_props), set(rt.subject_properties.values_list('id', flat=True)))
         self.assertEqual(set(obj_props), set(rt.object_properties.values_list('id', flat=True)))
 
+        self.assertNotEqual(rt.pk, rt.symmetric_type_id, 'Be careful your type is its own symmetric type') #Common error
+
         return rt
 
     def get_propertytype_or_fail(self, pk, models=()):
