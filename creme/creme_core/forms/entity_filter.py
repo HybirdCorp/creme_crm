@@ -27,7 +27,7 @@ from django.utils.formats import date_format
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, EntityFilter, EntityFilterCondition, RelationType, CremePropertyType, CustomField
-from creme_core.models.entity_filter import _ConditionBooleanOperator
+from creme_core.models.entity_filter import _ConditionBooleanOperator, _IsEmptyOperator
 
 from creme_core.forms import CremeModelForm
 from creme_core.forms.fields import JSONField
@@ -52,6 +52,9 @@ _HAS_RELATION_OPTIONS = {
 
 _CONDITION_INPUT_TYPE_MAP = {
         _ConditionBooleanOperator: (DynamicSelect,
+                                    {'auto': False},
+                                    {'options': ((TRUE, _("True")), (FALSE, _("False")))}),
+        _IsEmptyOperator:          (DynamicSelect,
                                     {'auto': False},
                                     {'options': ((TRUE, _("True")), (FALSE, _("False")))}),
     }
