@@ -274,8 +274,8 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i not in (5, 11)])
 
-    def test_filter_field_isnull01(self):
-        efilter = EntityFilter.create(pk='test-filter01', name='is null', model=Contact)
+    def test_filter_field_isempty01(self):
+        efilter = EntityFilter.create(pk='test-filter01', name='is empty', model=Contact)
         efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
                                                                     operator=EntityFilterCondition.ISEMPTY,
                                                                     name='description', values=[True]
@@ -284,8 +284,8 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual(1, efilter.conditions.count())
         self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i != 2])
 
-    def test_filter_field_isnull02(self):
-        efilter = EntityFilter.create('test-filter01', 'is not null', Contact)
+    def test_filter_field_isempty02(self):
+        efilter = EntityFilter.create('test-filter01', 'is not empty', Contact)
         efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
                                                                     operator=EntityFilterCondition.ISEMPTY,
                                                                     name='description', values=[False]
@@ -294,7 +294,7 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual(1, efilter.conditions.count())
         self.assertExpectedFiltered(efilter, Contact, [self.contacts[2].id])
 
-    def test_filter_field_isnull03(self): #not charfield
+    def test_filter_field_isempty03(self): #not charfield
         create = Organisation.objects.create
         user = self.user
         orga01 = create(user=user, name='Bebop & cie', capital=None)
@@ -308,6 +308,18 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertEqual(1, efilter.conditions.count())
         self.assertExpectedFiltered(efilter, Organisation, [orga02.id])
+
+    def test_filter_field_isempty04(self): #subfield of fk
+        efilter = EntityFilter.create(pk='test-filter01', name='civility is empty', model=Contact)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                    operator=EntityFilterCondition.ISEMPTY,
+                                                                    name='civility__title', values=[True]
+                                                                   )
+                               ])
+        self.assertEqual(1, efilter.conditions.count())
+
+        excluded = set([0, 1, 2]) #Spike, Jet & Faye
+        self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i not in excluded])
 
     def test_filter_field_range(self):
         create = Organisation.objects.create
