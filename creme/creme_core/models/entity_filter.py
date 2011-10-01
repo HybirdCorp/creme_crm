@@ -284,7 +284,8 @@ class _IsEmptyOperator(_ConditionBooleanOperator):
         field_name = efcondition.name
         query = Q(**{'%s__isnull' % field_name: True})
 
-        if isinstance(efcondition.filter.entity_type.model_class()._meta.get_field(field_name), (CharField, TextField)):
+        finfo = get_model_field_infos(efcondition.filter.entity_type.model_class(), field_name)
+        if isinstance(finfo[-1]['field'], (CharField, TextField)):
             query |= Q(**{field_name: ''})
 
         if not values[0]:
