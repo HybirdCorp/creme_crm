@@ -508,7 +508,7 @@ msgstr "Actions"
 #: templates/commercial/templatetags/block_assets.html:30
 #: templates/commercial/templatetags/block_assets_matrix.html:27
 msgid "No commercial asset for the moment"
-msgstr "Aucun atout commerciale enregistré pour le moment"
+msgstr "Aucun atout commercial enregistré pour le moment"
 
 #: templates/commercial/templatetags/block_assets_charms_matrix.html:7
 msgid "Assets / Charms matrix"
@@ -742,7 +742,7 @@ msgstr "%s Segments de marché"
 #: templates/commercial/templatetags/block_segment_info.html:9
 #: templates/commercial/templatetags/block_segments.html:10
 msgid "New segment"
-msgstr "Nouveau  segment"
+msgstr "Nouveau segment"
 
 #: templates/commercial/templatetags/block_segment_info.html:10
 msgid "Add existing segments"
