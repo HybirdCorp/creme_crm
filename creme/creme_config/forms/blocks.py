@@ -127,7 +127,7 @@ class BlockDetailviewLocationsEditForm(_BlockDetailviewLocationsForm):
                       ) #TODO: filter compatible relation types
         choices.extend((ibi.block_id, ugettext(u"Instance's block: %s") % ibi)
                             for ibi in InstanceBlockConfigItem.objects.all()
-                      )
+                      ) #TODO: improve to filter the blocks taht have 'detailview_display()' method
 
         fields = self.fields
 
@@ -194,9 +194,32 @@ class BlockPortalLocationsEditForm(_BlockPortalLocationsForm):
         self.locations = block_locations
 
         blocks = self.fields['blocks']
-        blocks.choices = [(block.id_, block.verbose_name)
-                                for block in block_registry.get_compatible_portal_blocks(app_name)
-                         ]
+        #blocks.choices = [(block.id_, block.verbose_name)
+                                #for block in block_registry.get_compatible_portal_blocks(app_name)
+                         #]
+        choices = [(block.id_, block.verbose_name)
+                        for block in block_registry.get_compatible_portal_blocks(app_name)
+                  ]
+
+        #TODO: unit test this
+        #TODO: rework this part (see creme_core.gui.block._BlockRegistry.get_blocks())
+        #      merge with get_compatible_portal_blocks() ??
+        method_name = 'home_display' if app_name == 'creme_core' else 'portal_display'
+        for ibi in InstanceBlockConfigItem.objects.all():
+            path, klass = InstanceBlockConfigItem.get_import_path(ibi.block_id)
+
+            try:
+                block_import = __import__(path, globals(), locals(), [klass], -1)
+            except ImportError:
+                pass
+            else:
+                block_class = getattr(block_import, klass)
+                block = block_class(ibi.block_id, ibi)
+
+                if block.configurable and hasattr(block, method_name) and (not block.target_apps or app_name in block.target_apps):
+                    choices.append((ibi.block_id, ugettext(u"Instance's block: %s") % ibi))
+
+        blocks.choices = choices
         blocks.initial = [bl.block_id for bl in block_locations]
 
     def save(self, *args, **kwargs):
