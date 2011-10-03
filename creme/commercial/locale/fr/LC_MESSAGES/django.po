@@ -87,7 +87,7 @@ msgstr "Ajouter une action commerciale"
 
 #: creme_core_register.py:39
 msgid "All strategies"
-msgstr "Lister les plan commerciaux"
+msgstr "Lister les plans commerciaux"
 
 #: creme_core_register.py:40
 msgid "Add a strategy"
