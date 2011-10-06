@@ -68,7 +68,7 @@ class Line(CremeEntity):
 
     excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['type']
     header_filter_exclude_fields   = CremeEntity.header_filter_exclude_fields + ['type']
-    function_fields = CremeEntity.function_fields.new(_LineTypeField)
+    function_fields = CremeEntity.function_fields.new(_LineTypeField())
 
     class Meta:
         app_label = 'billing'

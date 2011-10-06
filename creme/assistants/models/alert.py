@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
 from datetime import datetime
 
 from django.db.models import CharField, TextField, BooleanField, DateTimeField, ForeignKey, PositiveIntegerField
@@ -29,6 +30,7 @@ from django.contrib.auth.models import User
 
 from creme_core.models import CremeModel, CremeEntity
 from creme_core.models.fields import CremeUserForeignKey
+from creme_core.core.function_field import FunctionField
 
 
 class Alert(CremeModel):
@@ -69,3 +71,34 @@ def dispose_entity_alerts(sender, instance, **kwargs):
     Alert.objects.filter(entity_id=instance.id).delete()
 
 pre_delete.connect(dispose_entity_alerts, sender=CremeEntity)
+
+
+class _GetAlerts(FunctionField):
+    name         = 'assistants-get_alerts'
+    verbose_name = _(u"Alerts")
+
+    def __call__(self, entity):
+        cache = getattr(entity, '_alerts_cache', None)
+
+        if cache is None:
+            cache = entity._alerts_cache = list(Alert.objects.filter(entity_id=entity.id, is_validated=False) \
+                                                              .order_by('trigger_date') \
+                                                              .values_list('title', flat=True)
+                                             )
+
+        return u'<ul>%s</ul>' % u"".join(u'<li>%s</li>' % title for title in cache)
+
+    @classmethod
+    def populate_entities(cls, entities):
+        alerts_map = defaultdict(list)
+
+        for title, e_id in Alert.objects.filter(entity_id__in=[e.id for e in entities], is_validated=False) \
+                                        .order_by('trigger_date') \
+                                        .values_list('title', 'entity_id'):
+            alerts_map[e_id].append(title)
+
+        for entity in entities:
+            entity._alerts_cache = alerts_map[entity.id]
+
+
+CremeEntity.function_fields.add(_GetAlerts())

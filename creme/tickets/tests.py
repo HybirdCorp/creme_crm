@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from django.contrib.contenttypes.models import ContentType
+try:
+    from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import HeaderFilter
-from creme_core.tests.base import CremeTestCase
+    from creme_core.models import HeaderFilter
+    from creme_core.tests.base import CremeTestCase
 
-from tickets.models import *
-from tickets.models.status import BASE_STATUS, OPEN_PK, CLOSED_PK, INVALID_PK
+    from tickets.models import *
+    from tickets.models.status import BASE_STATUS, OPEN_PK, CLOSED_PK, INVALID_PK
+except Exception as e:
+    print 'Error:', e
 
 
 class TicketTestCase(CremeTestCase):
@@ -20,12 +23,12 @@ class TicketTestCase(CremeTestCase):
             except Status.DoesNotExist:
                 self.fail("Bad populate: status with pk=%s (%s) doesn't exist" % (pk, name))
 
-        self.assert_(Priority.objects.all().count() >= 2)
-        self.assert_(Criticity.objects.all().count() >= 2)
+        self.assertGreaterEqual(Priority.objects.count(),  2)
+        self.assertGreaterEqual(Criticity.objects.count(), 2)
 
         get_ct = ContentType.objects.get_for_model
-        self.assert_(HeaderFilter.objects.filter(entity_type=get_ct(Ticket)).exists())
-        self.assert_(HeaderFilter.objects.filter(entity_type=get_ct(TicketTemplate)).exists())
+        self.assertTrue(HeaderFilter.objects.filter(entity_type=get_ct(Ticket)).exists())
+        self.assertTrue(HeaderFilter.objects.filter(entity_type=get_ct(TicketTemplate)).exists())
 
     def test_portal(self):
         self.login()
@@ -52,31 +55,31 @@ class TicketTestCase(CremeTestCase):
 
         try:
             retr_ticket = response.context['object']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
-        self.assert_(isinstance(retr_ticket, Ticket), 'Not a Ticket')
-        self.assertEqual(priority.id,  retr_ticket.priority.id)
-        self.assertEqual(criticity.id, retr_ticket.criticity.id)
+        self.assertIsInstance(retr_ticket, Ticket)
+        self.assertEqual(priority,     retr_ticket.priority)
+        self.assertEqual(criticity,    retr_ticket.criticity)
         self.assertEqual(title,        retr_ticket.title)
         self.assertEqual(description,  retr_ticket.description)
 
     def test_detailview02(self):
         self.login()
-
         self.assertEqual(404, self.client.get('/tickets/ticket/1024').status_code)
 
     def test_createview01(self):
         self.login()
 
-        self.failIf(Ticket.objects.all())
-        self.assertEqual(200, self.client.get('/tickets/ticket/add').status_code)
+        self.assertEqual(0, Ticket.objects.count())
+        url = '/tickets/ticket/add'
+        self.assertEqual(200, self.client.get(url).status_code)
 
         title       = 'Test ticket'
         description = 'Test description'
         priority    = Priority.objects.all()[0]
         criticity   = Criticity.objects.all()[0]
-        response = self.client.post('/tickets/ticket/add', follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':         self.user.pk,
                                             'title':        title,
@@ -87,7 +90,7 @@ class TicketTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
-        self.assert_(response.redirect_chain)
+        self.assertTrue(response.redirect_chain)
         self.assertEqual(1, len(response.redirect_chain))
 
         tickets = Ticket.objects.all()
@@ -96,17 +99,19 @@ class TicketTestCase(CremeTestCase):
         ticket = tickets[0]
         self.assertEqual(title,        ticket.title)
         self.assertEqual(description,  ticket.description)
-        self.assertEqual(priority.id,  ticket.priority.id)
-        self.assertEqual(criticity.id, ticket.criticity.id)
+        self.assertEqual(priority,     ticket.priority)
+        self.assertEqual(criticity,    ticket.criticity)
         self.assertEqual(OPEN_PK,      ticket.status_id)
 
-        self.failIf(ticket.closing_date)
-        self.failIf(ticket.get_resolving_duration())
+        self.assertFalse(ticket.closing_date)
+        self.assertFalse(ticket.get_resolving_duration())
 
-        try: #test FunctionField
+        try:
             funf = ticket.function_fields.get('get_resolving_duration')
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
+
+        self.assertFalse(funf(ticket))
 
     def test_editview01(self):
         self.login()
@@ -119,34 +124,32 @@ class TicketTestCase(CremeTestCase):
                                        criticity=Criticity.objects.all()[0],
                                       )
 
-        response = self.client.get('/tickets/ticket/edit/%s' % ticket.pk)
-        self.assertEqual(response.status_code, 200)
+        url = '/tickets/ticket/edit/%s' % ticket.pk
+        self.assertEqual(200, self.client.get(url).status_code)
 
         title       = 'Test ticket'
         description = 'Test description'
         priority    = Priority.objects.all()[1]
         criticity   = Criticity.objects.all()[1]
-
-        response = self.client.post('/tickets/ticket/edit/%s' % ticket.pk,
-                                    data={
-                                            'user':         self.user.pk,
-                                            'title':        title,
-                                            'description':  description,
-                                            'status':       INVALID_PK,
-                                            'priority':     priority.id,
-                                            'criticity':    criticity.id,
-                                         }
+        response = self.client.post(url, data={
+                                                'user':         self.user.pk,
+                                                'title':        title,
+                                                'description':  description,
+                                                'status':       INVALID_PK,
+                                                'priority':     priority.id,
+                                                'criticity':    criticity.id,
+                                              }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(302, response.status_code)
 
         edited_ticket = Ticket.objects.get(pk=ticket)
-        self.assertEqual(priority.id,  edited_ticket.priority.id)
-        self.assertEqual(criticity.id, edited_ticket.criticity.id)
+        self.assertEqual(priority,     edited_ticket.priority)
+        self.assertEqual(criticity,    edited_ticket.criticity)
         self.assertEqual(title,        edited_ticket.title)
         self.assertEqual(description,  edited_ticket.description)
         self.assertEqual(INVALID_PK,   edited_ticket.status_id)
-        self.failIf(ticket.get_resolving_duration())
+        self.assertFalse(ticket.get_resolving_duration())
 
     def test_editview02(self):
         self.login()
@@ -174,13 +177,14 @@ class TicketTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(302, response.status_code)
 
         edited_ticket = Ticket.objects.get(pk=ticket)
         self.assertEqual(CLOSED_PK, edited_ticket.status_id)
 
-        self.assert_(edited_ticket.closing_date)
-        self.assert_(edited_ticket.get_resolving_duration())
+        self.assertTrue(edited_ticket.closing_date)
+        self.assertTrue(edited_ticket.get_resolving_duration())
+        self.assertTrue(edited_ticket.function_fields.get('get_resolving_duration')(edited_ticket))
 
     def test_listview01(self):
         self.login()
@@ -190,11 +194,11 @@ class TicketTestCase(CremeTestCase):
 
         try:
             tickets_page = response.context['entities']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(1, tickets_page.number)
-        self.failIf(tickets_page.paginator.count)
+        self.assertFalse(tickets_page.paginator.count)
 
     def test_listview02(self):
         self.login()
@@ -208,11 +212,11 @@ class TicketTestCase(CremeTestCase):
                                       )
 
         response = self.client.get('/tickets/tickets')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
 
         try:
             tickets_page = response.context['entities']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         self.assertEqual(1, tickets_page.paginator.count)
@@ -229,8 +233,8 @@ class TicketTestCase(CremeTestCase):
                                       )
 
         response = self.client.post('/creme_core/entity/delete/%s' % ticket.pk, follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(1, len(response.redirect_chain))
         self.assert_(response.redirect_chain[0][0].endswith('/tickets/tickets'))
 
     def test_ticket_clone01(self):
@@ -239,8 +243,8 @@ class TicketTestCase(CremeTestCase):
         ticket = Ticket.objects.create(user=self.user, title=title, description="d",
                                        status=Status.objects.get(pk=OPEN_PK),
                                        priority=Priority.objects.all()[0],
-                                       criticity=Criticity.objects.all()[0])
-
+                                       criticity=Criticity.objects.all()[0],
+                                      )
         stack = [ticket]
         stack_append = stack.append
 
@@ -256,8 +260,8 @@ class TicketTestCase(CremeTestCase):
         ticket = Ticket.objects.create(user=self.user, title=title, description="d",
                                        status=Status.objects.get(pk=OPEN_PK),
                                        priority=Priority.objects.all()[0],
-                                       criticity=Criticity.objects.all()[0])
-
+                                       criticity=Criticity.objects.all()[0]
+                                      )
         stack = [ticket]
         stack_append = stack.append
 
@@ -317,11 +321,11 @@ class TicketTemplateTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
 
         template = TicketTemplate.objects.get(pk=template.id) #refresh
-        self.assertEqual(title,        template.title)
-        self.assertEqual(description,  template.description)
-        self.assertEqual(status.id,    template.status_id)
-        self.assertEqual(priority.id,  template.priority_id)
-        self.assertEqual(criticity.id, template.criticity_id)
+        self.assertEqual(title,       template.title)
+        self.assertEqual(description, template.description)
+        self.assertEqual(status,      template.status)
+        self.assertEqual(priority,    template.priority)
+        self.assertEqual(criticity,   template.criticity)
 
     def test_listview(self):
         self.login()
@@ -336,15 +340,15 @@ class TicketTemplateTestCase(CremeTestCase):
         template = self.create_template('Title', status=Status.objects.get(pk=OPEN_PK))
         try:
             ticket = template.create_entity()
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
-        self.assert_(template.title in ticket.title)
+        self.assertIn(template.title, ticket.title)
         self.assertEqual(template.description,  ticket.description)
         self.assertEqual(template.status_id,    ticket.status_id)
         self.assertEqual(template.priority_id,  ticket.priority_id)
         self.assertEqual(template.criticity_id, ticket.criticity_id)
-        self.failIf(ticket.closing_date)
+        self.assertFalse(ticket.closing_date)
 
     def test_create_entity02(self):
         self.login()
@@ -352,15 +356,15 @@ class TicketTemplateTestCase(CremeTestCase):
         template = self.create_template('Title', status=Status.objects.get(pk=CLOSED_PK))
         try:
             ticket = template.create_entity()
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
-        self.assert_(template.title in ticket.title)
+        self.assertIn(template.title, ticket.title)
         self.assertEqual(template.description,  ticket.description)
         self.assertEqual(template.status_id,    ticket.status_id)
         self.assertEqual(template.priority_id,  ticket.priority_id)
         self.assertEqual(template.criticity_id, ticket.criticity_id)
-        self.assert_(ticket.closing_date)
+        self.assertTrue(ticket.closing_date)
 
     def test_create_entity03(self): #several generations -> 'title' column must be unique
         self.login()
@@ -371,7 +375,7 @@ class TicketTemplateTestCase(CremeTestCase):
         try:
             template.create_entity()
             template.create_entity()
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(2, Ticket.objects.count())

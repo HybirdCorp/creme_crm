@@ -36,9 +36,8 @@ class FunctionField(object):
     def filter_in_result(cls, search_string):
         return Q()
 
-    #@classmethod
-    #def execute(cls, obj):
-        #return getattr(obj, cls.name)()
+    def __call__(self, entity):
+        return getattr(entity, self.name)() #TODO NotImplemented error ??
 
     @classmethod
     def populate_entities(cls, entities):
@@ -49,15 +48,33 @@ class FunctionField(object):
 class FunctionFieldsManager(object):
     def __init__(self, *function_fields):
         self._function_fields = dict((f_field.name, f_field) for f_field in function_fields)
-
-    def new(self, *function_fields):
-        all_fields = self._function_fields.values()
-        all_fields.extend(function_fields)
-
-        return FunctionFieldsManager(*all_fields)
+        self._parent = None
 
     def __iter__(self):
-        return self._function_fields.itervalues()
+        manager = self
+
+        while manager:
+            for func_field in manager._function_fields.itervalues():
+                yield func_field
+
+            manager = manager._parent
+
+    def add(self, *function_fields):
+        self._function_fields.update((f_field.name, f_field) for f_field in function_fields)
 
     def get(self, name):
-        return self._function_fields.get(name)
+        func_field = self._function_fields.get(name)
+
+        if not func_field and self._parent:
+            func_field = self._parent.get(name)
+
+        return func_field
+
+    def new(self, *function_fields):
+        """Use this method when you inherit a class, and you want to add new
+        function fields to the inherited class, but not to the base class.
+        """
+        ffm = FunctionFieldsManager(*function_fields)
+        ffm._parent = self
+
+        return ffm

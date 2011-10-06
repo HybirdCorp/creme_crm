@@ -20,7 +20,7 @@
 
 from logging import debug
 
-from django import template
+from django.template import Library
 from django.db import models
 from django.utils.html import escape
 from django.utils.translation import ugettext as _
@@ -30,7 +30,7 @@ from creme_core.models import CustomField
 from creme_core.utils.meta import get_model_field_infos
 from creme_core.gui.field_printers import field_printers_registry
 
-register = template.Library()
+register = Library()
 
 
 @register.inclusion_tag('creme_core/templatetags/listview_entityfilters.html', takes_context=True)
@@ -134,8 +134,7 @@ def get_listview_columns_header(context):
             elif item_value:
                 widget_ctx['value'] = item_value[0]
         elif item_type == HFI_FUNCTION:
-            function_field = model.function_fields.get(item.name)#can function_field be None ?
-            choices = function_field.choices
+            choices = item.get_functionfield().choices
             if choices is not None:
                 _build_select_search_widget(widget_ctx, item_value, choices)
             elif item_value:
@@ -180,7 +179,7 @@ _GET_HTML_FIELD_VALUE = field_printers_registry.get_html_field_value
 
 _RENDER_FUNCS = { #TODO: use a method in HeaderFilterItem ??
     HFI_FIELD:    lambda entity, hfi, user: _GET_HTML_FIELD_VALUE(entity, hfi.name, user),
-    HFI_FUNCTION: lambda entity, hfi, user: getattr(entity, hfi.name)(),
+    HFI_FUNCTION: lambda entity, hfi, user: hfi.get_functionfield()(entity),
     HFI_RELATION: _render_relations,
     HFI_CUSTOM:   lambda entity, hfi, user: entity.get_custom_value(hfi.get_customfield()),
     HFI_VOLATILE: lambda entity, hfi, user: hfi.volatile_render(entity),

@@ -27,7 +27,6 @@ from django.db.models.fields.related import ManyToManyField, ForeignKey
 from django.db.models.fields import CharField, PositiveIntegerField, PositiveSmallIntegerField, BooleanField
 from django.utils.translation import ugettext_lazy as _
 
-#from creme_core.models import CremeEntity, Filter, CremeModel
 from creme_core.models import CremeModel, CremeEntity, EntityFilter
 from creme_core.models.custom_field import CustomField, _TABLES
 from creme_core.utils.meta import (get_field_infos, get_model_field_infos,
@@ -255,9 +254,10 @@ class Field(CremeModel):
                 no_value = _(u"N/A")
 
                 return u", ".join([" - ".join(u"%s: %s" % (_get_verbose_field_name(field_name=sub_column.name), get_field_infos(sub_entity, sub_column.name)[1] or no_value)
-                                    for sub_column in sub_columns)
-                                  for sub_entity in scope
-                                  ])  or empty_value
+                                                            for sub_column in sub_columns
+                                             )
+                                      for sub_entity in scope
+                                  ]) or empty_value
 
             if selected:
 #                return related_entities
@@ -270,12 +270,12 @@ class Field(CremeModel):
             return u", ".join(unicode(related_entity) for related_entity in related_entities) or empty_value
 
         elif column_type == HFI_FUNCTION:
-            try:
-                if check_user and not entity.can_view(user):
-                    return HIDDEN_VALUE
-                return getattr(entity, column_name)()
-            except AttributeError:
-                pass
+            if check_user and not entity.can_view(user):
+                return HIDDEN_VALUE
+
+            funfield = entity.function_fields.get(column_name) #TODO: in a cache ??
+
+            return funfield(entity) if funfield else "Problem with function field"
 
         elif column_type == HFI_CALCULATED:
             #No credential check
@@ -344,7 +344,6 @@ class Report(CremeEntity):
     name    = CharField(_(u'Name of the report'), max_length=100)
     ct      = ForeignKey(ContentType, verbose_name=_(u"Entity type"))
     columns = ManyToManyField(Field, verbose_name=_(u"Displayed columns"), related_name='report_columns_set') #TODO: use a One2Many instead....
-    #filter  = ForeignKey(Filter, verbose_name=_(u'Filter'), blank=True, null=True)
     filter  = ForeignKey(EntityFilter, verbose_name=_(u'Filter'), blank=True, null=True)
 
     class Meta:

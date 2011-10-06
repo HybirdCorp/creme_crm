@@ -1,22 +1,25 @@
 # -*- coding: utf-8 -*-
 
-from datetime import date, datetime
-from decimal import Decimal
-from tempfile import NamedTemporaryFile
+try:
+    from datetime import date, datetime
+    from decimal import Decimal
+    from tempfile import NamedTemporaryFile
 
-from django.core.serializers.json import simplejson
-from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
-from django.conf import settings
+    from django.core.serializers.json import simplejson
+    from django.utils.translation import ugettext as _
+    from django.contrib.contenttypes.models import ContentType
+    from django.conf import settings
 
-from creme_core.models import *
-from creme_core.forms.base import _CUSTOM_NAME
-from creme_core.gui.bulk_update import bulk_update_registry
-from creme_core.tests.views.base import ViewsTestCase
+    from creme_core.models import *
+    from creme_core.forms.base import _CUSTOM_NAME
+    from creme_core.gui.bulk_update import bulk_update_registry
+    from creme_core.tests.views.base import ViewsTestCase
 
-from media_managers.models.image import Image
+    from media_managers.models.image import Image
 
-from persons.models import Contact, Organisation, Position, Sector
+    from persons.models import Contact, Organisation, Position, Sector
+except Exception as e:
+    print 'Error:', e
 
 
 class EntityViewsTestCase(ViewsTestCase):
@@ -26,12 +29,15 @@ class EntityViewsTestCase(ViewsTestCase):
     def test_get_fields(self):
         self.login()
 
+        url = '/creme_core/entity/get_fields'
+
         ct_id = ContentType.objects.get_for_model(CremeEntity).id
-        response = self.client.post('/creme_core/entity/get_fields', data={'ct_id': ct_id})
+        response = self.client.post(url, data={'ct_id': ct_id})
         self.assertEqual(200,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
 
         content = simplejson.loads(response.content)
+        self.assertIsInstance(content, list)
         self.assertEqual(7, len(content))
         self.assertEqual(content[0],    ["created",          "Creme entity - " + _('Creation date')])
         self.assertEqual(content[1],    ["modified",         "Creme entity - " + _("Last modification")])
@@ -41,34 +47,38 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertEqual(content[5][0], "user__email")
         self.assertEqual(content[6][0], "user__is_team")
 
-        response = self.client.post('/creme_core/entity/get_fields', data={'ct_id': 0})
+        response = self.client.post(url, data={'ct_id': 0})
         self.assertEqual(404,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
 
-        response = self.client.post('/creme_core/entity/get_fields', data={'ct_id': 'notint'})
+        response = self.client.post(url, data={'ct_id': 'notint'})
         self.assertEqual(400,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
 
-        response = self.client.post('/creme_core/entity/get_fields', data={'ct_id': ct_id, 'deep': 'notint'})
+        response = self.client.post(url, data={'ct_id': ct_id, 'deep': 'notint'})
         self.assertEqual(400,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
 
     def test_get_function_fields(self):
         self.login()
 
+        url = '/creme_core/entity/get_function_fields'
+
         ct_id = ContentType.objects.get_for_model(CremeEntity).id
-        response = self.client.post('/creme_core/entity/get_function_fields', data={'ct_id': ct_id})
+        response = self.client.post(url, data={'ct_id': ct_id})
         self.assertEqual(200,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
 
         content = simplejson.loads(response.content)
-        self.assertEqual(content, [['get_pretty_properties', _('Properties')]])
+        self.assertIsInstance(content, list)
+        self.assertEqual(len(list(CremeEntity.function_fields)), len(content))
+        self.assertIn(['get_pretty_properties', _('Properties')], content)
 
-        response = self.client.post('/creme_core/entity/get_function_fields', data={'ct_id': 0})
+        response = self.client.post(url, data={'ct_id': 0})
         self.assertEqual(404,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
 
-        response = self.client.post('/creme_core/entity/get_function_fields', data={'ct_id': 'notint'})
+        response = self.client.post(url, data={'ct_id': 'notint'})
         self.assertEqual(400,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
 
@@ -100,7 +110,7 @@ class EntityViewsTestCase(ViewsTestCase):
 
         try:
             entity = CremeEntity.objects.create(user=self.user)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         response = self.client.post('/creme_core/entity/json', data={'pk': entity.id})
@@ -125,7 +135,7 @@ class EntityViewsTestCase(ViewsTestCase):
             model  = dic['model']
             fields = dic['fields']
             user = fields['user']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(entity.id, pk)
@@ -137,7 +147,7 @@ class EntityViewsTestCase(ViewsTestCase):
 
         try:
             entity = CremeEntity.objects.create(user=self.user)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         response = self.client.post('/creme_core/entity/json', data={'pk': entity.id, 'fields': ['user', 'entity_type']})
@@ -163,7 +173,7 @@ class EntityViewsTestCase(ViewsTestCase):
 
         try:
             entity = CremeEntity.objects.create(user=self.user)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         response = self.client.get('/creme_core/entity/get_repr/%s' % entity.id)
@@ -273,15 +283,15 @@ class EntityViewsTestCase(ViewsTestCase):
 
         json_data = simplejson.loads(response.content)
         #print json_data
-        self.assert_(isinstance(json_data, list))
-        self.assert_(all(isinstance(elt, list) for elt in json_data))
-        self.assert_(all(len(elt) == 2 for elt in json_data))
+        self.assertIsInstance(json_data, list)
+        self.assertTrue(all(isinstance(elt, list) for elt in json_data))
+        self.assertTrue(all(len(elt) == 2 for elt in json_data))
 
         names = ['created', 'modified', 'first_name', 'last_name', 'description',
                  'skype', 'phone', 'mobile', 'fax', 'email', 'url_site', 'birthday'
                 ]
         diff = set(names) - set(name for name, vname in json_data)
-        self.failIf(diff, diff)
+        self.assertFalse(diff, diff)
 
         self.assertEqual(len(names), len(json_data))
 
@@ -302,7 +312,7 @@ class EntityViewsTestCase(ViewsTestCase):
 
         json_dict = dict(json_data)
         translation = _(u'Name')
-        self.assert_(json_dict['name'].startswith(translation))
+        self.assertTrue(json_dict['name'].startswith(translation))
         self.assertNotEqual(translation, json_dict['name'])
 
     def test_clone01(self):
@@ -322,56 +332,49 @@ class EntityViewsTestCase(ViewsTestCase):
 
     def test_clone02(self):
         self.login(is_superuser=False)
-        url = '/creme_core/entity/clone'
 
         mario = Contact.objects.create(user=self.other_user, first_name="Mario", last_name="Bros")
-
-        response = self.client.post(url, data={'id': mario.id}, follow=True)
+        response = self.client.post('/creme_core/entity/clone', data={'id': mario.id}, follow=True)
         self.assertEqual(403, response.status_code)
 
     def test_clone03(self):
         self.login(is_superuser=False, creatable_models=[ct.model_class() for ct in ContentType.objects.all()])
         self._set_all_creds_except_one(SetCredentials.CRED_VIEW)
-        url = '/creme_core/entity/clone'
 
         mario = Contact.objects.create(user=self.other_user, first_name="Mario", last_name="Bros")
-
-        response = self.client.post(url, data={'id': mario.id}, follow=True)
+        response = self.client.post('/creme_core/entity/clone', data={'id': mario.id}, follow=True)
         self.assertEqual(403, response.status_code)
 
     def test_clone04(self):
         self.login(is_superuser=False, creatable_models=[ct.model_class() for ct in ContentType.objects.all()], allowed_apps=('creme_core', 'persons'))
         self._set_all_creds_except_one(None)
-        url = '/creme_core/entity/clone'
 
         mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
-
-        response = self.client.post(url, data={'id': mario.id}, follow=True)
+        response = self.client.post('/creme_core/entity/clone', data={'id': mario.id}, follow=True)
         self.assertEqual(200, response.status_code)
 
     def test_clone05(self):
         self.login()
-        url = '/creme_core/entity/clone'
 
         first_name = "Mario"
         mario = Contact.objects.create(user=self.other_user, first_name=first_name, last_name="Bros")
 
         count = Contact.objects.count()
-        response = self.client.post(url, data={'id': mario.id}, follow=True)
+        response = self.client.post('/creme_core/entity/clone', data={'id': mario.id}, follow=True)
         self.assertEqual(200, response.status_code)
         self.assertEqual(count + 1, Contact.objects.count())
 
         try:
             mario = Contact.objects.filter(first_name=first_name).order_by('created')[0]
             oiram = Contact.objects.filter(first_name=first_name).order_by('created')[1]
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(mario.last_name,  oiram.last_name)
 
-        self.assert_(response.redirect_chain)
+        self.assertTrue(response.redirect_chain)
         self.assertEqual(len(response.redirect_chain), 1)
-        self.assert_(response.redirect_chain[0][0].endswith('/persons/contact/%s' % oiram.id))
+        self.assertTrue(response.redirect_chain[0][0].endswith('/persons/contact/%s' % oiram.id))
 
         response = self.client.get('/persons/contact/%s' % oiram.id)
         self.assertEqual(response.status_code, 200)
@@ -379,7 +382,7 @@ class EntityViewsTestCase(ViewsTestCase):
     def _assert_detailview(self, response, entity):
         self.assertEqual(200, response.status_code)
         self.assertEqual(1,   len(response.redirect_chain))
-        self.assert_(response.redirect_chain[0][0].endswith(entity.get_absolute_url()))
+        self.assertTrue(response.redirect_chain[0][0].endswith(entity.get_absolute_url()))
 
     def test_search_and_view01(self):
         self.login()
@@ -491,9 +494,9 @@ class EntityViewsTestCase(ViewsTestCase):
         ryuji   = create_contact(user=user,            first_name='Ryuji',   last_name='Danma',   phone='987654') #phone KO
         onibaku = Organisation.objects.create(user=user, name='Onibaku', phone=phone) #phone Ok and readable
 
-        self.failIf(onizuka.can_view(user))
-        self.assert_(ryuji.can_view(user))
-        self.assert_(onibaku.can_view(user))
+        self.assertFalse(onizuka.can_view(user))
+        self.assertTrue(ryuji.can_view(user))
+        self.assertTrue(onibaku.can_view(user))
         self._assert_detailview(self.client.get(url, data=data, follow=True), onibaku)
 
     def test_search_and_view06(self): #app creds
@@ -613,7 +616,7 @@ class BulkEditTestCase(ViewsTestCase):
 
         bulk_update_registry.register((Contact, ['position', ]))
 
-        unemployed   = Position.objects.create(title='unemployed')
+        unemployed = Position.objects.create(title='unemployed')
 
         mario = self.create_contact(user=self.user, first_name="Mario", last_name="Bros")
         luigi = self.create_contact(user=self.user, first_name="Luigi", last_name="Bros")
@@ -648,8 +651,8 @@ class BulkEditTestCase(ViewsTestCase):
                                    )
         self.assertNoFormError(response)
 
-        mario    = self.refresh_contact(mario)
-        luigi    = self.refresh_contact(luigi)
+        mario = self.refresh_contact(mario)
+        luigi = self.refresh_contact(luigi)
         self.assertEqual('', mario.description)
         self.assertEqual('', luigi.description)
 
@@ -685,7 +688,7 @@ class BulkEditTestCase(ViewsTestCase):
                                                 'entities_lbl': 'whatever',
                                               }
                                    )
-        self.assert_(response.context['form'].errors)
+        self.assertTrue(response.context['form'].errors)
 
         settings.DATE_INPUT_FORMATS += ("-%dT%mU%Y-",) #This weird format have few chances to be present in settings
         self.client.post(url, data={
@@ -722,7 +725,7 @@ class BulkEditTestCase(ViewsTestCase):
                                                 'bad_entities_lbl':'whatever',
                                               }
                                    )
-        self.assert_(response.context['form'].errors)
+        self.assertTrue(response.context['form'].errors)
 
         self.client.post(url, data={
                                     'field_name':       'image',
@@ -955,11 +958,11 @@ class BulkEditTestCase(ViewsTestCase):
         mario = self.refresh_contact(mario)
         luigi = self.refresh_contact(luigi)
 
-        self.failUnless(m_enum1.id in get_cf_values(cf_multi_enum, mario).value.values_list('pk', flat=True))
-        self.failUnless(m_enum3.id in get_cf_values(cf_multi_enum, mario).value.values_list('pk', flat=True))
+        self.assertIn(m_enum1.id, get_cf_values(cf_multi_enum, mario).value.values_list('pk', flat=True))
+        self.assertIn(m_enum3.id, get_cf_values(cf_multi_enum, mario).value.values_list('pk', flat=True))
 
-        self.failUnless(m_enum1.id in get_cf_values(cf_multi_enum, luigi).value.values_list('pk', flat=True))
-        self.failUnless(m_enum3.id in get_cf_values(cf_multi_enum, luigi).value.values_list('pk', flat=True))
+        self.assertIn(m_enum1.id, get_cf_values(cf_multi_enum, luigi).value.values_list('pk', flat=True))
+        self.assertIn(m_enum3.id, get_cf_values(cf_multi_enum, luigi).value.values_list('pk', flat=True))
 
         #Multi-Enum empty
         response = self.client.post(url, data={
@@ -985,7 +988,7 @@ class BulkEditTestCase(ViewsTestCase):
                                    )
         self.assertEqual(200,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
-        self.assert_(simplejson.loads(response.content)['rendered'])
+        self.assertTrue(simplejson.loads(response.content)['rendered'])
 
         response = self.client.post(url % 0, data={})
         self.assertEqual(404,               response.status_code)

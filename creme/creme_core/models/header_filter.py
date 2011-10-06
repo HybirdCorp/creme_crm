@@ -94,6 +94,9 @@ class HeaderFilter(Model): #CremeModel ???
         if show_actions:
             items.insert(0, _hfi_action)
 
+        for item in items:
+            item.header_filter = self
+
         self._items = items
 
     #TODO: factorise with Filter.can_edit_or_delete ???
@@ -196,6 +199,7 @@ class HeaderFilterItem(Model):  #CremeModel ???
     relation_content_type = ForeignKey(ContentType, blank=True, null=True) #TODO: useful ??
 
     _customfield = None
+    _functionfield = None
     _volatile_render = None
 
     def __unicode__(self):
@@ -292,6 +296,18 @@ class HeaderFilterItem(Model):  #CremeModel ???
             debug('HeaderFilterItem.get_customfield(): cache HIT for id=%s', self.id)
 
         return self._customfield
+
+    def get_functionfield(self):
+        assert self.type == HFI_FUNCTION
+
+        if self._functionfield is None:
+            debug('HeaderFilterItem.get_functionfield(): cache MISS for id=%s', self.id)
+            #TODO what if function_field is None ?
+            self._functionfield = self.header_filter.entity_type.model_class().function_fields.get(self.name)
+        else:
+            debug('HeaderFilterItem.get_functionfield(): cache HIT for id=%s', self.id)
+
+        return self._functionfield
 
     def _get_volatile_render(self):
         assert self.type == HFI_VOLATILE

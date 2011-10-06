@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
+
 from django.db.models import TextField, BooleanField, DateTimeField, ForeignKey, PositiveIntegerField
 from django.db.models.signals import pre_delete
 from django.utils.translation import ugettext_lazy as _
@@ -27,6 +29,7 @@ from django.contrib.auth.models import User
 
 from creme_core.models import CremeModel, CremeEntity
 from creme_core.models.fields import CremeUserForeignKey
+from creme_core.core.function_field import FunctionField
 
 
 class Memo(CremeModel):
@@ -65,3 +68,34 @@ def dispose_entity_memos(sender, instance, **kwargs):
     Memo.objects.filter(entity_id=instance.id).delete()
 
 pre_delete.connect(dispose_entity_memos, sender=CremeEntity)
+
+
+class _GetMemos(FunctionField):
+    name         = 'assistants-get_memos'
+    verbose_name = _(u"Memos")
+
+    def __call__(self, entity):
+        cache = getattr(entity, '_memos_cache', None)
+
+        if cache is None:
+            cache = entity._memos_cache = list(Memo.objects.filter(entity_id=entity.id) \
+                                                           .order_by('-creation_date') \
+                                                           .values_list('content', flat=True)
+                                              )
+
+        return u'<ul>%s</ul>' % u"".join(u'<li>%s</li>' % title for title in cache)
+
+    @classmethod
+    def populate_entities(cls, entities):
+        memos_map = defaultdict(list)
+
+        for content, e_id in Memo.objects.filter(entity_id__in=[e.id for e in entities]) \
+                                       .order_by('-creation_date') \
+                                       .values_list('content', 'entity_id'):
+            memos_map[e_id].append(content)
+
+        for entity in entities:
+            entity._memos_cache = memos_map[entity.id]
+
+
+CremeEntity.function_fields.add(_GetMemos())

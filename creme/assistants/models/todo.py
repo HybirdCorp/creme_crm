@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
+
 from django.db.models import CharField, BooleanField, TextField, DateTimeField, ForeignKey, PositiveIntegerField
 from django.db.models.signals import pre_delete
 from django.utils.translation import ugettext_lazy as _
@@ -27,6 +29,7 @@ from django.contrib.auth.models import User
 
 from creme_core.models import CremeEntity, CremeModel
 from creme_core.models.fields import CremeUserForeignKey
+from creme_core.core.function_field import FunctionField
 
 
 class ToDo(CremeModel):
@@ -77,3 +80,34 @@ def dispose_entity_todos(sender, instance, **kwargs):
     ToDo.objects.filter(entity_id=instance.id).delete()
 
 pre_delete.connect(dispose_entity_todos, sender=CremeEntity)
+
+
+class _GetTodos(FunctionField):
+    name         = 'assistants-get_todos'
+    verbose_name = _(u"Todos")
+
+    def __call__(self, entity):
+        cache = getattr(entity, '_todos_cache', None)
+
+        if cache is None:
+            cache = entity._todos_cache = list(ToDo.objects.filter(entity_id=entity.id, is_ok=False) \
+                                                           .order_by('-creation_date') \
+                                                           .values_list('title', flat=True)
+                                              )
+
+        return u'<ul>%s</ul>' % u"".join(u'<li>%s</li>' % title for title in cache)
+
+    @classmethod
+    def populate_entities(cls, entities):
+        todos_map = defaultdict(list)
+
+        for title, e_id in ToDo.objects.filter(entity_id__in=[e.id for e in entities], is_ok=False) \
+                                       .order_by('-creation_date') \
+                                       .values_list('title', 'entity_id'):
+            todos_map[e_id].append(title)
+
+        for entity in entities:
+            entity._todos_cache = todos_map[entity.id]
+
+
+CremeEntity.function_fields.add(_GetTodos())
