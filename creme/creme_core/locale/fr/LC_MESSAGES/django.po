@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-09-05 12:36+0200\n"
+"POT-Creation-Date: 2011-10-06 18:04+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,13 +17,13 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: blocks.py:33 forms/csv_import.py:597 models/creme_property.py:91
+#: blocks.py:33 forms/csv_import.py:592 models/creme_property.py:91
 #: models/entity.py:51
 msgid "Properties"
 msgstr "Propriétés"
 
 #: blocks.py:49 forms/header_filter.py:45 forms/relation.py:36
-#: gui/block.py:275 models/relation.py:190
+#: gui/block.py:292 models/relation.py:190
 msgid "Relations"
 msgstr "Relations"
 
@@ -51,59 +51,59 @@ msgstr "Accueil"
 msgid "My page"
 msgstr "Ma page"
 
-#: populate.py:36
+#: populate.py:37
 msgid "French"
 msgstr "Français"
 
-#: populate.py:37
+#: populate.py:38
 msgid "English"
 msgstr "Anglais"
 
-#: populate.py:39
+#: populate.py:40
 msgid "Euro"
 msgstr "Euro"
 
-#: populate.py:39
+#: populate.py:40
 msgid "€"
 msgstr "€"
 
-#: populate.py:39
+#: populate.py:40
 msgid "EUR"
 msgstr "EUR"
 
-#: populate.py:40
+#: populate.py:41
 msgid "United States dollar"
 msgstr "Dollar américain"
 
-#: populate.py:40
+#: populate.py:41
 msgid "$"
 msgstr "$"
 
-#: populate.py:40
+#: populate.py:41
 msgid "USD"
 msgstr "USD"
 
-#: populate.py:42
+#: populate.py:43
 msgid "managed by Creme"
 msgstr "est géré par Creme"
 
-#: populate.py:44
+#: populate.py:45
 msgid "owns"
 msgstr "possède"
 
-#: populate.py:45
+#: populate.py:46
 msgid "belongs to"
 msgstr "appartient à"
 
-#: populate.py:63
+#: populate.py:64
 msgid "By default, are blocks open ?"
 msgstr "Par défaut, est-ce que les blocs apparaîssent ouverts ?"
 
-#: populate.py:69
+#: populate.py:70
 msgid "By default, are empty fields displayed ?"
 msgstr "Par défaut, est-ce que les champs vides sont affichés ?"
 
-#: populate.py:75
+#: populate.py:76
 msgid ""
 "Display the currency local symbol (ex: €) ? If no the international symbol "
 "will be used (ex: EUR)"
@@ -111,11 +111,11 @@ msgstr ""
 "Afficher la devise avec son symbole locale (ex: €) ? Sinon le symbole "
 "internationale sera utilisé (ex: EUR)."
 
-#: forms/base.py:158 forms/base.py:179 forms/relation.py:113
+#: forms/base.py:158 forms/base.py:179 forms/relation.py:114
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/base.py:202 forms/csv_import.py:596 models/base.py:93
+#: forms/base.py:202 forms/csv_import.py:591 models/base.py:94
 #: models/prefered_menu.py:27
 msgid "User"
 msgstr "Utilisateur"
@@ -136,7 +136,7 @@ msgstr "Champ à mettre à jour"
 msgid "Value"
 msgstr "Valeur"
 
-#: forms/bulk.py:87 forms/creme_property.py:78 forms/relation.py:120
+#: forms/bulk.py:87 forms/creme_property.py:78 forms/relation.py:121
 msgid "NONE !"
 msgstr "AUCUNE !"
 
@@ -169,7 +169,7 @@ msgstr "Ce champ est obligatoire."
 msgid "Type of property"
 msgstr "Type de propriété"
 
-#: forms/creme_property.py:66 forms/relation.py:112
+#: forms/creme_property.py:66 forms/relation.py:113
 msgid "Related entities"
 msgstr "Entités associées"
 
@@ -192,12 +192,13 @@ msgstr "Fichier CSV"
 #: forms/csv_import.py:51
 msgid ""
 "A file that contains the fields values of an entity on each line, separated "
-"by commas and each one ca be surrounded by quotation marks \" (to protect a "
-"value containing a comma for example)."
+"by commas or semicolons and each one can be surrounded by quotation marks "
+"\" (to protect a value containing a comma for example)."
 msgstr ""
 "Un fichier contenant les valeurs des champs d'une fiche sur chaque ligne, "
-"séparées par des virgules et chacune pouvant être entourée par des "
-"guillemets \" (pour protégér une valuer contenant une virgule par exemple)."
+"séparées par des virgules ou des points-virgules et chacune pouvant être "
+"entourée par des guillemets \" (pour protégér une valeur contenant une "
+"virgule par exemple)."
 
 #: forms/csv_import.py:56
 msgid "Header present ?"
@@ -211,16 +212,16 @@ msgstr ""
 "La 1ère ligne du fichier contient-il l'entête des colonnes de valeurs (ex: "
 "\"Nom\",\"Prénom\") ?"
 
-#: forms/csv_import.py:74 forms/csv_import.py:531
+#: forms/csv_import.py:75 forms/csv_import.py:526
 msgid "You have not the credentials to read this document."
 msgstr "Vous n'avez pas les droits pour lire ce document."
 
-#: forms/csv_import.py:83
+#: forms/csv_import.py:84
 #, python-format
 msgid "Error reading document: %s."
 msgstr "Erreur lors de la lecture du document: %s."
 
-#: forms/csv_import.py:155
+#: forms/csv_import.py:156
 #, python-format
 msgid ""
 "Error while extracting value [%(raw_error)s]: tried to retrieve and then "
@@ -229,7 +230,7 @@ msgstr ""
 "Erreur lors de l'extraction de valeur [%(raw_error)s]: a essayé de retrouver "
 "et puis de construire \"%(value)s\" sur %(model)s"
 
-#: forms/csv_import.py:162
+#: forms/csv_import.py:163
 #, python-format
 msgid ""
 "Error while extracting value [%(raw_error)s]: tried to retrieve \"%(value)s"
@@ -238,19 +239,19 @@ msgstr ""
 "Erreur lors de l'extraction de valeur [%(raw_error)s]: a essayé de retrouver "
 "\"%(value)s\" sur %(model)s"
 
-#: forms/csv_import.py:220
+#: forms/csv_import.py:221
 msgid "Search by:"
 msgstr "Chercher selon:"
 
-#: forms/csv_import.py:224
+#: forms/csv_import.py:225
 msgid "Create if not found ?"
 msgstr "Créer si non trouvé ?"
 
-#: forms/csv_import.py:232
+#: forms/csv_import.py:233
 msgid "Default value"
 msgstr "Valeur par défaut"
 
-#: forms/csv_import.py:335
+#: forms/csv_import.py:336
 #, python-format
 msgid ""
 "Error while extracting value (%(raw_error)s) to build a Relation: tried to "
@@ -259,7 +260,7 @@ msgstr ""
 "Erreur lors de l'extraction de valeur (%(raw_error)s) pour construire une "
 "Relation: a essayé de retrouver %(field)s=\"%(value)s\" sur %(model)s"
 
-#: forms/csv_import.py:351
+#: forms/csv_import.py:352
 #, python-format
 msgid ""
 "Error while extracting value: tried to build  %(model)s with data=%(data)s "
@@ -268,7 +269,7 @@ msgstr ""
 "Erreur lors de l'extraction  de valeur: a essayé de construire %(model)s "
 "avec données=%(data)s => errors=%(errors)s"
 
-#: forms/csv_import.py:361
+#: forms/csv_import.py:362
 #, python-format
 msgid ""
 "Error while extracting value to build a Relation: tried to retrieve "
@@ -277,7 +278,7 @@ msgstr ""
 "Erreur lors de l'extraction de valeur pour construire une Relation: a essayé "
 "de retrouver %(field)s=\"%(value)s\" sur %(model)s"
 
-#: forms/csv_import.py:410
+#: forms/csv_import.py:403
 msgid ""
 "Create entities if they are not found ? (only fields followed by [CREATION] "
 "allows you to create, if they exist)"
@@ -285,57 +286,57 @@ msgstr ""
 "Créer les fiches si elle ne sont pas trouvées ? (seuls les champs suivi de "
 "[CRÉATION] vous permettent de créer, si ils existent)"
 
-#: forms/csv_import.py:423
+#: forms/csv_import.py:415
 msgid "This field doesn't exist in this ContentType."
 msgstr "Ce champ n'existe pas dans ce type de fiche."
 
-#: forms/csv_import.py:424
+#: forms/csv_import.py:416
 msgid "This column is not a valid choice."
 msgstr "Cette colonne n'est pas un choix valide'."
 
-#: forms/csv_import.py:510
+#: forms/csv_import.py:505
 msgid "Importing from a CSV file"
 msgstr "Import depuis un fichier CSV"
 
-#: forms/csv_import.py:528
+#: forms/csv_import.py:523
 msgid "This document doesn't exist or doesn't exist any more."
 msgstr "Ce document n'existe pas/plus."
 
-#: forms/csv_import.py:600
+#: forms/csv_import.py:595
 msgid "Fixed relations"
 msgstr "Relations fixes"
 
-#: forms/csv_import.py:601
+#: forms/csv_import.py:596
 msgid "Relations from CSV"
 msgstr "Relations depuis le CSV"
 
-#: forms/csv_import.py:603
+#: forms/csv_import.py:598
 msgid "Generic information"
 msgstr "Infos génériques"
 
-#: forms/csv_import.py:604
+#: forms/csv_import.py:599
 msgid "Related properties"
 msgstr "Propriétés associées"
 
-#: forms/csv_import.py:605
+#: forms/csv_import.py:600
 msgid "Associated relations"
 msgstr "Relations associées"
 
-#: forms/csv_import.py:645 models/auth.py:506
+#: forms/csv_import.py:640 models/auth.py:506
 #, python-format
 msgid "You are not allowed to create: %s"
 msgstr "Vous n'avez pas la permission de créer: %s"
 
-#: forms/csv_import.py:684
+#: forms/csv_import.py:679
 msgid "Not in the CSV file"
 msgstr "Pas dans le CSV"
 
-#: forms/csv_import.py:688
+#: forms/csv_import.py:683
 #, python-format
 msgid "Column %(index)s - %(name)s"
 msgstr "Colonne %(index)s - %(name)s"
 
-#: forms/csv_import.py:695
+#: forms/csv_import.py:690
 #, python-format
 msgid "Column %i"
 msgstr "Colonne %i"
@@ -356,115 +357,115 @@ msgstr "A la relation"
 msgid "Does not have the relation"
 msgstr "N'a pas la relation"
 
-#: forms/entity_filter.py:56 models/history.py:87
+#: forms/entity_filter.py:56 forms/entity_filter.py:59 models/history.py:87
 msgid "True"
 msgstr "Vrai"
 
-#: forms/entity_filter.py:56 models/history.py:87
+#: forms/entity_filter.py:56 forms/entity_filter.py:59 models/history.py:87
 msgid "False"
 msgstr "Faux"
 
-#: forms/entity_filter.py:210
+#: forms/entity_filter.py:213
 msgid "This field is invalid with this model."
 msgstr "Ce champ n'existe pas dans ce type de fiche."
 
-#: forms/entity_filter.py:211 forms/entity_filter.py:423
+#: forms/entity_filter.py:214 forms/entity_filter.py:426
 msgid "This operator is invalid."
 msgstr "Cette opérateur est invalide."
 
-#: forms/entity_filter.py:324
+#: forms/entity_filter.py:327
 msgid "This field is not a date field for this model."
 msgstr "Ce champ n'est pas un choix valide."
 
-#: forms/entity_filter.py:325
+#: forms/entity_filter.py:328
 msgid "This date range is invalid."
 msgstr "Cet interval de date n'est pas valide."
 
-#: forms/entity_filter.py:326
+#: forms/entity_filter.py:329
 msgid "Please enter a start date and/or a end date."
 msgstr "Veuillez une date de début et/ou de fin."
 
-#: forms/entity_filter.py:422
+#: forms/entity_filter.py:425
 msgid "This custom field is invalid with this model."
 msgstr "Ce champ personnalisé est invalide pour ce type de fiche."
 
-#: forms/entity_filter.py:485
+#: forms/entity_filter.py:488
 msgid "This date custom field is invalid with this model."
 msgstr "Ce champ personnalisé de date est invalide pour ce type de fiche."
 
-#: forms/entity_filter.py:529
+#: forms/entity_filter.py:532
 msgid "This relation type is invalid with this model."
 msgstr "Cette relation est invalide avec ce type de fiche."
 
-#: forms/entity_filter.py:530
+#: forms/entity_filter.py:533
 msgid "This content type is invalid."
 msgstr "Ce type de resource n'est pas autorisé."
 
-#: forms/entity_filter.py:531
+#: forms/entity_filter.py:534
 msgid "This entity is invalid."
 msgstr "Cette fiche est invalide."
 
-#: forms/entity_filter.py:636
+#: forms/entity_filter.py:639
 msgid "This filter is invalid."
 msgstr "Ce filtre est invalide."
 
-#: forms/entity_filter.py:689
+#: forms/entity_filter.py:692
 msgid "This property type is invalid with this model."
 msgstr "Ce type de propriété est invalide avec ce type de fiche."
 
-#: forms/entity_filter.py:756
+#: forms/entity_filter.py:759
 msgid "On regular fields"
 msgstr "Sur les champs normaux"
 
-#: forms/entity_filter.py:757
+#: forms/entity_filter.py:760
 msgid "You can write several values, separated by commas."
 msgstr "Vous pouvez écrire plusieurs valeurs, séparées par des virgules."
 
-#: forms/entity_filter.py:759
+#: forms/entity_filter.py:762
 msgid "On date fields"
 msgstr "Sur les champs de date"
 
-#: forms/entity_filter.py:760
+#: forms/entity_filter.py:763
 msgid "On custom fields"
 msgstr "Sur les champs personnalisés"
 
-#: forms/entity_filter.py:761
+#: forms/entity_filter.py:764
 msgid "On date custom fields"
 msgstr "Sur les champs personnalisés de date"
 
-#: forms/entity_filter.py:762
+#: forms/entity_filter.py:765
 msgid "On relations"
 msgstr "Sur les relations"
 
-#: forms/entity_filter.py:763
+#: forms/entity_filter.py:766
 msgid "Do not select any entity if you want to match them all."
 msgstr "Ne sélectionnez aucune fiche si vous voulez chercher parmi toutes."
 
-#: forms/entity_filter.py:765
+#: forms/entity_filter.py:768
 msgid "On relations with results of other filters"
 msgstr "Sur les relations avec les résultats d'autres filtres"
 
-#: forms/entity_filter.py:766
+#: forms/entity_filter.py:769
 msgid "On properties"
 msgstr "Sur les propriétés"
 
-#: forms/entity_filter.py:767
+#: forms/entity_filter.py:770
 msgid "Sub-filters"
 msgstr "Sous-filtres"
 
-#: forms/entity_filter.py:775
+#: forms/entity_filter.py:778
 msgid "Conditions"
 msgstr "Conditions"
 
-#: forms/entity_filter.py:783 forms/header_filter.py:57
+#: forms/entity_filter.py:786 forms/header_filter.py:57
 msgid "All users"
 msgstr "Tous les utilisateurs"
 
-#: forms/entity_filter.py:784
+#: forms/entity_filter.py:787
 msgid "Use \"OR\" between the conditions (else \"AND\" is used)."
 msgstr "Utiliser \"OU\" entre les conditions (sinon \"ET\" est utilisé)."
 
-#: forms/entity_filter.py:799
+#: forms/entity_filter.py:802
 msgid "The filter must have at least one condition."
 msgstr "Le filtre doit avoir au moins une condition."
 
@@ -476,7 +477,7 @@ msgstr "Format invalide"
 msgid "This content type is not allowed."
 msgstr "Ce type de resource n'est pas autorisé'."
 
-#: forms/fields.py:119 forms/fields.py:269 forms/fields.py:578
+#: forms/fields.py:119 forms/fields.py:269 forms/fields.py:584
 msgid "This entity doesn't exist."
 msgstr "Cette entité n'existe pas."
 
@@ -500,34 +501,34 @@ msgstr ""
 "Cette fiche n'a aucune propriété qui convient avec les contrainte de type de "
 "relation"
 
-#: forms/fields.py:522
+#: forms/fields.py:528
 #, python-format
 msgid "Select a valid choice. %(value)s is not an available choice."
 msgstr ""
 "Sélectionnez un choix valide. %(value)s n'est pas un des choix disponibles."
 
-#: forms/fields.py:770
+#: forms/fields.py:776
 msgid ""
 "If you select customized you have to specify a start date and/or an end date."
 msgstr ""
 "Si vous sélectionnez 'Personnalisé' vous devez spécifier une date de début "
 "et/ou une date de fin."
 
-#: forms/fields.py:771
+#: forms/fields.py:777
 msgid "Start date has to be before end date."
 msgstr "La date début doit être avant la date de fin."
 
-#: forms/fields.py:775 forms/widgets.py:163 forms/widgets.py:868
+#: forms/fields.py:781 forms/widgets.py:163 forms/widgets.py:868
 msgid "Customized"
 msgstr "Personnalisé"
 
 #  Translated in Django ; leave untranslated here...
-#: forms/fields.py:822
+#: forms/fields.py:828
 msgid "Enter a whole number."
 msgstr ""
 
 #  Translated in Django ; leave untranslated here...
-#: forms/fields.py:823
+#: forms/fields.py:829
 #, python-format
 msgid "Ensure this value is greater than or equal to %(limit_value)s."
 msgstr ""
@@ -540,12 +541,12 @@ msgstr "Fonctions"
 msgid "You have to choose at least one element in available lists."
 msgstr "Vous devez choisir au moins un élément dans les listes disponibles"
 
-#: forms/relation.py:63
+#: forms/relation.py:64
 #, python-format
 msgid "There are duplicates: %s"
 msgstr "Il y a des doublons: %s"
 
-#: forms/relation.py:123
+#: forms/relation.py:124
 msgid "Unlinkable entities"
 msgstr "Fiches non reliables"
 
@@ -641,12 +642,12 @@ msgstr[0] "seconde"
 msgstr[1] "secondes"
 
 #: gui/field_printers.py:130 models/custom_field.py:258
-#: templatetags/creme_core_tags.py:46 templatetags/creme_listview.py:75
+#: templatetags/creme_core_tags.py:47 templatetags/creme_listview.py:75
 msgid "Yes"
 msgstr "Oui"
 
 #: gui/field_printers.py:130 models/custom_field.py:258
-#: templatetags/creme_core_tags.py:46 templatetags/creme_listview.py:79
+#: templatetags/creme_core_tags.py:47 templatetags/creme_listview.py:79
 msgid "No"
 msgstr "Non"
 
@@ -735,56 +736,56 @@ msgstr "Vous n'êtes pas autorisé à configurer cet app: %s"
 msgid "You are not allowed to export: %s"
 msgstr "Vous n'avez pas la permission d'exporter: %s"
 
-#: models/base.py:85
+#: models/base.py:86
 msgid "Creation date"
 msgstr "Date de création"
 
-#: models/base.py:86
+#: models/base.py:87
 msgid "Last modification"
 msgstr "Dernière modification"
 
-#: models/block.py:68 models/button_menu.py:30 models/custom_field.py:50
-#: models/search.py:32
+#: models/block.py:45 models/button_menu.py:30 models/custom_field.py:50
+#: models/search.py:35
 msgid "Related type"
 msgstr "Type associé"
 
-#: models/block.py:196 models/block.py:223 models/block.py:277
+#: models/block.py:177 models/block.py:204 models/block.py:258
 msgid "Block ID"
 msgstr "Identifiant de bloc"
 
-#: models/block.py:197
+#: models/block.py:178
 msgid "Related type of relation"
 msgstr "Type de relation associé"
 
-#: models/block.py:201
+#: models/block.py:182
 msgid "Specific relation block"
 msgstr "Bloc de relation spécifique"
 
-#: models/block.py:202
+#: models/block.py:183
 msgid "Specific relation blocks"
 msgstr "Blocs de relation spécifique"
 
-#: models/block.py:224
+#: models/block.py:205
 msgid "Block related entity"
 msgstr "Entité associée au bloc"
 
-#: models/block.py:226
+#: models/block.py:207
 msgid "Verbose"
 msgstr "Verbeux"
 
-#: models/block.py:230
+#: models/block.py:211
 msgid "Instance's Block to display"
 msgstr "Bloc d'instance à afficher"
 
-#: models/block.py:231
+#: models/block.py:212
 msgid "Instance's Blocks to display"
 msgstr "Blocs d'instance à afficher"
 
-#: models/block.py:283
+#: models/block.py:264
 msgid "Block state"
 msgstr "Etat de bloc"
 
-#: models/block.py:284
+#: models/block.py:265
 msgid "Blocks states"
 msgstr "Etats de blocs"
 
@@ -792,7 +793,7 @@ msgstr "Etats de blocs"
 msgid "Button ID"
 msgstr "Identifiant de bouton"
 
-#: models/button_menu.py:32 models/search.py:91
+#: models/button_menu.py:32 models/search.py:96
 msgid "Priority"
 msgstr "Priorité"
 
@@ -929,7 +930,7 @@ msgstr "Filtres de fiche"
 msgid "This filter can't be edited/deleted"
 msgstr "Ce filtre ne peut être modifié/effacé"
 
-#: models/entity_filter.py:113 models/header_filter.py:111 views/entity.py:262
+#: models/entity_filter.py:113 models/header_filter.py:114 views/entity.py:262
 #: views/entity_filter.py:50 views/entity_filter.py:128
 #: views/header_filter.py:49 views/header_filter.py:113
 #: views/generic/listview.py:210
@@ -955,91 +956,91 @@ msgstr ""
 "Vous ne pouvez pas supprimer ce filtre, car il est utilisé comme sous-filtre "
 "par : %s"
 
-#: models/entity_filter.py:348
+#: models/entity_filter.py:349
 msgid "Equals"
 msgstr "Est égal à"
 
-#: models/entity_filter.py:349
+#: models/entity_filter.py:350
 msgid "Equals (case insensitive)"
 msgstr "Est égal à (Ne respecte pas la casse)"
 
-#: models/entity_filter.py:350
+#: models/entity_filter.py:351
 msgid "Does not equal"
 msgstr "N'est pas égal à"
 
-#: models/entity_filter.py:351
+#: models/entity_filter.py:352
 msgid "Does not equal (case insensitive)"
 msgstr "N'est pas égal à (Ne respecte pas la casse)"
 
-#: models/entity_filter.py:352
+#: models/entity_filter.py:353
 msgid "Contains"
 msgstr "Contient"
 
-#: models/entity_filter.py:353
+#: models/entity_filter.py:354
 msgid "Contains (case insensitive)"
 msgstr "Contient (Ne respecte pas la casse)"
 
-#: models/entity_filter.py:354
+#: models/entity_filter.py:355
 msgid "Does not contain"
 msgstr "Ne contient pas"
 
-#: models/entity_filter.py:355
+#: models/entity_filter.py:356
 msgid "Does not contain (case insensitive)"
 msgstr "Ne contient pas (Ne respecte pas la casse)"
 
-#: models/entity_filter.py:356
+#: models/entity_filter.py:357
 msgid ">"
 msgstr ">"
 
-#: models/entity_filter.py:357
+#: models/entity_filter.py:358
 msgid ">="
 msgstr ">="
 
-#: models/entity_filter.py:358
+#: models/entity_filter.py:359
 msgid "<"
 msgstr "<"
 
-#: models/entity_filter.py:359
+#: models/entity_filter.py:360
 msgid "<="
 msgstr "<="
 
-#: models/entity_filter.py:360
+#: models/entity_filter.py:361
 msgid "Starts with"
 msgstr "Commence par"
 
-#: models/entity_filter.py:361
+#: models/entity_filter.py:362
 msgid "Starts with (case insensitive)"
 msgstr "Commence par (Ne respecte pas la casse)"
 
-#: models/entity_filter.py:362
+#: models/entity_filter.py:363
 msgid "Does not start with"
 msgstr "Ne commence pas par"
 
-#: models/entity_filter.py:363
+#: models/entity_filter.py:364
 msgid "Does not start with (case insensitive)"
 msgstr "Ne commence pas par (Ne respecte pas la casse)"
 
-#: models/entity_filter.py:364
+#: models/entity_filter.py:365
 msgid "Ends with"
 msgstr "Se termine par"
 
-#: models/entity_filter.py:365
+#: models/entity_filter.py:366
 msgid "Ends with (case insensitive)"
 msgstr "Se termine par (Ne respecte pas la casse)"
 
-#: models/entity_filter.py:366
+#: models/entity_filter.py:367
 msgid "Does not end with"
 msgstr "Ne se termine pas par"
 
-#: models/entity_filter.py:367
+#: models/entity_filter.py:368
 msgid "Does not end with (case insensitive)"
 msgstr "Ne se termine pas par (Ne respecte pas la casse)"
 
-#: models/entity_filter.py:368
+#: models/entity_filter.py:369
 msgid "Is empty"
 msgstr "Est vide"
 
-#: models/entity_filter.py:369
+#: models/entity_filter.py:370
 msgid "Range"
 msgstr "Intervalle"
 
@@ -1047,15 +1048,15 @@ msgstr "Intervalle"
 msgid "Name of the view"
 msgstr "Nom de la vue"
 
-#: models/header_filter.py:102
+#: models/header_filter.py:105
 msgid "This view can't be edited/deleted"
 msgstr "Cette vue ne peut être modifiée/effacée"
 
-#: models/header_filter.py:119
+#: models/header_filter.py:122
 msgid "You are not allowed to edit/delete this view"
 msgstr "Vous n'êtes pas autorisé à modifier/supprimer cette vue"
 
-#: models/header_filter.py:309
+#: models/header_filter.py:325
 #: templates/creme_core/templatetags/listview_columns_header.html:57
 #: templates/creme_core/templatetags/widgets/entity_actions.html:18
 msgid "Actions"
@@ -1165,45 +1166,45 @@ msgstr "Mémento"
 msgid "Reminders"
 msgstr "Mémentos"
 
-#: models/search.py:34
+#: models/search.py:37
 msgid "Related user"
 msgstr "Utilisateur associé"
 
-#: models/search.py:40 templates/creme_core/search_results.html:12
-#: templates/creme_core/templatetags/search_panel.html:10
+#: models/search.py:43 templates/creme_core/search_results.html:12
+#: templates/creme_core/templatetags/search_panel.html:15
 msgid "Search"
 msgstr "Recherche"
 
-#: models/search.py:41
+#: models/search.py:44
 msgid "Searches"
 msgstr "Recherches"
 
-#: models/search.py:44
+#: models/search.py:47
 #, python-format
 msgid "Search configuration of \"%(user)s\" for \"%(type)s\""
 msgstr "Configuration de recherche de \"%(user)s\" pour \"%(type)s\""
 
-#: models/search.py:45
+#: models/search.py:48
 msgid "all users"
 msgstr "tous les utilisateurs"
 
-#: models/search.py:88
+#: models/search.py:93
 msgid "Field"
 msgstr "Champ"
 
-#: models/search.py:89
+#: models/search.py:94
 msgid "Field (long name)"
 msgstr "Champ (nom long)"
 
-#: models/search.py:90
+#: models/search.py:95
 msgid "Associated configuration"
 msgstr "Configuration de recherche associée"
 
-#: models/search.py:95
+#: models/search.py:100
 msgid "Search field"
 msgstr "Champ de recherche"
 
-#: models/search.py:96
+#: models/search.py:101
 msgid "Search fields"
 msgstr "Champs de recherche"
 
@@ -1354,7 +1355,7 @@ msgid "Clean the search"
 msgstr "Effacer la recherche"
 
 #: templates/creme_core/frags/list_view_content.html:80
-#: templates/creme_core/templatetags/search_panel.html:19
+#: templates/creme_core/templatetags/search_panel.html:24
 msgid "Research"
 msgstr "Rechercher"
 
@@ -1575,7 +1576,7 @@ msgid "Filters"
 msgstr "Filtres"
 
 #: templates/creme_core/templatetags/listview_entityfilters.html:26
-#: templates/creme_core/templatetags/search_panel.html:12
+#: templates/creme_core/templatetags/search_panel.html:17
 #: views/entity_filter.py:117
 msgid "All"
 msgstr "Tout"

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,32 +23,22 @@ from django.forms import CharField, ValidationError, FileField
 from django.forms.widgets import Textarea
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_unicode
-from creme_core.forms.fields import MultiEmailField
 
-from creme_core.utils import chunktools
 from creme_core.forms import CremeForm, FieldBlockManager
+from creme_core.forms.fields import MultiEmailField
+from creme_core.utils import chunktools
 
 from emails.models import EmailRecipient
 
 
 class MailingListAddRecipientsForm(CremeForm):
     recipients = MultiEmailField(label=_(u'Recipients'), help_text=_(u'Write a valid e-mail address per line.'))
-#    recipients = CharField(widget=Textarea(), label=_(u'Recipients'), help_text=_(u'Write a valid e-mail address per line.'))
 
     blocks = FieldBlockManager(('general', _(u'Recipients'), '*'))
 
     def __init__(self, entity, *args, **kwargs):
         super(MailingListAddRecipientsForm, self).__init__(*args, **kwargs)
         self.ml = entity
-
-#Commented 01 apr 2011
-#    def clean_recipients(self):
-#        recipients = self.cleaned_data['recipients'].split()
-#
-#        for address in recipients:
-#            validate_email(address)
-#
-#        return recipients
 
     def save(self):
         ml = self.ml

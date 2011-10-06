@@ -29,7 +29,11 @@ class UnicodeReader(object):
     """
     __slots__ = ('reader',)
 
-    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwargs):
+    def __init__(self, f, guess_dialect=True, dialect=csv.excel, encoding="utf-8", **kwargs):
+        if guess_dialect:
+            dialect = csv.Sniffer().sniff(f.read(1024))
+            f.seek(0)
+
         self.reader = csv.reader(UTF8Recoder(f, encoding), dialect=dialect, **kwargs)
 
     def __iter__(self):
@@ -44,7 +48,6 @@ class UnicodeWriter(object):
     A CSV writer which will write rows to CSV file "f",
     which is encoded in the given encoding.
     """
-
     def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwargs):
         # Redirect output to a queue
         self.queue = cStringIO.StringIO()
