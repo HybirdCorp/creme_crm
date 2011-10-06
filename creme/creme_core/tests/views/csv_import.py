@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 
-from tempfile import NamedTemporaryFile
+try:
+    from tempfile import NamedTemporaryFile
 
-from django.contrib.contenttypes.models import ContentType
+    from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation
-from creme_core.tests.views.base import ViewsTestCase
+    from creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation
+    from creme_core.tests.views.base import ViewsTestCase
 
-from persons.models import Contact, Organisation, Position, Sector
+    from persons.models import Contact, Organisation, Position, Sector
 
-from documents.models import Document, Folder, FolderCategory
+    from documents.models import Document, Folder, FolderCategory
+except Exception as e:
+    print 'Error:', e
 
 
 __all__ = ('CSVImportViewsTestCase', )
@@ -24,8 +27,9 @@ class CSVImportViewsTestCase(ViewsTestCase):
         if self.doc:
             self.doc.filedata.delete() #clean
 
-    def _build_doc(self, lines):
-        content = '\n'.join(','.join('"%s"' % item for item in line) for line in lines)
+    def _build_doc(self, lines, separator=','):
+        content = u'\n'.join(separator.join(u'"%s"' % item for item in line) for line in lines)
+        content = str(content.encode('utf8'))
 
         tmpfile = NamedTemporaryFile()
         tmpfile.write(content)
@@ -54,30 +58,32 @@ class CSVImportViewsTestCase(ViewsTestCase):
 
         try:
             self.doc = Document.objects.get(title=title)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         return self.doc
 
+    def _build_url(self):
+        ct = ContentType.objects.get_for_model(Contact)
+        return '/creme_core/list_view/import_csv/%s?list_url=%s' % (ct.id, Contact.get_lv_absolute_url())
+
     def test_import01(self):
         self.login()
 
-        self.failIf(Contact.objects.exists())
+        self.assertFalse(Contact.objects.exists())
 
         lines = [("Ayanami", "Rei"),
                  ("Asuka",   "Langley"),
                 ]
 
         doc = self._build_doc(lines)
-
-        ct = ContentType.objects.get_for_model(Contact)
-        url = '/creme_core/list_view/import_csv/%s?list_url=%s' % (ct.id, Contact.get_lv_absolute_url())
+        url = self._build_url()
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
         try:
             response.context['form']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         response = self.client.post(url, data={
@@ -87,13 +93,14 @@ class CSVImportViewsTestCase(ViewsTestCase):
                                               }
                                    )
         self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
 
         try:
             form = response.context['form']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
-        self.assert_('value="1"' in unicode(form['csv_step']))
+        self.assertIn('value="1"', unicode(form['csv_step']))
 
         response = self.client.post(url, data={
                                                 'csv_step':     1,
@@ -141,10 +148,11 @@ class CSVImportViewsTestCase(ViewsTestCase):
                                               }
                                    )
         self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
 
         try:
             form = response.context['form']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(0,          len(form.import_errors))
@@ -156,17 +164,17 @@ class CSVImportViewsTestCase(ViewsTestCase):
         for first_name, last_name in lines:
             try:
                 contact = Contact.objects.get(first_name=first_name, last_name=last_name)
-            except Exception, e:
+            except Exception as e:
                 self.fail(str(e))
 
-            self.assertEqual(self.user.id, contact.user_id)
+            self.assertEqual(self.user, contact.user)
             #self.assert_(contact.billing_address is None) #TODO: fail ?!
 
     def test_import02(self): #use header, default value, model search and create, properties, fixed and dynamic relations
         self.login()
 
-        self.failIf(Position.objects.exists())
-        self.failIf(Sector.objects.exists())
+        self.assertFalse(Position.objects.exists())
+        self.assertFalse(Sector.objects.exists())
 
         ptype = CremePropertyType.create(str_pk='test-prop_cute', text='Really cure in her suit')
 
@@ -188,8 +196,7 @@ class CSVImportViewsTestCase(ViewsTestCase):
                 ]
 
         doc = self._build_doc(lines)
-        ct = ContentType.objects.get_for_model(Contact)
-        url = '/creme_core/list_view/import_csv/%s?list_url=%s' % (ct.id, Contact.get_lv_absolute_url())
+        url = self._build_url()
         response = self.client.post(url, data={
                                                 'csv_step':       0,
                                                 'csv_document':   doc.id,
@@ -199,8 +206,8 @@ class CSVImportViewsTestCase(ViewsTestCase):
         self.assertEqual(200, response.status_code)
 
         form = response.context['form']
-        self.assert_('value="1"' in unicode(form['csv_step']))
-        self.assert_('value="True"' in unicode(form['csv_has_header']))
+        self.assertIn('value="1"',    unicode(form['csv_step']))
+        self.assertIn('value="True"', unicode(form['csv_has_header']))
 
         default_descr = 'A cute pilot'
         response = self.client.post(url, data={
@@ -265,10 +272,11 @@ class CSVImportViewsTestCase(ViewsTestCase):
                                               }
                                    )
         self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
 
         try:
             form = response.context['form']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         count = len(lines) - 1 # '-1' for header
@@ -283,16 +291,16 @@ class CSVImportViewsTestCase(ViewsTestCase):
         position = positions[0]
         self.assertEqual(pos_title, position.title)
 
-        self.failIf(Sector.objects.exists())
+        self.assertFalse(Sector.objects.exists())
 
         for first_name, last_name, pos_title, sector_title, city_name, orga_name in lines[1:]:
             try:
                 contact = Contact.objects.get(first_name=first_name, last_name=last_name)
-            except Exception, e:
+            except Exception as e:
                 self.fail(str(e))
 
             self.assertEqual(default_descr, contact.description)
-            self.assertEqual(position.id,   contact.position.id)
+            self.assertEqual(position,      contact.position)
             self.assertEqual(1,             CremeProperty.objects.filter(type=ptype, creme_entity=contact.id).count())
             self.assertEqual(1,             Relation.objects.filter(subject_entity=contact, type=loves, object_entity=shinji).count())
             self.assertEqual(1,             Relation.objects.filter(subject_entity=contact, type=employed, object_entity=nerv).count())
@@ -305,18 +313,14 @@ class CSVImportViewsTestCase(ViewsTestCase):
 
     def test_import03(self): #create entities to link with them
         self.login()
-
-        self.failIf(Organisation.objects.exists())
+        self.assertFalse(Organisation.objects.exists())
 
         employed, _srt = RelationType.create(('persons-subject_employed_by', 'is an employee of'),
                                              ('persons-object_employed_by',  'employs')
                                             )
         orga_name = 'Nerv'
-
         doc = self._build_doc([('Ayanami', 'Rei', orga_name)])
-        get_ct = ContentType.objects.get_for_model
-
-        response = self.client.post('/creme_core/list_view/import_csv/%s?list_url=%s' % (get_ct(Contact).id, Contact.get_lv_absolute_url()),
+        response = self.client.post(self._build_url(),
                                     data={
                                             'csv_step':       1,
                                             'csv_document':   doc.id,
@@ -344,8 +348,8 @@ class CSVImportViewsTestCase(ViewsTestCase):
                                             #'property_types':,
                                             #'fixed_relations':,
                                             'dyn_relations':    '[{"rtype":"%(rtype)s","ctype":"%(ctype)s","column":"%(column)s","searchfield":"%(search)s"}]'  % {
-                                                                        'rtype': employed.id,
-                                                                        'ctype': get_ct(Organisation).id,
+                                                                        'rtype':  employed.id,
+                                                                        'ctype':  ContentType.objects.get_for_model(Organisation).id,
                                                                         'column': 3,
                                                                         'search': 'name',
                                                                     },
@@ -369,6 +373,7 @@ class CSVImportViewsTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
 
         form = response.context['form']
         self.assertEqual(0, len(form.import_errors)) #sector not found
@@ -382,5 +387,80 @@ class CSVImportViewsTestCase(ViewsTestCase):
         self.assertEqual(1, len(relations))
 
         employer = relations[0].object_entity.get_real_entity()
-        self.assert_(isinstance(employer, Organisation))
+        self.assertIsInstance(employer, Organisation)
         self.assertEqual(orga_name, employer.name)
+
+    def test_import04(self): #other separator
+        self.login()
+
+        self.assertFalse(Contact.objects.exists())
+
+        lines = [(u'First name', u'Last name'),
+                 (u'Unchô',      u'Kan-u'),
+                 (u'Gentoku',    u'Ryûbi'),
+                ]
+
+        doc = self._build_doc(lines, separator=';')
+
+        url = self._build_url()
+
+        response = self.client.post(url, data={
+                                                'csv_step':     0,
+                                                'csv_document': doc.id,
+                                              }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertIn('value="1"', unicode(response.context['form']['csv_step']))
+
+        response = self.client.post(url, data={
+                                                'csv_step':       1,
+                                                'csv_document':   doc.id,
+                                                'csv_has_header': True,
+
+                                                'user': self.user.id,
+
+                                                'civility_colselect':  0,
+
+                                                'first_name_colselect': 1,
+                                                'last_name_colselect':  2,
+
+                                                'description_colselect': 0,
+                                                'skype_colselect':       0,
+                                                'phone_colselect':       0,
+                                                'mobile_colselect':      0,
+                                                'fax_colselect':         0,
+                                                'position_colselect':    0,
+                                                'sector_colselect':      0,
+                                                'email_colselect':       0,
+                                                'url_site_colselect':    0,
+                                                'birthday_colselect':    0,
+                                                'image_colselect':       0,
+
+                                                'billing_address_colselect':    0,
+                                                'billing_po_box_colselect':     0,
+                                                'billing_city_colselect':       0,
+                                                'billing_state_colselect':      0,
+                                                'billing_zipcode_colselect':    0,
+                                                'billing_country_colselect':    0,
+                                                'billing_department_colselect': 0,
+
+                                                'shipping_address_colselect':    0,
+                                                'shipping_po_box_colselect':     0,
+                                                'shipping_city_colselect':       0,
+                                                'shipping_state_colselect':      0,
+                                                'shipping_zipcode_colselect':    0,
+                                                'shipping_country_colselect':    0,
+                                                'shipping_department_colselect': 0,
+                                              }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
+        self.assertEqual([], list(response.context['form'].import_errors))
+
+        self.assertEqual(len(lines) - 1, Contact.objects.count())
+
+        for first_name, last_name in lines[1:]:
+            try:
+                contact = Contact.objects.get(first_name=first_name, last_name=last_name)
+            except Exception as e:
+                self.fail(str(e))

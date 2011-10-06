@@ -35,11 +35,11 @@ from django.contrib.auth.models import User
 
 from creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation, CremeEntity, EntityCredentials
 from creme_core.gui.csv_import import csv_form_registry
-from creme_core.utils.unicode_csv import UnicodeReader #TODO: use csv.Sniffer class to guess csv format ??
+from creme_core.utils.unicode_csv import UnicodeReader
 from creme_core.views.entity import EXCLUDED_FIELDS
 from base import CremeForm, CremeModelForm, FieldBlockManager
 from fields import MultiRelationEntityField, CremeEntityField
-from widgets import UnorderedMultipleChoiceWidget, ChainedInput, SelectorList #, DynamicSelect
+from widgets import UnorderedMultipleChoiceWidget, ChainedInput, SelectorList
 from validators import validate_linkable_entities
 
 from documents.models import Document
@@ -48,13 +48,14 @@ from documents.models import Document
 class CSVUploadForm(CremeForm):
     csv_step       = IntegerField(widget=HiddenInput)
     csv_document   = CremeEntityField(label=_(u'CSV file'), model=Document,
-                                      help_text=_(u"""A file that contains the fields values of an entity on each line, """
-                                                   """separated by commas and each one ca be surrounded by quotation marks " """
-                                                   """(to protect a value containing a comma for example)."""
+                                      help_text=_(u'A file that contains the fields values of an entity on each line, '
+                                                   'separated by commas or semicolons and each one can be surrounded by quotation marks " '
+                                                   '(to protect a value containing a comma for example).'
                                                  )
                                      )
     csv_has_header = BooleanField(label=_(u'Header present ?'), required=False,
-                                  help_text=_(u"""Does the first line of the line contain the header of the columns (eg: "Last name","First name") ?"""))
+                                  help_text=_(u'Does the first line of the line contain the header of the columns (eg: "Last name","First name") ?')
+                                 )
 
     def __init__(self, *args, **kwargs):
         super(CSVUploadForm, self).__init__(*args, **kwargs)
@@ -383,20 +384,12 @@ class CSVMultiRelationsExtractor(object):
 class RelationExtractorSelector(SelectorList):
     def __init__(self, columns, relation_types, attrs=None):
         chained_input = ChainedInput(attrs)
-        #InputModel = ChainedInput.Model
         attrs = {'auto': False}
 
-        chained_input.add_dselect("column", options=columns, attrs=attrs)
-        chained_input.add_dselect("rtype", options=relation_types, attrs=attrs)
-        chained_input.add_dselect("ctype", options='/creme_core/relation/predicate/${rtype}/content_types/json', attrs=attrs)
+        chained_input.add_dselect("column",      options=columns, attrs=attrs)
+        chained_input.add_dselect("rtype",       options=relation_types, attrs=attrs)
+        chained_input.add_dselect("ctype",       options='/creme_core/relation/predicate/${rtype}/content_types/json', attrs=attrs)
         chained_input.add_dselect("searchfield", options='/creme_core/entity/get_info_fields/${ctype}/json', attrs=attrs)
-
-        # chained input API changes.
-#        chained_input.set(column=InputModel(widget=DynamicSelect, attrs=attrs, options=columns),
-#                          rtype=InputModel(widget=DynamicSelect, attrs=attrs, options=relation_types),
-#                          ctype=InputModel(widget=DynamicSelect, attrs=attrs, url='/creme_core/relation/predicate/${rtype}/content_types/json'),
-#                          searchfield=InputModel(widget=DynamicSelect, attrs=attrs, url='/creme_core/entity/get_info_fields/${ctype}/json'),
-#                         )
 
         super(RelationExtractorSelector, self).__init__(chained_input)
 
@@ -412,10 +405,9 @@ class RelationExtractorSelector(SelectorList):
                     })
 
     def value_from_datadict(self, data, files, name):
-        return {
-                'selectorlist': super(RelationExtractorSelector, self).value_from_datadict(data, files, name),
+        return {'selectorlist': super(RelationExtractorSelector, self).value_from_datadict(data, files, name),
                 'can_create':   data.get('%s_can_create' % name, False),
-            }
+               }
 
 
 class RelationExtractorField(MultiRelationEntityField):
@@ -433,11 +425,14 @@ class RelationExtractorField(MultiRelationEntityField):
                                          relation_types=self._get_options(self._get_allowed_rtypes_objects()),
                                         )
 
-    def _set_columns(self, columns):
+    @property
+    def columns(self):
+        return self._columns
+
+    @columns.setter
+    def columns(self, columns):
         self._columns = columns
         self._build_widget()
-
-    columns = property(lambda self: self._columns, _set_columns); del _set_columns
 
     def clean(self, value):
         checked = value['can_create']
