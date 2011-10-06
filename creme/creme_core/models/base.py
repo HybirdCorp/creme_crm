@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 import os
 from itertools import chain
 from collections import defaultdict
@@ -30,8 +31,8 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.core.function_field import FunctionFieldsManager
 from creme_core.models.fields import CreationDateTimeField, ModificationDateTimeField, CremeUserForeignKey
 
-class CremeModel(Model):
 
+class CremeModel(Model):
     header_filter_exclude_fields = ['id', 'pk']
     _delete_files = True #Delegate the deletion of the file on system when a model has one or more FileField subclasses
 
@@ -53,7 +54,6 @@ class CremeModel(Model):
             getattr(self, related_m2m_field.get_accessor_name()).clear()
 
         self._pre_delete()
-
         super(CremeModel, self).delete()
 
     def delete(self):
@@ -80,6 +80,7 @@ class CremeModel(Model):
             for field_name, full_path, chrooted_path in file_fields:
                 if not obj_filter(Q(**{field_name: chrooted_path})).exists():
                     os_remove(full_path)#TODO: Catch OSError ?
+
 
 class CremeAbstractEntity(CremeModel):
     created  = CreationDateTimeField(_('Creation date'))
@@ -116,15 +117,6 @@ class CremeAbstractEntity(CremeModel):
                 self.entity_type = ContentType.objects.get_for_model(self)
         else:
             self.entity_type = ContentType.objects.get_for_id(self.entity_type_id)
-
-    #@classmethod
-    #def filter_in_funcfield(cls, func_name, string_filter):
-        #f_field = cls.function_fields.get(func_name)
-
-        #if f_field:
-            #return f_field.filter_in_result(string_filter)
-
-        #return Q()
 
     def _get_real_entity(self, base_model):
         entity = self._real_entity

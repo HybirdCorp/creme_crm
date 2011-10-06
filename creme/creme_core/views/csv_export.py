@@ -105,7 +105,8 @@ def dl_listview_as_csv(request, ct_id):
                     if type_ == HFI_FIELD:
                         res = smart_str(get_field_infos(entity, column.name)[1])
                     elif type_ == HFI_FUNCTION:
-                        res = smart_str(getattr(entity, column.name)())
+                        #res = smart_str(getattr(entity, column.name)())
+                        res = smart_str(column.get_functionfield()(entity))
                     elif type_ == HFI_RELATION:
                         res = smart_str(u'/'.join(unicode(o) for o in entity.get_related_entities(column.relation_predicat_id, True)))
                     else:

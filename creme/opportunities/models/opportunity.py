@@ -84,7 +84,7 @@ class Opportunity(CremeEntity):
     description           = TextField(_(u'Description'), blank=True, null=True)
     first_action_date     = DateField(_(u'Date of the first action'), blank=True, null=True)
 
-    function_fields = CremeEntity.function_fields.new(_TurnoverField)
+    function_fields = CremeEntity.function_fields.new(_TurnoverField())
 
     _use_lines     = None
     _product_lines = None

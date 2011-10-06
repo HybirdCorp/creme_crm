@@ -1,22 +1,27 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
-from decimal import Decimal
-from tempfile import NamedTemporaryFile
+try:
+    from datetime import datetime
+    from decimal import Decimal
+    from tempfile import NamedTemporaryFile
 
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
-from django.db.models.deletion import ProtectedError
+    from django.contrib.auth.models import User
+    from django.contrib.contenttypes.models import ContentType
+    from django.db.models.deletion import ProtectedError
+    from django.utils.translation import ugettext as _
 
-from creme_core.models import *
-from creme_core.tests.base import CremeTestCase
+    from creme_core.models import *
+    from creme_core.core.function_field import FunctionField
+    from creme_core.tests.base import CremeTestCase
 
-from persons.models import Contact, Organisation, Civility, Position, Sector, Address
+    from persons.models import Contact, Organisation, Civility, Position, Sector, Address
 
-from media_managers.models import Image, MediaCategory
+    from media_managers.models import Image, MediaCategory
 
-from activities.models.activity import Activity, ActivityType, Status, Meeting
-from activities.constants import REL_SUB_PART_2_ACTIVITY
+    from activities.models import Activity, ActivityType, Status, Meeting
+    from activities.constants import REL_SUB_PART_2_ACTIVITY
+except Exception as e:
+    print 'Error:', e
 
 
 __all__ = ('EntityTestCase',)
@@ -29,12 +34,12 @@ class EntityTestCase(CremeTestCase):
     def test_entity01(self):
         try:
             entity = CremeEntity.objects.create(user=self.user)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         now = datetime.now()
-        self.assert_((now - entity.created).seconds < 10)
-        self.assert_((now - entity.modified).seconds < 10)
+        self.assertLess((now - entity.created).seconds,  10)
+        self.assertLess((now - entity.modified).seconds, 10)
 
     def test_property01(self): #TODO: create a test case for CremeProperty ???
         text = 'TEXT'
@@ -43,7 +48,7 @@ class EntityTestCase(CremeTestCase):
             ptype  = CremePropertyType.create(str_pk='test-prop_foobar', text=text)
             entity = CremeEntity.objects.create(user=self.user)
             prop   = CremeProperty.objects.create(type=ptype, creme_entity=entity)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(text, ptype.text)
@@ -55,11 +60,11 @@ class EntityTestCase(CremeTestCase):
         self.ptype01 = CremePropertyType.create(str_pk='test-prop_foobar01', text='wears strange hats')
         self.ptype02 = CremePropertyType.create(str_pk='test-prop_foobar02', text='wears strange pants')
 
-    def _test_same_relations_n_properties(self, entity1, entity2):
-        self._test_same_properties(entity1, entity2)
-        self._test_same_relations(entity1, entity2)
+    def assertSameRelationsNProperties(self, entity1, entity2):
+        self.assertSameProperties(entity1, entity2)
+        self.assertSameRelations(entity1, entity2)
 
-    def _test_same_relations(self, entity1, entity2):
+    def assertSameRelations(self, entity1, entity2):
         self.assertEqual(set(r.type_id for r in entity1.relations.all()),
                          set(r.type_id for r in entity2.relations.all())
                         )
@@ -67,7 +72,7 @@ class EntityTestCase(CremeTestCase):
                          set(r.object_entity.id for r in entity2.relations.all())
                         )
 
-    def _test_same_properties(self, entity1, entity2):
+    def assertSameProperties(self, entity1, entity2):
         self.assertEqual(set(p.type_id for p in entity1.properties.all()),
                          set(p.type_id for p in entity2.properties.all())
                         )
@@ -95,7 +100,7 @@ class EntityTestCase(CremeTestCase):
         self.assertEqual(original_ce.user,        clone_ce.user)
         self.assertEqual(original_ce.header_filter_search_field, clone_ce.header_filter_search_field)
 
-        self._test_same_relations_n_properties(original_ce, clone_ce)
+        self.assertSameRelationsNProperties(original_ce, clone_ce)
 
     def test_clone02(self):
         self._setUpClone()
@@ -151,13 +156,13 @@ class EntityTestCase(CremeTestCase):
 
         kage_bunshin = naruto.clone()
         self.assertNotEqual(kage_bunshin.pk, naruto.pk)
-        self._test_same_relations_n_properties(naruto, kage_bunshin)
+        self.assertSameRelationsNProperties(naruto, kage_bunshin)
 
         for attr in ['civility', 'first_name', 'last_name', 'description', 'skype', 'phone',
                      'mobile', 'fax', 'position', 'sector', 'email', 'birthday', 'image']:
             self.assertEqual(getattr(naruto, attr), getattr(kage_bunshin, attr))
 
-        self.assertTrue(kage_bunshin.is_user is None)
+        self.assertIsNone(kage_bunshin.is_user)
         self.assertNotEqual(naruto.is_user, kage_bunshin.is_user)
         self.assertNotEqual(naruto.billing_address.object_id,  kage_bunshin.billing_address.object_id)
         self.assertNotEqual(naruto.shipping_address.object_id, kage_bunshin.shipping_address.object_id)
@@ -205,7 +210,7 @@ class EntityTestCase(CremeTestCase):
 
         self.assertEqual(get_cf_values(cf_enum, orga).value, get_cf_values(cf_enum, clone).value)
 
-        self.assert_(get_cf_values(cf_multi_enum, orga).value.all())
+        self.assertTrue(get_cf_values(cf_multi_enum, orga).value.exists())
         self.assertEqual(set(get_cf_values(cf_multi_enum, orga).value.values_list('pk', flat=True)),
                          set(get_cf_values(cf_multi_enum, clone).value.values_list('pk', flat=True))
                         )
@@ -250,7 +255,7 @@ class EntityTestCase(CremeTestCase):
             self.assertEqual(getattr(activity1, attr), getattr(activity2, attr))
 
         self.assertNotEqual(activity1.busy, activity2.busy)
-        self._test_same_relations_n_properties(activity1, activity2)
+        self.assertSameRelationsNProperties(activity1, activity2)
 
     def test_clone06(self):
         self.populate('creme_core', 'media_managers')
@@ -288,3 +293,64 @@ class EntityTestCase(CremeTestCase):
 
         self.assertRaises(ProtectedError, ce1.delete)
         self.assertRaises(ProtectedError, ce2.delete)
+
+    def test_functionfields(self):
+        try:
+            ff_mngr = CremeEntity.function_fields
+            all_ff = list(ff_mngr)
+        except Exception as e:
+            self.fail(str(e))
+
+        for funf in all_ff:
+            self.assertIsInstance(funf, FunctionField)
+
+            if funf.name == 'get_pretty_properties':
+                pp_ff = funf
+                break
+        else:
+            self.fail('No "get_pretty_properties" function field found')
+
+        self.assertEqual(_(u'Properties'), unicode(pp_ff.verbose_name))
+        self.assertFalse(pp_ff.has_filter)
+        self.assertFalse(pp_ff.is_hidden)
+        self.assertIsNone(pp_ff.choices)
+
+    def test_prettypropertiesfield01(self):
+        entity = CremeEntity.objects.create(user=self.user)
+
+        pp_ff = CremeEntity.function_fields.get('get_pretty_properties')
+        self.assertIsNotNone(pp_ff)
+        self.assertIsInstance(pp_ff, FunctionField)
+
+        ptype1 = CremePropertyType.create(str_pk='test-prop_awesome', text='Awesome')
+        CremeProperty.objects.create(type=ptype1, creme_entity=entity)
+
+        ptype2 = CremePropertyType.create(str_pk='test-prop_wonderful', text='Wonderful')
+        CremeProperty.objects.create(type=ptype2, creme_entity=entity)
+
+        with self.assertNumQueries(1):
+            result = pp_ff(entity)
+
+        self.assertEqual('<ul><li>Awesome</li><li>Wonderful</li></ul>', result)
+
+    def test_prettypropertiesfield02(self): #prefetch with populate_entities()
+        entity1 = CremeEntity.objects.create(user=self.user)
+        entity2 = CremeEntity.objects.create(user=self.user)
+
+        pp_ff = CremeEntity.function_fields.get('get_pretty_properties')
+
+        ptype1 = CremePropertyType.create(str_pk='test-prop_awesome',   text='Awesome')
+        ptype2 = CremePropertyType.create(str_pk='test-prop_wonderful', text='Wonderful')
+
+        CremeProperty.objects.create(type=ptype1, creme_entity=entity1)
+        CremeProperty.objects.create(type=ptype2, creme_entity=entity1)
+        CremeProperty.objects.create(type=ptype2, creme_entity=entity2)
+
+        pp_ff.populate_entities([entity1, entity2])
+
+        with self.assertNumQueries(0):
+            result1 = pp_ff(entity1)
+            result2 = pp_ff(entity2)
+
+        self.assertEqual('<ul><li>Awesome</li><li>Wonderful</li></ul>', result1)
+        self.assertEqual('<ul><li>Wonderful</li></ul>',                 result2)

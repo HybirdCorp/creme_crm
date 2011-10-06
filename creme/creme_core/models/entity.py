@@ -59,10 +59,10 @@ class CremeEntity(CremeAbstractEntity):
     header_filter_exclude_fields = CremeAbstractEntity.header_filter_exclude_fields + ['cremeentity_ptr', 'entity_type', 'is_deleted', 'is_actived', 'header_filter_search_field'] #TODO: use a set() ??
     extra_filter_exclude_fields  = CremeAbstractEntity.extra_filter_exclude_fields + ['id', 'cremeentity_ptr', 'header_filter_search_field']
 
-    function_fields = CremeAbstractEntity.function_fields.new(_PrettyPropertiesField)
+    function_fields = CremeAbstractEntity.function_fields.new(_PrettyPropertiesField())
 
     _clone_excluded_fields = set(['created', 'modified'])
-    allowed_related        = set([]) #Currently used in reports (can be used elsewhere ?) to allow reporting on those related fields
+    allowed_related        = set() #Currently used in reports (can be used elsewhere ?) to allow reporting on those related fields
 
     class Meta:
         app_label = 'creme_core'
@@ -308,7 +308,7 @@ class CremeEntity(CremeAbstractEntity):
         return self._properties
 
     def get_pretty_properties(self):
-        return u"""<ul>%s</ul>""" % "".join([u"<li>%s</li>" % p for p in self.get_properties()])
+        return u"""<ul>%s</ul>""" % "".join(u"<li>%s</li>" % p for p in self.get_properties())
 
     @staticmethod
     def populate_properties(entities):
@@ -431,6 +431,7 @@ class CremeEntity(CremeAbstractEntity):
 
     def _copy_relations(self, source):
         relation_create  = Relation.objects.create
+
         for user_id, rtype_id, object_entity_id in source.relations.values_list('user', 'type', 'object_entity'):
             relation_create(user_id=user_id, type_id=rtype_id, object_entity_id=object_entity_id, subject_entity=self)
 

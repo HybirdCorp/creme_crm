@@ -6,3 +6,4 @@ from views import *
 from forms import *
 from gui import *
 from templatetags import *
+from core import *

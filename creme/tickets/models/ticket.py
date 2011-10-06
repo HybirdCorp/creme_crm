@@ -67,7 +67,7 @@ class AbstractTicket(CremeEntity):
 class Ticket(AbstractTicket):
     closing_date = DateTimeField(_(u'Closing date'), blank=True, null=True, editable=False)
 
-    function_fields = CremeEntity.function_fields.new(_ResolvingDurationField)
+    function_fields = CremeEntity.function_fields.new(_ResolvingDurationField())
 
     class Meta:
         app_label = 'tickets'
