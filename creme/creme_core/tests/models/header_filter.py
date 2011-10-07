@@ -9,7 +9,7 @@ try:
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Contact, Organisation
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -25,9 +25,9 @@ class HeaderFiltersTestCase(CremeTestCase):
         hf   = HeaderFilter.create(pk=pk, name=name, model=Contact, is_custom=True)
         self.assertEqual(pk, hf.pk)
         self.assertEqual(name, hf.name)
-        self.assert_(hf.user is None)
+        self.assertIsNone(hf.user)
         self.assertEqual(ContentType.objects.get_for_model(Contact).id, hf.entity_type.id)
-        self.assert_(hf.is_custom is True)
+        self.assertIs(hf.is_custom, True)
 
         hf.set_items([HeaderFilterItem.build_4_field(model=Contact, name='first_name')])
         name += 'v2'
@@ -35,18 +35,18 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual(name, hf.name)
         self.assertEqual(self.user, hf.user)
         self.assertEqual(ContentType.objects.get_for_model(Organisation), hf.entity_type)
-        self.assert_(hf.is_custom is False)
+        self.assertIs(hf.is_custom, False)
 
     def test_build_4_field01(self):
         field_name = 'first_name'
         hfi = HeaderFilterItem.build_4_field(model=Contact, name=field_name)
-        self.assert_(isinstance(hfi, HeaderFilterItem), type(hfi))
+        self.assertIsInstance(hfi, HeaderFilterItem)
         self.assertEqual(field_name,      hfi.name)
         self.assertEqual(_('First name'), hfi.title)
         self.assertEqual(HFI_FIELD,       hfi.type)
-        self.assert_(hfi.has_a_filter is True)
-        self.assert_(hfi.editable is True)
-        self.assert_(hfi.sortable is True)
+        self.assertIs(hfi.has_a_filter, True)
+        self.assertIs(hfi.editable, True)
+        self.assertIs(hfi.sortable, True)
         self.assertEqual('first_name__icontains', hfi.filter_string)
 
     def test_build_4_field02(self): #date field
@@ -72,11 +72,10 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_build_4_field07(self): #m2m
         hfi = HeaderFilterItem.build_4_field(model=Contact, name='language')
-        self.assert_(hfi.has_a_filter is True)
+        self.assertIs(hfi.has_a_filter, True)
 
         hfi = HeaderFilterItem.build_4_field(model=Contact, name='language__name')
-        self.assert_(hfi.has_a_filter is False)
-
+        self.assertIs(hfi.has_a_filter, False)
 
     def test_build_4_field_errors(self):
         self.assertRaises(HeaderFilterItem.ValueError, HeaderFilterItem.build_4_field, model=Contact, name='unknown_field')
@@ -88,13 +87,13 @@ class HeaderFiltersTestCase(CremeTestCase):
                                                  )
 
         hfi = HeaderFilterItem.build_4_customfield(customfield=customfield)
-        self.assert_(isinstance(hfi, HeaderFilterItem), type(hfi))
+        self.assertIsInstance(hfi, HeaderFilterItem)
         self.assertEqual(str(customfield.id), hfi.name)
         self.assertEqual(name,                hfi.title)
         self.assertEqual(HFI_CUSTOM,          hfi.type)
-        self.assert_(hfi.has_a_filter is True)
-        self.assert_(hfi.editable is False)
-        self.assert_(hfi.sortable is False)
+        self.assertIs(hfi.has_a_filter, True)
+        self.assertIs(hfi.editable,     False)
+        self.assertIs(hfi.sortable,     False)
         self.assertEqual('customfieldinteger__value__icontains', hfi.filter_string)
 
     def test_build_4_customfield02(self): #FLOAT
@@ -144,30 +143,30 @@ class HeaderFiltersTestCase(CremeTestCase):
     def test_build_4_relation(self):
         loves, loved = RelationType.create(('test-subject_love', u'Is loving'), ('test-object_love',  u'Is loved by'))
         hfi = HeaderFilterItem.build_4_relation(rtype=loves)
-        self.assert_(isinstance(hfi, HeaderFilterItem), type(hfi))
+        self.assertIsInstance(hfi, HeaderFilterItem)
         self.assertEqual(str(loves.id),   hfi.name)
         self.assertEqual(loves.predicate, hfi.title)
         self.assertEqual(HFI_RELATION,    hfi.type)
-        self.assert_(hfi.has_a_filter is True)
-        self.assert_(hfi.editable is False)
-        self.assert_(hfi.sortable is False)
+        self.assertIs(hfi.has_a_filter, True)
+        self.assertIs(hfi.editable,     False)
+        self.assertIs(hfi.sortable,     False)
         self.assertEqual('',       hfi.filter_string)
         self.assertEqual(loves.id, hfi.relation_predicat.id)
 
     def test_build_4_functionfield(self):
         name = 'get_pretty_properties'
         funfield = Contact.function_fields.get(name)
-        self.assert_(funfield is not None)
+        self.assertIsNotNone(funfield)
 
         hfi = HeaderFilterItem.build_4_functionfield(func_field=funfield)
-        self.assert_(isinstance(hfi, HeaderFilterItem), type(hfi))
+        self.assertIsInstance(hfi, HeaderFilterItem)
         self.assertEqual(name, hfi.name)
         self.assertEqual(unicode(funfield.verbose_name), hfi.title)
         self.assertEqual(HFI_FUNCTION,    hfi.type)
-        self.assert_(hfi.has_a_filter is False) #TODO: test with a filterable FunctionField
-        self.assert_(hfi.editable is False)
-        self.assert_(hfi.sortable is False)
-        self.assert_(hfi.is_hidden is False)
+        self.assertIs(hfi.has_a_filter, False) #TODO: test with a filterable FunctionField
+        self.assertIs(hfi.editable,     False)
+        self.assertIs(hfi.sortable,     False)
+        self.assertIs(hfi.is_hidden,    False)
         self.assertEqual('', hfi.filter_string)
 
     def test_set_items(self):

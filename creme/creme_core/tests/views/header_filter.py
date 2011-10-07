@@ -10,7 +10,7 @@ try:
     from creme_core.tests.views.base import ViewsTestCase
 
     from persons.models import Contact, Organisation
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -42,7 +42,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         try:
             form = response.context['form']
             fields_field = form.fields['fields']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         created_index = self._find_field_index(fields_field, 'created')
@@ -63,7 +63,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         hfilter = hfilters[0]
         self.assertEqual(name, hfilter.name)
-        self.assert_(hfilter.user is None)
+        self.assertIsNone(hfilter.user)
 
         hfitems = hfilter.header_filter_items.all()
         self.assertEqual(1, len(hfitems))
@@ -73,7 +73,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(1,                hfitem.order)
         self.assertEqual(HFI_FIELD,        hfitem.type)
         self.assertEqual('created__range', hfitem.filter_string)
-        self.failIf(hfitem.is_hidden)
+        self.assertIs(hfitem.is_hidden, False)
 
     def test_create02(self):
         self.login()
@@ -91,7 +91,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
             cfields_field   = fields['custom_fields']
             rtypes_field    = fields['relations']
             funfields_field = fields['functions']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         field_name = 'first_name'
@@ -124,11 +124,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                    )
         self.assertNoFormError(response)
 
-        try:
-            hfilter = HeaderFilter.objects.get(name=name)
-        except Exception, e:
-            self.fail(str(e))
-
+        hfilter = self.get_object_or_fail(HeaderFilter, name=name)
         self.assertEqual(self.user, hfilter.user)
 
         hfitems = hfilter.header_filter_items.order_by('order')
@@ -194,8 +190,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
             if   fname == 'first_name': first_name_index = i
             elif fname == 'last_name':  last_name_index  = i
 
-        if first_name_index is None: self.fail('No "first_name" field')
-        if last_name_index  is None: self.fail('No "last_name" field')
+        self.assertIsNotNone(first_name_index, 'No "first_name" field')
+        self.assertIsNotNone(last_name_index,  'No "last_name" field')
 
         name = 'Entity view v2'
         response = self.client.post(uri,

@@ -9,7 +9,7 @@ try:
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Contact, Organisation
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -32,13 +32,8 @@ class BlockTestCase(CremeTestCase):
         zone = BlockDetailviewLocation.TOP
         block_id = relations_block.id_
         loc = BlockDetailviewLocation.create(block_id=block_id, order=order, zone=zone)
-
-        try:
-            loc = BlockDetailviewLocation.objects.get(pk=loc.pk)
-        except Exception, e:
-            self.fail(str(e))
-
-        self.assert_(loc.content_type is None)
+        loc = self.get_object_or_fail(BlockDetailviewLocation, pk=loc.pk)
+        self.assertIsNone(loc.content_type)
         self.assertEqual(block_id, loc.block_id)
         self.assertEqual(order,    loc.order)
         self.assertEqual(zone,     loc.zone)
@@ -48,12 +43,7 @@ class BlockTestCase(CremeTestCase):
         zone = BlockDetailviewLocation.LEFT
         block_id = properties_block.id_
         loc = BlockDetailviewLocation.create(block_id=block_id, order=order, zone=zone, model=Contact)
-
-        try:
-            loc = BlockDetailviewLocation.objects.get(pk=loc.pk)
-        except Exception, e:
-            self.fail(str(e))
-
+        loc = self.get_object_or_fail(BlockDetailviewLocation, pk=loc.pk)
         self.assertEqual(Contact,  loc.content_type.model_class())
         self.assertEqual(block_id, loc.block_id)
         self.assertEqual(order,    loc.order)
@@ -81,11 +71,7 @@ class BlockTestCase(CremeTestCase):
 
         self.assertEqual(1, BlockDetailviewLocation.objects.count())
 
-        try:
-            loc = BlockDetailviewLocation.objects.get(pk=loc.id)
-        except BlockDetailviewLocation.DoesNotExist, e:
-            self.fail(str(e))
-
+        loc = self.get_object_or_fail(BlockDetailviewLocation, pk=loc.id)
         self.assertEqual('modelblock', loc.block_id)
         self.assertEqual(order,        loc.order)
         self.assertEqual(zone,         loc.zone)
@@ -134,21 +120,13 @@ class BlockTestCase(CremeTestCase):
         order = 25
         block_id = history_block.id_
         loc = BlockPortalLocation.create(app_name=app_name, block_id=block_id, order=order)
-
-        try:
-            loc = BlockPortalLocation.objects.get(pk=loc.pk, app_name=app_name, block_id=block_id, order=order)
-        except Exception, e:
-            self.fail(str(e))
+        self.get_object_or_fail(BlockPortalLocation, pk=loc.pk, app_name=app_name, block_id=block_id, order=order)
 
     def test_create_portal02(self):
         order = 10
         block_id = history_block.id_
         loc = BlockPortalLocation.create(block_id=block_id, order=order)
-
-        try:
-            loc = BlockPortalLocation.objects.get(pk=loc.pk, app_name='', block_id=block_id, order=order)
-        except Exception, e:
-            self.fail(str(e))
+        self.get_object_or_fail(BlockPortalLocation, pk=loc.pk, app_name='', block_id=block_id, order=order)
 
     def test_create_portal03(self):
         app_name = 'billing'
@@ -184,10 +162,8 @@ class BlockTestCase(CremeTestCase):
     def test_create_empty_portal_config03(self):
         BlockPortalLocation.create_empty_config()
         locs = BlockPortalLocation.objects.all()
-        self.assertEqual(1, len(locs))
-
-        loc = locs[0]
-        self.assertEqual('', loc.app_name)
+        self.assertEqual(1,  len(locs))
+        self.assertEqual('', locs[0].app_name)
 
     def test_create_mypage01(self):
         self.login()
@@ -196,21 +172,13 @@ class BlockTestCase(CremeTestCase):
         order = 25
         block_id = history_block.id_
         loc = BlockMypageLocation.create(user=user, block_id=block_id, order=order)
-
-        try:
-            BlockMypageLocation.objects.get(pk=loc.pk, user=user, block_id=block_id, order=order)
-        except Exception, e:
-            self.fail(str(e))
+        self.get_object_or_fail(BlockMypageLocation, pk=loc.pk, user=user, block_id=block_id, order=order)
 
     def test_create_mypage02(self):
         order = 10
         block_id = history_block.id_
         loc = BlockMypageLocation.create(block_id=block_id, order=order)
-
-        try:
-            BlockMypageLocation.objects.get(pk=loc.pk, user=None, block_id=block_id, order=order)
-        except Exception, e:
-            self.fail(str(e))
+        self.get_object_or_fail(BlockMypageLocation, pk=loc.pk, user=None, block_id=block_id, order=order)
 
     def test_create_mypage03(self):
         block_id = history_block.id_
@@ -218,11 +186,7 @@ class BlockTestCase(CremeTestCase):
 
         order = 10
         loc = BlockMypageLocation.create(block_id=block_id, order=order)
-
-        try:
-            BlockMypageLocation.objects.get(pk=loc.pk, user=None, block_id=block_id, order=order)
-        except Exception, e:
-            self.fail(str(e))
+        self.get_object_or_fail(BlockMypageLocation, pk=loc.pk, user=None, block_id=block_id, order=order)
 
     def test_mypage_new_user(self):
         block_id = history_block.id_

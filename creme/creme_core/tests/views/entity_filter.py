@@ -12,7 +12,7 @@ try:
     from creme_core.tests.views.base import ViewsTestCase
 
     from persons.models import Contact, Organisation
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -27,7 +27,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.login(is_superuser=False)
 
         ct = ContentType.objects.get_for_model(Contact)
-        self.failIf(EntityFilter.objects.filter(entity_type=ct).count())
+        self.assertFalse(EntityFilter.objects.filter(entity_type=ct).count())
 
         uri = '/creme_core/entity_filter/add/%s' % ct.id
         self.assertEqual(404, self.client.get(uri).status_code)
@@ -58,9 +58,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         efilter = efilters[0]
         self.assertEqual(name, efilter.name)
-        self.assert_(efilter.is_custom)
-        self.assert_(efilter.user is None)
-        self.failIf(efilter.use_or)
+        self.assertTrue(efilter.is_custom)
+        self.assertIsNone(efilter.user)
+        self.assertFalse(efilter.use_or)
 
         conditions = efilter.conditions.all()
         self.assertEqual(1, len(conditions))
@@ -141,13 +141,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                    )
         self.assertNoFormError(response)
 
-        try:
-            efilter = EntityFilter.objects.get(name=name)
-        except Exception, e:
-            self.fail(str(e))
-
+        efilter = self.get_object_or_fail(EntityFilter, name=name)
         self.assertEqual(self.user.id, efilter.user.id)
-        self.assert_(efilter.use_or)
+        self.assertIs(efilter.use_or, True)
 
         conditions = efilter.conditions.order_by('id')
         self.assertEqual(8, len(conditions))
@@ -190,7 +186,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.EFC_PROPERTY, condition.type)
         self.assertEqual(ptype.id,                           condition.name)
-        self.assert_(condition.decoded_value is True)
+        self.assertIs(condition.decoded_value, True)
 
         condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.EFC_SUBFILTER, condition.type)
@@ -308,8 +304,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         efilter = EntityFilter.objects.get(pk=efilter.id) #refresh
         self.assertEqual(name, efilter.name)
-        self.assert_(efilter.is_custom)
-        self.assert_(efilter.user is None)
+        self.assertIs(efilter.is_custom, True)
+        self.assertIsNone(efilter.user)
 
         conditions = efilter.conditions.order_by('id')
         self.assertEqual(8, len(conditions))
@@ -416,8 +412,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         efilter = EntityFilter.create('test-filter01', 'Filter 01', Contact, is_custom=True)
         response = self.client.post('/creme_core/entity_filter/delete', data={'id': efilter.id}, follow=True)
         self.assertEqual(200, response.status_code)
-        self.assert_(response.redirect_chain)
-        self.assert_(response.redirect_chain[-1][0].endswith(Contact.get_lv_absolute_url()))
+        self.assertTrue(response.redirect_chain)
+        self.assertTrue(response.redirect_chain[-1][0].endswith(Contact.get_lv_absolute_url()))
         self.assertEqual(0, EntityFilter.objects.filter(pk=efilter.id).count())
 
     def test_delete02(self): #not custom -> can not delete
@@ -465,7 +461,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=True, user=self.other_user)
         self.client.post('/creme_core/entity_filter/delete', data={'id': efilter.id})
-        self.failIf(EntityFilter.objects.filter(pk=efilter.id).count())
+        self.assertFalse(EntityFilter.objects.filter(pk=efilter.id).count())
 
     def test_delete07(self): #can not delete if used as subfilter
         self.login()
@@ -475,7 +471,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         efilter02.set_conditions([EntityFilterCondition.build_4_subfilter(efilter01)])
 
         self.client.post('/creme_core/entity_filter/delete', data={'id': efilter01.id})
-        self.assert_(EntityFilter.objects.filter(pk=efilter01.id).exists())
+        self.assertTrue(EntityFilter.objects.filter(pk=efilter01.id).exists())
 
     def test_delete08(self): #can not delete if used as subfilter (for relations)
         self.login()
@@ -489,7 +485,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         efilter02.set_conditions([EntityFilterCondition.build_4_relation_subfilter(rtype=srtype, has=True, subfilter=efilter01)])
 
         self.client.post('/creme_core/entity_filter/delete', data={'id': efilter01.id})
-        self.assert_(EntityFilter.objects.filter(pk=efilter01.id).exists())
+        self.assertTrue(EntityFilter.objects.filter(pk=efilter01.id).exists())
 
     def test_get_content_types01(self):
         self.login()
@@ -502,10 +498,10 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(200, response.status_code)
 
         content = simplejson.loads(response.content)
-        self.assert_(isinstance(content, list))
-        self.assert_(len(content) > 1)
-        self.assert_(all(len(t) == 2 for t in content))
-        self.assert_(all(isinstance(t[0], int) for t in content))
+        self.assertIsInstance(content, list)
+        self.assertGreater(len(content), 1)
+        self.assertTrue(all(len(t) == 2 for t in content))
+        self.assertTrue(all(isinstance(t[0], int) for t in content))
         self.assertEqual([0, _(u'All')], content[0])
 
     def test_get_content_types02(self):
@@ -531,8 +527,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(200, response.status_code)
 
         content = simplejson.loads(response.content)
-        self.assert_(isinstance(content, list))
-        self.failIf(content)
+        self.assertIsInstance(content, list)
+        self.assertFalse(content)
 
     def test_filters_for_ctype02(self):
         self.login()

@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
+try:
+    from django.utils.translation import ugettext as _
+    from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremePropertyType, CremeProperty, CremeEntity, SetCredentials
-from creme_core.tests.views.base import ViewsTestCase
+    from creme_core.models import CremePropertyType, CremeProperty, CremeEntity, SetCredentials
+    from creme_core.tests.views.base import ViewsTestCase
+except Exception as e:
+    print 'Error:', e
 
 
 __all__ = ('PropertyViewsTestCase', )
@@ -115,8 +118,8 @@ class PropertyViewsTestCase(ViewsTestCase):
         formatted_ids = self._format_entities_ids("ids", entity01.id, entity02.id, entity03.id,  entity04.id)
         centity_ct_id = ContentType.objects.get_for_model(CremeEntity).id
 
-        self.failIf(entity01.can_change(self.user))
-        self.failIf(entity02.can_change(self.user))
+        self.assertFalse(entity01.can_change(self.user))
+        self.assertFalse(entity02.can_change(self.user))
         self.assertTrue(entity03.can_change(self.user))
 
         url = '/creme_core/property/add_to_entities/%s/%s' % (centity_ct_id, formatted_ids)
@@ -128,7 +131,7 @@ class PropertyViewsTestCase(ViewsTestCase):
         except Exception, e:
             self.fail(str(e))
 
-        self.assert_(label.initial)
+        self.assertTrue(label.initial)
 
         response = self.client.post(url, data={
                                         'entities_lbl':     'do not care',
@@ -163,8 +166,8 @@ class PropertyViewsTestCase(ViewsTestCase):
         self._set_all_creds_except_one(excluded=SetCredentials.CRED_CHANGE)
         uneditable = CremeEntity.objects.create(user=self.other_user)
 
-        self.assert_(uneditable.can_view(self.user))
-        self.failIf(uneditable.can_change(self.user))
+        self.assertTrue(uneditable.can_view(self.user))
+        self.assertFalse(uneditable.can_change(self.user))
 
         response = self.client.get('/creme_core/property/add_to_entities/%s/%s' % (centity_ct_id, self._format_entities_ids("ids", uneditable.id)))
         self.assertEqual(200, response.status_code)

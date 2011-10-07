@@ -6,7 +6,7 @@ try:
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Contact
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 

@@ -1,14 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from django.http import Http404
-from django.core.serializers.json import simplejson
-from django.contrib.contenttypes.models import ContentType
+try:
+    from django.http import Http404
+    from django.core.serializers.json import simplejson
+    from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType, Relation, CremeEntity, CremePropertyType, CremeProperty, SetCredentials
-from creme_core.tests.views.base import ViewsTestCase
+    from creme_core.models import RelationType, Relation, CremeEntity, CremePropertyType, CremeProperty, SetCredentials
+    from creme_core.tests.views.base import ViewsTestCase
 
-from persons.models import Contact, Organisation
-from persons.constants import REL_OBJ_CUSTOMER_SUPPLIER
+    from persons.models import Contact, Organisation
+    from persons.constants import REL_OBJ_CUSTOMER_SUPPLIER
+except Exception as e:
+    print 'Error:', e
 
 
 __all__ = ('RelationViewsTestCase', )
@@ -53,7 +56,7 @@ class RelationViewsTestCase(ViewsTestCase):
     def assertEntiTyHasRelation(self, subject_entity, rtype, object_entity):
         try:
             relation = subject_entity.relations.get(type=rtype)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
         else:
             self.assertEqual(object_entity.id, relation.object_entity_id)
@@ -66,9 +69,8 @@ class RelationViewsTestCase(ViewsTestCase):
         url = '/creme_core/relation/add/%s' % self.subject01.id
         self.assertEqual(200, self.client.get(url).status_code)
 
-        response = self.client.post(url, data={
-                                                'relations': """[{"rtype":"%s","ctype":"%s","entity":"%s"},
-                                                                 {"rtype":"%s","ctype":"%s","entity":"%s"}]""" % (
+        response = self.client.post(url, data={'relations': """[{"rtype":"%s","ctype":"%s","entity":"%s"},
+                                                                {"rtype":"%s","ctype":"%s","entity":"%s"}]""" % (
                                                                     self.rtype01.id, self.ct_id, self.object01.id,
                                                                     self.rtype02.id, self.ct_id, self.object02.id,
                                                                 ),
@@ -91,13 +93,12 @@ class RelationViewsTestCase(ViewsTestCase):
         self._set_all_creds_except_one(excluded=SetCredentials.CRED_LINK)
 
         unlinkable = CremeEntity.objects.create(user=self.other_user)
-        self.assert_(unlinkable.can_view(self.user))
-        self.failIf(unlinkable.can_link(self.user))
+        self.assertTrue(unlinkable.can_view(self.user))
+        self.assertFalse(unlinkable.can_link(self.user))
 
         response = self.client.post('/creme_core/relation/add/%s' % self.subject01.id,
-                                    data={
-                                            'relations': """[{"rtype":"%s","ctype":"%s","entity":"%s"},
-                                                             {"rtype":"%s","ctype":"%s","entity":"%s"}]""" % (
+                                    data={'relations': """[{"rtype":"%s","ctype":"%s","entity":"%s"},
+                                                           {"rtype":"%s","ctype":"%s","entity":"%s"}]""" % (
                                                                 self.rtype01.id, self.ct_id, self.object01.id,
                                                                 self.rtype02.id, self.ct_id, unlinkable.id,
                                                             ),
@@ -105,7 +106,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                    )
         try:
             form = response.context['form']
-        except Exception, e:
+        except Exception as e:
             self.fail('No form in context ? (%s)', str(e))
 
         if not form.errors:
@@ -119,10 +120,9 @@ class RelationViewsTestCase(ViewsTestCase):
         self._aux_test_add_relations()
 
         response = self.client.post('/creme_core/relation/add/%s' % self.subject01.id,
-                                    data={
-                                            'relations': """[{"rtype":"%s","ctype":"%s","entity":"%s"},
-                                                             {"rtype":"%s","ctype":"%s","entity":"%s"},
-                                                             {"rtype":"%s","ctype":"%s","entity":"%s"}]""" % (
+                                    data={'relations': """[{"rtype":"%s","ctype":"%s","entity":"%s"},
+                                                           {"rtype":"%s","ctype":"%s","entity":"%s"},
+                                                           {"rtype":"%s","ctype":"%s","entity":"%s"}]""" % (
                                                                 self.rtype01.id, self.ct_id, self.object01.id,
                                                                 self.rtype02.id, self.ct_id, self.object02.id,
                                                                 self.rtype01.id, self.ct_id, self.object01.id,
@@ -131,7 +131,7 @@ class RelationViewsTestCase(ViewsTestCase):
                                    )
         try:
             form = response.context['form']
-        except Exception, e:
+        except Exception as e:
             self.fail('No form in context ? (%s)', str(e))
 
         if not form.errors:
@@ -149,9 +149,8 @@ class RelationViewsTestCase(ViewsTestCase):
                                 object_entity=self.object02
                                )
         response = self.client.post('/creme_core/relation/add/%s' % self.subject01.id,
-                                    data={
-                                            'relations': """[{"rtype":"%s","ctype":"%s","entity":"%s"},
-                                                             {"rtype":"%s","ctype":"%s","entity":"%s"}]""" % (
+                                    data={'relations': """[{"rtype":"%s","ctype":"%s","entity":"%s"},
+                                                           {"rtype":"%s","ctype":"%s","entity":"%s"}]""" % (
                                                                 self.rtype01.id, self.ct_id, self.object01.id,
                                                                 self.rtype02.id, self.ct_id, self.object02.id,
                                                             ),
@@ -198,7 +197,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self._aux_test_add_relations(is_superuser=False)
 
         unviewable = CremeEntity.objects.create(user=self.other_user)
-        self.failIf(unviewable.can_view(self.user))
+        self.assertFalse(unviewable.can_view(self.user))
 
         url = '/creme_core/relation/add_to_entities/%s/?ids=%s&ids=%s&persist=ids' % (self.ct_id, self.subject01.id, unviewable.id)
         response = self.client.get(url)
@@ -206,10 +205,10 @@ class RelationViewsTestCase(ViewsTestCase):
 
         try:
             label = response.context['form'].fields['bad_entities_lbl']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
-        self.assert_(label.initial)
+        self.assertTrue(label.initial)
 
         response = self.client.post(url, data={
                                                 'entities_lbl':     'do not care',
@@ -231,15 +230,15 @@ class RelationViewsTestCase(ViewsTestCase):
 
         self._set_all_creds_except_one(excluded=SetCredentials.CRED_LINK)
         unlinkable = CremeEntity.objects.create(user=self.other_user)
-        self.assert_(unlinkable.can_view(self.user))
-        self.failIf(unlinkable.can_link(self.user))
+        self.assertTrue(unlinkable.can_view(self.user))
+        self.assertFalse(unlinkable.can_link(self.user))
 
         response = self.client.get('/creme_core/relation/add_to_entities/%s/?ids=%s&ids=%s&persist=ids' % (self.ct_id, self.subject01.id, unlinkable.id))
         self.assertEqual(200, response.status_code)
 
         try:
             label = response.context['form'].fields['bad_entities_lbl']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(unicode(unlinkable), label.initial)
@@ -264,7 +263,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
         try:
             form = response.context['form']
-        except Exception, e:
+        except Exception as e:
             self.fail('No form in context ? (%s)', str(e))
 
         if not form.errors:
@@ -329,7 +328,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
         try:
             form = response.context['form']
-        except Exception, e:
+        except Exception as e:
             self.fail('No form in context ? (%s)', str(e))
 
         if not form.errors:
@@ -365,12 +364,12 @@ class RelationViewsTestCase(ViewsTestCase):
 
         try:
             entities = response.context['entities']
-        except Exception, e:
+        except Exception as e:
             self.fail('%s : %s' % (e.__class__.__name__, str(e)))
 
         contacts = entities.object_list
         self.assertEqual(3, len(contacts))
-        self.assert_(all(isinstance(c, Contact) for c in contacts))
+        self.assertTrue(all(isinstance(c, Contact) for c in contacts))
         self.assertEqual(set([self.contact01.id, self.contact02.id, self.contact03.id]),
                          set(c.id for c in contacts)
                         )
@@ -535,8 +534,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
         post = self.client.post
 
-        self.failIf(forbidden.can_link(self.user))
-        self.assert_(allowed01.can_link(self.user))
+        self.assertFalse(forbidden.can_link(self.user))
+        self.assertTrue(allowed01.can_link(self.user))
 
         self.assertEqual(403, post('/creme_core/relation/add_from_predicate/save',
                                     data={
@@ -674,7 +673,7 @@ class RelationViewsTestCase(ViewsTestCase):
         rtype, sym_rtype = RelationType.create(('test-subject_foobar', 'is loving'), ('test-object_foobar',  'is loved by'))
         relation = Relation.objects.create(user=self.user, type=rtype, subject_entity=subject_entity, object_entity=object_entity)
         sym_relation = relation.symmetric_relation
-        self.assert_(rtype.is_not_internal_or_die() is None)
+        self.assertIsNone(rtype.is_not_internal_or_die())
 
         response = self.client.post('/creme_core/relation/delete', data={'id': relation.id})
         self.assertEqual(302, response.status_code)
@@ -707,8 +706,8 @@ class RelationViewsTestCase(ViewsTestCase):
         object_entity  = CremeEntity.objects.create(user=self.user)
 
         rtype, sym_rtype = RelationType.create(('test-subject_foobar', 'is loving'), ('test-object_foobar',  'is loved by'), is_internal=True)
-        self.assert_(rtype.is_internal)
-        self.assert_(sym_rtype.is_internal)
+        self.assertTrue(rtype.is_internal)
+        self.assertTrue(sym_rtype.is_internal)
         self.assertRaises(Http404, rtype.is_not_internal_or_die)
 
         relation = Relation.objects.create(user=self.user, type=rtype, subject_entity=subject_entity, object_entity=object_entity)
@@ -806,7 +805,6 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(0, Relation.objects.count())
         create_entity = CremeEntity.objects.create
         subject01 = self.subject01 = create_entity(user=self.user)
-
         object01  = create_entity(user=self.user)
         object02  = create_entity(user=self.other_user)
 
