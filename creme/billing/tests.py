@@ -49,17 +49,13 @@ class _BillingTestCase(object):
                                             'discount':        discount,
                                             'source':          source.id,
                                             'target':          self.genericfield_format_entity(target),
-                                            }
+                                         }
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
         self.assertEqual(1,   len(response.redirect_chain))
 
-        try:
-            invoice = Invoice.objects.get(name=name)
-        except Exception as e:
-            self.fail(str(e))
-
+        invoice = self.get_object_or_fail(Invoice, name=name)
         self.assertTrue(response.redirect_chain[0][0].endswith('/billing/invoice/%s' % invoice.id))
 
         return invoice
@@ -279,7 +275,7 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(1, len(response.redirect_chain))
         self.assert_(response.redirect_chain[0][0].endswith('/billing/invoice/%s' % invoice.id))
 
-        invoice = Invoice.objects.get(pk=invoice.id) #refresh object
+        invoice = self.refresh(invoice)
         self.assertEqual(name, invoice.name)
         self.assertEqual(date(year=2011, month=11, day=14), invoice.expiration_date)
 
@@ -328,7 +324,7 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
-        invoice = Invoice.objects.get(pk=invoice.id) #refresh object
+        invoice = self.refresh(invoice)
         self.assertEqual(other_user, invoice.user)
 
         self.assertEqual([other_user.id] * 4,
@@ -436,10 +432,7 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        try:
-            product = Product.objects.get(name=name)
-        except Exception as e:
-            self.fail(str(e))
+        product = self.get_object_or_fail(Product, name=name)
 
         self.assertEqual(cat.id,     product.category_id)
         self.assertEqual(subcat.id,  product.sub_category_id)
@@ -544,7 +537,7 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        line = ProductLine.objects.get(pk=line.id) #refresh
+        line = self.refresh(line)
         self.assertEqual(name,       line.on_the_fly_item)
         self.assertEqual(unit_price, line.unit_price)
         self.assertEqual(quantity,   line.quantity)
@@ -565,23 +558,22 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
 
         unit_price = Decimal('1.33')
         service = self._create_service()
-        response = self.client.post(url,
-                                    data={
-                                            #'user':         self.user.pk,
-                                            'related_item': service.id,
-                                            'comment':      'no comment !',
-                                            'quantity':     2,
-                                            'unit_price':   unit_price,
-                                            'discount':     Decimal(),
-                                            'discount_unit':1,
-                                            'vat':          Decimal('19.6'),
-                                            'credit':       Decimal(),
-                                         }
+        response = self.client.post(url, data={
+                                                #'user':         self.user.pk,
+                                                'related_item': service.id,
+                                                'comment':      'no comment !',
+                                                'quantity':     2,
+                                                'unit_price':   unit_price,
+                                                'discount':     Decimal(),
+                                                'discount_unit':1,
+                                                'vat':          Decimal('19.6'),
+                                                'credit':       Decimal(),
+                                             }
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        invoice = Invoice.objects.get(pk=invoice.id) #refresh (line cache)
+        invoice = self.refresh(invoice) #refresh lines cache
         self.assertEqual(1, len(invoice.service_lines))
 
         line = invoice.service_lines[0]
@@ -616,7 +608,7 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        invoice = Invoice.objects.get(pk=invoice.id) #refresh (line cache)
+        invoice = self.refresh(invoice) #refresh lines cache
         lines = invoice.service_lines
         self.assertEqual(1, len(lines))
         self.assertEqual(name, lines[0].on_the_fly_item)
@@ -649,16 +641,13 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        try:
-            service = Service.objects.get(name=name)
-        except Exception as e:
-            self.fail(str(e))
+        service = self.get_object_or_fail(Service, name=name)
 
         self.assertEqual(cat,        service.category)
         self.assertEqual(subcat,     service.sub_category)
         self.assertEqual(unit_price, service.unit_price)
 
-        invoice = Invoice.objects.get(pk=invoice.id) #refresh (line cache)
+        invoice = self.refresh(invoice) #refresh lines cache
         lines = invoice.service_lines
         self.assertEqual(1, len(lines))
 
@@ -733,7 +722,7 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        line = ServiceLine.objects.get(pk=line.id) #refresh
+        line = self.refresh(line)
         self.assertEqual(name,       line.on_the_fly_item)
         self.assertEqual(unit_price, line.unit_price)
         self.assertEqual(quantity,   line.quantity)
@@ -796,12 +785,8 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(1,   len(response.redirect_chain))
 
-        try:
-            quote = Quote.objects.get(name=name)
-        except Exception as e:
-            self.fail(str(e))
-
-        self.assert_(response.redirect_chain[0][0].endswith('/billing/quote/%s' % quote.id))
+        quote = self.get_object_or_fail(Quote, name=name)
+        self.assertTrue(response.redirect_chain[0][0].endswith('/billing/quote/%s' % quote.id))
 
         return quote
 
@@ -818,11 +803,6 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
         self.login()
 
         quote, source, target = self.create_quote_n_orgas('My Quote')
-
-        #exp_date = quote.expiration_date
-        #self.assertEqual(2012, exp_date.year)
-        #self.assertEqual(4,    exp_date.month)
-        #self.assertEqual(22,   exp_date.day)
         self.assertEqual(date(year=2012, month=4, day=22), quote.expiration_date)
 
         rel_filter = Relation.objects.filter
@@ -1101,7 +1081,10 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
 
         invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')
         pi_sony = PaymentInformation.objects.create(organisation=sony_source, name="RIB sony")
-        self.assertEqual(200, self.client.get('/billing/payment_information/set_default/%s/%s' % (pi_sony.id, invoice.id)).status_code)
+        self.assertEqual(200, self.client.post('/billing/payment_information/set_default/%s/%s' % (pi_sony.id, invoice.id)).status_code)
+
+        invoice = self.refresh(invoice)
+        self.assertEqual(pi_sony, invoice.payment_info)
 
     def test_payment_info_set_default_in_invoice02(self):
         self.login()
@@ -1113,9 +1096,15 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
         pi_sony     = PaymentInformation.objects.create(organisation=sony_source,     name="RIB sony")
         pi_sega     = PaymentInformation.objects.create(organisation=sega,            name="RIB sega")
 
-        self.assertEqual(404, self.client.get('/billing/payment_information/set_default/%s/%s' % (pi_nintendo.id, invoice.id)).status_code)
-        self.assertEqual(404, self.client.get('/billing/payment_information/set_default/%s/%s' % (pi_sega.id, invoice.id)).status_code)
-        self.assertEqual(200, self.client.get('/billing/payment_information/set_default/%s/%s' % (pi_sony.id, invoice.id)).status_code)
+        def assertPostStatus(code, pi):
+            self.assertEqual(code,
+                             self.client.post('/billing/payment_information/set_default/%s/%s' % (pi.id, invoice.id)) \
+                                        .status_code
+                            )
+
+        assertPostStatus(404, pi_nintendo)
+        assertPostStatus(404, pi_sega)
+        assertPostStatus(200, pi_sony)
 
     def test_payment_info_set_null_in_invoice01(self):
         self.login()
@@ -1124,7 +1113,7 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
         invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')
 
         pi_sony = PaymentInformation.objects.create(organisation=sony_source, name="RIB sony")
-        self.assertEqual(200, self.client.get('/billing/payment_information/set_default/%s/%s' % (pi_sony.id, invoice.id)).status_code)
+        self.assertEqual(200, self.client.post('/billing/payment_information/set_default/%s/%s' % (pi_sony.id, invoice.id)).status_code)
 
         currency = Currency.objects.all()[0]
         response = self.client.post('/billing/invoice/edit/%s' % invoice.id, follow=True,
@@ -1186,11 +1175,7 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        try:
-            invoice = Invoice.objects.get(name=name)
-        except Exception as e:
-            self.fail(str(e))
-
+        invoice = self.get_object_or_fail(Invoice, name=name)
         self.assertEqual(target, invoice.get_target().get_real_entity())
 
     def test_product_lines_property01(self):

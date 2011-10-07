@@ -23,7 +23,7 @@ from collections import defaultdict
 from django.db.models import ForeignKey, CharField, PositiveSmallIntegerField, IntegerField, DecimalField, DateTimeField, BooleanField, ManyToManyField
 from django import forms
 from django.utils.translation import ugettext, ugettext_lazy as _
-from django.utils.datastructures import SortedDict as OrderedDict #use python2.6 OrderedDict later.....
+from django.utils.datastructures import SortedDict as OrderedDict #use python2.7 OrderedDict later.....
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import EMPTY_VALUES
 
