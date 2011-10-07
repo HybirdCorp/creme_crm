@@ -22,14 +22,12 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.http import Http404
 from django.shortcuts import render_to_response, get_object_or_404
 from django.utils.translation import ugettext_lazy as _
+
+from creme_core.views.generic import add_to_entity, edit_related_to_entity
 from creme_core.utils import jsonify
 
-from creme_core.views.generic.add import add_to_entity
-from creme_core.views.generic.edit import edit_related_to_entity
-
+from billing.models import Base, PaymentInformation
 from billing.forms.payment_information import PaymentInformationCreateForm, PaymentInformationEditForm
-from billing.models.other_models import PaymentInformation
-from billing.models import Base
 
 
 @login_required
@@ -46,6 +44,9 @@ def edit(request, payment_information_id):
 @login_required
 @permission_required('billing')
 def set_default(request, payment_information_id, billing_id):
+    if request.method != 'POST':
+        raise Http404('This view uses POST method.')
+
     pi      = get_object_or_404(PaymentInformation, pk=payment_information_id)
     billing_doc = get_object_or_404(Base, pk=billing_id)
     user    = request.user
@@ -55,12 +56,11 @@ def set_default(request, payment_information_id, billing_id):
 
     billing_doc.can_change_or_die(user)
 
-    inv_orga_source = billing_doc.get_source().get_real_entity()
-    if not inv_orga_source or inv_orga_source != organisation:
+    inv_orga_source = billing_doc.get_source()
+    if not inv_orga_source or inv_orga_source.id != organisation.id:
         raise Http404('No organisation in this invoice.')
 
     billing_doc.payment_info = pi
     billing_doc.save()
-    
-    return {}
 
+    return {}

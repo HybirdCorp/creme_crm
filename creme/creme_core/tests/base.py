@@ -47,6 +47,24 @@ class _CremeTestCase(object):
             if errors:
                 self.fail(errors)
 
+    def get_object_or_fail(self, model, **kwargs):
+        try:
+            obj = model.objects.get(**kwargs)
+        except model.DoesNotExist as e:
+            self.fail('Your object does not exist.\n'
+                      ' Query model: %(model)s\n'
+                      ' Query args %(args)s\n'
+                      ' [original exception: %(exception)s]' % {
+                            'model':     model,
+                            'args':      kwargs,
+                            'exception': e,
+                         }
+                     )
+        except Exception as e:
+            self.fail(str(e))
+
+        return obj
+
     def get_relationtype_or_fail(self, pk, sub_models=(), obj_models=(), sub_props=(), obj_props=()):
         try:
             rt = RelationType.objects.get(pk=pk)
@@ -79,6 +97,9 @@ class _CremeTestCase(object):
                          set(pt.subject_ctypes.values_list('id', flat=True))
                         )
         return pt
+
+    def refresh(self, obj):
+        return obj.__class__.objects.get(pk=obj.pk)
 
 
 class CremeTestCase(_CremeTestCase, TestCase): pass

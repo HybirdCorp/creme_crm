@@ -24,7 +24,7 @@ from django.db.models.fields import FieldDoesNotExist
 from django.forms import Form, ModelForm, ModelChoiceField
 from django.forms.forms import BoundField
 from django.utils.translation import ugettext_lazy as _
-from django.utils.datastructures import SortedDict as OrderedDict #use python2.6 OrderedDict later.....
+from django.utils.datastructures import SortedDict as OrderedDict #use python2.7 OrderedDict later.....
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
