@@ -70,11 +70,11 @@ class CSVExportViewsTestCase(ViewsTestCase):
         response = self.client.get('/creme_core/list_view/dl_csv/%s' % self.ct.id, data={'list_url': lv_url})
         self.assertEqual(200, response.status_code)
         self.assertEqual([u','.join(u'"%s"' % hfi.title for hfi in hf_items),
-                          u'"Black","Jet","Bebop","<ul></ul>"',
-                          u'"Creme","Fulbert","","<ul></ul>"',
-                          u'"Spiegel","Spike","Bebop/Swordfish","<ul></ul>"',
-                          u'"Valentine","Faye","","<ul><li>is a girl</li><li>is beautiful</li></ul>"',
-                          u'"Wong","Edward","","<ul><li>is a girl</li></ul>"',
+                          u'"Black","Jet","Bebop",""',
+                          u'"Creme","Fulbert","",""',
+                          u'"Spiegel","Spike","Bebop/Swordfish",""',
+                          u'"Valentine","Faye","","is a girl/is beautiful"',
+                          u'"Wong","Edward","","is a girl"',
                          ],
                          map(force_unicode, response.content.splitlines())
                         )

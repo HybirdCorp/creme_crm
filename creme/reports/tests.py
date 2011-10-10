@@ -56,6 +56,7 @@ class ReportsTestCase(CremeTestCase):
         create_hfi(pk='hfi2', order=2, name='user',                  title='User',       type=HFI_FIELD,    header_filter=hf, filter_string="user__username__icontains")
         create_hfi(pk='hfi3', order=3, name='related_to',            title='Related to', type=HFI_RELATION, header_filter=hf, filter_string="", relation_predicat_id=REL_SUB_HAS)
         create_hfi(pk='hfi4', order=4, name='get_pretty_properties', title='Properties', type=HFI_FUNCTION, header_filter=hf, filter_string="")
+        #TODO
         #hf.set_items([HeaderFilterItem.build_4_field(model=Contact, name='last_name'),
                       #HeaderFilterItem.build_4_field(model=Contact, name='user'),
                       #HeaderFilterItem.build_4_relation(RelationType.objects.get(pk=REL_SUB_RELATED_TO)),
@@ -211,10 +212,10 @@ class ReportsTestCase(CremeTestCase):
 
         content = [s for s in response.content.split('\r\n') if s]
         self.assertEqual(4, len(content))
-        self.assertEqual('Last name;User;Related to;Properties',     content[0])
-        self.assertEqual('Ayanami;Kirika;;<ul><li>Kawaii</li></ul>', content[1]) #alphabetical ordering ??
-        self.assertEqual('Katsuragi;Kirika;Nerv;<ul></ul>',          content[2])
-        self.assertEqual('Langley;Kirika;;<ul></ul>',                content[3])
+        self.assertEqual('Last name;User;Related to;Properties', content[0])
+        self.assertEqual('Ayanami;Kirika;;Kawaii',               content[1]) #alphabetical ordering ??
+        self.assertEqual('Katsuragi;Kirika;Nerv;',               content[2])
+        self.assertEqual('Langley;Kirika;;',                     content[3])
 
     def test_report_csv03(self): #with date filter
         self.create_contacts()
@@ -230,8 +231,8 @@ class ReportsTestCase(CremeTestCase):
 
         content = [s for s in response.content.split('\r\n') if s]
         self.assertEqual(3, len(content))
-        self.assertEqual('Ayanami;Kirika;;<ul><li>Kawaii</li></ul>', content[1])
-        self.assertEqual('Langley;Kirika;;<ul></ul>',                content[2])
+        self.assertEqual('Ayanami;Kirika;;Kawaii', content[1])
+        self.assertEqual('Langley;Kirika;;',       content[2])
 
     def test_report_field_add01(self):
         report = self.create_report('trinita')
@@ -480,12 +481,14 @@ class ReportsTestCase(CremeTestCase):
         sony     = self.sony
         virgin   = self.virgin
 
+        funf = Organisation.function_fields.get('get_pretty_properties')
+
         orga_data = OrderedDict([
-            ("nintendo_invoice1", list(chain([nintendo.name, unicode(nintendo.user.username), self.nintendo_lf.title], nintendo_invoice_1,                [u", ".join([unicode(sony), unicode(sega)]), opp_nintendo_values, min_capital, nintendo.get_pretty_properties()]))),
-            ("nintendo_invoice2", list(chain([nintendo.name, unicode(nintendo.user.username), self.nintendo_lf.title], nintendo_invoice_2,                [u", ".join([unicode(sony), unicode(sega)]), opp_nintendo_values, min_capital, nintendo.get_pretty_properties()]))),
-            ("sega",              list(chain([sega.name,     unicode(sega.user.username),     self.sega_lf.title],     [u"" for i in nintendo_invoice_2], [u"",                                        u""],               [min_capital, sega.get_pretty_properties()]))),
-            ("sony",              list(chain([sony.name,     unicode(sony.user.username),     self.sony_lf.title],     [u"" for i in nintendo_invoice_2], [u"",                                        u""],               [min_capital, sony.get_pretty_properties()]))),
-            ("virgin",            list(chain([virgin.name,   unicode(virgin.user.username),   self.virgin_lf.title],   [u"" for i in nintendo_invoice_2], [u"",                                        u""],               [min_capital, virgin.get_pretty_properties()]))),
+            ("nintendo_invoice1", list(chain([nintendo.name, unicode(nintendo.user.username), self.nintendo_lf.title], nintendo_invoice_1,                [u", ".join([unicode(sony), unicode(sega)]), opp_nintendo_values, min_capital, funf(nintendo).for_csv()]))),
+            ("nintendo_invoice2", list(chain([nintendo.name, unicode(nintendo.user.username), self.nintendo_lf.title], nintendo_invoice_2,                [u", ".join([unicode(sony), unicode(sega)]), opp_nintendo_values, min_capital, funf(nintendo).for_csv()]))),
+            ("sega",              list(chain([sega.name,     unicode(sega.user.username),     self.sega_lf.title],     [u"" for i in nintendo_invoice_2], [u"",                                        u""],               [min_capital, funf(sega).for_csv()]))),
+            ("sony",              list(chain([sony.name,     unicode(sony.user.username),     self.sony_lf.title],     [u"" for i in nintendo_invoice_2], [u"",                                        u""],               [min_capital, funf(sony).for_csv()]))),
+            ("virgin",            list(chain([virgin.name,   unicode(virgin.user.username),   self.virgin_lf.title],   [u"" for i in nintendo_invoice_2], [u"",                                        u""],               [min_capital, funf(virgin).for_csv()]))),
         ])
         self.assertEqual(orga_data.values(), self.report_orga.fetch_all_lines(user=user))
 

@@ -29,7 +29,7 @@ from django.contrib.auth.models import User
 
 from creme_core.models import CremeModel, CremeEntity
 from creme_core.models.fields import CremeUserForeignKey
-from creme_core.core.function_field import FunctionField
+from creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
 
 
 class Memo(CremeModel):
@@ -83,15 +83,15 @@ class _GetMemos(FunctionField):
                                                            .values_list('content', flat=True)
                                               )
 
-        return u'<ul>%s</ul>' % u"".join(u'<li>%s</li>' % title for title in cache)
+        return FunctionFieldResultsList(FunctionFieldResult(content) for content in cache)
 
     @classmethod
     def populate_entities(cls, entities):
         memos_map = defaultdict(list)
 
         for content, e_id in Memo.objects.filter(entity_id__in=[e.id for e in entities]) \
-                                       .order_by('-creation_date') \
-                                       .values_list('content', 'entity_id'):
+                                         .order_by('-creation_date') \
+                                         .values_list('content', 'entity_id'):
             memos_map[e_id].append(content)
 
         for entity in entities:

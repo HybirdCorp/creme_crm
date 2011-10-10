@@ -1474,12 +1474,12 @@ class BillingTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(verbose_type, unicode(pl.get_verbose_type()))
         funf = pl.function_fields.get('get_verbose_type')
         self.assertIsNotNone(funf)
-        self.assertEqual(verbose_type, funf(pl))
+        self.assertEqual(verbose_type, funf(pl).for_html())
 
         sl = ServiceLine.objects.create(user=self.user, on_the_fly_item="otf2", unit_price=Decimal("4"))
         verbose_type = _(u"Service")
         self.assertEqual(verbose_type, unicode(sl.get_verbose_type()))
-        self.assertEqual(verbose_type, sl.function_fields.get('get_verbose_type')(sl))
+        self.assertEqual(verbose_type, sl.function_fields.get('get_verbose_type')(sl).for_html())
 
 
 class BillingDeleteTestCase(_BillingTestCase, CremeTransactionTestCase):

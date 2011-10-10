@@ -29,7 +29,7 @@ from django.contrib.auth.models import User
 
 from creme_core.models import CremeEntity, CremeModel
 from creme_core.models.fields import CremeUserForeignKey
-from creme_core.core.function_field import FunctionField
+from creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
 
 
 class ToDo(CremeModel):
@@ -95,7 +95,7 @@ class _GetTodos(FunctionField):
                                                            .values_list('title', flat=True)
                                               )
 
-        return u'<ul>%s</ul>' % u"".join(u'<li>%s</li>' % title for title in cache)
+        return FunctionFieldResultsList(FunctionFieldResult(title) for title in cache)
 
     @classmethod
     def populate_entities(cls, entities):

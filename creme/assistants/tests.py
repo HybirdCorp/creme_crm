@@ -208,7 +208,7 @@ class TodoTestCase(AssistantsTestCase):
     def test_function_field01(self):
         funf = CremeEntity.function_fields.get('assistants-get_todos')
         self.assertIsNotNone(funf)
-        self.assertEqual(u'<ul></ul>', funf(self.entity))
+        self.assertEqual(u'<ul></ul>', funf(self.entity).for_html())
 
     def test_function_field02(self):
         funf = CremeEntity.function_fields.get('assistants-get_todos')
@@ -222,7 +222,7 @@ class TodoTestCase(AssistantsTestCase):
         with self.assertNumQueries(1):
             result = funf(self.entity)
 
-        self.assertEqual(u'<ul><li>Todo02</li><li>Todo01</li></ul>', result)
+        self.assertEqual(u'<ul><li>Todo02</li><li>Todo01</li></ul>', result.for_html())
 
         # limit to 3 ToDos
         #self._create_todo('Todo03', 'Description03')
@@ -249,8 +249,8 @@ class TodoTestCase(AssistantsTestCase):
             result1 = funf(self.entity)
             result2 = funf(entity02)
 
-        self.assertEqual(u'<ul><li>Todo02</li><li>Todo01</li></ul>', result1)
-        self.assertEqual(u'<ul><li>Todo04</li></ul>',                result2)
+        self.assertEqual(u'<ul><li>Todo02</li><li>Todo01</li></ul>', result1.for_html())
+        self.assertEqual(u'<ul><li>Todo04</li></ul>',                result2.for_html())
 
 
 class AlertTestCase(AssistantsTestCase):
@@ -381,7 +381,7 @@ class AlertTestCase(AssistantsTestCase):
     def test_function_field01(self):
         funf = CremeEntity.function_fields.get('assistants-get_alerts')
         self.assertIsNotNone(funf)
-        self.assertEqual(u'<ul></ul>', funf(self.entity))
+        self.assertEqual(u'<ul></ul>', funf(self.entity).for_html())
 
     def test_function_field02(self):
         funf = CremeEntity.function_fields.get('assistants-get_alerts')
@@ -396,7 +396,7 @@ class AlertTestCase(AssistantsTestCase):
         with self.assertNumQueries(1):
             result = funf(self.entity)
 
-        self.assertEqual(u'<ul><li>Alert02</li><li>Alert01</li></ul>', result)
+        self.assertEqual(u'<ul><li>Alert02</li><li>Alert01</li></ul>', result.for_html())
 
     def test_function_field03(self): #prefetch with 'populate_entities()'
         self._create_alert('Alert01', 'Description01', trigger_date='2011-10-21')
@@ -419,8 +419,8 @@ class AlertTestCase(AssistantsTestCase):
             result1 = funf(self.entity)
             result2 = funf(entity02)
 
-        self.assertEqual(u'<ul><li>Alert02</li><li>Alert01</li></ul>', result1)
-        self.assertEqual(u'<ul><li>Alert04</li></ul>',                 result2)
+        self.assertEqual(u'<ul><li>Alert02</li><li>Alert01</li></ul>', result1.for_html())
+        self.assertEqual(u'<ul><li>Alert04</li></ul>',                 result2.for_html())
 
 
 class MemoTestCase(AssistantsTestCase):
@@ -502,7 +502,7 @@ class MemoTestCase(AssistantsTestCase):
     def test_function_field01(self):
         funf = CremeEntity.function_fields.get('assistants-get_memos')
         self.assertIsNotNone(funf)
-        self.assertEqual(u'<ul></ul>', funf(self.entity))
+        self.assertEqual(u'<ul></ul>', funf(self.entity).for_html())
 
     def _oldify_memo(self, memo, years_delta=1):
         cdate = memo.creation_date
@@ -518,7 +518,7 @@ class MemoTestCase(AssistantsTestCase):
         with self.assertNumQueries(1):
             result = funf(self.entity)
 
-        self.assertEqual(u'<ul><li>Content02</li><li>Content01</li></ul>', result)
+        self.assertEqual(u'<ul><li>Content02</li><li>Content01</li></ul>', result.for_html())
 
     def test_function_field03(self): #prefetch with 'populate_entities()'
         self._oldify_memo(self._create_memo('Content01'))
@@ -537,8 +537,8 @@ class MemoTestCase(AssistantsTestCase):
             result1 = funf(self.entity)
             result2 = funf(entity02)
 
-        self.assertEqual(u'<ul><li>Content02</li><li>Content01</li></ul>', result1)
-        self.assertEqual(u'<ul><li>Content04</li><li>Content03</li></ul>', result2)
+        self.assertEqual(u'<ul><li>Content02</li><li>Content01</li></ul>', result1.for_html())
+        self.assertEqual(u'<ul><li>Content04</li><li>Content03</li></ul>', result2.for_html())
 
 
 class UserMessageTestCase(AssistantsTestCase):

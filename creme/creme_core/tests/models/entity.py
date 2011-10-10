@@ -11,7 +11,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme_core.models import *
-    from creme_core.core.function_field import FunctionField
+    from creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Contact, Organisation, Civility, Position, Sector, Address
@@ -331,7 +331,10 @@ class EntityTestCase(CremeTestCase):
         with self.assertNumQueries(1):
             result = pp_ff(entity)
 
-        self.assertEqual('<ul><li>Awesome</li><li>Wonderful</li></ul>', result)
+        self.assertIsInstance(result, FunctionFieldResult)
+        self.assertIsInstance(result, FunctionFieldResultsList)
+        self.assertEqual('<ul><li>Awesome</li><li>Wonderful</li></ul>', result.for_html())
+        self.assertEqual('Awesome/Wonderful',                           result.for_csv())
 
     def test_prettypropertiesfield02(self): #prefetch with populate_entities()
         entity1 = CremeEntity.objects.create(user=self.user)
@@ -352,5 +355,5 @@ class EntityTestCase(CremeTestCase):
             result1 = pp_ff(entity1)
             result2 = pp_ff(entity2)
 
-        self.assertEqual('<ul><li>Awesome</li><li>Wonderful</li></ul>', result1)
-        self.assertEqual('<ul><li>Wonderful</li></ul>',                 result2)
+        self.assertEqual('<ul><li>Awesome</li><li>Wonderful</li></ul>', result1.for_html())
+        self.assertEqual('<ul><li>Wonderful</li></ul>',                 result2.for_html())

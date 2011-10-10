@@ -33,7 +33,7 @@ from django.forms.util import flatatt
 from django.template.loader import render_to_string
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.core.function_field import FunctionField
+from creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
 from base import CremeAbstractEntity
 
 
@@ -49,6 +49,9 @@ class EntityAction(object):
 class _PrettyPropertiesField(FunctionField):
     name         = "get_pretty_properties"
     verbose_name = _(u'Properties')
+
+    def __call__(self, entity):
+        return FunctionFieldResultsList(FunctionFieldResult(unicode(p)) for p in entity.get_properties())
 
     @classmethod
     def populate_entities(cls, entities):
@@ -82,18 +85,6 @@ class CremeEntity(CremeAbstractEntity):
         from auth import EntityCredentials
 
         if settings.TRUE_DELETE:
-#            if not self.can_be_deleted():
-#                raise CremeEntity.CanNotBeDeleted(ugettext(u'Entity#%s can not be deleted because of its dependencies.') % self.id)
-
-#            for relation in self.relations.all():
-#                relation.delete()
-
-#            for prop in self.properties.all():
-#                prop.delete()
-
-#            CustomFieldValue.delete_all(self)
-#            EntityCredentials.objects.filter(entity=self).delete()
-
             super(CremeEntity, self).delete()
         else:
             self.is_deleted = True
@@ -258,7 +249,6 @@ class CremeEntity(CremeAbstractEntity):
                 debug(u'Fill custom value cache entity_id=%s cfield_id=%s', entity_id, cf_id)
 
     def get_entity_summary(self, user):
-        #return escape(unicode(self))
         return escape(self.allowed_unicode(user))
 
     def get_entity_m2m_summary(self, user):
@@ -306,9 +296,6 @@ class CremeEntity(CremeAbstractEntity):
             debug('CremeEntity.get_properties(): Cache HIT for id=%s', self.id)
 
         return self._properties
-
-    def get_pretty_properties(self):
-        return u"""<ul>%s</ul>""" % "".join(u"<li>%s</li>" % p for p in self.get_properties())
 
     @staticmethod
     def populate_properties(entities):

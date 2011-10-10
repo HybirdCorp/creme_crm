@@ -54,8 +54,7 @@ class FkClass(object):
 
     def __iter__(self):
         return iter(self.values)
-#        for val in self.values:
-#            yield val
+
 
 class Field(CremeModel):
     name      = CharField(_(u'Name of the column'), max_length=100)
@@ -275,7 +274,7 @@ class Field(CremeModel):
 
             funfield = entity.function_fields.get(column_name) #TODO: in a cache ??
 
-            return funfield(entity) if funfield else "Problem with function field"
+            return funfield(entity).for_csv() if funfield else "Problem with function field"
 
         elif column_type == HFI_CALCULATED:
             #No credential check

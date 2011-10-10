@@ -111,7 +111,7 @@ class TicketTestCase(CremeTestCase):
         except Exception as e:
             self.fail(str(e))
 
-        self.assertFalse(funf(ticket))
+        self.assertEqual('', funf(ticket).for_html())
 
     def test_editview01(self):
         self.login()
@@ -179,12 +179,12 @@ class TicketTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(302, response.status_code)
 
-        edited_ticket = Ticket.objects.get(pk=ticket)
-        self.assertEqual(CLOSED_PK, edited_ticket.status_id)
+        ticket = self.refresh(ticket)
+        self.assertEqual(CLOSED_PK, ticket.status_id)
 
-        self.assertTrue(edited_ticket.closing_date)
-        self.assertTrue(edited_ticket.get_resolving_duration())
-        self.assertTrue(edited_ticket.function_fields.get('get_resolving_duration')(edited_ticket))
+        self.assertTrue(ticket.closing_date)
+        self.assertTrue(ticket.get_resolving_duration())
+        self.assertTrue(ticket.function_fields.get('get_resolving_duration')(ticket))
 
     def test_listview01(self):
         self.login()
