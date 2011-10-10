@@ -37,12 +37,41 @@ class FunctionField(object):
         return Q()
 
     def __call__(self, entity):
-        return getattr(entity, self.name)() #TODO NotImplemented error ??
+        """"@return An instance of FunctionField object
+        (so you can call for_html()/for_csv() on the result)."""
+        return FunctionFieldResult(getattr(entity, self.name)())
 
     @classmethod
     def populate_entities(cls, entities):
         """Optimisation used for listviews ; see HeaderFilter"""
         pass
+
+
+class FunctionFieldResult(object):
+    __slots__ = ('_data',)
+
+    def __init__(self, str_data):
+        self._data = str_data
+
+    def __unicode__(self, str_data):
+        return self.for_html()
+
+    def for_html(self):
+        return self._data
+
+    def for_csv(self):
+        return self._data
+
+
+class FunctionFieldResultsList(FunctionFieldResult):
+    def __init__(self, iterable):
+        self._data = list(iterable)
+
+    def for_html(self):
+        return u"<ul>%s</ul>" % u"".join(u"<li>%s</li>" % e.for_html() for e in self._data)
+
+    def for_csv(self):
+        return u"/".join(e.for_csv() for e in self._data)
 
 
 class FunctionFieldsManager(object):

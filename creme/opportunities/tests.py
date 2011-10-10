@@ -623,9 +623,9 @@ class OpportunitiesTestCase(CremeTestCase):
         self.assertIsNone(opportunity.estimated_sales)
         self.assertIsNone(opportunity.chance_to_win)
         self.assertEqual(0, opportunity.get_weighted_sales())
-        self.assertEqual(0, funf(opportunity))
+        self.assertEqual(0, funf(opportunity).for_html())
 
         opportunity.estimated_sales = 1000
         opportunity.chance_to_win   =  10
         self.assertEqual(100, opportunity.get_weighted_sales())
-        self.assertEqual(100, funf(opportunity))
+        self.assertEqual(100, funf(opportunity).for_html())

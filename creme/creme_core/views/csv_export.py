@@ -58,18 +58,11 @@ def dl_listview_as_csv(request, ct_id):
     sort_field = current_lvs.sort_field
 
     if not sort_field:
-        try:  #'if model._meta.ordering' instead ????
+        try:  #TODO: 'if model._meta.ordering' instead ????
             sort_field = model._meta.ordering[0]
         except IndexError:
             sort_field = 'id'
 
-    #q_is_deleted = Q(is_deleted=False) | Q(is_deleted=None)
-
-    #if current_lvs.filter_id:
-        #filter_ = Filter.objects.get(pk=current_lvs.filter_id)
-        #entities = model.objects.filter(q_is_deleted & filter_.get_q())
-    #else:
-        #entities = model.objects.filter(q_is_deleted)
     entities = model.objects.filter(Q(is_deleted=False) | Q(is_deleted=None))
     efilter_id = current_lvs.entity_filter_id
 
@@ -83,7 +76,6 @@ def dl_listview_as_csv(request, ct_id):
     entities = entities.filter(current_lvs.get_q_with_research(model))
     entities = EntityCredentials.filter(request.user, entities)
     entities = entities.distinct().order_by("%s%s" % (sort_order, sort_field)) #distinct ???
-    #entities = hf.improve_queryset(entities) #optimisation time !!!
 
     #TODO: move to a template ???
     writer = csv.writer(response, quoting=csv.QUOTE_ALL)
@@ -105,8 +97,7 @@ def dl_listview_as_csv(request, ct_id):
                     if type_ == HFI_FIELD:
                         res = smart_str(get_field_infos(entity, column.name)[1])
                     elif type_ == HFI_FUNCTION:
-                        #res = smart_str(getattr(entity, column.name)())
-                        res = smart_str(column.get_functionfield()(entity))
+                        res = smart_str(column.get_functionfield()(entity).for_csv())
                     elif type_ == HFI_RELATION:
                         res = smart_str(u'/'.join(unicode(o) for o in entity.get_related_entities(column.relation_predicat_id, True)))
                     else:
