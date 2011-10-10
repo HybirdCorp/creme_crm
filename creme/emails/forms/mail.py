@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,8 +33,8 @@ from creme_core.forms.widgets import TinyMCEEditor
 
 from documents.models import Document
 
+from emails.models import EntityEmail
 from emails.constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED
-from emails.models.mail import EntityEmail
 
 from persons.models import Contact, Organisation
 
@@ -47,7 +47,7 @@ class EntityEmailForm(CremeEntityForm):
     """
     sender       = EmailField(label=_(u'Sender'))
 
-    #TODO: use the new GenericEntityField ?? When it use q_filter
+    #TODO: use the new GenericEntityField ?? When it manages q_filter
     c_recipients = MultiCremeEntityField(label=_(u'Contacts'),      required=False, model=Contact,      q_filter={'email__isnull': False})
     o_recipients = MultiCremeEntityField(label=_(u'Organisations'), required=False, model=Organisation, q_filter={'email__isnull': False})
 
@@ -93,7 +93,6 @@ class EntityEmailForm(CremeEntityForm):
 
         if recipients_errors:
             self.errors[field_name] = ErrorList(recipients_errors)
-
 
     def clean(self):
         cleaned_data = self.cleaned_data

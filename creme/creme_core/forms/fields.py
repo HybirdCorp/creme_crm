@@ -622,7 +622,6 @@ class MultiCremeEntityField(_EntityField):
             return []
 
         if self.q_filter is not None:
-            #entities = self.model.objects.filter(**self.q_filter).filter(pk__in=cleaned_ids) #COMMENTED on 12 oct 2010 ; to be tested
             entities = self.model.objects.filter(get_q_from_dict(self.q_filter)).filter(pk__in=cleaned_ids)
         else:
             entities = self.model.objects.filter(pk__in=cleaned_ids)

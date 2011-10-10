@@ -25,7 +25,7 @@ from django.utils.translation import ugettext as _, ugettext
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models.entity import CremeEntity
+from creme_core.models import CremeEntity
 from creme_core.views import generic
 from creme_core.utils import jsonify, get_from_POST_or_404
 
@@ -66,8 +66,7 @@ def view_lightweight_mail(request, mail_id):
                                    context_instance=RequestContext(request)
                                   )
 
-    return render_to_response(template, ctx_dict,
-                              context_instance=RequestContext(request))
+    return render_to_response(template, ctx_dict, context_instance=RequestContext(request))
 
 #TODO: credentials (don't forget templates)
 ## SYNCHRO PART ##
@@ -146,6 +145,7 @@ def listview(request):
 
 @login_required
 @permission_required('emails')
+@permission_required('emails.add_entityemail')
 def create_n_send(request, entity_id):
     return generic.add_to_entity(request, entity_id, EntityEmailForm,
                                  title=_(u'Sending an email to <%s>'),

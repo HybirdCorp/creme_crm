@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,11 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import os
-import poplib
-import email
-import re
-
 from datetime import datetime
 from email.mime.image import MIMEImage
 from itertools import chain
@@ -30,26 +25,20 @@ from logging import error, debug
 from os.path import join, basename
 
 from django.contrib.auth.models import User
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models import (PositiveIntegerField, PositiveSmallIntegerField, CharField,
                               TextField, DateTimeField, ForeignKey, ManyToManyField)
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.db import IntegrityError
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
-from django.db import IntegrityError
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 from django.template.defaultfilters import removetags
-#from django.utils.safestring import mark_safe
-#from django.forms.util import flatatt
-from django.template.loader import render_to_string
 
-from creme_core.models import CremeModel, CremeEntity, Relation
-from creme_core.views.file_handling import handle_uploaded_file
+from creme_core.models import CremeModel, CremeEntity
 
-from documents.models import Document, Folder, FolderCategory
-from documents.constants import REL_OBJ_RELATED_2_DOC
+from documents.models import Document
 
-from emails.utils import generate_id#, get_unicode_decoded_str
+from emails.utils import generate_id
 from emails.models import EmailSignature
 
 
@@ -192,18 +181,20 @@ class EntityEmail(_Email, CremeEntity):
 
     @staticmethod
     def create_n_send_mail(sender, recipient, subject, user_pk, body_html=u"", signature=None, attachments=None):
-        email           = EntityEmail()
-        email.sender    = sender
-        email.recipient = recipient
-        email.subject   = subject
-        email.body_html = body_html
-        email.signature = signature
-        email.user_id   = user_pk
+        email = EntityEmail(sender=sender,
+                            recipient=recipient,
+                            subject=subject,
+                            body_html=body_html,
+                            signature=signature,
+                            user_id=user_pk,
+                           )
         email.genid_n_save()
+
         if attachments:
             email.attachments = attachments
-            email.save()
+
         email.send()
+
         return email
 
     def _pre_save_clone(self, source):
