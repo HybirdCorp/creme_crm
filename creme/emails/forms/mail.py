@@ -33,10 +33,10 @@ from creme_core.forms.widgets import TinyMCEEditor
 
 from documents.models import Document
 
+from persons.models import Contact, Organisation
+
 from emails.models import EntityEmail
 from emails.constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED
-
-from persons.models import Contact, Organisation
 
 
 invalid_email_error = _(u'The email address for %(entity)s is invalid')
@@ -58,13 +58,13 @@ class EntityEmailForm(CremeEntityForm):
 
     blocks = FieldBlockManager(
             ('recipients', _(u'Who'),  ['user', 'sender', 'send_me', 'c_recipients', 'o_recipients']),
-            ('content',    _(u'What'), ['subject', 'body_html']),
+            ('content',    _(u'What'), ['subject', 'body', 'body_html']),
             ('extra',      _(u'With'), ['signature', 'attachments']),
         )
 
     class Meta:
         model  = EntityEmail
-        fields = ('sender', 'subject', 'body_html', 'signature')#, 'attachments')
+        fields = ('sender', 'subject', 'body', 'body_html', 'signature')#, 'attachments')
 
     def __init__(self, entity, *args, **kwargs):
         super(EntityEmailForm, self).__init__(*args, **kwargs)
@@ -114,20 +114,20 @@ class EntityEmailForm(CremeEntityForm):
 
         sender      = get_data('sender')
         subject     = get_data('subject')
+        body        = get_data('body')
         body_html   = get_data('body_html')
         signature   = get_data('signature')
         attachments = get_data('attachments')
-        user_pk     = get_data('user').pk
-
-        entity = self.entity
+        user        = get_data('user')
 
         if get_data('send_me'):
-            EntityEmail.create_n_send_mail(sender, sender, subject, user_pk, body_html, signature, attachments)
+            EntityEmail.create_n_send_mail(sender, sender, subject, user, body, body_html, signature, attachments)
 
+        entity = self.entity
         create_relation = Relation.objects.create
 
         for recipient in chain(get_data('c_recipients', []), get_data('o_recipients', [])):
-            email = EntityEmail.create_n_send_mail(sender, recipient.email, subject, user_pk, body_html, signature, attachments)
+            email = EntityEmail.create_n_send_mail(sender, recipient.email, subject, user, body, body_html, signature, attachments)
 
-            create_relation(subject_entity=email, type_id=REL_SUB_MAIL_SENDED,   object_entity=entity,    user_id=user_pk)
-            create_relation(subject_entity=email, type_id=REL_SUB_MAIL_RECEIVED, object_entity=recipient, user_id=user_pk)
+            create_relation(subject_entity=email, type_id=REL_SUB_MAIL_SENDED,   object_entity=entity,    user=user)
+            create_relation(subject_entity=email, type_id=REL_SUB_MAIL_RECEIVED, object_entity=recipient, user=user)

@@ -20,6 +20,12 @@
 
 from django.core.management.base import BaseCommand
 
+from creme_core.models.lock import Mutex, MutexLockedException
+
+from emails.models import EntityEmail
+from emails.constants import MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
+
+
 LOCK_NAME = "entity_emails_send"
 
 #NB: python manage.py entity_emails_send
@@ -28,15 +34,10 @@ class Command(BaseCommand):
     help = "Send all unsended mails that have to be."
 
     def handle(self, *args, **options):
-        from creme_core.models.lock import Mutex, MutexLockedException
-        from emails.models.mail import EntityEmail, MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
-
         try:
             lock = Mutex.get_n_lock(LOCK_NAME)
-
         except MutexLockedException, e:
             print 'A process is already running'
-
         else:
             for email in EntityEmail.objects.filter(status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR]):
                 email.send()

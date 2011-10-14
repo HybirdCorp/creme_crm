@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
-from email.mime.image import MIMEImage
 from itertools import chain
 from logging import error, debug
 from os.path import join, basename
@@ -40,23 +38,8 @@ from documents.models import Document
 
 from emails.utils import generate_id
 from emails.models import EmailSignature
-
-
-MAIL_STATUS_SENT                    = 1
-MAIL_STATUS_NOTSENT                 = 2
-MAIL_STATUS_SENDINGERROR            = 3
-MAIL_STATUS_SYNCHRONIZED            = 4
-MAIL_STATUS_SYNCHRONIZED_SPAM       = 5
-MAIL_STATUS_SYNCHRONIZED_WAITING    = 6
-
-MAIL_STATUS = {
-                MAIL_STATUS_SENT:                 _(u"Sent"),
-                MAIL_STATUS_NOTSENT:              _(u"Not sent"),
-                MAIL_STATUS_SENDINGERROR:         _(u"Sending error"),
-                MAIL_STATUS_SYNCHRONIZED:         _(u"Synchronized"),
-                MAIL_STATUS_SYNCHRONIZED_SPAM:    _(u"Synchronized - Marked as SPAM"),
-                MAIL_STATUS_SYNCHRONIZED_WAITING: _(u"Synchronized - Untreated"),
-              }
+from emails.constants import MAIL_STATUS_NOTSENT, MAIL_STATUS
+from emails.utils import EMailSender
 
 ID_LENGTH = 32
 
@@ -68,12 +51,12 @@ class _Email(CremeModel):
     recipient      = CharField(_(u'Recipient'), max_length=100)
     #cc             = CharField(_(u'cc'), max_length=100)
     subject        = CharField(_(u'Subject'), max_length=100, blank=True, null=True)
-    body_html      = TextField()
-    body           = TextField()
+    #body_html      = TextField()
+    body           = TextField(_(u'Body'))
     sending_date   = DateTimeField(_(u"Sending date"), blank=True, null=True)
     reception_date = DateTimeField(_(u"Reception date"), blank=True, null=True)
-    signature      = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True) ##merge with body ????
-    attachments    = ManyToManyField(Document, verbose_name=_(u'Attachments'))
+    #signature      = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True) ##merge with body ????
+    #attachments    = ManyToManyField(Document, verbose_name=_(u'Attachments'))
 
     class Meta:
         abstract = True
@@ -88,69 +71,13 @@ class _Email(CremeModel):
     def get_body(self):
         return self.body
 
-    #TODO: factorise with EmailSending.send_mails()
-    def send(self):
-        mail = self
-
-        img_cache = {}
-
-        if mail.status == MAIL_STATUS_SENT:
-            error('Mail already sent to the recipient') #i18n ?
-            return
-
-        body = mail.body_html or mail.body
-        #body += '<img src="http://minimails.hybird.org/emails/stats/bbm/%s" />' % mail.ident
-
-        signature = mail.signature
-        signature_images = signature.images.all() if signature else ()
-
-        if signature:
-            body += signature.body
-
-            for signature_img in signature_images:
-                body += '<img src="cid:img_%s" /><br/>' % signature_img.id
-
-        msg = EmailMultiAlternatives(mail.subject, body, mail.sender, [mail.recipient])
-        msg.attach_alternative(body, "text/html")
-
-        for signature_img in signature_images:
-            name = signature_img.image.name
-            mime_img = img_cache.get(name)
-
-            if mime_img is None:
-                try:
-                    f = open(join(settings.MEDIA_ROOT, name), 'rb')
-                    mime_img = MIMEImage(f.read())
-                    mime_img.add_header('Content-ID','<img_%s>' % signature_img.id)
-                    mime_img.add_header('Content-Disposition', 'inline', filename=basename(f.name))
-                    f.close()
-                except Exception, e: #better exception ???
-                    error('Sending: exception when adding image signature: %s', e)
-                    continue
-                else:
-                    img_cache[name] = mime_img
-
-            msg.attach(mime_img)
-
-        #TODO: use a cache to not open the sames files for each mail ?????
-        for attachment in mail.attachments.all():
-            msg.attach_file(join(settings.MEDIA_ROOT, attachment.filedata.name))
-
-        try:
-            msg.send()
-        except Exception, e: #better exception ??
-            error("Sending: error during sending mail.")
-            mail.status = MAIL_STATUS_SENDINGERROR
-        else:
-            mail.status = MAIL_STATUS_SENT
-            mail.sending_date = datetime.now()
-
-        mail.save()
-        debug("Mail sent to %s", mail.recipient)
 
 
 class EntityEmail(_Email, CremeEntity):
-    identifier = CharField(_(u'Email ID'), unique=True, max_length=ID_LENGTH, null=False, blank=False, default=generate_id)#TODO: lambda for this
+    identifier  = CharField(_(u'Email ID'), unique=True, max_length=ID_LENGTH, null=False, blank=False, default=generate_id)#TODO: lambda for this
+    body_html   = TextField(_(u'Body (HTML)'))
+    signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True) ##merge with body ????
+    attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'))
 
     class Meta:
         app_label = "emails"
@@ -180,13 +107,14 @@ class EntityEmail(_Email, CremeEntity):
         return "/emails/mails"
 
     @staticmethod
-    def create_n_send_mail(sender, recipient, subject, user_pk, body_html=u"", signature=None, attachments=None):
+    def create_n_send_mail(sender, recipient, subject, user, body, body_html=u"", signature=None, attachments=None):
         email = EntityEmail(sender=sender,
                             recipient=recipient,
                             subject=subject,
+                            body=body,
                             body_html=body_html,
                             signature=signature,
-                            user_id=user_pk,
+                            user=user,
                            )
         email.genid_n_save()
 
@@ -208,3 +136,19 @@ class EntityEmail(_Email, CremeEntity):
             return mark_safe(removetags(self.body_html, 'script'))
         else:
             return mark_safe(removetags(self.body.replace('\n', '</br>'), 'script'))
+
+    def send(self):
+        sender = EntityEmailSender(body=self.body,
+                                   body_html=self.body_html,
+                                   signature=self.signature,
+                                   attachments=self.attachments.all()
+                                  )
+
+        if sender.send(self):
+            debug("Mail sent to %s", self.recipient)
+
+
+class EntityEmailSender(EMailSender):
+    def get_subject(self, mail):
+        return mail.subject
+

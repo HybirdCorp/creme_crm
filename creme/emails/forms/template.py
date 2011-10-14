@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,18 +17,15 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-import re
-import os
 
-from django.conf import settings
+from logging import debug
+
 from django.core.exceptions import PermissionDenied
-
 from django.forms import CharField, ValidationError
 from django.forms.widgets import Textarea
 from django.template import Template, VariableNode
+from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _, ugettext
-
-from creme_core.models.entity import CremeEntity
 
 from creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
 from creme_core.forms.fields import MultiCremeEntityField
@@ -37,33 +34,27 @@ from creme_core.forms.widgets import TinyMCEEditor
 from documents.models import Document
 
 from emails.models import EmailTemplate
+from emails.utils import get_images_from_html, ImageFromHTMLError
 
 
 _TEMPLATES_VARS = set(['last_name', 'first_name', 'civility', 'name'])
+_TEMPLATES_VARS_4_HELP = u' '.join('{{%s}}' % var for var in _TEMPLATES_VARS)
 
-def _get_vars_help():
-    return u' '.join('{{%s}}' % var for var in _TEMPLATES_VARS)
+_help_text = lazy((lambda: ugettext(u'You can use variables: %s') % _TEMPLATES_VARS_4_HELP), unicode)
 
 
-class TemplateEditForm(CremeEntityForm):
-    body        = CharField(label=_(u'Body'), widget=TinyMCEEditor(), help_text=_(u'You can use variables: %s') % _get_vars_help())
+class EmailTemplateForm(CremeEntityForm):
+    body        = CharField(label=_(u'Body'), widget=Textarea, help_text=_help_text())
+    body_html   = CharField(label=_(u'Body (HTML)'), required=False, widget=TinyMCEEditor(), help_text=_help_text())
     attachments = MultiCremeEntityField(label=_(u'Attachments'), required=False, model=Document)
 
     class Meta(CremeEntityForm.Meta):
-        model   = EmailTemplate
-        exclude = CremeEntityForm.Meta.exclude + ('use_rte',)
+        model = EmailTemplate
 
-#TODO: Plain text needed ?
-#    def __init__(self, *args, **kwargs):
-#        super(TemplateEditForm, self).__init__(*args, **kwargs)
-#
-#        instance = self.instance
-#        if instance.id and not instance.use_rte:
-#            self.fields['body'].widget = Textarea()
+    def _create_img_validation_error(self, filename):
+         return ValidationError(ugettext(u"The image «%s» no longer exists or isn't valid.") % filename)
 
-    def clean_body(self):
-        body = self.cleaned_data['body']
-        user = self.user
+    def _clean_body(self, body):
         invalid_vars = []
 
         for varnode in Template(body).nodelist.get_nodes_by_type(VariableNode):
@@ -74,56 +65,47 @@ class TemplateEditForm(CremeEntityForm):
         if invalid_vars:
             raise ValidationError(ugettext(u'The following variables are invalid: %s') % invalid_vars)
 
-        ####  Image credentials ####
+    def clean_body(self):
+        body = self.cleaned_data['body']
+        self._clean_body(body)
+
+        return body
+
+    def clean_body_html(self):
+        body = self.cleaned_data['body_html']
+
+        self._clean_body(body)
+
         #TODO: Add and handle a M2M for embedded images after Document & Image merge
-        
-        img_pattern = re.compile(r'<img.*src[\s]*[=]{1,1}["\']{1,1}(?P<img_src>[\d\w:/?\=.]*)["\']{1,1}')
-        sources     = re.findall(img_pattern, body)
 
-        doesnt_exist_ve = lambda f: ValidationError(ugettext(u"The image «%s» no longer exists or isn't valid.") % f)
-        
-        path_exists = os.path.exists
-        path_join   = os.path.join
-        MEDIA_ROOT  = settings.MEDIA_ROOT
-        creme_entity_get = CremeEntity.objects.get
-        
-        for src in sources:
-            filename = src.rpartition('/')[2]
-            if not path_exists(path_join(MEDIA_ROOT, "upload", "images", filename)):
-                raise doesnt_exist_ve(filename)
+        try:
+            images = get_images_from_html(body)
+        except ImageFromHTMLError as e:
+            raise self._create_img_validation_error(e.filename)
 
-            names = filename.split('_')
-            if names:
-                try:
-                    img = creme_entity_get(pk=int(names[0]))
-                    img.can_view_or_die(user)
-                except (ValueError, CremeEntity.DoesNotExist):
-                    raise doesnt_exist_ve(filename)
-                except PermissionDenied, pde:
-                    raise ValidationError(pde)
-                
-        ####  End image credentials ####
+        user = self.user
+
+        for finename, (image, src) in images.iteritems():
+            if image is None:
+                raise self._create_img_validation_error(filename)
+
+            try:
+                image.can_view_or_die(user)
+            except PermissionDenied as pde:
+                raise ValidationError(pde)
+
+        debug('EmailTemplate will be create with images: %s', images)
 
         return body
 
 
-class TemplateCreateForm(TemplateEditForm):
-#TODO: Plain text needed ?
-#    def save(self):
-#        #TODO: hackish --> create a real RTEField that return (boolean, string) ? indicates to the widget an hidden input's id ??
-#        self.instance.use_rte = self.data.has_key('body_is_rte_enabled')
-#        super(TemplateCreateForm, self).save()
-    pass
-
-
-
-class TemplateAddAttachment(CremeForm):
+class EmailTemplateAddAttachment(CremeForm):
     attachments = MultiCremeEntityField(label=_(u'Attachments'), required=False, model=Document)
 
     blocks = FieldBlockManager(('general', _(u'Attachments'), '*'))
 
     def __init__(self, entity, *args, **kwargs):
-        super(TemplateAddAttachment, self).__init__(*args, **kwargs)
+        super(EmailTemplateAddAttachment, self).__init__(*args, **kwargs)
         self.template = entity
 
     def save(self):

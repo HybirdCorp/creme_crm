@@ -32,11 +32,11 @@ class EmailTemplate(CremeEntity):
     name        = CharField(_(u'Name'), max_length=100)
     subject     = CharField(_(u'Subject'), max_length=100)
     body        = TextField(_(u"Body"))
-    use_rte     = BooleanField(_(u"Use rich text editor"))
+    body_html   = TextField(_(u"Body (HTML)"))
     signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True, on_delete=SET_NULL)
     attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'))
 
-    excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['use_rte'] #body too ???
+    #excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['use_rte'] #body too ???
 
     class Meta:
         app_label = "emails"
@@ -55,3 +55,5 @@ class EmailTemplate(CremeEntity):
     @staticmethod
     def get_lv_absolute_url():
         return "/emails/templates"
+
+

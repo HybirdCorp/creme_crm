@@ -18,33 +18,29 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import error, debug
-import os
-import re
-from time import sleep
-from email.mime.image import MIMEImage
-from os.path import join, basename
+from logging import debug
 from pickle import loads
+from time import sleep
 
 from django.db import IntegrityError
 from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerField,
                               EmailField, CharField, TextField, ManyToManyField)
-from django.core.mail import EmailMultiAlternatives, send_mail, SMTPConnection
+from django.core.mail import send_mail, SMTPConnection
 from django.template import Template, Context
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _, ugettext, activate
 
 from creme_core.models import CremeModel, CremeEntity
 
-from emails.models.mail import _Email, ID_LENGTH, MAIL_STATUS_SENT, MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
-from emails.utils import generate_id
-
 from documents.models import Document
 
-from campaign import EmailCampaign
-from signature import EmailSignature
+from emails.models.mail import _Email, ID_LENGTH
+from emails.models import EmailCampaign, EmailSignature
+from emails.utils import generate_id, EMailSender, ImageFromHTMLError
+from emails.constants import MAIL_STATUS_SENT, MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
 
 
+#TODO: move to constants ???
 SENDING_TYPE_IMMEDIATE = 1
 SENDING_TYPE_DEFERRED  = 2
 
@@ -75,6 +71,7 @@ class EmailSending(CremeModel):
 
     subject     = CharField(_(u'Subject'), max_length=100)
     body        = TextField(_(u"Body"))
+    body_html   = TextField(_(u"Body (HTML)"), null=True, blank=True)
     signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True)
     attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'))
 
@@ -86,9 +83,9 @@ class EmailSending(CremeModel):
     def __unicode__(self):
         return ugettext(u"Sending of <%(campaign)s> on %(date)s") % {'campaign': self.campaign, 'date': self.sending_date}
 
-    def delete(self):
-        self.mails_set.all().delete() #use CremeModel delete() ??
-        super(EmailSending, self).delete()
+    #def delete(self):
+        #self.mails_set.all().delete() #use CremeModel delete() ??
+        #super(EmailSending, self).delete()
 
     def get_mails(self):
         return self.mails_set.all()
@@ -109,122 +106,37 @@ class EmailSending(CremeModel):
         return self.campaign
 
     def send_mails(self):
-#        mails = Email.objects.filter(sending=self)
-        mails = LightWeightEmail.objects.filter(sending=self)
+        try:
+            sender = LightWeightEmailSender(sending=self)
+        except ImageFromHTMLError as e:
+            activate(settings.LANGUAGE_CODE)
+            err_msg = _("Emails in the sending of the campaign <%(campaign)s> on %(date)s weren't sent because the image <%(image)s> is no longer available in the template.") % {
+                            'campaign': self.campaign,
+                            'date':     self.sending_date,
+                            'image':    e.filename,
+                        }
+            send_mail(_('[CremeCRM] Campaign email sending error.'), err_msg, settings.EMAIL_HOST_USER, [self.campaign.user.email or settings.DEFAULT_USER_EMAIL], fail_silently=False)
 
-        mails_count  = 0
-        SENDING_SIZE = getattr(settings, 'SENDING_SIZE', 40)
-        SLEEP_TIME   = getattr(settings, 'SENDING_SLEEP_TIME', 2)
-
-        img_cache = {}
-        signature = self.signature
-        signature_images = signature.images.all() if signature else ()
-
-        img_pattern   = re.compile(r'<img.*src[\s]*[=]{1,1}["\']{1,1}(?P<img_src>[\d\w:/?\=.]*)["\']{1,1}')
-        img_sources   = re.findall(img_pattern, self.body)
-        imgs_to_embbed = []
-        path_exists = os.path.exists
-        path_join   = os.path.join
-        MEDIA_ROOT  = settings.MEDIA_ROOT
-        creme_entity_get = CremeEntity.objects.get
-
-        body = self.body
-
-        #Replacing image sources with embbeded images
-        for src in img_sources:
-            filename = basename(src)
-            
-            if not path_exists(path_join(MEDIA_ROOT, "upload", "images", filename)):
-                activate(settings.LANGUAGE_CODE)
-                err_msg = _("Emails in the sending of the campaign <%(campaign)s> on %(date)s weren't sent because the image <%(image)s> is no longer available in the template.") % {'campaign': self.campaign, 'date': self.sending_date, 'image': filename}
-                send_mail(_('[CremeCRM] Campaign email sending error.'), err_msg, settings.EMAIL_HOST_USER, [self.campaign.user.email or settings.DEFAULT_USER_EMAIL], fail_silently=False)
-                return SENDING_STATE_ERROR
-
-            names = filename.split('_')
-            if names:
-                try:
-                    img = creme_entity_get(pk=int(names[0])).get_real_entity()
-                except (ValueError, CremeEntity.DoesNotExist):
-                    continue
-                else:
-                    try:
-                        img_file = img.image.file
-                        img_file.open()
-                        mime_img = MIMEImage(img_file.read())
-                        mime_img.add_header('Content-ID','<img_%s>' % img.id)
-                        mime_img.add_header('Content-Disposition', 'inline', filename=basename(img_file.name))
-                        img_file.close()
-                    except IOError:
-                        continue
-                    else:
-                        imgs_to_embbed.append(mime_img)
-                        body = body.replace(src, 'cid:img_%s' % img.id)
-
-        body_template = Template(body)
-        mails_statuses = []#Stack for checking if the sending succeed
-        mails_statuses_append = mails_statuses.append
+            return SENDING_STATE_ERROR
 
         #SMTPConnection is deprecated but with mail.get_connection() we can't specify other settings than django settings
         #TODO: Write a custom e-mail backend: http://docs.djangoproject.com/en/1.3/topics/email/#topic-custom-email-backend
-        con = SMTPConnection(host=settings.CREME_EMAIL_SERVER, port=settings.CREME_EMAIL_PORT,
-                             username=settings.CREME_EMAIL_USERNAME, password=settings.CREME_EMAIL_PASSWORD,
-                             use_tls=True)
-        
-        for mail in mails:
-            if mail.status == MAIL_STATUS_SENT:
-                error('Mail already sent to the recipient')
-                continue
+        connection = SMTPConnection(host=settings.CREME_EMAIL_SERVER,
+                                    port=settings.CREME_EMAIL_PORT,
+                                    username=settings.CREME_EMAIL_USERNAME,
+                                    password=settings.CREME_EMAIL_PASSWORD,
+                                    use_tls=True
+                                   )
+        mails_count   = 0
+        one_mail_sent = False
+        SENDING_SIZE  = getattr(settings, 'SENDING_SIZE', 40)
+        SLEEP_TIME    = getattr(settings, 'SENDING_SLEEP_TIME', 2)
 
-            body = body_template.render(Context(loads(mail.body.encode('utf-8')) if mail.body else {}))
-            #body += '<img src="http://minimails.hybird.org/emails/stats/bbm/%s" />' % mail.ident
-
-            if signature:
-                body += signature.body
-
-                for signature_img in signature_images:
-                    body += '<img src="cid:img_%s" /><br/>' % signature_img.id
-
-            msg = EmailMultiAlternatives(self.subject, body, mail.sender, [mail.recipient], connection=con)
-            msg.attach_alternative(body, "text/html")
-            for img_to_embbed in imgs_to_embbed:
-                msg.attach(img_to_embbed)
-
-            for signature_img in signature_images:
-                name = signature_img.image.name
-                mime_img = img_cache.get(name)
-
-                if mime_img is None:
-                    try:
-                        f = open(join(settings.MEDIA_ROOT, name), 'rb')
-                        mime_img = MIMEImage(f.read())
-                        mime_img.add_header('Content-ID','<img_%s>' % signature_img.id)
-                        mime_img.add_header('Content-Disposition', 'inline', filename=basename(f.name))
-                        f.close()
-                    except Exception, e: #better exception ???
-                        error('Sending: exception when adding image signature: %s', e)
-                        continue
-                    else:
-                        img_cache[name] = mime_img
-
-                msg.attach(mime_img)
-
-            #TODO: use a cache to not open the sames files for each mail ?????
-            for attachment in self.attachments.all():
-                msg.attach_file(join(settings.MEDIA_ROOT, attachment.filedata.name))
-
-            try:
-                msg.send()
-            except Exception, e: #better exception ??
-                error("Sending: error during sending mail.")
-                mail.status = MAIL_STATUS_SENDINGERROR
-                mails_statuses_append(True)
-            else:
-                mail.status = MAIL_STATUS_SENT
+        for mail in LightWeightEmail.objects.filter(sending=self):
+            if sender.send(mail, connection=connection):
                 mails_count += 1
-                mails_statuses_append(False)
-
-            mail.save()
-            debug("Mail sent to %s", mail.recipient)
+                one_mail_sent = True
+                debug("Mail sent to %s", mail.recipient)
 
             if mails_count > SENDING_SIZE:
                 debug('Sending: waiting timeout')
@@ -232,15 +144,16 @@ class EmailSending(CremeModel):
                 mails_count = 0
                 sleep(SLEEP_TIME) #avoiding the mail to be classed as spam
 
-        if all(mails_statuses):#If no mail have been sent the sending fail
+        if not one_mail_sent:
             return SENDING_STATE_ERROR
+
 
 class LightWeightEmail(_Email):
     """Used by campaigns.
     id is a unique generated string in order to avoid stats hacking.
     """
     id               = CharField(_(u'Email ID'), primary_key=True, max_length=ID_LENGTH)
-    sending          = ForeignKey(EmailSending, null=True, verbose_name=_(u"Related sending"), related_name='mails_set') #TODO: null=True useful ??
+    sending          = ForeignKey(EmailSending, verbose_name=_(u"Related sending"), related_name='mails_set')
     recipient_entity = ForeignKey(CremeEntity, null=True, related_name='received_lw_mails')
 
     class Meta:
@@ -248,15 +161,20 @@ class LightWeightEmail(_Email):
         verbose_name = _(u'Email of campaign')
         verbose_name_plural = _(u'Emails of campaign')
 
-    def get_body(self):
-        if self.sending is None: #really useful ??? 'assert self.sending' instead ??
-            return self.body
+    def _render_body(self, sending_body):
+        body = self.body
 
         try:
-            body_template = Template(self.sending.body)
-            return body_template.render(Context(loads(self.body.encode('utf-8')) if self.body else {}))
-        except:#Pickle raise too much differents exceptions...Catch'em all ?
+            return Template(sending_body).render(Context(loads(body.encode('utf-8')) if body else {}))
+        except Exception as e: #Pickle raise too much differents exceptions...Catch'em all ?
+            debug('Error in LightWeightEmail._render_body(): %s', e)
             return ""
+
+    def get_body(self):
+        return self._render_body(self.sending.body)
+
+    def get_body_html(self):
+        return self._render_body(self.sending.body_html)
 
     def get_related_entity(self): #for generic views
         return self.sending.campaign
@@ -272,3 +190,24 @@ class LightWeightEmail(_Email):
                 self.pk = None
             else:
                 break
+
+
+class LightWeightEmailSender(EMailSender):
+    def __init__(self, sending):
+        super(LightWeightEmailSender, self).__init__(body=sending.body,
+                                                     body_html=sending.body_html,
+                                                     signature=sending.signature,
+                                                     attachments=sending.attachments.all()
+                                                    )
+        self._sending = sending
+        self._body_template = Template(self._body)
+        self._body_html_template = Template(self._body_html)
+
+    def get_subject(self, mail):
+        return self._sending.subject
+
+    def _process_bodies(self, mail):
+        body = mail.body
+        context = Context(loads(body.encode('utf-8')) if body else {})
+
+        return self._body_template.render(context), self._body_html_template.render(context)

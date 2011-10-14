@@ -51,12 +51,12 @@ class EmailCampaign(CremeEntity):
     def get_lv_absolute_url():
         return "/emails/campaigns"
 
-    def delete(self):
-        for sending in self.sendings_set.all():
-            sending.mails_set.all().delete() #TODO: useful (already done in Sending.delete()) ??  #use CremeModel delete() ??
-            sending.delete()
+    #def delete(self):
+        #for sending in self.sendings_set.all():
+            #sending.mails_set.all().delete() #todo: useful (already done in Sending.delete()) ??  #use CremeModel delete() ??
+            #sending.delete()
 
-        super(EmailCampaign, self).delete()
+        #super(EmailCampaign, self).delete()
 
     def all_recipients(self):
         #merge all the mailing_lists and their children
