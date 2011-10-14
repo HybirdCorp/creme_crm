@@ -760,6 +760,7 @@ class MultiEmailField(Field):
         for email in value:
             validate_email(email)
 
+
 class DateRangeField(MultiValueField):
     """
     A field which returns a creme_core.utils.DateRange
