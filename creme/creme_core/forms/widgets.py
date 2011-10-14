@@ -82,6 +82,7 @@ class DynamicInput(TextInput):
 
         return mark_safe(widget_render_input(TextInput.render, self, name, value, context)) #, url=self.url
 
+
 class DynamicSelect(Select):
     def __init__(self, attrs=None, options=None, url=''):
         super(DynamicSelect, self).__init__(attrs, options if options else ()) #TODO: options or ()
@@ -92,6 +93,7 @@ class DynamicSelect(Select):
         context = widget_render_context('ui-creme-dselect', attrs)
 
         return mark_safe(widget_render_input(Select.render, self, name, value, context, url=self.url))
+
 
 class PolymorphicInput(TextInput):
     class Model(object):
@@ -259,7 +261,7 @@ class SelectorList(TextInput):
 
         context = widget_render_context('ui-creme-selectorlist', attrs,
                                         add=_(u'Add'),
-                                        selector=self.selector.render('', '', {'auto':False,'reset':False}))
+                                        selector=self.selector.render('', '', {'auto': False,'reset': False}))
 
         context['input'] = widget_render_hidden_input(self, name, value, context)
         context['img_url'] = media_url('images/add_16.png')
@@ -291,7 +293,8 @@ class EntitySelector(TextInput):
                                         text_url=self.text_url,
                                         multiple='1' if attrs.pop('multiple', False) else '0',
                                         style=attrs.pop('style', ''),
-                                        label=_(u'Select...'))
+                                        label=_(u'Select...'),
+                                       )
 
         context['input'] = widget_render_hidden_input(self, name, value, context)
 
@@ -309,96 +312,17 @@ class CTEntitySelector(ChainedInput):
     def __init__(self, content_types, attrs=None, multiple=False):
         super(CTEntitySelector, self).__init__(attrs)
 
-        self.add_dselect("ctype", options=content_types, attrs={'auto':False})
-        self.add_input("entity", widget=EntitySelector, attrs={'auto':False, 'multiple':multiple})
+        self.add_dselect("ctype", options=content_types, attrs={'auto': False})
+        self.add_input("entity", widget=EntitySelector, attrs={'auto': False, 'multiple':multiple})
 
-#    def render(self, name, value, attrs=None):
-#        return super(CTEntitySelector, self).render(name, value, attrs)
 
 class RelationSelector(ChainedInput):
     def __init__(self, relation_types, content_types, attrs=None, multiple=False):
         super(RelationSelector, self).__init__(attrs)
 
-        self.add_dselect("rtype", options=relation_types, attrs={'auto':False})
-        self.add_dselect("ctype", options=content_types, attrs={'auto':False})
-        self.add_input("entity", widget=EntitySelector, attrs={'auto':False, 'multiple':multiple})
-
-#    def render(self, name, value, attrs=None): #TODO: useful ??
-#        return super(RelationSelector, self).render(name, value, attrs)
-
-#COMMENTED on 6 april 2011
-#class EntitySelectorList(SelectorList):
-#    def __init__(self, attrs=None):
-#        super(EntitySelectorList, self).__init__(attrs)
-#        self.selector = EntitySelector
-#
-#    def render(self, name, value, attrs=None):
-#        attrs = self.build_attrs(attrs, name=name, type='hidden')
-#
-#        context = widget_render_context('ui-creme-selectorlist', attrs,
-#                                        add='Ajouter',
-#                                        selector=self.selector.render(name, value, {'auto':False,}))
-#
-#        context['input'] = widget_render_hidden_input(self, name, value, context)
-#        context['img_url'] = media_url('images/add_16.png')
-#
-#        return mark_safe("""
-#            <div id="%(id)s" class="%(css)s" style="%(style)s" widget="%(typename)s">
-#                %(input)s
-#                <div class="inner-selector-model" style="display:none;">%(selector)s</div>
-#                <ul class="selectors ui-layout"></ul>
-#                <div class="add">
-#                    <img src="%(img_url)s" alt="%(add)s" title="%(add)s"/>
-#                    %(add)s
-#                </div>
-#                %(script)s
-#            </div>
-#        """ % context)
-
-
-#COMMENTED on 6 april 2011
-#class RelationListWidget(TextInput):
-#    def __init__(self, attrs=None, relation_types=()):
-#        super(RelationListWidget, self).__init__(attrs)
-#        self.relation_types = relation_types
-#
-#    def render(self, name, value, attrs=None):
-#        attrs = self.build_attrs(attrs, name=name, type='hidden')
-#
-#        self.relation_types = sorted(self.relation_types, key=lambda k: k.predicate)#TODO: Replace with _(k.predicate) when predicate will be traducted
-#
-#        html_output = """%(input)s
-#            <div id="%(id)s_list" class="ui-creme-rel-selector-list" widget-input="%(id)s">
-#                %(predicates)s
-#                <div class="list"></div>
-#                <div onclick="creme.forms.RelationList.appendSelector($('#%(id)s_list'));" class="add">
-#                    <img src="%(img_url)s" alt="%(title)s" title="%(title)s"/>
-#                    %(title)s
-#                </div>
-#            </div>
-#            <script type="text/javascript">
-#                $('.ui-creme-rel-selector-list#%(id)s_list').each(function() {
-#                    creme.forms.RelationList.init($(this));
-#                });
-#            </script>""" % {
-#                'img_url':   media_url('images/add_16.png'),
-#                'input':      super(RelationListWidget, self).render(name, value, attrs),
-#                'title':      _(u'Add'),
-#                'id':         attrs['id'],
-#                'predicates': self.render_options('predicates'),
-#              }
-#
-#        return mark_safe(html_output)
-#
-#    def render_options(self, css):
-#        output = ['<select style="display:none;" class="%s">' % css]
-#        output.extend(u'<option value="%s">%s</option>' % (rt.id, rt.predicate) for rt in self.relation_types)
-#        output.append('</select>')
-#
-#        return u''.join(output)
-#
-#    def set_predicates(self, predicates):
-#        self.predicates = predicates
+        self.add_dselect("rtype", options=relation_types, attrs={'auto': False})
+        self.add_dselect("ctype", options=content_types, attrs={'auto': False})
+        self.add_input("entity", widget=EntitySelector, attrs={'auto': False, 'multiple': multiple})
 
 
 class DateTimeWidget(TextInput):
@@ -564,11 +488,10 @@ class UploadedFileWidget(FileInput):
             visual = """
             <a href="/download_file/%(url)s">
                 <img src="%(media_url)s%(url)s" alt="%(url)s"/>
-            </a>
-            """ % {
-                'url': value,
-                'media_url': settings.MEDIA_URL
-            }
+            </a>""" % {
+                    'url': value,
+                    'media_url': settings.MEDIA_URL
+                }
             attrs['type'] = 'hidden'
 
         input = super(UploadedFileWidget, self).render(name, value, attrs)
@@ -629,17 +552,23 @@ class ListViewWidget(TextInput):
         self._ct_id    = None if model is None else ContentType.objects.get_for_model(model).id
         self.separator = separator
 
-    def _set_o2m(self, o2m):
+    @property
+    def o2m(self):
+        return self._o2m
+
+    @o2m.setter
+    def o2m(self, o2m):
         self._o2m = o2m
 
-    o2m = property(lambda self: self._o2m, _set_o2m); del _set_o2m
+    @property
+    def model(self):
+         return self._model
 
-    def _set_model(self, model):
+    @model.setter
+    def model(self, model):
         self._model = model
         if model is not None:
             self._ct_id = ContentType.objects.get_for_model(model).id
-
-    model = property(lambda self: self._model, _set_model); del _set_model
 
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name)
@@ -666,10 +595,13 @@ class ListViewWidget(TextInput):
 
     def value_from_datadict(self, data, files, name):
         value = data.get(name, None)
-        if value and self.separator in value:
-            return [v for v in data[name].split(self.separator) if v]
+
         if value:
+            if self.separator in value:
+                return [v for v in data[name].split(self.separator) if v]
+
             return [value]
+
         return None
 
 
@@ -793,46 +725,9 @@ class ListEditionWidget(Widget):
         has_key = data.has_key
 
         return [get(prefix_value % i) if has_key(prefix_check % i) else None
-                    for i in xrange(len(self.content))]
+                    for i in xrange(len(self.content))
+               ]
 
-#Commented 20 may 2011
-#class DateFilterWidget(Select):
-#    def render(self, name, value, attrs=None, choices=()):
-#        rendered = super(DateFilterWidget, self).render(name, value, attrs=None, choices=())
-#        self_id = self.attrs.get('id')
-#        if self_id:
-#            rendered += """<script type="text/javascript">
-#                $(document).ready(function(){
-#                    $('#%(self_id)s').change(function(){
-#                        var $me = $(this);
-#                        var $selected = $(this).find(':selected');
-#                        $("#"+$me.attr('start_date_id')).val($selected.attr('begin'));
-#                        $("#"+$me.attr('end_date_id')).val($selected.attr('end'));
-#                    });
-#                });
-#            </script>""" % {
-#                'self_id' : self_id,
-#            }
-#        return mark_safe(rendered)
-#
-#    def render_options(self, choices, selected_choices):
-#        def render_option(report_date_filter): #TODO: protected static method instead
-#            option_value = force_unicode(report_date_filter.name)
-#            selected_html = (option_value in selected_choices) and u' selected="selected"' or '' #TODO: conditional experession instead
-#            return u'<option value="%s"%s begin="%s" end="%s" is_volatile="%s">%s</option>' % ( #TODO: dict instead tuple ??
-#                escape(option_value), selected_html,
-#                report_date_filter.get_begin(),
-#                report_date_filter.get_end(),
-#                int(report_date_filter.is_volatile),
-#                conditional_escape(force_unicode(report_date_filter.verbose_name)))
-#
-#        # Normalize to strings.
-#        selected_choices = set([force_unicode(v) for v in selected_choices])#TODO: genexpr
-#        output = []
-#        for report_date_filter in chain(self.choices, choices):
-#            output.append(render_option(report_date_filter))
-#
-#        return u'\n'.join(output) #TODO: genexpr
 
 class AdaptiveWidget(Select):
     def __init__(self, ct_id, field_value_name, attrs=None, choices=()):
@@ -845,9 +740,10 @@ class AdaptiveWidget(Select):
         attrs = self.build_attrs(attrs, name=name)
 
         context = widget_render_context('ui-creme-adaptive-widget', attrs,
-                                url=self.url,
-                                style=attrs.pop('style', ''),
-                                field_value_name=self.field_value_name)
+                                        url=self.url,
+                                        style=attrs.pop('style', ''),
+                                        field_value_name=self.field_value_name
+                                       )
 
         context['input'] = super(AdaptiveWidget, self).render(name, value, attrs, choices)
 
@@ -864,11 +760,10 @@ class DateRangeWidget(MultiWidget):
     def __init__(self, attrs=None):
         self.render_as = attrs.pop('render_as', 'table') if attrs else 'table'
 
-        widgets = (
-            Select(choices=chain([(u'', _(u'Customized'))], date_range_registry.choices()), attrs={'class': 'range-type'}),
-            CalendarWidget(attrs={'class': 'date-start'}),
-            CalendarWidget(attrs={'class': 'date-end'})
-            )
+        widgets = (Select(choices=chain([(u'', _(u'Customized'))], date_range_registry.choices()), attrs={'class': 'range-type'}),
+                   CalendarWidget(attrs={'class': 'date-start'}),
+                   CalendarWidget(attrs={'class': 'date-end'}),
+                  )
         super(DateRangeWidget, self).__init__(widgets, attrs)
 
     def decompress(self, value):
@@ -915,9 +810,9 @@ class DurationWidget(MultiWidget):
                          %(minutes)s&nbsp;%(minutes_label)s&nbsp;
                          %(seconds)s&nbsp;%(seconds_label)s&nbsp;</span>
                 """ % {
-                        'hours': hours_widget, 'hours_label': _(u'Hour(s)'),
+                        'hours':   hours_widget,   'hours_label': _(u'Hour(s)'),
                         'minutes': minutes_widget, 'minutes_label': _(u'Minute(s)'),
-                        'seconds': seconds_widget, 'seconds_label': _(u'Second(s)')
+                        'seconds': seconds_widget, 'seconds_label': _(u'Second(s)'),
                       }
 
 
