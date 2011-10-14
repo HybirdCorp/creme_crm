@@ -31,12 +31,8 @@ from creme_core.utils import jsonify, get_from_POST_or_404
 
 from crudity.views.actions import fetch
 
-from emails.models import LightWeightEmail
-from emails.models.mail import (EntityEmail,
-                                MAIL_STATUS_SENT,
-                                MAIL_STATUS_SYNCHRONIZED_SPAM,
-                                MAIL_STATUS_SYNCHRONIZED,
-                                MAIL_STATUS_SYNCHRONIZED_WAITING)
+from emails.models import LightWeightEmail, EntityEmail
+from emails.constants import MAIL_STATUS_SENT, MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED, MAIL_STATUS_SYNCHRONIZED_WAITING
 from emails.blocks import SpamSynchronizationMailsBlock, WaitingSynchronizationMailsBlock, mail_waiting_sync_block, mail_spam_sync_block
 from emails.forms.mail import EntityEmailForm
 
@@ -47,7 +43,7 @@ def get_lightweight_mail_body(request, mail_id):
     """Used to show an html document in an iframe """
     email = get_object_or_404(LightWeightEmail, pk=mail_id)
     email.sending.campaign.can_view_or_die(request.user)
-    return HttpResponse(email.get_body())
+    return HttpResponse(email.get_body_html())
 
 @login_required
 @permission_required('emails')

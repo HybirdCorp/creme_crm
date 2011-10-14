@@ -46,6 +46,10 @@
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Body" %}</th>
+            <td class="{% cycle row_color %} td_info">{{mail.get_body}}</td>
+        </tr>
+        <tr class="content">
+            <th class="{% cycle header_color %} th_info">{% trans "Body (HTML)" %}</th>
             <td class="{% cycle row_color %} td_info"><iframe frameborder="0" src="/emails/mail/get_body/{{mail.id}}" width="100%" height="100%" style="min-height:350px"></iframe></td>
         </tr>
         <tr class="content">
@@ -54,11 +58,11 @@
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Signature" %}</th>
-            <td class="{% cycle row_color %} td_info">{% print_field object=mail field='signature' %}</td>
+            <td class="{% cycle row_color %} td_info">{% print_field object=mail.sending field='signature' %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Attachments" %}</th>
-            <td class="{% cycle row_color %} td_info">{% print_field object=mail field='attachments' %}</td>
+            <td class="{% cycle row_color %} td_info">{% print_field object=mail.sending field='attachments' %}</td>
         </tr>
     </tbody>
 </table>

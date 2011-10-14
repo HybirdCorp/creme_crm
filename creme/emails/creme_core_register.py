@@ -54,7 +54,7 @@ reg_icon(EmailCampaign, 'images/email_%(size)s.png')
 reg_icon(EmailTemplate, 'images/email_%(size)s.png')
 
 bulk_update_registry.register(
-    (EmailTemplate, ['use_rte']),
+    (EmailTemplate, []),
     (_Email,        ['reads', 'status', 'recipient', 'body_html', 'body', 'sending_date',
                      'reception_date', 'signature', 'attachments', 'subject',
                      'sender']),#TODO: Remove bulk update instead of that ?

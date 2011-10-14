@@ -33,13 +33,12 @@ from creme_core.forms import CremeModelForm, CremeEntityField, CremeDateTimeFiel
 
 from emails.models import EmailTemplate
 from emails.models.sending import EmailSending, LightWeightEmail, SENDING_TYPES, SENDING_TYPE_DEFERRED, SENDING_STATE_PLANNED
-from emails.models.mail import MAIL_STATUS_NOTSENT
+from emails.constants import MAIL_STATUS_NOTSENT
 
 
 class SendingCreateForm(CremeModelForm):
-    type     = TypedChoiceField(label=_(u"Sending type"), choices=SENDING_TYPES.iteritems(), coerce=int)
-    template = CremeEntityField(label=_(u'Email template'), model=EmailTemplate)
-
+    type         = TypedChoiceField(label=_(u"Sending type"), choices=SENDING_TYPES.iteritems(), coerce=int)
+    template     = CremeEntityField(label=_(u'Email template'), model=EmailTemplate)
     sending_date = CremeDateTimeField(label=_(u"Sending date"), required=False,
                                       help_text=_(u"Required only of the sending is deferred."))
     hour         = IntegerField(label=_("Sending hour"), required=False, min_value=0, max_value=23)
@@ -49,7 +48,7 @@ class SendingCreateForm(CremeModelForm):
 
     class Meta:
         model   = EmailSending
-        exclude = ('campaign', 'state', 'subject', 'body', 'signature', 'attachments')
+        exclude = ('campaign', 'state', 'subject', 'body', 'body_html', 'signature', 'attachments') #'fields' instead
 
     def __init__(self, entity, *args, **kwargs):
         super(SendingCreateForm, self).__init__(*args, **kwargs)
@@ -58,20 +57,23 @@ class SendingCreateForm(CremeModelForm):
     def clean(self):
         cleaned_data = self.cleaned_data
         sending_date = cleaned_data['sending_date']
-        now = datetime.now()
 
         if cleaned_data['type'] == SENDING_TYPE_DEFERRED:
             if sending_date is None:
                 self._errors["sending_date"] = ErrorList([ugettext(u"Sending date required for a deferred sending")])
-            elif sending_date < now:
+            elif sending_date < datetime.now():
                 self._errors["sending_date"] = ErrorList([ugettext(u"Sending date must be is the future")])
             else:
                 cleaned_data['sending_date'] = sending_date.replace(hour=int(cleaned_data.get('hour') or 0),
-                                                                    minute=int(cleaned_data.get('minute') or 0))
+                                                                    minute=int(cleaned_data.get('minute') or 0),
+                                                                   )
         else:
-            cleaned_data['sending_date'] = now
+            cleaned_data['sending_date'] = datetime.now()
 
         return cleaned_data
+
+    def _get_variables(self, body): #TODO: move in Emailtemplate ??
+        return (varnode.filter_expression.var.var for varnode in Template(body).nodelist.get_nodes_by_type(VariableNode))
 
     def save(self):
         instance = self.instance
@@ -82,6 +84,7 @@ class SendingCreateForm(CremeModelForm):
         template = self.cleaned_data['template']
         instance.subject   = template.subject
         instance.body      = template.body
+        instance.body_html = template.body_html
         instance.signature = template.signature
 
         super(SendingCreateForm, self).save()
@@ -91,7 +94,8 @@ class SendingCreateForm(CremeModelForm):
         for attachment in template.attachments.all():
             attachments.add(attachment)
 
-        varlist = [varnode.filter_expression.var.var for varnode in Template(template.body).nodelist.get_nodes_by_type(VariableNode)]
+        varlist = list(self._get_variables(template.body))
+        varlist.extend(self._get_variables(template.body_html))
 
         for address, recipient_entity in instance.campaign.all_recipients():
             mail = LightWeightEmail(sending=instance,

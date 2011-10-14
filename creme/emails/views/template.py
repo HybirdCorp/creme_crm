@@ -27,19 +27,19 @@ from creme_core.views.generic import add_entity, add_to_entity, edit_entity, vie
 from creme_core.utils import get_from_POST_or_404
 
 from emails.models import EmailTemplate
-from emails.forms.template import TemplateCreateForm, TemplateEditForm, TemplateAddAttachment
+from emails.forms.template import EmailTemplateForm, EmailTemplateAddAttachment
 
 
 @login_required
 @permission_required('emails')
 @permission_required('emails.add_emailtemplate')
 def add(request):
-    return add_entity(request, TemplateCreateForm)
+    return add_entity(request, EmailTemplateForm)
 
 @login_required
 @permission_required('emails')
 def edit(request, template_id):
-    return edit_entity(request, template_id, EmailTemplate, TemplateEditForm)
+    return edit_entity(request, template_id, EmailTemplate, EmailTemplateForm)
 
 @login_required
 @permission_required('emails')
@@ -54,7 +54,7 @@ def listview(request):
 @login_required
 @permission_required('emails')
 def add_attachment(request, template_id):
-    return add_to_entity(request, template_id, TemplateAddAttachment,
+    return add_to_entity(request, template_id, EmailTemplateAddAttachment,
                          _('New attachments for <%s>'), entity_class=EmailTemplate)
 
 @login_required

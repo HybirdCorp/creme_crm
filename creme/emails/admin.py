@@ -6,7 +6,7 @@ from emails.models import *
 
 
 class EmailTemplateAdmin(admin.ModelAdmin):
-    list_display = ('name', 'subject', 'body', 'use_rte', 'signature')
+    list_display = ('name', 'subject', 'body', 'body_html', 'signature')
 
 
 class MailingListAdmin(admin.ModelAdmin):
@@ -14,8 +14,7 @@ class MailingListAdmin(admin.ModelAdmin):
 
 
 class LightWeightEmailAdmin(admin.ModelAdmin):
-    list_display = ('id', 'sending', 'reads', 'status', 'sender', 'recipient',
-                    'subject', 'body', 'sending_date', 'signature')
+    list_display = ('id', 'sending', 'reads', 'status', 'sender', 'recipient', 'subject', 'sending_date')
 
 
 class RecipientAdmin(admin.ModelAdmin):
@@ -31,10 +30,9 @@ class EmailSendingAdmin(admin.ModelAdmin):
 
 
 register = admin.site.register
-
-register(EmailTemplate, EmailTemplateAdmin)
-register(MailingList, MailingListAdmin)
-register(EmailRecipient, RecipientAdmin)
-register(EmailCampaign, EmailCampaignAdmin)
-register(EmailSending, EmailSendingAdmin)
+register(EmailTemplate,    EmailTemplateAdmin)
+register(MailingList,      MailingListAdmin)
+register(EmailRecipient,   RecipientAdmin)
+register(EmailCampaign,    EmailCampaignAdmin)
+register(EmailSending,     EmailSendingAdmin)
 register(LightWeightEmail, LightWeightEmailAdmin)
