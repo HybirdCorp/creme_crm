@@ -18,7 +18,6 @@ try:
 
     from emails.models import *
     from emails.models.sending import SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED
-    #from emails.models import mail
     from emails.constants import *
 except Exception as e:
     print 'Error:', e
@@ -799,20 +798,30 @@ class EntityEmailTestCase(CremeTestCase):
         self.login()
 
         user = self.user
-        Contact.objects.create(user=user, first_name='Re-l', last_name='Mayer', is_user=user)
-
-        self.entity = Contact.objects.create(user=user, first_name='Pino', last_name='AutoReiv')
+        self.user_contact = Contact.objects.create(user=user, is_user=user,
+                                                   first_name='Re-l',
+                                                   last_name='Mayer',
+                                                   email='re-l.mayer@rpd.rmd',
+                                                  )
 
     def test_createview01(self):
         user = self.user
 
         recipient = 'vincent.law@immigrates.rmd'
         contact = Contact.objects.create(user=user, first_name='Vincent', last_name='Law', email=recipient)
+        url = '/emails/mail/add/%s' % contact.id
 
-        url = '/emails/mail/add/%s' % self.entity.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
 
-        sender = 're-l.mayer@rpd.rmd'
+        try:
+            c_recipients = response.context['form'].fields['c_recipients']
+        except Exception as e:
+            self.fail(str(e))
+
+        self.assertEqual([contact.id], c_recipients.initial)
+
+        sender = self.user_contact.email
         body = 'Freeze !'
         body_html = '<p>Freeze !</p>'
         subject = 'Under arrest'
@@ -835,7 +844,7 @@ class EntityEmailTestCase(CremeTestCase):
         self.assertEqual(body_html,        email.body_html)
         self.assertEqual(MAIL_STATUS_SENT, email.status)
 
-        self.get_object_or_fail(Relation, subject_entity=email, type=REL_SUB_MAIL_SENDED,   object_entity=self.entity)
+        self.get_object_or_fail(Relation, subject_entity=email, type=REL_SUB_MAIL_SENDED,   object_entity=self.user_contact)
         self.get_object_or_fail(Relation, subject_entity=email, type=REL_SUB_MAIL_RECEIVED, object_entity=contact)
 
         self.assertEqual(200, self.client.get('/emails/mail/%s' % email.id).status_code)
@@ -847,8 +856,18 @@ class EntityEmailTestCase(CremeTestCase):
         recipient = 'contact@venusgate.jp'
         orga = Organisation.objects.create(user=user, name='Venus gate', email=recipient)
 
-        url = '/emails/mail/add/%s' % self.entity.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        #url = '/emails/mail/add/%s' % self.entity.id
+        url = '/emails/mail/add/%s' % orga.id
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        try:
+            o_recipients = response.context['form'].fields['o_recipients']
+        except Exception as e:
+            self.fail(str(e))
+
+        self.assertEqual([orga.id], o_recipients.initial)
 
         #TODO
         #folder = Folder.objects.create(user=self.user, title=u'Test folder', parent_folder=None,
@@ -892,7 +911,7 @@ class EntityEmailTestCase(CremeTestCase):
                  Organisation.objects.create(user=user, name='Nerv',       email='contact@nerv.jp'),
                 ]
 
-        url = '/emails/mail/add/%s' % self.entity.id
+        url = '/emails/mail/add/%s' % contacts[0].id
         self.assertEqual(200, self.client.get(url).status_code)
 
         response = self.client.post(url, data={
@@ -945,7 +964,7 @@ class EntityEmailTestCase(CremeTestCase):
         refresh = self.refresh
         self.assertEqual([MAIL_STATUS_SYNCHRONIZED] * 4, [refresh(e).status for e in emails])
 
-    def test_waitingd(self):
+    def test_waiting(self):
         emails = self._create_emails()
 
         self.assertEqual(200, self.client.post('/emails/mail/waiting', data={'ids': [e.id for e in emails]}).status_code)
