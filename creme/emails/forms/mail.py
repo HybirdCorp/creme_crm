@@ -72,16 +72,13 @@ class EntityEmailForm(CremeEntityForm):
 
         if isinstance(entity, Organisation):
             self.fields['o_recipients'].initial = [entity.pk]
-
-        if isinstance(entity, Contact):
+        elif isinstance(entity, Contact):
             self.fields['c_recipients'].initial = [entity.pk]
 
-        initial = kwargs.get('initial', {})
-        current_user = initial.get('current_user')
-        if current_user is not None:
-            contact = Contact.objects.get(is_user=current_user)
-            if contact.email:
-                self.fields['sender'].initial = contact.email
+        self.user_contact = contact = Contact.objects.get(is_user=self.user)
+
+        if contact.email:
+            self.fields['sender'].initial = contact.email
 
     def validate_entity_email(self, field_name, entities):
         recipients_errors = []
@@ -123,11 +120,11 @@ class EntityEmailForm(CremeEntityForm):
         if get_data('send_me'):
             EntityEmail.create_n_send_mail(sender, sender, subject, user, body, body_html, signature, attachments)
 
-        entity = self.entity
+        user_contact = self.user_contact
         create_relation = Relation.objects.create
 
         for recipient in chain(get_data('c_recipients', []), get_data('o_recipients', [])):
             email = EntityEmail.create_n_send_mail(sender, recipient.email, subject, user, body, body_html, signature, attachments)
 
-            create_relation(subject_entity=email, type_id=REL_SUB_MAIL_SENDED,   object_entity=entity,    user=user)
-            create_relation(subject_entity=email, type_id=REL_SUB_MAIL_RECEIVED, object_entity=recipient, user=user)
+            create_relation(subject_entity=email, type_id=REL_SUB_MAIL_SENDED,   object_entity=user_contact, user=user)
+            create_relation(subject_entity=email, type_id=REL_SUB_MAIL_RECEIVED, object_entity=recipient,    user=user)

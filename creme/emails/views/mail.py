@@ -145,7 +145,6 @@ def listview(request):
 def create_n_send(request, entity_id):
     return generic.add_to_entity(request, entity_id, EntityEmailForm,
                                  title=_(u'Sending an email to <%s>'),
-                                 initial={'current_user': request.user}
                                 )
 
 @jsonify

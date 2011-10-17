@@ -56,6 +56,7 @@ class Command(BaseCommand):
 
                     status = sending.send_mails()
 
+                    #TODO: move in send_mails() ???
                     sending.state = status or SENDING_STATE_DONE
                     sending.save()
         finally:
