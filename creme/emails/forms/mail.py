@@ -31,7 +31,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from creme_core.models.relation import Relation
 from creme_core.forms.base import CremeForm, CremeEntityForm, FieldBlockManager
 from creme_core.forms.fields import MultiCremeEntityField, CremeEntityField
-from creme_core.forms.widgets import TinyMCEEditor
+#from creme_core.forms.widgets import TinyMCEEditor
+from creme_core.forms.validators import validate_linkable_entities
 
 from documents.models import Document
 
@@ -81,34 +82,54 @@ class EntityEmailForm(CremeEntityForm):
         if contact.email:
             self.fields['sender'].initial = contact.email
 
-    def validate_entity_email(self, field_name, entities):
-        recipients_errors = []
-        for entity in entities:
+    def _clean_recipients(self, field_name):
+        recipients = self.cleaned_data.get(field_name) or []
+        user = self.user
+
+        validate_linkable_entities(recipients, user)
+
+        bad_entities = []
+
+        for entity in recipients:
             try:
                 validate_email(entity.email)
-            except Exception, e:#Better exception ?
-                recipients_errors.append(ugettext(u'The email address for %s is invalid') % entity)
+            except ValidationError:
+                bad_entities.append(entity)
 
-        if recipients_errors:
-            self.errors[field_name] = ErrorList(recipients_errors)
+        if bad_entities:
+            msg_format = ugettext(u'The email address for %s is invalid')
+            self.errors[field_name] = ErrorList([msg_format % entity.allowed_unicode(user)
+                                                     for entity in bad_entities
+                                                ]
+                                               )
+
+        return recipients
+
+    def clean_body_html(self):
+        body = self.cleaned_data['body_html']
+        images = validate_images_in_html(body, self.user)
+
+        debug('EntityEmail will be created with images: %s', images)
+
+        return body
+
+    def clean_c_recipients(self):
+        return self._clean_recipients('c_recipients')
+
+    def clean_o_recipients(self):
+        return self._clean_recipients('o_recipients')
 
     def clean(self):
-        cleaned_data = self.cleaned_data
+        cdata = self.cleaned_data
 
-        contacts      = list(cleaned_data.get('c_recipients', []))
-        organisations = list(cleaned_data.get('o_recipients', []))
-
-        if not contacts and not organisations:
+        if not self._errors and not cdata['c_recipients'] and not cdata['o_recipients']:
             raise ValidationError(ugettext(u'Select at least a Contact or an Organisation'))
 
-        #TODO: Join this 2 lines when using GenericEntityField
-        self.validate_entity_email('c_recipients', contacts)
-        self.validate_entity_email('o_recipients', organisations)
-
-        return cleaned_data
+        return cdata
 
     def save(self):
-        get_data = self.cleaned_data.get
+        cdata    = self.cleaned_data
+        get_data = cdata.get
 
         sender      = get_data('sender')
         subject     = get_data('subject')
@@ -124,7 +145,7 @@ class EntityEmailForm(CremeEntityForm):
         user_contact = self.user_contact
         create_relation = Relation.objects.create
 
-        for recipient in chain(get_data('c_recipients', []), get_data('o_recipients', [])):
+        for recipient in chain(cdata['c_recipients'], cdata['o_recipients']):
             email = EntityEmail.create_n_send_mail(sender, recipient.email, subject, user, body, body_html, signature, attachments)
 
             create_relation(subject_entity=email, type_id=REL_SUB_MAIL_SENDED,   object_entity=user_contact, user=user)
@@ -138,11 +159,3 @@ class TemplateSelectionForm(CremeForm):
 
 class EntityEmailFromTemplateForm(EntityEmailForm):
     step = IntegerField(widget=HiddenInput, initial=2)
-
-    def clean_body_html(self):
-        body = self.cleaned_data['body_html']
-        images = validate_images_in_html(body, self.user)
-
-        debug('EntityEmail will be created with images: %s', images)
-
-        return body

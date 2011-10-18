@@ -189,7 +189,6 @@ class EntitiesBulkUpdateForm(CremeForm):
 
         return cleaned_data
 
-
     def save(self):
         cleaned_data = self.cleaned_data
 
