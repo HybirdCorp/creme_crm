@@ -11,7 +11,7 @@ try:
     from django.conf import settings
 
     from creme_core.tests.base import CremeTestCase
-    from creme_core.models import EntityFilter, EntityFilterCondition, Relation
+    from creme_core.models import EntityFilter, EntityFilterCondition, Relation, SetCredentials
 
     from persons.models import Contact, Organisation
 
@@ -794,9 +794,11 @@ class SignaturesTestCase(CremeTestCase):
 
 
 class EntityEmailTestCase(CremeTestCase):
-    def setUp(self):
-        self.populate('creme_core', 'creme_config', 'emails')
-        self.login()
+    def login(self, is_superuser=True):
+        super(EntityEmailTestCase, self).login(is_superuser,
+                                               allowed_apps=['persons', 'emails'],
+                                               creatable_models=[Contact, Organisation, EntityEmail],
+                                              )
 
         user = self.user
         self.user_contact = Contact.objects.create(user=user, is_user=user,
@@ -805,7 +807,13 @@ class EntityEmailTestCase(CremeTestCase):
                                                    email='re-l.mayer@rpd.rmd',
                                                   )
 
+        return user
+
+    def setUp(self):
+        self.populate('creme_core', 'creme_config', 'emails')
+
     def test_createview01(self):
+        self.login()
         user = self.user
 
         recipient = 'vincent.law@immigrates.rmd'
@@ -852,6 +860,7 @@ class EntityEmailTestCase(CremeTestCase):
         self.assertEqual(200, self.client.get('/emails/mail/%s/popup' % email.id).status_code)
 
     def test_createview02(self): #TODO: attachments
+        self.login()
         user = self.user
 
         recipient = 'contact@venusgate.jp'
@@ -899,7 +908,101 @@ class EntityEmailTestCase(CremeTestCase):
         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=sender)
         self.assertEqual(signature, email.signature)
 
+    def test_createview03(self): #invalid email adress
+        self.login()
+        user = self.user
+
+        contact01 = Contact.objects.create(user=user, first_name='Vincent', last_name='Law',
+                                           email='vincent.law@immigrates', #invalid
+                                          )
+        contact02 = Contact.objects.create(user=user, first_name='Pino', last_name='AutoReiv',
+                                           email='pino@autoreivs.rmd', #ok
+                                          )
+        orga01 = Organisation.objects.create(user=user, name='Venus gate',
+                                           email='contact/venusgate.jp', #invalid
+                                          )
+        orga02 = Organisation.objects.create(user=user, name='Nerv',
+                                             email='contact@nerv.jp', #ok
+                                            )
+
+        response = self.client.post('/emails/mail/add/%s' % contact01.id,
+                                     data={
+                                            'user':         user.id,
+                                            'sender':       self.user_contact.email,
+                                            'c_recipients': '%s,%s' % (contact01.id, contact02.id),
+                                            'o_recipients': '%s,%s' % (orga01.id, orga02.id),
+                                            'subject':      'Under arrest',
+                                            'body':         'Freeze !',
+                                            'body_html':    '<p>Freeze !</p>',
+                                          }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', 'c_recipients',
+                             [_(u"The email address for %s is invalid") % contact01]
+                            )
+        self.assertFormError(response, 'form', 'o_recipients',
+                             [_(u"The email address for %s is invalid") % orga01]
+                            )
+
+    def test_createview04(self): #credentials problem
+        user = self.login(is_superuser=False)
+
+        role = user.role
+        SetCredentials.objects.create(role=role,
+                                      value=(SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE |
+                                             SetCredentials.CRED_LINK   |
+                                             SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK
+                                            ),
+                                      set_type=SetCredentials.ESET_OWN
+                                     )
+        SetCredentials.objects.create(role=role,
+                                      value=(SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE |
+                                             SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK
+                                            ), #no CRED_LINK
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+        contact01 = Contact.objects.create(user=self.other_user, first_name='Vincent', last_name='Law',
+                                           email='vincent.law@immigrates.rmd',
+                                          )
+        contact02 = Contact.objects.create(user=user, first_name='Pino', last_name='AutoReiv',
+                                           email='pino@autoreivs.rmd',
+                                          )
+        orga01 = Organisation.objects.create(user=self.other_user, name='Venus gate', email='contact@venusgate.jp')
+        orga02 = Organisation.objects.create(user=user, name='Nerv', email='contact@nerv.jp')
+
+        self.assertTrue(contact01.can_view(user))
+        self.assertFalse(contact01.can_link(user))
+        self.assertTrue(contact02.can_view(user))
+        self.assertTrue(contact02.can_link(user))
+
+        def post(contact):
+            return self.client.post('/emails/mail/add/%s' % contact.id,
+                                    data={
+                                            'user':         user.id,
+                                            'sender':       self.user_contact.email,
+                                            'c_recipients': '%s,%s' % (contact01.id, contact02.id),
+                                            'o_recipients': '%s,%s' % (orga01.id, orga02.id),
+                                            'subject':      'Under arrest',
+                                            'body':         'Freeze !',
+                                            'body_html':    '<p>Freeze !</p>',
+                                         }
+                                   )
+
+        self.assertEqual(403, post(contact01).status_code)
+
+        response = post(contact02)
+        self.assertEqual(200, response.status_code)
+
+        self.assertFormError(response, 'form', 'c_recipients',
+                             [_(u"Some entities are not linkable: %s") % contact01]
+                            )
+        self.assertFormError(response, 'form', 'o_recipients',
+                             [_(u"Some entities are not linkable: %s") % orga01]
+                            )
+
     def test_create_from_template01(self):
+        self.login()
         user = self.user
 
         body_format       = 'Hi %s %s, nice to meet you !'
@@ -967,6 +1070,7 @@ class EntityEmailTestCase(CremeTestCase):
         self.get_object_or_fail(EntityEmail, recipient=recipient)
 
     def test_create_from_template02(self): #TODO: test better (credentials....)
+        self.login()
         user = self.user
         body = 'Hi , nice to meet you !'
 
@@ -1033,6 +1137,7 @@ class EntityEmailTestCase(CremeTestCase):
         return emails
 
     def test_listview01(self):
+        self.login()
         emails = self._create_emails()
 
         response = self.client.get('/emails/mails')
@@ -1046,6 +1151,7 @@ class EntityEmailTestCase(CremeTestCase):
         self.assertEqual(4, emails.object_list.count())
 
     def test_spam(self):
+        self.login()
         emails = self._create_emails()
 
         self.assertEqual([MAIL_STATUS_SENT] * 4, [e.status for e in emails])
@@ -1057,6 +1163,7 @@ class EntityEmailTestCase(CremeTestCase):
         self.assertEqual([MAIL_STATUS_SYNCHRONIZED_SPAM] * 4, [refresh(e).status for e in emails])
 
     def test_validated(self):
+        self.login()
         emails = self._create_emails()
 
         self.assertEqual(200, self.client.post('/emails/mail/validated', data={'ids': [e.id for e in emails]}).status_code)
@@ -1065,6 +1172,7 @@ class EntityEmailTestCase(CremeTestCase):
         self.assertEqual([MAIL_STATUS_SYNCHRONIZED] * 4, [refresh(e).status for e in emails])
 
     def test_waiting(self):
+        self.login()
         emails = self._create_emails()
 
         self.assertEqual(200, self.client.post('/emails/mail/waiting', data={'ids': [e.id for e in emails]}).status_code)
