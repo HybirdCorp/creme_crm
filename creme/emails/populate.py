@@ -42,12 +42,12 @@ class Populator(BasePopulator):
     dependencies = ['creme_core']
 
     def populate(self, *args, **kwargs):
-        RelationType.create((REL_SUB_MAIL_RECEIVED, _(u"(email) received by"), [EntityEmail]),
-                            (REL_OBJ_MAIL_RECEIVED, _(u"received the email"),  [Organisation, Contact]))
-        RelationType.create((REL_SUB_MAIL_SENDED, _(u"(email) sended"),        [EntityEmail]),
-                            (REL_OBJ_MAIL_SENDED, _(u"sended the email"),      [Organisation, Contact]))
-        RelationType.create((REL_SUB_RELATED_TO, _(u'(email) related to'),     [EntityEmail]),
-                            (REL_OBJ_RELATED_TO, _(u'related to the email'),   []))
+        RelationType.create((REL_SUB_MAIL_RECEIVED, _(u"(email) received by"),  [EntityEmail]),
+                            (REL_OBJ_MAIL_RECEIVED, _(u"received the email"),   [Organisation, Contact]))
+        RelationType.create((REL_SUB_MAIL_SENDED,   _(u"(email) sended"),       [EntityEmail]),
+                            (REL_OBJ_MAIL_SENDED,   _(u"sended the email"),     [Organisation, Contact]))
+        RelationType.create((REL_SUB_RELATED_TO,    _(u'(email) related to'),   [EntityEmail]),
+                            (REL_OBJ_RELATED_TO,    _(u'related to the email'), []))
 
         hf = HeaderFilter.create(pk='emails-hf_mailinglist', name=_(u"Mailing list view"), model=MailingList)
         hf.set_items([HeaderFilterItem.build_4_field(model=MailingList, name='name')])

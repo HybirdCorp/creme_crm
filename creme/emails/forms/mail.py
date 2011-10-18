@@ -19,27 +19,28 @@
 ################################################################################
 
 from itertools import chain
+from logging import debug
 
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
-from django.forms.fields import EmailField, BooleanField, CharField
+from django.forms.fields import EmailField, BooleanField, CharField, IntegerField
+from django.forms.widgets import HiddenInput
 from django.forms.util import ErrorList
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models.relation import Relation
+from creme_core.forms.base import CremeForm, CremeEntityForm, FieldBlockManager
 from creme_core.forms.fields import MultiCremeEntityField, CremeEntityField
-from creme_core.forms.base import CremeEntityForm, FieldBlockManager
 from creme_core.forms.widgets import TinyMCEEditor
 
 from documents.models import Document
 
 from persons.models import Contact, Organisation
 
-from emails.models import EntityEmail
+from emails.models import EntityEmail, EmailTemplate
 from emails.constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED
+from emails.forms.utils import validate_images_in_html
 
-
-invalid_email_error = _(u'The email address for %(entity)s is invalid')
 
 class EntityEmailForm(CremeEntityForm):
     """Mails are related to the selected contacts/organisations & the 'current' entity.
@@ -86,7 +87,7 @@ class EntityEmailForm(CremeEntityForm):
             try:
                 validate_email(entity.email)
             except Exception, e:#Better exception ?
-                recipients_errors.append(invalid_email_error % {'entity': entity})
+                recipients_errors.append(ugettext(u'The email address for %s is invalid') % entity)
 
         if recipients_errors:
             self.errors[field_name] = ErrorList(recipients_errors)
@@ -128,3 +129,20 @@ class EntityEmailForm(CremeEntityForm):
 
             create_relation(subject_entity=email, type_id=REL_SUB_MAIL_SENDED,   object_entity=user_contact, user=user)
             create_relation(subject_entity=email, type_id=REL_SUB_MAIL_RECEIVED, object_entity=recipient,    user=user)
+
+
+class TemplateSelectionForm(CremeForm):
+    step     = IntegerField(widget=HiddenInput, initial=1)
+    template = CremeEntityField(label=_(u'Template'), model=EmailTemplate)
+
+
+class EntityEmailFromTemplateForm(EntityEmailForm):
+    step = IntegerField(widget=HiddenInput, initial=2)
+
+    def clean_body_html(self):
+        body = self.cleaned_data['body_html']
+        images = validate_images_in_html(body, self.user)
+
+        debug('EntityEmail will be created with images: %s', images)
+
+        return body
