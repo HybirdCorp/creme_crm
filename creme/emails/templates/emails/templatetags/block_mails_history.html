@@ -1,26 +1,15 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
-<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
+<table class="table_detail_view ui-corner-all {{state.classes}}" id={{block_name}}>
     {% get_block_header colspan=6 %}
         <th class="collapser label">{% get_block_title _("%s Email in the history") _("%s Emails in the history") 'email_48.png' _('Emails') %}</th>
         <th class="actions">
             <div class="buttons">
-                <a class="add" onclick="creme.utils.innerPopupNReload('/emails/mail/add/{{object.pk}}', {% get_block_reload_uri %});">
-                    <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{% trans "Send a new mail related to this file" %}" alt="{% trans "Send a new mail related to this file" %}" />
-                    {% trans "Send a new mail related to this file" %}
-                </a>
-                {% has_perm_to link object as object_link_perm %}
-                {% if object_link_perm %}
-                    <a class="link" onclick="creme.utils.innerPopupNReload('/creme_core/relation/add_to_entities/{{entity_email_ct_id}}/{{rtypes}}/?ids={{ object.id }}&persist=ids', {% get_block_reload_uri %});">
-                        <img src="{% creme_media_url 'images/link_22.png' %}" border="0" title="{% trans "Link to" %}" alt="{% trans "Link to" %}" />
-                        {% trans "Link to an existing email" %}
-                    </a>
-                {% else %}
-                    <a class="link forbidden" title="{% trans "forbidden" %}">
-                        <img src="{% creme_media_url 'images/link_22.png' %}" border="0" title="{% trans "Link to" %}" alt="{% trans "Link to" %}" />
-                        {% trans "Link to an existing email" %}
-                    </a>
-                {% endif %}
+                {% has_perm_to create entity_email_ct as creation_perm %}
+                {% has_perm_to link object as link_perm %}
+                {% get_line_adder at_url '/emails/mail/add/{{object.pk}}' with_label _("Send a new related email") with_perms creation_perm|and_op:link_perm %}
+                {% get_line_adder at_url '/emails/mail/add_from_template/{{object.pk}}' with_label _("Send a email (with a template)") with_perms creation_perm|and_op:link_perm %}
+                {% get_line_linker at_url '/creme_core/relation/add_to_entities/{{entity_email_ct.id}}/{{rtypes}}/?ids={{object.id}}&persist=ids' with_label _("Link to an existing email") with_perms link_perm %}
             </div>
         </th>
     {% end_get_block_header %}

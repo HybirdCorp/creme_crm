@@ -8,6 +8,7 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
+    from django.conf import settings
 
     from creme_core.tests.base import CremeTestCase
     from creme_core.models import EntityFilter, EntityFilterCondition, Relation
@@ -855,8 +856,6 @@ class EntityEmailTestCase(CremeTestCase):
 
         recipient = 'contact@venusgate.jp'
         orga = Organisation.objects.create(user=user, name='Venus gate', email=recipient)
-
-        #url = '/emails/mail/add/%s' % self.entity.id
         url = '/emails/mail/add/%s' % orga.id
 
         response = self.client.get(url)
@@ -899,6 +898,107 @@ class EntityEmailTestCase(CremeTestCase):
 
         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=sender)
         self.assertEqual(signature, email.signature)
+
+    def test_create_from_template01(self):
+        user = self.user
+
+        body_format       = 'Hi %s %s, nice to meet you !'
+        body_html_format  = 'Hi <strong>%s %s</strong>, nice to meet you !'
+
+        subject   = 'I am da subject'
+        signature = EmailSignature.objects.create(user=user, name="Re-l's signature", body='I love you... not')
+        template = EmailTemplate.objects.create(user=user, name='My template',
+                                                subject=subject,
+                                                body=body_format % ('{{first_name}}', '{{last_name}}'),
+                                                body_html=body_html_format % ('{{first_name}}', '{{last_name}}'),
+                                                signature=signature,
+                                               )
+
+        recipient = 'vincent.law@city.mosk'
+        first_name = 'Vincent'
+        last_name = 'Law'
+        contact = Contact.objects.create(user=user, first_name=first_name, last_name=last_name, email=recipient)
+
+        url = '/emails/mail/add_from_template/%s' % contact.id
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        response = self.client.post(url, data={
+                                                'step':     1,
+                                                'template': template.id,
+                                              }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        try:
+            form = response.context['form']
+            fields = form.fields
+            fields['subject']
+            fields['body']
+            fields['body_html']
+            fields['signature']
+            fields['attachments']
+        except KeyError as e:
+            self.fail(str(e))
+
+        self.assertEqual(2, fields['step'].initial)
+
+        ini_get = form.initial.get
+        self.assertEqual(subject, ini_get('subject'))
+        self.assertEqual(body_format % (contact.first_name, contact.last_name),      ini_get('body'))
+        self.assertEqual(body_html_format % (contact.first_name, contact.last_name), ini_get('body_html'))
+        self.assertEqual(signature.id, ini_get('signature'))
+        #self.assertEqual(attachments,  ini_get('attachments')) #TODO
+
+        response = self.client.post(url, data={
+                                                'step':         2,
+                                                'user':         user.id,
+                                                'sender':       self.user_contact.email,
+                                                'c_recipients': contact.id,
+                                                'subject':      subject,
+                                                'body':         ini_get('body'),
+                                                'body_html':    ini_get('body_html'),
+                                                'signature':    signature.id,
+                                              }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        self.get_object_or_fail(EntityEmail, recipient=recipient)
+
+    def test_create_from_template02(self): #TODO: test better (credentials....)
+        user = self.user
+        body = 'Hi , nice to meet you !'
+
+        image_filename = '13_myimg.png'
+        body_html = 'Hi <img src="%(media_url)supload/images/%(name)s">, nice to meet you !' % {
+                            'media_url': settings.MEDIA_URL,
+                            'name':      image_filename,
+                        }
+
+        template = EmailTemplate.objects.create(user=user, name='My template',
+                                                subject='I am da subject',
+                                                body=body, body_html=body_html,
+                                               )
+        contact = Contact.objects.create(user=user, first_name='Vincent', last_name='Law',
+                                         email='vincent.law@city.mosk'
+                                        )
+
+        response = self.client.post('/emails/mail/add_from_template/%s' % contact.id,
+                                    data={
+                                            'step':         2,
+                                            'user':         user.id,
+                                            'sender':       self.user_contact.email,
+                                            'c_recipients': contact.id,
+                                            'subject':      template.subject,
+                                            'body':         template.body,
+                                            'body_html':    template.body_html,
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', 'body_html',
+                             [_(u"The image «%s» no longer exists or isn't valid.") % image_filename]
+                            )
 
     def _create_emails(self):
         user = self.user

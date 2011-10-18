@@ -188,13 +188,11 @@ class MailsHistoryBlock(QuerysetBlock):
     order_by      = '-sending_date'
     verbose_name  = _(u"Emails history")
     template_name = 'emails/templatetags/block_mails_history.html'
-    #configurable  = True
-    relation_type_deps = (REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO)
+    relation_type_deps = (REL_OBJ_MAIL_SENDED, REL_OBJ_MAIL_RECEIVED, REL_OBJ_RELATED_TO)
 
     def detailview_display(self, context):
         entity = context['object']
         pk = entity.pk
-        rtypes = [REL_OBJ_MAIL_SENDED, REL_OBJ_MAIL_RECEIVED, REL_OBJ_RELATED_TO]
         entityemail_pk = Relation.objects.filter(type__pk__in=[REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO], object_entity=pk) \
                                          .values_list('subject_entity', flat=True) \
                                          .distinct()
@@ -204,8 +202,8 @@ class MailsHistoryBlock(QuerysetBlock):
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
                                                             sent_status=MAIL_STATUS_SENT,
                                                             sync_statuses=[MAIL_STATUS_SYNCHRONIZED, MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING],
-                                                            rtypes=','.join(rtypes),
-                                                            entity_email_ct_id=ContentType.objects.get_for_model(entity).id
+                                                            rtypes=','.join(self.relation_type_deps),
+                                                            entity_email_ct=ContentType.objects.get_for_model(entity),
                                                             ))
 
 class LwMailsHistoryBlock(QuerysetBlock):
@@ -214,7 +212,6 @@ class LwMailsHistoryBlock(QuerysetBlock):
     order_by      = '-sending_date'
     verbose_name  = _(u"Campaings emails history")
     template_name = 'emails/templatetags/block_lw_mails_history.html'
-    #configurable  = True
 
     def detailview_display(self, context):
         pk = context['object'].pk

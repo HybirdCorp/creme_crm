@@ -20,8 +20,8 @@
 
 from logging import debug
 
-from django.core.exceptions import PermissionDenied
-from django.forms import CharField, ValidationError
+from django.core.exceptions import PermissionDenied, ValidationError
+from django.forms.fields import CharField
 from django.forms.widgets import Textarea
 from django.template import Template, VariableNode
 from django.utils.functional import lazy
@@ -34,11 +34,12 @@ from creme_core.forms.widgets import TinyMCEEditor
 from documents.models import Document
 
 from emails.models import EmailTemplate
-from emails.utils import get_images_from_html, ImageFromHTMLError
+from emails.forms.utils import validate_images_in_html
 
 
-_TEMPLATES_VARS = set(['last_name', 'first_name', 'civility', 'name'])
-_TEMPLATES_VARS_4_HELP = u' '.join('{{%s}}' % var for var in _TEMPLATES_VARS)
+TEMPLATES_VARS = set(['last_name', 'first_name', 'civility', 'name'])
+
+_TEMPLATES_VARS_4_HELP = u' '.join('{{%s}}' % var for var in TEMPLATES_VARS)
 
 _help_text = lazy((lambda: ugettext(u'You can use variables: %s') % _TEMPLATES_VARS_4_HELP), unicode)
 
@@ -51,15 +52,12 @@ class EmailTemplateForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = EmailTemplate
 
-    def _create_img_validation_error(self, filename):
-         return ValidationError(ugettext(u"The image «%s» no longer exists or isn't valid.") % filename)
-
     def _clean_body(self, body):
         invalid_vars = []
 
         for varnode in Template(body).nodelist.get_nodes_by_type(VariableNode):
             varname = varnode.filter_expression.var.var
-            if varname not in _TEMPLATES_VARS:
+            if varname not in TEMPLATES_VARS:
                 invalid_vars.append(varname)
 
         if invalid_vars:
@@ -77,24 +75,8 @@ class EmailTemplateForm(CremeEntityForm):
         self._clean_body(body)
 
         #TODO: Add and handle a M2M for embedded images after Document & Image merge
-
-        try:
-            images = get_images_from_html(body)
-        except ImageFromHTMLError as e:
-            raise self._create_img_validation_error(e.filename)
-
-        user = self.user
-
-        for finename, (image, src) in images.iteritems():
-            if image is None:
-                raise self._create_img_validation_error(filename)
-
-            try:
-                image.can_view_or_die(user)
-            except PermissionDenied as pde:
-                raise ValidationError(pde)
-
-        debug('EmailTemplate will be create with images: %s', images)
+        images = validate_images_in_html(body, self.user)
+        debug('EmailTemplate will be created with images: %s', images)
 
         return body
 
