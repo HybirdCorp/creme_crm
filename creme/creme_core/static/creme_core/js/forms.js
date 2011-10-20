@@ -272,19 +272,21 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
         } else {
             var $parent = $sel.parent();
 
-            if ($parent.attr('name') == $chosen.attr('name')) { /*TODO: comparison on name is ugly, but '==' and '===' don't work....*/
+//            if ($parent.attr('name') == $chosen.attr('name')) { /*TODO: comparison on name is ugly, but '==' and '===' don't work....*/
+            if ($parent.attr('name') == 'chosen') {
                 $add_button.attr('disabled', 'disabled');
-                $rem_button.attr('disabled', '');
+//                $rem_button.attr('disabled', '');
+                $rem_button.removeAttr('disabled');
 
                 var sel_name = $sel.attr('name');
 
                 if (sel_name == $chosen.find('li:first').attr('name')) { $up_button.attr('disabled', 'disabled');
-                } else                                                 { $up_button.attr('disabled', ''); }
+                } else                                                 { $up_button.removeAttr('disabled'); }
 
                 if (sel_name == $chosen.find('li:last').attr('name')) { $down_button.attr('disabled', 'disabled');
-                } else                                                { $down_button.attr('disabled', ''); }
+                } else                                                { $down_button.removeAttr('disabled'); }
             } else { //$available list
-                $add_button.attr('disabled', '');
+                $add_button.removeAttr('disabled');
                 $rem_button.attr('disabled', 'disabled');
                 $up_button.attr('disabled', 'disabled');
                 $down_button.attr('disabled', 'disabled');
@@ -294,10 +296,10 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
         var chosenCount = $chosen.find('li').size();
 
         if (chosenCount == 0) { $remall_button.attr('disabled', 'disabled');
-        } else                { $remall_button.attr('disabled', ''); }
+        } else                { $remall_button.removeAttr('disabled'); }
 
         if (($available.find('li').size() - chosenCount) == 0) { $addall_button.attr('disabled', 'disabled');
-        } else                                                 { $addall_button.attr('disabled', ''); }
+        } else                                                 { $addall_button.removeAttr('disabled'); }
     }
 
     function refreshWidget($sel) {
@@ -417,10 +419,11 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
 creme.forms.toUnorderedMultiSelect = function(select_id) {
     function buildColumns($select, addAvailableLi, addChosenLi) { //TODO: use inheritage instead ??
         $select.find('option').each(function(i) {
-            var label   = $(this).text();
-            var li_name = $(this).attr('value');
+            var $this   = $(this);
+            var label   = $this.text();
+            var li_name = $this.attr('value');
 
-            if ($(this).attr('selected') == true) {
+            if ($this.is(':selected')) {
                 addAvailableLi(label, li_name, true);
                 addChosenLi(label, li_name);
             } else {
@@ -442,7 +445,7 @@ creme.forms.toUnorderedMultiSelect = function(select_id) {
             if (is_selected != undefined) {
                 $(this).attr('selected', 'selected');
             } else {
-                $(this).attr('selected', '');
+                $(this).removeAttr('selected');
             }
         });
     }
@@ -455,13 +458,14 @@ creme.forms.toOrderedMultiSelect = function(table_id) {
         var selected_tmp = [];
 
         $table.find('tr').each(function(i) {
-            var checked = $(this).find('.oms_check').attr('checked');
-            var label   = $(this).find('.oms_value').text();
+            var $this   = $(this);
+            var checked = $this.find('.oms_check').is(':checked');
+            var label   = $this.find('.oms_value').text();
             var li_name = 'oms_row_' + i;
 
             if (checked == true) {
                 addAvailableLi(label, li_name, true);
-                selected_tmp.push([$(this).find('.oms_order').attr('value'), label, li_name]); //[order, label, name]
+                selected_tmp.push([$this.find('.oms_order').attr('value'), label, li_name]); //[order, label, name]
             } else {
                 addAvailableLi(label, li_name, false);
             }
@@ -482,14 +486,15 @@ creme.forms.toOrderedMultiSelect = function(table_id) {
         });
 
         $table.find('tr').each(function(i) {
-            var order = chosenMap[$(this).attr('name')];
+            var $this = $(this);
+            var order = chosenMap[$this.attr('name')];
 
             if (order != undefined) {
-                $(this).find('.oms_check').attr('checked', true);
-                $(this).find('.oms_order').attr('value', order);
+                $this.find('.oms_check').attr('checked', true);
+                $this.find('.oms_order').attr('value', order);
             } else {
-                $(this).find('.oms_check').attr('checked', false);
-                $(this).find('.oms_order').attr('value', '');
+                $this.find('.oms_check').attr('checked', false);
+                $this.find('.oms_order').attr('value', '');
             }
         });
     }

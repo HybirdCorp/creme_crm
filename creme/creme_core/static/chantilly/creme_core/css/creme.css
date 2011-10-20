@@ -97,6 +97,7 @@ a {
 	-o-transition: color .4s linear;
 	-ms-transition: color .4s linear;
 	transition: color .4s linear;
+    cursor: pointer;
 }
 
 a:hover {
@@ -743,6 +744,9 @@ a img:hover {
     cursor: pointer;
 }
 
+.defaultcur {
+    cursor: default;
+}
 
 /* BUTTONS */
 
@@ -919,6 +923,10 @@ a img:hover {
 	width: 200%;
 	height: 200%;
     z-index: 2000;
+}
+
+.ui-datepicker-trigger {
+    cursor: pointer;
 }
 
 .top_fixed {

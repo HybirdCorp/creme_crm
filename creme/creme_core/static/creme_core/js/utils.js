@@ -47,6 +47,7 @@ creme.utils.loading = function(div_id, is_loaded, params) {
     var $div = $('#'+div_id);
     if (is_loaded) {
         $div.dialog('destroy');
+        $div.remove();//Clean
     } else {
         if ($div.size() == 0) {
             $div = $('<div id="'+div_id+'" class="ui-widget-overlay" style="display:none;"></div>');
@@ -61,6 +62,7 @@ creme.utils.loading = function(div_id, is_loaded, params) {
                 draggable: false,
                 dialogClass: ''
         }, params));
+        $div.css({'min-height': 0, 'height': 0, 'padding': 0});
         $('a.ui-dialog-titlebar-close').remove();
     }
 }
@@ -77,7 +79,7 @@ creme.utils.showDialog = function(text, options, div_id) {
     $div.html(text);
     //$div.append($('<input type="hidden"/>').attr('id','dialog_id').val(div_id));
 
-    buttons = {};
+    var buttons = {};
     buttons[gettext("Ok")] = function() {
             $(this).dialog("close");
             /*$(this).dialog("destroy");
@@ -109,7 +111,7 @@ creme.utils.showDialog = function(text, options, div_id) {
     }*/
 }
 
-creme.utils.build_q_filter_url = function(q_filter) {
+creme.utils.build_q_filter_url = function(q_filter) {//TODO: Still used?
     var url_str = '';
 
     if (q_filter && typeof(q_filter['name']) != "undefined") {
@@ -129,11 +131,11 @@ creme.utils.build_q_filter_url = function(q_filter) {
     return url_str;
 }
 
-creme.utils.build_q_value = function(field, value, is_or, is_negated) {
+creme.utils.build_q_value = function(field, value, is_or, is_negated) {//TODO: Still used?
     return ((is_negated)?'~':'') + field + ':' + value + ',' + Number(is_or);
 }
 
-creme.utils.build_q_input = function(field, value, is_or, is_negated, name) {
+creme.utils.build_q_input = function(field, value, is_or, is_negated, name) {//TODO: Still used?
     return $('<input />').attr('name',name).attr('type','hidden').val(creme.utils.build_q_value(field, value, is_or, is_negated));
 }
 
@@ -192,6 +194,7 @@ creme.utils.bindShowHideTbody = function() {
 
 creme.utils.simpleConfirm = function(cb, msg) {
     var buttons = {};
+    buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
     buttons[gettext("Ok")] = function() {
         if(typeof(cb) != "undefined" && $.isFunction(cb)) {
             cb();
@@ -199,14 +202,13 @@ creme.utils.simpleConfirm = function(cb, msg) {
             $(this).remove();
         }
     }
-    buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
-
     creme.utils.showDialog(msg || gettext("Are you sure ?"), {buttons: buttons});
 }
 
 creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: rename ? factorise (see ajaxDelete()) ??
     var buttons = {};
 
+    buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
     buttons[gettext("Ok")] = function() {
             if(typeof(ajax)!="undefined" && ajax==true) {
                 //$.get(href);
@@ -237,8 +239,6 @@ creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: rename
                 window.location.href = url;
             }
         }
-    buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
-
     //creme.utils.showDialog(msg || gettext("Are you sure ?"), {buttons: buttons});
     creme.utils.showDialog(gettext("Are you sure ?"), {buttons: buttons});
 }
@@ -246,16 +246,17 @@ creme.utils.confirmBeforeGo = function(url, ajax, ajax_options) { //TODO: rename
 creme.utils.confirmSubmit = function(atag) {
     var buttons = {};
 
+    buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
     buttons[gettext("Ok")] = function() {
                     $('form', $(atag)).submit();
                     $(this).dialog("destroy");
                     $(this).remove();
                 }
-    buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
 
     creme.utils.showDialog(gettext("Are you sure ?"), {buttons: buttons});
 }
 
+//TODO: Is this still used ? (10/08/11)
 creme.utils.changeOtherNodes = function (from_id, arrayNodesIds, callback) {
     var $from_node = $('#'+from_id);
 
@@ -366,41 +367,6 @@ creme.utils.showInnerPopup = function(url, options, div_id, ajax_options) {
                                                 var buttons = $me.dialog('option', 'buttons');
                                                 buttons[gettext("Send")] = function() {creme.utils.handleDialogSubmit($me);}
                                                 $form.live('submit',function() {creme.utils.handleDialogSubmit($me);});
-
-                                                /*buttons['Envoyer'] = function(){
-                                                    $form = $('[name=inner_body]', $me).find('form');
-
-                                                    var post_data = {}
-                                                    var post_url = $('[name=inner_header_from_url]',$me).val();
-
-                                                    $form.find('input[name!=], select[name!=], button[name!=], textarea[name!=]').each(function(){
-                                                       var $node = $(this);
-                                                       post_data[$node.attr('name')] = $node.val();
-                                                    });
-                                                    post_data['whoami'] = div_id;
-
-                                                    $.ajax({
-                                                          type: $form.attr('method'),
-                                                          url: post_url,
-                                                          data : post_data,
-                                                          beforeSend : function(request){
-                                                              creme.utils.loading('loading', false, {});
-                                                          },
-                                                          success: function(data, status)
-                                                          {
-                                                              data += '<input type="hidden" name="whoami" value="'+div_id+'"/>'
-                                                              $('[name=inner_body]','#'+div_id).html(data);
-                                                          },
-                                                          error: function(request, status, error)
-                                                          {
-                                                                creme.utils.showDialog("<p><b>Erreur !</b></p><p>La page va être rechargée!</p>",{'title':'Erreur'});
-                                                                creme.utils.sleep("reload(window)");
-                                                          },
-                                                          complete:function (XMLHttpRequest, textStatus) {
-                                                              creme.utils.loading('loading', true, {});
-                                                          }
-                                                    });
-                                                }*/
                                                 $me.dialog('option', 'buttons', buttons);
                                             }
 //                                            else if($form.size() > 0 && typeof(options)!="undefined" & typeof(options['send_button'])=="function"){
@@ -568,19 +534,19 @@ creme.utils.appendInUrl = function(url, strToAppend) {
         url = url.substring(0, index_anchor);
     }
 
-    //TODO: factorise '+ anchor' ??
     if(strToAppend.indexOf('?') > -1) {
-        url += strToAppend+get.replace('?','&') + anchor;
+        url += strToAppend+get.replace('?','&');
     } else if(strToAppend.indexOf('&') > -1) {
-        url += get + strToAppend + anchor;
-    } else url += strToAppend + get + anchor;
+        url += get + strToAppend;
+    } else url += strToAppend + get;
 
-    return url;
+    return url+anchor;
 }
 
 creme.utils.ajaxDelete = function(url, _data, ajax_params, msg) {
     var buttons = {};
 
+    buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
     buttons[gettext("Ok")] = function() {
             var defOpts = jQuery.extend({
                 url: url,
@@ -610,7 +576,6 @@ creme.utils.ajaxDelete = function(url, _data, ajax_params, msg) {
             $(this).dialog("destroy");
             $(this).remove();
         }
-    buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
 
     creme.utils.showDialog(msg || gettext("Are you sure ?"), {buttons: buttons});
 }
@@ -783,8 +748,7 @@ creme.utils.showErrorNReload = function() {
 };
 
 creme.utils.scrollTo = function($elements) {
-//    var $element = $elements.first(); //jQuery >= 1.4
-    var $element = $elements.eq(0);
+    var $element = $elements.first();
     if($element.size() == 1) {
         var elementPos = $element.position();
         scrollTo(elementPos.left, elementPos.top);
