@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.conf import settings
 
 from django.conf.urls.defaults import patterns, include
 
@@ -99,3 +100,8 @@ urlpatterns = patterns('creme_core.views',
 
     (r'^creme_core/', include(creme_core_patterns))
 )
+
+if settings.DEBUG:
+    urlpatterns += patterns('creme_core.views',
+        (r'^test_js$',    'index.test_js'),
+    )

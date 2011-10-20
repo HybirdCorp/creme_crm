@@ -37,10 +37,3 @@ $.fn.getValues = function(){
     });
     return arrOfSelected;
 }
-
-$.isEmptyObject = function( obj ) {//Extracted method from jQuery 1.4. TODO: Remove me when upgrading to a jQuery version >=1.4
-    for ( var name in obj ) {
-        return false;
-    }
-    return true;
-}
