@@ -644,10 +644,13 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
 
     def _condition_to_dict(self, condition):
         value = condition.decoded_value
+        filter_id = value['filter_id']
 
         return {'rtype':  condition.name,
                 'has':    boolean_str(value['has']),
-                'filter': value['filter_id'],
+                 #TODO: regroup queries ? record in the condition to avoid the query,
+                'ctype':  EntityFilter.objects.get(pk=filter_id).entity_type_id,
+                'filter': filter_id,
                }
 
     def _conditions_from_dicts(self, data):
