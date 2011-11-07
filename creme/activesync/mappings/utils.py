@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 from datetime import datetime
+from xml.sax.saxutils import escape
 from activesync.models.other_models import EntityASData
 from creme_core.utils.dates import get_utc_dt_from_creme_dt, get_dt_to_iso8601_str
 from creme_core.utils.meta import get_field_infos
@@ -80,6 +81,7 @@ def serialize_entity(entity, mapping):
 
 
             if value:
+                value = escape(value)
                 xml_append("<%(prefix)s%(tag)s>%(value)s</%(prefix)s%(tag)s>" %
                            {
                             'prefix': '%s:' % prefix if prefix else '',
