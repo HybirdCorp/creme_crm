@@ -89,7 +89,7 @@ class Reminder(object):
             if not reminder_filter(model_id=object.id, model_content_type=object_ct).exists():
                 self.send_mails(object)
                 date_reminder = DateReminder()
-                date_reminder.date_or_remind = now #factorise ??
+                date_reminder.date_of_remind = now #factorise ??
                 date_reminder.ident = FIRST_REMINDER
                 date_reminder.object_of_reminder = object
                 date_reminder.save()
