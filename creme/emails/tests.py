@@ -134,7 +134,7 @@ class MailingListsTestCase(CremeTestCase):
     def test_ml_and_campaign(self):
         campaign = EmailCampaign.objects.create(user=self.user, name='camp01')
         mlist    = MailingList.objects.create(user=self.user,   name='ml01')
-        self.assertFalse(campaign.mailing_lists.all())
+        self.assertFalse(campaign.mailing_lists.exists())
 
         url = '/emails/campaign/%s/mailing_list/add' % campaign.id
         self.assertEqual(200, self.client.get(url).status_code)
@@ -156,11 +156,11 @@ class MailingListsTestCase(CremeTestCase):
                                     follow=True, data={'id': mlist.id}
                                    )
         self.assertEqual(200, response.status_code)
-        self.assertFalse(campaign.mailing_lists.all())
+        self.assertFalse(campaign.mailing_lists.exists())
 
     def test_recipients01(self):
         mlist = MailingList.objects.create(user=self.user, name='ml01')
-        self.assertFalse(mlist.emailrecipient_set.all())
+        self.assertFalse(mlist.emailrecipient_set.exists())
 
         url = '/emails/mailing_list/%s/recipient/add' % mlist.id
         self.assertEqual(200, self.client.get(url).status_code)
@@ -171,14 +171,9 @@ class MailingListsTestCase(CremeTestCase):
         self.assertEqual(set(recipients), set(r.address for r in mlist.emailrecipient_set.all()))
 
         #################
-        response = self.client.post('/emails/mailing_list/%s/recipient/add' % mlist.id, follow=True,
-                                    data={'recipients': 'faye.valentine#bebop.com'} #invalid address
-                                   )
-        self.assertEqual(response.status_code, 200)
-        try:
-            response.context['form'].errors
-        except Exception as e:
-            self.fail('There should be a ValidationError')
+        response = self.client.post(url, data={'recipients': 'faye.valentine#bebop.com'}) #invalid address
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', 'recipients', [_(u"Enter a valid e-mail address.")])
 
         #################
         recipient = mlist.emailrecipient_set.all()[0]
@@ -347,23 +342,23 @@ class MailingListsTestCase(CremeTestCase):
         mlist01 = create_ml(user=self.user, name='ml01')
         mlist02 = create_ml(user=self.user, name='ml02')
 
-        self.assertFalse(mlist01.children.all())
-        self.assertFalse(mlist02.children.all())
+        self.assertFalse(mlist01.children.exists())
+        self.assertFalse(mlist02.children.exists())
 
         url = '/emails/mailing_list/%s/child/add' % mlist01.id
         self.assertEqual(200, self.client.get(url).status_code)
 
         self.assertEqual(200, self.client.post(url, data={'child': mlist02.id}).status_code)
         self.assertEqual([mlist02.id], [ml.id for ml in mlist01.children.all()])
-        self.assertFalse(mlist02.children.all())
+        self.assertFalse(mlist02.children.exists())
 
         #########################
         response = self.client.post('/emails/mailing_list/%s/child/delete' % mlist01.id,
                                     data={'id': mlist02.id}, follow=True
                                    )
         self.assertEqual(200, response.status_code)
-        self.assertFalse(mlist01.children.all())
-        self.assertFalse(mlist02.children.all())
+        self.assertFalse(mlist01.children.exists())
+        self.assertFalse(mlist02.children.exists())
 
     def test_ml_tree02(self):
         create_ml = MailingList.objects.create
@@ -377,22 +372,27 @@ class MailingListsTestCase(CremeTestCase):
         response = self.client.post('/emails/mailing_list/%s/child/add' % mlist01.id,
                                     data={'child': mlist02.id}
                                    )
-        self.assertTrue(response.context['form'].errors)
+        self.assertFormError(response, 'form', 'child', [_(u'List already in the children')])
 
         response = self.client.post('/emails/mailing_list/%s/child/add' % mlist01.id,
                                     data={'child': mlist03.id}
                                    )
-        self.assertTrue(response.context['form'].errors)
+        self.assertFormError(response, 'form', 'child', [_(u'List already in the children')])
+
+        response = self.client.post('/emails/mailing_list/%s/child/add' % mlist02.id,
+                                    data={'child': mlist01.id}
+                                   )
+        self.assertFormError(response, 'form', 'child', [_(u'List already in the parents')])
 
         response = self.client.post('/emails/mailing_list/%s/child/add' % mlist03.id,
                                     data={'child': mlist01.id}
                                    )
-        self.assertTrue(response.context['form'].errors)
+        self.assertFormError(response, 'form', 'child', [_(u'List already in the parents')])
 
-        response = self.client.post('/emails/mailing_list/%s/child/add' % mlist03.id,
-                                    data={'child': mlist02.id}
+        response = self.client.post('/emails/mailing_list/%s/child/add' % mlist01.id,
+                                    data={'child': mlist01.id}
                                    )
-        self.assertTrue(response.context['form'].errors)
+        self.assertFormError(response, 'form', 'child', [_(u"A list can't be its own child")])
 
 
 class TemplatesTestCase(CremeTestCase):
@@ -550,13 +550,12 @@ class SendingsTestCase(CremeTestCase):
         url = '/emails/campaign/%s/sending/add' % camp.id
         self.assertEqual(self.client.get(url).status_code, 200)
 
-        response = self.client.post(url, data={
-                                                'sender':   'vicious@reddragons.mrs',
-                                                'type':     SENDING_TYPE_IMMEDIATE,
-                                                'template': template.id,
+        response = self.client.post(url, data={'sender':   'vicious@reddragons.mrs',
+                                               'type':     SENDING_TYPE_IMMEDIATE,
+                                               'template': template.id,
                                               }
                                    )
-        self.assertFalse(response.context['form'].errors)
+        self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
         sendings = EmailCampaign.objects.get(pk=camp.id).sendings_set.all()
@@ -681,7 +680,7 @@ class SendingsTestCase(CremeTestCase):
                                                 'template': template.id,
                                               }
                                    )
-        self.assertTrue(response.context['form'].errors, "'sending_date' should be required !?")
+        self.assertFormError(response, 'form', 'sending_date', [_(u"Sending date required for a deferred sending")])
 
         response = self.client.post(url, data={
                                                 'sender':       'vicious@reddragons.mrs',
@@ -690,7 +689,7 @@ class SendingsTestCase(CremeTestCase):
                                                 'sending_date': (now - timedelta(days=1)).strftime('%Y-%m-%d'), #past: KO
                                               }
                                    )
-        self.assertTrue(response.context['form'].errors)
+        self.assertFormError(response, 'form', 'sending_date', [_(u"Sending date must be is the future")])
 
 
 class SignaturesTestCase(CremeTestCase):
