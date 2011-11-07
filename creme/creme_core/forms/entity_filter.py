@@ -28,10 +28,10 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, EntityFilter, EntityFilterCondition, RelationType, CremePropertyType, CustomField
 from creme_core.models.entity_filter import _ConditionBooleanOperator, _IsEmptyOperator
-
 from creme_core.forms import CremeModelForm
 from creme_core.forms.fields import JSONField
-from creme_core.forms.widgets import DynamicInput, SelectorList, ChainedInput, EntitySelector, UnorderedMultipleChoiceWidget, DateRangeSelect, DynamicSelect, PolymorphicInput
+from creme_core.forms.widgets import (DynamicInput, SelectorList, ChainedInput, EntitySelector,
+                                      UnorderedMultipleChoiceWidget, DateRangeSelect, DynamicSelect, PolymorphicInput)
 from creme_core.utils.id_generator import generate_string_id_and_save
 from creme_core.utils.meta import is_date_field
 from creme_core.utils.date_range import date_range_registry

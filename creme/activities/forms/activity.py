@@ -27,7 +27,6 @@ from django.forms.fields import ChoiceField
 from django.forms.util import ValidationError, ErrorList
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
-from activities.models.activity import ActivityType
 
 from creme_core.models import Relation
 from creme_core.forms import CremeForm, CremeEntityForm
@@ -39,7 +38,7 @@ from persons.models import Contact
 
 from assistants.models.alert import Alert
 
-from activities.models import Activity, Calendar
+from activities.models import ActivityType, Activity, Calendar
 from activities.constants import *
 from activities.utils import check_activity_collisions
 

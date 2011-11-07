@@ -210,7 +210,7 @@ class LwMailsHistoryBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'lw_mails_history')
     dependencies  = (LightWeightEmail,)
     order_by      = '-sending_date'
-    verbose_name  = _(u"Campaings emails history")
+    verbose_name  = _(u"Campaigns emails history")
     template_name = 'emails/templatetags/block_lw_mails_history.html'
 
     def detailview_display(self, context):
