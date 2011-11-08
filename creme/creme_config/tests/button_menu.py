@@ -8,7 +8,7 @@ try:
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Contact, Organisation
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -42,10 +42,10 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         try:
             choices = response.context['form'].fields['ct_id'].choices
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
-        self.assert_(ct.id not in (ct_id for ct_id, ctype in choices))
+        self.assertNotIn(ct.id, (ct_id for ct_id, ctype in choices))
 
     def _find_field_index(self, formfield, button_id):
         for i, (f_button_id, f_button_vname) in enumerate(formfield.choices):
@@ -73,7 +73,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         try:
             button_ids = response.context['form'].fields['button_ids']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         button_index = self._find_field_index(button_ids, button.id_)
@@ -128,7 +128,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         try:
             button_ids = response.context['form'].fields['button_ids']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         button01_index = self._find_field_index(button_ids, button01.id_)

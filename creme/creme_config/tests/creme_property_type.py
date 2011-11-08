@@ -7,7 +7,7 @@ try:
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Contact, Organisation #need CremeEntity
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -78,11 +78,9 @@ class PropertyTypeTestCase(CremeTestCase):
 
         ct_orga = get_ct(Organisation)
         text   = 'is very beautiful'
-        response = self.client.post(uri,
-                                    data={
-                                            'text':           text,
-                                            'subject_ctypes': [ct_orga.id],
-                                         }
+        response = self.client.post(uri, data={'text':           text,
+                                               'subject_ctypes': [ct_orga.id],
+                                              }
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)

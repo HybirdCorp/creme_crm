@@ -12,7 +12,7 @@ try:
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Contact  #need CremeEntity
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -53,7 +53,7 @@ class BlocksConfigTestCase(CremeTestCase):
         except Exception, e:
             self.fail(str(e))
 
-        self.assert_(ct.id not in (ct_id for ct_id, ctype in choices))
+        self.assertNotIn(ct.id, (ct_id for ct_id, ctype in choices))
 
     def _find_field_index(self, formfield, name):
         for i, (fname, fvname) in enumerate(formfield.choices):
@@ -115,11 +115,11 @@ class BlocksConfigTestCase(CremeTestCase):
             left_field   = fields['left']
             right_field  = fields['right']
             bottom_field = fields['bottom']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         blocks = list(block_registry.get_compatible_blocks(model)) #TODO test get_compatible_blocks() in creme_core
-        self.assert_(len(blocks) >= 5)
+        self.assertGreaterEqual(len(blocks), 5)
         self._find_field_index(top_field, foobar_block1.id_)
         self._assertNoInChoices(top_field, foobar_block2.id_, 'Block has no detailview_display() method')
 
@@ -192,7 +192,7 @@ class BlocksConfigTestCase(CremeTestCase):
         ct = ContentType.objects.get_for_model(model)
 
         blocks = list(block_registry.get_compatible_blocks(model))
-        self.assert_(len(blocks) >= 5, blocks)
+        self.assertGreaterEqual(len(blocks), 5, blocks)
 
         create_loc = BlockDetailviewLocation.objects.create
         create_loc(content_type=ct, block_id=blocks[0].id_, order=1, zone=BlockDetailviewLocation.TOP)
@@ -210,11 +210,11 @@ class BlocksConfigTestCase(CremeTestCase):
             left_field   = fields['left']
             right_field  = fields['right']
             bottom_field = fields['bottom']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
-        block_top_id1   = blocks[0].id_
-        block_top_id2   = blocks[1].id_
+        block_top_id1 = blocks[0].id_
+        block_top_id2 = blocks[1].id_
 
         self.assertEqual([block_top_id1], top_field.initial)
         self.assertEqual([block_top_id2], left_field.initial)
@@ -254,7 +254,7 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertEqual(404, self.client.get(url).status_code)
 
         blocks = list(block_registry.get_compatible_blocks(model=None))
-        self.assert_(len(blocks) >= 5, blocks)
+        self.assertGreaterEqual(len(blocks), 5, blocks)
 
         create_loc = BlockDetailviewLocation.objects.create
         create_loc(block_id=blocks[0].id_, order=1, zone=BlockDetailviewLocation.TOP)
@@ -289,11 +289,11 @@ class BlocksConfigTestCase(CremeTestCase):
             fields = response.context['form'].fields
             left_field  = fields['left']
             right_field = fields['right']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         blocks = list(block_registry.get_compatible_blocks(model))
-        self.assert_(len(blocks))
+        self.assertTrue(blocks)
 
         evil_block = blocks[0]
 
@@ -335,12 +335,12 @@ class BlocksConfigTestCase(CremeTestCase):
 
         try:
             top_field = response.context['form'].fields['top']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         choices = [block_id for block_id, block_name in top_field.choices]
-        self.assert_(rtype_block_id in choices, choices)
-        self.assert_(instance_block_id in choices, choices)
+        self.assertIn(rtype_block_id,    choices)
+        self.assertIn(instance_block_id, choices)
 
     def test_delete_detailview01(self): #can not delete default conf
         response = self.client.post('/creme_config/blocks/detailview/delete', data={'id': 0})
@@ -376,13 +376,13 @@ class BlocksConfigTestCase(CremeTestCase):
 
         try:
             choices = response.context['form'].fields['app_name'].choices
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         names = set(name for name, vname in choices)
-        self.assert_(app_name not in names, names)
-        self.assert_('creme_core' not in names, names)
-        self.assert_('creme_config' not in names, names)
+        self.assertNotIn(app_name,       names)
+        self.assertNotIn('creme_core',   names)
+        self.assertNotIn('creme_config', names)
 
     def test_edit_portal01(self):
         self.assertEqual(404, self.client.get('/creme_config/blocks/portal/edit/persons').status_code)
@@ -441,11 +441,11 @@ class BlocksConfigTestCase(CremeTestCase):
 
         try:
             blocks_field = response.context['form'].fields['blocks']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         choices = blocks_field.choices
-        self.assert_(len(choices) >= 2)
+        self.assertGreaterEqual(len(choices), 2)
         self._find_field_index(blocks_field, foobar_block1.id_)
         self._assertNoInChoices(blocks_field, foobar_block2.id_, 'Block is not configurable')
         self._find_field_index(blocks_field, foobar_block3.id_)
@@ -477,7 +477,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def _get_blocks_4_portal(self):
         blocks = list(block for block_id, block in  block_registry if hasattr(block, 'portal_display'))
-        self.assert_(len(blocks) >= 2, blocks)
+        self.assertGreaterEqual(len(blocks), 2, blocks)
 
         return blocks
 
@@ -495,7 +495,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
         try:
             blocks_field = response.context['form'].fields['blocks']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         self.assertEqual([blocks[0].id_, blocks[1].id_], blocks_field.initial)
@@ -537,7 +537,7 @@ class BlocksConfigTestCase(CremeTestCase):
     def test_edit_portal05(self): #home -> use 'home_display' method
         app_name = 'creme_core'
 
-        self.assert_(BlockPortalLocation.objects.filter(app_name=app_name).exists())
+        self.assertTrue(BlockPortalLocation.objects.filter(app_name=app_name).exists())
 
         class FoobarBlock(Block):
             id_           = Block.generate_id('creme_config', 'test_edit_portal05')
@@ -559,7 +559,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
         try:
             blocks_field = response.context['form'].fields['blocks']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         self._find_field_index(blocks_field, foobar_block.id_)
@@ -576,7 +576,7 @@ class BlocksConfigTestCase(CremeTestCase):
         #TODO: use a helper method ??
         app_name = 'creme_core'
         blocks = list(block for block_id, block in  block_registry if hasattr(block, 'home_display'))
-        self.assert_(len(blocks) >= 1, blocks)
+        self.assertGreaterEqual(len(blocks), 1)
 
         BlockPortalLocation.objects.create(app_name=app_name, block_id=blocks[0].id_, order=1)
 
@@ -590,13 +590,13 @@ class BlocksConfigTestCase(CremeTestCase):
 
         try:
             blocks_field = response.context['form'].fields['blocks']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         choices = blocks_field.choices
-        self.assert_(len(choices) >= 2)
+        self.assertGreaterEqual(len(choices), 2)
         self.assertEqual(list(BlockMypageLocation.objects.filter(user=None).values_list('block_id', flat=True)),
-                        blocks_field.initial
+                         blocks_field.initial
                         )
 
         block_id1 = choices[0][0]
@@ -631,11 +631,11 @@ class BlocksConfigTestCase(CremeTestCase):
 
         try:
             blocks_field = response.context['form'].fields['blocks']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         choices = blocks_field.choices
-        self.assert_(len(choices) >= 2)
+        self.assertGreaterEqual(len(choices), 2)
         self.assertEqual(list(BlockMypageLocation.objects.filter(user=None).values_list('block_id', flat=True)),
                          blocks_field.initial
                         )
@@ -713,8 +713,8 @@ class BlocksConfigTestCase(CremeTestCase):
         loc = BlockDetailviewLocation.create(block_id=rbi.block_id, order=5, zone=BlockDetailviewLocation.RIGHT, model=Contact)
 
         self.assertEqual(200, self.client.post('/creme_config/relation_block/delete', data={'id': rbi.id}).status_code)
-        self.assertFalse(RelationBlockItem.objects.filter(pk=rbi.pk).count())
-        self.assertFalse(BlockDetailviewLocation.objects.filter(pk=loc.pk).count())
+        self.assertFalse(RelationBlockItem.objects.filter(pk=rbi.pk).exists())
+        self.assertFalse(BlockDetailviewLocation.objects.filter(pk=loc.pk).exists())
 
     def test_delete_instanceblock(self): ##(r'^instance_block/delete$',  'blocks.delete_instance_block')
         naru = Contact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
@@ -723,5 +723,5 @@ class BlocksConfigTestCase(CremeTestCase):
         loc = BlockDetailviewLocation.create(block_id=ibi.block_id, order=5, zone=BlockDetailviewLocation.RIGHT, model=Contact)
 
         self.assertEqual(200, self.client.post('/creme_config/instance_block/delete', data={'id': ibi.id}).status_code)
-        self.assertFalse(InstanceBlockConfigItem.objects.filter(pk=ibi.pk).count())
-        self.assertFalse(BlockDetailviewLocation.objects.filter(pk=loc.pk).count())
+        self.assertFalse(InstanceBlockConfigItem.objects.filter(pk=ibi.pk).exists())
+        self.assertFalse(BlockDetailviewLocation.objects.filter(pk=loc.pk).exists())

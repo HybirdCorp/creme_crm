@@ -4,7 +4,7 @@ try:
     from creme_core.tests.base import CremeTestCase
 
     from creme_config.models import SettingKey, SettingValue
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -46,7 +46,7 @@ class SettingTestCase(CremeTestCase):
 
         sv.value = False
         sv.save()
-        self.assert_(SettingValue.objects.get(pk=sv.pk).value is False)
+        self.assertIs(SettingValue.objects.get(pk=sv.pk).value, False)
 
     def test_edit01(self):
         self.login()
@@ -64,10 +64,8 @@ class SettingTestCase(CremeTestCase):
         title = title.upper()
         response = self.client.post(url, data={'value': title})
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
-
-        sv = SettingValue.objects.get(pk=sv.pk) #refresh
-        self.assertEqual(title, sv.value)
+        self.assertEqual(200,   response.status_code)
+        self.assertEqual(title, self.refresh(sv).value)
 
     def test_edit02(self):
         self.login()
@@ -82,8 +80,8 @@ class SettingTestCase(CremeTestCase):
         size += 15
         response = self.client.post('/creme_config/setting/edit/%s' % sv.id, data={'value': size})
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(size, SettingValue.objects.get(pk=sv.pk).value)
+        self.assertEqual(200,  response.status_code)
+        self.assertEqual(size, self.refresh(sv).value)
 
     def test_edit03(self):
         self.login()
@@ -97,7 +95,7 @@ class SettingTestCase(CremeTestCase):
         response = self.client.post('/creme_config/setting/edit/%s' % sv.id, data={}) #False -> empty POST
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
-        self.assertFalse(SettingValue.objects.get(pk=sv.pk).value)
+        self.assertFalse(self.refresh(sv).value)
 
     def test_edit04(self): #hidden => not editable
         self.login()

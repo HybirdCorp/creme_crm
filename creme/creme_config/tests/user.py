@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.utils.translation import ugettext as _
     from django.conf import settings
     from django.contrib.sessions.models import Session
     from django.contrib.auth.models import User
@@ -17,7 +18,7 @@ try:
     from creme_config.constants import USER_THEME_NAME
     from creme_config.models import SettingKey, SettingValue
     from creme_config.utils import get_user_theme
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -68,7 +69,7 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(first_name, user.first_name)
         self.assertEqual(last_name,  user.last_name)
         self.assertEqual(email,      user.email)
-        self.assert_(user.check_password(password))
+        self.assertTrue(user.check_password(password))
 
         self.assertEqual(0, EntityCredentials.objects.filter(user=user).count())
 
@@ -105,7 +106,7 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(2 + 2, CremeEntity.objects.count())#2 from creme_core populate + 2 from now
         self.assertEqual(2 + 2, EntityCredentials.objects.filter(user=user).count())#2 from creme_core populate + 2 from now
 
-        self.assert_(orga.can_view(user))
+        self.assertTrue(orga.can_view(user))
 
     def test_edit01(self):
         role1 = UserRole(name='Master')
@@ -116,7 +117,7 @@ class UserTestCase(CremeTestCase):
         other_user = User.objects.create(username='deunan', role=role1)
 
         briareos = Contact.objects.create(user=self.user, first_name='Briareos', last_name='Hecatonchires')
-        self.assert_(briareos.can_view(other_user))
+        self.assertTrue(briareos.can_view(other_user))
 
         response = self.client.get('/creme_config/user/edit/%s' % other_user.id)
         self.assertEqual(200, response.status_code)
@@ -136,13 +137,13 @@ class UserTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        other_user = User.objects.get(pk=other_user.id)
+        other_user = self.refresh(other_user)
         self.assertEqual(first_name, other_user.first_name)
         self.assertEqual(last_name,  other_user.last_name)
         self.assertEqual(email,      other_user.email)
-        self.assertEqual(role2.id,   other_user.role_id)
+        self.assertEqual(role2,      other_user.role)
 
-        briareos = Contact.objects.get(pk=briareos.id) #refresh cache
+        briareos = self.refresh(briareos) #refresh cache
         self.assertFalse(briareos.can_view(other_user))
 
     def test_change_password(self):
@@ -161,9 +162,7 @@ class UserTestCase(CremeTestCase):
         )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
-
-        other_user = User.objects.get(pk=other_user.pk)
-        self.assert_(other_user.check_password(password))
+        self.assertTrue(self.refresh(other_user).check_password(password))
 
     def test_portal(self):
         response = self.client.get('/creme_config/user/portal/')
@@ -198,12 +197,11 @@ class UserTestCase(CremeTestCase):
 
         teammates = team.teammates
         self.assertEqual(2, len(teammates))
-        self.assert_(user01.id in teammates)
-        self.assert_(user02.id in teammates)
+        self.assertIn(user01.id, teammates)
+        self.assertIn(user02.id, teammates)
 
     def _create_team(self, name, teammates):
         team = User.objects.create(username=name, is_team=True, role=None)
-
         team.teammates = teammates
 
         return team
@@ -233,8 +231,8 @@ class UserTestCase(CremeTestCase):
         team = self._create_team(teamname, [user01, user02])
 
         entity = CremeEntity.objects.create(user=team)
-        self.assert_(entity.can_view(user01))
-        self.assert_(entity.can_view(user02))
+        self.assertTrue(entity.can_view(user01))
+        self.assertTrue(entity.can_view(user02))
         self.assertFalse(entity.can_view(user03))
 
         response = self.client.get('/creme_config/team/edit/%s' % team.id)
@@ -250,20 +248,20 @@ class UserTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        team = User.objects.get(pk=team.id) #refresh
+        team = self.refresh(team)
         self.assertEqual(teamname, team.username)
 
         teammates = team.teammates
         self.assertEqual(2, len(teammates))
-        self.assert_(user02.id in teammates)
-        self.assert_(user03.id in teammates)
+        self.assertIn(user02.id, teammates)
+        self.assertIn(user03.id, teammates)
         self.assertFalse(user01.id in teammates)
 
         #credentials have been updated ?
         entity = CremeEntity.objects.get(pk=entity.id)
         self.assertFalse(entity.can_view(user01))
-        self.assert_(entity.can_view(user02))
-        self.assert_(entity.can_view(user03))
+        self.assertTrue(entity.can_view(user02))
+        self.assertTrue(entity.can_view(user03))
 
     def test_team_delete01(self):
         user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
@@ -300,7 +298,7 @@ class UserTestCase(CremeTestCase):
 
         try:
             ce = CremeEntity.objects.get(pk=ce.id)#Refresh
-        except CremeEntity.DoesNotExist, e:
+        except CremeEntity.DoesNotExist as e:
             self.fail(e)
 
         self.assertEqual(team2, ce.user)
@@ -318,7 +316,7 @@ class UserTestCase(CremeTestCase):
         HistoryLine.objects.all().delete()
         User.objects.all().exclude(pk=self.user.pk).delete()#Ensure there is only one user
 
-        self.assertEqual(1, User.objects.all().count())
+        self.assertEqual(1, User.objects.count())
 
         response = self.client.get('/creme_config/user/delete/%s' % self.user.id)
         self.assertEqual(400, response.status_code)
@@ -326,18 +324,18 @@ class UserTestCase(CremeTestCase):
         response = self.client.post('/creme_config/user/delete/%s' % self.user.id, {'to_user': self.user.id})
 
         self.assertEqual(400, response.status_code)#Delete is not permitted when there is only one user
-        self.assertEqual(1, User.objects.all().count())
+        self.assertEqual(1, User.objects.count())
 
     def test_user_delete02(self):
-        self.assert_(User.objects.all().count() > 1)
+        self.assertGreater(User.objects.count(), 1)
 
         response = self.client.get('/creme_config/user/delete/%s' % self.user.id)
         self.assertEqual(200, response.status_code)
 
         response = self.client.post('/creme_config/user/delete/%s' % self.user.id, {'to_user': self.user.id})
-        self.assertEqual(200, response.status_code)#Can't assign and delete the same user
-        self.assert_(response.context['form'].errors)
-        self.assert_(User.objects.filter(pk=self.user.id))
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', None, [_(u"You can't delete and assign to the same user.")])
+        self.assertTrue(User.objects.filter(pk=self.user.id).exists())
 
     def test_user_delete03(self):
         user       = self.user
@@ -351,11 +349,11 @@ class UserTestCase(CremeTestCase):
         response = self.client.post('/creme_config/user/delete/%s' % other_user.id, {'to_user': user.id})
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
-        self.assertFalse(User.objects.filter(id=other_user.id))
+        self.assertFalse(User.objects.filter(id=other_user.id).exists())
 
         try:
             ce = CremeEntity.objects.get(pk=ce.id)#Refresh
-        except CremeEntity.DoesNotExist, e:
+        except CremeEntity.DoesNotExist as e:
             self.fail(e)
 
         self.assertEqual(user, ce.user)
@@ -374,11 +372,11 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
-        self.assertFalse(User.objects.filter(id=other_user.id))
+        self.assertFalse(User.objects.filter(id=other_user.id).exists())
 
         try:
             cal = Calendar.objects.get(pk=cal.id)
-        except Calendar.DoesNotExist, e:
+        except Calendar.DoesNotExist as e:
             self.fail(e)
 
         self.assertEqual(user, cal.user)
@@ -396,10 +394,10 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
-        self.assertFalse(User.objects.filter(id=other_user.id))
+        self.assertFalse(User.objects.filter(id=other_user.id).exists())
 
-        self.assertFalse(Contact.objects.filter(user=other_user))
-        self.assertFalse(Contact.objects.filter(is_user=other_user))
+        self.assertFalse(Contact.objects.filter(user=other_user).exists())
+        self.assertFalse(Contact.objects.filter(is_user=other_user).exists())
 
         self.assertEqual(1, Contact.objects.filter(is_user=user).count())
 
@@ -415,8 +413,8 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
-        self.assertFalse(User.objects.filter(id=self.other_user.id))
-        self.assertFalse(SettingValue.objects.filter(key=setting_key))
+        self.assertFalse(User.objects.filter(id=self.other_user.id).exists())
+        self.assertFalse(SettingValue.objects.filter(key=setting_key).exists())
 
 
 class UserSettingsTestCase(CremeTestCase):
@@ -434,20 +432,14 @@ class UserSettingsTestCase(CremeTestCase):
         theme = "chantilly"
         self.assertEqual(1, SettingKey.objects.filter(pk=USER_THEME_NAME).count())
         self.assertEqual(0, SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME).count())
-        response = self.client.post('/creme_config/user/edit/theme/',
-                                    data={
-                                        'themes': theme,
-                                    })
+        response = self.client.post('/creme_config/user/edit/theme/', data={'themes': theme})
 
         self.assertEqual(1,     SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME).count())
         self.assertEqual(theme, SettingValue.objects.get(user=self.user, key=USER_THEME_NAME).value)
 
 #        theme = "chantilly2"
         theme = "icecream"
-        response = self.client.post('/creme_config/user/edit/theme/',
-                            data={
-                                'themes': theme,
-                            })
+        response = self.client.post('/creme_config/user/edit/theme/', data={'themes': theme})
         self.assertEqual(1,     SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME).count())
         self.assertEqual(theme, SettingValue.objects.get(user=self.user, key=USER_THEME_NAME).value)
 
