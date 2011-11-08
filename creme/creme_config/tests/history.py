@@ -5,7 +5,7 @@ try:
 
     from creme_core.models import RelationType, HistoryConfigItem
     from creme_core.tests.base import CremeTestCase
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -23,7 +23,7 @@ class HistoryConfigTestCase(CremeTestCase):
 
     def test_add01(self):
         self.login()
-        self.assertFalse(HistoryConfigItem.objects.count())
+        self.assertFalse(HistoryConfigItem.objects.exists())
 
         rtype01, srtype01 = RelationType.create(('test-subject_foo', 'fooes'), ('test-object_foo', 'fooed'))
         rtype02, srtype02 = RelationType.create(('test-subject_bar', 'bars'),  ('test-object_bar', 'bared'))
@@ -62,4 +62,4 @@ class HistoryConfigTestCase(CremeTestCase):
 
         response = self.client.post('/creme_config/history/delete', data={'id': hci.id})
         self.assertEqual(200, response.status_code)
-        self.assertFalse(HistoryConfigItem.objects.filter(pk=hci.id).count())
+        self.assertFalse(HistoryConfigItem.objects.filter(pk=hci.id).exists())

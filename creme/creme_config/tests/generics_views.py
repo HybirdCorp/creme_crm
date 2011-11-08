@@ -6,7 +6,7 @@ try:
     from persons.models import Civility
 
     from billing.models import InvoiceStatus
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -40,7 +40,7 @@ class GenericModelConfigTestCase(CremeTestCase):
 
         try:
             Civility.objects.filter(title=title)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
     def test_add02(self):
@@ -56,7 +56,7 @@ class GenericModelConfigTestCase(CremeTestCase):
 
         try:
             InvoiceStatus.objects.filter(name=name, is_custom=True)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
     def test_edit(self):
@@ -69,10 +69,8 @@ class GenericModelConfigTestCase(CremeTestCase):
         title = title.title()
         response = self.client.post(url, data={'title': title})
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
-
-        civ = Civility.objects.get(pk=civ.pk) #refresh
-        self.assertEqual(title, civ.title)
+        self.assertEqual(200,   response.status_code)
+        self.assertEqual(title, self.refresh(civ).title)
 
     def test_delete01(self):
         pk = Civility.objects.create(title='Herr').pk
@@ -84,6 +82,6 @@ class GenericModelConfigTestCase(CremeTestCase):
         pk = InvoiceStatus.objects.create(name='Okidoki', is_custom=False).pk
         response = self.client.post('/creme_config/persons/civility/delete', data={'id': pk})
         self.assertEqual(404, response.status_code)
-        self.assert_(InvoiceStatus.objects.filter(pk=pk).exists())
+        self.assertTrue(InvoiceStatus.objects.filter(pk=pk).exists())
 
 #TODO: (r'^models/(?P<ct_id>\d+)/reload/$', 'generics_views.reload_block'),

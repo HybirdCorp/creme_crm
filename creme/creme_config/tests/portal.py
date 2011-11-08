@@ -2,7 +2,7 @@
 
 try:
     from creme_core.tests.base import CremeTestCase
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 

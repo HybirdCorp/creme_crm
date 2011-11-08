@@ -7,7 +7,7 @@ try:
     from creme_core.gui.menu import creme_menu
     from creme_core.tests.base import CremeTestCase
     from creme_core import autodiscover
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -27,7 +27,7 @@ class PreferedMenuTestCase(CremeTestCase):
         self.login()
         autodiscover()
 
-        self.assertFalse(PreferedMenuItem.objects.all())
+        self.assertFalse(PreferedMenuItem.objects.exists())
 
         reg_item = creme_menu.get_app_item('creme_config').register_item
         url1 = '/creme_config/test_edit01/test_view1'; label1 = u"Test view1"
@@ -41,7 +41,7 @@ class PreferedMenuTestCase(CremeTestCase):
 
         try:
             entries = response.context['form'].fields['menu_entries']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         index1 = self._find_field_index(entries, url1)
@@ -64,11 +64,11 @@ class PreferedMenuTestCase(CremeTestCase):
         self.assertEqual(2, len(items))
 
         item = items[0]
-        self.assertEqual(None,   item.user)
+        self.assertIsNone(item.user)
         self.assertEqual(url1,   item.url)
         self.assertEqual(label1, item.label)
 
         item = items[1]
-        self.assertEqual(None,   item.user)
+        self.assertIsNone(item.user)
         self.assertEqual(url2,   item.url)
         self.assertEqual(label2, item.label)

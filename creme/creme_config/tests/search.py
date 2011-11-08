@@ -8,7 +8,7 @@ try:
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Contact, Organisation
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -36,7 +36,7 @@ class SearchConfigTestCase(CremeTestCase):
 
         sc_items = SearchConfigItem.objects.filter(content_type=ct)
         self.assertEqual(1, len(sc_items))
-        self.assertEqual(None, sc_items[0].user)
+        self.assertIsNone(sc_items[0].user)
 
     def test_add02(self):
         ct = ContentType.objects.get_for_model(Contact)
@@ -77,7 +77,7 @@ class SearchConfigTestCase(CremeTestCase):
 
         try:
             fields = response.context['form'].fields['fields']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         index1 = self._find_field_index(fields, 'first_name')
@@ -112,5 +112,5 @@ class SearchConfigTestCase(CremeTestCase):
 
         response = self.client.post('/creme_config/search/delete', data={'id': sci.id})
         self.assertEqual(200, response.status_code)
-        self.failIf(SearchConfigItem.objects.filter(pk=sci.pk))
-        self.failIf(SearchField.objects.filter(pk__in=[sf1.pk, sf2.pk]))
+        self.assertFalse(SearchConfigItem.objects.filter(pk=sci.pk).exists())
+        self.assertFalse(SearchField.objects.filter(pk__in=[sf1.pk, sf2.pk]).exists())

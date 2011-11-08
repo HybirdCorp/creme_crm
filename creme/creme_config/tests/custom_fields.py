@@ -8,7 +8,7 @@ try:
     from creme_core import autodiscover
 
     from persons.models import Contact, Organisation
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -33,10 +33,9 @@ class CustomFieldsTestCase(CremeTestCase):
 
         name = 'Size'
         field_type = CustomField.INT
-        response = self.client.post(url, data={
-                                                'content_type': ct.id,
-                                                'name':         name,
-                                                'field_type':   field_type,
+        response = self.client.post(url, data={'content_type': ct.id,
+                                               'name':         name,
+                                               'field_type':   field_type,
                                               }
                                    )
         self.assertNoFormError(response)
@@ -55,12 +54,12 @@ class CustomFieldsTestCase(CremeTestCase):
 
         try:
             choices = response.context['form'].fields['content_type'].choices
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         ct_set = set(ct_id for ct_id, vname in choices)
-        self.assert_(ct.id not in ct_set)
-        self.assert_(ContentType.objects.get_for_model(Organisation).id in ct_set)
+        self.assertNotIn(ct.id, ct_set)
+        self.assertIn(ContentType.objects.get_for_model(Organisation).id, ct_set)
 
         self.assertEqual(200, self.client.get('/creme_config/custom_fields/ct/%s' % ct.id).status_code)
 
@@ -88,10 +87,9 @@ class CustomFieldsTestCase(CremeTestCase):
 
         name = 'Eva'
         field_type = CustomField.ENUM
-        response = self.client.post(url, data={
-                                                'name':        name,
-                                                'field_type':  field_type,
-                                                'enum_values': 'Eva01\nEva02\nEva03',
+        response = self.client.post(url, data={'name':        name,
+                                               'field_type':  field_type,
+                                               'enum_values': 'Eva01\nEva02\nEva03',
                                               }
                                    )
         self.assertNoFormError(response)
@@ -142,7 +140,7 @@ class CustomFieldsTestCase(CremeTestCase):
             fields = response.context['form'].fields
             new_choices = fields['new_choices']
             old_choices = fields['old_choices']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         self.assertEqual([u'C', u'ABC', u'Java'], old_choices.content)
