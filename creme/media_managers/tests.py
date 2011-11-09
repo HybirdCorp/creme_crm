@@ -10,7 +10,7 @@ try:
     from creme_core.tests.base import CremeTestCase
 
     from media_managers.models import *
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -57,7 +57,7 @@ class MediaManagersTestCase(CremeTestCase):
 
         try:
             image = Image.objects.get(name=name)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(self.user,   image.user)
@@ -86,7 +86,7 @@ class MediaManagersTestCase(CremeTestCase):
 
         try:
             image = Image.objects.get(name=name)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.images.append(image)
@@ -129,7 +129,7 @@ class MediaManagersTestCase(CremeTestCase):
 
         try:
             images_page = response.context['entities']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         self.assertEqual([image], list(images_page.object_list))
@@ -142,7 +142,7 @@ class MediaManagersTestCase(CremeTestCase):
 
         try:
             images_page = response.context['entities']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         self.assertEqual([image], list(images_page.object_list))
@@ -154,7 +154,7 @@ class MediaManagersTestCase(CremeTestCase):
 
         try:
             entity = response.context['object']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         self.assertEqual(image, entity)
@@ -169,7 +169,7 @@ class MediaManagersTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
 
         content = simplejson.loads(response.content)
-        self.assertTrue(isinstance(content, dict))
+        self.assertIsInstance(content, dict)
         self.assertEqual(1,         len(content))
         self.assertEqual(image_url, content.get('url'))
 

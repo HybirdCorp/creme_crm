@@ -18,7 +18,7 @@ try:
 
     from vcfs import vcf_lib
     from vcfs.forms import vcf
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -61,10 +61,10 @@ class VcfTestCase(VcfsTestCase):
 
         try:
             form = response.context['form']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
-        self.assert_('value="1"' in unicode(form['vcf_step']))
+        self.assertIn('value="1"', unicode(form['vcf_step']))
 
     def test_parsing_vcf00(self):
         self.login()
@@ -75,10 +75,10 @@ class VcfTestCase(VcfsTestCase):
 
         try:
             form = response.context['form']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
-        self.assert_('value="1"' in unicode(form['vcf_step']))
+        self.assertIn('value="1"', unicode(form['vcf_step']))
 
         firt_name, sep, last_name = vcf_lib.readOne(content).fn.value.partition(' ')
         self.assertEqual(form['first_name'].field.initial, firt_name)
@@ -93,7 +93,7 @@ class VcfTestCase(VcfsTestCase):
 
         try:
             form = response.context['form']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         vobj = vcf_lib.readOne(content)
@@ -129,7 +129,7 @@ class VcfTestCase(VcfsTestCase):
 
         try:
             form = response.context['form']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         vobj = vcf_lib.readOne(content)
@@ -153,7 +153,7 @@ class VcfTestCase(VcfsTestCase):
 
         try:
             form = response.context['form']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         vobj = vcf_lib.readOne(content)
@@ -175,7 +175,7 @@ class VcfTestCase(VcfsTestCase):
 
         try:
             form = response.context['form']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(form['organisation'].field.initial, orga.id)
@@ -188,7 +188,7 @@ class ContactTestCase(VcfsTestCase):
     def _assertFormOK(self, response):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
-        self.assert_(response.redirect_chain)
+        self.assertTrue(response.redirect_chain)
         self.assertEqual(1, len(response.redirect_chain))
 
     def test_add_contact_vcf00(self):
@@ -213,7 +213,7 @@ class ContactTestCase(VcfsTestCase):
         fax        = form['fax'].field.initial
         email      = form['email'].field.initial
         url_site   = form['url_site'].field.initial
-        self.assert_('value="1"' in unicode(form['vcf_step']))
+        self.assertIn('value="1"', unicode(form['vcf_step']))
 
         response = self.client.post(url, follow=True,
                                     data={
@@ -235,8 +235,10 @@ class ContactTestCase(VcfsTestCase):
         self.assertEqual(address_count,     Address.objects.count())
 
         try:
-            Contact.objects.get(first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email, url_site=url_site)
-        except Exception, e:
+            Contact.objects.get(first_name=first_name, last_name=last_name, phone=phone,
+                                mobile=mobile, fax=fax, email=email, url_site=url_site
+                               )
+        except Exception as e:
             self.fail(str(e) + str(Contact.objects.all()))
 
     def test_add_contact_vcf01(self):
@@ -329,8 +331,10 @@ class ContactTestCase(VcfsTestCase):
         self.assertEqual(orga_count,        Organisation.objects.count())
 
         try:
-            Contact.objects.get(first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email, url_site=url_site)
-        except Exception, e:
+            Contact.objects.get(first_name=first_name, last_name=last_name, phone=phone,
+                                mobile=mobile, fax=fax, email=email, url_site=url_site
+                               )
+        except Exception as e:
             self.fail(str(e))
 
     def test_add_contact_vcf03(self):
@@ -388,7 +392,7 @@ class ContactTestCase(VcfsTestCase):
             orga = Organisation.objects.get(name=work_name, phone=work_phone, email=work_email, url_site=work_url_site)
             contact = Contact.objects.get(first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email)
             Relation.objects.get(subject_entity=contact.id, type=REL_SUB_EMPLOYED_BY, object_entity=orga.id)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
     def test_add_contact_vcf04(self):
@@ -448,7 +452,7 @@ class ContactTestCase(VcfsTestCase):
         try:
             contact = Contact.objects.get(first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email)
             Relation.objects.get(subject_entity=contact.id, type=REL_SUB_EMPLOYED_BY, object_entity=orga.id)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
     def test_add_contact_vcf05(self):
@@ -508,7 +512,7 @@ class ContactTestCase(VcfsTestCase):
         try:
             contact = Contact.objects.get(first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email)
             address = Address.objects.get(name=adr_last_name, address=address, city=city, zipcode=code, country=country, department=region)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(contact.billing_address, address)
@@ -590,7 +594,7 @@ class ContactTestCase(VcfsTestCase):
             orga            = Organisation.objects.get(name=work_name)
             address_contact = Address.objects.get(name=adr_last_name, address=address, city=city, zipcode=code, country=country, department=region)
             address_orga    = Address.objects.get(name=work_adr_name, address=work_address, city=work_city, zipcode=work_code, country=work_country, department=work_region)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(contact.billing_address, address_contact)
@@ -845,7 +849,7 @@ class ContactTestCase(VcfsTestCase):
 
         try:
             orga = Organisation.objects.get(id=orga.id)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         billing_address = orga.billing_address
@@ -922,7 +926,7 @@ class ContactTestCase(VcfsTestCase):
         try:
             address = Address.objects.get(name=work_adr_name, address=work_address, city=work_city, zipcode=work_code, country=work_country, department=work_region)
             orga    = Organisation.objects.get(id=orga_id)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         vobj = vcf_lib.readOne(content)
@@ -935,7 +939,7 @@ class ContactTestCase(VcfsTestCase):
         self.assertEqual(address.zipcode,    adr.code)
         self.assertEqual(address.department, adr.region)
 
-        self.assertEqual(orga.billing_address.id, address.id)
+        self.assertEqual(orga.billing_address, address)
 
     def test_add_contact_vcf12(self):
         self.login()
@@ -985,7 +989,7 @@ class ContactTestCase(VcfsTestCase):
         try:
             Contact.objects.get(first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email, url_site='http://www.url.com/')
             # url_site='http://www.url.com/' and not url_site=url_site because URLField add 'http://' and '/'
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
     def test_add_contact_vcf13(self):
@@ -1000,7 +1004,7 @@ class ContactTestCase(VcfsTestCase):
         response = self._post_form_step_0(url, filedata.file)
 
         form = response.context['form']
-        user       = form['user'].field.initial
+        user        = form['user'].field.initial
         first_name  = form['first_name'].field.initial
         last_name   = form['last_name'].field.initial
         civility_id = form['civility'].field.initial
@@ -1021,7 +1025,7 @@ class ContactTestCase(VcfsTestCase):
 
         try:
             Contact.objects.get(civility=civility_id, first_name=first_name, last_name=last_name, position=position_id)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
     def test_add_contact_vcf14(self):
@@ -1044,8 +1048,7 @@ class ContactTestCase(VcfsTestCase):
         last_name  = form['last_name'].field.initial
         image      = form['image_encoded'].field.initial
 
-        response = self.client.post(url,
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':          user,
                                             'vcf_step':      1,
@@ -1064,10 +1067,10 @@ class ContactTestCase(VcfsTestCase):
 
         try:
             contact = Contact.objects.get(first_name=first_name, last_name=last_name)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
-        self.assert_(contact.image)
+        self.assertTrue(contact.image)
         self.assertEqual(_(u'Image of %s') % contact, contact.image.name)
         contact.image.image.delete()
 
@@ -1112,7 +1115,7 @@ class ContactTestCase(VcfsTestCase):
 
         try:
             contact = Contact.objects.get(first_name=first_name, last_name=last_name)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         images = Image.objects.all()
@@ -1141,8 +1144,7 @@ class ContactTestCase(VcfsTestCase):
         last_name  = form['last_name'].field.initial
         image      = form['image_encoded'].field.initial
 
-        response = self.client.post(url,
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':          user,
                                             'vcf_step':      1,

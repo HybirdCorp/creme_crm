@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
+try:
+    from django.contrib.auth.models import User
+    from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType, UserRole
-from creme_core.tests.base import CremeTestCase
+    from creme_core.models import RelationType, UserRole
+    from creme_core.tests.base import CremeTestCase
 
-from graphs.models import *
+    from graphs.models import *
+except Exception as e:
+    print 'Error:', e
 
 
 class GraphsTestCase(CremeTestCase):
@@ -54,7 +57,7 @@ class GraphsTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200,  response.status_code)
-        self.assertEqual(name, Graph.objects.get(pk=graph.id).name)
+        self.assertEqual(name, self.refresh(graph).name)
 
     def test_listview(self):
         self.login()

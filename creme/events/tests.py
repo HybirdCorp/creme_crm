@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
+try:
+    from datetime import datetime
 
-from datetime import datetime
+    from django.utils.translation import ugettext as _
+    from django.contrib.auth.models import User
+    from django.contrib.contenttypes.models import ContentType
 
-from django.utils.translation import ugettext as _
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
+    from creme_core.models import RelationType, Relation, SetCredentials
+    from creme_core.tests.base import CremeTestCase
 
-from creme_core.models import RelationType, Relation, SetCredentials
-from creme_core.tests.base import CremeTestCase
+    from persons.models import Contact
 
-from persons.models import Contact
-
-from events.models import *
-from events.constants import *
+    from events.models import *
+    from events.constants import *
+except Exception as e:
+    print 'Error:', e
 
 
 class EventsTestCase(CremeTestCase):
@@ -24,7 +26,7 @@ class EventsTestCase(CremeTestCase):
         rtypes = RelationType.objects.filter(pk__in=rtypes_pks)
         self.assertEqual(len(rtypes_pks), len(rtypes))
 
-        self.assert_(EventType.objects.count())
+        self.assertTrue(EventType.objects.exists())
 
     def create_event(self, name, etype):
         response = self.client.post('/events/event/add', follow=True,
@@ -39,7 +41,7 @@ class EventsTestCase(CremeTestCase):
 
         try:
             event = Event.objects.get(name=name)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         return event
@@ -54,9 +56,9 @@ class EventsTestCase(CremeTestCase):
         etype = EventType.objects.all()[0]
         event = self.create_event(name, etype)
 
-        self.assertEqual(1,        Event.objects.count())
-        self.assertEqual(name,     event.name)
-        self.assertEqual(etype.id, event.type_id)
+        self.assertEqual(1,     Event.objects.count())
+        self.assertEqual(name,  event.name)
+        self.assertEqual(etype, event.type)
 
         start = event.start_date
         self.assertEqual(2010, start.year)
@@ -70,8 +72,8 @@ class EventsTestCase(CremeTestCase):
         etype = EventType.objects.all()[0]
         event = self.create_event(name, etype)
 
-        response = self.client.get('/events/event/edit/%s' % event.id)
-        self.assertEqual(response.status_code, 200)
+        url = '/events/event/edit/%s' % event.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
         name += '_edited'
         response = self.client.post('/events/event/edit/%s' % event.id, follow=True,
@@ -84,7 +86,7 @@ class EventsTestCase(CremeTestCase):
                                    )
         self.assertEqual(response.status_code, 200)
 
-        event = Event.objects.get(pk=event.id)
+        event = self.refresh(event)
         self.assertEqual(name, event.name)
         self.assertEqual(4,    event.start_date.day)
 
@@ -100,11 +102,10 @@ class EventsTestCase(CremeTestCase):
 
         try:
             events_page = response.context['entities']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         self.assertEqual(2, events_page.paginator.count)
-
         self.assertEqual(set((event1.id, event2.id)), set(event.id for event in events_page.object_list))
 
     def test_stats01(self):
@@ -119,7 +120,7 @@ class EventsTestCase(CremeTestCase):
             self.assertEqual(0, stats['accepted_count'])
             self.assertEqual(0, stats['refused_count'])
             self.assertEqual(0, stats['visitors_count'])
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
     def test_stats02(self):
@@ -165,9 +166,8 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(0, stats['refused_count'])
         self.assertEqual(0, stats['visitors_count'])
 
-        response = self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
-                                    data={'status': str(INV_STATUS_NO_ANSWER)}
-                                   )
+        url = '/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id)
+        response = self.client.post(url, data={'status': str(INV_STATUS_NO_ANSWER)})
         self.assertEqual(response.status_code, 200)
 
         stats = event.get_stats()
@@ -176,9 +176,7 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(0, stats['refused_count'])
         self.assertEqual(0, stats['visitors_count'])
 
-        response = self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
-                                    data={'status': str(INV_STATUS_NOT_INVITED)}
-                                   )
+        response = self.client.post(url, data={'status': str(INV_STATUS_NOT_INVITED)})
         self.assertEqual(response.status_code, 200)
 
         stats = event.get_stats()
@@ -193,9 +191,8 @@ class EventsTestCase(CremeTestCase):
         event = self.create_event('Eclipse', EventType.objects.all()[0])
         casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
 
-        response = self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
-                                    data={'status': str(INV_STATUS_ACCEPTED)}
-                                   )
+        url = '/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id)
+        response = self.client.post(url, data={'status': str(INV_STATUS_ACCEPTED)})
         self.assertEqual(response.status_code, 200)
 
         stats = event.get_stats()
@@ -203,8 +200,7 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(1, stats['accepted_count'])
         self.assertEqual(0, stats['refused_count'])
 
-        self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
-                         data={'status': str(INV_STATUS_NOT_INVITED)})
+        self.client.post(url, data={'status': str(INV_STATUS_NOT_INVITED)})
         stats = event.get_stats()
         self.assertEqual(0, stats['invations_count'])
         self.assertEqual(0, stats['accepted_count'])
@@ -216,15 +212,18 @@ class EventsTestCase(CremeTestCase):
         event = self.create_event('Eclipse', EventType.objects.all()[0])
         casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
 
-        self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
-                         data={'status': str(INV_STATUS_REFUSED)})
+        def post(status):
+            self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
+                             data={'status': str(status)}
+                            )
+
+        post(INV_STATUS_REFUSED)
         stats = event.get_stats()
         self.assertEqual(1, stats['invations_count'])
         self.assertEqual(0, stats['accepted_count'])
         self.assertEqual(1, stats['refused_count'])
 
-        self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
-                         data={'status': str(INV_STATUS_NOT_INVITED)})
+        post(INV_STATUS_NOT_INVITED)
         stats = event.get_stats()
         self.assertEqual(0, stats['invations_count'])
         self.assertEqual(0, stats['accepted_count'])
@@ -236,17 +235,19 @@ class EventsTestCase(CremeTestCase):
         event = self.create_event('Eclipse', EventType.objects.all()[0])
         casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
 
-        self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
-                         data={'status': str(INV_STATUS_ACCEPTED)})
-        self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
-                         data={'status': str(INV_STATUS_REFUSED)})
+        def post(status):
+            self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
+                             data={'status': str(status)}
+                            )
+
+        post(INV_STATUS_ACCEPTED)
+        post(INV_STATUS_REFUSED)
         stats = event.get_stats()
         self.assertEqual(1, stats['invations_count'])
         self.assertEqual(0, stats['accepted_count'])
         self.assertEqual(1, stats['refused_count'])
 
-        self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
-                         data={'status': str(INV_STATUS_NO_ANSWER)})
+        post(INV_STATUS_NO_ANSWER)
         stats = event.get_stats()
         self.assertEqual(1, stats['invations_count'])
         self.assertEqual(0, stats['accepted_count'])
@@ -258,10 +259,13 @@ class EventsTestCase(CremeTestCase):
         event = self.create_event('Eclipse', EventType.objects.all()[0])
         casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
 
-        self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
-                         data={'status': str(INV_STATUS_REFUSED)})
-        self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
-                         data={'status': str(INV_STATUS_ACCEPTED)})
+        def post(status):
+            self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
+                             data={'status': str(status)}
+                            )
+
+        post(INV_STATUS_REFUSED)
+        post(INV_STATUS_ACCEPTED)
         stats = event.get_stats()
         self.assertEqual(1, stats['invations_count'])
         self.assertEqual(1, stats['accepted_count'])
@@ -285,7 +289,7 @@ class EventsTestCase(CremeTestCase):
         event = Event.objects.create(user=user, name='Eclipse 01', type=EventType.objects.all()[0], start_date=datetime.now())
         casca = Contact.objects.create(user=other_user, first_name='Casca', last_name='Miura')
         self.assert_(event.can_link(user))
-        self.failIf(casca.can_link(user))
+        self.assertFalse(casca.can_link(user))
         self.assertEqual(403, self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, casca.id),
                                                data={'status': str(INV_STATUS_REFUSED)}
                                               ).status_code
@@ -293,8 +297,8 @@ class EventsTestCase(CremeTestCase):
 
         event = Event.objects.create(user=other_user, name='Eclipse 02', type=EventType.objects.all()[0], start_date=datetime.now())
         guts = Contact.objects.create(user=user, first_name='Guts', last_name='Miura')
-        self.failIf(event.can_link(user))
-        self.assert_(guts.can_link(user))
+        self.assertFalse(event.can_link(user))
+        self.assertTrue(guts.can_link(user))
         self.assertEqual(403, self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, guts.id),
                                                data={'status': str(INV_STATUS_REFUSED)}
                                               ).status_code
@@ -306,9 +310,12 @@ class EventsTestCase(CremeTestCase):
         event = self.create_event('Eclipse', EventType.objects.all()[0])
         casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
 
-        response = self.client.post('/events/event/%s/contact/%s/set_presence_status' % (event.id, casca.id),
-                                    data={'status': str(PRES_STATUS_COME)})
-        self.assertEqual(response.status_code, 200)
+        def post(status):
+            return self.client.post('/events/event/%s/contact/%s/set_presence_status' % (event.id, casca.id),
+                                    data={'status': str(status)}
+                                   )
+
+        self.assertEqual(200, post(PRES_STATUS_COME).status_code)
 
         stats = event.get_stats()
         self.assertEqual(0, stats['invations_count'])
@@ -316,8 +323,7 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(0, stats['refused_count'])
         self.assertEqual(1, stats['visitors_count'])
 
-        self.client.post('/events/event/%s/contact/%s/set_presence_status' % (event.id, casca.id),
-                         data={'status': str(PRES_STATUS_DONT_KNOW)})
+        post(PRES_STATUS_DONT_KNOW)
         self.assertEqual(0, event.get_stats()['visitors_count'])
         self.assertEqual(0, Relation.objects.filter(subject_entity=casca, object_entity=event, type=REL_SUB_NOT_CAME_EVENT).count())
 
@@ -327,17 +333,19 @@ class EventsTestCase(CremeTestCase):
         event = self.create_event('Eclipse', EventType.objects.all()[0])
         casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
 
-        self.client.post('/events/event/%s/contact/%s/set_presence_status' % (event.id, casca.id),
-                         data={'status': str(PRES_STATUS_COME)})
+        def post(status):
+            return self.client.post('/events/event/%s/contact/%s/set_presence_status' % (event.id, casca.id),
+                                    data={'status': str(status)}
+                                   )
+
+        post(PRES_STATUS_COME)
         self.assertEqual(1, event.get_stats()['visitors_count'])
 
-        self.client.post('/events/event/%s/contact/%s/set_presence_status' % (event.id, casca.id),
-                         data={'status': str(PRES_STATUS_NOT_COME)})
+        post(PRES_STATUS_NOT_COME)
         self.assertEqual(0, event.get_stats()['visitors_count'])
         self.assertEqual(1, Relation.objects.filter(subject_entity=casca, object_entity=event, type=REL_SUB_NOT_CAME_EVENT).count())
 
-        self.client.post('/events/event/%s/contact/%s/set_presence_status' % (event.id, casca.id),
-                         data={'status': str(PRES_STATUS_DONT_KNOW)})
+        post(PRES_STATUS_DONT_KNOW)
         self.assertEqual(0, event.get_stats()['visitors_count'])
         self.assertEqual(0, Relation.objects.filter(subject_entity=casca, object_entity=event, type=REL_SUB_NOT_CAME_EVENT).count())
 
@@ -347,13 +355,16 @@ class EventsTestCase(CremeTestCase):
         event = self.create_event('Eclipse', EventType.objects.all()[0])
         casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
 
-        self.client.post('/events/event/%s/contact/%s/set_presence_status' % (event.id, casca.id),
-                         data={'status': str(PRES_STATUS_NOT_COME)})
+        def post(status):
+            return self.client.post('/events/event/%s/contact/%s/set_presence_status' % (event.id, casca.id),
+                                    data={'status': str(status)}
+                                   )
+
+        post(PRES_STATUS_NOT_COME)
         self.assertEqual(0, event.get_stats()['visitors_count'])
         self.assertEqual(1, Relation.objects.filter(subject_entity=casca, object_entity=event, type=REL_SUB_NOT_CAME_EVENT).count())
 
-        self.client.post('/events/event/%s/contact/%s/set_presence_status' % (event.id, casca.id),
-                         data={'status': str(PRES_STATUS_COME)})
+        post(PRES_STATUS_COME)
         self.assertEqual(1, event.get_stats()['visitors_count'])
         self.assertEqual(0, Relation.objects.filter(subject_entity=casca, object_entity=event, type=REL_SUB_NOT_CAME_EVENT).count())
 
@@ -375,7 +386,7 @@ class EventsTestCase(CremeTestCase):
         event = Event.objects.create(user=user, name='Eclipse 01', type=EventType.objects.all()[0], start_date=datetime.now())
         casca = Contact.objects.create(user=other_user, first_name='Casca', last_name='Miura')
         self.assert_(event.can_link(user))
-        self.failIf(casca.can_link(user))
+        self.assertFalse(casca.can_link(user))
         self.assertEqual(403, self.client.post('/events/event/%s/contact/%s/set_presence_status' % (event.id, casca.id),
                                                data={'status': str(PRES_STATUS_COME)}
                                               ).status_code
@@ -383,8 +394,8 @@ class EventsTestCase(CremeTestCase):
 
         event = Event.objects.create(user=other_user, name='Eclipse 02', type=EventType.objects.all()[0], start_date=datetime.now())
         guts = Contact.objects.create(user=user, first_name='Guts', last_name='Miura')
-        self.failIf(event.can_link(user))
-        self.assert_(guts.can_link(user))
+        self.assertFalse(event.can_link(user))
+        self.assertTrue(guts.can_link(user))
         self.assertEqual(403, self.client.post('/events/event/%s/contact/%s/set_presence_status' % (event.id, guts.id),
                                                data={'status': str(PRES_STATUS_COME)}
                                               ).status_code
@@ -414,11 +425,13 @@ class EventsTestCase(CremeTestCase):
 
         try:
             contacts_page = response.context['entities']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         self.assertEqual(3, contacts_page.paginator.count)
-        self.assertEqual(set((casca.id, judo.id, griffith.id)), set(contact.id for contact in contacts_page.object_list))
+        self.assertEqual(set((casca.id, judo.id, griffith.id)),
+                         set(contact.id for contact in contacts_page.object_list)
+                        )
 
     @staticmethod
     def relations_types(contact, event):
@@ -436,10 +449,10 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(200, self.client.get(url).status_code)
 
         response = self.client.post(url, follow=True,
-                                    data= {
-                                            "related_contacts": '[{"rtype":"%s","ctype":"%s","entity":"%s"}]' % \
-                                                                    (REL_OBJ_CAME_EVENT, casca.entity_type_id, casca.id),
-                                          }
+                                    data={'related_contacts': '[{"rtype":"%s","ctype":"%s","entity":"%s"}]' % (
+                                                                  REL_OBJ_CAME_EVENT, casca.entity_type_id, casca.id
+                                                                ),
+                                         }
                                    )
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
@@ -519,11 +532,10 @@ class EventsTestCase(CremeTestCase):
         ct_id = ContentType.objects.get_for_model(Contact).id
 
         response = self.client.post('/events/event/%s/link_contacts' % event.id, follow=True,
-                                    data= {
-                                            "related_contacts": """[{"rtype":"%s","ctype":"%s","entity":"%s"},
-                                                                    {"rtype":"%s","ctype":"%s","entity":"%s"}]""" % \
-                                                                    (REL_OBJ_IS_INVITED_TO,  ct_id, casca.id,
-                                                                     REL_OBJ_CAME_EVENT,     ct_id, casca.id,
+                                    data= {'related_contacts': '[{"rtype":"%s","ctype":"%s","entity":"%s"},'
+                                                               ' {"rtype":"%s","ctype":"%s","entity":"%s"}]' % (
+                                                                     REL_OBJ_IS_INVITED_TO, ct_id, casca.id,
+                                                                     REL_OBJ_CAME_EVENT,    ct_id, casca.id,
                                                                     ),
                                           }
                                    )
@@ -546,19 +558,18 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(200, self.client.get(url).status_code)
 
         response = self.client.post(url, follow=True,
-                                    data= {
-                                            "related_contacts": """[{"rtype":"%s","ctype":"%s","entity":"%s"}]""" % (
-                                                    REL_OBJ_IS_INVITED_TO, casca.entity_type_id, casca.id,
-                                                ),
+                                    data= {'related_contacts': '[{"rtype":"%s","ctype":"%s","entity":"%s"}]' % (
+                                                                    REL_OBJ_IS_INVITED_TO, casca.entity_type_id, casca.id,
+                                                                ),
                                           }
                                    )
         self.assertEqual(200, response.status_code)
 
         try:
             form = response.context['form']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
-        self.assert_(['related_contacts'], form.errors.keys())
+        self.assertEqual(['related_contacts'], form.errors.keys())
 
     #TODO: add a test for related opportunity creation

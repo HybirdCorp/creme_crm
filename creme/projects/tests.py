@@ -1,17 +1,20 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime, date, time
+try:
+    from datetime import datetime, date, time
 
-from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
+    from django.utils.translation import ugettext as _
+    from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType, Relation, SetCredentials
-from creme_core.tests.base import CremeTestCase
+    from creme_core.models import RelationType, Relation, SetCredentials
+    from creme_core.tests.base import CremeTestCase
 
-from persons.models import Contact
+    from persons.models import Contact
 
-from projects.models import *
-from projects.constants import *
+    from projects.models import *
+    from projects.constants import *
+except Exception as e:
+    print 'Error:', e
 
 
 class ProjectsTestCase(CremeTestCase):
@@ -30,8 +33,8 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual([get_ct(Contact)], list(rtype.subject_ctypes.all()))
         self.assertEqual([get_ct(Project)], list(rtype.object_ctypes.all()))
 
-        self.assert_(TaskStatus.objects.count() >= 2)
-        self.assert_(ProjectStatus.objects.exists())
+        self.assertGreaterEqual(TaskStatus.objects.count(), 2)
+        self.assertTrue(ProjectStatus.objects.exists())
 
     def test_portal(self):
         self.login()
@@ -98,13 +101,14 @@ class ProjectsTestCase(CremeTestCase):
                                    )
         self.assertEqual(200, response.status_code)
 
+        #TODO: assertFormError
         try:
             errors = response.context['form'].errors
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
-        self.assert_(errors)
-        self.assert_('responsibles' in errors)
+        self.assertTrue(errors)
+        self.assertIn('responsibles', errors)
 
     def test_project_lisview(self):
         self.login()
@@ -124,13 +128,14 @@ class ProjectsTestCase(CremeTestCase):
 
         response = self.client.post(url, follow=True,
                                     data={
-                                        'user':     self.user.id,
-                                        'title':    'head',
-                                        'start':    '2010-10-11',
-                                        'end':      '2010-10-30',
-                                        'duration': 50,
-                                        'tstatus':   TaskStatus.objects.all()[0].id,
-                                    })
+                                            'user':     self.user.id,
+                                            'title':    'head',
+                                            'start':    '2010-10-11',
+                                            'end':      '2010-10-30',
+                                            'duration': 50,
+                                            'tstatus':   TaskStatus.objects.all()[0].id,
+                                         }
+                                   )
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
@@ -197,19 +202,20 @@ class ProjectsTestCase(CremeTestCase):
         tstatus  = TaskStatus.objects.all()[1]
         response = self.client.post(url, follow=True,
                                     data={
-                                        'user':     self.user.id,
-                                        'title':    title,
-                                        'start':    '2011-5-16',
-                                        'end':      '2012-6-17',
-                                        'duration': duration,
-                                        'tstatus':  tstatus.id,
-                                    })
+                                            'user':     self.user.id,
+                                            'title':    title,
+                                            'start':    '2011-5-16',
+                                            'end':      '2012-6-17',
+                                            'duration': duration,
+                                            'tstatus':  tstatus.id,
+                                         }
+                                   )
         self.assertNoFormError(response)
 
-        task = ProjectTask.objects.get(pk=task.id) #refresh
-        self.assertEqual(title,      task.title)
-        self.assertEqual(duration,   task.duration)
-        self.assertEqual(tstatus.id, task.tstatus.id)
+        task = self.refresh(task)
+        self.assertEqual(title,    task.title)
+        self.assertEqual(duration, task.duration)
+        self.assertEqual(tstatus,  task.tstatus)
 
         start = task.start
         self.assertEqual(2011, start.year)
@@ -233,16 +239,17 @@ class ProjectsTestCase(CremeTestCase):
         duration = 55
         response = self.client.post(url, follow=True,
                                     data={
-                                        'user':     self.user.id,
-                                        'title':    title,
-                                        'start':    '2011-5-16',
-                                        'end':      '2012-6-17',
-                                        'duration': duration,
-                                        'tstatus':  TaskStatus.objects.all()[0].id,
-                                    })
+                                            'user':     self.user.id,
+                                            'title':    title,
+                                            'start':    '2011-5-16',
+                                            'end':      '2012-6-17',
+                                            'duration': duration,
+                                            'tstatus':  TaskStatus.objects.all()[0].id,
+                                         }
+                                   )
         self.assertNoFormError(response)
 
-        task = ProjectTask.objects.get(pk=task.id) #refresh
+        task = self.refresh(task)
         self.assertEqual(title,    task.title)
         self.assertEqual(duration, task.duration)
 
@@ -321,18 +328,19 @@ class ProjectsTestCase(CremeTestCase):
     def create_task(self, project, title):
         response = self.client.post('/projects/project/%s/task/add' % project.id, follow=True,
                                     data={
-                                        'user':     self.user.id,
-                                        'title':    title,
-                                        'start':    '2010-10-11',
-                                        'end':      '2010-10-30',
-                                        'duration': 50,
-                                        'tstatus':  TaskStatus.objects.all()[0].id,
-                                    })
+                                            'user':     self.user.id,
+                                            'title':    title,
+                                            'start':    '2010-10-11',
+                                            'end':      '2010-10-30',
+                                            'duration': 50,
+                                            'tstatus':  TaskStatus.objects.all()[0].id,
+                                         }
+                                   )
         self.assertEqual(200, response.status_code)
 
         try:
             task = ProjectTask.objects.get(project=project, title=title)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         return task
@@ -347,10 +355,11 @@ class ProjectsTestCase(CremeTestCase):
         worker   = Contact.objects.create(user=self.user, first_name='Yui', last_name='Ikari')
         response = self.client.post('/projects/task/%s/resource/add' % task.id, follow=True,
                                     data={
-                                        'user':           self.user.id,
-                                        'linked_contact': worker.id,
-                                        'hourly_cost':    100,
-                                    })
+                                            'user':           self.user.id,
+                                            'linked_contact': worker.id,
+                                            'hourly_cost':    100,
+                                         }
+                                   )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
@@ -362,11 +371,12 @@ class ProjectsTestCase(CremeTestCase):
 
         response = self.client.post('/projects/task/%s/period/add' % task.id, follow=True,
                                     data={
-                                        'resource':   resource.id,
-                                        'start_date': '2010-10-11',
-                                        'end_date':   '2010-10-12',
-                                        'duration':   8,
-                                    })
+                                            'resource':   resource.id,
+                                            'start_date': '2010-10-11',
+                                            'end_date':   '2010-10-12',
+                                            'duration':   8,
+                                         }
+                                   )
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
         self.assertEqual(1, resource.workingperiod_set.count())
@@ -388,10 +398,11 @@ class ProjectsTestCase(CremeTestCase):
         worker   = Contact.objects.create(user=self.user, first_name='Yui', last_name='Ikari')
         response = self.client.post('/projects/task/%s/resource/add' % task.id, follow=True,
                                     data={
-                                        'user':           self.user.id,
-                                        'linked_contact': worker.id,
-                                        'hourly_cost':    100,
-                                    })
+                                            'user':           self.user.id,
+                                            'linked_contact': worker.id,
+                                            'hourly_cost':    100,
+                                         }
+                                   )
         resource = task.resources_set.all()[0]
         response = self.client.post('/projects/task/%s/period/add' % task.id, follow=True,
                                     data={
@@ -401,40 +412,42 @@ class ProjectsTestCase(CremeTestCase):
                                         'duration':   8,
                                     })
 
-        response = self.client.get('/projects/resource/edit/%s' % resource.id)
-        self.assertEqual(200, response.status_code)
+        url = '/projects/resource/edit/%s' % resource.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
-        response = self.client.post('/projects/resource/edit/%s' % resource.id, follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
-                                        'user':           self.user.id,
-                                        'linked_contact': worker.id,
-                                        'hourly_cost':    200,
-                                    })
+                                            'user':           self.user.id,
+                                            'linked_contact': worker.id,
+                                            'hourly_cost':    200,
+                                         }
+                                   )
         self.assertEqual(200, response.status_code)
-        self.failIf(response.context['form'].errors)
+        #self.failIf(response.context['form'].errors)
+        self.assertNoFormError(response)
 
-        resource = Resource.objects.get(pk=resource.id) #refresh
+        resource = self.refresh(resource)
         self.assertEqual(200, resource.hourly_cost)
-
 
         wperiods = list(resource.workingperiod_set.all())
         self.assertEqual(1, len(wperiods))
 
         wperiod = wperiods[0]
-        response = self.client.get('/projects/period/edit/%s' % wperiod.id)
-        self.assertEqual(200, response.status_code)
+        url = '/projects/period/edit/%s' % wperiod.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
-        response = self.client.post('/projects/period/edit/%s' % wperiod.id, follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
-                                        'resource':   resource.id,
-                                        'start_date': '2010-10-11',
-                                        'end_date':   '2010-10-12',
-                                        'duration':   10,
-                                    })
+                                            'resource':   resource.id,
+                                            'start_date': '2010-10-11',
+                                            'end_date':   '2010-10-12',
+                                            'duration':   10,
+                                         }
+                                   )
         self.assertEqual(200, response.status_code)
         self.failIf(response.context['form'].errors)
 
-        wperiod = WorkingPeriod.objects.get(pk=wperiod.id) #refresh
+        wperiod = self.refresh(wperiod)
         self.assertEqual(10, wperiod.duration)
 
     def test_project_close(self):
@@ -448,12 +461,12 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(404, self.client.get(url).status_code)
         self.assertEqual(200, self.client.post(url, follow=True).status_code)
 
-        project = Project.objects.get(pk=project.id) #refresh
-        self.assert_(project.is_closed)
-        self.assert_(project.effective_end_date)
+        project = self.refresh(project)
+        self.assertTrue(project.is_closed)
+        self.assertTrue(project.effective_end_date)
 
         delta = datetime.combine(date.today(), time()) - project.effective_end_date
-        self.assert_(delta.seconds < 10)
+        self.assertLess(delta.seconds, 10)
 
         #already closed
         self.assertEqual(404, self.client.post(url, follow=True).status_code)
@@ -517,7 +530,6 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(set(), set(c_task2.get_parents().values_list('title', flat=True)))
 
         self.assertEqual(set(['1', '1.1', '1.1.1', '1.1.1.1', '2']), set(c_task_all.get_parents().values_list('title', flat=True)))
-
 
     def test_project_clone02(self):
         self.login()

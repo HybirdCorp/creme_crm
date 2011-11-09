@@ -17,7 +17,7 @@ try:
     from persons.models import *
     from persons.constants import *
     from persons.blocks import NeglectedOrganisationsBlock
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -73,16 +73,16 @@ class PersonsTestCase(CremeTestCase):
 
         try:
             contact = Contact.objects.get(first_name=first_name)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(last_name,  contact.last_name)
-        self.assert_(contact.billing_address is None)
-        self.assert_(contact.shipping_address is None)
+        self.assertIsNone(contact.billing_address)
+        self.assertIsNone(contact.shipping_address)
 
-        self.assert_(response.redirect_chain)
+        self.assertTrue(response.redirect_chain)
         self.assertEqual(len(response.redirect_chain), 1)
-        self.assert_(response.redirect_chain[0][0].endswith('/persons/contact/%s' % contact.id))
+        self.assertTrue(response.redirect_chain[0][0].endswith('/persons/contact/%s' % contact.id))
 
         self.assertEqual(200, self.client.get('/persons/contact/%s' % contact.id).status_code)
 
@@ -105,10 +105,10 @@ class PersonsTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         contact = Contact.objects.get(first_name=first_name)
-        self.assert_(contact.billing_address is not None)
+        self.assertIsNotNone(contact.billing_address)
         self.assertEqual(b_address, contact.billing_address.address)
 
-        self.assert_(contact.shipping_address is not None)
+        self.assertIsNotNone(contact.shipping_address)
         self.assertEqual(s_address, contact.shipping_address.address)
 
     def test_contact_editview01(self):
@@ -132,8 +132,8 @@ class PersonsTestCase(CremeTestCase):
 
         contact = Contact.objects.get(pk=contact.id)
         self.assertEqual(last_name, contact.last_name)
-        self.assert_(contact.billing_address is None)
-        self.assert_(contact.shipping_address is None)
+        self.assertIsNone(contact.billing_address)
+        self.assertIsNone(contact.shipping_address)
 
     def test_contact_editview02(self):
         self.login()
@@ -166,7 +166,7 @@ class PersonsTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
-        contact = Contact.objects.get(pk=contact.id) #refresh object
+        contact = self.refresh(contact)
         self.assertEqual(billing_address_id,  contact.billing_address_id)
         self.assertEqual(shipping_address_id, contact.shipping_address_id)
 
@@ -184,14 +184,14 @@ class PersonsTestCase(CremeTestCase):
 
         try:
             contacts_page = response.context['entities']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         self.assertEqual(3, contacts_page.paginator.count) #3: Creme user
 
         contacts_set = set(contact.id for contact in contacts_page.object_list)
-        self.assert_(faye.id in contacts_set)
-        self.assert_(spike.id in contacts_set)
+        self.assertIn(faye.id, contacts_set)
+        self.assertIn(spike.id, contacts_set)
 
     def test_create_linked_contact01(self):
         self.login()
@@ -217,13 +217,13 @@ class PersonsTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
-        self.assert_(response.redirect_chain)
-        self.assert_(response.redirect_chain[-1][0].endswith(redir))
+        self.assertTrue(response.redirect_chain)
+        self.assertTrue(response.redirect_chain[-1][0].endswith(redir))
 
         try:
             contact = Contact.objects.get(first_name=first_name)
             Relation.objects.get(subject_entity=orga.id, type=REL_OBJ_EMPLOYED_BY, object_entity=contact.id)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(last_name, contact.last_name)
@@ -244,7 +244,7 @@ class PersonsTestCase(CremeTestCase):
                                         'rtype_id': REL_OBJ_EMPLOYED_BY,
                                         'url':      orga.get_absolute_url(),
                                     })
-        self.assert_(response.context) #no context if redirect to creme_login...
+        self.assertTrue(response.context) #no context if redirect to creme_login...
         self.assertEqual(403, response.status_code)
 
     def test_create_linked_contact03(self):
@@ -253,16 +253,16 @@ class PersonsTestCase(CremeTestCase):
         orga = Organisation.objects.create(user=self.user, name='Acme')
         url = "/persons/contact/add_with_relation/%(orga_id)s/%(rtype_id)s?callback_url=%(url)s"
 
-        self.assertEqual(404, self.client.get(url % {
-                                        'orga_id':  1024, #doesn't exist
-                                        'rtype_id': REL_OBJ_EMPLOYED_BY,
-                                        'url':      orga.get_absolute_url(),
-                                    }).status_code)
-        self.assertEqual(404, self.client.get(url % {
-                                        'orga_id':  orga.id, #doesn't exist
-                                        'rtype_id': 'IDONOTEXIST',
-                                        'url':      orga.get_absolute_url(),
-                                    }).status_code)
+        self.assertEqual(404, self.client.get(url % {'orga_id':  1024, #doesn't exist
+                                                     'rtype_id': REL_OBJ_EMPLOYED_BY,
+                                                     'url':      orga.get_absolute_url(),
+                                                }).status_code
+                        )
+        self.assertEqual(404, self.client.get(url % {'orga_id':  orga.id, #doesn't exist
+                                                     'rtype_id': 'IDONOTEXIST',
+                                                     'url':      orga.get_absolute_url(),
+                                                    }).status_code
+                        )
 
     #TODO: test relation's object creds
     #TODO: test bad rtype (doesn't exist, constraints) => fixed list of types ??
@@ -289,16 +289,16 @@ class PersonsTestCase(CremeTestCase):
 
         try:
             orga = Organisation.objects.get(name=name)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(description,  orga.description)
-        self.assert_(orga.billing_address is None)
-        self.assert_(orga.shipping_address is None)
+        self.assertIsNone(orga.billing_address)
+        self.assertIsNone(orga.shipping_address)
 
-        self.assert_(response.redirect_chain)
+        self.assertTrue(response.redirect_chain)
         self.assertEqual(len(response.redirect_chain), 1)
-        self.assert_(response.redirect_chain[0][0].endswith('/persons/organisation/%s' % orga.id))
+        self.assertTrue(response.redirect_chain[0][0].endswith('/persons/organisation/%s' % orga.id))
 
         self.assertEqual(200, self.client.get('/persons/organisation/%s' % orga.id).status_code)
 
@@ -321,11 +321,11 @@ class PersonsTestCase(CremeTestCase):
                                    )
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
-        self.assert_(response.redirect_chain)
+        self.assertTrue(response.redirect_chain)
 
         edited_orga = Organisation.objects.get(pk=orga.id)
         self.assertEqual(name, edited_orga.name)
-        self.assert_(edited_orga.billing_address is not None)
+        self.assertIsNotNone(edited_orga.billing_address)
         self.assertEqual(zipcode, edited_orga.billing_address.zipcode)
 
     def test_orga_listview(self):
@@ -339,21 +339,21 @@ class PersonsTestCase(CremeTestCase):
 
         try:
             orgas_page = response.context['entities']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         self.assertEqual(3, orgas_page.paginator.count) #3: our 2 orgas + default orga
 
         orgas_set = set(orga.id for orga in orgas_page.object_list)
-        self.assert_(nerv.id in orgas_set)
-        self.assert_(acme.id in orgas_set)
+        self.assertIn(nerv.id, orgas_set)
+        self.assertIn(acme.id, orgas_set)
 
     def _build_managed_orga(self, user=None):
         user = user or self.user
         try:
             mng_orga = Organisation.objects.create(user=user, name='Bebop')
             CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=mng_orga)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         return mng_orga
@@ -366,11 +366,11 @@ class PersonsTestCase(CremeTestCase):
 
         response = self.client.post(url % customer.id, data={'id': mng_orga.id}, follow=True)
         self.assertEqual(200, response.status_code)
-        self.assert_(response.redirect_chain)
+        self.assertTrue(response.redirect_chain)
 
         try:
             Relation.objects.get(subject_entity=customer, object_entity=mng_orga, type=relation_type)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
     def test_become_customer01(self):
@@ -424,7 +424,7 @@ class PersonsTestCase(CremeTestCase):
 
         try:
             orgas_page = response.context['entities']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         self.assertEqual(0, orgas_page.paginator.count)
@@ -448,9 +448,9 @@ class PersonsTestCase(CremeTestCase):
         self.assertEqual(3, orgas_page.paginator.count)
 
         orgas_set = set(orga.id for orga in orgas_page.object_list)
-        self.assert_(nerv.id in orgas_set)
-        self.assert_(acme.id in orgas_set)
-        self.assert_(fsf.id in orgas_set)
+        self.assertIn(nerv.id, orgas_set)
+        self.assertIn(acme.id, orgas_set)
+        self.assertIn(fsf.id,  orgas_set)
 
     def test_leads_customers03(self):
         self.login()
@@ -485,7 +485,7 @@ class PersonsTestCase(CremeTestCase):
         self.assertEqual(0, Address.objects.filter(object_id=orga.id).count())
 
         response = self.client.get('/persons/address/add/%s' % orga.id)
-        self.assertEqual(200, response.status_code,)
+        self.assertEqual(200, response.status_code)
 
         name = 'Address#1'
         address_value = '21 jump street'
@@ -546,7 +546,7 @@ class PersonsTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
-        address = Address.objects.get(pk=address.id)
+        address = self.refresh(address)
         self.assertEqual(city,    address.city)
         self.assertEqual(country, address.country)
 
@@ -565,8 +565,8 @@ class PersonsTestCase(CremeTestCase):
         self.login()
 
         models = set(quickforms_registry.iter_models())
-        self.assert_(Contact in models)
-        self.assert_(Organisation in models)
+        self.assertIn(Contact, models)
+        self.assertIn(Organisation, models)
 
         data = [('Faye', 'Valentine'), ('Spike', 'Spiegel')]
 
@@ -595,7 +595,7 @@ class PersonsTestCase(CremeTestCase):
         for first_name, last_name in data:
             try:
                 contact = Contact.objects.get(first_name=first_name)
-            except Exception, e:
+            except Exception as e:
                 self.fail(str(e))
 
             self.assertEqual(last_name, contact.last_name)
