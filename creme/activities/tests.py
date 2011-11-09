@@ -1,25 +1,29 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+try:
+    from datetime import datetime
 
-from django.forms.util import ValidationError
-from django.core.serializers.json import simplejson
-from django.utils.translation import ugettext as _
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
+    from django.forms.util import ValidationError
+    from django.core.serializers.json import simplejson
+    from django.utils.translation import ugettext as _
+    from django.contrib.auth.models import User
+    from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType, Relation, SetCredentials
-from creme_core.constants import REL_SUB_HAS
-from creme_core.tests.base import CremeTestCase
-from creme_core.utils import create_or_update
+    from creme_core.models import RelationType, Relation, SetCredentials
+    from creme_core.constants import REL_SUB_HAS
+    from creme_core.tests.base import CremeTestCase
+    from creme_core.utils import create_or_update
 
-from persons.models import Contact, Organisation
+    from persons.models import Contact, Organisation
 
-from activities.models import *
-from activities.constants import *
-from activities.forms.activity import _check_activity_collisions
+    from assistants.models import Alert
 
-from assistants.models import Alert
+    from activities.models import *
+    from activities.constants import *
+    from activities.forms.activity import _check_activity_collisions
+except Exception as e:
+    print 'Error:', e
+
 
 class ActivitiesTestCase(CremeTestCase):
     def login(self, is_superuser=True):
@@ -64,14 +68,14 @@ class ActivitiesTestCase(CremeTestCase):
         genma = Contact.objects.create(user=user, first_name='Genma', last_name='Saotome')
         dojo = Organisation.objects.create(user=user, name='Dojo')
 
-        self.assertEqual(200, self.client.get('/activities/activity/add/task').status_code)
+        url = '/activities/activity/add/task'
+        self.assertEqual(200, self.client.get(url).status_code)
 
         title  = 'my_task'
         status = Status.objects.all()[0]
         my_calendar = Calendar.get_user_default_calendar(self.user)
         field_format = '[{"ctype":"%s", "entity":"%s"}]'
-        response = self.client.post('/activities/activity/add/task',
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':               user.pk,
                                             'title':              title,
@@ -90,7 +94,7 @@ class ActivitiesTestCase(CremeTestCase):
         try:
             act  = Activity.objects.get(type=ACTIVITYTYPE_TASK, title=title)
             task = Task.objects.get(title=title)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(act.id, task.id)
@@ -101,7 +105,7 @@ class ActivitiesTestCase(CremeTestCase):
         self.assertEqual(1,    start.month)
         self.assertEqual(10,   start.day)
 
-        self.assertEqual(4*2, Relation.objects.count()) # * 2: relations have their symmetric ones
+        self.assertEqual(4 * 2, Relation.objects.count()) # * 2: relations have their symmetric ones
 
         count_relations = lambda type_id, subject_id: Relation.objects.filter(type=type_id, subject_entity=subject_id, object_entity=task.id).count()
         self.assertEqual(1, count_relations(type_id=REL_SUB_PART_2_ACTIVITY,   subject_id=me.id))
@@ -143,10 +147,10 @@ class ActivitiesTestCase(CremeTestCase):
 
         try:
             errors = response.context['form'].errors
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
-        self.assert_(errors)
+        self.assertTrue(errors) #TODO: use assertFormError
         self.assertEqual(set(['my_participation', 'participating_users', 'other_participants', 'subjects', 'linked_entities']),
                          set(errors.keys())
                         )
@@ -160,7 +164,8 @@ class ActivitiesTestCase(CremeTestCase):
         genma = Contact.objects.create(user=user, first_name='Genma', last_name='Saotome')
         dojo = Organisation.objects.create(user=user, name='Dojo')
 
-        self.assertEqual(200, self.client.get('/activities/activity/add/activity').status_code)
+        url = '/activities/activity/add/activity'
+        self.assertEqual(200, self.client.get(url).status_code)
 
         title  = 'my_task'
         status = Status.objects.all()[0]
@@ -169,8 +174,7 @@ class ActivitiesTestCase(CremeTestCase):
         ACTIVITYTYPE_ACTIVITY = 'activities-activity_custom_1'
         create_or_update(ActivityType, ACTIVITYTYPE_ACTIVITY, name='Karate session', color="FFFFFF", default_day_duration=0, default_hour_duration="00:15:00", is_custom=True)
 
-        response = self.client.post('/activities/activity/add/activity',
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':               user.pk,
                                             'title':              title,
@@ -192,14 +196,14 @@ class ActivitiesTestCase(CremeTestCase):
         except Exception, e:
             self.fail(str(e))
 
-        self.assertEqual(status.id, act.status_id)
+        self.assertEqual(status, act.status)
 
         start = act.start
         self.assertEqual(2010, start.year)
         self.assertEqual(1,    start.month)
         self.assertEqual(10,   start.day)
 
-        self.assertEqual(4*2, Relation.objects.count()) # * 2: relations have their symmetric ones
+        self.assertEqual(4 * 2, Relation.objects.count()) # * 2: relations have their symmetric ones
 
         count_relations = lambda type_id, subject_id: Relation.objects.filter(type=type_id, subject_entity=subject_id, object_entity=act.id).count()
         self.assertEqual(1, count_relations(type_id=REL_SUB_PART_2_ACTIVITY,   subject_id=me.id))
@@ -211,14 +215,14 @@ class ActivitiesTestCase(CremeTestCase):
         self.login()
 
         user = self.user
-        self.assertEqual(200, self.client.get('/activities/activity/add/meeting').status_code)
+        url = '/activities/activity/add/meeting'
+        self.assertEqual(200, self.client.get(url).status_code)
 
         title  = 'meeting01'
         status = Status.objects.all()[0]
         my_calendar = Calendar.get_user_default_calendar(self.user)
         field_format = '[{"ctype":"%s", "entity":"%s"}]'
-        response = self.client.post('/activities/activity/add/meeting',
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':                     user.pk,
                                             'title':                    title,
@@ -240,7 +244,7 @@ class ActivitiesTestCase(CremeTestCase):
             self.fail(str(e))
 
         self.assertEqual(act.id, meeting.id)
-        self.assertEqual(status.id, meeting.status_id)
+        self.assertEqual(status, meeting.status)
 
         start = meeting.start
         self.assertEqual(2010, start.year)
@@ -249,12 +253,10 @@ class ActivitiesTestCase(CremeTestCase):
 
         try:
             alert = Alert.objects.get(entity_id=meeting.id)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
-        trigger_date = datetime(2010, 1, 10, 10, 05)
-        self.assertEqual(trigger_date, alert.trigger_date)
-
+        self.assertEqual(datetime(2010, 1, 10, 10, 05), alert.trigger_date)
 
     def test_activity_createview_related01(self):
         self.login()
@@ -276,7 +278,7 @@ class ActivitiesTestCase(CremeTestCase):
 
         try:
             other_participants = response.context['form'].fields['other_participants']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
         self.assertEqual([contact01.id], other_participants.initial)
 
@@ -293,12 +295,12 @@ class ActivitiesTestCase(CremeTestCase):
                                     )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
-        self.assert_(response.redirect_chain)
+        self.assertTrue(response.redirect_chain)
         self.assertEqual(u"http://testserver%s" % contact01.get_absolute_url(), response.redirect_chain[-1][0])#Redirect to related entity detailview
 
         try:
             meeting = Meeting.objects.get(title=title)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         start = meeting.start
@@ -329,11 +331,11 @@ class ActivitiesTestCase(CremeTestCase):
                                           'entity_relation_type':   REL_SUB_PART_2_ACTIVITY,
                                        }
                                   )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
 
         try:
             users = response.context['form'].fields['participating_users']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual([self.other_user.id], [e.id for e in users.initial])
@@ -350,11 +352,11 @@ class ActivitiesTestCase(CremeTestCase):
                                           'entity_relation_type':   REL_SUB_ACTIVITY_SUBJECT,
                                        }
                                   )
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
 
         try:
             subjects = response.context['form'].fields['subjects']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual([ryoga.id], [e.id for e in subjects.initial])
@@ -375,7 +377,7 @@ class ActivitiesTestCase(CremeTestCase):
 
         try:
             linked_entities = response.context['form'].fields['linked_entities']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual([ryoga.id], [e.id for e in linked_entities.initial])
@@ -421,7 +423,7 @@ class ActivitiesTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        activity = Meeting.objects.get(pk=activity.id) #refresh
+        activity = self.refresh(activity)
         self.assertEqual(title, activity.title)
 
         start = activity.start
@@ -461,7 +463,7 @@ class ActivitiesTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        activity = Activity.objects.get(pk=activity.id) #refresh
+        activity = self.refresh(activity)
         self.assertEqual(title, activity.title)
 
         start = activity.start
@@ -486,7 +488,7 @@ class ActivitiesTestCase(CremeTestCase):
 
             Relation.objects.create(subject_entity=c1, type_id=REL_SUB_PART_2_ACTIVITY, object_entity=act01, user=self.user)
             Relation.objects.create(subject_entity=c1, type_id=REL_SUB_PART_2_ACTIVITY, object_entity=act02, user=self.user)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         try:
@@ -505,7 +507,7 @@ class ActivitiesTestCase(CremeTestCase):
             _check_activity_collisions(activity_start=datetime(year=2010, month=10, day=1, hour=13, minute=1),
                                        activity_end=datetime(year=2010, month=10, day=1, hour=13, minute=10),
                                        participants=[c1, c2])
-        except ValidationError, e:
+        except ValidationError as e:
             self.fail(str(e))
 
         #collision with act01
@@ -646,8 +648,8 @@ class ActivitiesTestCase(CremeTestCase):
                                       set_type=SetCredentials.ESET_OWN)
 
         activity = self._create_meeting()
-        self.assert_(activity.can_change(self.user))
-        self.failIf(activity.can_link(self.user))
+        self.assertTrue(activity.can_change(self.user))
+        self.assertFalse(activity.can_link(self.user))
         self.assertEqual(403, self.client.get('/activities/activity/%s/participant/add' % activity.id).status_code)
 
     def test_add_participants03(self): #credentials error with selected subjects
@@ -658,8 +660,8 @@ class ActivitiesTestCase(CremeTestCase):
         self.assert_(activity.can_link(self.user))
 
         contact = Contact.objects.create(user=self.other_user, first_name='Musashi', last_name='Miyamoto')
-        self.assert_(contact.can_change(self.user))
-        self.failIf(contact.can_link(self.user))
+        self.assertTrue(contact.can_change(self.user))
+        self.assertFalse(contact.can_link(self.user))
 
         uri = '/activities/activity/%s/participant/add' % activity.id
         self.assertEqual(200, self.client.get(uri).status_code)
@@ -669,10 +671,10 @@ class ActivitiesTestCase(CremeTestCase):
 
         try:
             errors = response.context['form'].errors
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
-        self.assert_(errors)
+        self.assertTrue(errors) #TODO: assertFormError
         self.assertEqual(['participants'], errors.keys())
         self.assertEqual(0, Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_PART_2_ACTIVITY).count())
 
@@ -703,8 +705,8 @@ class ActivitiesTestCase(CremeTestCase):
                                       set_type=SetCredentials.ESET_OWN)
 
         activity = self._create_meeting()
-        self.assert_(activity.can_change(self.user))
-        self.failIf(activity.can_link(self.user))
+        self.assertTrue(activity.can_change(self.user))
+        self.assertFalse(activity.can_link(self.user))
         self.assertEqual(403, self.client.get('/activities/activity/%s/subject/add' % activity.id).status_code)
 
     def test_add_subjects03(self): #credentials error with selected subjects
@@ -726,10 +728,10 @@ class ActivitiesTestCase(CremeTestCase):
 
         try:
             errors = response.context['form'].errors
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
-        self.assert_(errors)
+        self.assertTrue(errors) #TODO: assertFormError
         self.assertEqual(['subjects'], errors.keys())
         self.assertEqual(0, Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_ACTIVITY_SUBJECT).count())
 
@@ -763,7 +765,7 @@ class ActivitiesTestCase(CremeTestCase):
     def assertUserHasDefaultCalendar(self, user):
         try:
             return Calendar.objects.get(is_default=True, user=user)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
     def test_user_default_calendar(self):
@@ -781,13 +783,10 @@ class ActivitiesTestCase(CremeTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        response = self.client.post(url,
-                                    data={
-                                            'name': 'whatever',
-                                            'user': user.id
-                                         }
+        response = self.client.post(url, data={'name': 'whatever',
+                                               'user': user.id
+                                              }
                                    )
-
         self.assertNoFormError(response)
         self.assertEqual(1, Calendar.objects.filter(user=user).count())
 
@@ -802,20 +801,17 @@ class ActivitiesTestCase(CremeTestCase):
         cal_name = "My calendar"
 
         url = '/activities/calendar/%s/edit' % cal.id
-
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        response = self.client.post(url,
-                                    data={
-                                            'name': cal_name,
-                                            'user': user.id
-                                         }
+        response = self.client.post(url, data={'name': cal_name,
+                                               'user': user.id
+                                              }
                                    )
 
         try:
             cal2 = Calendar.objects.get(pk=cal.id)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertNoFormError(response)
@@ -831,14 +827,14 @@ class ActivitiesTestCase(CremeTestCase):
         user = self.user
         me = Contact.objects.create(user=user, is_user=user, first_name='Ryoga', last_name='Hibiki')
 
-        self.assertEqual(200, self.client.get('/activities/indisponibility/add').status_code)
+        url = '/activities/indisponibility/add'
+        self.assertEqual(200, self.client.get(url).status_code)
 
         title  = 'away'
         status = Status.objects.all()[0]
         my_calendar = Calendar.get_user_default_calendar(self.user)
 
-        response = self.client.post('/activities/indisponibility/add',
-                                    follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':               user.pk,
                                             'title':              title,
@@ -856,7 +852,7 @@ class ActivitiesTestCase(CremeTestCase):
 
         try:
             act  = Activity.objects.get(type=ACTIVITYTYPE_INDISPO, title=title)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         start = act.start
@@ -881,14 +877,11 @@ class ActivitiesTestCase(CremeTestCase):
         user = self.user
         me = Contact.objects.create(user=user, is_user=user, first_name='Ryoga', last_name='Hibiki')
 
-        self.assertEqual(200, self.client.get('/activities/indisponibility/add').status_code)
-
         title  = 'away'
         status = Status.objects.all()[0]
         my_calendar = Calendar.get_user_default_calendar(self.user)
 
-        response = self.client.post('/activities/indisponibility/add',
-                                    follow=True,
+        response = self.client.post('/activities/indisponibility/add', follow=True,
                                     data={
                                             'user':               user.pk,
                                             'title':              title,
@@ -907,7 +900,7 @@ class ActivitiesTestCase(CremeTestCase):
 
         try:
             act  = Activity.objects.get(type=ACTIVITYTYPE_INDISPO, title=title)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assert_(act.is_all_day)

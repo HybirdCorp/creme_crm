@@ -16,7 +16,7 @@ try:
 
     from commercial.models import *
     from commercial.constants import *
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -59,8 +59,7 @@ class CommercialTestCase(CremeTestCase):
         self.assertEqual(description, commapp.description)
         self.assertEqual(entity.id,   commapp.entity_id)
 
-        tdelta = (datetime.today() - commapp.creation_date)
-        self.assert_(tdelta.seconds < 10)
+        self.assertLess((datetime.today() - commapp.creation_date).seconds, 10)
 
     def test_salesman_create(self):
         self.login()
@@ -91,14 +90,14 @@ class CommercialTestCase(CremeTestCase):
     def test_salesman_listview01(self):
         self.login()
 
-        self.assertFalse(Contact.objects.filter(properties__type=PROP_IS_A_SALESMAN).count())
+        self.assertFalse(Contact.objects.filter(properties__type=PROP_IS_A_SALESMAN).exists())
 
         response = self.client.get('/commercial/salesmen')
         self.assertEqual(200, response.status_code)
 
         try:
             salesmen_page = response.context['entities']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(1, salesmen_page.number)
@@ -117,7 +116,7 @@ class CommercialTestCase(CremeTestCase):
 
         try:
             salesmen_page = response.context['entities']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(1, salesmen_page.number)
@@ -152,7 +151,7 @@ class MarketSegmentTestCase(LoggedTestCase):
 
         try:
             segment = MarketSegment.objects.get(name=name)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(_(u'is in the segment "%s"') % name,
@@ -201,9 +200,8 @@ class StrategyTestCase(LoggedTestCase):
 
         name = 'Strat#1'
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user': self.user.pk,
-                                            'name': name,
+                                    data={'user': self.user.pk,
+                                          'name': name,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -223,16 +221,13 @@ class StrategyTestCase(LoggedTestCase):
 
         name += '_edited'
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user': self.user.pk,
-                                            'name': name,
+                                    data={'user': self.user.pk,
+                                          'name': name,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
-
-        strategy = Strategy.objects.get(pk=strategy.pk)
-        self.assertEqual(name, strategy.name)
+        self.assertEqual(name, self.refresh(strategy).name)
 
     def test_segment_add(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
@@ -275,7 +270,7 @@ class StrategyTestCase(LoggedTestCase):
         self.assertEqual(1, strategy01.segment_info.count())
 
         strategy02 = Strategy.objects.create(user=self.user, name='Strat#2')
-        self.assertEqual(0,   strategy02.segment_info.count())
+        self.assertEqual(0, strategy02.segment_info.count())
 
         url = '/commercial/strategy/%s/link/segment/' % strategy02.id
         response = self.client.get(url)
@@ -363,9 +358,9 @@ class StrategyTestCase(LoggedTestCase):
         response = self.client.post(url, data={'name': name})
         self.assertEqual(200, response.status_code)
 
-        asset = CommercialAsset.objects.get(pk=asset.pk)
-        self.assertEqual(name,        asset.name)
-        self.assertEqual(strategy.id, asset.strategy_id)
+        asset = self.refresh(asset)
+        self.assertEqual(name,     asset.name)
+        self.assertEqual(strategy, asset.strategy)
 
     def test_asset_delete(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
@@ -406,8 +401,8 @@ class StrategyTestCase(LoggedTestCase):
         self.assertEqual(200, response.status_code)
 
         charm = MarketSegmentCharm.objects.get(pk=charm.pk)
-        self.assertEqual(name,        charm.name)
-        self.assertEqual(strategy.id, charm.strategy_id)
+        self.assertEqual(name,     charm.name)
+        self.assertEqual(strategy, charm.strategy)
 
     def test_charm_delete(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
@@ -454,8 +449,8 @@ class StrategyTestCase(LoggedTestCase):
 
     def test_set_asset_score01(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
-        segment_desc  = self._create_segment_desc(strategy, 'Industry')
-        asset    = CommercialAsset.objects.create(name='Capital', strategy=strategy)
+        segment_desc = self._create_segment_desc(strategy, 'Industry')
+        asset = CommercialAsset.objects.create(name='Capital', strategy=strategy)
 
         orga = Organisation.objects.create(user=self.user, name='Nerv')
         strategy.evaluated_orgas.add(orga)
@@ -473,8 +468,8 @@ class StrategyTestCase(LoggedTestCase):
     def test_set_asset_score02(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
 
-        segment_desc01  = self._create_segment_desc(strategy, 'Industry')
-        segment_desc02  = self._create_segment_desc(strategy, 'People')
+        segment_desc01 = self._create_segment_desc(strategy, 'Industry')
+        segment_desc02 = self._create_segment_desc(strategy, 'People')
 
         create_asset = CommercialAsset.objects.create
         asset01 = create_asset(name='Capital', strategy=strategy)
@@ -770,8 +765,8 @@ class ActTestCase(LoggedTestCase):
         self.assertEqual(1, len(acts))
 
         act = acts[0]
-        self.assertEqual(name,     act.name)
-        self.assertEqual(atype.id, act.act_type_id)
+        self.assertEqual(name,  act.name)
+        self.assertEqual(atype, act.act_type)
 
         start = act.start
         self.assertEqual(2011, start.year)
@@ -799,7 +794,7 @@ class ActTestCase(LoggedTestCase):
                                          }
                                    )
         self.assertEqual(200, response.status_code)
-        self.assertTrue(response.context['form'].errors)
+        self.assertTrue(response.context['form'].errors) #TODO: assertFormError ??
         self.assertEqual(0, Act.objects.count())
 
     def create_act(self, expected_sales=1000):
@@ -844,7 +839,7 @@ class ActTestCase(LoggedTestCase):
         self.assertEqual(cost,           act.cost)
         self.assertEqual(expected_sales, act.expected_sales)
         self.assertEqual(goal,           act.goal)
-        self.assertEqual(atype.id,       act.act_type_id)
+        self.assertEqual(atype,          act.act_type)
 
         start = act.start
         self.assertEqual(2011, start.year)
@@ -879,7 +874,7 @@ class ActTestCase(LoggedTestCase):
                                          }
                                    )
         self.assertEqual(200, response.status_code)
-        self.assert_(response.context['form'].errors)
+        self.assertTrue(response.context['form'].errors) #TODO: assertFormError
 
         act = Act.objects.get(pk=act.id)
         due_date = act.due_date
@@ -904,7 +899,7 @@ class ActTestCase(LoggedTestCase):
 
         try:
             acts_page = response.context['entities']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(1, acts_page.number)
@@ -936,7 +931,7 @@ class ActTestCase(LoggedTestCase):
 
         objective = objectives[0]
         self.assertEqual(name,         objective.name)
-        self.assertEqual(act.id,       objective.act_id)
+        self.assertEqual(act,          objective.act)
         self.assertEqual(0,            objective.counter)
         self.assertEqual(counter_goal, objective.counter_goal)
         self.assertIsNone(objective.ctype_id)
@@ -946,9 +941,9 @@ class ActTestCase(LoggedTestCase):
 
         objective.counter = counter_goal
         objective.save()
-        objective = ActObjective.objects.get(pk=objective.id) #refresh cache
+        objective = self.refresh(objective) #refresh cache
         self.assertEqual(counter_goal, objective.get_count())
-        self.assert_(objective.reached)
+        self.assertTrue(objective.reached)
 
     def test_add_objective02(self):
         act = self.create_act()
@@ -988,10 +983,10 @@ class ActTestCase(LoggedTestCase):
         ct_contact = ContentType.objects.get_for_model(Contact)
         ct_orga    = ContentType.objects.get_for_model(Organisation)
         create_component = ActObjectivePatternComponent.objects.create
-        root01  = create_component(name='Root01',   success_rate=20,  pattern=pattern, ctype=ct_contact)
-        root02  = create_component(name='Root02',   success_rate=50,  pattern=pattern)
+        root01  = create_component(name='Root01',   success_rate=20, pattern=pattern, ctype=ct_contact)
+        root02  = create_component(name='Root02',   success_rate=50, pattern=pattern)
         child01 = create_component(name='Child 01', success_rate=33, pattern=pattern, parent=root01)
-        child02 = create_component(name='Child 02', success_rate=10,  pattern=pattern, parent=root01, ctype=ct_orga)
+        child02 = create_component(name='Child 02', success_rate=10, pattern=pattern, parent=root01, ctype=ct_orga)
 
         url = '/commercial/act/%s/add/objectives_from_pattern' % act.id
         self.assertEqual(200, self.client.get(url).status_code)
@@ -1007,7 +1002,7 @@ class ActTestCase(LoggedTestCase):
             objective11 = act.objectives.get(name='Child 01')
             objective12 = act.objectives.get(name='Child 02')
             objective00 = act.objectives.exclude(pk__in=[objective01.id, objective02.id, objective11.id, objective12.id,])[0]
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertTrue(all(o.counter == 0 for o in [objective00, objective01, objective02, objective11, objective12]))
@@ -1057,7 +1052,7 @@ class ActTestCase(LoggedTestCase):
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
-        objective = ActObjective.objects.get(pk=objective.id)
+        objective = self.refresh(objective)
         self.assertEqual(name,         objective.name)
         self.assertEqual(counter_goal, objective.counter_goal)
 
@@ -1079,15 +1074,15 @@ class ActTestCase(LoggedTestCase):
 
         response = self.client.post(url, data={'diff': 1})
         self.assertEqual(200, response.status_code)
-        self.assertEqual(1,   ActObjective.objects.get(pk=objective.id).counter)
+        self.assertEqual(1,   self.refresh(objective).counter)
 
         response = self.client.post(url, data={'diff': 2})
         self.assertEqual(200, response.status_code)
-        self.assertEqual(3,   ActObjective.objects.get(pk=objective.id).counter)
+        self.assertEqual(3,   self.refresh(objective).counter)
 
         response = self.client.post(url, data={'diff': -3})
         self.assertEqual(200, response.status_code)
-        self.assertEqual(0,   ActObjective.objects.get(pk=objective.id).counter)
+        self.assertEqual(0,   self.refresh(objective).counter)
 
     def test_count_relations(self):
         self.populate('commercial') #'creme_core', 'persons'
@@ -1102,21 +1097,21 @@ class ActTestCase(LoggedTestCase):
 
         orga01 = Organisation.objects.create(user=self.user, name='Ferraille corp')
         Relation.objects.create(subject_entity=orga01, type_id=REL_SUB_COMPLETE_GOAL, object_entity=act, user=self.user)
-        objective = ActObjective.objects.get(pk=objective.id) #refresh cache
+        objective = self.refresh(objective) #refresh cache
         self.assertEqual(1, objective.get_count())
         self.assertFalse(objective.reached)
 
         orga02 = Organisation.objects.create(user=self.user, name='World company')
         Relation.objects.create(subject_entity=orga02, type_id=REL_SUB_COMPLETE_GOAL, object_entity=act, user=self.user)
-        objective = ActObjective.objects.get(pk=objective.id) #refresh cache
+        objective = self.refresh(objective) #refresh cache
         self.assertEqual(2, objective.get_count())
         self.assertTrue(objective.reached)
 
         contact = Contact.objects.create(user=self.user, first_name='Monsieur', last_name='Ferraille')
         Relation.objects.create(subject_entity=contact, type_id=REL_SUB_COMPLETE_GOAL, object_entity=act, user=self.user)
-        objective = ActObjective.objects.get(pk=objective.id) #refresh cache
+        objective = self.refresh(objective) #refresh cache
         self.assertEqual(2, objective.get_count())
-        self.assert_(objective.reached)
+        self.assertTrue(objective.reached)
 
     def test_related_opportunities(self):
         self.populate('commercial') #'creme_core', 'persons'
@@ -1130,16 +1125,16 @@ class ActTestCase(LoggedTestCase):
         opp01 = Opportunity.objects.create(user=self.user, name='OPP01', sales_phase=sales_phase, closing_date=date.today())
         Relation.objects.create(subject_entity=opp01, type_id=REL_SUB_OPPORT_LINKED, object_entity=act, user=self.user)
 
-        act = Act.objects.get(pk=act.id) #refresh cache
+        act = self.refresh(act) #refresh cache
         self.assertEqual([opp01.id], [o.id for o in act.get_related_opportunities()])
         self.assertEqual(0,          act.get_made_sales())
 
         opp01.made_sales = 1500; opp01.save()
-        self.assertEqual(1500, Act.objects.get(pk=act.id).get_made_sales())
+        self.assertEqual(1500, self.refresh(act).get_made_sales())
 
         opp02 = Opportunity.objects.create(user=self.user, name='OPP01', sales_phase=sales_phase, closing_date=date.today(), made_sales=500)
         Relation.objects.create(subject_entity=opp02, type_id=REL_SUB_OPPORT_LINKED, object_entity=act, user=self.user)
-        act  = Act.objects.get(pk=act.id) #refresh cache
+        act  = self.refresh(act) #refresh cache
         opps = act.get_related_opportunities()
         self.assertEqual(2, len(opps))
         self.assertEqual(set([opp01.id, opp02.id]), set(o.id for o in opps))
@@ -1150,7 +1145,7 @@ class ActObjectivePatternTestCase(LoggedTestCase):
     def assertFormContainsError(self, response):
         try:
             errors = response.context['form'].errors
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
         else:
             if not errors:
@@ -1181,7 +1176,7 @@ class ActObjectivePatternTestCase(LoggedTestCase):
         pattern = patterns[0]
         self.assertEqual(name,          pattern.name)
         self.assertEqual(average_sales, pattern.average_sales)
-        self.assertEqual(segment.id,    pattern.segment.id)
+        self.assertEqual(segment,       pattern.segment)
 
     def _create_pattern(self, name='ObjPattern', average_sales=1000):
         return ActObjectivePattern.objects.create(user=self.user, name=name,
@@ -1209,10 +1204,10 @@ class ActObjectivePatternTestCase(LoggedTestCase):
         self.assertNoFormError(response)
         self.assertEqual(302, response.status_code)
 
-        pattern = ActObjectivePattern.objects.get(pk=pattern.id)
+        pattern = self.refresh(pattern)
         self.assertEqual(name,          pattern.name)
         self.assertEqual(average_sales, pattern.average_sales)
-        self.assertEqual(segment.id,    pattern.segment.id)
+        self.assertEqual(segment,       pattern.segment)
 
     def test_listview(self):
         self.populate('creme_core', 'persons', 'commercial')
@@ -1230,7 +1225,7 @@ class ActObjectivePatternTestCase(LoggedTestCase):
 
         try:
             patterns_page = response.context['entities']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(1, patterns_page.number)
@@ -1277,22 +1272,20 @@ class ActObjectivePatternTestCase(LoggedTestCase):
         self.assertEqual(1, len(components))
 
         component = components[0]
-        self.assertEqual(name,  component.name)
-        self.assertEqual(ct.id, component.ctype.id)
+        self.assertEqual(name, component.name)
+        self.assertEqual(ct,   component.ctype)
 
     def test_add_child_pattern_component01(self): #parent component
         pattern = self._create_pattern()
         comp01 = ActObjectivePatternComponent.objects.create(name='Signed opportunities', pattern=pattern, success_rate=50)
 
-        response = self.client.get('/commercial/objective_pattern/component/%s/add_child' % comp01.id)
-        self.assertEqual(200, response.status_code)
+        url = '/commercial/objective_pattern/component/%s/add_child' % comp01.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
         name = 'Spread Vcards'
-        response = self.client.post('/commercial/objective_pattern/component/%s/add_child' % comp01.id,
-                                    data={
-                                            'name':         name,
-                                            'success_rate': 20,
-                                         }
+        response = self.client.post(url, data={'name':         name,
+                                               'success_rate': 20,
+                                              }
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
@@ -1307,12 +1300,11 @@ class ActObjectivePatternTestCase(LoggedTestCase):
 
         name = 'Called contacts'
         ct   = ContentType.objects.get_for_model(Contact)
-        response = self.client.post('/commercial/objective_pattern/component/%s/add_child' % comp01.id,
-                                    data={
-                                            'name':         name,
-                                            'ctype':        ct.id,
-                                            'success_rate': 60,
-                                         }
+        response = self.client.post(url, data={
+                                                'name':         name,
+                                                'ctype':        ct.id,
+                                                'success_rate': 60,
+                                              }
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
@@ -1320,10 +1312,10 @@ class ActObjectivePatternTestCase(LoggedTestCase):
 
         try:
             comp03 = comp01.children.get(name=name)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
-        self.assertEqual(ct.id, comp03.ctype.id)
+        self.assertEqual(ct, comp03.ctype)
 
     def test_add_parent_pattern_component01(self):
         pattern = self._create_pattern()
@@ -1334,9 +1326,8 @@ class ActObjectivePatternTestCase(LoggedTestCase):
 
         name = 'Signed opportunities'
         success_rate = 50
-        response = self.client.post(url, data={
-                                                'name':         name,
-                                                'success_rate': success_rate,
+        response = self.client.post(url, data={'name':         name,
+                                               'success_rate': success_rate,
                                               }
                                    )
         self.assertNoFormError(response)
@@ -1350,10 +1341,10 @@ class ActObjectivePatternTestCase(LoggedTestCase):
         self.assertEqual(comp01.id, child.id)
 
         parent = components[1]
-        self.assertEqual(name,            parent.name)
-        self.assertEqual(success_rate,    parent.success_rate)
-        self.assertEqual(None,            parent.parent_id)
-        self.assertEqual(child.parent_id, parent.id)
+        self.assertEqual(name,         parent.name)
+        self.assertEqual(success_rate, parent.success_rate)
+        self.assertEqual(None,         parent.parent_id)
+        self.assertEqual(child.parent, parent)
 
     def test_add_parent_pattern_component02(self):
         pattern = self._create_pattern()
@@ -1377,17 +1368,17 @@ class ActObjectivePatternTestCase(LoggedTestCase):
         self.assertEqual(3, len(components))
 
         grandpa = components[0]
-        self.assertEqual(comp01.id, grandpa.id)
+        self.assertEqual(comp01, grandpa)
 
         child = components[1]
-        self.assertEqual(comp02.id, child.id)
+        self.assertEqual(comp02, child)
 
         parent = components[2]
-        self.assertEqual(name,  parent.name)
-        self.assertEqual(ct.id, parent.ctype_id)
+        self.assertEqual(name, parent.name)
+        self.assertEqual(ct,   parent.ctype)
 
-        self.assertEqual(child.parent_id,  parent.id)
-        self.assertEqual(parent.parent_id, grandpa.id)
+        self.assertEqual(child.parent,  parent)
+        self.assertEqual(parent.parent, grandpa)
 
     def test_add_pattern_component_errors(self):
         pattern = self._create_pattern()
@@ -1421,20 +1412,20 @@ class ActObjectivePatternTestCase(LoggedTestCase):
         child21 = create_component(name='Child 21', pattern=pattern, parent=child02, success_rate=1)
 
         comptree = pattern.get_components_tree() #TODO: test that no additionnal queries are done ???
-        self.assert_(isinstance(comptree, list))
+        self.assertIsInstance(comptree, list)
         self.assertEqual(2, len(comptree))
 
         rootcomp01 = comptree[0]
         self.assertIsInstance(rootcomp01, ActObjectivePatternComponent)
-        self.assertEqual(root01.id, rootcomp01.id)
-        self.assertEqual(root02.id, comptree[1].id)
+        self.assertEqual(root01, rootcomp01)
+        self.assertEqual(root02, comptree[1])
 
         children = rootcomp01.get_children()
         self.assertEqual(2, len(children))
 
         compchild01 = children[0]
         self.assertIsInstance(compchild01, ActObjectivePatternComponent)
-        self.assertEqual(child01.id, compchild01.id)
+        self.assertEqual(child01, compchild01)
         self.assertEqual(3, len(compchild01.get_children()))
 
         self.assertEqual(1, len(children[1].get_children()))
@@ -1500,14 +1491,20 @@ class ActObjectivePatternTestCase(LoggedTestCase):
                          set(ActObjectivePatternComponent.objects.get(pattern=cloned_pattern, name=comp1.name).children.values_list('name', flat=True))
                         )
         self.assertEqual(set(['1.1.1', '1.1.2', '1.2.1', '1.2.2']),
-                         set(ActObjectivePatternComponent.objects.filter(pattern=cloned_pattern, parent__name__in=['1.1', '1.2']).values_list('name', flat=True))
+                         set(ActObjectivePatternComponent.objects.filter(pattern=cloned_pattern, parent__name__in=['1.1', '1.2']) \
+                                                                 .values_list('name', flat=True)
+                            )
                         )
         self.assertEqual(1, ActObjectivePatternComponent.objects.filter(pattern=cloned_pattern, name=comp2.name).count())
         self.assertEqual(set(['2.1', '2.2']),
-                         set(ActObjectivePatternComponent.objects.get(pattern=cloned_pattern, name=comp2.name).children.values_list('name', flat=True))
+                         set(ActObjectivePatternComponent.objects.get(pattern=cloned_pattern, name=comp2.name) \
+                                                                 .children.values_list('name', flat=True)
+                            )
                         )
         self.assertEqual(set(['2.1.1', '2.1.2', '2.2.1', '2.2.2']),
-                         set(ActObjectivePatternComponent.objects.filter(pattern=cloned_pattern, parent__name__in=['2.1', '2.2']).values_list('name', flat=True))
+                         set(ActObjectivePatternComponent.objects.filter(pattern=cloned_pattern, parent__name__in=['2.1', '2.2']) \
+                                                                 .values_list('name', flat=True)
+                            )
                         )
 
 #TODO: (tests SellByRelation)

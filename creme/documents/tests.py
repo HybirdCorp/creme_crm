@@ -1,16 +1,19 @@
 # -*- coding: utf-8 -*-
 
-from tempfile import NamedTemporaryFile
-from django.contrib.auth.models import User
+try:
+    from tempfile import NamedTemporaryFile
+    from django.contrib.auth.models import User
 
-from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import ugettext
+    from django.contrib.contenttypes.models import ContentType
+    from django.utils.translation import ugettext
 
-from creme_core.models import CremeEntity, RelationType, Relation, HeaderFilter, HistoryLine
-from creme_core.tests.base import CremeTestCase
+    from creme_core.models import CremeEntity, RelationType, Relation, HeaderFilter, HistoryLine
+    from creme_core.tests.base import CremeTestCase
 
-from documents.models import *
-from documents.constants import *
+    from documents.models import *
+    from documents.constants import *
+except Exception as e:
+    print 'Error:', e
 
 
 class DocumentTestCase(CremeTestCase):
@@ -18,13 +21,13 @@ class DocumentTestCase(CremeTestCase):
         self.populate('creme_core', 'creme_config', 'documents')
 
     def test_populate(self):
-        self.assert_(RelationType.objects.filter(pk=REL_SUB_RELATED_2_DOC).exists())
+        self.assertTrue(RelationType.objects.filter(pk=REL_SUB_RELATED_2_DOC).exists())
 
         get_ct = ContentType.objects.get_for_model
         self.assert_(HeaderFilter.objects.filter(entity_type=get_ct(Document)).exists())
 
-        self.assert_(Folder.objects.exists())
-        self.assert_(FolderCategory.objects.exists())
+        self.assertTrue(Folder.objects.exists())
+        self.assertTrue(FolderCategory.objects.exists())
 
     def test_portal(self):
         self.login()
@@ -43,7 +46,7 @@ class DocumentTestCase(CremeTestCase):
     def test_add_document(self):
         self.login()
 
-        self.failIf(Document.objects.all())
+        self.assertFalse(Document.objects.exists())
 
         url = '/documents/document/add'
         self.assertEqual(200, self.client.get(url).status_code)
@@ -64,16 +67,16 @@ class DocumentTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
-        self.assert_(response.redirect_chain)
+        self.assertTrue(response.redirect_chain)
         self.assertEqual(1, len(response.redirect_chain))
 
         docs = Document.objects.all()
         self.assertEqual(1, len(docs))
 
         doc = docs[0]
-        self.assertEqual(title,        doc.title)
-        self.assertEqual(description,  doc.description)
-        self.assertEqual(folder.id,    doc.folder.id)
+        self.assertEqual(title,       doc.title)
+        self.assertEqual(description, doc.description)
+        self.assertEqual(folder,      doc.folder)
 
         filedata = doc.filedata
         filedata.open()
@@ -126,13 +129,13 @@ class DocumentTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
-        self.assert_(response.redirect_chain)
+        self.assertTrue(response.redirect_chain)
         self.assertEqual(1, len(response.redirect_chain))
 
-        doc = Document.objects.get(pk=doc.id) #refresh
-        self.assertEqual(title,        doc.title)
-        self.assertEqual(description,  doc.description)
-        self.assertEqual(folder.id,    doc.folder.id)
+        doc = self.refresh(doc)
+        self.assertEqual(title,       doc.title)
+        self.assertEqual(description, doc.description)
+        self.assertEqual(folder,      doc.folder)
 
         file_to_delete.delete(file_to_delete)#clean
 
@@ -159,7 +162,7 @@ class DocumentTestCase(CremeTestCase):
 
         try:
             doc = Document.objects.get(title=title)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(1, Relation.objects.filter(subject_entity=entity,
@@ -178,7 +181,7 @@ class DocumentTestCase(CremeTestCase):
 
         title = 'Test folder'
 
-        self.failIf(Folder.objects.filter(title=title).exists())
+        self.assertFalse(Folder.objects.filter(title=title).exists())
 
         description = 'Test description'
         parent      = Folder.objects.all()[0]
@@ -197,12 +200,12 @@ class DocumentTestCase(CremeTestCase):
 
         try:
             folder = Folder.objects.get(title=title)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(description, folder.description)
-        self.assertEqual(parent.id,   folder.parent_folder.id)
-        self.assertEqual(category.id, folder.category.id)
+        self.assertEqual(parent,      folder.parent_folder)
+        self.assertEqual(category,    folder.category)
 
     def test_edit_folder(self):
         self.login()
@@ -235,11 +238,11 @@ class DocumentTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        folder = Folder.objects.get(pk=folder.pk) #refresh
+        folder = self.refresh(folder)
         self.assertEqual(title,       folder.title)
         self.assertEqual(description, folder.description)
-        self.assertEqual(parent.id,   folder.parent_folder.id)
-        self.assertEqual(category.id, folder.category.id)
+        self.assertEqual(parent,      folder.parent_folder)
+        self.assertEqual(category,    folder.category)
 
     #TODO complete
 

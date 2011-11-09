@@ -25,7 +25,7 @@ try:
     from persons.constants import REL_SUB_EMPLOYED_BY, REL_OBJ_CUSTOMER_SUPPLIER, REL_SUB_CUSTOMER_SUPPLIER
 
     from reports.models import *
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -75,7 +75,7 @@ class ReportsTestCase(CremeTestCase):
 
         try:
             report = Report.objects.get(name=name)
-        except Report.DoesNotExist, e:
+        except Report.DoesNotExist as e:
             self.fail('report not created ?!')
 
         return report
@@ -93,7 +93,7 @@ class ReportsTestCase(CremeTestCase):
     def get_field(self, report, field_name):
         try:
             return report.columns.get(name=field_name)
-        except Field.DoesNotExist, e:
+        except Field.DoesNotExist as e:
             self.fail(str(e))
 
     def test_report_createview02(self):
@@ -244,7 +244,7 @@ class ReportsTestCase(CremeTestCase):
         try:
             form = response.context['form']
             fields_columns = form.fields['columns']
-        except KeyError, e:
+        except KeyError as e:
             self.fail(str(e))
 
         for i, (fname, fvname) in enumerate(fields_columns.choices):
@@ -252,13 +252,12 @@ class ReportsTestCase(CremeTestCase):
         else:
             self.fail('No "last_name" field')
 
-        response = self.client.post(url,
-                                    data={
-                                            'user': self.user.pk,
-                                            'columns_check_%s' % created_index: 'on',
-                                            'columns_value_%s' % created_index: 'last_name',
-                                            'columns_order_%s' % created_index: 1,
-                                         }
+        response = self.client.post(url, data={
+                                                'user': self.user.pk,
+                                                'columns_check_%s' % created_index: 'on',
+                                                'columns_value_%s' % created_index: 'last_name',
+                                                'columns_order_%s' % created_index: 1,
+                                             }
                                    )
 
         self.assertEqual(response.status_code, 200)
@@ -272,7 +271,9 @@ class ReportsTestCase(CremeTestCase):
                         )
 
     def test_get_predicates_choices_4_ct(self):
-        response = self.client.post('/reports/get_predicates_choices_4_ct', data={'ct_id': ContentType.objects.get_for_model(Report).id})
+        response = self.client.post('/reports/get_predicates_choices_4_ct',
+                                    data={'ct_id': ContentType.objects.get_for_model(Report).id}
+                                   )
         self.assertEqual(200, response.status_code)
 
     def _setUp_big_report(self):

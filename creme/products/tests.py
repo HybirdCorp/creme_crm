@@ -11,7 +11,7 @@ try:
 
     from products.models import Category, SubCategory, Product, Service
     from products.forms.product import ProductCategoryField
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -127,8 +127,7 @@ class ProductsTestCase(CremeTestCase):
 
     def test_portal(self):
         self.login()
-        response = self.client.get('/products/')
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(200, self.client.get('/products/').status_code)
 
     def test_ajaxview01(self):
         self.login()
@@ -165,8 +164,8 @@ class ProductsTestCase(CremeTestCase):
 
         self.assertEqual(0, Product.objects.count())
 
-        response = self.client.get('/products/product/add')
-        self.assertEqual(200, response.status_code)
+        url = '/products/product/add'
+        self.assertEqual(200, self.client.get(url).status_code)
 
         name = 'Eva00'
         code = 42
@@ -174,20 +173,21 @@ class ProductsTestCase(CremeTestCase):
         sub_cat = SubCategory.objects.all()[0]
         description = 'A fake god'
         unit_price = '1.23'
-        response = self.client.post('/products/product/add', follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':         self.user.pk,
                                             'name':         name,
                                             'code':         code,
                                             'description':  description,
                                             'unit_price':   unit_price,
-                                            'sub_category': """{"category":%s, "subcategory":%s}""" % (cat.id,
-                                                                                                       sub_cat.id)
+                                            'sub_category': '{"category": %s, "subcategory": %s}' % (
+                                                                cat.id, sub_cat.id
+                                                              )
                                          }
                                    )
         try:
             form = response.context['form']
-        except Exception, e:
+        except Exception as e:
             #print 'Exception', e
             pass
         else:
@@ -201,13 +201,13 @@ class ProductsTestCase(CremeTestCase):
         self.assertEqual(code,                product.code)
         self.assertEqual(description,         product.description)
         self.assertEqual(Decimal(unit_price), product.unit_price)
-        self.assertEqual(cat.id,              product.category_id)
-        self.assertEqual(sub_cat.id,          product.sub_category_id)
+        self.assertEqual(cat,                 product.category)
+        self.assertEqual(sub_cat,             product.sub_category)
 
         self.assertEqual(200, response.status_code)
-        self.assert_(response.redirect_chain)
+        self.assertTrue(response.redirect_chain)
         self.assertEqual(len(response.redirect_chain), 1)
-        self.assert_(response.redirect_chain[0][0].endswith('/products/product/%s' % product.id))
+        self.assertTrue(response.redirect_chain[0][0].endswith('/products/product/%s' % product.id))
 
         response = self.client.get('/products/product/%s' % product.id)
         self.assertEqual(response.status_code, 200)
@@ -223,25 +223,26 @@ class ProductsTestCase(CremeTestCase):
                                          unit_price=Decimal('1.23'), code=code,
                                          category=cat, sub_category=sub_cat)
 
-        response = self.client.get('/products/product/edit/%s' % product.id)
-        self.assertEqual(200, response.status_code)
+        url = '/products/product/edit/%s' % product.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
         name += '_edited'
         unit_price = '4.53'
-        response = self.client.post('/products/product/edit/%s' % product.id, follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':         self.user.pk,
                                             'name':         name,
                                             'code':         product.code,
                                             'description':  product.description,
                                             'unit_price':   unit_price,
-                                            'sub_category': """{"category":%s, "subcategory":%s}""" % (product.category_id,
-                                                                                                       product.sub_category_id)
+                                            'sub_category': '{"category": %s, "subcategory": %s}' % (
+                                                                product.category_id, product.sub_category_id
+                                                              ),
                                          }
                                    )
         self.assertEqual(200, response.status_code)
 
-        product = Product.objects.get(pk=product.id)
+        product = self.refresh(product)
         self.assertEqual(name,                product.name)
         self.assertEqual(Decimal(unit_price), product.unit_price)
 
@@ -264,7 +265,7 @@ class ProductsTestCase(CremeTestCase):
 
         try:
             products_page = response.context['entities']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(2, products_page.paginator.count)
@@ -275,8 +276,8 @@ class ProductsTestCase(CremeTestCase):
 
         self.assertEqual(0, Service.objects.count())
 
-        response = self.client.get('/products/product/add')
-        self.assertEqual(200, response.status_code)
+        url = '/products/service/add'
+        self.assertEqual(200, self.client.get(url).status_code)
 
         name = 'Eva washing'
         description = 'Your Eva is washed by pretty girls'
@@ -285,7 +286,7 @@ class ProductsTestCase(CremeTestCase):
         sub_cat = SubCategory.objects.all()[0]
         unit = 'A wash'
         unit_price = '1.23'
-        response = self.client.post('/products/service/add', follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':         self.user.pk,
                                             'name':         name,
@@ -293,13 +294,14 @@ class ProductsTestCase(CremeTestCase):
                                             'description':  description,
                                             'unit':         unit,
                                             'unit_price':   unit_price,
-                                            'sub_category': """{"category":%s, "subcategory":%s}""" % (cat.id,
-                                                                                                       sub_cat.id)
+                                            'sub_category': '{"category": %s, "subcategory": %s}' % (
+                                                                cat.id, sub_cat.id
+                                                              ),
                                          }
                                    )
         try:
             form = response.context['form']
-        except Exception, e:
+        except Exception as e:
             #print 'Exception', e
             pass
         else:
@@ -318,9 +320,9 @@ class ProductsTestCase(CremeTestCase):
         self.assertEqual(sub_cat.id,          service.sub_category_id)
 
         self.assertEqual(200, response.status_code)
-        self.assert_(response.redirect_chain)
+        self.assertTrue(response.redirect_chain)
         self.assertEqual(len(response.redirect_chain), 1)
-        self.assert_(response.redirect_chain[0][0].endswith('/products/service/%s' % service.id))
+        self.assertTrue(response.redirect_chain[0][0].endswith('/products/service/%s' % service.id))
 
         response = self.client.get('/products/service/%s' % service.id)
         self.assertEqual(response.status_code, 200)
@@ -335,20 +337,21 @@ class ProductsTestCase(CremeTestCase):
                                          unit_price=Decimal('1.23'), reference='42',
                                          category=cat, sub_category=sub_cat, unit='A wash')
 
-        response = self.client.get('/products/service/edit/%s' % service.id)
-        self.assertEqual(200, response.status_code)
+        url = '/products/service/edit/%s' % service.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
         name += '_edited'
         unit_price = '4.53'
-        response = self.client.post('/products/service/edit/%s' % service.id, follow=True,
+        response = self.client.post(url, follow=True,
                                     data={
                                             'user':         self.user.pk,
                                             'name':         name,
                                             'reference':    service.reference,
                                             'description':  service.description,
                                             'unit_price':   unit_price,
-                                            'sub_category': """{"category":%s, "subcategory":%s}""" % (service.category_id,
-                                                                                                       service.sub_category_id),
+                                            'sub_category': '{"category":%s, "subcategory":%s}' % (
+                                                                service.category_id, service.sub_category_id
+                                                             ),
                                             'unit':         service.unit,
                                          }
                                    )
@@ -356,13 +359,13 @@ class ProductsTestCase(CremeTestCase):
 
         try:
             form = response.context['form']
-        except Exception, e:
+        except Exception as e:
             #print 'Exception', e
             pass
         else:
             self.fail(form.errors)
 
-        service = Service.objects.get(pk=service.id)
+        service = self.refresh(service)
         self.assertEqual(name,                service.name)
         self.assertEqual(Decimal(unit_price), service.unit_price)
 
@@ -385,8 +388,8 @@ class ProductsTestCase(CremeTestCase):
 
         try:
             services_page = response.context['entities']
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(2, services_page.paginator.count)
-        self.assertEqual(set([serv01.id, serv02.id]), set([s.id for s in services_page.object_list]))
+        self.assertEqual(set([serv01.id, serv02.id]), set(s.id for s in services_page.object_list))
