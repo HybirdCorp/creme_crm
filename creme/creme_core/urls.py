@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
-from django.conf import settings
 
 from django.conf.urls.defaults import patterns, include
+from django.conf import settings
 
 
 entity_patterns = patterns('creme_core.views', #TODO: move delete* to entity.py

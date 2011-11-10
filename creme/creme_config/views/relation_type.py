@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug #
+#from logging import debug
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import render_to_response, get_object_or_404
@@ -26,11 +26,11 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.models import RelationType
+from creme_core.models import RelationType, SemiFixedRelationType
 from creme_core.views.generic import add_model_with_popup, inner_popup
 from creme_core.utils import get_from_POST_or_404
 
-from creme_config.forms.relation_type import RelationTypeCreateForm, RelationTypeEditForm
+from creme_config.forms.relation_type import RelationTypeCreateForm, RelationTypeEditForm, SemiFixedRelationTypeCreateForm
 
 
 @login_required
@@ -44,6 +44,11 @@ def portal(request):
 @permission_required('creme_config.can_admin')
 def add(request):
     return add_model_with_popup(request, RelationTypeCreateForm, _(u'New custom type'))
+
+@login_required
+@permission_required('creme_config.can_admin')
+def add_semi_fixed(request):
+    return add_model_with_popup(request, SemiFixedRelationTypeCreateForm, _(u'New semi-fixed type of relationship'))
 
 @login_required
 @permission_required('creme_config.can_admin')
@@ -82,5 +87,13 @@ def delete(request):
         raise Http404("Can't delete a standard RelationType")
 
     relation_type.delete()
+
+    return HttpResponse()
+
+@login_required
+@permission_required('creme_config.can_admin')
+def delete_semi_fixed(request):
+    semifixed_rtype = get_object_or_404(SemiFixedRelationType, pk=get_from_POST_or_404(request.POST, 'id'))
+    semifixed_rtype.delete()
 
     return HttpResponse()

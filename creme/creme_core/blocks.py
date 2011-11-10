@@ -46,7 +46,7 @@ class RelationsBlock(QuerysetBlock):
     dependencies  = (Relation,) #NB: (Relation, CremeEntity) but useless
     relation_type_deps = () #voluntarily void -> see detailview_display(): only types not present in another block are displayed
     order_by      = 'type'
-    verbose_name  = _(u'Relations')
+    verbose_name  = _(u'Relationships')
     template_name = 'creme_core/templatetags/block_relations.html'
 
     def detailview_display(self, context):

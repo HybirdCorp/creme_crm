@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import RelationType, CremeEntity, CremePropertyType
+    from creme_core.models import RelationType, CremeEntity, CremePropertyType, SemiFixedRelationType
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Contact, Organisation #need CremeEntity
@@ -11,7 +12,7 @@ except Exception, e:
     print 'Error:', e
 
 
-__all__ = ('RelationTypeTestCase',)
+__all__ = ('RelationTypeTestCase', 'SemiFixedRelationTypeTestCase')
 
 
 class RelationTypeTestCase(CremeTestCase):
@@ -50,7 +51,7 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertEqual(rel_type_core_populate_count + 2, len(rel_types))#4 from creme_core populate + 2freshly created
 
         rel_type = self._find_relation_type(rel_types, subject_pred)
-        self.assert_(rel_type.is_custom)
+        self.assertTrue(rel_type.is_custom)
         self.assertEqual(object_pred, rel_type.symmetric_type.predicate)
         self.assertEqual(0,           rel_type.subject_ctypes.count())
         self.assertEqual(0,           rel_type.object_ctypes.count())
@@ -122,3 +123,96 @@ class RelationTypeTestCase(CremeTestCase):
         rt, srt = RelationType.create(('test-subfoo', 'subject_predicate'), ('test-subfoo', 'object_predicate'), is_custom=True)
         self.assertEqual(200, self.client.post('/creme_config/relation_type/delete', data={'id': rt.id}).status_code)
         self.assertEqual(0,   RelationType.objects.filter(pk__in=[rt.id, srt.id]).count())
+
+
+class SemiFixedRelationTypeTestCase(CremeTestCase):
+    def setUp(self): #in CremeConfigTestCase ??
+        self.populate('creme_core', 'creme_config')
+        self.login()
+
+        self.loves, __ = RelationType.create(('test-subject_foobar', 'is loving'),
+                                             ('test-object_foobar',  'is loved by')
+                                            )
+
+        self.iori = Contact.objects.create(user=self.user, first_name='Iori', last_name='Yoshizuki')
+
+    def test_create01(self):
+        url = '/creme_config/relation_type/semi_fixed/add/'
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        predicate = 'Is loving Iori'
+        response = self.client.post(url, data={'predicate':     predicate,
+                                               'semi_relation': '{"rtype": "%s", "ctype": %s,"entity": %s}' % (
+                                                                    self.loves.id, self.iori.entity_type_id, self.iori.id,
+                                                                   ),
+                                              }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
+
+        semi_fixed_relations = SemiFixedRelationType.objects.all()
+        self.assertEqual(1, len(semi_fixed_relations))
+
+        smr = semi_fixed_relations[0]
+        self.assertEqual(predicate,  smr.predicate)
+        self.assertEqual(self.loves, smr.relation_type)
+        self.assertEqual(self.iori,  smr.object_entity.get_real_entity())
+
+    def test_create02(self): #predicate is unique
+        predicate = 'Is loving Iori'
+        sfrt = SemiFixedRelationType.objects.create(predicate=predicate,
+                                                    relation_type=self.loves,
+                                                    object_entity=self.iori,
+                                                   )
+
+        itsuki = Contact.objects.create(user=self.user, first_name='Itsuki', last_name='Akiba')
+        response = self.client.post('/creme_config/relation_type/semi_fixed/add/',
+                                    data={'predicate':     predicate,
+                                          'semi_relation': '{"rtype": "%s", "ctype": %s,"entity": %s}' % (
+                                                                  self.loves.id, itsuki.entity_type_id, itsuki.id,
+                                                              ),
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', 'predicate',
+                             [_(u"%(model_name)s with this %(field_label)s already exists.") %  {
+                                    'model_name': _('Semi-fixed type of relationship'),
+                                    'field_label': _('Predicate'),
+                                }
+                             ]
+                            )
+
+    def test_create03(self): #('relation_type', 'object_entity') => unique together
+        predicate = 'Is loving Iori'
+        sfrt = SemiFixedRelationType.objects.create(predicate=predicate,
+                                                    relation_type=self.loves,
+                                                    object_entity=self.iori,
+                                                   )
+
+        url = '/creme_config/relation_type/semi_fixed/add/'
+        predicate += ' (other)'
+        response = self.client.post(url, data={'predicate': predicate})
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', 'semi_relation', [_(u"This field is required.")])
+
+        response = self.client.post(url, data={'predicate':     predicate,
+                                               'semi_relation': '{"rtype": "%s", "ctype": %s,"entity": %s}' % (
+                                                                        self.loves.id, self.iori.entity_type_id, self.iori.id,
+                                                                    ),
+                                              }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', None,
+                             [_(u"A semi-fixed type of relationship with this type and this object already exists.")]
+                            )
+
+    def test_delete(self):
+        sfrt = SemiFixedRelationType.objects.create(predicate='Is loving Iori',
+                                                    relation_type=self.loves,
+                                                    object_entity=self.iori,
+                                                   )
+        self.assertEqual(200, self.client.post('/creme_config/relation_type/semi_fixed/delete',
+                                               data={'id': sfrt.id}
+                                              ).status_code
+                        )
+        self.assertFalse(SemiFixedRelationType.objects.filter(pk=sfrt.id).exists())

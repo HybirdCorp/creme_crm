@@ -24,7 +24,6 @@ from logging import debug
 from django.db import models
 from django.db.models import ForeignKey
 from django.core.exceptions import PermissionDenied
-#from django.utils.encoding import force_unicode
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext

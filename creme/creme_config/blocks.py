@@ -119,7 +119,24 @@ class CustomRelationTypesBlock(_ConfigAdminBlock):
         return self._render(self.get_block_template_context(context, RelationType.objects.filter(is_custom=True, pk__contains='-subject_'),
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                                                             custom=True,
-                                                            ))
+                                                           ))
+
+
+class SemiFixedRelationTypesBlock(_ConfigAdminBlock):
+    id_           = QuerysetBlock.generate_id('creme_config', 'semifixed_relation_types')
+    dependencies  = (RelationType,)
+    verbose_name  = _(u'List of semi-fixed relation types')
+    template_name = 'creme_config/templatetags/block_semifixed_relation_types.html'
+
+    def detailview_display(self, context):
+        btc = self.get_block_template_context(context, SemiFixedRelationType.objects.all(),
+                                              update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                             )
+        entities = [sfrt.object_entity for sfrt in btc['page'].object_list]
+        CremeEntity.populate_real_entities(entities)
+        CremeEntity.populate_credentials([entity.get_real_entity() for entity in entities], context['user'])
+
+        return self._render(btc)
 
 
 class CustomFieldsPortalBlock(_ConfigAdminBlock):
@@ -379,9 +396,9 @@ blocks_list = (
         PropertyTypesBlock(),
         RelationTypesBlock(),
         CustomRelationTypesBlock(),
+        SemiFixedRelationTypesBlock(),
         CustomFieldsPortalBlock(),
         custom_fields_block,
-        #BlocksConfigBlock(),
         BlockDetailviewLocationsBlock(),
         BlockPortalLocationsBlock(),
         BlockDefaultMypageLocationsBlock(),

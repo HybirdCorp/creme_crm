@@ -42,7 +42,7 @@ from creme_core.utils.id_generator import generate_string_id_and_save
 class HeaderFilterForm(CremeModelForm):
     fields        = MultipleChoiceField(label=_(u'Regular fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
     custom_fields = MultipleChoiceField(label=_(u'Custom fields'),  required=False, choices=(), widget=OrderedMultipleChoiceWidget)
-    relations     = MultipleChoiceField(label=_(u'Relations'),      required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    relations     = MultipleChoiceField(label=_(u'Relationships'),  required=False, choices=(), widget=OrderedMultipleChoiceWidget)
     functions     = MultipleChoiceField(label=_(u'Functions'),      required=False, choices=(), widget=OrderedMultipleChoiceWidget)
 
     class Meta:

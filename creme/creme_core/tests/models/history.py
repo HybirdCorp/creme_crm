@@ -11,7 +11,7 @@ try:
     from creme_core.tests.views.base import ViewsTestCase
 
     from persons.models import Contact, Organisation, Sector
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 __all__ = ('HistoryTestCase',)
@@ -34,12 +34,7 @@ class HistoryTestCase(ViewsTestCase):
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
-        try:
-            orga = Organisation.objects.get(name=name)
-        except Organisation.DoesNotExist, e:
-            self.fail(str(e))
-
-        return orga
+        return self.get_object_or_fail(Organisation, name=name)
 
     def _build_contact(self, first_name, last_name, extra_args=None, **kwargs):
         data = {'first_name': first_name, 'last_name': last_name}
@@ -52,20 +47,15 @@ class HistoryTestCase(ViewsTestCase):
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
-        try:
-            contact = Contact.objects.get(first_name=first_name, last_name=last_name)
-        except Organisation.DoesNotExist, e:
-            self.fail(str(e))
-
-        return contact
+        return self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
 
     def _assert_between_dates(self, hline):
         now = datetime.now()
         hdate = hline.date
         old_time = self.old_time
-        self.assert_(old_time <= hdate <= now,
-                     'old_time=%s ; hline.date=%s ; now=%s' % (old_time, hdate, now)
-                    )
+        self.assertTrue(old_time <= hdate <= now,
+                         'old_time=%s ; hline.date=%s ; now=%s' % (old_time, hdate, now)
+                       )
 
     def test_creation01(self):
         old_count = HistoryLine.objects.count()
@@ -88,7 +78,7 @@ class HistoryTestCase(ViewsTestCase):
         gainax = self._build_organisation(user=self.other_user.id, name='Gainax',
                                           extra_args={'billing_address-country': country}
                                          )
-        self.assert_(gainax.billing_address is not None)
+        self.assertIsNotNone(gainax.billing_address)
         self.assertEqual(country, gainax.billing_address.country)
 
         hlines = list(HistoryLine.objects.order_by('id'))
@@ -169,12 +159,12 @@ about this fantastic animation studio."""
         modifs = hline.modifications
         self.assert_(isinstance(modifs, list))
         self.assertEqual(6, len(modifs))
-        self.assert_(['phone', old_phone, phone] in modifs)
-        self.assert_(['email', email] in modifs)
-        self.assert_(['description'] in modifs)
-        self.assert_(['sector', sector01.id, sector02.id] in modifs)
-        self.assert_(['creation_date'] in modifs)
-        self.assert_(['subject_to_vat', True] in modifs, modifs)
+        self.assertIn(['phone', old_phone, phone], modifs)
+        self.assertIn(['email', email], modifs)
+        self.assertIn(['description'], modifs)
+        self.assertIn(['sector', sector01.id, sector02.id], modifs)
+        self.assertIn(['creation_date'], modifs)
+        self.assertIn(['subject_to_vat', True], modifs, modifs)
 
         vmodifs = hline.verbose_modifications
         self.assertEqual(6, len(vmodifs))
@@ -194,24 +184,24 @@ about this fantastic animation studio."""
         msg = FSTRING_2_VALUES % {'field': _(u'Email'),
                                   'value': email,
                                  }
-        self.assert_(msg in vmodifs, msg)
+        self.assertIn(msg, vmodifs)
 
         msg = FSTRING_1_VALUE % {'field': _(u'Description')}
-        self.assert_(msg in vmodifs, msg)
+        self.assertIn(msg, vmodifs)
 
         msg = FSTRING_3_VALUES % {'field':    _(u'Sector'),
                                   'oldvalue': sector01,
                                   'value':    sector02,
                                  }
-        self.assert_(msg in vmodifs, msg)
+        self.assertIn(msg, vmodifs)
 
         msg = FSTRING_1_VALUE % {'field': _(u'Date of creation of the organisation')}
-        self.assert_(msg in vmodifs, msg)
+        self.assertIn(msg, vmodifs)
 
         msg = FSTRING_2_VALUES % {'field': _(u'Subject to VAT'),
                                   'value': _('True'),
                                  }
-        self.assert_(msg in vmodifs, msg)
+        self.assertIn(msg, vmodifs)
 
     def test_edition03(self): #no change
         name = 'gainax'
@@ -275,8 +265,8 @@ about this fantastic animation studio."""
         self.assertEqual([],                        hline.modifications)
         self._assert_between_dates(hline)
 
-        creation_line = HistoryLine.objects.get(pk=creation_line.id) #refresh
-        self.assert_(hline.entity is None)
+        creation_line = self.refresh(creation_line)
+        self.assertIsNone(hline.entity)
         self.assertEqual(entity_repr, hline.entity_repr)
 
     def test_related_edition01(self):
@@ -305,7 +295,7 @@ about this fantastic animation studio."""
 
         hline = hlines[-1]
         self.assertEqual(HistoryLine.TYPE_EDITION, hline.type)
-        self.assert_(hline.related_line is None)
+        self.assertIsNone(hline.related_line)
 
     def test_related_edition02(self):
         ghibli = self._build_organisation(user=self.user.id, name='Ghibli')
@@ -314,7 +304,7 @@ about this fantastic animation studio."""
         first_name = 'Hayao'
         last_name  = 'Miyazaki'
         hayao  = self._build_contact(user=self.user.id, first_name=first_name, last_name=last_name)
-        self.assert_(hayao.modified != ghibli.modified)
+        self.assertNotEqual(hayao.modified, ghibli.modified)
 
         rtype, srtype = RelationType.create(('test-subject_employed', 'is employed'), ('test-object_employed', 'employs'))
         Relation.objects.create(user=self.user, subject_entity=hayao, object_entity=ghibli, type=rtype)
@@ -347,9 +337,7 @@ about this fantastic animation studio."""
         self.assertEqual([],                       hline.modifications)
         self.assertEqual(edition_hline.id,         hline.related_line.id)
         self._assert_between_dates(hline)
-        self.assertEqual(Contact.objects.get(pk=hayao.id).modified, #refresh
-                         hline.date
-                        )
+        self.assertEqual(self.refresh(hayao).modified, hline.date)
 
     def test_add_property01(self):
         gainax = Organisation.objects.create(user=self.user, name='Gainax')
@@ -369,7 +357,7 @@ about this fantastic animation studio."""
         self.assertEqual(HistoryLine.TYPE_PROPERTY, hline.type)
         self.assertEqual([ptype.id],                hline.modifications)
         self.assertEqual(False,                     hline.is_about_relation)
-        self.assert_(hline.date > gainax.modified)
+        self.assertGreater(hline.date, gainax.modified)
 
         FSTRING = _(u'Add property “%s”')
         self.assertEqual([FSTRING % ptype.text], hline.verbose_modifications)
@@ -388,7 +376,7 @@ about this fantastic animation studio."""
 
         rtype, srtype = RelationType.create(('test-subject_employed', 'is employed'), ('test-object_employed', 'employs'))
         relation = Relation.objects.create(user=self.user, subject_entity=rei, object_entity=nerv, type=rtype)
-        relation = Relation.objects.get(pk=relation.pk) #refresh to get the right modified value
+        relation = self.refresh(relation) #refresh to get the right modified value
 
         hlines = list(HistoryLine.objects.order_by('id'))
         self.assertEqual(old_count + 2, len(hlines))
@@ -412,13 +400,13 @@ about this fantastic animation studio."""
         self.assertEqual(hline_sym.id, hline.related_line.id)
         self.assertEqual(hline.id,     hline_sym.related_line.id)
 
-        FSTRING = _(u'Add a relation “%s”')
+        FSTRING = _(u'Add a relationship “%s”')
         self.assertEqual([FSTRING % rtype.predicate], hline.verbose_modifications)
         self.assertEqual([FSTRING % srtype.predicate], hline_sym.verbose_modifications)
 
         rtype_id = rtype.id
-        relation.delete(); rtype.delete(); self.failIf(RelationType.objects.filter(pk=rtype_id).exists())
-        hline = HistoryLine.objects.get(pk=hline.id) #refresh
-        self.assertEqual([FSTRING % rtype_id], hline.verbose_modifications)
+        relation.delete(); rtype.delete()
+        self.assertFalse(RelationType.objects.filter(pk=rtype_id).exists())
+        self.assertEqual([FSTRING % rtype_id], self.refresh(hline).verbose_modifications)
 
     #TODO: test populate related lines + query counter ??

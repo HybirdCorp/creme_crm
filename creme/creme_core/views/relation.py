@@ -189,7 +189,7 @@ def add_relations(request, subject_id, relation_type_id=None):
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
                         'form':  form,
-                        'title': _(u'Relations for <%s>') % subject,
+                        'title': _(u'Relationships for <%s>') % subject,
                        },
                        is_valid=form.is_valid(),
                        reload=False,
@@ -233,7 +233,7 @@ def add_relations_bulk(request, model_ct_id, relations_types=None):#TODO: Factor
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {
                         'form':  form,
-                        'title': _(u'Multiple adding of relations'),
+                        'title': _(u'Multiple adding of relationships'),
                        },
                        is_valid=form.is_valid(),
                        reload=False,
@@ -426,5 +426,3 @@ def add_relations_with_same_type(request):
         message = ",".join(msg for error_messages in errors.itervalues() for msg in error_messages)
 
     return HttpResponse(message, status=status)
-
-

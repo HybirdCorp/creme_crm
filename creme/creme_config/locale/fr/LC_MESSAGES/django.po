@@ -2,12 +2,13 @@
 # Copyright (C) 2011 Hybird
 # This file is distributed under the same license as the Creme package.
 #
+# > django-admin.py makemessages -l fr -e html -i "tests/*"
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-09-09 17:55+0200\n"
+"POT-Creation-Date: 2011-11-10 17:49+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -29,14 +30,18 @@ msgid "Custom relation types configuration"
 msgstr "Configuration des types de relation personnalisés"
 
 #: blocks.py:128
+msgid "List of semi-fixed relation types"
+msgstr "Liste des types de relation semi-fixés"
+
+#: blocks.py:145
 msgid "General configuration of custom fields"
 msgstr "Configuration générale des champs personnalisés"
 
-#: blocks.py:143
+#: blocks.py:160
 msgid "Custom fields configuration"
 msgstr "Configuration des champs personnalisés"
 
-#: blocks.py:161
+#: blocks.py:178
 msgid "Users configuration"
 msgstr "Configuration des utilisateurs"
 
@@ -118,7 +123,7 @@ msgstr "Informations sur la fiche"
 msgid "Relation block: %s"
 msgstr "Bloc de relation: %s"
 
-#: forms/blocks.py:128
+#: forms/blocks.py:128 forms/blocks.py:220
 #, python-format
 msgid "Instance's block: %s"
 msgstr "Bloc d'instance: %s"
@@ -136,7 +141,7 @@ msgstr "Application associée"
 msgid "Blocks to display on the portal"
 msgstr "Blocs à afficher sur le portail"
 
-#: forms/blocks.py:207
+#: forms/blocks.py:230
 msgid "Blocks to display on the \"My Page\" of the users"
 msgstr "Blocs à afficher sur le \"Ma page\" des utilisateurs"
 
@@ -240,37 +245,48 @@ msgstr "Types de relation"
 msgid "Menu entries"
 msgstr "Entrées du menu"
 
-#: forms/relation_type.py:31
+#: forms/relation_type.py:33
 msgid "No constraint means that all types are accepted"
 msgstr "Aucune contrainte signifiera que tous les types sont acceptés"
 
-#: forms/relation_type.py:32
+#: forms/relation_type.py:34
 msgid "Type constraint"
 msgstr "Contrainte sur le type"
 
-#: forms/relation_type.py:35
+#: forms/relation_type.py:37
 msgid "Properties constraint"
 msgstr "Contrainte sur les propriétés"
 
-#: forms/relation_type.py:45
+#: forms/relation_type.py:47
 msgid "Subject => object"
 msgstr "Sujet => objet"
 
-#: forms/relation_type.py:46
+#: forms/relation_type.py:48
 msgid "Object => subject"
 msgstr "Objet => sujet"
 
-#: forms/relation_type.py:53
+#: forms/relation_type.py:55
 msgid "Subject"
 msgstr "Sujet"
 
-#: forms/relation_type.py:54
+#: forms/relation_type.py:56
 msgid "Verb/Predicate"
 msgstr "Verbe/Prédicat"
 
-#: forms/relation_type.py:55
+#: forms/relation_type.py:57
+#: templates/creme_config/templatetags/block_semifixed_relation_types.html:19
 msgid "Object"
 msgstr "Objet"
+
+#: forms/relation_type.py:104
+msgid "Type and object"
+msgstr "Type et objet"
+
+#: forms/relation_type.py:124
+msgid ""
+"A semi-fixed type of relationship with this type and this object already "
+"exists."
+msgstr "Un type de relation semi-fixé avec ce type et cet objet existe déjà."
 
 #: forms/search.py:38
 #: templates/creme_config/templatetags/block_searchconfig.html:20
@@ -628,6 +644,7 @@ msgstr "Nom"
 #: templates/creme_config/templatetags/block_property_types.html:22
 #: templates/creme_config/templatetags/block_relationblocksconfig.html:17
 #: templates/creme_config/templatetags/block_searchconfig.html:22
+#: templates/creme_config/templatetags/block_semifixed_relation_types.html:21
 #: templates/creme_config/templatetags/block_teams.html:29
 #: templates/creme_config/templatetags/block_users.html:41
 msgid "Delete"
@@ -880,6 +897,7 @@ msgid "Subject(s)"
 msgstr "Sujet(s)"
 
 #: templates/creme_config/templatetags/block_relation_types.html:25
+#: templates/creme_config/templatetags/block_semifixed_relation_types.html:18
 msgid "Predicate"
 msgstr "Prédicat"
 
@@ -947,6 +965,32 @@ msgstr "Tous"
 #: templates/creme_config/templatetags/block_searchconfig.html:37
 msgid "No search configuration for the moment"
 msgstr "Aucune configuration de recherche enregistrée pour le moment"
+
+#: templates/creme_config/templatetags/block_semifixed_relation_types.html:6
+#, python-format
+msgid "%s Semi-fixed type of relationship"
+msgstr "%s Type de relation semi-fixé"
+
+#: templates/creme_config/templatetags/block_semifixed_relation_types.html:6
+#, python-format
+msgid "%s Semi-fixed types of relationship"
+msgstr "%s Types de relation semi-fixés"
+
+#: templates/creme_config/templatetags/block_semifixed_relation_types.html:6
+msgid "Semi-fixed types of relationship"
+msgstr "Type de relation semi-fixé"
+
+#: templates/creme_config/templatetags/block_semifixed_relation_types.html:13
+msgid "New semi-fixed type"
+msgstr "Nouveau type semi-fixé"
+
+#: templates/creme_config/templatetags/block_semifixed_relation_types.html:20
+msgid "Type of relationship"
+msgstr "Type de relation"
+
+#: templates/creme_config/templatetags/block_semifixed_relation_types.html:35
+msgid "No semi-fixed type of relationship for the moment"
+msgstr "Aucun type de relation semi-fixé n'existe pour le moment"
 
 #: templates/creme_config/templatetags/block_settings.html:6
 #, python-format
@@ -1151,10 +1195,14 @@ msgstr "Éditer le \"Ma page\" par défaut"
 msgid "Edit \"My page\""
 msgstr "Éditer \"Ma page\""
 
-#: views/creme_property_type.py:59 views/relation_type.py:68
+#: views/creme_property_type.py:59 views/relation_type.py:73
 #, python-format
 msgid "Edit the type \"%s\""
 msgstr "Éditer le type \"%s\""
+
+#: views/relation_type.py:51
+msgid "New semi-fixed type of relationship"
+msgstr "Nouveau type de relation semi-fixé"
 
 #: views/setting.py:61
 #, python-format
@@ -1187,6 +1235,12 @@ msgstr "Ajouter des droits à <%s>"
 #: views/user_role.py:96
 msgid "Edit default credentials"
 msgstr "Éditer les droits par défaut"
+
+#~ msgid "Semi-fixed relation types"
+#~ msgstr "Types de relation semi-semi-fixés"
+
+#~ msgid "New semi-fixed relation"
+#~ msgstr "Nouvelle configuration de champ personnalisé"
 
 #~ msgid "Model configuration"
 #~ msgstr "Configuration de modèle"
@@ -1325,9 +1379,6 @@ msgstr "Éditer les droits par défaut"
 
 #~ msgid "Type of entity"
 #~ msgstr "Type d'entité"
-
-#~ msgid "Type of set"
-#~ msgstr "Type d'ensemble"
 
 #~ msgid "Particular Entity/Role/Team"
 #~ msgstr "Entité/Rôle/Équipe particulier"

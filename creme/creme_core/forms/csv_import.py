@@ -592,12 +592,12 @@ class CSVImportForm4CremeEntity(CSVImportForm):
     property_types  = ModelMultipleChoiceField(label=_(u'Properties'), required=False,
                                                queryset=CremePropertyType.objects.none(),
                                                widget=UnorderedMultipleChoiceWidget)
-    fixed_relations = MultiRelationEntityField(label=_(u'Fixed relations'), required=False)
-    dyn_relations   = RelationExtractorField(label=_(u'Relations from CSV'), required=False)
+    fixed_relations = MultiRelationEntityField(label=_(u'Fixed relationships'), required=False)
+    dyn_relations   = RelationExtractorField(label=_(u'Relationships from CSV'), required=False)
 
     blocks = FieldBlockManager(('general',    _(u'Generic information'),  '*'),
                                ('properties', _(u'Related properties'),   ('property_types',)),
-                               ('relations',  _(u'Associated relations'), ('fixed_relations', 'dyn_relations')),
+                               ('relations',  _(u'Associated relationships'), ('fixed_relations', 'dyn_relations')),
                               )
 
     columns4dynrelations = [(i, 'Colunmn %s' % i) for i in xrange(1, 21)]

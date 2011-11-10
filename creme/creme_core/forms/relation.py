@@ -19,34 +19,54 @@
 ################################################################################
 
 from django.db.models import Q
-from django.forms import CharField, ValidationError
+from django.forms import CharField, ModelMultipleChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
-from creme_core.forms.base import CremeEntityForm, FieldBlockManager
 
-from creme_core.models import CremeEntity, Relation, RelationType
-from creme_core.forms import CremeForm
+from creme_core.models import CremeEntity, Relation, RelationType, SemiFixedRelationType
+from creme_core.forms.base import CremeForm, CremeEntityForm, FieldBlockManager
 from creme_core.forms.fields import MultiRelationEntityField
-from creme_core.forms.widgets import Label
+from creme_core.forms.widgets import Label, UnorderedMultipleChoiceWidget
 from creme_core.forms.validators import validate_linkable_entities
 from creme_core.utils import entities2unicode
 
 
 class RelationCreateForm(CremeForm):
-    relations = MultiRelationEntityField(label=_(u'Relations'))
+    relations        = MultiRelationEntityField(label=_(u'Relationships'), required=False)
+    semifixed_rtypes = ModelMultipleChoiceField(label=_(u'Semi-fixed types of relationship'),
+                                                queryset=SemiFixedRelationType.objects.none(),
+                                                required=False, widget=UnorderedMultipleChoiceWidget
+                                               )
 
     def __init__(self, subject, relations_types=None, *args, **kwargs):
         """
-        @param relations_types Sequence of RelationTypes ids to narrow to these types ; or None that means all types compatible with the subject.
+        @param relations_types Sequence of RelationTypes ids to narrow to these types ;
+                               or None that means all types compatible with the subject.
         """
         super(RelationCreateForm, self).__init__(*args, **kwargs)
         self.subject = subject
+        fields = self.fields
+
+        #TODO: improve queries ??
+        user = self.user
+        entities = [sfrt.object_entity for sfrt in SemiFixedRelationType.objects.select_related('object_entity')]
+        CremeEntity.populate_credentials(entities, user)
+        sfrt_queryset = SemiFixedRelationType.objects.filter(object_entity__in=[e for e in entities if e.can_link(user)])
 
         if not relations_types:
-            relations_types = RelationType.get_compatible_ones(subject.entity_type).order_by('predicate').values_list('id', flat=True)
+            relations_types = RelationType.get_compatible_ones(subject.entity_type) \
+                                          .order_by('predicate') \
+                                          .values_list('id', flat=True)
+        else:
+            sfrt_queryset = sfrt_queryset.filter(relation_type__in=relations_types)
 
-        self.fields['relations'].allowed_rtypes = relations_types
-        self.fields['relations'].initial = [(RelationType.objects.get(pk=relations_types[0]), None)]
+        fields['semifixed_rtypes'].queryset = sfrt_queryset
+
+        relations_field = fields['relations']
+        relations_field.allowed_rtypes = relations_types
+        #TODO: uncomment when MultiRelationEntityField accepts an incomplete input
+        #      for now you get an 'Invalid format' if you use on semifixed_rtypes without cleaning 'relations' line.
+        #relations_field.initial = [(RelationType.objects.get(pk=relations_types[0]), None)]
 
     def _check_duplicates(self, relations, user):
         future_relations = set()
@@ -76,6 +96,27 @@ class RelationCreateForm(CremeForm):
 
         return relations
 
+    #TODO
+    #def clean_semifixed_rtypes(self):
+        #validate_linkable_entities([entity for rt_id, entity in relations], self.user)
+
+    def clean(self):
+        cdata = self.cleaned_data
+
+        if not self._errors:
+            relations_desc = cdata['relations']
+            #TODO: improve queries ??
+            relations_desc.extend((sfrt.relation_type, sfrt.object_entity) for sfrt in self.cleaned_data['semifixed_rtypes'])
+
+            if not relations_desc:
+                raise ValidationError(ugettext(u'You must give one relationship at least.'))
+
+            self._check_duplicates(relations_desc, self.user)
+
+            self.relations_desc = relations_desc
+
+        return cdata
+
     @staticmethod
     def _hash_relation(subject_id, rtype_id, object_id):
         return '%s#%s#%s' % (subject_id, rtype_id, object_id)
@@ -83,21 +124,20 @@ class RelationCreateForm(CremeForm):
     def _create_relations(self, subjects):
         user = self.user
         hash_relation = self._hash_relation
-        relations_cdata = self.cleaned_data['relations']
+        relations_desc = self.relations_desc
         existing_relations_query = Q()
 
         for subject in subjects:
-            for rtype, object_entity in relations_cdata:
+            for rtype, object_entity in relations_desc:
                 existing_relations_query |= Q(type=rtype, subject_entity=subject.id, object_entity=object_entity.id)
 
         existing_relations = frozenset(hash_relation(r.subject_entity_id, r.type_id, r.object_entity_id)
                                             for r in Relation.objects.filter(existing_relations_query)
                                       )
-
-        create_relation    = Relation.objects.create
+        create_relation = Relation.objects.create
 
         for subject in subjects:
-            for rtype, object_entity in relations_cdata:
+            for rtype, object_entity in relations_desc:
                 if not hash_relation(subject.id, rtype.id, object_entity.id) in existing_relations:
                     create_relation(user=user,
                                     subject_entity=subject,
@@ -111,7 +151,7 @@ class RelationCreateForm(CremeForm):
 
 class MultiEntitiesRelationCreateForm(RelationCreateForm):
     entities_lbl = CharField(label=_(u"Related entities"), widget=Label())
-    blocks = FieldBlockManager(('general', _(u'General information'), ['entities_lbl', 'relations']),)
+    blocks = FieldBlockManager(('general', _(u'General information'), ['entities_lbl', 'relations', 'semifixed_rtypes']),)
 
     def __init__(self, subjects, forbidden_subjects, user, relations_types=None, *args, **kwargs):
         subject = subjects[0] if subjects else forbidden_subjects[0]

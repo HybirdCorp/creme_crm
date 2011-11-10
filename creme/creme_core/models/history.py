@@ -116,8 +116,8 @@ class HistoryLine(Model):
             TYPE_DELETION:     {'has_related_line': False, 'verbose_name': _(u'Deletion')},
             TYPE_RELATED:      {'has_related_line': True,  'verbose_name': _(u'Related modification')},
             TYPE_PROPERTY:     {'has_related_line': False, 'verbose_name': _(u'Property')},
-            TYPE_RELATION:     {'has_related_line': True,  'verbose_name': _(u'Relation')},
-            TYPE_SYM_RELATION: {'has_related_line': True,  'verbose_name': _(u'Relation')},
+            TYPE_RELATION:     {'has_related_line': True,  'verbose_name': _(u'Relationship')},
+            TYPE_SYM_RELATION: {'has_related_line': True,  'verbose_name': _(u'Relationship')},
         }
 
     class Meta:
@@ -193,7 +193,7 @@ class HistoryLine(Model):
             except RelationType.DoesNotExist, e:
                 predicate = rtype_id
 
-            vmodifs.append(_(u'Add a relation “%s”') % predicate)
+            vmodifs.append(_(u'Add a relationship “%s”') % predicate)
         else:
             get_field = self.entity_ctype.model_class()._meta.get_field
 

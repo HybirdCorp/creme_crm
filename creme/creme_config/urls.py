@@ -37,6 +37,8 @@ urlpatterns = patterns('creme_config.views',
     (r'^relation_type/add/$',                              'relation_type.add'),
     (r'^relation_type/edit/(?P<relation_type_id>[\w-]+)$', 'relation_type.edit'),
     (r'^relation_type/delete$',                            'relation_type.delete'),
+    (r'^relation_type/semi_fixed/add/$',                   'relation_type.add_semi_fixed'),
+    (r'^relation_type/semi_fixed/delete$',                 'relation_type.delete_semi_fixed'),
 
     #Property Types
     (r'^property_type/portal/$',                           'creme_property_type.portal'),

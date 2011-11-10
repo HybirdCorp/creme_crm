@@ -3,8 +3,8 @@
 from base import CremeModel, CremeAbstractEntity
 from entity import CremeEntity
 
-from relation import RelationType, Relation #RelationPredicate_i18n
-from creme_property import CremePropertyType, CremeProperty #CremePropertyText_i18n
+from relation import RelationType, Relation, SemiFixedRelationType
+from creme_property import CremePropertyType, CremeProperty
 from custom_field import *
 
 from header_filter import HeaderFilter, HeaderFilterItem
