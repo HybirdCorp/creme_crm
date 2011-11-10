@@ -175,12 +175,12 @@ post_save.connect(BlockMypageLocation._copy_default_config, sender=User,
 
 class RelationBlockItem(CremeModel):
     block_id      = CharField(_(u"Block ID"), max_length=100) #really useful ?? (can be retrieved with type)
-    relation_type = ForeignKey(RelationType, verbose_name=_(u"Related type of relation"), unique=True)
+    relation_type = ForeignKey(RelationType, verbose_name=_(u"Related type of relationship"), unique=True)
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Specific relation block')
-        verbose_name_plural = _(u'Specific relation blocks')
+        verbose_name = _(u'Specific relationship block')
+        verbose_name_plural = _(u'Specific relationship blocks')
 
     def delete(self):
         BlockDetailviewLocation.objects.filter(block_id=self.block_id).delete()

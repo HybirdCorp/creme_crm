@@ -289,7 +289,7 @@ class QuerysetBlock(PaginatedBlock):
 class SpecificRelationsBlock(QuerysetBlock):
     dependencies  = (Relation,) #NB: (Relation, CremeEntity) but useless
     order_by      = 'type'
-    verbose_name  = _(u'Relations')
+    verbose_name  = _(u'Relationships')
     template_name = 'creme_core/templatetags/block_specific_relations.html'
 
     def __init__(self, id_, relation_type_id):

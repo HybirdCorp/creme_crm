@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -55,12 +55,12 @@ class RelationType(CremeModel):
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Type of relation')
-        verbose_name_plural = _(u'Types of relation')
+        verbose_name = _(u'Type of relationship')
+        verbose_name_plural = _(u'Types of relationship')
 
     def __unicode__(self):
         sym_type = self.symmetric_type
-        symmetric_pred = ugettext(u'No relation') if sym_type is None else sym_type.predicate
+        symmetric_pred = ugettext(u'No relationship') if sym_type is None else sym_type.predicate
         return force_unicode(u'%s — %s' % (self.predicate, symmetric_pred))#NB: — == "\xE2\x80\x94" == &mdash;
 
     def delete(self):
@@ -165,7 +165,7 @@ class RelationType(CremeModel):
 
     def is_not_internal_or_die(self):
         if self.is_internal:
-            raise Http404(ugettext("You can't add/delete the relations with this type (internal type)"))
+            raise Http404(ugettext("You can't add/delete the relationships with this type (internal type)"))
 
 #Commented 24 may 2011
 #class RelationPredicate_i18n(CremeModel):
@@ -186,8 +186,8 @@ class Relation(CremeAbstractEntity):
 
     class Meta:
         app_label = 'creme_core'
-        verbose_name = _(u'Relation')
-        verbose_name_plural = _(u'Relations')
+        verbose_name = _(u'Relationship')
+        verbose_name_plural = _(u'Relationships')
 
     def __unicode__(self):
         subject = self.subject_entity
@@ -298,3 +298,18 @@ class Relation(CremeAbstractEntity):
 
         if save and changed:
             self.save()
+
+
+class SemiFixedRelationType(CremeModel):
+    predicate     = CharField(_(u'Predicate'), max_length=100, unique=True)
+    relation_type = ForeignKey(RelationType)
+    object_entity = ForeignKey(CremeEntity)
+
+    class Meta:
+        app_label = 'creme_core'
+        unique_together = ('relation_type', 'object_entity')
+        verbose_name = _(u'Semi-fixed type of relationship')
+        verbose_name_plural = _(u'Semi-fixed types of relationship')
+
+    def __unicode__(self):
+        return self.predicate

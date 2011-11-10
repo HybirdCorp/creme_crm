@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,10 +19,12 @@
 ################################################################################
 
 from django.forms import CharField, ModelMultipleChoiceField
+from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremePropertyType, RelationType
-from creme_core.forms import CremeForm, FieldBlockManager
+from creme_core.models import CremePropertyType, RelationType, SemiFixedRelationType
+from creme_core.forms import CremeForm, CremeModelForm, FieldBlockManager
+from creme_core.forms.fields import RelationEntityField
 from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme_core.utils import Q_creme_entity_content_types
 
@@ -96,3 +98,35 @@ class RelationTypeEditForm(_RelationTypeBaseForm):
                             (instance.symmetric_type_id, get_data('object_predicate'),  object_ctypes,  get_data('object_properties')),
                             is_custom=True
                            )
+
+
+class SemiFixedRelationTypeCreateForm(CremeModelForm):
+    semi_relation = RelationEntityField(label=_('Type and object'))
+
+    class Meta:
+        model = SemiFixedRelationType
+        exclude = ('relation_type', 'object_entity')
+
+    def __init__(self, *args, **kwargs):
+        super(SemiFixedRelationTypeCreateForm, self).__init__(*args, **kwargs)
+        #TODO: improve RelationEntityField in order to put this queryset in the declaration
+        #      for now the queryset is immediately executed, so RelationTypes create after are not used.
+        self.fields['semi_relation'].allowed_rtypes = RelationType.objects.filter(is_internal=False) \
+                                                                          .values_list('id', flat=True)
+
+    def clean(self):
+        cdata = super(SemiFixedRelationTypeCreateForm, self).clean()
+
+        if not self._errors:
+            rtype, entity = cdata['semi_relation']
+
+            if SemiFixedRelationType.objects.filter(relation_type=rtype, object_entity=entity).exists():
+                raise ValidationError(_(u"A semi-fixed type of relationship with this type and this object already exists."))
+
+        return cdata
+
+    def save(self, *args, **kwargs):
+        instance = self.instance
+        instance.relation_type, instance.object_entity = self.cleaned_data['semi_relation']
+
+        return super(SemiFixedRelationTypeCreateForm, self).save(*args, **kwargs)

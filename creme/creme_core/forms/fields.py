@@ -258,16 +258,14 @@ class MultiGenericEntityField(GenericEntityField):
 
         return entities
 
-        #return CremeEntity.objects.filter(pk__in=[entry['entity'] for entry in data if entry['entity'] != 'null'])
-
 
 class RelationEntityField(JSONField):
     default_error_messages = {
-        'rtypedoesnotexist' : _(u"This relation type doesn't exist."),
-        'rtypenotallowed' : _(u"This relation type cause constraint error."),
-        'ctypenotallowed' : _(u"This content type cause constraint error with relation type."),
-        'doesnotexist' : _(u"This entity doesn't exist."),
-        'nopropertymatch' : _(u"This entity has no property that matches relation type constraints")
+        'rtypedoesnotexist': _(u"This type of relationship doesn't exist."),
+        'rtypenotallowed':   _(u"This type of relationship causes a constraint error."),
+        'ctypenotallowed':   _(u"This content type cause constraint error with the type of relationship."),
+        'doesnotexist':      _(u"This entity doesn't exist."),
+        'nopropertymatch':   _(u"This entity has no property that matches the constraints of the type of relationship."),
     }
 
     def __init__(self, allowed_rtypes=(REL_SUB_HAS, ), *args, **kwargs):
@@ -279,7 +277,7 @@ class RelationEntityField(JSONField):
         return RelationSelector(self._get_options(self._get_allowed_rtypes_objects()),
                                 '/creme_core/relation/predicate/${rtype}/content_types/json')
 
-    # TODO : wait for django 1.2 and new widget api to remove this hack
+    #TODO : wait for django 1.2 and new widget api to remove this hack
     def from_python(self, value):
         if not value:
             return ''

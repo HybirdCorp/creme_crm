@@ -2,20 +2,20 @@
 {% load creme_core_tags creme_block creme_widgets %}
 {% regroup page.object_list by type as predicate_list %}
 {% has_perm_to link object as subject_link_perm %}{% has_perm_to unlink object as subject_unlink_perm %}
-<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id={{block_name}}>
     {% get_block_header colspan=2 %}
-        <th class="collapser label">{% get_block_title _('%s Relation') _('%s Relations') 'relations_48.png' _('Relation') %}</th>
+        <th class="collapser label">{% get_block_title _('%s Relationship') _('%s Relationships') 'relations_48.png' _('Relationship') %}</th>
         <th class="actions">
             <div class="buttons">
-                {% get_line_linker at_url '/creme_core/relation/add/{{object.id}}' with_label _("New relations") with_perms subject_link_perm %}
+                {% get_line_linker at_url '/creme_core/relation/add/{{object.id}}' with_label _("New relationships") with_perms subject_link_perm %}
                 {% if subject_unlink_perm %}
                     <a class="negative" onclick="creme.utils.ajaxDelete('/creme_core/relation/delete/all', {'subject_id':{{object.pk}}}, {complete:function(req, st){creme.utils.loadBlock({% get_block_relation_reload_uri %});creme.utils.loading('loading', true);}});">
-                        <img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}">{% trans "Delete all relations" %}
+                        <img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}">{% trans "Delete all relationships" %}
                     </a>
                 {% else %}
                     <span class="negative" style="opacity:0.5;">
                         <img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{% trans "Can't delete all" %}" alt="{% trans "Can't delete all" %}"/>
-                        {% trans "Delete all relations (forbidden)" %}
+                        {% trans "Delete all relationships (forbidden)" %}
                     </span>
                 {% endif %}
             </div>
@@ -41,7 +41,7 @@
             {% endfor %}
         {% else %}
             <tr class="content empty">
-                <td class="block_line_dark">{% trans "No relation for the moment" %}</td>
+                <td class="block_line_dark">{% trans "No relationship for the moment" %}</td>
             </tr>
         {% endif %}
     </tbody>

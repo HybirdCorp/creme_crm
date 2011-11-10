@@ -46,8 +46,8 @@ _HAS_PROPERTY_OPTIONS = {
     }
 
 _HAS_RELATION_OPTIONS = {
-        TRUE:  _(u'Has the relation'),
-        FALSE: _(u'Does not have the relation'),
+        TRUE:  _(u'Has the relationship'),
+        FALSE: _(u'Does not have the relationship'),
     }
 
 _CONDITION_INPUT_TYPE_MAP = {
@@ -529,7 +529,7 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
 
 class RelationsConditionsField(_ConditionsField):
     default_error_messages = {
-        'invalidrtype':  _(u"This relation type is invalid with this model."),
+        'invalidrtype':  _(u"This type of relationship type is invalid with this model."),
         'invalidct':     _(u"This content type is invalid."),
         'invalidentity': _(u"This entity is invalid."),
     }
@@ -765,10 +765,10 @@ class _EntityFilterForm(CremeModelForm):
     datefields_conditions       = DateFieldsConditionsField(label=_(u'On date fields'), required=False)
     customfields_conditions     = CustomFieldsConditionsField(label=_(u'On custom fields'), required=False, help_text=u'(Only integer, string and decimal for now)')
     datecustomfields_conditions = DateCustomFieldsConditionsField(label=_(u'On date custom fields'), required=False)
-    relations_conditions        = RelationsConditionsField(label=_(u'On relations'), required=False,
+    relations_conditions        = RelationsConditionsField(label=_(u'On relationships'), required=False,
                                                            help_text=_(u'Do not select any entity if you want to match them all.')
                                                           )
-    relsubfilfers_conditions    = RelationSubfiltersConditionsField(label=_(u'On relations with results of other filters'), required=False)
+    relsubfilfers_conditions    = RelationSubfiltersConditionsField(label=_(u'On relationships with results of other filters'), required=False)
     properties_conditions       = PropertiesConditionsField(label=_(u'On properties'), required=False)
     subfilters_conditions       = SubfiltersConditionsField(label=_(u'Sub-filters'), required=False)
 

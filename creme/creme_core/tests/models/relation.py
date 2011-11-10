@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
+try:
+    from django.contrib.auth.models import User
+    from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import *
-from creme_core.tests.base import CremeTestCase
+    from creme_core.models import *
+    from creme_core.tests.base import CremeTestCase
 
-from persons.models import Contact, Organisation
+    from persons.models import Contact, Organisation
+except Exception as e:
+    print 'Error:', e
 
 
 __all__ = ('RelationsTestCase',)
@@ -24,26 +27,27 @@ class RelationsTestCase(CremeTestCase):
         try:
             rtype1, rtype2 = RelationType.create(('test-subject_foobar', subject_pred),
                                                  ('test-object_foobar',  object_pred))
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
-        self.assertEqual(rtype1.symmetric_type.id, rtype2.id)
-        self.assertEqual(rtype2.symmetric_type.id, rtype1.id)
-        self.assertEqual(rtype1.predicate,         subject_pred)
-        self.assertEqual(rtype2.predicate,         object_pred)
+        self.assertEqual(rtype1.symmetric_type, rtype2)
+        self.assertEqual(rtype2.symmetric_type, rtype1)
+        self.assertEqual(rtype1.predicate,      subject_pred)
+        self.assertEqual(rtype2.predicate,      object_pred)
 
         try:
             entity1  = CremeEntity.objects.create(user=self.user)
             entity2  = CremeEntity.objects.create(user=self.user)
             relation = Relation.objects.create(user=self.user, type=rtype1,
-                                               subject_entity=entity1, object_entity=entity2)
-        except Exception, e:
+                                               subject_entity=entity1, object_entity=entity2
+                                              )
+        except Exception as e:
             self.fail(str(e))
 
         sym = relation.symmetric_relation
-        self.assertEqual(sym.type.id, rtype2.id)
-        self.assertEqual(sym.subject_entity.id, entity2.id)
-        self.assertEqual(sym.object_entity.id,  entity1.id)
+        self.assertEqual(sym.type,           rtype2)
+        self.assertEqual(sym.subject_entity, entity2)
+        self.assertEqual(sym.object_entity,  entity1)
 
     def test_relation02(self): #BEWARE: bad usage of Relations (see the next test for good usage)
         rtype1, rtype2 = RelationType.create(('test-subject_foobar', 'is loving'),
@@ -93,12 +97,12 @@ class RelationsTestCase(CremeTestCase):
     def test_get_compatible_ones01(self):
         rtype, sym_rtype = RelationType.create(('test-subject_foobar', 'manages',       [Contact]),
                                                ('test-object_foobar',  'is managed by', [Organisation])
-                                      )
+                                              )
 
         internal_rtype, internal_sym_rtype = RelationType.create(('test-subject_foobar_2', 'manages internal',       [Contact]),
                                                                  ('test-object_foobar_2',  'is managed by internal', [Organisation]),
                                                                  is_internal=True,
-                                      )
+                                                                )
 
         contact_ct_id = ContentType.objects.get_for_model(Contact).id
 
@@ -112,12 +116,12 @@ class RelationsTestCase(CremeTestCase):
         rtype, sym_rtype = RelationType.create(('test-subject_foobar', 'manages',       [Contact]),
                                                ('test-object_foobar',  'is managed by', [Organisation]),
                                                is_internal=True,
-                                      )
+                                              )
 
         internal_rtype, internal_sym_rtype = RelationType.create(('test-subject_foobar_2', 'manages internal',       [Contact]),
                                                                  ('test-object_foobar_2',  'is managed by internal', [Organisation]),
                                                                  is_internal=True,
-                                      )
+                                                                )
 
         contact_ct_id = ContentType.objects.get_for_model(Contact).id
 
@@ -135,7 +139,8 @@ class RelationsTestCase(CremeTestCase):
 
         internal_rtype, internal_sym_rtype = RelationType.create(('test-subject_foobar_2', 'manages internal'),
                                                                  ('test-object_foobar_2',  'is managed by internal'),
-                                                                 is_internal=True)
+                                                                 is_internal=True
+                                                                )
 
         contact_ct_id = ContentType.objects.get_for_model(Contact).id
 
