@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from creme_core.tests.base import CremeTestCase
+try:
+    from creme_core.tests.base import CremeTestCase
 
-from crudity.utils import decode_b64binary, get_unicode_decoded_str
-from persons.models.contact import Contact
+    from persons.models import Contact
+
+    from crudity.utils import decode_b64binary, get_unicode_decoded_str
+except Exception as e:
+    print 'Error:', e
 
 
 class UtilsTestCase(CremeTestCase):
@@ -25,6 +29,7 @@ class UtilsTestCase(CremeTestCase):
                 email="""
         s = get_unicode_decoded_str(payload, set(['iso-8859-1']))
         self.assertEqual(payload, s)
+
         try:
             c = Contact.objects.create(user=self.user, first_name=s)
         except Exception, e:
@@ -38,8 +43,8 @@ class UtilsTestCase(CremeTestCase):
                 email="""
         s = get_unicode_decoded_str(payload, set(['iso-8859-1']))
         self.assertEqual(unicode, type(s))
+
         try:
             c = Contact.objects.create(user=self.user, first_name=s)
         except Exception, e:
             self.fail(e)
-

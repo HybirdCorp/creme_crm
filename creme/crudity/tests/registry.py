@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from crudity.registry import CRUDityRegistry
-from crudity.tests.base import CrudityTestCase, FakeFetcher, ContactFakeBackend, OrganisationFakeBackend, DocumentFakeBackend, FakeInput
+try:
+    from persons.models import Contact, Organisation
 
-from persons.models import Contact, Organisation
+    from documents.models import Document
 
-from documents.models import Document
+    from crudity.registry import CRUDityRegistry
+    from crudity.tests.base import (CrudityTestCase, FakeFetcher, ContactFakeBackend,
+                                    OrganisationFakeBackend, DocumentFakeBackend, FakeInput)
+except Exception as e:
+    print 'Error:', e
 
 
 class CrudityRegistryTestCase(CrudityTestCase):
@@ -20,15 +24,14 @@ class CrudityRegistryTestCase(CrudityTestCase):
 
         fetcher = crudity_registry.get_fetcher("test")
         fetcher2 = crudity_registry.get_fetcher("test2")
-        self.assert_(fetcher)
-        self.assert_(fetcher2)
+        self.assertTrue(fetcher)
+        self.assertTrue(fetcher2)
         self.assertEqual([fetcher, fetcher2], crudity_registry.get_fetchers())
 
     def test_register_backend01(self):
         crudity_registry = self.crudity_registry
         crudity_registry.register_backends([ContactFakeBackend, OrganisationFakeBackend])
         crudity_registry.register_backends([DocumentFakeBackend])
-
         self.assertEqual(set([Contact, Organisation, Document]), set(crudity_registry._backends))
 
     def test_register_input01(self):
