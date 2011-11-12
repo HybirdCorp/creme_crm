@@ -3,6 +3,7 @@
 from creme_config.models.setting import SettingValue
 
 from creme_core.tests.base import CremeTestCase
+
 from persons.models import Contact, Organisation
 
 from documents.models import Document
@@ -11,6 +12,7 @@ from crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
 from crudity.backends.models import CrudityBackend
 from crudity.fetchers.base import CrudityFetcher
 from crudity.inputs.base import CrudityInput
+
 
 class FakeFetcher(CrudityFetcher):
     pass
@@ -30,6 +32,7 @@ class OrganisationFakeBackend(CrudityBackend):
 
 class DocumentFakeBackend(CrudityBackend):
     model = Document
+
 
 class CrudityTestCase(CremeTestCase):
     def setUp(self):

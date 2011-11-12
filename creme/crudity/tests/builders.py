@@ -1,29 +1,30 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
-from itertools import chain
 
-import re
-import os
-from xml.etree.ElementTree import XML, tostring, Element
-from tempfile import gettempdir
+try:
+    from datetime import datetime
+    from itertools import chain
+    import re
+    import os
+    from xml.etree.ElementTree import XML, tostring, Element
+    from tempfile import gettempdir
 
-from django.contrib.auth.models import User
-from django.db.models.fields import FieldDoesNotExist
-from django.utils import translation
-from django.utils.translation import ugettext_lazy as _, ugettext
+    from django.contrib.auth.models import User
+    from django.db.models.fields import FieldDoesNotExist
+    from django.utils import translation
+    from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.models.entity import CremeEntity
-from creme_core.models.i18n import Language
+    from creme_core.models import CremeEntity, Language
 
-#from crudity.backends.email.create.infopath import InfopathCreateFromEmail
-#from crudity.registry import crudity_registry, CRUDityRegistry
-from crudity.backends.models import CrudityBackend
-from crudity.builders.infopath import InfopathFormBuilder, InfopathFormField
-from crudity.registry import crudity_registry
-from crudity.tests.base import CrudityTestCase, ContactFakeBackend, DocumentFakeBackend, FakeFetcher, FakeInput
+    from crudity.backends.models import CrudityBackend
+    from crudity.builders.infopath import InfopathFormBuilder, InfopathFormField
+    from crudity.registry import crudity_registry #CRUDityRegistry
+    from crudity.tests.base import CrudityTestCase, ContactFakeBackend, DocumentFakeBackend, FakeFetcher, FakeInput
 
-from documents.models.document import Document
-from persons.models.contact import Contact
+    from documents.models import Document
+
+    from persons.models import Contact
+except Exception as e:
+    print 'Error:', e
 
 
 class InfopathFormBuilderTestCase(CrudityTestCase):
@@ -68,18 +69,21 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     def test_builder_fields_property(self):
         backend = self._get_backend(ContactFakeBackend, subject="create_contact",
-                                                      model=Contact,
-                                                      body_map={'user_id': 1, 'is_actived': True, "first_name":"",
-                                                                "last_name":"", "email": "none@none.com",
-                                                                "description": "", "birthday":""}, password="creme")
+                                    model=Contact,
+                                    body_map={'user_id': 1, 'is_actived': True, "first_name":"",
+                                              "last_name":"", "email": "none@none.com",
+                                              "description": "", "birthday":""
+                                             },
+                                    password="creme"
+                                   )
         builder = self._get_builder(backend)
 
         for field in builder.fields:
-            self.assert_(field.name in backend.body_map.keys())
+            self.assertIn(field.name, backend.body_map)
             self.assertEqual(Contact, field.model)
 
         for field in builder.fields:#Two passes because of cache
-            self.assert_(field.name in backend.body_map.keys())
+            self.assertIn(field.name, backend.body_map)
             self.assertEqual(Contact, field.model)
 
     def test_manifest_xsf_01(self):#Test some base values
@@ -105,7 +109,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             if node.get('name') == "view1.xsl":
                 found_node = node
                 break
-        self.assert_(found_node, '<xsf:file name="view1.xsl"> not found')
+        else:
+            self.fail('<xsf:file name="view1.xsl"> not found')
 
         property_node = None
         for node in found_node.findall('%(ns)sfileProperties/%(ns)sproperty' % d_ns):
@@ -113,7 +118,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                 property_node = node
                 self.assertEqual(builder._get_lang_code(self.request.LANGUAGE_CODE), node.get('value'))
                 break
-        self.assert_(property_node is not None, '<xsf:property name="lang" type="string" value=""></xsf:property> not found')
+        else:
+            self.fail('<xsf:property name="lang" type="string" value=""></xsf:property> not found')
 
         mail_form_name = backend.subject
         self.assertEqual(mail_form_name, xml_find('%(ns)sextensions/%(ns)sextension/%(ns2)ssolutionDefinition/%(ns2)ssolutionPropertiesExtension/%(ns2)smail' % d_ns).get('formName'))
@@ -121,41 +127,40 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
     def test_manifest_xsf_02(self):#Test Image fk field
         body_map= {'user_id': 1, "image":""}
         backend = self._get_backend(ContactFakeBackend, subject="create_contact",
-                                                      body_map=body_map,
-                                                      model=Contact)
+                                    body_map=body_map, model=Contact
+                                   )
         builder = self._get_builder(backend)
 
         content = builder._render_manifest_xsf(self.request)
         self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'], builder.get_namespace())#Can't be got with ElementTree, because it's a namespace
-        d_ns    = {'xsf': "{http://schemas.microsoft.com/office/infopath/2003/solutionDefinition}"}
-        xml     = XML(content)
+        d_ns = {'xsf': "{http://schemas.microsoft.com/office/infopath/2003/solutionDefinition}"}
+        xml  = XML(content)
 
         xmlToEdit_node = xml.find('%(xsf)sviews/%(xsf)sview/%(xsf)sediting/%(xsf)sxmlToEdit' % d_ns)
-
-        self.assert_(xmlToEdit_node is not None)
+        self.assertIsNotNone(xmlToEdit_node)
         self.assertEqual("image", xmlToEdit_node.get('name'))
         self.assertEqual("/my:CremeCRMCrudity/my:image", xmlToEdit_node.get('item'))
 
         button_nodes = xml.findall('%(xsf)sviews/%(xsf)sview/%(xsf)smenuArea/%(xsf)sbutton' % d_ns)
-        self.assert_(button_nodes)
+        self.assertTrue(button_nodes)
         xmlToEdit_set = set(['image',])
         self.assertEqual(xmlToEdit_set, set(button_node.get('xmlToEdit') for button_node in button_nodes))
 
     def test_manifest_xsf_03(self):#Test m2m field
         body_map= {'user_id': 1, "language":""}
         backend = self._get_backend(ContactFakeBackend, subject="create_contact",
-                                                      body_map=body_map,
-                                                      model=Contact)
+                                    body_map=body_map, model=Contact
+                                   )
         builder = self._get_builder(backend)
 
         content = builder._render_manifest_xsf(self.request)
         self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'], builder.get_namespace())#Can't be got with ElementTree, because it's a namespace
-        d_ns    = {'xsf': "{http://schemas.microsoft.com/office/infopath/2003/solutionDefinition}"}
-        xml     = XML(content)
+
+        d_ns = {'xsf': "{http://schemas.microsoft.com/office/infopath/2003/solutionDefinition}"}
+        xml  = XML(content)
 
         xmlToEdit_node = xml.find('%(xsf)sviews/%(xsf)sview/%(xsf)sediting/%(xsf)sxmlToEdit' % d_ns)
-
-        self.assert_(xmlToEdit_node is not None)
+        self.assertIsNotNone(xmlToEdit_node)
         self.assertEqual("language", xmlToEdit_node.get('name'))
         self.assertEqual("/my:CremeCRMCrudity/my:language/my:language_value", xmlToEdit_node.get('item'))
 
@@ -163,12 +168,13 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         self.assertEqual("xTextList", editWith_node.get('component'))
 
     def test_myschema_xsd01(self):
-        body_map={'user_id': 1, 'is_actived': True, "first_name":"",
-                  "last_name":"", "email": "none@none.com",
-                  "description": "", "birthday":"", "created":"", 'url_site': "", "image":"", "language": ""}
+        body_map={'user_id': 1, 'is_actived': True, "first_name": "", "last_name": "",
+                  'email': 'none@none.com', 'description': "", "birthday": "",
+                  "created":"", 'url_site': "", "image":"", "language": ""
+                 }
         backend = self._get_backend(ContactFakeBackend, subject="create_contact",
-                                                      body_map=body_map,
-                                                      model=Contact)
+                                    body_map=body_map, model=Contact
+                                   )
         builder = self._get_builder(backend)
         d_ns    = {'xsd': "{http://www.w3.org/2001/XMLSchema}"}
 
@@ -201,6 +207,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         element_nodes = xml.findall('%(xsd)selement' % d_ns)
         for element_node in element_nodes:
             xsd_element_attrs = xsd_elements.get(element_node.get('name'))
+
             if xsd_element_attrs is not None:
                 self.assertEqual(set(xsd_element_attrs.keys()), set(element_node.keys()))
                 for attr in element_node.keys():
@@ -235,8 +242,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                         'folder':      {'name': 'folder', 'type': 'xsd:integer'},
                         "filedata":    {'name': 'filedata', 'type': 'my:requiredBase64Binary'},
                         }
-        element_nodes = xml.findall('%(xsd)selement' % d_ns)
-        for element_node in element_nodes:
+
+        for element_node in xml.findall('%(xsd)selement' % d_ns):
             xsd_element_attrs = xsd_elements.get(element_node.get('name'))
             if xsd_element_attrs is not None:
                 self.assertEqual(set(xsd_element_attrs.keys()), set(element_node.keys()))
@@ -278,26 +285,24 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         content = builder._render_upgrade_xsl(self.request)
         self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'], builder.namespace)#Can't be got with ElementTree, because it's a namespace
 
-        d_ns    = {'xsl': "{http://www.w3.org/1999/XSL/Transform}"}
-        xml     = XML(content)
-
-        fields_names = set("my:%s" % field_name for field_name in body_map.iterkeys())
-        element_nodes = xml.findall("%(xsl)stemplate/%(xsl)scopy/%(xsl)selement/" % d_ns)
-        xsl_fields_names = set(element_node.get('name') for element_node in element_nodes)
-        self.assertEqual(fields_names, xsl_fields_names)
+        d_ns = {'xsl': "{http://www.w3.org/1999/XSL/Transform}"}
+        xml  = XML(content)
+        self.assertEqual(set("my:%s" % field_name for field_name in body_map.iterkeys()),
+                         set(element_node.get('name') for element_node in xml.findall("%(xsl)stemplate/%(xsl)scopy/%(xsl)selement/" % d_ns))
+                        )
 
     def test_upgrade_xsl02(self):#m2m
         body_map={'user_id': 1, "language": ""}
         backend = self._get_backend(ContactFakeBackend, subject="create_contact",
-                                                      body_map=body_map,
-                                                      model=Contact)
+                                    body_map=body_map, model=Contact
+                                   )
         builder = self._get_builder(backend)
 
         content = builder._render_upgrade_xsl(self.request)
         self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'], builder.namespace)#Can't be got with ElementTree, because it's a namespace
 
-        d_ns    = {'xsl': "{http://www.w3.org/1999/XSL/Transform}"}
-        xml     = XML(content)
+        d_ns = {'xsl': "{http://www.w3.org/1999/XSL/Transform}"}
+        xml  = XML(content)
 
         fields_names = set("my:%s" % field_name for field_name in body_map.iterkeys())
         template_nodes = filter(lambda x: x.get('match') == "my:CremeCRMCrudity", xml.findall("%(xsl)stemplate" % d_ns))
@@ -306,7 +311,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         self.assertEqual("my:language", when_node.get('test'))
 
         exptected_template_nodes_name = set(['my:language', 'my:language_value'])
-        template_nodes_names = filter(lambda x: x.get('match') in exptected_template_nodes_name,xml.findall('%(xsl)stemplate' % d_ns))
+        template_nodes_names = filter(lambda x: x.get('match') in exptected_template_nodes_name, xml.findall('%(xsl)stemplate' % d_ns))
         self.assertEqual(exptected_template_nodes_name, set(template_nodes_name.get('match') for template_nodes_name in template_nodes_names))
 
     def _get_view_xsl(self, backend, body_map):
@@ -321,7 +326,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         d_ns    = {'xsl': "{http://www.w3.org/1999/XSL/Transform}", 'xd': "{http://schemas.microsoft.com/office/infopath/2003}"}
         xml     = self._get_view_xsl(backend, {field_name: ""})
         node_vb =  xml.find('%(xsl)stemplate/div/div/table/tbody/tr/td/div/font/strong' % d_ns)
-        self.assert_(node_vb is not None)
+        self.assertIsNotNone(node_vb)
         self.assertEqual(backend.model._meta.get_field(field_name).verbose_name, node_vb.text)
 
         node_content =  xml.find(('%(xsl)stemplate/div/div/table/tbody/tr/td/div/font/' % d_ns)+node_type)
@@ -390,8 +395,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         }
 
         backend = self._get_backend(ContactFakeBackend, subject="create_contact",
-                                      body_map={},
-                                      model=Contact)
+                                    body_map={}, model=Contact
+                                   )
 
         for field_name, attrs_nodetype in fields.iteritems():
             attrs, node_type = attrs_nodetype
@@ -405,36 +410,36 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                               model=Contact)
         xml     = self._get_view_xsl(backend, {field_name: ""})
         node_vb =  xml.find('%(xsl)stemplate/div/div/table/tbody/tr/td/div/font/strong' % d_ns)
-        self.assert_(node_vb is not None)
+        self.assertIsNotNone(node_vb)
         self.assertEqual(Contact._meta.get_field(field_name).verbose_name, node_vb.text)
 
-        target_node =  xml.find('%(xsl)stemplate/div/div/table/tbody/tr/td/div/font/div/span' % d_ns)
+        target_node = xml.find('%(xsl)stemplate/div/div/table/tbody/tr/td/div/font/div/span' % d_ns)
         self.assertEqual("my:%s" % field_name, target_node.find('%(xsl)sattribute/%(xsl)svalue-of' % d_ns).get('select'))
 
     def test_view_xsl03(self):#Deeper with ForeignKey
         d_ns    = {'xsl': "{http://www.w3.org/1999/XSL/Transform}", 'xd': "{http://schemas.microsoft.com/office/infopath/2003}"}
         field_name = "user_id"
         backend = self._get_backend(ContactFakeBackend, subject="create_contact",
-                      body_map={field_name: ""},
-                      model=Contact)
+                                    body_map={field_name: ""}, model=Contact
+                                   )
         xml     = self._get_view_xsl(backend, {field_name: ""})
 
         node_vb =  xml.find('%(xsl)stemplate/div/div/table/tbody/tr/td/div/font/strong' % d_ns)
-        self.assert_(node_vb is not None)
+        self.assertIsNotNone(node_vb)
         self.assertEqual(Contact._meta.get_field("user").verbose_name, node_vb.text)
 
         attrs = {"class":"xdComboBox xdBehavior_Select", "%(xd)sxctname": "dropdown", "%(xd)sCtrlId": field_name, "%(xd)sbinding": "my:%s" % field_name}
         target_node =  xml.find('%(xsl)stemplate/div/div/table/tbody/tr/td/div/font/select' % d_ns)
-        for attr, expected_value in attrs.items():
+        for attr, expected_value in attrs.iteritems():
             self.assertEqual(expected_value, target_node.get(attr % d_ns))
 
         options = target_node.findall('option')
-        self.assert_(options)#At least, it must have empty choice
+        self.assertTrue(options)#At least, it must have empty choice
 
         default_choice_set = set([('my:%s=""' % field_name, ugettext(u"Select..."))])
         users_set = set(('my:%s="%s"' % (field_name, user.pk), unicode(user)) for user in User.objects.all()) | default_choice_set
 
-        options_set = set((option.find('%(xsl)sif' % d_ns).get('test'),re.search(r'if>(?P<username>.*)</option>', tostring(option,  encoding='utf8').decode('utf8')).groupdict()['username']) for option in options)
+        options_set = set((option.find('%(xsl)sif' % d_ns).get('test'), re.search(r'if>(?P<username>.*)</option>', tostring(option, encoding='utf8').decode('utf8')).groupdict()['username']) for option in options)
         self.assertEqual(users_set, options_set)
 
     def test_view_xsl04(self):#Simple attr verification for Document
@@ -467,8 +472,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         }
 
         backend = self._get_backend(DocumentFakeBackend, subject="create_doc",
-                                      body_map={},
-                                      model=Document)
+                                    body_map={}, model=Document
+                                   )
 
         for field_name, attrs_nodetype in fields.iteritems():
             attrs, node_type = attrs_nodetype
@@ -477,45 +482,43 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
     def test_view_xsl05(self):#Deeper with m2m
         languages = Language.objects.all()
         self.populate('creme_core')
-        self.assert_(languages)
+        self.assertTrue(languages)
 
         d_ns    = {'xsl': "{http://www.w3.org/1999/XSL/Transform}", 'xd': "{http://schemas.microsoft.com/office/infopath/2003}"}
         field_name = "language"
         backend = self._get_backend(ContactFakeBackend, subject="create_contact",
-                      body_map={field_name: ""},
-                      model=Contact)
+                                    body_map={field_name: ""}, model=Contact
+                                   )
         xml     = self._get_view_xsl(backend, {field_name: ""})
 
         node_vb =  xml.find('%(xsl)stemplate/div/div/table/tbody/tr/td/div/font/strong' % d_ns)
-        self.assert_(node_vb is not None)
+        self.assertIsNotNone(node_vb)
         self.assertEqual(Contact._meta.get_field(field_name).verbose_name, node_vb.text)
 
         target_node =  xml.find('%(xsl)stemplate/div/div/table/tbody/tr/td/div/font/div' % d_ns)
-        self.assert_(target_node is not None)
+        self.assertIsNotNone(target_node)
 
         input_nodes = target_node.findall('%(xsl)schoose/%(xsl)swhen/span/span/input' % d_ns)
-        self.assert_(input_nodes)
+        self.assertTrue(input_nodes)
         expected_titles = set(unicode(language) for language in languages)
         self.assertEqual(expected_titles, set(input_node.get('title') for input_node in input_nodes))
 
         expected_bindings = set('my:language/my:language_value[.="%s"][1]' % l.id for l in languages)
         self.assertEqual(expected_bindings, set(input_node.get('%(xd)sbinding' % d_ns) for input_node in input_nodes))
 
-        expected_selects = set('my:language/my:language_value[.="%s"][1]' % language.id for language in languages)
-        self.assertEqual(expected_selects,
+        self.assertEqual(set('my:language/my:language_value[.="%s"][1]' % language.id for language in languages),
                          set(input_node.get("select") for input_node in target_node.findall('%(xsl)schoose/%(xsl)swhen/span/span/input/%(xsl)sattribute/%(xsl)svalue-of' % d_ns))
-                         )
+                        )
 
-        expected_tests = set('my:language/my:language_value="%s"' % language.id for language in languages)
-        self.assertEqual(expected_tests,
+        self.assertEqual(set('my:language/my:language_value="%s"' % language.id for language in languages),
                          set(input_node.get("test") for input_node in target_node.findall('%(xsl)schoose/%(xsl)swhen/span/span/input/%(xsl)sif' % d_ns))
                          )
 
         for_each_node = target_node.find('%(xsl)schoose/%(xsl)swhen/span/%(xsl)sfor-each' % d_ns)
-        self.assert_(for_each_node is not None)
-
-        expected_fe_selects = "my:language/my:language_value[%s]" % (" and ".join(['.!="%s"' % l.id for l in languages]))
-        self.assertEqual(expected_fe_selects, for_each_node.get('select'))
+        self.assertIsNotNone(for_each_node)
+        self.assertEqual("my:language/my:language_value[%s]" % " and ".join(['.!="%s"' % l.id for l in languages]),
+                         for_each_node.get('select')
+                        )
 
     def test_render01(self):
         body_map={'user_id': 1, 'is_actived': True, "first_name":"",
@@ -530,30 +533,29 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         dir_exists = os.path.exists
         join = os.path.join
 
-        self.assert_(dir_exists(backend_dir))
-        self.assert_(dir_exists(join(backend_dir, 'creme.png')))
-        self.assert_(dir_exists(join(backend_dir, 'manifest.xsf')))
-        self.assert_(dir_exists(join(backend_dir, 'myschema.xsd')))
-        self.assert_(dir_exists(join(backend_dir, 'template.xml')))
-        self.assert_(dir_exists(join(backend_dir, 'upgrade.xsl')))
-        self.assert_(dir_exists(join(backend_dir, 'view1.xsl')))
+        self.assertTrue(dir_exists(backend_dir))
+        self.assertTrue(dir_exists(join(backend_dir, 'creme.png')))
+        self.assertTrue(dir_exists(join(backend_dir, 'manifest.xsf')))
+        self.assertTrue(dir_exists(join(backend_dir, 'myschema.xsd')))
+        self.assertTrue(dir_exists(join(backend_dir, 'template.xml')))
+        self.assertTrue(dir_exists(join(backend_dir, 'upgrade.xsl')))
+        self.assertTrue(dir_exists(join(backend_dir, 'view1.xsl')))
 
-        self.assert_(dir_exists(join(backend_dir, '%s.xsn' % backend.subject)))
+        self.assertTrue(dir_exists(join(backend_dir, '%s.xsn' % backend.subject)))
 
     def test_get_create_form_view01(self):
         """Backend not registered"""
         subject="create_contact"
         backend = self._get_backend(ContactFakeBackend, subject=subject,
-                                                      body_map={},
-                                                      model=Contact)
+                                    body_map={}, model=Contact
+                                   )
 
         response = self.client.get('/crudity/infopath/create_form/%s' % subject)
         self.assertEqual(404, response.status_code)
 
     def test_get_create_form_view02(self):
         subject="create_contact"
-        backend = self._get_backend(ContactFakeBackend, subject=subject,
-                                                      body_map={})
+        backend = self._get_backend(ContactFakeBackend, subject=subject, body_map={})
 
         crudity_registry.register_fetchers("test", [FakeFetcher()])
         input = FakeInput()
@@ -605,16 +607,14 @@ class InfopathFormFieldTestCase(CrudityTestCase):
 
     def test_get_field01(self):
         request  = self.client.get('/').context['request']
-        body_map = {'user_id': 1, 'is_actived': True, "first_name":"",
-                    "last_name":"", "email": "none@none.com", "description": "", "birthday":"",}
+        body_map = {'user_id': 1, 'is_actived': True, "first_name": "", "last_name": "",
+                    "email": "none@none.com", "description": "", "birthday": ""
+                   }
 
-        backend = self._get_backend(ContactFakeBackend, subject="create_contact",
-                                                      body_map=body_map)
+        backend = self._get_backend(ContactFakeBackend, subject="create_contact", body_map=body_map)
         builder = InfopathFormBuilder(request=request, backend=backend)
 
         model_get_field = Contact._meta.get_field
-
-
         self.assertEqual(model_get_field('user'),        InfopathFormField(builder.urn, Contact, 'user_id', request)._get_model_field())
         self.assertEqual(model_get_field('first_name'),  InfopathFormField(builder.urn, Contact, 'first_name', request)._get_model_field())
         self.assertEqual(model_get_field('last_name'),   InfopathFormField(builder.urn, Contact, 'last_name', request)._get_model_field())
@@ -627,9 +627,9 @@ class InfopathFormFieldTestCase(CrudityTestCase):
     def test_get_choices01(self):
         request  = self.client.get('/').context['request']
         body_map = {'user_id': 1,}
-        backend = self._get_backend(ContactFakeBackend, subject="create_contact",
-                                                      body_map=body_map)
+        backend = self._get_backend(ContactFakeBackend, subject="create_contact", body_map=body_map)
         builder = InfopathFormBuilder(request=request, backend=backend)
 
-        user_choices_set = set((user.pk, unicode(user)) for user in User.objects.all())
-        self.assertEqual(user_choices_set, set(InfopathFormField(builder.urn, Contact, 'user_id', request)._get_choices()))
+        self.assertEqual(set((user.pk, unicode(user)) for user in User.objects.all()),
+                         set(InfopathFormField(builder.urn, Contact, 'user_id', request)._get_choices())
+                        )
