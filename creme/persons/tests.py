@@ -61,21 +61,16 @@ class PersonsTestCase(CremeTestCase):
         first_name = 'Spike'
         last_name  = 'Spiegel'
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':       self.user.pk,
-                                            'first_name': first_name,
-                                            'last_name':  last_name,
+                                    data={'user':       self.user.pk,
+                                          'first_name': first_name,
+                                          'last_name':  last_name,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
         self.assertEqual(count + 1, Contact.objects.count())
 
-        try:
-            contact = Contact.objects.get(first_name=first_name)
-        except Exception as e:
-            self.fail(str(e))
-
+        contact = self.get_object_or_fail(Contact, first_name=first_name)
         self.assertEqual(last_name,  contact.last_name)
         self.assertIsNone(contact.billing_address)
         self.assertIsNone(contact.shipping_address)
@@ -93,12 +88,11 @@ class PersonsTestCase(CremeTestCase):
         b_address = 'In the Bebop.'
         s_address = 'In the Bebop (bis).'
         response = self.client.post('/persons/contact/add', follow=True,
-                                    data={
-                                            'user':                     self.user.pk,
-                                            'first_name':               first_name,
-                                            'last_name':                'Spiegel',
-                                            'billing_address-address':  b_address,
-                                            'shipping_address-address': s_address,
+                                    data={'user':                     self.user.pk,
+                                          'first_name':               first_name,
+                                          'last_name':                'Spiegel',
+                                          'billing_address-address':  b_address,
+                                          'shipping_address-address': s_address,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -121,16 +115,15 @@ class PersonsTestCase(CremeTestCase):
 
         last_name = 'Spiegel'
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':       self.user.pk,
-                                            'first_name': first_name,
-                                            'last_name':  last_name,
+                                    data={'user':       self.user.pk,
+                                          'first_name': first_name,
+                                          'last_name':  last_name,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
         self.assert_(response.redirect_chain[0][0].endswith('/persons/contact/%s' % contact.id))
 
-        contact = Contact.objects.get(pk=contact.id)
+        contact = self.refresh(contact)
         self.assertEqual(last_name, contact.last_name)
         self.assertIsNone(contact.billing_address)
         self.assertIsNone(contact.shipping_address)
@@ -140,12 +133,11 @@ class PersonsTestCase(CremeTestCase):
         first_name = 'Faye'
         last_name  = 'Valentine'
         response = self.client.post('/persons/contact/add', follow=True,
-                                    data={
-                                            'user':                     self.user.pk,
-                                            'first_name':               first_name,
-                                            'last_name':                last_name,
-                                            'billing_address-address':  'In the Bebop.',
-                                            'shipping_address-address': 'In the Bebop. (bis)',
+                                    data={'user':                     self.user.pk,
+                                          'first_name':               first_name,
+                                          'last_name':                last_name,
+                                          'billing_address-address':  'In the Bebop.',
+                                          'shipping_address-address': 'In the Bebop. (bis)',
                                          }
                                    )
         contact = Contact.objects.get(first_name=first_name)
@@ -155,12 +147,11 @@ class PersonsTestCase(CremeTestCase):
         state   = 'Solar system'
         country = 'Mars'
         response = self.client.post('/persons/contact/edit/%s' % contact.id, follow=True,
-                                    data={
-                                            'user':                     self.user.pk,
-                                            'first_name':               first_name,
-                                            'last_name':                last_name,
-                                            'billing_address-state':    state,
-                                            'shipping_address-country': country,
+                                    data={'user':                     self.user.pk,
+                                          'first_name':               first_name,
+                                          'last_name':                last_name,
+                                          'billing_address-state':    state,
+                                          'shipping_address-country': country,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -189,9 +180,9 @@ class PersonsTestCase(CremeTestCase):
 
         self.assertEqual(3, contacts_page.paginator.count) #3: Creme user
 
-        contacts_set = set(contact.id for contact in contacts_page.object_list)
-        self.assertIn(faye.id, contacts_set)
-        self.assertIn(spike.id, contacts_set)
+        contacts_set = set(contacts_page.object_list)
+        self.assertIn(faye,  contacts_set)
+        self.assertIn(spike, contacts_set)
 
     def test_create_linked_contact01(self):
         self.login()
@@ -207,13 +198,13 @@ class PersonsTestCase(CremeTestCase):
 
         first_name = 'Bugs'
         last_name = 'Bunny'
-        response = self.client.post(uri, data={
-                                        'orga_overview': 'dontcare',
-                                        'relation':      'dontcare',
-                                        'user':          self.user.pk,
-                                        'first_name':    first_name,
-                                        'last_name':     last_name,
-                                    }, follow=True
+        response = self.client.post(uri, follow=True,
+                                    data={'orga_overview': 'dontcare',
+                                          'relation':      'dontcare',
+                                          'user':          self.user.pk,
+                                          'first_name':    first_name,
+                                          'last_name':     last_name,
+                                         }
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
@@ -235,7 +226,8 @@ class PersonsTestCase(CremeTestCase):
         SetCredentials.objects.create(role=role,
                                       value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
                                             SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
-                                      set_type=SetCredentials.ESET_OWN)
+                                      set_type=SetCredentials.ESET_OWN
+                                     )
         role.creatable_ctypes = [ContentType.objects.get_for_model(Contact)]
 
         orga = Organisation.objects.create(user=self.user, name='Acme')
@@ -277,21 +269,16 @@ class PersonsTestCase(CremeTestCase):
         name  = 'Spectre'
         description = 'DESCRIPTION'
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':        self.user.pk,
-                                            'name':        name,
-                                            'description': description,
+                                    data={'user':        self.user.pk,
+                                          'name':        name,
+                                          'description': description,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
         self.assertEqual(count + 1, Organisation.objects.count())
 
-        try:
-            orga = Organisation.objects.get(name=name)
-        except Exception as e:
-            self.fail(str(e))
-
+        orga = self.get_object_or_fail(Organisation, name=name)
         self.assertEqual(description,  orga.description)
         self.assertIsNone(orga.billing_address)
         self.assertIsNone(orga.shipping_address)
@@ -313,17 +300,16 @@ class PersonsTestCase(CremeTestCase):
         name += '_edited'
         zipcode = '123456'
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':                    self.user.pk,
-                                            'name':                    name,
-                                            'billing_address-zipcode': zipcode,
+                                    data={'user':                    self.user.pk,
+                                          'name':                    name,
+                                          'billing_address-zipcode': zipcode,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
         self.assertTrue(response.redirect_chain)
 
-        edited_orga = Organisation.objects.get(pk=orga.id)
+        edited_orga = self.refresh(orga)
         self.assertEqual(name, edited_orga.name)
         self.assertIsNotNone(edited_orga.billing_address)
         self.assertEqual(zipcode, edited_orga.billing_address.zipcode)
@@ -344,9 +330,9 @@ class PersonsTestCase(CremeTestCase):
 
         self.assertEqual(3, orgas_page.paginator.count) #3: our 2 orgas + default orga
 
-        orgas_set = set(orga.id for orga in orgas_page.object_list)
-        self.assertIn(nerv.id, orgas_set)
-        self.assertIn(acme.id, orgas_set)
+        orgas_set = set(orgas_page.object_list)
+        self.assertIn(nerv, orgas_set)
+        self.assertIn(acme, orgas_set)
 
     def _build_managed_orga(self, user=None):
         user = user or self.user
@@ -367,11 +353,7 @@ class PersonsTestCase(CremeTestCase):
         response = self.client.post(url % customer.id, data={'id': mng_orga.id}, follow=True)
         self.assertEqual(200, response.status_code)
         self.assertTrue(response.redirect_chain)
-
-        try:
-            Relation.objects.get(subject_entity=customer, object_entity=mng_orga, type=relation_type)
-        except Exception as e:
-            self.fail(str(e))
+        self.get_object_or_fail(Relation, subject_entity=customer, object_entity=mng_orga, type=relation_type)
 
     def test_become_customer01(self):
         self._become_test('/persons/%s/become_customer', REL_SUB_CUSTOMER_SUPPLIER)
@@ -383,11 +365,13 @@ class PersonsTestCase(CremeTestCase):
         SetCredentials.objects.create(role=role,
                                       value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
                                             SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
-                                      set_type=SetCredentials.ESET_ALL)
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
         SetCredentials.objects.create(role=role,
                                       value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
                                             SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK | SetCredentials.CRED_UNLINK,
-                                      set_type=SetCredentials.ESET_OWN)
+                                      set_type=SetCredentials.ESET_OWN
+                                     )
 
         mng_orga01 = self._build_managed_orga()
         customer01 = Contact.objects.create(user=self.other_user, first_name='Jet', last_name='Black') #can not link it
@@ -447,10 +431,10 @@ class PersonsTestCase(CremeTestCase):
 
         self.assertEqual(3, orgas_page.paginator.count)
 
-        orgas_set = set(orga.id for orga in orgas_page.object_list)
-        self.assertIn(nerv.id, orgas_set)
-        self.assertIn(acme.id, orgas_set)
-        self.assertIn(fsf.id,  orgas_set)
+        orgas_set = set(orgas_page.object_list)
+        self.assertIn(nerv, orgas_set)
+        self.assertIn(acme, orgas_set)
+        self.assertIn(fsf,  orgas_set)
 
     def test_leads_customers03(self):
         self.login()
@@ -464,15 +448,14 @@ class PersonsTestCase(CremeTestCase):
 
     def _create_address(self, orga, name, address, po_box, city, state, zipcode, country, department):
         response = self.client.post('/persons/address/add/%s' % orga.id,
-                                    data={
-                                            'name':       name,
-                                            'address':    address,
-                                            'po_box':     po_box,
-                                            'city':       city,
-                                            'state':      state,
-                                            'zipcode':    zipcode,
-                                            'country':    country,
-                                            'department': department,
+                                    data={'name':       name,
+                                          'address':    address,
+                                          'po_box':     po_box,
+                                          'city':       city,
+                                          'state':      state,
+                                          'zipcode':    zipcode,
+                                          'country':    country,
+                                          'department': department,
                                          }
                                    )
         self.assertEqual(response.status_code, 200)
@@ -532,15 +515,14 @@ class PersonsTestCase(CremeTestCase):
 
         city = 'Groville'
         country = 'Groland'
-        response = self.client.post(url, data={
-                                                'name':       name,
-                                                'address':    address,
-                                                'po_box':     po_box,
-                                                'city':       city,
-                                                'state':      state,
-                                                'zipcode':    zipcode,
-                                                'country':    country,
-                                                'department': department,
+        response = self.client.post(url, data={'name':       name,
+                                               'address':    address,
+                                               'po_box':     po_box,
+                                               'city':       city,
+                                               'state':      state,
+                                               'zipcode':    zipcode,
+                                               'country':    country,
+                                               'department': department,
                                              }
                                    )
         self.assertEqual(200, response.status_code)
@@ -574,18 +556,16 @@ class PersonsTestCase(CremeTestCase):
         url = '/creme_core/quickforms/%s/%s' % (ct.id, len(data))
         self.assertEqual(200, self.client.get(url).status_code)
 
-        response = self.client.post(url,
-                                    data={
-                                            'form-TOTAL_FORMS':   len(data),
-                                            'form-INITIAL_FORMS': 0,
-                                            'form-MAX_NUM_FORMS': u'',
-                                            'form-0-user':        self.user.id,
-                                            'form-0-first_name':  data[0][0],
-                                            'form-0-last_name':   data[0][1],
-                                            'form-1-user':        self.user.id,
-                                            'form-1-first_name':  data[1][0],
-                                            'form-1-last_name':   data[1][1],
-                                         }
+        response = self.client.post(url, data={'form-TOTAL_FORMS':   len(data),
+                                               'form-INITIAL_FORMS': 0,
+                                               'form-MAX_NUM_FORMS': u'',
+                                               'form-0-user':        self.user.id,
+                                               'form-0-first_name':  data[0][0],
+                                               'form-0-last_name':   data[0][1],
+                                               'form-1-user':        self.user.id,
+                                               'form-1-first_name':  data[1][0],
+                                               'form-1-last_name':   data[1][1],
+                                              }
                                    )
         self.assertEqual(200, response.status_code)
 
@@ -593,12 +573,7 @@ class PersonsTestCase(CremeTestCase):
         self.assertEqual(3, len(contacts))
 
         for first_name, last_name in data:
-            try:
-                contact = Contact.objects.get(first_name=first_name)
-            except Exception as e:
-                self.fail(str(e))
-
-            self.assertEqual(last_name, contact.last_name)
+            self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
 
     def _get_neglected_orgas(self):
         neglected_orgas_block = NeglectedOrganisationsBlock()
@@ -672,8 +647,8 @@ class PersonsTestCase(CremeTestCase):
         customer01 = self._build_customer_orga(mng_orga, 'Konoha')
         customer02 = self._build_customer_orga(mng_orga, 'Suna')
 
-        yesteday = datetime.now() - timedelta(days=1) #so in the past
-        meeting  = Meeting.objects.create(user=user, title='meet01', start=yesteday, end=yesteday + timedelta(hours=2))
+        yesterday = datetime.now() - timedelta(days=1) #so in the past
+        meeting  = Meeting.objects.create(user=user, title='meet01', start=yesterday, end=yesterday + timedelta(hours=2))
 
         Relation.objects.create(user=user, subject_entity=customer02,   object_entity=meeting, type_id=REL_SUB_ACTIVITY_SUBJECT)
         Relation.objects.create(user=user, subject_entity=user_contact, object_entity=meeting, type_id=REL_SUB_PART_2_ACTIVITY)
