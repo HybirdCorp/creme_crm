@@ -50,12 +50,7 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
-        try:
-            todo = ToDo.objects.get(title=title, description=description)
-        except ToDo.DoesNotExist:
-            self.fail('Todo not created ?!')
-
-        return todo
+        return self.get_object_or_fail(ToDo, title=title, description=description)
 
     def test_todo_create(self):
         self.assertFalse(ToDo.objects.exists())
@@ -88,7 +83,7 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
-        todo = ToDo.objects.get(pk=todo.id)
+        todo = self.refresh(todo)
         self.assertEqual(title,       todo.title)
         self.assertEqual(description, todo.description)
 
@@ -114,7 +109,7 @@ class TodoTestCase(AssistantsTestCase):
 
         response = self.client.post('/assistants/todo/validate/%s/' % todo.id)
         self.assertEqual(302, response.status_code)
-        self.assertIs(True, ToDo.objects.get(pk=todo.id).is_ok)
+        self.assertIs(True, self.refresh(todo).is_ok)
 
     def test_block_reload01(self): #detailview
         for i in xrange(1, 4):
@@ -141,7 +136,7 @@ class TodoTestCase(AssistantsTestCase):
             self.fail(str(e))
 
         self.assertEqual(3, len(page.object_list))
-        self.assertEqual(set(t.id for t in todos), set(o.id for o in page.object_list))
+        self.assertEqual(set(todos), set(page.object_list))
 
     def _create_several_todos(self):
         self._create_todo('Todo01', 'Description01')
@@ -174,7 +169,7 @@ class TodoTestCase(AssistantsTestCase):
             self.fail(str(e))
 
         self.assertEqual(2, len(page.object_list))
-        self.assertEqual(set(t.id for t in todos), set(o.id for o in page.object_list))
+        self.assertEqual(set(todos), set(page.object_list))
 
     def test_block_reload03(self): #portal
         self._create_several_todos()
@@ -198,7 +193,7 @@ class TodoTestCase(AssistantsTestCase):
             self.fail(str(e))
 
         self.assertEqual(2, len(page.object_list))
-        self.assertEqual(set(t.id for t in todos), set(o.id for o in page.object_list))
+        self.assertEqual(set(todos), set(page.object_list))
 
     def _oldify_todo(self, todo, years_delta=1):
         cdate = todo.creation_date
@@ -267,12 +262,7 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
-        try:
-            alert = Alert.objects.get(title=title, description=description)
-        except Alert.DoesNotExist:
-            self.fail('Alert not created ?!')
-
-        return alert
+        return self.get_object_or_fail(Alert, title=title, description=description)
 
     def test_alert_create01(self):
         self.assertFalse(Alert.objects.exists())
@@ -283,19 +273,12 @@ class AlertTestCase(AssistantsTestCase):
         alert = self._create_alert('Title', 'Description', '2010-9-29')
         self.assertEqual(1, Alert.objects.count())
 
-        self.assertIs(False,          alert.is_validated)
-        self.assertEqual(self.user,   alert.user)
+        self.assertIs(False,        alert.is_validated)
+        self.assertEqual(self.user, alert.user)
 
         self.assertEqual(self.entity.id,             alert.entity_id)
         self.assertEqual(self.entity.entity_type_id, alert.entity_content_type_id)
-
-        tdate = alert.trigger_date
-        self.assertEqual(2010, tdate.year)
-        self.assertEqual(9,    tdate.month)
-        self.assertEqual(29,   tdate.day)
-        self.assertEqual(0,    tdate.hour)
-        self.assertEqual(0,    tdate.minute)
-        self.assertEqual(0,    tdate.second)
+        self.assertEqual(datetime(year=2010, month=9, day=29), alert.trigger_date)
 
     def test_alert_create02(self): #create with errors
         def _fail_creation(post_data):
@@ -346,13 +329,8 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual(title,       alert.title)
         self.assertEqual(description, alert.description)
 
-        tdate = alert.trigger_date
-        self.assertEqual(2011, tdate.year)
-        self.assertEqual(10,   tdate.month)
-        self.assertEqual(30,   tdate.day)
-        self.assertEqual(15,   tdate.hour)
-        self.assertEqual(12,   tdate.minute)
-        #self.assertEqual(32,   tdate.second) #don't care about seconds
+        #don't care about seconds
+        self.assertEqual(datetime(year=2011, month=10, day=30, hour=15, minute=12), alert.trigger_date)
 
     def test_alert_delete01(self): #delete related entity
         self._create_alert()
@@ -376,7 +354,7 @@ class AlertTestCase(AssistantsTestCase):
         response = self.client.post('/assistants/alert/validate/%s/' % alert.id)
         self.assertEqual(302, response.status_code)
 
-        self.assertTrue(Alert.objects.get(pk=alert.id).is_validated)
+        self.assertTrue(self.refresh(alert).is_validated)
 
     def test_function_field01(self):
         funf = CremeEntity.function_fields.get('assistants-get_alerts')
@@ -436,12 +414,7 @@ class MemoTestCase(AssistantsTestCase):
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
-        try:
-            memo = Memo.objects.get(content=content)
-        except Memo.DoesNotExist:
-            self.fail('Memo not created ?!')
-
-        return memo
+        return self.get_object_or_fail(Memo, content=content)
 
     def test_memo_create(self):
         self.assertFalse(Memo.objects.exists())
@@ -481,7 +454,7 @@ class MemoTestCase(AssistantsTestCase):
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
-        memo = Memo.objects.get(pk=memo.id)
+        memo = self.refresh(memo)
         self.assertEqual(content,  memo.content)
         self.assertEqual(homepage, memo.on_homepage)
 
@@ -569,25 +542,24 @@ class UserMessageTestCase(AssistantsTestCase):
         title    = 'TITLE'
         body     = 'BODY'
         priority = UserMessagePriority.objects.create(title='Important')
-        user01  = User.objects.create_user('User01', 'user01@foobar.com', 'password')
-
+        user01   = User.objects.create_user('User01', 'user01@foobar.com', 'password')
         self._create_usermessage(title, body, priority, [user01], self.entity)
 
         messages = UserMessage.objects.all()
         self.assertEqual(1, len(messages))
 
         message = messages[0]
-        self.assertEqual(title,        message.title)
-        self.assertEqual(body,         message.body)
-        self.assertEqual(priority.id,  message.priority_id)
+        self.assertEqual(title,    message.title)
+        self.assertEqual(body,     message.body)
+        self.assertEqual(priority, message.priority)
 
         self.assertFalse(message.email_sent)
 
         self.assertEqual(self.entity.id,             message.entity_id)
         self.assertEqual(self.entity.entity_type_id, message.entity_content_type_id)
 
-        self.assertEqual(self.user.id, message.sender_id)
-        self.assertEqual(user01.id,    message.recipient_id)
+        self.assertEqual(self.user, message.sender)
+        self.assertEqual(user01,    message.recipient)
 
         self.assertLess((datetime.now() - message.creation_date).seconds, 10)
 
@@ -600,7 +572,7 @@ class UserMessageTestCase(AssistantsTestCase):
 
         messages = UserMessage.objects.all()
         self.assertEqual(2, len(messages))
-        self.assertEqual(set([user01.id, user02.id]), set(msg.recipient_id for msg in messages))
+        self.assertEqual(set([user01, user02]), set(msg.recipient for msg in messages))
 
     def test_usermessage_create03(self): #without related entity
         response = self.client.get('/assistants/message/add/')
@@ -630,7 +602,7 @@ class UserMessageTestCase(AssistantsTestCase):
 
         messages = UserMessage.objects.all()
         self.assertEqual(2, len(messages))
-        self.assertEqual(set(u.id for u in users), set(msg.recipient_id for msg in messages))
+        self.assertEqual(set(users), set(msg.recipient for msg in messages))
 
     def test_usermessage_create05(self): #teams and isolated usres with non void intersections
         create_user = User.objects.create_user
@@ -646,7 +618,7 @@ class UserMessageTestCase(AssistantsTestCase):
 
         messages = UserMessage.objects.all()
         self.assertEqual(4, len(messages))
-        self.assertEqual(set(u.id for u in users), set(msg.recipient_id for msg in messages))
+        self.assertEqual(set(users), set(msg.recipient for msg in messages))
 
     def test_usermessage_delete01(self): #delete related entity
         priority = UserMessagePriority.objects.create(title='Important')
@@ -666,7 +638,7 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertEqual(1, len(messages))
 
         message = messages[0]
-        self.assertEqual(self.user.id, message.recipient_id)
+        self.assertEqual(self.user, message.recipient)
 
         response = self.client.post('/assistants/message/delete', data={'id': message.id})
         self.assertEqual(302, response.status_code)
@@ -706,10 +678,7 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        try:
-            meeting = Meeting.objects.get(title=title)
-        except Exception as e:
-            self.fail(str(e))
+        meeting = self.get_object_or_fail(Meeting, title=title)
 
         count_relations = lambda type_id, subject_id: Relation.objects.filter(type=type_id, subject_entity=subject_id, object_entity=meeting.id).count()
         self.assertEqual(1, count_relations(type_id=REL_SUB_PART_2_ACTIVITY,   subject_id=me.id))
@@ -729,7 +698,7 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertEqual(meeting.id,             message.entity_id)
         self.assertEqual(meeting.entity_type_id, message.entity_content_type_id)
 
-        self.assert_(unicode(meeting) in message.title)
+        self.assertIn(unicode(meeting), message.title)
 
         body = message.body
         self.assertIn(unicode(akane), body)
@@ -778,15 +747,8 @@ class ActionTestCase(AssistantsTestCase):
         self.assertEqual(self.entity.id,             action.entity_id)
         self.assertEqual(self.entity.id,             action.creme_entity.id)
 
-        self.assert_((datetime.now() - action.creation_date).seconds < 10)
-
-        deadline = action.deadline
-        self.assertEqual(2010, deadline.year)
-        self.assertEqual(12,   deadline.month)
-        self.assertEqual(24,   deadline.day)
-        self.assertEqual(0,    deadline.hour)
-        self.assertEqual(0,    deadline.minute)
-        self.assertEqual(0,    deadline.second)
+        self.assertLess((datetime.now() - action.creation_date).seconds, 10)
+        self.assertEqual(datetime(year=2010, month=12, day=24), action.deadline)
 
     def test_action_edit(self):
         title    = 'TITLE'
@@ -814,17 +776,11 @@ class ActionTestCase(AssistantsTestCase):
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
-        action = Action.objects.get(pk=action.id)
+        action = self.refresh(action)
         self.assertEqual(title,    action.title)
         self.assertEqual(descr,    action.description)
         self.assertEqual(reaction, action.expected_reaction)
-
-        deadline = action.deadline
-        self.assertEqual(2011, deadline.year)
-        self.assertEqual(11,   deadline.month)
-        self.assertEqual(25,   deadline.day)
-        self.assertEqual(17,   deadline.hour)
-        self.assertEqual(37,   deadline.minute)
+        self.assertEqual(datetime(year=2011, month=11, day=25, hour=17, minute=37), action.deadline)
 
     def test_action_delete01(self): #delete related entity
         self._create_action('2010-12-24', 'title', 'descr', 'reaction')
@@ -840,7 +796,7 @@ class ActionTestCase(AssistantsTestCase):
         ct = ContentType.objects.get_for_model(Action)
         response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': action.id})
         self.assertEqual(302, response.status_code)
-        self.assertEqual(0,   Action.objects.all().count())
+        self.assertEqual(0,   Action.objects.count())
 
     def test_action_validate(self):
         self._create_action('2010-12-24', 'title', 'descr', 'reaction')
@@ -848,10 +804,9 @@ class ActionTestCase(AssistantsTestCase):
         self.assertFalse(action.is_ok)
         self.assertIsNone(action.validation_date)
 
-        response = self.client.post('/assistants/action/validate/%s/' % action.id)
-        self.assertEqual(302, response.status_code)
+        self.assertEqual(302, self.client.post('/assistants/action/validate/%s/' % action.id).status_code)
 
-        action = Action.objects.get(pk=action.id)
+        action = self.refresh(action)
         self.assertTrue(action.is_ok)
         self.assertLess((datetime.now() - action.validation_date).seconds, 10)
 
