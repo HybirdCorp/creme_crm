@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 try:
-    from datetime import datetime
+    from datetime import datetime, date
 
     from django.utils.translation import ugettext as _
     from django.contrib.auth.models import User
@@ -30,21 +30,15 @@ class EventsTestCase(CremeTestCase):
 
     def create_event(self, name, etype):
         response = self.client.post('/events/event/add', follow=True,
-                                    data={
-                                            'user':        self.user.pk,
-                                            'name':        name,
-                                            'type':        etype.pk,
-                                            'start_date':  '2010-11-3',
+                                    data={'user':        self.user.pk,
+                                          'name':        name,
+                                          'type':        etype.pk,
+                                          'start_date':  '2010-11-3',
                                          }
                                    )
         self.assertEqual(response.status_code, 200)
 
-        try:
-            event = Event.objects.get(name=name)
-        except Exception as e:
-            self.fail(str(e))
-
-        return event
+        return self.get_object_or_fail(Event, name=name)
 
     def test_event_createview(self):
         self.login()
@@ -60,10 +54,7 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(name,  event.name)
         self.assertEqual(etype, event.type)
 
-        start = event.start_date
-        self.assertEqual(2010, start.year)
-        self.assertEqual(11,   start.month)
-        self.assertEqual(3,    start.day)
+        self.assertEqual(date(2010, 11, 3), event.start_date.date())
 
     def test_event_editview(self):
         self.login()
@@ -77,11 +68,10 @@ class EventsTestCase(CremeTestCase):
 
         name += '_edited'
         response = self.client.post('/events/event/edit/%s' % event.id, follow=True,
-                                    data={
-                                            'user':        self.user.pk,
-                                            'name':        name,
-                                            'type':        etype.pk,
-                                            'start_date':  '2010-11-4',
+                                    data={'user':        self.user.pk,
+                                          'name':        name,
+                                          'type':        etype.pk,
+                                          'start_date':  '2010-11-4',
                                          }
                                    )
         self.assertEqual(response.status_code, 200)
@@ -106,7 +96,7 @@ class EventsTestCase(CremeTestCase):
             self.fail(str(e))
 
         self.assertEqual(2, events_page.paginator.count)
-        self.assertEqual(set((event1.id, event2.id)), set(event.id for event in events_page.object_list))
+        self.assertEqual(set((event1, event2)), set(events_page.object_list))
 
     def test_stats01(self):
         self.login()
@@ -280,11 +270,13 @@ class EventsTestCase(CremeTestCase):
         SetCredentials.objects.create(role=user.role,
                                       value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
                                             SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK | SetCredentials.CRED_UNLINK,
-                                      set_type=SetCredentials.ESET_OWN)
+                                      set_type=SetCredentials.ESET_OWN
+                                     )
         SetCredentials.objects.create(role=user.role,
                                       value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
                                             SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
-                                      set_type=SetCredentials.ESET_ALL)
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
 
         event = Event.objects.create(user=user, name='Eclipse 01', type=EventType.objects.all()[0], start_date=datetime.now())
         casca = Contact.objects.create(user=other_user, first_name='Casca', last_name='Miura')
@@ -377,11 +369,13 @@ class EventsTestCase(CremeTestCase):
         SetCredentials.objects.create(role=user.role,
                                       value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
                                             SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK | SetCredentials.CRED_UNLINK,
-                                      set_type=SetCredentials.ESET_OWN)
+                                      set_type=SetCredentials.ESET_OWN
+                                     )
         SetCredentials.objects.create(role=user.role,
                                       value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
                                             SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
-                                      set_type=SetCredentials.ESET_ALL)
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
 
         event = Event.objects.create(user=user, name='Eclipse 01', type=EventType.objects.all()[0], start_date=datetime.now())
         casca = Contact.objects.create(user=other_user, first_name='Casca', last_name='Miura')
@@ -412,11 +406,14 @@ class EventsTestCase(CremeTestCase):
         griffith = create_contact(user=self.user, first_name='Griffith', last_name='Miura')
 
         self.client.post('/events/event/%s/contact/%s/set_presence_status' % (event.id, casca.id),
-                         data={'status': str(PRES_STATUS_COME)})
+                         data={'status': str(PRES_STATUS_COME)}
+                        )
         self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, judo.id),
-                         data={'status': str(INV_STATUS_NO_ANSWER)})
+                         data={'status': str(INV_STATUS_NO_ANSWER)}
+                        )
         self.client.post('/events/event/%s/contact/%s/set_invitation_status' % (event.id, griffith.id),
-                         data={'status': str(INV_STATUS_ACCEPTED)})
+                         data={'status': str(INV_STATUS_ACCEPTED)}
+                        )
 
         self.populate('persons') #HeaderFilter....
 
@@ -429,9 +426,7 @@ class EventsTestCase(CremeTestCase):
             self.fail(str(e))
 
         self.assertEqual(3, contacts_page.paginator.count)
-        self.assertEqual(set((casca.id, judo.id, griffith.id)),
-                         set(contact.id for contact in contacts_page.object_list)
-                        )
+        self.assertEqual(set((casca, judo, griffith)), set(contacts_page.object_list))
 
     @staticmethod
     def relations_types(contact, event):
@@ -474,18 +469,17 @@ class EventsTestCase(CremeTestCase):
         ct_id = ContentType.objects.get_for_model(Contact).id
 
         response = self.client.post('/events/event/%s/link_contacts' % event.id, follow=True,
-                                    data= {
-                                            "related_contacts": """[{"rtype":"%s","ctype":"%s","entity":"%s"},
-                                                                    {"rtype":"%s","ctype":"%s","entity":"%s"},
-                                                                    {"rtype":"%s","ctype":"%s","entity":"%s"},
-                                                                    {"rtype":"%s","ctype":"%s","entity":"%s"},
-                                                                    {"rtype":"%s","ctype":"%s","entity":"%s"}]""" % \
-                                                (REL_OBJ_IS_INVITED_TO,  ct_id, casca.id,
-                                                 REL_OBJ_CAME_EVENT,     ct_id, judo.id,
-                                                 REL_OBJ_NOT_CAME_EVENT, ct_id, griffith.id,
-                                                 REL_OBJ_IS_INVITED_TO,  ct_id, rickert.id,
-                                                 REL_OBJ_CAME_EVENT,     ct_id, carcus.id,
-                                                ),
+                                    data= {"related_contacts": '[{"rtype":"%s","ctype":"%s","entity":"%s"},'
+                                                               ' {"rtype":"%s","ctype":"%s","entity":"%s"},'
+                                                               ' {"rtype":"%s","ctype":"%s","entity":"%s"},'
+                                                               ' {"rtype":"%s","ctype":"%s","entity":"%s"},'
+                                                               ' {"rtype":"%s","ctype":"%s","entity":"%s"}]' % (
+                                                                     REL_OBJ_IS_INVITED_TO,  ct_id, casca.id,
+                                                                     REL_OBJ_CAME_EVENT,     ct_id, judo.id,
+                                                                     REL_OBJ_NOT_CAME_EVENT, ct_id, griffith.id,
+                                                                     REL_OBJ_IS_INVITED_TO,  ct_id, rickert.id,
+                                                                     REL_OBJ_CAME_EVENT,     ct_id, carcus.id,
+                                                                    ),
                                           }
                                    )
         self.assertEqual(200, response.status_code)
@@ -500,18 +494,17 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual([REL_SUB_CAME_EVENT],     self.relations_types(carcus, event))
 
         response = self.client.post('/events/event/%s/link_contacts' % event.id, follow=True,
-                                    data= {
-                                            "related_contacts": """[{"rtype":"%s","ctype":"%s","entity":"%s"},
-                                                                    {"rtype":"%s","ctype":"%s","entity":"%s"},
-                                                                    {"rtype":"%s","ctype":"%s","entity":"%s"},
-                                                                    {"rtype":"%s","ctype":"%s","entity":"%s"},
-                                                                    {"rtype":"%s","ctype":"%s","entity":"%s"}]""" % \
-                                                (REL_OBJ_IS_INVITED_TO,  ct_id, casca.id,
-                                                 REL_OBJ_NOT_CAME_EVENT, ct_id, judo.id,
-                                                 REL_OBJ_CAME_EVENT,     ct_id, griffith.id,
-                                                 REL_OBJ_CAME_EVENT,     ct_id, rickert.id,
-                                                 REL_OBJ_CAME_EVENT,     ct_id, carcus.id,
-                                                ),
+                                    data= {"related_contacts": '[{"rtype":"%s","ctype":"%s","entity":"%s"},'
+                                                               ' {"rtype":"%s","ctype":"%s","entity":"%s"},'
+                                                               ' {"rtype":"%s","ctype":"%s","entity":"%s"},'
+                                                               ' {"rtype":"%s","ctype":"%s","entity":"%s"},'
+                                                               ' {"rtype":"%s","ctype":"%s","entity":"%s"}]' % (
+                                                                     REL_OBJ_IS_INVITED_TO,  ct_id, casca.id,
+                                                                     REL_OBJ_NOT_CAME_EVENT, ct_id, judo.id,
+                                                                     REL_OBJ_CAME_EVENT,     ct_id, griffith.id,
+                                                                     REL_OBJ_CAME_EVENT,     ct_id, rickert.id,
+                                                                     REL_OBJ_CAME_EVENT,     ct_id, carcus.id,
+                                                                    ),
                                           }
                                    )
         self.assertEqual(200, response.status_code)
@@ -532,12 +525,12 @@ class EventsTestCase(CremeTestCase):
         ct_id = ContentType.objects.get_for_model(Contact).id
 
         response = self.client.post('/events/event/%s/link_contacts' % event.id, follow=True,
-                                    data= {'related_contacts': '[{"rtype":"%s","ctype":"%s","entity":"%s"},'
-                                                               ' {"rtype":"%s","ctype":"%s","entity":"%s"}]' % (
-                                                                     REL_OBJ_IS_INVITED_TO, ct_id, casca.id,
-                                                                     REL_OBJ_CAME_EVENT,    ct_id, casca.id,
-                                                                    ),
-                                          }
+                                    data={'related_contacts': '[{"rtype":"%s","ctype":"%s","entity":"%s"},'
+                                                              ' {"rtype":"%s","ctype":"%s","entity":"%s"}]' % (
+                                                                    REL_OBJ_IS_INVITED_TO, ct_id, casca.id,
+                                                                    REL_OBJ_CAME_EVENT,    ct_id, casca.id,
+                                                                ),
+                                         }
                                    )
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'related_contacts', [_(u'Contact %s is present twice.') % casca])
@@ -546,11 +539,11 @@ class EventsTestCase(CremeTestCase):
         self.login(is_superuser=False, allowed_apps=['persons', 'events'])
         self.populate('creme_core', 'events')
 
-        role = self.user.role
-        SetCredentials.objects.create(role=role,
+        SetCredentials.objects.create(role=self.role,
                                       value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
                                             SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
-                                      set_type=SetCredentials.ESET_OWN)
+                                      set_type=SetCredentials.ESET_OWN
+                                     )
 
         event = Event.objects.create(user=self.user, name='Eclipse', type=EventType.objects.all()[0], start_date=datetime.now())
         casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
@@ -558,18 +551,12 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(200, self.client.get(url).status_code)
 
         response = self.client.post(url, follow=True,
-                                    data= {'related_contacts': '[{"rtype":"%s","ctype":"%s","entity":"%s"}]' % (
+                                    data={'related_contacts': '[{"rtype":"%s","ctype":"%s","entity":"%s"}]' % (
                                                                     REL_OBJ_IS_INVITED_TO, casca.entity_type_id, casca.id,
                                                                 ),
-                                          }
+                                         }
                                    )
         self.assertEqual(200, response.status_code)
-
-        try:
-            form = response.context['form']
-        except Exception as e:
-            self.fail(str(e))
-
-        self.assertEqual(['related_contacts'], form.errors.keys())
+        self.assertFormError(response, 'form', 'related_contacts', [_(u"Some entities are not linkable: %s") % casca])
 
     #TODO: add a test for related opportunity creation

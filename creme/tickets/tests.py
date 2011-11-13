@@ -80,12 +80,11 @@ class TicketTestCase(CremeTestCase):
         priority    = Priority.objects.all()[0]
         criticity   = Criticity.objects.all()[0]
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':         self.user.pk,
-                                            'title':        title,
-                                            'description':  description,
-                                            'priority':     priority.id,
-                                            'criticity':    criticity.id,
+                                    data={'user':         self.user.pk,
+                                          'title':        title,
+                                          'description':  description,
+                                          'priority':     priority.id,
+                                          'criticity':    criticity.id,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -131,24 +130,23 @@ class TicketTestCase(CremeTestCase):
         description = 'Test description'
         priority    = Priority.objects.all()[1]
         criticity   = Criticity.objects.all()[1]
-        response = self.client.post(url, data={
-                                                'user':         self.user.pk,
-                                                'title':        title,
-                                                'description':  description,
-                                                'status':       INVALID_PK,
-                                                'priority':     priority.id,
-                                                'criticity':    criticity.id,
+        response = self.client.post(url, data={'user':         self.user.pk,
+                                               'title':        title,
+                                               'description':  description,
+                                               'status':       INVALID_PK,
+                                               'priority':     priority.id,
+                                               'criticity':    criticity.id,
                                               }
                                    )
         self.assertNoFormError(response)
         self.assertEqual(302, response.status_code)
 
-        edited_ticket = Ticket.objects.get(pk=ticket)
-        self.assertEqual(priority,     edited_ticket.priority)
-        self.assertEqual(criticity,    edited_ticket.criticity)
-        self.assertEqual(title,        edited_ticket.title)
-        self.assertEqual(description,  edited_ticket.description)
-        self.assertEqual(INVALID_PK,   edited_ticket.status_id)
+        ticket = self.refresh(ticket)
+        self.assertEqual(priority,     ticket.priority)
+        self.assertEqual(criticity,    ticket.criticity)
+        self.assertEqual(title,        ticket.title)
+        self.assertEqual(description,  ticket.description)
+        self.assertEqual(INVALID_PK,   ticket.status.id)
         self.assertFalse(ticket.get_resolving_duration())
 
     def test_editview02(self):
@@ -167,13 +165,12 @@ class TicketTestCase(CremeTestCase):
                                       )
 
         response = self.client.post('/tickets/ticket/edit/%s' % ticket.pk,
-                                    data={
-                                            'user':         self.user.pk,
-                                            'title':        title,
-                                            'description':  description,
-                                            'status':       CLOSED_PK,
-                                            'priority':     priority.id,
-                                            'criticity':    criticity.id,
+                                    data={'user':         self.user.pk,
+                                          'title':        title,
+                                          'description':  description,
+                                          'status':       CLOSED_PK,
+                                          'priority':     priority.id,
+                                          'criticity':    criticity.id,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -235,7 +232,7 @@ class TicketTestCase(CremeTestCase):
         response = self.client.post('/creme_core/entity/delete/%s' % ticket.pk, follow=True)
         self.assertEqual(200, response.status_code)
         self.assertEqual(1, len(response.redirect_chain))
-        self.assert_(response.redirect_chain[0][0].endswith('/tickets/tickets'))
+        self.assertTrue(response.redirect_chain[0][0].endswith('/tickets/tickets'))
 
     def test_ticket_clone01(self):
         self.login()
@@ -308,19 +305,18 @@ class TicketTemplateTestCase(CremeTestCase):
         priority = Priority.objects.create(name='My priority')
         criticity = Criticity.objects.create(name='My criticity')
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':        self.user.id,
-                                            'title':       title,
-                                            'description': description,
-                                            'status':      status.id,
-                                            'priority':    priority.id,
-                                            'criticity':   criticity.id,
-                                    }
+                                    data={'user':        self.user.id,
+                                          'title':       title,
+                                          'description': description,
+                                          'status':      status.id,
+                                          'priority':    priority.id,
+                                          'criticity':   criticity.id,
+                                         }
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        template = TicketTemplate.objects.get(pk=template.id) #refresh
+        template = self.refresh(template)
         self.assertEqual(title,       template.title)
         self.assertEqual(description, template.description)
         self.assertEqual(status,      template.status)
@@ -344,10 +340,10 @@ class TicketTemplateTestCase(CremeTestCase):
             self.fail(str(e))
 
         self.assertIn(template.title, ticket.title)
-        self.assertEqual(template.description,  ticket.description)
-        self.assertEqual(template.status_id,    ticket.status_id)
-        self.assertEqual(template.priority_id,  ticket.priority_id)
-        self.assertEqual(template.criticity_id, ticket.criticity_id)
+        self.assertEqual(template.description, ticket.description)
+        self.assertEqual(template.status,      ticket.status)
+        self.assertEqual(template.priority,    ticket.priority)
+        self.assertEqual(template.criticity,   ticket.criticity)
         self.assertFalse(ticket.closing_date)
 
     def test_create_entity02(self):
@@ -360,10 +356,10 @@ class TicketTemplateTestCase(CremeTestCase):
             self.fail(str(e))
 
         self.assertIn(template.title, ticket.title)
-        self.assertEqual(template.description,  ticket.description)
-        self.assertEqual(template.status_id,    ticket.status_id)
-        self.assertEqual(template.priority_id,  ticket.priority_id)
-        self.assertEqual(template.criticity_id, ticket.criticity_id)
+        self.assertEqual(template.description, ticket.description)
+        self.assertEqual(template.status,      ticket.status)
+        self.assertEqual(template.priority,    ticket.priority)
+        self.assertEqual(template.criticity,   ticket.criticity)
         self.assertTrue(ticket.closing_date)
 
     def test_create_entity03(self): #several generations -> 'title' column must be unique

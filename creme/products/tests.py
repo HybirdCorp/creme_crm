@@ -122,8 +122,8 @@ class ProductsTestCase(CremeTestCase):
         self.populate('creme_core', 'creme_config', 'products')
 
     def test_populate(self):
-        self.assert_(Category.objects.exists())
-        self.assert_(SubCategory.objects.exists())
+        self.assertTrue(Category.objects.exists())
+        self.assertTrue(SubCategory.objects.exists())
 
     def test_portal(self):
         self.login()
@@ -174,24 +174,18 @@ class ProductsTestCase(CremeTestCase):
         description = 'A fake god'
         unit_price = '1.23'
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':         self.user.pk,
-                                            'name':         name,
-                                            'code':         code,
-                                            'description':  description,
-                                            'unit_price':   unit_price,
-                                            'sub_category': '{"category": %s, "subcategory": %s}' % (
-                                                                cat.id, sub_cat.id
-                                                              )
+                                    data={'user':         self.user.pk,
+                                          'name':         name,
+                                          'code':         code,
+                                          'description':  description,
+                                          'unit_price':   unit_price,
+                                          'sub_category': '{"category": %s, "subcategory": %s}' % (
+                                                              cat.id, sub_cat.id
+                                                            )
                                          }
                                    )
-        try:
-            form = response.context['form']
-        except Exception as e:
-            #print 'Exception', e
-            pass
-        else:
-            self.fail(form.errors)
+        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
 
         products = Product.objects.all()
         self.assertEqual(1, len(products))
@@ -221,7 +215,8 @@ class ProductsTestCase(CremeTestCase):
         sub_cat = SubCategory.objects.all()[0]
         product = Product.objects.create(user=self.user, name=name, description='A fake god',
                                          unit_price=Decimal('1.23'), code=code,
-                                         category=cat, sub_category=sub_cat)
+                                         category=cat, sub_category=sub_cat
+                                        )
 
         url = '/products/product/edit/%s' % product.id
         self.assertEqual(200, self.client.get(url).status_code)
@@ -229,18 +224,18 @@ class ProductsTestCase(CremeTestCase):
         name += '_edited'
         unit_price = '4.53'
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':         self.user.pk,
-                                            'name':         name,
-                                            'code':         product.code,
-                                            'description':  product.description,
-                                            'unit_price':   unit_price,
-                                            'sub_category': '{"category": %s, "subcategory": %s}' % (
-                                                                product.category_id, product.sub_category_id
-                                                              ),
+                                    data={'user':         self.user.pk,
+                                          'name':         name,
+                                          'code':         product.code,
+                                          'description':  product.description,
+                                          'unit_price':   unit_price,
+                                          'sub_category': '{"category": %s, "subcategory": %s}' % (
+                                                              product.category_id, product.sub_category_id
+                                                            ),
                                          }
                                    )
         self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
 
         product = self.refresh(product)
         self.assertEqual(name,                product.name)
@@ -253,12 +248,15 @@ class ProductsTestCase(CremeTestCase):
         sub_cat = SubCategory.objects.all()[0]
 
         create_prod = Product.objects.create
-        eva00 = create_prod(user=self.user, name='Eva00', description='A fake god',
-                            unit_price=Decimal('1.23'), code=42,
-                            category=cat, sub_category=sub_cat)
-        eva01 = create_prod(user=self.user, name='Eva01', description='A fake god',
-                            unit_price=Decimal('1.23'), code=43,
-                            category=cat, sub_category=sub_cat)
+        products = [create_prod(user=self.user, name='Eva00', description='A fake god',
+                                unit_price=Decimal('1.23'), code=42,
+                                category=cat, sub_category=sub_cat
+                               ),
+                    create_prod(user=self.user, name='Eva01', description='A fake god',
+                                unit_price=Decimal('1.23'), code=43,
+                                category=cat, sub_category=sub_cat
+                               ),
+                   ]
 
         response = self.client.get('/products/products')
         self.assertEqual(200, response.status_code)
@@ -269,7 +267,7 @@ class ProductsTestCase(CremeTestCase):
             self.fail(str(e))
 
         self.assertEqual(2, products_page.paginator.count)
-        self.assertEqual(set([eva00.id, eva01.id]), set([p.id for p in products_page.object_list]))
+        self.assertEqual(set(products), set(products_page.object_list))
 
     def test_service_createview(self):
         self.login()
@@ -287,25 +285,19 @@ class ProductsTestCase(CremeTestCase):
         unit = 'A wash'
         unit_price = '1.23'
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':         self.user.pk,
-                                            'name':         name,
-                                            'reference':    reference,
-                                            'description':  description,
-                                            'unit':         unit,
-                                            'unit_price':   unit_price,
-                                            'sub_category': '{"category": %s, "subcategory": %s}' % (
-                                                                cat.id, sub_cat.id
-                                                              ),
+                                    data={'user':         self.user.pk,
+                                          'name':         name,
+                                          'reference':    reference,
+                                          'description':  description,
+                                          'unit':         unit,
+                                          'unit_price':   unit_price,
+                                          'sub_category': '{"category": %s, "subcategory": %s}' % (
+                                                              cat.id, sub_cat.id
+                                                            ),
                                          }
                                    )
-        try:
-            form = response.context['form']
-        except Exception as e:
-            #print 'Exception', e
-            pass
-        else:
-            self.fail(form.errors)
+        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
 
         services = Service.objects.all()
         self.assertEqual(1, len(services))
@@ -316,8 +308,8 @@ class ProductsTestCase(CremeTestCase):
         self.assertEqual(description,         service.description)
         self.assertEqual(unit,                service.unit)
         self.assertEqual(Decimal(unit_price), service.unit_price)
-        self.assertEqual(cat.id,              service.category_id)
-        self.assertEqual(sub_cat.id,          service.sub_category_id)
+        self.assertEqual(cat,                 service.category)
+        self.assertEqual(sub_cat,            service.sub_category)
 
         self.assertEqual(200, response.status_code)
         self.assertTrue(response.redirect_chain)
@@ -343,27 +335,19 @@ class ProductsTestCase(CremeTestCase):
         name += '_edited'
         unit_price = '4.53'
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':         self.user.pk,
-                                            'name':         name,
-                                            'reference':    service.reference,
-                                            'description':  service.description,
-                                            'unit_price':   unit_price,
-                                            'sub_category': '{"category":%s, "subcategory":%s}' % (
-                                                                service.category_id, service.sub_category_id
-                                                             ),
-                                            'unit':         service.unit,
+                                    data={'user':         self.user.pk,
+                                          'name':         name,
+                                          'reference':    service.reference,
+                                          'description':  service.description,
+                                          'unit_price':   unit_price,
+                                          'sub_category': '{"category":%s, "subcategory":%s}' % (
+                                                              service.category_id, service.sub_category_id
+                                                           ),
+                                          'unit':         service.unit,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
-
-        try:
-            form = response.context['form']
-        except Exception as e:
-            #print 'Exception', e
-            pass
-        else:
-            self.fail(form.errors)
+        self.assertNoFormError(response)
 
         service = self.refresh(service)
         self.assertEqual(name,                service.name)
@@ -376,12 +360,15 @@ class ProductsTestCase(CremeTestCase):
         sub_cat = SubCategory.objects.all()[0]
 
         create_serv = Service.objects.create
-        serv01 = create_serv(user=self.user, name='Eva00', description='description#1',
-                            unit_price=Decimal('1.23'), reference='42',
-                            category=cat, sub_category=sub_cat, unit='unit')
-        serv02 = create_serv(user=self.user, name='Eva01', description='description#2',
-                            unit_price=Decimal('6.58'), reference='43',
-                            category=cat, sub_category=sub_cat, unit='unit')
+        services = [create_serv(user=self.user, name='Eva00', description='description#1',
+                                unit_price=Decimal('1.23'), reference='42',
+                                category=cat, sub_category=sub_cat, unit='unit'
+                               ),
+                    create_serv(user=self.user, name='Eva01', description='description#2',
+                                unit_price=Decimal('6.58'), reference='43',
+                                category=cat, sub_category=sub_cat, unit='unit'
+                               ),
+                   ]
 
         response = self.client.get('/products/services')
         self.assertEqual(200, response.status_code)
@@ -392,4 +379,4 @@ class ProductsTestCase(CremeTestCase):
             self.fail(str(e))
 
         self.assertEqual(2, services_page.paginator.count)
-        self.assertEqual(set([serv01.id, serv02.id]), set(s.id for s in services_page.object_list))
+        self.assertEqual(set(services), set(services_page.object_list))
