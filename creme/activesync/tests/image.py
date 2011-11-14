@@ -18,17 +18,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import base64
-from os.path import dirname, join, abspath
-from StringIO import StringIO
+try:
+    import base64
+    from os.path import dirname, join, abspath
+    from StringIO import StringIO
 
-from django.test import TestCase
-from django.conf import settings
+    from django.conf import settings
 
-from activesync.utils import get_b64encoded_img_of_max_weight
+    from creme_core.tests.base import CremeTestCase
+
+    from activesync.utils import get_b64encoded_img_of_max_weight
+except Exception as e:
+    print 'Error:', e
 
 
-class ActiveSyncImageTestCase(TestCase):
+class ActiveSyncImageTestCase(CremeTestCase):
     def setUp(self):
         self.image_path = join(dirname(abspath(__file__)), 'data', 'creme.png')
 
@@ -41,7 +45,7 @@ class ActiveSyncImageTestCase(TestCase):
     def test_get_b64encoded_img_of_max_weight01(self):
         b64_content = get_b64encoded_img_of_max_weight(self.image_path, settings.PICTURE_LIMIT_SIZE)
 
-        self.assertTrue(len(b64_content) < settings.PICTURE_LIMIT_SIZE)
+        self.assertLess(len(b64_content), settings.PICTURE_LIMIT_SIZE)
 
         image = open(self.image_path, 'r')
         image_str = StringIO()

@@ -18,29 +18,32 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import date
-from os.path import join, dirname, abspath
-from xml.etree.ElementTree import XML, tostring
-
 try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
+    from datetime import date
+    from os.path import join, dirname, abspath
+    from xml.etree.ElementTree import XML, tostring
 
-from django.test import TestCase
-from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
-from django.core.files import File
+    try:
+        from cStringIO import StringIO
+    except ImportError:
+        from StringIO import StringIO
 
-from creme_core.models import Relation, RelationType
-from creme_core.tests.base import CremeTestCase
+    from django.contrib.auth.models import User
+    from django.contrib.contenttypes.models import ContentType
+    from django.core.files import File
 
-from persons.models import Address, Contact, Organisation, Civility
-from persons.constants import REL_SUB_EMPLOYED_BY
+    from creme_core.models import Relation, RelationType
+    from creme_core.tests.base import CremeTestCase
 
-from activesync.mappings.utils import serialize_entity
-from activesync.mappings.contact import CREME_CONTACT_MAPPING
+    from persons.models import Address, Contact, Organisation, Civility
+    from persons.constants import REL_SUB_EMPLOYED_BY
 
+    from activesync.mappings.utils import serialize_entity
+    from activesync.mappings.contact import CREME_CONTACT_MAPPING
+except Exception as e:
+    print 'Error:', e
+
+#TODO: where are the asserttions ???
 
 DEFAULT_CHUNK_SIZE = File.DEFAULT_CHUNK_SIZE
 

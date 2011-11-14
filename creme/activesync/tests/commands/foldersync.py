@@ -18,10 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from os.path import join, dirname, abspath
+try:
+    from os.path import join, dirname, abspath
 
-from activesync.commands.foldersync import FolderSync
-from activesync.tests.commands.base import BaseASTestCase
+    from activesync.commands.foldersync import FolderSync
+    from activesync.tests.commands.base import BaseASTestCase
+except Exception as e:
+    print 'Error:', e
 
 
 class FolderSyncASTestCase(BaseASTestCase):
@@ -33,7 +36,7 @@ class FolderSyncASTestCase(BaseASTestCase):
 
     def test_foldersync01(self):
         fs = FolderSync(*self.params)
-        fs.send(0, sync_key=0, headers={'test_files': ";".join(self.test_files_paths) })
+        fs.send(0, sync_key=0, headers={'test_files': ";".join(self.test_files_paths)})
         added_folders = fs.add
 
         self.assertEqual('00AxEWaaGE7UKRUUweABOXMA==001===========AQQAAAAzNAsA', fs.synckey)

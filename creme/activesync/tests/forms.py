@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from creme_core.tests.base import CremeTestCase
+try:
+    from creme_core.tests.base import CremeTestCase
 
-from creme_config.models.setting import SettingValue, SettingKey
+    from creme_config.models import SettingValue, SettingKey
 
-from activesync.constants import *
+    from activesync.constants import *
+except Exception as e:
+    print 'Error:', e
 
 
 class UserSettingsTestCase(CremeTestCase):
@@ -14,36 +17,34 @@ class UserSettingsTestCase(CremeTestCase):
     def test_user_settings01(self):
         self.login()
 
-        url = "/activesync/user_settings"
-
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        url = '/activesync/user_settings'
+        self.assertEqual(200, self.client.get(url).status_code)
 
         as_sk = [USER_MOBILE_SYNC_SERVER_URL, USER_MOBILE_SYNC_SERVER_DOMAIN, USER_MOBILE_SYNC_SERVER_SSL,
                  USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD, USER_MOBILE_SYNC_ACTIVITIES,
-                 USER_MOBILE_SYNC_CONTACTS]
+                 USER_MOBILE_SYNC_CONTACTS
+                ]
 
         self.assertEqual(len(as_sk), SettingKey.objects.filter(pk__in=as_sk).count())
         self.assertEqual(0, SettingValue.objects.filter(key__in=as_sk).count())
 
-        response = self.client.post(url, data={
-                                        'user':   self.user,
-                                        'url':    'http://cremecrm.com/as',
-                                        'domain': 'creme',
-                                        'ssl':    '1',
-                                        'login': 'fulbert',
-                                        'password': 'fulbert_pwd',
-                                        'sync_calendars': '0',
-                                        'sync_contacts': '0',
-                                    })
+        response = self.client.post(url, data={'user':           self.user,
+                                               'url':            'http://cremecrm.com/as',
+                                               'domain':         'creme',
+                                               'ssl':            '1',
+                                               'login':          'fulbert',
+                                               'password':       'fulbert_pwd',
+                                               'sync_calendars': '0',
+                                               'sync_contacts':  '0',
+                                              }
+                                   )
 
         self.assertNoFormError(response)
         self.assertEqual(len(as_sk), SettingValue.objects.filter(key__in=as_sk).count())
 
         self.assertEqual('http://cremecrm.com/as', SettingValue.objects.get(key=USER_MOBILE_SYNC_SERVER_URL).value)
         self.assertEqual('creme', SettingValue.objects.get(key=USER_MOBILE_SYNC_SERVER_DOMAIN).value)
-        self.assert_(SettingValue.objects.get(key=USER_MOBILE_SYNC_SERVER_SSL).value)
+        self.assertTrue(SettingValue.objects.get(key=USER_MOBILE_SYNC_SERVER_SSL).value)
         self.assertEqual('fulbert', SettingValue.objects.get(key=USER_MOBILE_SYNC_SERVER_LOGIN).value)
         self.assertFalse(SettingValue.objects.get(key=USER_MOBILE_SYNC_ACTIVITIES).value)
         self.assertFalse(SettingValue.objects.get(key=USER_MOBILE_SYNC_CONTACTS).value)
-

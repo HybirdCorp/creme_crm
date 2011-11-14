@@ -18,11 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from os.path import join, dirname, abspath
+try:
+    from os.path import join, dirname, abspath
 
-from activesync.commands.settings import Settings
-from activesync.connection import Connection
-from activesync.tests.commands.base import BaseASTestCase
+    from activesync.commands.settings import Settings
+    from activesync.connection import Connection
+    from activesync.tests.commands.base import BaseASTestCase
+except Exception as e:
+    print 'Error:', e
 
 
 class SettingsASTestCase(BaseASTestCase):
