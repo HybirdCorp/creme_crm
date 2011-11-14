@@ -64,7 +64,8 @@ def check_activity_collisions(activity_start, activity_end, participants, exclud
         #TODO: can be done with less queries ?
         #  eg:  Activity.objects.filter(relations__object_entity=participant.id, relations__object_entity__type=REL_OBJ_PART_2_ACTIVITY).filter(collision_test)
         #activity_collisions = Activity.objects.exclude(busy=False).filter(pk__in=activity_ids).filter(collision_test)[:1]
-        activity_collisions = Activity.objects.filter(pk__in=activity_ids).filter(collision_test)[:1]
+        #activity_collisions = Activity.objects.filter(pk__in=activity_ids).filter(collision_test)[:1]
+        activity_collisions = Activity.objects.filter(collision_test).filter(pk__in=activity_ids)[:1]
 
         if activity_collisions:
             collision = activity_collisions[0]
