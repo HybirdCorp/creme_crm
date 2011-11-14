@@ -1,21 +1,24 @@
 # -*- coding: utf-8 -*-
 
-from StringIO import StringIO
-from os.path import join, dirname, abspath
+try:
+    from StringIO import StringIO
+    from os.path import join, dirname, abspath
+    from xml.etree.ElementTree import XML, tostring
+    from xml.parsers import expat
 
-from django.core.files import File
-from django.test import TestCase
+    from django.core.files import File
 
-from xml.etree.ElementTree import XML, tostring
-from xml.parsers import expat
+    from creme_core.tests.base import CremeTestCase
 
-from activesync.wbxml.dtd import AirsyncDTD_Reverse, AirsyncDTD_Forward
-from activesync.wbxml.codec import WBXMLEncoder, WBXMLDecoder, WrongXMLType
+    from activesync.wbxml.dtd import AirsyncDTD_Reverse, AirsyncDTD_Forward
+    from activesync.wbxml.codec import WBXMLEncoder, WBXMLDecoder, WrongXMLType
+except Exception as e:
+    print 'Error:', e
 
 
 DEFAULT_CHUNK_SIZE = File.DEFAULT_CHUNK_SIZE
 
-class ActiveSyncWbxmlTestCase(TestCase):
+class ActiveSyncWbxmlTestCase(CremeTestCase):
     def setUp(self):
         self.decoder = WBXMLDecoder(AirsyncDTD_Forward)
         self.encoder = WBXMLEncoder(AirsyncDTD_Reverse)
@@ -43,7 +46,7 @@ class ActiveSyncWbxmlTestCase(TestCase):
         self.assertEqual(encoded, '\x03\x01j\x00\x00\x07VR\x030\x00\x01\x01')
 
         self.assertEqual(encoder.get_ns('{FolderHierarchy:}FolderSync'), 'FolderHierarchy:')
-        self.assertEqual(encoder.get_ns('FolderHierarchy:FolderSync'),   None)
+        self.assertIsNone(encoder.get_ns('FolderHierarchy:FolderSync'))
 
         self.assertEqual(encoder.get_tag('{FolderHierarchy:}FolderSync', 'FolderHierarchy:'), 'FolderSync')
         self.assertEqual(encoder.get_tag('{FolderHierarchy:}FolderSync', None), '{FolderHierarchy:}FolderSync')

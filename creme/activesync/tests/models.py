@@ -18,19 +18,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.contenttypes.models import ContentType
-from activesync.models.active_sync import UserSynchronizationHistory
+try:
+    from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models.relation import Relation
-from creme_core.tests.base import CremeTestCase
+    from creme_core.models.relation import Relation
+    from creme_core.tests.base import CremeTestCase
 
-from persons.models.contact import Contact
-from persons.models.organisation import Organisation
-from persons.constants import REL_SUB_EMPLOYED_BY
+    from persons.models import Contact, Organisation
+    from persons.constants import REL_SUB_EMPLOYED_BY
 
-from activities.models import Meeting
+    from activities.models import Meeting
 
-from activesync.models import CremeExchangeMapping
+    from activesync.models import UserSynchronizationHistory, CremeExchangeMapping
+except Exception as e:
+    print 'Error:', e
 
 
 class ActiveSyncModelsTestCase(CremeTestCase):
@@ -66,8 +67,7 @@ class ActiveSyncModelsTestCase(CremeTestCase):
         self.assertFalse(mapping.was_deleted)
 
         contact.delete()
-        mapping = CremeExchangeMapping.objects.get(pk=mapping.id)#Refresh
-        self.assertTrue(mapping.was_deleted)
+        self.assertTrue(self.refresh(mapping).was_deleted)
 
     def test_mapping_create_relation_contact_orga01(self):
         user = self.user
@@ -84,8 +84,7 @@ class ActiveSyncModelsTestCase(CremeTestCase):
         Relation.objects.create(subject_entity=contact, object_entity=orga, type_id=REL_SUB_EMPLOYED_BY, user=user)
         self.assertEqual(1, Relation.objects.filter(subject_entity=contact, object_entity=orga, type__id=REL_SUB_EMPLOYED_BY).count())
 
-        mapping = CremeExchangeMapping.objects.get(pk=mapping.id)#Refresh
-        self.assertTrue(mapping.is_creme_modified)
+        self.assertTrue(self.refresh(mapping).is_creme_modified)
 
     def test_mapping_delete_relation_contact_orga01(self):
         user = self.user
@@ -106,8 +105,7 @@ class ActiveSyncModelsTestCase(CremeTestCase):
         mapping.save()
 
         rel.delete()
-        mapping = CremeExchangeMapping.objects.get(pk=mapping.id)#Refresh
-        self.assertTrue(mapping.is_creme_modified)
+        self.assertTrue(self.refresh(mapping).is_creme_modified)
 
     def test_mapping_update_meeting01(self):
         user = self.user
@@ -138,12 +136,11 @@ class ActiveSyncModelsTestCase(CremeTestCase):
         self.assertFalse(mapping.was_deleted)
 
         meeting.delete()
-        mapping = CremeExchangeMapping.objects.get(pk=mapping.id)#Refresh
-        self.assertTrue(mapping.was_deleted)
+        self.assertTrue(self.refresh(mapping).was_deleted)
 
     def test_user_synchronization_history01(self):#test the property and the cache
         u = UserSynchronizationHistory()
-        self.assertEqual(None, u.entity)
+        self.assertIsNone(u.entity)
 
         user = self.user
         contact = Contact.objects.create(user=user, first_name='Mario', last_name='Bros')
@@ -159,5 +156,3 @@ class ActiveSyncModelsTestCase(CremeTestCase):
         u._entity   = None
         u.entity_pk = None
         self.assertEqual(None, u.entity)
-
-

@@ -18,16 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+try:
+    from creme_core.tests.base import CremeTestCase
 
-from django.test import TestCase
-from activesync.constants import USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS
+    from creme_config.models import SettingKey, SettingValue
 
-from activesync.utils import decode_AS_timezone, is_user_sync_calendars, is_user_sync_contacts
-from creme_config.models.setting import SettingKey, SettingValue
-from creme_core.tests.base import CremeTestCase
+    from activesync.utils import decode_AS_timezone, is_user_sync_calendars, is_user_sync_contacts
+    from activesync.constants import USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS
+except Exception as e:
+    print 'Error:', e
 
 
-class MiscTestCase(TestCase):
+class MiscTestCase(CremeTestCase):
     def setUp(self):
         pass
 
@@ -38,26 +40,29 @@ class MiscTestCase(TestCase):
         decoded = decode_AS_timezone(tz)
 
         self.assertEqual({'bias': -60,
-        'daylight_bias': -60,
-        'daylight_day': 5,
-        'daylight_day_of_week': 0,
-        'daylight_hour': 2,
-        'daylight_milliseconds': 0,
-        'daylight_minute': 0,
-        'daylight_month': 3,
-        'daylight_name': 'CES',
-        'daylight_second': 0,
-        'daylight_year': 0,
-        'standard_bias': 0,
-        'standard_day': 5,
-        'standard_day_of_week': 0,
-        'standard_hour': 3,
-        'standard_milliseconds': 0,
-        'standard_minute': 0,
-        'standard_month': 10,
-        'standard_name': 'CET',
-        'standard_second': 0,
-        'standard_year': 0}, decoded)
+                          'daylight_bias': -60,
+                          'daylight_day': 5,
+                          'daylight_day_of_week': 0,
+                          'daylight_hour': 2,
+                          'daylight_milliseconds': 0,
+                          'daylight_minute': 0,
+                          'daylight_month': 3,
+                          'daylight_name': 'CES',
+                          'daylight_second': 0,
+                          'daylight_year': 0,
+                          'standard_bias': 0,
+                          'standard_day': 5,
+                          'standard_day_of_week': 0,
+                          'standard_hour': 3,
+                          'standard_milliseconds': 0,
+                          'standard_minute': 0,
+                          'standard_month': 10,
+                          'standard_name': 'CET',
+                          'standard_second': 0,
+                          'standard_year': 0,
+                         },
+                         decoded
+                        )
 
     def test_decode_AS_timezone_tahiti(self):
         #Tahiti GMT -10
@@ -66,26 +71,29 @@ class MiscTestCase(TestCase):
         decoded = decode_AS_timezone(tz)
 
         self.assertEqual({'bias': 600,
-        'daylight_bias': 0,
-        'daylight_day': 0,
-        'daylight_day_of_week': 0,
-        'daylight_hour': 0,
-        'daylight_milliseconds': 0,
-        'daylight_minute': 0,
-        'daylight_month': 0,
-        'daylight_name': '\x00\x00\x00',
-        'daylight_second': 0,
-        'daylight_year': 0,
-        'standard_bias': 0,
-        'standard_day': 0,
-        'standard_day_of_week': 0,
-        'standard_hour': 0,
-        'standard_milliseconds': 0,
-        'standard_minute': 0,
-        'standard_month': 0,
-        'standard_name': 'TAH',
-        'standard_second': 0,
-        'standard_year': 0}, decoded)
+                          'daylight_bias': 0,
+                          'daylight_day': 0,
+                          'daylight_day_of_week': 0,
+                          'daylight_hour': 0,
+                          'daylight_milliseconds': 0,
+                          'daylight_minute': 0,
+                          'daylight_month': 0,
+                          'daylight_name': '\x00\x00\x00',
+                          'daylight_second': 0,
+                          'daylight_year': 0,
+                          'standard_bias': 0,
+                          'standard_day': 0,
+                          'standard_day_of_week': 0,
+                          'standard_hour': 0,
+                          'standard_milliseconds': 0,
+                          'standard_minute': 0,
+                          'standard_month': 0,
+                          'standard_name': 'TAH',
+                          'standard_second': 0,
+                          'standard_year': 0
+                         },
+                         decoded
+                        )
 
 
 class UserSettingsTestCase(CremeTestCase):
@@ -96,7 +104,7 @@ class UserSettingsTestCase(CremeTestCase):
         self.login()
         self.assertEqual(1, SettingKey.objects.filter(pk=USER_MOBILE_SYNC_ACTIVITIES).count())
         self.assertEqual(0, SettingValue.objects.filter(key=USER_MOBILE_SYNC_ACTIVITIES).count())
-        self.assertEqual(False, is_user_sync_calendars(self.user))#not assertFalse !
+        self.assertIs(False, is_user_sync_calendars(self.user))
 
         SettingValue.objects.create(key=SettingKey.objects.get(pk=USER_MOBILE_SYNC_ACTIVITIES), value_str="True", user=self.user)
 
@@ -106,10 +114,8 @@ class UserSettingsTestCase(CremeTestCase):
         self.login()
         self.assertEqual(1, SettingKey.objects.filter(pk=USER_MOBILE_SYNC_CONTACTS).count())
         self.assertEqual(0, SettingValue.objects.filter(key=USER_MOBILE_SYNC_CONTACTS).count())
-        self.assertEqual(False, is_user_sync_contacts(self.user))#not assertFalse !
+        self.assertIs(False, is_user_sync_contacts(self.user))
 
         SettingValue.objects.create(key=SettingKey.objects.get(pk=USER_MOBILE_SYNC_CONTACTS), value_str="True", user=self.user)
 
-        self.assert_(is_user_sync_contacts(self.user))
-
-
+        self.assertTrue(is_user_sync_contacts(self.user))

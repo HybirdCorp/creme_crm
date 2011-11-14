@@ -18,13 +18,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import random
+try:
+    import random
 
-from creme_core.tests.base import CremeTestCase
+    from creme_core.tests.base import CremeTestCase
 
-from creme_config.models import SettingValue, SettingKey
+    from creme_config.models import SettingValue, SettingKey
 
-from activesync.cipher import Cipher
+    from activesync.cipher import Cipher
+except Exception as e:
+    print 'Error:', e
 
 
 class CipherTestCase(CremeTestCase):

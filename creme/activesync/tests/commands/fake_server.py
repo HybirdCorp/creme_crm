@@ -61,7 +61,6 @@ class PostAwareHTTPRequestHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
             self.server.test_files = test_files
 
-
         encoded = self._open_n_read_encode(self.server.test_files[self.server.test_index])
 
         self.send_response(200)
