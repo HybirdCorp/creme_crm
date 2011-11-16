@@ -41,7 +41,7 @@ def edit(request, ticket_id):
 @login_required
 @permission_required('tickets')
 def detailview(request, ticket_id):
-    return view_entity(request, ticket_id, Ticket, '/tickets/ticket')
+    return view_entity(request, ticket_id, Ticket, '/tickets/ticket', 'tickets/view_ticket.html')
 
 @login_required
 @permission_required('tickets')
