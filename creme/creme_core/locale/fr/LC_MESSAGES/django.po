@@ -715,8 +715,8 @@ msgstr "Rien d'autorisé"
 
 #: models/auth.py:390
 #, python-format
-msgid "For %(set)s of type <%(type)s>: %(perms)s"
-msgstr "Pour %(set)s du type <%(type)s>: %(perms)s"
+msgid "For %(set)s of type “%(type)s”: %(perms)s"
+msgstr "Pour %(set)s du type “%(type)s”: %(perms)s"
 
 #: models/auth.py:392
 #, python-format
