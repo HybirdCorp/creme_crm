@@ -387,7 +387,7 @@ class SetCredentials(Model):
 
         if self.ctype:
             args['type'] = self.ctype
-            format_str = ugettext(u'For %(set)s of type <%(type)s>: %(perms)s')
+            format_str = ugettext(u'For %(set)s of type “%(type)s”: %(perms)s')
         else:
             format_str = ugettext(u'For %(set)s: %(perms)s')
 

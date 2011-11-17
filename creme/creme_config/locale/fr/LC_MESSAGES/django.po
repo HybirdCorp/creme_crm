@@ -415,7 +415,7 @@ msgstr "Applications administrées"
 
 #: forms/user_role.py:78
 msgid "Existing set credentials"
-msgstr "Droits d'ensemble existants'"
+msgstr "Droits d'ensemble existants"
 
 #: forms/user_role.py:79
 msgid "Uncheck the credentials you want to delete."
