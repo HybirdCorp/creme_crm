@@ -57,21 +57,30 @@ class JSONField(CharField):
         'invalidformat': _(u'Invalid format'),
     }
 
-    def __init(self, *args, **kwargs): #TODO: useless
-        super(JSONField, self).__init__(*args, **kwargs)
+    def _return_none_or_raise(self, required, error_key='required'):
+        if required:
+            raise ValidationError(self.error_messages[error_key])
 
-    def clean_value(self, data, name, type, default=None):#TODO:Is a 'required' could be better in place of default ?
+        return None
+
+    def _return_list_or_raise(self, required, error_key='required'):
+        if required:
+            raise ValidationError(self.error_messages[error_key])
+
+        return []
+
+    def clean_value(self, data, name, type, required=True):
         if not data:
             raise ValidationError(self.error_messages['invalidformat'])
 
         if not isinstance(data, dict):
             raise ValidationError(self.error_messages['invalidformat'])
 
-        value = data.get(name, default)
+        value = data.get(name)
 
-        # value can be "False" if a boolean value is expected.
+        #value can be "False" if a boolean value is expected.
         if value is None:
-            raise ValidationError(self.error_messages['invalidformat'])
+            return self._return_none_or_raise(required, 'invalidformat')
 
         if isinstance(value, type):
             return value
@@ -83,10 +92,7 @@ class JSONField(CharField):
 
     def clean_json(self, value):
         if not value:
-            if self.required:
-                raise ValidationError(self.error_messages['required'])
-
-            return None
+            return self._return_none_or_raise(self.required)
 
         try:
             data = jsonloads(value)
@@ -115,8 +121,8 @@ class JSONField(CharField):
 
 class GenericEntityField(JSONField):
     default_error_messages = {
-        'ctypenotallowed' : _(u"This content type is not allowed."),
-        'doesnotexist' : _(u"This entity doesn't exist."),
+        'ctypenotallowed': _(u"This content type is not allowed."),
+        'doesnotexist':    _(u"This entity doesn't exist."),
     }
 
     def __init__(self, models=None, *args, **kwargs):
@@ -151,10 +157,7 @@ class GenericEntityField(JSONField):
             raise ValidationError(self.error_messages['invalidformat'])
 
         if not data:
-            if self.required:
-                raise ValidationError(self.error_messages['required'])
-
-            return None
+            return self._return_none_or_raise(self.required)
 
         return self.clean_entity(self.clean_value(data, 'ctype', int), self.clean_value(data, 'entity', int))
 
@@ -171,7 +174,7 @@ class GenericEntityField(JSONField):
         return entity
 
     def clean_ctype(self, ctype_pk):
-        # check ctype in allowed ones
+        #check ctype in allowed ones
         for ct in (ct for ct in self.get_ctypes() if ct.pk == ctype_pk):
             return ct
 
@@ -203,12 +206,12 @@ class GenericEntityField(JSONField):
 class MultiGenericEntityField(GenericEntityField):
     def __init__(self, models=None, *args, **kwargs):
         super(MultiGenericEntityField, self).__init__(models, *args, **kwargs)
-        # TODO : wait for django 1.2 and new widget api to remove this hack
+        #TODO : wait for django 1.2 and new widget api to remove this hack
 
     def _create_widget(self):
         return SelectorList(CTEntitySelector(self._get_ctypes_options(self.get_ctypes()), multiple=True))
 
-    # TODO : wait for django 1.2 and new widget api to remove this hack
+    #TODO : wait for django 1.2 and new widget api to remove this hack
     def from_python(self, value):
         if not value:
             return ''
@@ -228,16 +231,13 @@ class MultiGenericEntityField(GenericEntityField):
             raise ValidationError(self.error_messages['invalidformat'])
 
         if not data:
-            if self.required:
-                raise ValidationError(self.error_messages['required'])
-
-            return []
+            return self._return_list_or_raise(self.required)
 
         entities_map = defaultdict(list)
         clean_value = self.clean_value
 
-        # TODO : the entities order can be lost, see for refactor.
-        # build a dictionnary of entity pks by content type (ignore invalid entries)
+        #TODO : the entities order can be lost, see for refactor.
+        #build a dictionnary of entity pks by content type (ignore invalid entries)
         for entry in data:
             try:
                 entities_map[clean_value(entry, 'ctype', int)].append(clean_value(entry, 'entity', int))
@@ -246,7 +246,7 @@ class MultiGenericEntityField(GenericEntityField):
 
         entities = []
 
-        # build the list of entities (ignore invalid entries)
+        #build the list of entities (ignore invalid entries)
         for ct_id, entity_pks in entities_map.iteritems():
             ctype = self.clean_ctype(ct_id)
             ctype_entities = dict((entity.pk, entity) for entity in ctype.model_class().objects.filter(pk__in=entity_pks))
@@ -263,7 +263,9 @@ class RelationEntityField(JSONField):
     default_error_messages = {
         'rtypedoesnotexist': _(u"This type of relationship doesn't exist."),
         'rtypenotallowed':   _(u"This type of relationship causes a constraint error."),
+        'ctyperequired':     _(u"The content type is required."),
         'ctypenotallowed':   _(u"This content type cause constraint error with the type of relationship."),
+        'entityrequired':    _(u"The entity is required."),
         'doesnotexist':      _(u"This entity doesn't exist."),
         'nopropertymatch':   _(u"This entity has no property that matches the constraints of the type of relationship."),
     }
@@ -297,15 +299,18 @@ class RelationEntityField(JSONField):
         data = self.clean_json(value)
 
         if not data:
-            if self.required:
-                raise ValidationError(self.error_messages['required'])
-
-            return None
+            return self._return_none_or_raise(self.required)
 
         clean_value = self.clean_value
-        rtype_pk  = clean_value(data, 'rtype', str)
-        ctype_pk  = clean_value(data, 'ctype', int)
-        entity_pk = clean_value(data, 'entity', int)
+        rtype_pk = clean_value(data, 'rtype',  str)
+
+        ctype_pk  = clean_value(data, 'ctype',  int, required=False)
+        if not ctype_pk:
+            return self._return_none_or_raise(self.required, 'ctyperequired')
+
+        entity_pk = clean_value(data, 'entity', int, required=False)
+        if not entity_pk:
+            return self._return_none_or_raise(self.required, 'entityrequired')
 
         rtype = self.clean_rtype(rtype_pk)
         self.validate_ctype_constraints(rtype, ctype_pk)
@@ -364,14 +369,12 @@ class RelationEntityField(JSONField):
 
 
 class MultiRelationEntityField(RelationEntityField):
-#    def __init__(self, allowed_rtypes=(REL_SUB_HAS, ), *args, **kwargs):
-#        super(MultiRelationEntityField, self).__init__(allowed_rtypes, *args, **kwargs)
-#        self.widget = SelectorList(self.widget)
-
     def _create_widget(self):
         return SelectorList(RelationSelector(self._get_options(self._get_allowed_rtypes_objects()),
                                              '/creme_core/relation/predicate/${rtype}/content_types/json',
-                                             multiple=True))
+                                             multiple=True,
+                                            )
+                           )
 
     #TODO : wait for django 1.2 and new widget api to remove this hack
     def from_python(self, value):
@@ -381,16 +384,19 @@ class MultiRelationEntityField(RelationEntityField):
         if isinstance(value, basestring):
             return value
 
-        #TODO: use list comprehension
-        entities = []
+        #entities = []
 
-        for rtype, entity in value:
-            if entity:
-                entities.append({'rtype': rtype.pk, 'ctype': entity.entity_type_id, 'entity': entity.pk})
-            else:
-                entities.append({'rtype': rtype.pk, 'ctype': None, 'entity': None})
+        #for rtype, entity in value:
+            #if entity:
+                #entities.append({'rtype': rtype.pk, 'ctype': entity.entity_type_id, 'entity': entity.pk})
+            #else:
+                #entities.append({'rtype': rtype.pk, 'ctype': None, 'entity': None})
 
-        return self.format_json(entities)
+        #return self.format_json(entities)
+        return self.format_json([{'rtype': rtype.pk, 'ctype': entity.entity_type_id, 'entity': entity.pk} if entity else
+                                 {'rtype': rtype.pk, 'ctype': None,                  'entity': None}
+                                     for rtype, entity in value
+                                ])
 
     def _build_rtype_cache(self, rtype_pk):
         try:
@@ -424,19 +430,26 @@ class MultiRelationEntityField(RelationEntityField):
         data = self.clean_json(value)
 
         if not data:
-            if self.required:
-                raise ValidationError(self.error_messages['required'])
-
-            return []
+            return self._return_list_or_raise(self.required)
 
         if not isinstance(data, list):
             raise ValidationError(self.error_messages['invalidformat'])
 
         clean_value = self.clean_value
+        cleaned_entries = []
 
-        cleaned_entries = [(clean_value(entry, 'rtype', str),
-                            clean_value(entry, 'ctype', int),
-                            clean_value(entry, 'entity', int)) for entry in data]
+        for entry in data:
+            rtype_pk = clean_value(entry, 'rtype', str)
+
+            ctype_pk =  clean_value(entry, 'ctype', int, required=False)
+            if not ctype_pk:
+                continue
+
+            entity_pk = clean_value(entry, 'entity', int, required=False)
+            if not entity_pk:
+                continue
+
+            cleaned_entries.append((rtype_pk, ctype_pk, entity_pk))
 
         rtypes_cache = {}
         ctypes_cache = {}
@@ -462,7 +475,7 @@ class MultiRelationEntityField(RelationEntityField):
 
         entities_cache = {}
 
-        # build real entity cache and check both entity id exists and in correct content type
+        #build real entity cache and check both entity id exists and in correct content type
         for ctype, entity_pks in ctypes_cache.values():
             ctype_entities = dict((entity.pk, entity) for entity in ctype.model_class().objects.filter(pk__in=entity_pks))
 
@@ -487,10 +500,7 @@ class MultiRelationEntityField(RelationEntityField):
             relations.append((rtype, entity))
 
         if not relations:
-            if self.required:
-                raise ValidationError(self.error_messages['required'])
-
-            return None
+            return self._return_list_or_raise(self.required)
 
         return relations
 
@@ -579,7 +589,7 @@ class CremeEntityField(_EntityField):
          clean method return a model instance
     """
     default_error_messages = {
-        'doesnotexist' : _(u"This entity doesn't exist."),
+        'doesnotexist': _(u"This entity doesn't exist."),
     }
 
     def __init__(self, model=CremeEntity, q_filter=None, *args, **kwargs):

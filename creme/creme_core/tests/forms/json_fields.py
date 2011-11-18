@@ -322,10 +322,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertFieldValidationError(RelationEntityField, 'required', clean, "{}")
 
     def test_clean_empty_not_required(self):
-        try:
-            RelationEntityField(required=False).clean(None)
-        except Exception as e:
-            self.fail(str(e))
+        self.assertIsNone(RelationEntityField(required=False).clean(None))
 
     def test_clean_invalid_json(self):
         self.assertFieldValidationError(RelationEntityField, 'invalidformat',
@@ -340,9 +337,6 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_invalid_data(self):
         clean = RelationEntityField(required=False).clean
-        self.assertFieldValidationError(RelationEntityField, 'invalidformat', clean, '{"ctype":"12","entity":"1"}')
-        self.assertFieldValidationError(RelationEntityField, 'invalidformat', clean, '{"rtype":"10","entity":"1"}')
-        self.assertFieldValidationError(RelationEntityField, 'invalidformat', clean, '{"rtype":"10", ctype":"12"}')
         self.assertFieldValidationError(RelationEntityField, 'invalidformat', clean, '{"rtype":"notanumber", ctype":"12","entity":"1"}')
         self.assertFieldValidationError(RelationEntityField, 'invalidformat', clean, '{"rtype":"10", ctype":"notanumber","entity":"1"}')
         self.assertFieldValidationError(RelationEntityField, 'invalidformat', clean, '{"rtype":"10", "ctype":"12","entity":"notanumber"}')
@@ -441,6 +435,29 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
                          field.clean(self.format_str % (rtype.pk, contact.entity_type_id, contact.pk))
                         )
 
+    def test_clean_incomplete01(self): #not required
+        self.login()
+        rtype  = self.create_loves_rtype()[0]
+        contact = self.create_contact()
+
+        clean = RelationEntityField(required=False).clean
+        self.assertIsNone(clean('{"rtype": "%s"}' % rtype.id))
+        self.assertIsNone(clean('{"rtype": "%s", "ctype": "%s"}' % (rtype.id, contact.entity_type_id)))
+
+    def test_clean_incomplete02(self): #required -> 'friendly' errors :)
+        self.login()
+        rtype  = self.create_loves_rtype()[0]
+        contact = self.create_contact()
+
+        clean = RelationEntityField(required=True).clean
+        self.assertFieldValidationError(RelationEntityField, 'ctyperequired', clean,
+                                        '{"rtype": "%s"}' % rtype.id
+                                       )
+        self.assertFieldValidationError(RelationEntityField, 'entityrequired', clean,
+                                        '{"rtype": "%s", "ctype": "%s"}' % (
+                                                rtype.id, contact.entity_type_id
+                                            )
+                                       )
 
 class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     format_str    = '[{"rtype":"%s", "ctype":"%s","entity":"%s"}]'
@@ -486,9 +503,6 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_invalid_data(self):
         clean = MultiRelationEntityField(required=False).clean
-        self.assertFieldValidationError(MultiRelationEntityField, 'invalidformat', clean, '[{"ctype":"12","entity":"1"}]')
-        self.assertFieldValidationError(MultiRelationEntityField, 'invalidformat', clean, '[{"rtype":"10","entity":"1"}]')
-        self.assertFieldValidationError(MultiRelationEntityField, 'invalidformat', clean, '[{"rtype":"10", ctype":"12"}]')
         self.assertFieldValidationError(MultiRelationEntityField, 'invalidformat', clean, '[{"rtype":"notanumber", ctype":"12","entity":"1"}]')
         self.assertFieldValidationError(MultiRelationEntityField, 'invalidformat', clean, '[{"rtype":"10", ctype":"notanumber","entity":"1"}]')
         self.assertFieldValidationError(MultiRelationEntityField, 'invalidformat', clean, '[{"rtype":"10", "ctype":"12","entity":"notanumber"}]')
@@ -616,4 +630,46 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
                                             rtype_no_constr.pk, orga.entity_type_id,    orga.pk,
                                         )
                                     )
+                        )
+
+    def test_clean_incomplete01(self): #not required
+        self.login()
+        rtype  = self.create_loves_rtype()[0]
+        contact = self.create_contact()
+
+        clean = MultiRelationEntityField(required=False, allowed_rtypes=[rtype.id]).clean
+        self.assertEqual([], clean('[{"rtype": "%s"}]' % rtype.id))
+        self.assertEqual([], clean('[{"rtype": "%s", "ctype": "%s"}]' % (rtype.id, contact.entity_type_id)))
+        self.assertEqual([(rtype, contact)],
+                         clean('[{"rtype": "%s", "ctype": "%s"},'
+                               ' {"rtype": "%s", "ctype": "%s", "entity":"%s"},'
+                               ' {"rtype": "%s"}]' % (
+                                     rtype.id, contact.entity_type_id,
+                                     rtype.id, contact.entity_type_id, contact.id,
+                                     rtype.id,
+                                    )
+                              )
+                        )
+
+    def test_clean_incomplete02(self): #required -> 'friendly' errors :)
+        self.login()
+        rtype  = self.create_loves_rtype()[0]
+        contact = self.create_contact()
+
+        clean = MultiRelationEntityField(required=True, allowed_rtypes=[rtype.id]).clean
+        self.assertFieldValidationError(RelationEntityField, 'required', clean,
+                                        '[{"rtype": "%s", "ctype": "%s"}, {"rtype": "%s"}]' % (
+                                             rtype.id, contact.entity_type_id,
+                                             rtype.id,
+                                            )
+                                       )
+        self.assertEqual([(rtype, contact)],
+                         clean('[{"rtype": "%s", "ctype": "%s"},'
+                               ' {"rtype": "%s", "ctype": "%s", "entity":"%s"},'
+                               ' {"rtype": "%s"}]' % (
+                                     rtype.id, contact.entity_type_id,
+                                     rtype.id, contact.entity_type_id, contact.id,
+                                     rtype.id,
+                                    )
+                              )
                         )

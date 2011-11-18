@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-10 17:50+0100\n"
+"POT-Creation-Date: 2011-11-18 15:02+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -477,7 +477,7 @@ msgstr "Format invalide"
 msgid "This content type is not allowed."
 msgstr "Ce type de resource n'est pas autorisé'."
 
-#: forms/fields.py:119 forms/fields.py:267 forms/fields.py:582
+#: forms/fields.py:119 forms/fields.py:269 forms/fields.py:607
 msgid "This entity doesn't exist."
 msgstr "Cette entité n'existe pas."
 
@@ -490,12 +490,20 @@ msgid "This type of relationship causes a constraint error."
 msgstr "Ce type de relation provoque une erreur de contrainte."
 
 #: forms/fields.py:266
+msgid "The content type is required."
+msgstr "Le type de resource est obligatoire."
+
+#: forms/fields.py:267
 msgid "This content type cause constraint error with the type of relationship."
 msgstr ""
 "Ce type de resource provoque une erreur de contrainte avec le type de "
 "relation"
 
 #: forms/fields.py:268
+msgid "The entity is required."
+msgstr "L'entité est obligatoire."
+
+#: forms/fields.py:270
 msgid ""
 "This entity has no property that matches the constraints of the type of "
 "relationship."
@@ -503,34 +511,34 @@ msgstr ""
 "Cette fiche n'a aucune propriété qui convient avec les contrainte de type de "
 "relation"
 
-#: forms/fields.py:526
+#: forms/fields.py:551
 #, python-format
 msgid "Select a valid choice. %(value)s is not an available choice."
 msgstr ""
 "Sélectionnez un choix valide. %(value)s n'est pas un des choix disponibles."
 
-#: forms/fields.py:774
+#: forms/fields.py:799
 msgid ""
 "If you select customized you have to specify a start date and/or an end date."
 msgstr ""
 "Si vous sélectionnez 'Personnalisé' vous devez spécifier une date de début "
 "et/ou une date de fin."
 
-#: forms/fields.py:775
+#: forms/fields.py:800
 msgid "Start date has to be before end date."
 msgstr "La date début doit être avant la date de fin."
 
-#: forms/fields.py:779 forms/widgets.py:165 forms/widgets.py:763
+#: forms/fields.py:804 forms/widgets.py:165 forms/widgets.py:763
 msgid "Customized"
 msgstr "Personnalisé"
 
 #  Translated in Django ; leave untranslated here...
-#: forms/fields.py:826
+#: forms/fields.py:851
 msgid "Enter a whole number."
 msgstr ""
 
 #  Translated in Django ; leave untranslated here...
-#: forms/fields.py:827
+#: forms/fields.py:852
 #, python-format
 msgid "Ensure this value is greater than or equal to %(limit_value)s."
 msgstr ""
