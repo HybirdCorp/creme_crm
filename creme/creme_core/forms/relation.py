@@ -64,9 +64,7 @@ class RelationCreateForm(CremeForm):
 
         relations_field = fields['relations']
         relations_field.allowed_rtypes = relations_types
-        #TODO: uncomment when MultiRelationEntityField accepts an incomplete input
-        #      for now you get an 'Invalid format' if you use on semifixed_rtypes without cleaning 'relations' line.
-        #relations_field.initial = [(RelationType.objects.get(pk=relations_types[0]), None)]
+        relations_field.initial = [(RelationType.objects.get(pk=relations_types[0]), None)]
 
     def _check_duplicates(self, relations, user):
         future_relations = set()
