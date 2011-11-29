@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
+{% if has_app_perm %}{% comment %}TODO: indent{% endcomment %}
 <table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=5 %}
         <th class="collapser label">
@@ -44,10 +45,11 @@
         {% else %}
             <tr class="content empty">
                 <td class="block_line_dark">
-                    {% block activities_empty %}{% trans "No future related activity for the moment" %}{% endblock %}
+                    {% block activities_empty %}{% trans "No calendar for the moment" %}{% endblock %}
                 </td>
             </tr>
         {% endif %}
     </tbody>
     {% include 'creme_core/templatetags/widgets/block_footer.html' %}
 </table>
+{% endif %}
