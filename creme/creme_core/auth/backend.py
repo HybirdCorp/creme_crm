@@ -37,6 +37,9 @@ class EntityBackend(ModelBackend):
             app_name, dot, action_name = perm.partition('.')
 
             if not action_name:
+                if app_name == 'my_page': #NB: for side menu (TODO: can we improve that ??)
+                    return True
+
                 return user_obj.role.is_app_allowed_or_administrable(app_name)
 
             if action_name == 'can_admin':

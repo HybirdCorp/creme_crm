@@ -162,7 +162,7 @@ def edit_default_mypage(request):
     return _edit_mypage(request, _(u'Edit default "My page"'))
 
 @login_required
-@permission_required('creme_config.can_admin')
+#@permission_required('my_page')
 def edit_mypage(request):
     return _edit_mypage(request, _(u'Edit "My page"'), user=request.user)
 
