@@ -277,6 +277,36 @@ class BlockRegistryTestCase(CremeTestCase):
         blocks = list(block_registry.get_compatible_portal_blocks('creme_core'))
         self.assertEqual([foobar_block1], blocks)
 
+    def test_block_4_model01(self):
+        block_registry = _BlockRegistry()
+
+        block = block_registry.get_block_4_object(Organisation)
+        self.assertEqual(u'modelblock_persons-organisation', block.id_)
+        self.assertEqual((Organisation,), block.dependencies)
+
+    def test_block_4_model02(self):
+        block_registry = _BlockRegistry()
+
+        self.login()
+        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Mylove')
+
+        block = block_registry.get_block_4_object(casca)
+        self.assertEqual(u'modelblock_persons-contact', block.id_)
+        self.assertEqual((Contact,), block.dependencies)
+
+    def test_block_4_model03(self):
+        class ContactBlock(SimpleBlock):
+            template_name = 'persons/templatetags/block_contact.html'
+
+        block = ContactBlock()
+
+        block_registry = _BlockRegistry()
+        block_registry.register_4_model(Contact, block)
+
+        self.assertIs(block_registry.get_block_4_object(Contact), block)
+        self.assertEqual(u'modelblock_persons-contact', block.id_)
+        self.assertEqual((Contact,), block.dependencies)
+
 
 class BlocksManagerTestCase(CremeTestCase):
     def test_manage01(self):
