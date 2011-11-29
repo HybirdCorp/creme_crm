@@ -35,7 +35,7 @@ from activities.utils import get_ical_date
 class Calendar(CremeModel):
     name        = CharField(_(u'Name'), max_length=100, unique=True)
     is_default  = BooleanField(_(u'Default ?'), default=False)
-    is_custom   = BooleanField(default=True) #used by creme_config
+    is_custom   = BooleanField(default=True, editable=False) #used by creme_config
     is_public   = BooleanField(default=False, verbose_name=_(u"Is public ?"))
     user        = CremeUserForeignKey(verbose_name=_(u"Calendar owner"))
 

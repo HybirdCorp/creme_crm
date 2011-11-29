@@ -18,35 +18,52 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.forms.base import CremeModelWithUserForm
+from django.forms import ModelChoiceField
+from django.utils.translation import ugettext as _
+from django.contrib.auth.models import User
+
+from creme_core.forms.base import CremeModelForm
 
 from activities.models.activity import Calendar
 
 
-class CalendarForm(CremeModelWithUserForm):
+class CalendarForm(CremeModelForm):
     class Meta:
         model = Calendar
-        exclude = ('id', 'is_custom')
+        exclude = ('user',)
 
-    def __init__(self, *args, **kwargs):
-        super(CalendarForm, self).__init__(*args, **kwargs)
-        if self.instance.pk:
-            del self.fields['user']
-        
+    def get_user(self):
+        return self.user
 
     def save(self):
+        user = self.get_user()
+
         instance = self.instance
         instance.is_custom = True
-
-        user = self.cleaned_data.get('user', instance.user)
+        instance.user = user
 
         if instance.is_default:
             Calendar.objects.filter(user=user).update(is_default=False)
-            
+
         super(CalendarForm, self).save()
 
-        if Calendar.objects.filter(user=user, is_default=True).count() == 0:
+        #TODO: regroup with the code before save() (so save once) (use signals instead, for delete too)
+        if not Calendar.objects.filter(user=user, is_default=True).exists():
            instance.is_default = True
            instance.save()
 
         return instance
+
+
+class CalendarConfigForm(CalendarForm):
+    def __init__(self, *args, **kwargs):
+        super(CalendarForm, self).__init__(*args, **kwargs)
+        if not self.instance.pk:
+            self.fields['user'] = ModelChoiceField(label=_('User'),
+                                                   queryset=User.objects.all(),
+                                                   empty_label=None,
+                                                   initial=self.user.id
+                                                  )
+
+    def get_user(self):
+        return self.cleaned_data.get('user') or self.instance.user

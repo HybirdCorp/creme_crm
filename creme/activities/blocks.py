@@ -168,6 +168,7 @@ class UserCalendars(QuerysetBlock):
         return self._render(self.get_block_template_context(context,
                                                             Calendar.objects.filter(user=user),
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                                            has_app_perm=user.has_perm('activities'),
                                                            ))
 
 

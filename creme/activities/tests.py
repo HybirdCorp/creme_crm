@@ -730,12 +730,10 @@ class ActivitiesTestCase(CremeTestCase):
         self.login()
         user = self.user
         url = '/activities/calendar/add'
-
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(200, self.client.get(url).status_code)
 
         response = self.client.post(url, data={'name': 'whatever',
-                                               'user': user.id
+                                               #'user': user.id
                                               }
                                    )
         self.assertNoFormError(response)
@@ -756,7 +754,7 @@ class ActivitiesTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
 
         response = self.client.post(url, data={'name': cal_name,
-                                               'user': user.id
+                                               #'user': user.id
                                               }
                                    )
         self.assertNoFormError(response)
