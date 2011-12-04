@@ -1,74 +1,48 @@
-# encoding: utf-8
+# -*- coding: utf-8 -*-
+
 import datetime
+
 from south.db import db
-from south.v2 import SchemaMigration
+from south.v2 import DataMigration
+
 from django.db import models
 
-class Migration(SchemaMigration):
 
-    depends_on = (
-        ("creme_core", "0001_initial"),
-    )
+RELATED_MODELS = ('creme_core.blockdetailviewlocation',
+                  'creme_core.blockmypagelocation',
+                  'creme_core.blockportallocation',
+                  'creme_core.blockstate',
+                 )
 
+class Migration(DataMigration):
     def forwards(self, orm):
+        for ibci in orm['creme_core.instanceblockconfigitem'].objects.filter(block_id__startswith='instanceblock-reports_blocks_ReportGraphBlock-creme_config_'):
+            old_block_id = ibci.block_id
+            new_block_id = u'instanceblock_reports-graph#%s-%s' % (ibci.entity_id, ibci.data)
 
-        # Adding model 'Field'
-        db.create_table('reports_field', (
-            ('id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('title', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('order', self.gf('django.db.models.fields.PositiveIntegerField')()),
-            ('type', self.gf('django.db.models.fields.PositiveSmallIntegerField')()),
-            ('selected', self.gf('django.db.models.fields.BooleanField')(default=False)),
-            ('report', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['reports.Report'], null=True, blank=True)),
-        ))
-        db.send_create_signal('reports', ['Field'])
+            ibci.block_id = new_block_id
+            ibci.save()
 
-        # Adding model 'Report'
-        db.create_table('reports_report', (
-            ('cremeentity_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['creme_core.CremeEntity'], unique=True, primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('ct', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['contenttypes.ContentType'])),
-            ('filter', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['creme_core.EntityFilter'], null=True, blank=True)),
-        ))
-        db.send_create_signal('reports', ['Report'])
-
-        # Adding M2M table for field columns on 'Report'
-        db.create_table('reports_report_columns', (
-            ('id', models.AutoField(verbose_name='ID', primary_key=True, auto_created=True)),
-            ('report', models.ForeignKey(orm['reports.report'], null=False)),
-            ('field', models.ForeignKey(orm['reports.field'], null=False))
-        ))
-        db.create_unique('reports_report_columns', ['report_id', 'field_id'])
-
-        # Adding model 'ReportGraph'
-        db.create_table('reports_reportgraph', (
-            ('cremeentity_ptr', self.gf('django.db.models.fields.related.OneToOneField')(to=orm['creme_core.CremeEntity'], unique=True, primary_key=True)),
-            ('name', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('report', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['reports.Report'])),
-            ('abscissa', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('ordinate', self.gf('django.db.models.fields.CharField')(max_length=100)),
-            ('type', self.gf('django.db.models.fields.PositiveIntegerField')()),
-            ('days', self.gf('django.db.models.fields.PositiveIntegerField')(null=True, blank=True)),
-            ('is_count', self.gf('django.db.models.fields.BooleanField')(default=False)),
-        ))
-        db.send_create_signal('reports', ['ReportGraph'])
-
+            for model in RELATED_MODELS:
+               for obj in orm[model].objects.filter(block_id=old_block_id):
+                   obj.block_id = new_block_id
+                   obj.save()
 
     def backwards(self, orm):
+        for ibci in orm['creme_core.instanceblockconfigitem'].objects.filter(block_id__startswith='instanceblock_reports-graph#'):
+            new_block_id = ibci.block_id
+            old_block_id = 'instanceblock-reports_blocks_ReportGraphBlock-creme_config_%s_%s' % (
+                                    ibci.entity_id,
+                                    ibci.data
+                                )
 
-        # Deleting model 'Field'
-        db.delete_table('reports_field')
+            ibci.block_id = old_block_id
+            ibci.save()
 
-        # Deleting model 'Report'
-        db.delete_table('reports_report')
-
-        # Removing M2M table for field columns on 'Report'
-        db.delete_table('reports_report_columns')
-
-        # Deleting model 'ReportGraph'
-        db.delete_table('reports_reportgraph')
-
+            for model in RELATED_MODELS:
+               for obj in orm[model].objects.filter(block_id=new_block_id):
+                   obj.block_id = old_block_id
+                   obj.save()
 
     models = {
         'auth.group': {
@@ -109,6 +83,36 @@ class Migration(SchemaMigration):
             'model': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
         },
+        'creme_core.blockdetailviewlocation': {
+            'Meta': {'object_name': 'BlockDetailviewLocation'},
+            'block_id': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']", 'null': 'True'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'order': ('django.db.models.fields.PositiveIntegerField', [], {}),
+            'zone': ('django.db.models.fields.PositiveSmallIntegerField', [], {})
+        },
+        'creme_core.blockmypagelocation': {
+            'Meta': {'object_name': 'BlockMypageLocation'},
+            'block_id': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'order': ('django.db.models.fields.PositiveIntegerField', [], {}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True'})
+        },
+        'creme_core.blockportallocation': {
+            'Meta': {'object_name': 'BlockPortalLocation'},
+            'app_name': ('django.db.models.fields.CharField', [], {'max_length': '40'}),
+            'block_id': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'order': ('django.db.models.fields.PositiveIntegerField', [], {})
+        },
+        'creme_core.blockstate': {
+            'Meta': {'unique_together': "(('user', 'block_id'),)", 'object_name': 'BlockState'},
+            'block_id': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'is_open': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'show_empty_fields': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
+        },
         'creme_core.cremeentity': {
             'Meta': {'ordering': "('id',)", 'object_name': 'CremeEntity'},
             'created': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime.now', 'blank': 'True'}),
@@ -129,9 +133,18 @@ class Migration(SchemaMigration):
             'use_or': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True', 'blank': 'True'})
         },
+        'creme_core.instanceblockconfigitem': {
+            'Meta': {'object_name': 'InstanceBlockConfigItem'},
+            'block_id': ('django.db.models.fields.CharField', [], {'max_length': '300'}),
+            'data': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
+            'entity': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['creme_core.CremeEntity']"}),
+            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'verbose': ('django.db.models.fields.CharField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'})
+        },
         'creme_core.userrole': {
             'Meta': {'object_name': 'UserRole'},
-            'creatable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'to': "orm['contenttypes.ContentType']", 'null': 'True', 'symmetrical': 'False'}),
+            'creatable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'roles_allowing_creation'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
+            'exportable_ctypes': ('django.db.models.fields.related.ManyToManyField', [], {'symmetrical': 'False', 'related_name': "'roles_allowing_export'", 'null': 'True', 'to': "orm['contenttypes.ContentType']"}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'raw_admin_4_apps': ('django.db.models.fields.TextField', [], {'default': "''"}),
@@ -165,46 +178,7 @@ class Migration(SchemaMigration):
             'ordinate': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'report': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['reports.Report']"}),
             'type': ('django.db.models.fields.PositiveIntegerField', [], {})
-        },
-         #for 0002_v1_2__change_ibci_id backwards migration---------------------
-        'creme_core.blockdetailviewlocation': {
-            'Meta': {'object_name': 'BlockDetailviewLocation'},
-            'block_id': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'content_type': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['contenttypes.ContentType']", 'null': 'True'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'order': ('django.db.models.fields.PositiveIntegerField', [], {}),
-            'zone': ('django.db.models.fields.PositiveSmallIntegerField', [], {})
-        },
-        'creme_core.blockmypagelocation': {
-            'Meta': {'object_name': 'BlockMypageLocation'},
-            'block_id': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'order': ('django.db.models.fields.PositiveIntegerField', [], {}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True'})
-        },
-        'creme_core.blockportallocation': {
-            'Meta': {'object_name': 'BlockPortalLocation'},
-            'app_name': ('django.db.models.fields.CharField', [], {'max_length': '40'}),
-            'block_id': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'order': ('django.db.models.fields.PositiveIntegerField', [], {})
-        },
-        'creme_core.blockstate': {
-            'Meta': {'unique_together': "(('user', 'block_id'),)", 'object_name': 'BlockState'},
-            'block_id': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'is_open': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'show_empty_fields': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']"})
-        },
-        'creme_core.instanceblockconfigitem': {
-            'Meta': {'object_name': 'InstanceBlockConfigItem'},
-            'block_id': ('django.db.models.fields.CharField', [], {'max_length': '300'}),
-            'data': ('django.db.models.fields.TextField', [], {'null': 'True', 'blank': 'True'}),
-            'entity': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['creme_core.CremeEntity']"}),
-            'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'verbose': ('django.db.models.fields.CharField', [], {'max_length': '200', 'null': 'True', 'blank': 'True'})
-        },
+        }
     }
 
-    complete_apps = ['reports']
+    complete_apps = ['creme_core', 'reports']

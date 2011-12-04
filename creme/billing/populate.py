@@ -202,13 +202,11 @@ class Populator(BasePopulator):
         from django.contrib.contenttypes.models import ContentType
         from django.contrib.auth.models import User
 
-        from creme_core.models import InstanceBlockConfigItem
         from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION
         from creme_core.utils.meta import get_verbose_field_name
 
         from reports.models import Report, Field, ReportGraph
         from reports.models.graph import RGT_FK, RGT_MONTH
-        from reports.blocks import ReportGraphBlock
 
         if not (resulted and resulted_collection):
             print "Invoice status 'Resulted' and/or 'Resulted collection' have change => do not create reports 'All invoices of the current year' and 'Invoices unpaid of the current year'"
@@ -225,7 +223,6 @@ class Populator(BasePopulator):
                                                            EntityFilterCondition.build_4_field(model=Invoice, operator=EntityFilterCondition.EQUALS_NOT, name='status', values=[resulted.pk, resulted_collection.pk]),
                                                           ])
 
-        #Create fields of the report
         def create_report_columns():
             create_field = Field.objects.create
             return [create_field(name='name',                  title=get_verbose_field_name(Invoice, 'name'),            order=1, type=HFI_FIELD),
@@ -237,6 +234,8 @@ class Populator(BasePopulator):
                     create_field(name='expiration_date',       title=get_verbose_field_name(Invoice, 'expiration_date'), order=7, type=HFI_FIELD),
                    ]
 
+        create_graph = ReportGraph.objects.create
+
         #Create current year invoices report -----------------------------------
         report_name = _(u"All invoices of the current year")
         try:
@@ -245,18 +244,13 @@ class Populator(BasePopulator):
             invoices_report = Report.objects.create(name=report_name, ct=invoice_ct, filter=current_year_invoice_filter, user=admin)
             invoices_report.columns = create_report_columns()
 
-            create_graph = ReportGraph.objects.create
             rgraph1 = create_graph(name=_(u"Sum of current year invoices total without taxes / month"),           report=invoices_report, abscissa='issuing_date', ordinate='total_no_vat__sum', type=RGT_MONTH, is_count=False, user=admin)
             rgraph2 = create_graph(name=_(u"Sum of current year invoices total without taxes / invoices status"), report=invoices_report, abscissa='status',       ordinate='total_no_vat__sum', type=RGT_FK,    is_count=False, user=admin)
+            ibci = rgraph1.create_instance_block_config_item()
 
-            ibci = InstanceBlockConfigItem.objects.create(entity=rgraph1,
-                                                          block_id=ReportGraphBlock.generate_id('creme_config', u"%s_" % rgraph1.id),
-                                                          verbose=u"%s - %s" % (rgraph1, _(u'None')),
-                                                          data=''
-                                                         )
             BlockPortalLocation.create(app_name='creme_core', block_id=ibci.block_id, order=1)
         else:
-            print "The report 'Invoices of the current year'  already exists"
+            print "The report 'Invoices of the current year' already exists"
 
         #Create current year and unpaid invoices report ------------------------
         report_name = _(u"Invoices unpaid of the current year")
@@ -266,15 +260,12 @@ class Populator(BasePopulator):
             invoices_report = Report.objects.create(name=report_name, ct=invoice_ct, filter=current_year_unpaid_invoice_filter, user=admin)
             invoices_report.columns = create_report_columns()
 
-            rgraph = ReportGraph.objects.create(name=_(u"Sum of current year and unpaid invoices total without taxes / month"),
-                                                report=invoices_report, user=admin,
-                                                abscissa='issuing_date', ordinate='total_no_vat__sum', type=RGT_MONTH, is_count=False
-                                               )
-            ibci = InstanceBlockConfigItem.objects.create(entity=rgraph,
-                                                          block_id=ReportGraphBlock.generate_id('creme_config', u"%s_" % rgraph.id),
-                                                          verbose=u"%s - %s" % (rgraph, _(u'None')),
-                                                          data=''
-                                                         )
+            rgraph = create_graph(name=_(u"Sum of current year and unpaid invoices total without taxes / month"),
+                                  report=invoices_report, user=admin,
+                                  abscissa='issuing_date', ordinate='total_no_vat__sum', type=RGT_MONTH, is_count=False
+                                 )
+            ibci = rgraph.create_instance_block_config_item()
+
             BlockPortalLocation.create(app_name='creme_core', block_id=ibci.block_id, order=2)
         else:
             print "The report 'Invoices unpaid of the current year' already exists"

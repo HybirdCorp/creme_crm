@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-
 from django.db import models
 from django.db.models.fields.related import ForeignKey
 from django.db.models.fields import FieldDoesNotExist, DateTimeField, DateField
@@ -36,8 +35,10 @@ from creme_core.utils.meta import get_flds_with_fk_flds
 from reports.report_aggregation_registry import field_aggregation_registry
 from reports.models.graph import ReportGraph, RGT_FK, RGT_RANGE, RGT_RELATION
 
+
 AUTHORIZED_AGGREGATE_FIELDS = field_aggregation_registry.authorized_fields
 AUTHORIZED_ABSCISSA_TYPES = (models.DateField, models.DateTimeField, models.ForeignKey)
+
 
 class ReportGraphAddForm(CremeEntityForm):
     report_lbl        = CharField(label=_(u'Report'), widget=Label)
@@ -83,7 +84,6 @@ class ReportGraphAddForm(CremeEntityForm):
         abscissa_model_fields.sort(key=lambda x: x[1])
 
         abscissa_fields.choices = ((_(u"Fields"), abscissa_model_fields), (_(u"Relations"), abscissa_predicates))
-
         abscissa_fields.widget.target_url = target_url='/reports/graph/get_available_types/%s' % str(report_ct.id) #Bof
 
         data = self.data
@@ -93,7 +93,7 @@ class ReportGraphAddForm(CremeEntityForm):
             abscissa_fields.widget.target_val = data.get('abscissa_group_by')
 
         instance = self.instance
-        if (instance.pk is not None) and not data:
+        if instance.pk is not None and not data:
             ordinate, sep, aggregate     = instance.ordinate.rpartition('__')
             fields['aggregates'].initial = aggregate
             aggregates_fields.initial    = ordinate
@@ -120,7 +120,7 @@ class ReportGraphAddForm(CremeEntityForm):
         def val_err():
             return ValidationError(self.fields['abscissa_group_by'].error_messages['invalid_choice'] % {'value': abscissa_fields})
 
-        is_abscissa_group_by_is_RGT_RELATION = abscissa_group_by == RGT_RELATION
+        is_abscissa_group_by_is_RGT_RELATION = abscissa_group_by == RGT_RELATION #TODO: used once ??
 
         try:
             abscissa_field = model._meta.get_field(abscissa_fields)
@@ -135,6 +135,7 @@ class ReportGraphAddForm(CremeEntityForm):
 
         is_abscissa_group_by_is_RGT_FK = abscissa_group_by == RGT_FK
 
+        #TODO: factorise "if is_abscissa_group_by_is_RGT_FK"
         if isinstance(abscissa_field, ForeignKey) and not is_abscissa_group_by_is_RGT_FK:
             raise val_err()
         if isinstance(abscissa_field, (DateField, DateTimeField)) and is_abscissa_group_by_is_RGT_FK:
@@ -168,3 +169,5 @@ class ReportGraphAddForm(CremeEntityForm):
         graph.is_count = get_data('is_count')
         graph.days     = get_data('days')
         graph.save()
+
+        return graph

@@ -8,7 +8,7 @@ try:
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Organisation
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -23,7 +23,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                 '<h1>{{colspan}}</h1>'
                                )
             render = template.render(Context({'columns': range(3)}))
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual('<h1>3</h1>', render.strip())
@@ -40,7 +40,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                 "</ul>"
                                )
             render = template.render(Context({'entity': orga, 'user': self.user}))
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual('<ul><li>Amestris</li><li><a href="www.amestris.org" target="_blank">www.amestris.org</a></li></ul>',
@@ -67,7 +67,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                               'user':   self.user,
                                               'ct':     ContentType.objects.get_for_model(Organisation),
                                              }))
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual('True' * 9, render.strip())
@@ -92,7 +92,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                               'user':   self.user,
                                               'ct':     ContentType.objects.get_for_model(Organisation),
                                              }))
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual('False' * 9, render.strip())
@@ -123,7 +123,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                               'user':   self.user,
                                               'ct':     ContentType.objects.get_for_model(Organisation),
                                              }))
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual('True' + 'False' * 4 + 'True' * 2 + 'False' * 2, render.strip())

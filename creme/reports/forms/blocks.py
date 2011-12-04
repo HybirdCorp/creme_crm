@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2011  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,108 +18,98 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.contenttypes.models import ContentType
 from collections import defaultdict
 
 from django.db.models.fields import FieldDoesNotExist
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.forms import ChoiceField, CharField, ValidationError
+from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models.relation import RelationType
+from creme_core.models import RelationType
 from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION
-from creme_core.models.block import InstanceBlockConfigItem
 from creme_core.forms.base import CremeForm
 from creme_core.forms.widgets import Label
 from creme_core.utils import creme_entity_content_types
-from creme_core.utils.meta import get_verbose_field_name
 
-from reports.blocks import ReportGraphBlock
+from reports.models import  ReportGraph
 
-def _get_volatile_columns(report, creme_entity_cts):
-    report_model = report.ct.model_class()
-    report_model_get_field = report_model._meta.get_field
-
-    results = []
-
-    target_columns = report.columns.filter(type__in=[HFI_FIELD, HFI_RELATION])
-
-    targets = defaultdict(list)
-    for column in target_columns:
-        targets[column.type].append(column)
-
-    cts = list(creme_entity_cts)
-    ct_get = ContentType.objects.get_for_model
-
-    for col in targets[HFI_FIELD]:
-        col_name = col.name.split('__')[0]
-
-        try:
-            field = report_model_get_field(col_name)
-        except FieldDoesNotExist:
-            continue
-
-        if field.get_internal_type() == 'ForeignKey' and ct_get(field.rel.to) in cts:
-            results.append((u"%s#%s" % (col_name, HFI_FIELD), col.title))
-
-    rt_get = RelationType.objects.get
-    for rel in targets[HFI_RELATION]:
-        try:
-            rt=rt_get(pk=rel.name)
-        except RelationType.DoesNotExist:
-            continue
-
-        results.append((u"%s#%s" % (rel.name, HFI_RELATION), rel.title))
-
-    if not results:
-        results = [("", ugettext(u"No availables choices"))]
-    else:
-        results.insert(0, ("", _(u"None")))
-
-    return results
-
-def _get_volatile_column_verbose(model, col):
-    col = col.split('#')[0]
-    verbose = get_verbose_field_name(model, col)
-    if not verbose:
-        try:
-            verbose = unicode(RelationType.objects.get(pk=col))
-        except RelationType.DoesNotExist:
-            verbose = col
-    return verbose
 
 class GraphInstanceBlockForm(CremeForm):
-    graph = CharField(label=_(u"Related graph"),  widget=Label())
-#    volatil_column = AjaxChoiceField(label=_(u'Volatil column'), choices=(), required=False)
-    volatil_column = ChoiceField(label=_(u'Volatil column'), choices=(), required=False)
+    graph           = CharField(label=_(u"Related graph"), widget=Label())
+    volatile_column = ChoiceField(label=_(u'Volatile column'), choices=(), required=False)
+#    volatile_column = AjaxChoiceField(label=_(u'Volatil column'), choices=(), required=False)
 
     def __init__(self, graph, *args, **kwargs):
         super(GraphInstanceBlockForm, self).__init__(*args, **kwargs)
         self.graph = graph
         report = graph.report
         fields = self.fields
-        fields['volatil_column'].choices = _get_volatile_columns(report, creme_entity_content_types())
+        fields['volatile_column'].choices = self._get_volatile_columns(report, creme_entity_content_types())
         fields['graph'].initial = u"%s - %s" % (graph, report)
+
+    def _get_volatile_columns(self, report, creme_entity_cts):
+        report_model = report.ct.model_class()
+        report_model_get_field = report_model._meta.get_field
+
+        results = []
+        targets = defaultdict(list)
+
+        for column in report.columns.filter(type__in=[HFI_FIELD, HFI_RELATION]):
+            targets[column.type].append(column)
+
+        cts = list(creme_entity_cts) #TODO: frozenset ??
+        ct_get = ContentType.objects.get_for_model
+
+        for column in targets[HFI_FIELD]:
+            field_name = column.name.split('__', 1)[0]
+
+            try:
+                field = report_model_get_field(field_name)
+            except FieldDoesNotExist:
+                continue
+
+            if field.get_internal_type() == 'ForeignKey' and ct_get(field.rel.to) in cts:
+                results.append((u"%s#%s" % (field_name, HFI_FIELD), column.title))
+
+        self.rtypes = rtypes = RelationType.objects.in_bulk([c.name for c in targets[HFI_RELATION]])
+
+        for column in targets[HFI_RELATION]:
+            name = column.name
+
+            if rtypes.get(name):
+                results.append((u"%s#%s" % (name, HFI_RELATION), column.title))
+
+        if not results:
+            results = [("", ugettext(u"No available choice"))]
+        else:
+            results.insert(0, ("", _(u"None")))
+
+        return results
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        get_data     = cleaned_data.get
-        graph = self.graph
-        volatil_column = get_data('volatil_column', '')
+        volatile_column = cleaned_data.get('volatile_column')
+        kwargs = {}
 
-        if not InstanceBlockConfigItem.objects.filter(block_id=ReportGraphBlock.generate_id('creme_config', u"%s_%s" % (graph.id, volatil_column))).exists():
-            return cleaned_data
+        if volatile_column:
+            col_value, col_type = volatile_column.split('#')
+            col_type = int(col_type)
 
-        raise ValidationError(ugettext(u'The instance block for %(graph)s with %(column)s already exists !') % {'graph': graph, 'column': volatil_column.split('#')[0] or _('None')})
+            if col_type == HFI_FIELD:
+                kwargs['volatile_field'] = col_value
+            else:
+                assert col_type == HFI_RELATION
+                kwargs['volatile_rtype'] = self.rtypes[col_value]
+
+        try:
+            self.ibci = self.graph.create_instance_block_config_item(save=False, **kwargs)
+        except ReportGraph.InstanceBlockConfigItemError as e:
+            raise ValidationError(unicode(e))
+
+        return cleaned_data
 
     def save(self):
-        cleaned_data = self.cleaned_data
-        graph = self.graph
-        report_model = graph.report.ct.model_class()
-        volatil_column = cleaned_data.get('volatil_column', '')
+        ibci = self.ibci
+        ibci.save()
 
-        InstanceBlockConfigItem.objects.create(
-            entity = graph,
-            block_id = ReportGraphBlock.generate_id('creme_config', u"%s_%s" % (graph.id, volatil_column)),
-            data = volatil_column,
-            verbose = u"%s - %s" % (graph, _get_volatile_column_verbose(report_model, volatil_column) or _(u'None'))
-        )
+        return ibci

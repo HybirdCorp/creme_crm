@@ -22,11 +22,9 @@ from django.db.models.query_utils import Q
 from django.db.models.fields import FieldDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 
+from creme_core.models import CremeEntity, RelationType, InstanceBlockConfigItem
 from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_RELATED
 from creme_core.gui.block import Block, QuerysetBlock, list4url
-from creme_core.models.block import InstanceBlockConfigItem
-from creme_core.models.relation import RelationType
-from creme_core.models.entity import CremeEntity
 
 from reports.models import Report, Field
 from reports.models.graph import ReportGraph, verbose_report_graph_types, fetch_graph_from_instance_block
@@ -45,7 +43,8 @@ class ReportFieldsBlock(Block):
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
                                                             HFI_FIELD=HFI_FIELD,
                                                             HFI_RELATION=HFI_RELATION,
-                                                            HFI_RELATED=HFI_RELATED)
+                                                            HFI_RELATED=HFI_RELATED,
+                                                           )
                             )
 
 
@@ -63,11 +62,12 @@ class ReportGraphsBlock(QuerysetBlock):
         user    = context['user']
         user_can_admin = user.has_perm('reports.can_admin')
 
-        btc = self.get_block_template_context(context, ReportGraph.objects.filter(report=report),
-                                                       update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
-                                                       verbose_report_graph_types=verbose_report_graph_types,
-                                                       is_ajax=request.is_ajax(),
-                                                       user_can_admin_report=user_can_admin
+        btc = self.get_block_template_context(context,
+                                              ReportGraph.objects.filter(report=report),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
+                                              verbose_report_graph_types=verbose_report_graph_types,
+                                              is_ajax=request.is_ajax(),
+                                              user_can_admin_report=user_can_admin
                                              )
 
         CremeEntity.populate_credentials(btc['page'].object_list, user)
@@ -77,15 +77,18 @@ class ReportGraphsBlock(QuerysetBlock):
 
 class ReportGraphBlock(Block):
 #    id_           = Block.generate_id('reports', 'graph')
+    #id_           = InstanceBlockConfigItem.generate_id('reports', 'graph')
+    id_           = InstanceBlockConfigItem.generate_base_id('reports', 'graph')
     dependencies  = (ReportGraph,)
     verbose_name  = _(u"Report's graph")
     template_name = 'reports/templatetags/block_report_graph.html'
     order_by      = 'name'
 
-    def __init__(self, id_, instance_block_config):
+    #def __init__(self, id_, instance_block_config):
+    def __init__(self, instance_block_config):
         super(ReportGraphBlock, self).__init__()
-        self.id_                   = id_
-        self.graph                 = instance_block_config.entity.get_real_entity()
+        #self.id_                   = id_
+        self.graph                 = instance_block_config.entity.get_real_entity() #TODO: avoid a query ?
         self.block_id              = instance_block_config.block_id
         self.volatile_column       = instance_block_config.data
         self.verbose               = instance_block_config.verbose
@@ -93,11 +96,11 @@ class ReportGraphBlock(Block):
         self.instance_block_config = instance_block_config
         self.verbose_name          = self.verbose
 
-    @staticmethod
-    def generate_id(app_name, name):
-        app_name = app_name.replace('-','_')
-        name = name.replace('-','_')
-        return InstanceBlockConfigItem.generate_id('reports_blocks_ReportGraphBlock', app_name, name)
+    #@staticmethod
+    #def generate_id(app_name, name):
+        #app_name = app_name.replace('-', '_')
+        #name = name.replace('-', '_')
+        #return InstanceBlockConfigItem.generate_id('reports_blocks_ReportGraphBlock', app_name, name)
 
     def detailview_display(self, context):
         entity  = context['object']
@@ -115,17 +118,19 @@ class ReportGraphBlock(Block):
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
                                                             verbose_report_graph_types=verbose_report_graph_types,
                                                             is_ajax=request.is_ajax(),
-                                                            )
-                            )
+                                                           )
+                           )
 
     def portal_display(self, context, ct_ids):
         #No specific things on portals so we use home display
         return self.home_display(context)
 
-    def home_display(self, context):
+    def home_display(self, context): #TODO: factorise detailview_display()
         request = context['request']
         graph = self.graph
         x, y = graph.fetch()
+
+        #TODO: update_url ??
         return self._render(self.get_block_template_context(context,
                                                             graph=graph,
                                                             x=x,
@@ -134,7 +139,7 @@ class ReportGraphBlock(Block):
                                                             instance_block_id=self.instance_block_id,
                                                             verbose_report_graph_types=verbose_report_graph_types,
                                                             is_ajax=request.is_ajax(),
-                                                            )
+                                                           )
                             )
 
 

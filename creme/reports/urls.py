@@ -40,7 +40,7 @@ urlpatterns = patterns('reports.views',
     (r'^report/(?P<report_id>\d+)/field/(?P<field_id>\d+)/link_relation_report/(?P<ct_id>\d+)$', 'report.link_relation_report'),
     (r'^report/(?P<report_id>\d+)/field/add$',                                                   'report.add_field'),
     (r'^get_aggregate_fields$',                                                                  'report.get_aggregate_fields'),
-    (r'^get_related_fields$',                                                                     'report.get_related_fields'),
+    (r'^get_related_fields$',                                                                    'report.get_related_fields'),
     (r'^date_filter_form/(?P<report_id>\d+)$',                                                   'report.date_filter_form'),
 
     (r'^graph/(?P<report_id>\d+)/add$',                                                                 'graph.add'),
