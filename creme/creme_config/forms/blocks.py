@@ -49,6 +49,13 @@ class BlockLocationsField(MultipleChoiceField):
 
 
 class _BlockLocationsForm(CremeForm):
+    def _build_portal_locations_field(self, app_name, field_name, block_locations):
+        blocks = self.fields[field_name]
+        blocks.choices = [(block.id_, block.verbose_name)
+                            for block in block_registry.get_compatible_portal_blocks(app_name)
+                         ]
+        blocks.initial = [bl.block_id for bl in block_locations]
+
     #TODO: use transaction ???
     def _save_locations(self, location_model, location_builder, blocks_partitions, old_locations=()):
         needed = sum(len(block_ids) or 1 for block_ids in blocks_partitions.itervalues()) #at least 1 block per zone (even if it can be fake block)
@@ -82,11 +89,10 @@ class _BlockDetailviewLocationsForm(_BlockLocationsForm):
     def _save_detail_locations(self, ct, old_locations=(), top=(), left=(), right=(), bottom=()):
         self._save_locations(BlockDetailviewLocation,
                              lambda: BlockDetailviewLocation(content_type=ct),
-                             {
-                                 BlockDetailviewLocation.TOP:    top,
-                                 BlockDetailviewLocation.LEFT:   left,
-                                 BlockDetailviewLocation.RIGHT:  right,
-                                 BlockDetailviewLocation.BOTTOM: bottom,
+                             {BlockDetailviewLocation.TOP:    top,
+                              BlockDetailviewLocation.LEFT:   left,
+                              BlockDetailviewLocation.RIGHT:  right,
+                              BlockDetailviewLocation.BOTTOM: bottom,
                              },
                              old_locations
                             )
@@ -112,27 +118,25 @@ class BlockDetailviewLocationsEditForm(_BlockDetailviewLocationsForm):
     right  = BlockLocationsField(label=_(u'Blocks to display on right side'))
     bottom = BlockLocationsField(label=_(u'Blocks to display on bottom'))
 
+    _ZONES = (('top',    BlockDetailviewLocation.TOP),
+              ('left',   BlockDetailviewLocation.LEFT),
+              ('right',  BlockDetailviewLocation.RIGHT),
+              ('bottom', BlockDetailviewLocation.BOTTOM)
+             )
+
     def __init__(self, ct, block_locations, *args, **kwargs):
         super(BlockDetailviewLocationsEditForm, self).__init__(*args, **kwargs)
         self.ct = ct
         self.locations = block_locations
-        configured_model = ct.model_class() if ct else None
 
         choices = [(MODELBLOCK_ID, ugettext('Information on the entity'))]
         choices.extend((block.id_, block.verbose_name)
-                            for block in block_registry.get_compatible_blocks(model=configured_model)
+                           for block in block_registry.get_compatible_blocks(model=ct.model_class() if ct else None)
                       )
-        choices.extend((rbi.block_id, ugettext(u'Relation block: %s') % rbi.relation_type.predicate)
-                            for rbi in RelationBlockItem.objects.all()
-                      ) #TODO: filter compatible relation types
-        choices.extend((ibi.block_id, ugettext(u"Instance's block: %s") % ibi)
-                            for ibi in InstanceBlockConfigItem.objects.all()
-                      ) #TODO: improve to filter the blocks taht have 'detailview_display()' method
 
         fields = self.fields
 
-        for fname, zone in (('top', BlockDetailviewLocation.TOP), ('left', BlockDetailviewLocation.LEFT),
-                            ('right', BlockDetailviewLocation.RIGHT), ('bottom', BlockDetailviewLocation.BOTTOM)):
+        for fname, zone in self._ZONES:
             block_ids = fields[fname]
             block_ids.initial = [bl.block_id for bl in block_locations if bl.zone == zone]
             block_ids.choices = choices
@@ -193,34 +197,7 @@ class BlockPortalLocationsEditForm(_BlockPortalLocationsForm):
         self.app_name = app_name
         self.locations = block_locations
 
-        blocks = self.fields['blocks']
-        #blocks.choices = [(block.id_, block.verbose_name)
-                                #for block in block_registry.get_compatible_portal_blocks(app_name)
-                         #]
-        choices = [(block.id_, block.verbose_name)
-                        for block in block_registry.get_compatible_portal_blocks(app_name)
-                  ]
-
-        #TODO: unit test this
-        #TODO: rework this part (see creme_core.gui.block._BlockRegistry.get_blocks())
-        #      merge with get_compatible_portal_blocks() ??
-        method_name = 'home_display' if app_name == 'creme_core' else 'portal_display'
-        for ibi in InstanceBlockConfigItem.objects.all():
-            path, klass = InstanceBlockConfigItem.get_import_path(ibi.block_id)
-
-            try:
-                block_import = __import__(path, globals(), locals(), [klass], -1)
-            except ImportError:
-                pass
-            else:
-                block_class = getattr(block_import, klass)
-                block = block_class(ibi.block_id, ibi)
-
-                if block.configurable and hasattr(block, method_name) and (not block.target_apps or app_name in block.target_apps):
-                    choices.append((ibi.block_id, ugettext(u"Instance's block: %s") % ibi))
-
-        blocks.choices = choices
-        blocks.initial = [bl.block_id for bl in block_locations]
+        self._build_portal_locations_field(app_name=app_name, field_name='blocks', block_locations=block_locations)
 
     def save(self, *args, **kwargs):
         self._save_portal_locations(self.app_name, self.locations, self.cleaned_data['blocks'])
@@ -234,12 +211,7 @@ class BlockMypageLocationsForm(_BlockLocationsForm):
         self.owner = owner
         self.locations = locations = BlockMypageLocation.objects.filter(user=owner)
 
-        #TODO: factorise ???
-        blocks = self.fields['blocks']
-        blocks.choices = [(block.id_, block.verbose_name)
-                            for block in block_registry.get_compatible_portal_blocks('creme_core')
-                         ]
-        blocks.initial = [bl.block_id for bl in locations]
+        self._build_portal_locations_field(app_name='creme_core', field_name='blocks', block_locations=locations)
 
     def save(self, *args, **kwargs):
         self._save_locations(BlockMypageLocation,

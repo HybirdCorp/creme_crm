@@ -118,7 +118,7 @@ class BlocksConfigTestCase(CremeTestCase):
         except KeyError as e:
             self.fail(str(e))
 
-        blocks = list(block_registry.get_compatible_blocks(model)) #TODO test get_compatible_blocks() in creme_core
+        blocks = list(block_registry.get_compatible_blocks(model))
         self.assertGreaterEqual(len(blocks), 5)
         self._find_field_index(top_field, foobar_block1.id_)
         self._assertNoInChoices(top_field, foobar_block2.id_, 'Block has no detailview_display() method')
@@ -327,8 +327,20 @@ class BlocksConfigTestCase(CremeTestCase):
         RelationBlockItem.objects.create(block_id=rtype_block_id, relation_type=rtype)
 
         naru = Contact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
-        instance_block_id = InstanceBlockConfigItem.generate_id('test__blocks__FoobarBlock', 'test', 'foobar')
+
+        class FoobarInstanceBlock(Block):
+            id_ = InstanceBlockConfigItem.generate_base_id('creme_config', 'test_edit_detailview06')
+
+            def __init__(self, instance_block_config_item):
+                self.ibci = instance_block_config_item
+
+            def detailview_display(self, context):
+                return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity) #useless :)
+
+        instance_block_id = InstanceBlockConfigItem.generate_id(FoobarInstanceBlock, naru, '')
         InstanceBlockConfigItem.objects.create(block_id=instance_block_id, entity=naru, verbose='All stuffes')
+
+        block_registry.register_4_instance(FoobarInstanceBlock)
 
         response = self.client.get('/creme_config/blocks/detailview/edit/%s' % ct.id)
         self.assertEqual(200, response.status_code)
@@ -425,12 +437,27 @@ class BlocksConfigTestCase(CremeTestCase):
             def portal_display(self, context, ct_ids):
                 return '<table id="%s"></table>' % self.id_
 
+        naru = Contact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
+
+        class FoobarInstanceBlock(Block):
+            id_ = InstanceBlockConfigItem.generate_base_id('creme_config', 'test_edit_portal02')
+            verbose_name  = u'Testing purpose'
+
+            def __init__(self, instance_block_config_item):
+                self.ibci = instance_block_config_item
+
+            def portal_display(self, context, ct_ids):
+                return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity) #useless :)
+
+        instance_block_id = InstanceBlockConfigItem.generate_id(FoobarInstanceBlock, naru, '')
+        InstanceBlockConfigItem.objects.create(block_id=instance_block_id, entity=naru, verbose='All stuffes')
 
         foobar_block1 = FoobarBlock1()
         foobar_block2 = FoobarBlock2()
         foobar_block3 = FoobarBlock3()
         foobar_block4 = FoobarBlock4()
         block_registry.register(foobar_block1, foobar_block2, foobar_block3, foobar_block4)
+        block_registry.register_4_instance(FoobarInstanceBlock)
 
         self.client.post('/creme_config/blocks/portal/add/', data={'app_name': app_name})
         self.assertEqual(1, BlockPortalLocation.objects.filter(app_name=app_name).count())
@@ -450,6 +477,7 @@ class BlocksConfigTestCase(CremeTestCase):
         self._assertNoInChoices(blocks_field, foobar_block2.id_, 'Block is not configurable')
         self._find_field_index(blocks_field, foobar_block3.id_)
         self._assertNoInChoices(blocks_field, foobar_block4.id_, 'Block is not compatible with this app')
+        self._find_field_index(blocks_field, instance_block_id)
 
         block_id1 = choices[0][0]
         block_id2 = choices[1][0]
@@ -457,16 +485,14 @@ class BlocksConfigTestCase(CremeTestCase):
         index1 = self._find_field_index(blocks_field, block_id1)
         index2 = self._find_field_index(blocks_field, block_id2)
 
-        response = self.client.post(url,
-                                    data={
-                                            'blocks_check_%s' % index1: 'on',
-                                            'blocks_value_%s' % index1: block_id1,
-                                            'blocks_order_%s' % index1: 1,
+        response = self.client.post(url, data={'blocks_check_%s' % index1: 'on',
+                                               'blocks_value_%s' % index1: block_id1,
+                                               'blocks_order_%s' % index1: 1,
 
-                                            'blocks_check_%s' % index2: 'on',
-                                            'blocks_value_%s' % index2: block_id2,
-                                            'blocks_order_%s' % index2: 2,
-                                         }
+                                               'blocks_check_%s' % index2: 'on',
+                                               'blocks_value_%s' % index2: block_id2,
+                                               'blocks_order_%s' % index2: 2,
+                                              }
                                    )
         self.assertNoFormError(response)
 
@@ -718,8 +744,20 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def test_delete_instanceblock(self): ##(r'^instance_block/delete$',  'blocks.delete_instance_block')
         naru = Contact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
-        instance_block_id = InstanceBlockConfigItem.generate_id('test__blocks__FoobarBlock', 'test', 'foobar')
-        ibi = InstanceBlockConfigItem.objects.create(block_id=instance_block_id, entity=naru, verbose='All stuffes')
+
+        class FoobarInstanceBlock(Block):
+            id_ = InstanceBlockConfigItem.generate_base_id('creme_config', 'test_delete_instanceblock')
+
+            def __init__(self, instance_block_config_item):
+                self.ibci = instance_block_config_item
+
+            def detailview_display(self, context):
+                return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity) #useless :)
+
+
+        ibi = InstanceBlockConfigItem.objects.create(block_id=InstanceBlockConfigItem.generate_id(FoobarInstanceBlock, naru, ''),
+                                                     entity=naru, verbose='All stuffes'
+                                                    )
         loc = BlockDetailviewLocation.create(block_id=ibi.block_id, order=5, zone=BlockDetailviewLocation.RIGHT, model=Contact)
 
         self.assertEqual(200, self.client.post('/creme_config/instance_block/delete', data={'id': ibi.id}).status_code)

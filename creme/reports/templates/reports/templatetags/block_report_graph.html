@@ -19,56 +19,56 @@
             </th>
         </tr>
         {% if x and y %}
-        <tr class="content">
-            <td class="{{row_color}} graph_global_container_{{instance_block_id}}" colspan="2">
-                <div>
-                    <table width="100%">
-                        <tbody>
-                            <tr>
-                                <td>{% trans 'Generation date' %} : <span id="graph_gen_date_{{instance_block_id}}"></span></td>
-                                <td>
-                                    {% if object %}
-                                        <select id="graph_type_{{instance_block_id}}" onchange="creme.graphael.simple_refetch('/reports/graph/fetch_from_instance_block/{{instance_block_id}}/{{object.id}}/'+$('#graph_ordering_{{instance_block_id}}').val(), $(this).val(), '.graph_container_{{instance_block_id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{instance_block_id}}');">
-                                    {% else %}
-                                        <select id="graph_type_{{instance_block_id}}" onchange="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$('#graph_ordering_{{instance_block_id}}').val(), $(this).val(), '.graph_container_{{instance_block_id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{instance_block_id}}');">
-                                    {% endif %}
-                                        <option value="histogram">{% trans 'Histogram' %}</option>
-                                        <option value="pie">{% trans 'Pie' %}</option>
-                                    </select>
-                                </td>
-                                <td nowrap>
-                                    {% trans 'Sorting' %}:
-                                    {% if object %}
-                                        <select id="graph_ordering_{{instance_block_id}}" onchange="creme.graphael.simple_refetch('/reports/graph/fetch_from_instance_block/{{instance_block_id}}/{{object.id}}/'+$(this).val(), $('#graph_type_{{instance_block_id}}').val(),'.graph_container_{{instance_block_id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{instance_block_id}}');">
-                                    {% else %}
-                                        <select id="graph_ordering_{{instance_block_id}}" onchange="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$(this).val(), $('#graph_type_{{instance_block_id}}').val(),'.graph_container_{{instance_block_id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{instance_block_id}}');">
-                                    {% endif %}
-                                        <option value="ASC">{% trans 'Ascending' %}</option>
-                                        <option value="DESC">{% trans 'Descending' %}</option>
-                                    </select>
-                                </td>
-                                <td>
-                                    {% if object %}
-                                        <a onclick="creme.graphael.simple_refetch('/reports/graph/fetch_from_instance_block/{{instance_block_id}}/{{object.id}}/'+$('#graph_ordering_{{instance_block_id}}').val(), $('#graph_type_{{instance_block_id}}').val(), '.graph_container_{{instance_block_id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{instance_block_id}}');">
-                                    {% else %}
-                                        <a onclick="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$('#graph_ordering_{{instance_block_id}}').val(), $('#graph_type_{{instance_block_id}}').val(), '.graph_container_{{instance_block_id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{instance_block_id}}');">
-                                    {% endif %}
-                                        <img src="{% creme_media_url 'images/refresh_22.png' %}" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" />
-                                    </a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="graph_container_{{instance_block_id}}" style="overflow-x:scroll;"></div>
-            </td>
-        </tr>
+            <tr class="content">
+                <td class="{{row_color}} graph_global_container_{{instance_block_id}}" colspan="2">
+                    <div>
+                        <table width="100%">
+                            <tbody>
+                                <tr>
+                                    <td>{% trans 'Generation date' %} : <span id="graph_gen_date_{{instance_block_id}}"></span></td>
+                                    <td>
+                                        {% if object %}
+                                            <select id="graph_type_{{instance_block_id}}" onchange="creme.graphael.simple_refetch('/reports/graph/fetch_from_instance_block/{{instance_block_id}}/{{object.id}}/'+$('#graph_ordering_{{instance_block_id}}').val(), $(this).val(), '.graph_container_{{instance_block_id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{instance_block_id}}');">
+                                        {% else %}
+                                            <select id="graph_type_{{instance_block_id}}" onchange="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$('#graph_ordering_{{instance_block_id}}').val(), $(this).val(), '.graph_container_{{instance_block_id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{instance_block_id}}');">
+                                        {% endif %}
+                                            <option value="histogram">{% trans 'Histogram' %}</option>
+                                            <option value="pie">{% trans 'Pie' %}</option>
+                                        </select>
+                                    </td>
+                                    <td nowrap>
+                                        {% trans 'Sorting' %}:
+                                        {% if object %}
+                                            <select id="graph_ordering_{{instance_block_id}}" onchange="creme.graphael.simple_refetch('/reports/graph/fetch_from_instance_block/{{instance_block_id}}/{{object.id}}/'+$(this).val(), $('#graph_type_{{instance_block_id}}').val(),'.graph_container_{{instance_block_id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{instance_block_id}}');">
+                                        {% else %}
+                                            <select id="graph_ordering_{{instance_block_id}}" onchange="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$(this).val(), $('#graph_type_{{instance_block_id}}').val(),'.graph_container_{{instance_block_id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{instance_block_id}}');">
+                                        {% endif %}
+                                            <option value="ASC">{% trans 'Ascending' %}</option>
+                                            <option value="DESC">{% trans 'Descending' %}</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        {% if object %}
+                                            <a onclick="creme.graphael.simple_refetch('/reports/graph/fetch_from_instance_block/{{instance_block_id}}/{{object.id}}/'+$('#graph_ordering_{{instance_block_id}}').val(), $('#graph_type_{{instance_block_id}}').val(), '.graph_container_{{instance_block_id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{instance_block_id}}');">
+                                        {% else %}
+                                            <a onclick="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$('#graph_ordering_{{instance_block_id}}').val(), $('#graph_type_{{instance_block_id}}').val(), '.graph_container_{{instance_block_id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{instance_block_id}}');">
+                                        {% endif %}
+                                            <img src="{% creme_media_url 'images/refresh_22.png' %}" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" />
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="graph_container_{{instance_block_id}}" style="overflow-x:scroll;"></div>
+                </td>
+            </tr>
         {% else %}
-        <tr class="content empty">
-            <td colspan="2">
-                {% trans 'No values or graph is not applicable here' %}
-            </td>
-        </tr>
+            <tr class="content empty">
+                <td colspan="2">
+                    {% trans 'No values or graph is not applicable here' %}
+                </td>
+            </tr>
         {% endif %}
     </tbody>
 </table>
@@ -103,9 +103,9 @@
             creme.utils.loading(loading_id, true, {});
         });
     </script>
-    <script type="text/javascript">
     {% if block_name %}
-        creme.blocks.register('#{{ block_name }}');
+        <script type="text/javascript">
+            creme.blocks.register('#{{ block_name }}');
+        </script>
     {% endif %}
-</script>
 {% endif %}

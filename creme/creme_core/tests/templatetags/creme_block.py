@@ -9,7 +9,7 @@ try:
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Contact, Organisation
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -32,7 +32,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
                                 "{% display_block_detailview 'my_block' %}"
                                )
             render = template.render(RequestContext({}))
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(blockstr, render.strip())
@@ -59,7 +59,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
                                 "{% display_block_portal 'my_block' ct_ids %}"
                                )
             render = template.render(RequestContext({}, {'ct_ids': ct_ids}))
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(blockstr, render.strip())
@@ -84,9 +84,9 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         for i, zone in enumerate(block_zones, start=1):
             block_class = type('TestBlock_%s' % i, (TestBlock,),
-                                  {'id_':      TestBlock.generate_id('creme_core', 'test_import_n_display_on_detail_from_conf01_%s' % i),
-                                  'blockstr': '<p>BLOCK#%s</p>' % i,
-                                  }
+                               {'id_':      TestBlock.generate_id('creme_core', 'test_import_n_display_on_detail_from_conf01_%s' % i),
+                                'blockstr': '<p>BLOCK#%s</p>' % i,
+                               }
                               )
             block = block_class()
             blocks.append(block)
@@ -104,7 +104,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
                                 "<div>{% display_detailview_blocks bottom %}</div>"
                                )
             render = template.render(RequestContext({}, {'object': orga}))
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual('<div><p>BLOCK#1</p><p>BLOCK#2</p></div>'
@@ -133,9 +133,9 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         for i, zone in enumerate(block_zones, start=1):
             block_class = type('TestBlock_%s' % i, (TestBlock,),
-                                  {'id_':      TestBlock.generate_id('creme_core', 'test_import_n_display_on_detail_from_conf02_%s' % i),
-                                  'blockstr': '<p>BLOCK#%s</p>' % i,
-                                  }
+                               {'id_':      TestBlock.generate_id('creme_core', 'test_import_n_display_on_detail_from_conf02_%s' % i),
+                                'blockstr': '<p>BLOCK#%s</p>' % i,
+                               }
                               )
             block = block_class()
             blocks.append(block)
@@ -154,7 +154,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
                                 "<div>{% display_detailview_blocks bottom %}</div>"
                                )
             render = template.render(RequestContext({}, {'object': orga}))
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual('<div><p>BLOCK#1</p><p>BLOCK#2</p></div>'
@@ -179,9 +179,9 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         for i in xrange(1, 4):
             block_class = type('TestBlock_%s' % i, (TestBlock,),
-                                  {'id_':      TestBlock.generate_id('creme_core', 'test_import_n_display_on_portal_from_conf01_%s' % i),
-                                  'blockstr': '<p>BLOCK#%s</p>' % i,
-                                  }
+                               {'id_':      TestBlock.generate_id('creme_core', 'test_import_n_display_on_portal_from_conf01_%s' % i),
+                                'blockstr': '<p>BLOCK#%s</p>' % i,
+                               }
                               )
             block = block_class()
             blocks.append(block)
@@ -198,7 +198,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
                                 "<div>{% display_portal_blocks ct_ids %}</div>"
                                )
             render = template.render(RequestContext({}, {'ct_ids': ct_ids}))
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual('<div><p>BLOCK#1</p><p>BLOCK#2</p><p>BLOCK#3</p></div>',
@@ -220,9 +220,9 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         for i in xrange(1, 4):
             block_class = type('TestBlock_%s' % i, (TestBlock,),
-                                  {'id_':      TestBlock.generate_id('creme_core', 'test_import_n_display_on_portal_from_conf02_%s' % i),
-                                  'blockstr': '<p>BLOCK#%s</p>' % i,
-                                  }
+                               {'id_':      TestBlock.generate_id('creme_core', 'test_import_n_display_on_portal_from_conf02_%s' % i),
+                                'blockstr': '<p>BLOCK#%s</p>' % i,
+                               }
                               )
             block = block_class()
             blocks.append(block)
@@ -239,10 +239,8 @@ class CremeBlockTagsTestCase(CremeTestCase):
                                 "{% import_portal_blocks app_name %}"
                                 "<div>{% display_portal_blocks ct_ids %}</div>"
                                )
-            render = template.render(RequestContext({},
-                                                    {'ct_ids': ct_ids, 'app_name': 'persons'}
-                                                   ))
-        except Exception, e:
+            render = template.render(RequestContext({}, {'ct_ids': ct_ids, 'app_name': 'persons'}))
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual('<div><p>BLOCK#1</p><p>BLOCK#2</p><p>BLOCK#3</p></div>',
@@ -264,9 +262,9 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         for i in xrange(1, 4):
             block_class = type('TestBlock_%s' % i, (TestBlock,),
-                                  {'id_':      TestBlock.generate_id('creme_core', 'test_import_n_display_on_home_from_conf01_%s' % i),
-                                  'blockstr': '<p>BLOCK#%s</p>' % i,
-                                  }
+                               {'id_': TestBlock.generate_id('creme_core', 'test_import_n_display_on_home_from_conf01_%s' % i),
+                                'blockstr': '<p>BLOCK#%s</p>' % i,
+                               }
                               )
             block = block_class()
             blocks.append(block)
@@ -281,7 +279,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
                                 "<div>{% display_home_blocks %}</div>"
                                )
             render = template.render(RequestContext({}))
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual('<div><p>BLOCK#1</p><p>BLOCK#2</p><p>BLOCK#3</p></div>',
@@ -304,9 +302,9 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         for i in xrange(1, 4):
             block_class = type('TestBlock_%s' % i, (TestBlock,),
-                                  {'id_':      TestBlock.generate_id('creme_core', 'test_import_n_display_on_mypage_from_conf01_%s' % i),
-                                  'blockstr': '<p>BLOCK#%s</p>' % i,
-                                  }
+                               {'id_': TestBlock.generate_id('creme_core', 'test_import_n_display_on_mypage_from_conf01_%s' % i),
+                                'blockstr': '<p>BLOCK#%s</p>' % i,
+                               }
                               )
             block = block_class()
             blocks.append(block)
@@ -324,7 +322,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
                                 "<div>{% display_mypage_blocks %}</div>"
                                )
             render = template.render(context)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual('<div><p>BLOCK#1</p><p>BLOCK#2</p><p>BLOCK#3</p></div>',
@@ -359,7 +357,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
                                 "{% display_blocks 'my_blocks' %}"
                                )
             render = template.render(RequestContext({}, {'blocks': [block1, block2]}))
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual('<div>FOO</div><div>BAR</div>', render.strip())
@@ -397,7 +395,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
                                 "{% get_blocks_dependencies %}"
                                )
             render = template.render(RequestContext({}, {'blocks': [block1, block2, block3, block4]}))
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertTrue(render.strip()) #TODO: improve...

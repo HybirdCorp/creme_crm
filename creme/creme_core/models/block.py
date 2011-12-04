@@ -221,43 +221,29 @@ class InstanceBlockConfigItem(CremeModel):
 
     @staticmethod
     def id_is_specific(block_id):
-        return block_id.startswith(u'instanceblock-') #TODO: use constant
+        return block_id.startswith(u'instanceblock_')
 
     @staticmethod
-    def generate_id(import_path, app_name, name):
-        if app_name.find('-') != -1 or name.find('-') != -1:
-            raise InstanceBlockConfigItem.BadImportIdFormat(u"app_name and name mustn't contains '-'")
-        if import_path.find('_') == -1:
-            raise InstanceBlockConfigItem.BadImportIdFormat(u"import_path have to be separated by '_'")
-        return u'instanceblock-%s-%s_%s' % (import_path, app_name, name)
+    def generate_base_id(app_name, name):
+        return u'instanceblock_%s-%s' % (app_name, name)
 
     @staticmethod
-    def get_import_path(id_):
-        id_ = str(id_)
-        _path = id_.split('-')[1]
-        path = _path.split('_')
+    def generate_id(block_class, entity, key):
+        """@param key String that allows to make the difference between 2 instances
+                      of the same Block class and the same CremeEntity instance.
+        """
+        return u'%s#%s-%s' % (block_class.id_, entity.id, key)
 
-        block_class = path[-1]
-        path = path[:-1]
-
-        module = path[-1]
-
-        try:
-            find_module(module, __import__('.'.join(path[:-1]), {}, {}, [module]).__path__)
-        except ImportError, e:
-            return None
-
-        return (".".join(path), block_class)
-
-    class BadImportIdFormat(Exception):
-        pass
+    @staticmethod
+    def get_base_id(block_id):
+        return block_id.split('#', 1)[0]
 
 
 class BlockState(CremeModel):
-    user               = ForeignKey(User)
-    block_id           = CharField(_(u"Block ID"), max_length=100)
-    is_open            = BooleanField(default=True)#Is block has to appear as opened or closed
-    show_empty_fields  = BooleanField(default=True)#Are empty fields in block have to be shown or not
+    user              = ForeignKey(User)
+    block_id          = CharField(_(u"Block ID"), max_length=100)
+    is_open           = BooleanField(default=True) #Is block has to appear as opened or closed
+    show_empty_fields = BooleanField(default=True) #Are empty fields in block have to be shown or not
 
     class Meta:
         app_label = 'creme_core'
@@ -277,8 +263,6 @@ class BlockState(CremeModel):
             is_default_open             = states.get(key=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN).value
             is_default_fields_displayed = states.get(key=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value
 
-#            is_default_open = SettingValue.objects.get(key=SETTING_BLOCK_DEFAULT_STATE_IS_OPEN).value
-#            is_default_fields_displayed = SettingValue.objects.get(key=SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS).value
             return BlockState(block_id=block_id, is_open=is_default_open, show_empty_fields=is_default_fields_displayed, user=user)
 
     @staticmethod

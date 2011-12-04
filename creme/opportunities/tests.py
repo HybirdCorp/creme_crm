@@ -84,6 +84,10 @@ class OpportunitiesTestCase(CremeTestCase):
         self.assertEqual(1, len(keys))
         self.assertEqual(1, SettingValue.objects.filter(key=keys[0]).count())
 
+    def test_portal(self):
+        self.login()
+        self.assertEqual(self.client.get('/opportunities/').status_code, 200)
+
     def create_opportunity(self, name):
         create_orga = Organisation.objects.create
         target  = create_orga(user=self.user, name='Target renegade')

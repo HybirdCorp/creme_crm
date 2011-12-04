@@ -24,7 +24,7 @@ from creme_core.registry import creme_registry
 from creme_core.gui import creme_menu, block_registry, icon_registry, bulk_update_registry
 
 from reports.models import Report, ReportGraph
-from reports.blocks import report_fields_block, report_graphs_block
+from reports.blocks import report_fields_block, report_graphs_block, ReportGraphBlock
 
 
 creme_registry.register_app('reports', _(u'Reports'), '/reports')
@@ -35,8 +35,8 @@ reg_item('/reports/',           _(u'Portal of reports'),       'reports')
 reg_item('/reports/reports',    _(u'All reports'),  'reports')
 reg_item('/reports/report/add', _(u'Add a report'), 'reports.add_report')
 
-block_registry.register(report_fields_block)
-block_registry.register(report_graphs_block)
+block_registry.register(report_fields_block, report_graphs_block)
+block_registry.register_4_instance(ReportGraphBlock)
 
 reg_icon = icon_registry.register
 reg_icon(Report,      'images/reporting_%(size)s.png')

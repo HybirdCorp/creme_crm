@@ -26,7 +26,7 @@ from django.template.loader import get_template
 from django.template import Context
 from django.conf import settings
 from django.http import HttpResponse
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.simplejson import JSONEncoder
 from django.contrib.contenttypes.models import ContentType
 
@@ -429,13 +429,21 @@ class _BlockRegistry(object):
     def __init__(self):
         self._blocks = {}
         self._object_blocks = {}
+        self._instance_block_classes = {}
 
     def register(self, *blocks):
         setdefault = self._blocks.setdefault
 
         for block in blocks:
             if setdefault(block.id_, block) is not block:
-                raise _BlockRegistry.RegistrationError("Duplicate block's id or block registered twice : %s" % block.id_)
+                raise _BlockRegistry.RegistrationError("Duplicated block's id: %s" % block.id_)
+
+    def register_4_instance(self, *block_classes): #TODO: factorise
+        setdefault = self._instance_block_classes.setdefault
+
+        for block_class in block_classes:
+            if setdefault(block_class.id_, block_class) is not block_class:
+                raise _BlockRegistry.RegistrationError("Duplicated block's id: %s" % block_class.id_)
 
     def register_4_model(self, model, block): #TODO: had an 'overload' arg ??
         ct = ContentType.objects.get_for_model(model)
@@ -449,43 +457,38 @@ class _BlockRegistry(object):
     def _generate_modelblock_id(self, ct):
         return u'modelblock_%s-%s' % (ct.app_label, ct.model)
 
-    def _get_block(self, block_id): #TODO: if code with InstanceBlockConfigItem is remove, maybe remove this method too...
-        block = self._blocks.get(block_id)
-
-        if block is None:
-            if InstanceBlockConfigItem.id_is_specific(block_id): #TODO: this code is duplicated (see get_blocks) + is it useful here ???
-                try:
-                    ibi = InstanceBlockConfigItem.objects.get(block_id=block_id)
-                except InstanceBlockConfigItem.DoesNotExist:
-                    return Block()
-                path, klass = InstanceBlockConfigItem.get_import_path(block_id)
-
-                try:
-                    block_import = __import__(path, globals(), locals(), [klass], -1)
-                except ImportError:
-                    return Block()
-
-                block_class = getattr(block_import, klass)
-                block = block_class(block_id, ibi)
-            else:
-                warning('Block seems deprecated: %s', block_id)
-                block = Block()
-
-        return block
-
     def __getitem__(self, block_id):
         return self._blocks[block_id]
 
     def __iter__(self):
         return self._blocks.iteritems()
 
+    def _get_block_4_instance(self, ibi):
+        block_id = ibi.block_id
+        block_class = self._instance_block_classes.get(InstanceBlockConfigItem.get_base_id(block_id))
+
+        if block_class is None:
+            warning('Block class seems deprecated: %s', block_id)
+            return None
+
+        block = block_class(ibi)
+        block.id_ = block_id
+        block.verbose_name = ugettext(u"Block of instance: %s") % ibi
+
+        return block
+
     def get_blocks(self, block_ids):
-        """Blocks type can be SpecificRelationsBlock/InstanceBlockConfigItem: in this case,they are not really
-        registered, but created on the fly"""
+        """Blocks type can be SpecificRelationsBlock/InstanceBlockConfigItem:
+        in this case,they are not really registered, but created on the fly.
+        """
         specific_ids = filter(SpecificRelationsBlock.id_is_specific, block_ids)
         instance_ids = filter(InstanceBlockConfigItem.id_is_specific, block_ids)
-        relation_blocks_items = dict((rbi.block_id, rbi) for rbi in RelationBlockItem.objects.filter(block_id__in=specific_ids)) if specific_ids else {}
-        instance_blocks_items = dict((ibi.block_id, ibi) for ibi in InstanceBlockConfigItem.objects.filter(block_id__in=instance_ids)) if instance_ids else {}
+        relation_blocks_items = dict((rbi.block_id, rbi)
+                                        for rbi in RelationBlockItem.objects.filter(block_id__in=specific_ids)
+                                    ) if specific_ids else {}
+        instance_blocks_items = dict((ibi.block_id, ibi)
+                                        for ibi in InstanceBlockConfigItem.objects.filter(block_id__in=instance_ids)
+                                    ) if instance_ids else {}
         blocks = []
 
         for id_ in block_ids:
@@ -493,31 +496,24 @@ class _BlockRegistry(object):
             ibi = instance_blocks_items.get(id_) #TODO: do only if needed....
 
             if rbi:
-                #TODO: move in a method of RelationBlockItem
                 block = SpecificRelationsBlock(rbi.block_id, rbi.relation_type_id)
             elif ibi:
-                #TODO: use a cache ?? a registry like model blocks ??
-                #TODO: move in a method of InstanceBlockConfigItem
-                path, klass = InstanceBlockConfigItem.get_import_path(id_)
-
-                try:
-                    block_import = __import__(path, globals(), locals(), [klass], -1)
-                except ImportError:
-                    continue
-
-                block_class = getattr(block_import, klass)
-                block = block_class(id_, ibi)
+                block = self._get_block_4_instance(ibi) or Block()
             elif id_.startswith('modelblock_'): #TODO: constant ?
                 block = self.get_block_4_object(ContentType.objects.get_by_natural_key(*id_[len('modelblock_'):].split('-')))
             else:
-                block = self._get_block(id_)
+                block = self._blocks.get(id_)
+
+                if block is None:
+                    warning('Block seems deprecated: %s', id_)
+                    block = Block()
 
             blocks.append(block)
 
         return blocks
 
     def get_block_4_object(self, obj_or_ct):
-        """Return the Block that display fields for a CremeEntity"""
+        """Return the Block that displays fields for a CremeEntity istance."""
         ct = obj_or_ct if isinstance(obj_or_ct, ContentType) else ContentType.objects.get_for_model(obj_or_ct)
         block = self._object_blocks.get(ct.id)
 
@@ -535,19 +531,39 @@ class _BlockRegistry(object):
         """Returns the list of registered blocks that are configurable and compatible with the given ContentType.
         @param model Constraint on a CremeEntity class ; means blocks must be compatible with all kind of CremeEntity
         """
-        return (block for block in self._blocks.itervalues()
-                        if block.configurable and \
-                           hasattr(block, 'detailview_display') and \
-                           (not block.target_ctypes or model in block.target_ctypes)
-               )
+        for block in self._blocks.itervalues():
+            if block.configurable and hasattr(block, 'detailview_display') \
+               and (not block.target_ctypes or model in block.target_ctypes):
+                yield block
+
+        #TODO: filter compatible relation types (but the constraints can change after we config blocks...)
+        for rbi in RelationBlockItem.objects.all(): #select_related('relation_type') ??
+            block = SpecificRelationsBlock(rbi.block_id, rbi.relation_type_id) #TODO: factorise ?? only rbi arg ??
+            block.verbose_name = ugettext(u'Relationship block: %s') % rbi.relation_type.predicate
+
+            yield block
+
+        for ibi in InstanceBlockConfigItem.objects.all():
+            block = self._get_block_4_instance(ibi)
+
+            if block and hasattr(block, 'detailview_display') \
+               and (not block.target_ctypes or model in block.target_ctypes):
+                yield block
 
     def get_compatible_portal_blocks(self, app_name):
         method_name = 'home_display' if app_name == 'creme_core' else 'portal_display'
-        return (block for block in self._blocks.itervalues()
-                     if block.configurable and \
-                        hasattr(block, method_name) and \
-                        (not block.target_apps or app_name in block.target_apps)
-               )
+
+        for block in self._blocks.itervalues():
+            if block.configurable and hasattr(block, method_name) \
+               and (not block.target_apps or app_name in block.target_apps):
+                yield block
+
+        for ibi in InstanceBlockConfigItem.objects.all():
+            block = self._get_block_4_instance(ibi)
+
+            if block and hasattr(block, method_name) and \
+               (not block.target_apps or app_name in block.target_apps):
+                yield block
 
 
 block_registry = _BlockRegistry()

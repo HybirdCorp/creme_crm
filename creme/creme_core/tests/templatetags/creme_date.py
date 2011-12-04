@@ -7,7 +7,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme_core.tests.base import CremeTestCase
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -33,7 +33,7 @@ class CremeDateTagsTestCase(CremeTestCase):
                             'd4': datetime(year=2011, month=3, day=12, hour=20, minute=50, second=32) - \
                                   datetime(year=2011, month=3, day=12, hour=20, minute=50, second=30),
                         }))
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertEqual(_('%s day(s)') % 3 + '#' + \
