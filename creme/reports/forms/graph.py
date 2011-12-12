@@ -43,7 +43,7 @@ AUTHORIZED_ABSCISSA_TYPES = (models.DateField, models.DateTimeField, models.Fore
 class ReportGraphAddForm(CremeEntityForm):
     report_lbl        = CharField(label=_(u'Report'), widget=Label)
 
-    aggregates        = ChoiceField(label=_(u'Ordinate aggregate'), choices=[(aggregate.name, aggregate.title) for aggregate in field_aggregation_registry.itervalues()])
+    aggregates        = ChoiceField(label=_(u'Ordinate aggregate'), choices=[(aggregate.name, aggregate.title) for aggregate in field_aggregation_registry.itervalues()],required=False)
     aggregates_fields = ChoiceField(label=_(u'Ordinate aggregate field'), choices=())
 
     abscissa_fields   = ChoiceField(label=_(u'Abscissa field'), choices=(), widget=DependentSelect(target_id='id_abscissa_group_by'))#DependentSelect is kept until *Selector widgets accept optgroup
@@ -70,6 +70,7 @@ class ReportGraphAddForm(CremeEntityForm):
 
         fields['report_lbl'].initial = unicode(entity)
         aggregates_fields = fields['aggregates_fields']
+        aggregates        = fields['aggregates']
         abscissa_fields   = fields['abscissa_fields']
 
         aggregates_fields.choices = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, AUTHORIZED_AGGREGATE_FIELDS)]
@@ -77,6 +78,7 @@ class ReportGraphAddForm(CremeEntityForm):
              #NB: WTF !!?? this line is exactly the same than previous one (Commented on 9 december 2010)
              #aggregates_fields.choices = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, authorized_aggregate_fields)]
              aggregates_fields.required = False
+             aggregates.required = False
 
 
         abscissa_predicates     = [(rtype.id, rtype.predicate) for rtype in RelationType.get_compatible_ones(report_ct, include_internals=True).order_by('predicate')]#Relation type as abscissa
