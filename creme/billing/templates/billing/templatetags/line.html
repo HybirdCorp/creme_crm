@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load creme_core_tags %}{% load creme_block %}
 <table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
-    {% get_block_header colspan=13 %}
+    {% get_block_header colspan=12 %}
         <th class="collapser label">{% block header %}HEADER{% endblock %}</th>
         <th class="actions">
             <div class="buttons">
@@ -11,69 +11,93 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
+            <!--<tr class="header">
+                <th class="block_header_line_dark">
+                    <a onclick="creme.billing.bulkLineUpdate({% get_block_reload_uri %}, {{ ct_id }});">
+                        <img src="{% creme_media_url 'images/edit_22.png' %}" border="0">
+                    </a>
+                    <a onclick="creme.billing.multipleLineDelete({% get_block_reload_uri %});">
+                        <img src="{% creme_media_url 'images/delete_22.png' %}" border="0">
+                    </a>
+                </th>
+                <td bgcolor="#b3d2df" colspan="12" name="error_lines" id="error_lines" align="left">
+                </td>
+            </tr>-->
             <tr class="header">
-                <th class="block_header_line_dark">{% block item_name %}ITEM NAME{% endblock %}</th>
-                <th class="block_header_line_dark">{% trans "Unit price" %}</th>
-                <th class="block_header_line_dark">{% trans "Quantity" %}</th>
-                <th class="block_header_line_dark">{% trans "Comment" %}</th>
-                <th class="block_header_line_dark">{% trans "Discount" %}</th>
-                <th class="block_header_line_dark">{% trans "Credit" %}</th>
+                <!--<th class="block_header_line_dark" width="5%"><input type="checkbox" id="select_all" onchange="creme.billing.enableCheckAllBoxes($(this));"/></th>
+                <th class="block_header_line_dark" width="2%">N°</th>-->
+                <th class="block_header_line_dark" width="4%">{% trans "Delete" %}</th>
+                <th class="block_header_line_dark" width="20%">{% block item_name %}ITEM NAME{% endblock %}</th>
+                <th class="block_header_line_dark" width="7%">{% trans "Unit price" %}</th>
+                <th class="block_header_line_dark" width="7%">{% trans "Quantity" %}</th>
+                <th class="block_header_line_dark" width="12%">{% trans "Comment" %}</th>
+                <th class="block_header_line_dark" width="19%">{% trans "Discount" %}</th>
                 <th class="block_header_line_dark">{% trans "VAT" %}</th>
                 <th class="block_header_line_dark">{% trans "Total (exclusive of tax)" %}</th>
-                <th class="block_header_line_dark">{% trans "Total (exclusive of tax) discounted" %}</th>
-                <th class="block_header_line_dark">{% trans "Total (inclusive of tax)" %}</th>
-                <th class="block_header_line_dark">{% trans "Paid ?" %}</th>
-                <th class="block_header_line_dark action">{% trans "Actions" %}</th>
+                <th class="block_header_line_dark" width="6%">{% trans "Total (without tax)<br>discounted" %}</th>
+                <th class="block_header_line_dark" width="6%">{% trans "Total (inclusive of tax)" %}</th>
             </tr>
             {% for line in page.object_list %}<!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
                 {% with object.currency.pk as currency_id %}
-                    <tr class="content">
-                        <td class="{{row_color}}" align="center">
-                            {% if line.related_item %}
-                                <a href="{{line.related_item.get_absolute_url}}">{{line.related_item}}</a>
-                            {% else %}
-                                {{line.on_the_fly_item}}
-                            {% endif %}
-                        </td>
-                        <td class="{{row_color}}" align="right">{{line.unit_price|format_amount:currency_id}}</td>
-                        <td class="{{row_color}}" align="center">{{line.quantity}}</td>
-                        <td class="{{row_color}}" align="center">{% print_field object=line field='comment' %}</td>
-                        <td class="{{row_color}}" align="left">
-                            <table border=0 cellpadding="0" cellspacing="0" width="100%">
-                                {% if line.discount %}
-                                    <tr>
-                                        <td align="right" width="35%">{% ifequal line.discount_unit 1 %}{{line.discount}} %{% else %}{{line.discount|format_amount:currency_id}}{% endifequal %}</td>
-                                        <td align="center">{% if line.total_discount %}{% trans "On the line" %}{% else %}{% trans " On product/service" %}{% endif %}</td>
-                                    </tr>
+                    <tr class="content" name="tr_line_{{ line.id }}" id="tr_line_{{ line.id }}" method="POST" action="/billing/line/{{line.id}}/update">
+                            <!--<td class="{{row_color}}" align="center">
+                                <input name="select_one" value="{{line.pk}}" type="checkbox" />
+                            </td>
+                            <td class="{{row_color}}" align="center">
+                                {% csrf_token %}
+                                <input type="hidden" id="line_number" value="{{ forloop.counter }}">
+                                {{ forloop.counter }}
+                            </td>-->
+                            <td class="{{row_color}}" align="center">
+                                {% has_perm_to change object as has_perm %}
+                                {% get_line_deletor at_url '{{line.get_delete_absolute_url}}' with_args "{'id': '{{line.id}}' }" with_perms has_perm %}
+                            </td>
+                            <td class="{{row_color}}" align="center">
+                                {% if line.related_item %}
+                                    <a href="{{line.related_item.get_absolute_url}}">{{line.related_item}}</a>
+                                {% else %}
+                                    {{line.on_the_fly_item}}
                                 {% endif %}
-                                {% if object.discount %}
-                                    <tr>
-                                        <td align="right">{{ object.discount }} %</td>
-                                        <td align="center">{% trans "Overall discount" %}</td>
-                                    </tr>
+                            </td>
+                            <td class="{{row_color}}" align="right">
+                                <input style="text-align:right;" type="textbox" size="8" name="unit_price" id="unit_price{{ line.pk }}" value="{{line.unit_price}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, creme.billing.checkPositiveDecimal);">
+                                {{ object.currency.local_symbol }}
+                            </td>
+                            <td class="{{row_color}}" align="center">
+                                    <input style="text-align:right;" type="textbox" size="4" name="quantity" id="quantity{{ line.pk }}" value="{{line.quantity}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, creme.billing.checkPositiveDecimal);">
+                            </td>
+                            <td class="{{row_color}}" align="center" id="comment{{ line.pk }}" name="comment{{ line.pk }}" {% if line.comment %}title="{{ line.comment }}"{% endif %}>
+                                {% if line.comment %}
+                                    {{ line.comment|truncatewords:3 }}
                                 {% endif %}
-                            </table>
-                        </td>
-                        <td class="{{row_color}}" align="center">{{line.credit|format_amount:currency_id}}</td>
-                        <td class="{{row_color}}" align="center">{{line.vat}}</td>
+                                {% has_perm_to change object as has_perm %}
+                                {% get_line_editor at_url '/billing/line/{{line.id}}/edit' with_perms has_perm %}
+                                <script type='text/javascript'>
+                                    $('#comment{{ line.pk }}').twipsy ({live: true});
+                                </script>
+                            </td>
+                            <td class="{{row_color}}" align="center" id="discount_td" name="discount_td">
+                                    <input style="text-align:right;" type="textbox" size="5" name="discount" id="discount{{ line.pk }}" value="{{line.discount}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, null);">
+                                    <select name="discount_unit" id="discount_unit{{ line.pk }}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, null);">
+                                        <option value="1" {% ifequal line.discount_unit 1 %}selected="true"{% endifequal %}>%</option>
+                                        <option value="2" {% ifnotequal line.discount_unit 1 %}selected="true"{% endifnotequal %}>{{ object.currency.local_symbol }}</option>
+                                    </select>
+                                    <select name="total_discount" id="total_discount{{ line.pk }}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, null);">
+                                        <option value="1" {% if line.total_discount %}selected="true"{% endif %}>{% trans "On the line" %}</option>
+                                        <option value="2" {% if not line.total_discount %}selected="true"{% endif %}>{% trans " On product/service" %}</option>
+                                    </select>
+                            </td>
+                            <td class="{{row_color}}" align="center">
+                                <select style="text-align:right;" name="vat" name="vat{{line.id}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, null);">
+                                    {% for vat in vat_list %}
+                                        <option value="{{ vat.id }}" {% ifequal line.vat_value vat %}selected="true"{% endifequal %}>{{ vat.value }}</option>
+                                    {% endfor %}
+                                </select> %
+                            </td>
+                        </form>
                         <td class="{{row_color}}" align="right">{{line.get_raw_price|format_amount:currency_id}}</td>
                         <td class="{{row_color}}" align="right">{{line.get_price_exclusive_of_tax|format_amount:currency_id}}</td>
                         <td class="{{row_color}}" align="right">{{line.get_price_inclusive_of_tax|format_amount:currency_id}}</td>
-                        <td class="{{row_color}}" align="center">
-                            <form method="POST" action="/billing/line/{{line.id}}/update" id="updateStatus{{line.id}}">{% csrf_token %}
-                                <input type="checkbox" name="paid" {% if line.is_paid %}checked{% endif %}>
-    {#                            <a onclick="$('#updateStatus{{line.id}}').submit();">{# TODO: Ajax with block reload instead of the entire page ? #}
-                                <a onclick="creme.utils.submitNReload($('#updateStatus{{line.id}}'), {% get_block_reload_uri %});">
-                                <img src="{% creme_media_url 'images/refresh_16.png' %}" width="16" height="14" border="0">
-                                </a>
-                            </form>
-                        </td>
-                        <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                            {% block line_actions %}
-                                {% has_perm_to change object as has_perm %}
-                                {% get_line_deletor at_url '{{line.get_delete_absolute_url}}' with_args "{'id': '{{line.id}}' }" with_perms has_perm %}
-                            {% endblock %}
-                       </td>
                     </tr>
                 {% endwith %}
             {% endfor %}

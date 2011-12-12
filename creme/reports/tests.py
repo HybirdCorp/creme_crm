@@ -15,7 +15,7 @@ try:
     from creme_core.tests.base import CremeTestCase
     from creme_core.utils.meta import get_verbose_field_name, get_field_infos
 
-    from billing.models import Invoice, InvoiceStatus, ProductLine
+    from billing.models import Invoice, InvoiceStatus, ProductLine, Vat
     from billing.constants import REL_OBJ_BILL_ISSUED, REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
     from opportunities.models import Opportunity, SalesPhase
@@ -361,7 +361,7 @@ class ReportsTestCase(CremeTestCase):
             invoice = Invoice.objects.create(user=user, status=self.invoice_status, issuing_date=self.issuing_date, name=name, total_vat=total_vat)
 #            invoice._productlines_cache = [ProductLine(quantity=Decimal("1"), unit_price=total_vat)]
 
-            pl = ProductLine.objects.create(quantity=Decimal("1"), unit_price=total_vat, user=user, vat=Decimal("0"))
+            pl = ProductLine.objects.create(quantity=Decimal("1"), unit_price=total_vat, user=user, vat_value=Vat.objects.create(value=Decimal()))
             pl.related_document = invoice
             #TODO: pl = ProductLine.objects.create(related_document=invoice, quantity=Decimal("1"), unit_price=total_vat, user=user, vat=Decimal("0"))
             invoice._productlines_cache = [pl]

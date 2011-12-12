@@ -35,7 +35,7 @@ from line import Line
 from product_line import ProductLine
 from service_line import ServiceLine
 from algo import ConfigBillingAlgo
-from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED, REL_SUB_HAS_LINE, REL_OBJ_LINE_RELATED_ITEM
+from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED, REL_SUB_HAS_LINE, REL_OBJ_LINE_RELATED_ITEM, REL_OBJ_CREDIT_NOTE_APPLIED
 from billing.models.other_models import AdditionalInformation, PaymentTerms, PaymentInformation
 from billing.utils import round_to_2
 
@@ -105,6 +105,14 @@ class Base(CremeEntity):
         except Relation.DoesNotExist:
             return None
 
+    def get_credit_notes(self):
+        if self.id:
+            relations = Relation.objects.filter(subject_entity=self, type=REL_OBJ_CREDIT_NOTE_APPLIED).select_related('object_entity')
+            Relation.populate_real_object_entities(relations)
+            return [rel.object_entity.get_real_entity() for rel in relations]
+        else:
+            return []
+
     #TODO: use get_source/get_target
     def populate_with_organisation(self):
         relations_getter = Relation.objects.get
@@ -168,10 +176,14 @@ class Base(CremeEntity):
         return round_to_2(sum(l.get_price_inclusive_of_tax() for l in self.service_lines))
 
     def get_total(self):
-        return self.get_service_lines_total_price_exclusive_of_tax() + self.get_product_lines_total_price_exclusive_of_tax()
+        total_credits = sum(credit_note.get_total() for credit_note in self.get_credit_notes())
+        total = self.get_service_lines_total_price_exclusive_of_tax() + self.get_product_lines_total_price_exclusive_of_tax() - total_credits
+        return default_decimal if total < default_decimal else total
 
     def get_total_with_tax(self):
-        return self.get_service_lines_total_price_inclusive_of_tax() + self.get_product_lines_total_price_inclusive_of_tax()
+        total_credits = sum(credit_note.get_total_with_tax() for credit_note in self.get_credit_notes())
+        total_with_tax =  self.get_service_lines_total_price_inclusive_of_tax() + self.get_product_lines_total_price_inclusive_of_tax() - total_credits
+        return default_decimal if total_with_tax < default_decimal else total_with_tax
 
     def _pre_save_clone(self, source):
         if self.generate_number_in_create:

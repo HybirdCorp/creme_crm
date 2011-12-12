@@ -21,11 +21,15 @@ REL_OBJ_HAS_LINE = 'billing-object_had_line'
 REL_SUB_LINE_RELATED_ITEM = 'billing-subject_line_related_item'
 REL_OBJ_LINE_RELATED_ITEM = 'billing-object_line_related_item'
 
+REL_SUB_CREDIT_NOTE_APPLIED = 'billing-subject_credit_note_applied'
+REL_OBJ_CREDIT_NOTE_APPLIED = 'billing-object_credit_note_applied'
+
 DEFAULT_DRAFT_INVOICE_STATUS = 1
 DEFAULT_INVOICE_STATUS = 2
 
 DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA = 'billing-display_payment_info_only_creme_orga'
 
+#ISSUED_CREDIT_NOTE = 2 # TODO workflow status
 PERCENT_PK = 1
 AMOUNT_PK  = 2
 

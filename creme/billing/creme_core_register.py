@@ -70,4 +70,6 @@ bulk_update_registry.register(
     (Quote,        ['status']),
     (SalesOrder,   ['status']),
     (TemplateBase, ['status_id', 'ct', 'base_ptr']),
+    (ProductLine,  ['on_the_fly_item', 'type', 'discount', 'total_discount', 'discount_unit', 'line_ptr']),
+    (ServiceLine,  ['on_the_fly_item', 'type', 'discount', 'total_discount', 'discount_unit', 'line_ptr']),
 )

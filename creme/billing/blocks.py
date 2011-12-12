@@ -67,6 +67,7 @@ class ProductLinesBlock(PaginatedBlock):
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
                                                             ct_id=ContentType.objects.get_for_model(ProductLine).id,
                                                             q_filter=JSONEncoder().encode({'type':PRODUCT_LINE_TYPE, 'relations__type': REL_OBJ_HAS_LINE, 'relations__object_entity': document.id}),
+                                                            vat_list = Vat.objects.all(), # TODO better way ?
                                                            ))
 
 
@@ -84,15 +85,40 @@ class ServiceLinesBlock(PaginatedBlock):
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
                                                             ct_id=ContentType.objects.get_for_model(ServiceLine).id,
                                                             q_filter=JSONEncoder().encode({'type':SERVICE_LINE_TYPE, 'relations__type': REL_OBJ_HAS_LINE, 'relations__object_entity': document.id}),
+                                                            vat_list = Vat.objects.all(), # TODO better way ?
                                                             ))
 
 
+class CreditNoteBlock(QuerysetBlock):
+    id_                 = QuerysetBlock.generate_id('billing', 'credit_notes')
+    dependencies        = (Relation,)
+    relation_type_deps  = (REL_OBJ_CREDIT_NOTE_APPLIED, )
+    verbose_name        = _(u"Related Credit Notes")
+    template_name       = 'billing/templatetags/block_credit_note.html'
+    target_ctypes       = (Invoice, SalesOrder, Quote,)
+
+    def detailview_display(self, context):
+        billing_document = context['object']
+        btc = self.get_block_template_context(context,
+                                              billing_document.get_credit_notes(),
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, billing_document.pk),
+                                              rtype_id=self.relation_type_deps[0],
+                                              ct=ContentType.objects.get_for_model(CreditNote),
+                                              add_title=_(u'Add a credit note'),
+                                             )
+
+        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+
+        return self._render(btc)
+
+
 class TotalBlock(SimpleBlock):
-    id_           = SimpleBlock.generate_id('billing', 'total')
-    dependencies  = (ProductLine, ServiceLine)
-    verbose_name  = _(u'Total')
-    template_name = 'billing/templatetags/block_total.html'
-    target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder)
+    id_                 = SimpleBlock.generate_id('billing', 'total')
+    dependencies        = (ProductLine, ServiceLine, Relation)
+    relation_type_deps  = (REL_OBJ_CREDIT_NOTE_APPLIED,)
+    verbose_name        = _(u'Total')
+    template_name       = 'billing/templatetags/block_total.html'
+    target_ctypes       = (Base, Invoice, CreditNote, Quote, SalesOrder)
 
 
 class TargetBlock(SimpleBlock):
@@ -223,6 +249,7 @@ class BillingAddressBlock(AddressBlock):
 
 product_lines_block             = ProductLinesBlock()
 service_lines_block             = ServiceLinesBlock()
+credit_note_block               = CreditNoteBlock()
 total_block                     = TotalBlock()
 target_block                    = TargetBlock()
 received_invoices_block         = ReceivedInvoicesBlock()
@@ -234,6 +261,7 @@ billing_address_block           = BillingAddressBlock()
 block_list = (
         product_lines_block,
         service_lines_block,
+        credit_note_block,
         total_block,
         target_block,
         received_invoices_block,

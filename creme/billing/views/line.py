@@ -18,20 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+from decimal import Decimal
 
 from django.http import Http404
 from django.shortcuts import get_object_or_404
-from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
-from creme_core.utils import jsonify
 
-from creme_core.views.generic import add_to_entity, inner_popup
+from creme_core.utils import jsonify
+from creme_core.views.generic import add_to_entity, list_view, edit_model_with_popup
 
 from billing.models import Line, ProductLine, ServiceLine
-from billing.forms.line import ProductLineForm, ProductLineOnTheFlyForm, ServiceLineForm, ServiceLineOnTheFlyForm
-from creme_core.views.generic.listview import list_view
+from billing.forms.line import (ProductLineOnTheFlyForm, ServiceLineOnTheFlyForm, LineEditForm, ServiceLineForm,
+                               ProductLineForm, ProductLineMultipleAddForm, ServiceLineMultipleAddForm)
 
 
 @login_required
@@ -42,50 +41,64 @@ def _add_line(request, form_class, document_id):
 def add_product_line(request, document_id):
     return _add_line(request, ProductLineForm, document_id)
 
+@login_required
+@permission_required('billing')
+def add_multiple_product_line(request, document_id):
+    return add_to_entity(request, document_id, ProductLineMultipleAddForm, _(u"Add one or more product to <%s>"), link_perm = True)
+
 def add_product_line_on_the_fly(request, document_id):
     return _add_line(request, ProductLineOnTheFlyForm, document_id)
 
 def add_service_line(request, document_id):
     return _add_line(request, ServiceLineForm, document_id)
 
+@login_required
+@permission_required('billing')
+def add_multiple_service_line(request, document_id):
+    return add_to_entity(request, document_id, ServiceLineMultipleAddForm, _(u"Add one or more service to <%s>"), link_perm = True)
+
 def add_service_line_on_the_fly(request, document_id):
     return _add_line(request, ServiceLineOnTheFlyForm, document_id)
 
-@login_required
-@permission_required('billing')
-def _edit_line(request, line_model, line_id):
-    line     = get_object_or_404(line_model, pk=line_id)
-    document = line.related_document
-    user = request.user
+# commented on 25/11/2011 no longer used. Only in line edit is possible for lines (exception for comment that keeps the old way for edition)
+#@login_required
+#@permission_required('billing')
+#def _edit_line(request, line_model, line_id):
+#    line     = get_object_or_404(line_model, pk=line_id)
+#    document = line.related_document
+#    user = request.user
+#
+#    document.can_change_or_die(user)
+#
+#    form_class = line.get_edit_form()
+#
+#    if request.method == 'POST':
+#        line_form = form_class(entity=document, user=user, data=request.POST, instance=line)
+#
+#        if line_form.is_valid():
+#            line_form.save()
+#    else:
+#        line_form = form_class(entity=document, user=user, instance=line)
+#
+#    return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
+#                       {
+#                        'form':   line_form,
+#                        'title':  _(u"Edition of a line in the document <%s>") % document,
+#                       },
+#                       is_valid=line_form.is_valid(),
+#                       reload=False,
+#                       delegate_reload=True,
+#                       context_instance=RequestContext(request)
+#                      )
 
-    document.can_change_or_die(user)
+#def edit_productline(request, line_id):
+#    return _edit_line(request, ProductLine, line_id)
+#
+#def edit_serviceline(request, line_id):
+#    return _edit_line(request, ServiceLine, line_id)
 
-    form_class = line.get_edit_form()
-
-    if request.method == 'POST':
-        line_form = form_class(entity=document, user=user, data=request.POST, instance=line)
-
-        if line_form.is_valid():
-            line_form.save()
-    else:
-        line_form = form_class(entity=document, user=user, instance=line)
-
-    return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
-                       {
-                        'form':   line_form,
-                        'title':  _(u"Edition of a line in the document <%s>") % document,
-                       },
-                       is_valid=line_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request)
-                      )
-
-def edit_productline(request, line_id):
-    return _edit_line(request, ProductLine, line_id)
-
-def edit_serviceline(request, line_id):
-    return _edit_line(request, ServiceLine, line_id)
+def edit_line(request, line_id):
+    return edit_model_with_popup(request, {'pk': line_id}, Line, LineEditForm)
 
 @jsonify
 @login_required
@@ -99,8 +112,47 @@ def update(request, line_id):
 
     document.can_change_or_die(request.user)
 
-    line.is_paid = request.POST.has_key('paid')
+    request_POST = request.POST
+    request_POST_get = request_POST.get
+
+    # TODO try/catch in case POST values didnt match Decimal, int ?
+    new_unit_price      = Decimal(request_POST_get('unit_price')) if 'unit_price' in request_POST else None
+    new_quantity        = Decimal(request_POST_get('quantity'))   if 'quantity' in request_POST else None
+    new_vat             = request_POST_get('vat')                 if 'vat' in request_POST else None
+    new_discount_value  = Decimal(request_POST_get('discount'))   if 'discount' in request_POST else None
+    new_discount_unit   = int(request_POST_get('discount_unit'))  if 'discount_unit' in request_POST else None
+
+    if 'total_discount' in request_POST:
+        new_discount_type = request_POST_get('total_discount') == '1'
+    else:
+        new_discount_type = None
+
+    if not Line.is_discount_valid(new_unit_price if new_unit_price is not None else line.unit_price,
+                                  new_quantity if new_quantity is not None else line.quantity,
+                                  new_discount_value if new_discount_value is not None else line.discount,
+                                  new_discount_unit if new_discount_unit is not None else line.discount_unit,
+                                  new_discount_type if new_discount_type is not None else line.total_discount):
+        
+        # TODO Improve this functional error case by an error popup ?
+        # For the moment data will always be verified by js functions so this server side validation is useless
+        # return HttpResponse("", mimetype="text/javascript")
+        return
+
+    if new_unit_price is not None:
+        line.unit_price = new_unit_price
+    if new_quantity is not None:
+        line.quantity = new_quantity
+    if new_discount_value is not None:
+        line.discount = new_discount_value
+    if new_discount_unit is not None:
+        line.discount_unit = new_discount_unit
+    if new_discount_type is not None:
+        line.total_discount = new_discount_type
+    if new_vat is not None:
+        line.vat_value_id = new_vat
+
     line.save()
+    document.save()
 
 @login_required
 @permission_required('billing')

@@ -1,0 +1,80 @@
+{% load i18n %}
+{% load creme_core_tags creme_block %}
+{% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}
+<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
+    {% get_block_header colspan=10 %}
+        <th class="collapser label">
+            {% block block_header %}
+                {% get_block_title _("%s Credit Note") _("%s Credit Notes") 'invoice_48.png' _('Credit Notes') %}
+            {% endblock %}
+        </th>
+        <th class="actions">
+            <div class="buttons">
+                {% get_line_linker at_url '/billing/credit_note/add_related_to/{{ object.id }}/' with_label _("Link to existing credit notes") with_perms link_perm %}
+            </div>
+        </th>
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+        {% if page.paginator.count %}
+            <tr class="header">
+                <th class="block_header_line_dark" width="5%">{% trans "Unlink" %} ?</th>
+                <!--<th class="block_header_line_dark" width="2%">N°</th>-->
+                <th class="block_header_line_dark" width="20%">{% trans "Name" %}</th>
+                <th class="block_header_line_dark" width="7%">{% trans "Number" %}</th>
+                <th class="block_header_line_dark" width="7%">{% trans "Status" %}</th>
+                <th class="block_header_line_dark" width="31%">{% trans "Comment" %}</th>
+                <th class="block_header_line_dark">{% trans "Issuing date" %}</th>
+                <th class="block_header_line_dark">{% trans "Expiration date" %}</th>
+                <th class="block_header_line_dark" width="6%">{% trans "Total (exclusive of tax)" %}</th>
+                <th class="block_header_line_dark" width="6%">{% trans "Total (inclusive of tax)" %}</th>
+            </tr>
+            {% for credit_note in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr class="content">{% has_perm_to view credit_note as credit_note_view_perm %}{% has_perm_to change credit_note as credit_note_edit_perm %}{% has_perm_to unlink credit_note as credit_note_unlink_perm %}
+                    {% if credit_note_view_perm %}
+                        <td class="{{row_color}}" align="center" width="6%">
+                           {% get_line_unlinker at_url '/billing/credit_note/delete_related/{{ credit_note.pk }}/from/{{ object.pk }}/' with_args "{ 'subject_id':{{object.pk}}, 'type':'{{rtype_id}}', 'object_id':{{credit_note.pk}} }" with_perms unlink_perm|and_op:credit_note_unlink_perm %}
+                        </td>
+                        <!--<td class="{{row_color}}" align="center">{{ forloop.counter }}</td>-->
+                        <td class="{{row_color}}" align="center"><a href="{{credit_note.get_absolute_url}}">{{credit_note}}</a></td>
+                        <td class="{{row_color}}" align="center">{{ credit_note.number }}</td>
+                        <td class="{{row_color}}" align="center">{{ credit_note.status }}</td>
+                        <td class="{{row_color}}" align="center" id="comment{{ credit_note.pk }}" {% if credit_note.comment %}title="{{ credit_note.comment }}"{% endif %}>
+                                {% if credit_note.comment %}
+                                    {{ credit_note.comment|truncatewords:10 }}
+                                {% endif %}
+                                {% get_line_editor at_url '/billing/credit_note/editcomment/{{credit_note.id}}/' with_perms credit_note_edit_perm %}
+                                <script type='text/javascript'>
+                                    $('#comment{{ credit_note.pk }}').twipsy ({live: true});
+                                </script>
+                            </td>
+                        <td class="{{row_color}}" align="center" width="9%">{% if credit_note.issuing_date %}{{ credit_note.issuing_date }}{% endif %}</td>
+                        <td class="{{row_color}}" align="center">{{ credit_note.expiration_date }}</td>
+                        <td class="{{row_color}}" align="right">
+                             {% if credit_note.currency %}
+                                -{{credit_note.get_total|format_amount:credit_note.currency.pk}}
+                             {% else %}
+                                -{{credit_note.get_total|format_amount:''}}
+                             {% endif %}
+                        </td>
+                        <td class="{{row_color}}" align="right">
+                             {% if credit_note.currency %}
+                                -{{credit_note.get_total_with_tax|format_amount:credit_note.currency.pk}}
+                             {% else %}
+                                -{{credit_note.get_total_with_tax|format_amount:''}}
+                             {% endif %}
+                        </td>
+                    {% else %}
+                        <td class="{{row_color}}">{{credit_note|allowed_unicode:user}}</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr class="content empty">
+                <td class="block_line_dark">
+                    {% block empty_msg %}{% trans "No related credit note for the moment" %}{% endblock %}
+                </td>
+            </tr>
+        {% endif %}
+    </tbody>
+    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+</table>

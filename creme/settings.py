@@ -315,12 +315,14 @@ CREME_CORE_CSS = ('main.css',
                     'creme_core/css/detail_view.css',
                     'creme_core/css/navit.css',
                     'creme_core/css/forms.css',
+                    'creme_core/css/twipsy.css',
 
                     #APPS
                     'creme_config/css/creme_config.css',
                     'activities/css/fullcalendar.css',
                     'activities/css/activities.css',
                     'commercial/css/commercial.css',
+                    'billing/css/billing.css',
                  )
 
 CREME_OPT_CSS = ( #OPTIONNAL APPS
@@ -346,6 +348,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/jquery/extensions/magnifier.js',
                     'creme_core/js/jquery/extensions/utils.js',
                     'creme_core/js/jquery/extensions/wait.js',
+                    'creme_core/js/jquery/extensions/bootstrap-twipsy.js',
 
                     #'creme_core/js/datejs/date-en-US.js', #TODO improve
                     'creme_core/js/datejs/date-fr-FR.js',
