@@ -11,7 +11,7 @@ class BillingBaseAdmin(admin.ModelAdmin):
     search_fields = ['name', 'status', 'issuing_date', 'expiration_date', 'discount',  'total_vat', 'total_no_vat']
 
 class LineAdmin(admin.ModelAdmin):
-    list_display = ('related_item', 'document', 'comment', 'quantity', 'unit_price', 'discount', 'vat', 'total_discount')
+    list_display = ('related_item', 'document', 'comment', 'quantity', 'unit_price', 'discount', 'vat_value', 'total_discount')
 
 
 register = admin.site.register

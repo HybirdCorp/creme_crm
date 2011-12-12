@@ -18,10 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from django.db.models import ForeignKey
 from django.utils.translation import ugettext_lazy as _
-
-#from products.models import Service
 
 from line import Line, SERVICE_LINE_TYPE
 
@@ -40,11 +37,3 @@ class ServiceLine(Line):
         if self.related_item:
             return u"Related to service '%s'" % self.related_item
         return u"On the fly service '%s'" % self.on_the_fly_item
-
-    def get_edit_form (self):
-        from billing.forms.line import ServiceLineEditForm, ServiceLineOnTheFlyForm
-
-        if self.related_item is not None:
-            return ServiceLineEditForm
-        else:
-            return ServiceLineOnTheFlyForm

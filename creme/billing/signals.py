@@ -9,8 +9,8 @@ from creme import form_post_save
 #@receiver(form_post_save) #Django 1.3
 from creme_core.models.relation import Relation
 
-from billing.models import ProductLine, ServiceLine, Line
-from billing.constants import REL_SUB_HAS_LINE, REL_SUB_LINE_RELATED_ITEM
+from billing.models import ProductLine, ServiceLine
+from billing.constants import REL_SUB_HAS_LINE, REL_SUB_LINE_RELATED_ITEM, REL_SUB_CREDIT_NOTE_APPLIED
 
 def line_save(sender, instance, created, **kwargs):
     """Invoice calculated totals have to be refreshed
@@ -37,3 +37,6 @@ def line_relation(sender, instance, **kwargs):
 
     elif instance.type_id == REL_SUB_LINE_RELATED_ITEM:
         Relation.objects.filter(type=REL_SUB_LINE_RELATED_ITEM, object_entity=instance.object_entity, subject_entity=instance.subject_entity).exclude(id=instance.pk).delete()
+
+    elif instance.type_id == REL_SUB_CREDIT_NOTE_APPLIED:
+        instance.object_entity.get_real_entity().save()

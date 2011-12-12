@@ -1,0 +1,11 @@
+input[type='textbox'].creme-field-error {
+    background-color: #f08080;
+}
+
+td.discount-functional-error {
+    background-color: #f08080;
+}
+
+td.line-error {
+    background-color: #f7d6d2;
+}

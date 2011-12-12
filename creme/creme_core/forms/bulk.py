@@ -172,7 +172,9 @@ class EntitiesBulkUpdateForm(CremeForm):
             if field_value is None and not field.null:
                 raise ValidationError(ugettext(u'This field is required.'))
 
-            if not (field_value or field.blank):
+            # TODO comment on 30/11/2011 : old condition does not allow 0 value
+#           if not (field_value or field.blank):
+            if not (field_value is not None or field.blank):
                 raise ValidationError(ugettext(u'This field is required.'))
 
             valid_choices = [entity for id_, entity  in _get_choices(field, self.user)]

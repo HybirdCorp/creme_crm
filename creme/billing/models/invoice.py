@@ -81,19 +81,20 @@ class Invoice(Base):
             total += line.get_price_exclusive_of_tax()
         return total
 
-    def remaining_payment_for_products(self): #TODO: useless ??
-        total = 0
-        for line in ProductLine.objects.filter(document=self):
-            if not line.is_paid:
-                total += line.get_price_inclusive_of_tax()
-        return total
-
-    def remaining_payment_for_services(self): #TODO: useless ??
-        total = 0
-        for line in ServiceLine.objects.filter(document=self):
-            if not line.is_paid:
-                total += line.get_price_inclusive_of_tax()
-        return total
+# Commented on 24/11/2011 : is_paid information no longer exists in line table, functions are tagged useless and are no longer used
+#    def remaining_payment_for_products(self): #TODO: useless ??
+#        total = 0
+#        for line in ProductLine.objects.filter(document=self):
+#            if not line.is_paid:
+#                total += line.get_price_inclusive_of_tax()
+#        return total
+#
+#    def remaining_payment_for_services(self): #TODO: useless ??
+#        total = 0
+#        for line in ServiceLine.objects.filter(document=self):
+#            if not line.is_paid:
+#                total += line.get_price_inclusive_of_tax()
+#        return total
 
     def build(self, template):
         # Specific recurrent generation rules

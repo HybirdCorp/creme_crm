@@ -20,19 +20,20 @@
 
 from decimal import Decimal
 
-from django.db.models import CharField, IntegerField, DecimalField, BooleanField, TextField
-from django.db.models.fields import PositiveIntegerField
+from django.db.models import CharField, IntegerField, DecimalField, BooleanField, TextField, ForeignKey, PositiveIntegerField
 from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeEntity, Relation
 from creme_core.core.function_field import FunctionField
 
-from billing.constants import DEFAULT_VAT, REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM, PERCENT_PK
+from billing.models.other_models import Vat
+from billing.constants import REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM, PERCENT_PK
 from billing.utils import round_to_2
 
 
 default_decimal = Decimal()
+default_quantity = Decimal('1.00')
 
 PRODUCT_LINE_TYPE = 1
 SERVICE_LINE_TYPE = 2
@@ -56,14 +57,16 @@ class _LineTypeField(FunctionField):
 class Line(CremeEntity):
     on_the_fly_item = CharField(_(u'On-the-fly line'), max_length=100, blank=False, null=True)
     comment         = TextField(_('Comment'), blank=True, null=True)
-    quantity        = IntegerField(_(u'Quantity'), blank=False, null=False, default=1)
+#    quantity        = IntegerField(_(u'Quantity'), blank=False, null=False, default=1)
+    quantity        = DecimalField(_(u'Quantity'), max_digits=10, decimal_places=2, default=default_quantity)
     unit_price      = DecimalField(_(u'Unit price'), max_digits=10, decimal_places=2, default=default_decimal)
     discount        = DecimalField(_(u'Discount'), max_digits=10, decimal_places=2, default=default_decimal)
     discount_unit   = PositiveIntegerField(_(u'Discount Unit'), blank=True, null=True, default=PERCENT_PK)
-    credit          = DecimalField(_(u'Credit'), max_digits=10, decimal_places=2, default=default_decimal)
+#    credit          = DecimalField(_(u'Credit'), max_digits=10, decimal_places=2, default=default_decimal)
     total_discount  = BooleanField(_('Total discount ?'))
-    vat             = DecimalField(_(u'VAT'), max_digits=4, decimal_places=2, default=DEFAULT_VAT)
-    is_paid         = BooleanField(_(u'Paid ?'))
+#    vat             = DecimalField(_(u'VAT'), max_digits=4, decimal_places=2, default=DEFAULT_VAT)
+    vat_value       = ForeignKey(Vat, verbose_name=_(u'VAT'), blank=True, null=True)
+#    is_paid         = BooleanField(_(u'Paid ?'))
     type            = IntegerField(_(u'Type'), blank=False, null=False, choices=LINE_TYPES.items(), editable=False)
 
     excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['type']
@@ -81,7 +84,8 @@ class Line(CremeEntity):
 
     def get_price_inclusive_of_tax(self):
         total_ht = self.get_price_exclusive_of_tax()
-        vat = total_ht * self.vat / 100
+        vat_value = self.vat_value
+        vat = (total_ht * vat_value.value / 100) if vat_value else 0
         return round_to_2(total_ht + vat)
 
     def get_raw_price(self):
@@ -110,7 +114,7 @@ class Line(CremeEntity):
         else:
             total_exclusive_of_tax = total_after_first_discount
 
-        return round_to_2(total_exclusive_of_tax - self.credit)
+        return round_to_2(total_exclusive_of_tax)
 
     def get_related_entity(self): #for generic views & delete
         return self.related_document
@@ -147,4 +151,37 @@ class Line(CremeEntity):
 
     def get_verbose_type(self):
         return LINE_TYPES.get(self.type, "")
+
+    @staticmethod
+    def is_discount_valid(unit_price, quantity, discount_value, discount_unit, discount_type):
+#        print unit_price, quantity, discount_value, discount_unit, discount_type
+        if discount_unit == PERCENT_PK: # percent %
+#            if discount_value < 0 or discount_value > 100:
+            if not (0 <= discount_value <= 100):
+                return False
+        else: # amount �/$/...
+            if discount_type and discount_value > unit_price * quantity: # Global discount 
+                return False
+            if not discount_type and discount_value > unit_price: # Unitary discount
+                return False
+        return True
+
+    @staticmethod
+    def generate_lines(klass, item, document, user, optional_infos_map = None):
+        new_line = klass()
+        
+        new_line.unit_price = item.unit_price
+        new_line.user       = user
+
+        if optional_infos_map:
+            new_line.quantity = optional_infos_map['quantity']
+            new_line.discount = optional_infos_map['discount_value']
+            new_line.vat_value = optional_infos_map['vat_value']
+        else:
+            new_line.vat_value  = Vat.get_default_vat()
+
+        new_line.save()
+
+        new_line.related_item       = item
+        new_line.related_document   = document
 

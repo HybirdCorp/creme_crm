@@ -65,6 +65,9 @@ class Populator(BasePopulator):
                             (REL_OBJ_LINE_RELATED_ITEM, _(u"is the related item of"), [Product, Service]),
                             is_internal=True
                            )
+        RelationType.create((REL_SUB_CREDIT_NOTE_APPLIED, _(u"is used in the billing document"),   [CreditNote]),
+                            (REL_OBJ_CREDIT_NOTE_APPLIED, _(u"used the credit note"), [Quote, SalesOrder, Invoice]),
+                            is_internal=True)
 
         #NB: pk=1 --> default status (used when a quote is converted in invoice for example)
         create_if_needed(QuoteStatus, {'pk': 1}, name=_(u"Pending")) #default status
@@ -107,13 +110,15 @@ class Populator(BasePopulator):
 
         create_if_needed(CreditNoteStatus, {'pk': 1}, name=_(u"Draft"),  is_custom=False)
         create_if_needed(CreditNoteStatus, {'pk': 2}, name=_(u"Issued"), is_custom=True)
+        create_if_needed(CreditNoteStatus, {'pk': 3}, name=_(u"Consumed"), is_custom=True)
+        create_if_needed(CreditNoteStatus, {'pk': 4}, name=_(u"Out of date"), is_custom=True)
 
         ButtonMenuItem.create_if_needed(pk='billing-generate_invoice_number', model=Invoice, button=generate_invoice_number_button, order=0)
 
         def create_hf(hf_pk, name, model):
             hf = HeaderFilter.create(pk=hf_pk, name=name, model=model)
             hf.set_items([HeaderFilterItem.build_4_field(model=model, name='name'),
-                          HeaderFilterItem.build_4_relation(rtype=rt_obj_bill_received),
+                          HeaderFilterItem.build_4_relation(rtype=rt_sub_bill_received),
                           HeaderFilterItem.build_4_field(model=model, name='number'),
                           HeaderFilterItem.build_4_field(model=model, name='status'), #status__name
                           HeaderFilterItem.build_4_field(model=model, name='total_no_vat'),
@@ -132,7 +137,7 @@ class Populator(BasePopulator):
             items = [HeaderFilterItem.build_4_field(model=model, name='on_the_fly_item'),
                      HeaderFilterItem.build_4_field(model=model, name='quantity'),
                      HeaderFilterItem.build_4_field(model=model, name='unit_price'),
-                     HeaderFilterItem.build_4_field(model=model, name='is_paid'),
+#                     HeaderFilterItem.build_4_field(model=model, name='is_paid'),
                     ]
 
             if include_type:
@@ -158,6 +163,8 @@ class Populator(BasePopulator):
         for model in models:
             BlockDetailviewLocation.create(block_id=product_lines_block.id_,   order=10,  zone=BlockDetailviewLocation.TOP,   model=model)
             BlockDetailviewLocation.create(block_id=service_lines_block.id_,   order=20,  zone=BlockDetailviewLocation.TOP,   model=model)
+            if model is not CreditNote:
+                BlockDetailviewLocation.create(block_id=credit_note_block.id_,     order=30,  zone=BlockDetailviewLocation.TOP,   model=model)
 
             BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=model)
             BlockDetailviewLocation.create(block_id=customfields_block.id_,    order=40,  zone=BlockDetailviewLocation.LEFT,  model=model)
