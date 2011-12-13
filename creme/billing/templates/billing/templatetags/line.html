@@ -11,18 +11,19 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <!--<tr class="header">
-                <th class="block_header_line_dark">
+            <tr class="header">
+                <th></th>
+                <!--<th class="block_header_line_dark">
                     <a onclick="creme.billing.bulkLineUpdate({% get_block_reload_uri %}, {{ ct_id }});">
                         <img src="{% creme_media_url 'images/edit_22.png' %}" border="0">
                     </a>
                     <a onclick="creme.billing.multipleLineDelete({% get_block_reload_uri %});">
                         <img src="{% creme_media_url 'images/delete_22.png' %}" border="0">
                     </a>
-                </th>
-                <td bgcolor="#b3d2df" colspan="12" name="error_lines" id="error_lines" align="left">
+                </th>-->
+                <td bgcolor="#b3d2df" colspan="12" name="error_lines" id="error_lines" align="left">&nbsp;
                 </td>
-            </tr>-->
+            </tr>
             <tr class="header">
                 <!--<th class="block_header_line_dark" width="5%"><input type="checkbox" id="select_all" onchange="creme.billing.enableCheckAllBoxes($(this));"/></th>
                 <th class="block_header_line_dark" width="2%">N°</th>-->
