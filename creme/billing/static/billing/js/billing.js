@@ -125,14 +125,11 @@ creme.billing.checkPercent = function(value) {
 creme.billing.printLinesErrors = function(target, table, reload_url) {
 
     target.addClass('line-error');
-    // TODO gettext
     var message_one = gettext("Some errors were found on your lines. Click => ");
     var message_two = gettext("here");
     var message_three = "<a onclick='creme.utils.loadBlock(\"" + reload_url + "\");'><b>" + message_two + "</b></a> ";
     var message_four = gettext("<= to restore the last coherent state. An error correction will restabilize all other ones.");
     target.html(message_one + message_three + message_four);
-//    target.html("Des erreurs ont �t� trouv�es sur vos lignes. Cliquez => <a onclick='creme.utils.loadBlock(\"" + reload_url + "\");'><b>ici</b></a> <=
-// pour retrouver le dernier �tat coh�rent. La correction d'une erreur sur une ligne restabilisera toutes les autres lignes.");
 
     var ul = $('<ul/>');
 
@@ -150,17 +147,14 @@ creme.billing.validateDiscount = function(line) {
     var unit_price      = parseFloat($('input[name=unit_price]',line).val());
     var quantity        = parseInt($('input[name=quantity]', line).val());
 
-    // TODO gettext
     if (creme.billing.checkPercent($('input[name=discount]', line).val()) !== null && discount_unit == 1) {
         return gettext("Invalid percentage.");
     }
     if (discount_total == 1 && discount_unit == 2 && discount_value > unit_price * quantity) {
         return gettext("Your discount amount is superior than the amount of the line where you try to apply it.");
-//        return gettext("Le montant de votre remise globale d�passe celui de la ligne sur laquelle vous essayez de l'appliquer.");
     }
     if (discount_total == 2 && discount_unit == 2 && discount_value > unit_price) {
         return gettext("Your unit discount is superior than the unit price of the product/service of the line where you try to apply it.");
-//        return gettext("Le montant de votre remise unitaire d�passe celui du produit/service de la ligne sur laquelle vous essayez de l'appliquer.");
     }
 
     return null;
