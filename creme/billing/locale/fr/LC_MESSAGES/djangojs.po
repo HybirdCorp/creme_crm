@@ -1,0 +1,64 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-12-19 07:08+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+
+#: .\static\billing\js\billing.js.py:77 .\static\billing\js\billing.js.py:94
+msgid "Nothing is selected."
+msgstr "Rien n'est sélectionné"
+
+#: .\static\billing\js\billing.js.py:87
+msgid "Are you sure ?"
+msgstr "Êtes-vous sur?"
+
+#: .\static\billing\js\billing.js.py:129
+msgid "Some errors were found on your lines. Click => "
+msgstr "Des erreurs ont été trouvées sur vos lignes. Cliquez => "
+
+#: .\static\billing\js\billing.js.py:130
+msgid "here"
+msgstr "ici"
+
+#: .\static\billing\js\billing.js.py:132
+msgid ""
+"<= to restore the last coherent state. An error correction will restabilize "
+"all other ones."
+msgstr "<= pour retrouver le dernier état cohérent. La correction d'une erreur sur une ligne restabilisera toutes les autres lignes."
+
+#: .\static\billing\js\billing.js.py:154
+msgid "Invalid percentage."
+msgstr "Pourcentage invalide."
+
+#: .\static\billing\js\billing.js.py:157
+msgid ""
+"Your discount amount is superior than the amount of the line where you try "
+"to apply it."
+msgstr ""
+"Le montant de votre remise globale dépasse celui de la ligne sur laquelle "
+"vous essayez de l'appliquer."
+
+#: .\static\billing\js\billing.js.py:161
+msgid ""
+"Your unit discount is superior than the unit price of the product/service of "
+"the line where you try to apply it."
+msgstr ""
+"Le montant de votre remise unitaire dépasse celui du produit/service de la "
+"ligne sur laquelle vous essayez de l'appliquer."
+
+#: .\static\billing\js\billing.js.py:175
+msgid "On the line"
+msgstr "Sur la ligne"

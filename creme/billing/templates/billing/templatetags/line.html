@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load creme_core_tags %}{% load creme_block %}
 <table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
-    {% get_block_header colspan=12 %}
+    {% get_block_header colspan=13 %}
         <th class="collapser label">{% block header %}HEADER{% endblock %}</th>
         <th class="actions">
             <div class="buttons">
@@ -11,46 +11,43 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            <!--<tr class="header">
-                <th class="block_header_line_dark">
+            <tr class="header">
+                <!--<th class="block_header_line_dark">
                     <a onclick="creme.billing.bulkLineUpdate({% get_block_reload_uri %}, {{ ct_id }});">
                         <img src="{% creme_media_url 'images/edit_22.png' %}" border="0">
                     </a>
                     <a onclick="creme.billing.multipleLineDelete({% get_block_reload_uri %});">
                         <img src="{% creme_media_url 'images/delete_22.png' %}" border="0">
                     </a>
-                </th>
+                </th>-->
                 <td bgcolor="#b3d2df" colspan="12" name="error_lines" id="error_lines" align="left">
+                    {% trans "No line errors for the moment" %}
                 </td>
-            </tr>-->
+            </tr>
             <tr class="header">
-                <!--<th class="block_header_line_dark" width="5%"><input type="checkbox" id="select_all" onchange="creme.billing.enableCheckAllBoxes($(this));"/></th>
-                <th class="block_header_line_dark" width="2%">N°</th>-->
-                <th class="block_header_line_dark" width="4%">{% trans "Delete" %}</th>
-                <th class="block_header_line_dark" width="20%">{% block item_name %}ITEM NAME{% endblock %}</th>
-                <th class="block_header_line_dark" width="7%">{% trans "Unit price" %}</th>
-                <th class="block_header_line_dark" width="7%">{% trans "Quantity" %}</th>
-                <th class="block_header_line_dark" width="12%">{% trans "Comment" %}</th>
-                <th class="block_header_line_dark" width="19%">{% trans "Discount" %}</th>
-                <th class="block_header_line_dark">{% trans "VAT" %}</th>
-                <th class="block_header_line_dark">{% trans "Total (exclusive of tax)" %}</th>
+                <!--<th class="block_header_line_dark" width="5%"><input type="checkbox" id="select_all" onchange="creme.billing.enableCheckAllBoxes($(this));"/></th>-->
+                <th class="block_header_line_dark" width="2%">N°</th>
+                <th class="block_header_line_dark" width="19%">{% block item_name %}ITEM NAME{% endblock %}</th>
+                <th class="block_header_line_dark" width="6%">{% trans "Unit price" %}</th>
+                <th class="block_header_line_dark" width="6%">{% trans "Quantity" %}</th>
+                <th class="block_header_line_dark" width="14%">{% trans "Comment" %}</th>
+                <th class="block_header_line_dark" width="18%">{% trans "Discount" %}</th>
+                <th class="block_header_line_dark" width="8%">{% trans "VAT" %}</th>
+                <th class="block_header_line_dark" width="8%">{% trans "Total (exclusive of tax)" %}</th>
                 <th class="block_header_line_dark" width="6%">{% trans "Total (without tax)<br>discounted" %}</th>
                 <th class="block_header_line_dark" width="6%">{% trans "Total (inclusive of tax)" %}</th>
+                <th class="block_header_line_dark" width="7%">{% trans "Delete" %} ?</th>
             </tr>
             {% for line in page.object_list %}<!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
                 {% with object.currency.pk as currency_id %}
                     <tr class="content" name="tr_line_{{ line.id }}" id="tr_line_{{ line.id }}" method="POST" action="/billing/line/{{line.id}}/update">
                             <!--<td class="{{row_color}}" align="center">
                                 <input name="select_one" value="{{line.pk}}" type="checkbox" />
-                            </td>
+                            </td>-->
                             <td class="{{row_color}}" align="center">
                                 {% csrf_token %}
                                 <input type="hidden" id="line_number" value="{{ forloop.counter }}">
                                 {{ forloop.counter }}
-                            </td>-->
-                            <td class="{{row_color}}" align="center">
-                                {% has_perm_to change object as has_perm %}
-                                {% get_line_deletor at_url '{{line.get_delete_absolute_url}}' with_args "{'id': '{{line.id}}' }" with_perms has_perm %}
                             </td>
                             <td class="{{row_color}}" align="center">
                                 {% if line.related_item %}
@@ -98,6 +95,10 @@
                         <td class="{{row_color}}" align="right">{{line.get_raw_price|format_amount:currency_id}}</td>
                         <td class="{{row_color}}" align="right">{{line.get_price_exclusive_of_tax|format_amount:currency_id}}</td>
                         <td class="{{row_color}}" align="right">{{line.get_price_inclusive_of_tax|format_amount:currency_id}}</td>
+                        <td class="{{row_color}}" align="center">
+                            {% has_perm_to change object as has_perm %}
+                            {% get_line_deletor at_url '{{line.get_delete_absolute_url}}' with_args "{'id': '{{line.id}}' }" with_perms has_perm %}
+                        </td>
                     </tr>
                 {% endwith %}
             {% endfor %}
