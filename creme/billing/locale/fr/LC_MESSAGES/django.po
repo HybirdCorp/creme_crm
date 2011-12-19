@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-12-12 07:53+0100\n"
+"POT-Creation-Date: 2011-12-19 07:51+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -364,12 +364,12 @@ msgstr "Société réceptrice"
 
 #: .\forms\base.py:41 .\models\base.py:48
 #: .\templates\billing\templatetags\block_billing.html.py:36
-#: .\templates\billing\templatetags\block_credit_note.html.py:26
+#: .\templates\billing\templatetags\block_credit_note.html.py:25
 msgid "Issuing date"
-msgstr "Date d'émission"
+msgstr "Emission"
 
 #: .\forms\base.py:42 .\models\base.py:49
-#: .\templates\billing\templatetags\block_credit_note.html.py:27
+#: .\templates\billing\templatetags\block_credit_note.html.py:26
 #: .\templates\billing\templatetags\block_received_billing_document.html.py:15
 #: .\templates\billing\templatetags\block_received_invoices.html.py:17
 msgid "Expiration date"
@@ -437,12 +437,12 @@ msgid "Products"
 msgstr "Produits"
 
 #: .\forms\line.py:146 .\forms\line.py:304 .\models\line.py:61
-#: .\templates\billing\templatetags\line.html.py:31
+#: .\templates\billing\templatetags\line.html.py:32
 msgid "Quantity"
 msgstr "Quantité"
 
 #: .\forms\line.py:147 .\forms\line.py:305 .\models\line.py:63
-#: .\templates\billing\templatetags\line.html.py:33
+#: .\templates\billing\templatetags\line.html.py:34
 msgid "Discount"
 msgstr "Remise"
 
@@ -536,7 +536,7 @@ msgstr ""
 #: .\models\other_models.py:60 .\models\other_models.py:73
 #: .\models\other_models.py:86
 #: .\templates\billing\templatetags\block_billing.html.py:70
-#: .\templates\billing\templatetags\block_credit_note.html.py:24
+#: .\templates\billing\templatetags\block_credit_note.html.py:23
 #: .\templates\billing\templatetags\block_received_billing_document.html.py:16
 #: .\templates\billing\templatetags\block_received_invoices.html.py:18
 msgid "Status"
@@ -559,7 +559,7 @@ msgstr "Préfixe de la facture"
 #: .\models\other_models.py:127
 #: .\templates\billing\templatetags\block_billing.html.py:28
 #: .\templates\billing\templatetags\block_billing_payment_information.html.py:21
-#: .\templates\billing\templatetags\block_credit_note.html.py:22
+#: .\templates\billing\templatetags\block_credit_note.html.py:21
 #: .\templates\billing\templatetags\block_payment_information.html.py:16
 #: .\templates\billing\templatetags\block_received_billing_document.html.py:14
 #: .\templates\billing\templatetags\block_received_invoices.html.py:16
@@ -568,7 +568,7 @@ msgstr "Nom"
 
 #: .\models\base.py:47
 #: .\templates\billing\templatetags\block_billing.html.py:32
-#: .\templates\billing\templatetags\block_credit_note.html.py:23
+#: .\templates\billing\templatetags\block_credit_note.html.py:22
 msgid "Number"
 msgstr "Numéro"
 
@@ -584,8 +584,8 @@ msgstr "Devise"
 
 #: .\models\base.py:54 .\models\line.py:59
 #: .\templates\billing\templatetags\block_billing.html.py:54
-#: .\templates\billing\templatetags\block_credit_note.html.py:25
-#: .\templates\billing\templatetags\line.html.py:32
+#: .\templates\billing\templatetags\block_credit_note.html.py:24
+#: .\templates\billing\templatetags\line.html.py:33
 msgid "Comment"
 msgstr "Remarques"
 
@@ -644,7 +644,7 @@ msgstr "Type de ligne"
 msgid "On-the-fly line"
 msgstr "Ligne à la volée"
 
-#: .\models\line.py:62 .\templates\billing\templatetags\line.html.py:30
+#: .\models\line.py:62 .\templates\billing\templatetags\line.html.py:31
 msgid "Unit price"
 msgstr "Prix Unitaire"
 
@@ -657,7 +657,7 @@ msgid "Total discount ?"
 msgstr "Type de remise"
 
 #: .\models\line.py:68 .\models\other_models.py:179
-#: .\templates\billing\templatetags\line.html.py:34
+#: .\templates\billing\templatetags\line.html.py:35
 msgid "VAT"
 msgstr "TVA"
 
@@ -900,21 +900,21 @@ msgstr "Avoirs"
 msgid "Link to existing credit notes"
 msgstr "Consommer des avoirs existants"
 
-#: .\templates\billing\templatetags\block_credit_note.html.py:20
-msgid "Unlink"
-msgstr "Délier"
-
-#: .\templates\billing\templatetags\block_credit_note.html.py:28
+#: .\templates\billing\templatetags\block_credit_note.html.py:27
 #: .\templates\billing\templatetags\block_total.html.py:11
-#: .\templates\billing\templatetags\line.html.py:35
+#: .\templates\billing\templatetags\line.html.py:36
 msgid "Total (exclusive of tax)"
 msgstr "Total HT"
 
-#: .\templates\billing\templatetags\block_credit_note.html.py:29
+#: .\templates\billing\templatetags\block_credit_note.html.py:28
 #: .\templates\billing\templatetags\block_total.html.py:23
-#: .\templates\billing\templatetags\line.html.py:37
+#: .\templates\billing\templatetags\line.html.py:38
 msgid "Total (inclusive of tax)"
 msgstr "Total TTC"
+
+#: .\templates\billing\templatetags\block_credit_note.html.py:29
+msgid "Unlink"
+msgstr "Délier"
 
 #: .\templates\billing\templatetags\block_credit_note.html.py:74
 msgid "No related credit note for the moment"
@@ -1022,15 +1022,23 @@ msgstr "Totaux"
 msgid "Invoice number"
 msgstr "Numéro de Facture"
 
-#: .\templates\billing\templatetags\line.html.py:36
+#: .\templates\billing\templatetags\line.html.py:24
+msgid "No line errors for the moment"
+msgstr "Vos lignes ne comportent aucune incohérence pour le moment."
+
+#: .\templates\billing\templatetags\line.html.py:37
 msgid "Total (without tax)<br>discounted"
 msgstr "Total HT<br> remisé"
 
-#: .\templates\billing\templatetags\line.html.py:81
+#: .\templates\billing\templatetags\line.html.py:39
+msgid "Delete"
+msgstr ""
+
+#: .\templates\billing\templatetags\line.html.py:83
 msgid "On the line"
 msgstr "Sur la ligne"
 
-#: .\templates\billing\templatetags\line.html.py:82
+#: .\templates\billing\templatetags\line.html.py:84
 msgid " On product/service"
 msgstr "Sur le produit/service"
 
