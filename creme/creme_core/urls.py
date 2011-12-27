@@ -5,19 +5,20 @@ from django.conf import settings
 
 
 entity_patterns = patterns('creme_core.views', #TODO: move delete* to entity.py
-    (r'^delete/(?P<entity_id>\d+)$',                'generic.delete.delete_entity'),
-    (r'^delete_related/(?P<ct_id>\d+)$',            'generic.delete.delete_related_to_entity'),
-#    (r'^get_repr/(?P<entity_id>\d+)$',             'entity.get_creme_entity_repr'),
-    (r'^get_repr/(?P<entities_ids>([\d]+[,]*)+)$',  'entity.get_creme_entities_repr'),
-    (r'^json$',                                     'entity.get_creme_entity_as_json'),
-    (r'^search_n_view$',                            'entity.search_and_view'),
-    (r'^get_info_fields/(?P<ct_id>\d+)/json$',      'entity.get_info_fields'),
-    (r'^bulk_update/(?P<ct_id>\d+)/$',              'entity.bulk_update'),
-    (r'^get_fields$',                               'entity.get_fields'),
-    (r'^get_custom_fields$',                        'entity.get_custom_fields'),
-    (r'^get_function_fields$',                      'entity.get_function_fields'),
-    (r'^get_widget/(?P<ct_id>\d+)',                 'entity.get_widget'),
-    (r'^clone',                                     'entity.clone'),
+    (r'^delete/(?P<entity_id>\d+)$',                            'generic.delete.delete_entity'),
+    (r'^delete_related/(?P<ct_id>\d+)$',                        'generic.delete.delete_related_to_entity'),
+#    (r'^get_repr/(?P<entity_id>\d+)$',                         'entity.get_creme_entity_repr'),
+    (r'^get_repr/(?P<entities_ids>([\d]+[,]*)+)$',              'entity.get_creme_entities_repr'),
+    (r'^json$',                                                 'entity.get_creme_entity_as_json'),
+    (r'^search_n_view$',                                        'entity.search_and_view'),
+    (r'^get_info_fields/(?P<ct_id>\d+)/json$',                  'entity.get_info_fields'),
+    (r'^bulk_update/(?P<ct_id>\d+)/$',                          'entity.bulk_update'),
+    (r'^edit/(?P<id>\d+)/field/(?P<field_str>[\w-]+)$',         'entity.edit_field'),
+    (r'^get_fields$',                                           'entity.get_fields'),
+    (r'^get_custom_fields$',                                    'entity.get_custom_fields'),
+    (r'^get_function_fields$',                                  'entity.get_function_fields'),
+    (r'^get_widget/(?P<ct_id>\d+)',                             'entity.get_widget'),
+    (r'^clone',                                                 'entity.clone'),
 )
 
 relation_patterns = patterns('creme_core.views.relation',

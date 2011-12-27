@@ -32,7 +32,7 @@ from django.contrib.auth.decorators import login_required
 
 from creme_core.models import CremeEntity, CustomField, EntityCredentials
 from creme_core.forms import CremeEntityForm
-from creme_core.forms.bulk import _get_choices, EntitiesBulkUpdateForm, _FIELDS_WIDGETS
+from creme_core.forms.bulk import _get_choices, EntitiesBulkUpdateForm, _FIELDS_WIDGETS, EntityInnerEditForm
 from creme_core.views.generic.popup import inner_popup
 from creme_core.utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify
 from creme_core.utils.meta import get_flds_with_fk_flds_str
@@ -201,24 +201,49 @@ def get_widget(request, ct_id):
     field_name        = get_from_POST_or_404(request.POST, 'field_name')
     field_value_name  = get_from_POST_or_404(request.POST, 'field_value_name')
 
+    initial_value = None
+
     if EntitiesBulkUpdateForm.is_custom_field(field_name):
         model_field = CustomField.objects.get(pk=EntitiesBulkUpdateForm.get_custom_field_id(field_name))
         form_field  = model_field.get_formfield(None)
         form_field.choices = form_field.choices if hasattr(form_field, 'choices') else ()
         widget = _FIELDS_WIDGETS.get(model_field.get_value_class())
+
+        object_id = request.POST.get('object_id')
+        if 'object_id' in request.POST and object_id: # Inner edit case only in order to set current custom field value
+            entity = CremeEntity.objects.get(pk=object_id)
+            if entity.can_change(request.user):
+                if model_field.field_type == CustomField.ENUM:
+                    cf_values = model_field.get_value_class().objects.filter(custom_field=model_field.id, entity=entity.id)
+                    initial_value = cf_values[0].value.id
+                elif model_field.field_type == CustomField.MULTI_ENUM:
+                    cf_values = model_field.get_value_class().objects.filter(custom_field=model_field.id, entity=entity.id)
+                    initial_value = cf_values[0].value.values_list('id', flat=True)
+                elif model_field.field_type == CustomField.BOOL:
+                    cf_values = model_field.get_value_class().objects.filter(custom_field=model_field.id, entity=entity.id)
+                    initial_value = cf_values[0].value
+                else:
+                    initial_value = model_field.get_pretty_value(entity.id)
     else:
         model_field = model._meta.get_field(field_name)
         form_field = model_field.formfield()
         form_field.choices = _get_choices(model_field, request.user)
         widget = _FIELDS_WIDGETS.get(model_field.__class__)
 
+        object_id = request.POST.get('object_id')
+        if 'object_id' in request.POST and object_id: # Inner edit case only in order to set current regular field value
+            entity = CremeEntity.objects.get(pk=object_id)
+            if entity.can_change(request.user):
+                initial_value = getattr(entity.get_real_entity(), field_name)
+                if isinstance(model._meta.get_field(field_name), ForeignKey) and initial_value is not None:
+                    initial_value = initial_value.id
+
     rendered = None
 
     if widget is None:
-        rendered = form_field.widget.render(name=field_value_name, value=None, attrs={'id': 'id_%s' % field_value_name})
-
+        rendered = form_field.widget.render(name=field_value_name, value=initial_value, attrs={'id': 'id_%s' % field_value_name})
     else:
-        rendered=widget(field_value_name, form_field.choices)
+        rendered = widget(field_value_name, form_field.choices, value=initial_value)
 
     return {
         'rendered': rendered
@@ -287,3 +312,44 @@ def search_and_view(request):
                 return HttpResponseRedirect(found[0].get_absolute_url())
 
     raise Http404(_(u'No entity corresponding to your search was found.'))
+
+_CUSTOM_NAME = 'custom_field_%s'
+
+@login_required
+def edit_field(request, id, field_str):
+    user = request.user
+    entity = get_object_or_404(CremeEntity, pk=id)
+    model  = entity.entity_type.model_class()
+
+    field_name = _CUSTOM_NAME % int(field_str) if field_str.isdigit() else field_str
+
+    filtered = {True: [], False: []}
+    filtered[entity.can_change(user)].append(entity)
+
+    if request.method == 'POST':
+        form = EntityInnerEditForm(model=model,
+                                   field_name = field_name,
+                                   subjects=filtered[True],
+                                   forbidden_subjects=filtered[False],
+                                   user=user,
+                                   data=request.POST)
+
+        if form.is_valid():
+            form.save()
+    else:
+        form = EntityInnerEditForm(model=model,
+                                   field_name = field_name,
+                                   subjects=filtered[True],
+                                   forbidden_subjects=filtered[False],
+                                   user=user)
+
+    return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
+                       {
+                        'form':  form,
+                        'title': _(u'Inner update'),
+                       },
+                       is_valid=form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                       callback_url=entity.get_real_entity().get_absolute_url(),
+                       context_instance=RequestContext(request))

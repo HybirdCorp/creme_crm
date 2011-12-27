@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
-    {% get_block_header colspan=2 %}
+    {% get_block_header colspan=3 %}
         <th class="collapser label">{% get_basic_block_header _("Coordinates") %}</th>
         <th class="actions">
             <div class="buttons">
@@ -11,22 +11,27 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         <!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}
-            {% cycle "block_line_dark" "block_line_light" as row_color %} -->
+            {% cycle "block_line_dark" "block_line_light" as row_color %}
+            {% cycle "block_line_dark" "block_line_light" as row_edit_color %}-->
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Phone" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='phone' %}</td>
+            <td class="{% cycle row_edit_color %}">{% get_filter_editor on regular 'phone' for object %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Fax" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='fax' %}</td>
+            <td class="{% cycle row_edit_color %}">{% get_filter_editor on regular 'fax' for object %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "E-mail" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='email' %}</td>
+            <td class="{% cycle row_edit_color %}">{% get_filter_editor on regular 'email' for object %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Web Site" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='url_site' %}</td>
+            <td class="{% cycle row_edit_color %}">{% get_filter_editor on regular 'url_site' for object %}</td>
         </tr>
     </tbody>
 </table>

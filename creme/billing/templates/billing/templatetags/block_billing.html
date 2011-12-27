@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
-    {% get_block_header colspan=2 %}
+    {% get_block_header colspan=3 %}
         <th style="width: 80%;" class="collapser">{% get_basic_block_header _('Informations on the billing document') 'infos_48.png' _('Information') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
@@ -11,34 +11,42 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         <!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}
-            {% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% cycle "block_line_dark" "block_line_light" as row_color %}
+            {% cycle "block_line_dark" "block_line_light" as row_edit_color %}-->
         <tr>
             <th class="{% cycle header_color %} th_info">{% trans "Creation date" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='created' %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'created' for object %}</td>
         </tr>
         <tr>
             <th class="{% cycle header_color %} th_info">{% trans "Last modification" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='modified' %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'modified' for object %}</td>
         </tr>
         <tr>
             <th class="{% cycle header_color %} th_info">{% trans "User" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='user' %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'user' for object %}</td>
         </tr>
         <tr>
             <th class="{% cycle header_color %} th_info">{% trans "Name" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='name' %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'name' for object %}</td>
         </tr>
         <tr>
             <th class="{% cycle header_color %} th_info">{% trans "Number" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='number' %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'number' for object %}</td>
         </tr>
         <tr>
             <th class="{% cycle header_color %} th_info">{% trans "Issuing date" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='issuing_date' %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'issuing_date' for object %}</td>
         </tr>
         <tr>
             <th class="{% cycle header_color %} th_info">{% trans "Date d'expiration" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='expiration_date' %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'expiration_date' for object %}</td>
         </tr>
         <tr>
             <th class="{% cycle header_color %} th_info">{% trans "Overall discount" %}</th>
@@ -49,31 +57,38 @@
                     {% trans "None" %}
                 {% endif %}
             </td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'discount' for object %}</td>
         </tr>
         <tr>
             <th class="{% cycle header_color %} th_info">{% trans "Comment" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='comment' %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'comment' for object %}</td>
         </tr>
         <tr>
             <th class="{% cycle header_color %} th_info">{% trans "Additional Information" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='additional_info' %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'additional_info' for object %}</td>
         </tr>
         <tr>
             <th class="{% cycle header_color %} th_info">{% trans "Payment Terms" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='payment_terms' %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'payment_terms' for object %}</td>
         </tr>
         <tr>
             <th class="{% cycle header_color %} th_info">{% trans "Currency" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='currency' %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'currency' for object %}</td>
         </tr>
         <tr>
             <th class="{% cycle header_color %} th_info">{% trans "Status" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='status' %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'status' for object %}</td>
         </tr>
         {% if is_invoice %}
             <tr>
                 <th class="{% cycle header_color %} th_info">{% trans "Settlement terms" %}</th>
                 <td class="{% cycle row_color %} td_info">{% print_field object=object field='payment_type' %}</td>
+                <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'payment_type' for object %}</td>
             </tr>
         {% endif %}
     </tbody>

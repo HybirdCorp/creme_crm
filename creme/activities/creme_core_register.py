@@ -54,5 +54,8 @@ reg_icon(Meeting,   'images/map_%(size)s.png')
 reg_icon(Task,      'images/task_%(size)s.png')
 
 bulk_update_registry.register(
-    (Activity, ['type', 'start_date', 'end_date', 'busy', 'is_all_day']),
+    (Activity,  ['type', 'start_date', 'end_date', 'busy', 'is_all_day']),
+    (PhoneCall, ['type', 'start_date', 'end_date', 'busy', 'is_all_day']),
+    (Meeting,   ['type', 'start_date', 'end_date', 'busy', 'is_all_day']),
+    (Task,      ['type', 'start_date', 'end_date', 'busy', 'is_all_day']),
 )

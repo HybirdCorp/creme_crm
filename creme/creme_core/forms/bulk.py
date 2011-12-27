@@ -32,21 +32,21 @@ from creme_core.forms.base import CremeForm, _CUSTOM_NAME
 from creme_core.forms.fields import AjaxMultipleChoiceField
 from creme_core.models.custom_field import CustomField, CustomFieldEnumValue, CustomFieldValue, CustomFieldMultiEnum, CustomFieldEnum
 from creme_core.utils import entities2unicode
-from creme_core.utils.meta import get_flds_with_fk_flds_str
+from creme_core.utils.meta import get_flds_with_fk_flds_str, get_verbose_field_name
 from creme_core.gui.bulk_update import bulk_update_registry
 
 
 _FIELDS_WIDGETS = {
-    models.DateField: lambda name, choices:widgets.CalendarWidget({'id': 'id_%s' % name}).render(name=name, value=None,
+    models.DateField: lambda name, choices, value=None:widgets.CalendarWidget({'id': 'id_%s' % name}).render(name=name, value=value,
                                                                                                  attrs=None),
-    models.DateTimeField: lambda name, choices:widgets.DateTimeWidget({'id': 'id_%s' % name}).render(name=name,
-                                                                                                     value=None,
+    models.DateTimeField: lambda name, choices, value=None:widgets.DateTimeWidget({'id': 'id_%s' % name}).render(name=name,
+                                                                                                     value=value,
                                                                                                      attrs=None),
-    models.ManyToManyField: lambda name, choices: widgets.UnorderedMultipleChoiceWidget({'id': 'id_%s' % name}).render(
-        name=name, value=None, attrs=None, choices=choices),
+    models.ManyToManyField: lambda name, choices, value=None: widgets.UnorderedMultipleChoiceWidget({'id': 'id_%s' % name}).render(
+        name=name, value=value, attrs=None, choices=choices),
 
-    CustomFieldMultiEnum: lambda name, choices: widgets.UnorderedMultipleChoiceWidget({'id': 'id_%s' % name}).render(
-        name=name, value=None, attrs=None, choices=choices),
+    CustomFieldMultiEnum: lambda name, choices, value=None: widgets.UnorderedMultipleChoiceWidget({'id': 'id_%s' % name}).render(
+        name=name, value=value, attrs=None, choices=choices),
     }
 
 _FIELDS_WIDGETS[fields.CreationDateTimeField] = _FIELDS_WIDGETS[fields.ModificationDateTimeField] = _FIELDS_WIDGETS[
@@ -224,3 +224,28 @@ class EntitiesBulkUpdateForm(CremeForm):
                     already_saved = True
 
         post_save_function(self.subjects, field_name, already_saved)
+
+
+class EntityInnerEditForm(EntitiesBulkUpdateForm):
+
+    def __init__(self, model, field_name, subjects, forbidden_subjects, user, *args, **kwargs):
+        super(EntityInnerEditForm, self).__init__(model, subjects, forbidden_subjects, user, *args, **kwargs)
+
+        self.field_name = field_name
+
+        verbose_field_name = self._get_field(field_name).name if self.is_custom_field(field_name) else get_verbose_field_name(model, field_name)
+        verbose_model_name = model._meta.verbose_name.title()
+
+        fields = self.fields
+
+        fields['entities_lbl'].required = False
+
+        fields_field_name = fields['field_name']
+        fields_field_name.widget = widgets.AdaptiveWidget(ct_id=self.ct.id, field_value_name='field_value', object_id=subjects[0].id)
+        fields_field_name.choices = [(field_name, "%s - %s" % (verbose_model_name, verbose_field_name))]
+        fields_field_name.required = False
+        fields_field_name.widget.attrs['disabled'] = True
+
+    def clean(self, *args, **kwargs):
+        self.cleaned_data['field_name'] = self.field_name
+        return super(EntityInnerEditForm, self).clean(*args, **kwargs)

@@ -1,0 +1,11 @@
+{% load i18n %}
+{% load creme_block creme_core_tags %}
+{% if updatable and editable %}
+    {% if edit_perm %}
+        <a onclick="creme.utils.showInnerPopup('/creme_core/entity/edit/{{object.id}}/field/{{ field }}');">
+            <img src="{% creme_media_url 'images/edit_16.png' %}" border="0">
+        </a>
+    {% else %}
+        <img class="forbidden" src="{% creme_media_url 'images/edit_16.png' %}" border="0" title="{% trans "Can't edit" %}" alt="{% trans "Can't edit" %}" />
+    {% endif %}
+{% endif %}
