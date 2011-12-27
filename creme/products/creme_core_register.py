@@ -42,4 +42,5 @@ reg_icon(Service, 'images/service_%(size)s.png')
 
 bulk_update_registry.register(
     (Product, ['category', 'sub_category']),
+    (Service, ['category', 'sub_category']),
 )

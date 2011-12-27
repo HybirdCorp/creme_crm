@@ -730,10 +730,11 @@ class ListEditionWidget(Widget):
 
 
 class AdaptiveWidget(Select):
-    def __init__(self, ct_id, field_value_name, attrs=None, choices=()):
+    def __init__(self, ct_id, field_value_name, object_id="", attrs=None, choices=()):
         super(AdaptiveWidget, self).__init__(attrs, choices)
         self.ct_id = ct_id
         self.field_value_name = field_value_name
+        self.object_id = object_id
         self.url = "/creme_core/entity/get_widget/%s" % ct_id
 
     def render(self, name, value, attrs=None, choices=()):
@@ -741,6 +742,7 @@ class AdaptiveWidget(Select):
 
         context = widget_render_context('ui-creme-adaptive-widget', attrs,
                                         url=self.url,
+                                        object_id=self.object_id,
                                         style=attrs.pop('style', ''),
                                         field_value_name=self.field_value_name
                                        )
@@ -748,7 +750,7 @@ class AdaptiveWidget(Select):
         context['input'] = super(AdaptiveWidget, self).render(name, value, attrs, choices)
 
         html_output = """
-            <span class="%(css)s" style="%(style)s" widget="%(typename)s" url="%(url)s" field_value_name="%(field_value_name)s">
+            <span class="%(css)s" style="%(style)s" widget="%(typename)s" url="%(url)s" field_value_name="%(field_value_name)s" object_id="%(object_id)s">
                 %(input)s
             </span>
         """ % context

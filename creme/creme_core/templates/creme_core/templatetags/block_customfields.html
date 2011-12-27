@@ -3,7 +3,7 @@
 {% with object.get_custom_fields_n_values as custom_fields_n_values %}
     {% if custom_fields_n_values %}
         <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
-            {% get_block_header colspan=2 %}
+            {% get_block_header colspan=3 %}
                 <th class="collapser label">{% get_basic_block_header _('Custom fields') 'infos_48.png' _('Information') %}</th>
                 <th class="actions">
                     <div class="buttons">
@@ -15,7 +15,8 @@
                 {% for field, value in custom_fields_n_values %}
                     <tr class="content">
                         <th class="{% cycle "block_header_line_dark" "block_header_line_light" %} th_info">{{field.name}}</th>
-                        <td class="{% cycle "block_line_dark" "block_line_light" %} td_info">{{value}}</td>
+                        <td class="{% cycle "block_line_dark" "block_line_light" %}  td_info">{{ value }}</td>
+                        <td class="{% cycle "block_line_dark" "block_line_light" %}">{% get_filter_editor on custom field for object %}</td>
                     </tr>
                 {% endfor %}
             </tbody>

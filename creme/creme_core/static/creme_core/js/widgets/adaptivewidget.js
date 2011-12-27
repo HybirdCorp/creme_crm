@@ -20,7 +20,8 @@ creme.widget.AdaptiveWidget = creme.widget.declare('ui-creme-adaptive-widget', {
     options : {
         url: '',
         field_value_name: '',
-        parent_selector: 'td'
+        parent_selector: 'td',
+        object_id: ''
     },
 
     _create: function(element, options) {
@@ -29,6 +30,7 @@ creme.widget.AdaptiveWidget = creme.widget.declare('ui-creme-adaptive-widget', {
         element.data('url', options['url']);
         element.data('field_value_name', options['field_value_name']);
         element.data('parent_selector', options['parent_selector']);
+        element.data('object_id', options['object_id']);
 
         element.bind('change', function() {
             self._change(element);
@@ -45,6 +47,7 @@ creme.widget.AdaptiveWidget = creme.widget.declare('ui-creme-adaptive-widget', {
         var $form = $select.parents('form');
         var value = $select.val();
         var field_value_name = element.data('field_value_name');
+        var object_id = element.data('object_id');
 
         var $target = $form.find('[name='+field_value_name+']');
         var $parent_target = $target.parents(element.data('parent_selector'));
@@ -54,7 +57,8 @@ creme.widget.AdaptiveWidget = creme.widget.declare('ui-creme-adaptive-widget', {
             dataType: 'json',
             data:{
                 'field_name': value,
-                'field_value_name': field_value_name
+                'field_value_name': field_value_name,
+                'object_id': object_id
             },
             success: function(data){
                 $parent_target.empty().html(data.rendered);
