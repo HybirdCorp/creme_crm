@@ -2,8 +2,9 @@
 
 try:
     import string
-    import pytz
     from datetime import datetime, date, timedelta
+
+    import pytz
 
     from django.db.models import fields
     from django.utils.translation import ugettext as _
@@ -19,7 +20,7 @@ try:
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Civility
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -35,7 +36,7 @@ class MiscTestCase(CremeTestCase):
         self.assert_(find_first(l, lambda i: i.data == 2) is i2)
         self.assert_(find_first(l, lambda i: i.data == 5) is i4)
 
-        self.assert_(find_first(l, lambda i: i.data == 12, None) is None)
+        self.assertIsNone(find_first(l, lambda i: i.data == 12, None))
         self.assertRaises(IndexError, find_first, l, lambda i: i.data == 12)
 
     def test_truncate_str_01(self):
@@ -53,24 +54,6 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual("",      truncate_str("abcdef", -1, suffix="aaaaaa"))
         self.assertEqual("a",     truncate_str("b",       1, suffix="a"))
 
-    #def test_create_if_needed01(self):
-        #title = 'Mister'
-        #pk = 1
-        #civ = create_if_needed(Civility, pk=pk, title=title)
-
-        #self.assertIsInstance(civ, Civility)
-        #self.assertEqual(pk,       civ.pk)
-        #self.assertEqual(title,    civ.title)
-
-        #try:
-            #civ = Civility.objects.get(pk=pk)
-        #except Civility.DoesNotExist:
-            #self.fail('Not saved ?!')
-
-        #self.assertEqual(title, civ.title)
-
-        #civ = create_if_needed(Civility, pk=pk, title=title + '2')
-        #self.assertEqual(title, civ.title)
     def test_create_if_needed01(self):
         title = 'Mister'
         pk = 1
@@ -145,9 +128,9 @@ class MetaTestCase(CremeTestCase):
             self.assertEqual(1, len(info))
 
             desc = info[0]
-            self.assert_(isinstance(desc['field'], fields.related.ForeignKey))
+            self.assertIsInstance(desc['field'], fields.related.ForeignKey)
             self.assertEqual(CremePropertyType, desc['model'])
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         #[{ 'field': <django.db.models.fields.related.ForeignKey object at ...>,
@@ -159,13 +142,13 @@ class MetaTestCase(CremeTestCase):
             self.assertEqual(2, len(info))
 
             desc = info[0]
-            self.assert_(isinstance(desc['field'], fields.related.ForeignKey))
+            self.assertIsInstance(desc['field'], fields.related.ForeignKey)
             self.assertEqual(CremePropertyType, desc['model'])
 
             desc = info[1]
-            self.assert_(isinstance(desc['field'], fields.CharField))
-            self.assert_(desc['model'] is None)
-        except Exception, e:
+            self.assertIsInstance(desc['field'], fields.CharField)
+            self.assertIsNone(desc['model'])
+        except Exception as e:
             self.fail(str(e))
 
         #[{'field': <django.db.models.fields.related.ForeignKey object at 0x9d123ec>,
@@ -179,24 +162,24 @@ class MetaTestCase(CremeTestCase):
             self.assertEqual(3, len(info))
 
             desc = info[0]
-            self.assert_(isinstance(desc['field'], fields.related.ForeignKey))
+            self.assertIsInstance(desc['field'], fields.related.ForeignKey)
             self.assertEqual(CremeEntity, desc['model'])
 
             desc = info[1]
-            self.assert_(isinstance(desc['field'], fields.related.ForeignKey))
+            self.assertIsInstance(desc['field'], fields.related.ForeignKey)
             self.assertEqual(ContentType, desc['model'])
 
             desc = info[2]
-            self.assert_(isinstance(desc['field'], fields.CharField))
-            self.assert_(desc['model'] is None)
+            self.assertIsInstance(desc['field'], fields.CharField)
+            self.assertIsNone(desc['model'])
         except Exception, e:
             self.fail(str(e))
 
     def test_get_date_fields(self):
         entity = CremeEntity()
         get_field = entity._meta.get_field
-        self.assert_(meta.is_date_field(get_field('created')))
-        self.failIf(meta.is_date_field(get_field('user')))
+        self.assertTrue(meta.is_date_field(get_field('created')))
+        self.assertFalse(meta.is_date_field(get_field('user')))
 
         datefields = meta.get_date_fields(entity)
         self.assertEqual(2, len(datefields))
@@ -277,7 +260,7 @@ s556"""
 
         for i, chunk in enumerate(chunks):
             self.assertEqual(5, len(chunk), 'Bad size for chunk %i : %s' % (i, chunk))
-            self.assert_(isinstance(chunk, list))
+            self.assertIsInstance(chunk, list)
 
         self.assertEqual(self.data, ''.join(''.join(chunk) for chunk in chunks))
 
@@ -340,7 +323,7 @@ class DatesTestCase(CremeTestCase):
 class DateRangeTestCase(CremeTestCase):
     def test_future(self):
         date_range = date_range_registry.get_range('in_future')
-        self.assert_(date_range is not None)
+        self.assertIsNotNone(date_range)
         self.assertEqual(_(u"In the future"), unicode(date_range.verbose_name))
 
         now = datetime.now()
@@ -351,7 +334,7 @@ class DateRangeTestCase(CremeTestCase):
     def test_past(self):
         now = datetime.now()
         date_range = date_range_registry.get_range(name='in_past')
-        self.assert_(date_range is not None)
+        self.assertIsNotNone(date_range)
         self.assertEqual({'created__lte': now},
                          date_range.get_q_dict(field='created', now=now)
                         )
@@ -359,7 +342,7 @@ class DateRangeTestCase(CremeTestCase):
     def test_custom_start01(self):
         now = date(year=2011, month=6, day=1)
         date_range = date_range_registry.get_range(start=now)
-        self.assert_(date_range is not None)
+        self.assertIsNotNone(date_range)
         self.assertEqual({'created__gte': datetime(year=2011, month=6, day=1, hour=0, minute=0, second=0)},
                          date_range.get_q_dict(field='created', now=datetime.now())
                         )
@@ -367,7 +350,7 @@ class DateRangeTestCase(CremeTestCase):
     def test_custom_start02(self):
         now = datetime(year=2011, month=6, day=1, hour=12, minute=36, second=12)
         date_range = date_range_registry.get_range(start=now)
-        self.assert_(date_range is not None)
+        self.assertIsNotNone(date_range)
         self.assertEqual({'created__gte': datetime(year=2011, month=6, day=1, hour=12, minute=36, second=12)},
                          date_range.get_q_dict(field='created', now=datetime.now())
                         )
@@ -375,7 +358,7 @@ class DateRangeTestCase(CremeTestCase):
     def test_custom_end01(self):
         now = date(year=2012, month=7, day=15)
         date_range = date_range_registry.get_range(end=now)
-        self.assert_(date_range is not None)
+        self.assertIsNotNone(date_range)
         self.assertEqual({'modified__lte': datetime(year=2012, month=7, day=15, hour=23, minute=59, second=59)},
                          date_range.get_q_dict(field='modified', now=datetime.now())
                         )
@@ -383,7 +366,7 @@ class DateRangeTestCase(CremeTestCase):
     def test_custom_end02(self):
         now = datetime(year=2012, month=7, day=15, hour=10, minute=21, second=50)
         date_range = date_range_registry.get_range(end=now)
-        self.assert_(date_range is not None)
+        self.assertIsNotNone(date_range)
         self.assertEqual({'modified__lte': datetime(year=2012, month=7, day=15, hour=10, minute=21, second=50)},
                          date_range.get_q_dict(field='modified', now=datetime.now())
                         )
@@ -392,7 +375,7 @@ class DateRangeTestCase(CremeTestCase):
         today    = date(year=2011, month=8, day=2)
         tomorrow = date(year=2011, month=8, day=3)
         date_range = date_range_registry.get_range(start=today, end=tomorrow)
-        self.assert_(date_range is not None)
+        self.assertIsNotNone(date_range)
         self.assertEqual({'modified__range': (datetime(year=2011, month=8, day=2, hour=0,  minute=0,  second=0),
                                               datetime(year=2011, month=8, day=3, hour=23, minute=59, second=59)
                                              )
@@ -403,7 +386,7 @@ class DateRangeTestCase(CremeTestCase):
     def test_previous_year(self):
         today = datetime(year=2011, month=4, day=24)
         date_range = date_range_registry.get_range(name='previous_year')
-        self.assert_(date_range is not None)
+        self.assertIsNotNone(date_range)
         self.assertEqual({'modified__range': (datetime(year=2010, month=1,  day=1,  hour=0,  minute=0,  second=0),
                                               datetime(year=2010, month=12, day=31, hour=23, minute=59, second=59)
                                              )
@@ -414,7 +397,7 @@ class DateRangeTestCase(CremeTestCase):
     def test_current_year(self):
         today = datetime(year=2011, month=4, day=24)
         date_range = date_range_registry.get_range(name='current_year')
-        self.assert_(date_range is not None)
+        self.assertIsNotNone(date_range)
         self.assertEqual({'modified__range': (datetime(year=2011, month=1,  day=1,  hour=0,  minute=0,  second=0),
                                               datetime(year=2011, month=12, day=31, hour=23, minute=59, second=59)
                                              )
@@ -425,7 +408,7 @@ class DateRangeTestCase(CremeTestCase):
     def test_next_year(self):
         today = datetime(year=2011, month=4, day=24)
         date_range = date_range_registry.get_range(name='next_year')
-        self.assert_(date_range is not None)
+        self.assertIsNotNone(date_range)
         self.assertEqual({'modified__range': (datetime(year=2012, month=1,  day=1,  hour=0,  minute=0,  second=0),
                                               datetime(year=2012, month=12, day=31, hour=23, minute=59, second=59)
                                              )
@@ -436,7 +419,7 @@ class DateRangeTestCase(CremeTestCase):
     def test_previous_month01(self):
         today = datetime(year=2011, month=4, day=24)
         date_range = date_range_registry.get_range(name='previous_month')
-        self.assert_(date_range is not None)
+        self.assertIsNotNone(date_range)
         self.assertEqual({'modified__range': (datetime(year=2011, month=3, day=1,  hour=0,  minute=0,  second=0),
                                               datetime(year=2011, month=3, day=31, hour=23, minute=59, second=59)
                                              )
@@ -467,7 +450,7 @@ class DateRangeTestCase(CremeTestCase):
     def test_current_month01(self):
         today = datetime(year=2011, month=1, day=15)
         date_range = date_range_registry.get_range(name='current_month')
-        self.assert_(date_range is not None)
+        self.assertIsNotNone(date_range)
         self.assertEqual({'modified__range': (datetime(year=2011, month=1, day=1,  hour=0,  minute=0,  second=0),
                                               datetime(year=2011, month=1, day=31, hour=23, minute=59, second=59)
                                              )
@@ -498,7 +481,7 @@ class DateRangeTestCase(CremeTestCase):
     def test_next_month01(self):
         today = datetime(year=2011, month=10, day=20)
         date_range = date_range_registry.get_range(name='next_month')
-        self.assert_(date_range is not None)
+        self.assertIsNotNone(date_range)
         self.assertEqual({'modified__range': (datetime(year=2011, month=11, day=1,  hour=0,  minute=0,  second=0),
                                               datetime(year=2011, month=11, day=30, hour=23, minute=59, second=59)
                                              )
@@ -529,7 +512,7 @@ class DateRangeTestCase(CremeTestCase):
     def test_previous_quarter01(self):
         today = datetime(year=2011, month=4, day=24)
         date_range = date_range_registry.get_range(name='previous_quarter')
-        self.assert_(date_range is not None)
+        self.assertIsNotNone(date_range)
         self.assertEqual({'modified__range': (datetime(year=2011, month=1, day=1,  hour=0,  minute=0,  second=0),
                                               datetime(year=2011, month=3, day=31, hour=23, minute=59, second=59)
                                              )
@@ -539,7 +522,7 @@ class DateRangeTestCase(CremeTestCase):
 
     def test_previous_quarter02(self):
         today = datetime(year=2011, month=6, day=12)
-        self.assert_(date_range is not None)
+        self.assertIsNotNone(date_range)
         self.assertEqual({'modified__range': (datetime(year=2011, month=1, day=1,  hour=0,  minute=0,  second=0),
                                               datetime(year=2011, month=3, day=31, hour=23, minute=59, second=59)
                                              )
@@ -550,7 +533,7 @@ class DateRangeTestCase(CremeTestCase):
 
     def test_previous_quarter03(self):
         today = datetime(year=2011, month=2, day=8)
-        self.assert_(date_range is not None)
+        self.assertIsNotNone(date_range)
         self.assertEqual({'modified__range': (datetime(year=2010, month=10, day=1,  hour=0,  minute=0,  second=0),
                                               datetime(year=2010, month=12, day=31, hour=23, minute=59, second=59)
                                              )
@@ -562,7 +545,7 @@ class DateRangeTestCase(CremeTestCase):
     def test_current_quarter01(self):
         today = datetime(year=2011, month=7, day=21)
         date_range = date_range_registry.get_range(name='current_quarter')
-        self.assert_(date_range is not None)
+        self.assertIsNotNone(date_range)
         self.assertEqual({'modified__range': (datetime(year=2011, month=7, day=1,  hour=0,  minute=0,  second=0),
                                               datetime(year=2011, month=9, day=30, hour=23, minute=59, second=59)
                                              )
@@ -573,7 +556,7 @@ class DateRangeTestCase(CremeTestCase):
     def test_next_quarter01(self):
         today = datetime(year=2011, month=4, day=21)
         date_range = date_range_registry.get_range(name='next_quarter')
-        self.assert_(date_range is not None)
+        self.assertIsNotNone(date_range)
         self.assertEqual({'modified__range': (datetime(year=2011, month=7, day=1,  hour=0,  minute=0,  second=0),
                                               datetime(year=2011, month=9, day=30, hour=23, minute=59, second=59)
                                              )

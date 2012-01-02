@@ -16,7 +16,7 @@ try:
     from persons.models import Contact, Organisation
 
     from activities.models import Meeting, Activity
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -40,7 +40,7 @@ class GuiTestCase(CremeTestCase):
         def get_items():
             try:
                 return FakeRequest().session['last_viewed_items']
-            except Exception, e:
+            except Exception as e:
                 self.fail(str(e))
 
         self.assertEqual(0, len(LastViewedItem.get_all(FakeRequest())))
@@ -83,10 +83,14 @@ class GuiTestCase(CremeTestCase):
         ce_excluded_fields = ['created']
 
         bulk_update_registry.register((Contact, contact_excluded_fields))
-        self.assertEqual(bulk_update_registry.get_excluded_fields(Contact), set(contact_excluded_fields))
+        self.assertEqual(bulk_update_registry.get_excluded_fields(Contact),
+                         set(contact_excluded_fields)
+                        )
 
         bulk_update_registry.register((CremeEntity, ce_excluded_fields))
-        self.assertEqual(bulk_update_registry.get_excluded_fields(Contact), set(contact_excluded_fields) | set(ce_excluded_fields))
+        self.assertEqual(bulk_update_registry.get_excluded_fields(Contact),
+                         set(contact_excluded_fields) | set(ce_excluded_fields)
+                        )
 
     def test_bulk_update_registry02(self):
         bulk_update_registry    = self.bulk_update_registry
@@ -94,13 +98,16 @@ class GuiTestCase(CremeTestCase):
         orga_excluded_fields    = ['sector', 'name']
         ce_excluded_fields      = ['created']
 
-        bulk_update_registry.register(
-                                        (Contact,      contact_excluded_fields),
-                                        (CremeEntity,  ce_excluded_fields),
-                                        (Organisation, orga_excluded_fields),
+        bulk_update_registry.register((Contact,      contact_excluded_fields),
+                                      (CremeEntity,  ce_excluded_fields),
+                                      (Organisation, orga_excluded_fields),
                                      )
-        self.assertEqual(bulk_update_registry.get_excluded_fields(Contact),      set(contact_excluded_fields) | set(ce_excluded_fields))
-        self.assertEqual(bulk_update_registry.get_excluded_fields(Organisation), set(orga_excluded_fields)    | set(ce_excluded_fields))
+        self.assertEqual(bulk_update_registry.get_excluded_fields(Contact),
+                         set(contact_excluded_fields) | set(ce_excluded_fields)
+                        )
+        self.assertEqual(bulk_update_registry.get_excluded_fields(Organisation),
+                         set(orga_excluded_fields) | set(ce_excluded_fields)
+                        )
 
     def test_bulk_update_registry03(self):
         bulk_update_registry     = self.bulk_update_registry
@@ -110,12 +117,11 @@ class GuiTestCase(CremeTestCase):
         activity_excluded_fields = ['title']
         meeting_excluded_fields  = ['place']
 
-        bulk_update_registry.register(
-                                        (Contact,      contact_excluded_fields),
-                                        (CremeEntity,  ce_excluded_fields),
-                                        (Organisation, orga_excluded_fields),
-                                        (Meeting,      meeting_excluded_fields),
-                                        (Activity,     activity_excluded_fields),
+        bulk_update_registry.register((Contact,      contact_excluded_fields),
+                                      (CremeEntity,  ce_excluded_fields),
+                                      (Organisation, orga_excluded_fields),
+                                      (Meeting,      meeting_excluded_fields),
+                                      (Activity,     activity_excluded_fields),
                                      )
 
         meeting_excluded_fields_expected = set(activity_excluded_fields)   | set(ce_excluded_fields) | set(meeting_excluded_fields)
@@ -129,9 +135,7 @@ class GuiTestCase(CremeTestCase):
         bulk_update_registry = self.bulk_update_registry
         ce_excluded_fields = ['created']
 
-        bulk_update_registry.register(
-                                        (CremeEntity,  ce_excluded_fields),
-                                     )
+        bulk_update_registry.register((CremeEntity, ce_excluded_fields))
         self.assertEqual(bulk_update_registry.get_excluded_fields(Contact), set(ce_excluded_fields))
 
 
@@ -186,7 +190,7 @@ class BlockRegistryTestCase(CremeTestCase):
             def portal_display(self, context, ct_ids): return '<table id="%s"></table>' % self.id_
             def home_display(self, context):           return '<table id="%s"></table>' % self.id_
 
-############################""
+
         class _FoobarInstanceBlock(Block):
             verbose_name  = u'Testing purpose'
 
@@ -666,13 +670,12 @@ class BlocksManagerTestCase(CremeTestCase):
         mngr.add_group('gname2', block4, block5, block6)
         self.assertEqual(set([rtype1_pk, rtype2_pk]), mngr.get_used_relationtypes_ids())
 
-        self.assertDictEqual({
-                                block1.id_: set([]),
-                                block2.id_: set([]),
-                                block3.id_: set([]),
-                                block4.id_: set([block5.id_]),
-                                block5.id_: set([block4.id_, block6.id_]),
-                                block6.id_: set([block5.id_]),
+        self.assertDictEqual({block1.id_: set([]),
+                              block2.id_: set([]),
+                              block3.id_: set([]),
+                              block4.id_: set([block5.id_]),
+                              block5.id_: set([block4.id_, block6.id_]),
+                              block6.id_: set([block5.id_]),
                              },
                              mngr.get_dependencies_map()
                             )
@@ -686,7 +689,7 @@ class BlocksManagerTestCase(CremeTestCase):
 
         try:
             fake_context = {mngr.var_name: mngr}
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertIs(mngr, BlocksManager.get(fake_context))
