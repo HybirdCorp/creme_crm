@@ -720,7 +720,7 @@ class BlocksConfigTestCase(CremeTestCase):
                                      )
         self.assertFalse(RelationBlockItem.objects.count())
 
-        url = '/creme_config/relation_block/add/'
+        url = '/creme_config/blocks/relation_block/add/'
         self.assertEqual(200, self.client.get(url).status_code)
 
         response = self.client.post(url, data={'relation_type': rt.id})
@@ -738,11 +738,11 @@ class BlocksConfigTestCase(CremeTestCase):
         rbi = RelationBlockItem.objects.create(block_id='foobarid', relation_type=rt)
         loc = BlockDetailviewLocation.create(block_id=rbi.block_id, order=5, zone=BlockDetailviewLocation.RIGHT, model=Contact)
 
-        self.assertEqual(200, self.client.post('/creme_config/relation_block/delete', data={'id': rbi.id}).status_code)
+        self.assertEqual(200, self.client.post('/creme_config/blocks/relation_block/delete', data={'id': rbi.id}).status_code)
         self.assertFalse(RelationBlockItem.objects.filter(pk=rbi.pk).exists())
         self.assertFalse(BlockDetailviewLocation.objects.filter(pk=loc.pk).exists())
 
-    def test_delete_instanceblock(self): ##(r'^instance_block/delete$',  'blocks.delete_instance_block')
+    def test_delete_instanceblock(self):
         naru = Contact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
 
         class FoobarInstanceBlock(Block):
@@ -760,6 +760,6 @@ class BlocksConfigTestCase(CremeTestCase):
                                                     )
         loc = BlockDetailviewLocation.create(block_id=ibi.block_id, order=5, zone=BlockDetailviewLocation.RIGHT, model=Contact)
 
-        self.assertEqual(200, self.client.post('/creme_config/instance_block/delete', data={'id': ibi.id}).status_code)
+        self.assertEqual(200, self.client.post('/creme_config/blocks/instance_block/delete', data={'id': ibi.id}).status_code)
         self.assertFalse(InstanceBlockConfigItem.objects.filter(pk=ibi.pk).exists())
         self.assertFalse(BlockDetailviewLocation.objects.filter(pk=loc.pk).exists())

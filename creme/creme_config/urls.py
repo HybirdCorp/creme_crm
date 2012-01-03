@@ -2,109 +2,137 @@
 
 from imp import find_module
 
-from django.conf.urls.defaults import patterns
+from django.conf.urls.defaults import patterns, include
 from django.conf import settings
 
 from creme_config.registry import config_registry
 
 
+user_patterns = patterns('creme_config.views.user',
+    (r'^portal/$',                        'portal'),
+    (r'^add/$',                           'add'),
+    (r'^edit/(?P<user_id>\d+)$',          'edit'),
+    (r'^delete/(?P<user_id>\d+)$',        'assign_user_n_delete', {'is_team': False}),
+    (r'^edit/password/(?P<user_id>\d+)$', 'change_password'),
+)
+
+team_patterns = patterns('creme_config.views.user',
+    (r'^add/$',                    'add_team'),
+    (r'^edit/(?P<user_id>\d+)$',   'edit_team'),
+    (r'^delete/(?P<user_id>\d+)$', 'assign_user_n_delete', {'is_team': True}),
+)
+
+user_settings_patterns = patterns('creme_config.views.user_settings',
+    (r'^edit_theme/$', 'edit_theme'),
+    (r'^$',            'view'),
+)
+
+role_patterns = patterns('creme_config.views.user_role',
+    (r'^portal/$',                          'portal'),
+    (r'^add/$',                             'add'),
+    (r'^edit/(?P<role_id>\d+)$',            'edit'),
+    (r'^add_credentials/(?P<role_id>\d+)$', 'add_credentials'),
+    (r'^delete$',                           'delete'),
+    (r'^set_default_creds/$',               'set_default_creds'),
+)
+
+relation_type_patterns = patterns('creme_config.views.relation_type',
+    (r'^portal/$',                           'portal'),
+    (r'^add/$',                              'add'),
+    (r'^edit/(?P<relation_type_id>[\w-]+)$', 'edit'),
+    (r'^delete$',                            'delete'),
+    (r'^semi_fixed/add/$',                   'add_semi_fixed'),
+    (r'^semi_fixed/delete$',                 'delete_semi_fixed'),
+)
+
+property_type_patterns = patterns('creme_config.views.creme_property_type',
+    (r'^portal/$',                           'portal'),
+    (r'^add/$',                              'add'),
+    (r'^edit/(?P<property_type_id>[\w-]+)$', 'edit'),
+    (r'^delete$',                            'delete'),
+)
+
+custom_fields_patterns = patterns('creme_config.views.custom_fields',
+    (r'^portal/$',                'portal'),
+    (r'^ct/add/$',                'add_ct'),
+    (r'^ct/(?P<ct_id>\d+)$',      'view'),
+    (r'^ct/delete$',              'delete_ct'),
+    (r'^add/(?P<ct_id>\d+)$',     'add'),
+    (r'^edit/(?P<field_id>\d+)$', 'edit'),
+    (r'^delete$',                 'delete'),
+    (r'^(?P<ct_id>\d+)/reload/$', 'reload_block'),
+)
+
+blocks_patterns = patterns('creme_config.views.blocks',
+    (r'^portal/$',                        'portal'),
+    (r'^detailview/add/$',                'add_detailview'),
+    (r'^detailview/edit/(?P<ct_id>\d+)$', 'edit_detailview'),
+    (r'^detailview/delete$',              'delete_detailview'),
+    (r'^portal/add/$',                    'add_portal'),
+    (r'^portal/edit/(?P<app_name>\w+)$',  'edit_portal'),
+    (r'^portal/delete$',                  'delete_portal'),
+    (r'^mypage/edit/default$',            'edit_default_mypage'),
+    (r'^mypage/edit$',                    'edit_mypage'),
+    (r'^mypage/default/delete$',          'delete_default_mypage'),
+    (r'^mypage/delete$',                  'delete_mypage'),
+    (r'^relation_block/add/$',            'add_relation_block'),
+    (r'^relation_block/delete$',          'delete_relation_block'),
+    (r'^instance_block/delete$',          'delete_instance_block'),
+)
+
+prefered_menu_patterns = patterns('creme_config.views.prefered_menu',
+    (r'^edit/$',      'edit'),
+    (r'^mine/edit/$', 'edit_mine'),
+)
+
+button_menu_patterns = patterns('creme_config.views.button_menu',
+    (r'^portal/$',             'portal'),
+    (r'^add/$',                'add'),
+    (r'^edit/(?P<ct_id>\d+)$', 'edit'),
+    (r'^delete$',              'delete'),
+)
+
+search_patterns = patterns('creme_config.views.search',
+    (r'^portal/$',                        'portal'),
+    (r'^add/$',                           'add'),
+    (r'^edit/(?P<search_config_id>\d+)$', 'edit'),
+    (r'^delete$',                         'delete'),
+)
+
+history_patterns = patterns('creme_config.views.history',
+    (r'^portal/$', 'portal'),
+    (r'^add/$',    'add'),
+    (r'^delete$',  'delete'),
+)
+
+setting_patterns = patterns('creme_config.views.setting',
+    (r'^edit/(?P<svalue_id>\d+)$',   'edit'),
+    (r'^(?P<app_name>\w+)/reload/$', 'reload_block'),
+)
+
 urlpatterns = patterns('creme_config.views',
-    (r'^$', 'portal.portal'),
-
-    #Users
-    (r'^user/portal/$',                        'user.portal'),
-    (r'^user/add/$',                           'user.add'),
-    (r'^user/edit/(?P<user_id>\d+)$',          'user.edit'),
-    (r'^user/delete/(?P<user_id>\d+)$',        'user.assign_user_n_delete', {'is_team': False}),
-    (r'^user/edit/password/(?P<user_id>\d+)$', 'user.change_password'),
-    (r'^team/add/$',                           'user.add_team'),
-    (r'^team/edit/(?P<user_id>\d+)$',          'user.edit_team'),
-    (r'^team/delete/(?P<user_id>\d+)$',        'user.assign_user_n_delete', {'is_team': True}),
-
-    #User own settings
-    (r'^my_settings/edit_theme/$', 'user_settings.edit_theme'),
-    (r'^my_settings/$',            'user_settings.view'),
-
-    #Roles
-    (r'^role/portal/$',                          'user_role.portal'),
-    (r'^role/add/$',                             'user_role.add'),
-    (r'^role/edit/(?P<role_id>\d+)$',            'user_role.edit'),
-    (r'^role/add_credentials/(?P<role_id>\d+)$', 'user_role.add_credentials'),
-    (r'^role/delete$',                           'user_role.delete'),
-    (r'^role/set_default_creds/$',               'user_role.set_default_creds'),
-
-    #Relations Types
-    (r'^relation_type/portal/$',                           'relation_type.portal'),
-    (r'^relation_type/add/$',                              'relation_type.add'),
-    (r'^relation_type/edit/(?P<relation_type_id>[\w-]+)$', 'relation_type.edit'),
-    (r'^relation_type/delete$',                            'relation_type.delete'),
-    (r'^relation_type/semi_fixed/add/$',                   'relation_type.add_semi_fixed'),
-    (r'^relation_type/semi_fixed/delete$',                 'relation_type.delete_semi_fixed'),
-
-    #Property Types
-    (r'^property_type/portal/$',                           'creme_property_type.portal'),
-    (r'^property_type/add/$',                              'creme_property_type.add'),
-    (r'^property_type/edit/(?P<property_type_id>[\w-]+)$', 'creme_property_type.edit'),
-    (r'^property_type/delete$',                            'creme_property_type.delete'),
-
-    #Custom fields
-    (r'^custom_fields/portal/$',                'custom_fields.portal'),
-    (r'^custom_fields/ct/add/$',                'custom_fields.add_ct'),
-    (r'^custom_fields/ct/(?P<ct_id>\d+)$',      'custom_fields.view'),
-    (r'^custom_fields/ct/delete$',              'custom_fields.delete_ct'),
-    (r'^custom_fields/add/(?P<ct_id>\d+)$',     'custom_fields.add'),
-    (r'^custom_fields/edit/(?P<field_id>\d+)$', 'custom_fields.edit'),
-    (r'^custom_fields/delete$',                 'custom_fields.delete'),
-    (r'^custom_fields/(?P<ct_id>\d+)/reload/$', 'custom_fields.reload_block'),
-
-    #Blocks
-    (r'^blocks/portal/$',                        'blocks.portal'),
-    (r'^blocks/detailview/add/$',                'blocks.add_detailview'),
-    (r'^blocks/detailview/edit/(?P<ct_id>\d+)$', 'blocks.edit_detailview'),
-    (r'^blocks/detailview/delete$',              'blocks.delete_detailview'),
-    (r'^blocks/portal/add/$',                    'blocks.add_portal'),
-    (r'^blocks/portal/edit/(?P<app_name>\w+)$',  'blocks.edit_portal'),
-    (r'^blocks/portal/delete$',                  'blocks.delete_portal'),
-    (r'^blocks/mypage/edit/default$',            'blocks.edit_default_mypage'),
-    (r'^blocks/mypage/edit$',                    'blocks.edit_mypage'),
-    (r'^blocks/mypage/default/delete$',          'blocks.delete_default_mypage'),
-    (r'^blocks/mypage/delete$',                  'blocks.delete_mypage'),
-    (r'^relation_block/add/$',                   'blocks.add_relation_block'),
-    (r'^relation_block/delete$',                 'blocks.delete_relation_block'),
-    (r'^instance_block/delete$',                 'blocks.delete_instance_block'),
-
-    #Prefered Menu
-    (r'^prefered_menu/edit/$',      'prefered_menu.edit'),
-    (r'^prefered_menu/mine/edit/$', 'prefered_menu.edit_mine'),
-
-    #Button Menu
-    (r'^button_menu/portal/$',             'button_menu.portal'),
-    (r'^button_menu/add/$',                'button_menu.add'),
-    (r'^button_menu/edit/(?P<ct_id>\d+)$', 'button_menu.edit'),
-    (r'^button_menu/delete$',              'button_menu.delete'),
-
-    #Search
-    (r'^search/portal/$',                        'search.portal'),
-    (r'^search/add/$',                           'search.add'),
-    (r'^search/edit/(?P<search_config_id>\d+)$', 'search.edit'),
-    (r'^search/delete$',                         'search.delete'),
-
-    #History
-    (r'^history/portal/$', 'history.portal'),
-    (r'^history/add/$',    'history.add'),
-    (r'^history/delete$',  'history.delete'),
-
-    #Settings
-    (r'^setting/edit/(?P<svalue_id>\d+)$',    'setting.edit'),
-    (r'^settings/(?P<app_name>\w+)/reload/$', 'setting.reload_block'),
+    (r'^$',             'portal.portal'),
+    (r'^user/',          include(user_patterns)),
+    (r'^team/',          include(team_patterns)),
+    (r'^my_settings/',   include(user_settings_patterns)),
+    (r'^role/',          include(role_patterns)),
+    (r'^relation_type/', include(relation_type_patterns)),
+    (r'^property_type/', include(property_type_patterns)),
+    (r'^custom_fields/', include(custom_fields_patterns)),
+    (r'^blocks/',        include(blocks_patterns)),
+    (r'^prefered_menu/', include(prefered_menu_patterns)),
+    (r'^button_menu/',   include(button_menu_patterns)),
+    (r'^search/',        include(search_patterns)),
+    (r'^history/',       include(history_patterns)),
+    (r'^settings/',      include(setting_patterns)),
 
     #Generic portal config
-    (r'^models/(?P<ct_id>\d+)/reload/$',                                      'generics_views.reload_block'),
-    (r'^(?P<app_name>\w+)/portal/$',                                          'generics_views.portal_app'),
-    (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/portal/$',                      'generics_views.portal_model'),
-    (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/add/$',                         'generics_views.add_model'),
-    (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/edit/(?P<object_id>[\w-]+)$',   'generics_views.edit_model'),
-    (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/delete$',                       'generics_views.delete_model'),
+    (r'^models/(?P<ct_id>\d+)/reload/$',                                    'generics_views.reload_block'),
+    (r'^(?P<app_name>\w+)/portal/$',                                        'generics_views.portal_app'),
+    (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/portal/$',                    'generics_views.portal_model'),
+    (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/add/$',                       'generics_views.add_model'),
+    (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/edit/(?P<object_id>[\w-]+)$', 'generics_views.edit_model'),
+    (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/delete$',                     'generics_views.delete_model'),
 )
 
 #TODO: use creme_core.utils.imports ???
