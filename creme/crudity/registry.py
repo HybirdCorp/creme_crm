@@ -17,8 +17,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-from itertools import chain
 
+from itertools import chain
 from logging import warning
 from collections import defaultdict
 
@@ -26,9 +26,10 @@ from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.base import DeserializationError
 from django.core.serializers.python import _get_model
-from creme_core.registry import NotRegistered
 
+from creme_core.registry import NotRegistered
 from creme_core.utils.imports import find_n_import
+
 from crudity.backends.models import CrudityBackend
 
 
@@ -74,6 +75,7 @@ class FetcherInterface(object):
 
     def register_default_backend(self, backend):
         self._default_backend = backend
+
 
 class CRUDityRegistry(object):
     def __init__(self):
@@ -136,8 +138,7 @@ class CRUDityRegistry(object):
                         return backend
 
     def dispatch(self):
-        CRUDITY_BACKENDS = settings.CRUDITY_BACKENDS
-        for backend_cfg in CRUDITY_BACKENDS:
+        for backend_cfg in settings.CRUDITY_BACKENDS:
             try:
                 fetcher_source = backend_cfg.pop('fetcher')
                 input_name     = backend_cfg.pop('input')
@@ -147,9 +148,9 @@ class CRUDityRegistry(object):
                 subject        = backend_cfg['subject']
                 if backend is None:
                     raise NotRegistered("No backend is registered for this model '%s'" % model)
-            except KeyError, e:
+            except KeyError as e:
                 raise ImproperlyConfigured(u"You have an error in your CRUDITY_BACKENDS settings. Check if '%s' is present" % e)
-            except DeserializationError, de:
+            except DeserializationError as de:
                 raise ImproperlyConfigured(de)
             else:
                 fetcher = self.get_fetcher(fetcher_source)
@@ -167,9 +168,7 @@ class CRUDityRegistry(object):
 
 crudity_registry = CRUDityRegistry()
 
-crud_imports = find_n_import("crudity_register", ['fetchers', 'inputs', 'models'])
-
-for crud_import in crud_imports:
+for crud_import in find_n_import("crudity_register", ['fetchers', 'inputs', 'models']):
     #Fetchers
     fetchers = getattr(crud_import, "fetchers", {})
     register_fetchers = crudity_registry.register_fetchers

@@ -58,6 +58,7 @@ class AlgoRegistry(object):
 
 algo_registry = AlgoRegistry()
 
+#TODO: use creme_core.utils.import find_n_import
 debug('Billing: algos registering')
 for app in settings.INSTALLED_APPS:
     try:
