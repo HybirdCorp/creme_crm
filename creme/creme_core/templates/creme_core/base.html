@@ -223,7 +223,7 @@
             <div class="widget">
                 {% trans 'Welcome,' %} <strong>{% if user.first_name %}{{ user.first_name|escape }}{% else %}{{ user.username }}{% endif %}</strong> -
                 {% block userlinks %}
-                    <a href="/creme_config/user/view/settings/">{% trans 'My settings' %}</a> -
+                    <a href="/creme_config/my_settings/">{% trans 'My settings' %}</a> -
                     <a href="/creme_core/clean/">{% trans 'Log out' %}</a>
                 {% endblock %}
             </div>
@@ -272,7 +272,7 @@
     </div>
 
     <div id="footer">
-        <a href="http://hybird.org">{% trans "About Hybird" %}</a>&nbsp;&mdash;&nbsp;2009&hairsp;&ndash;&hairsp;2011 &nbsp;&nbsp;&nbsp;Creme v{{creme_version}} {% if django_version %}<i>&nbsp;&nbsp;&nbsp;(Django {{django_version}})</i>{% endif %}{% if THEME_VERBOSE_NAME %}&nbsp;&nbsp;&nbsp;{{ THEME_VERBOSE_NAME }}{% endif %}
+        <a href="http://hybird.org">{% trans "About Hybird" %}</a>&nbsp;&mdash;&nbsp;2009&hairsp;&ndash;&hairsp;2012 &nbsp;&nbsp;&nbsp;Creme v{{creme_version}} {% if django_version %}<i>&nbsp;&nbsp;&nbsp;(Django {{django_version}})</i>{% endif %}{% if THEME_VERBOSE_NAME %}&nbsp;&nbsp;&nbsp;{{ THEME_VERBOSE_NAME }}{% endif %}
     </div>
     <script type="text/javascript">
         $(document).ready(function(){

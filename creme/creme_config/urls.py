@@ -17,12 +17,13 @@ urlpatterns = patterns('creme_config.views',
     (r'^user/edit/(?P<user_id>\d+)$',          'user.edit'),
     (r'^user/delete/(?P<user_id>\d+)$',        'user.assign_user_n_delete', {'is_team': False}),
     (r'^user/edit/password/(?P<user_id>\d+)$', 'user.change_password'),
-    (r'^user/edit/settings/$',                 'user.edit_own_settings'),
-    (r'^user/edit/theme/$',                    'user.edit_theme'),
-    (r'^user/view/settings/$',                 'user.view_own_settings'),
     (r'^team/add/$',                           'user.add_team'),
     (r'^team/edit/(?P<user_id>\d+)$',          'user.edit_team'),
     (r'^team/delete/(?P<user_id>\d+)$',        'user.assign_user_n_delete', {'is_team': True}),
+
+    #User own settings
+    (r'^my_settings/edit_theme/$', 'user_settings.edit_theme'),
+    (r'^my_settings/$',            'user_settings.view'),
 
     #Roles
     (r'^role/portal/$',                          'user_role.portal'),
@@ -73,7 +74,8 @@ urlpatterns = patterns('creme_config.views',
     (r'^instance_block/delete$',                 'blocks.delete_instance_block'),
 
     #Prefered Menu
-    (r'^prefered_menu/edit/$', 'prefered_menu.edit'),
+    (r'^prefered_menu/edit/$',      'prefered_menu.edit'),
+    (r'^prefered_menu/mine/edit/$', 'prefered_menu.edit_mine'),
 
     #Button Menu
     (r'^button_menu/portal/$',             'button_menu.portal'),

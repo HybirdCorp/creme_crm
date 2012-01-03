@@ -23,17 +23,11 @@ from django.forms.fields import ChoiceField
 from django.forms.widgets import Select
 from django.utils.translation import ugettext_lazy as _
 
-from creme_config.constants import USER_THEME_NAME
-from creme_config.models.setting import SettingValue, SettingKey
-
 from creme_core.forms.base import CremeForm
 from creme_core.utils.media import get_current_theme
 
-from prefered_menu import PreferedMenuForm
-
-
-class UserSettingsConfigForm(PreferedMenuForm):
-    pass
+from creme_config.constants import USER_THEME_NAME
+from creme_config.models import SettingValue, SettingKey
 
 
 class UserThemeForm(CremeForm):
@@ -57,7 +51,7 @@ class UserThemeForm(CremeForm):
         sv.save()
 
     def as_span(self):#TODO: In CremeForm?
-        "Returns this form rendered as HTML <span>s."
+        """Returns this form rendered as HTML <span>s."""
         return self._html_output(normal_row=u'<span%(html_class_attr)s>%(label)s %(field)s%(help_text)s</span>',
                                  error_row=u'%s',
                                  row_ender='</span>',
