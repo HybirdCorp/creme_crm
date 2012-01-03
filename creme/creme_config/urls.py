@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from imp import find_module
-
 from django.conf.urls.defaults import patterns, include
-from django.conf import settings
-
-from creme_config.registry import config_registry
 
 
 user_patterns = patterns('creme_config.views.user',
@@ -134,15 +129,3 @@ urlpatterns = patterns('creme_config.views',
     (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/edit/(?P<object_id>[\w-]+)$', 'generics_views.edit_model'),
     (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/delete$',                     'generics_views.delete_model'),
 )
-
-#TODO: use creme_core.utils.imports ???
-for app in settings.INSTALLED_APPS:
-    try:
-        find_module("creme_config_register", __import__(app, {}, {}, [app.split(".")[-1]]).__path__)
-    except ImportError, e:
-        # there is no app creme_config.py, skip it
-        continue
-    config_import = __import__("%s.creme_config_register" % app , globals(), locals(), ['to_register', 'blocks_to_register'], -1)
-    config_registry.register(*getattr(config_import, "to_register", ()))
-    config_registry.register_blocks(*getattr(config_import, "blocks_to_register", ()))
-    config_registry.register_userblocks(*getattr(config_import, "userblocks_to_register", ()))

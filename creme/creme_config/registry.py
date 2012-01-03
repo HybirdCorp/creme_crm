@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 from itertools import chain
+from logging import debug
 
 from django.db.models import FieldDoesNotExist
 from django.forms.models import modelform_factory
@@ -26,6 +27,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.registry import creme_registry
 from creme_core.forms import CremeModelForm
+from creme_core.utils.imports import find_n_import
 
 from creme_config.utils import generate_portal_url
 from creme_config.models.setting import SettingKey
@@ -147,3 +149,9 @@ class _ConfigRegistry(object):
 
 
 config_registry = _ConfigRegistry()
+
+debug('creme_config: populate registry')
+for config_import in find_n_import("creme_config_register", ['to_register', 'blocks_to_register', 'userblocks_to_register']):
+    config_registry.register(*getattr(config_import, "to_register", ()))
+    config_registry.register_blocks(*getattr(config_import, "blocks_to_register", ()))
+    config_registry.register_userblocks(*getattr(config_import, "userblocks_to_register", ()))
