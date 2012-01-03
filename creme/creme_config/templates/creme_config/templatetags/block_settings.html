@@ -22,7 +22,7 @@
                     <td class="{{row_color}}">{{setting_value.key.description}}</td>
                     <td class="{{row_color}}">{{setting_value.value}}</td>{# TODO: A bool value is displayed "as it". => Display 'Yes'/'No' ? #}
                     <td class="{{row_color}} action">
-                        {% get_line_editor at_url '/creme_config/setting/edit/{{setting_value.id}}' with_perms 1 %}
+                        {% get_line_editor at_url '/creme_config/settings/edit/{{setting_value.id}}' with_perms 1 %}
                     </td>
                 </tr>
             {% endfor %}

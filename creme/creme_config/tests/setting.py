@@ -58,7 +58,7 @@ class SettingTestCase(CremeTestCase):
         title = 'May the source be with you'
         sv = SettingValue.objects.create(key=sk, user=None, value=title)
 
-        url = '/creme_config/setting/edit/%s' % sv.id
+        url = '/creme_config/settings/edit/%s' % sv.id
         self.assertEqual(200, self.client.get(url).status_code)
 
         title = title.upper()
@@ -78,7 +78,7 @@ class SettingTestCase(CremeTestCase):
         sv = SettingValue.objects.create(key=sk, user=None, value=size)
 
         size += 15
-        response = self.client.post('/creme_config/setting/edit/%s' % sv.id, data={'value': size})
+        response = self.client.post('/creme_config/settings/edit/%s' % sv.id, data={'value': size})
         self.assertNoFormError(response)
         self.assertEqual(200,  response.status_code)
         self.assertEqual(size, self.refresh(sv).value)
@@ -92,7 +92,7 @@ class SettingTestCase(CremeTestCase):
                                       )
         sv = SettingValue.objects.create(key=sk, user=None, value=True)
 
-        response = self.client.post('/creme_config/setting/edit/%s' % sv.id, data={}) #False -> empty POST
+        response = self.client.post('/creme_config/settings/edit/%s' % sv.id, data={}) #False -> empty POST
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
         self.assertFalse(self.refresh(sv).value)
@@ -105,7 +105,7 @@ class SettingTestCase(CremeTestCase):
                                        hidden=True,
                                       )
         sv = SettingValue.objects.create(key=sk, user=None, value=True)
-        self.assertEqual(404, self.client.get('/creme_config/setting/edit/%s' % sv.id).status_code)
+        self.assertEqual(404, self.client.get('/creme_config/settings/edit/%s' % sv.id).status_code)
 
     def test_edit05(self): #hidden => not editable
         self.login()
@@ -115,4 +115,4 @@ class SettingTestCase(CremeTestCase):
                                        hidden=False,
                                       )
         sv = SettingValue.objects.create(key=sk, user=self.user, value=True)
-        self.assertEqual(404, self.client.get('/creme_config/setting/edit/%s' % sv.id).status_code)
+        self.assertEqual(404, self.client.get('/creme_config/settings/edit/%s' % sv.id).status_code)
