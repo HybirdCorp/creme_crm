@@ -237,6 +237,7 @@ END:VEVENT
             total += 1
         return total
 
+
 class Meeting(Activity):
     place = CharField(_(u'Meeting place'), max_length=100, blank=True, null=True)
 
@@ -250,8 +251,6 @@ class Meeting(Activity):
         app_label = 'activities'
         verbose_name = _('Meeting')
         verbose_name_plural = _(u'Meetings')
-
-
 
 
 class Task(Activity):

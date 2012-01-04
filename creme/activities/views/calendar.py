@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,12 +26,12 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.simplejson import JSONEncoder, JSONDecoder
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 
 from creme_core.models import EntityCredentials
-from creme_core.views.generic.popup import inner_popup
+from creme_core.views.generic import add_model_with_popup, edit_model_with_popup
 from creme_core.utils import get_from_POST_or_404
 
 from activities.models import Activity, Calendar
@@ -49,15 +49,15 @@ def get_users_calendar(request, usernames, calendars_ids):
 
     cal_ids = [str(id) for id in calendars_ids]
     return render_to_response('activities/calendar.html',
-                              {
-                                'events_url':    "/activities/calendar/users_activities/%s/%s" % (",".join(usernames), ",".join(cal_ids)),
-                                'users':         User.objects.all().order_by('username'),
-                                'current_users': User.objects.filter(username__in=usernames),
-                                'my_calendars' : Calendar.objects.filter(user=user),
-                                'current_calendars': cal_ids,
-                                'creation_perm':     user.has_perm('activities.add_activity'),
+                              {'events_url':        "/activities/calendar/users_activities/%s/%s" % (",".join(usernames), ",".join(cal_ids)),
+                               'users':             User.objects.order_by('username'),
+                               'current_users':     User.objects.filter(username__in=usernames),
+                               'my_calendars' :     Calendar.objects.filter(user=user),
+                               'current_calendars': cal_ids,
+                               'creation_perm':     user.has_perm('activities.add_activity'),
                               },
-                              context_instance=RequestContext(request))
+                              context_instance=RequestContext(request)
+                             )
 
 def getFormattedDictFromAnActivity(activity, user):
     start = activity.start
@@ -69,47 +69,48 @@ def getFormattedDictFromAnActivity(activity, user):
 
     is_editable = activity.can_change(user)
 
-    return {
-            "id" :          int(activity.pk),
+    return {"id" :          int(activity.pk),
             "title":        activity.get_title_for_calendar(),
             "start":        start.isoformat(),
             "end":          end.isoformat(),
             "url":          "/activities/activity/%s/popup" % activity.pk,
             "entity_color": "#%s" % (activity.type.color or "C1D9EC"),
             "allDay" :      is_all_day,
-            "editable":     is_editable
-            }
+            "editable":     is_editable,
+           }
 
 @login_required
 @permission_required('activities')
 def user_calendar(request):
 #    return getUserCalendar(request, request.POST.get('username', request.user.username))
     user = request.user
-    POST = request.POST
-    POST_getlist = POST.getlist
+    getlist = request.POST.getlist
     Calendar.get_user_default_calendar(user)#Don't really need the calendar but this create it in case of the user hasn't a calendar
 
-    usernames = User.objects.all().values_list('username', flat=True)
+    #usernames = User.objects.values_list('username', flat=True)
 
+    #TODO: useful to compute if getlist('calendar_selected') is not empty ??
     calendars_ids = Calendar.get_user_calendars(user, False).values_list('id', flat=True)
     if not calendars_ids:
         calendars_ids = [Calendar.get_user_default_calendar(user).pk]
 
     return get_users_calendar(request,
-                              POST_getlist('user_selected') or [request.user.username],#usernames,
-                              POST_getlist('calendar_selected') or calendars_ids)#[Calendar.get_user_default_calendar(user).pk])
-
+                              getlist('user_selected') or [request.user.username],#usernames,
+                              getlist('calendar_selected') or calendars_ids#[Calendar.get_user_default_calendar(user).pk])
+                             )
 
 def my_calendar(request):
     user = request.user
     return get_users_calendar(request, user.username, [Calendar.get_user_default_calendar(user).pk])
 
+#TODO: need refactoring (and certinly unit tests...)
 @login_required
 @permission_required('activities')
 def get_users_activities(request, usernames, calendars_ids):
-    users = User.objects.filter(username__in=usernames.split(','))
+    users = User.objects.filter(username__in=usernames.split(',')) #TODO: problem => this queryset causes nested queries later
     GET = request.GET
 
+    #TODO: list comprehesion + isdigit()
     cals_ids = []
     for cal_id in calendars_ids.split(','):
         if cal_id:
@@ -118,6 +119,7 @@ def get_users_activities(request, usernames, calendars_ids):
             except ValueError:
                 continue
 
+    #TODO: use exclude() ...
     users_cal_ids  = set(Calendar.objects.filter(is_public=True, user__in=users.filter(~Q(pk=request.user.pk))).values_list('id', flat=True))
     users_cal_ids |= set(cals_ids)
 
@@ -127,7 +129,7 @@ def get_users_activities(request, usernames, calendars_ids):
         except:
             start = datetime.now().replace(day=1)
     else:
-        start = datetime.now().replace(day=1)
+        start = datetime.now().replace(day=1) #TODO: factorise (with smart exception usage....)
 
     if GET.has_key("end"):
         try:
@@ -137,6 +139,7 @@ def get_users_activities(request, usernames, calendars_ids):
     else:
         end = get_last_day_of_a_month(start)
 
+    #TODO: variables not reused
     current_activities  = Q(start__range=(start, end))
     overlap_activities  = Q(end__gt=start)
     overlap_activities2 = Q(start__lt=end)
@@ -144,10 +147,11 @@ def get_users_activities(request, usernames, calendars_ids):
 
 #    user_activities = Q(user__in=users)
 
+    #TODO: why not use the possibility of chaining queryset directly ???
     list_activities = Activity.objects.filter(calendars__pk__in=users_cal_ids)
 #    list_activities = list_activities.filter(current_activities | overlap_activities & overlap_activities2)
     list_activities = list_activities.filter(time_range)
-    list_activities = list_activities.filter(Q(is_deleted=False))
+    list_activities = list_activities.filter(Q(is_deleted=False)) #TODO: why Q() ?
     list_activities |= Activity.objects.filter(type__id=ACTIVITYTYPE_INDISPO).filter(time_range & Q(user__in=users))
 
 #    list_activities = Activity.objects.filter(user__in=users).filter(current_activities | overlap_activities & overlap_activities2)
@@ -156,7 +160,8 @@ def get_users_activities(request, usernames, calendars_ids):
     list_activities = EntityCredentials.filter(request.user, list_activities)
 
     return HttpResponse(JSONEncoder().encode([getFormattedDictFromAnActivity(activity, request.user) for activity in list_activities]),
-                        mimetype="text/javascript")
+                        mimetype="text/javascript"
+                       )
 
 @login_required
 @permission_required('activities')
@@ -200,46 +205,29 @@ def update_activity_date(request):
 
 @login_required
 @permission_required('activities')
-def add_user_calendar(request, calendar_id=None):
-    #instance = None
-    #if calendar_id is not None:
-        #instance = get_object_or_404(Calendar, pk=calendar_id)
-    instance = get_object_or_404(Calendar, pk=calendar_id) if calendar_id is not None else None
+def add_user_calendar(request):
+    return add_model_with_popup(request, CalendarForm, title=_(u'Add a calendar'))
 
-    user = request.user
-    POST = request.POST
-    if POST:
-        cal_form = CalendarForm(user=user, data=POST, instance=instance)
-
-        if cal_form.is_valid():
-            cal_form.save()
-    else:
-        cal_form = CalendarForm(user=user, instance=instance)
-
-    return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':   cal_form,
-                        'title': _(u'Add a calendar'),
-                       },
-                       is_valid=cal_form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       context_instance=RequestContext(request))
+@login_required
+@permission_required('activities')
+def edit_user_calendar(request, calendar_id):
+    return edit_model_with_popup(request, query_dict={'pk': calendar_id},
+                                 model=Calendar, form_class=CalendarForm,
+                                 can_change=lambda calendar, user: calendar.user == user, #TODO: and superuser ??
+                                )
 
 @login_required
 @permission_required('activities')
 def delete_user_calendar(request):
     #TODO: Adding the possibility to transfert activities
     calendar = get_object_or_404(Calendar, pk=get_from_POST_or_404(request.POST, 'id'))
-
     status, msg = 200, ""
-
     user = request.user
 
     if (user.is_superuser or calendar.user == user) and calendar.is_custom:
         calendar.delete()
     else:
         status = 403
-        msg = ugettext(u"You are not allowed to delete this calendar.")
+        msg = _(u"You are not allowed to delete this calendar.")
 
     return HttpResponse(msg, mimetype="text/javascript", status=status)

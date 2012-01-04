@@ -8,13 +8,13 @@ from creme_core.utils.imports import find_n_import
 urlpatterns = patterns('activities.views',
     (r'^$', 'portal.portal'),
 
-    (r'^activities$',                                      'activity.listview'),
-    (r'^activities/(?P<ids>([\d][,]*)+)/ical$',            'activity.download_ical'),
-    (r'^activity/add/(?P<act_type>\w+)$',                  'activity.add'),
-    (r'^activity/add_related/(?P<act_type>\w+)$',          'activity.add_related'),
-    (r'^activity/edit/(?P<activity_id>\d+)$',              'activity.edit'),
-    (r'^activity/(?P<activity_id>\d+)$',                   'activity.detailview'),
-    (r'^activity/(?P<activity_id>\d+)/popup$',             'activity.popupview'),
+    (r'^activities$',                             'activity.listview'),
+    (r'^activities/(?P<ids>([\d][,]*)+)/ical$',   'activity.download_ical'),
+    (r'^activity/add/(?P<act_type>\w+)$',         'activity.add'),
+    (r'^activity/add_related/(?P<act_type>\w+)$', 'activity.add_related'),
+    (r'^activity/edit/(?P<activity_id>\d+)$',     'activity.edit'),
+    (r'^activity/(?P<activity_id>\d+)$',          'activity.detailview'),
+    (r'^activity/(?P<activity_id>\d+)/popup$',    'activity.popupview'),
 
     #blocks
     (r'^activity/(?P<activity_id>\d+)/participant/add$', 'blocks.add_participant'),
@@ -24,11 +24,10 @@ urlpatterns = patterns('activities.views',
     #calendar
     (r'^calendar/my$',                                                  'calendar.user_calendar'),#for compatibility
     (r'^calendar/user$',                                                'calendar.user_calendar'),
-#    (r'^calendar/users_activities/(?P<usernames>([\w]+){1}(,[\w]+)*)$', 'calendar.get_users_activities'),
     (r'^calendar/users_activities/(?P<usernames>([\w% ]+){1}(,[\w% ]+)*)/(?P<calendars_ids>([\d]+){0,1}(,[\d]+)*)$', 'calendar.get_users_activities'),
     (r'^calendar/activity/update',                                      'calendar.update_activity_date'),
     (r'^calendar/add$',                                                 'calendar.add_user_calendar'),
-    (r'^calendar/(?P<calendar_id>\d+)/edit$',                           'calendar.add_user_calendar'),
+    (r'^calendar/(?P<calendar_id>\d+)/edit$',                           'calendar.edit_user_calendar'),
     (r'^calendar/delete$',                                              'calendar.delete_user_calendar'),
 
     (r'^indisponibility/add$', 'activity.add_indisponibility'), #TODO: use activity/add-(?P<type>.*) ?? with a factory type-based ?
