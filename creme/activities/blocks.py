@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -164,7 +164,7 @@ class UserCalendars(QuerysetBlock):
 
     def detailview_display(self, context):
         #NB: credentials are OK : we retrieve only Calendars related of the user
-        user = context['request'].user
+        user = context['user']
         return self._render(self.get_block_template_context(context,
                                                             Calendar.objects.filter(user=user),
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,

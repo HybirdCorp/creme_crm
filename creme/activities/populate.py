@@ -23,7 +23,6 @@ from logging import info
 from django.conf import settings
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import (RelationType, BlockDetailviewLocation, BlockPortalLocation,
                                ButtonMenuItem, SearchConfigItem, HeaderFilterItem, HeaderFilter)
@@ -95,7 +94,7 @@ class Populator(BasePopulator):
         if 'assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the activities blocks on detail views')
 
-            from assistants.blocks import alerts_block, memos_block, todos_block, messages_block #actions_it_block, actions_nit_block, 
+            from assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
             for model in models:
                 BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)
