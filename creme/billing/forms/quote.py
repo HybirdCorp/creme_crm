@@ -32,7 +32,7 @@ class QuoteCreateForm(BaseCreateForm):
     def save(self):
         instance = super(QuoteCreateForm, self).save()
         cleaned_data = self.cleaned_data
-        transform_target_into_prospect(cleaned_data['source'],cleaned_data['target'],instance.user)
+        transform_target_into_prospect(cleaned_data['source'], cleaned_data['target'], instance.user)
 
         return instance
 
