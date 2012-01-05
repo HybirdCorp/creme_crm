@@ -1,4 +1,4 @@
-<div class="in-popup">
+<div class="in-popup" {% if is_valid %}closing="true"{% endif %}>
     <div id="inner_header" style="display: none;">
         <input name="inner_header_from_url" value="{{from_url}}" type="hidden"/>
         <script type="text/javascript">
@@ -24,7 +24,10 @@
     </div>
     <div name="inner_body">
         <input type="hidden" name="whoami" value="{{whoami}}"/>
+        {% comment %}
+        TODO : remove this unused input
         <input type="hidden" name="is_valid" value="{{is_valid}}"/>
+        {% endcomment %}
         {% for persist_key, persist_values in persisted.items %}
             {% for persist_value in persist_values %}
                 <input type="hidden" name="{{ persist_key }}" value="{{persist_value}}"/>

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-20 13:38+0200\n"
+"POT-Creation-Date: 2012-01-05 10:09+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,9 +37,9 @@ msgid "All documents"
 msgstr "Lister les documents"
 
 #: creme_core_register.py:36
-#: templates/documents/templatetags/block_linked_docs.html:11
-#: templates/documents/templatetags/block_linked_docs.html:12
-#: templates/documents/templatetags/block_linked_docs.html:17
+#: templates/documents/templatetags/block_linked_docs.html:18
+#: templates/documents/templatetags/block_linked_docs.html:19
+#: templates/documents/templatetags/block_linked_docs.html:24
 msgid "Add a document"
 msgstr "Ajouter un document"
 
@@ -51,31 +51,31 @@ msgstr "Lister les classeurs"
 msgid "Add a folder"
 msgstr "Ajouter un classeur"
 
-#: populate.py:40
+#: populate.py:41
 msgid "related to the document"
 msgstr "concerne le document"
 
-#: populate.py:41
+#: populate.py:42
 msgid "document related to"
 msgstr "document concerné par"
 
-#: populate.py:43
+#: populate.py:45
 msgid "Documents related to entities"
 msgstr "Documents crées à partir des fiches"
 
-#: populate.py:44
+#: populate.py:46
 msgid "Documents received by email"
 msgstr "Documents reçus par email"
 
-#: populate.py:48
+#: populate.py:50
 msgid "Folder containing all the documents related to entities"
 msgstr "Classeur contenant tous les documents créés à partir des fiches"
 
-#: populate.py:52
+#: populate.py:55
 msgid "Document view"
 msgstr "Vue de Document"
 
-#: populate.py:57
+#: populate.py:60
 msgid "Folder view"
 msgstr "Vue de Classeur"
 
@@ -153,6 +153,8 @@ msgid "Download '%(object)s'"
 msgstr "Télécharger '%(object)s'"
 
 #: templates/documents/view_document.html:7
+#: templates/documents/templatetags/block_linked_docs.html:35
+#: templates/documents/templatetags/block_linked_docs.html:46
 msgid "Download"
 msgstr "Télécharger"
 
@@ -175,7 +177,7 @@ msgid "%s Contained Documents"
 msgstr "%s Documents contenus"
 
 #: templates/documents/templatetags/block_documents.html:15
-#: templates/documents/templatetags/block_linked_docs.html:27
+#: templates/documents/templatetags/block_linked_docs.html:34
 msgid "Name"
 msgstr "Nom"
 
@@ -201,21 +203,35 @@ msgstr "%s Document lié"
 msgid "%s linked Documents"
 msgstr "%s Documents liés"
 
-#: templates/documents/templatetags/block_linked_docs.html:16
+#: templates/documents/templatetags/block_linked_docs.html:23
 msgid "Can't add"
 msgstr "Impossible d'ajouter"
 
-#: templates/documents/templatetags/block_linked_docs.html:20
+#: templates/documents/templatetags/block_linked_docs.html:27
 msgid "Link to an existing document"
 msgstr "Lier à un document existant"
 
-#: templates/documents/templatetags/block_linked_docs.html:28
+#: templates/documents/templatetags/block_linked_docs.html:36
 msgid "Delete"
 msgstr "Supprimer"
 
-#: templates/documents/templatetags/block_linked_docs.html:43
+#: templates/documents/templatetags/block_linked_docs.html:46
+#, python-format
+msgid "Download '%(doc)s'"
+msgstr "Télécharger '%(doc)s'"
+
+#: templates/documents/templatetags/block_linked_docs.html:49
+msgid "Can't download"
+msgstr "Impossible de télécharger"
+
+#: templates/documents/templatetags/block_linked_docs.html:61
 msgid "No linked document"
 msgstr "Aucun document lié"
+
+#: views/document.py:51
+#, python-format
+msgid "New document for <%s>"
+msgstr "Ajout de document à <%s>"
 
 #: views/folder.py:75
 #, python-format

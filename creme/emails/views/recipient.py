@@ -37,6 +37,5 @@ def add(request, ml_id):
 @permission_required('emails')
 def add_from_csv(request, ml_id):
     #TODO: fix the problem with inner popup + file input
-    #return add_to_entity(request, ml_id, MailingListAddCSVForm,
-                         #_(u'New recipients for <%s>'), entity_class=MailingList)
-    return edit_entity(request, ml_id, MailingList, MailingListAddCSVForm)
+    return add_to_entity(request, ml_id, MailingListAddCSVForm, _(u'New recipients for <%s>'), entity_class=MailingList)
+#    return edit_entity(request, ml_id, MailingList, MailingListAddCSVForm)
