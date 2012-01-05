@@ -6,8 +6,13 @@
         <th class="collapser label">{% get_block_title _('%s linked Document') _('%s linked Documents') 'document_48.png' _('Document') %}</th>
         <th class="actions">
             <div class="buttons">
+                {% comment %}
+                    TODO : uncomment it after refactor of popups and unify ajax form submit
+                    {% get_line_adder at_url '/documents/document/add_related/{{object.id}}' with_label _("Add a document") with_perms has_creation_perm|and_op:link_perm %}
+                {% endcomment %}
                 {% if has_creation_perm and link_perm %}
-                    <a class="add" href="/documents/document/add_related?callback_url={{object.get_absolute_url}}&entity_id={{object.id}}">
+                    <a class="add" onclick="creme.utils.iframeInnerPopup('/documents/document/add_related/{{object.id}}');">
+                    {% comment %}<a class="add" href="/documents/document/add_related?callback_url={{object.get_absolute_url}}&entity_id={{object.id}}">{% endcomment %}
                         <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{% trans "Add a document" %}" alt="{% trans "Add a document" %}" />
                         {% trans "Add a document" %}
                     </a>

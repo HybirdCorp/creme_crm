@@ -20,14 +20,13 @@
 
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
+from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeEntity
-from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
-from creme_core.utils import get_from_GET_or_404
+from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view, add_model_with_popup
 
 from documents.models import Document
 from documents.forms.document import DocumentCreateForm, DocumentCreateViewForm, DocumentEditForm
-
 
 @login_required
 @permission_required('documents')
@@ -38,15 +37,18 @@ def add(request):
 @login_required
 @permission_required('documents')
 @permission_required('documents.add_document')
-def add_related(request):
-    GET = request.GET
-    entity = get_object_or_404(CremeEntity, pk=get_from_GET_or_404(GET, 'entity_id'))
+def add_related(request, entity_id):
+#    GET = request.GET
+#    entity = get_object_or_404(CremeEntity, pk=get_from_GET_or_404(GET, 'entity_id'))
+#
+#    entity.can_link_or_die(request.user)
 
-    entity.can_link_or_die(request.user)
+#    return add_entity(request, DocumentCreateViewForm, GET.get('callback_url'),
+#                      extra_initial={'entity': entity}
+#                     )
 
-    return add_entity(request, DocumentCreateViewForm, GET.get('callback_url'),
-                      extra_initial={'entity': entity}
-                     )
+    entity = get_object_or_404(CremeEntity, pk=entity_id);
+    return add_model_with_popup(request, DocumentCreateViewForm, _(u'New document for <%s>') % entity, initial={'entity':entity})
 
 @login_required
 @permission_required('documents')

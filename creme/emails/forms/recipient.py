@@ -58,11 +58,11 @@ class MailingListAddCSVForm(CremeForm):
 
     blocks = FieldBlockManager(('general', _(u'CSV file'), '*'))
 
-    #def __init__(self, entity, *args, **kwargs):
-    def __init__(self, instance, *args, **kwargs):
+    def __init__(self, entity, *args, **kwargs):
+    #def __init__(self, instance, *args, **kwargs):
         super(MailingListAddCSVForm, self).__init__(*args, **kwargs)
-        #self.ml = entity
-        self.ml = instance
+        self.ml = entity
+        #self.ml = instance
 
     @staticmethod
     def filter_mail_chunk(value):

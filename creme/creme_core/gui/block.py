@@ -101,7 +101,12 @@ class Block(object):
 
     def _simple_detailview_display(self, context):
         """Helper method to build a basic detailview_display() method for classes that inherit Block."""
-        return self._render(self.get_block_template_context(context))
+        entity = context['object']
+        return self._render(self.get_block_template_context(context,
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
+                                                           )
+                        )
+
 
     def __get_context(self, request, base_url, block_name):
         """Retrieve block's context stored in the session.

@@ -8,8 +8,8 @@
             <div class="buttons">
                 {% get_line_adder at_url '/emails/mailing_list/{{object.pk}}/recipient/add' with_label _("Add manually") with_perms has_perm %}
                 {% if has_perm %}
-                    {% comment %}<a class="add" onclick="creme.utils.iframeInnerPopup('/emails/mailing_list/{{object.pk}}/recipient/add_csv');">{% endcomment %}
-                    <a class="add" href="/emails/mailing_list/{{object.pk}}/recipient/add_csv">
+                    <a class="add" onclick="creme.utils.iframeInnerPopup('/emails/mailing_list/{{object.pk}}/recipient/add_csv');">
+                    {% comment %}<a class="add" href="/emails/mailing_list/{{object.pk}}/recipient/add_csv">{% endcomment %}
                         <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{% trans "Add from a CSV file" %}" alt="{% trans "Add from a CSV file" %}" />
                         {% trans "Add from a CSV file" %}
                     </a>

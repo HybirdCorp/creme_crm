@@ -995,3 +995,66 @@ class BulkEditTestCase(ViewsTestCase):
         self.assertEqual('text/javascript', response['Content-Type'])
 
         self.assertEqual(404, self.client.post(url % 'notint', data={}).status_code)
+
+
+class InnerEditTestCase(ViewsTestCase):
+    def setUp(self):
+        self.populate('creme_config')
+        self.contact_ct = ContentType.objects.get_for_model(Contact)
+        self.url = '/creme_core/entity/edit/%s/field/%s'
+        self.login()
+
+    def create_contact(self, user, **kwargs):
+        return Contact.objects.create(user=user, **kwargs)
+
+    def refresh_contact(self, contact):
+        return Contact.objects.get(pk=contact.id)
+
+    def get_cf_values(self, cf, entity):
+        return cf.get_value_class().objects.get(custom_field=cf, entity=entity)
+
+    def test_inner_edit_rf_01(self):
+        mario = self.create_contact(user=self.user, first_name="Mario", last_name="Bros")
+        url = self.url % (mario.id, 'first_name')
+
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        response = self.client.post(url,
+                                    data={'entities_lbl':  [mario.id],
+                                          'field_value':   'Jonathan',
+                                         }
+        )
+        self.assertNoFormError(response)
+        mario = self.refresh_contact(mario)
+        self.assertEqual("Jonathan", mario.first_name)
+
+    def test_inner_edit_rf_02(self):
+        mario = self.create_contact(user=self.user, first_name="Mario", last_name="Bros")
+        url = self.url % (mario.id, 'birthday')
+
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        response = self.client.post(url, data={'entities_lbl':  [mario.id],
+                                               'field_value':   'whatever',
+                                              }
+                                   )
+        self.assertTrue(response.context['form'].errors)
+        self.assertFormError(response, 'form', '', [_(u'Enter a valid date.')])
+
+    def test_inner_edit_cf_01(self):
+        mario = self.create_contact(user=self.user, first_name="Mario", last_name="Bros")
+        custom_field_contact = CustomField.objects.create(name='custom 1', content_type=mario.entity_type, field_type=CustomField.STR)
+        url = self.url % (mario.id, custom_field_contact.id)
+
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        response = self.client.post(url, data={
+            'entities_lbl':  [mario.id],
+            'field_value':   'hihi'
+            }
+        )
+        self.assertNoFormError(response)
+        mario = self.refresh_contact(mario)
+        self.assertEqual("hihi", self.get_cf_values(custom_field_contact, mario).value)
+
+

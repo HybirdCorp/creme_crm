@@ -16,62 +16,62 @@
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Creation date" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='created' %}</td>
-            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'created' for object %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_field_editor on regular 'created' for object %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Last modification" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='modified' %}</td>
-            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'modified' for object %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_field_editor on regular 'modified' for object %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Civility" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='civility' %}</td>
-            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'civility' for object %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_field_editor on regular 'civility' for object %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "First name" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='first_name' %}</td>
-            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'first_name' for object %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_field_editor on regular 'first_name' for object %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Last name" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='last_name' %}</td>
-            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'last_name' for object %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_field_editor on regular 'last_name' for object %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Sector" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='sector' %}</td>
-            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'sector' for object %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_field_editor on regular 'sector' for object %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Position" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='position' %}</td>
-            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'position' for object %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_field_editor on regular 'position' for object %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Assigned to" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='user' %}</td>
-            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'user' for object %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_field_editor on regular 'user' for object %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Linked Creme user" %}</th>
             <td class="{% cycle row_color %} td_info">{{object.is_user|default:_('None') }}</td>
-            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'is_user' for object %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_field_editor on regular 'is_user' for object %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Birthday" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='birthday' %}</td>
-            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'birthday' for object %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_field_editor on regular 'birthday' for object %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Photo" %}</th>
             <td class="{% cycle row_color %} td_info">{% if object.image %}{% get_entity_summary object.image user %}{% endif %}</td>
-            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'image' for object %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_field_editor on regular 'image' for object %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Description" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='description' %}</td>
-            <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular 'description' for object %}</td>
+            <td class="{% cycle row_edit_color %} td_info">{% get_field_editor on regular 'description' for object %}</td>
         </tr>
     </tbody>
 </table>

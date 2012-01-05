@@ -307,68 +307,67 @@ def do_line_unlinker(parser, token):
     """Eg: {% get_line_unlinker at_url '/app/model/unlink' with_args "{'id' : {{object.id}} }" with_perms boolean_variable %}"""
     return _do_line_suppr(parser, token, 'creme_core/templatetags/widgets/block_line_unlinker.html')
 
-#-------------------------------------------------------------------------------
-_FILTER_EDITOR_RE = compile_re(r'on (.*?) (.*?) for (.*?)$')
+#TAG : "get_field_editor"------------------------------------------------------------
+_FIELD_EDITOR_RE = compile_re(r'on (.*?) (.*?) for (.*?)$')
 
-@register.tag(name="get_filter_editor")
-def do_filter_editor(parser, token):
-    """Eg: {% get_filter_editor on custom|regular field|'field_name'|"field_name" for object %}"""
+@register.tag(name="get_field_editor")
+def do_get_field_editor(parser, token):
+    """Eg: {% get_field_editor on custom|regular field|'field_name'|"field_name" for object %}"""
     try:
         tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
     except ValueError:
         raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
 
-    match = _FILTER_EDITOR_RE.search(arg)
+    match = _FIELD_EDITOR_RE.search(arg)
     if not match:
         raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
 
     field_type_str, field_str, object_str = match.groups()
 
-    if not field_type_str in _FIELD_EDITOR_NODES:
+    field_editor_node = _FIELD_EDITOR_NODES.get(field_type_str)
+
+    if not field_editor_node:
         raise TemplateSyntaxError, "%r invalid field category tag: %r" % (tag_name, field_type_str)
 
-    return _FIELD_EDITOR_NODES[field_type_str](TemplateLiteral(parser.compile_filter(field_str), field_str),
-                                               TemplateLiteral(parser.compile_filter(object_str), object_str))
+    return field_editor_node(TemplateLiteral(parser.compile_filter(field_str), field_str),
+                             TemplateLiteral(parser.compile_filter(object_str), object_str))
 
-class CustomFieldEditorNode(TemplateNode):
+class RegularFieldEditorNode(TemplateNode):
     def __init__(self, field_var, object_var):
-        self.template       = get_template('creme_core/templatetags/widgets/block_filter_editor.html')
+        self.template       = get_template('creme_core/templatetags/widgets/block_field_editor.html')
         self.field_var      = field_var
         self.object_var     = object_var
 
-    def render(self, context):
-        object = self.object_var.eval(context)
-        field_eval = self.field_var.eval(context)
-
-        context['field']     = field_eval.id
-        context['editable']  = True # one day if we want to exclude custom field from inner editable feature, it will be here
-        context['updatable'] = True # same here
-        context['object']    = object
-        context['edit_perm'] = object.can_change(context['user'])
-
-        return self.template.render(context)
-
-class RegularFieldEditorNode(CustomFieldEditorNode):
-    def render(self, context):
-        object = self.object_var.eval(context)
-        field_eval = self.field_var.eval(context)
-
+    def _update_context(self, context, field, object):
         model = object.entity_type.model_class()
-        field = model._meta.get_field(field_eval) if isinstance(field_eval, basestring) else field_eval
-        field_name = field.name
+        field_eval = model._meta.get_field(field) if isinstance(field, basestring) else field
+        field_name = field_eval.name
 
         context['field']     = field_name
-        context['editable']  = field.editable
+        context['editable']  = field_eval.editable
         context['updatable'] = field_name not in bulk_update_registry.get_excluded_fields(model)
+
+    def render(self, context):
+        object = self.object_var.eval(context)
+        field  = self.field_var.eval(context)
+
         context['object']    = object
         context['edit_perm'] = object.can_change(context['user'])
 
+        self._update_context(context, field, object)
+
         return self.template.render(context)
 
+class CustomFieldEditorNode(RegularFieldEditorNode):
+    def _update_context(self, context, field, object):
+        context['field']     = field.id
+        context['editable']  = True # one day if we want to exclude custom field from inner editable feature, it will be here
+        context['updatable'] = True # same here
+
 _FIELD_EDITOR_NODES = {'regular': RegularFieldEditorNode,
-                       'custom': CustomFieldEditorNode,
-                    }
-    
+                       'custom':  CustomFieldEditorNode,
+                      }
+
 #-------------------------------------------------------------------------------
 _LINE_EDITOR_RE = compile_re(r'at_url (.*?) with_perms (.*?)$')
 
