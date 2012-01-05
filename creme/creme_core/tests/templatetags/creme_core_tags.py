@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
+from django.db.models.fields import FieldDoesNotExist
+from django.template.base import TemplateSyntaxError
 
 try:
     from django.template import Template, Context
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import SetCredentials
+    from creme_core.gui.bulk_update import bulk_update_registry
+    from creme_core.models import SetCredentials, CustomField
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Organisation
@@ -127,3 +130,90 @@ class CremeCoreTagsTestCase(CremeTestCase):
             self.fail(str(e))
 
         self.assertEqual('True' + 'False' * 4 + 'True' * 2 + 'False' * 2, render.strip())
+
+    def test_get_field_editor01(self):
+        self.login()
+        orga = Organisation.objects.create(user=self.user, name='Amestris')
+
+        try:
+            template = Template("{% load creme_block %}"
+                                "{% get_field_editor on regular 'name' for object %}"
+                            )
+            render = template.render(Context({'object': orga, 'user': self.user}))
+            self.assertTrue(render.strip().startswith("""<a onclick="creme.utils.innerPopupNReload('/creme_core/entity/edit/%s/field/%s',""" % (orga.id, 'name')))
+        except Exception as e:
+            self.fail(str(e))
+
+    def test_get_field_editor02(self):
+        self.login()
+        orga = Organisation.objects.create(user=self.user, name='Amestris')
+
+        try:
+            template = Template("{% load creme_block %}"
+                                """{% get_field_editor on regular "name" for object %}"""
+            )
+            render = template.render(Context({'object': orga, 'user': self.user}))
+            self.assertTrue(render.strip().startswith("""<a onclick="creme.utils.innerPopupNReload('/creme_core/entity/edit/%s/field/%s',""" % (orga.id, 'name')))
+        except Exception as e:
+            self.fail(str(e))
+
+    def test_get_field_editor03(self):
+        self.login()
+        orga = Organisation.objects.create(user=self.user, name='Amestris')
+        orga_field_name = orga.entity_type.model_class()._meta.get_field('name')
+
+        try:
+            template = Template("{% load creme_block %}"
+                                "{% get_field_editor on regular field for object %}"
+            )
+            render = template.render(Context({'object': orga, 'user': self.user, 'field': orga_field_name}))
+            self.assertTrue(render.strip().startswith("""<a onclick="creme.utils.innerPopupNReload('/creme_core/entity/edit/%s/field/%s',""" % (orga.id, orga_field_name.name)))
+        except Exception as e:
+            self.fail(str(e))
+
+    def test_get_field_editor04(self):
+        self.login()
+        orga = Organisation.objects.create(user=self.user, name='Amestris')
+        custom_field_orga = CustomField.objects.create(name='custom 1', content_type=orga.entity_type, field_type=CustomField.STR)
+
+        try:
+            template = Template("{% load creme_block %}"
+                                "{% get_field_editor on custom custom_field_id for object %}"
+            )
+            render = template.render(Context({'object': orga, 'user': self.user, 'custom_field_id': custom_field_orga}))
+            self.assertTrue(render.strip().startswith("""<a onclick="creme.utils.innerPopupNReload('/creme_core/entity/edit/%s/field/%s',""" % (orga.id, custom_field_orga.id)))
+        except Exception as e:
+            self.fail(str(e))
+
+    def _unauthorized_get_field_editor(self, orga, unauthorized_tag):
+        try:
+            template = Template("{% load creme_block %}" + unauthorized_tag)
+            render = template.render(Context({'object': orga, 'user': self.user}))
+            self.assertEqual("", render.strip())
+        except Exception as e:
+            self.fail(str(e))
+
+    def test_get_field_editor05(self):
+        self.login()
+        orga = Organisation.objects.create(user=self.user, name='Amestris')
+
+        with self.assertRaises(TemplateSyntaxError): # invalid field type : Should be 'regular' or 'custom'
+            template = Template("{% load creme_block %}" + "{% get_field_editor on unknown_type 'name' for object %}")
+            template.render(Context({'object': orga, 'user': self.user}))
+
+        with self.assertRaises(FieldDoesNotExist): # invalid field name for object model
+            template = Template("{% load creme_block %}" + "{% get_field_editor on regular 'unkwnown_field' for object %}")
+            template.render(Context({'object': orga, 'user': self.user}))
+
+        with self.assertRaises(AttributeError): # invalid custom field object for object model
+            template = Template("{% load creme_block %}" + "{% get_field_editor on custom unkwnown_custom for object %}")
+            template.render(Context({'object': orga, 'user': self.user}))
+
+    def test_get_field_editor06(self):
+        self.login()
+        orga = Organisation.objects.create(user=self.user, name='Amestris')
+        bulk_update_registry.register((Organisation, ['siren']),)
+
+        self._unauthorized_get_field_editor(orga, "{% get_field_editor on regular 'created' for object %}") # not editable
+        self._unauthorized_get_field_editor(orga, "{% get_field_editor on regular 'modified' for object %}") # not editable
+        self._unauthorized_get_field_editor(orga, "{% get_field_editor on regular 'siren' for object %}") # not in bulk update registry

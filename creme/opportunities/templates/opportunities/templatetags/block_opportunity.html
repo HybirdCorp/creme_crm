@@ -18,7 +18,7 @@
                 <tr class="content">
                     <th class="{% cycle header_color %} th_info">{{field.verbose_name|title}}</th>
                     <td class="{% cycle row_color %} td_info">{% print_field object=object field=field.name %}</td>
-                    <td class="{% cycle row_edit_color %} td_info">{% get_filter_editor on regular field for object %}</td>
+                    <td class="{% cycle row_edit_color %} td_info">{% get_field_editor on regular field for object %}</td>
                 </tr>
             {% endif %}
         {% endfor %}

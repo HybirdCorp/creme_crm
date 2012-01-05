@@ -23,7 +23,6 @@ from re import compile as compile_re
 from logging import debug
 
 #from django import template
-from django.conf import settings
 from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode, Token
 from django.template.defaulttags import TemplateLiteral
 from django.template.defaultfilters import escape
@@ -35,7 +34,7 @@ from mediagenerator.templatetags.media import include_media
 
 from creme_core.gui.field_printers import field_printers_registry
 from creme_core.utils.currency_format import currency
-from creme_core.utils.media import get_creme_media_url, get_current_theme, creme_media_themed_url
+from creme_core.utils.media import get_creme_media_url, get_current_theme
 from creme_core.utils.meta import get_verbose_field_name
 
 
@@ -257,7 +256,6 @@ class FieldPrinterNode(TemplateNode):
         field_name = self.field_var.eval(context)
 
         return field_printers_registry.get_html_field_value(obj, field_name, context['user'])
-
 
 #TAG : "has_perm_to"------------------------------------------------------------
 

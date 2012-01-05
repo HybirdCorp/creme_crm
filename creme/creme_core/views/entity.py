@@ -210,18 +210,18 @@ def get_widget(request, ct_id):
         widget = _FIELDS_WIDGETS.get(model_field.get_value_class())
 
         object_id = request.POST.get('object_id')
-        if 'object_id' in request.POST and object_id: # Inner edit case only in order to set current custom field value
+        if object_id: # Inner edit case only in order to set current custom field value
             entity = CremeEntity.objects.get(pk=object_id)
             if entity.can_change(request.user):
                 if model_field.field_type == CustomField.ENUM:
                     cf_values = model_field.get_value_class().objects.filter(custom_field=model_field.id, entity=entity.id)
-                    initial_value = cf_values[0].value.id
+                    initial_value = cf_values[0].value.id if cf_values else None
                 elif model_field.field_type == CustomField.MULTI_ENUM:
                     cf_values = model_field.get_value_class().objects.filter(custom_field=model_field.id, entity=entity.id)
-                    initial_value = cf_values[0].value.values_list('id', flat=True)
+                    initial_value = cf_values[0].value.values_list('id', flat=True) if cf_values else None
                 elif model_field.field_type == CustomField.BOOL:
                     cf_values = model_field.get_value_class().objects.filter(custom_field=model_field.id, entity=entity.id)
-                    initial_value = cf_values[0].value
+                    initial_value = cf_values[0].value if cf_values else None
                 else:
                     initial_value = model_field.get_pretty_value(entity.id)
     else:
@@ -231,7 +231,7 @@ def get_widget(request, ct_id):
         widget = _FIELDS_WIDGETS.get(model_field.__class__)
 
         object_id = request.POST.get('object_id')
-        if 'object_id' in request.POST and object_id: # Inner edit case only in order to set current regular field value
+        if object_id: # Inner edit case only in order to set current regular field value
             entity = CremeEntity.objects.get(pk=object_id)
             if entity.can_change(request.user):
                 initial_value = getattr(entity.get_real_entity(), field_name)
@@ -349,7 +349,6 @@ def edit_field(request, id, field_str):
                         'title': _(u'Inner update'),
                        },
                        is_valid=form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                       callback_url=entity.get_real_entity().get_absolute_url(),
-                       context_instance=RequestContext(request))
+                       reload=False, delegate_reload=True,
+                       context_instance=RequestContext(request)
+                      )
