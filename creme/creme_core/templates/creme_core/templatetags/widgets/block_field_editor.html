@@ -2,7 +2,7 @@
 {% load creme_block creme_core_tags %}
 {% if updatable and editable %}
     {% if edit_perm %}
-        <a onclick="creme.utils.showInnerPopup('/creme_core/entity/edit/{{object.id}}/field/{{ field }}');">
+        <a onclick="creme.utils.innerPopupNReload('/creme_core/entity/edit/{{object.id}}/field/{{ field }}',{% get_block_reload_uri %});">
             <img src="{% creme_media_url 'images/edit_16.png' %}" border="0">
         </a>
     {% else %}

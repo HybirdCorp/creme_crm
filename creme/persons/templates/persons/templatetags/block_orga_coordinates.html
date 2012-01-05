@@ -16,22 +16,22 @@
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Phone" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='phone' %}</td>
-            <td class="{% cycle row_edit_color %}">{% get_filter_editor on regular 'phone' for object %}</td>
+            <td class="{% cycle row_edit_color %}">{% get_field_editor on regular 'phone' for object %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Fax" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='fax' %}</td>
-            <td class="{% cycle row_edit_color %}">{% get_filter_editor on regular 'fax' for object %}</td>
+            <td class="{% cycle row_edit_color %}">{% get_field_editor on regular 'fax' for object %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "E-mail" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='email' %}</td>
-            <td class="{% cycle row_edit_color %}">{% get_filter_editor on regular 'email' for object %}</td>
+            <td class="{% cycle row_edit_color %}">{% get_field_editor on regular 'email' for object %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Web Site" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='url_site' %}</td>
-            <td class="{% cycle row_edit_color %}">{% get_filter_editor on regular 'url_site' for object %}</td>
+            <td class="{% cycle row_edit_color %}">{% get_field_editor on regular 'url_site' for object %}</td>
         </tr>
     </tbody>
 </table>

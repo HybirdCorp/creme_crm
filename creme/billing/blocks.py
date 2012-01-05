@@ -42,13 +42,15 @@ from billing.models.line import PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
 from billing.constants import *
 
 
-class BillingBlock(Block):
+class BillingBlock(SimpleBlock):
     template_name = 'billing/templatetags/block_billing.html'
 
     def detailview_display(self, context):
         document = context['object']
-        is_invoice = document.entity_type_id == ContentType.objects.get_for_model(Invoice).id #TODO: isinstance....
-        return self._render(self.get_block_template_context(context, is_invoice=is_invoice))
+        is_invoice = isinstance(document, Invoice)
+        return self._render(self.get_block_template_context(context,
+                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
+                                                            is_invoice=is_invoice))
 
 
 #NB PaginatedBlock and not QuerysetBlock to avoid the retrieving of a sliced
@@ -114,7 +116,7 @@ class CreditNoteBlock(QuerysetBlock):
 
 class TotalBlock(SimpleBlock):
     id_                 = SimpleBlock.generate_id('billing', 'total')
-    dependencies        = (ProductLine, ServiceLine, Relation)
+    dependencies        = (ProductLine, ServiceLine, Relation, Base, CreditNote, Quote, Invoice, SalesOrder)
     relation_type_deps  = (REL_OBJ_CREDIT_NOTE_APPLIED,)
     verbose_name        = _(u'Total')
     template_name       = 'billing/templatetags/block_total.html'
