@@ -19,10 +19,10 @@
 creme.widget = {
     _widgets : {},
 
-    ready: function() {
+    ready: function(root) {
         var self = creme.widget;
 
-        $('.ui-creme-widget').each(function() {
+        $('.ui-creme-widget', root).each(function() {
             self.activate($(this));
         });
     },

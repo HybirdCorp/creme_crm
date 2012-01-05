@@ -9,6 +9,12 @@
     <script type='text/javascript'>
         var THEME_NAME = "{{ THEME_NAME }}";
     </script>
+    <!-- 
+        Firebug for browsers without plugin/extension :
+            - uncomment the following script
+            - add debug="true" to <html> tag
+    -->
+    <!--script type="text/javascript" src="https://getfirebug.com/firebug-lite.js"></script-->
     {% include_creme_media "main.css" %}
     {% include "creme_core/frags/js_header.html" %}
     <link rel="shortcut icon" href="{% creme_media_url 'images/favicon.ico' %}" type="image/x-icon" />

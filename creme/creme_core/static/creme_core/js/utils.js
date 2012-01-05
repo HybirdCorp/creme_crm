@@ -448,16 +448,24 @@ creme.utils.iframeInnerPopup = function(url) {
     creme.utils.showInnerPopup(url,
                                {
                                    'send_button': function($dialog) {
-                                        creme.ajax.iframeSubmit(
+                                        creme.ajax.jqueryFormSubmit(
                                             $('[name=inner_body]', $dialog).find('form'),
                                             function(data) {
-                                                var div_id = $dialog.attr('id');
-                                                data += '<input type="hidden" name="whoami" value="'+div_id+'"/>';
-                                                $('[name=inner_body]','#'+div_id).html(data);
-
-                                                if($('[name=is_valid]','#'+div_id).val().toLowerCase() === "true") {
-                                                    creme.utils.closeDialog($('#'+div_id),true);
+                        						var div_id = $dialog.attr('id');
+                                                var body = $('[name=inner_body]', $dialog);
+                                                var data = $(data);
+                                                
+                                                body.empty();
+                                                body.append(data);
+                                                body.append($('<input type="hidden" name="whoami">').val(div_id));
+                                                
+                                                if(data.attr('closing') !== undefined) {
+                                                    creme.utils.closeDialog($dialog, true);
                                                 }
+                                            },
+                                            function(error) {
+                                            	creme.utils.closeDialog($dialog, true);
+                                            	creme.utils.showErrorNReload();
                                             },
                                             {'action': $('[name=inner_header_from_url]',$dialog).val()}
                                         );

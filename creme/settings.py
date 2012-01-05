@@ -349,6 +349,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/jquery/extensions/utils.js',
                     'creme_core/js/jquery/extensions/wait.js',
                     'creme_core/js/jquery/extensions/bootstrap-twipsy.js',
+                    'creme_core/js/jquery/extensions/jquery.form.js',
 
                     #'creme_core/js/datejs/date-en-US.js', #TODO improve
                     'creme_core/js/datejs/date-fr-FR.js',
