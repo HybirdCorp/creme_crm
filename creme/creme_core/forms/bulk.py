@@ -238,10 +238,12 @@ class EntityInnerEditForm(EntitiesBulkUpdateForm):
 
         fields = self.fields
 
+        fields['entities_lbl'].label = _(u'Entity')
         fields['entities_lbl'].required = False
 
         fields_field_name = fields['field_name']
         fields_field_name.widget = widgets.AdaptiveWidget(ct_id=self.ct.id, field_value_name='field_value', object_id=subjects[0].id)
+        fields_field_name.label = _(u'Field')
         fields_field_name.choices = [(field_name, "%s - %s" % (verbose_model_name, verbose_field_name))]
         fields_field_name.required = False
         fields_field_name.widget.attrs['disabled'] = True
