@@ -159,6 +159,7 @@ creme.ajax.post = function(options) {
              console.log(data) // result html content (body of iframe)
       });
  */
+/*
 creme.ajax.iframeSubmit = function(form, success_cb, pop_options) {
     var delay = 1;
     var id = new Date().getTime()
@@ -174,6 +175,7 @@ creme.ajax.iframeSubmit = function(form, success_cb, pop_options) {
         });
     }, delay);
 };
+*/
 
 creme.ajax.iframePopulate = function(iframe, form, options) {
     var iform = $('<form>').attr('action', options['action']||form.attr('action'))
@@ -196,6 +198,75 @@ creme.ajax.iframePopulate = function(iframe, form, options) {
 
     return $('<input type="submit" name="submit" value="1" id="submit"/>').appendTo(iform);
 };
+
+creme.ajax.jqueryFormSubmit = function(form, success_cb, error_cb, options)
+{
+	var form_action = form.attr('action');
+	form.attr('action', (options['action'] !== undefined ? options['action'] : form_action));
+	
+	$(form).ajaxSubmit({
+			iframe:true,
+			success:function(responseText, statusText, xhr, form) {
+						success_cb(responseText);
+						form.attr('action', form_action);
+					}
+	});
+}
+
+creme.ajax.iframeSubmit = function(form, success_cb, error_cb, options) {
+	var delay = 100;
+	
+	// build iframe with unique id
+	var id = new Date().getTime();
+	var iframe = $('<iframe src="javascript:false;" style="display:none;"><html><head></head><body></body></html></iframe>');
+	iframe.attr('id', id).attr('name', id).appendTo($('body'));
+
+	// specific iframe for IE
+	if ($.browser.msie) {
+		iframe.attr('src', "javascript:'<html></html>';").attr('target', '_blank');
+	}
+	
+	// add custom action if needed
+	var form_action = form.attr('action');
+	form.attr('action', (options['action'] !== undefined ? options['action'] : form_action));
+	
+	// iframe response callback
+	var iframe_success_cb = function(event) {
+		if ($.browser.msie) {
+			success_cb(iframe.contents().find('body').clone(true).html(), event);
+		} else {
+			success_cb(iframe.contents().find('body').html(), event);
+		}
+
+		form.attr('action', form_action);
+		iframe.remove();
+	};
+	
+	// iframe error callback
+	var iframe_error_cb = function(event) {
+		iframe.unbind('error', iframe_error_cb);
+				
+		error_cb(event);
+		form.attr('action', form_action);
+		iframe.remove();
+	};
+
+	window.setTimeout(function() {
+		
+		iframe.bind('load', iframe_success_cb);
+		iframe.bind('error', iframe_success_cb);
+		
+		var submit = creme.ajax.iframeRedirect(iframe, form);
+		submit.trigger('click');
+		
+	}, delay);
+};
+
+creme.ajax.iframeRedirect = function(iframe, form) {
+	var iform = form.attr('target', iframe.attr('name'));
+	return $('<input type="submit" name="submit" value="1" id="submit" style="display:none"/>').appendTo(iform);
+};
+
 
 creme.ajax.json = {};
 creme.ajax.json._handleSendError = function(req, textStatus, errorThrown) {
