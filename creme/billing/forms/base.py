@@ -28,7 +28,7 @@ from creme_core.forms import CremeEntityForm, CremeEntityField, CremeDateField, 
 from creme_core.forms.validators import validate_linkable_entity
 from creme_core.utils import find_first
 
-from persons.models.organisation import Organisation, Address, Contact
+from persons.models import Organisation, Address, Contact
 
 from billing.models import Line
 from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED

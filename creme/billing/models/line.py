@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 from decimal import Decimal
+from logging import debug
 
 from django.db.models import CharField, IntegerField, DecimalField, BooleanField, TextField, ForeignKey, PositiveIntegerField
 from django.db.models.query_utils import Q
@@ -119,31 +120,41 @@ class Line(CremeEntity):
     def get_related_entity(self): #for generic views & delete
         return self.related_document
 
-    def _get_related_document(self):
+    @property
+    def related_document(self):
+        if not self.pk:
+            debug('Line.related_document(getter): line not saved yet.')
+            return None
+
         try:
             return self.relations.get(type=REL_OBJ_HAS_LINE, subject_entity=self.id).object_entity.get_real_entity()#TODO:Cache ?
         except Relation.DoesNotExist:
             return None
 
-    def _set_related_document(self, object_entity):
+    @related_document.setter
+    def related_document(self, object_entity):
+        assert self.pk, 'Line.related_document(setter): line not saved yet.'
         Relation.objects.filter(subject_entity=self, type=REL_OBJ_HAS_LINE).delete()#This should be done most of the time by the signal
         #Beware if self, object_entity or self.user have not a pk the relation will not be created
         return Relation.objects.create(object_entity=object_entity, subject_entity=self, type_id=REL_OBJ_HAS_LINE, user=self.user)
 
-    related_document = property(_get_related_document, _set_related_document); del _get_related_document, _set_related_document
+    @property
+    def related_item(self):
+        if not self.pk:
+            debug('Line.related_item(getter): line not saved yet.')
+            return None
 
-    def _get_related_item(self):
         try:
             return self.relations.get(type=REL_SUB_LINE_RELATED_ITEM, subject_entity=self.id).object_entity.get_real_entity()#TODO:Cache ?
         except Relation.DoesNotExist:
             return None
 
-    def _set_related_item(self, object_entity):
+    @related_item.setter
+    def related_item(self, object_entity):
+        assert self.pk, 'Line.related_item(setter): line not saved yet.'
         Relation.objects.filter(subject_entity=self, type=REL_SUB_LINE_RELATED_ITEM).delete()#This should be done most of the time by the signal
         #Beware if self, object_entity or self.user have not a pk the relation will not be created
         return Relation.objects.create(object_entity=object_entity, subject_entity=self, type_id=REL_SUB_LINE_RELATED_ITEM, user=self.user)
-
-    related_item = property(_get_related_item, _set_related_item); del _get_related_item, _set_related_item
 
     @staticmethod
     def get_lv_absolute_url():
@@ -154,22 +165,23 @@ class Line(CremeEntity):
 
     @staticmethod
     def is_discount_valid(unit_price, quantity, discount_value, discount_unit, discount_type):
-#        print unit_price, quantity, discount_value, discount_unit, discount_type
-        if discount_unit == PERCENT_PK: # percent %
+        if discount_unit == PERCENT_PK:
 #            if discount_value < 0 or discount_value > 100:
             if not (0 <= discount_value <= 100):
                 return False
         else: # amount �/$/...
+            #TODO: factorise "if discount_type"
             if discount_type and discount_value > unit_price * quantity: # Global discount 
                 return False
             if not discount_type and discount_value > unit_price: # Unitary discount
                 return False
+
         return True
 
     @staticmethod
-    def generate_lines(klass, item, document, user, optional_infos_map = None):
+    def generate_lines(klass, item, document, user, optional_infos_map=None):
         new_line = klass()
-        
+
         new_line.unit_price = item.unit_price
         new_line.user       = user
 
@@ -182,6 +194,6 @@ class Line(CremeEntity):
 
         new_line.save()
 
-        new_line.related_item       = item
-        new_line.related_document   = document
+        new_line.related_item     = item
+        new_line.related_document = document
 

@@ -33,7 +33,12 @@ class ProductLine(Line):
         verbose_name = _(u'Product line')
         verbose_name_plural = _(u'Product lines')
 
+    #def __unicode__(self):
+        #if self.related_item:
+            #return u"Related to product '%s'" % self.related_item
+        #return u"On the fly product '%s'" % self.on_the_fly_item
     def __unicode__(self):
-        if self.related_item:
-            return u"Related to product '%s'" % self.related_item
-        return u"On the fly product '%s'" % self.on_the_fly_item
+        if self.on_the_fly_item:
+            return u"On the fly product '%s'" % self.on_the_fly_item
+
+        return u"Related to product '%s'" % self.related_item
