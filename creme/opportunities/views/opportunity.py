@@ -120,14 +120,14 @@ def generate_new_doc(request, opp_id, ct_id):
 
     user.has_perm_to_create_or_die(klass)
 
-    document = klass.objects.create(user=user, issuing_date=datetime.now(), status_id=1,
+    document = klass.objects.create(user=user, issuing_date=datetime.now(), status_id=1, currency=opp.currency,
                                     comment=_(u"Generated from the opportunity «%s»") % opp
                                    )
 
     create_relation = Relation.objects.create
-    create_relation(subject_entity=document, type_id=REL_SUB_BILL_ISSUED,    object_entity=opp.get_emit_orga(), user=user)
-    create_relation(subject_entity=document, type_id=REL_SUB_BILL_RECEIVED,  object_entity=opp.get_target(),    user=user)
-    create_relation(subject_entity=opp,      type_id=_RELATIONS_DICT[klass], object_entity=document,            user=user)
+    create_relation(subject_entity=document, type_id=REL_SUB_BILL_ISSUED,    object_entity=opp.get_source(), user=user)
+    create_relation(subject_entity=document, type_id=REL_SUB_BILL_RECEIVED,  object_entity=opp.get_target(), user=user)
+    create_relation(subject_entity=opp,      type_id=_RELATIONS_DICT[klass], object_entity=document,         user=user)
 
     document.generate_number() #Need the relation with emitter orga
     document.name = u'%s(%s)' % (document.number, opp.name)
@@ -153,7 +153,7 @@ def generate_new_doc(request, opp_id, ct_id):
 
     workflow_action = _WORKFLOW_DICT[klass]
     if workflow_action:
-        workflow_action(opp.get_emit_orga(), opp.get_target(), user)
+        workflow_action(opp.get_source(), opp.get_target(), user)
 
     if request.is_ajax():
         return HttpResponse("", mimetype="text/javascript")
