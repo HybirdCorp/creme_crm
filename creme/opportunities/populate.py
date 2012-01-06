@@ -72,10 +72,10 @@ class Populator(BasePopulator):
         RelationType.create((REL_SUB_CURRENT_DOC,       _(u'is the current accounting document of'), [SalesOrder, Invoice, Quote]),
                             (REL_OBJ_CURRENT_DOC,       _(u'has as current accounting document'),    [Opportunity]))
 
-        sk = SettingKey.create(pk=SETTING_USE_LINES,
-                               description=_(u"Use Product and Service lines"),
+        sk = SettingKey.create(pk=SETTING_USE_CURRENT_QUOTE,
+                               description=_(u"Use current associated quote to determine an estimation of the opportunity's turnover"),
                                app_label='opportunities', type=SettingKey.BOOL
-                              )
+                               )
         SettingValue.create_if_needed(key=sk, user=None, value=False)
 
         if not SalesPhase.objects.exists():
@@ -126,17 +126,18 @@ class Populator(BasePopulator):
 
         SearchConfigItem.create_if_needed(Opportunity, ['name', 'made_sales', 'sales_phase__name', 'origin__name'])
 
-        BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Opportunity)
+        BlockDetailviewLocation.create_4_model_block(                      order=5,   zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
         BlockDetailviewLocation.create(block_id=customfields_block.id_,    order=40,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
-        BlockDetailviewLocation.create(block_id=linked_contacts_block.id_, order=50,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
-        BlockDetailviewLocation.create(block_id=linked_products_block.id_, order=60,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
-        BlockDetailviewLocation.create(block_id=linked_services_block.id_, order=62,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
         BlockDetailviewLocation.create(block_id=responsibles_block.id_,    order=60,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
+        BlockDetailviewLocation.create(block_id=linked_contacts_block.id_, order=62,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
+        BlockDetailviewLocation.create(block_id=linked_products_block.id_, order=64,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
+        BlockDetailviewLocation.create(block_id=linked_services_block.id_, order=66,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
         BlockDetailviewLocation.create(block_id=quotes_block.id_,          order=70,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
         BlockDetailviewLocation.create(block_id=salesorders_block.id_,     order=72,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
         BlockDetailviewLocation.create(block_id=invoices_block.id_,        order=74,  zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
         BlockDetailviewLocation.create(block_id=properties_block.id_,      order=450, zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
         BlockDetailviewLocation.create(block_id=relations_block.id_,       order=500, zone=BlockDetailviewLocation.LEFT,  model=Opportunity)
+        BlockDetailviewLocation.create(block_id=target_block.id_,          order=1,   zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
         BlockDetailviewLocation.create(block_id=total_block.id_,           order=2,   zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
         BlockDetailviewLocation.create(block_id=history_block.id_,         order=20,  zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
 
