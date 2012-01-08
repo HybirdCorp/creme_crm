@@ -150,6 +150,9 @@ def generate_new_doc(request, opp_id, ct_id):
 
     if _CURRENT_DOC_DICT[klass]:
         create_relation(subject_entity=document, type_id=REL_SUB_CURRENT_DOC, object_entity=opp, user=user)
+        if opp.use_current_quote:
+            opp.estimated_sales = document.get_total()
+            opp.save()
 
     workflow_action = _WORKFLOW_DICT[klass]
     if workflow_action:
