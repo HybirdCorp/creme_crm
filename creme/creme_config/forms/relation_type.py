@@ -101,18 +101,19 @@ class RelationTypeEditForm(_RelationTypeBaseForm):
 
 
 class SemiFixedRelationTypeCreateForm(CremeModelForm):
-    semi_relation = RelationEntityField(label=_('Type and object'))
+    semi_relation = RelationEntityField(label=_('Type and object'),
+                                        allowed_rtypes=RelationType.objects.filter(is_internal=False))
 
     class Meta:
         model = SemiFixedRelationType
         exclude = ('relation_type', 'object_entity')
 
-    def __init__(self, *args, **kwargs):
-        super(SemiFixedRelationTypeCreateForm, self).__init__(*args, **kwargs)
+    #def __init__(self, *args, **kwargs):
+        #super(SemiFixedRelationTypeCreateForm, self).__init__(*args, **kwargs)
         #TODO: improve RelationEntityField in order to put this queryset in the declaration
         #      for now the queryset is immediately executed, so RelationTypes create after are not used.
-        self.fields['semi_relation'].allowed_rtypes = RelationType.objects.filter(is_internal=False) \
-                                                                          .values_list('id', flat=True)
+        #self.fields['semi_relation'].allowed_rtypes = RelationType.objects.filter(is_internal=False) \
+        #                                                                  .values_list('id', flat=True)
 
     def clean(self):
         cdata = super(SemiFixedRelationTypeCreateForm, self).clean()

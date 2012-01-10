@@ -32,6 +32,7 @@ from django.utils.safestring import mark_safe
 from django.utils.formats import date_format
 from django.core.validators import EMPTY_VALUES
 from django.conf import settings
+from django.db.models.query import QuerySet
 
 from creme_core.utils.media import creme_media_themed_url as media_url
 from creme_core.utils.date_range import date_range_registry
@@ -85,12 +86,14 @@ class DynamicInput(TextInput):
 
 class DynamicSelect(Select):
     def __init__(self, attrs=None, options=None, url=''):
-        super(DynamicSelect, self).__init__(attrs, options if options else ()) #TODO: options or ()
+        super(DynamicSelect, self).__init__(attrs, ()) #TODO: options or ()
         self.url = url
+        self.options = options or ()
 
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name)
         context = widget_render_context('ui-creme-dselect', attrs)
+        self.choices = self.options() if callable(self.options) else self.options
 
         return mark_safe(widget_render_input(Select.render, self, name, value, context, url=self.url))
 

@@ -422,7 +422,7 @@ class RelationExtractorField(MultiRelationEntityField):
 
     def _create_widget(self):
         return RelationExtractorSelector(columns=self._columns,
-                                         relation_types=self._get_options(self._get_allowed_rtypes_objects()),
+                                         relation_types=self._get_options,
                                         )
 
     @property
@@ -457,6 +457,8 @@ class RelationExtractorField(MultiRelationEntityField):
 
         extractors = []
         rtypes_cache = {}
+        allowed_rtypes_ids = frozenset(self._get_allowed_rtypes_ids())
+
         need_property_validation = False
         allowed_columns = frozenset(c[0] for c in self._columns)
 
@@ -464,7 +466,7 @@ class RelationExtractorField(MultiRelationEntityField):
             if column not in allowed_columns:
                 raise ValidationError(self.error_messages['invalidcolunm'], params={'column': column})
 
-            if rtype_pk not in self.allowed_rtypes:
+            if rtype_pk not in allowed_rtypes_ids:
                 raise ValidationError(self.error_messages['rtypenotallowed'], params={'rtype': rtype_pk, 'ctype': ctype_pk})
 
             rtype, rtype_allowed_ctypes, rtype_allowed_properties = self._get_cache(rtypes_cache, rtype_pk, self._build_rtype_cache)
@@ -613,11 +615,11 @@ class CSVImportForm4CremeEntity(CSVImportForm):
 
         fields['property_types'].queryset = CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
 
-        rtype_ids = list(RelationType.get_compatible_ones(ct).values_list('id', flat=True))
-        fields['fixed_relations'].allowed_rtypes = rtype_ids
+        rtypes = RelationType.get_compatible_ones(ct)
+        fields['fixed_relations'].allowed_rtypes = rtypes
 
         fdyn_relations = fields['dyn_relations']
-        fdyn_relations.allowed_rtypes = rtype_ids
+        fdyn_relations.allowed_rtypes = rtypes
         fdyn_relations.columns = self.columns4dynrelations
 
         fields['user'].initial = self.user.id
