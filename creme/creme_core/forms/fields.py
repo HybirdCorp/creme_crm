@@ -33,6 +33,7 @@ from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.encoding import smart_unicode
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import validate_email
+from django.db.models.query import QuerySet
 
 from creme_core.models import RelationType, CremeEntity, Relation
 from creme_core.utils import creme_entity_content_types
@@ -241,7 +242,7 @@ class MultiGenericEntityField(GenericEntityField):
         for entry in data:
             try:
                 entities_map[clean_value(entry, 'ctype', int)].append(clean_value(entry, 'entity', int))
-            except Exception, e:
+            except Exception:
                 raise ValidationError(self.error_messages['invalidformat'])
 
         entities = []
@@ -259,6 +260,20 @@ class MultiGenericEntityField(GenericEntityField):
         return entities
 
 
+class ChoiceModelIterator(object):
+    def __init__(self, queryset, render_value=None, render_label=None):
+        self.queryset = queryset.all()
+        self.render_value = render_value or (lambda v: v.pk)
+        self.render_label = render_label or (lambda v: unicode(v))
+
+    def __iter__(self):
+        for model in self.queryset:
+            yield (self.render_value(model), self.render_label(model))
+
+    def __len__(self):
+        return len(self.queryset)
+
+
 class RelationEntityField(JSONField):
     default_error_messages = {
         'rtypedoesnotexist': _(u"This type of relationship doesn't exist."),
@@ -270,13 +285,26 @@ class RelationEntityField(JSONField):
         'nopropertymatch':   _(u"This entity has no property that matches the constraints of the type of relationship."),
     }
 
-    def __init__(self, allowed_rtypes=(REL_SUB_HAS, ), *args, **kwargs):
-        super(RelationEntityField, self).__init__(*args, **kwargs)
-        self._allowed_rtypes = frozenset(allowed_rtypes)
+    @property
+    def allowed_rtypes(self):
+        return self._allowed_rtypes
+
+    @allowed_rtypes.setter
+    def allowed_rtypes(self, allowed=(REL_SUB_HAS, )):
+        if allowed:
+            self._allowed_rtypes = allowed if isinstance(allowed, QuerySet) else RelationType.objects.filter(id__in=allowed)
+            self._allowed_rtypes = self._allowed_rtypes.order_by('predicate')
+        else:
+            self._allowed_rtypes = RelationType.objects.all().order_by('predicate')
+
         self._build_widget()
 
+    def __init__(self, allowed_rtypes=(REL_SUB_HAS, ), *args, **kwargs):
+        super(RelationEntityField, self).__init__(*args, **kwargs)
+        self.allowed_rtypes = allowed_rtypes
+
     def _create_widget(self):
-        return RelationSelector(self._get_options(self._get_allowed_rtypes_objects()),
+        return RelationSelector(self._get_options,
                                 '/creme_core/relation/predicate/${rtype}/content_types/json')
 
     #TODO : wait for django 1.2 and new widget api to remove this hack
@@ -335,7 +363,7 @@ class RelationEntityField(JSONField):
 
     def clean_rtype(self, rtype_pk):
         # is relation type allowed
-        if rtype_pk not in self._allowed_rtypes:
+        if rtype_pk not in self._get_allowed_rtypes_ids():
             raise ValidationError(self.error_messages['rtypenotallowed'], params={'rtype': rtype_pk})
 
         try:
@@ -355,22 +383,19 @@ class RelationEntityField(JSONField):
 
         return entity
 
-    def _get_options(self, models):
-        return ((model.pk, unicode(model)) for model in models)
+    def _get_options(self):
+        return ChoiceModelIterator(self._allowed_rtypes)
 
     def _get_allowed_rtypes_objects(self):
-        return (RelationType.objects.filter(id__in=self._allowed_rtypes) if self._allowed_rtypes else RelationType.objects.all()).order_by('predicate')
+        return self._allowed_rtypes.all()
 
-    def _set_allowed_rtypes(self, allowed=(REL_SUB_HAS, )):
-        self._allowed_rtypes = frozenset(allowed)
-        self._build_widget()
-
-    allowed_rtypes = property(lambda self: self._allowed_rtypes, _set_allowed_rtypes); del _set_allowed_rtypes
+    def _get_allowed_rtypes_ids(self):
+        return self._allowed_rtypes.all().values_list('id', flat=True)
 
 
 class MultiRelationEntityField(RelationEntityField):
     def _create_widget(self):
-        return SelectorList(RelationSelector(self._get_options(self._get_allowed_rtypes_objects()),
+        return SelectorList(RelationSelector(self._get_options,
                                              '/creme_core/relation/predicate/${rtype}/content_types/json',
                                              multiple=True,
                                             )
@@ -453,12 +478,13 @@ class MultiRelationEntityField(RelationEntityField):
 
         rtypes_cache = {}
         ctypes_cache = {}
+        allowed_rtypes_ids = frozenset(self._get_allowed_rtypes_ids())
 
         need_property_validation = False
 
         for rtype_pk, ctype_pk, entity_pk in cleaned_entries:
             # check if relation type is allowed
-            if rtype_pk not in self.allowed_rtypes:
+            if rtype_pk not in allowed_rtypes_ids:
                 raise ValidationError(self.error_messages['rtypenotallowed'], params={'rtype': rtype_pk, 'ctype': ctype_pk})
 
             rtype, rtype_allowed_ctypes, rtype_allowed_properties = self._get_cache(rtypes_cache, rtype_pk, self._build_rtype_cache)
