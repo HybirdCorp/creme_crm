@@ -7,10 +7,12 @@ from django.db import models
 class Migration(DataMigration):
 
     def forwards(self, orm):
-        sk = orm['creme_config.SettingKey'].objects.get(id="opportunities-use_lines")
-        orm['creme_config.SettingValue'].objects.get(key=sk).delete()
-        sk.delete()
-
+        try:
+            sk = orm['creme_config.SettingKey'].objects.get(id="opportunities-use_lines")
+            orm['creme_config.SettingValue'].objects.filter(key=sk).delete()
+            sk.delete()
+        except Exception as e:
+            pass
 
     def backwards(self, orm):
         "Write your backwards methods here."
