@@ -23,6 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models.base import CremeModel
 
+# TODO add the possibility to choose a default currency which will be used everywhere in the CRM
 class Currency(CremeModel):
     name                    = CharField(_(u'Currency'), max_length=100)
     local_symbol            = CharField(_(u'Local symbol'), max_length=100)

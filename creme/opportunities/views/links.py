@@ -57,6 +57,10 @@ def set_current_quote(request, opp_id, quote_id):
                             object_entity=opp, user=user
                            )
 
+    if opp.use_current_quote:
+        opp.estimated_sales = quote.get_total()
+        opp.save()
+
     if request.is_ajax():
         return HttpResponse("", mimetype="text/javascript")
 

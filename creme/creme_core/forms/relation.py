@@ -54,9 +54,7 @@ class RelationCreateForm(CremeForm):
         sfrt_queryset = SemiFixedRelationType.objects.filter(object_entity__in=[e for e in entities if e.can_link(user)])
 
         if not relations_types:
-            relations_types = RelationType.get_compatible_ones(subject.entity_type) \
-                                          .order_by('predicate') \
-                                          .values_list('id', flat=True)
+            relations_types = RelationType.get_compatible_ones(subject.entity_type)
         else:
             sfrt_queryset = sfrt_queryset.filter(relation_type__in=relations_types)
 
@@ -64,7 +62,7 @@ class RelationCreateForm(CremeForm):
 
         relations_field = fields['relations']
         relations_field.allowed_rtypes = relations_types
-        relations_field.initial = [(RelationType.objects.get(pk=relations_types[0]), None)]
+        relations_field.initial = [(relations_field.allowed_rtypes.all()[0], None)]
 
     def _check_duplicates(self, relations, user):
         future_relations = set()

@@ -22,14 +22,14 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, Relation
-from creme_core.gui.block import SimpleBlock, QuerysetBlock
+from creme_core.gui.block import QuerysetBlock, SimpleBlock
 
 from persons.models import Contact, Organisation
 
 from products.models import Product, Service
 
 from billing.models import Quote, Invoice, SalesOrder
-from billing.blocks import ProductLinesBlock, ServiceLinesBlock, TotalBlock
+from billing.blocks import ProductLinesBlock, ServiceLinesBlock, TotalBlock, TargetBlock
 
 from opportunities.constants import *
 from opportunities.models import Opportunity
@@ -37,9 +37,10 @@ from opportunities.models import Opportunity
 
 _get_ct = ContentType.objects.get_for_model
 
-
 class OpportunityBlock(SimpleBlock):
-    template_name = 'opportunities/templatetags/block_opportunity.html'
+    template_name = 'creme_core/templatetags/block_object.html'
+    dependencies  = (Opportunity, Relation)
+    relation_type_deps = (REL_OBJ_LINKED_QUOTE, )
 
 
 class _LinkedStuffBlock(QuerysetBlock):
@@ -114,10 +115,10 @@ class ResponsiblesBlock(_LinkedStuffBlock):
 
 
 class QuotesBlock(_LinkedStuffBlock):
-    id_           = QuerysetBlock.generate_id('opportunities', 'quotes')
-    relation_type_deps = (REL_OBJ_LINKED_QUOTE, )
-    verbose_name  = _(u"Quotes linked to the opportunity")
-    template_name = 'opportunities/templatetags/block_quotes.html'
+    id_                 = QuerysetBlock.generate_id('opportunities', 'quotes')
+    relation_type_deps  = (REL_OBJ_LINKED_QUOTE,)
+    verbose_name        = _(u"Quotes linked to the opportunity")
+    template_name       = 'opportunities/templatetags/block_quotes.html'
 
     _ct = _get_ct(Quote)
 
@@ -174,7 +175,14 @@ class OppServiceLinesBlock(ServiceLinesBlock):
 
 
 class OppTotalBlock(TotalBlock):
-    id_           = TotalBlock.generate_id('opportunities', 'total')
+    id_                 = TotalBlock.generate_id('opportunities', 'total')
+    dependencies        = (Opportunity, Relation,)
+    relation_type_deps  = (REL_OBJ_LINKED_QUOTE,)
+    target_ctypes       = (Opportunity,)
+
+
+class OppTargetBlock(TargetBlock):
+    id_           = TargetBlock.generate_id('opportunities', 'target')
     target_ctypes = (Opportunity,)
 
 
@@ -186,6 +194,7 @@ quotes_block          = QuotesBlock()
 salesorders_block     = SalesOrdersBlock()
 invoices_block        = InvoicesBlock()
 total_block           = OppTotalBlock()
+target_block          = OppTargetBlock()
 targetting_opps_block = TargettingOpportunitiesBlock()
 
 blocks_list = (
@@ -197,6 +206,7 @@ blocks_list = (
     salesorders_block,
     invoices_block,
     total_block,
+    target_block,
     targetting_opps_block,
     OppProductLinesBlock(),
     OppServiceLinesBlock(),

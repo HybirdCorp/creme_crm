@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from decimal import Decimal
     from datetime import date
 
     from django.utils.translation import ugettext as _
@@ -8,7 +9,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from creme_core.models import RelationType, Relation, CremeProperty, SetCredentials
-    from creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    from creme_core.constants import PROP_IS_MANAGED_BY_CREME, DEFAULT_CURRENCY_PK
     from creme_core.models.entity import CremeEntity
     from creme_core.tests.base import CremeTestCase
 
@@ -17,10 +18,9 @@ try:
     from persons.models import Organisation, Contact
     from persons.constants import REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
 
-
     from products.models import Product, Service
 
-    from billing.models import Quote, SalesOrder, Invoice
+    from billing.models import Quote, SalesOrder, Invoice, Vat, ServiceLine
     from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
     from opportunities.models import *
@@ -30,8 +30,18 @@ except Exception as e:
 
 
 class OpportunitiesTestCase(CremeTestCase):
+    def _create_tax(self, vat):
+        if not Vat.objects.filter(value=vat).exists():
+            if vat == Decimal('19.60'):
+                Vat.objects.create(value=vat, is_default=True, is_custom=False)
+            else:
+                Vat.objects.create(value=vat, is_custom=False)
+
     def setUp(self):
         self.populate('creme_core', 'creme_config', 'documents', 'persons', 'commercial', 'billing', 'activities', 'opportunities')
+
+        for vat in ['0.0','5.50', '7.0', '19.60']:
+            self._create_tax(Decimal(vat))
 
     def genericfield_format_entity(self, entity):
         return '{"ctype":"%s", "entity":"%s"}' % (entity.entity_type_id, entity.id)
@@ -80,7 +90,7 @@ class OpportunitiesTestCase(CremeTestCase):
         self.assertTrue(SalesPhase.objects.exists())
         self.assertTrue(Origin.objects.exists())
 
-        keys = SettingKey.objects.filter(pk=SETTING_USE_LINES)
+        keys = SettingKey.objects.filter(pk=SETTING_USE_CURRENT_QUOTE)
         self.assertEqual(1, len(keys))
         self.assertEqual(1, SettingValue.objects.filter(key=keys[0]).count())
 
@@ -103,6 +113,7 @@ class OpportunitiesTestCase(CremeTestCase):
                                             'closing_date': '2010-10-11',
                                             'target':       self.genericfield_format_entity(target),
                                             'emit_orga':    emitter.id,
+                                            'currency':     DEFAULT_CURRENCY_PK,
                                     }
                                    )
         self.assertNoFormError(response)
@@ -133,6 +144,7 @@ class OpportunitiesTestCase(CremeTestCase):
                                           'target':                self.genericfield_format_entity(target),
                                           'emit_orga':             emitter.id,
                                           'first_action_date':     '2010-7-13',
+                                          'currency':              DEFAULT_CURRENCY_PK,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -168,6 +180,7 @@ class OpportunitiesTestCase(CremeTestCase):
                                           'target':                self.genericfield_format_entity(target),
                                           'emit_orga':             emitter.id,
                                           'first_action_date':     '2010-7-13',
+                                          'currency':              DEFAULT_CURRENCY_PK,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -263,6 +276,7 @@ class OpportunitiesTestCase(CremeTestCase):
                                                'closing_date': '2011-03-12',
                                                'target':       self.genericfield_format_entity(target),
                                                'emit_orga':    emitter.id,
+                                               'currency':     DEFAULT_CURRENCY_PK,
                                               }
                                    )
         self.assertNoFormError(response)
@@ -283,6 +297,7 @@ class OpportunitiesTestCase(CremeTestCase):
                                                'closing_date': '2011-03-12',
                                                'target':       self.genericfield_format_entity(target),
                                                'emit_orga':    emitter.id,
+                                               'currency':     DEFAULT_CURRENCY_PK,
                                               }
                                    )
         self.assertNoFormError(response)
@@ -309,6 +324,7 @@ class OpportunitiesTestCase(CremeTestCase):
                                                'closing_date': '2011-03-12',
                                                'target':       self.genericfield_format_entity(target),
                                                'emit_orga':    emitter.id,
+                                               'currency':     DEFAULT_CURRENCY_PK,
                                               }
                                    )
         self.assertNoFormError(response)
@@ -358,6 +374,7 @@ class OpportunitiesTestCase(CremeTestCase):
                                                'closing_date': '2011-03-12',
                                                'target':       self.genericfield_format_entity(target),
                                                'emit_orga':    emitter.id,
+                                               'currency':     DEFAULT_CURRENCY_PK,
                                               }
                                    )
         self.assertNoFormError(response)
@@ -378,6 +395,7 @@ class OpportunitiesTestCase(CremeTestCase):
                                                'closing_date': '2011-03-12',
                                                'target':       self.genericfield_format_entity(target),
                                                'emit_orga':    emitter.id,
+                                               'currency':     DEFAULT_CURRENCY_PK,
                                               }
                                    )
         self.assertNoFormError(response)
@@ -404,6 +422,7 @@ class OpportunitiesTestCase(CremeTestCase):
                                                'closing_date': '2011-03-12',
                                                'target':       self.genericfield_format_entity(target),
                                                'emit_orga':    emitter.id,
+                                               'currency':     DEFAULT_CURRENCY_PK,
                                               }
                                    )
         self.assertNoFormError(response)
@@ -543,7 +562,7 @@ class OpportunitiesTestCase(CremeTestCase):
 
         self.assertEqual(1, filter_(subject_entity=target, type=REL_SUB_CUSTOMER_SUPPLIER,    object_entity=emitter).count())
 
-    def test_set_current_quote(self):
+    def test_set_current_quote_1(self):
         self.login()
 
         opportunity, target, emitter = self.create_opportunity('Opportunity01')
@@ -570,6 +589,76 @@ class OpportunitiesTestCase(CremeTestCase):
         self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_BILL_RECEIVED, object_entity=target).count())
         self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_LINKED_QUOTE,  object_entity=opportunity).count())
         self.assertEqual(1, filter_(subject_entity=quote1, type=REL_SUB_CURRENT_DOC,   object_entity=opportunity).count())
+
+    def test_set_current_quote_2(self):
+        self.login()
+
+        opportunity, target, emitter = self.create_opportunity('Opportunity01')
+        ct = ContentType.objects.get_for_model(Quote)
+        gen_quote = lambda: self.client.post('/opportunities/opportunity/generate_new_doc/%s/%s' % (opportunity.id, ct.id))
+
+        opportunity.estimated_sales = Decimal('1000')
+        opportunity.save()
+
+        gen_quote()
+        quote1 = Quote.objects.all()[0]
+        #sl1 = ServiceLine.objects.create(user=self.user, unit_price=Decimal("300"))
+        #sl1.related_document = quote1
+        #quote1.save() # update totals
+        sl1 = ServiceLine.objects.create(user=self.user, related_document=quote1, on_the_fly_item='Stuff1', unit_price=Decimal("300"))
+
+        gen_quote()
+        quote2 = Quote.objects.exclude(pk=quote1.id)[0]
+        #sl2 = ServiceLine.objects.create(user=self.user, unit_price=Decimal("500"))
+        #sl2.related_document = quote2
+        #quote2.save() # update totals
+        sl2 = ServiceLine.objects.create(user=self.user, related_document=quote2, on_the_fly_item='Stuff1', unit_price=Decimal("500"))
+
+        use_current_quote = SettingValue.objects.get(key=SETTING_USE_CURRENT_QUOTE)
+        use_current_quote.value = True
+        use_current_quote.save()
+
+        url = '/opportunities/opportunity/%s/linked/quote/%s/set_current/' % (opportunity.id, quote1.id)
+        self.assertEqual(200, self.client.post(url, follow=True).status_code)
+
+        #opportunity = Opportunity.objects.get(pk=opportunity.id) # refresh
+        opportunity = self.refresh(opportunity)
+        self.assertEqual(opportunity.estimated_sales, quote1.get_total()) # 300
+
+        url = '/opportunities/opportunity/%s/linked/quote/%s/set_current/' % (opportunity.id, quote2.id)
+        self.assertEqual(200, self.client.post(url, follow=True).status_code)
+
+        opportunity = self.refresh(opportunity)
+        self.assertEqual(opportunity.estimated_sales, quote2.get_total()) # 500
+
+    def test_set_current_quote_3(self):
+        self.login()
+
+        opportunity, target, emitter = self.create_opportunity('Opportunity01')
+        ct = ContentType.objects.get_for_model(Quote)
+        gen_quote = lambda: self.client.post('/opportunities/opportunity/generate_new_doc/%s/%s' % (opportunity.id, ct.id))
+
+        use_current_quote = SettingValue.objects.get(key=SETTING_USE_CURRENT_QUOTE)
+        use_current_quote.value = False
+        use_current_quote.save()
+
+        estimated_sales = Decimal('69')
+        opportunity.estimated_sales = estimated_sales
+        opportunity.save()
+
+        gen_quote()
+        quote1 = Quote.objects.all()[0]
+        #sl1 = ServiceLine.objects.create(user=self.user, unit_price=Decimal("300"))
+        #sl1.related_document = quote1
+        #quote1.save() # update totals
+        sl1 = ServiceLine.objects.create(user=self.user, related_document=quote1, on_the_fly_item='Foobar', unit_price=Decimal("300"))
+
+        url = '/opportunities/opportunity/%s/linked/quote/%s/set_current/' % (opportunity.id, quote1.id)
+        self.assertEqual(200, self.client.post(url, follow=True).status_code)
+
+        opportunity = self.refresh(opportunity)
+        self.assertEqual(opportunity.estimated_sales, opportunity.get_total()) # 69
+        self.assertEqual(opportunity.estimated_sales, estimated_sales) # 69
 
     def test_get_weighted_sales(self):
         self.login()
