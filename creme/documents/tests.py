@@ -144,7 +144,7 @@ class DocumentTestCase(CremeTestCase):
 
         entity = CremeEntity.objects.create(user=self.user)
 
-        url = '/documents/document/add_related?entity_id=%s' % entity.id
+        url = '/documents/document/add_related/%s' % entity.id
         self.assertEqual(200, self.client.get(url).status_code)
 
         title    = 'Related doc'

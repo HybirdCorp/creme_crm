@@ -24,11 +24,14 @@ from logging import error
 from django.db.models import CharField, TextField, ForeignKey, PositiveIntegerField, DateField
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
+from billing.models.other_models import Vat
+from creme_core.constants import DEFAULT_CURRENCY_PK
 
 from creme_core.core.function_field import FunctionField
 from creme_core.models import CremeEntity, CremeModel, Relation
 
 from creme_config.models import SettingValue
+from creme_core.models.currency import Currency
 
 from persons.models import Contact, Organisation
 
@@ -76,6 +79,7 @@ class Opportunity(CremeEntity):
     reference             = CharField(_(u"Reference"), max_length=100, blank=True, null=True)
     estimated_sales       = PositiveIntegerField(_(u'Estimated sales'), blank=True, null=True)
     made_sales            = PositiveIntegerField(_(u'Made sales'), blank=True, null=True)
+    currency              = ForeignKey(Currency, verbose_name=_(u'Currency'), default=DEFAULT_CURRENCY_PK)
     sales_phase           = ForeignKey(SalesPhase, verbose_name=_(u'Sales phase'))
     chance_to_win         = PositiveIntegerField(_(ur"% of chance to win"), blank=True, null=True)
     expected_closing_date = DateField(_(u'Expected closing date'), blank=True, null=True)
@@ -86,9 +90,9 @@ class Opportunity(CremeEntity):
 
     function_fields = CremeEntity.function_fields.new(_TurnoverField())
 
-    _use_lines     = None
-    _product_lines = None
-    _service_lines = None
+    _use_current_quote  = None
+    _product_lines      = None
+    _service_lines      = None
 
     class Meta:
         app_label = "opportunities"
@@ -123,10 +127,10 @@ class Opportunity(CremeEntity):
         return (self.estimated_sales or 0) * (self.chance_to_win or 0) / 100.0
 
     @property
-    def use_lines(self):
-        if self._use_lines is None:
-            self._use_lines = SettingValue.objects.get(key=SETTING_USE_LINES).value
-        return self._use_lines
+    def use_current_quote(self):
+        if self._use_current_quote is None:
+            self._use_current_quote = SettingValue.objects.get(key=SETTING_USE_CURRENT_QUOTE).value
+        return self._use_current_quote
 
     #TODO: factorise with billing ??
     @property
@@ -149,45 +153,48 @@ class Opportunity(CremeEntity):
 
     #TODO: factorise with billing ??
     def get_total(self):
-        if self.use_lines:
-            #TODO: can use aggregate functions instead ???
-            return round_to_2(sum(l.get_price_exclusive_of_tax() for l in chain(self.product_lines, self.service_lines)))
+        if self.made_sales:
+            return self.made_sales
         else:
-            if self.made_sales:
-                return self.made_sales
-            else:
-                return (self.estimated_sales or 0.0)
+            return (self.estimated_sales or 0.0)
 
     #TODO: factorise with billing ??
     def get_total_with_tax(self):
-        if self.use_lines:
-            return round_to_2(sum(l.get_price_inclusive_of_tax() for l in chain(self.product_lines, self.service_lines)))
-        else:
-            tax = 1.196 #TODO: use constant or setting ?
+        tax = 1 + Vat.get_default_vat().value / 100
 
-            if self.made_sales:
-                return self.made_sales * tax
-            else:
-                return (self.estimated_sales or 0) * tax
+        if self.made_sales:
+            return self.made_sales * tax
+        else:
+            return (self.estimated_sales or 0) * tax
 
     def get_quotes(self):
         return Quote.objects.filter(relations__object_entity=self.id, relations__type=REL_SUB_LINKED_QUOTE)
 
     def get_current_quote_id(self):
         ct        = ContentType.objects.get_for_model(Quote)
-        quote_ids = Relation.objects.filter(object_entity=self.id, type=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct) \
+        quote_ids = Relation.objects.filter(object_entity=self.id,
+                                            type=REL_SUB_CURRENT_DOC,
+                                            subject_entity__entity_type=ct) \
                                     .values_list('subject_entity_id', flat=True)
 
         if len(quote_ids) > 1:
             error('Several current quotes for opportunity: %s', self)
 
-        return quote_ids[0] if quote_ids else None
+        if quote_ids:
+            current_quote = quote_ids[0]
+        else:
+            return None
+
+        # TODO When unlink a quote in opp, the current quote relation should be unlink too
+        is_current_quote_linked_to_opp = Relation.objects.filter(object_entity=self.id, type=REL_SUB_LINKED_QUOTE, subject_entity=current_quote).exists()
+
+        return current_quote if is_current_quote_linked_to_opp else None
 
     def get_target(self):
         #NB: this one generates 2 queries instead of one Organisation.objects.get(relations__object_entity=SELF, ...) !!
         return CremeEntity.objects.get(relations__object_entity=self.id, relations__type=REL_OBJ_TARGETS).get_real_entity()
 
-    def get_emit_orga(self):
+    def get_source(self):
         return Organisation.objects.get(relations__object_entity=self.id, relations__type=REL_SUB_EMIT_ORGA)
 
     def get_products(self):
