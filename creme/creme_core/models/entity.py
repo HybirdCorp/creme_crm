@@ -101,13 +101,19 @@ class CremeEntity(CremeAbstractEntity):
         return unicode(self) if self.can_view(user) else ugettext(u'Entity #%s (not viewable)') % self.id
 
     def can_change(self, user):
-        return self.get_credentials(user).can_change()
+        get_related_entity = getattr(self, 'get_related_entity', None)
+        main_entity = get_related_entity() if get_related_entity else self
+        return main_entity.get_credentials(user).can_change()
 
     def can_change_or_die(self, user):
         if not self.can_change(user):
             raise PermissionDenied(ugettext(u'You are not allowed to edit this entity: %s') % self.allowed_unicode(user))
 
     def can_delete(self, user):
+        get_related_entity = getattr(self, 'get_related_entity', None)
+        if get_related_entity:
+            return get_related_entity().get_credentials(user).can_change()
+
         return self.get_credentials(user).can_delete()
 
     def can_delete_or_die(self, user):

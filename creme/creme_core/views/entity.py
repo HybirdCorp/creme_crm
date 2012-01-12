@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,13 +37,6 @@ from creme_core.views.generic.popup import inner_popup
 from creme_core.utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify
 from creme_core.utils.meta import get_flds_with_fk_flds_str
 
-#Commented 19 may 2011 (its url too)
-#@login_required
-#def get_creme_entity_repr(request, entity_id):
-#    entity = get_object_or_404(CremeEntity, pk=entity_id)
-#    entity.can_view_or_die(request.user)
-#
-#    return HttpResponse(entity.get_real_entity().get_entity_summary(), mimetype="text/javascript")
 
 @login_required
 @jsonify
@@ -112,19 +105,21 @@ def bulk_update(request, ct_id):#TODO: Factorise with add_properties_bulk and ad
     entities = get_list_or_404(model, pk__in=request.REQUEST.getlist('ids'))
 
     CremeEntity.populate_real_entities(entities)
+    entities = [entity.get_real_entity() for entity in entities]
+
     CremeEntity.populate_credentials(entities, user)
 
     filtered = {True: [], False: []}
     for entity in entities:
         filtered[entity.can_change(user)].append(entity)
 
-
     if request.method == 'POST':
         form = EntitiesBulkUpdateForm(model=model,
                                       subjects=filtered[True],
                                       forbidden_subjects=filtered[False],
                                       user=request.user,
-                                      data=request.POST)
+                                      data=request.POST,
+                                     )
 
         if form.is_valid():
             form.save()
@@ -132,17 +127,18 @@ def bulk_update(request, ct_id):#TODO: Factorise with add_properties_bulk and ad
         form = EntitiesBulkUpdateForm(model=model,
                                       subjects=filtered[True],
                                       forbidden_subjects=filtered[False],
-                                      user=request.user)
+                                      user=request.user,
+                                     )
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
-                       {
-                        'form':  form,
+                       {'form':  form,
                         'title': _(u'Multiple update'),
                        },
                        is_valid=form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request))
+                       context_instance=RequestContext(request)
+                      )
 
 
 #TODO: use jsonify (and remove Exception handling)
@@ -318,37 +314,43 @@ _CUSTOM_NAME = 'custom_field_%s'
 @login_required
 def edit_field(request, id, field_str):
     user = request.user
-    entity = get_object_or_404(CremeEntity, pk=id)
-    model  = entity.entity_type.model_class()
+    #entity = get_object_or_404(CremeEntity, pk=id)
+    entity = get_object_or_404(CremeEntity, pk=id).get_real_entity()
+    #model  = entity.entity_type.model_class()
+    model  = entity.__class__
 
     field_name = _CUSTOM_NAME % int(field_str) if field_str.isdigit() else field_str
 
-    filtered = {True: [], False: []}
-    filtered[entity.can_change(user)].append(entity)
+    #filtered = {True: [], False: []}
+    #filtered[entity.can_change(user)].append(entity)
+    entity.can_change_or_die(user)
 
     if request.method == 'POST':
         form = EntityInnerEditForm(model=model,
                                    field_name = field_name,
-                                   subjects=filtered[True],
-                                   forbidden_subjects=filtered[False],
+                                   #subjects=filtered[True],
+                                   subject=entity,
+                                   #forbidden_subjects=filtered[False],
                                    user=user,
-                                   data=request.POST)
+                                   data=request.POST,
+                                  )
 
         if form.is_valid():
             form.save()
     else:
         form = EntityInnerEditForm(model=model,
                                    field_name = field_name,
-                                   subjects=filtered[True],
-                                   forbidden_subjects=filtered[False],
-                                   user=user)
+                                   #subjects=filtered[True],
+                                   subject=entity,
+                                   #forbidden_subjects=filtered[False],
+                                   user=user,
+                                  )
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
-                       {
-                        'form':  form,
+                       {'form':  form,
                         'title': _(u'Inner update'),
                        },
                        is_valid=form.is_valid(),
                        reload=False, delegate_reload=True,
-                       context_instance=RequestContext(request)
+                       context_instance=RequestContext(request),
                       )

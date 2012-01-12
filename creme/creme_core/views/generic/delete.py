@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -58,15 +58,17 @@ def delete_entities(request):
     if len_diff:
         errors[404].append(_(u"%s entities doesn't exist / doesn't exist any more") % len_diff)
 
+    CremeEntity.populate_real_entities(entities) #TODO: populate related entities if needed ???
+    entities = [entity.get_real_entity() for entity in entities]
+
     CremeEntity.populate_credentials(entities, user)
-    CremeEntity.populate_real_entities(entities)
 
     for entity in entities:
         if not entity.can_delete(user):
             errors[403].append(_(u'%s : <b>Permission denied</b>,') % entity.allowed_unicode(user))
             continue
 
-        entity = entity.get_real_entity()
+        #entity = entity.get_real_entity()
 
         if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
             errors[404].append(_('%s does not use the generic deletion view.') % entity.allowed_unicode(user))
@@ -98,11 +100,12 @@ def delete_entity(request, entity_id, callback_url=None):
 
     if hasattr(entity, 'get_related_entity'):
         related = entity.get_related_entity()
-        if related is None:
+
+        if related is None: #TODO: useful ??
             raise PermissionDenied(ugettext(u'You are not allowed to delete this entity: %s') % entity.allowed_unicode(request.user))
 
         related.can_delete_or_die(request.user)
-        entity.relations.all().delete()
+        entity.relations.all().delete()  #TODO: entity.relations.exclude(type__is_internal=True).delete()
         entity.properties.all().delete()
     else:
         entity.can_delete_or_die(request.user)
@@ -124,6 +127,7 @@ def delete_entity(request, entity_id, callback_url=None):
 
     return HttpResponseRedirect(callback_url)
 
+#TODO: doublon with delete_entity() ???
 @login_required
 def delete_related_to_entity(request, ct_id):
     """Delete a model related to a CremeEntity.

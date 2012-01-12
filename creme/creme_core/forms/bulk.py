@@ -27,39 +27,37 @@ from django.forms.fields import CharField, ChoiceField
 from django.utils.translation import ugettext, ugettext_lazy as _
 
 from creme_core.models import fields, EntityCredentials, CremeEntity
+from creme_core.models.custom_field import CustomField, CustomFieldEnumValue, CustomFieldValue, CustomFieldMultiEnum, CustomFieldEnum
 from creme_core.forms import widgets
 from creme_core.forms.base import CremeForm, _CUSTOM_NAME
 from creme_core.forms.fields import AjaxMultipleChoiceField
-from creme_core.models.custom_field import CustomField, CustomFieldEnumValue, CustomFieldValue, CustomFieldMultiEnum, CustomFieldEnum
 from creme_core.utils import entities2unicode
 from creme_core.utils.meta import get_flds_with_fk_flds_str, get_verbose_field_name
 from creme_core.gui.bulk_update import bulk_update_registry
 
 
+_datetime_widget = lambda name, choices, value=None: widgets.DateTimeWidget({'id': 'id_%s' % name}) \
+                                                            .render(name=name, value=value, attrs=None)
+
 _FIELDS_WIDGETS = {
-    models.DateField: lambda name, choices, value=None:widgets.CalendarWidget({'id': 'id_%s' % name}).render(name=name, value=value,
-                                                                                                 attrs=None),
-    models.DateTimeField: lambda name, choices, value=None:widgets.DateTimeWidget({'id': 'id_%s' % name}).render(name=name,
-                                                                                                     value=value,
-                                                                                                     attrs=None),
-    models.ManyToManyField: lambda name, choices, value=None: widgets.UnorderedMultipleChoiceWidget({'id': 'id_%s' % name}).render(
-        name=name, value=value, attrs=None, choices=choices),
+    models.ManyToManyField: lambda name, choices, value=None: widgets.UnorderedMultipleChoiceWidget({'id': 'id_%s' % name}) \
+                                                                     .render(name=name, value=value, attrs=None, choices=choices),
+    models.DateField:       lambda name, choices, value=None: widgets.CalendarWidget({'id': 'id_%s' % name}) \
+                                                                     .render(name=name, value=value, attrs=None),
+    models.DateTimeField:             _datetime_widget,
+    fields.CreationDateTimeField:     _datetime_widget,
+    fields.ModificationDateTimeField: _datetime_widget,
+    CustomFieldMultiEnum:   lambda name, choices, value=None: widgets.UnorderedMultipleChoiceWidget({'id': 'id_%s' % name}) \
+                                                                     .render(name=name, value=value, attrs=None, choices=choices),
+   }
 
-    CustomFieldMultiEnum: lambda name, choices, value=None: widgets.UnorderedMultipleChoiceWidget({'id': 'id_%s' % name}).render(
-        name=name, value=value, attrs=None, choices=choices),
-    }
-
-_FIELDS_WIDGETS[fields.CreationDateTimeField] = _FIELDS_WIDGETS[fields.ModificationDateTimeField] = _FIELDS_WIDGETS[
-                                                                                                    models.DateTimeField]
 
 def _get_choices(model_field, user):
     form_field = model_field.formfield()
     choices = ()
-    if isinstance(model_field, (models.ForeignKey, models.ManyToManyField)) and issubclass(model_field.rel.to,
-                                                                                           CremeEntity):
-        fk_entities = model_field.rel.to._default_manager.filter(
-            pk__in=[id_ for id_, text in form_field.choices if id_])
-
+    if isinstance(model_field, (models.ForeignKey, models.ManyToManyField)) and issubclass(model_field.rel.to, CremeEntity):
+        fk_entities = model_field.rel.to._default_manager \
+                                        .filter(pk__in=[id_ for id_, text in form_field.choices if id_])
         choices = ((e.id, e) for e in EntityCredentials.filter(user, fk_entities))
 
         if model_field.null and isinstance(model_field, models.ForeignKey):
@@ -85,26 +83,26 @@ class EntitiesBulkUpdateForm(CremeForm):
         fields = self.fields
 
         fields['entities_lbl'].initial = entities2unicode(subjects, user) if subjects else ugettext(u'NONE !')
-
         fields['field_name'].widget = widgets.AdaptiveWidget(ct_id=self.ct.id, field_value_name='field_value')
 
         if forbidden_subjects:
             fields['bad_entities_lbl'] = CharField(label=ugettext(u"Unchangeable entities"),
                                                    widget=widgets.Label,
                                                    initial=entities2unicode(forbidden_subjects, user)
-            )
+                                                  )
 
         excluded_fields = bulk_update_registry.get_excluded_fields(model)#Doesn't include cf
-
-        model_fields = sorted(get_flds_with_fk_flds_str(model, deep=0, exclude_func=lambda f: f.name in excluded_fields)
-                              , key=lambda k: ugettext(k[1]))
+        model_fields = sorted(get_flds_with_fk_flds_str(model, deep=0, exclude_func=lambda f: f.name in excluded_fields),
+                              key=lambda k: ugettext(k[1])
+                             )
         cf_fields = sorted(((_CUSTOM_NAME % cf.id, cf.name) for cf in CustomField.objects.filter(content_type=self.ct)),
-                           key=lambda k: ugettext(k[1]))
+                           key=lambda k: ugettext(k[1])
+                          )
         fields['field_name'].choices = ((_(u"Regular fields"), model_fields), (_(u"Custom fields"), cf_fields))
 
     def _get_field(self, field_name):
         if EntitiesBulkUpdateForm.is_custom_field(field_name):
-            return CustomField.objects.get(pk=EntitiesBulkUpdateForm.get_custom_field_id(field_name))
+            return CustomField.objects.get(pk=EntitiesBulkUpdateForm.get_custom_field_id(field_name)) #TODO: cache ??
         else:
             return self.model._meta.get_field(field_name)
 
@@ -193,44 +191,51 @@ class EntitiesBulkUpdateForm(CremeForm):
 
     def save(self):
         cleaned_data = self.cleaned_data
-
         field_value = cleaned_data['field_value']
         field_name  = cleaned_data['field_name']
 
-        post_save_function = self.model.post_save_bulk if hasattr(self.model, 'post_save_bulk') else lambda x, y, z: None
-        already_saved = False
+        ##post_save_function = self.model.post_save_bulk if hasattr(self.model, 'post_save_bulk') else lambda x, y, z: None
+        #already_saved = False
 
         if EntitiesBulkUpdateForm.is_custom_field(field_name):
             field = self._get_field(field_name)
             CustomFieldValue.save_values_for_entities(field, self.subjects, field_value)
-
         else:
-            #.update doesn't either send any signal or call save, and when changing entity's user credentials have to be regenerated
-            # TODO: Override the default manager ?
-            if field_name == "user":
-                for subject in self.subjects:
-                    subject.user = field_value
-                    subject.save()
-                already_saved = True
-            else:
-                model_field = self._get_field(field_name)#self.model._meta.get_field(field_name)
-                if not isinstance(model_field, models.ManyToManyField):
-                    self.model.objects.filter(pk__in=self.subjects).update(
-                        **{field_name: field_value})#TODO: Doesn't work with m2m
-                else:
-                    for subject in self.subjects:
-                        setattr(subject, field_name, field_value)
-                        subject.save()
-                    already_saved = True
+            ##.update doesn't either send any signal or call save, and when changing entity's user credentials have to be regenerated
+            ## todo: Override the default manager ?
+            #if field_name == "user":
+                #for subject in self.subjects:
+                    #subject.user = field_value
+                    #subject.save()
+                #already_saved = True
+            #else:
+                #model_field = self._get_field(field_name)#self.model._meta.get_field(field_name)
+                #if not isinstance(model_field, models.ManyToManyField):
+                    #self.model.objects.filter(pk__in=self.subjects)\
+                                      #.update(**{field_name: field_value})#Doesn't work with m2m
+                #else:
+                    #for subject in self.subjects:
+                        #setattr(subject, field_name, field_value)
+                        #subject.save()
+                    #already_saved = True
 
-        post_save_function(self.subjects, field_name, already_saved)
+            # TODO: Override the default manager ?
+            #NB: we do not use update() because it avoids signal, method overloading etc...
+            for subject in self.subjects:
+                setattr(subject, field_name, field_value)
+                subject.save()
+
+        ##post_save_function(self.subjects, field_name, already_saved)
+        #post_save_function = getattr(self.model, 'post_save_bulk', None)
+        #if post_save_function:
+            #post_save_function(self.subjects, field_name, already_saved)
 
 
 class EntityInnerEditForm(EntitiesBulkUpdateForm):
-
-    def __init__(self, model, field_name, subjects, forbidden_subjects, user, *args, **kwargs):
-        super(EntityInnerEditForm, self).__init__(model, subjects, forbidden_subjects, user, *args, **kwargs)
-
+    #def __init__(self, model, field_name, subjects, forbidden_subjects, user, *args, **kwargs):
+    def __init__(self, model, field_name, subject, user, *args, **kwargs):
+        #super(EntityInnerEditForm, self).__init__(model, subjects, forbidden_subjects, user, *args, **kwargs)
+        super(EntityInnerEditForm, self).__init__(model, [subject], (), user, *args, **kwargs)
         self.field_name = field_name
 
         verbose_field_name = self._get_field(field_name).name if self.is_custom_field(field_name) else get_verbose_field_name(model, field_name)
@@ -238,15 +243,17 @@ class EntityInnerEditForm(EntitiesBulkUpdateForm):
 
         fields = self.fields
 
-        fields['entities_lbl'].label = _(u'Entity')
-        fields['entities_lbl'].required = False
+        f_entities_lbl = fields['entities_lbl']
+        f_entities_lbl.label    = ugettext(u'Entity')
+        f_entities_lbl.required = False
 
-        fields_field_name = fields['field_name']
-        fields_field_name.widget = widgets.AdaptiveWidget(ct_id=self.ct.id, field_value_name='field_value', object_id=subjects[0].id)
-        fields_field_name.label = _(u'Field')
-        fields_field_name.choices = [(field_name, "%s - %s" % (verbose_model_name, verbose_field_name))]
-        fields_field_name.required = False
-        fields_field_name.widget.attrs['disabled'] = True
+        f_field_name = fields['field_name']
+        #f_field_name.widget = widgets.AdaptiveWidget(ct_id=self.ct.id, field_value_name='field_value', object_id=subjects[0].id)
+        f_field_name.widget = widgets.AdaptiveWidget(ct_id=self.ct.id, field_value_name='field_value', object_id=subject.id)
+        f_field_name.widget.attrs['disabled'] = True #TODO: in the previous line
+        f_field_name.label = ugettext(u'Field')
+        f_field_name.choices = [(field_name, "%s - %s" % (verbose_model_name, verbose_field_name))]
+        f_field_name.required = False
 
     def clean(self, *args, **kwargs):
         self.cleaned_data['field_name'] = self.field_name
