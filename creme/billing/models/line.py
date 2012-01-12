@@ -18,8 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from functools import partial
 from decimal import Decimal
-from logging import debug
+from logging import debug, warn
 
 from django.db.models import CharField, IntegerField, DecimalField, BooleanField, TextField, ForeignKey, PositiveIntegerField
 from django.db.models.query_utils import Q
@@ -41,7 +42,7 @@ SERVICE_LINE_TYPE = 2
 
 LINE_TYPES = {
     PRODUCT_LINE_TYPE: _(u"Product"),
-    SERVICE_LINE_TYPE: _(u"Service")
+    SERVICE_LINE_TYPE: _(u"Service"),
 }
 
 class _LineTypeField(FunctionField):
@@ -54,6 +55,9 @@ class _LineTypeField(FunctionField):
     def filter_in_result(cls, search_string):
         return Q(type=search_string)
 
+
+#TODO: use a smart workflow engine to update the BillingModel only once when several lines are edited
+#      for the moment when have to re-save the model manually.
 
 class Line(CremeEntity):
     on_the_fly_item = CharField(_(u'On-the-fly line'), max_length=100, blank=False, null=True)
@@ -74,14 +78,29 @@ class Line(CremeEntity):
     header_filter_exclude_fields   = CremeEntity.header_filter_exclude_fields + ['type']
     function_fields = CremeEntity.function_fields.new(_LineTypeField())
 
+    _related_document = None
+    _related_item = None
+
     class Meta:
         app_label = 'billing'
         verbose_name = _(u'Line')
         verbose_name_plural = _(u'Lines')
 
     def _pre_delete(self):
-        for relation in Relation.objects.filter(type__in=[REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM], subject_entity=self):
+        for relation in Relation.objects.filter(type__in=[REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM], subject_entity=self.id):
             relation._delete_without_transaction()
+
+    def _pre_save_clone(self, source):
+        self.related_document = source._new_related_document
+        self.related_item     = source.related_item
+
+    def clone(self, new_related_document=None):
+        #BEWARE: CremeProperty and Relation are not cloned (except our 2 internal relations)
+        self._new_related_document = new_related_document or self.related_document
+
+        #NB: not "super(Line, self).clone()", because it copies our 2 internal relations
+        #TODO: change when internal relartions are excluded in CremeEntity._copy_relations()
+        return self._clone_object()
 
     def get_price_inclusive_of_tax(self):
         total_ht = self.get_price_exclusive_of_tax()
@@ -110,6 +129,7 @@ class Line(CremeEntity):
         else:
             total_after_first_discount = self.quantity * (unit_price_line - discount_line)
 
+        #TODO: factorise "total_exclusive_of_tax = total_after_first_discount"
         if discount_document:
             total_exclusive_of_tax = total_after_first_discount - (total_after_first_discount * discount_document / 100)
         else:
@@ -122,39 +142,30 @@ class Line(CremeEntity):
 
     @property
     def related_document(self):
-        if not self.pk:
-            debug('Line.related_document(getter): line not saved yet.')
-            return None
+        if not self._related_document:
+            self._related_document = self.relations.get(type=REL_OBJ_HAS_LINE, subject_entity=self.id).object_entity.get_real_entity()
 
-        try:
-            return self.relations.get(type=REL_OBJ_HAS_LINE, subject_entity=self.id).object_entity.get_real_entity()#TODO:Cache ?
-        except Relation.DoesNotExist:
-            return None
+        return self._related_document
 
     @related_document.setter
-    def related_document(self, object_entity):
-        assert self.pk, 'Line.related_document(setter): line not saved yet.'
-        Relation.objects.filter(subject_entity=self, type=REL_OBJ_HAS_LINE).delete()#This should be done most of the time by the signal
-        #Beware if self, object_entity or self.user have not a pk the relation will not be created
-        return Relation.objects.create(object_entity=object_entity, subject_entity=self, type_id=REL_OBJ_HAS_LINE, user=self.user)
+    def related_document(self, billing_entity):
+        assert self.pk is None, 'Line.related_document(setter): line is already saved (can not change any more).'
+        self._related_document = billing_entity
 
     @property
     def related_item(self):
-        if not self.pk:
-            debug('Line.related_item(getter): line not saved yet.')
-            return None
+        if not self._related_item and not self.on_the_fly_item:
+            try:
+                self._related_item = self.relations.get(type=REL_SUB_LINE_RELATED_ITEM, subject_entity=self.id).object_entity.get_real_entity()
+            except Relation.DoesNotExist:
+                warn('Line.related_item(): relation does not exist !!')
 
-        try:
-            return self.relations.get(type=REL_SUB_LINE_RELATED_ITEM, subject_entity=self.id).object_entity.get_real_entity()#TODO:Cache ?
-        except Relation.DoesNotExist:
-            return None
+        return self._related_item
 
     @related_item.setter
-    def related_item(self, object_entity):
-        assert self.pk, 'Line.related_item(setter): line not saved yet.'
-        Relation.objects.filter(subject_entity=self, type=REL_SUB_LINE_RELATED_ITEM).delete()#This should be done most of the time by the signal
-        #Beware if self, object_entity or self.user have not a pk the relation will not be created
-        return Relation.objects.create(object_entity=object_entity, subject_entity=self, type_id=REL_SUB_LINE_RELATED_ITEM, user=self.user)
+    def related_item(self, entity):
+        assert self.pk is None, 'Line.related_item(setter): line is already saved (can not change any more).'
+        self._related_item = entity
 
     @staticmethod
     def get_lv_absolute_url():
@@ -166,7 +177,6 @@ class Line(CremeEntity):
     @staticmethod
     def is_discount_valid(unit_price, quantity, discount_value, discount_unit, discount_type):
         if discount_unit == PERCENT_PK:
-#            if discount_value < 0 or discount_value > 100:
             if not (0 <= discount_value <= 100):
                 return False
         else: # amount �/$/...
@@ -178,6 +188,9 @@ class Line(CremeEntity):
 
         return True
 
+    #TODO: the mapping Product -> ProductLine should be here
+    #TODO: carappy optional_infos_map...
+    #TODO: generate_lineS ??
     @staticmethod
     def generate_lines(klass, item, document, user, optional_infos_map=None):
         new_line = klass()
@@ -197,3 +210,20 @@ class Line(CremeEntity):
         new_line.related_item     = item
         new_line.related_document = document
 
+    def save(self, *args, **kwargs):
+        if not self.pk: #creation
+            assert self._related_document, 'Line.related_document is required'
+            assert self._related_item or self.on_the_fly_item, 'Line.related_item or Line.on_the_fly_item is required'
+
+            super(Line, self).save(*args, **kwargs)
+
+            create_relation = partial(Relation.objects.create, subject_entity=self, user=self.user)
+            create_relation(type_id=REL_OBJ_HAS_LINE, object_entity=self._related_document)
+
+            if self._related_item:
+                create_relation(type_id=REL_SUB_LINE_RELATED_ITEM, object_entity=self._related_item)
+        else:
+            super(Line, self).save(*args, **kwargs)
+
+        #TODO: problem, if several lines are added/edited at once, lots of useless queries (workflow engine ??)
+        self.related_document.save() #update totals

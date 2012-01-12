@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,15 +19,11 @@
 ################################################################################
 
 from decimal import Decimal
-from django.forms.fields import ChoiceField, DecimalField
-from django.forms.models import ModelChoiceField
 
+from django.forms import ModelChoiceField, ChoiceField, DecimalField, BooleanField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.forms import  BooleanField, ValidationError
-from billing.models.line import default_quantity
 
-from creme_core.forms import CremeModelForm, FieldBlockManager #CremeEntityForm
-from creme_core.forms.base import CremeForm
+from creme_core.forms import CremeForm, CremeModelForm, FieldBlockManager
 from creme_core.forms.fields import CremeEntityField, MultiCremeEntityField
 from creme_core.forms.validators import validate_linkable_entities
 from creme_core.forms.widgets import ListViewWidget
@@ -36,6 +32,7 @@ from products.models import Product, Service
 from products.forms.product import ProductCategoryField
 
 from billing.models import ProductLine, ServiceLine, Line, Vat, PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
+from billing.models.line import default_quantity
 from billing.constants import DISCOUNT_UNIT, PERCENT_PK, AMOUNT_PK
 
 from creme import form_post_save #TODO: move in creme_core ??
@@ -43,8 +40,8 @@ from creme import form_post_save #TODO: move in creme_core ??
 
 default_decimal = Decimal()
 
+#TODO: lot of factorisations can be done...
 
-#class LineForm(CremeEntityForm):
 class LineForm(CremeModelForm): #not CremeEntityForm in order to avoid 'user' field
     discount_unit = ChoiceField(label=_(u"Discount unit"), choices=DISCOUNT_UNIT.items(), required=False)
 
@@ -59,21 +56,24 @@ class LineForm(CremeModelForm): #not CremeEntityForm in order to avoid 'user' fi
     def __init__(self, entity, *args, **kwargs):
         super(LineForm, self).__init__(*args, **kwargs)
         self._document = entity #NB: self.document is a related name
-        self.fields['total_discount'].help_text = ugettext(u'Check if you want to apply the discount to the total line. If not it will be applied on the unit price.')
         fields = self.fields
+
+        fields['total_discount'].help_text = ugettext(u'Check if you want to apply the discount to the total line. If not it will be applied on the unit price.')
+
         vat_value = fields['vat_value']
         vat_value.required = True
         vat_value.initial = Vat.get_default_vat()
 
     def _check_discounts(self, cleaned_data):
-        get_data     = cleaned_data.get
+        get_data = cleaned_data.get
 
-        discount            = get_data('discount')
-        discount_unit       = get_data('discount_unit')
-        overall_discount    = get_data('total_discount')
-        quantity            = get_data('quantity')
-        unit_price          = get_data('unit_price')
+        discount         = get_data('discount')
+        discount_unit    = get_data('discount_unit')
+        overall_discount = get_data('total_discount')
+        quantity         = get_data('quantity')
+        unit_price       = get_data('unit_price')
 
+        #TODO: factorise if discount_unit == str(PERCENT_PK) (only 2 values....)
         if discount_unit == str(PERCENT_PK) and discount > 100:
             raise ValidationError(ugettext(u"If you choose % for your discount unit, your discount must be between 1 and 100%"))
 
@@ -83,8 +83,6 @@ class LineForm(CremeModelForm): #not CremeEntityForm in order to avoid 'user' fi
                 raise ValidationError(ugettext(u"Your overall discount is superior than the total line (unit price * quantity)"))
             elif not overall_discount and discount > unit_price:
                 raise ValidationError(ugettext(u"Your discount is superior than the unit price"))
-
-        #TODO: return cleaned_data ??
 
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -99,20 +97,20 @@ class LineForm(CremeModelForm): #not CremeEntityForm in order to avoid 'user' fi
 #        instance.is_paid = False
         instance.user = self._document.user #TODO: move in Line.save() [idea: can not save if related_document is None]
 
-        super(LineForm, self).save()
         instance.related_document = self._document
+        super(LineForm, self).save()
 
         form_post_save.send(sender=self.instance.__class__, instance=self.instance, created=created)
 
         return instance
 
-class LineEditForm(CremeModelForm):
 
+class LineEditForm(CremeModelForm):
     class Meta:
         model = Line
         fields = ('comment',)
 
-        
+
 class ProductLineForm(LineForm):
     related_item = CremeEntityField(label=_("Product"), model=Product,
                                     widget=ListViewWidget(attrs={'selection_cb':      'creme.billing.lineAutoPopulateSelection',
@@ -128,24 +126,27 @@ class ProductLineForm(LineForm):
     def __init__(self, entity, *args, **kwargs):
         super(ProductLineForm, self).__init__(entity, *args, **kwargs)
         self.instance.type = PRODUCT_LINE_TYPE
-        related_item = self.instance.related_item
-        if related_item is not None:
-            self.fields['related_item'].initial = related_item.id
+        #related_item = self.instance.related_item
+        #if related_item is not None:
+            #self.fields['related_item'].initial = related_item.id
 
     def save(self):
-        instance = super(ProductLineForm, self).save()
-        instance.related_item = self.cleaned_data['related_item']
-        return instance
+        #instance = super(ProductLineForm, self).save()
+        #instance.related_item = self.cleaned_data['related_item']
+        #return instance
+        self.instance.related_item = self.cleaned_data['related_item']
+        return super(ProductLineForm, self).save()
 
 
-class ProductLineEditForm(ProductLineForm):
-    related_item = CremeEntityField(label=_("Product"), model=Product)
+#class ProductLineEditForm(ProductLineForm):
+    #related_item = CremeEntityField(label=_("Product"), model=Product)
+
 
 class ProductLineMultipleAddForm(CremeForm):
-    products        = MultiCremeEntityField(label=_(u'Products'), model=Product)
-    quantity        = DecimalField(label=_(u"Quantity"), min_value=default_decimal, decimal_places=2, required=False)
-    discount_value  = DecimalField(label=_(u"Discount"), min_value=default_decimal, max_value=Decimal('100'), decimal_places=2, required=False)
-    vat             = ModelChoiceField(label=_(u"Vat"), queryset=Vat.objects.all(), required=False)
+    products       = MultiCremeEntityField(label=_(u'Products'), model=Product)
+    quantity       = DecimalField(label=_(u"Quantity"), min_value=default_decimal, decimal_places=2, required=False)
+    discount_value = DecimalField(label=_(u"Discount"), min_value=default_decimal, max_value=Decimal('100'), decimal_places=2, required=False)
+    vat            = ModelChoiceField(label=_(u"Vat"), queryset=Vat.objects.all(), required=False)
 
     blocks = FieldBlockManager(
         ('general',     _(u'Product choice'), ['products']),
@@ -156,10 +157,13 @@ class ProductLineMultipleAddForm(CremeForm):
         super(ProductLineMultipleAddForm, self).__init__(*args, **kwargs)
         self.billing_document = entity
         fields = self.fields
-        fields['discount_value'].help_text = ugettext(u'Percentage applied on the unit price of the products')
+
+        discount_value = fields['discount_value']
+        discount_value.help_text = ugettext(u'Percentage applied on the unit price of the products')
+        discount_value.initial   = default_decimal
+
         fields['vat'].initial = Vat.get_default_vat()
         fields['quantity'].initial = default_quantity
-        fields['discount_value'].initial = default_decimal
 
     def clean_products(self):
         return validate_linkable_entities(self.cleaned_data['products'], self.user)
@@ -167,14 +171,16 @@ class ProductLineMultipleAddForm(CremeForm):
     def save(self):
         billing_document = self.billing_document
         cleaned_data = self.cleaned_data
-        optional_info_map = {  'quantity' :        cleaned_data['quantity'] or default_quantity,
-                                'discount_value' :  cleaned_data['discount_value'] or default_decimal,
-                                'vat_value' :       cleaned_data['vat'] or Vat.get_default_vat()}
+        optional_info_map = {'quantity':       cleaned_data['quantity'] or default_quantity,
+                             'discount_value': cleaned_data['discount_value'] or default_decimal,
+                             'vat_value':      cleaned_data['vat'] or Vat.get_default_vat(),
+                            }
 
-        for product in self.cleaned_data['products']:
+        for product in cleaned_data['products']:
             Line.generate_lines(ProductLine, product, billing_document, self.user, optional_info_map)
 
         billing_document.save()
+
 
 class ProductLineOnTheFlyForm(LineForm):
     has_to_register_as = BooleanField(label=_(u"Save as product ?"), required=False,
@@ -203,9 +209,11 @@ class ProductLineOnTheFlyForm(LineForm):
                 )
         elif not self.user.has_perm_to_create(Product):
             fields = self.fields
+
             has_to_register_as = fields['has_to_register_as']
             has_to_register_as.help_text = ugettext(u'You are not allowed to create Products')
-            has_to_register_as.widget.attrs     = {'disabled': True}
+            has_to_register_as.widget.attrs  = {'disabled': True}
+
             fields['sub_category'].widget.attrs = {'disabled': True}
 
     def clean_has_to_register_as(self):
@@ -220,9 +228,9 @@ class ProductLineOnTheFlyForm(LineForm):
         cleaned_data = self.cleaned_data
         get_data     = cleaned_data.get
 
-        #TODO: use has_key() ??
         if get_data('has_to_register_as'):
             sub_category = get_data('sub_category')
+
             if sub_category is None:
                 raise ValidationError(ugettext(u'Sub-category is required if you want to save as a true product.'))
 
@@ -238,7 +246,6 @@ class ProductLineOnTheFlyForm(LineForm):
 
         if get_data('has_to_register_as'):
             sub_category = get_data('sub_category')
-
             product = Product.objects.create(name=get_data('on_the_fly_item', ''),
                                              #user=get_data('user'),
                                              user=self.user, #TODO: can chose the owner of the product
@@ -248,17 +255,16 @@ class ProductLineOnTheFlyForm(LineForm):
                                              sub_category=sub_category,
                                             )
             plcf = ProductLineForm(entity=self._document, user=self.user,
-                                   data={
-                                          'related_item':   '%s,' % product.pk,
-                                          'quantity':       get_data('quantity', 0),
-                                          'unit_price':     get_data('unit_price', default_decimal),
-#                                          'credit':         get_data('credit', default_decimal),
-                                          'discount':       get_data('discount', default_decimal),
-                                          'discount_unit':  get_data('discount_unit', 1),
-                                          'total_discount': get_data('total_discount', False),
-                                          'vat_value':      get_data('vat_value', Vat.get_default_vat()).id,
-                                          #'user':           product.user_id,
-                                          'comment':        get_data('comment', '')
+                                   data={'related_item':   '%s,' % product.pk,
+                                         'quantity':       get_data('quantity', 0),
+                                         'unit_price':     get_data('unit_price', default_decimal),
+#                                         'credit':         get_data('credit', default_decimal),
+                                         'discount':       get_data('discount', default_decimal),
+                                         'discount_unit':  get_data('discount_unit', 1),
+                                         'total_discount': get_data('total_discount', False),
+                                         'vat_value':      get_data('vat_value', Vat.get_default_vat()).id,
+                                         #'user':           product.user_id,
+                                         'comment':        get_data('comment', '')
                                         }
                                   )
 
@@ -284,26 +290,28 @@ class ServiceLineForm(LineForm):
 
     def __init__(self, entity, *args, **kwargs):
         super(ServiceLineForm, self).__init__(entity, *args, **kwargs)
-        self.instance.type = SERVICE_LINE_TYPE
-        related_item = self.instance.related_item
-        if related_item is not None:
-            self.fields['related_item'].initial = related_item.id
+        #self.instance.type = SERVICE_LINE_TYPE
+        #related_item = self.instance.related_item
+        #if related_item is not None:
+            #self.fields['related_item'].initial = related_item.id
 
     def save(self):
-        instance = super(ServiceLineForm, self).save()
-        instance.related_item = self.cleaned_data['related_item']
-        return instance
+        #instance = super(ServiceLineForm, self).save()
+        #instance.related_item = self.cleaned_data['related_item']
+        #return instance
+        self.instance.related_item = self.cleaned_data['related_item']
+        return super(ServiceLineForm, self).save()
 
 
-class ServiceLineEditForm(ServiceLineForm):
-    related_item = CremeEntityField(label=_("Product"), model=Service)
+#class ServiceLineEditForm(ServiceLineForm):
+    #related_item = CremeEntityField(label=_("Product"), model=Service)
 
 
 class ServiceLineMultipleAddForm(CremeForm):
-    services        = MultiCremeEntityField(label=_(u'Services'), model=Service)
-    quantity        = DecimalField(label=_(u"Quantity"), min_value=default_decimal, decimal_places=2, required=False)
-    discount_value  = DecimalField(label=_(u"Discount"), min_value=default_decimal, max_value=Decimal('100'), decimal_places=2, required=False)
-    vat             = ModelChoiceField(label=_(u"Vat"), queryset=Vat.objects.all(), required=False)
+    services       = MultiCremeEntityField(label=_(u'Services'), model=Service)
+    quantity       = DecimalField(label=_(u"Quantity"), min_value=default_decimal, decimal_places=2, required=False)
+    discount_value = DecimalField(label=_(u"Discount"), min_value=default_decimal, max_value=Decimal('100'), decimal_places=2, required=False)
+    vat            = ModelChoiceField(label=_(u"Vat"), queryset=Vat.objects.all(), required=False)
 
     blocks = FieldBlockManager(
         ('general',     _(u'Service choice'), ['services']),
@@ -314,30 +322,35 @@ class ServiceLineMultipleAddForm(CremeForm):
         super(ServiceLineMultipleAddForm, self).__init__(*args, **kwargs)
         self.billing_document = entity
         fields = self.fields
-        fields['discount_value'].help_text = ugettext(u'Percentage applied on the unit price of the services')
+
+        discount_value = fields['discount_value']
+        discount_value.help_text = ugettext(u'Percentage applied on the unit price of the services')
+        discount_value.initial = default_decimal
+
         fields['vat'].initial = Vat.get_default_vat()
         fields['quantity'].initial = default_quantity
-        fields['discount_value'].initial = default_decimal
 
-    def clean_products(self):
+    def clean_services(self):
         return validate_linkable_entities(self.cleaned_data['services'], self.user)
 
     def save(self):
         billing_document = self.billing_document
         cleaned_data = self.cleaned_data
-        optional_info_map = {  'quantity' :        cleaned_data['quantity'] or default_quantity,
-                                'discount_value' :  cleaned_data['discount_value'] or default_decimal,
-                                'vat_value' :       cleaned_data['vat'] or Vat.get_default_vat()}
+        optional_info_map = {'quantity':       cleaned_data['quantity'] or default_quantity,
+                             'discount_value': cleaned_data['discount_value'] or default_decimal,
+                             'vat_value':      cleaned_data['vat'] or Vat.get_default_vat(),
+                            }
 
-        for service in self.cleaned_data['services']:
+        for service in cleaned_data['services']:
             Line.generate_lines(ServiceLine, service, billing_document, self.user, optional_info_map)
 
         billing_document.save()
 
+
 class ServiceLineOnTheFlyForm(LineForm):
     has_to_register_as = BooleanField(label=_(u"Save as service ?"), required=False,
                                       help_text=_(u"Here you can save a on-the-fly Service as a true Service ; in this case, category is required."))
-    sub_category      = ProductCategoryField(label=_(u'Sub-category'), required=False)
+    sub_category       = ProductCategoryField(label=_(u'Sub-category'), required=False)
 
     blocks = FieldBlockManager(
         ('general',     _(u'Line information'),    ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
@@ -361,9 +374,11 @@ class ServiceLineOnTheFlyForm(LineForm):
                 )
         elif not self.user.has_perm_to_create(Service):
             fields = self.fields
+
             has_to_register_as = fields['has_to_register_as']
             has_to_register_as.help_text = ugettext(u'You are not allowed to create Services')
             has_to_register_as.widget.attrs = {'disabled': True}
+
             fields['sub_category'].widget.attrs = {'disabled': True}
 
     def clean_has_to_register_as(self):
@@ -378,7 +393,6 @@ class ServiceLineOnTheFlyForm(LineForm):
         cleaned_data = self.cleaned_data
         get_data     = cleaned_data.get
 
-        #TODO: use has_key() ??
         if get_data('has_to_register_as'):
             sub_category = get_data('sub_category')
             if sub_category is None:
@@ -396,7 +410,6 @@ class ServiceLineOnTheFlyForm(LineForm):
 
         if get_data('has_to_register_as'):
             sub_category = get_data('sub_category')
-
             service = Service.objects.create(name=get_data('on_the_fly_item', ''),
                                              #user=get_data('user'),
                                              user=self.user, #TODO: can chose the owner
@@ -405,19 +418,17 @@ class ServiceLineOnTheFlyForm(LineForm):
                                              sub_category=sub_category,
                                              unit_price=get_data('unit_price', 0),
                                             )
-
             slcf = ServiceLineForm(entity=self._document, user=self.user,
-                                   data={
-                                          'related_item':   '%s,' % service.pk,
-                                          'quantity':       get_data('quantity', 0),
-                                          'unit_price':     get_data('unit_price', default_decimal),
-#                                          'credit':         get_data('credit', default_decimal),
-                                          'discount':       get_data('discount', default_decimal),
-                                          'discount_unit':  get_data('discount_unit', 1),
-                                          'total_discount': get_data('total_discount', False),
-                                          'vat_value':      get_data('vat_value', Vat.get_default_vat()).id,
-                                          #'user':           service.user_id,
-                                          'comment':        get_data('comment', ''),
+                                   data={'related_item':   '%s,' % service.pk,
+                                         'quantity':       get_data('quantity', 0),
+                                         'unit_price':     get_data('unit_price', default_decimal),
+#                                         'credit':         get_data('credit', default_decimal),
+                                         'discount':       get_data('discount', default_decimal),
+                                         'discount_unit':  get_data('discount_unit', 1),
+                                         'total_discount': get_data('total_discount', False),
+                                         'vat_value':      get_data('vat_value', Vat.get_default_vat()).id,
+                                         #'user':           service.user_id,
+                                         'comment':        get_data('comment', ''),
                                         }
                                   )
 

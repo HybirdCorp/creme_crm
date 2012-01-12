@@ -23,9 +23,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeModel
 
-from billing.constants import DEFAULT_VAT
+from persons.models import Organisation
 
-from persons.models.organisation import Organisation
+from billing.constants import DEFAULT_VAT
 
 
 class SettlementTerms(CremeModel):
@@ -94,6 +94,7 @@ class CreditNoteStatus(CremeModel):
         verbose_name = _(u"Credit note status")
         verbose_name_plural = _(u"Credit note status")
 
+
 class AdditionalInformation(CremeModel):
     name        = CharField(_(u'Name'), max_length=100)
     description = TextField(verbose_name=_(u"Description"), blank=True, null=True)
@@ -122,7 +123,6 @@ class PaymentTerms(CremeModel):
         verbose_name_plural = _(u'Payments terms')
 
 
-
 class PaymentInformation(CremeModel):
     name                  = CharField(_(u'Name'), max_length=200)
 
@@ -146,7 +146,8 @@ class PaymentInformation(CremeModel):
         verbose_name = _(u'Payment information')
         verbose_name_plural = _(u'Payments information')
 
-
+    #TODO: see Vat.save()
+    #TODO: create a function/ an abstract model for saving model with is_default attribute (and use it for Vat too)
     def save(self, *args, **kwargs):
         #Don't factorise the count query!!
 
@@ -160,13 +161,12 @@ class PaymentInformation(CremeModel):
         super(PaymentInformation, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-
         if self.is_default:
             existing_pi = PaymentInformation.objects.filter(organisation=self.organisation).exclude(id=self.id)
 
             if existing_pi:
                 first_pi = existing_pi[0]
-                first_pi.is_default=True
+                first_pi.is_default = True
                 first_pi.save()
 
         super(PaymentInformation, self).delete(*args, **kwargs)
@@ -189,24 +189,20 @@ class Vat(CremeModel):
         verbose_name_plural = _(u'Vat')
 
     def save(self, *args, **kwargs):
-        is_default = self.is_default
-        if is_default or Vat.objects.filter(is_default=True).count() >= 1:
+        if self.is_default:
             Vat.objects.update(is_default=False)
-            self.is_default = True
-
-        if not is_default and Vat.objects.filter(is_default=True).exclude(pk=self.id).exists() == 0:
+        elif not Vat.objects.filter(is_default=True).exclude(pk=self.id).exists():
             self.is_default = True
 
         super(Vat, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-
         if self.is_default:
-            existing_vat = Vat.objects.exclude(id=self.id)
+            existing_vat = Vat.objects.exclude(id=self.id)[:1]
 
             if existing_vat:
                 first_vat = existing_vat[0]
-                first_vat.is_default=True
+                first_vat.is_default = True
                 first_vat.save()
 
         super(Vat, self).delete(*args, **kwargs)

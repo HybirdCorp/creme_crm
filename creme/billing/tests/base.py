@@ -23,19 +23,6 @@ class _BillingTestCase(object):
     def setUp(self):
         self.populate('creme_core', 'creme_config', 'billing')
 
-        existing_vats = frozenset(Vat.objects.values_list('value', flat=True))
-
-        def _create_tax(vat, is_default=False):
-            decimal_vat = Decimal(vat)
-
-            if not decimal_vat in existing_vats:
-                Vat.objects.create(value=vat, is_default=is_default, is_custom=False)
-
-        for vat in ['0.0', '5.50', '7.0']:
-            _create_tax(vat)
-
-        _create_tax('19.60', is_default=True)
-
     def genericfield_format_entity(self, entity):
         return '{"ctype":"%s", "entity":"%s"}' % (entity.entity_type_id, entity.id)
 
@@ -63,13 +50,13 @@ class _BillingTestCase(object):
 
         return invoice
 
-    def create_invoice_n_orgas(self, name, user=None):
+    def create_invoice_n_orgas(self, name, user=None, discount=Decimal()):
         user = user or self.user
         create = Organisation.objects.create
         source = create(user=user, name='Source Orga')
         target = create(user=user, name='Target Orga')
 
-        invoice = self.create_invoice(name, source, target, user=user)
+        invoice = self.create_invoice(name, source, target, user=user, discount=discount)
 
         return invoice, source, target
 
@@ -111,9 +98,9 @@ class _BillingTestCase(object):
 
         return cat, subcat
 
-    def create_product(self, unit_price=None):
+    def create_product(self, name='Red eye', unit_price=None):
         cat, subcat = self.create_cat_n_subcat()
-        return Product.objects.create(user=self.user, name='Red eye', code='465',
+        return Product.objects.create(user=self.user, name=name, code='465',
                                       unit_price=unit_price or Decimal('1.0'),
                                       description='Drug',
                                       category=cat, sub_category=subcat
@@ -125,9 +112,6 @@ class _BillingTestCase(object):
                                       unit_price=Decimal("6"),
                                       category=cat, sub_category=subcat
                                      )
-
-    def assertRelationCount(self, count, subject_entity, type_id, object_entity): #TODO: in CremeTestCase ??
-        self.assertEqual(count, Relation.objects.filter(subject_entity=subject_entity, type=type_id, object_entity=object_entity).count())
 
 
 class AppTestCase(_BillingTestCase, CremeTestCase):
@@ -143,6 +127,65 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(2, InvoiceStatus.objects.filter(pk__in=(1, 2)).count())
         self.assertEqual(1, CreditNoteStatus.objects.filter(pk=1).count())
 
+        self.assertEqual(4, Vat.objects.count())
+
     def test_portal(self):
         self.login()
         self.assertEqual(200, self.client.get('/billing/').status_code)
+
+
+class VatTestCase(CremeTestCase):
+    def test_create01(self):
+        vat01 = Vat.objects.create(value=Decimal('5.0'), is_default=True, is_custom=False)
+
+        vat01 = self.refresh(vat01)
+        self.assertEqual(Decimal('5.0'), vat01.value)
+        self.assertTrue(vat01.is_default)
+        self.assertFalse(vat01.is_custom)
+
+        vat02 = Vat.objects.create(value=Decimal('6.0'), is_default=False, is_custom=True)
+        vat02 = self.refresh(vat02)
+        self.assertEqual(Decimal('6.0'), vat02.value)
+        self.assertFalse(vat02.is_default)
+        self.assertTrue(vat02.is_custom)
+
+        self.assertEqual(vat01, Vat.get_default_vat())
+
+    def test_create02(self):
+        vat = Vat.objects.create(value=Decimal('5.0'), is_default=False, is_custom=False)
+        self.assertTrue(self.refresh(vat).is_default)
+
+    def test_create03(self):
+        vat01 = Vat.objects.create(value=Decimal('5.0'), is_default=True, is_custom=False)
+        vat02 = Vat.objects.create(value=Decimal('7.0'), is_default=True, is_custom=False)
+        self.assertFalse(self.refresh(vat01).is_default)
+        self.assertTrue(self.refresh(vat02).is_default)
+        self.assertEqual(vat02, Vat.get_default_vat())
+
+    def test_edit01(self):
+        vat01 = Vat.objects.create(value=Decimal('5.0'), is_default=False, is_custom=False)
+        vat02 = Vat.objects.create(value=Decimal('7.0'), is_default=True, is_custom=False)
+
+        vat01.is_default = True
+        vat01.save()
+
+        self.assertTrue(self.refresh(vat01).is_default)
+        self.assertFalse(self.refresh(vat02).is_default)
+
+    def test_edit02(self):
+        vat01 = Vat.objects.create(value=Decimal('5.0'), is_default=False, is_custom=False)
+        vat02 = Vat.objects.create(value=Decimal('7.0'), is_default=True, is_custom=False)
+
+        vat02.is_default = False
+        vat02.save()
+
+        self.assertFalse(self.refresh(vat01).is_default)
+        self.assertTrue(self.refresh(vat02).is_default)
+
+    def test_delete(self):
+        vat01 = Vat.objects.create(value=Decimal('5.0'), is_default=False, is_custom=False)
+        vat02 = Vat.objects.create(value=Decimal('7.0'), is_default=True, is_custom=False)
+
+        vat02.delete()
+
+        self.assertTrue(self.refresh(vat01).is_default)

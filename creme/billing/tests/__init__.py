@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-#TODO: add tests for SalesOrder
-from base import AppTestCase
+from base import AppTestCase, VatTestCase
 from invoice import *
 from quote import *
 from credit_note import *

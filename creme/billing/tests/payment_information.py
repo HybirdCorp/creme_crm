@@ -17,10 +17,13 @@ except Exception as e:
 
 __all__ = ('PaymentInformationTestCase',)
 
+
 class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
-    def test_createview01(self):
+    def setUp(self):
+        _BillingTestCase.setUp(self)
         self.login()
 
+    def test_createview01(self):
         organisation = Organisation.objects.create(user=self.user, name=u"Nintendo")
         url = '/billing/payment_information/add/%s' % organisation.id
         self.assertEqual(200, self.client.get(url).status_code)
@@ -40,8 +43,6 @@ class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(organisation, pi.organisation)
 
     def test_createview02(self):
-        self.login()
-
         organisation = Organisation.objects.create(user=self.user, name=u"Nintendo")
         first_pi = PaymentInformation.objects.create(organisation=organisation, name="RIB 1", is_default=True)
 
@@ -51,7 +52,7 @@ class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
         response = self.client.post(url, data={'user':       self.user.pk,
                                                'name':       "RIB of %s" % organisation,
                                                'is_default': True,
-                                             }
+                                              }
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
@@ -65,8 +66,6 @@ class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
         self.assertIs(True, first_pi.is_default)
 
     def test_editview01(self):
-        self.login()
-
         organisation = Organisation.objects.create(user=self.user, name=u"Nintendo")
         pi = PaymentInformation.objects.create(organisation=organisation, name="RIB 1")
 
@@ -92,11 +91,11 @@ class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(bic,     pi.bic)
 
     def test_editview02(self):
-        self.login()
-
         organisation = Organisation.objects.create(user=self.user, name=u"Nintendo")
-        pi_1  = PaymentInformation.objects.create(organisation=organisation, name="RIB 1", is_default=True)
-        pi_2 = PaymentInformation.objects.create(organisation=organisation, name="RIB 2",  is_default=False)
+
+        create_pi = PaymentInformation.objects.create
+        pi_1 = create_pi(organisation=organisation, name="RIB 1", is_default=True)
+        pi_2 = create_pi(organisation=organisation, name="RIB 2", is_default=False)
 
         url = '/billing/payment_information/edit/%s' % pi_2.id
         self.assertEqual(200, self.client.get(url).status_code)
@@ -128,24 +127,19 @@ class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
         self.assertIs(True, self.refresh(pi_1).is_default)
 
     def test_set_default_in_invoice01(self):
-        self.login()
-
         invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')
         pi_sony = PaymentInformation.objects.create(organisation=sony_source, name="RIB sony")
         self.assertEqual(200, self.client.post('/billing/payment_information/set_default/%s/%s' % (pi_sony.id, invoice.id)).status_code)
-
-        invoice = self.refresh(invoice)
-        self.assertEqual(pi_sony, invoice.payment_info)
+        self.assertEqual(pi_sony, self.refresh(invoice).payment_info)
 
     def test_set_default_in_invoice02(self):
-        self.login()
-
         sega = Organisation.objects.create(user=self.user, name=u"Sega")
         invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')
 
-        pi_nintendo = PaymentInformation.objects.create(organisation=nintendo_target, name="RIB nintendo")
-        pi_sony     = PaymentInformation.objects.create(organisation=sony_source,     name="RIB sony")
-        pi_sega     = PaymentInformation.objects.create(organisation=sega,            name="RIB sega")
+        create_pi = PaymentInformation.objects.create
+        pi_nintendo = create_pi(organisation=nintendo_target, name="RIB nintendo")
+        pi_sony     = create_pi(organisation=sony_source,     name="RIB sony")
+        pi_sega     = create_pi(organisation=sega,            name="RIB sega")
 
         def assertPostStatus(code, pi):
             self.assertEqual(code,
@@ -158,8 +152,6 @@ class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
         assertPostStatus(200, pi_sony)
 
     def test_set_null_in_invoice01(self):
-        self.login()
-
         sega = Organisation.objects.create(user=self.user, name=u"Sega")
         invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')
 
@@ -179,7 +171,6 @@ class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
                                           'target':          self.genericfield_format_entity(nintendo_target),
                                          }
                                    )
-
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
         self.assertIsNone(self.refresh(invoice).payment_info)

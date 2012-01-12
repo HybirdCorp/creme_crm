@@ -29,8 +29,9 @@ from creme_core.models import Relation, CremeEntity
 from creme_core.views.generic import add_entity, add_model_with_popup, edit_entity, view_entity, list_view
 from creme_core.utils import get_ct_or_404
 
-from products.models import Product, Service
 from persons.workflow import transform_target_into_customer, transform_target_into_prospect
+
+from products.models import Product, Service
 
 from billing.models import Quote, Invoice, SalesOrder, Line, ProductLine, ServiceLine
 from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
@@ -135,7 +136,7 @@ def generate_new_doc(request, opp_id, ct_id):
 
     relations = Relation.objects.filter(subject_entity=opp, type__in=[REL_OBJ_LINKED_PRODUCT, REL_OBJ_LINKED_SERVICE]).select_related('object_entity')
     Relation.populate_real_object_entities(relations)
-    
+
     for relation in relations:
         item = relation.object_entity.get_real_entity()
         if isinstance(item, Product):
@@ -143,7 +144,7 @@ def generate_new_doc(request, opp_id, ct_id):
         elif isinstance(item, Service):
             Line.generate_lines(ServiceLine, item, document, user)
 
-    document.save()
+    document.save() #TODO: may be removed
 
     for relation in Relation.objects.filter(object_entity=opp.id, type=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct_doc):
         relation.delete()

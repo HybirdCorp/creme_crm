@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 from datetime import date
+from decimal import Decimal
 from logging import info
 
 from django.utils.translation import ugettext as _
@@ -67,7 +68,18 @@ class Populator(BasePopulator):
                            )
         RelationType.create((REL_SUB_CREDIT_NOTE_APPLIED, _(u"is used in the billing document"),   [CreditNote]),
                             (REL_OBJ_CREDIT_NOTE_APPLIED, _(u"used the credit note"), [Quote, SalesOrder, Invoice]),
-                            is_internal=True)
+                            is_internal=True
+                           )
+
+
+        existing_vats = frozenset(Vat.objects.values_list('value', flat=True))
+        if not existing_vats:
+            values = set(Decimal(value) for value in ['0.0', '5.50', '7.0', '19.60'])
+            values.add(DEFAULT_VAT)
+
+            create_vat = Vat.objects.create
+            for value in values:
+                create_vat(value=value, is_default=(value == DEFAULT_VAT), is_custom=False)
 
         #NB: pk=1 --> default status (used when a quote is converted in invoice for example)
         create_if_needed(QuoteStatus, {'pk': 1}, name=_(u"Pending")) #default status
