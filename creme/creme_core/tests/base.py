@@ -4,7 +4,7 @@ from django.test import TestCase, TransactionTestCase
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import UserRole, RelationType, CremePropertyType
+from creme_core.models import UserRole, RelationType, Relation, CremePropertyType
 from creme_core.management.commands.creme_populate import Command as PopulateCommand
 
 
@@ -46,6 +46,9 @@ class _CremeTestCase(object):
         else:
             if errors:
                 self.fail(errors)
+
+    def assertRelationCount(self, count, subject_entity, type_id, object_entity):
+        self.assertEqual(count, Relation.objects.filter(subject_entity=subject_entity, type=type_id, object_entity=object_entity).count())
 
     def get_object_or_fail(self, model, **kwargs):
         try:

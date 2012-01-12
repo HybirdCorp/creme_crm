@@ -54,32 +54,32 @@ class Invoice(Base):
         """url for list_view """
         return "/billing/invoices"
 
-    #TODO: use sum()....
-    def get_products_price_inclusive_of_tax(self): #TODO: useless ??
-        total = 0
-        for line in ProductLine.objects.filter(document=self):
-            total += line.get_price_inclusive_of_tax()
-        return total
-
-    def get_services_price_inclusive_of_tax(self): #TODO: useless ??
-        #debug("GET TOTAL SERVICE TTC")
-        total = 0
-        for line in ServiceLine.objects.filter(document=self):
-            total += line.get_price_inclusive_of_tax()
-        return total
-
-    def get_products_price_exclusive_of_tax(self): #TODO: useless ??
-        total = 0
-        for line in ProductLine.objects.filter(document=self):
-            total += line.get_price_exclusive_of_tax()
-        return total
-
-    def get_services_price_exclusive_of_tax(self): #TODO: useless ??
-        #debug("GET TOTAL SERVICE HT")
-        total = 0
-        for line in ServiceLine.objects.filter(document=self):
-            total += line.get_price_exclusive_of_tax()
-        return total
+# Commented on 9/1/2012
+#    def get_products_price_inclusive_of_tax(self): #todo: use sum()....
+#        total = 0
+#        for line in ProductLine.objects.filter(document=self):
+#            total += line.get_price_inclusive_of_tax()
+#        return total
+#
+#    def get_services_price_inclusive_of_tax(self):
+#        #debug("GET TOTAL SERVICE TTC")
+#        total = 0
+#        for line in ServiceLine.objects.filter(document=self):
+#            total += line.get_price_inclusive_of_tax()
+#        return total
+#
+#    def get_products_price_exclusive_of_tax(self):
+#        total = 0
+#        for line in ProductLine.objects.filter(document=self):
+#            total += line.get_price_exclusive_of_tax()
+#        return total
+#
+#    def get_services_price_exclusive_of_tax(self):
+#        #debug("GET TOTAL SERVICE HT")
+#        total = 0
+#        for line in ServiceLine.objects.filter(document=self):
+#            total += line.get_price_exclusive_of_tax()
+#        return total
 
 # Commented on 24/11/2011 : is_paid information no longer exists in line table, functions are tagged useless and are no longer used
 #    def remaining_payment_for_products(self): #TODO: useless ??
@@ -100,7 +100,6 @@ class Invoice(Base):
         # Specific recurrent generation rules
         self.status = InvoiceStatus.objects.get(pk=template.status_id) #TODO: "self.status_id = template.status_id" instead ???
         invoice = super(Invoice, self).build(template)
-        transform_target_into_customer(invoice.get_source(),invoice.get_target(),invoice.user)
+        transform_target_into_customer(invoice.get_source(), invoice.get_target(), invoice.user)
+
         return invoice
-
-

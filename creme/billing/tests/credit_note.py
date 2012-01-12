@@ -57,64 +57,48 @@ class CreditNoteTestCase(_BillingTestCase, CremeTestCase):
         self.login()
 
         self.assertEqual(200, self.client.get('/billing/credit_note/add').status_code)
+        user = self.user
 
-        create = Organisation.objects.create
-        source = create(user=self.user, name='Source Orga')
-        target = create(user=self.user, name='Target Orga')
-        invoice = self.create_invoice('Invoice0001', source, target, discount=0)
+        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
 
-        pl1 = ProductLine.objects.create(user=self.user, unit_price=Decimal("100"))
-        pl1.related_document = invoice
-        pl2 = ProductLine.objects.create(user=self.user, unit_price=Decimal("200"))
-        pl2.related_document = invoice
+        ProductLine.objects.create(user=user, related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
+        ProductLine.objects.create(user=user, related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
 
-        invoice.save()
-
-        credit_note, source, target = self.create_credit_note_n_orgas('Credit Note 001')
-        pl3 = ProductLine.objects.create(user=self.user, unit_price=Decimal("299"))
-        pl3.related_document = credit_note
+        credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
+        ProductLine.objects.create(user=user, related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("299"))
 
         # TODO the credit note must be valid : Status OK (not out of date or consumed), Target = Billing document's target and currency = billing document's currency
         # Theses rules must be applied with q filter on list view before selection
-        Relation.objects.create(object_entity=invoice, subject_entity=credit_note, type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=self.user)
+        Relation.objects.create(object_entity=invoice, subject_entity=credit_note, type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user)
 
         invoice = self.refresh(invoice)
-        self.assertEqual(Decimal('1'), invoice.get_total())
-        self.assertEqual(Decimal('1'), invoice.get_total_with_tax())
-        # TODO these two last tests are not working for the moment because adding a credit note doesnt contact the billing document (signal or anything else)
-        # a billing document save is necessary to update the totals fields after adding him a credit note
-#        self.assertEqual(Decimal('1'), invoice.total_no_vat)
-#        self.assertEqual(Decimal('1'), invoice.total_vat)
+        expected_total = Decimal('1')
+        self.assertEqual(expected_total, invoice.get_total())
+        self.assertEqual(expected_total, invoice.get_total_with_tax())
+        self.assertEqual(expected_total, invoice.total_no_vat)
+        self.assertEqual(expected_total, invoice.total_vat)
 
     def test_createview02(self): # credit note total > document billing total where the credit note is applied
         self.login()
 
-        create = Organisation.objects.create
-        source = create(user=self.user, name='Source Orga')
-        target = create(user=self.user, name='Target Orga')
-        invoice = self.create_invoice('Invoice0001', source, target, discount=0)
+        user = self.user
+        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
 
-        pl1 = ProductLine.objects.create(user=self.user, unit_price=Decimal("100"))
-        pl1.related_document = invoice
-        pl2 = ProductLine.objects.create(user=self.user, unit_price=Decimal("200"))
-        pl2.related_document = invoice
+        ProductLine.objects.create(user=user, related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
+        ProductLine.objects.create(user=user, related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
 
-        invoice.save()
-
-        credit_note, source, target = self.create_credit_note_n_orgas('Credit Note 001')
-        pl3 = ProductLine.objects.create(user=self.user, unit_price=Decimal("301"))
-        pl3.related_document = credit_note
+        credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
+        ProductLine.objects.create(user=user, related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("301"))
 
         # TODO the credit note must be valid : Status OK (not out of date or consumed), Target = Billing document's target and currency = billing document's currency
         # Theses rules must be applied with q filter on list view before selection
-        Relation.objects.create(object_entity=invoice, subject_entity=credit_note, type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=self.user)
+        Relation.objects.create(object_entity=invoice, subject_entity=credit_note, type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user)
 
         invoice = self.refresh(invoice)
-        self.assertEqual(Decimal('0'), invoice.get_total())
-        self.assertEqual(Decimal('0'), invoice.get_total_with_tax())
-        # TODO these two last tests are not working for the moment because adding a credit note doesnt contact the billing document (signal or anything else)
-        # a billing document save is necessary to update the totals fields after adding him a credit note
-#        self.assertEqual(Decimal('0'), invoice.total_no_vat)
-#        self.assertEqual(Decimal('0'), invoice.total_vat)
+        expected_total = Decimal('0')
+        self.assertEqual(expected_total, invoice.get_total())
+        self.assertEqual(expected_total, invoice.get_total_with_tax())
+        self.assertEqual(expected_total, invoice.total_no_vat)
+        self.assertEqual(expected_total, invoice.total_vat)
 
     #TODO: complete (other views)

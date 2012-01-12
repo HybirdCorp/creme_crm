@@ -32,6 +32,7 @@ from billing.models import Line, ProductLine, ServiceLine
 from billing.forms.line import (ProductLineOnTheFlyForm, ServiceLineOnTheFlyForm, LineEditForm, ServiceLineForm,
                                ProductLineForm, ProductLineMultipleAddForm, ServiceLineMultipleAddForm)
 
+#TODO: clean the unused views (and urls too)
 
 @login_required
 @permission_required('billing')
@@ -132,7 +133,6 @@ def update(request, line_id):
                                   new_discount_value if new_discount_value is not None else line.discount,
                                   new_discount_unit if new_discount_unit is not None else line.discount_unit,
                                   new_discount_type if new_discount_type is not None else line.total_discount):
-        
         # TODO Improve this functional error case by an error popup ?
         # For the moment data will always be verified by js functions so this server side validation is useless
         # return HttpResponse("", mimetype="text/javascript")

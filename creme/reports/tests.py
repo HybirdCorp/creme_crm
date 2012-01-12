@@ -359,13 +359,11 @@ class ReportsTestCase(CremeTestCase):
         def create_invoice(source, target, name="", total_vat=Decimal("0")):
             self.invoice_status = InvoiceStatus.objects.get_or_create(name=_(u"Draft"))[0]
             invoice = Invoice.objects.create(user=user, status=self.invoice_status, issuing_date=self.issuing_date, name=name, total_vat=total_vat)
-#            invoice._productlines_cache = [ProductLine(quantity=Decimal("1"), unit_price=total_vat)]
-
-            pl = ProductLine.objects.create(quantity=Decimal("1"), unit_price=total_vat, user=user, vat_value=Vat.objects.create(value=Decimal()))
-            pl.related_document = invoice
-            #TODO: pl = ProductLine.objects.create(related_document=invoice, quantity=Decimal("1"), unit_price=total_vat, user=user, vat=Decimal("0"))
-            invoice._productlines_cache = [pl]
-            invoice.save()
+            ProductLine.objects.create(user=user, related_document=invoice,
+                                       on_the_fly_item='Stuff',
+                                       quantity=Decimal("1"), unit_price=total_vat,
+                                       vat_value=Vat.objects.create(value=Decimal()),
+                                       )
 
             Relation.objects.create(subject_entity=invoice,
                                     type_id=REL_SUB_BILL_ISSUED,

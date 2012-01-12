@@ -112,24 +112,15 @@ class ConvertTestCase(_BillingTestCase, CremeTestCase):
         self.login()
 
         quote, source, target = self.create_quote_n_orgas('My Quote')
+        user = self.user
 
-        product_line_otf = ProductLine.objects.create(user=self.user, on_the_fly_item="otf1", unit_price=Decimal("1"))
-        product_line_otf.related_document = quote
+        product_line_otf = ProductLine.objects.create(user=user, related_document=quote, on_the_fly_item="otf1",             unit_price=Decimal("1"))
+        product_line     = ProductLine.objects.create(user=user, related_document=quote, related_item=self.create_product(), unit_price=Decimal("2"))
+        service_line_otf = ServiceLine.objects.create(user=user, related_document=quote, on_the_fly_item="otf2",             unit_price=Decimal("4"))
+        service_line     = ServiceLine.objects.create(user=user, related_document=quote, related_item=self.create_service(), unit_price=Decimal("5"))
 
-        #product_line  = ProductLine.objects.create(user=self.user, unit_price=Decimal("2"), related_item=self.create_product())
-        product_line  = ProductLine.objects.create(user=self.user, unit_price=Decimal("2"))
-        product_line.related_item = self.create_product()
-        product_line.related_document = quote
-
-        service_line_otf = ServiceLine.objects.create(user=self.user, on_the_fly_item="otf2", unit_price=Decimal("4"))
-        service_line_otf.related_document = quote
-
-        #service_line = ServiceLine.objects.create(user=self.user, unit_price=Decimal("5"), related_item=self.create_service())
-        service_line = ServiceLine.objects.create(user=self.user, unit_price=Decimal("5"))
-        service_line.related_item = self.create_service()
-        service_line.related_document = quote
-
-        quote.save()#To set total_vat...
+        #quote.save()#To set total_vat...
+        quote = self.refresh(quote)
 
         quote_property = CremeProperty.objects.create(creme_entity=quote, type=CremePropertyType.objects.all()[0])
 
@@ -169,9 +160,8 @@ class ConvertTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(quote.total_no_vat,    invoice.total_no_vat)
         self.assertEqual(quote.total_vat,       invoice.total_vat)
 
-        rel_filter = Relation.objects.filter
-        self.assertEqual(1, rel_filter(subject_entity=invoice, type=REL_SUB_BILL_ISSUED,   object_entity=source).count())
-        self.assertEqual(1, rel_filter(subject_entity=invoice, type=REL_SUB_BILL_RECEIVED, object_entity=target).count())
+        self.assertRelationCount(1, invoice, REL_SUB_BILL_ISSUED,   source)
+        self.assertRelationCount(1, invoice, REL_SUB_BILL_RECEIVED, target)
 
         properties = invoice.properties.all()
         self.assertEqual(1, len(properties))
