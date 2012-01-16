@@ -127,5 +127,7 @@ urlpatterns = patterns('creme_config.views',
     (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/portal/$',                    'generics_views.portal_model'),
     (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/add/$',                       'generics_views.add_model'),
     (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/edit/(?P<object_id>[\w-]+)$', 'generics_views.edit_model'),
+    (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/down/(?P<object_id>[\w-]+)$', 'generics_views.swap_order', {'offset': 1}),
+    (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/up/(?P<object_id>[\w-]+)$',   'generics_views.swap_order', {'offset': -1}),
     (r'^(?P<app_name>\w+)/(?P<model_name>\w+)/delete$',                     'generics_views.delete_model'),
 )

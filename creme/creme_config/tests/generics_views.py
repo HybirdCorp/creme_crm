@@ -13,6 +13,7 @@ except Exception as e:
 __all__ = ('GenericModelConfigTestCase',)
 
 
+#NB: see Opportunities for tests on 'up' & 'down' views
 class GenericModelConfigTestCase(CremeTestCase):
     def setUp(self):
         self.populate('creme_core', 'creme_config')

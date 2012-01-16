@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -75,17 +75,17 @@ class Populator(BasePopulator):
         sk = SettingKey.create(pk=SETTING_USE_CURRENT_QUOTE,
                                description=_(u"Use current associated quote to determine an estimation of the opportunity's turnover"),
                                app_label='opportunities', type=SettingKey.BOOL
-                               )
+                              )
         SettingValue.create_if_needed(key=sk, user=None, value=False)
 
         if not SalesPhase.objects.exists():
             create_sphase = SalesPhase.objects.create
-            create_sphase(name=_(u"Forthcoming"),       description="...")
-            create_sphase(name=_(u"Abandoned"),         description="...")
-            won  = create_sphase(name=_(u"Won"),        description="...")
-            lost = create_sphase(name=_(u"Lost"),       description="...")
-            create_sphase(name=_(u"Under negotiation"), description="...")
-            create_sphase(name=_(u"In progress"),       description="...")
+            create_sphase(name=_(u"Forthcoming"),       description="...", order=1)
+            create_sphase(name=_(u"Abandoned"),         description="...", order=4)
+            won  = create_sphase(name=_(u"Won"),        description="...", order=5)
+            lost = create_sphase(name=_(u"Lost"),       description="...", order=6)
+            create_sphase(name=_(u"Under negotiation"), description="...", order=3)
+            create_sphase(name=_(u"In progress"),       description="...", order=2)
         else:
             won = None
             lost = None

@@ -30,18 +30,19 @@ except Exception as e:
 
 
 class OpportunitiesTestCase(CremeTestCase):
-    def _create_tax(self, vat):
-        if not Vat.objects.filter(value=vat).exists():
-            if vat == Decimal('19.60'):
-                Vat.objects.create(value=vat, is_default=True, is_custom=False)
-            else:
-                Vat.objects.create(value=vat, is_custom=False)
+    #def _create_tax(self, vat):
+        #if not Vat.objects.filter(value=vat).exists():
+            #if vat == Decimal('19.60'):
+                #Vat.objects.create(value=vat, is_default=True, is_custom=False)
+            #else:
+                #Vat.objects.create(value=vat, is_custom=False)
 
     def setUp(self):
-        self.populate('creme_core', 'creme_config', 'documents', 'persons', 'commercial', 'billing', 'activities', 'opportunities')
+        #self.populate('creme_core', 'creme_config', 'documents', 'persons', 'commercial', 'billing', 'activities', 'opportunities')
+        self.populate('creme_core', 'creme_config', 'persons', 'billing', 'activities', 'opportunities')
 
-        for vat in ['0.0','5.50', '7.0', '19.60']:
-            self._create_tax(Decimal(vat))
+        #for vat in ['0.0','5.50', '7.0', '19.60']:
+            #self._create_tax(Decimal(vat))
 
     def genericfield_format_entity(self, entity):
         return '{"ctype":"%s", "entity":"%s"}' % (entity.entity_type_id, entity.id)
@@ -106,15 +107,14 @@ class OpportunitiesTestCase(CremeTestCase):
         CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
 
         response = self.client.post('/opportunities/opportunity/add', follow=True,
-                                    data={
-                                            'user':         self.user.pk,
-                                            'name':         name,
-                                            'sales_phase':  SalesPhase.objects.all()[0].id,
-                                            'closing_date': '2010-10-11',
-                                            'target':       self.genericfield_format_entity(target),
-                                            'emit_orga':    emitter.id,
-                                            'currency':     DEFAULT_CURRENCY_PK,
-                                    }
+                                    data={'user':         self.user.pk,
+                                          'name':         name,
+                                          'sales_phase':  SalesPhase.objects.all()[0].id,
+                                          'closing_date': '2010-10-11',
+                                          'target':       self.genericfield_format_entity(target),
+                                          'emit_orga':    emitter.id,
+                                          'currency':     DEFAULT_CURRENCY_PK,
+                                         }
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
@@ -675,3 +675,106 @@ class OpportunitiesTestCase(CremeTestCase):
         opportunity.chance_to_win   =  10
         self.assertEqual(100, opportunity.get_weighted_sales())
         self.assertEqual(100, funf(opportunity).for_html())
+
+
+class SalesPhaseTestCase(CremeTestCase):
+    def test_create_n_order(self):
+        create_phase = SalesPhase.objects.create
+        sp1 = create_phase(name='Forthcoming', description='...', order=2)
+        sp2 = create_phase(name='Abandoned',   description='...', order=1)
+
+        self.assertEqual([sp2, sp1], list(SalesPhase.objects.all()))
+
+    def login(self, *args, **kwargs):
+        self.populate('creme_core', 'creme_config')
+        super(SalesPhaseTestCase, self).login(*args, **kwargs)
+
+    def test_incr_order01(self):
+        self.login()
+
+        create_phase = SalesPhase.objects.create
+        sp1 = create_phase(name='Forthcoming', description='...', order=1)
+        sp2 = create_phase(name='Abandoned',   description='...', order=2)
+
+        self.assertEqual(200, self.client.get('/creme_config/opportunities/portal/').status_code)
+
+        response = self.client.get('/creme_config/opportunities/sales_phase/portal/')
+        self.assertEqual(200, response.status_code)
+        self.assertContains(response, sp1.name)
+        self.assertContains(response, sp2.name)
+
+        url = '/creme_config/opportunities/sales_phase/down/%s' % sp1.id
+        self.assertEqual(404, self.client.get(url).status_code)
+        self.assertEqual(200, self.client.post(url).status_code)
+
+        self.assertEqual(2, self.refresh(sp1).order)
+        self.assertEqual(1, self.refresh(sp2).order)
+
+    def test_incr_order02(self):
+        self.login()
+
+        create_phase = SalesPhase.objects.create
+        sp1 = create_phase(name='Forthcoming', description='...', order=1)
+        sp2 = create_phase(name='Abandoned',   description='...', order=2)
+        sp3 = create_phase(name='Won',         description='...', order=3)
+        sp4 = create_phase(name='Lost',        description='...', order=4)
+
+        self.assertEqual(200, self.client.post('/creme_config/opportunities/sales_phase/down/%s' % sp2.id).status_code)
+
+        self.assertEqual(1, self.refresh(sp1).order)
+        self.assertEqual(3, self.refresh(sp2).order)
+        self.assertEqual(2, self.refresh(sp3).order)
+        self.assertEqual(4, self.refresh(sp4).order)
+
+    def test_incr_order03(self): #errrors
+        self.login()
+
+        create_phase = SalesPhase.objects.create
+        sp1 = create_phase(name='Forthcoming', description='...', order=1)
+        sp2 = create_phase(name='Abandoned',   description='...', order=2)
+
+        url = '/creme_config/opportunities/sales_phase/down/%s'
+        self.assertEqual(404, self.client.post(url % sp2.id).status_code)
+        self.assertEqual(404, self.client.post(url % (sp2.id + sp1.id)).status_code) #odd pk
+
+    def test_decr_order01(self):
+        self.login()
+
+        create_phase = SalesPhase.objects.create
+        sp1 = create_phase(name='Forthcoming', description='...', order=1)
+        sp2 = create_phase(name='Abandoned',   description='...', order=2)
+        sp3 = create_phase(name='Won',         description='...', order=3)
+        sp4 = create_phase(name='Lost',        description='...', order=4)
+
+        self.assertEqual(200, self.client.post('/creme_config/opportunities/sales_phase/up/%s' % sp3.id).status_code)
+
+        self.assertEqual(1, self.refresh(sp1).order)
+        self.assertEqual(3, self.refresh(sp2).order)
+        self.assertEqual(2, self.refresh(sp3).order)
+        self.assertEqual(4, self.refresh(sp4).order)
+
+    def test_decr_order02(self): #errror
+        self.login()
+
+        create_phase = SalesPhase.objects.create
+        sp1 = create_phase(name='Forthcoming', description='...', order=1)
+        sp2 = create_phase(name='Abandoned',   description='...', order=2)
+
+        self.assertEqual(404, self.client.post('/creme_config/opportunities/sales_phase/up/%s' % sp1.id).status_code)
+
+
+class OriginTestCase(CremeTestCase):
+    def test_config(self):
+        self.login()
+        self.populate('creme_core', 'creme_config')
+
+        create_origin = Origin.objects.create
+        origin1 = create_origin(name='Web site', description='...')
+        origin2 = create_origin(name='Mouth',    description='...')
+
+        response = self.client.get('/creme_config/opportunities/origin/portal/')
+        self.assertEqual(200, response.status_code)
+        self.assertContains(response, origin1.name)
+        self.assertContains(response, origin2.name)
+
+        self.assertEqual(404, self.client.post('/creme_config/opportunities/origin/down/%s' % origin1.id).status_code)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,9 @@ from creme_config.registry import config_registry
 from creme_config.blocks import generic_models_block
 
 
-def _get_appconf(app_name):
+def _get_appconf(user, app_name):
+    user.has_perm_to_admin_or_die(app_name)
+
     try:
         app_config = config_registry.get_app(app_name)
     except KeyError:
@@ -49,35 +51,28 @@ def _get_modelconf(app_config, model_name):
 
 @login_required
 def add_model(request, app_name, model_name):
-    request.user.has_perm_to_admin_or_die(app_name)
-
     return add_model_with_popup(request,
-                                _get_modelconf(_get_appconf(app_name), model_name).model_form,
+                                _get_modelconf(_get_appconf(request.user, app_name), model_name).model_form,
                                 _('New value'),
                                 template='creme_core/generics/form/add_innerpopup.html',
                                )
 
 @login_required
 def portal_model(request, app_name, model_name):
-    request.user.has_perm_to_admin_or_die(app_name)
-
-    app_config = _get_appconf(app_name)
+    app_config = _get_appconf(request.user, app_name)
     model      = _get_modelconf(app_config, model_name).model
 
     return render_to_response('creme_config/generics/model_portal.html',
-                              {
-                                'model':            model,
-                                'app_name':         app_name,
-                                'app_verbose_name': app_config.verbose_name,
-                                'model_name':       model_name,
+                              {'model':            model,
+                               'app_name':         app_name,
+                               'app_verbose_name': app_config.verbose_name,
+                               'model_name':       model_name,
                               },
                               context_instance=RequestContext(request))
 
 @login_required
 def delete_model(request, app_name, model_name):
-    request.user.has_perm_to_admin_or_die(app_name)
-
-    model   = _get_modelconf(_get_appconf(app_name), model_name).model
+    model   = _get_modelconf(_get_appconf(request.user, app_name), model_name).model
     object_ = get_object_or_404(model, pk=get_from_POST_or_404(request.POST, 'id'))
 
     if not getattr(object_, 'is_custom', True):
@@ -89,9 +84,7 @@ def delete_model(request, app_name, model_name):
 
 @login_required
 def edit_model(request, app_name, model_name, object_id):
-    request.user.has_perm_to_admin_or_die(app_name)
-
-    modelconf = _get_modelconf(_get_appconf(app_name), model_name)
+    modelconf = _get_modelconf(_get_appconf(request.user, app_name), model_name)
 
     return edit_model_with_popup(request,
                                  {'pk': object_id},
@@ -101,17 +94,54 @@ def edit_model(request, app_name, model_name, object_id):
                                 )
 
 @login_required
-def portal_app(request, app_name):
-    request.user.has_perm_to_admin_or_die(app_name)
+def swap_order(request, app_name, model_name, object_id, offset):
+    if request.method != 'POST':
+        raise Http404('This view use POST method')
 
-    app_config = _get_appconf(app_name)
+    model = _get_modelconf(_get_appconf(request.user, app_name), model_name).model
+    fields = model._meta.get_all_field_names()
+
+    if 'order' not in fields:
+        raise Http404('Invalid model (no "user" field)')
+
+    found = None
+    ordered = []
+
+    for i, instance in enumerate(model.objects.all()):
+        new_order = i + 1
+
+        if str(instance.pk) == object_id: #manage the model with string as pk
+            found = i
+            new_order += offset
+
+        ordered.append([new_order, instance])
+
+    if found is None:
+        raise Http404('Invalid object id (not found)')
+
+    swapped_index = found + offset
+
+    if not (0 <= swapped_index < len(ordered)):
+        raise Http404('Invalid object id')
+
+    ordered[swapped_index][0] -= offset #update new_order
+
+    for new_order, instance in ordered:
+        if new_order != instance.order:
+            instance.order = new_order
+            instance.save()
+
+    return HttpResponse()
+
+@login_required
+def portal_app(request, app_name):
+    app_config = _get_appconf(request.user, app_name)
 
     return render_to_response('creme_config/generics/app_portal.html',
-                              {
-                                'app_name':          app_name,
-                                'app_verbose_name':  app_config.verbose_name,
-                                'app_config':        list(app_config.models()), #list-> have the length in the template
-                                'app_config_blocks': app_config.blocks(),#Get config registered blocks
+                              {'app_name':          app_name,
+                               'app_verbose_name':  app_config.verbose_name,
+                               'app_config':        list(app_config.models()), #list-> have the length in the template
+                               'app_config_blocks': app_config.blocks(),#Get config registered blocks
                               },
                               context_instance=RequestContext(request)
                              )
