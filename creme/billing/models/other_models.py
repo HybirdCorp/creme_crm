@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, BooleanField, TextField, DecimalField, ForeignKey
+from django.db.models import CharField, BooleanField, TextField, DecimalField, PositiveIntegerField, ForeignKey
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeModel
@@ -40,57 +40,44 @@ class SettlementTerms(CremeModel):
         verbose_name_plural = _(u'Settlement terms')
 
 
-
-#TODO: use a base abstract class ??
-
-class InvoiceStatus(CremeModel):
+class AbstractStatus(CremeModel):
     name      = CharField(_(u'Status'), max_length=100)
     is_custom = BooleanField(default=True) #used by creme_config
+    order     = PositiveIntegerField(_(u"Order"), default=1, editable=False) #used by creme_config
 
     def __unicode__(self):
         return self.name
 
     class Meta:
+        abstract = True
         app_label = 'billing'
+        ordering = ('order',)
+
+
+class InvoiceStatus(AbstractStatus):
+    class Meta(AbstractStatus.Meta):
+        abstract = False
         verbose_name = _(u'Invoice status')
         verbose_name_plural = _(u'Invoice status')
 
 
-class QuoteStatus(CremeModel):
-    name      = CharField(_(u'Status'), max_length=100)
-    is_custom = BooleanField(default=True) #used by creme_config
-
-    def __unicode__(self):
-        return self.name
-
-    class Meta:
-        app_label = 'billing'
+class QuoteStatus(AbstractStatus):
+    class Meta(AbstractStatus.Meta):
+        abstract = False
         verbose_name = _(u'Quote status')
         verbose_name_plural = _(u'Quote status')
 
 
-class SalesOrderStatus(CremeModel):
-    name      = CharField(_(u'Status'), max_length=100)
-    is_custom = BooleanField(default=True) #used by creme_config
-
-    def __unicode__(self):
-        return self.name
-
-    class Meta:
-        app_label = 'billing'
+class SalesOrderStatus(AbstractStatus):
+    class Meta(AbstractStatus.Meta):
+        abstract = False
         verbose_name = _(u'Sales order status')
         verbose_name_plural = _(u'Sales order status')
 
 
-class CreditNoteStatus(CremeModel):
-    name      = CharField(_(u'Status'), max_length=100)
-    is_custom = BooleanField(default=True) #used by creme_config
-
-    def __unicode__(self):
-        return self.name
-
-    class Meta:
-        app_label = 'billing'
+class CreditNoteStatus(AbstractStatus):
+    class Meta(AbstractStatus.Meta):
+        abstract = False
         verbose_name = _(u"Credit note status")
         verbose_name_plural = _(u"Credit note status")
 
