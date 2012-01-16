@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,10 +45,11 @@ class GenericModelsBlock(QuerysetBlock):
         #    if 'model', 'model_name' etc... are in the context
         model = context['model']
 
-        try:
-            self.order_by = model._meta.ordering[0]
-        except IndexError:
-            pass
+        #TODO: uncomment when the block is not a singleon any more.... (beware if a 'order' field exists - see template)
+        #try:
+            #self.order_by = model._meta.ordering[0]
+        #except IndexError:
+            #pass
 
         return self._render(self.get_block_template_context(context, model.objects.all(),
                                                             update_url='/creme_config/models/%s/reload/' % ContentType.objects.get_for_model(model).id,

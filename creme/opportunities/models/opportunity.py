@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,11 +24,10 @@ from logging import error
 from django.db.models import CharField, TextField, ForeignKey, PositiveIntegerField, DateField
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
-from billing.models.other_models import Vat
-from creme_core.constants import DEFAULT_CURRENCY_PK
 
-from creme_core.core.function_field import FunctionField
 from creme_core.models import CremeEntity, CremeModel, Relation
+from creme_core.constants import DEFAULT_CURRENCY_PK
+from creme_core.core.function_field import FunctionField
 
 from creme_config.models import SettingValue
 from creme_core.models.currency import Currency
@@ -37,7 +36,7 @@ from persons.models import Contact, Organisation
 
 from products.models import Product, Service
 
-from billing.models import Invoice, SalesOrder, Quote, ProductLine, ServiceLine
+from billing.models import Invoice, SalesOrder, Quote, ProductLine, ServiceLine, Vat
 from billing.utils import round_to_2
 
 from opportunities.constants import *
@@ -51,6 +50,7 @@ class _TurnoverField(FunctionField):
 class SalesPhase(CremeModel):
     name        = CharField(_(u"Name"), max_length=100, blank=False, null=False)
     description = TextField(_(u"Description"))
+    order       = PositiveIntegerField(_(u"Order"), default=1, editable=False)
 
     def __unicode__(self):
         return self.name
@@ -59,6 +59,7 @@ class SalesPhase(CremeModel):
         app_label = "opportunities"
         verbose_name = _(u"Sale phase")
         verbose_name_plural = _(u'Sale phases')
+        ordering = ('order',)
 
 
 class Origin(CremeModel):

@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
 {% load creme_config_tags %}
-<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     <thead>
         <tr>
             <th colspan="100">
@@ -19,49 +19,69 @@
                 {% get_line_adder at_url '/creme_config/{{app_name}}/{{model_name}}/add/' with_label _("New value") with_perms 1 %}
             </th>
         </tr>
-        {% if page.paginator.count %}
-            {% with model|get_meta_value:'fields' as fields %}
-            {% with model|get_meta_value:'many_to_many' as many_to_many %}
-                <tr class="header">
-                    {% for f in fields %}
-                        {% if f.name != 'is_custom' %}
-                            {% get_column_header f.verbose_name f.name %}
-                        {% endif %}
-                    {% endfor %}
-                    {% for f in many_to_many %}
-                        <th class="block_header_line_light">{{f.verbose_name}}</th>
-                    {% endfor %}
-                    <th class="block_header_line_light action">{% trans "Edit" %}</th>
-                    <th class="block_header_line_light action">{% trans "Delete" %}</th>
-                </tr>
-                {% for object in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
-                    <tr class="content">
+        {% with page.paginator.count as total_count %}
+            {% if total_count %}
+                {% with model|get_meta_value:'fields' as fields %}{% with model|get_meta_value:'many_to_many' as many_to_many %}
+                    <tr class="header">
                         {% for f in fields %}
                             {% if f.name != 'is_custom' %}
-                                <td class="{{row_color}}">{% print_field object=object field=f.name %}</td>
+                                <th class="block_header_line_light action">{{f.verbose_name}}</th>{% comment %}{% get_column_header f.verbose_name f.name %}{% endcomment %}
                             {% endif %}
                         {% endfor %}
                         {% for f in many_to_many %}
-                            <td class="{{row_color}}">{% print_field object=object field=f.name %}</td>
+                            <th class="block_header_line_light">{{f.verbose_name}}</th>
                         {% endfor %}
-                        <td class="{{row_color}} action">
-                            {% get_line_editor at_url '/creme_config/{{app_name}}/{{model_name}}/edit/{{object.id}}' with_perms 1 %}
-                        </td>
-                        <td class="{{row_color}} action">
-                            {% if object|is_custom %}
-                                {% get_line_deletor at_url '/creme_config/{{app_name}}/{{model_name}}/delete' with_args "{'id':'{{object.pk}}'}" with_perms 1 %}
-                            {% else %}
-                                <em>{% trans "(no deletable)" %}</em>
-                            {% endif %}
-                        </td>
+                        <th class="block_header_line_light action">{% trans "Edit" %}</th>
+                        <th class="block_header_line_light action">{% trans "Delete" %}</th>
                     </tr>
-                {% endfor %}
-            {% endwith %}{% endwith %}
-        {% else %}
-            <tr class="content empty">
-                <td class="block_line_dark">{% trans "No value for the moment" %}</td>
-            </tr>
-        {% endif %}
+                    {% for object in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                        <tr class="content">
+                            {% for f in fields %}
+                                {% with f.name as f_name %}
+                                    {% if f_name != 'is_custom' %}
+                                        {% if f_name == 'order' %}
+                                            <td class="{{row_color}}" align="center" valign="middle">
+                                                {% with object.order as order %}
+                                                    {% if order != 1 %}
+                                                        <a onclick="creme.utils.postNReload('/creme_config/{{app_name}}/{{model_name}}/up/{{object.id}}', {% get_block_reload_uri %});">
+                                                            <img src="{% creme_media_url 'images/small_up_arrow_16.png' %}" border="0" title="{% trans "Move up" %}" alt="{% trans "Move up" %}" />
+                                                        </a>
+                                                    {% endif %}<br/>
+                                                    {% if order != total_count %}
+                                                        <a onclick="creme.utils.postNReload('/creme_config/{{app_name}}/{{model_name}}/down/{{object.id}}', {% get_block_reload_uri %});">
+                                                            <img src="{% creme_media_url 'images/small_down_arrow_16.png' %}" border="0" title="{% trans "Move down" %}" alt="{% trans "Move down" %}" />
+                                                        </a>
+                                                    {% endif %}
+                                                {% endwith %}
+                                            </td>
+                                        {% else %}
+                                            <td class="{{row_color}}">{% print_field object=object field=f_name %}</td>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endwith %}
+                            {% endfor %}
+                            {% for f in many_to_many %}
+                                <td class="{{row_color}}">{% print_field object=object field=f.name %}</td>
+                            {% endfor %}
+                            <td class="{{row_color}} action">
+                                {% get_line_editor at_url '/creme_config/{{app_name}}/{{model_name}}/edit/{{object.id}}' with_perms 1 %}
+                            </td>
+                            <td class="{{row_color}} action">
+                                {% if object|is_custom %}
+                                    {% get_line_deletor at_url '/creme_config/{{app_name}}/{{model_name}}/delete' with_args "{'id':'{{object.pk}}'}" with_perms 1 %}
+                                {% else %}
+                                    <em>{% trans "(no deletable)" %}</em>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endwith %}{% endwith %}
+            {% else %}
+                <tr class="content empty">
+                    <td class="block_line_dark">{% trans "No value for the moment" %}</td>
+                </tr>
+            {% endif %}
+        {% endwith %}
     </tbody>
     {% include 'creme_core/templatetags/widgets/block_footer.html' %}
 </table>

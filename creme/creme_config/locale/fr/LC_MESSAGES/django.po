@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CONFIG' APP
-# Copyright (C) 2011 Hybird
+# Copyright (C) 2012 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -e html -i "tests/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-10 17:49+0100\n"
+"POT-Creation-Date: 2012-01-13 18:09+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,31 +17,31 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: blocks.py:90
+#: blocks.py:91
 msgid "Property types configuration"
 msgstr "Configuration des types de propriété"
 
-#: blocks.py:102
+#: blocks.py:103
 msgid "List of standard relation types"
 msgstr "Liste des types de relation standard"
 
-#: blocks.py:115
+#: blocks.py:116
 msgid "Custom relation types configuration"
 msgstr "Configuration des types de relation personnalisés"
 
-#: blocks.py:128
+#: blocks.py:129
 msgid "List of semi-fixed relation types"
 msgstr "Liste des types de relation semi-fixés"
 
-#: blocks.py:145
+#: blocks.py:146
 msgid "General configuration of custom fields"
 msgstr "Configuration générale des champs personnalisés"
 
-#: blocks.py:160
+#: blocks.py:161
 msgid "Custom fields configuration"
 msgstr "Configuration des champs personnalisés"
 
-#: blocks.py:178
+#: blocks.py:179
 msgid "Users configuration"
 msgstr "Configuration des utilisateurs"
 
@@ -93,55 +93,45 @@ msgstr "Gestion des utilisateurs"
 msgid "Roles and credentials settings"
 msgstr "Gestion des rôles et des droits"
 
-#: forms/blocks.py:96 forms/button_menu.py:40 forms/custom_fields.py:65
+#: forms/blocks.py:102 forms/button_menu.py:40 forms/custom_fields.py:65
 #: forms/search.py:37
 msgid "Related resource"
 msgstr "Ressource associée"
 
-#: forms/blocks.py:110
+#: forms/blocks.py:116
 msgid "Blocks to display on top"
 msgstr "Blocs à afficher en haut"
 
-#: forms/blocks.py:111
+#: forms/blocks.py:117
 msgid "Blocks to display on left side"
 msgstr "Blocs à afficher à gauche"
 
-#: forms/blocks.py:112
+#: forms/blocks.py:118
 msgid "Blocks to display on right side"
 msgstr "Blocs à afficher à droite"
 
-#: forms/blocks.py:113
+#: forms/blocks.py:119
 msgid "Blocks to display on bottom"
 msgstr "Blocs à afficher en bas"
 
-#: forms/blocks.py:121
+#: forms/blocks.py:132
 msgid "Information on the entity"
 msgstr "Informations sur la fiche"
 
-#: forms/blocks.py:125
-#, python-format
-msgid "Relation block: %s"
-msgstr "Bloc de relation: %s"
-
-#: forms/blocks.py:128 forms/blocks.py:220
-#, python-format
-msgid "Instance's block: %s"
-msgstr "Bloc d'instance: %s"
-
-#: forms/blocks.py:146
+#: forms/blocks.py:150
 #, python-format
 msgid "The following block should be displayed only once: <%s>"
 msgstr "Le bloc suivant ne devrait être affiché qu'une seule fois: <%s>"
 
-#: forms/blocks.py:171
+#: forms/blocks.py:175
 msgid "Related application"
 msgstr "Application associée"
 
-#: forms/blocks.py:189
+#: forms/blocks.py:193
 msgid "Blocks to display on the portal"
 msgstr "Blocs à afficher sur le portail"
 
-#: forms/blocks.py:230
+#: forms/blocks.py:207
 msgid "Blocks to display on the \"My Page\" of the users"
 msgstr "Blocs à afficher sur le \"Ma page\" des utilisateurs"
 
@@ -282,7 +272,7 @@ msgstr "Objet"
 msgid "Type and object"
 msgstr "Type et objet"
 
-#: forms/relation_type.py:124
+#: forms/relation_type.py:125
 msgid ""
 "A semi-fixed type of relationship with this type and this object already "
 "exists."
@@ -470,11 +460,11 @@ msgstr "Appliquer à un type spécifique"
 msgid "None"
 msgstr "Aucun"
 
-#: forms/user_settings.py:40
+#: forms/user_settings.py:34
 msgid "Choose your theme"
 msgstr "Choisissez votre thème"
 
-#: forms/user_settings.py:42
+#: forms/user_settings.py:36
 msgid "Think to reload the page once you changed the theme."
 msgstr "Pensez à recharger la page une fois le thème changé."
 
@@ -627,7 +617,7 @@ msgstr "Éditer la configuration de blocs"
 #: templates/creme_config/templatetags/block_blockdefmypagelocations.html:16
 #: templates/creme_config/templatetags/block_custom_fields.html:16
 #: templates/creme_config/templatetags/block_teams.html:16
-#: templates/creme_config/templatetags/block_user_prefered_menus.html:19
+#: templates/creme_config/templatetags/block_user_prefered_menus.html:20
 #: templates/creme_config/templatetags/block_user_roles.html:19
 msgid "Name"
 msgstr "Nom"
@@ -640,7 +630,7 @@ msgstr "Nom"
 #: templates/creme_config/templatetags/block_custom_fields_portal.html:18
 #: templates/creme_config/templatetags/block_historyconfig.html:17
 #: templates/creme_config/templatetags/block_instanceblocksconfig.html:12
-#: templates/creme_config/templatetags/block_models.html:35
+#: templates/creme_config/templatetags/block_models.html:36
 #: templates/creme_config/templatetags/block_property_types.html:22
 #: templates/creme_config/templatetags/block_relationblocksconfig.html:17
 #: templates/creme_config/templatetags/block_searchconfig.html:22
@@ -693,7 +683,7 @@ msgstr "Type"
 #: templates/creme_config/templatetags/block_custom_fields.html:18
 #: templates/creme_config/templatetags/block_custom_fields_portal.html:25
 #: templates/creme_config/templatetags/block_default_credentials.html:14
-#: templates/creme_config/templatetags/block_models.html:34
+#: templates/creme_config/templatetags/block_models.html:35
 #: templates/creme_config/templatetags/block_property_types.html:21
 #: templates/creme_config/templatetags/block_searchconfig.html:21
 #: templates/creme_config/templatetags/block_settings.html:20
@@ -828,11 +818,19 @@ msgstr "Aucun bloc d'instance créé pour le moment"
 msgid "New value"
 msgstr "Nouvelle valeur"
 
-#: templates/creme_config/templatetags/block_models.html:54
+#: templates/creme_config/templatetags/block_models.html:48
+msgid "Move up"
+msgstr "Monter"
+
+#: templates/creme_config/templatetags/block_models.html:53
+msgid "Move down"
+msgstr "Descendre"
+
+#: templates/creme_config/templatetags/block_models.html:74
 msgid "(no deletable)"
 msgstr "(non supprimable)"
 
-#: templates/creme_config/templatetags/block_models.html:62
+#: templates/creme_config/templatetags/block_models.html:82
 msgid "No value for the moment"
 msgstr "Aucune valeur enregistrée pour le moment"
 
@@ -1044,14 +1042,15 @@ msgstr "Mes %s menus préférés"
 
 #: templates/creme_config/templatetags/block_user_prefered_menus.html:12
 #: templates/creme_config/templatetags/block_user_prefered_menus.html:13
+#: views/prefered_menu.py:64
 msgid "Edit my prefered menus"
 msgstr "Éditer mes menus préférés"
 
-#: templates/creme_config/templatetags/block_user_prefered_menus.html:20
+#: templates/creme_config/templatetags/block_user_prefered_menus.html:21
 msgid "Order"
 msgstr "Ordre"
 
-#: templates/creme_config/templatetags/block_user_prefered_menus.html:30
+#: templates/creme_config/templatetags/block_user_prefered_menus.html:31
 msgid "You have no prefered menu for the moment"
 msgstr "Vous n'avez aucun menu préféré pour le moment"
 
@@ -1209,20 +1208,20 @@ msgstr "Nouveau type de relation semi-fixé"
 msgid "Edit \"%s\""
 msgstr "Éditer \"%s\""
 
-#: views/user.py:39
+#: views/user.py:38
 #, python-format
 msgid "Change password for <%s>"
 msgstr "Changer le mot de passe pour <%s>"
 
-#: views/user.py:115
+#: views/user.py:74
 msgid "You can't delete the last user."
 msgstr "Vous ne pouvez pas supprimer le dernier utilisateur."
 
-#: views/user.py:118
+#: views/user.py:77
 msgid "You have to select a team."
 msgstr "Vous devez choisir une équipe."
 
-#: views/user.py:120
+#: views/user.py:80
 #, python-format
 msgid "Delete %s and assign his files to user"
 msgstr "Supprimer %s et réassigner ses fiches"
@@ -1235,6 +1234,12 @@ msgstr "Ajouter des droits à <%s>"
 #: views/user_role.py:96
 msgid "Edit default credentials"
 msgstr "Éditer les droits par défaut"
+
+#~ msgid "Relation block: %s"
+#~ msgstr "Bloc de relation: %s"
+
+#~ msgid "Instance's block: %s"
+#~ msgstr "Bloc d'instance: %s"
 
 #~ msgid "Semi-fixed relation types"
 #~ msgstr "Types de relation semi-semi-fixés"
