@@ -88,12 +88,18 @@ class DynamicSelect(Select):
     def __init__(self, attrs=None, options=None, url=''):
         super(DynamicSelect, self).__init__(attrs, ()) #TODO: options or ()
         self.url = url
-        self.options = options or ()
+
+        if not options:
+            self.options = ()
+        elif callable(options):
+            self.options = options
+        else:
+            self.options = list(options)
 
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name)
         context = widget_render_context('ui-creme-dselect', attrs)
-        self.choices = self.options() if callable(self.options) else self.options
+        self.choices = list(self.options()) if callable(self.options) else self.options
 
         return mark_safe(widget_render_input(Select.render, self, name, value, context, url=self.url))
 
