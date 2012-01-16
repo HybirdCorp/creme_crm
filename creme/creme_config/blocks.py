@@ -34,7 +34,7 @@ _PAGE_SIZE = 12
 class GenericModelsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'model_config')
     dependencies  = (CremeModel,)
-    order_by      = 'id'
+    #order_by      = 'id'
     page_size     = _PAGE_SIZE
     verbose_name  = u'Model configuration'
     template_name = 'creme_config/templatetags/block_models.html'
@@ -45,13 +45,14 @@ class GenericModelsBlock(QuerysetBlock):
         #    if 'model', 'model_name' etc... are in the context
         model = context['model']
 
-        #TODO: uncomment when the block is not a singleon any more.... (beware if a 'order' field exists - see template)
-        #try:
-            #self.order_by = model._meta.ordering[0]
-        #except IndexError:
+        try:
+            #self.order_by = model._meta.ordering[0] #TODO: uncomment when the block is not a singleton any more.... (beware if a 'order' field exists - see template)
+            order_by = model._meta.ordering[0]
+        except IndexError:
             #pass
+            order_by = 'id'
 
-        return self._render(self.get_block_template_context(context, model.objects.all(),
+        return self._render(self.get_block_template_context(context, model.objects.order_by(order_by),
                                                             update_url='/creme_config/models/%s/reload/' % ContentType.objects.get_for_model(model).id,
                                                             model=model,
                                                             model_name=context['model_name'],
@@ -94,7 +95,7 @@ class PropertyTypesBlock(_ConfigAdminBlock):
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(context, CremePropertyType.objects.all(),
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                                                            ))
+                                                           ))
 
 
 class RelationTypesBlock(_ConfigAdminBlock):
@@ -107,7 +108,7 @@ class RelationTypesBlock(_ConfigAdminBlock):
         return self._render(self.get_block_template_context(context, RelationType.objects.filter(is_custom=False, pk__contains='-subject_'),
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                                                             custom=False,
-                                                            ))
+                                                           ))
 
 
 class CustomRelationTypesBlock(_ConfigAdminBlock):
