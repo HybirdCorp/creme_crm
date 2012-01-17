@@ -20,8 +20,11 @@ class _BillingTestCase(object):
     def login(self, is_superuser=True, allowed_apps=None, *args, **kwargs):
         super(_BillingTestCase, self).login(is_superuser, allowed_apps=allowed_apps or ['billing'], *args, **kwargs)
 
-    def setUp(self):
-        self.populate('creme_core', 'creme_config', 'billing')
+    #def setUp(self):
+        #self.populate('creme_core', 'creme_config', 'billing')
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'billing')
 
     def genericfield_format_entity(self, entity):
         return '{"ctype":"%s", "entity":"%s"}' % (entity.entity_type_id, entity.id)
@@ -135,6 +138,10 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
 
 
 class VatTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        Vat.objects.all().delete()
+
     def test_create01(self):
         vat01 = Vat.objects.create(value=Decimal('5.0'), is_default=True, is_custom=False)
 

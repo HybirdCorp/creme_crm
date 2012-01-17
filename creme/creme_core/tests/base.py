@@ -35,7 +35,9 @@ class _CremeTestCase(object):
         logged = self.client.login(username=self.user.username, password=password)
         self.assertTrue(logged, 'Not logged in')
 
-    def populate(self, *args):
+    #def populate(self, *args):
+    @classmethod
+    def populate(cls, *args):
         PopulateCommand().handle(application=args)
 
     def assertNoFormError(self, response):

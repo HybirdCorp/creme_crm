@@ -220,7 +220,7 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
 
     def test_add_service_lines01(self):
         self.login()
-        self.populate('products')
+        #self.populate('products')
 
         #simpler to test with 2 super users (do not have to create SetCredentials etc...)
         other_user = self.other_user

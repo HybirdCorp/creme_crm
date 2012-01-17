@@ -25,9 +25,13 @@ __all__ = ('InvoiceTestCase', 'BillingDeleteTestCase')
 
 
 class InvoiceTestCase(_BillingTestCase, CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'persons', 'billing')
+
     def test_createview01(self):
         self.login()
-        self.populate('persons')
+        #self.populate('persons')
 
         self.assertEqual(200, self.client.get('/billing/invoice/add').status_code)
 
@@ -67,9 +71,9 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
 
         name = 'Invoice001'
 
-        source = Organisation.objects.create(user=self.user, name='Source Orga')
-        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=source)
-        #source = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
+        #source = Organisation.objects.create(user=self.user, name='Source Orga')
+        #CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=source)
+        source = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
 
         target = Organisation.objects.create(user=self.user, name='Target Orga')
         target.shipping_address = Address.objects.create(name='ShippingAddr', owner=target)
@@ -143,9 +147,9 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         self.login()
 
         name = 'Invoice001'
-        source = Organisation.objects.create(user=self.user, name='Source Orga')
-        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=source)
-        #source = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
+        #source = Organisation.objects.create(user=self.user, name='Source Orga')
+        #CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=source)
+        source = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
         target = Organisation.objects.create(user=self.user, name='Target Orga')
 
         url = '/billing/invoice/add/%s' % target.id
@@ -490,8 +494,9 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
 
 
 class BillingDeleteTestCase(_BillingTestCase, CremeTransactionTestCase):
-    def setUp(self):
-        _BillingTestCase.setUp(self)
+    def setUp(self): #setUpClass does not work here
+        #_BillingTestCase.setUp(self)
+        self.populate('creme_core', 'creme_config', 'billing')
         self.login()
 
     def test_delete01(self):

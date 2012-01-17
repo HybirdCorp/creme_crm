@@ -20,11 +20,11 @@ __all__ = ('QuoteTestCase',)
 
 class QuoteTestCase(_BillingTestCase, CremeTestCase):
     def setUp(self):
-        _BillingTestCase.setUp(self)
+        #_BillingTestCase.setUp(self)
         self.login()
 
     def test_createview01(self):
-        self.populate('persons')
+        #self.populate('persons')
 
         self.assertEqual(200, self.client.get('/billing/quote/add').status_code)
 
@@ -39,7 +39,7 @@ class QuoteTestCase(_BillingTestCase, CremeTestCase):
         self.assertRelationCount(1, target, REL_SUB_PROSPECT, source)
 
     def test_editview(self):
-        self.populate('persons')
+        #self.populate('persons')
 
         name = 'my quote'
         quote, source, target = self.create_quote_n_orgas(name)

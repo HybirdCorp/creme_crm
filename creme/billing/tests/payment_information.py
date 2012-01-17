@@ -20,7 +20,7 @@ __all__ = ('PaymentInformationTestCase',)
 
 class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
     def setUp(self):
-        _BillingTestCase.setUp(self)
+        #_BillingTestCase.setUp(self)
         self.login()
 
     def test_createview01(self):
