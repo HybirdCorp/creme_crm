@@ -10,8 +10,9 @@ try:
 
     from django.contrib.auth.models import User
     from django.db.models.fields import FieldDoesNotExist
-    from django.utils import translation
-    from django.utils.translation import ugettext_lazy as _, ugettext
+    #from django.utils import translation
+    from django.utils.translation import ugettext as _
+    from django.test.client import RequestFactory
 
     from creme_core.models import CremeEntity, Language
 
@@ -31,12 +32,13 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
     def setUp(self):
         super(InfopathFormBuilderTestCase, self).setUp()
 #        crudity_registry = CRUDityRegistry()
-        self.response = self.client.get('/')#Url doesn't matter
-        self.request  = self.response.context['request']
+        #self.response = self.client.get('/')#Url doesn't matter
+        #self.request  = self.response.context['request']
+        self.request = RequestFactory().get('/') #Url doesn't matter
+        self.request.LANGUAGE_CODE = '1033' #en
 
     def _get_builder(self, backend):
-        builder = InfopathFormBuilder(request=self.request, backend=backend)
-        return builder
+        return InfopathFormBuilder(request=self.request, backend=backend)
 
     def _get_backend(self, backend_klass, **backend_cfg):
         return backend_klass(config=backend_cfg)
@@ -62,10 +64,12 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         backend = self._get_backend(ContactFakeBackend, subject="create_ce")
         builder = self._get_builder(backend)
 
-        translation.activate("fr")
-        response = self.client.get('/')
-        request  = response.context['request']
-        self.assertEqual("1036", builder._get_lang_code(request.LANGUAGE_CODE))
+        #translation.activate("fr")
+        #response = self.client.get('/')
+        #request  = response.context['request']
+
+        #self.assertEqual("1036", builder._get_lang_code(request.LANGUAGE_CODE))
+        self.assertEqual("1036", builder._get_lang_code('fr'))
 
     def test_builder_fields_property(self):
         backend = self._get_backend(ContactFakeBackend, subject="create_contact",
@@ -269,7 +273,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
         for field in builder.fields:
             field_node = xml.find('{%s}%s' % (builder.namespace, field.name))
-            self.assert_(field_node is not None)#Beware : bool(field_node) doesn't work !
+            self.assertIsNotNone(field_node)#Beware : bool(field_node) doesn't work !
             if field.is_nillable:
                 self.assertEqual("true", field_node.get('%(xsi)snil' % d_ns))
 
@@ -306,7 +310,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
         fields_names = set("my:%s" % field_name for field_name in body_map.iterkeys())
         template_nodes = filter(lambda x: x.get('match') == "my:CremeCRMCrudity", xml.findall("%(xsl)stemplate" % d_ns))
-        self.assert_(template_nodes)
+        self.assertTrue(template_nodes)
         when_node = template_nodes[0].find("%(xsl)scopy/%(xsl)schoose/%(xsl)swhen" % d_ns)
         self.assertEqual("my:language", when_node.get('test'))
 
@@ -436,7 +440,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         options = target_node.findall('option')
         self.assertTrue(options)#At least, it must have empty choice
 
-        default_choice_set = set([('my:%s=""' % field_name, ugettext(u"Select..."))])
+        default_choice_set = set([('my:%s=""' % field_name, _(u"Select..."))])
         users_set = set(('my:%s="%s"' % (field_name, user.pk), unicode(user)) for user in User.objects.all()) | default_choice_set
 
         options_set = set((option.find('%(xsl)sif' % d_ns).get('test'), re.search(r'if>(?P<username>.*)</option>', tostring(option, encoding='utf8').decode('utf8')).groupdict()['username']) for option in options)
@@ -569,11 +573,18 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
 
 class InfopathFormFieldTestCase(CrudityTestCase):
+    def setUp(self):
+        super(InfopathFormFieldTestCase, self).setUp()
+        self.request = RequestFactory().get('/') #Url doesn't matter
+        #self.request.LANGUAGE_CODE = '1033' #en
+
     def _get_backend(self, backend_klass, **backend_cfg):
         return backend_klass(config=backend_cfg)
 
     def test_uuid01(self):#uuid for a field has to be unique and the same BY FORM (so by backend)
-        request  = self.client.get('/').context['request']
+        #request  = self.client.get('/').context['request']
+        request  = self.request
+
         #Backend 1
         backend1 = self._get_backend(ContactFakeBackend, subject="create_ce")
         builder1 = InfopathFormBuilder(request=request, backend=backend1)
@@ -606,7 +617,8 @@ class InfopathFormFieldTestCase(CrudityTestCase):
         self.assertEqual(uuid1, uuid4)
 
     def test_get_field01(self):
-        request  = self.client.get('/').context['request']
+        #request  = self.client.get('/').context['request']
+        request  = self.request
         body_map = {'user_id': 1, 'is_actived': True, "first_name": "", "last_name": "",
                     "email": "none@none.com", "description": "", "birthday": ""
                    }
@@ -625,7 +637,8 @@ class InfopathFormFieldTestCase(CrudityTestCase):
         self.assertRaises(FieldDoesNotExist, InfopathFormField, builder.urn, Contact, 'email_id', request)
 
     def test_get_choices01(self):
-        request  = self.client.get('/').context['request']
+        #request  = self.client.get('/').context['request']
+        request  = self.request
         body_map = {'user_id': 1,}
         backend = self._get_backend(ContactFakeBackend, subject="create_contact", body_map=body_map)
         builder = InfopathFormBuilder(request=request, backend=backend)

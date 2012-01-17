@@ -512,7 +512,7 @@ entity
                                            )
         contact_count = Contact.objects.count()
         self.assertEqual(0, WaitingAction.objects.count())
-        self.assertEqual(contact_count, Contact.objects.count())
+        #self.assertEqual(contact_count, Contact.objects.count())
 
         email_input.create(PopEmail(body=u"password=creme\nuser_id=%s\ncreated=01-02-2003\nis_actived=false\nurl_site=plop" % user.id,
                                     senders=('creme@crm.org',), subject="create_contact"
@@ -521,11 +521,10 @@ entity
         self.assertEqual(0, WaitingAction.objects.count())
         self.assertEqual(contact_count + 1, Contact.objects.count())
 
-        ce = Contact.objects.all()[contact_count]
-        self.assertEqual(user, ce.user)
-        self.assertEqual(datetime(year=2003, month=02, day=01), ce.created)
-        self.assertIs(ce.is_actived, False)
-        self.assertEqual("plop", ce.url_site)
+        contact = self.get_object_or_fail(Contact, url_site='plop')
+        self.assertEqual(user, contact.user)
+        self.assertEqual(datetime(year=2003, month=02, day=01), contact.created)
+        self.assertIs(contact.is_actived, False)
 
     def test_get_owner01(self):
         """The sandbox is not by user"""
@@ -534,7 +533,7 @@ entity
         email_input = self._get_email_input(ContactFakeBackend, password=u"creme", subject="create_ce",
                                             body_map={"user_id": user.id}
                                            )
-        self.assertEqual(None, email_input.get_owner(False, sender="user@cremecrm.com"))
+        self.assertIsNone(email_input.get_owner(False, sender="user@cremecrm.com"))
 
     def test_get_owner02(self):
         """The user matches"""
@@ -558,8 +557,9 @@ entity
         user = self.user
         other_user = self.other_user
 
-        contact_user       = Contact.objects.create(is_user=user, user=user, email="user@cremecrm.com")
-        contact_other_user = Contact.objects.create(is_user=other_user, user=other_user, email="other_user@cremecrm.com")
+        create_contact = Contact.objects.create
+        contact_user       = create_contact(is_user=user,       user=user,       email="user@cremecrm.com")
+        contact_other_user = create_contact(is_user=other_user, user=other_user, email="other_user@cremecrm.com")
 
         email_input = self._get_email_input(ContactFakeBackend, password=u"creme", subject="create_ce",
                                             body_map={"user_id": user.id,
@@ -590,20 +590,23 @@ entity
     def test_create_contact01(self):
         """Text mail sandboxed"""
         user = self.user
-        count = Contact.objects.count()
-
         email_input = self._get_email_input(ContactFakeBackend, password=u"creme", subject="create_contact",
-                                            body_map={'user_id': user.id, 'is_actived': True,
-                                                      "first_name":"", "last_name":"",
-                                                      "email": "none@none.com", "description": "",
-                                                      "birthday":"", "created":"", 'url_site': "",
+                                            body_map={'user_id':     user.id,
+                                                      'is_actived':  True,
+                                                      'first_name':  '',
+                                                      'last_name':   '',
+                                                      'email':       "none@none.com",
+                                                      'description': '',
+                                                      'birthday':    '',
+                                                      'created':     '',
+                                                      'url_site':    '',
                                                      },
                                             model=Contact
                                            )
 
-        body = [u"password=creme", "user_id=%s"  % user.id,
-                "created=01/02/2003", "last_name=Bros",
-                "first_name=Mario", "email=mario@bros.com",
+        body = [u"password=creme",           "user_id=%s"  % user.id,
+                "created=01/02/2003",        "last_name=Bros",
+                "first_name=Mario",          "email=mario@bros.com",
                 "url_site=http://mario.com", "birthday=02/08/1987",
                 u"description=[[A plumber]]",
                ]
@@ -620,11 +623,10 @@ entity
         self.assertEqual(expected_data, wa.get_data())
 
         email_input.get_backend(CrudityBackend.normalize_subject("create_contact")).create(wa)
-        contact = Contact.objects.all()[count]
+
+        contact = self.get_object_or_fail(Contact, first_name='Mario', last_name='Bros')
         self.assertEqual(user, contact.user)
         self.assertEqual(datetime(year=2003, month=02, day=01), contact.created)
-        self.assertEqual("Bros", contact.last_name)
-        self.assertEqual("Mario", contact.first_name)
         self.assertEqual("mario@bros.com", contact.email)
         self.assertEqual("http://mario.com", contact.url_site)
         self.assertIs(contact.is_actived, True)
