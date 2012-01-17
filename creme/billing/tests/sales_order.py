@@ -22,7 +22,7 @@ __all__ = ('SalesOrderTestCase',)
 
 class SalesOrderTestCase(_BillingTestCase, CremeTestCase):
     def setUp(self):
-        _BillingTestCase.setUp(self)
+        #_BillingTestCase.setUp(self)
         self.login()
 
     def create_salesorder(self, name, source, target, currency=None, status=None): #TODO useful ??

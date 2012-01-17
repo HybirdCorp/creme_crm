@@ -30,19 +30,23 @@ except Exception as e:
 
 
 class OpportunitiesTestCase(CremeTestCase):
-    #def _create_tax(self, vat):
-        #if not Vat.objects.filter(value=vat).exists():
-            #if vat == Decimal('19.60'):
-                #Vat.objects.create(value=vat, is_default=True, is_custom=False)
-            #else:
-                #Vat.objects.create(value=vat, is_custom=False)
+    ##def _create_tax(self, vat):
+        ##if not Vat.objects.filter(value=vat).exists():
+            ##if vat == Decimal('19.60'):
+                ##Vat.objects.create(value=vat, is_default=True, is_custom=False)
+            ##else:
+                ##Vat.objects.create(value=vat, is_custom=False)
 
-    def setUp(self):
-        #self.populate('creme_core', 'creme_config', 'documents', 'persons', 'commercial', 'billing', 'activities', 'opportunities')
-        self.populate('creme_core', 'creme_config', 'persons', 'billing', 'activities', 'opportunities')
+    #def setUp(self):
+        ##self.populate('creme_core', 'creme_config', 'documents', 'persons', 'commercial', 'billing', 'activities', 'opportunities')
+        #self.populate('creme_core', 'creme_config', 'persons', 'billing', 'activities', 'opportunities')
 
-        #for vat in ['0.0','5.50', '7.0', '19.60']:
-            #self._create_tax(Decimal(vat))
+        ##for vat in ['0.0','5.50', '7.0', '19.60']:
+            ##self._create_tax(Decimal(vat))
+
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'documents', 'persons', 'commercial', 'billing', 'activities', 'opportunities')
 
     def genericfield_format_entity(self, entity):
         return '{"ctype":"%s", "entity":"%s"}' % (entity.entity_type_id, entity.id)
@@ -678,6 +682,10 @@ class OpportunitiesTestCase(CremeTestCase):
 
 
 class SalesPhaseTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        SalesPhase.objects.all().delete()
+
     def test_create_n_order(self):
         create_phase = SalesPhase.objects.create
         sp1 = create_phase(name='Forthcoming', description='...', order=2)

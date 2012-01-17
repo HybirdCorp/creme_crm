@@ -24,9 +24,13 @@ __all__ = ('ConvertTestCase',)
 
 
 class ConvertTestCase(_BillingTestCase, CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'persons', 'billing')
+
     def test_convert01(self):
         self.login()
-        self.populate('persons')
+        #self.populate('persons')
 
         quote, source, target = self.create_quote_n_orgas('My Quote')
         self.assertFalse(Invoice.objects.count())
