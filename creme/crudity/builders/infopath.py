@@ -27,7 +27,6 @@ import subprocess
 from tempfile import gettempdir
 from itertools import chain
 from unicodedata import normalize
-from crudity.backends.models import CrudityBackend
 
 try:
     from cStringIO import StringIO
@@ -47,9 +46,10 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.models import fields
 from creme_core.utils.meta import is_date_field
 
-from crudity.utils import generate_guid_for_field
+from media_managers.models import Image
 
-from media_managers.models.image import Image
+from crudity.utils import generate_guid_for_field
+from crudity.backends.models import CrudityBackend
 
 #Don't forget to include xml templates when generating locales !! (django-admin.py makemessages -l fr -e html,xml)
 

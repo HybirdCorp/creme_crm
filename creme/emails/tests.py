@@ -237,8 +237,12 @@ class MailingListsTestCase(CremeTestCase):
                       create(user=self.user, first_name='Jet',   last_name='Black',   email='jet.black@bebop.com'),
                      ]
         response = self.client.post(url, data={})
+        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
-        self.assertEqual(set(c.id for c in recipients), set(c.id for c in mlist.contacts.all()))
+        #self.assertEqual(set(c.id for c in recipients), set(c.id for c in mlist.contacts.all()))
+        contacts = set(Contact.objects.all())
+        self.assertGreaterEqual(len(contacts), 2)
+        self.assertEqual(contacts, set(mlist.contacts.all()))
 
     def test_ml_contacts_filter02(self): #A true filter
         create = Contact.objects.create
@@ -310,8 +314,12 @@ class MailingListsTestCase(CremeTestCase):
                       create(user=self.user, name='Seele', email='contact@seele.jp')
                      ]
         response = self.client.post(url, data={})
+        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
-        self.assertEqual(set(c.id for c in recipients), set(c.id for c in mlist.organisations.all()))
+        #self.assertEqual(set(c.id for c in recipients), set(c.id for c in mlist.organisations.all()))
+        orgas = set(Organisation.objects.all())
+        self.assertGreaterEqual(len(orgas), 2)
+        self.assertEqual(orgas, set(mlist.organisations.all()))
 
     def test_ml_orgas_filter02(self): #"true" Filter
         mlist = MailingList.objects.create(user=self.user, name='ml01')
