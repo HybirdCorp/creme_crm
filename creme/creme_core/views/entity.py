@@ -20,6 +20,7 @@
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, FieldDoesNotExist, ForeignKey
+from django.db.models.fields.related import ManyToManyField
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.core import serializers
@@ -233,6 +234,8 @@ def get_widget(request, ct_id):
                 initial_value = getattr(entity.get_real_entity(), field_name)
                 if isinstance(model._meta.get_field(field_name), ForeignKey) and initial_value is not None:
                     initial_value = initial_value.id
+                elif isinstance(model._meta.get_field(field_name), ManyToManyField) and initial_value is not None:
+                    initial_value = initial_value.all().values_list('id', flat=True)
 
     rendered = None
 
