@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,11 +43,7 @@ class OpportunityEditForm(CremeEntityForm):
 
 class OpportunityCreateForm(OpportunityEditForm):
     target    = GenericEntityField(label=_(u"Target organisation / contact"), models=[Organisation, Contact], required=True)
-    emit_orga = ModelChoiceField(label=_(u"Concerned organisation"), queryset=Organisation.objects.none())
-
-    def __init__(self, *args, **kwargs):
-        super(OpportunityCreateForm, self).__init__(*args, **kwargs)
-        self.fields['emit_orga'].queryset = Organisation.get_all_managed_by_creme() #TODO: can we move the queryset in the field directly ??
+    emit_orga = ModelChoiceField(label=_(u"Concerned organisation"), queryset=Organisation.get_all_managed_by_creme())
 
     def clean_target(self):
         return validate_linkable_entity(self.cleaned_data['target'], self.user)
@@ -57,7 +53,6 @@ class OpportunityCreateForm(OpportunityEditForm):
 
     def save(self, *args, **kwargs):
         instance = self.instance
-        created  = not bool(instance.pk) #TODO: CreateForm -> always true no ?!
 
         super(OpportunityCreateForm, self).save(*args, **kwargs)
 
@@ -66,6 +61,6 @@ class OpportunityCreateForm(OpportunityEditForm):
         instance.link_to_emit_orga(cleaned_data['emit_orga'])
         transform_target_into_prospect(cleaned_data['emit_orga'],cleaned_data['target'],instance.user)
 
-        form_post_save.send(sender=Opportunity, instance=instance, created=created)
+        form_post_save.send(sender=Opportunity, instance=instance, created=True)
 
         return instance
