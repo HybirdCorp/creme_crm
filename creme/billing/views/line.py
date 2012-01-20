@@ -29,18 +29,14 @@ from creme_core.utils import jsonify
 from creme_core.views.generic import add_to_entity, list_view, edit_model_with_popup
 
 from billing.models import Line, ProductLine, ServiceLine
-from billing.forms.line import (ProductLineOnTheFlyForm, ServiceLineOnTheFlyForm, LineEditForm, ServiceLineForm,
-                               ProductLineForm, ProductLineMultipleAddForm, ServiceLineMultipleAddForm)
+from billing.forms.line import (ProductLineOnTheFlyForm, ServiceLineOnTheFlyForm, LineEditForm,
+                                ProductLineMultipleAddForm, ServiceLineMultipleAddForm)
 
-#TODO: clean the unused views (and urls too)
 
 @login_required
 @permission_required('billing')
 def _add_line(request, form_class, document_id):
     return add_to_entity(request, document_id, form_class, _(u"New line in the document <%s>"))
-
-def add_product_line(request, document_id):
-    return _add_line(request, ProductLineForm, document_id)
 
 @login_required
 @permission_required('billing')
@@ -50,9 +46,6 @@ def add_multiple_product_line(request, document_id):
 def add_product_line_on_the_fly(request, document_id):
     return _add_line(request, ProductLineOnTheFlyForm, document_id)
 
-def add_service_line(request, document_id):
-    return _add_line(request, ServiceLineForm, document_id)
-
 @login_required
 @permission_required('billing')
 def add_multiple_service_line(request, document_id):
@@ -61,50 +54,13 @@ def add_multiple_service_line(request, document_id):
 def add_service_line_on_the_fly(request, document_id):
     return _add_line(request, ServiceLineOnTheFlyForm, document_id)
 
-# commented on 25/11/2011 no longer used. Only in line edit is possible for lines (exception for comment that keeps the old way for edition)
-#@login_required
-#@permission_required('billing')
-#def _edit_line(request, line_model, line_id):
-#    line     = get_object_or_404(line_model, pk=line_id)
-#    document = line.related_document
-#    user = request.user
-#
-#    document.can_change_or_die(user)
-#
-#    form_class = line.get_edit_form()
-#
-#    if request.method == 'POST':
-#        line_form = form_class(entity=document, user=user, data=request.POST, instance=line)
-#
-#        if line_form.is_valid():
-#            line_form.save()
-#    else:
-#        line_form = form_class(entity=document, user=user, instance=line)
-#
-#    return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
-#                       {
-#                        'form':   line_form,
-#                        'title':  _(u"Edition of a line in the document <%s>") % document,
-#                       },
-#                       is_valid=line_form.is_valid(),
-#                       reload=False,
-#                       delegate_reload=True,
-#                       context_instance=RequestContext(request)
-#                      )
-
-#def edit_productline(request, line_id):
-#    return _edit_line(request, ProductLine, line_id)
-#
-#def edit_serviceline(request, line_id):
-#    return _edit_line(request, ServiceLine, line_id)
-
 def edit_line(request, line_id):
     return edit_model_with_popup(request, {'pk': line_id}, Line, LineEditForm)
 
 @jsonify
 @login_required
 @permission_required('billing')
-def update(request, line_id):
+def edit_inner_line(request, line_id):
     if request.method != 'POST':
         raise Http404('This view uses POST method')
 

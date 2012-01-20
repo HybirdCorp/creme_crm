@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,13 +32,8 @@ from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from persons.models import Contact, Organisation
 from persons.blocks import AddressBlock
 
-#from billing.models import (ProductLine, ServiceLine, Invoice, CreditNote, SalesOrder, Quote, PaymentInformation, Base,
-                            #PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE, TemplateBase)
 from billing.models import *
 from billing.models.line import PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
-#from billing.constants import (REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED, REL_SUB_BILL_ISSUED,
-                               #REL_OBJ_BILL_ISSUED, REL_OBJ_HAS_LINE, REL_SUB_HAS_LINE,
-                               #DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA)
 from billing.constants import *
 
 
@@ -57,7 +52,7 @@ class BillingBlock(SimpleBlock):
 #   queryset of lines : we retrieve all the lines to compute the totals any way.
 class ProductLinesBlock(PaginatedBlock):
     id_           = PaginatedBlock.generate_id('billing', 'product_lines')
-    dependencies  = (ProductLine, Relation)
+    dependencies  = (ProductLine, Relation, Base, CreditNote, Quote, Invoice, SalesOrder)
     verbose_name  = _(u'Product lines')
     template_name = 'billing/templatetags/block_product_line.html'
     relation_type_deps = (REL_SUB_HAS_LINE, )
@@ -65,6 +60,8 @@ class ProductLinesBlock(PaginatedBlock):
 
     def detailview_display(self, context):
         document = context['object']
+        for i, product_line in enumerate(document.product_lines, start=1):
+            product_line.number = i
         return self._render(self.get_block_template_context(context, document.product_lines,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
                                                             ct_id=ContentType.objects.get_for_model(ProductLine).id,
@@ -75,7 +72,7 @@ class ProductLinesBlock(PaginatedBlock):
 
 class ServiceLinesBlock(PaginatedBlock):
     id_           = PaginatedBlock.generate_id('billing', 'service_lines')
-    dependencies  = (ServiceLine, Relation)
+    dependencies  = (ServiceLine, Relation, Base, CreditNote, Quote, Invoice, SalesOrder)
     verbose_name  = _(u'Service lines')
     template_name = 'billing/templatetags/block_service_line.html'
     relation_type_deps = (REL_SUB_HAS_LINE, )
@@ -83,6 +80,8 @@ class ServiceLinesBlock(PaginatedBlock):
 
     def detailview_display(self, context):
         document = context['object']
+        for i, service_line in enumerate(document.service_lines, start=1):
+            service_line.number = i
         return self._render(self.get_block_template_context(context, document.service_lines,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
                                                             ct_id=ContentType.objects.get_for_model(ServiceLine).id,

@@ -33,7 +33,11 @@ class InvoiceCreateForm(BaseCreateForm):
     def __init__(self, *args, **kwargs):
         super(InvoiceCreateForm, self).__init__(*args, **kwargs)
 
-        self.fields['status'].queryset = InvoiceStatus.objects.filter(pk=DEFAULT_DRAFT_INVOICE_STATUS)
+        status_field = self.fields['status']
+        queryset = InvoiceStatus.objects.filter(pk=DEFAULT_DRAFT_INVOICE_STATUS)
+
+        status_field.queryset = queryset
+        status_field.initial = queryset[0]
 
     def save(self, *args, **kwargs):
         instance = super(InvoiceCreateForm, self).save(*args, **kwargs)
