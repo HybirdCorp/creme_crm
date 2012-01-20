@@ -17,6 +17,12 @@ __all__ = ('BlockTestCase',)
 
 
 class BlockTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        BlockDetailviewLocation.objects.all().delete()
+        BlockPortalLocation.objects.all().delete()
+        BlockMypageLocation.objects.all().delete()
+
     def test_populate(self):
         self.populate('creme_core')
 

@@ -14,6 +14,12 @@ except Exception as e:
 
 
 class CremeBlockTagsTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        BlockDetailviewLocation.objects.all().delete()
+        BlockPortalLocation.objects.all().delete()
+        BlockMypageLocation.objects.all().delete()
+
     def test_import_n_display_block(self):
         blockstr = '<div>FOOBAR</div>'
 
