@@ -40,14 +40,14 @@
             </tr>
             {% for line in page.object_list %}<!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
                 {% with object.currency.pk as currency_id %}
-                    <tr class="content" name="tr_line_{{ line.id }}" id="tr_line_{{ line.id }}" method="POST" action="/billing/line/{{line.id}}/update">
+                    <tr class="content" name="tr_line_{{ line.id }}" id="tr_line_{{ line.id }}" method="POST" action="/billing/line/{{line.id}}/edit_inner">
                             <td class="{{row_color}}" align="center">
                                 <input name="select_one" value="{{line.pk}}" type="checkbox" />
                             </td>
                             <td class="{{row_color}}" align="center">
                                 {% csrf_token %}
-                                <input type="hidden" id="line_number" value="{{ forloop.counter }}">
-                                {{ forloop.counter }}
+                                <input type="hidden" id="line_number" value="{{ line.number }}">
+                                {{ line.number }}
                             </td>
                             <td class="{{row_color}}" align="center">
                                 {% if line.related_item %}

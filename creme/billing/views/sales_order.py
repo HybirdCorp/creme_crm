@@ -18,12 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
+from django.utils.translation import ugettext as _
 
 from creme_core.views.generic import add_entity, edit_entity, list_view, view_entity
 
 from billing.models import SalesOrder
+from billing.views.workflow import _add_with_relations
 from billing.forms.sales_order import SalesOrderCreateForm, SalesOrderEditForm
 
 
@@ -32,6 +33,12 @@ from billing.forms.sales_order import SalesOrderCreateForm, SalesOrderEditForm
 @permission_required('billing.add_salesorder')
 def add(request):
     return add_entity(request, SalesOrderCreateForm)
+
+@login_required
+@permission_required('billing')
+@permission_required('billing.add_salesorder')
+def add_with_relations(request, target_id, source_id):
+    return _add_with_relations(request, target_id, source_id, SalesOrderCreateForm, _(u"Add a sales order for <%s>"))
 
 @login_required
 @permission_required('billing')

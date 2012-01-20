@@ -62,16 +62,12 @@ class _LineTypeField(FunctionField):
 class Line(CremeEntity):
     on_the_fly_item = CharField(_(u'On-the-fly line'), max_length=100, blank=False, null=True)
     comment         = TextField(_('Comment'), blank=True, null=True)
-#    quantity        = IntegerField(_(u'Quantity'), blank=False, null=False, default=1)
     quantity        = DecimalField(_(u'Quantity'), max_digits=10, decimal_places=2, default=default_quantity)
     unit_price      = DecimalField(_(u'Unit price'), max_digits=10, decimal_places=2, default=default_decimal)
     discount        = DecimalField(_(u'Discount'), max_digits=10, decimal_places=2, default=default_decimal)
     discount_unit   = PositiveIntegerField(_(u'Discount Unit'), blank=True, null=True, default=PERCENT_PK)
-#    credit          = DecimalField(_(u'Credit'), max_digits=10, decimal_places=2, default=default_decimal)
     total_discount  = BooleanField(_('Total discount ?'))
-#    vat             = DecimalField(_(u'VAT'), max_digits=4, decimal_places=2, default=DEFAULT_VAT)
     vat_value       = ForeignKey(Vat, verbose_name=_(u'VAT'), blank=True, null=True)
-#    is_paid         = BooleanField(_(u'Paid ?'))
     type            = IntegerField(_(u'Type'), blank=False, null=False, choices=LINE_TYPES.items(), editable=False)
 
     excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['type']
@@ -99,7 +95,7 @@ class Line(CremeEntity):
         self._new_related_document = new_related_document or self.related_document
 
         #NB: not "super(Line, self).clone()", because it copies our 2 internal relations
-        #TODO: change when internal relartions are excluded in CremeEntity._copy_relations()
+        #TODO: change when internal relations are excluded in CremeEntity._copy_relations()
         return self._clone_object()
 
     def get_price_inclusive_of_tax(self):
@@ -129,11 +125,9 @@ class Line(CremeEntity):
         else:
             total_after_first_discount = self.quantity * (unit_price_line - discount_line)
 
-        #TODO: factorise "total_exclusive_of_tax = total_after_first_discount"
+        total_exclusive_of_tax = total_after_first_discount
         if discount_document:
-            total_exclusive_of_tax = total_after_first_discount - (total_after_first_discount * discount_document / 100)
-        else:
-            total_exclusive_of_tax = total_after_first_discount
+            total_exclusive_of_tax -= total_after_first_discount * discount_document / 100
 
         return round_to_2(total_exclusive_of_tax)
 
@@ -177,43 +171,21 @@ class Line(CremeEntity):
     @staticmethod
     def is_discount_valid(unit_price, quantity, discount_value, discount_unit, discount_type):
         if discount_unit == PERCENT_PK:
-            if not (0 <= discount_value <= 100):
-                return False
-        else: # amount �/$/...
-            #TODO: factorise "if discount_type"
-            if discount_type and discount_value > unit_price * quantity: # Global discount 
-                return False
-            if not discount_type and discount_value > unit_price: # Unitary discount
-                return False
+            return 0 <= discount_value <= 100
+        else: # amount €/$/...
+            if discount_type: # Global discount
+                return not (discount_value > unit_price * quantity)
+            else: # Unitary discount
+                return not (discount_value > unit_price)
 
         return True
-
-    #TODO: the mapping Product -> ProductLine should be here
-    #TODO: carappy optional_infos_map...
-    #TODO: generate_lineS ??
-    @staticmethod
-    def generate_lines(klass, item, document, user, optional_infos_map=None):
-        new_line = klass()
-
-        new_line.unit_price = item.unit_price
-        new_line.user       = user
-
-        if optional_infos_map:
-            new_line.quantity = optional_infos_map['quantity']
-            new_line.discount = optional_infos_map['discount_value']
-            new_line.vat_value = optional_infos_map['vat_value']
-        else:
-            new_line.vat_value  = Vat.get_default_vat()
-
-        new_line.save()
-
-        new_line.related_item     = item
-        new_line.related_document = document
 
     def save(self, *args, **kwargs):
         if not self.pk: #creation
             assert self._related_document, 'Line.related_document is required'
-            assert self._related_item or self.on_the_fly_item, 'Line.related_item or Line.on_the_fly_item is required'
+            assert bool(self._related_item) ^ bool(self.on_the_fly_item), 'Line.related_item or Line.on_the_fly_item is required'
+
+            self.user = self._related_document.user
 
             super(Line, self).save(*args, **kwargs)
 

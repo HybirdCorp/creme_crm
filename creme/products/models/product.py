@@ -33,7 +33,7 @@ from other_models import Category, SubCategory
 
 class Product(CremeEntity):
     name              = CharField(_(u'Name'), max_length=100)
-    code              = IntegerField(_(u'Code'))
+    code              = IntegerField(_(u'Code'), default=0)
     description       = CharField(_(u'Description'), max_length=200)
     quantity_per_unit = IntegerField(_(u'Quantity/Unit'), blank=True, null=True)
     unit_price        = DecimalField(_(u'Unit price'), max_digits=8, decimal_places=2)
