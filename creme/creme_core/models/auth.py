@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,27 +35,26 @@ from creme_core.registry import creme_registry
 from creme_core.utils.contribute_to_model import contribute_to_model
 
 
-NO_CRED = ''
-VIEW    = 'v'
-CHANGE  = 'c'
-DELETE  = 'd'
-LINK    = 'l'
-UNLINK  = 'u'
-ALL_CREDS = ''.join((VIEW, CHANGE, DELETE, LINK, UNLINK))
-
-CRED_MAP = { #private ? inner ??
-        'creme_core.view_entity':   VIEW,
-        'creme_core.change_entity': CHANGE,
-        'creme_core.delete_entity': DELETE,
-        'creme_core.link_entity':   LINK,
-        'creme_core.unlink_entity': UNLINK,
-    }
-
-
 class EntityCredentials(Model):
     entity = ForeignKey(CremeEntity, null=True, related_name='credentials') #NB: null means: default credentials
     user   = ForeignKey(User, null=True)
     value  = CharField(max_length='5')
+
+    NO_CRED = ''
+    VIEW    = 'v'
+    CHANGE  = 'c'
+    DELETE  = 'd'
+    LINK    = 'l'
+    UNLINK  = 'u'
+    ALL_CREDS = ''.join((VIEW, CHANGE, DELETE, LINK, UNLINK))
+
+    CRED_MAP = {
+            'creme_core.view_entity':   VIEW,
+            'creme_core.change_entity': CHANGE,
+            'creme_core.delete_entity': DELETE,
+            'creme_core.link_entity':   LINK,
+            'creme_core.unlink_entity': UNLINK,
+        }
 
     class Meta:
         app_label = 'creme_core'
@@ -79,17 +78,17 @@ class EntityCredentials(Model):
         return self.has_perm('creme_core.view_entity') #constant ??
 
     def has_perm(self, perm):
-        return CRED_MAP.get(perm) in self.value
+        return self.CRED_MAP.get(perm) in self.value
 
     @staticmethod
     def _build_credentials(view=False, change=False, delete=False, link=False, unlink=False):
         cred = ''
 
-        if view:    cred += VIEW
-        if change:  cred += CHANGE
-        if delete:  cred += DELETE
-        if link:    cred += LINK
-        if unlink:  cred += UNLINK
+        if view:    cred += EntityCredentials.VIEW
+        if change:  cred += EntityCredentials.CHANGE
+        if delete:  cred += EntityCredentials.DELETE
+        if link:    cred += EntityCredentials.LINK
+        if unlink:  cred += EntityCredentials.UNLINK
 
         return cred
 
@@ -124,16 +123,17 @@ class EntityCredentials(Model):
                 create_creds(user=user, entity=entity, value=buildc(*role.get_perms(user, entity)))
 
     @staticmethod
-    def filter(user, queryset): #give wanted perm ???
+    def filter(user, queryset, perm=VIEW):
         """Filter a Queryset of CremeEntities with their 'view' credentials.
         @param queryset A Queryset on CremeEntity models (better if not yet retrieved).
+        @param perm A value in: VIEW, CHANGE, DELETE, LINK, UNLINK [TODO: allow combination]
         @return A new Queryset on CremeEntity, more selective (not retrieved).
         """
         if not user.is_superuser:
-            query = Q(credentials__user=user, credentials__value__contains=VIEW)
+            query = Q(credentials__user=user, credentials__value__contains=perm)
 
-            default = EntityCredentials.get_default_creds() #cache ???
-            if default.has_perm('creme_core.view_entity'):
+            default = EntityCredentials.get_default_creds() #TODO: cache
+            if perm in default.value:
                 query |= Q(credentials__isnull=True)
 
             queryset = queryset.filter(query)
@@ -147,7 +147,7 @@ class EntityCredentials(Model):
         @return A new Queryset on Relation, more selective (not retrieved).
         """
         if not user.is_superuser:
-            query = Q(object_entity__credentials__user=user, object_entity__credentials__value__contains=VIEW)
+            query = Q(object_entity__credentials__user=user, object_entity__credentials__value__contains=EntityCredentials.VIEW)
 
             default = EntityCredentials.get_default_creds() #cache ???
             if default.has_perm('creme_core.view_entity'):
@@ -172,13 +172,14 @@ class EntityCredentials(Model):
             return {}
 
         if user.is_superuser:
+            ALL_CREDS = EntityCredentials.ALL_CREDS
             return dict((e.id, EntityCredentials(entity=e, user=user, value=ALL_CREDS)) for e in entities)
 
         #NB: "e.id" instead of "e"  => avoid one parasit query by entity (ORM bug ??)
         creds_map = dict((creds.entity_id, creds) for creds in EntityCredentials.objects.filter(Q(entity__isnull=True) | Q(entity__in=[e.id for e in entities], user=user)))
 
         default_creds = creds_map.pop(None, None)
-        default_value = default_creds.value if default_creds else NO_CRED
+        default_value = default_creds.value if default_creds else EntityCredentials.NO_CRED
 
         for entity in entities:
             creds = creds_map.get(entity.id)
@@ -192,7 +193,7 @@ class EntityCredentials(Model):
     def get_default_creds():
         defaults = EntityCredentials.objects.filter(entity__isnull=True)[:1] #get ???
 
-        return defaults[0] if defaults else EntityCredentials(entity=None, value=NO_CRED)
+        return defaults[0] if defaults else EntityCredentials(entity=None, value=EntityCredentials.NO_CRED)
 
     @staticmethod
     def set_default_perms(view=False, change=False, delete=False, link=False, unlink=False):
@@ -245,31 +246,31 @@ class UserRole(Model):
 
         super(UserRole, self).delete()
 
-    def _get_admin_4_apps(self):
+    @property
+    def admin_4_apps(self):
         if self._admin_4_apps is None:
             self._admin_4_apps = set(app_name for app_name in self.raw_admin_4_apps.split('\n') if app_name)
 
         return self._admin_4_apps
 
-    def _set_admin_4_apps(self, apps):
+    @admin_4_apps.setter
+    def admin_4_apps(self, apps):
         """@param apps Sequence of app labels (strings)"""
         self._admin_4_apps = set(apps)
         self.raw_admin_4_apps = '\n'.join(apps)
 
-    admin_4_apps = property(_get_admin_4_apps, _set_admin_4_apps); del _get_admin_4_apps, _set_admin_4_apps
-
-    def _get_allowed_apps(self):
+    @property
+    def allowed_apps(self):
         if self._allowed_apps is None:
             self._allowed_apps = set(app_name for app_name in self.raw_allowed_apps.split('\n') if app_name)
 
         return self._allowed_apps
 
-    def _set_allowed_apps(self, apps):
+    @allowed_apps.setter
+    def allowed_apps(self, apps):
         """@param apps Sequence of app labels (strings)"""
         self._allowed_apps = set(apps)
         self.raw_allowed_apps = '\n'.join(apps)
-
-    allowed_apps = property(_get_allowed_apps, _set_allowed_apps); del _get_allowed_apps, _set_allowed_apps
 
     def is_app_allowed_or_administrable(self, app_name):
         return (app_name in self.allowed_apps) or (app_name in self.admin_4_apps)
@@ -447,7 +448,23 @@ class UserProfile(Model):
     def __unicode__(self):
         return self.username if not self.is_team else ugettext('%s (team)') % self.username
 
-    def _set_teammates(self, users):
+    @property     #NB notice that cache and credentials are well updated when using this property
+    def teammates(self):
+        if not self.is_team:
+            raise ValueError('User.get_teammates() works only if user.is_team == True ')
+
+        teammates = self._teammates
+
+        if teammates is None:
+            debug('User.teammates: Cache MISS for user_id=%s', self.id)
+            self._teammates = teammates = dict((u.id, u) for u in User.objects.filter(team_m2m__team=self))
+        else:
+            debug('User.teammates: Cache HIT for user_id=%s', self.id)
+
+        return teammates
+
+    @teammates.setter
+    def teammates(self, users):
         if not self.is_team:
             raise ValueError('User.add_teammate() works only if user.is_team == True ')
         assert not any(user.is_team for user in users)
@@ -470,23 +487,6 @@ class UserProfile(Model):
             user.update_credentials(entities)
 
         self._teammates = None #clear cache (we could rebuild it but ...)
-
-    def _get_teammates(self):
-        if not self.is_team:
-            raise ValueError('User.get_teammates() works only if user.is_team == True ')
-
-        teammates = self._teammates
-
-        if teammates is None:
-            debug('User.teammates: Cache MISS for user_id=%s', self.id)
-            self._teammates = teammates = dict((u.id, u) for u in User.objects.filter(team_m2m__team=self))
-        else:
-            debug('User.teammates: Cache HIT for user_id=%s', self.id)
-
-        return teammates
-
-    #NB notice that cache and credentials are well updated when using this property
-    teammates = property(_get_teammates, _set_teammates); del (_get_teammates, _set_teammates)
 
     def has_perm_to_admin(self, app_name):
         return self.has_perm('%s.can_admin' % app_name)
