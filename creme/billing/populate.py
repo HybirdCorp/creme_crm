@@ -40,7 +40,7 @@ from products.models import Product, Service
 from billing.models import *
 from billing.constants import *
 from billing.blocks import *
-from billing.buttons import generate_invoice_number_button
+from billing.buttons import *
 
 
 class Populator(BasePopulator):
@@ -171,6 +171,15 @@ class Populator(BasePopulator):
             efilter.set_conditions([EntityFilterCondition.build_4_field(model=Invoice, operator=EntityFilterCondition.EQUALS_NOT, name='status', values=[resulted.pk, resulted_collection.pk]),
                                     EntityFilterCondition.build_4_date(model=Invoice, name='expiration_date', date_range='in_past'),
                                    ])
+
+        create_bmi = ButtonMenuItem.create_if_needed
+        create_bmi(pk='persons-quote_orga_button',      model=Organisation, button=add_related_quote,      order=100)
+        create_bmi(pk='persons-salesorder_orga_button', model=Organisation, button=add_related_salesorder, order=101)
+        create_bmi(pk='persons-invoice_orga_button',    model=Organisation, button=add_related_invoice,    order=102)
+
+        create_bmi(pk='persons-quote_contact_button',       model=Contact, button=add_related_quote,      order=100)
+        create_bmi(pk='persons-salesorder_contact_button',  model=Contact, button=add_related_salesorder, order=101)
+        create_bmi(pk='persons-invoice_contact_button',     model=Contact, button=add_related_invoice,    order=102)
 
         models = (Invoice, CreditNote, Quote, SalesOrder)
 
