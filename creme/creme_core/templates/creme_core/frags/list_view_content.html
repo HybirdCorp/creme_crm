@@ -73,6 +73,9 @@
                     <a {% if creation_perm %}href="/creme_core/list_view/import_csv/{{content_type_id}}?list_url={{request.path}}"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
                         <img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{% trans "Import CSV" %}" title="{% trans "Import CSV" %}"/>{% trans "Import CSV" %}
                     </a>&nbsp;
+                    <a href="/creme_core/list_view/batch_process/{{content_type_id}}">
+                        <img border="0" src="{% creme_media_url 'images/batch_process_22.png' %}" alt="{% trans "Batch process" %}" title="{% trans "Batch process" %}"/>{% trans "Batch process" %}
+                    </a>&nbsp;
                 {% endif %}
                 <button class="clear-search" value="0" type="button" name="_search"{% if not search %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %}>{% trans "Clean the search" %}</button>
                 <button class="do-search"    value="1" type="button" name="_search" onclick="$(this.form).list_view('getSubmit')(this);"><img border="0" src="{% creme_media_url 'images/looking_glass_22.png' %}" alt="{% trans "Research" %}" title="{% trans "Research" %}"/>{% trans "Research" %}</button>

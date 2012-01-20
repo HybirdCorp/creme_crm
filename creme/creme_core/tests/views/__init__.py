@@ -10,3 +10,4 @@ from search import *
 from csv_export import *
 from csv_import import *
 from blocks import *
+from batch_process import *
