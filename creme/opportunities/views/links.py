@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -58,8 +58,7 @@ def set_current_quote(request, opp_id, quote_id):
                            )
 
     if opp.use_current_quote:
-        opp.estimated_sales = quote.get_total()
-        opp.save()
+        opp.update_estimated_sales(quote)
 
     if request.is_ajax():
         return HttpResponse("", mimetype="text/javascript")

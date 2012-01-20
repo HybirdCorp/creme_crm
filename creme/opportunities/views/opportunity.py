@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,6 +24,7 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
+from billing.models.other_models import Vat
 
 from creme_core.models import Relation, CremeEntity
 from creme_core.views.generic import add_entity, add_model_with_popup, edit_entity, view_entity, list_view
@@ -139,12 +140,11 @@ def generate_new_doc(request, opp_id, ct_id):
 
     for relation in relations:
         item = relation.object_entity.get_real_entity()
-        if isinstance(item, Product):
-            Line.generate_lines(ProductLine, item, document, user)
-        elif isinstance(item, Service):
-            Line.generate_lines(ServiceLine, item, document, user)
-
-    document.save() #TODO: may be removed
+        line_klass = ProductLine if isinstance(item, Product) else ServiceLine
+        line_klass.objects.create(related_item=item,
+                                  related_document=document,
+                                  unit_price=item.unit_price,
+                                  vat_value=Vat.get_default_vat())
 
     for relation in Relation.objects.filter(object_entity=opp.id, type=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct_doc):
         relation.delete()
@@ -152,8 +152,7 @@ def generate_new_doc(request, opp_id, ct_id):
     if _CURRENT_DOC_DICT[klass]:
         create_relation(subject_entity=document, type_id=REL_SUB_CURRENT_DOC, object_entity=opp, user=user)
         if opp.use_current_quote:
-            opp.estimated_sales = document.get_total()
-            opp.save()
+            opp.update_estimated_sales(document)
 
     workflow_action = _WORKFLOW_DICT[klass]
     if workflow_action:

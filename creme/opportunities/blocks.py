@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@ from persons.models import Contact, Organisation
 from products.models import Product, Service
 
 from billing.models import Quote, Invoice, SalesOrder
-from billing.blocks import ProductLinesBlock, ServiceLinesBlock, TotalBlock, TargetBlock
+from billing.blocks import TotalBlock, TargetBlock
 
 from opportunities.constants import *
 from opportunities.models import Opportunity
@@ -163,15 +163,15 @@ class TargettingOpportunitiesBlock(_LinkedStuffBlock):
     def _get_queryset(self, entity):
         return Opportunity.objects.filter(relations__object_entity=entity.id, relations__type=REL_SUB_TARGETS)
 
-
-class OppProductLinesBlock(ProductLinesBlock):
-    id_           = ProductLinesBlock.generate_id('opportunities', 'product_lines')
-    target_ctypes = (Opportunity,)
-
-
-class OppServiceLinesBlock(ServiceLinesBlock):
-    id_           = ServiceLinesBlock.generate_id('opportunities', 'service_lines')
-    target_ctypes = (Opportunity,)
+# comment on 16/01 unused + lines are not used anymore in opportunities app
+#class OppProductLinesBlock(ProductLinesBlock):
+#    id_           = ProductLinesBlock.generate_id('opportunities', 'product_lines')
+#    target_ctypes = (Opportunity,)
+#
+#
+#class OppServiceLinesBlock(ServiceLinesBlock):
+#    id_           = ServiceLinesBlock.generate_id('opportunities', 'service_lines')
+#    target_ctypes = (Opportunity,)
 
 
 class OppTotalBlock(TotalBlock):
@@ -208,6 +208,6 @@ blocks_list = (
     total_block,
     target_block,
     targetting_opps_block,
-    OppProductLinesBlock(),
-    OppServiceLinesBlock(),
+#    OppProductLinesBlock(),
+#    OppServiceLinesBlock(),
 )
