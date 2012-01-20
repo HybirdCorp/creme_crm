@@ -1136,28 +1136,28 @@ msgid "Relationship"
 msgstr "Relation"
 
 #: .\models\history.py:186 .\tests\models\history.py:362
-#, fuzzy, python-format
-msgid "Add property â%sâ"
+#, python-format
+msgid "Add property “%s”"
 msgstr "Ajout de la propriété “%s”"
 
 #: .\models\history.py:196 .\tests\models\history.py:403
-#, fuzzy, python-format
-msgid "Add a relationship â%sâ"
+#, python-format
+msgid "Add a relationship “%s”"
 msgstr "Ajout de la relation: “%s”"
 
 #: .\models\history.py:205 .\tests\models\history.py:174
-#, fuzzy, python-format
-msgid "Set field â%(field)sâ"
+#, python-format
+msgid "Set field “%(field)s”"
 msgstr "Champ “%(field)s” modifié"
 
 #: .\models\history.py:209 .\tests\models\history.py:175
-#, fuzzy, python-format
-msgid "Set field â%(field)sâ to â%(value)sâ"
+#, python-format
+msgid "Set field “%(field)s” to “%(value)s”"
 msgstr "Champ “%(field)s” mis à “%(value)s”"
 
 #: .\models\history.py:215 .\tests\models\history.py:176
-#, fuzzy, python-format
-msgid "Set field â%(field)sâ from â%(oldvalue)sâ to â%(value)sâ"
+#, python-format
+msgid "Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”"
 msgstr "Champ “%(field)s” passe de “%(oldvalue)s” à “%(value)s”"
 
 #: .\models\i18n.py:28
