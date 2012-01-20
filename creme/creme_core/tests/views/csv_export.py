@@ -69,15 +69,29 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         response = self.client.get('/creme_core/list_view/dl_csv/%s' % self.ct.id, data={'list_url': lv_url})
         self.assertEqual(200, response.status_code)
-        self.assertEqual([u','.join(u'"%s"' % hfi.title for hfi in hf_items),
-                          u'"Black","Jet","Bebop",""',
-                          u'"Creme","Fulbert","",""',
-                          u'"Spiegel","Spike","Bebop/Swordfish",""',
-                          u'"Valentine","Faye","","is a girl/is beautiful"',
-                          u'"Wong","Edward","","is a girl"',
-                         ],
-                         map(force_unicode, response.content.splitlines())
-                        )
+        #self.assertEqual([u','.join(u'"%s"' % hfi.title for hfi in hf_items),
+                          #u'"Black","Jet","Bebop",""',
+                          #u'"Creme","Fulbert","",""',
+                          #u'"Spiegel","Spike","Bebop/Swordfish",""',
+                          #u'"Valentine","Faye","","is a girl/is beautiful"',
+                          #u'"Wong","Edward","","is a girl"',
+                         #],
+                         #map(force_unicode, response.content.splitlines())
+                        #)
+
+        #TODO: sort the relations/properties by they verbose_name ??
+        result = map(force_unicode, response.content.splitlines())
+        self.assertEqual(6, len(result))
+        self.assertEqual(result[0], u','.join(u'"%s"' % hfi.title for hfi in hf_items))
+        self.assertEqual(result[1], u'"Black","Jet","Bebop",""')
+        self.assertEqual(result[2], u'"Creme","Fulbert","",""')
+        self.assertIn(result[3], (u'"Spiegel","Spike","Bebop/Swordfish",""',
+                                  u'"Spiegel","Spike","Swordfish/Bebop",""')
+                     )
+        self.assertIn(result[4], (u'"Valentine","Faye","","is a girl/is beautiful"',
+                                  u'"Valentine","Faye","","is beautiful/is a girl"')
+                     )
+        self.assertEqual(result[5], u'"Wong","Edward","","is a girl"')
 
     def test_csv_export02(self): #'export' credential
         self.login(is_superuser=False, allowed_apps=['creme_core', 'persons'])
