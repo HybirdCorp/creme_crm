@@ -25,7 +25,7 @@ from creme_core.gui import creme_menu, button_registry, block_registry, icon_reg
 
 from billing.models import Invoice, Quote, SalesOrder, CreditNote, Base, TemplateBase, Line, ServiceLine, ProductLine
 from billing.blocks import block_list, BillingBlock
-from billing.buttons import generate_invoice_number_button
+from billing.buttons import button_list
 
 
 creme_registry.register_app('billing', _(u'Billing'), '/billing')
@@ -50,7 +50,7 @@ block_registry.register_4_model(Invoice,    BillingBlock())
 block_registry.register_4_model(SalesOrder, BillingBlock())
 
 block_registry.register(*block_list)
-button_registry.register(generate_invoice_number_button)
+button_registry.register(*button_list)
 
 reg_icon = icon_registry.register
 reg_icon(Invoice,      'images/invoice_%(size)s.png')
@@ -65,10 +65,6 @@ connect_to_signals()
 
 bulk_update_registry.register(
     (Base,         ['number', 'total_vat', 'total_no_vat', 'payment_info']),
-    (CreditNote,   ['status']),
-    (Invoice,      ['status']),
-    (Quote,        ['status']),
-    (SalesOrder,   ['status']),
     (TemplateBase, ['status_id', 'ct', 'base_ptr']),
     (ProductLine,  ['on_the_fly_item', 'type', 'discount', 'total_discount', 'discount_unit', 'line_ptr']),
     (ServiceLine,  ['on_the_fly_item', 'type', 'discount', 'total_discount', 'discount_unit', 'line_ptr']),

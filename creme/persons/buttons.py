@@ -113,3 +113,12 @@ become_suspect_button     = BecomeSuspectButton()
 become_inactive_button    = BecomeInactiveButton()
 become_supplier_button    = BecomeSupplierButton()
 add_linked_contact_button = AddLinkedContactButton()
+
+button_list = (
+        become_customer_button,
+        become_prospect_button,
+        become_suspect_button,
+        become_inactive_button,
+        become_supplier_button,
+        add_linked_contact_button,
+    )

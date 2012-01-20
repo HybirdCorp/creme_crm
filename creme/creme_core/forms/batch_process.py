@@ -46,7 +46,7 @@ class BatchOperator(object):
 _OPERATOR_MAP = {
         'upper': BatchOperator(_('To upper case'), lambda x: x.upper()),
         'lower': BatchOperator(_('To lower case'), lambda x: x.lower()),
-        'title': BatchOperator(_('To upper case on first letters'), lambda x: x.title()),
+        'title': BatchOperator(_('Initial to upper case'), lambda x: x.title()),
     }
 
 
