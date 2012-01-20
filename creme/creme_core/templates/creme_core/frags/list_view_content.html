@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load creme_core_tags creme_widgets creme_listview %}
+{% load creme_core_tags creme_widgets creme_listview creme_block %}
 
 {% with header_filters.selected.items as columns %}
 
@@ -124,7 +124,10 @@
                         <td title="actions" class="list_view_actions actions">{% get_entity_actions entity %}</td>
                     {% else %}
                         {# <td title="" name="{{column.name}}" {% if column.is_hidden %}style="display:none;"{% endif %}>{% if column.is_hidden %}{{column|hf_get_html_output:entity|safe}}{% else %}{{column|hf_get_html_output:entity|safe|linebreaks}}{% endif %}</td> #}
-                        <td class="column" title="" name="{{column.name}}" {% if column.is_hidden %}style="display:none;"{% endif %}>{% get_listview_cell column entity user %}</td>
+                        <td class="column" title="" name="{{column.name}}" {% if column.is_hidden %}style="display:none;"{% endif %}>
+                            {% get_listview_cell column entity user %}
+                            {% if not is_popup_view %}{% get_field_editor on header_filter_item column for entity %}{% endif %}
+                        </td>
                     {% endif %}
                 {% endfor %}
             </tr>
