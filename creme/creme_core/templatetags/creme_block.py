@@ -30,6 +30,8 @@ from django.utils.translation import ugettext, ungettext
 from creme_core.models import BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation
 from creme_core.gui.block import Block, block_registry, BlocksManager
 from creme_core.gui.bulk_update import bulk_update_registry
+from creme_core.models.custom_field import CustomField
+from creme_core.models.header_filter import HFI_FIELD, HFI_CUSTOM
 from creme_core.models.relation import Relation
 
 register = Library()
@@ -330,7 +332,7 @@ def do_get_field_editor(parser, token):
         raise TemplateSyntaxError, "%r invalid field category tag: %r" % (tag_name, field_type_str)
 
     return field_editor_node(TemplateLiteral(parser.compile_filter(field_str), field_str),
-                             TemplateLiteral(parser.compile_filter(object_str), object_str))
+        TemplateLiteral(parser.compile_filter(object_str), object_str))
 
 class RegularFieldEditorNode(TemplateNode):
     def __init__(self, field_var, object_var):
@@ -366,7 +368,92 @@ class CustomFieldEditorNode(RegularFieldEditorNode):
 
 _FIELD_EDITOR_NODES = {'regular': RegularFieldEditorNode,
                        'custom':  CustomFieldEditorNode,
-                      }
+                       }
+
+#-------------------------------------------------------------------------------
+#TAG : "get_field_editor"------------------------------------------------------------
+_FIELD_EDITOR_RE = compile_re(r'on (.*?) (.*?) for (.*?)$')
+
+@register.tag(name="get_field_editor")
+def do_get_field_editor(parser, token):
+    """Eg: {% get_field_editor on custom|regular field|'field_name'|"field_name" for object %}"""
+    try:
+        tag_name, arg = token.contents.split(None, 1) # Splitting by None == splitting by spaces.
+    except ValueError:
+        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+
+    match = _FIELD_EDITOR_RE.search(arg)
+    if not match:
+        raise TemplateSyntaxError, "%r tag had invalid arguments" % tag_name
+
+    field_type_str, field_str, object_str = match.groups()
+
+    field_editor_node = _FIELD_EDITOR_NODES.get(field_type_str)
+
+    if not field_editor_node:
+        raise TemplateSyntaxError, "%r invalid field category tag: %r" % (tag_name, field_type_str)
+
+    return field_editor_node(TemplateLiteral(parser.compile_filter(field_str), field_str),
+                             TemplateLiteral(parser.compile_filter(object_str), object_str))
+
+class RegularFieldEditorNode(TemplateNode):
+    def __init__(self, field_var, object_var):
+        self.template       = get_template('creme_core/templatetags/widgets/block_field_editor.html')
+        self.field_var      = field_var
+        self.object_var     = object_var
+
+    def _update_context(self, context, field, object):
+        model = object.entity_type.model_class()
+        field_eval = model._meta.get_field(field) if isinstance(field, basestring) else field
+        field_name = field_eval.name
+
+        context['field']     = field_name
+        context['editable']  = field_eval.editable
+        context['updatable'] = field_name not in bulk_update_registry.get_excluded_fields(model)
+
+    def render(self, context):
+        object = self.object_var.eval(context)
+        field  = self.field_var.eval(context)
+
+        context['object']    = object
+        context['edit_perm'] = object.can_change(context['user'])
+
+        self._update_context(context, field, object)
+
+        return self.template.render(context)
+
+class CustomFieldEditorNode(RegularFieldEditorNode):
+    def _update_context(self, context, field, object):
+        context['field']     = field.id
+        context['editable']  = True # one day if we want to exclude custom field from inner editable feature, it will be here
+        context['updatable'] = True # same here
+
+class HeaderFilterColumnEditorNode(RegularFieldEditorNode):
+    def __init__(self, field_var, object_var):
+        super(HeaderFilterColumnEditorNode, self).__init__(field_var, object_var)
+        self.template = get_template('creme_core/templatetags/widgets/block_listview_field_editor.html')
+
+    def _update_context(self, context, column, object):
+        context['is_header_filter_item_valid'] = True
+        if column.type == HFI_FIELD:
+            model = object.entity_type.model_class()
+            field_name = column.name.partition('__')[0]
+            field = model._meta.get_field(field_name)
+            context['field'] = field_name
+            context['editable']  = field.editable
+            context['updatable'] = field_name not in bulk_update_registry.get_excluded_fields(model)
+        elif column.type == HFI_CUSTOM:
+            context['field'] = column.name
+            context['editable'] = True
+            context['updatable'] = True
+        else:
+            context['is_header_filter_item_valid'] = False
+#        print context['is_header_filter_item_valid'], context['editable'], context['updatable'], context['field']
+
+_FIELD_EDITOR_NODES = {'regular':               RegularFieldEditorNode,
+                       'custom':                CustomFieldEditorNode,
+                       'header_filter_item':    HeaderFilterColumnEditorNode,
+                       }
 
 #-------------------------------------------------------------------------------
 _LINE_EDITOR_RE = compile_re(r'at_url (.*?) with_perms (.*?)$')
