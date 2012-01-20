@@ -29,6 +29,7 @@ from creme_core.models import CremeEntity
 from creme_core.views.generic import add_entity, edit_entity, list_view, view_entity, add_model_with_popup
 
 from billing.models import Invoice, InvoiceStatus
+from billing.views.workflow import _add_with_relations
 from billing.forms.invoice import InvoiceCreateForm, InvoiceEditForm
 from billing.constants import DEFAULT_INVOICE_STATUS
 
@@ -46,6 +47,12 @@ def add_from_detailview(request, entity_id):
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
     entity.can_change_or_die(request.user)
     return add_model_with_popup(request, InvoiceCreateForm, title=_(u"Add an invoice for <%s>") % entity, initial={'target': entity})
+
+@login_required
+@permission_required('billing')
+@permission_required('billing.add_invoice')
+def add_with_relations(request, target_id, source_id):
+    return _add_with_relations(request, target_id, source_id, InvoiceCreateForm, _(u"Add an invoice for <%s>"))
 
 @login_required
 @permission_required('billing')
