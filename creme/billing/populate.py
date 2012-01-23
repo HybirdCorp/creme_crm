@@ -173,13 +173,13 @@ class Populator(BasePopulator):
                                    ])
 
         create_bmi = ButtonMenuItem.create_if_needed
-        create_bmi(pk='persons-quote_orga_button',      model=Organisation, button=add_related_quote,      order=100)
-        create_bmi(pk='persons-salesorder_orga_button', model=Organisation, button=add_related_salesorder, order=101)
-        create_bmi(pk='persons-invoice_orga_button',    model=Organisation, button=add_related_invoice,    order=102)
+        create_bmi(pk='billing-quote_orga_button',      model=Organisation, button=add_related_quote,      order=100)
+        create_bmi(pk='billing-salesorder_orga_button', model=Organisation, button=add_related_salesorder, order=101)
+        create_bmi(pk='billing-invoice_orga_button',    model=Organisation, button=add_related_invoice,    order=102)
 
-        create_bmi(pk='persons-quote_contact_button',       model=Contact, button=add_related_quote,      order=100)
-        create_bmi(pk='persons-salesorder_contact_button',  model=Contact, button=add_related_salesorder, order=101)
-        create_bmi(pk='persons-invoice_contact_button',     model=Contact, button=add_related_invoice,    order=102)
+        create_bmi(pk='billing-quote_contact_button',       model=Contact, button=add_related_quote,      order=100)
+        create_bmi(pk='billing-salesorder_contact_button',  model=Contact, button=add_related_salesorder, order=101)
+        create_bmi(pk='billing-invoice_contact_button',     model=Contact, button=add_related_invoice,    order=102)
 
         models = (Invoice, CreditNote, Quote, SalesOrder)
 
