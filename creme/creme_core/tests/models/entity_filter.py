@@ -12,7 +12,7 @@ try:
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Contact, Organisation, Civility
-except Exception, e:
+except Exception as e:
     print 'Error:', e
 
 
@@ -74,9 +74,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                    )
                                ])
         self.assertEqual(1, efilter.conditions.count())
-
-        efilter =  EntityFilter.objects.get(pk=efilter.id) #refresh
-        self.assertExpectedFiltered(efilter, Contact, self._get_ikari_case_sensitive())
+        self.assertExpectedFiltered(self.refresh(efilter), Contact, self._get_ikari_case_sensitive())
 
     def test_filter_field_equals02(self):
         efilter = EntityFilter.create('test-filter01', 'Spike & Faye', Contact)
@@ -87,9 +85,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                    )
                                ])
         self.assertEqual(1, efilter.conditions.count())
-
-        efilter =  EntityFilter.objects.get(pk=efilter.id) #refresh
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[0].id, self.contacts[2].id])
+        self.assertExpectedFiltered(self.refresh(efilter), Contact, [self.contacts[0].id, self.contacts[2].id])
 
     def test_filter_field_iequals(self):
         efilter = EntityFilter.create('test-filter01', 'Ikari (insensitive)', Contact,
@@ -398,17 +394,17 @@ class EntityFiltersTestCase(CremeTestCase):
         try:
             #Problem a part of a email address is not a valid email address
             efilter.set_conditions([build(model=Contact, operator=EntityFilterCondition.ISTARTSWITH, name='email', values=['misato'])])
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         try:
             efilter.set_conditions([build(model=Contact, operator=EntityFilterCondition.RANGE, name='email', values=['misato', 'yui'])])
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         try:
             efilter.set_conditions([build(model=Contact, operator=EntityFilterCondition.EQUALS, name='email', values=['misato@nerv.jp'])])
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         self.assertRaises(EntityFilterCondition.ValueError, build,
@@ -449,13 +445,13 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_condition_update(self):
         build = EntityFilterCondition.build_4_field
-        cond1 = build(model=Contact,      operator=EntityFilterCondition.EQUALS,  name='first_name', values=['Jet'])
-        self.failIf(build(model=Contact,  operator=EntityFilterCondition.EQUALS,  name='first_name', values=['Jet']).update(cond1))
-        self.assert_(build(model=Contact, operator=EntityFilterCondition.IEQUALS, name='first_name', values=['Jet']).update(cond1))
-        self.assert_(build(model=Contact, operator=EntityFilterCondition.EQUALS,  name='last_name',  values=['Jet']).update(cond1))
-        self.assert_(build(model=Contact, operator=EntityFilterCondition.EQUALS,  name='first_name', values=['Ed']).update(cond1))
-        self.assert_(build(model=Contact, operator=EntityFilterCondition.IEQUALS, name='last_name', values=['Jet']).update(cond1))
-        self.assert_(build(model=Contact, operator=EntityFilterCondition.IEQUALS, name='last_name', values=['Ed']).update(cond1))
+        cond1 = build(model=Contact, operator=EntityFilterCondition.EQUALS,  name='first_name', values=['Jet'])
+        self.assertFalse(build(model=Contact, operator=EntityFilterCondition.EQUALS,  name='first_name', values=['Jet']).update(cond1))
+        self.assertTrue(build(model=Contact,  operator=EntityFilterCondition.IEQUALS, name='first_name', values=['Jet']).update(cond1))
+        self.assertTrue(build(model=Contact,  operator=EntityFilterCondition.EQUALS,  name='last_name',  values=['Jet']).update(cond1))
+        self.assertTrue(build(model=Contact,  operator=EntityFilterCondition.EQUALS,  name='first_name', values=['Ed']).update(cond1))
+        self.assertTrue(build(model=Contact,  operator=EntityFilterCondition.IEQUALS, name='last_name',  values=['Jet']).update(cond1))
+        self.assertTrue(build(model=Contact,  operator=EntityFilterCondition.IEQUALS, name='last_name',  values=['Ed']).update(cond1))
 
     def test_set_conditions01(self):
         build = EntityFilterCondition.build_4_field
@@ -488,12 +484,11 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_set_conditions02(self):
         efilter = EntityFilter.create('test-filter01', 'Jet', Contact)
 
-        kwargs1 = {
-                'model':     Contact,
-                'operator':  EntityFilterCondition.EQUALS,
-                'name':      'first_name',
-                'values':    ['Jet'],
-            }
+        kwargs1 = {'model':     Contact,
+                   'operator':  EntityFilterCondition.EQUALS,
+                   'name':      'first_name',
+                   'values':    ['Jet'],
+                  }
         kwargs2 = dict(kwargs1)
         kwargs2['operator'] = EntityFilterCondition.IEQUALS
 
@@ -563,7 +558,7 @@ class EntityFiltersTestCase(CremeTestCase):
                 ]
         try:
             efilter.check_cycle(conds)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         efilter.set_conditions(conds)
@@ -580,7 +575,7 @@ class EntityFiltersTestCase(CremeTestCase):
                 ]
         try:
             sub_efilter.check_cycle(conds)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
     def test_subfilter02(self): #cycle error (lenght = 0)
@@ -610,7 +605,7 @@ class EntityFiltersTestCase(CremeTestCase):
         conds = [build_4_field(model=Contact, operator=EntityFilterCondition.CONTAINS, name='first_name', values=['Faye']),
                  build_sf(efilter02),
                 ]
-        efilter01 = EntityFilter.objects.get(pk=efilter01.pk) #refresh
+        efilter01 = self.refresh(efilter01)
         self.assertEqual(set([efilter01.id, efilter02.id]), efilter01.get_connected_filter_ids())
         self.assertRaises(EntityFilter.CycleError, efilter01.check_cycle, conds)
         self.assertRaises(EntityFilter.CycleError, efilter01.set_conditions, conds)
@@ -635,7 +630,7 @@ class EntityFiltersTestCase(CremeTestCase):
         conds = [build_4_field(model=Contact, operator=EntityFilterCondition.EQUALS, name='last_name', values=['Spiegel']),
                  build_sf(efilter03),
                 ]
-        efilter01 = EntityFilter.objects.get(pk=efilter01.pk) #refresh
+        efilter01 = self.refresh(efilter01)
         self.assertRaises(EntityFilter.CycleError, efilter01.check_cycle, conds)
         self.assertRaises(EntityFilter.CycleError, efilter01.set_conditions, conds)
 
@@ -720,7 +715,7 @@ class EntityFiltersTestCase(CremeTestCase):
         try:
             Relation.objects.filter(object_entity=rei.id).delete()
             rei.delete()
-        except Exception, e:
+        except Exception as e:
             self.fail('Problem with entity deletion:' + str(e))
 
         self.assertExpectedFiltered(efilter, Contact, [])
@@ -775,7 +770,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
         try:
             efilter.check_cycle(conds)
-        except Exception, e:
+        except Exception as e:
             self.fail(str(e))
 
         efilter.set_conditions(conds)
@@ -1185,7 +1180,7 @@ class EntityFiltersTestCase(CremeTestCase):
         klass(custom_field=custom_field02, entity=shinji).set_value_n_save(date(year=2030, month=4, day=21))
         klass(custom_field=custom_field02, entity=self.contacts[6]).set_value_n_save(date(year=2040, month=5, day=3))
 
-        efilter = EntityFilter.create('test-filter01', 'Cpmlex filter', Contact, use_or=False)
+        efilter = EntityFilter.create('test-filter01', 'Complex filter', Contact, use_or=False)
         build_cond = EntityFilterCondition.build_4_datecustomfield
         efilter.set_conditions([build_cond(custom_field=custom_field01, start=date(year=2015, month=4, day=1)),
                                 build_cond(custom_field=custom_field02, end=date(year=2040, month=1, day=1))

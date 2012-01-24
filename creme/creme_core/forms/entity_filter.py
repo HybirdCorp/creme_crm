@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -207,6 +207,10 @@ class _ConditionsField(JSONField):
         if conditions:
             self._set_initial_conditions(conditions)
 
+    @property
+    def model(self):
+        return self._model
+
 
 class RegularFieldsConditionsField(_ConditionsField):
     default_error_messages = {
@@ -227,7 +231,8 @@ class RegularFieldsConditionsField(_ConditionsField):
             if sfname not in rel_excluded and not is_date_field(subfield):
                 fields['%s__%s' % (fname, sfname)] =  [field, subfield]
 
-    def _set_model(self, model):
+    @_ConditionsField.model.setter
+    def model(self, model):
         self._model = model
         self._fields = fields = {}
 
@@ -247,8 +252,6 @@ class RegularFieldsConditionsField(_ConditionsField):
             self._build_related_fields(field, fields)
 
         self._build_widget()
-
-    model = property(lambda self: self._model, _set_model); del _set_model #TODO: lazy_property
 
     def _create_widget(self):
         return RegularFieldsConditionsWidget(self._fields)
@@ -312,7 +315,7 @@ class RegularFieldsConditionsField(_ConditionsField):
                                                 operator=operator, values=values
                                                )
                                  )
-        except EntityFilterCondition.ValueError, e:
+        except EntityFilterCondition.ValueError as e:
             raise ValidationError(str(e))
 
         return conditions
@@ -329,12 +332,11 @@ class DateFieldsConditionsField(_ConditionsField):
         'emptydates':       _(u"Please enter a start date and/or a end date."),
     }
 
-    def _set_model(self, model):
+    @_ConditionsField.model.setter
+    def model(self, model):
         self._model = model
         self._fields = dict((field.name, field) for field in model._meta.fields if is_date_field(field))
         self._build_widget()
-
-    model = property(lambda self: self._model, _set_model); del _set_model
 
     def _create_widget(self):
         return DateFieldsConditionsWidget([(fname, f.verbose_name) for fname, f in self._fields.iteritems()])
@@ -410,7 +412,7 @@ class DateFieldsConditionsField(_ConditionsField):
                                                   date_range=date_range, start=start, end=end
                                                  )
                                  )
-        except EntityFilterCondition.ValueError, e:
+        except EntityFilterCondition.ValueError as e:
             raise ValidationError(str(e))
 
         return conditions
@@ -428,15 +430,14 @@ class CustomFieldsConditionsField(_ConditionsField):
 
     _ACCEPTED_TYPES = frozenset((CustomField.INT, CustomField.FLOAT, CustomField.STR)) #TODO: "!= DATE" instead
 
-    def _set_model(self, model):
+    @_ConditionsField.model.setter
+    def model(self, model):
         self._model = model
         self._cfields = dict((cf.id, cf) for cf in CustomField.objects.filter(content_type=ContentType.objects.get_for_model(model),
                                                                               field_type__in=self._ACCEPTED_TYPES
                                                                              )
                             )
         self._build_widget()
-
-    model = property(lambda self: self._model, _set_model); del _set_model
 
     def _create_widget(self):
         return CustomFieldsConditionsWidget(self._cfields)
@@ -473,7 +474,7 @@ class CustomFieldsConditionsField(_ConditionsField):
                                           value=clean_value(entry, 'value', unicode)
                                          ) for entry in data
                          ]
-        except EntityFilterCondition.ValueError, e:
+        except EntityFilterCondition.ValueError as e:
             raise ValidationError(self.error_messages['invalidtype'])
 
         return conditions
@@ -488,15 +489,14 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
         'invalidcustomfield': _(u"This date custom field is invalid with this model."),
     }
 
-    def _set_model(self, model):
+    @CustomFieldsConditionsField.model.setter
+    def model(self, model):
         self._model = model
         self._cfields = dict((cf.id, cf) for cf in CustomField.objects.filter(content_type=ContentType.objects.get_for_model(model),
                                                                               field_type=CustomField.DATE
                                                                              )
                             )
         self._build_widget()
-
-    model = property(lambda self: self._model, _set_model); del _set_model
 
     def _create_widget(self):
         return DateFieldsConditionsWidget(self._cfields.iteritems())
@@ -517,7 +517,7 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
                                                   date_range=date_range, start=start, end=end
                                                  )
                                  )
-        except EntityFilterCondition.ValueError, e:
+        except EntityFilterCondition.ValueError as e:
             raise ValidationError(str(e))
 
         return conditions
@@ -534,12 +534,11 @@ class RelationsConditionsField(_ConditionsField):
         'invalidentity': _(u"This entity is invalid."),
     }
 
-    def _set_model(self, model):
+    @_ConditionsField.model.setter
+    def model(self, model):
         self._model = model
         self._rtypes = dict((rt.id, rt) for rt in RelationType.get_compatible_ones(ContentType.objects.get_for_model(model), include_internals=True))
         self._build_widget()
-
-    model = property(lambda self: self._model, _set_model); del _set_model
 
     def _create_widget(self):
         return RelationsConditionsWidget(self._rtypes.iteritems())
@@ -624,7 +623,7 @@ class RelationsConditionsField(_ConditionsField):
 
         try:
             conditions = [build_condition(**kwargs) for kwargs in all_kwargs]
-        except EntityFilterCondition.ValueError, e:
+        except EntityFilterCondition.ValueError as e:
             raise ValidationError(str(e))
 
         return conditions
@@ -680,7 +679,7 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
 
         try:
              conditions = [build_condition(**kwargs) for kwargs in all_kwargs]
-        except EntityFilterCondition.ValueError, e:
+        except EntityFilterCondition.ValueError as e:
             raise ValidationError(str(e))
 
         return conditions
@@ -695,12 +694,11 @@ class PropertiesConditionsField(_ConditionsField):
         'invalidptype': _(u"This property type is invalid with this model."),
     }
 
-    def _set_model(self, model):
+    @_ConditionsField.model.setter
+    def model(self, model):
         self._model = model
         self._ptypes = dict((pt.id, pt) for pt in CremePropertyType.get_compatible_ones(ContentType.objects.get_for_model(model)))
         self._build_widget()
-
-    model = property(lambda self: self._model, _set_model); del _set_model
 
     def _create_widget(self):
         return PropertiesConditionsWidget(self._ptypes.iteritems())
@@ -850,7 +848,7 @@ class EntityFilterEditForm(_EntityFilterForm):
 
             try:
                 self.instance.check_cycle(conditions)
-            except EntityFilter.CycleError, e:
+            except EntityFilter.CycleError as e:
                  raise ValidationError(e)
 
             cdata['all_conditions'] = conditions
