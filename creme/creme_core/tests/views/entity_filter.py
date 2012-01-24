@@ -20,8 +20,9 @@ __all__ = ('EntityFilterViewsTestCase', )
 
 
 class EntityFilterViewsTestCase(ViewsTestCase):
-    def setUp(self):
-        self.populate('creme_config')
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_config')
 
     def test_create01(self): #check app credentials
         self.login(is_superuser=False)
@@ -41,13 +42,12 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         field_name = 'last_name'
         value = 'Ikari'
         response = self.client.post(uri, follow=True,
-                                    data={
-                                            'name':       name,
-                                            'fields_conditions': '[{"operator": "%(operator)s", "name": "%(name)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]' % {
-                                                                        'operator': operator,
-                                                                        'name':     field_name,
-                                                                        'value':    value,
-                                                                    },
+                                    data={'name':              name,
+                                          'fields_conditions': '[{"operator": "%(operator)s", "name": "%(name)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]' % {
+                                                                      'operator': operator,
+                                                                      'name':     field_name,
+                                                                      'value':    value,
+                                                                  },
                                          }
                                    )
         self.assertNoFormError(response)
@@ -107,36 +107,35 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         cfield_value = 10000
         datecfield_rtype = 'previous_quarter'
         response = self.client.post(url,
-                                    data={
-                                            'name':   name,
-                                            'user':   self.user.id,
-                                            'use_or': True,
-                                            'fields_conditions':             '[{"operator": "%(operator)s", "name": "%(name)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]' % {
-                                                                                     'operator': field_operator,
-                                                                                     'name':     field_name,
-                                                                                     'value':    field_value,
-                                                                                },
-                                            'datefields_conditions':        '[{"range": {"type": "%(type)s", "start": "", "end": ""}, "field": "%(name)s"}]' % {
-                                                                                    'type': daterange_type,
-                                                                                    'name': date_field_name,
-                                                                                },
-                                            'customfields_conditions':      '[{"field": "%(cfield)s", "operator": "%(operator)s", "value": "%(value)s"}]' % {
-                                                                                    'cfield':   custom_field.id,
-                                                                                    'operator': cfield_operator,
-                                                                                    'value':    cfield_value,
-                                                                                },
-                                            'datecustomfields_conditions':  '[{"field": "%(cfield)s", "range": {"type": "%(type)s"}}]' % {
-                                                                                    'cfield': datecfield.id,
-                                                                                    'type':   datecfield_rtype,
-                                                                                },
-                                            'relations_conditions':         '[{"has": true, "rtype": "%s", "ctype": "0", "entity": null}]' % (rtype.id),
-                                            'relsubfilfers_conditions':     '[{"rtype": "%(rtype)s", "has": false, "ctype": "%(ct)s", "filter": "%(filter)s"}]' % {
-                                                                                    'rtype':  srtype.id,
-                                                                                    'ct':     ContentType.objects.get_for_model(Contact).id,
-                                                                                    'filter': relsubfilfer.id,
-                                                                                },
-                                            'properties_conditions':        '[{"has": true, "ptype":"%s"}]' % (ptype.id),
-                                            'subfilters_conditions':        [subfilter.id],
+                                    data={'name':   name,
+                                          'user':   self.user.id,
+                                          'use_or': True,
+                                          'fields_conditions':           '[{"operator": "%(operator)s", "name": "%(name)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]' % {
+                                                                                'operator': field_operator,
+                                                                                'name':     field_name,
+                                                                                'value':    field_value,
+                                                                            },
+                                          'datefields_conditions':       '[{"range": {"type": "%(type)s", "start": "", "end": ""}, "field": "%(name)s"}]' % {
+                                                                                'type': daterange_type,
+                                                                                'name': date_field_name,
+                                                                            },
+                                          'customfields_conditions':     '[{"field": "%(cfield)s", "operator": "%(operator)s", "value": "%(value)s"}]' % {
+                                                                                'cfield':   custom_field.id,
+                                                                                'operator': cfield_operator,
+                                                                                'value':    cfield_value,
+                                                                            },
+                                          'datecustomfields_conditions': '[{"field": "%(cfield)s", "range": {"type": "%(type)s"}}]' % {
+                                                                                'cfield': datecfield.id,
+                                                                                'type':   datecfield_rtype,
+                                                                            },
+                                          'relations_conditions':        '[{"has": true, "rtype": "%s", "ctype": "0", "entity": null}]' % (rtype.id),
+                                          'relsubfilfers_conditions':    '[{"rtype": "%(rtype)s", "has": false, "ctype": "%(ct)s", "filter": "%(filter)s"}]' % {
+                                                                                'rtype':  srtype.id,
+                                                                                'ct':     ContentType.objects.get_for_model(Contact).id,
+                                                                                'filter': relsubfilfer.id,
+                                                                            },
+                                          'properties_conditions':       '[{"has": true, "ptype":"%s"}]' % (ptype.id),
+                                          'subfilters_conditions':       [subfilter.id],
                                          }
                                    )
         self.assertNoFormError(response)
@@ -197,9 +196,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         ct = ContentType.objects.get_for_model(Organisation)
         response = self.client.post('/creme_core/entity_filter/add/%s' % ct.id,
-                                    data={
-                                            'name': 'Filter 01',
-                                            'user': self.user.id,
+                                    data={'name': 'Filter 01',
+                                          'user': self.user.id,
                                          }
                                    )
         self.assertFormError(response, 'form', field=None, errors=_('The filter must have at least one condition.'))
@@ -272,31 +270,30 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         cfield_value = 'Vicious'
         datecfield_rtype = 'previous_year'
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'name':                          name,
-                                            'fields_conditions':             '[{"operator": "%(operator)s", "name": "%(name)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]' % {
-                                                                                     'operator': field_operator,
-                                                                                     'name':     field_name,
-                                                                                     'value':    field_value,
-                                                                                 },
-                                            'datefields_conditions':        '[{"range": {"type": "", "start": "2011-5-23", "end": "2012-6-27"}, "field": "%s"}]' % date_field_name,
-                                            'customfields_conditions':      '[{"field": "%(cfield)s", "operator": "%(operator)s", "value": "%(value)s"}]' % {
-                                                                                    'cfield':   custom_field.id,
-                                                                                    'operator': cfield_operator,
-                                                                                    'value':    cfield_value,
-                                                                                },
-                                            'datecustomfields_conditions':  '[{"field": "%(cfield)s", "range": {"type": "%(type)s"}}]' % {
-                                                                                    'cfield': datecfield.id,
-                                                                                    'type':   datecfield_rtype,
-                                                                                },
-                                            'relations_conditions':         '[{"has": true, "rtype": "%s", "ctype": "0", "entity": null}]' % rtype.id,
-                                            'relsubfilfers_conditions':     '[{"rtype": "%(rtype)s", "has": false, "ctype": "%(ct)s", "filter": "%(filter)s"}]' % {
-                                                                                    'rtype':  srtype.id,
-                                                                                    'ct':     ContentType.objects.get_for_model(Organisation).id,
-                                                                                    'filter': relsubfilfer.id,
-                                                                                },
-                                            'properties_conditions':        '[{"has": false, "ptype": "%s"}]' % ptype.id,
-                                            'subfilters_conditions':        [subfilter.id],
+                                    data={'name':                        name,
+                                          'fields_conditions':           '[{"operator": "%(operator)s", "name": "%(name)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]' % {
+                                                                                'operator': field_operator,
+                                                                                'name':     field_name,
+                                                                                'value':    field_value,
+                                                                            },
+                                          'datefields_conditions':       '[{"range": {"type": "", "start": "2011-5-23", "end": "2012-6-27"}, "field": "%s"}]' % date_field_name,
+                                          'customfields_conditions':     '[{"field": "%(cfield)s", "operator": "%(operator)s", "value": "%(value)s"}]' % {
+                                                                                'cfield':   custom_field.id,
+                                                                                'operator': cfield_operator,
+                                                                                'value':    cfield_value,
+                                                                            },
+                                          'datecustomfields_conditions': '[{"field": "%(cfield)s", "range": {"type": "%(type)s"}}]' % {
+                                                                                'cfield': datecfield.id,
+                                                                                'type':   datecfield_rtype,
+                                                                            },
+                                          'relations_conditions':        '[{"has": true, "rtype": "%s", "ctype": "0", "entity": null}]' % rtype.id,
+                                          'relsubfilfers_conditions':    '[{"rtype": "%(rtype)s", "has": false, "ctype": "%(ct)s", "filter": "%(filter)s"}]' % {
+                                                                                'rtype':  srtype.id,
+                                                                                'ct':     ContentType.objects.get_for_model(Organisation).id,
+                                                                                'filter': relsubfilfer.id,
+                                                                            },
+                                          'properties_conditions':       '[{"has": false, "ptype": "%s"}]' % ptype.id,
+                                          'subfilters_conditions':       [subfilter.id],
                                          }
                                    )
         self.assertNoFormError(response)
@@ -395,13 +392,12 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         parent_filter.set_conditions([EntityFilterCondition.build_4_subfilter(efilter)])
 
         response = self.client.post('/creme_core/entity_filter/edit/%s' % efilter.id, follow=True,
-                                    data={
-                                            'name':                     efilter.name,
-                                            'relsubfilfers_conditions': '[{"rtype": "%(rtype)s", "has": false, "ctype": "%(ct)s", "filter": "%(filter)s"}]' % {
-                                                                                'rtype':  rtype.id,
-                                                                                'ct':     ContentType.objects.get_for_model(Contact).id,
-                                                                                'filter': parent_filter.id, #PROBLEM IS HERE !!!
-                                                                            },
+                                    data={'name':                     efilter.name,
+                                          'relsubfilfers_conditions': '[{"rtype": "%(rtype)s", "has": false, "ctype": "%(ct)s", "filter": "%(filter)s"}]' % {
+                                                                            'rtype':  rtype.id,
+                                                                            'ct':     ContentType.objects.get_for_model(Contact).id,
+                                                                            'filter': parent_filter.id, #PROBLEM IS HERE !!!
+                                                                        },
                                          }
                                    )
         self.assertFormError(response, 'form', field=None, errors=_(u'There is a cycle with a subfilter.'))
