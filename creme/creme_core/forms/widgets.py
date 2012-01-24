@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,19 +39,17 @@ from creme_core.utils.date_range import date_range_registry
 
 
 def widget_render_input(renderer, widget, name, value, context, **kwargs):
-    input_attrs = {
-                     'class':  ' '.join(['ui-creme-input', context.get('css')]),
-                     'widget': context.get('typename'),
+    input_attrs = {'class':  ' '.join(['ui-creme-input', context.get('css')]),
+                   'widget': context.get('typename'),
                   }
     input_attrs.update(kwargs)
 
     return renderer(widget, name, value, input_attrs)
 
 def widget_render_hidden_input(widget, name, value, context):
-    input_attrs = {
-                    'class': ' '.join(['ui-creme-input', context.get('typename')]),
-                    'type':  'hidden',
-                   }
+    input_attrs = {'class': ' '.join(['ui-creme-input', context.get('typename')]),
+                   'type':  'hidden',
+                  }
 
     return Input.render(widget, name, value, input_attrs)
 
@@ -59,13 +57,12 @@ def widget_render_context(typename, attrs, css='', **kwargs):
     id   = attrs.get('id')
     auto = attrs.pop('auto', True)
     css = ' '.join((css, 'ui-creme-widget widget-auto' if auto else 'ui-creme-widget', typename)).strip()
-    context = {
-                'style':      '',
-                'typename':   typename,
-                'css':        css,
-                'auto':       auto,
-                'id':         id,
-             }
+    context = {'style':      '',
+               'typename':   typename,
+               'css':        css,
+               'auto':       auto,
+               'id':         id,
+              }
 
     context.update(kwargs)
 
@@ -75,13 +72,20 @@ def widget_render_context(typename, attrs, css='', **kwargs):
 class DynamicInput(TextInput):
     def __init__(self, type='text', attrs=None):
         super(DynamicInput, self).__init__(attrs)
-        self.type = type
+        #self.type = type
+        self.input_type = type
 
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name)
-        context = widget_render_context('ui-creme-dinput', attrs, type=self.type)
+        #context = widget_render_context('ui-creme-dinput', attrs, type=self.type)
+        context = widget_render_context('ui-creme-dinput', attrs)
 
         return mark_safe(widget_render_input(TextInput.render, self, name, value, context)) #, url=self.url
+
+#TODO ??? DynamicHiddenInput
+#class HiddenInput(Input): #from django 
+    #input_type = 'hidden'
+    #is_hidden = True
 
 
 class DynamicSelect(Select):
@@ -121,7 +125,7 @@ class PolymorphicInput(TextInput):
         self.from_python = None #TODO : wait for django 1.2 and new widget api to remove this hack
 
     def render(self, name, value, attrs=None):
-        value = self.from_python(value) if self.from_python is not None else value # TODO : wait for django 1.2 and new widget api to remove this hack
+        value = self.from_python(value) if self.from_python is not None else value #TODO : wait for django 1.2 and new widget api to remove this hack
         attrs = self.build_attrs(attrs, name=name, type='hidden')
 
         context = widget_render_context('ui-creme-polymorphicselect', attrs,
@@ -645,14 +649,13 @@ class OrderedMultipleChoiceWidget(SelectMultiple):
                     <td><input class="oms_check" type="checkbox" name="%(name)s_check_%(i)s" %(checked)s/></td>
                     <td class="oms_value">%(label)s<input type="hidden" name="%(name)s_value_%(i)s" value="%(value)s" /></td>
                     <td><input class="oms_order" type="text" name="%(name)s_order_%(i)s" value="%(order)s"/></td>
-                </tr>""" % {
-                                'i':        i,
-                                'label':    opt_label,
-                                'name':     name,
-                                'value':    opt_value,
-                                'checked':  'checked' if order else '',
-                                'order':    order,
-                            })
+                </tr>""" % {'i':        i,
+                            'label':    opt_label,
+                            'name':     name,
+                            'value':    opt_value,
+                            'checked':  'checked' if order else '',
+                            'order':    order,
+                           })
 
         output.append(u"""</tbody></table>
                           <script type="text/javascript">
@@ -699,11 +702,11 @@ class ListEditionWidget(Widget):
         row = u"""<tr>
                     <td><input type="checkbox" name="%(name)s_check_%(i)s" %(checked)s/></td>
                     <td><input type="text" name="%(name)s_value_%(i)s" value="%(label)s" style="display:none;"/><span>%(label)s</span></td>
-                    </tr>""" if self.only_delete \
+                  </tr>""" if self.only_delete \
             else u"""<tr>
                         <td><input type="checkbox" name="%(name)s_check_%(i)s" %(checked)s/></td>
                         <td><input type="text" name="%(name)s_value_%(i)s" value="%(label)s"/></td>
-                        </tr>"""
+                     </tr>"""
 
         for i, label in enumerate(self.content):
             checked = 'checked'
@@ -716,12 +719,12 @@ class ListEditionWidget(Widget):
                 else:
                     label = new_label
 
-            output.append(row  % {
-                            'i':        i,
-                            'name':     name,
-                            'label':    label,
-                            'checked':  checked,
-                        })
+            output.append(row  % {'i':        i,
+                                  'name':     name,
+                                  'label':    label,
+                                  'checked':  checked,
+                                 }
+                         )
 
         output.append(u"""</tbody></table>""")
 
@@ -761,8 +764,7 @@ class AdaptiveWidget(Select):
         html_output = """
             <span class="%(css)s" style="%(style)s" widget="%(typename)s" url="%(url)s" field_value_name="%(field_value_name)s" object_id="%(object_id)s">
                 %(input)s
-            </span>
-        """ % context
+            </span>""" % context
 
         return mark_safe(html_output)
 
@@ -788,26 +790,25 @@ class DateRangeWidget(MultiWidget):
         context = widget_render_context('ui-creme-daterange', {})
 
         if self.render_as == 'table':
-            return u"".join([u"""<table class="%(css)s" style="%(style)s" widget="%(typename)s">""" % context,
-                             u"""<tbody><tr>""",
+            return u"".join([u"""<table class="%(css)s" style="%(style)s" widget="%(typename)s"><tbody><tr>""" % context,
                              u''.join(u"<td>%s</td>" % w for w in rendered_widgets),
-                             u"""</tr></tbody></table>"""])
-
+                             u"""</tr></tbody></table>"""
+                            ])
         elif self.render_as == 'ul':
             return u"".join([u"""<ul class="%(css)s" style="%(style)s" widget="%(typename)s">""" % context,
                              u''.join(u"<li>%s</li>" % w for w in rendered_widgets),
-                             u"""</ul>"""])
+                             u"""</ul>"""
+                            ])
 
         return u"""<div class="%s">%s</div>""" % (_css_class, u''.join(u"<div>%s</div>" % w for w in rendered_widgets))
 
 
 class DurationWidget(MultiWidget):
     def __init__(self, attrs=None):
-        widgets = (
-            TextInput(),
-            TextInput(),
-            TextInput()
-            )
+        widgets = (TextInput(),
+                   TextInput(),
+                   TextInput()
+                  )
         super(DurationWidget, self).__init__(widgets, attrs)
 
     def decompress(self, value):
