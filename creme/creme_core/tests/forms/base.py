@@ -20,10 +20,9 @@ class FieldTestCase(CremeTestCase):
     def assertFieldRaises(self, exception, func, *args, **kwargs):
         try:
             func(*args, **kwargs)
-        except Exception, e:
+        except Exception as e:
             return (e, _format_stack())
 
-        #exception_name = exception.__name__ if hasattr(exception, '__name__') else str(exception)
         exception_name = getattr(exception, '__name__', None) or str(exception)
         self.fail("%s not raised" % exception_name)
 

@@ -1,17 +1,10 @@
 # -*- coding: utf-8 -*-
 
 try:
-    #from datetime import date, datetime
-    #from decimal import Decimal
-
-    #from django.core.serializers.json import simplejson
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
-    #from django.conf import settings
 
     from creme_core.models import EntityFilter, EntityFilterCondition, SetCredentials
-    #from creme_core.forms.base import _CUSTOM_NAME
-    #from creme_core.gui.bulk_update import bulk_update_registry
     from creme_core.tests.views.base import ViewsTestCase
 
     from persons.models import Organisation, Contact
@@ -23,6 +16,10 @@ __all__ = ('BatchProcessViewsTestCase', )
 
 
 class BatchProcessViewsTestCase(ViewsTestCase):
+    format_str1 = '[{"name": "%(name)s", "operator": "%(operator)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]'
+    format_str2 = '[{"name": "%(name01)s", "operator": "%(operator01)s", "value": {"type": "%(operator01)s", "value": "%(value01)s"}},' \
+                  ' {"name": "%(name02)s", "operator": "%(operator02)s", "value": {"type": "%(operator02)s", "value": "%(value02)s"}}]'
+
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config')
@@ -48,17 +45,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         orga02 = create_orga(user=self.user, name='Manga club')
 
         response = self.client.post(url, follow=True,
-                                    data={#'filter': ''
-                                        #'fields_conditions': '[{"operator": "%(operator)s", "name": "%(name)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]' % {
-                                                                    #'operator': operator,
-                                                                    #'name':     field_name,
-                                                                    #'value':    value,
-                                                                #},
-                                          #'actions': '[{"name": "%(name)s", "operator": "%(operator)s",  "value": {"type": "%(operator)s", "value": "%(value)s"}}]' % {
-                                          'actions': '[{"name": "%(name)s", "operator": "%(operator)s"}]' % {
+                                    data={'actions': self.format_str1 % {
                                                             'operator': 'upper',
                                                             'name':     'name',
-                                                            #'value':    value,
+                                                            'value':    '',
                                                         },
                                          }
                                    )
@@ -78,10 +68,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         contact02 = create_contact(user=self.user, first_name='Harunobu', last_name='Madarame')
 
         response = self.client.post(self.build_url(Contact), follow=True,
-                                    data={'actions': '[{"name": "%(name)s", "operator": "%(operator)s"}]' % {
+                                    data={'actions': self.format_str1 % {
                                                             'name':     'first_name',
                                                             'operator': 'lower',
-                                                            #'value':    value,
+                                                            'value':    '',
                                                         },
                                          }
                                    )
@@ -97,10 +87,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.login()
 
         response = self.client.post(self.build_url(Contact), follow=True,
-                                    data={'actions': '[{"name": "%(name)s", "operator": "%(operator)s"}]' % {
+                                    data={'actions': self.format_str1 % {
                                                             'name':     'unknown_field', # <============= HERE
                                                             'operator': 'lower',
-                                                            #'value':    value,
+                                                            'value':    '',
                                                         },
                                          }
                                    )
@@ -112,14 +102,9 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         contact = Contact.objects.create(user=self.user, first_name='kanji', last_name='sasahara')
         response = self.client.post(self.build_url(Contact), follow=True,
-                                    data={'actions': '[{"name": "%(name01)s", "operator": "%(operator01)s"},'
-                                                     ' {"name": "%(name02)s", "operator": "%(operator02)s"}]' % {
-                                                            'name01':     'first_name',
-                                                            'operator01': 'title',
-                                                            #'value':    value,
-
-                                                            'name02':     'last_name',
-                                                            'operator02': 'upper',
+                                    data={'actions': self.format_str2 % {
+                                                            'name01': 'first_name', 'operator01': 'title', 'value01': '',
+                                                            'name02': 'last_name',  'operator02': 'upper', 'value02': '',
                                                         },
                                          }
                                    )
@@ -127,20 +112,17 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
 
         contact = self.refresh(contact)
-        self.assertEqual('Kanji', contact.first_name)
+        self.assertEqual('Kanji',    contact.first_name)
         self.assertEqual('SASAHARA', contact.last_name)
 
     def test_several_actions_error(self): #several times tye same field
         self.login()
 
+        name = 'first_name'
         response = self.client.post(self.build_url(Contact), follow=True,
-                                    data={'actions': '[{"name": "%(name)s", "operator": "%(operator01)s"},'
-                                                     ' {"name": "%(name)s", "operator": "%(operator02)s"}]' % {
-                                                            'name':       'first_name',
-                                                            'operator01': 'title',
-                                                            #'value':    value,
-
-                                                            'operator02': 'upper',
+                                    data={'actions': self.format_str2 % {
+                                                            'name01': name, 'operator01': 'title', 'value01': '',
+                                                            'name02': name, 'operator02': 'upper', 'value02': '',
                                                         },
                                          }
                                    )
@@ -165,10 +147,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         response = self.client.post(self.build_url(Organisation), follow=True,
                                     data={'filter':  efilter.id,
-                                          'actions': '[{"name": "%(name)s", "operator": "%(operator)s"}]' % {
+                                          'actions': self.format_str1 % {
                                                             'name':     'name',
                                                             'operator': 'lower',
-                                                            #'value':    value,
+                                                            'value':    '',
                                                         },
                                          }
                                    )
@@ -202,10 +184,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertTrue(orga02.can_change(self.user))
 
         response = self.client.post(self.build_url(Organisation), follow=True,
-                                    data={'actions': '[{"name": "%(name)s", "operator": "%(operator)s"}]' % {
+                                    data={'actions': self.format_str1 % {
                                                             'name':     'name',
                                                             'operator': 'lower',
-                                                            #'value':    value,
+                                                            'value':    '',
                                                         },
                                          }
                                    )
@@ -214,8 +196,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         self.assertEqual('manga club', self.refresh(orga02).name)
         self.assertEqual('Genshiken',  self.refresh(orga01).name) # <== not changed
-
-    #TODO: validationError: bad op type
 
     #TODO: custom fields ??
 
