@@ -85,6 +85,19 @@ class BatchActionsFieldTestCase(FieldTestCase):
                                         message_args=_('Suffix'),
                                        )
 
+    def test_value_typeerror(self):
+        clean = BatchActionsField(model=Contact).clean
+        self.assertFieldValidationError(BatchActionsField, 'invalidvalue', clean,
+                                        self.format_str % {'name':     'first_name',
+                                                           'operator': 'rm_start',
+                                                           'value':    'notanint', # <===
+                                                          },
+                                        message_args=_('%(operator)s : %(message)s.') % {
+                                                        'operator': _('Remove the start (N characters)'),
+                                                        'message':  _('enter a whole number'),
+                                                    }
+                                       )
+
     def test_ok01(self):
         actions = BatchActionsField(model=Contact).clean(
                         self.format_str % {'name':     'description',
