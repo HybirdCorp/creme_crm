@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.utils.translation import ugettext as _
+
     from creme_core.core.function_field import FunctionField, FunctionFieldsManager
     from creme_core.core.batch_process import OPERATOR_MAP, BatchAction
     from creme_core.tests.base import CremeTestCase
@@ -156,10 +158,17 @@ class BatchOperatorTestCase(_BatchTestCase):
         self.assertEqual('Gally the angel', op(fieldval, 'battle '))
         self.assertEqual(fieldval, op(fieldval, 'evil '))
 
-    #def test_remove_start(self):
-        #op = self.get_operator_or_die('rm_start')
-        #self.assertTrue(op.need_arg)
-        #self.assertEqual('Gally', op('GGGally', 2))
+    def test_remove_start(self):
+        op = self.get_operator_or_die('rm_start')
+        self.assertTrue(op.need_arg)
+        self.assertEqual('Gally', op('GGGally', 2))
+        self.assertEqual('',      op('Gally',   10))
+
+    def test_remove_end(self):
+        op = self.get_operator_or_die('rm_end')
+        self.assertTrue(op.need_arg)
+        self.assertEqual('Gally', op('Gallyyy', 2))
+        self.assertEqual('',      op('Gally',   10))
 
 
 class BatchActionTestCase(_BatchTestCase):
@@ -174,3 +183,32 @@ class BatchActionTestCase(_BatchTestCase):
         haruhi = Contact(first_name='Haruhi', last_name='Suzumiya')
         self.assertFalse(baction(haruhi))
         self.assertEqual('Suzumiya', haruhi.last_name)
+
+    def test_cast(self):
+        baction = BatchAction('last_name', self.get_operator_or_die('rm_start'), value='3')
+        haruhi = Contact(first_name='Haruhi', last_name='Suzumiya')
+        baction(haruhi)
+        self.assertEqual('umiya', haruhi.last_name)
+
+    def test_operand_error(self):
+        op = self.get_operator_or_die('rm_start')
+
+        with self.assertRaises(BatchAction.TypeError) as cm:
+            BatchAction('last_name', op, value='three') #not int
+
+        self.assertEqual(_('%(operator)s : %(message)s.') % {
+                                'operator': _('Remove the start (N characters)'),
+                                'message':  _('enter a whole number'),
+                            },
+                         unicode(cm.exception)
+                        )
+
+        with self.assertRaises(BatchAction.TypeError) as cm:
+            BatchAction('last_name', op, value='-3') #not positive
+
+        self.assertEqual(_('%(operator)s : %(message)s.') % {
+                                'operator': _('Remove the start (N characters)'),
+                                'message':  _('enter a positive number'),
+                            },
+                         unicode(cm.exception)
+                        )

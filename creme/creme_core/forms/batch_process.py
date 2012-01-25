@@ -56,6 +56,7 @@ class BatchActionsField(JSONField):
         'reusedfield':     _(u"The field '%s' can not be used twice."),
         'invalidoperator': _(u"This operator is invalid."),
         'requiredvalue':   _(u"The operator '%s' need a value."),
+        'invalidvalue':    _(u"Invalid value => %s"),
     }
 
     def __init__(self, model=None, *args, **kwargs):
@@ -134,7 +135,7 @@ class BatchActionsField(JSONField):
         if not operator:
             raise ValidationError(self.error_messages['invalidoperator'])
 
-        value = clean_value(clean_value(entry, 'value', dict), 'value', unicode) #or None ??
+        value = clean_value(clean_value(entry, 'value', dict), 'value', unicode)
 
         if operator.need_arg and not value:
             raise ValidationError(self.error_messages['requiredvalue'] % operator)
@@ -145,8 +146,17 @@ class BatchActionsField(JSONField):
         clean_fieldname = self._clean_fieldname
         clean_operator_n_value = self._clean_operator_n_value
         used_fields = set()
+        actions = []
 
-        return [BatchAction(clean_fieldname(entry, used_fields), *clean_operator_n_value(entry)) for entry in data]
+        for entry in data:
+            try:
+                action = BatchAction(clean_fieldname(entry, used_fields), *clean_operator_n_value(entry)) 
+            except BatchAction.TypeError as e:
+                raise ValidationError(self.error_messages['invalidvalue'] % e)
+
+            actions.append(action)
+
+        return actions
 
 
 class BatchProcessForm(CremeForm):

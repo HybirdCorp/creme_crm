@@ -305,10 +305,9 @@ class RegularFieldsConditionsField(_ConditionsField):
         build_4_field = EntityFilterCondition.build_4_field
         clean_fieldname = self._clean_fieldname
         clean_operator_n_values = self._clean_operator_n_values
+        conditions = []
 
         try:
-            conditions = []
-
             for entry in data:
                 operator, values = clean_operator_n_values(entry)
                 conditions.append(build_4_field(model=self.model, name=clean_fieldname(entry),
