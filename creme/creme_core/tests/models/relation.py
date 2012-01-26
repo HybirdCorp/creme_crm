@@ -28,25 +28,27 @@ class RelationsTestCase(CremeTestCase):
         subject_pred = 'is loving'
         object_pred  = 'is loved by'
 
-        try:
+        #try:
+        with self.assertNoException():
             rtype1, rtype2 = RelationType.create(('test-subject_foobar', subject_pred),
                                                  ('test-object_foobar',  object_pred))
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(rtype1.symmetric_type, rtype2)
         self.assertEqual(rtype2.symmetric_type, rtype1)
         self.assertEqual(rtype1.predicate,      subject_pred)
         self.assertEqual(rtype2.predicate,      object_pred)
 
-        try:
+        #try:
+        with self.assertNoException():
             entity1  = CremeEntity.objects.create(user=self.user)
             entity2  = CremeEntity.objects.create(user=self.user)
             relation = Relation.objects.create(user=self.user, type=rtype1,
                                                subject_entity=entity1, object_entity=entity2
                                               )
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         sym = relation.symmetric_relation
         self.assertEqual(sym.type,           rtype2)

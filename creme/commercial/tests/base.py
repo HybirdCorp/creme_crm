@@ -7,8 +7,12 @@ from commercial.models import MarketSegment
 
 
 class CommercialBaseTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config')
+
     def setUp(self):
-        self.populate('creme_core', 'creme_config')
+        #self.populate('creme_core', 'creme_config')
         self.login()
 
     def _create_segment(self):

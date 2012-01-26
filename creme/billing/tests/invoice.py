@@ -114,10 +114,11 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         self.assertFalse(target.can_link(self.user))
 
         response = self.client.get('/billing/invoice/add', follow=True)
-        try:
+        #try:
+        with self.assertNoException():
             form = response.context['form']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertIn('source', form.fields, 'Bad form ?!')
 
@@ -156,10 +157,11 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             form = response.context['form']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(source.id, form['source'].field.initial)
         #self.assertEqual(target.id, form['target'].field.initial) #TODO: should work ?
@@ -197,10 +199,11 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         response = self.client.get('/billing/invoices')
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             invoices_page = response.context['entities']
-        except KeyError as e:
-            self.fail(str(e))
+        #except KeyError as e:
+            #self.fail(str(e))
 
         self.assertEqual(2, invoices_page.paginator.count)
         self.assertEqual(set([invoice1, invoice2]), set(invoices_page.paginator.object_list))
@@ -507,11 +510,12 @@ class BillingDeleteTestCase(_BillingTestCase, CremeTransactionTestCase):
         self.assertFalse(Invoice.objects.filter(pk=invoice.pk).exists())
         self.assertFalse(ServiceLine.objects.filter(pk=service_line.pk).exists())
 
-        try:
+        #try:
+        with self.assertNoException():
             Organisation.objects.get(pk=source.pk)
             Organisation.objects.get(pk=target.pk)
-        except Organisation.DoesNotExist as e:
-            self.fail(e)
+        #except Organisation.DoesNotExist as e:
+            #self.fail(e)
 
     def test_delete02(self):#Can't be deleted
         invoice, source, target = self.create_invoice_n_orgas('Invoice001')

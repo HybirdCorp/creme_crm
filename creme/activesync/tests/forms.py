@@ -11,7 +11,7 @@ except Exception as e:
 
 
 class UserSettingsTestCase(CremeTestCase):
-    def setUp(self):
+    def setUp(self): #setUpClass ??
         self.populate('creme_config', 'activesync')
 
     def test_user_settings01(self):

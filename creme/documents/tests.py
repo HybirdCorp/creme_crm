@@ -17,8 +17,11 @@ except Exception as e:
 
 
 class DocumentTestCase(CremeTestCase):
-    def setUp(self):
-        self.populate('creme_core', 'creme_config', 'documents')
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'documents')
+    #def setUp(self):
+        #self.populate('creme_core', 'creme_config', 'documents')
 
     def test_populate(self):
         self.assertTrue(RelationType.objects.filter(pk=REL_SUB_RELATED_2_DOC).exists())
@@ -102,10 +105,11 @@ class DocumentTestCase(CremeTestCase):
                               }
                         )
 
-        try:
+        #try:
+        with self.assertNoException():
             doc = Document.objects.all()[0]
-        except Exception, e:
-            self.fail(str(e))
+        #except Exception, e:
+            #self.fail(str(e))
 
         url = '/documents/document/edit/%s' % doc.id
         self.assertEqual(200, self.client.get(url).status_code)
@@ -160,10 +164,11 @@ class DocumentTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             doc = Document.objects.get(title=title)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(1, Relation.objects.filter(subject_entity=entity,
                                                     type=REL_SUB_RELATED_2_DOC,
@@ -198,10 +203,11 @@ class DocumentTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             folder = Folder.objects.get(title=title)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(description, folder.description)
         self.assertEqual(parent,      folder.parent_folder)

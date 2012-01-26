@@ -38,20 +38,22 @@ class BlockViewTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(1,   BlockState.objects.count())
 
-        try:
+        #try:
+        with self.assertNoException():
             bstate = BlockState.objects.get(user=self.user, block_id=block_id)
-        except Exception, e:
-            self.fail(e)
+        #except Exception, e:
+            #self.fail(e)
 
         self.assertFalse(bstate.is_open)
 
         response = self.client.post('/creme_core/blocks/reload/set_state/%s/' % block_id, data={})#No data
         self.assertEqual(200, response.status_code)
         self.assertEqual(1,   BlockState.objects.count())
-        try:
+        #try:
+        with self.assertNoException():
             bstate = BlockState.objects.get(user=self.user, block_id=block_id)
-        except Exception, e:
-            self.fail(e)
+        #except Exception, e:
+            #self.fail(e)
 
         self.assertFalse(bstate.is_open)
 
@@ -62,10 +64,11 @@ class BlockViewTestCase(CremeTestCase):
                                     data={'is_open': 1, 'show_empty_fields': 1})
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             block_state = BlockState.objects.get(user=self.user, block_id=block_id)
-        except Exception, e:
-            self.fail(e)
+        #except Exception, e:
+            #self.fail(e)
 
         self.assertTrue(block_state.is_open)
         self.assertTrue(block_state.show_empty_fields)

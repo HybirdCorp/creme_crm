@@ -35,16 +35,18 @@ class VcfsTestCase(CremeTestCase):
 
     def _post_form_step_0(self, url, file):
         return self.client.post(url, follow=True,
-                                data={
-                                        'user':     self.user,
-                                        'vcf_step': 0,
-                                        'vcf_file': file,
+                                data={'user':     self.user,
+                                      'vcf_step': 0,
+                                      'vcf_file': file,
                                      }
                                 )
 
 class VcfTestCase(VcfsTestCase):
-    def setUp(self):
-        self.populate('creme_core', 'creme_config')
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config')
+    #def setUp(self):
+        #self.populate('creme_core', 'creme_config')
 
     def test_add_vcf(self):
         self.login()
@@ -59,10 +61,11 @@ class VcfTestCase(VcfsTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             form = response.context['form']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertIn('value="1"', unicode(form['vcf_step']))
 
@@ -73,10 +76,11 @@ class VcfTestCase(VcfsTestCase):
         filedata = self._build_filedata(content)
         response = self._post_form_step_0('/vcfs/vcf', filedata.file)
 
-        try:
+        #try:
+        with self.assertNoException():
             form = response.context['form']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertIn('value="1"', unicode(form['vcf_step']))
 
@@ -91,10 +95,11 @@ class VcfTestCase(VcfsTestCase):
         filedata = self._build_filedata(content)
         response = self._post_form_step_0('/vcfs/vcf', filedata.file)
 
-        try:
+        #try:
+        with self.assertNoException():
             form = response.context['form']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         vobj = vcf_lib.readOne(content)
         n_value = vobj.n.value
@@ -127,10 +132,11 @@ class VcfTestCase(VcfsTestCase):
         filedata = self._build_filedata(content)
         response = self._post_form_step_0('/vcfs/vcf', filedata.file)
 
-        try:
+        #try:
+        with self.assertNoException():
             form = response.context['form']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         vobj = vcf_lib.readOne(content)
         self.assertEqual(form['work_name'].field.initial,     vobj.org.value[0])
@@ -151,10 +157,11 @@ class VcfTestCase(VcfsTestCase):
         filedata = self._build_filedata(content)
         response = self._post_form_step_0('/vcfs/vcf', filedata.file)
 
-        try:
+        #try:
+        with self.assertNoException():
             form = response.context['form']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         vobj = vcf_lib.readOne(content)
         help_prefix = _(u'Read in VCF File without type : ')
@@ -173,17 +180,21 @@ class VcfTestCase(VcfsTestCase):
         filedata = self._build_filedata(content)
         response = self._post_form_step_0('/vcfs/vcf', filedata.file)
 
-        try:
+        #try:
+        with self.assertNoException():
             form = response.context['form']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(form['organisation'].field.initial, orga.id)
 
 
 class ContactTestCase(VcfsTestCase):
-    def setUp(self):
-        self.populate('creme_core', 'creme_config', 'persons')
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'persons')
+    #def setUp(self):
+        #self.populate('creme_core', 'creme_config', 'persons')
 
     def _assertFormOK(self, response):
         self.assertNoFormError(response)
@@ -216,17 +227,16 @@ class ContactTestCase(VcfsTestCase):
         self.assertIn('value="1"', unicode(form['vcf_step']))
 
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':        user,
-                                            'vcf_step':    1,
-                                            'first_name':  first_name,
-                                            'last_name':   last_name,
-                                            'phone':       phone,
-                                            'mobile':      mobile,
-                                            'fax':         fax,
-                                            'email':       email,
-                                            'url_site':    url_site,
-                                            'create_or_attach_orga': False,
+                                    data={'user':        user,
+                                          'vcf_step':    1,
+                                          'first_name':  first_name,
+                                          'last_name':   last_name,
+                                          'phone':       phone,
+                                          'mobile':      mobile,
+                                          'fax':         fax,
+                                          'email':       email,
+                                          'url_site':    url_site,
+                                          'create_or_attach_orga': False,
                                          }
                                     )
         self._assertFormOK(response)
@@ -263,17 +273,16 @@ class ContactTestCase(VcfsTestCase):
         email      = form['email'].field.initial
         url_site   = form['url_site'].field.initial
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':        user,
-                                            'vcf_step':    1,
-                                            'first_name':  first_name,
-                                            'last_name':   last_name,
-                                            'phone':       phone,
-                                            'mobile':      mobile,
-                                            'fax':         fax,
-                                            'email':       email,
-                                            'url_site':    url_site,
-                                            'create_or_attach_orga': True,
+                                    data={'user':        user,
+                                          'vcf_step':    1,
+                                          'first_name':  first_name,
+                                          'last_name':   last_name,
+                                          'phone':       phone,
+                                          'mobile':      mobile,
+                                          'fax':         fax,
+                                          'email':       email,
+                                          'url_site':    url_site,
+                                          'create_or_attach_orga': True,
                                          }
                                     )
         validation_text = _(u'Required, if you want to create organisation')
@@ -309,33 +318,29 @@ class ContactTestCase(VcfsTestCase):
         work_email    = form['work_email'].field.initial
         work_url_site = form['work_url_site'].field.initial
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':          user,
-                                            'vcf_step':      1,
-                                            'first_name':    first_name,
-                                            'last_name':     last_name,
-                                            'phone':         phone,
-                                            'mobile':        mobile,
-                                            'fax':           fax,
-                                            'email':         email,
-                                            'url_site':      url_site,
-                                            'create_or_attach_orga': False,
-                                            'work_name':     work_name,
-                                            'work_phone':    work_phone,
-                                            'work_email':    work_email,
-                                            'work_url_site': work_url_site,
+                                    data={'user':          user,
+                                          'vcf_step':      1,
+                                          'first_name':    first_name,
+                                          'last_name':     last_name,
+                                          'phone':         phone,
+                                          'mobile':        mobile,
+                                          'fax':           fax,
+                                          'email':         email,
+                                          'url_site':      url_site,
+                                          'create_or_attach_orga': False,
+                                          'work_name':     work_name,
+                                          'work_phone':    work_phone,
+                                          'work_email':    work_email,
+                                          'work_url_site': work_url_site,
                                          }
                                     )
         self._assertFormOK(response)
         self.assertEqual(contact_count + 1, Contact.objects.count())
         self.assertEqual(orga_count,        Organisation.objects.count())
 
-        try:
-            Contact.objects.get(first_name=first_name, last_name=last_name, phone=phone,
+        self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name, phone=phone,
                                 mobile=mobile, fax=fax, email=email, url_site=url_site
                                )
-        except Exception as e:
-            self.fail(str(e))
 
     def test_add_contact_vcf03(self):
         self.login()
@@ -365,22 +370,21 @@ class ContactTestCase(VcfsTestCase):
         work_url_site = form['work_url_site'].field.initial
 
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':          user,
-                                            'vcf_step':      1,
-                                            'first_name':    first_name,
-                                            'last_name':     last_name,
-                                            'phone':         phone,
-                                            'mobile':        mobile,
-                                            'fax':           fax,
-                                            'email':         email,
-                                            'url_site':      url_site,
-                                            'create_or_attach_orga': True,
-                                            'relation':      REL_SUB_EMPLOYED_BY,
-                                            'work_name':     work_name,
-                                            'work_phone':    work_phone,
-                                            'work_email':    work_email,
-                                            'work_url_site': work_url_site,
+                                    data={'user':          user,
+                                          'vcf_step':      1,
+                                          'first_name':    first_name,
+                                          'last_name':     last_name,
+                                          'phone':         phone,
+                                          'mobile':        mobile,
+                                          'fax':           fax,
+                                          'email':         email,
+                                          'url_site':      url_site,
+                                          'create_or_attach_orga': True,
+                                          'relation':      REL_SUB_EMPLOYED_BY,
+                                          'work_name':     work_name,
+                                          'work_phone':    work_phone,
+                                          'work_email':    work_email,
+                                          'work_url_site': work_url_site,
                                          }
                                     )
         self._assertFormOK(response)
@@ -388,12 +392,9 @@ class ContactTestCase(VcfsTestCase):
         self.assertEqual(contact_count + 1, Contact.objects.count())
         self.assertEqual(orga_count + 1,    Organisation.objects.count())
 
-        try:
-            orga = Organisation.objects.get(name=work_name, phone=work_phone, email=work_email, url_site=work_url_site)
-            contact = Contact.objects.get(first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email)
-            Relation.objects.get(subject_entity=contact.id, type=REL_SUB_EMPLOYED_BY, object_entity=orga.id)
-        except Exception as e:
-            self.fail(str(e))
+        orga = self.get_object_or_fail(Organisation, name=work_name, phone=work_phone, email=work_email, url_site=work_url_site)
+        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email)
+        self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga)
 
     def test_add_contact_vcf04(self):
         self.login()
@@ -426,34 +427,30 @@ class ContactTestCase(VcfsTestCase):
         work_url_site = form['work_url_site'].field.initial
 
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':          user,
-                                            'vcf_step':      1,
-                                            'first_name':    first_name,
-                                            'last_name':     last_name,
-                                            'phone':         phone,
-                                            'mobile':        mobile,
-                                            'fax':           fax,
-                                            'email':         email,
-                                            'url_site':      url_site,
-                                            'create_or_attach_orga': True,
-                                            'organisation':  orga_id,
-                                            'relation':      REL_SUB_EMPLOYED_BY,
-                                            'work_name':     work_name,
-                                            'work_phone':    work_phone,
-                                            'work_email':    work_email,
-                                            'work_url_site': work_url_site,
+                                    data={'user':          user,
+                                          'vcf_step':      1,
+                                          'first_name':    first_name,
+                                          'last_name':     last_name,
+                                          'phone':         phone,
+                                          'mobile':        mobile,
+                                          'fax':           fax,
+                                          'email':         email,
+                                          'url_site':      url_site,
+                                          'create_or_attach_orga': True,
+                                          'organisation':  orga_id,
+                                          'relation':      REL_SUB_EMPLOYED_BY,
+                                          'work_name':     work_name,
+                                          'work_phone':    work_phone,
+                                          'work_email':    work_email,
+                                          'work_url_site': work_url_site,
                                          }
                                     )
         self._assertFormOK(response)
         self.assertEqual(contact_count + 1, Contact.objects.count())
         self.assertEqual(orga_count + 1,    Organisation.objects.count())
 
-        try:
-            contact = Contact.objects.get(first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email)
-            Relation.objects.get(subject_entity=contact.id, type=REL_SUB_EMPLOYED_BY, object_entity=orga.id)
-        except Exception as e:
-            self.fail(str(e))
+        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email)
+        self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga)
 
     def test_add_contact_vcf05(self):
         self.login()
@@ -485,23 +482,22 @@ class ContactTestCase(VcfsTestCase):
         region        = form['region'].field.initial
 
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':          user,
-                                            'vcf_step':      1,
-                                            'first_name':    first_name,
-                                            'last_name':     last_name,
-                                            'phone':         phone,
-                                            'mobile':        mobile,
-                                            'fax':           fax,
-                                            'email':         email,
-                                            'url_site':      url_site,
-                                            'adr_last_name': adr_last_name,
-                                            'address':       address,
-                                            'city':          city,
-                                            'country':       country,
-                                            'code':          code,
-                                            'region':        region,
-                                            'create_or_attach_orga': False,
+                                    data={'user':          user,
+                                          'vcf_step':      1,
+                                          'first_name':    first_name,
+                                          'last_name':     last_name,
+                                          'phone':         phone,
+                                          'mobile':        mobile,
+                                          'fax':           fax,
+                                          'email':         email,
+                                          'url_site':      url_site,
+                                          'adr_last_name': adr_last_name,
+                                          'address':       address,
+                                          'city':          city,
+                                          'country':       country,
+                                          'code':          code,
+                                          'region':        region,
+                                          'create_or_attach_orga': False,
                                          }
                                     )
         self._assertFormOK(response)
@@ -509,11 +505,8 @@ class ContactTestCase(VcfsTestCase):
         self.assertEqual(contact_count + 1, Contact.objects.count())
         self.assertEqual(address_count + 1, Address.objects.count())
 
-        try:
-            contact = Contact.objects.get(first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email)
-            address = Address.objects.get(name=adr_last_name, address=address, city=city, zipcode=code, country=country, department=region)
-        except Exception as e:
-            self.fail(str(e))
+        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email)
+        address = self.get_object_or_fail(Address, name=adr_last_name, address=address, city=city, zipcode=code, country=country, department=region)
 
         self.assertEqual(contact.billing_address, address)
 
@@ -556,31 +549,30 @@ class ContactTestCase(VcfsTestCase):
         work_region    = form['work_region'].field.initial
 
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':          user,
-                                            'vcf_step':      1,
-                                            'first_name':    first_name,
-                                            'last_name':     last_name,
-                                            'phone':         phone,
-                                            'mobile':        mobile,
-                                            'fax':           fax,
-                                            'email':         email,
-                                            'url_site':      url_site,
-                                            'adr_last_name': adr_last_name,
-                                            'address':       address,
-                                            'city':          city,
-                                            'country':       country,
-                                            'code':          code,
-                                            'region':        region,
-                                            'create_or_attach_orga': True,
-                                            'relation':      REL_SUB_EMPLOYED_BY,
-                                            'work_name':     work_name,
-                                            'work_adr_name': work_adr_name,
-                                            'work_address':  work_address,
-                                            'work_city':     work_city,
-                                            'work_country':  work_country,
-                                            'work_code':     work_code,
-                                            'work_region':   work_region,
+                                    data={'user':          user,
+                                          'vcf_step':      1,
+                                          'first_name':    first_name,
+                                          'last_name':     last_name,
+                                          'phone':         phone,
+                                          'mobile':        mobile,
+                                          'fax':           fax,
+                                          'email':         email,
+                                          'url_site':      url_site,
+                                          'adr_last_name': adr_last_name,
+                                          'address':       address,
+                                          'city':          city,
+                                          'country':       country,
+                                          'code':          code,
+                                          'region':        region,
+                                          'create_or_attach_orga': True,
+                                          'relation':      REL_SUB_EMPLOYED_BY,
+                                          'work_name':     work_name,
+                                          'work_adr_name': work_adr_name,
+                                          'work_address':  work_address,
+                                          'work_city':     work_city,
+                                          'work_country':  work_country,
+                                          'work_code':     work_code,
+                                          'work_region':   work_region,
                                          }
                                     )
         self._assertFormOK(response)
@@ -589,13 +581,10 @@ class ContactTestCase(VcfsTestCase):
         self.assertEqual(orga_count + 1,    Organisation.objects.count())
         self.assertEqual(address_count + 2, Address.objects.count())
 
-        try:
-            contact         = Contact.objects.get(first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email)
-            orga            = Organisation.objects.get(name=work_name)
-            address_contact = Address.objects.get(name=adr_last_name, address=address, city=city, zipcode=code, country=country, department=region)
-            address_orga    = Address.objects.get(name=work_adr_name, address=work_address, city=work_city, zipcode=work_code, country=work_country, department=work_region)
-        except Exception as e:
-            self.fail(str(e))
+        contact         = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email)
+        orga            = self.get_object_or_fail(Organisation, name=work_name)
+        address_contact = self.get_object_or_fail(Address, name=adr_last_name, address=address, city=city, zipcode=code, country=country, department=region)
+        address_orga    = self.get_object_or_fail(Address, name=work_adr_name, address=work_address, city=work_city, zipcode=work_code, country=work_country, department=work_region)
 
         self.assertEqual(contact.billing_address, address_contact)
         self.assertEqual(orga.billing_address,    address_orga)
@@ -632,30 +621,29 @@ class ContactTestCase(VcfsTestCase):
 
         response = self.client.post(url,
                                     follow=True,
-                                    data={
-                                            'user':                 user,
-                                            'vcf_step':             1,
-                                            'first_name':           first_name,
-                                            'last_name':            last_name,
-                                            'create_or_attach_orga': False,
-                                            'organisation':         orga_id,
-                                            'relation':             REL_SUB_EMPLOYED_BY,
-                                            'work_name':            work_name,
-                                            'work_phone':           work_phone,
-                                            'work_email':           work_email,
-                                            'work_url_site':        work_url_site,
-                                            'work_adr_name':        work_adr_name,
-                                            'work_address':         work_address,
-                                            'work_city':            work_city,
-                                            'work_country':         work_country,
-                                            'work_code':            work_code,
-                                            'work_region':          work_region,
-                                            'update_orga_name':     True,
-                                            'update_orga_phone':    True,
-                                            'update_orga_email':    True,
-                                            'update_orga_fax':      True,
-                                            'update_orga_url_site': True,
-                                            'update_orga_address':  True,
+                                    data={'user':                 user,
+                                          'vcf_step':             1,
+                                          'first_name':           first_name,
+                                          'last_name':            last_name,
+                                          'create_or_attach_orga': False,
+                                          'organisation':         orga_id,
+                                          'relation':             REL_SUB_EMPLOYED_BY,
+                                          'work_name':            work_name,
+                                          'work_phone':           work_phone,
+                                          'work_email':           work_email,
+                                          'work_url_site':        work_url_site,
+                                          'work_adr_name':        work_adr_name,
+                                          'work_address':         work_address,
+                                          'work_city':            work_city,
+                                          'work_country':         work_country,
+                                          'work_code':            work_code,
+                                          'work_region':          work_region,
+                                          'update_orga_name':     True,
+                                          'update_orga_phone':    True,
+                                          'update_orga_email':    True,
+                                          'update_orga_fax':      True,
+                                          'update_orga_url_site': True,
+                                          'update_orga_address':  True,
                                          }
                                     )
         validation_text = _(u'Create organisation not checked')
@@ -696,29 +684,28 @@ class ContactTestCase(VcfsTestCase):
         work_region    = form['work_region'].field.initial
 
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':                 user,
-                                            'vcf_step':             1,
-                                            'first_name':           first_name,
-                                            'last_name':            last_name,
-                                            'create_or_attach_orga': True,
-                                            'relation':             REL_SUB_EMPLOYED_BY,
-                                            'work_name':            work_name,
-                                            'work_phone':           work_phone,
-                                            'work_email':           work_email,
-                                            'work_url_site':        work_url_site,
-                                            'work_adr_name':        work_adr_name,
-                                            'work_address':         work_address,
-                                            'work_city':            work_city,
-                                            'work_country':         work_country,
-                                            'work_code':            work_code,
-                                            'work_region':          work_region,
-                                            'update_orga_name':     True,
-                                            'update_orga_phone':    True,
-                                            'update_orga_email':    True,
-                                            'update_orga_fax':      True,
-                                            'update_orga_url_site': True,
-                                            'update_orga_address':  True,
+                                    data={'user':                 user,
+                                          'vcf_step':             1,
+                                          'first_name':           first_name,
+                                          'last_name':            last_name,
+                                          'create_or_attach_orga': True,
+                                          'relation':             REL_SUB_EMPLOYED_BY,
+                                          'work_name':            work_name,
+                                          'work_phone':           work_phone,
+                                          'work_email':           work_email,
+                                          'work_url_site':        work_url_site,
+                                          'work_adr_name':        work_adr_name,
+                                          'work_address':         work_address,
+                                          'work_city':            work_city,
+                                          'work_country':         work_country,
+                                          'work_code':            work_code,
+                                          'work_region':          work_region,
+                                          'update_orga_name':     True,
+                                          'update_orga_phone':    True,
+                                          'update_orga_email':    True,
+                                          'update_orga_fax':      True,
+                                          'update_orga_url_site': True,
+                                          'update_orga_address':  True,
                                          }
                                     )
         validation_text = _(u'Organisation not selected')
@@ -750,20 +737,19 @@ class ContactTestCase(VcfsTestCase):
         orga_id = form['organisation'].field.initial
 
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':                 user,
-                                            'vcf_step':             1,
-                                            'first_name':           first_name,
-                                            'last_name':            last_name,
-                                            'create_or_attach_orga': True,
-                                            'organisation':         orga_id,
-                                            'relation':             REL_SUB_EMPLOYED_BY,
-                                            'update_orga_name':     True,
-                                            'update_orga_phone':    True,
-                                            'update_orga_fax':      True,
-                                            'update_orga_email':    True,
-                                            'update_orga_url_site': True,
-                                            'update_orga_address':  True,
+                                    data={'user':                 user,
+                                          'vcf_step':             1,
+                                          'first_name':           first_name,
+                                          'last_name':            last_name,
+                                          'create_or_attach_orga': True,
+                                          'organisation':         orga_id,
+                                          'relation':             REL_SUB_EMPLOYED_BY,
+                                          'update_orga_name':     True,
+                                          'update_orga_phone':    True,
+                                          'update_orga_fax':      True,
+                                          'update_orga_email':    True,
+                                          'update_orga_url_site': True,
+                                          'update_orga_address':  True,
                                          }
                                     )
         validation_text = _(u'Required, if you want to update organisation')
@@ -816,29 +802,28 @@ class ContactTestCase(VcfsTestCase):
         work_region    = form['work_region'].field.initial
 
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':                 user,
-                                            'vcf_step':             1,
-                                            'first_name':           first_name,
-                                            'last_name':            last_name,
-                                            'create_or_attach_orga': True,
-                                            'organisation':         orga_id,
-                                            'relation':             REL_SUB_EMPLOYED_BY,
-                                            'work_name':            work_name,
-                                            'work_phone':           work_phone,
-                                            'work_email':           work_email,
-                                            'work_url_site':        work_url_site,
-                                            'work_adr_name':        work_adr_name,
-                                            'work_address':         work_address,
-                                            'work_city':            work_city,
-                                            'work_country':         work_country,
-                                            'work_code':            work_code,
-                                            'work_region':          work_region,
-                                            'update_orga_name':     True,
-                                            'update_orga_phone':    True,
-                                            'update_orga_email':    True,
-                                            'update_orga_url_site': True,
-                                            'update_orga_address':  True,
+                                    data={'user':                 user,
+                                          'vcf_step':             1,
+                                          'first_name':           first_name,
+                                          'last_name':            last_name,
+                                          'create_or_attach_orga': True,
+                                          'organisation':         orga_id,
+                                          'relation':             REL_SUB_EMPLOYED_BY,
+                                          'work_name':            work_name,
+                                          'work_phone':           work_phone,
+                                          'work_email':           work_email,
+                                          'work_url_site':        work_url_site,
+                                          'work_adr_name':        work_adr_name,
+                                          'work_address':         work_address,
+                                          'work_city':            work_city,
+                                          'work_country':         work_country,
+                                          'work_code':            work_code,
+                                          'work_region':          work_region,
+                                          'update_orga_name':     True,
+                                          'update_orga_phone':    True,
+                                          'update_orga_email':    True,
+                                          'update_orga_url_site': True,
+                                          'update_orga_address':  True,
                                          }
                                     )
         self._assertFormOK(response)
@@ -847,11 +832,7 @@ class ContactTestCase(VcfsTestCase):
         self.assertEqual(orga_count,        Organisation.objects.count())
         self.assertEqual(address_count,     Address.objects.count())
 
-        try:
-            orga = Organisation.objects.get(id=orga.id)
-        except Exception as e:
-            self.fail(str(e))
-
+        orga = self.refresh(orga)
         billing_address = orga.billing_address
 
         vobj = vcf_lib.readOne(content)
@@ -899,22 +880,21 @@ class ContactTestCase(VcfsTestCase):
         work_region   = form['work_region'].field.initial
 
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':                 user,
-                                            'vcf_step':             1,
-                                            'first_name':           first_name,
-                                            'last_name':            last_name,
-                                            'create_or_attach_orga': True,
-                                            'organisation':         orga_id,
-                                            'relation':             REL_SUB_EMPLOYED_BY,
-                                            'work_name':            work_name,
-                                            'work_adr_name':        work_adr_name,
-                                            'work_address':         work_address,
-                                            'work_city':            work_city,
-                                            'work_country':         work_country,
-                                            'work_code':            work_code,
-                                            'work_region':          work_region,
-                                            'update_orga_address':  True,
+                                    data={'user':                 user,
+                                          'vcf_step':             1,
+                                          'first_name':           first_name,
+                                          'last_name':            last_name,
+                                          'create_or_attach_orga': True,
+                                          'organisation':         orga_id,
+                                          'relation':             REL_SUB_EMPLOYED_BY,
+                                          'work_name':            work_name,
+                                          'work_adr_name':        work_adr_name,
+                                          'work_address':         work_address,
+                                          'work_city':            work_city,
+                                          'work_country':         work_country,
+                                          'work_code':            work_code,
+                                          'work_region':          work_region,
+                                          'update_orga_address':  True,
                                          }
                                     )
         self._assertFormOK(response)
@@ -923,11 +903,8 @@ class ContactTestCase(VcfsTestCase):
         self.assertEqual(orga_count,        Organisation.objects.count())
         self.assertEqual(address_count + 1, Address.objects.count())
 
-        try:
-            address = Address.objects.get(name=work_adr_name, address=work_address, city=work_city, zipcode=work_code, country=work_country, department=work_region)
-            orga    = Organisation.objects.get(id=orga_id)
-        except Exception as e:
-            self.fail(str(e))
+        address = self.get_object_or_fail(Address, name=work_adr_name, address=work_address, city=work_city, zipcode=work_code, country=work_country, department=work_region)
+        orga    = self.get_object_or_fail(Organisation, id=orga_id)
 
         vobj = vcf_lib.readOne(content)
         adr = vobj.adr.value
@@ -966,17 +943,16 @@ class ContactTestCase(VcfsTestCase):
         url_site   = form['url_site'].field.initial
 
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':          user,
-                                            'vcf_step':      1,
-                                            'first_name':    first_name,
-                                            'last_name':     last_name,
-                                            'phone':         phone,
-                                            'mobile':        mobile,
-                                            'fax':           fax,
-                                            'email':         email,
-                                            'url_site':      url_site,
-                                            'create_or_attach_orga': False,
+                                    data={'user':          user,
+                                          'vcf_step':      1,
+                                          'first_name':    first_name,
+                                          'last_name':     last_name,
+                                          'phone':         phone,
+                                          'mobile':        mobile,
+                                          'fax':           fax,
+                                          'email':         email,
+                                          'url_site':      url_site,
+                                          'create_or_attach_orga': False,
                                          }
                                     )
         self._assertFormOK(response)
@@ -986,11 +962,8 @@ class ContactTestCase(VcfsTestCase):
         self.assertEqual(orga_count,        Organisation.objects.count())
         self.assertEqual(address_count,     Address.objects.count())
 
-        try:
-            Contact.objects.get(first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email, url_site='http://www.url.com/')
-            # url_site='http://www.url.com/' and not url_site=url_site because URLField add 'http://' and '/'
-        except Exception as e:
-            self.fail(str(e))
+        # url_site='http://www.url.com/' and not url_site=url_site because URLField add 'http://' and '/'
+        self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email, url_site='http://www.url.com/')
 
     def test_add_contact_vcf13(self):
         self.login()
@@ -1011,22 +984,17 @@ class ContactTestCase(VcfsTestCase):
         position_id = form['position'].field.initial
 
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':       user,
-                                            'vcf_step':   1,
-                                            'first_name': first_name,
-                                            'last_name':  last_name,
-                                            'civility':   civility_id,
-                                            'position':   position_id,
+                                    data={'user':       user,
+                                          'vcf_step':   1,
+                                          'first_name': first_name,
+                                          'last_name':  last_name,
+                                          'civility':   civility_id,
+                                          'position':   position_id,
                                          }
                                     )
         self._assertFormOK(response)
         self.assertEqual(contact_count + 1, Contact.objects.count())
-
-        try:
-            Contact.objects.get(civility=civility_id, first_name=first_name, last_name=last_name, position=position_id)
-        except Exception as e:
-            self.fail(str(e))
+        self.get_object_or_fail(Contact, civility=civility_id, first_name=first_name, last_name=last_name, position=position_id)
 
     def test_add_contact_vcf14(self):
         self.login()
@@ -1049,13 +1017,12 @@ class ContactTestCase(VcfsTestCase):
         image      = form['image_encoded'].field.initial
 
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':          user,
-                                            'vcf_step':      1,
-                                            'first_name':    first_name,
-                                            'last_name':     last_name,
-                                            'create_or_attach_orga': False,
-                                            'image_encoded': image,
+                                    data={'user':          user,
+                                          'vcf_step':      1,
+                                          'first_name':    first_name,
+                                          'last_name':     last_name,
+                                          'create_or_attach_orga': False,
+                                          'image_encoded': image,
                                          }
                                     )
         self._assertFormOK(response)
@@ -1065,11 +1032,8 @@ class ContactTestCase(VcfsTestCase):
         self.assertEqual(orga_count,        Organisation.objects.count())
         self.assertEqual(address_count,     Address.objects.count())
 
-        try:
-            contact = Contact.objects.get(first_name=first_name, last_name=last_name)
-        except Exception as e:
-            self.fail(str(e))
 
+        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertTrue(contact.image)
         self.assertEqual(_(u'Image of %s') % contact, contact.image.name)
         contact.image.image.delete()
@@ -1100,12 +1064,11 @@ class ContactTestCase(VcfsTestCase):
         enc_image  = form['image_encoded'].field.initial
 
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':          user,
-                                            'vcf_step':      1,
-                                            'first_name':    first_name,
-                                            'last_name':     last_name,
-                                            'image_encoded': enc_image,
+                                    data={'user':          user,
+                                          'vcf_step':      1,
+                                          'first_name':    first_name,
+                                          'last_name':     last_name,
+                                          'image_encoded': enc_image,
                                          }
                                     )
         self._assertFormOK(response)
@@ -1113,10 +1076,7 @@ class ContactTestCase(VcfsTestCase):
         self.assertEqual(contact_count + 1, Contact.objects.count())
         #self.assertEqual(image_count + 1,   Image.objects.count())
 
-        try:
-            contact = Contact.objects.get(first_name=first_name, last_name=last_name)
-        except Exception as e:
-            self.fail(str(e))
+        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
 
         images = Image.objects.all()
         self.assertEqual(1, len(images))
@@ -1145,12 +1105,11 @@ class ContactTestCase(VcfsTestCase):
         image      = form['image_encoded'].field.initial
 
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':          user,
-                                            'vcf_step':      1,
-                                            'first_name':    first_name,
-                                            'last_name':     last_name,
-                                            'image_encoded': image,
+                                    data={'user':          user,
+                                          'vcf_step':      1,
+                                          'first_name':    first_name,
+                                          'last_name':     last_name,
+                                          'image_encoded': image,
                                          }
                                     )
         self._assertFormOK(response)
@@ -1183,12 +1142,11 @@ class ContactTestCase(VcfsTestCase):
         image      = form['image_encoded'].field.initial
 
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':          user,
-                                            'vcf_step':      1,
-                                            'first_name':    first_name,
-                                            'last_name':     last_name,
-                                            'image_encoded': image,
+                                    data={'user':          user,
+                                          'vcf_step':      1,
+                                          'first_name':    first_name,
+                                          'last_name':     last_name,
+                                          'image_encoded': image,
                                          }
                                     )
         self._assertFormOK(response)

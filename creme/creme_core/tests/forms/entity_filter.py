@@ -31,10 +31,11 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
     def test_clean_empty_not_required(self):
         field = RegularFieldsConditionsField(required=False)
 
-        try:
+        #try:
+        with self.assertNoException():
             field.clean(None)
-        except Exception, e:
-            self.fail(str(e))
+        #except Exception, e:
+            #self.fail(str(e))
 
     def test_clean_invalid_data_type(self):
         clean = RegularFieldsConditionsField().clean
@@ -407,10 +408,11 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, "[]")
 
     def test_clean_empty_not_required(self):
-        try:
+        #try:
+        with self.assertNoException():
             PropertiesConditionsField(required=False).clean(None)
-        except Exception, e:
-            self.fail(str(e))
+        #except Exception, e:
+            #self.fail(str(e))
 
     def test_clean_invalid_data_type(self):
         clean = PropertiesConditionsField(model=Contact).clean
@@ -463,10 +465,11 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(RelationsConditionsField, 'required', clean, "[]")
 
     def test_clean_empty_not_required(self):
-        try:
+        #try:
+        with self.assertNoException():
             RelationsConditionsField(required=False).clean(None)
-        except Exception, e:
-            self.fail(str(e))
+        #except Exception, e:
+            #self.fail(str(e))
 
     def test_clean_invalid_data_type(self):
         clean = RelationsConditionsField(model=Contact).clean

@@ -13,8 +13,11 @@ except Exception as e:
 
 
 class TicketTestCase(CremeTestCase):
-    def setUp(self):
-        self.populate('creme_core', 'creme_config', 'tickets')
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'tickets')
+    #def setUp(self):
+        #self.populate('creme_core', 'creme_config', 'tickets')
 
     def test_populate(self):
         for pk, name in BASE_STATUS:
@@ -53,10 +56,12 @@ class TicketTestCase(CremeTestCase):
         response = self.client.get('/tickets/ticket/%s' % ticket.pk)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+            #retr_ticket = response.context['object']
+        #except KeyError as e:
+            #self.fail(str(e))
+        with self.assertNoException():
             retr_ticket = response.context['object']
-        except KeyError as e:
-            self.fail(str(e))
 
         self.assertIsInstance(retr_ticket, Ticket)
         self.assertEqual(priority,     retr_ticket.priority)
@@ -105,10 +110,12 @@ class TicketTestCase(CremeTestCase):
         self.assertFalse(ticket.closing_date)
         self.assertFalse(ticket.get_resolving_duration())
 
-        try:
+        #try:
+            #funf = ticket.function_fields.get('get_resolving_duration')
+        #except Exception as e:
+            #self.fail(str(e))
+        with self.assertNoException():
             funf = ticket.function_fields.get('get_resolving_duration')
-        except Exception as e:
-            self.fail(str(e))
 
         self.assertEqual('', funf(ticket).for_html())
 
@@ -189,10 +196,12 @@ class TicketTestCase(CremeTestCase):
         response = self.client.get('/tickets/tickets')
         self.assertEqual(response.status_code, 200)
 
-        try:
+        #try:
+            #tickets_page = response.context['entities']
+        #except Exception as e:
+            #self.fail(str(e))
+        with self.assertNoException():
             tickets_page = response.context['entities']
-        except Exception as e:
-            self.fail(str(e))
 
         self.assertEqual(1, tickets_page.number)
         self.assertFalse(tickets_page.paginator.count)
@@ -211,10 +220,12 @@ class TicketTestCase(CremeTestCase):
         response = self.client.get('/tickets/tickets')
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+            #tickets_page = response.context['entities']
+        #except KeyError as e:
+            #self.fail(str(e))
+        with self.assertNoException():
             tickets_page = response.context['entities']
-        except KeyError as e:
-            self.fail(str(e))
 
         self.assertEqual(1, tickets_page.paginator.count)
 
@@ -269,8 +280,11 @@ class TicketTestCase(CremeTestCase):
 
 
 class TicketTemplateTestCase(CremeTestCase):
-    def setUp(self):
-        self.populate('creme_core', 'creme_config', 'tickets')
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'tickets')
+    #def setUp(self):
+        #self.populate('creme_core', 'creme_config', 'tickets')
 
     def create_template(self, title, description='description', status=None):
         status = status or Status.objects.get(pk=OPEN_PK)
@@ -334,10 +348,12 @@ class TicketTemplateTestCase(CremeTestCase):
         self.login()
 
         template = self.create_template('Title', status=Status.objects.get(pk=OPEN_PK))
-        try:
+        #try:
+            #ticket = template.create_entity()
+        #except Exception as e:
+            #self.fail(str(e))
+        with self.assertNoException():
             ticket = template.create_entity()
-        except Exception as e:
-            self.fail(str(e))
 
         self.assertIn(template.title, ticket.title)
         self.assertEqual(template.description, ticket.description)
@@ -350,10 +366,12 @@ class TicketTemplateTestCase(CremeTestCase):
         self.login()
 
         template = self.create_template('Title', status=Status.objects.get(pk=CLOSED_PK))
-        try:
+        #try:
+            #ticket = template.create_entity()
+        #except Exception as e:
+            #self.fail(str(e))
+        with self.assertNoException():
             ticket = template.create_entity()
-        except Exception as e:
-            self.fail(str(e))
 
         self.assertIn(template.title, ticket.title)
         self.assertEqual(template.description, ticket.description)
@@ -368,11 +386,14 @@ class TicketTemplateTestCase(CremeTestCase):
         self.assertEqual(0, Ticket.objects.count())
 
         template = self.create_template('Title')
-        try:
+        #try:
+            #template.create_entity()
+            #template.create_entity()
+        #except Exception as e:
+            #self.fail(str(e))
+        with self.assertNoException():
             template.create_entity()
             template.create_entity()
-        except Exception as e:
-            self.fail(str(e))
 
         self.assertEqual(2, Ticket.objects.count())
 

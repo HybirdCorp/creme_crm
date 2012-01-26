@@ -20,11 +20,14 @@ __all__ = ('CommercialTestCase',)
 
 
 class CommercialTestCase(CremeTestCase):
-    def setUp(self):
-        self.populate('creme_core', 'creme_config', 'persons', 'commercial')
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'persons', 'commercial')
+    #def setUp(self):
+        #self.populate('creme_core', 'creme_config', 'persons', 'commercial')
 
     def test_populate(self):
-        self.populate('creme_core', 'persons', 'commercial')
+        #self.populate('creme_core', 'persons', 'commercial')
 
         self.get_relationtype_or_fail(REL_SUB_SOLD_BY)
         self.get_relationtype_or_fail(REL_OBJ_SOLD_BY)
@@ -93,10 +96,11 @@ class CommercialTestCase(CremeTestCase):
         response = self.client.get('/commercial/salesmen')
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             salesmen_page = response.context['entities']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(1, salesmen_page.number)
         self.assertFalse(salesmen_page.paginator.count)
@@ -112,10 +116,11 @@ class CommercialTestCase(CremeTestCase):
         response = self.client.get('/commercial/salesmen')
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             salesmen_page = response.context['entities']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(1, salesmen_page.number)
         self.assertEqual(2, salesmen_page.paginator.count)

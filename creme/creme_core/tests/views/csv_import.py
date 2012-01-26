@@ -56,10 +56,11 @@ class CSVImportViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             self.doc = Document.objects.get(title=title)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         return self.doc
 
@@ -81,10 +82,11 @@ class CSVImportViewsTestCase(ViewsTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             response.context['form']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         response = self.client.post(url, data={
                                                 'csv_step':     0,
@@ -95,10 +97,11 @@ class CSVImportViewsTestCase(ViewsTestCase):
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
-        try:
+        #try:
+        with self.assertNoException():
             form = response.context['form']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertIn('value="1"', unicode(form['csv_step']))
 
@@ -150,10 +153,11 @@ class CSVImportViewsTestCase(ViewsTestCase):
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
-        try:
+        #try:
+        with self.assertNoException():
             form = response.context['form']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(0,          len(form.import_errors))
         self.assertEqual(len(lines), form.imported_objects_count)
@@ -162,10 +166,11 @@ class CSVImportViewsTestCase(ViewsTestCase):
         self.assertEqual(len(lines), Contact.objects.count())
 
         for first_name, last_name in lines:
-            try:
+            #try:
+            with self.assertNoException():
                 contact = Contact.objects.get(first_name=first_name, last_name=last_name)
-            except Exception as e:
-                self.fail(str(e))
+            #except Exception as e:
+                #self.fail(str(e))
 
             self.assertEqual(self.user, contact.user)
             #self.assert_(contact.billing_address is None) #TODO: fail ?!
@@ -274,10 +279,11 @@ class CSVImportViewsTestCase(ViewsTestCase):
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
-        try:
+        #try:
+        with self.assertNoException():
             form = response.context['form']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         count = len(lines) - 1 # '-1' for header
         self.assertEqual(count,     len(form.import_errors)) #sector not found
@@ -294,10 +300,11 @@ class CSVImportViewsTestCase(ViewsTestCase):
         self.assertFalse(Sector.objects.exists())
 
         for first_name, last_name, pos_title, sector_title, city_name, orga_name in lines[1:]:
-            try:
+            #try:
+            with self.assertNoException():
                 contact = Contact.objects.get(first_name=first_name, last_name=last_name)
-            except Exception as e:
-                self.fail(str(e))
+            #except Exception as e:
+                #self.fail(str(e))
 
             self.assertEqual(default_descr, contact.description)
             self.assertEqual(position,      contact.position)
@@ -460,7 +467,8 @@ class CSVImportViewsTestCase(ViewsTestCase):
         self.assertEqual(len(lines) - 1, Contact.objects.count())
 
         for first_name, last_name in lines[1:]:
-            try:
+            #try:
+            with self.assertNoException():
                 contact = Contact.objects.get(first_name=first_name, last_name=last_name)
-            except Exception as e:
-                self.fail(str(e))
+            #except Exception as e:
+                #self.fail(str(e))

@@ -52,10 +52,11 @@ class MiscViewsTestCase(ViewsTestCase):
     def test_clean(self):
         self.login()
 
-        try:
+        #try:
+        with self.assertNoException():
             response = self.client.get('/creme_core/clean/', follow=True)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(2,   len(response.redirect_chain))

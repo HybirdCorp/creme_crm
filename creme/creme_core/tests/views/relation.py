@@ -56,10 +56,11 @@ class RelationViewsTestCase(ViewsTestCase):
                                                     )
 
     def assertEntiTyHasRelation(self, subject_entity, rtype, object_entity):
-        try:
+        #try:
+        with self.assertNoException():
             relation = subject_entity.relations.get(type=rtype, object_entity=object_entity.id)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
     def test_add_relations01(self):
         self.populate('creme_config')
@@ -162,10 +163,11 @@ class RelationViewsTestCase(ViewsTestCase):
                            )
 
         url = '/creme_core/relation/add/%s' % subject.id
-        try:
+        #try:
+        with self.assertNoException():
             semifixed_rtypes = self.client.get(url).context['form'].fields['semifixed_rtypes']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual([(sfrt1.id, sfrt1.predicate), (sfrt2.id, sfrt2.predicate)],
                          list(semifixed_rtypes.choices)
@@ -254,10 +256,11 @@ class RelationViewsTestCase(ViewsTestCase):
         response = self.client.get('/creme_core/relation/add/%s' % self.subject01.id)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             sfrt_field = response.context['form'].fields['semifixed_rtypes']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual([(sfrt2.id, sfrt2.predicate)], list(sfrt_field.choices))
 
@@ -313,10 +316,11 @@ class RelationViewsTestCase(ViewsTestCase):
 
         url = '/creme_core/relation/add/%s/%s' % (subject.id, allowed_rtype.id)
 
-        try:
+        #try:
+        with self.assertNoException():
             sfrt_field = self.client.get(url).context['form'].fields['semifixed_rtypes']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual([(sfrt1.id, sfrt1.predicate)], list(sfrt_field.choices))
 
@@ -376,10 +380,11 @@ class RelationViewsTestCase(ViewsTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             label = response.context['form'].fields['bad_entities_lbl']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertTrue(label.initial)
 
@@ -411,10 +416,11 @@ class RelationViewsTestCase(ViewsTestCase):
                                   )
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             label = response.context['form'].fields['bad_entities_lbl']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(unicode(unlinkable), label.initial)
 
@@ -554,10 +560,11 @@ class RelationViewsTestCase(ViewsTestCase):
                                   )
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             entities = response.context['entities']
-        except Exception as e:
-            self.fail('%s : %s' % (e.__class__.__name__, str(e)))
+        #except Exception as e:
+            #self.fail('%s : %s' % (e.__class__.__name__, str(e)))
 
         contacts = entities.object_list
         self.assertEqual(3, len(contacts))

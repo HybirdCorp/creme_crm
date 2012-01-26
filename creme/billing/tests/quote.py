@@ -79,10 +79,11 @@ class QuoteTestCase(_BillingTestCase, CremeTestCase):
         response = self.client.get('/billing/quotes')
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             quotes_page = response.context['entities']
-        except KeyError as e:
-            self.fail(str(e))
+        #except KeyError as e:
+            #self.fail(str(e))
 
         self.assertEqual(2, quotes_page.paginator.count)
         self.assertEqual(set([quote1, quote2]), set(quotes_page.paginator.object_list))

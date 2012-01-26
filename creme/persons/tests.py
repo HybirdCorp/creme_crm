@@ -25,8 +25,12 @@ class PersonsTestCase(CremeTestCase):
     def login(self, is_superuser=True):
         super(PersonsTestCase, self).login(is_superuser, allowed_apps=['persons'])
 
-    def setUp(self):
-        self.populate('creme_core', 'creme_config', 'persons')
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'persons')
+
+    #def setUp(self):
+        #self.populate('creme_core', 'creme_config', 'persons')
 
     def test_populate(self):
         self.get_relationtype_or_fail(REL_SUB_EMPLOYED_BY,       [Contact],               [Organisation])
@@ -38,11 +42,7 @@ class PersonsTestCase(CremeTestCase):
         self.get_relationtype_or_fail(REL_SUB_INACTIVE,          [Contact, Organisation], [Contact, Organisation])
         self.get_relationtype_or_fail(REL_SUB_SUBSIDIARY,        [Organisation],          [Organisation])
 
-        try:
-            efilter = EntityFilter.objects.get(pk=FILTER_MANAGED_ORGA)
-        except EntityFilter.DoesNotExist:
-            self.fail('Managed organisations filter does not exist')
-
+        efilter = self.get_object_or_fail(EntityFilter, pk=FILTER_MANAGED_ORGA)
         self.assertFalse(efilter.is_custom)
         self.assertEqual(Organisation, efilter.entity_type.model_class())
         self.assertEqual([EntityFilterCondition.EFC_PROPERTY], [c.type for c in efilter.conditions.all()])
@@ -98,7 +98,7 @@ class PersonsTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
-        contact = Contact.objects.get(first_name=first_name)
+        contact = self.get_object_or_fail(Contact, first_name=first_name)
         self.assertIsNotNone(contact.billing_address)
         self.assertEqual(b_address, contact.billing_address.address)
 
@@ -173,10 +173,12 @@ class PersonsTestCase(CremeTestCase):
         response = self.client.get('/persons/contacts')
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+            #contacts_page = response.context['entities']
+        #except KeyError as e:
+            #self.fail(str(e))
+        with self.assertNoException():
             contacts_page = response.context['entities']
-        except KeyError as e:
-            self.fail(str(e))
 
         self.assertEqual(3, contacts_page.paginator.count) #3: Creme user
 
@@ -211,11 +213,14 @@ class PersonsTestCase(CremeTestCase):
         self.assertTrue(response.redirect_chain)
         self.assertTrue(response.redirect_chain[-1][0].endswith(redir))
 
-        try:
+        #try:
+            #contact = Contact.objects.get(first_name=first_name)
+            #Relation.objects.get(subject_entity=orga.id, type=REL_OBJ_EMPLOYED_BY, object_entity=contact.id)
+        #except Exception as e:
+            #self.fail(str(e))
+        with self.assertNoException():
             contact = Contact.objects.get(first_name=first_name)
             Relation.objects.get(subject_entity=orga.id, type=REL_OBJ_EMPLOYED_BY, object_entity=contact.id)
-        except Exception as e:
-            self.fail(str(e))
 
         self.assertEqual(last_name, contact.last_name)
 
@@ -323,10 +328,12 @@ class PersonsTestCase(CremeTestCase):
         response = self.client.get('/persons/organisations')
         self.assertEqual(response.status_code, 200)
 
-        try:
+        #try:
+            #orgas_page = response.context['entities']
+        #except KeyError as e:
+            #self.fail(str(e))
+        with self.assertNoException():
             orgas_page = response.context['entities']
-        except KeyError as e:
-            self.fail(str(e))
 
         self.assertEqual(3, orgas_page.paginator.count) #3: our 2 orgas + default orga
 
@@ -336,11 +343,14 @@ class PersonsTestCase(CremeTestCase):
 
     def _build_managed_orga(self, user=None):
         user = user or self.user
-        try:
+        #try:
+            #mng_orga = Organisation.objects.create(user=user, name='Bebop')
+            #CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=mng_orga)
+        #except Exception as e:
+            #self.fail(str(e))
+        with self.assertNoException():
             mng_orga = Organisation.objects.create(user=user, name='Bebop')
             CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=mng_orga)
-        except Exception as e:
-            self.fail(str(e))
 
         return mng_orga
 
@@ -406,10 +416,12 @@ class PersonsTestCase(CremeTestCase):
         response = self.client.get('/persons/leads_customers')
         self.assertEqual(response.status_code, 200)
 
-        try:
+        #try:
+            #orgas_page = response.context['entities']
+        #except KeyError as e:
+            #self.fail(str(e))
+        with self.assertNoException():
             orgas_page = response.context['entities']
-        except KeyError as e:
-            self.fail(str(e))
 
         self.assertEqual(0, orgas_page.paginator.count)
 

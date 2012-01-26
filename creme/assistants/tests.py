@@ -29,8 +29,12 @@ class AssistantsAppTestCase(CremeTestCase):
 
 
 class AssistantsTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config')
+
     def setUp(self):
-        self.populate('creme_core', 'creme_config')
+        #self.populate('creme_core', 'creme_config')
         self.login()
         self.entity = CremeEntity.objects.create(user=self.user)
 
@@ -41,10 +45,9 @@ class TodoTestCase(AssistantsTestCase):
         user   = user or self.user
 
         response = self.client.post('/assistants/todo/add/%s/' % entity.id,
-                                    data={
-                                            'user':        user.pk,
-                                            'title':       title,
-                                            'description': description,
+                                    data={'user':        user.pk,
+                                          'title':       title,
+                                          'description': description,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -74,10 +77,9 @@ class TodoTestCase(AssistantsTestCase):
 
         title       += '_edited'
         description += '_edited'
-        response = self.client.post(url, data={
-                                                'user':        self.user.pk,
-                                                'title':       title,
-                                                'description': description,
+        response = self.client.post(url, data={'user':        self.user.pk,
+                                               'title':       title,
+                                               'description': description,
                                               }
                                    )
         self.assertEqual(200, response.status_code)
@@ -130,10 +132,11 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(2, len(content[0]))
         self.assertEqual(todos_block.id_, content[0][0])
 
-        try:
+        #try:
+        with self.assertNoException():
             page = response.context['page']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(3, len(page.object_list))
         self.assertEqual(set(todos), set(page.object_list))
@@ -163,10 +166,11 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(2, len(content[0]))
         self.assertEqual(todos_block.id_, content[0][0])
 
-        try:
+        #try:
+        with self.assertNoException():
             page = response.context['page']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(2, len(page.object_list))
         self.assertEqual(set(todos), set(page.object_list))
@@ -187,10 +191,11 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(2, len(content[0]))
         self.assertEqual(todos_block.id_, content[0][0])
 
-        try:
+        #try:
+        with self.assertNoException():
             page = response.context['page']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(2, len(page.object_list))
         self.assertEqual(set(todos), set(page.object_list))
@@ -252,11 +257,10 @@ class AlertTestCase(AssistantsTestCase):
     def _create_alert(self, title='TITLE', description='DESCRIPTION', trigger_date='2010-9-29', entity=None):
         entity = entity or self.entity
         response = self.client.post('/assistants/alert/add/%s/' % entity.id,
-                                    data={
-                                            'user':         self.user.pk,
-                                            'title':        title,
-                                            'description':  description,
-                                            'trigger_date': trigger_date,
+                                    data={'user':         self.user.pk,
+                                          'title':        title,
+                                          'description':  description,
+                                          'trigger_date': trigger_date,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -284,10 +288,11 @@ class AlertTestCase(AssistantsTestCase):
         def _fail_creation(post_data):
             response = self.client.post('/assistants/alert/add/%s/' % self.entity.id, data=post_data)
             self.assertEqual(200, response.status_code)
-            try:
+            #try:
+            with self.assertNoException():
                 form = response.context['form']
-            except Exception as e:
-                self.fail(str(e))
+            #except Exception as e:
+                #self.fail(str(e))
 
             self.assertFalse(form.is_valid(), 'Creation should fail with data=%s' % post_data)
 
@@ -314,18 +319,17 @@ class AlertTestCase(AssistantsTestCase):
 
         title       += '_edited'
         description += '_edited'
-        response = self.client.post(url, data={
-                                                'user':         self.user.pk,
-                                                'title':        title,
-                                                'description':  description,
-                                                'trigger_date': '2011-10-30',
-                                                'trigger_time': '15:12:32',
+        response = self.client.post(url, data={'user':         self.user.pk,
+                                               'title':        title,
+                                               'description':  description,
+                                               'trigger_date': '2011-10-30',
+                                               'trigger_time': '15:12:32',
                                               }
                                    )
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
-        alert = Alert.objects.get(pk=alert.id)
+        alert = self.refresh(alert)
         self.assertEqual(title,       alert.title)
         self.assertEqual(description, alert.description)
 
@@ -445,10 +449,9 @@ class MemoTestCase(AssistantsTestCase):
         content += '_edited'
         homepage = not homepage
         response = self.client.post('/assistants/memo/edit/%s/' % memo.id,
-                                    data={
-                                            'user':        self.user.pk,
-                                            'content':     content,
-                                            'on_homepage': homepage,
+                                    data={'user':        self.user.pk,
+                                          'content':     content,
+                                          'on_homepage': homepage,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -522,13 +525,12 @@ class UserMessageTestCase(AssistantsTestCase):
         if priority is None:
             priority = UserMessagePriority.objects.create(title='Important')
 
-        response = self.client.post(url, data={
-                                                'user':     self.user.pk,
-                                                'title':    title,
-                                                'body':     body,
-                                                'priority': priority.id,
-                                                'users':    [u.id for u in users],
-                                             }
+        response = self.client.post(url, data={'user':     self.user.pk,
+                                               'title':    title,
+                                               'body':     body,
+                                               'priority': priority.id,
+                                               'users':    [u.id for u in users],
+                                              }
                                    )
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
@@ -651,10 +653,11 @@ class UserMessageTestCase(AssistantsTestCase):
         other_user = self.other_user
         self.assertEqual(0, UserMessage.objects.count())
 
-        me    = Contact.objects.create(user=user, is_user=user,       first_name='Ryoga', last_name='Hibiki')
-        ranma = Contact.objects.create(user=user, is_user=other_user, first_name='Ranma', last_name='Saotome')
-        genma = Contact.objects.create(user=user, first_name='Genma', last_name='Saotome')
-        akane = Contact.objects.create(user=user, first_name='Akane', last_name='Tendo')
+        create_contact = Contact.objects.create
+        me    = create_contact(user=user, is_user=user,       first_name='Ryoga', last_name='Hibiki')
+        ranma = create_contact(user=user, is_user=other_user, first_name='Ranma', last_name='Saotome')
+        genma = create_contact(user=user, first_name='Genma', last_name='Saotome')
+        akane = create_contact(user=user, first_name='Akane', last_name='Tendo')
 
         url = '/activities/activity/add/meeting'
         self.assertEqual(200, self.client.get(url).status_code)
@@ -663,16 +666,15 @@ class UserMessageTestCase(AssistantsTestCase):
         field_format = '[{"ctype": "%s", "entity": "%s"}]'
         my_calendar = Calendar.get_user_default_calendar(user)
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':                user.pk,
-                                            'title':               title,
-                                            'start':               '2010-1-10',
-                                            'my_participation':    True,
-                                            'my_calendar':         my_calendar.pk,
-                                            'participating_users': other_user.pk,
-                                            'informed_users':      [user.id, other_user.id],
-                                            'other_participants':  genma.id,
-                                            'subjects':            field_format % (akane.entity_type_id, akane.id),
+                                    data={'user':                user.pk,
+                                          'title':               title,
+                                          'start':               '2010-1-10',
+                                          'my_participation':    True,
+                                          'my_calendar':         my_calendar.pk,
+                                          'participating_users': other_user.pk,
+                                          'informed_users':      [user.id, other_user.id],
+                                          'other_participants':  genma.id,
+                                          'subjects':            field_format % (akane.entity_type_id, akane.id),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -680,11 +682,15 @@ class UserMessageTestCase(AssistantsTestCase):
 
         meeting = self.get_object_or_fail(Meeting, title=title)
 
-        count_relations = lambda type_id, subject_id: Relation.objects.filter(type=type_id, subject_entity=subject_id, object_entity=meeting.id).count()
-        self.assertEqual(1, count_relations(type_id=REL_SUB_PART_2_ACTIVITY,   subject_id=me.id))
-        self.assertEqual(1, count_relations(type_id=REL_SUB_PART_2_ACTIVITY,   subject_id=ranma.id))
-        self.assertEqual(1, count_relations(type_id=REL_SUB_PART_2_ACTIVITY,   subject_id=genma.id))
-        self.assertEqual(1, count_relations(type_id=REL_SUB_ACTIVITY_SUBJECT,  subject_id=akane.id))
+        #count_relations = lambda type_id, subject_id: Relation.objects.filter(type=type_id, subject_entity=subject_id, object_entity=meeting.id).count()
+        #self.assertEqual(1, count_relations(type_id=REL_SUB_PART_2_ACTIVITY,   subject_id=me.id))
+        #self.assertEqual(1, count_relations(type_id=REL_SUB_PART_2_ACTIVITY,   subject_id=ranma.id))
+        #self.assertEqual(1, count_relations(type_id=REL_SUB_PART_2_ACTIVITY,   subject_id=genma.id))
+        #self.assertEqual(1, count_relations(type_id=REL_SUB_ACTIVITY_SUBJECT,  subject_id=akane.id))
+        self.assertRelationCount(1, me,    REL_SUB_PART_2_ACTIVITY,  meeting)
+        self.assertRelationCount(1, ranma, REL_SUB_PART_2_ACTIVITY,  meeting)
+        self.assertRelationCount(1, genma, REL_SUB_PART_2_ACTIVITY,  meeting)
+        self.assertRelationCount(1, akane, REL_SUB_ACTIVITY_SUBJECT, meeting)
 
         messages = UserMessage.objects.all()
         self.assertEqual(2, len(messages))
@@ -711,12 +717,11 @@ class ActionTestCase(AssistantsTestCase):
         entity = entity or self.entity
         user   = user or self.user
         response = self.client.post('/assistants/action/add/%s/' % entity.id,
-                                    data={
-                                            'user':              user.pk,
-                                            'title':             title,
-                                            'description':       descr,
-                                            'expected_reaction': reaction,
-                                            'deadline':          deadline
+                                    data={'user':              user.pk,
+                                          'title':             title,
+                                          'description':       descr,
+                                          'expected_reaction': reaction,
+                                          'deadline':          deadline
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -764,13 +769,12 @@ class ActionTestCase(AssistantsTestCase):
         descr    += '_edited'
         reaction += '_edited'
         deadline = '2011-11-25'
-        response = self.client.post(url, data={
-                                                'user':              self.user.pk,
-                                                'title':             title,
-                                                'description':       descr,
-                                                'expected_reaction': reaction,
-                                                'deadline':          deadline,
-                                                'deadline_time':     '17:37:00',
+        response = self.client.post(url, data={'user':              self.user.pk,
+                                               'title':             title,
+                                               'description':       descr,
+                                               'expected_reaction': reaction,
+                                               'deadline':          deadline,
+                                               'deadline_time':     '17:37:00',
                                               }
                                    )
         self.assertEqual(200, response.status_code)

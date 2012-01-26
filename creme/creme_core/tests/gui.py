@@ -38,10 +38,11 @@ class GuiTestCase(CremeTestCase):
                 self.session = sessions[0].get_decoded()
 
         def get_items():
-            try:
+            #try:
+            with self.assertNoException():
                 return FakeRequest().session['last_viewed_items']
-            except Exception as e:
-                self.fail(str(e))
+            #except Exception as e:
+                #self.fail(str(e))
 
         self.assertEqual(0, len(LastViewedItem.get_all(FakeRequest())))
 
@@ -687,10 +688,11 @@ class BlocksManagerTestCase(CremeTestCase):
     def test_get(self):
         mngr = BlocksManager()
 
-        try:
+        #try:
+        with self.assertNoException():
             fake_context = {mngr.var_name: mngr}
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertIs(mngr, BlocksManager.get(fake_context))
 

@@ -26,6 +26,12 @@ except Exception as e:
 
 
 class ActivitiesTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'activities') #'persons'
+    #def setUp(self):
+        #self.populate('creme_core', 'creme_config', 'activities') #'persons'
+
     def login(self, is_superuser=True):
         super(ActivitiesTestCase, self).login(is_superuser, allowed_apps=['activities', 'persons']) #'creme_core'
 
@@ -42,8 +48,6 @@ class ActivitiesTestCase(CremeTestCase):
                                             SetCredentials.CRED_UNLINK, #not CRED_LINK
                                       set_type=SetCredentials.ESET_ALL
                                      )
-    def setUp(self):
-        self.populate('creme_core', 'creme_config', 'activities') #'persons'
 
     def test_populate(self):
         rtypes_pks = [REL_SUB_LINKED_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY]
@@ -90,11 +94,12 @@ class ActivitiesTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             act  = Activity.objects.get(type=ACTIVITYTYPE_TASK, title=title)
             task = Task.objects.get(title=title)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(act.id, task.id)
         self.assertEqual(status, task.status)
@@ -102,11 +107,10 @@ class ActivitiesTestCase(CremeTestCase):
 
         self.assertEqual(4 * 2, Relation.objects.count()) # * 2: relations have their symmetric ones
 
-        count_relations = lambda type_id, subject_id: Relation.objects.filter(type=type_id, subject_entity=subject_id, object_entity=task.id).count()
-        self.assertEqual(1, count_relations(type_id=REL_SUB_PART_2_ACTIVITY,   subject_id=me.id))
-        self.assertEqual(1, count_relations(type_id=REL_SUB_PART_2_ACTIVITY,   subject_id=genma.id))
-        self.assertEqual(1, count_relations(type_id=REL_SUB_ACTIVITY_SUBJECT,  subject_id=ranma.id))
-        self.assertEqual(1, count_relations(type_id=REL_SUB_LINKED_2_ACTIVITY, subject_id=dojo.id))
+        self.assertRelationCount(1, me,    REL_SUB_PART_2_ACTIVITY,   task)
+        self.assertRelationCount(1, genma, REL_SUB_PART_2_ACTIVITY,   task)
+        self.assertRelationCount(1, ranma, REL_SUB_ACTIVITY_SUBJECT,  task)
+        self.assertRelationCount(1, dojo,  REL_SUB_LINKED_2_ACTIVITY, task)
 
     def test_activity_createview02(self): #creds errors
         self.login(is_superuser=False)
@@ -126,16 +130,15 @@ class ActivitiesTestCase(CremeTestCase):
 
         field_format = '[{"ctype":"%s", "entity":"%s"}]'
         response = self.client.post('/activities/activity/add/meeting', follow=True,
-                                    data={
-                                            'user':                user.pk,
-                                            'title':               'Fight !!',
-                                            'start':               '2011-2-22',
-                                            'my_participation':    True,
-                                            'my_calendar':         my_calendar.pk,
-                                            'participating_users': other_user.pk,
-                                            'other_participants':  genma.id,
-                                            'subjects':            field_format % (akane.entity_type_id, akane.id),
-                                            'linked_entities':     field_format % (dojo.entity_type_id, dojo.id),
+                                    data={'user':                user.pk,
+                                          'title':               'Fight !!',
+                                          'start':               '2011-2-22',
+                                          'my_participation':    True,
+                                          'my_calendar':         my_calendar.pk,
+                                          'participating_users': other_user.pk,
+                                          'other_participants':  genma.id,
+                                          'subjects':            field_format % (akane.entity_type_id, akane.id),
+                                          'linked_entities':     field_format % (dojo.entity_type_id, dojo.id),
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -188,11 +191,10 @@ class ActivitiesTestCase(CremeTestCase):
 
         self.assertEqual(4 * 2, Relation.objects.count()) # * 2: relations have their symmetric ones
 
-        count_relations = lambda type_id, subject_id: Relation.objects.filter(type=type_id, subject_entity=subject_id, object_entity=act.id).count()
-        self.assertEqual(1, count_relations(type_id=REL_SUB_PART_2_ACTIVITY,   subject_id=me.id))
-        self.assertEqual(1, count_relations(type_id=REL_SUB_PART_2_ACTIVITY,   subject_id=genma.id))
-        self.assertEqual(1, count_relations(type_id=REL_SUB_ACTIVITY_SUBJECT,  subject_id=ranma.id))
-        self.assertEqual(1, count_relations(type_id=REL_SUB_LINKED_2_ACTIVITY, subject_id=dojo.id))
+        self.assertRelationCount(1, me,    REL_SUB_PART_2_ACTIVITY,   act)
+        self.assertRelationCount(1, genma, REL_SUB_PART_2_ACTIVITY,   act)
+        self.assertRelationCount(1, ranma, REL_SUB_ACTIVITY_SUBJECT,  act)
+        self.assertRelationCount(1, dojo,  REL_SUB_LINKED_2_ACTIVITY, act)
 
     def test_activity_createview04(self):#Alert generation
         self.login()
@@ -219,11 +221,12 @@ class ActivitiesTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             act  = Activity.objects.get(type=ACTIVITYTYPE_MEETING, title=title)
             meeting = Meeting.objects.get(title=title)
-        except Exception, e:
-            self.fail(str(e))
+        #except Exception, e:
+            #self.fail(str(e))
 
         self.assertEqual(act.id, meeting.id)
         self.assertEqual(status, meeting.status)
@@ -250,10 +253,12 @@ class ActivitiesTestCase(CremeTestCase):
         response = self.client.get(uri)
         self.assertEqual(response.status_code, 200)
 
-        try:
+        #try:
+        with self.assertNoException():
             other_participants = response.context['form'].fields['other_participants']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
+
         self.assertEqual([contact01.id], other_participants.initial)
 
         title  = 'my_meeting'
@@ -296,10 +301,11 @@ class ActivitiesTestCase(CremeTestCase):
                                   )
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             users = response.context['form'].fields['participating_users']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual([self.other_user.id], [e.id for e in users.initial])
 
@@ -316,10 +322,11 @@ class ActivitiesTestCase(CremeTestCase):
                                   )
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             subjects = response.context['form'].fields['subjects']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual([ryoga.id], [e.id for e in subjects.initial])
 
@@ -336,10 +343,11 @@ class ActivitiesTestCase(CremeTestCase):
                                   )
         self.assertEqual(200, response.status_code)
 
-        try:
+        with self.assertNoException():
+        #try:
             linked_entities = response.context['form'].fields['linked_entities']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual([ryoga.id], [e.id for e in linked_entities.initial])
 
@@ -356,9 +364,9 @@ class ActivitiesTestCase(CremeTestCase):
                 'entity_relation_type':   REL_SUB_LINKED_2_ACTIVITY,
                }
 
-        self.assertEqual(200, self.client.get('/activities/activity/add_related/meeting', data=args).status_code)
+        self.assertEqual(200, self.client.get('/activities/activity/add_related/meeting',   data=args).status_code)
         self.assertEqual(200, self.client.get('/activities/activity/add_related/phonecall', data=args).status_code)
-        self.assertEqual(404, self.client.get('/activities/activity/add_related/foobar', data=args).status_code)
+        self.assertEqual(404, self.client.get('/activities/activity/add_related/foobar',    data=args).status_code)
 
     def test_activity_editview01(self):
         self.login()
@@ -428,7 +436,8 @@ class ActivitiesTestCase(CremeTestCase):
     def test_collision01(self):
         self.login()
 
-        try:
+        #try:
+        with self.assertNoException():
             act01 = PhoneCall.objects.create(user=self.user, title='call01', call_type=PhoneCallType.objects.all()[0],
                                              start=datetime(year=2010, month=10, day=1, hour=12, minute=0),
                                              end=datetime(year=2010, month=10, day=1, hour=13, minute=0)
@@ -443,8 +452,8 @@ class ActivitiesTestCase(CremeTestCase):
 
             Relation.objects.create(subject_entity=c1, type_id=REL_SUB_PART_2_ACTIVITY, object_entity=act01, user=self.user)
             Relation.objects.create(subject_entity=c1, type_id=REL_SUB_PART_2_ACTIVITY, object_entity=act02, user=self.user)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         try:
             #no collision
@@ -563,19 +572,18 @@ class ActivitiesTestCase(CremeTestCase):
     def test_unlink03(self): #can not unlink the contact
         self.login(is_superuser=False)
 
-        SetCredentials.objects.create(role=self.user.role,
-                                      value=SetCredentials.CRED_VIEW   | \
-                                            SetCredentials.CRED_CHANGE | \
-                                            SetCredentials.CRED_DELETE | \
-                                            SetCredentials.CRED_LINK   | \
-                                            SetCredentials.CRED_UNLINK,
-                                      set_type=SetCredentials.ESET_OWN)
-        SetCredentials.objects.create(role=self.user.role,
-                                      value=SetCredentials.CRED_VIEW   | \
-                                            SetCredentials.CRED_CHANGE | \
-                                            SetCredentials.CRED_DELETE | \
-                                            SetCredentials.CRED_LINK,
-                                      set_type=SetCredentials.ESET_ALL)
+        create_creds = SetCredentials.objects.create
+        create_creds(role=self.role,
+                     value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
+                           SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK   | \
+                           SetCredentials.CRED_UNLINK,
+                     set_type=SetCredentials.ESET_OWN
+                    )
+        create_creds(role=self.role,
+                     value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
+                           SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK,
+                     set_type=SetCredentials.ESET_ALL
+                    )
 
         activity = self._create_meeting()
         contact = Contact.objects.create(user=self.other_user, first_name='Musashi', last_name='Miyamoto')
@@ -622,7 +630,7 @@ class ActivitiesTestCase(CremeTestCase):
         self._aux_build_setcreds()
 
         activity = self._create_meeting()
-        self.assert_(activity.can_link(self.user))
+        self.assertTrue(activity.can_link(self.user))
 
         contact = Contact.objects.create(user=self.other_user, first_name='Musashi', last_name='Miyamoto')
         self.assertTrue(contact.can_change(self.user))
@@ -672,10 +680,10 @@ class ActivitiesTestCase(CremeTestCase):
         self._aux_build_setcreds()
 
         activity = self._create_meeting()
-        self.assert_(activity.can_link(self.user))
+        self.assertTrue(activity.can_link(self.user))
 
         orga = Organisation.objects.create(user=self.other_user, name='Ghibli')
-        self.assert_(orga.can_change(self.user))
+        self.assertTrue(orga.can_change(self.user))
         self.failIf(orga.can_link(self.user))
 
         uri = '/activities/activity/%s/subject/add' % activity.id
@@ -714,10 +722,11 @@ class ActivitiesTestCase(CremeTestCase):
                         )
 
     def assertUserHasDefaultCalendar(self, user):
-        try:
+        #try:
+        with self.assertNoException():
             return Calendar.objects.get(is_default=True, user=user)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
     def test_user_default_calendar(self):
         self.login()
@@ -780,16 +789,15 @@ class ActivitiesTestCase(CremeTestCase):
         my_calendar = Calendar.get_user_default_calendar(self.user)
 
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':               user.pk,
-                                            'title':              title,
-                                            'status':             status.pk,
-                                            'start':              '2010-1-10',
-                                            'end':                '2010-1-12',
-                                            'start_time':         '09:08:07',
-                                            'end_time':           '06:05:04',
-                                            'my_participation':   True,
-                                            'my_calendar':        my_calendar.pk,
+                                    data={'user':               user.pk,
+                                          'title':              title,
+                                          'status':             status.pk,
+                                          'start':              '2010-1-10',
+                                          'end':                '2010-1-12',
+                                          'start_time':         '09:08:07',
+                                          'end_time':           '06:05:04',
+                                          'my_participation':   True,
+                                          'my_calendar':        my_calendar.pk,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -810,17 +818,16 @@ class ActivitiesTestCase(CremeTestCase):
         my_calendar = Calendar.get_user_default_calendar(self.user)
 
         response = self.client.post('/activities/indisponibility/add', follow=True,
-                                    data={
-                                            'user':               user.pk,
-                                            'title':              title,
-                                            'status':             status.pk,
-                                            'start':              '2010-1-10',
-                                            'end':                '2010-1-12',
-                                            'start_time':         '09:08:07',
-                                            'end_time':           '06:05:04',
-                                            'is_all_day':         True,
-                                            'my_participation':   True,
-                                            'my_calendar':        my_calendar.pk,
+                                    data={'user':               user.pk,
+                                          'title':              title,
+                                          'status':             status.pk,
+                                          'start':              '2010-1-10',
+                                          'end':                '2010-1-12',
+                                          'start_time':         '09:08:07',
+                                          'end_time':           '06:05:04',
+                                          'is_all_day':         True,
+                                          'my_participation':   True,
+                                          'my_calendar':        my_calendar.pk,
                                          }
                                    )
         self.assertNoFormError(response)

@@ -172,10 +172,10 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         self.assertEqual("xTextList", editWith_node.get('component'))
 
     def test_myschema_xsd01(self):
-        body_map={'user_id': 1, 'is_actived': True, "first_name": "", "last_name": "",
-                  'email': 'none@none.com', 'description': "", "birthday": "",
-                  "created":"", 'url_site': "", "image":"", "language": ""
-                 }
+        body_map = {'user_id': 1, 'is_actived': True, "first_name": "", "last_name": "",
+                    'email': 'none@none.com', 'description': "", "birthday": "",
+                    "created":"", 'url_site': "", "image": "", "language": ""
+                   }
         backend = self._get_backend(ContactFakeBackend, subject="create_contact",
                                     body_map=body_map, model=Contact
                                    )
@@ -192,8 +192,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         expected_ref_attrs = set('my:%s' % key for key in chain(body_map.iterkeys(), ['language_value']))#chain because language_value is not declared in body_map, only language has to (m2m)
         self.assertEqual(expected_ref_attrs, ref_attrs)
 
-        xsd_elements = {
-                        'CremeCRMCrudity': {'name': 'CremeCRMCrudity'},
+        xsd_elements = {'CremeCRMCrudity': {'name': 'CremeCRMCrudity'},
                         'user_id':        {'name': 'user_id', 'type': 'xsd:integer'},#"""<xsd:element name="user_id" type="xsd:integer"/>""",
                         'is_actived':     {'name': 'is_actived', 'type': 'xsd:boolean'},#"""<xsd:element name="is_actived" type="xsd:boolean"/>""",
                         "first_name":     {'name': 'first_name', 'type': 'my:requiredString'},#"""<xsd:element name="first_name" type="xsd:requiredString"/>""",
@@ -220,11 +219,12 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                 self.fail("There is at least an extra node named: %s" % element_node.get('name'))
 
     def test_myschema_xsd02(self):#test with Document
-        body_map={'user_id': 1, "title": "",
-                  "description": "", "folder":"", "filedata": ""}
+        body_map = {'user_id': 1, "title": "",
+                    "description": "", "folder":"", "filedata": ""
+                   }
         backend = self._get_backend(DocumentFakeBackend, subject="create_doc",
-                                                      body_map=body_map,
-                                                      model=Document)
+                                    body_map=body_map, model=Document
+                                   )
         builder = self._get_builder(backend)
         d_ns    = {'xsd': "{http://www.w3.org/2001/XMLSchema}"}
 
@@ -238,8 +238,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         expected_ref_attrs = set('my:%s' % key for key in body_map.iterkeys())
         self.assertEqual(expected_ref_attrs, ref_attrs)
 
-        xsd_elements = {
-                        'CremeCRMCrudity': {'name': 'CremeCRMCrudity'},
+        xsd_elements = {'CremeCRMCrudity': {'name': 'CremeCRMCrudity'},
                         'user_id':     {'name': 'user_id', 'type': 'xsd:integer'},#"""<xsd:element name="user_id" type="xsd:integer"/>""",
                         "title":       {'name': 'title', 'type': 'my:requiredString'},#"""<xsd:element name="first_name" type="xsd:requiredString"/>""",
                         "description": {'name': 'description'},#"""<xsd:element name="description"><xsd:complexType mixed="true"><xsd:sequence><xsd:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/1999/xhtml" processContents="lax"/></xsd:sequence></xsd:complexType></xsd:element>""",
@@ -257,12 +256,13 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                 self.fail("There is at least an extra node named: %s" % element_node.get('name'))
 
     def test_template_xml01(self):
-        body_map={'user_id': 1, 'is_actived': True, "first_name":"",
-                  "last_name":"", "email": "none@none.com",
-                  "description": "", "birthday":"", "created":"", 'url_site': "", "image": ""}
+        body_map = {'user_id': 1, 'is_actived': True, "first_name": "",
+                    "last_name": "", "email": "none@none.com", "description": "",
+                    "birthday": "", "created": "", 'url_site': "", "image": ""
+                   }
         backend = self._get_backend(ContactFakeBackend, subject="create_contact",
-                                                      body_map=body_map,
-                                                      model=Contact)
+                                    body_map=body_map, model=Contact
+                                   )
         builder = self._get_builder(backend)
 
         content = builder._render_template_xml(self.request)
@@ -278,16 +278,19 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                 self.assertEqual("true", field_node.get('%(xsi)snil' % d_ns))
 
     def test_upgrade_xsl01(self):
-        body_map={'user_id': 1, 'is_actived': True, "first_name":"",
-                  "last_name":"", "email": "none@none.com",
-                  "description": "", "birthday":"", "created":"", 'url_site': "", "image": ""}
+        body_map = {'user_id': 1, 'is_actived': True, "first_name":"",
+                    "last_name":"", "email": "none@none.com", "description": "",
+                    "birthday": "", "created": "", 'url_site': "", "image": ""
+                   }
         backend = self._get_backend(ContactFakeBackend, subject="create_contact",
-                                                      body_map=body_map,
-                                                      model=Contact)
+                                    body_map=body_map, model=Contact
+                                   )
         builder = self._get_builder(backend)
 
         content = builder._render_upgrade_xsl(self.request)
-        self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'], builder.namespace)#Can't be got with ElementTree, because it's a namespace
+        self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
+                         builder.namespace
+                        )#Can't be got with ElementTree, because it's a namespace
 
         d_ns = {'xsl': "{http://www.w3.org/1999/XSL/Transform}"}
         xml  = XML(content)
@@ -296,7 +299,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                         )
 
     def test_upgrade_xsl02(self):#m2m
-        body_map={'user_id': 1, "language": ""}
+        body_map = {'user_id': 1, "language": ""}
         backend = self._get_backend(ContactFakeBackend, subject="create_contact",
                                     body_map=body_map, model=Contact
                                    )
@@ -323,7 +326,10 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         builder = self._get_builder(backend)
 
         content = builder._render_view_xsl(self.request)
-        self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'], builder.namespace)#Can't be got with ElementTree, because it's a namespace
+        self.assertEqual(re.search('xmlns:my="(?P<ns>[\w\d\-:/\.]*)"', content).groupdict()['ns'],
+                         builder.namespace
+                        )#Can't be got with ElementTree, because it's a namespace
+
         return XML(content.encode('utf-8'))
 
     def _test_view_xsl_01(self, backend, field_name, attrs={}, node_type="span"):
@@ -410,8 +416,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         d_ns    = {'xsl': "{http://www.w3.org/1999/XSL/Transform}", 'xd': "{http://schemas.microsoft.com/office/infopath/2003}"}
         field_name = "birthday"
         backend = self._get_backend(ContactFakeBackend, subject="create_contact",
-                              body_map={field_name: ""},
-                              model=Contact)
+                                    body_map={field_name: ""}, model=Contact
+                                   )
         xml     = self._get_view_xsl(backend, {field_name: ""})
         node_vb =  xml.find('%(xsl)stemplate/div/div/table/tbody/tr/td/div/font/strong' % d_ns)
         self.assertIsNotNone(node_vb)
@@ -525,11 +531,13 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                         )
 
     def test_render01(self):
-        body_map={'user_id': 1, 'is_actived': True, "first_name":"",
-          "last_name":"", "email": "none@none.com",
-          "description": "", "birthday":"", "created":"", 'url_site': ""}
+        body_map = {'user_id': 1, 'is_actived': True, "first_name": "",
+                    "last_name": "", "email": "none@none.com", "description": "",
+                    "birthday": "", "created": "", 'url_site': ""
+                   }
         backend = self._get_backend(ContactFakeBackend, subject="create_contact",
-                                                      body_map=body_map)
+                                    body_map=body_map
+                                   )
         builder = self._get_builder(backend)
         list(builder.render())#list is really not useful in reality, but as builder.render() create a generator it has to be parsed once
 

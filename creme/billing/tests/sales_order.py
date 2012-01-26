@@ -106,10 +106,11 @@ class SalesOrderTestCase(_BillingTestCase, CremeTestCase):
         response = self.client.get('/billing/sales_orders')
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             orders_page = response.context['entities']
-        except KeyError as e:
-            self.fail(str(e))
+        #except KeyError as e:
+            #self.fail(str(e))
 
         self.assertEqual(2, orders_page.paginator.count)
         self.assertEqual(set([order1, order2]), set(orders_page.paginator.object_list))

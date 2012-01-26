@@ -35,9 +35,13 @@ class DocumentFakeBackend(CrudityBackend):
 
 
 class CrudityTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_config', 'crudity')
+
     def setUp(self):
         self.login()
-        self.populate('creme_config', 'crudity',)
+        #self.populate('creme_config', 'crudity',)
 
     def _set_sandbox_by_user(self):
         sv = SettingValue.objects.get(key=SETTING_CRUDITY_SANDBOX_BY_USER, user=None)
