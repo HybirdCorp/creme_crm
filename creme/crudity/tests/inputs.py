@@ -236,10 +236,12 @@ entity
         email_input.create(self._get_pop_email(body=body, senders=('creme@crm.org',), subject="create_ce"))
         self.assertEqual(1, WaitingAction.objects.count())
 
-        expected_data = {u"user_id": unicode(user.id), u"created": u"01/02/2003",
-                         u"description": u"I\n\n        want\n\n        to\n                    create\n                a\ncreme\nentity\n\n        ",
-                        }
-        self.assertEqual(expected_data, WaitingAction.objects.all()[0].get_data())
+        self.assertEqual({u"user_id":     unicode(user.id),
+                          u"created":     u"01/02/2003",
+                          u"description": u"I\n\n        want\n\n        to\n                    create\n                a\ncreme\nentity\n\n        ",
+                         },
+                         WaitingAction.objects.all()[0].get_data()
+                        )
 
     def test_create_email_input09(self):#Text mail sandboxed with malformed multilines
         user = self.user
@@ -283,10 +285,12 @@ entity
         email_input.create(self._get_pop_email(body=body, senders=('creme@crm.org',), subject="create_ce"))
         self.assertEqual(1, WaitingAction.objects.count())
 
-        expected_data = {u"user_id": unicode(user.id), u"created": u"01/02/2003",
-                         u"description": u"I",
-                        }
-        self.assertEqual(expected_data, WaitingAction.objects.all()[0].get_data())
+        self.assertEqual({u"user_id":     unicode(user.id),
+                          u"created":     u"01/02/2003",
+                          u"description": u"I",
+                         },
+                         WaitingAction.objects.all()[0].get_data()
+                        )
 
     def test_create_email_input10(self):
         """Html mail sandboxed with one multiline"""
@@ -318,7 +322,10 @@ entity
         email_input.create(self._get_pop_email(body_html=body_html, senders=('creme@crm.org',), subject="create_ce"))
         self.assertEqual(1, WaitingAction.objects.count())
 
-        self.assertEqual({u"user_id": user.id, u"created": u"01-02-2003", "description": "I\n want to\n create a    \ncreme entity\n"},
+        self.assertEqual({u"user_id":    user.id,
+                          u"created":    u"01-02-2003",
+                          "description": "I\n want to\n create a    \ncreme entity\n"
+                         },
                          WaitingAction.objects.all()[0].get_data()
                         )
 
@@ -354,7 +361,10 @@ entity
         self.assertEqual(0, WaitingAction.objects.count())
         email_input.create(PopEmail(body_html=body_html, senders=('creme@crm.org',), subject="create_ce"))
         self.assertEqual(1, WaitingAction.objects.count())
-        self.assertEqual({u"user_id": user.id, u"created": u"01-02-2003", "description": "I\n want to\n create a    \ncreme entity\n" },
+        self.assertEqual({u"user_id":    user.id,
+                          u"created":    u"01-02-2003",
+                          "description": "I\n want to\n create a    \ncreme entity\n"
+                         },
                          WaitingAction.objects.all()[0].get_data()
                         )
 
@@ -541,8 +551,9 @@ entity
         user = self.user
         other_user = self.other_user
 
-        contact_user       = Contact.objects.create(is_user=user, user=user, email="user@cremecrm.com")
-        contact_other_user = Contact.objects.create(is_user=other_user, user=other_user, email="other_user@cremecrm.com")
+        create_contact = Contact.objects.create
+        contact_user       = create_contact(is_user=user,       user=user, email="user@cremecrm.com")
+        contact_other_user = create_contact(is_user=other_user, user=other_user, email="other_user@cremecrm.com")
 
         email_input = self._get_email_input(ContactFakeBackend, password=u"creme", subject="create_ce",
                                             body_map={"user_id": user.id,
@@ -953,18 +964,18 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         </my:CremeCRMCrudity>""" % user.id
 
         infopath_input = self._get_infopath_input(ContactFakeBackend, password=u"creme", subject="create_ce_infopath",
-                                                  body_map = {'user_id':     user.id,
-                                                              'is_actived':  True,
-                                                              "first_name":  "",
-                                                              "last_name":   "",
-                                                              "email":       "none@none.com",
-                                                              "description": "",
-                                                              "birthday":    "",
-                                                              "created":     "",
-                                                              'url_site':    "",
-                                                              "image":       "",
-                                                      },
-                                                      model=Contact
+                                                  body_map={'user_id':     user.id,
+                                                            'is_actived':  True,
+                                                            "first_name":  "",
+                                                            "last_name":   "",
+                                                            "email":       "none@none.com",
+                                                            "description": "",
+                                                            "birthday":    "",
+                                                            "created":     "",
+                                                            'url_site':    "",
+                                                            "image":       "",
+                                                           },
+                                                  model=Contact
                                                  )
 
         q_contact_existing_ids = ~Q(pk__in=list(Contact.objects.all().values_list('pk', flat=True)))
@@ -980,10 +991,10 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         img_content = "x0lGQRQAAAABAAAAAAAAAHwCAAAGAAAAYgAuAHAAbgBnAAAAiVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAABuwAAAbsBOuzj4gAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAH5SURBVDiNpZM9a1RBFIbfd87M3N3szW6iYoIYlYBgY6FNwMafIOJPsLCwEm3UQoKFYhk7/4lYGqxtRPAr6kIS3KjZTbIfc+/MsfAjyV5FwYFTnAPnmfc9Z4aqiv85drzQeJQ9YENOmpaZEsPm7OEZdtvb7dWL6xf+CuAtnjp6eebaKAVLA5SD1Hu9/LYJYvZPCsy+LCErY1QKYK2AgHACgEf6NwsZGmKo4j2gChKCBoAhRO7zOhRFAp7oTX35S7Wqor5UP39oYfohatoyM2aOJMtQoAgFhl+Hq0URi9AtyI4eSz08j1f1zD4FNPGcn3eni1GAs4KYdjdjGnLEJ4KK9uhDAAWxMoOiG9eNIXzdQ2xlMfC1DMYI2ATwOwAccpc5ZJmvNnuPeq0GI3QI30sVgCpf9VcG7wadsAYF8MOBEQPnLayxSIU67WMT23izF8C9L5G3efbElbmnqOlEMQhIUbXz7PNHBmXc0sdpA/f0rq5ULexmXVWNACBOYBKC7qTj0alPm7gx3rwPQJKObkKHSUFArACKEgIYwRCrGFQGtNcCQU4uTh7s2/4l15IFmZZ5Nak1Wgvvbc8vWbFfKIwkyxhir4/+J72jJcd/Ixdpc+QHoo1OS3XipIkIjt8cGXv5Vr5RAVQkLtLnyKcUan4GLGhKU+y82Ol8A49h31zz9A1IAAAAAElFTkSuQmCC"
         filename, blob = decode_b64binary(img_content)
         expected_data = {"user_id": "%s"  % (user.id,), "created": "2003-02-01", "last_name": "Bros",
-                        "first_name": "Mario", "email": "mario@bros.com", "url_site": "http://mario.com",
-                        "is_actived": True, "birthday": "02/08/1987", "description": "A plumber",
+                         "first_name": "Mario", "email": "mario@bros.com", "url_site": "http://mario.com",
+                         "is_actived": True, "birthday": "02/08/1987", "description": "A plumber",
 #                        "image": img_content,
-                        "image": (filename, blob),
+                         "image": (filename, blob),
                         }
         self.maxDiff = None
         self.assertEqual(expected_data, wa.get_data())
@@ -1006,17 +1017,28 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
         self.assertEqual(blob, contact.image.image.read())
 
+    def _get_languages(self):
+        Language.objects.all().delete()
+
+        create = Language.objects.create
+
+        return [create(code=u'en', name=u'English'),
+                create(code=u'fr', name=u'French'),
+                create(code=u'es', name=u'Spanish'),
+               ]
+
     def test_create_contact02(self):
         """sandboxed with m2m"""
         user = self.user
 
-        languages = Language.objects.all()
-        if not languages or len(languages) < 2:
-            Language.objects.all().delete()
-            languages = [Language.objects.create(code=u'en', name=u'English'),
-                         Language.objects.create(code=u'fr', name=u'French'),
-                         Language.objects.create(code=u'es', name=u'Spanish'),
-                        ]
+        #languages = Language.objects.all()
+        #if not languages or len(languages) < 2:
+            #Language.objects.all().delete()
+            #languages = [Language.objects.create(code=u'en', name=u'English'),
+                         #Language.objects.create(code=u'fr', name=u'French'),
+                         #Language.objects.create(code=u'es', name=u'Spanish'),
+                        #]
+        languages = self._get_languages()
 
         xml_content = """
         <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\User\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xml:lang="fr">
@@ -1086,13 +1108,14 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         """unsandboxed with m2m"""
         user = self.user
 
-        languages = Language.objects.all()
-        if not languages or len(languages) < 2:
-            Language.objects.all().delete()
-            languages = [Language.objects.create(code=u'en', name=u'English'),
-                         Language.objects.create(code=u'fr', name=u'French'),
-                         Language.objects.create(code=u'es', name=u'Spanish'),
-                        ]
+        #languages = Language.objects.all()
+        #if not languages or len(languages) < 2:
+            #Language.objects.all().delete()
+            #languages = [Language.objects.create(code=u'en', name=u'English'),
+                         #Language.objects.create(code=u'fr', name=u'French'),
+                         #Language.objects.create(code=u'es', name=u'Spanish'),
+                        #]
+        languages = self._get_languages()
 
         xml_content = """
         <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\User\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xml:lang="fr">
@@ -1198,9 +1221,9 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                           u"description": u"A document",
                           #u"filedata": img_content,
                           u"filedata": (filename, blob),
-                        },
-                        wa.get_data()
-                       )
+                         },
+                         wa.get_data()
+                        )
 
         infopath_input.get_backend(CrudityBackend.normalize_subject("create_ce_infopath")).create(wa)
 

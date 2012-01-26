@@ -108,10 +108,11 @@ class EntityViewsTestCase(ViewsTestCase):
     def test_get_creme_entity_as_json01(self):
         self.login()
 
-        try:
+        #try:
+        with self.assertNoException():
             entity = CremeEntity.objects.create(user=self.user)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         response = self.client.post('/creme_core/entity/json', data={'pk': entity.id})
         self.assertEqual(200,               response.status_code)
@@ -129,14 +130,15 @@ class EntityViewsTestCase(ViewsTestCase):
         #             'user': 1
         #            }
         #}]
-        try:
+        with self.assertNoException():
+        #try:
             dic = json_data[0]
             pk     = dic['pk']
             model  = dic['model']
             fields = dic['fields']
             user = fields['user']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(entity.id, pk)
         self.assertEqual('creme_core.cremeentity', model)
@@ -145,10 +147,11 @@ class EntityViewsTestCase(ViewsTestCase):
     def test_get_creme_entity_as_json02(self):
         self.login()
 
-        try:
+        #try:
+        with self.assertNoException():
             entity = CremeEntity.objects.create(user=self.user)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         response = self.client.post('/creme_core/entity/json', data={'pk': entity.id, 'fields': ['user', 'entity_type']})
         self.assertEqual(200, response.status_code)
@@ -158,23 +161,25 @@ class EntityViewsTestCase(ViewsTestCase):
         #  'model': 'creme_core.cremeentity',
         #  'fields': {'user': 1, 'entity_type': 100}}
         #]
-        try:
+        with self.assertNoException():
+        #try:
             fields = json_data[0]['fields']
             user = fields['user']
             entity_type = fields['entity_type']
-        except Exception, e:
-            self.fail(str(e))
+        #except Exception, e:
+            #self.fail(str(e))
 
-            self.assertEqual(self.user.id, user)
-            self.assertEqual(ContentType.objects.get_for_model(CremeEntity).id, entity_type)
+        self.assertEqual(self.user.id, user)
+        self.assertEqual(ContentType.objects.get_for_model(CremeEntity).id, entity_type)
 
     def test_get_creme_entities_repr(self): #TODO: test with no permissons
         self.login()
 
-        try:
+        #try:
+        with self.assertNoException():
             entity = CremeEntity.objects.create(user=self.user)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         response = self.client.get('/creme_core/entity/get_repr/%s' % entity.id)
         self.assertEqual(200,               response.status_code)
@@ -364,11 +369,12 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(count + 1, Contact.objects.count())
 
-        try:
+        #try:
+        with self.assertNoException():
             mario = Contact.objects.filter(first_name=first_name).order_by('created')[0]
             oiram = Contact.objects.filter(first_name=first_name).order_by('created')[1]
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(mario.last_name,  oiram.last_name)
 

@@ -31,14 +31,13 @@ class ActTestCase(CommercialBaseTestCase):
         atype = ActType.objects.create(title='Show')
         segment = self._create_segment()
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':           self.user.pk,
-                                            'name':           name,
-                                            'expected_sales': 1000,
-                                            'start':          '2011-11-20',
-                                            'due_date':       '2011-12-25',
-                                            'act_type':       atype.id,
-                                            'segment':        segment.id,
+                                    data={'user':           self.user.pk,
+                                          'name':           name,
+                                          'expected_sales': 1000,
+                                          'start':          '2011-11-20',
+                                          'due_date':       '2011-12-25',
+                                          'act_type':       atype.id,
+                                          'segment':        segment.id,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -59,14 +58,13 @@ class ActTestCase(CommercialBaseTestCase):
         atype = ActType.objects.create(title='Show')
         segment = self._create_segment()
         response = self.client.post('/commercial/act/add', follow=True,
-                                    data={
-                                            'user':           self.user.pk,
-                                            'name':           name,
-                                            'expected_sales': 1000,
-                                            'start':          '2011-11-20',
-                                            'due_date':       '2011-09-25',
-                                            'act_type':       atype.id,
-                                            'segment':        segment.id,
+                                    data={'user':           self.user.pk,
+                                          'name':           name,
+                                          'expected_sales': 1000,
+                                          'start':          '2011-11-20',
+                                          'due_date':       '2011-09-25',
+                                          'act_type':       atype.id,
+                                          'segment':        segment.id,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -94,16 +92,15 @@ class ActTestCase(CommercialBaseTestCase):
         atype = ActType.objects.create(title='Demo')
         segment = self._create_segment()
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':            self.user.pk,
-                                            'name':            name,
-                                            'start':           '2011-11-20',
-                                            'due_date':        '2011-12-25',
-                                            'expected_sales':  expected_sales,
-                                            'cost':            cost,
-                                            'goal':            goal,
-                                            'act_type':        atype.id,
-                                            'segment':         segment.id,
+                                    data={'user':            self.user.pk,
+                                          'name':            name,
+                                          'start':           '2011-11-20',
+                                          'due_date':        '2011-12-25',
+                                          'expected_sales':  expected_sales,
+                                          'cost':            cost,
+                                          'goal':            goal,
+                                          'act_type':        atype.id,
+                                          'segment':         segment.id,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -129,16 +126,15 @@ class ActTestCase(CommercialBaseTestCase):
         atype = ActType.objects.create(title='Demo')
         segment = self._create_segment()
         response = self.client.post('/commercial/act/edit/%s' % act.id, follow=True,
-                                    data={
-                                            'user':            self.user.pk,
-                                            'name':            name,
-                                            'start':           '2011-11-20',
-                                            'due_date':        '2011-09-25',
-                                            'expected_sales':  expected_sales,
-                                            'cost':            cost,
-                                            'goal':            goal,
-                                            'act_type':        atype.id,
-                                            'segment':         segment.id,
+                                    data={'user':            self.user.pk,
+                                          'name':            name,
+                                          'start':           '2011-11-20',
+                                          'due_date':        '2011-09-25',
+                                          'expected_sales':  expected_sales,
+                                          'cost':            cost,
+                                          'goal':            goal,
+                                          'act_type':        atype.id,
+                                          'segment':         segment.id,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -160,10 +156,11 @@ class ActTestCase(CommercialBaseTestCase):
         response = self.client.get('/commercial/acts')
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             acts_page = response.context['entities']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(1, acts_page.number)
         self.assertEqual(2, acts_page.paginator.count)
@@ -259,14 +256,15 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(5,   ActObjective.objects.filter(act=act).count())
 
-        try:
+        #try:
+        with self.assertNoException():
             objective01 = act.objectives.get(name='Root01')
             objective02 = act.objectives.get(name='Root02')
             objective11 = act.objectives.get(name='Child 01')
             objective12 = act.objectives.get(name='Child 02')
             objective00 = act.objectives.exclude(pk__in=[objective01.id, objective02.id, objective11.id, objective12.id,])[0]
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertTrue(all(o.counter == 0 for o in [objective00, objective01, objective02, objective11, objective12]))
         self.assertIsNone(objective00.ctype_id)

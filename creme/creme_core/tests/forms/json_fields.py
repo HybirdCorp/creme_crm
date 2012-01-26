@@ -69,10 +69,11 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
         self.assertFieldValidationError(JSONField, 'required', JSONField(required=True).clean, None)
 
     def test_clean_empty_not_required(self):
-        try:
+        #try:
+        with self.assertNoException():
             JSONField(required=False).clean(None)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
     def test_clean_invalid_json(self):
         clean = JSONField(required=True).clean
@@ -83,10 +84,11 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
         self.assertFieldValidationError(JSONField, 'invalidformat', clean, '["" "comma_error"]')
 
     def test_clean_valid(self):
-        try:
+        #try:
+        with self.assertNoException():
             JSONField(required=True).clean('{"ctype":"12","entity":"1"}')
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
     def test_format_empty_to_json(self):
         self.assertEqual('""', JSONField().from_python(''))
@@ -130,10 +132,11 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertFieldValidationError(GenericEntityField, 'required', clean, "{}")
 
     def test_clean_empty_not_required(self):
-        try:
+        #try:
+        with self.assertNoException():
             GenericEntityField(required=False).clean(None)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
     def test_clean_invalid_json(self):
         self.assertFieldValidationError(GenericEntityField, 'invalidformat',
@@ -221,10 +224,11 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertFieldValidationError(MultiGenericEntityField, 'required', clean, "[]")
 
     def test_clean_empty_not_required(self):
-        try:
+        #try:
+        with self.assertNoException():
             MultiGenericEntityField(required=False).clean(None)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
     def test_clean_invalid_json(self):
         field = MultiGenericEntityField(required=False)

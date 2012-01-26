@@ -15,8 +15,11 @@ except Exception as e:
 
 
 class CTITestCase(CremeTestCase):
-    def setUp(self):
-        self.populate('creme_core', 'creme_config', 'activities')
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'activities')
+    #def setUp(self):
+        #self.populate('creme_core', 'creme_config', 'activities')
 
     def login(self):
         super(CTITestCase, self).login()
@@ -68,8 +71,8 @@ class CTITestCase(CremeTestCase):
         self.assertEqual(1, len(pcalls))
 
         pcall = pcalls[0]
-        self.assertFalse(Relation.objects.filter(subject_entity=orga, type=REL_SUB_PART_2_ACTIVITY, object_entity=pcall).exists())
-        self.assertEqual(1, Relation.objects.filter(subject_entity=orga, type=REL_SUB_LINKED_2_ACTIVITY, object_entity=pcall).count())
+        self.assertRelationCount(0, orga, REL_SUB_PART_2_ACTIVITY,   pcall)
+        self.assertRelationCount(1, orga, REL_SUB_LINKED_2_ACTIVITY, pcall)
 
     def test_respond_to_a_call01(self):
         self.login()
@@ -80,10 +83,11 @@ class CTITestCase(CremeTestCase):
         response = self.client.get('/cti/respond_to_a_call', data={'number': phone})
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             callers = response.context['callers']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(1, len(callers))
         self.assertEqual(contact.id, callers[0].id)
@@ -113,19 +117,19 @@ class CTITestCase(CremeTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             form = response.context['form']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(phone, form.initial.get('phone'))
 
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':       self.user.id,
-                                            'first_name': 'Minnie',
-                                            'last_name':  'May',
-                                            'phone':      phone,
+                                    data={'user':       self.user.id,
+                                          'first_name': 'Minnie',
+                                          'last_name':  'May',
+                                          'phone':      phone,
                                         }
                                    )
         self.assertNoFormError(response)
@@ -140,18 +144,18 @@ class CTITestCase(CremeTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             form = response.context['form']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(phone, form.initial.get('phone'))
 
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':  self.user.id,
-                                            'name':  'Gunsmith cats',
-                                            'phone': phone,
+                                    data={'user':  self.user.id,
+                                          'name':  'Gunsmith cats',
+                                          'phone': phone,
                                         }
                                    )
         self.assertNoFormError(response)
@@ -177,8 +181,8 @@ class CTITestCase(CremeTestCase):
         self.assertLess((datetime.now() - pcall.start).seconds, 10)
         self.assertEqual(timedelta(minutes=5), (pcall.end - pcall.start))
 
-        self.assertEqual(1, Relation.objects.filter(subject_entity=self.contact, type=REL_SUB_PART_2_ACTIVITY, object_entity=pcall).count())
-        self.assertEqual(1, Relation.objects.filter(subject_entity=contact,      type=REL_SUB_PART_2_ACTIVITY, object_entity=pcall).count())
+        self.assertRelationCount(1, self.contact, REL_SUB_PART_2_ACTIVITY, pcall)
+        self.assertRelationCount(1, contact,      REL_SUB_PART_2_ACTIVITY, pcall)
 
         calendar = Calendar.get_user_default_calendar(user)
         self.assertTrue(pcall.calendars.filter(pk=calendar.id).exists())

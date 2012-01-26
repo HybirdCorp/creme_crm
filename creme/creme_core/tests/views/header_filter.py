@@ -39,11 +39,12 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         response = self.client.get(uri)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             form = response.context['form']
             fields_field = form.fields['fields']
-        except KeyError as e:
-            self.fail(str(e))
+        #except KeyError as e:
+            #self.fail(str(e))
 
         created_index = self._find_field_index(fields_field, 'created')
         name = 'DefaultHeaderFilter'
@@ -85,14 +86,15 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         uri = '/creme_core/header_filter/add/%s' % self.contact_ct.id
         response = self.client.get(uri)
 
-        try:
+        #try:
+        with self.assertNoException():
             fields = response.context['form'].fields
             fields_field    = fields['fields']
             cfields_field   = fields['custom_fields']
             rtypes_field    = fields['relations']
             funfields_field = fields['functions']
-        except KeyError as e:
-            self.fail(str(e))
+        #except KeyError as e:
+            #self.fail(str(e))
 
         field_name = 'first_name'
         firstname_index = self._find_field_index(fields_field, field_name)
@@ -179,10 +181,11 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         response = self.client.get(uri)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             fields_field = response.context['form'].fields['fields']
-        except KeyError, e:
-            self.fail(str(e))
+        #except KeyError, e:
+            #self.fail(str(e))
 
         first_name_index  = None
         last_name_index = None

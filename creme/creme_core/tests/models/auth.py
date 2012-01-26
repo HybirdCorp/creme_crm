@@ -301,15 +301,16 @@ class CredentialsTestCase(CremeTestCase):
 
     #this tests contribute_to_model too
     def test_role_esetall01(self): # CRED_VIEW + ESET_ALL
-        try:
+        #try:
+        with self.assertNoException():
             role = self._create_role('Coder', ['creme_core'])
             self.user.role = role
             self.user.save()
             SetCredentials.objects.create(role=role, value=SetCredentials.CRED_VIEW,
                                           set_type=SetCredentials.ESET_ALL #helper ??
                                          )
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         entity3 = CremeEntity.objects.create(user=self.user) #created by user -> user can read, other_user has no creds
         self.assertTrue(self.user.has_perm('creme_core.view_entity', entity3))
@@ -342,15 +343,16 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(self.user.has_perm('creme_core.view_entity',  entity4))
 
     def test_role_esetall02(self): # CRED_CHANGE + ESET_ALL
-        try:
+        #try:
+        with self.assertNoException():
             role = self._create_role('Coder', ['creme_core'])
             self.user.role = role
             self.user.save()
             SetCredentials.objects.create(role=role, value=SetCredentials.CRED_CHANGE,
                                           set_type=SetCredentials.ESET_ALL
                                          )
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         entity3 = CremeEntity.objects.create(user=self.user)
         self.assertFalse(self.user.has_perm('creme_core.view_entity',    entity3))
@@ -560,12 +562,13 @@ class CredentialsTestCase(CremeTestCase):
         self.assertEqual(4, EntityCredentials.objects.count())
 
     def test_creation_creds01(self):
-        try:
+        #try:
+        with self.assertNoException():
             role = UserRole.objects.create(name='Coder')
             self.user.role = role
             self.user.save()
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertFalse(self.user.has_perm('creme_core.add_cremeproperty'))
         self.assertFalse(self.user.has_perm('creme_core.add_relation'))
@@ -614,12 +617,13 @@ class CredentialsTestCase(CremeTestCase):
         self.assertTrue(self.user.has_perm('persons.export_contact'))
 
     def test_app_creds01(self):
-        try:
+        #try:
+        with self.assertNoException():
             role = UserRole.objects.create(name='Salesman')
             self.user.role = role
             self.user.save()
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertFalse(self.user.has_perm('creme_core'))
         self.assertFalse(self.user.has_perm('foobar'))
@@ -640,12 +644,13 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(self.user.has_perm('quux'))
 
     def test_app_creds02(self):
-        try:
+        #try:
+        with self.assertNoException():
             role = UserRole.objects.create(name='CEO')
             self.user.role = role
             self.user.save()
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertFalse(self.user.has_perm('creme_core.can_admin'))
         self.assertFalse(self.user.has_perm('foobar.can_admin'))

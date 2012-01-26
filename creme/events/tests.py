@@ -18,8 +18,11 @@ except Exception as e:
 
 
 class EventsTestCase(CremeTestCase):
-    def setUp(self):
-        self.populate('creme_core', 'creme_config', 'events') #'persons'
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'persons', 'events') #'persons' -> HeaderFilters
+    #def setUp(self):
+        #self.populate('creme_core', 'creme_config', 'events') #'persons'
 
     def test_populate(self):
         rtypes_pks = [REL_SUB_IS_INVITED_TO, REL_SUB_ACCEPTED_INVITATION, REL_SUB_REFUSED_INVITATION, REL_SUB_CAME_EVENT, REL_SUB_NOT_CAME_EVENT]
@@ -90,10 +93,11 @@ class EventsTestCase(CremeTestCase):
         response = self.client.get('/events/events')
         self.assertEqual(response.status_code, 200)
 
-        try:
+        #try:
+        with self.assertNoException():
             events_page = response.context['entities']
-        except KeyError as e:
-            self.fail(str(e))
+        #except KeyError as e:
+            #self.fail(str(e))
 
         self.assertEqual(2, events_page.paginator.count)
         self.assertEqual(set((event1, event2)), set(events_page.object_list))
@@ -105,38 +109,48 @@ class EventsTestCase(CremeTestCase):
         stats = event.get_stats()
 
         self.assertEqual(4, len(stats))
-        try:
-            self.assertEqual(0, stats['invations_count'])
-            self.assertEqual(0, stats['accepted_count'])
-            self.assertEqual(0, stats['refused_count'])
-            self.assertEqual(0, stats['visitors_count'])
-        except Exception as e:
-            self.fail(str(e))
+        #try:
+            #self.assertEqual(0, stats['invations_count'])
+            #self.assertEqual(0, stats['accepted_count'])
+            #self.assertEqual(0, stats['refused_count'])
+            #self.assertEqual(0, stats['visitors_count'])
+        #except Exception as e:
+            #self.fail(str(e))
+        with self.assertNoException():
+            stats_list = [stats['invations_count'],
+                          stats['accepted_count'],
+                          stats['refused_count'],
+                          stats['visitors_count'],
+                         ]
+
+        self.assertEqual([0] * 4, stats_list)
 
     def test_stats02(self):
         self.login()
 
         event = self.create_event('Eclipse', EventType.objects.all()[0])
+        user = self.user
 
-        casca    = Contact.objects.create(user=self.user, first_name='Casca',    last_name='Miura')
-        judo     = Contact.objects.create(user=self.user, first_name='Judo',     last_name='Miura')
-        griffith = Contact.objects.create(user=self.user, first_name='Griffith', last_name='Miura')
-        rickert  = Contact.objects.create(user=self.user, first_name='Rickert',  last_name='Miura')
+        create_contact = Contact.objects.create
+        casca    = create_contact(user=user, first_name='Casca',    last_name='Miura')
+        judo     = create_contact(user=user, first_name='Judo',     last_name='Miura')
+        griffith = create_contact(user=user, first_name='Griffith', last_name='Miura')
+        rickert  = create_contact(user=user, first_name='Rickert',  last_name='Miura')
 
         create_relation = Relation.objects.create
-        create_relation(subject_entity=casca,    type_id=REL_SUB_IS_INVITED_TO, object_entity=event, user=self.user)
-        create_relation(subject_entity=judo,     type_id=REL_SUB_IS_INVITED_TO, object_entity=event, user=self.user)
-        create_relation(subject_entity=griffith, type_id=REL_SUB_IS_INVITED_TO, object_entity=event, user=self.user)
-        create_relation(subject_entity=rickert,  type_id=REL_SUB_IS_INVITED_TO, object_entity=event, user=self.user)
+        create_relation(subject_entity=casca,    type_id=REL_SUB_IS_INVITED_TO, object_entity=event, user=user)
+        create_relation(subject_entity=judo,     type_id=REL_SUB_IS_INVITED_TO, object_entity=event, user=user)
+        create_relation(subject_entity=griffith, type_id=REL_SUB_IS_INVITED_TO, object_entity=event, user=user)
+        create_relation(subject_entity=rickert,  type_id=REL_SUB_IS_INVITED_TO, object_entity=event, user=user)
 
-        create_relation(subject_entity=griffith, type_id=REL_SUB_ACCEPTED_INVITATION, object_entity=event, user=self.user)
+        create_relation(subject_entity=griffith, type_id=REL_SUB_ACCEPTED_INVITATION, object_entity=event, user=user)
 
-        create_relation(subject_entity=casca, type_id=REL_SUB_REFUSED_INVITATION, object_entity=event, user=self.user)
-        create_relation(subject_entity=judo,  type_id=REL_SUB_REFUSED_INVITATION, object_entity=event, user=self.user)
+        create_relation(subject_entity=casca, type_id=REL_SUB_REFUSED_INVITATION, object_entity=event, user=user)
+        create_relation(subject_entity=judo,  type_id=REL_SUB_REFUSED_INVITATION, object_entity=event, user=user)
 
-        create_relation(subject_entity=casca,    type_id=REL_SUB_CAME_EVENT, object_entity=event, user=self.user)
-        create_relation(subject_entity=judo,     type_id=REL_SUB_CAME_EVENT, object_entity=event, user=self.user)
-        create_relation(subject_entity=griffith, type_id=REL_SUB_CAME_EVENT, object_entity=event, user=self.user)
+        create_relation(subject_entity=casca,    type_id=REL_SUB_CAME_EVENT, object_entity=event, user=user)
+        create_relation(subject_entity=judo,     type_id=REL_SUB_CAME_EVENT, object_entity=event, user=user)
+        create_relation(subject_entity=griffith, type_id=REL_SUB_CAME_EVENT, object_entity=event, user=user)
 
         stats = event.get_stats()
         self.assertEqual(4, stats['invations_count'])
@@ -263,7 +277,7 @@ class EventsTestCase(CremeTestCase):
 
     def test_set_invitation_status06(self): #creds errors
         self.login(is_superuser=False, allowed_apps=['persons', 'events'])
-        self.populate('creme_core', 'events')
+        #self.populate('creme_core', 'events')
 
         user = self.user
         other_user = self.other_user
@@ -362,7 +376,7 @@ class EventsTestCase(CremeTestCase):
 
     def test_set_presence_status04(self): #creds errors
         self.login(is_superuser=False, allowed_apps=['persons', 'events'])
-        self.populate('creme_core', 'events')
+        #self.populate('creme_core', 'events')
 
         user = self.user
         other_user = self.other_user
@@ -415,15 +429,16 @@ class EventsTestCase(CremeTestCase):
                          data={'status': str(INV_STATUS_ACCEPTED)}
                         )
 
-        self.populate('persons') #HeaderFilter....
+        #self.populate('persons') #HeaderFilter....
 
         response = self.client.get('/events/event/%s/contacts' % event.id)
         self.assertEqual(response.status_code, 200)
 
-        try:
+        #try:
+        with self.assertNoException():
             contacts_page = response.context['entities']
-        except KeyError as e:
-            self.fail(str(e))
+        #except KeyError as e:
+            #self.fail(str(e))
 
         self.assertEqual(3, contacts_page.paginator.count)
         self.assertEqual(set((casca, judo, griffith)), set(contacts_page.object_list))
@@ -434,7 +449,7 @@ class EventsTestCase(CremeTestCase):
                                     .values_list('type_id', flat=True))
 
     def test_link_contacts01(self):
-        self.populate('creme_core', 'events')
+        #self.populate('creme_core', 'events')
         self.login()
 
         event = self.create_event('Eclipse', EventType.objects.all()[0])
@@ -455,7 +470,7 @@ class EventsTestCase(CremeTestCase):
 
     def test_link_contacts02(self):
         self.login()
-        self.populate('creme_core', 'events')
+        #self.populate('creme_core', 'events')
 
         event = self.create_event('Eclipse', EventType.objects.all()[0])
 
@@ -518,7 +533,7 @@ class EventsTestCase(CremeTestCase):
 
     def test_link_contacts03(self):
         self.login()
-        self.populate('creme_core', 'events')
+        #self.populate('creme_core', 'events')
 
         event = self.create_event('Eclipse', EventType.objects.all()[0])
         casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
@@ -537,7 +552,7 @@ class EventsTestCase(CremeTestCase):
 
     def test_link_contacts04(self): #link creds error
         self.login(is_superuser=False, allowed_apps=['persons', 'events'])
-        self.populate('creme_core', 'events')
+        #self.populate('creme_core', 'events')
 
         SetCredentials.objects.create(role=self.role,
                                       value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \

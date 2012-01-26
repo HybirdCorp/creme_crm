@@ -13,8 +13,11 @@ except Exception as e:
 
 
 class GraphsTestCase(CremeTestCase):
-    def setUp(self):
-        self.populate('creme_core', 'creme_config', )
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config')
+    #def setUp(self):
+        #self.populate('creme_core', 'creme_config', )
 
     def login(self, is_superuser=True):
         super(GraphsTestCase, self).login(is_superuser, allowed_apps=['graphs'])
@@ -27,9 +30,8 @@ class GraphsTestCase(CremeTestCase):
 
         name = 'Graph01'
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user': self.user.id,
-                                            'name': name,
+                                    data={'user': self.user.id,
+                                          'name': name,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -50,9 +52,8 @@ class GraphsTestCase(CremeTestCase):
 
         name += '_edited'
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user': self.user.id,
-                                            'name': name,
+                                    data={'user': self.user.id,
+                                          'name': name,
                                          }
                                    )
         self.assertNoFormError(response)

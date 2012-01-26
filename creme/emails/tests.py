@@ -38,8 +38,12 @@ class EmailsTestCase(CremeTestCase):
 
 
 class CampaignTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls): #TODO: move in a base class
+        cls.populate('creme_core', 'creme_config', 'emails')
+
     def setUp(self):
-        self.populate('creme_core', 'creme_config', 'emails')
+        #self.populate('creme_core', 'creme_config', 'emails')
         self.login()
 
     def test_create(self):
@@ -48,9 +52,8 @@ class CampaignTestCase(CremeTestCase):
 
         name     = 'my_campaign'
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user': self.user.pk,
-                                            'name': name,
+                                    data={'user': self.user.pk,
+                                          'name': name,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -66,9 +69,8 @@ class CampaignTestCase(CremeTestCase):
 
         name += '_edited'
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user': self.user.pk,
-                                            'name': name,
+                                    data={'user': self.user.pk,
+                                          'name': name,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -79,15 +81,20 @@ class CampaignTestCase(CremeTestCase):
         response = self.client.get('/emails/campaigns')
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             response.context['entities']
-        except KeyError as e:
-            self.fail(str(e))
+        #except KeyError as e:
+            #self.fail(str(e))
 
 
 class MailingListsTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'emails')
+
     def setUp(self):
-        self.populate('creme_core', 'creme_config', 'emails')
+        #self.populate('creme_core', 'creme_config', 'emails')
         self.login()
 
     def test_create01(self):
@@ -96,9 +103,8 @@ class MailingListsTestCase(CremeTestCase):
 
         name     = 'my_mailinglist'
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user': self.user.pk,
-                                            'name': name,
+                                    data={'user': self.user.pk,
+                                          'name': name,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -113,9 +119,8 @@ class MailingListsTestCase(CremeTestCase):
 
         name += '_edited'
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user': self.user.pk,
-                                            'name': name,
+                                    data={'user': self.user.pk,
+                                          'name': name,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -126,10 +131,11 @@ class MailingListsTestCase(CremeTestCase):
         response = self.client.get('/emails/mailing_lists')
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             response.context['entities']
-        except KeyError, e:
-            self.fail(str(e))
+        #except KeyError, e:
+            #self.fail(str(e))
 
     def test_ml_and_campaign(self):
         campaign = EmailCampaign.objects.create(user=self.user, name='camp01')
@@ -140,17 +146,17 @@ class MailingListsTestCase(CremeTestCase):
         self.assertEqual(200, self.client.get(url).status_code)
 
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'mailing_lists': '%s,' % mlist.id, #see MultiCremeEntityField
+                                    data={'mailing_lists': '%s,' % mlist.id, #see MultiCremeEntityField
                                          }
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             campaign.mailing_lists.filter(pk=mlist.id)[0]
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         response = self.client.post('/emails/campaign/%s/mailing_list/delete' % campaign.id,
                                     follow=True, data={'id': mlist.id}
@@ -210,8 +216,7 @@ class MailingListsTestCase(CremeTestCase):
         recipients = [create(user=self.user, first_name='Spike', last_name='Spiegel', email='spike.spiegel@bebop.com'),
                       create(user=self.user, first_name='Jet',   last_name='Black',   email='jet.black@bebop.com'),
                      ]
-        response = self.client.post(url, data={
-                                                'recipients': ','.join(str(c.id) for c in recipients) #see MultiCremeEntityField
+        response = self.client.post(url, data={'recipients': ','.join(str(c.id) for c in recipients) #see MultiCremeEntityField
                                               }
                                    )
         self.assertNoFormError(response)
@@ -266,10 +271,11 @@ class MailingListsTestCase(CremeTestCase):
 
         url = '/emails/mailing_list/%s/contact/add_from_filter' % mlist.id
         context = self.client.get(url).context
-        try:
+        #try:
+        with self.assertNoException():
             choices = [ef_id for ef_id, ef_name in context['form'].fields['filters'].choices]
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(['', efilter.id], choices)
 
@@ -286,8 +292,7 @@ class MailingListsTestCase(CremeTestCase):
         recipients = [create(user=self.user, name='NERV',  email='contact@nerv.jp'),
                       create(user=self.user, name='Seele', email='contact@seele.jp'),
                      ]
-        response = self.client.post(url,
-                                    data={'recipients': ','.join(str(c.id) for c in recipients), #see MultiCremeEntityField
+        response = self.client.post(url, data={'recipients': ','.join(str(c.id) for c in recipients), #see MultiCremeEntityField
                                          }
                                    )
         self.assertNoFormError(response)
@@ -377,35 +382,31 @@ class MailingListsTestCase(CremeTestCase):
         mlist01.children.add(mlist02)
         mlist02.children.add(mlist03)
 
-        response = self.client.post('/emails/mailing_list/%s/child/add' % mlist01.id,
-                                    data={'child': mlist02.id}
-                                   )
+        url = '/emails/mailing_list/%s/child/add'
+
+        response = self.client.post(url % mlist01.id, data={'child': mlist02.id})
         self.assertFormError(response, 'form', 'child', [_(u'List already in the children')])
 
-        response = self.client.post('/emails/mailing_list/%s/child/add' % mlist01.id,
-                                    data={'child': mlist03.id}
-                                   )
+        response = self.client.post(url % mlist01.id, data={'child': mlist03.id})
         self.assertFormError(response, 'form', 'child', [_(u'List already in the children')])
 
-        response = self.client.post('/emails/mailing_list/%s/child/add' % mlist02.id,
-                                    data={'child': mlist01.id}
-                                   )
+        response = self.client.post(url % mlist02.id, data={'child': mlist01.id})
         self.assertFormError(response, 'form', 'child', [_(u'List already in the parents')])
 
-        response = self.client.post('/emails/mailing_list/%s/child/add' % mlist03.id,
-                                    data={'child': mlist01.id}
-                                   )
+        response = self.client.post(url % mlist03.id, data={'child': mlist01.id})
         self.assertFormError(response, 'form', 'child', [_(u'List already in the parents')])
 
-        response = self.client.post('/emails/mailing_list/%s/child/add' % mlist01.id,
-                                    data={'child': mlist01.id}
-                                   )
+        response = self.client.post(url % mlist01.id, data={'child': mlist01.id})
         self.assertFormError(response, 'form', 'child', [_(u"A list can't be its own child")])
 
 
 class TemplatesTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'emails')
+
     def setUp(self):
-        self.populate('creme_core', 'creme_config', 'emails')
+        #self.populate('creme_core', 'creme_config', 'emails')
         self.login()
 
     def test_createview01(self): #TODO: test attachments & images
@@ -417,12 +418,11 @@ class TemplatesTestCase(CremeTestCase):
         body      = 'blablabla {{first_name}}'
         body_html = '<p>blablabla {{last_name}}</p>'
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':      self.user.pk,
-                                            'name':      name,
-                                            'subject':   subject,
-                                            'body':      body,
-                                            'body_html': body_html,
+                                    data={'user':      self.user.pk,
+                                          'name':      name,
+                                          'subject':   subject,
+                                          'body':      body,
+                                          'body_html': body_html,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -435,12 +435,11 @@ class TemplatesTestCase(CremeTestCase):
 
     def test_createview02(self): # variable errors
         response = self.client.post('/emails/template/add', follow=True,
-                                    data={
-                                            'user':      self.user.pk,
-                                            'name':      'my_template',
-                                            'subject':   'Insert a joke *here*',
-                                            'body':      'blablabla {{unexisting_var}}',
-                                            'body_html': '<p>blablabla</p> {{foobar_var}}',
+                                    data={'user':      self.user.pk,
+                                          'name':      'my_template',
+                                          'subject':   'Insert a joke *here*',
+                                          'body':      'blablabla {{unexisting_var}}',
+                                          'body_html': '<p>blablabla</p> {{foobar_var}}',
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -462,11 +461,10 @@ class TemplatesTestCase(CremeTestCase):
         subject = subject.title()
         body    += ' edited'
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':    self.user.pk,
-                                            'name':    name,
-                                            'subject': subject,
-                                            'body':    body,
+                                    data={'user':    self.user.pk,
+                                          'name':    name,
+                                          'subject': subject,
+                                          'body':    body,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -482,22 +480,28 @@ class TemplatesTestCase(CremeTestCase):
         response = self.client.get('/emails/templates')
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             response.context['entities']
-        except KeyError as e:
-            self.fail(str(e))
+        #except KeyError as e:
+            #self.fail(str(e))
 
 
 class SendingsTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_config')
+
     def setUp(self):
-        self.populate('creme_config')
+        #self.populate('creme_config')
         self.login()
 
     def _load_or_fail(self, data):
-        try:
+        #try:
+        with self.assertNoException():
             return loads(data.encode('utf-8'))
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
     def test_create01(self):
         # We create voluntarily duplicates (recipients that have same addresses
@@ -515,15 +519,14 @@ class SendingsTestCase(CremeTestCase):
         mlist01.children.add(mlist02, mlist03)
         camp.mailing_lists.add(mlist01)
 
-        addresses = [
-                    'spike.spiegel@bebop.com',  #0
-                    'jet.black@bebop.com',      #1
-                    'faye.valentine@bebop.com', #2
-                    'ed.wong@bebop.com',        #3
-                    'ein@bebop.com',            #4
-                    'contact@nerv.jp',          #5
-                    'contact@seele.jp',         #6
-                  ]
+        addresses = ['spike.spiegel@bebop.com',  #0
+                     'jet.black@bebop.com',      #1
+                     'faye.valentine@bebop.com', #2
+                     'ed.wong@bebop.com',        #3
+                     'ein@bebop.com',            #4
+                     'contact@nerv.jp',          #5
+                     'contact@seele.jp',         #6
+                    ]
 
         create_recipient = EmailRecipient.objects.create
         create_recipient(ml=mlist01, address=addresses[0])
@@ -621,8 +624,7 @@ class SendingsTestCase(CremeTestCase):
         body_html    = '<p>Your last name is: {{last_name}} !</p>'
         template = EmailTemplate.objects.create(user=self.user, name='name', subject=subject, body=body, body_html=body_html)
         response = self.client.post('/emails/campaign/%s/sending/add' % camp.id,
-                                    data = {
-                                            'sender':   'vicious@reddragons.mrs',
+                                    data = {'sender':   'vicious@reddragons.mrs',
                                             'type':     SENDING_TYPE_IMMEDIATE,
                                             'template': template.id,
                                            }
@@ -630,17 +632,19 @@ class SendingsTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             sending = self.refresh(camp).sendings_set.all()[0]
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(sending.subject, subject)
 
-        try:
+        #try:
+        with self.assertNoException():
             mail = sending.mails_set.all()[0]
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual('Your first name is: %s !' % first_name, mail.get_body())
 
@@ -662,47 +666,48 @@ class SendingsTestCase(CremeTestCase):
 
         now  = datetime.now()
         sending_date = now.replace(year=now.year + 1)
-        response = self.client.post(url, data={
-                                                'sender':       'vicious@reddragons.mrs',
-                                                'type':         SENDING_TYPE_DEFERRED,
-                                                'template':     template.id,
-                                                'sending_date': sending_date.strftime('%Y-%m-%d'), #future: OK
-                                                'hour':         sending_date.hour,
-                                                'minute':       sending_date.minute,
+        response = self.client.post(url, data={'sender':       'vicious@reddragons.mrs',
+                                               'type':         SENDING_TYPE_DEFERRED,
+                                               'template':     template.id,
+                                               'sending_date': sending_date.strftime('%Y-%m-%d'), #future: OK
+                                               'hour':         sending_date.hour,
+                                               'minute':       sending_date.minute,
                                               }
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             sending = self.refresh(camp).sendings_set.all()[0]
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         format = '%d %m %Y %H %M'
         self.assertEqual(sending_date.strftime(format), sending.sending_date.strftime(format))
 
-        response = self.client.post(url, data={
-                                                'sender':   'vicious@reddragons.mrs',
-                                                'type':     SENDING_TYPE_DEFERRED,
-                                                'template': template.id,
+        response = self.client.post(url, data={'sender':   'vicious@reddragons.mrs',
+                                               'type':     SENDING_TYPE_DEFERRED,
+                                               'template': template.id,
                                               }
                                    )
         self.assertFormError(response, 'form', 'sending_date', [_(u"Sending date required for a deferred sending")])
 
-        response = self.client.post(url, data={
-                                                'sender':       'vicious@reddragons.mrs',
-                                                'type':         SENDING_TYPE_DEFERRED,
-                                                'template':     template.id,
-                                                'sending_date': (now - timedelta(days=1)).strftime('%Y-%m-%d'), #past: KO
+        response = self.client.post(url, data={'sender':       'vicious@reddragons.mrs',
+                                               'type':         SENDING_TYPE_DEFERRED,
+                                               'template':     template.id,
+                                               'sending_date': (now - timedelta(days=1)).strftime('%Y-%m-%d'), #past: KO
                                               }
                                    )
         self.assertFormError(response, 'form', 'sending_date', [_(u"Sending date must be is the future")])
 
 
 class SignaturesTestCase(CremeTestCase):
-    def setUp(self):
-        self.populate('creme_core', 'creme_config', )
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config')
+    #def setUp(self):
+        #self.populate('creme_core', 'creme_config', )
 
     def login(self, is_superuser=True):
         super(SignaturesTestCase, self).login(is_superuser, allowed_apps=['emails'])
@@ -716,11 +721,7 @@ class SignaturesTestCase(CremeTestCase):
 
         name = 'Polite signature'
         body = 'I love you'
-        response = self.client.post(url, data={
-                                                'name': name,
-                                                'body': body,
-                                              }
-                                   )
+        response = self.client.post(url, data={'name': name, 'body': body})
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
@@ -743,11 +744,7 @@ class SignaturesTestCase(CremeTestCase):
 
         name += '_edited'
         body += '_edited'
-        response = self.client.post(url, data={
-                                                'name': name,
-                                                'body': body,
-                                              }
-                                   )
+        response = self.client.post(url, data={'name': name, 'body': body})
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
@@ -801,6 +798,12 @@ class SignaturesTestCase(CremeTestCase):
 
 
 class EntityEmailTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'emails')
+    #def setUp(self):
+        #self.populate('creme_core', 'creme_config', 'emails')
+
     def login(self, is_superuser=True):
         super(EntityEmailTestCase, self).login(is_superuser,
                                                allowed_apps=['persons', 'emails'],
@@ -816,9 +819,6 @@ class EntityEmailTestCase(CremeTestCase):
 
         return user
 
-    def setUp(self):
-        self.populate('creme_core', 'creme_config', 'emails')
-
     def test_createview01(self):
         self.login()
         user = self.user
@@ -830,10 +830,11 @@ class EntityEmailTestCase(CremeTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             c_recipients = response.context['form'].fields['c_recipients']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual([contact.id], c_recipients.initial)
 
@@ -841,13 +842,12 @@ class EntityEmailTestCase(CremeTestCase):
         body = 'Freeze !'
         body_html = '<p>Freeze !</p>'
         subject = 'Under arrest'
-        response = self.client.post(url, data={
-                                                'user':         user.id,
-                                                'sender':       sender,
-                                                'c_recipients': contact.id,
-                                                'subject':      subject,
-                                                'body':         body,
-                                                'body_html':    body_html,
+        response = self.client.post(url, data={'user':         user.id,
+                                               'sender':       sender,
+                                               'c_recipients': contact.id,
+                                               'subject':      subject,
+                                               'body':         body,
+                                               'body_html':    body_html,
                                               }
                                    )
         self.assertNoFormError(response)
@@ -877,10 +877,11 @@ class EntityEmailTestCase(CremeTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             o_recipients = response.context['form'].fields['o_recipients']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual([orga.id], o_recipients.initial)
 
@@ -894,16 +895,15 @@ class EntityEmailTestCase(CremeTestCase):
 
         sender = 're-l.mayer@rpd.rmd'
         signature = EmailSignature.objects.create(user=self.user, name="Re-l's signature", body='I love you... not')
-        response = self.client.post(url, data={
-                                                'user':         user.id,
-                                                'sender':       sender,
-                                                'o_recipients': orga.id,
-                                                'subject':      'Cryogenisation',
-                                                'body':         'I want to be freezed !',
-                                                'body_html':    '<p>I want to be freezed !</p>',
-                                                'signature':    signature.id,
-                                                #'attachments':  ','.join(str(doc.id) for doc in docs),
-                                                'send_me':      True,
+        response = self.client.post(url, data={'user':         user.id,
+                                               'sender':       sender,
+                                               'o_recipients': orga.id,
+                                               'subject':      'Cryogenisation',
+                                               'body':         'I want to be freezed !',
+                                               'body_html':    '<p>I want to be freezed !</p>',
+                                               'signature':    signature.id,
+                                               #'attachments':  ','.join(str(doc.id) for doc in docs),
+                                               'send_me':      True,
                                               }
                                    )
         self.assertNoFormError(response)
@@ -933,14 +933,13 @@ class EntityEmailTestCase(CremeTestCase):
                                             )
 
         response = self.client.post('/emails/mail/add/%s' % contact01.id,
-                                     data={
-                                            'user':         user.id,
-                                            'sender':       self.user_contact.email,
-                                            'c_recipients': '%s,%s' % (contact01.id, contact02.id),
-                                            'o_recipients': '%s,%s' % (orga01.id, orga02.id),
-                                            'subject':      'Under arrest',
-                                            'body':         'Freeze !',
-                                            'body_html':    '<p>Freeze !</p>',
+                                     data={'user':         user.id,
+                                           'sender':       self.user_contact.email,
+                                           'c_recipients': '%s,%s' % (contact01.id, contact02.id),
+                                           'o_recipients': '%s,%s' % (orga01.id, orga02.id),
+                                           'subject':      'Under arrest',
+                                           'body':         'Freeze !',
+                                           'body_html':    '<p>Freeze !</p>',
                                           }
                                    )
         self.assertEqual(200, response.status_code)
@@ -985,14 +984,13 @@ class EntityEmailTestCase(CremeTestCase):
 
         def post(contact):
             return self.client.post('/emails/mail/add/%s' % contact.id,
-                                    data={
-                                            'user':         user.id,
-                                            'sender':       self.user_contact.email,
-                                            'c_recipients': '%s,%s' % (contact01.id, contact02.id),
-                                            'o_recipients': '%s,%s' % (orga01.id, orga02.id),
-                                            'subject':      'Under arrest',
-                                            'body':         'Freeze !',
-                                            'body_html':    '<p>Freeze !</p>',
+                                    data={'user':         user.id,
+                                          'sender':       self.user_contact.email,
+                                          'c_recipients': '%s,%s' % (contact01.id, contact02.id),
+                                          'o_recipients': '%s,%s' % (orga01.id, orga02.id),
+                                          'subject':      'Under arrest',
+                                          'body':         'Freeze !',
+                                          'body_html':    '<p>Freeze !</p>',
                                          }
                                    )
 
@@ -1012,8 +1010,8 @@ class EntityEmailTestCase(CremeTestCase):
         self.login()
         user = self.user
 
-        body_format       = 'Hi %s %s, nice to meet you !'
-        body_html_format  = 'Hi <strong>%s %s</strong>, nice to meet you !'
+        body_format      = 'Hi %s %s, nice to meet you !'
+        body_html_format = 'Hi <strong>%s %s</strong>, nice to meet you !'
 
         subject   = 'I am da subject'
         signature = EmailSignature.objects.create(user=user, name="Re-l's signature", body='I love you... not')
@@ -1032,15 +1030,15 @@ class EntityEmailTestCase(CremeTestCase):
         url = '/emails/mail/add_from_template/%s' % contact.id
         self.assertEqual(200, self.client.get(url).status_code)
 
-        response = self.client.post(url, data={
-                                                'step':     1,
-                                                'template': template.id,
+        response = self.client.post(url, data={'step':     1,
+                                               'template': template.id,
                                               }
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             form = response.context['form']
             fields = form.fields
             fields['subject']
@@ -1048,8 +1046,8 @@ class EntityEmailTestCase(CremeTestCase):
             fields['body_html']
             fields['signature']
             fields['attachments']
-        except KeyError as e:
-            self.fail(str(e))
+        #except KeyError as e:
+            #self.fail(str(e))
 
         self.assertEqual(2, fields['step'].initial)
 
@@ -1060,15 +1058,14 @@ class EntityEmailTestCase(CremeTestCase):
         self.assertEqual(signature.id, ini_get('signature'))
         #self.assertEqual(attachments,  ini_get('attachments')) #TODO
 
-        response = self.client.post(url, data={
-                                                'step':         2,
-                                                'user':         user.id,
-                                                'sender':       self.user_contact.email,
-                                                'c_recipients': contact.id,
-                                                'subject':      subject,
-                                                'body':         ini_get('body'),
-                                                'body_html':    ini_get('body_html'),
-                                                'signature':    signature.id,
+        response = self.client.post(url, data={'step':         2,
+                                               'user':         user.id,
+                                               'sender':       self.user_contact.email,
+                                               'c_recipients': contact.id,
+                                               'subject':      subject,
+                                               'body':         ini_get('body'),
+                                               'body_html':    ini_get('body_html'),
+                                               'signature':    signature.id,
                                               }
                                    )
         self.assertNoFormError(response)
@@ -1096,14 +1093,13 @@ class EntityEmailTestCase(CremeTestCase):
                                         )
 
         response = self.client.post('/emails/mail/add_from_template/%s' % contact.id,
-                                    data={
-                                            'step':         2,
-                                            'user':         user.id,
-                                            'sender':       self.user_contact.email,
-                                            'c_recipients': contact.id,
-                                            'subject':      template.subject,
-                                            'body':         template.body,
-                                            'body_html':    template.body_html,
+                                    data={'step':         2,
+                                          'user':         user.id,
+                                          'sender':       self.user_contact.email,
+                                          'c_recipients': contact.id,
+                                          'subject':      template.subject,
+                                          'body':         template.body,
+                                          'body_html':    template.body_html,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -1125,14 +1121,13 @@ class EntityEmailTestCase(CremeTestCase):
         url = '/emails/mail/add/%s' % contacts[0].id
         self.assertEqual(200, self.client.get(url).status_code)
 
-        response = self.client.post(url, data={
-                                                'user':         user.id,
-                                                'sender':       're-l.mayer@rpd.rmd',
-                                                'c_recipients': '%s,%s' % (contacts[0].id, contacts[1].id),
-                                                'o_recipients': '%s,%s' % (orgas[0].id, orgas[1].id),
-                                                'subject':      'Under arrest',
-                                                'body':         'Freeze',
-                                                'body_html':    '<p>Freeze !</p>',
+        response = self.client.post(url, data={'user':         user.id,
+                                               'sender':       're-l.mayer@rpd.rmd',
+                                               'c_recipients': '%s,%s' % (contacts[0].id, contacts[1].id),
+                                               'o_recipients': '%s,%s' % (orgas[0].id, orgas[1].id),
+                                               'subject':      'Under arrest',
+                                               'body':         'Freeze',
+                                               'body_html':    '<p>Freeze !</p>',
                                               }
                                    )
         self.assertNoFormError(response)
@@ -1150,10 +1145,11 @@ class EntityEmailTestCase(CremeTestCase):
         response = self.client.get('/emails/mails')
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             emails = response.context['entities']
-        except KeyError as e:
-            self.fail(str(e))
+        #except KeyError as e:
+            #self.fail(str(e))
 
         self.assertEqual(4, emails.object_list.count())
 

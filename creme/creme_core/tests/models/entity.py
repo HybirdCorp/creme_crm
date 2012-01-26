@@ -32,10 +32,11 @@ class EntityTestCase(CremeTestCase):
         self.user = User.objects.create(username='name')
 
     def test_entity01(self):
-        try:
+        #try:
+        with self.assertNoException():
             entity = CremeEntity.objects.create(user=self.user)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         now = datetime.now()
         self.assertLess((now - entity.created).seconds,  10)
@@ -44,12 +45,13 @@ class EntityTestCase(CremeTestCase):
     def test_property01(self): #TODO: create a test case for CremeProperty ???
         text = 'TEXT'
 
-        try:
+        #try:
+        with self.assertNoException():
             ptype  = CremePropertyType.create(str_pk='test-prop_foobar', text=text)
             entity = CremeEntity.objects.create(user=self.user)
             prop   = CremeProperty.objects.create(type=ptype, creme_entity=entity)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(text, ptype.text)
 
@@ -295,11 +297,12 @@ class EntityTestCase(CremeTestCase):
         self.assertRaises(ProtectedError, ce2.delete)
 
     def test_functionfields(self):
-        try:
+        #try:
+        with self.assertNoException():
             ff_mngr = CremeEntity.function_fields
             all_ff = list(ff_mngr)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         for funf in all_ff:
             self.assertIsInstance(funf, FunctionField)

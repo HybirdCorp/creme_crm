@@ -1,23 +1,5 @@
 # -*- coding: utf-8 -*-
 
-################################################################################
-#    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
-
 try:
     from django.contrib.contenttypes.models import ContentType
 
@@ -35,8 +17,12 @@ except Exception as e:
 
 
 class ActiveSyncModelsTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'persons', 'activities')
+
     def setUp(self):
-        self.populate('creme_core', 'persons', 'activities')
+        #self.populate('creme_core', 'persons', 'activities')
         self.login()
 
     def test_mapping_update_contact01(self):
@@ -79,10 +65,10 @@ class ActiveSyncModelsTestCase(CremeTestCase):
                                                       exchange_entity_id="fake id", creme_entity_ct=ct_contact
                                                      )
         self.assertFalse(mapping.is_creme_modified)
-        self.assertEqual(0, Relation.objects.filter(subject_entity=contact, object_entity=orga, type__id=REL_SUB_EMPLOYED_BY).count())
+        self.assertRelationCount(0, contact, REL_SUB_EMPLOYED_BY, orga)
 
         Relation.objects.create(subject_entity=contact, object_entity=orga, type_id=REL_SUB_EMPLOYED_BY, user=user)
-        self.assertEqual(1, Relation.objects.filter(subject_entity=contact, object_entity=orga, type__id=REL_SUB_EMPLOYED_BY).count())
+        self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga)
 
         self.assertTrue(self.refresh(mapping).is_creme_modified)
 
@@ -96,10 +82,10 @@ class ActiveSyncModelsTestCase(CremeTestCase):
                                                       exchange_entity_id="fake id", creme_entity_ct=ct_contact
                                                      )
         self.assertFalse(mapping.is_creme_modified)
-        self.assertEqual(0, Relation.objects.filter(subject_entity=contact, object_entity=orga, type__id=REL_SUB_EMPLOYED_BY).count())
+        self.assertRelationCount(0, contact, REL_SUB_EMPLOYED_BY, orga)
 
         rel = Relation.objects.create(subject_entity=contact, object_entity=orga, type_id=REL_SUB_EMPLOYED_BY, user=user)
-        self.assertEqual(1, Relation.objects.filter(subject_entity=contact, object_entity=orga, type__id=REL_SUB_EMPLOYED_BY).count())
+        self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga)
 
         mapping.is_creme_modified = False
         mapping.save()
@@ -155,4 +141,4 @@ class ActiveSyncModelsTestCase(CremeTestCase):
 
         u._entity   = None
         u.entity_pk = None
-        self.assertEqual(None, u.entity)
+        self.assertIsNone(u.entity)

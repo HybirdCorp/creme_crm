@@ -391,21 +391,24 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter = EntityFilter.create('test-filter01', 'Mist..', Contact)
         build = EntityFilterCondition.build_4_field
 
-        try:
+        #try:
+        with self.assertNoException():
             #Problem a part of a email address is not a valid email address
             efilter.set_conditions([build(model=Contact, operator=EntityFilterCondition.ISTARTSWITH, name='email', values=['misato'])])
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
-        try:
+        #try:
+        with self.assertNoException():
             efilter.set_conditions([build(model=Contact, operator=EntityFilterCondition.RANGE, name='email', values=['misato', 'yui'])])
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
-        try:
+        #try:
+        with self.assertNoException():
             efilter.set_conditions([build(model=Contact, operator=EntityFilterCondition.EQUALS, name='email', values=['misato@nerv.jp'])])
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertRaises(EntityFilterCondition.ValueError, build,
                           model=Contact, operator=EntityFilterCondition.EQUALS, name='email', values=['misato'],
@@ -556,10 +559,11 @@ class EntityFiltersTestCase(CremeTestCase):
         conds = [build_4_field(model=Contact, operator=EntityFilterCondition.STARTSWITH, name='first_name', values=['Spi']),
                  build_sf(sub_efilter),
                 ]
-        try:
+        #try:
+        with self.assertNoException():
             efilter.check_cycle(conds)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         efilter.set_conditions(conds)
         self.assertExpectedFiltered(efilter, Contact, [self.contacts[0].id])
@@ -573,10 +577,11 @@ class EntityFiltersTestCase(CremeTestCase):
         conds = [build_4_field(model=Contact, operator=EntityFilterCondition.STARTSWITH, name='first_name', values=['Spi']),
                  build_sf(sub_sub_efilter),
                 ]
-        try:
+        #try:
+        with self.assertNoException():
             sub_efilter.check_cycle(conds)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
     def test_subfilter02(self): #cycle error (lenght = 0)
         efilter = EntityFilter.create(pk='test-filter02', name='Filter01', model=Contact, use_or=False)
@@ -768,10 +773,11 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter = EntityFilter.create(pk='test-filter02', name='Filter Rei lovers', model=Contact)
         conds = [EntityFilterCondition.build_4_relation_subfilter(rtype=loves, has=True, subfilter=sub_efilter)]
 
-        try:
+        #try:
+        with self.assertNoException():
             efilter.check_cycle(conds)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         efilter.set_conditions(conds)
         self.assertExpectedFiltered(efilter, Contact, in_love)

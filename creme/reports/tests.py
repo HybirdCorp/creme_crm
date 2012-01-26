@@ -31,6 +31,10 @@ except Exception as e:
 
 
 class ReportsTestCase(CremeTestCase):
+    #@classmethod #TODO ?
+    #def setUpClass(cls):
+        #cls.populate('creme_core', 'creme_config', 'reports', 'persons', 'opportunities', 'billing')
+
     def setUp(self):
         self.populate('creme_core', 'creme_config', 'reports')
         self.login()
@@ -231,11 +235,12 @@ class ReportsTestCase(CremeTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             form = response.context['form']
             fields_columns = form.fields['columns']
-        except KeyError as e:
-            self.fail(str(e))
+        #except KeyError as e:
+            #self.fail(str(e))
 
         for i, (fname, fvname) in enumerate(fields_columns.choices):
             if fname == 'last_name': created_index = i; break

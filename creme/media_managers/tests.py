@@ -15,8 +15,12 @@ except Exception as e:
 
 
 class MediaManagersTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'media_managers')
+
     def setUp(self):
-        self.populate('creme_core', 'creme_config', 'media_managers')
+        #self.populate('creme_core', 'creme_config', 'media_managers')
         self.images = []
         self.login()
 
@@ -44,21 +48,21 @@ class MediaManagersTestCase(CremeTestCase):
         description = 'Blabala'
         category = MediaCategory.objects.all()[0]
         response = self.client.post(url, follow=True,
-                            data={
-                                    'user':        self.user.pk,
-                                    'name':        name,
-                                    'description': description,
-                                    'image':       image_file,
-                                    'categories':  [category.id],
+                            data={'user':        self.user.pk,
+                                  'name':        name,
+                                  'description': description,
+                                  'image':       image_file,
+                                  'categories':  [category.id],
                                  }
                            )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             image = Image.objects.get(name=name)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(self.user,   image.user)
         self.assertEqual(description, image.description)
@@ -74,20 +78,20 @@ class MediaManagersTestCase(CremeTestCase):
         image_file = open(path, 'rb')
 
         response = self.client.post('/media_managers/image/add', follow=True,
-                                    data={
-                                            'user':        self.user.pk,
-                                            'name':        name,
-                                            'description': description,
-                                            'image':       image_file,
+                                    data={'user':        self.user.pk,
+                                          'name':        name,
+                                          'description': description,
+                                          'image':       image_file,
                                          }
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             image = Image.objects.get(name=name)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.images.append(image)
 
@@ -106,11 +110,10 @@ class MediaManagersTestCase(CremeTestCase):
         description += ' (edited)'
         category = MediaCategory.objects.all()[0]
         response = self.client.post(url, follow=True,
-                            data={
-                                    'user':        self.user.pk,
-                                    'name':        name,
-                                    'description': description,
-                                    'categories':  [category.id],
+                            data={'user':        self.user.pk,
+                                  'name':        name,
+                                  'description': description,
+                                  'categories':  [category.id],
                                  }
                            )
         self.assertNoFormError(response)
@@ -127,10 +130,11 @@ class MediaManagersTestCase(CremeTestCase):
         response = self.client.get('/media_managers/images')
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             images_page = response.context['entities']
-        except KeyError as e:
-            self.fail(str(e))
+        #except KeyError as e:
+            #self.fail(str(e))
 
         self.assertEqual([image], list(images_page.object_list))
 
@@ -140,10 +144,11 @@ class MediaManagersTestCase(CremeTestCase):
         response = self.client.get('/media_managers/images/popup')
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             images_page = response.context['entities']
-        except KeyError as e:
-            self.fail(str(e))
+        #except KeyError as e:
+            #self.fail(str(e))
 
         self.assertEqual([image], list(images_page.object_list))
 
@@ -152,10 +157,11 @@ class MediaManagersTestCase(CremeTestCase):
         response = self.client.get('/media_managers/image/popup/%s' % image.id)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             entity = response.context['object']
-        except KeyError as e:
-            self.fail(str(e))
+        #except KeyError as e:
+            #self.fail(str(e))
 
         self.assertEqual(image, entity)
 

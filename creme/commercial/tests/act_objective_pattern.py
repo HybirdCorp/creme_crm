@@ -88,10 +88,11 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         response = self.client.get('/commercial/objective_patterns')
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             patterns_page = response.context['entities']
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(1, patterns_page.number)
         self.assertEqual(3, patterns_page.paginator.count)
@@ -173,10 +174,11 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(2,   comp01.children.count())
 
-        try:
+        #try:
+        with self.assertNoException():
             comp03 = comp01.children.get(name=name)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(ct, comp03.ctype)
 

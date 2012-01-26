@@ -8,6 +8,21 @@ from creme_core.models import UserRole, RelationType, Relation, CremePropertyTyp
 from creme_core.management.commands.creme_populate import Command as PopulateCommand
 
 
+class _AssertNoExceptionContext(object):
+    """A context manager used by CremeTestCase.assertNoException method."""
+    def __init__(self, test_case):
+        self.exception = test_case.failureException
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, tb):
+        if exc_type:
+            raise self.exception('An exception <%s> occured: %s' % (exc_type.__name__, exc_value))
+
+        return True
+
+
 class _CremeTestCase(object):
     def login(self, is_superuser=True, allowed_apps=('creme_core',), creatable_models=None):
         password = 'test'
@@ -40,9 +55,20 @@ class _CremeTestCase(object):
     def populate(cls, *args):
         PopulateCommand().handle(application=args)
 
-    def assertNoFormError(self, response):
+    #def assertNoException(self, function, *args, **kwargs):
+    def assertNoException(self, function=None, *args, **kwargs):
+        if function is None:
+            return _AssertNoExceptionContext(self)
+
         try:
-            errors = response.context['form'].errors
+            function(*args, **kwargs)
+        except Exception as e:
+            raise self.failureException('An exception <%s> occured: %s' % (e.__class__.__name__, e))
+            #self.fail('An exception <%s> occured: %s' % (e.__class__.__name__, e))
+
+    def assertNoFormError(self, response, form='form'):
+        try:
+            errors = response.context[form].errors
         except Exception, e:
             pass
         else:
@@ -50,7 +76,7 @@ class _CremeTestCase(object):
                 self.fail(errors)
 
     def assertRelationCount(self, count, subject_entity, type_id, object_entity):
-        self.assertEqual(count, Relation.objects.filter(subject_entity=subject_entity, type=type_id, object_entity=object_entity).count())
+        self.assertEqual(count, Relation.objects.filter(subject_entity=subject_entity.id, type=type_id, object_entity=object_entity.id).count())
 
     def get_object_or_fail(self, model, **kwargs):
         try:

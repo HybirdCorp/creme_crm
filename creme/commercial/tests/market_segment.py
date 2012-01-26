@@ -24,10 +24,11 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             segment = MarketSegment.objects.get(name=name)
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual(_(u'is in the segment "%s"') % name,
                          segment.property_type.text

@@ -62,10 +62,11 @@ class PropertyViewsTestCase(ViewsTestCase):
     #TODO: test get_property_types_for_ct(), add_to_entities()
 
     def assertEntityHasProperty(self, ptype, entity):
-        try:
+        #try:
+        with self.assertNoException():
             entity.properties.get(type=ptype)
-        except Exception, e:
-            self.fail(str(e))
+        #except Exception, e:
+            #self.fail(str(e))
 
     def assertEntityHasntProperty(self, ptype, entity):
         self.assertRaises(CremeProperty.DoesNotExist, entity.properties.get, type=ptype)
@@ -126,10 +127,11 @@ class PropertyViewsTestCase(ViewsTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             label = response.context['form'].fields['bad_entities_lbl']
-        except Exception, e:
-            self.fail(str(e))
+        #except Exception, e:
+            #self.fail(str(e))
 
         self.assertTrue(label.initial)
 
@@ -172,10 +174,11 @@ class PropertyViewsTestCase(ViewsTestCase):
         response = self.client.get('/creme_core/property/add_to_entities/%s/%s' % (centity_ct_id, self._format_entities_ids("ids", uneditable.id)))
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             label = response.context['form'].fields['bad_entities_lbl']
-        except Exception, e:
-            self.fail(str(e))
+        #except Exception, e:
+            #self.fail(str(e))
 
         self.assertEqual(unicode(uneditable), label.initial)
 

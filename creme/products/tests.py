@@ -16,22 +16,24 @@ except Exception as e:
 
 
 class ProductCategoryFieldTestCase(FieldTestCase):
+    format_str = '{"category": %s, "subcategory": %s}'
+
     def test_categories(self):
         cat1 = Category.objects.create(name='cat1', description='description')
         cat2 = Category.objects.create(name='cat2', description='description')
 
         field = ProductCategoryField(categories=[cat1.id, cat2.id])
-        self.assertEquals(2, len(field.categories))
-        self.assertEquals(cat1, field._get_categories_objects()[0])
-        self.assertEquals(cat2, field._get_categories_objects()[1])
+        self.assertEqual(2, len(field.categories))
+        self.assertEqual(cat1, field._get_categories_objects()[0])
+        self.assertEqual(cat2, field._get_categories_objects()[1])
 
     def test_default_ctypes(self):
         autodiscover()
         self.populate('creme_core', 'products')
 
         field = ProductCategoryField()
-        self.assertEquals(len(Category.objects.all()), len(field._get_categories_objects()))
-        self.assertEquals(set(c.pk for c in Category.objects.all()), set(c.pk for c in field._get_categories_objects()))
+        self.assertEqual(len(Category.objects.all()), len(field._get_categories_objects()))
+        self.assertEqual(set(c.pk for c in Category.objects.all()), set(c.pk for c in field._get_categories_objects()))
 
     def test_format_object(self):
         cat1 = Category.objects.create(name='cat1', description='description')
@@ -39,9 +41,10 @@ class ProductCategoryFieldTestCase(FieldTestCase):
         cat12 = SubCategory.objects.create(name='sub12', description='description', category=cat1)
 
         field = ProductCategoryField(categories=[cat1.id])
-        self.assertEquals('{"category": %s, "subcategory": %s}' % (cat1.id, cat11.id), field.from_python((cat1.id, cat11.id)))
-        self.assertEquals('{"category": %s, "subcategory": %s}' % (cat1.id, cat11.id), field.from_python(cat11))
-        self.assertEquals('{"category": %s, "subcategory": %s}' % (cat1.id, cat12.id), field.from_python(cat12))
+        format_str = self.format_str
+        self.assertEqual(format_str % (cat1.id, cat11.id), field.from_python((cat1.id, cat11.id)))
+        self.assertEqual(format_str % (cat1.id, cat11.id), field.from_python(cat11))
+        self.assertEqual(format_str % (cat1.id, cat12.id), field.from_python(cat12))
 
     def test_clean_empty_required(self):
         field = ProductCategoryField(required=True)
@@ -76,7 +79,7 @@ class ProductCategoryFieldTestCase(FieldTestCase):
         cat21 = SubCategory.objects.create(name='sub21', description='description', category=cat2)
 
         field = ProductCategoryField(categories=[cat1.id])
-        value = '{"category":"%s","subcategory":"%s"}' % (cat2.id, cat21.id)
+        value = self.format_str % (cat2.id, cat21.id)
         self.assertFieldValidationError(ProductCategoryField, 'categorynotallowed', field.clean, value)
 
     # data injection : category doesn't exist
@@ -85,7 +88,7 @@ class ProductCategoryFieldTestCase(FieldTestCase):
         cat11 = SubCategory.objects.create(name='sub11', description='description', category=cat1)
 
         field = ProductCategoryField(categories=[cat1.id, 0])
-        value = '{"category":"%s","subcategory":"%s"}' % (0, cat11.id)
+        value = self.format_str % (0, cat11.id)
         # same error has unallowed, cause unknown category cannot be in list
         self.assertFieldValidationError(ProductCategoryField, 'categorynotallowed', field.clean, value)
 
@@ -94,7 +97,7 @@ class ProductCategoryFieldTestCase(FieldTestCase):
         cat1 = Category.objects.create(name='cat1', description='description')
 
         field = ProductCategoryField(categories=[cat1.id])
-        value = '{"category":"%s","subcategory":"%s"}' % (cat1.id, 0)
+        value = self.format_str % (cat1.id, 0)
         self.assertFieldValidationError(ProductCategoryField, 'doesnotexist', field.clean, value)
 
     # data injection : use incompatible category/subcategory pair
@@ -105,7 +108,7 @@ class ProductCategoryFieldTestCase(FieldTestCase):
         cat21 = SubCategory.objects.create(name='sub21', description='description', category=cat2)
 
         field = ProductCategoryField(categories=[cat1.id, cat2.id])
-        value = '{"category":"%s","subcategory":"%s"}' % (cat1.id, cat21.id)
+        value = self.format_str % (cat1.id, cat21.id)
         self.assertFieldValidationError(ProductCategoryField, 'subcategorynotallowed', field.clean, value)
 
     def test_clean(self):
@@ -113,13 +116,16 @@ class ProductCategoryFieldTestCase(FieldTestCase):
         cat11 = SubCategory.objects.create(name='sub11', description='description', category=cat1)
 
         field = ProductCategoryField(categories=[cat1.id])
-        value = '{"category":"%s","subcategory":"%s"}' % (cat1.id, cat11.id);
-        self.assertEquals(cat11, field.clean(value))
+        value = self.format_str % (cat1.id, cat11.id);
+        self.assertEqual(cat11, field.clean(value))
 
 
 class ProductsTestCase(CremeTestCase):
-    def setUp(self):
-        self.populate('creme_core', 'creme_config', 'products')
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'products')
+    #def setUp(self):
+        #self.populate('creme_core', 'creme_config', 'products')
 
     def test_populate(self):
         self.assertTrue(Category.objects.exists())
@@ -261,10 +267,12 @@ class ProductsTestCase(CremeTestCase):
         response = self.client.get('/products/products')
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+            #products_page = response.context['entities']
+        #except Exception as e:
+            #self.fail(str(e))
+        with self.assertNoException():
             products_page = response.context['entities']
-        except Exception as e:
-            self.fail(str(e))
 
         self.assertEqual(2, products_page.paginator.count)
         self.assertEqual(set(products), set(products_page.object_list))
@@ -373,10 +381,12 @@ class ProductsTestCase(CremeTestCase):
         response = self.client.get('/products/services')
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+            #services_page = response.context['entities']
+        #except Exception as e:
+            #self.fail(str(e))
+        with self.assertNoException():
             services_page = response.context['entities']
-        except Exception as e:
-            self.fail(str(e))
 
         self.assertEqual(2, services_page.paginator.count)
         self.assertEqual(set(services), set(services_page.object_list))

@@ -44,11 +44,12 @@ class SearchViewTestCase(ViewsTestCase):
                                    )
         self.assertEqual(200, response.status_code)
 
-        try:
+        #try:
+        with self.assertNoException():
             results = response.context['results']
             total   = response.context['total']
-        except Exception, e:
-            self.fail(str(e))
+        #except Exception, e:
+            #self.fail(str(e))
 
         self.assertEqual(0, total)
         self.assertEqual(1, len(results))

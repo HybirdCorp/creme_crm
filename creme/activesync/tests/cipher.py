@@ -1,23 +1,5 @@
 # -*- coding: utf-8 -*-
 
-################################################################################
-#    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-################################################################################
-
 try:
     import random
 
@@ -79,7 +61,8 @@ class CipherTestCase(CremeTestCase):
         skey_id = 'CipherTestCase-test_ciphered_setting_value01'
         skey = SettingKey.objects.create(id=skey_id, type=SettingKey.STRING)
         sv = SettingValue.objects.get_or_create(key=skey, user=self.user)[0]
-        self.assertEqual(1, SettingValue.objects.count())
+        #self.assertEqual(1, SettingValue.objects.count())
+        self.assertEqual(1, SettingValue.objects.filter(key=skey).count())
 
         sv.value = Cipher.encrypt_for_db(password)
         sv.save()

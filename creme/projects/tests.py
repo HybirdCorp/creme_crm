@@ -17,11 +17,14 @@ except Exception as e:
 
 
 class ProjectsTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'activities', 'projects')
+    #def setUp(self):
+        #self.populate('creme_core', 'creme_config', 'activities', 'projects')
+
     def login(self, is_superuser=True, *args, **kwargs):
         super(ProjectsTestCase, self).login(is_superuser, allowed_apps=['projects'], *args, **kwargs)
-
-    def setUp(self):
-        self.populate('creme_core', 'creme_config', 'activities', 'projects')
 
     def test_populate(self):
         self.get_relationtype_or_fail(REL_SUB_PROJECT_MANAGER, sub_models=[Contact], obj_models=[Project])
@@ -432,7 +435,7 @@ class ProjectsTestCase(CremeTestCase):
 
     def test_project_clone01(self):
         self.login()
-        self.populate('creme_core', 'activities')
+        #self.populate('creme_core', 'activities')
         user = self.user
 
         project, manager = self.create_project('Project')
@@ -479,7 +482,7 @@ class ProjectsTestCase(CremeTestCase):
 
     def test_project_clone02(self):
         self.login()
-        self.populate('creme_core', 'activities')
+        #self.populate('creme_core', 'activities')
         user = self.user
 
         project, manager = self.create_project('Project')
