@@ -18,30 +18,34 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, TextField
 from django.forms import ModelChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, EntityFilter, EntityFilterCondition, EntityCredentials
 from creme_core.forms import CremeForm
 from creme_core.forms.fields import JSONField
-from creme_core.forms.widgets import DynamicInput, SelectorList, ChainedInput, PolymorphicInput #TODO: clean
-from creme_core.core.batch_process import OPERATOR_MAP, BatchAction
+from creme_core.forms.widgets import DynamicInput, SelectorList, ChainedInput, PolymorphicInput
+from creme_core.core.batch_process import batch_operator_manager, BatchAction
 
 
 class BatchActionsWidget(SelectorList):
-    def __init__(self, fields, attrs=None):
+    def __init__(self, model, fields, attrs=None):
         chained_input = ChainedInput(attrs)
         attrs = {'auto': False}
 
         #TODO: improve SelectorList.add_* to avoid attribute 'auto'
-        chained_input.add_dselect('name',     options=[(fname, field.verbose_name) for fname, field in fields.iteritems()], attrs=attrs)
-        chained_input.add_dselect('operator', options=OPERATOR_MAP.iteritems(), attrs=attrs)
+        chained_input.add_dselect('name', attrs=attrs,
+                                  options=[(fname, field.verbose_name) for fname, field in fields.iteritems()]
+                                 )
+        chained_input.add_dselect('operator', attrs=attrs,
+                                  options='/creme_core/list_view/batch_process/%s/get_ops/${name}' % ContentType.objects.get_for_model(model).id
+                                 )
 
         pinput = PolymorphicInput(url='${operator}', attrs=attrs)
-        pinput.set_default_input(widget=DynamicInput, attrs=attrs)
+        pinput.set_default_input(widget=DynamicInput, attrs=attrs) #TODO: count if the operators with need_arg=False are more ?
 
-        for op_id, operator in OPERATOR_MAP.iteritems():
+        for op_id, operator in batch_operator_manager.operators():
             if not operator.need_arg:
                 pinput.add_input(op_id, widget=DynamicInput, attrs=attrs, type='hidden') #TODO: DynamicHiddenInput
 
@@ -55,7 +59,6 @@ class BatchActionsField(JSONField):
         'invalidfield':    _(u"This field is invalid with this model."),
         'reusedfield':     _(u"The field '%s' can not be used twice."),
         'invalidoperator': _(u"This operator is invalid."),
-        'requiredvalue':   _(u"The operator '%s' need a value."),
         'invalidvalue':    _(u"Invalid value => %s"),
     }
 
@@ -91,17 +94,18 @@ class BatchActionsField(JSONField):
     def model(self, model):
         self._model = model
         self._fields = fields = {}
+        managed_fields = tuple(batch_operator_manager.managed_fields)
 
         #excluded = model.header_filter_exclude_fields
 
         for field in model._meta.fields:
-            if field.editable and isinstance(field, (CharField, TextField)):
+            if field.editable and isinstance(field, managed_fields):
                 fields[field.name] = field
 
         self._build_widget()
 
     def _create_widget(self):
-        return BatchActionsWidget(self._fields)
+        return BatchActionsWidget(self._model, self._fields)
 
     #def _actions_to_dicts(self, actions):
         #dicts = []
@@ -127,31 +131,26 @@ class BatchActionsField(JSONField):
 
         return fname
 
-    def _clean_operator_n_value(self, entry):
+    def _clean_operator_name_n_value(self, entry):
         clean_value =  self.clean_value
         operator_name = clean_value(entry, 'operator', str)
-
-        operator = OPERATOR_MAP.get(operator_name)
-        if not operator:
-            raise ValidationError(self.error_messages['invalidoperator'])
-
         value = clean_value(clean_value(entry, 'value', dict), 'value', unicode)
 
-        if operator.need_arg and not value:
-            raise ValidationError(self.error_messages['requiredvalue'] % operator)
-
-        return operator, value
+        return operator_name, value
 
     def _actions_from_dicts(self, data):
+        model = self._model
         clean_fieldname = self._clean_fieldname
-        clean_operator_n_value = self._clean_operator_n_value
+        clean_operator_n_value = self._clean_operator_name_n_value
         used_fields = set()
         actions = []
 
         for entry in data:
             try:
-                action = BatchAction(clean_fieldname(entry, used_fields), *clean_operator_n_value(entry)) 
-            except BatchAction.TypeError as e:
+                action = BatchAction(model, clean_fieldname(entry, used_fields), *clean_operator_n_value(entry))
+            except BatchAction.InvalidOperator as e:
+                raise ValidationError(self.error_messages['invalidoperator'])
+            except BatchAction.ValueError as e:
                 raise ValidationError(self.error_messages['invalidvalue'] % e)
 
             actions.append(action)

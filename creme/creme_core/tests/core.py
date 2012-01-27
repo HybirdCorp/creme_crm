@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.db import models
     from django.utils.translation import ugettext as _
 
     from creme_core.core.function_field import FunctionField, FunctionFieldsManager
-    from creme_core.core.batch_process import OPERATOR_MAP, BatchAction
+    from creme_core.core.batch_process import batch_operator_manager, BatchAction
     from creme_core.tests.base import CremeTestCase
 
-    from persons.models import Contact
+    from persons.models import Contact, Organisation
 except Exception as e:
     print 'Error:', e
 
@@ -116,85 +117,111 @@ class FunctionFieldsTestCase(CremeTestCase):
         self.assertEqual([ff01, ff02], sorted(ffm02, key=lambda ff: ff.name))
 
 
-class _BatchTestCase(CremeTestCase):
-    def get_operator_or_die(self, op_id):
-        operator = OPERATOR_MAP.get(op_id)
-        if operator is None:
-            self.fail('The operator %s can not be found' % op_id)
-
-        return operator
-
-
-class BatchOperatorTestCase(_BatchTestCase):
+class BatchOperatorTestCase(CremeTestCase):
     def test_upper(self):
-        op = self.get_operator_or_die('upper')
+        op = batch_operator_manager.get(models.CharField, 'upper')
         self.assertFalse(op.need_arg)
         self.assertEqual('GALLY', op('gally'))
 
     def test_lower(self):
-        op = self.get_operator_or_die('lower')
+        op = batch_operator_manager.get(models.CharField, 'lower')
         self.assertFalse(op.need_arg)
         self.assertEqual('gally', op('GALLY'))
 
     def test_title(self):
-        op = self.get_operator_or_die('title')
+        op = batch_operator_manager.get(models.CharField, 'title')
         self.assertFalse(op.need_arg)
         self.assertEqual('Gally', op('gally'))
 
     def test_prefix(self):
-        op = self.get_operator_or_die('prefix')
+        op = batch_operator_manager.get(models.CharField, 'prefix')
         self.assertTrue(op.need_arg)
         self.assertEqual('My Gally', op('Gally', 'My '))
 
     def test_suffix(self):
-        op = self.get_operator_or_die('suffix')
+        op = batch_operator_manager.get(models.CharField, 'suffix')
         self.assertTrue(op.need_arg)
         self.assertEqual('Gally my love', op('Gally', ' my love'))
 
     def test_remove_substring(self):
-        op = self.get_operator_or_die('rm_substr')
+        op = batch_operator_manager.get(models.CharField, 'rm_substr')
         self.assertTrue(op.need_arg)
         fieldval = 'Gally the battle angel'
         self.assertEqual('Gally the angel', op(fieldval, 'battle '))
         self.assertEqual(fieldval, op(fieldval, 'evil '))
 
     def test_remove_start(self):
-        op = self.get_operator_or_die('rm_start')
+        op = batch_operator_manager.get(models.CharField, 'rm_start')
         self.assertTrue(op.need_arg)
         self.assertEqual('Gally', op('GGGally', 2))
-        self.assertEqual('',      op('Gally',   10))
+        self.assertEqual('',      op('Gally',   op.cast('10')))
 
     def test_remove_end(self):
-        op = self.get_operator_or_die('rm_end')
+        op = batch_operator_manager.get(models.CharField, 'rm_end')
         self.assertTrue(op.need_arg)
         self.assertEqual('Gally', op('Gallyyy', 2))
-        self.assertEqual('',      op('Gally',   10))
+        self.assertEqual('',      op('Gally',   op.cast('10')))
+
+    def test_add_int(self):
+        op = batch_operator_manager.get(models.IntegerField, 'add_int')
+        self.assertEqual(3, op(1, 2))
+        self.assertEqual(5, op(4, op.cast('1')))
+
+    def test_substract_int(self):
+        op = batch_operator_manager.get(models.IntegerField, 'sub_int')
+        self.assertEqual(1, op(3, 2))
+        self.assertEqual(3, op(4, op.cast('1')))
+
+    def test_multiply_int(self):
+        op = batch_operator_manager.get(models.IntegerField, 'mul_int')
+        self.assertEqual(6, op(3, 2))
+        self.assertEqual(8, op(2, op.cast('4')))
+
+    def test_divide_int(self):
+        op = batch_operator_manager.get(models.IntegerField, 'div_int')
+        self.assertEqual(3, op(6, 2))
+        self.assertEqual(2, op(9, op.cast('4')))
+
+    def test_operators01(self):
+        ops = set((op_name, unicode(op)) for op_name, op in batch_operator_manager.operators(models.CharField))
+        self.assertIn(('upper', _('To upper case')), ops)
+        self.assertIn(('lower', _('To lower case')), ops)
+        self.assertNotIn('add_int', (e[0] for e in ops))
+
+    def test_operators02(self):
+        ops = set((op_name, unicode(op)) for op_name, op in batch_operator_manager.operators(models.IntegerField))
+        self.assertIn(('add_int', _('Add')), ops)
+        self.assertNotIn('prefix', (e[0] for e in ops))
+
+    def test_operators03(self):
+        ops = set((op_name, unicode(op)) for op_name, op in batch_operator_manager.operators())
+        self.assertIn(('mul_int', _('Multiply')), ops)
+        self.assertIn(('suffix',  _('Suffix')), ops)
 
 
-class BatchActionTestCase(_BatchTestCase):
+class BatchActionTestCase(CremeTestCase):
     def test_changed01(self):
-        baction = BatchAction('first_name', self.get_operator_or_die('upper'), value='')
+        baction = BatchAction(Contact, 'first_name', 'upper', value='')
         haruhi = Contact(first_name='Haruhi', last_name='Suzumiya')
         self.assertTrue(baction(haruhi))
         self.assertEqual('HARUHI', haruhi.first_name)
 
     def test_changed02(self):
-        baction = BatchAction('last_name', self.get_operator_or_die('rm_substr'), value='Foobar')
-        haruhi = Contact(first_name='Haruhi', last_name='Suzumiya')
-        self.assertFalse(baction(haruhi))
-        self.assertEqual('Suzumiya', haruhi.last_name)
+        baction = BatchAction(Organisation, 'name', 'rm_substr', value='Foobar')
+        name = 'SOS no Dan'
+        sos = Organisation(name=name)
+        self.assertFalse(baction(sos))
+        self.assertEqual(name, sos.name)
 
     def test_cast(self):
-        baction = BatchAction('last_name', self.get_operator_or_die('rm_start'), value='3')
+        baction = BatchAction(Contact, 'last_name', 'rm_start', value='3')
         haruhi = Contact(first_name='Haruhi', last_name='Suzumiya')
         baction(haruhi)
         self.assertEqual('umiya', haruhi.last_name)
 
     def test_operand_error(self):
-        op = self.get_operator_or_die('rm_start')
-
         with self.assertRaises(BatchAction.TypeError) as cm:
-            BatchAction('last_name', op, value='three') #not int
+            BatchAction(Contact, 'last_name', 'rm_start', value='three') #not int
 
         self.assertEqual(_('%(operator)s : %(message)s.') % {
                                 'operator': _('Remove the start (N characters)'),
@@ -204,10 +231,10 @@ class BatchActionTestCase(_BatchTestCase):
                         )
 
         with self.assertRaises(BatchAction.TypeError) as cm:
-            BatchAction('last_name', op, value='-3') #not positive
+            BatchAction(Contact, 'last_name', 'rm_end', value='-3') #not positive
 
         self.assertEqual(_('%(operator)s : %(message)s.') % {
-                                'operator': _('Remove the start (N characters)'),
+                                'operator': _('Remove the end (N characters)'),
                                 'message':  _('enter a positive number'),
                             },
                          unicode(cm.exception)
