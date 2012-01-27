@@ -55,7 +55,6 @@ def __json_select(query, fields, range, sort_field=None, use_columns=False):
             else:
                 for entity in query[start:end]:
                     result.append([getter(entity) for getter in fields]) #TODO: use extend + genexpr ?
-
         else:
             query = query.order_by(sort_field) if sort_field else query
             flat = len(fields) == 1
@@ -97,10 +96,9 @@ def __json_parse_select_request(request, allowed_fields):
 
     return (fields, range, sort, use_columns)
 
-JSON_ENTITY_FIELDS = {
-                        'unicode':     unicode,
-                        'id':          lambda e: e.id,
-                        'entity_type': lambda e: e.entity_type_id
+JSON_ENTITY_FIELDS = {'unicode':     unicode,
+                      'id':          lambda e: e.id,
+                      'entity_type': lambda e: e.entity_type_id
                      }
 
 @login_required
@@ -112,9 +110,8 @@ def json_entity_get(request, id):
     except JSONSelectError, err:
         return HttpResponse(err.message, mimetype="text/javascript", status=err.status)
 
-JSON_PREDICATE_FIELDS = {
-                            'unicode': unicode,
-                            'id':      lambda e: e.id
+JSON_PREDICATE_FIELDS = {'unicode': unicode,
+                         'id':      lambda e: e.id
                         }
 
 @login_required

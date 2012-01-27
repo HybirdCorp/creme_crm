@@ -20,13 +20,15 @@
 
 from logging import debug
 
+from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
 from creme_core.forms.batch_process import BatchProcessForm
+from creme_core.core.batch_process import batch_operator_manager
 from creme_core.views.generic import add_entity
-from creme_core.utils import get_ct_or_404
+from creme_core.utils import get_ct_or_404, jsonify
 
 
 @login_required
@@ -46,3 +48,15 @@ def batch_process(request, ct_id):
                       template='creme_core/batch_process.html',
                       extra_initial={'content_type': ct},
                      )
+
+@login_required
+@jsonify
+def get_ops(request, ct_id, field):
+    ct = get_ct_or_404(ct_id)
+
+    if not request.user.has_perm(ct.app_label):
+        raise PermissionDenied(_(u"You are not allowed to acceed to this app"))
+
+    field = ct.model_class()._meta.get_field(field)
+
+    return [(op_name, unicode(op)) for op_name, op in batch_operator_manager.operators(field.__class__)]

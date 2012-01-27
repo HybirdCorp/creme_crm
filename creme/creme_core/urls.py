@@ -80,7 +80,8 @@ creme_core_patterns = patterns('creme_core.views',
 
     (r'^list_view/import_csv/(?P<ct_id>\d+)$',    'csv_import.csv_import'),
     (r'^list_view/dl_csv/(?P<ct_id>\d+)$',        'csv_export.dl_listview_as_csv'),
-    (r'^list_view/batch_process/(?P<ct_id>\d+)$', 'batch_process.batch_process'),
+    (r'^list_view/batch_process/(?P<ct_id>\d+)$', 'batch_process.batch_process'), #TODO: change url (remove 'list_view'...)??
+    (r'^list_view/batch_process/(?P<ct_id>\d+)/get_ops/(?P<field>[\w]+)$', 'batch_process.get_ops'),
 
     #Research
     (r'^search$', 'search.search'),
@@ -104,5 +105,5 @@ urlpatterns = patterns('creme_core.views',
 
 if settings.DEBUG:
     urlpatterns += patterns('creme_core.views',
-        (r'^test_js$',    'index.test_js'),
-    )
+                            (r'^test_js$', 'index.test_js'),
+                           )

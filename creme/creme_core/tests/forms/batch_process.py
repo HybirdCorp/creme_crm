@@ -25,11 +25,7 @@ class BatchActionsFieldTestCase(FieldTestCase):
 
     def test_clean_empty_not_required(self):
         field = BatchActionsField(required=False)
-
-        try:
-            field.clean(None)
-        except Exception as e:
-            self.fail(str(e))
+        self.assertNoException(field.clean, None)
 
     def test_clean_invalid_data_type(self):
         clean = BatchActionsField().clean
@@ -66,7 +62,7 @@ class BatchActionsFieldTestCase(FieldTestCase):
                                                           }
                                         )
 
-    def test_clean_invalid_operator(self):
+    def test_clean_invalid_operator01(self):
         clean = BatchActionsField(model=Contact).clean
         self.assertFieldValidationError(BatchActionsField, 'invalidoperator', clean,
                                         self.format_str % {'name':     'first_name',
@@ -74,15 +70,21 @@ class BatchActionsFieldTestCase(FieldTestCase):
                                                            'value':    '',
                                                           }
                                        )
+        self.assertFieldValidationError(BatchActionsField, 'invalidoperator', clean,
+                                        self.format_str % {'name':     'first_name',
+                                                           'operator': 'add_int', #apply to int, not str
+                                                           'value':    '5',
+                                                          }
+                                       )
 
     def test_value_required(self):
         clean = BatchActionsField(model=Contact).clean
-        self.assertFieldValidationError(BatchActionsField, 'requiredvalue', clean,
+        self.assertFieldValidationError(BatchActionsField, 'invalidvalue', clean,
                                         self.format_str % {'name':     'first_name',
                                                            'operator': 'suffix',
                                                            'value':    '',
                                                           },
-                                        message_args=_('Suffix'),
+                                        message_args=_(u"The operator '%s' need a value.") % _('Suffix'),
                                        )
 
     def test_value_typeerror(self):

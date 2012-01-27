@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.core.serializers.json import simplejson
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
@@ -38,7 +39,15 @@ class BatchProcessViewsTestCase(ViewsTestCase):
     def test_batching_upper01(self):
         self.login()
         url = self.build_url(Organisation)
-        self.assertEqual(200, self.client.get(url).status_code)
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        with self.assertNoException():
+            orga_fields = set(response.context['form'].fields['actions']._fields.iterkeys())
+
+        self.assertIn('name', orga_fields)
+        self.assertIn('capital', orga_fields)
 
         create_orga = Organisation.objects.create
         orga01 = create_orga(user=self.user, name='Genshiken')
@@ -197,14 +206,64 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual('manga club', self.refresh(orga02).name)
         self.assertEqual('Genshiken',  self.refresh(orga01).name) # <== not changed
 
-    #TODO: custom fields ??
+    def build_ops_url(self, ct_id, field):
+        return '/creme_core/list_view/batch_process/%(ct_id)s/get_ops/%(field)s' % {
+                        'ct_id': ct_id,
+                        'field': field,
+                    }
 
-#Saki Kasukabe
-#Harunobu Madarame
-#Kanji Sasahara
-#Kanako Ōno
-#Chika Ogiue
-#Mitsunori Kugayama
-#Sōichirō Tanaka
-#Makoto Kōsaka
-#Manabu Kuchiki
+    def test_get_ops01(self): #unknown CT
+        self.login()
+
+        response = self.client.get(self.build_ops_url(ct_id=1216545, field='name'))
+        self.assertEqual(404, response.status_code, response.content)
+
+    def test_get_ops02(self):
+        self.login()
+
+        ct_id = ContentType.objects.get_for_model(Contact).id
+        response = self.client.get(self.build_ops_url(ct_id, 'first_name'))
+        self.assertEqual(200, response.status_code, response.content)
+
+        json_data = simplejson.loads(response.content)
+        self.assertIsInstance(json_data, list)
+        self.assertTrue(json_data)
+        self.assertIn(['upper', _('To upper case')], json_data)
+        self.assertIn(['lower', _('To lower case')], json_data)
+        self.assertNotIn('add_int', (e[0] for e in json_data))
+
+    def test_get_ops03(self): #other CT, other category of operator
+        self.login()
+
+        ct_id = ContentType.objects.get_for_model(Organisation).id
+        response = self.client.get(self.build_ops_url(ct_id, 'capital'))
+        self.assertEqual(200, response.status_code, response.content)
+
+        json_data = simplejson.loads(response.content)
+        self.assertIn(['add_int', _('Add')], json_data)
+        self.assertIn(['sub_int', _('Subtract')], json_data)
+        self.assertNotIn('prefix', (e[0] for e in json_data))
+
+    def test_get_ops04(self): #empty category
+        self.login()
+
+        ct_id = ContentType.objects.get_for_model(Contact).id
+        response = self.client.get(self.build_ops_url(ct_id, 'image'))
+        self.assertEqual(200, response.status_code, response.content)
+        self.assertEqual([], simplejson.loads(response.content))
+
+    def test_get_ops05(self): #no app credentials
+        self.login(is_superuser=False, allowed_apps=['creme_core']) #not 'persons'
+
+        ct_id = ContentType.objects.get_for_model(Contact).id
+        response = self.client.get(self.build_ops_url(ct_id, 'first_name'))
+        self.assertEqual(403, response.status_code, response.content)
+
+    def test_get_ops06(self): #unknown field
+        self.login()
+
+        ct_id = ContentType.objects.get_for_model(Contact).id
+        response = self.client.get(self.build_ops_url(ct_id, 'foobar'))
+        self.assertEqual(400, response.status_code, response.content)
+
+    #TODO: custom fields ??

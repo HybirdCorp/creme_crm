@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,7 +39,8 @@ class RelationCreateForm(CremeForm):
                                                )
 
     def __init__(self, subject, relations_types=None, *args, **kwargs):
-        """
+        """Constructor.
+        @param subject CremeEntity instance that will be the subject of Relations.
         @param relations_types Sequence of RelationTypes ids to narrow to these types ;
                                or None that means all types compatible with the subject.
         """

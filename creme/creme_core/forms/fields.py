@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,12 +45,13 @@ from creme_core.constants import REL_SUB_HAS
 
 
 __all__ = ('MultiGenericEntityField', 'GenericEntityField',
-           'MultiRelationEntityField', 'RelationEntityField',
+           'RelationEntityField', 'MultiRelationEntityField',
            'CremeEntityField', 'MultiCremeEntityField',
            'ListEditionField',
            'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
            'CremeTimeField', 'CremeDateField', 'CremeDateTimeField',
-           'DateRangeField', 'ColorField', 'DurationField')
+           'DateRangeField', 'ColorField', 'DurationField',
+          )
 
 
 class JSONField(CharField):
@@ -112,7 +113,7 @@ class JSONField(CharField):
         return self.clean_json(value)
 
     def _create_widget(self):
-        pass
+        pass #TODO: raise NotImplementedError ??
 
     def _build_widget(self):
         self.widget = self._create_widget()
@@ -305,7 +306,8 @@ class RelationEntityField(JSONField):
 
     def _create_widget(self):
         return RelationSelector(self._get_options,
-                                '/creme_core/relation/predicate/${rtype}/content_types/json')
+                                '/creme_core/relation/predicate/${rtype}/content_types/json',
+                               )
 
     #TODO : wait for django 1.2 and new widget api to remove this hack
     def from_python(self, value):
