@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.core.exceptions import ValidationError
     from django.core.serializers.json import simplejson
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
@@ -205,6 +206,31 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         self.assertEqual('manga club', self.refresh(orga02).name)
         self.assertEqual('Genshiken',  self.refresh(orga01).name) # <== not changed
+
+    def test_model_error(self):
+        self.login()
+
+        first_name = 'Kanako'
+        last_name = u'Ōno'
+        contact = Contact.objects.create(user=self.user, first_name=first_name, last_name=last_name)
+
+        with self.assertRaises(ValidationError) as cm:
+            contact.first_name = ''
+            contact.full_clean()
+
+        response = self.client.post(self.build_url(Contact), follow=True,
+                                    data={'actions': self.format_str2 % {
+                                                            'name01': 'first_name', 'operator01': 'rm_start', 'value01': 10,
+                                                            'name02': 'last_name',  'operator02': 'upper',    'value02': '',
+                                                        },
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
+
+        contact = self.refresh(contact)
+        self.assertEqual(first_name, contact.first_name) #no change !!
+        self.assertEqual(last_name,  contact.last_name) #TODO: make the changes thatb are possible (u'ŌNO') ??
 
     def build_ops_url(self, ct_id, field):
         return '/creme_core/list_view/batch_process/%(ct_id)s/get_ops/%(field)s' % {
