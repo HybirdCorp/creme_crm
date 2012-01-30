@@ -185,6 +185,7 @@ class ProductsTestCase(CremeTestCase):
                                           'code':         code,
                                           'description':  description,
                                           'unit_price':   unit_price,
+                                          'unit':         "anything",
                                           'sub_category': '{"category": %s, "subcategory": %s}' % (
                                                               cat.id, sub_cat.id
                                                             )
@@ -235,6 +236,7 @@ class ProductsTestCase(CremeTestCase):
                                           'code':         product.code,
                                           'description':  product.description,
                                           'unit_price':   unit_price,
+                                          'unit':         "anything",
                                           'sub_category': '{"category": %s, "subcategory": %s}' % (
                                                               product.category_id, product.sub_category_id
                                                             ),

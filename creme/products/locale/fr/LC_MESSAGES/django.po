@@ -245,7 +245,7 @@ msgstr "Code"
 
 #: models/product.py:38 models/service.py:41
 msgid "Quantity/Unit"
-msgstr "Quantité/Unité"
+msgstr "Conditionnement"
 
 #: models/product.py:39 models/service.py:42
 msgid "Unit price"

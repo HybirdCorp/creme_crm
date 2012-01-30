@@ -78,6 +78,7 @@ def edit_inner_line(request, line_id):
     new_vat             = request_POST_get('vat')                 if 'vat' in request_POST else None
     new_discount_value  = Decimal(request_POST_get('discount'))   if 'discount' in request_POST else None
     new_discount_unit   = int(request_POST_get('discount_unit'))  if 'discount_unit' in request_POST else None
+    new_unit            = request_POST_get('unit')                if 'unit' in request_POST else None
 
     if 'total_discount' in request_POST:
         new_discount_type = request_POST_get('total_discount') == '1'
@@ -106,6 +107,8 @@ def edit_inner_line(request, line_id):
         line.total_discount = new_discount_type
     if new_vat is not None:
         line.vat_value_id = new_vat
+    if new_unit is not None:
+        line.unit = new_unit
 
     line.save()
     document.save()
