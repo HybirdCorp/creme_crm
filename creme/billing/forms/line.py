@@ -62,6 +62,7 @@ class _LineMultipleAddForm(CremeForm):
             self._get_line_class().objects.create(related_item=item,
                                                   related_document=self.billing_document,
                                                   unit_price=item.unit_price,
+                                                  unit=item.unit,
                                                   quantity=cleaned_data['quantity'],
                                                   discount=cleaned_data['discount_value'],
                                                   vat_value=cleaned_data['vat'],
@@ -74,7 +75,7 @@ class _LineOnTheFlyForm(CremeModelForm):
     vat_value     = ModelChoiceField(label=_(u"Vat"), queryset=Vat.objects.all(), initial=Vat.get_default_vat(), required=True)
 
     blocks = FieldBlockManager(
-        ('general',     _(u'Line information'),    ['on_the_fly_item', 'comment', 'quantity', 'unit_price',
+        ('general',     _(u'Line information'),    ['on_the_fly_item', 'comment', 'quantity', 'unit_price', 'unit',
                                                     'discount', 'discount_unit', 'total_discount', 'vat_value']),
         ('additionnal', _(u'Additional features'), ['has_to_register_as', 'sub_category'])
     )
@@ -142,6 +143,7 @@ class _LineOnTheFlyForm(CremeModelForm):
             item = self._get_related_item_class().objects.create(name=get_data('on_the_fly_item', ''),
                                                                  user=self.user, #TODO: can chose the owner of the product
                                                                  unit_price=get_data('unit_price', 0),
+                                                                 unit=get_data('unit', ''),
                                                                  category=sub_category.category,
                                                                  sub_category=sub_category,
                                                                 )

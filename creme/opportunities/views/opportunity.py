@@ -144,6 +144,7 @@ def generate_new_doc(request, opp_id, ct_id):
         line_klass.objects.create(related_item=item,
                                   related_document=document,
                                   unit_price=item.unit_price,
+                                  unit=item.unit,
                                   vat_value=Vat.get_default_vat())
 
     for relation in Relation.objects.filter(object_entity=opp.id, type=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct_doc):

@@ -64,6 +64,7 @@ class Line(CremeEntity):
     comment         = TextField(_('Comment'), blank=True, null=True)
     quantity        = DecimalField(_(u'Quantity'), max_digits=10, decimal_places=2, default=default_quantity)
     unit_price      = DecimalField(_(u'Unit price'), max_digits=10, decimal_places=2, default=default_decimal)
+    unit            = CharField(_(u'Unit'), max_length=100, blank=True, null=True)
     discount        = DecimalField(_(u'Discount'), max_digits=10, decimal_places=2, default=default_decimal)
     discount_unit   = PositiveIntegerField(_(u'Discount Unit'), blank=True, null=True, default=PERCENT_PK)
     total_discount  = BooleanField(_('Total discount ?'))

@@ -1,42 +1,21 @@
 # encoding: utf-8
-
 import datetime
-from decimal import Decimal
-
 from south.db import db
-from south.v2 import DataMigration
-
+from south.v2 import SchemaMigration
 from django.db import models
-from django.conf import settings
 
-
-class Migration(DataMigration):
-
-    vat_list    = [Decimal('0'), Decimal('5.5'), Decimal('7'), Decimal('19.6'), Decimal('21.2')]
-    default_vat = Decimal(getattr(settings, "DEFAULT_VAT", "19.6"))
-
-    def _create_tax(self, orm, vat):
-        try:
-            orm['billing.Vat'].objects.get(value=vat)
-        except:
-            if vat == self.default_vat:
-                orm['billing.Vat'].objects.create(value=vat,is_default=True,is_custom=False)
-            else:
-                orm['billing.Vat'].objects.create(value=vat,is_custom=False)
+class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        for vat in self.vat_list:
-            self._create_tax(orm, vat)
+        
+        # Adding field 'Line.unit'
+        db.add_column('billing_line', 'unit', self.gf('django.db.models.fields.CharField')(max_length=100, null=True, blank=True), keep_default=False)
 
-        for line in orm['billing.Line'].objects.all():
-            if line.vat in self.vat_list:
-                line.vat_value = orm['billing.Vat'].objects.get(value=line.vat)
-            else:
-                line.vat_value = orm['billing.Vat'].objects.create(value=line.vat)
-            line.save()
 
     def backwards(self, orm):
-        "Write your backwards methods here."
+        
+        # Deleting field 'Line.unit'
+        db.delete_column('billing_line', 'unit')
 
 
     models = {
@@ -109,10 +88,11 @@ class Migration(DataMigration):
             'status': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['billing.CreditNoteStatus']"})
         },
         'billing.creditnotestatus': {
-            'Meta': {'object_name': 'CreditNoteStatus'},
+            'Meta': {'ordering': "('order',)", 'object_name': 'CreditNoteStatus'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_custom': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'order': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'})
         },
         'billing.invoice': {
             'Meta': {'ordering': "('id',)", 'object_name': 'Invoice', '_ormbases': ['billing.Base']},
@@ -121,10 +101,11 @@ class Migration(DataMigration):
             'status': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['billing.InvoiceStatus']"})
         },
         'billing.invoicestatus': {
-            'Meta': {'object_name': 'InvoiceStatus'},
+            'Meta': {'ordering': "('order',)", 'object_name': 'InvoiceStatus'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_custom': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'order': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'})
         },
         'billing.line': {
             'Meta': {'ordering': "('id',)", 'object_name': 'Line', '_ormbases': ['creme_core.CremeEntity']},
@@ -136,8 +117,8 @@ class Migration(DataMigration):
             'quantity': ('django.db.models.fields.DecimalField', [], {'default': "'1.00'", 'max_digits': '10', 'decimal_places': '2'}),
             'total_discount': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             'type': ('django.db.models.fields.IntegerField', [], {}),
+            'unit': ('django.db.models.fields.CharField', [], {'max_length': '100', 'null': 'True', 'blank': 'True'}),
             'unit_price': ('django.db.models.fields.DecimalField', [], {'default': "'0'", 'max_digits': '10', 'decimal_places': '2'}),
-            'vat': ('django.db.models.fields.DecimalField', [], {'default': "'19.6'", 'max_digits': '4', 'decimal_places': '2'}),
             'vat_value': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['billing.Vat']", 'null': 'True', 'blank': 'True'})
         },
         'billing.paymentinformation': {
@@ -171,10 +152,11 @@ class Migration(DataMigration):
             'status': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['billing.QuoteStatus']"})
         },
         'billing.quotestatus': {
-            'Meta': {'object_name': 'QuoteStatus'},
+            'Meta': {'ordering': "('order',)", 'object_name': 'QuoteStatus'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_custom': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'order': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'})
         },
         'billing.salesorder': {
             'Meta': {'ordering': "('id',)", 'object_name': 'SalesOrder', '_ormbases': ['billing.Base']},
@@ -182,10 +164,11 @@ class Migration(DataMigration):
             'status': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['billing.SalesOrderStatus']"})
         },
         'billing.salesorderstatus': {
-            'Meta': {'object_name': 'SalesOrderStatus'},
+            'Meta': {'ordering': "('order',)", 'object_name': 'SalesOrderStatus'},
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'is_custom': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'})
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
+            'order': ('django.db.models.fields.PositiveIntegerField', [], {'default': '1'})
         },
         'billing.serviceline': {
             'Meta': {'ordering': "('id',)", 'object_name': 'ServiceLine', '_ormbases': ['billing.Line']},

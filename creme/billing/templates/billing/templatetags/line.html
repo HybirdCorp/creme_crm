@@ -27,16 +27,16 @@
             <tr class="header">
                 <th class="block_header_line_dark" width="5%"><input type="checkbox" id="select_all" onchange="creme.billing.enableCheckAllBoxes($(this));"/></th>
                 <th class="block_header_line_dark" width="2%">N°</th>
-                <th class="block_header_line_dark" width="19%">{% block item_name %}ITEM NAME{% endblock %}</th>
+                <th class="block_header_line_dark" width="17%">{% block item_name %}ITEM NAME{% endblock %}</th>
                 <th class="block_header_line_dark" width="6%">{% trans "Unit price" %}</th>
+                <th class="block_header_line_dark" width="6%">{% trans "Unit" %}</th>
                 <th class="block_header_line_dark" width="6%">{% trans "Quantity" %}</th>
-                <th class="block_header_line_dark" width="14%">{% trans "Comment" %}</th>
+                <th class="block_header_line_dark" width="13%">{% trans "Comment" %}</th>
                 <th class="block_header_line_dark" width="18%">{% trans "Discount" %}</th>
-                <th class="block_header_line_dark" width="8%">{% trans "VAT" %}</th>
-                <th class="block_header_line_dark" width="8%">{% trans "Total (exclusive of tax)" %}</th>
+                <th class="block_header_line_dark" width="6%">{% trans "VAT" %}</th>
+                <th class="block_header_line_dark" width="7%">{% trans "Total (exclusive of tax)" %}</th>
                 <th class="block_header_line_dark" width="6%">{% trans "Total (without tax)<br>discounted" %}</th>
                 <th class="block_header_line_dark" width="6%">{% trans "Total (inclusive of tax)" %}</th>
-                {% comment %}<th class="block_header_line_dark" width="7%">{% trans "Delete" %} ?</th>{% endcomment %}
             </tr>
             {% for line in page.object_list %}<!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
                 {% with object.currency.pk as currency_id %}
@@ -59,6 +59,9 @@
                             <td class="{{row_color}}" align="right">
                                 <input style="text-align:right;" type="textbox" size="8" name="unit_price" id="unit_price{{ line.pk }}" value="{{line.unit_price}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, creme.billing.checkPositiveDecimal);">
                                 {{ object.currency.local_symbol }}
+                            </td>
+                            <td class="{{row_color}}" align="center">
+                                / <input style="text-align:right;" type="textbox" size="8" name="unit" id="unit{{ line.pk }}" value="{% if line.unit %}{{line.unit}}{% endif %}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, null);">
                             </td>
                             <td class="{{row_color}}" align="center">
                                     <input style="text-align:right;" type="textbox" size="4" name="quantity" id="quantity{{ line.pk }}" value="{{line.quantity}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, creme.billing.checkPositiveDecimal);">
