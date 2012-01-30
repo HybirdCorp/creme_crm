@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from logging import info
+
 from django.forms import ModelChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
@@ -190,4 +192,9 @@ class BatchProcessForm(CremeForm):
                         changed = True
 
                 if changed:
-                    entity.save()
+                    try:
+                        entity.full_clean()
+                    except ValidationError as e:
+                        info(e)
+                    else:
+                        entity.save()
