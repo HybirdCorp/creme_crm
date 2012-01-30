@@ -27,6 +27,7 @@ from creme_core.forms import CremeForm
 from creme_core.forms.fields import JSONField
 from creme_core.forms.widgets import DynamicInput, SelectorList, ChainedInput, PolymorphicInput
 from creme_core.core.batch_process import batch_operator_manager, BatchAction
+from creme_core.utils.chunktools import iter_as_slices
 
 
 class BatchActionsWidget(SelectorList):
@@ -177,14 +178,16 @@ class BatchProcessForm(CremeForm):
         if efilter:
             entities = efilter.filter(entities)
 
+        entities = EntityCredentials.filter(self.user, entities, EntityCredentials.CHANGE)
         actions = cdata['actions']
 
-        for entity in EntityCredentials.filter(self.user, entities, EntityCredentials.CHANGE):
-            changed = False
+        for entities_slice in iter_as_slices(entities, 1024):
+            for entity in entities_slice:
+                changed = False
 
-            for action in actions:
-                if action(entity):
-                    changed = True
+                for action in actions:
+                    if action(entity):
+                        changed = True
 
-            if changed:
-                entity.save()
+                if changed:
+                    entity.save()
