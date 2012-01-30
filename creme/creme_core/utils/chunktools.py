@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -88,7 +88,7 @@ def iter_as_slices(iterable, step):
     @param chunks: iterator
     @param step: chunks size
     """
-    index = 0;
+    index = 0
 
     while index != -1:
         chunk = iterable[index:index + step]

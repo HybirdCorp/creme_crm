@@ -220,7 +220,7 @@ class BatchActionTestCase(CremeTestCase):
         self.assertEqual('umiya', haruhi.last_name)
 
     def test_operand_error(self):
-        with self.assertRaises(BatchAction.TypeError) as cm:
+        with self.assertRaises(BatchAction.ValueError) as cm:
             BatchAction(Contact, 'last_name', 'rm_start', value='three') #not int
 
         self.assertEqual(_('%(operator)s : %(message)s.') % {
@@ -230,7 +230,7 @@ class BatchActionTestCase(CremeTestCase):
                          unicode(cm.exception)
                         )
 
-        with self.assertRaises(BatchAction.TypeError) as cm:
+        with self.assertRaises(BatchAction.ValueError) as cm:
             BatchAction(Contact, 'last_name', 'rm_end', value='-3') #not positive
 
         self.assertEqual(_('%(operator)s : %(message)s.') % {
