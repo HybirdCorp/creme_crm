@@ -22,32 +22,51 @@ from logging import debug
 
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
+from django.shortcuts import render
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
 from creme_core.forms.batch_process import BatchProcessForm
 from creme_core.core.batch_process import batch_operator_manager
-from creme_core.views.generic import add_entity
+#from creme_core.views.generic import add_entity
 from creme_core.utils import get_ct_or_404, jsonify
 
 
 @login_required
 def batch_process(request, ct_id):
     ct = get_ct_or_404(ct_id)
+    user = request.user
 
-    if not request.user.has_perm(ct.app_label): #TODO: factorise
+    #if not request.user.has_perm(ct.app_label):
+    if not user.has_perm(ct.app_label): #TODO: factorise
         raise Http404(_(u"You are not allowed to acceed to this app"))
 
-    try: #TODO: factorise
-        callback_url = ct.model_class().get_lv_absolute_url()
-    except AttributeError:
-        debug('%s has no get_lv_absolute_url() method ?!' % ct.model_class())
-        callback_url = '/'
+    #try: #todo: factorise
+        #callback_url = ct.model_class().get_lv_absolute_url()
+    #except AttributeError:
+        #debug('%s has no get_lv_absolute_url() method ?!' % ct.model_class())
+        #callback_url = '/'
 
-    return add_entity(request, BatchProcessForm, callback_url,
-                      template='creme_core/batch_process.html',
-                      extra_initial={'content_type': ct},
-                     )
+    #return add_entity(request, BatchProcessForm, callback_url,
+                      #template='creme_core/batch_process.html',
+                      #extra_initial={'content_type': ct},
+                     #)
+
+    if request.method == 'POST':
+        bp_form = BatchProcessForm(user=user, data=request.POST, initial={'content_type': ct}) #TODO: make 'content_type' a real arg ?
+
+        if bp_form.is_valid():
+            bp_form.save()
+
+            return render(request, 'creme_core/batch_process_report.html',
+                          {'form':     bp_form,
+                           'back_url': request.GET.get('list_url', '/'),
+                          }
+                         )
+    else:
+        bp_form = BatchProcessForm(user=user, initial={'content_type': ct})
+
+    return render(request, 'creme_core/batch_process.html', {'form': bp_form})
 
 @login_required
 @jsonify

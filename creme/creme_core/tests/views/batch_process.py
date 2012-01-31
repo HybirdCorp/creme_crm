@@ -27,7 +27,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         cls.populate('creme_core', 'creme_config')
 
     def build_url(self, model):
-         return '/creme_core/list_view/batch_process/%s' % ContentType.objects.get_for_model(model).id
+         return '/creme_core/list_view/batch_process/%s?list_url=http://testserver%s' % (
+                        ContentType.objects.get_for_model(model).id,
+                        model.get_lv_absolute_url(),
+                     )
 
     def test_no_app_perm(self):
         self.login(is_superuser=False)
@@ -64,11 +67,22 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                    )
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
-        self.assertTrue(response.redirect_chain)
-        self.assertEqual(u"http://testserver%s" % Organisation.get_lv_absolute_url(), response.redirect_chain[-1][0])
 
         self.assertEqual('GENSHIKEN',  self.refresh(orga01).name)
         self.assertEqual('MANGA CLUB', self.refresh(orga02).name)
+
+        with self.assertNoException():
+            back_url = response.context['back_url']
+            form = response.context['form']
+
+        self.assertEqual(u"http://testserver%s" % Organisation.get_lv_absolute_url(), back_url)
+
+        self.assertIs(Organisation, form.entity_type)
+
+        count = Organisation.objects.count()
+        self.assertEqual(count, form.modified_objects_count)
+        self.assertEqual(count, form.read_objects_count)
+        self.assertEqual(0,     len(form.process_errors))
 
     def test_batching_lower01(self): # & use ct
         self.login()
@@ -87,11 +101,18 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                    )
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
-        self.assertTrue(response.redirect_chain)
-        self.assertEqual(u"http://testserver%s" % Contact.get_lv_absolute_url(), response.redirect_chain[-1][0])
 
         self.assertEqual('saki',     self.refresh(contact01).first_name)
         self.assertEqual('harunobu', self.refresh(contact02).first_name)
+
+        with self.assertNoException():
+            back_url = response.context['back_url']
+            form = response.context['form']
+
+        self.assertEqual(u"http://testserver%s" % Contact.get_lv_absolute_url(), back_url)
+
+        self.assertIs(Contact, form.entity_type)
+        self.assertEqual(Contact.objects.count(), form.modified_objects_count)
 
     def test_validation_error01(self): # invalid field
         self.login()
@@ -171,6 +192,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual('anime club', self.refresh(orga03).name)
         self.assertEqual('Genshiken',  self.refresh(orga01).name) # <== not changed
 
+        with self.assertNoException():
+            form = response.context['form']
+
+        self.assertEqual(2, form.modified_objects_count)
+
     def test_use_edit_perm(self):
         self.login(is_superuser=False, allowed_apps=['persons'])
 
@@ -207,20 +233,25 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual('manga club', self.refresh(orga02).name)
         self.assertEqual('Genshiken',  self.refresh(orga01).name) # <== not changed
 
+        self.assertEqual(1, response.context['form'].read_objects_count)
+
     def test_model_error(self):
         self.login()
 
         first_name = 'Kanako'
         last_name = u'Ōno'
-        contact = Contact.objects.create(user=self.user, first_name=first_name, last_name=last_name)
+        contact01 = Contact.objects.create(user=self.user, first_name=first_name,  last_name=last_name)
+        contact02 = Contact.objects.create(user=self.user, first_name='Mitsunori', last_name='Kugayama')
+
+        entity_str = unicode(contact01)
 
         with self.assertRaises(ValidationError) as cm:
-            contact.first_name = ''
-            contact.full_clean()
+            contact01.first_name = ''
+            contact01.full_clean()
 
         response = self.client.post(self.build_url(Contact), follow=True,
                                     data={'actions': self.format_str2 % {
-                                                            'name01': 'first_name', 'operator01': 'rm_start', 'value01': 10,
+                                                            'name01': 'first_name', 'operator01': 'rm_start', 'value01': 6,
                                                             'name02': 'last_name',  'operator02': 'upper',    'value02': '',
                                                         },
                                          }
@@ -228,9 +259,23 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
-        contact = self.refresh(contact)
-        self.assertEqual(first_name, contact.first_name) #no change !!
-        self.assertEqual(last_name,  contact.last_name) #TODO: make the changes thatb are possible (u'ŌNO') ??
+        contact01 = self.refresh(contact01)
+        self.assertEqual(first_name, contact01.first_name) #no change !!
+        self.assertEqual(last_name,  contact01.last_name) #TODO: make the changes that are possible (u'ŌNO') ??
+
+        form = response.context['form']
+        count = Contact.objects.count()
+        self.assertLess(form.modified_objects_count, count)
+        self.assertEqual(count, form.read_objects_count)
+
+        errors = form.process_errors
+        self.assertEqual(1, len(errors))
+
+        error = iter(errors).next()
+        self.assertEqual(entity_str, error[0])
+        self.assertEqual([u'%s => %s' % (_('First name'), _(u'This field cannot be blank.'))],
+                         error[1]
+                        )
 
     def build_ops_url(self, ct_id, field):
         return '/creme_core/list_view/batch_process/%(ct_id)s/get_ops/%(field)s' % {

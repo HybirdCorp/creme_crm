@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,6 +36,7 @@ from django.contrib.auth.models import User
 from creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation, CremeEntity, EntityCredentials
 from creme_core.gui.csv_import import csv_form_registry
 from creme_core.utils.unicode_csv import UnicodeReader
+from creme_core.utils.collections import LimitedList
 from creme_core.views.entity import EXCLUDED_FIELDS
 from base import CremeForm, CremeModelForm, FieldBlockManager
 from fields import MultiRelationEntityField, CremeEntityField
@@ -86,31 +87,6 @@ class CSVUploadForm(CremeForm):
                     filedata.close()
 
         return cleaned_data
-
-
-class LimitedList(object):
-    def __init__(self, max_size):
-        self._max_size = max_size
-        self._size = 0
-        self._data = []
-
-    def append(self, obj):
-        if self._size < self._max_size:
-            self._data.append(obj)
-        self._size += 1
-
-    @property
-    def max_size(self):
-        return self._max_size
-
-    def __len__(self):
-        return self._size
-
-    def __nonzero__(self):
-        return bool(self._size)
-
-    def __iter__(self):
-        return iter(self._data)
 
 
 #Extractors (and related field/widget) for regular model's fields---------------
@@ -509,7 +485,7 @@ class CSVImportForm(CremeModelForm):
     def __init__(self, *args, **kwargs):
         super(CSVImportForm, self).__init__(*args, **kwargs)
         self.import_errors = LimitedList(50)
-        self.imported_objects_count = 0
+        self.imported_objects_count = 0 #TODO: properties ??
         self.lines_count = 0
 
     #NB: hack to bypass the model validation (see form_factory() comment)

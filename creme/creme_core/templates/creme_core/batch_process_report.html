@@ -1,0 +1,79 @@
+{% extends "creme_core/base.html" %}
+{% load i18n %}
+{% load creme_core_tags creme_block %}
+
+{% block content %}
+    <table class="table_header" cellpadding="0" cellspacing="0">
+        <tr>
+            <td width="5%"><img src="{% creme_media_url 'images/batch_process_64.png' %}" title="Batch process" alt="Batch process"/></td>
+            <td width="95%">
+                <h1>
+                    {% trans "Batch process : results" %}
+                </h1>
+            </td>
+        </tr>
+    </table>
+
+    <p>
+        {% with form.entity_type|get_meta_value:'verbose_name' as verbose_name %}
+            {% blocktrans count form.read_objects_count as counter %}{{counter}} entity with type "{{verbose_name}}" has been read.{% plural %}{{counter}} entities with type "{{verbose_name}}" have been read.{% endblocktrans %}
+        {% endwith %}
+        <br/>{% blocktrans count form.modified_objects_count as counter %}{{counter}} entity has been sucessfully modified.{% plural %}{{counter}} entities have been sucessfully modified.{% endblocktrans %}
+    </p>
+
+    {% with form.process_errors as errors %}
+        {% if errors %}
+            {% with errors|length as count %}
+                <table class="table_detail_view ui-corner-all with-header">
+                    {% get_block_header colspan=2 %}
+                        <th class="collapser label">{% get_block_title  _('%s Error') _('%s Errors') 'infos_48.png' 'Infos' count %}</th>
+                        <th class="actions"></th>
+                    {% end_get_block_header %}
+                    <tbody class="collapsable">
+                        <tr class="header">
+                            <th class="block_header_line_dark">{% trans "Entity" %}</th>
+                            <th class="block_header_line_dark">{% trans "Induced error" %}</th>
+                        </tr>
+                        {% for error in errors %}
+                            <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                            <tr class="content">
+                                <td class="{{row_color}}">{{error.0}}</td>
+                                <td class="{{row_color}}">
+                                    <ul>
+                                        {% for message in error.1 %}
+                                            <li>{{message}}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                    {% if count > errors.max_size %}
+                        <tfooter class="collapsable">
+                            <tr>
+                                <td colspan="2" class="block_header_line_dark">
+                                    {% trans "Other errors have been omitted." %}
+                                </td>
+                            </tr>
+                        </tfooter>
+                    {% endif %}
+                </table>
+            {% endwith %}
+        {% else %}
+            <p>{% trans "No error when processing." %}</p>
+        {% endif %}
+    {% endwith %}
+
+    <br/>
+    <div>
+        <ul class="button_list hbox">
+            <li>
+                <a class="menu_button" href="{{back_url}}">
+                    <img src="{% creme_media_url 'images/left_arrow_32.png' %}" border="0" title="{% trans "Back to the list" %}" alt="{% trans "Back to the list" %}" />
+                    {% trans "Back to the list" %}
+                </a>
+            </li>
+        </ul>
+    </div>
+    <br/>
+{% endblock %}

@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CORE' APP
-# Copyright (C) 2011 Hybird
+# Copyright (C) 2012 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -e html -i "tests/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-27 17:40+0100\n"
+"POT-Creation-Date: 2012-01-31 14:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: blocks.py:33 forms/csv_import.py:594 models/creme_property.py:91
+#: blocks.py:33 forms/csv_import.py:570 models/creme_property.py:91
 #: models/entity.py:50
 msgid "Properties"
 msgstr "Propriétés"
@@ -175,12 +175,12 @@ msgstr "Multiplier"
 msgid "Divide"
 msgstr "Diviser"
 
-#: core/batch_process.py:158
+#: core/batch_process.py:159
 #, python-format
 msgid "The operator '%s' need a value."
 msgstr "L'opérateur '%s' a besoin d'une valeur."
 
-#: core/batch_process.py:163
+#: core/batch_process.py:164
 #, python-format
 msgid "%(operator)s : %(message)s."
 msgstr "%(operator)s : %(message)s."
@@ -189,43 +189,43 @@ msgstr "%(operator)s : %(message)s."
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/base.py:202 forms/csv_import.py:593 models/base.py:94
+#: forms/base.py:202 forms/csv_import.py:569 models/base.py:94
 #: models/prefered_menu.py:27
 msgid "User"
 msgstr "Utilisateur"
 
-#: forms/batch_process.py:59 forms/entity_filter.py:217
+#: forms/batch_process.py:64 forms/entity_filter.py:217
 msgid "This field is invalid with this model."
 msgstr "Ce champ n'existe pas dans ce type de fiche."
 
-#: forms/batch_process.py:60
+#: forms/batch_process.py:65
 #, python-format
 msgid "The field '%s' can not be used twice."
 msgstr "Le champ '%s' ne peut pas être utilise deux fois."
 
-#: forms/batch_process.py:61 forms/entity_filter.py:218
+#: forms/batch_process.py:66 forms/entity_filter.py:218
 #: forms/entity_filter.py:427
 msgid "This operator is invalid."
 msgstr "Cette opérateur est invalide."
 
-#: forms/batch_process.py:62
+#: forms/batch_process.py:67
 #, python-format
 msgid "Invalid value => %s"
 msgstr "Valeur invalide => %s"
 
-#: forms/batch_process.py:162 templates/creme_core/entity_filters.html:5
+#: forms/batch_process.py:167 templates/creme_core/entity_filters.html:5
 #: templates/creme_core/templatetags/listview_entityfilters.html:22
 msgid "Filter"
 msgstr "Filtre"
 
-#: forms/batch_process.py:162
+#: forms/batch_process.py:167
 #: templates/creme_core/templatetags/listview_entityfilters.html:26
 #: templates/creme_core/templatetags/search_panel.html:17
 #: views/entity_filter.py:117
 msgid "All"
 msgstr "Tout"
 
-#: forms/batch_process.py:163 models/header_filter.py:325
+#: forms/batch_process.py:168 models/header_filter.py:325
 #: templates/creme_core/templatetags/listview_columns_header.html:57
 #: templates/creme_core/templatetags/widgets/entity_actions.html:18
 msgid "Actions"
@@ -276,7 +276,7 @@ msgstr ""
 msgid "This field is required."
 msgstr "Ce champ est obligatoire."
 
-#: forms/bulk.py:247
+#: forms/bulk.py:247 templates/creme_core/batch_process_report.html:34
 msgid "Entity"
 msgstr "Fiche"
 
@@ -304,11 +304,11 @@ msgstr "Pas de type de propriété"
 msgid "Some property types doesn't not exist"
 msgstr "Certains types de propriété n'existent pas"
 
-#: forms/csv_import.py:50
+#: forms/csv_import.py:51
 msgid "CSV file"
 msgstr "Fichier CSV"
 
-#: forms/csv_import.py:51
+#: forms/csv_import.py:52
 msgid ""
 "A file that contains the fields values of an entity on each line, separated "
 "by commas or semicolons and each one can be surrounded by quotation marks "
@@ -319,11 +319,11 @@ msgstr ""
 "entourée par des guillemets \" (pour protégér une valeur contenant une "
 "virgule par exemple)."
 
-#: forms/csv_import.py:56
+#: forms/csv_import.py:57
 msgid "Header present ?"
 msgstr "Entête présent ?"
 
-#: forms/csv_import.py:57
+#: forms/csv_import.py:58
 msgid ""
 "Does the first line of the line contain the header of the columns (eg: "
 "\"Last name\",\"First name\") ?"
@@ -331,16 +331,16 @@ msgstr ""
 "La 1ère ligne du fichier contient-il l'entête des colonnes de valeurs (ex: "
 "\"Nom\",\"Prénom\") ?"
 
-#: forms/csv_import.py:75 forms/csv_import.py:528
+#: forms/csv_import.py:76 forms/csv_import.py:504
 msgid "You have not the credentials to read this document."
 msgstr "Vous n'avez pas les droits pour lire ce document."
 
-#: forms/csv_import.py:84
+#: forms/csv_import.py:85
 #, python-format
 msgid "Error reading document: %s."
 msgstr "Erreur lors de la lecture du document: %s."
 
-#: forms/csv_import.py:156
+#: forms/csv_import.py:132
 #, python-format
 msgid ""
 "Error while extracting value [%(raw_error)s]: tried to retrieve and then "
@@ -349,7 +349,7 @@ msgstr ""
 "Erreur lors de l'extraction de valeur [%(raw_error)s]: a essayé de retrouver "
 "et puis de construire \"%(value)s\" sur %(model)s"
 
-#: forms/csv_import.py:163
+#: forms/csv_import.py:139
 #, python-format
 msgid ""
 "Error while extracting value [%(raw_error)s]: tried to retrieve \"%(value)s"
@@ -358,19 +358,19 @@ msgstr ""
 "Erreur lors de l'extraction de valeur [%(raw_error)s]: a essayé de retrouver "
 "\"%(value)s\" sur %(model)s"
 
-#: forms/csv_import.py:221
+#: forms/csv_import.py:197
 msgid "Search by:"
 msgstr "Chercher selon:"
 
-#: forms/csv_import.py:225
+#: forms/csv_import.py:201
 msgid "Create if not found ?"
 msgstr "Créer si non trouvé ?"
 
-#: forms/csv_import.py:233
+#: forms/csv_import.py:209
 msgid "Default value"
 msgstr "Valeur par défaut"
 
-#: forms/csv_import.py:336
+#: forms/csv_import.py:312
 #, python-format
 msgid ""
 "Error while extracting value (%(raw_error)s) to build a Relation: tried to "
@@ -379,7 +379,7 @@ msgstr ""
 "Erreur lors de l'extraction de valeur (%(raw_error)s) pour construire une "
 "Relation: a essayé de retrouver %(field)s=\"%(value)s\" sur %(model)s"
 
-#: forms/csv_import.py:352
+#: forms/csv_import.py:328
 #, python-format
 msgid ""
 "Error while extracting value: tried to build  %(model)s with data=%(data)s "
@@ -388,7 +388,7 @@ msgstr ""
 "Erreur lors de l'extraction  de valeur: a essayé de construire %(model)s "
 "avec données=%(data)s => errors=%(errors)s"
 
-#: forms/csv_import.py:362
+#: forms/csv_import.py:338
 #, python-format
 msgid ""
 "Error while extracting value to build a Relation: tried to retrieve "
@@ -397,7 +397,7 @@ msgstr ""
 "Erreur lors de l'extraction de valeur pour construire une Relation: a essayé "
 "de retrouver %(field)s=\"%(value)s\" sur %(model)s"
 
-#: forms/csv_import.py:403
+#: forms/csv_import.py:379
 msgid ""
 "Create entities if they are not found ? (only fields followed by [CREATION] "
 "allows you to create, if they exist)"
@@ -405,57 +405,57 @@ msgstr ""
 "Créer les fiches si elle ne sont pas trouvées ? (seuls les champs suivi de "
 "[CRÉATION] vous permettent de créer, si ils existent)"
 
-#: forms/csv_import.py:415
+#: forms/csv_import.py:391
 msgid "This field doesn't exist in this ContentType."
 msgstr "Ce champ n'existe pas dans ce type de fiche."
 
-#: forms/csv_import.py:416
+#: forms/csv_import.py:392
 msgid "This column is not a valid choice."
 msgstr "Cette colonne n'est pas un choix valide'."
 
-#: forms/csv_import.py:507
+#: forms/csv_import.py:483
 msgid "Importing from a CSV file"
 msgstr "Import depuis un fichier CSV"
 
-#: forms/csv_import.py:525
+#: forms/csv_import.py:501
 msgid "This document doesn't exist or doesn't exist any more."
 msgstr "Ce document n'existe pas/plus."
 
-#: forms/csv_import.py:597
+#: forms/csv_import.py:573
 msgid "Fixed relationships"
 msgstr "Relations fixes"
 
-#: forms/csv_import.py:598
+#: forms/csv_import.py:574
 msgid "Relationships from CSV"
 msgstr "Relations depuis le CSV"
 
-#: forms/csv_import.py:600
+#: forms/csv_import.py:576
 msgid "Generic information"
 msgstr "Infos génériques"
 
-#: forms/csv_import.py:601
+#: forms/csv_import.py:577
 msgid "Related properties"
 msgstr "Propriétés associées"
 
-#: forms/csv_import.py:602
+#: forms/csv_import.py:578
 msgid "Associated relationships"
 msgstr "Relations associées"
 
-#: forms/csv_import.py:642 models/auth.py:506
+#: forms/csv_import.py:618 models/auth.py:506
 #, python-format
 msgid "You are not allowed to create: %s"
 msgstr "Vous n'avez pas la permission de créer: %s"
 
-#: forms/csv_import.py:681
+#: forms/csv_import.py:657
 msgid "Not in the CSV file"
 msgstr "Pas dans le CSV"
 
-#: forms/csv_import.py:685
+#: forms/csv_import.py:661
 #, python-format
 msgid "Column %(index)s - %(name)s"
 msgstr "Colonne %(index)s - %(name)s"
 
-#: forms/csv_import.py:692
+#: forms/csv_import.py:668
 #, python-format
 msgid "Column %i"
 msgstr "Colonne %i"
@@ -1059,7 +1059,7 @@ msgid "This filter can't be edited/deleted"
 msgstr "Ce filtre ne peut être modifié/effacé"
 
 #: models/entity_filter.py:113 models/header_filter.py:114
-#: views/batch_process.py:39 views/batch_process.py:58 views/entity.py:286
+#: views/batch_process.py:42 views/batch_process.py:77 views/entity.py:286
 #: views/entity_filter.py:50 views/entity_filter.py:128
 #: views/header_filter.py:49 views/header_filter.py:113
 #: views/generic/listview.py:210
@@ -1360,6 +1360,64 @@ msgstr "À propos d'Hybird"
 msgid "Batch process"
 msgstr "Traitement par lots"
 
+#: templates/creme_core/batch_process_report.html:11
+msgid "Batch process : results"
+msgstr "Traitement par lots : résultats"
+
+#: templates/creme_core/batch_process_report.html:19
+#, python-format
+msgid "%(counter)s entity with type \"%(verbose_name)s\" has been read."
+msgid_plural ""
+"%(counter)s entities with type \"%(verbose_name)s\" have been read."
+msgstr[0] ""
+"%(counter)s entité de type \"%(verbose_name)s\" a été lue."
+msgstr[1] ""
+"%(counter)s entités de type \"%(verbose_name)s\" ont été lues."
+
+#: templates/creme_core/batch_process_report.html:21
+#, python-format
+msgid "%(counter)s entity has been sucessfully modified."
+msgid_plural "%(counter)s entities have been sucessfully modified."
+msgstr[0] ""
+"%(counter)s entité a été modifiée avec succés."
+msgstr[1] ""
+"%(counter)s entités ont été modifiées avec succés."
+
+#: templates/creme_core/batch_process_report.html:29
+#: templates/creme_core/csv_importing_report.html:29
+#, python-format
+msgid "%s Error"
+msgstr "%s Erreur"
+
+#: templates/creme_core/batch_process_report.html:29
+#: templates/creme_core/csv_importing_report.html:29
+#, python-format
+msgid "%s Errors"
+msgstr "%s Erreurs"
+
+#: templates/creme_core/batch_process_report.html:35
+#: templates/creme_core/csv_importing_report.html:35
+msgid "Induced error"
+msgstr "Erreur provoquée"
+
+#: templates/creme_core/batch_process_report.html:49
+#: templates/creme_core/csv_importing_report.html:49
+msgid "Other errors have been omitted."
+msgstr "Les autres erreurs ont été omises."
+
+#: templates/creme_core/batch_process_report.html:57
+msgid "No error when processing."
+msgstr "Aucune erreur lors du traitement."
+
+#: templates/creme_core/batch_process_report.html:66
+#: templates/creme_core/batch_process_report.html:67
+#: templates/creme_core/csv_importing_report.html:66
+#: templates/creme_core/csv_importing_report.html:67
+#: templates/creme_core/detailview.html:21
+#: templates/creme_core/detailview.html:22
+msgid "Back to the list"
+msgstr "Retour à la liste"
+
 #: templates/creme_core/csv_importing_report.html:11
 msgid "CSV importing : results"
 msgstr "Import CSV : bilan"
@@ -1385,38 +1443,13 @@ msgid_plural "(%(counter)s lines in the CSV file.)"
 msgstr[0] "(%(counter)s ligne dans le fichier CSV.)"
 msgstr[1] "(%(counter)s lignes dans le fichier CSV.)"
 
-#: templates/creme_core/csv_importing_report.html:29
-#, python-format
-msgid "%s Error"
-msgstr "%s Erreur"
-
-#: templates/creme_core/csv_importing_report.html:29
-#, python-format
-msgid "%s Errors"
-msgstr "%s Erreurs"
-
 #: templates/creme_core/csv_importing_report.html:34
 msgid "Line of the CSV file"
 msgstr "Ligne du fichier CSV"
 
-#: templates/creme_core/csv_importing_report.html:35
-msgid "Induced error"
-msgstr "Erreur provoquée"
-
-#: templates/creme_core/csv_importing_report.html:49
-msgid "Other errors have been omitted."
-msgstr "Les autres erreurs ont été omises."
-
 #: templates/creme_core/csv_importing_report.html:57
 msgid "No error when importing."
 msgstr "Aucune erreur lors de l'import."
-
-#: templates/creme_core/csv_importing_report.html:66
-#: templates/creme_core/csv_importing_report.html:67
-#: templates/creme_core/detailview.html:21
-#: templates/creme_core/detailview.html:22
-msgid "Back to the list"
-msgstr "Retour à la liste"
 
 #: templates/creme_core/detailview.html:32
 #: templates/creme_core/frags/list_view_content.html:69
@@ -2031,9 +2064,6 @@ msgstr "La liste souhaitée n'a aucune vue, veuillez en créer au moins une."
 #, python-format
 msgid "You are not allowed to access to the app: %s"
 msgstr "Vous n'avez pas accés à cette application: %s"
-
-#~ msgid "First name"
-#~ msgstr "Nom du champ"
 
 #~ msgid "Description"
 #~ msgstr "Description"
