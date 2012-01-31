@@ -73,7 +73,7 @@
                     <a {% if creation_perm %}href="/creme_core/list_view/import_csv/{{content_type_id}}?list_url={{request.path}}"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
                         <img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{% trans "Import CSV" %}" title="{% trans "Import CSV" %}"/>{% trans "Import CSV" %}
                     </a>&nbsp;
-                    <a href="/creme_core/list_view/batch_process/{{content_type_id}}">
+                    <a href="/creme_core/list_view/batch_process/{{content_type_id}}?list_url={{request.path}}">
                         <img border="0" src="{% creme_media_url 'images/batch_process_22.png' %}" alt="{% trans "Batch process" %}" title="{% trans "Batch process" %}"/>{% trans "Batch process" %}
                     </a>&nbsp;
                 {% endif %}

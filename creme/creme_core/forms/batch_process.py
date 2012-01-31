@@ -18,9 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import info
+from logging import debug
 
-from django.forms import ModelChoiceField, ValidationError
+from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
+from django.forms import ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
@@ -30,6 +31,7 @@ from creme_core.forms.fields import JSONField
 from creme_core.forms.widgets import DynamicInput, SelectorList, ChainedInput, PolymorphicInput
 from creme_core.core.batch_process import batch_operator_manager, BatchAction
 from creme_core.utils.chunktools import iter_as_slices
+from creme_core.utils.collections import LimitedList
 
 
 class BatchActionsWidget(SelectorList):
@@ -165,6 +167,9 @@ class BatchProcessForm(CremeForm):
     filter  = ModelChoiceField(label=_(u'Filter'), queryset=EntityFilter.objects.none(), empty_label=_(u'All'), required=False)
     actions = BatchActionsField(label=_(u'Actions'))
 
+    _modified_objects_count = 0
+    _read_objects_count = 0
+
     def __init__(self, *args, **kwargs):
         super(BatchProcessForm, self).__init__(*args, **kwargs)
         ct = self.initial['content_type']
@@ -172,9 +177,39 @@ class BatchProcessForm(CremeForm):
         fields['filter'].queryset = EntityFilter.objects.filter(entity_type=ct)
         fields['actions'].model = self._entity_type = ct.model_class()
 
+        self.process_errors = LimitedList(50)
+
+    def _humanize_validation_error(self, ve):
+        meta = self._entity_type._meta
+
+        try:
+            #TODO: NON_FIELD_ERRORS need to be unit tested...
+            humanized = [unicode(errors) if field == NON_FIELD_ERRORS else
+                         u'%s => %s' % (meta.get_field(field).verbose_name, u', '.join(errors))
+                             for field, errors in ve.message_dict.iteritems()
+                        ]
+        except Exception as e:
+            debug('BatchProcessForm._humanize_validation_error: %s', e)
+            humanized = [unicode(ve)]
+
+        return humanized
+
+    @property
+    def entity_type(self):
+        return self._entity_type
+
+    @property
+    def modified_objects_count(self):
+        return  self._modified_objects_count
+
+    @property
+    def read_objects_count(self):
+        return  self._read_objects_count
+
     def save(self, *args, **kwargs):
         cdata = self.cleaned_data
         entities = self._entity_type.objects.all()
+        process_errors = self.process_errors
         efilter = cdata.get('filter')
 
         if efilter:
@@ -182,10 +217,16 @@ class BatchProcessForm(CremeForm):
 
         entities = EntityCredentials.filter(self.user, entities, EntityCredentials.CHANGE)
         actions = cdata['actions']
+        mod_count = read_count = 0
 
         for entities_slice in iter_as_slices(entities, 1024):
             for entity in entities_slice:
+                read_count += 1
                 changed = False
+
+                #we snapshot the unicode representation here, because the actions
+                #could modify the field used to build it.
+                entity_repr = unicode(entity)
 
                 for action in actions:
                     if action(entity):
@@ -195,6 +236,10 @@ class BatchProcessForm(CremeForm):
                     try:
                         entity.full_clean()
                     except ValidationError as e:
-                        info(e)
+                        process_errors.append((unicode(entity_repr), self._humanize_validation_error(e)))
                     else:
                         entity.save()
+                        mod_count += 1
+
+        self._read_objects_count = read_count
+        self._modified_objects_count = mod_count
