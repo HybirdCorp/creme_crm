@@ -18,8 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.shortcuts import render_to_response
-from django.template.context import RequestContext
+from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
 from creme_core.utils import jsonify
@@ -30,12 +29,11 @@ from creme_config.forms.user_settings import UserThemeForm
 
 @login_required
 def view(request):
-    return render_to_response('creme_config/user_settings.html',
-                              {'user':        request.user,
-                               'themes_form': UserThemeForm(request.user).as_span(),
-                              },
-                              context_instance=RequestContext(request)
-                             )
+    return render(request, 'creme_config/user_settings.html',
+                 {'user':        request.user,
+                  'themes_form': UserThemeForm(request.user).as_span(),
+                 }
+                )
 
 @jsonify
 @login_required

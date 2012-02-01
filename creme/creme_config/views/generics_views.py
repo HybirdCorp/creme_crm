@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.http import HttpResponseRedirect, Http404, HttpResponse
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404, render
 from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
@@ -62,13 +62,13 @@ def portal_model(request, app_name, model_name):
     app_config = _get_appconf(request.user, app_name)
     model      = _get_modelconf(app_config, model_name).model
 
-    return render_to_response('creme_config/generics/model_portal.html',
-                              {'model':            model,
-                               'app_name':         app_name,
-                               'app_verbose_name': app_config.verbose_name,
-                               'model_name':       model_name,
-                              },
-                              context_instance=RequestContext(request))
+    return render(request, 'creme_config/generics/model_portal.html',
+                  {'model':            model,
+                   'app_name':         app_name,
+                   'app_verbose_name': app_config.verbose_name,
+                   'model_name':       model_name,
+                  }
+                 )
 
 @login_required
 def delete_model(request, app_name, model_name):
@@ -137,14 +137,13 @@ def swap_order(request, app_name, model_name, object_id, offset):
 def portal_app(request, app_name):
     app_config = _get_appconf(request.user, app_name)
 
-    return render_to_response('creme_config/generics/app_portal.html',
-                              {'app_name':          app_name,
-                               'app_verbose_name':  app_config.verbose_name,
-                               'app_config':        list(app_config.models()), #list-> have the length in the template
-                               'app_config_blocks': app_config.blocks(),#Get config registered blocks
-                              },
-                              context_instance=RequestContext(request)
-                             )
+    return render(request, 'creme_config/generics/app_portal.html',
+                  {'app_name':          app_name,
+                   'app_verbose_name':  app_config.verbose_name,
+                   'app_config':        list(app_config.models()), #list-> have the length in the template
+                   'app_config_blocks': app_config.blocks(),#Get config registered blocks
+                  }
+                 )
 
 @login_required
 @jsonify

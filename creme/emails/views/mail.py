@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404, render
 from django.template import Template, Context
 from django.template.context import RequestContext
 from django.utils.translation import ugettext as _, ugettext
@@ -63,7 +63,7 @@ def view_lightweight_mail(request, mail_id):
                                    context_instance=RequestContext(request)
                                   )
 
-    return render_to_response(template, ctx_dict, context_instance=RequestContext(request))
+    return render(request, template, ctx_dict)
 
 #TODO: credentials (don't forget templates)
 ## SYNCHRO PART ##

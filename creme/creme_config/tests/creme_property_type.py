@@ -15,8 +15,12 @@ __all__ = ('PropertyTypeTestCase',)
 
 
 class PropertyTypeTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config')
+
     def setUp(self):
-        self.populate('creme_core', 'creme_config')
+        #self.populate('creme_core', 'creme_config')
         self.login()
 
     def test_portal(self):

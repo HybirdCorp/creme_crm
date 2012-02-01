@@ -27,8 +27,12 @@ __all__ = ('UserTestCase', 'UserSettingsTestCase')
 
 
 class UserTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'persons')
+
     def setUp(self):
-        self.populate('creme_core', 'creme_config', 'persons') #'creme_core'
+        #self.populate('creme_core', 'creme_config', 'persons')
         self.login()
 
     def test_portal(self):
@@ -409,8 +413,12 @@ class UserTestCase(CremeTestCase):
 
 
 class UserSettingsTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config')
+
     def setUp(self):
-        self.populate('creme_core', 'creme_config')
+        #self.populate('creme_core', 'creme_config')
         self.login()
 
     def test_user_settings(self):

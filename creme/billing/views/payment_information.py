@@ -20,7 +20,7 @@
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import Http404
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.views.generic import add_to_entity, edit_related_to_entity

@@ -26,8 +26,7 @@ from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext as _, ugettext
 from django.utils.encoding import smart_unicode
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.template.context import RequestContext
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required
 
 from creme_core.models import CremeEntity
@@ -120,14 +119,11 @@ def delete_entity(request, entity_id, callback_url=None):
         if request.is_ajax():
             return HttpResponse(smart_unicode(msg), mimetype="text/javascript", status=400)
 
-        return render_to_response("creme_core/forbidden.html",
-                                  {'error_message': unicode(msg)},
-                                  context_instance=RequestContext(request)
-                                 )
+        return render(request, 'creme_core/forbidden.html', {'error_message': unicode(msg)})
 
     return HttpResponseRedirect(callback_url)
 
-#TODO: doublon with delete_entity() ???
+#TODO: doublon with delete_entity() when the object is also a CremeEntity ???
 @login_required
 def delete_related_to_entity(request, ct_id):
     """Delete a model related to a CremeEntity.

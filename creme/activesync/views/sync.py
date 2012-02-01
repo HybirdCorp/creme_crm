@@ -68,6 +68,4 @@ def main_sync(request):
     if request.is_ajax():
         return HttpResponse(render_to_string('activesync/frags/ajax/main_sync.html', tpl_dict, context_instance=context))
 
-    return render_to_response('activesync/main_sync.html',
-                       tpl_dict,
-                       context_instance=context)
+    return render_to_response('activesync/main_sync.html', tpl_dict, context_instance=context)

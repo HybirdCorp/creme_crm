@@ -21,6 +21,7 @@ class PreferedMenuTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config')
         autodiscover()
 
         reg_item = creme_menu.get_app_item('creme_config').register_item
@@ -28,7 +29,7 @@ class PreferedMenuTestCase(CremeTestCase):
             reg_item(item['url'], _(item['label']), 'creme_config.can_admin')
 
     def setUp(self):
-        self.populate('creme_core', 'creme_config')
+        #self.populate('creme_core', 'creme_config')
         self.login()
 
     def _find_field_index(self, formfield, entry_name):

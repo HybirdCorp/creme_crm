@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.shortcuts import render_to_response, get_object_or_404
-from django.template.context import RequestContext
+from django.shortcuts import render, get_object_or_404
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import login_required
 
@@ -60,17 +59,12 @@ def csv_import(request, ct_id):
 
             if form.is_valid():
                 form.save()
-                return render_to_response('creme_core/csv_importing_report.html',
-                                          {
-                                            'form':     form,
-                                            'back_url': request.GET['list_url'],
-                                          },
-                                          context_instance=RequestContext(request)
-                                         )
+                return render(request, 'creme_core/csv_importing_report.html',
+                              {'form':     form,
+                               'back_url': request.GET['list_url'],
+                              }
+                             )
     else:
         form = CSVUploadForm(user=user, initial={'csv_step': 0})
 
-    return render_to_response('creme_core/generics/blockform/add.html',
-                              {'form': form},
-                              context_instance=RequestContext(request)
-                             )
+    return render(request, 'creme_core/generics/blockform/add.html', {'form': form})

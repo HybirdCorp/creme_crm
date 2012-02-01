@@ -20,10 +20,13 @@ __all__ = ('BlocksConfigTestCase',)
 
 
 class BlocksConfigTestCase(CremeTestCase):
-    def setUp(self):
-        self.populate('creme_core', 'creme_config')
-        self.login()
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config')
 
+    def setUp(self):
+        self.login()
+        #self.populate('creme_core', 'creme_config')
         autodiscover()
 
     def test_portal(self):

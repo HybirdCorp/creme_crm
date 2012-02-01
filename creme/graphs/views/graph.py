@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.template.context import RequestContext
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404, render
 
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
@@ -49,10 +48,7 @@ def dl_png(request, graph_id):
     try:
         return graph.generate_png(user)
     except Graph.GraphException:
-        return render_to_response("graphs/graph_error.html",
-                                  {'error_message': _(u"This graph is too big!")},
-                                  context_instance=RequestContext(request)
-                                 )
+        return render(request, 'graphs/graph_error.html', {'error_message': _(u"This graph is too big!")})
 
 @login_required
 @permission_required('graphs')

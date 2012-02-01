@@ -13,8 +13,11 @@ __all__ = ('HistoryConfigTestCase',)
 
 
 class HistoryConfigTestCase(CremeTestCase):
-    def setUp(self):
-        self.populate('creme_core', 'creme_config')
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config')
+    #def setUp(self):
+        #self.populate('creme_core', 'creme_config')
 
     def test_portal(self):
         self.login()

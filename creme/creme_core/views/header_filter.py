@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,13 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from logging import debug
-
-#from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import get_object_or_404, render_to_response
-from django.template.context import RequestContext
+from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
@@ -79,10 +75,7 @@ def edit(request, header_filter_id):
     else:
         hf_form = HeaderFilterForm(user=user, instance=hf)
 
-    return render_to_response('creme_core/header_filters.html',
-                              {'form': hf_form},
-                              context_instance=RequestContext(request)
-                             )
+    return render(request, 'creme_core/header_filters.html', {'form': hf_form})
 
 @login_required
 def delete(request):
