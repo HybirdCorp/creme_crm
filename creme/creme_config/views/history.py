@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,10 +19,9 @@
 ################################################################################
 
 from django.http import HttpResponse
-from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404, render
 
 from creme_core.models import HistoryConfigItem
 from creme_core.views.generic import add_model_with_popup
@@ -39,7 +38,7 @@ def add(request):
 @login_required
 @permission_required('creme_config')
 def portal(request):
-    return render_to_response('creme_config/history_portal.html', {}, context_instance=RequestContext(request))
+    return render(request, 'creme_config/history_portal.html')
 
 @login_required
 @permission_required('creme_config.can_admin')

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404, render
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
@@ -152,9 +152,7 @@ def _orga_view(request, strategy_id, orga_id, template):
                             'orga': orga, 'strategy': strategy}
                      )
 
-    return render_to_response(template,
-                              {'orga': orga, 'strategy': strategy}, #TODO: factorise with Http404 ??
-                              context_instance=RequestContext(request))
+    return render(request, template, {'orga': orga, 'strategy': strategy})
 
 def orga_evaluation(request, strategy_id, orga_id):
     return _orga_view(request, strategy_id, orga_id, 'commercial/orga_evaluation.html')

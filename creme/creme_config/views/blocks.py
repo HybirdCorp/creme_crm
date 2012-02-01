@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,15 +19,13 @@
 ################################################################################
 
 from django.http import Http404, HttpResponse
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.registry import creme_registry, NotRegistered
-#from creme_core.models import (BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
-                               #RelationBlockItem, InstanceBlockConfigItem, BlockState)
 from creme_core.models.block import *
 from creme_core.views.generic import add_model_with_popup, inner_popup
 from creme_core.utils import get_from_POST_or_404
@@ -53,9 +51,7 @@ def add_relation_block(request):
 @login_required
 @permission_required('creme_config.can_admin')
 def portal(request):
-    return render_to_response('creme_config/blocks_portal.html', {},
-                              context_instance=RequestContext(request)
-                             )
+    return render(request, 'creme_config/blocks_portal.html')
 
 @login_required
 @permission_required('creme_config.can_admin')

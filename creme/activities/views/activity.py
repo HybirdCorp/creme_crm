@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,8 +19,7 @@
 ################################################################################
 
 from django.http import HttpResponseRedirect, Http404, HttpResponse
-from django.shortcuts import get_object_or_404, render_to_response
-from django.template import RequestContext
+from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import RelationType, EntityCredentials
@@ -47,23 +46,22 @@ def _add_activity(request, class_form, **form_args):
             activity_form.save()
 
             related_url = None
-            if hasattr(activity_form, 'entity_for_relation'):
+            if hasattr(activity_form, 'entity_for_relation'): #TODO: not great (expeand form_args instead)
                 related_url = activity_form.entity_for_relation.get_absolute_url()
             elif hasattr(activity_form.instance, 'get_absolute_url'):
                 related_url = activity_form.instance.get_absolute_url()
 
-            return  HttpResponseRedirect(related_url or '/activities/calendar/my')
+            #TODO: factorise get_absolute_url()
+            return HttpResponseRedirect(related_url or '/activities/calendar/my')
     else:
         activity_form = class_form(user=request.user, **form_args)
 
-    return render_to_response('activities/add_activity_form.html',
-                              {'form': activity_form},
-                              context_instance=RequestContext(request))
+    return render(request, 'activities/add_activity_form.html', {'form': activity_form})
 
 _forms_map = {
-        "meeting":   (RelatedMeetingCreateForm,   MeetingCreateForm),
-        "task":      (RelatedTaskCreateForm,      TaskCreateForm),
-        "phonecall": (RelatedPhoneCallCreateForm, PhoneCallCreateForm),
+        "meeting":   (RelatedMeetingCreateForm,        MeetingCreateForm),
+        "task":      (RelatedTaskCreateForm,           TaskCreateForm),
+        "phonecall": (RelatedPhoneCallCreateForm,      PhoneCallCreateForm),
         "activity":  (RelatedCustomActivityCreateForm, CustomActivityCreateForm),
     }
 
@@ -124,12 +122,9 @@ def edit(request, activity_id):
     else:
         form = form_class(instance=activity, user=request.user)
 
-    return render_to_response('creme_core/generics/blockform/edit.html',
-                              {
-                                'form':   form,
-                                'object': activity,
-                              },
-                              context_instance=RequestContext(request))
+    return render(request, 'creme_core/generics/blockform/edit.html',
+                  {'form': form, 'object': activity}
+                 )
 
 @login_required
 @permission_required('activities')

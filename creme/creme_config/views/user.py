@@ -20,8 +20,7 @@
 
 from django.utils.translation import ugettext as _
 from django.http import HttpResponse
-from django.shortcuts import get_object_or_404, render_to_response
-from django.template.context import RequestContext
+from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 
@@ -51,9 +50,7 @@ def add_team(request):
 @login_required
 @permission_required('creme_config')
 def portal(request):
-    return render_to_response('creme_config/user_portal.html', {},
-                              context_instance=RequestContext(request)
-                             )
+    return render(request, 'creme_config/user_portal.html')
 
 @login_required
 @permission_required('creme_config.can_admin')

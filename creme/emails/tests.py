@@ -490,7 +490,7 @@ class TemplatesTestCase(CremeTestCase):
 class SendingsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_config')
+        cls.populate('creme_core', 'creme_config')
 
     def setUp(self):
         #self.populate('creme_config')
@@ -600,6 +600,12 @@ class SendingsTestCase(CremeTestCase):
         self.assertEqual(u'', response.content)
 
         #TODO: use the Django fake email framework to test even better
+
+        #popup detail view -----------------------------------------------------
+        response = self.client.post('/emails/campaign/sending/%s' % sending.id)
+        self.assertEqual(200, response.status_code)
+        self.assertContains(response, contacts[0].email)
+        self.assertContains(response, orgas[0].email)
 
         #test delete campaign --------------------------------------------------
         response = self.client.post('/creme_core/entity/delete/%s' % camp.id)

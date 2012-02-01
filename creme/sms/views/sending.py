@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
@@ -83,9 +83,7 @@ def detailview(request, id):
     sending  = get_object_or_404(Sending, pk=id)
     sending.campaign.can_view_or_die(request.user)
 
-    return render_to_response('sms/popup_sending.html',
-                              {'object': sending},
-                              context_instance=RequestContext(request))
+    return render(request, 'sms/popup_sending.html', {'object': sending})
 
 @login_required
 @permission_required('sms')

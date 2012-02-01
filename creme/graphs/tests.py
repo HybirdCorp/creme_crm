@@ -109,5 +109,12 @@ class GraphsTestCase(CremeTestCase):
                                                ).status_code
                         )
 
+    def test_download01(self):
+        self.login()
+
+        graph = Graph.objects.create(user=self.other_user, name='Graph01')
+        self.assertEqual(200, self.client.get('/graphs/graph/%s/png' % graph.id, follow=True).status_code)
+
+        #TODO: improve
+
     #TODO: def test_root_nodes_/add/edit/delete
-    #TODO: test download ??

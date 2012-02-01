@@ -23,8 +23,7 @@ from logging import debug
 
 from django.db.models import Q
 from django.http import HttpResponse
-from django.shortcuts import render_to_response, get_object_or_404
-from django.template import RequestContext
+from django.shortcuts import render, get_object_or_404
 from django.utils.simplejson import JSONEncoder, JSONDecoder
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
@@ -48,16 +47,15 @@ def get_users_calendar(request, usernames, calendars_ids):
         calendars_ids = []
 
     cal_ids = [str(id) for id in calendars_ids]
-    return render_to_response('activities/calendar.html',
-                              {'events_url':        "/activities/calendar/users_activities/%s/%s" % (",".join(usernames), ",".join(cal_ids)),
-                               'users':             User.objects.order_by('username'),
-                               'current_users':     User.objects.filter(username__in=usernames),
-                               'my_calendars' :     Calendar.objects.filter(user=user),
-                               'current_calendars': cal_ids,
-                               'creation_perm':     user.has_perm('activities.add_activity'),
-                              },
-                              context_instance=RequestContext(request)
-                             )
+    return render(request, 'activities/calendar.html',
+                  {'events_url':        "/activities/calendar/users_activities/%s/%s" % (",".join(usernames), ",".join(cal_ids)),
+                   'users':             User.objects.order_by('username'),
+                   'current_users':     User.objects.filter(username__in=usernames),
+                   'my_calendars' :     Calendar.objects.filter(user=user),
+                   'current_calendars': cal_ids,
+                   'creation_perm':     user.has_perm('activities.add_activity'),
+                  }
+                 )
 
 def getFormattedDictFromAnActivity(activity, user):
     start = activity.start

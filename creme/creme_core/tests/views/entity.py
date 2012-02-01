@@ -23,8 +23,11 @@ except Exception as e:
 
 
 class EntityViewsTestCase(ViewsTestCase):
-    def setUp(self):
-        self.populate('creme_core', 'creme_config')
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config')
+    #def setUp(self):
+        #self.populate('creme_core', 'creme_config')
 
     def test_get_fields(self):
         self.login()

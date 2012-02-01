@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
@@ -41,10 +41,7 @@ def edit(request):
     else:
         form = PreferedMenuForm(user2edit=None, user=request.user)
 
-    return render_to_response('creme_core/generics/blockform/edit.html',
-                              {'form': form},
-                              context_instance=RequestContext(request)
-                             )
+    return render(request, 'creme_core/generics/blockform/edit.html', {'form': form})
 
 #TODO: improve generic.add_model_with_popup ????
 @login_required #no special permission needed

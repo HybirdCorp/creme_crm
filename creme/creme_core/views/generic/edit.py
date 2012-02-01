@@ -20,7 +20,7 @@
 
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render_to_response
+from django.shortcuts import get_object_or_404, render
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
@@ -43,13 +43,7 @@ def edit_entity(request, object_id, model, edit_form, template='creme_core/gener
     else:
         form = edit_form(user=user, instance=entity)
 
-    return render_to_response(template,
-                              {
-                                'form':   form,
-                                'object': entity,
-                              },
-                              context_instance=RequestContext(request)
-                             )
+    return render(request, template, {'form': form, 'object': entity})
 
 def edit_related_to_entity(request, pk, model, form_class, title_format):
     """Edit a model related to a CremeEntity.

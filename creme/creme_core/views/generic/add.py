@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.http import HttpResponseRedirect
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
@@ -65,8 +65,7 @@ def add_entity(request, form_class, url_redirect='', template='creme_core/generi
     if extra_template_dict:
         template_dict.update(extra_template_dict)
 
-    return render_to_response(template, template_dict,
-                              context_instance=RequestContext(request))
+    return render(request, template, template_dict)
 
 def add_to_entity(request, entity_id, form_class, title, entity_class=None, initial=None,
                   template='creme_core/generics/blockform/add_popup2.html', link_perm=False):

@@ -23,7 +23,6 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
-from django.shortcuts import render_to_response
 from creme_core.models import CremeModel, CremeEntity, RelationType, Relation
 
 
