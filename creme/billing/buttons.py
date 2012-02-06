@@ -42,7 +42,7 @@ class GenerateInvoiceNumberButton(Button):
 
 
 class _AddBillingDocumentButton(Button):
-    template_name   = 'persons/templatetags/button_add_billing_document.html'
+    template_name   = 'billing/templatetags/button_add_billing_document.html'
     which_document  = "OVERLOADME"
 
     def get_ctypes(self):
