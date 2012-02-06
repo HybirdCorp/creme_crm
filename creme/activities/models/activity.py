@@ -196,6 +196,14 @@ END:VEVENT
         return Activity.objects.filter(relations__object_entity__entity_type__in=ct_ids, relations__type__in=types).distinct()
 
     @staticmethod
+    def _get_linked_for_orga(orga):
+        types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
+        entities = [orga]
+        entities.extend(orga.get_managers().values_list('id', flat=True))
+        entities.extend(orga.get_employees().values_list('id', flat=True))
+        return Activity.objects.filter(relations__object_entity__in=entities, relations__type__in=types).distinct()
+
+    @staticmethod
     def get_future_linked(entity, today):
         return Activity._get_linked_aux(entity).filter(end__gt=today).order_by('start')
 
@@ -204,12 +212,20 @@ END:VEVENT
         return Activity._get_linked_for_ctypes_aux(ct_ids).filter(end__gt=today).order_by('start')
 
     @staticmethod
+    def get_future_linked_for_orga(orga, today):
+        return Activity._get_linked_for_orga(orga).filter(end__gt=today).order_by('start')
+
+    @staticmethod
     def get_past_linked(entity, today):
         return Activity._get_linked_aux(entity).filter(end__lte=today).order_by('-start')
 
     @staticmethod
     def get_past_linked_for_ctypes(ct_ids, today):
         return Activity._get_linked_for_ctypes_aux(ct_ids).filter(end__lte=today).order_by('-start')
+
+    @staticmethod
+    def get_past_linked_for_orga(orga, today):
+        return Activity._get_linked_for_orga(orga).filter(end__lte=today).order_by('-start')
 
     def handle_all_day(self):
         if self.is_all_day:

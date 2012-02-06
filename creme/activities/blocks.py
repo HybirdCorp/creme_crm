@@ -24,7 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.models import CremeEntity, Relation
 from creme_core.gui.block import QuerysetBlock, list4url
 
-from persons.models import Contact
+from persons.models import Contact, Organisation
 
 from models import Activity, Meeting, PhoneCall, Task, Calendar
 from constants import *
@@ -95,7 +95,10 @@ class FutureActivitiesBlock(QuerysetBlock):
     _RTYPES_2_POP = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
 
     def _get_queryset_for_entity(self, entity, context):
-        return Activity.get_future_linked(entity, context['today'])
+        if isinstance(entity, Organisation):
+            return Activity.get_future_linked_for_orga(entity, context['today'])
+        else:
+            return Activity.get_future_linked(entity, context['today'])
 
     def _get_queryset_for_ctypes(self, ct_ids, context):
         return Activity.get_future_linked_for_ctypes(ct_ids, context['today'])
@@ -147,7 +150,10 @@ class PastActivitiesBlock(FutureActivitiesBlock):
     template_name = 'activities/templatetags/block_past_activities.html'
 
     def _get_queryset_for_entity(self, entity, context):
-        return Activity.get_past_linked(entity, context['today'])
+        if isinstance(entity, Organisation):
+            return Activity.get_past_linked_for_orga(entity, context['today'])
+        else:
+            return Activity.get_past_linked(entity, context['today'])
 
     def _get_queryset_for_ctypes(self, ct_ids, context):
         return Activity.get_past_linked_for_ctypes(ct_ids, context['today'])
