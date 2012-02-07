@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,42 +37,39 @@ def get_csv_form_builder(header_dict, choices):
 
 
     class PersonCSVImportForm(CSVImportForm4CremeEntity):
-        billing_address    = extractorfield_factory(f_address, header_dict, choices)
-        billing_po_box     = extractorfield_factory(f_po_box,  header_dict, choices)
-        billing_city       = extractorfield_factory(f_city,    header_dict, choices)
-        billing_state      = extractorfield_factory(f_state,   header_dict, choices)
-        billing_zipcode    = extractorfield_factory(f_zipcode, header_dict, choices)
-        billing_country    = extractorfield_factory(f_country, header_dict, choices)
-        billing_department = extractorfield_factory(f_dpt,     header_dict, choices)
+        billaddr_address    = extractorfield_factory(f_address, header_dict, choices)
+        billaddr_po_box     = extractorfield_factory(f_po_box,  header_dict, choices)
+        billaddr_city       = extractorfield_factory(f_city,    header_dict, choices)
+        billaddr_state      = extractorfield_factory(f_state,   header_dict, choices)
+        billaddr_zipcode    = extractorfield_factory(f_zipcode, header_dict, choices)
+        billaddr_country    = extractorfield_factory(f_country, header_dict, choices)
+        billaddr_department = extractorfield_factory(f_dpt,     header_dict, choices)
 
-        shipping_address    = extractorfield_factory(f_address, header_dict, choices)
-        shipping_po_box     = extractorfield_factory(f_po_box,  header_dict, choices)
-        shipping_city       = extractorfield_factory(f_city,    header_dict, choices)
-        shipping_state      = extractorfield_factory(f_state,   header_dict, choices)
-        shipping_zipcode    = extractorfield_factory(f_zipcode, header_dict, choices)
-        shipping_country    = extractorfield_factory(f_country, header_dict, choices)
-        shipping_department = extractorfield_factory(f_dpt,     header_dict, choices)
+        shipaddr_address    = extractorfield_factory(f_address, header_dict, choices)
+        shipaddr_po_box     = extractorfield_factory(f_po_box,  header_dict, choices)
+        shipaddr_city       = extractorfield_factory(f_city,    header_dict, choices)
+        shipaddr_state      = extractorfield_factory(f_state,   header_dict, choices)
+        shipaddr_zipcode    = extractorfield_factory(f_zipcode, header_dict, choices)
+        shipaddr_country    = extractorfield_factory(f_country, header_dict, choices)
+        shipaddr_department = extractorfield_factory(f_dpt,     header_dict, choices)
 
-        #class Meta(CSVImportForm4CremeEntity.Meta):
-            #exclude = CSVImportForm4CremeEntity.Meta.exclude + ('billing_address', 'shipping_address', 'language', 'is_user')
         class Meta:
-            exclude = ('billing_address', 'shipping_address', 'language', 'is_user')
+            exclude = ('language',)
 
         blocks = CSVImportForm4CremeEntity.blocks.new(
-                        ('billing_address', _(u'Billing address'), ['billing_address', 'billing_po_box', 'billing_city',
-                                                                    'billing_state', 'billing_zipcode', 'billing_country', 'billing_department'
+                        ('billing_address', _(u'Billing address'), ['billaddr_address', 'billaddr_po_box', 'billaddr_city',
+                                                                    'billaddr_state', 'billaddr_zipcode', 'billaddr_country', 'billaddr_department'
                                                                    ]
                         ),
-                        ('shipping_address', _(u'Shipping address'), ['shipping_address', 'shipping_po_box', 'shipping_city',
-                                                                      'shipping_state', 'shipping_zipcode', 'shipping_country', 'shipping_department'
+                        ('shipping_address', _(u'Shipping address'), ['shipaddr_address', 'shipaddr_po_box', 'shipaddr_city',
+                                                                      'shipaddr_state', 'shipaddr_zipcode', 'shipaddr_country', 'shipaddr_department'
                                                                      ]
                         )
                     )
 
         def _save_address(self, attr_name, prefix, contact, cleaned_data, line):
             import_errors = self.import_errors
-            address_dict = {
-                            'name':       attr_name,
+            address_dict = {'name':       attr_name,
                             'address':    cleaned_data[prefix + 'address'].extract_value(line, import_errors),
                             'po_box':     cleaned_data[prefix + 'po_box'].extract_value(line, import_errors),
                             'city':       cleaned_data[prefix + 'city'].extract_value(line, import_errors),
@@ -92,8 +89,9 @@ def get_csv_form_builder(header_dict, choices):
         def _post_instance_creation(self, instance, line):
             super(PersonCSVImportForm, self)._post_instance_creation(instance, line)
             cleaned_data    = self.cleaned_data
-            change4billing  = self._save_address('billing_address',  'billing_',  instance, cleaned_data, line)
-            change4shipping = self._save_address('shipping_address', 'shipping_', instance, cleaned_data, line)
+            save_address    = self._save_address
+            change4billing  = save_address('billing_address',  'billaddr_', instance, cleaned_data, line)
+            change4shipping = save_address('shipping_address', 'shipaddr_', instance, cleaned_data, line)
 
             if change4billing or change4shipping:
                 instance.save()

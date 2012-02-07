@@ -19,8 +19,12 @@ __all__ = ('CSVImportViewsTestCase', )
 
 
 class CSVImportViewsTestCase(ViewsTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config')
+
     def setUp(self):
-        self.populate('creme_core', 'creme_config')
+        #self.populate('creme_core', 'creme_config')
         self.doc = None
 
     def tearDown(self):
@@ -45,12 +49,11 @@ class CSVImportViewsTestCase(ViewsTestCase):
 
         title = 'Test doc'
         response = self.client.post('/documents/document/add', follow=True,
-                                    data={
-                                            'user':        self.user.id,
-                                            'title':       title,
-                                            'description': 'CSV file for contacts',
-                                            'filedata':    tmpfile.file,
-                                            'folder':      folder.id,
+                                    data={'user':        self.user.id,
+                                          'title':       title,
+                                          'description': 'CSV file for contacts',
+                                          'filedata':    tmpfile.file,
+                                          'folder':      folder.id,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -88,10 +91,9 @@ class CSVImportViewsTestCase(ViewsTestCase):
         #except Exception as e:
             #self.fail(str(e))
 
-        response = self.client.post(url, data={
-                                                'csv_step':     0,
-                                                'csv_document': doc.id,
-                                                #csv_has_header
+        response = self.client.post(url, data={'csv_step':     0,
+                                               'csv_document': doc.id,
+                                               #csv_has_header
                                               }
                                    )
         self.assertEqual(200, response.status_code)
@@ -133,21 +135,21 @@ class CSVImportViewsTestCase(ViewsTestCase):
                                                 #'fixed_relations',
                                                 #'dyn_relations',
 
-                                                'billing_address_colselect':    0,
-                                                'billing_po_box_colselect':     0,
-                                                'billing_city_colselect':       0,
-                                                'billing_state_colselect':      0,
-                                                'billing_zipcode_colselect':    0,
-                                                'billing_country_colselect':    0,
-                                                'billing_department_colselect': 0,
+                                                'billaddr_address_colselect':    0,
+                                                'billaddr_po_box_colselect':     0,
+                                                'billaddr_city_colselect':       0,
+                                                'billaddr_state_colselect':      0,
+                                                'billaddr_zipcode_colselect':    0,
+                                                'billaddr_country_colselect':    0,
+                                                'billaddr_department_colselect': 0,
 
-                                                'shipping_address_colselect':    0,
-                                                'shipping_po_box_colselect':     0,
-                                                'shipping_city_colselect':       0,
-                                                'shipping_state_colselect':      0,
-                                                'shipping_zipcode_colselect':    0,
-                                                'shipping_country_colselect':    0,
-                                                'shipping_department_colselect': 0,
+                                                'shipaddr_address_colselect':    0,
+                                                'shipaddr_po_box_colselect':     0,
+                                                'shipaddr_city_colselect':       0,
+                                                'shipaddr_state_colselect':      0,
+                                                'shipaddr_zipcode_colselect':    0,
+                                                'shipaddr_country_colselect':    0,
+                                                'shipaddr_department_colselect': 0,
                                               }
                                    )
         self.assertEqual(200, response.status_code)
@@ -259,21 +261,21 @@ class CSVImportViewsTestCase(ViewsTestCase):
                                                                             'search': 'name',
                                                                         },
 
-                                                'billing_address_colselect':    0,
-                                                'billing_po_box_colselect':     0,
-                                                'billing_city_colselect':       5,
-                                                'billing_state_colselect':      0,
-                                                'billing_zipcode_colselect':    0,
-                                                'billing_country_colselect':    0,
-                                                'billing_department_colselect': 0,
+                                                'billaddr_address_colselect':    0,
+                                                'billaddr_po_box_colselect':     0,
+                                                'billaddr_city_colselect':       5,
+                                                'billaddr_state_colselect':      0,
+                                                'billaddr_zipcode_colselect':    0,
+                                                'billaddr_country_colselect':    0,
+                                                'billaddr_department_colselect': 0,
 
-                                                'shipping_address_colselect':    0,
-                                                'shipping_po_box_colselect':     0,
-                                                'shipping_city_colselect':       0,
-                                                'shipping_state_colselect':      0,
-                                                'shipping_zipcode_colselect':    0,
-                                                'shipping_country_colselect':    0,
-                                                'shipping_department_colselect': 0,
+                                                'shipaddr_address_colselect':    0,
+                                                'shipaddr_po_box_colselect':     0,
+                                                'shipaddr_city_colselect':       0,
+                                                'shipaddr_state_colselect':      0,
+                                                'shipaddr_zipcode_colselect':    0,
+                                                'shipaddr_country_colselect':    0,
+                                                'shipaddr_department_colselect': 0,
                                               }
                                    )
         self.assertEqual(200, response.status_code)
@@ -362,21 +364,21 @@ class CSVImportViewsTestCase(ViewsTestCase):
                                                                     },
                                             'dyn_relations_can_create': True,
 
-                                            'billing_address_colselect':    0,
-                                            'billing_po_box_colselect':     0,
-                                            'billing_city_colselect':       0,
-                                            'billing_state_colselect':      0,
-                                            'billing_zipcode_colselect':    0,
-                                            'billing_country_colselect':    0,
-                                            'billing_department_colselect': 0,
+                                            'billaddr_address_colselect':    0,
+                                            'billaddr_po_box_colselect':     0,
+                                            'billaddr_city_colselect':       0,
+                                            'billaddr_state_colselect':      0,
+                                            'billaddr_zipcode_colselect':    0,
+                                            'billaddr_country_colselect':    0,
+                                            'billaddr_department_colselect': 0,
 
-                                            'shipping_address_colselect':    0,
-                                            'shipping_po_box_colselect':     0,
-                                            'shipping_city_colselect':       0,
-                                            'shipping_state_colselect':      0,
-                                            'shipping_zipcode_colselect':    0,
-                                            'shipping_country_colselect':    0,
-                                            'shipping_department_colselect': 0,
+                                            'shipaddr_address_colselect':    0,
+                                            'shipaddr_po_box_colselect':     0,
+                                            'shipaddr_city_colselect':       0,
+                                            'shipaddr_state_colselect':      0,
+                                            'shipaddr_zipcode_colselect':    0,
+                                            'shipaddr_country_colselect':    0,
+                                            'shipaddr_department_colselect': 0,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -443,21 +445,21 @@ class CSVImportViewsTestCase(ViewsTestCase):
                                                 'birthday_colselect':    0,
                                                 'image_colselect':       0,
 
-                                                'billing_address_colselect':    0,
-                                                'billing_po_box_colselect':     0,
-                                                'billing_city_colselect':       0,
-                                                'billing_state_colselect':      0,
-                                                'billing_zipcode_colselect':    0,
-                                                'billing_country_colselect':    0,
-                                                'billing_department_colselect': 0,
+                                                'billaddr_address_colselect':    0,
+                                                'billaddr_po_box_colselect':     0,
+                                                'billaddr_city_colselect':       0,
+                                                'billaddr_state_colselect':      0,
+                                                'billaddr_zipcode_colselect':    0,
+                                                'billaddr_country_colselect':    0,
+                                                'billaddr_department_colselect': 0,
 
-                                                'shipping_address_colselect':    0,
-                                                'shipping_po_box_colselect':     0,
-                                                'shipping_city_colselect':       0,
-                                                'shipping_state_colselect':      0,
-                                                'shipping_zipcode_colselect':    0,
-                                                'shipping_country_colselect':    0,
-                                                'shipping_department_colselect': 0,
+                                                'shipaddr_address_colselect':    0,
+                                                'shipaddr_po_box_colselect':     0,
+                                                'shipaddr_city_colselect':       0,
+                                                'shipaddr_state_colselect':      0,
+                                                'shipaddr_zipcode_colselect':    0,
+                                                'shipaddr_country_colselect':    0,
+                                                'shipaddr_department_colselect': 0,
                                               }
                                    )
         self.assertEqual(200, response.status_code)
