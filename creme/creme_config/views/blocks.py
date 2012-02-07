@@ -20,7 +20,6 @@
 
 from django.http import Http404, HttpResponse
 from django.shortcuts import render, get_object_or_404
-from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
@@ -80,14 +79,12 @@ def edit_detailview(request, ct_id):
 
     return inner_popup(request,
                        'creme_core/generics/blockform/edit_popup.html',
-                       {
-                        'form':  locs_form,
+                       {'form':  locs_form,
                         'title': title,
                        },
                        is_valid=locs_form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request)
                       )
 
 @login_required
@@ -121,14 +118,12 @@ def edit_portal(request, app_name):
 
     return inner_popup(request,
                        'creme_core/generics/blockform/edit_popup.html',
-                       {
-                        'form':  locs_form,
+                       {'form':  locs_form,
                         'title': title,
                        },
                        is_valid=locs_form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request)
                       )
 
 def _edit_mypage(request, title, user=None):
@@ -142,14 +137,12 @@ def _edit_mypage(request, title, user=None):
 
     return inner_popup(request,
                        'creme_core/generics/blockform/edit_popup.html',
-                       {
-                        'form':  locs_form,
+                       {'form':  locs_form,
                         'title': title,
                        },
                        is_valid=locs_form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request)
                       )
 
 @login_required

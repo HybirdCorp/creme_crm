@@ -20,7 +20,6 @@
 
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
-from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
@@ -55,14 +54,12 @@ def add_credentials(request, role_id):
         add_form = AddCredentialsForm(role, user=request.user)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
-                       {
-                        'form':  add_form,
+                       {'form':  add_form,
                         'title': _(u'Add creddentials to <%s>') % role,
                        },
                        is_valid=add_form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request)
                       )
 
 @login_required
@@ -96,5 +93,4 @@ def set_default_creds(request):
                        is_valid=form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request)
                       )

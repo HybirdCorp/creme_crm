@@ -23,6 +23,10 @@ __all__ = ('ActTestCase',)
 
 
 class ActTestCase(CommercialBaseTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'persons', 'commercial')
+
     def test_create(self):
         url = '/commercial/act/add'
         self.assertEqual(200, self.client.get(url).status_code)
@@ -142,7 +146,7 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(date(year=2011, month=12, day=26), self.refresh(act).due_date)
 
     def test_listview(self):
-        self.populate('creme_core', 'persons', 'commercial')
+        #self.populate('creme_core', 'persons', 'commercial')
 
         atype = ActType.objects.create(title='Show')
         segment = self._create_segment()
@@ -346,7 +350,7 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(0,   self.refresh(objective).counter)
 
     def test_count_relations(self):
-        self.populate('commercial') #'creme_core', 'persons'
+        #self.populate('commercial') #'creme_core', 'persons'
         RelationType.objects.get(pk=REL_SUB_COMPLETE_GOAL) #raise exception if error
 
         act = self.create_act()
@@ -375,7 +379,7 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertTrue(objective.reached)
 
     def test_related_opportunities(self):
-        self.populate('commercial') #'creme_core', 'persons'
+        #self.populate('commercial') #'creme_core', 'persons'
         RelationType.objects.get(pk=REL_SUB_OPPORT_LINKED) #raise exception if error
 
         act = self.create_act()

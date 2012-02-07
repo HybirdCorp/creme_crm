@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,6 @@ from collections import defaultdict
 from django.db.models.query_utils import Q
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, get_list_or_404
-from django.template.context import RequestContext
 from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
@@ -184,14 +183,12 @@ def add_relations(request, subject_id, relation_type_id=None):
         form = RelationCreateForm(subject=subject, user=request.user, relations_types=relations_types)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':  form,
+                       {'form':  form,
                         'title': _(u'Relationships for <%s>') % subject,
                        },
                        is_valid=form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request)
                       )
 
 @login_required
@@ -228,14 +225,13 @@ def add_relations_bulk(request, model_ct_id, relations_types=None):#TODO: Factor
                                               )
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':  form,
+                       {'form':  form,
                         'title': _(u'Multiple adding of relationships'),
                        },
                        is_valid=form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request))
+                      )
 
 @login_required
 def delete(request):

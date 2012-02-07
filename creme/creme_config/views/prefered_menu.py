@@ -20,7 +20,6 @@
 
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
@@ -63,5 +62,4 @@ def edit_mine(request):
                        is_valid=form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request)
                       )

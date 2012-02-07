@@ -22,7 +22,6 @@
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
-from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
@@ -66,14 +65,12 @@ def edit(request, relation_type_id):
 
     return inner_popup(request,
                        'creme_core/generics/blockform/edit_popup.html',
-                       {
-                        'form':  form,
+                       {'form':  form,
                         'title': _(u'Edit the type "%s"') % relation_type,
                        },
                        is_valid=form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request)
                       )
 
 @login_required

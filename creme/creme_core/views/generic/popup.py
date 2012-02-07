@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,15 +21,19 @@
 from logging import debug
 
 from django.http import HttpResponse
+from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.safestring import mark_safe
 from django.utils.simplejson.encoder import JSONEncoder
 
 
-def inner_popup(request, template, template_dict, context_instance, is_valid=True,
-                html=None, callback_url='', reload=True, delegate_reload=False, *args, **kwargs):
+#def inner_popup(request, template, template_dict, context_instance, is_valid=True,
+                #html=None, callback_url='', reload=True, delegate_reload=False, *args, **kwargs):
+def inner_popup(request, template, template_dict, is_valid=True, html=None,
+                callback_url='', reload=True, delegate_reload=False, *args, **kwargs):
     debug("Inner_popup for: %s", request.path)
 
+    context_instance = RequestContext(request)
     template_dict['hide_submit'] = True
 
     REQUEST = request.REQUEST
@@ -43,15 +47,14 @@ def inner_popup(request, template, template_dict, context_instance, is_valid=Tru
     html = mark_safe(html) if html else render_to_string(template, template_dict, context_instance, *args, **kwargs)
 
     return HttpResponse(render_to_string('creme_core/generics/inner_popup.html',
-                                         {
-                                            'html':            html,
-                                            'from_url':        request.path,
-                                            'is_valid':        is_valid,
-                                            'whoami':          request.REQUEST.get('whoami'),
-                                            'callback_url':    callback_url,
-                                            'reload':          JSONEncoder().encode(reload),
-                                            'persisted':       tpl_persist,
-                                            'delegate_reload': delegate_reload,
+                                         {'html':            html,
+                                          'from_url':        request.path,
+                                          'is_valid':        is_valid,
+                                          'whoami':          request.REQUEST.get('whoami'),
+                                          'callback_url':    callback_url,
+                                          'reload':          JSONEncoder().encode(reload),
+                                          'persisted':       tpl_persist,
+                                          'delegate_reload': delegate_reload,
                                          },
                                          context_instance, *args, **kwargs
                                         ),

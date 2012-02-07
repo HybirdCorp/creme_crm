@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,6 @@
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
@@ -114,14 +113,12 @@ def _add_subpattern_component(request, component_id, form_class, title):
         form = form_class(related_comp, user=user)
 
     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                               {
-                                'form':  form,
+                               {'form':  form,
                                 'title': title % related_comp,
                                },
                                is_valid=form.is_valid(),
                                reload=False,
                                delegate_reload=True,
-                               context_instance=RequestContext(request),
                               )
 
 def add_child_pattern_component(request, component_id):

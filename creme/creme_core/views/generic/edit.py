@@ -21,7 +21,6 @@
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
-from django.template import RequestContext
 from django.utils.translation import ugettext as _
 
 from creme_core.views.generic.popup import inner_popup
@@ -66,14 +65,12 @@ def edit_related_to_entity(request, pk, model, form_class, title_format):
         edit_form = form_class(entity=entity, user=user, instance=auxiliary)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
-                       {
-                        'form':  edit_form,
+                       {'form':  edit_form,
                         'title': title_format % entity,
                        },
                        is_valid=edit_form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request)
                       )
 
 def edit_model_with_popup(request, query_dict, model, form_class,
@@ -101,12 +98,10 @@ def edit_model_with_popup(request, query_dict, model, form_class,
     title_format = title_format or _(u'Edit <%s>')
 
     return inner_popup(request, template,
-                       {
-                        'form':  edit_form,
+                       {'form':  edit_form,
                         'title': title_format % instance,
                        },
                        is_valid=edit_form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request)
                       )
