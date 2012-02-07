@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -52,8 +52,8 @@ class Organisation(CremeEntity):
     subject_to_vat  = BooleanField(_(u'Subject to VAT'), default=True)
     legal_form      = ForeignKey(LegalForm, verbose_name=_(u'Legal form'), blank=True, null=True)
     staff_size      = ForeignKey(StaffSize, verbose_name=_(u'Staff size'), blank=True, null=True)
-    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'), blank=True, null=True, related_name='billing_address_orga_set')
-    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'), blank=True, null=True, related_name='shipping_address_orga_set')
+    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'), blank=True, null=True, related_name='billing_address_orga_set', editable=False)
+    shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'), blank=True, null=True, related_name='shipping_address_orga_set', editable=False)
     annual_revenue  = CharField(_(u'Annual revenue'), max_length=100, blank=True, null=True)
     description     = TextField(_(u'Description'), blank=True, null=True)
     creation_date   = DateField(_(u"Date of creation of the organisation"), blank=True, null=True)
