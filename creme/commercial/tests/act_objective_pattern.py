@@ -16,6 +16,10 @@ __all__ = ('ActObjectivePatternTestCase',)
 
 
 class ActObjectivePatternTestCase(CommercialBaseTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'persons', 'commercial')
+
     def test_create(self):
         url = '/commercial/objective_pattern/add'
         self.assertEqual(200, self.client.get(url).status_code)
@@ -75,7 +79,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertEqual(segment,       pattern.segment)
 
     def test_listview(self):
-        self.populate('creme_core', 'persons', 'commercial')
+        #self.populate('creme_core', 'persons', 'commercial')
 
         create_patterns = ActObjectivePattern.objects.create
         patterns = [create_patterns(user=self.user,

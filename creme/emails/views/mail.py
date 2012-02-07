@@ -60,7 +60,6 @@ def view_lightweight_mail(request, mail_id):
     if request.is_ajax():
         return generic.inner_popup(request, template, ctx_dict,
                                    is_valid=False, reload=False,
-                                   context_instance=RequestContext(request)
                                   )
 
     return render(request, template, ctx_dict)
@@ -193,8 +192,7 @@ def create_from_template_n_send(request, entity_id):
         form = TemplateSelectionForm(user=user)
 
     return generic.inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                               {
-                                'form':   form,
+                               {'form':   form,
                                 'title':  ugettext(u'Sending an email to <%(entity)s> (step %(step)s/2)') % {
                                                 'entity': entity,
                                                 'step':   step,
@@ -203,7 +201,6 @@ def create_from_template_n_send(request, entity_id):
                                is_valid=form.is_valid(),
                                reload=False,
                                delegate_reload=True,
-                               context_instance=RequestContext(request)
                               )
 
 @jsonify

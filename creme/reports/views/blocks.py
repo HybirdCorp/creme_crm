@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,6 @@
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404
-from django.template.context import RequestContext
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.views.generic.popup import inner_popup
@@ -45,12 +44,10 @@ def add_graph_instance_block(request, graph_id):
         graph_form = GraphInstanceBlockForm(graph=graph, user=request.user)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':   graph_form,
+                       {'form':   graph_form,
                         'title': _(u'Add an instance block for <%s>') % graph,
                        },
                        is_valid=graph_form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request)
                       )

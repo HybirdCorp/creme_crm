@@ -25,7 +25,6 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, get_list_or_404
 from django.core import serializers
 from django.forms.models import modelform_factory
-from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 from django.utils.simplejson import JSONEncoder
 from django.contrib.contenttypes.models import ContentType
@@ -138,7 +137,6 @@ def bulk_update(request, ct_id):#TODO: Factorise with add_properties_bulk and ad
                        is_valid=form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request)
                       )
 
 
@@ -355,5 +353,4 @@ def edit_field(request, id, field_str):
                        },
                        is_valid=form.is_valid(),
                        reload=False, delegate_reload=True,
-                       context_instance=RequestContext(request),
                       )

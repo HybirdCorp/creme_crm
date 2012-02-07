@@ -108,14 +108,12 @@ def __link_report(request, report, field, ct):
         link_form = LinkFieldToReportForm(report=report, field=field, ct=ct, user=request.user)
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
-                       {
-                        'form':   link_form,
+                       {'form':   link_form,
                         'title': _(u'Link of the column <%s>') % field,
                        },
                        is_valid=link_form.is_valid(),
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request)
                       )
 
 @login_required
@@ -226,16 +224,15 @@ def preview(request, report_id):
     html_backend = html_backend(report, context_instance=req_ctx, limit_to=LIMIT_TO, extra_fetch_q=extra_q_filter) #reusing the same variable is not great
 
     return render_to_response("reports/preview_report.html",
-                              {
-                                'object':        report,
-                                'html_backend':  html_backend,
-                                'limit_to':      LIMIT_TO,
-                                'form':          filter_form,
-                                'start':         start,
-                                'end':           end
-
+                              {'object':        report,
+                               'html_backend':  html_backend,
+                               'limit_to':      LIMIT_TO,
+                               'form':          filter_form,
+                               'start':         start,
+                               'end':           end,
                               },
-                              context_instance=req_ctx)
+                              context_instance=req_ctx
+                             )
 
 @login_required
 @permission_required('reports')
@@ -338,8 +335,7 @@ def date_filter_form(request, report_id):
         form = DateReportFilterForm(report=report, user=request.user)
 
     return inner_popup(request, 'reports/frags/date_filter_form.html',
-                       {
-                        'form':            form,
+                       {'form':            form,
                         'title':           _(u'Temporal filters for <%s>' % report),
                         'inner_popup':     True,
                         'report_id':       report_id,
@@ -351,7 +347,6 @@ def date_filter_form(request, report_id):
                        is_valid=valid,
                        reload=False,
                        delegate_reload=True,
-                       context_instance=RequestContext(request)
                       )
 
 @jsonify

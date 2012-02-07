@@ -24,7 +24,7 @@ from django.db.models import Q
 from django.http import Http404
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import render #, get_object_or_404
-from django.template.context import RequestContext
+#from django.template.context import RequestContext
 from django.utils.simplejson import JSONDecoder
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
@@ -245,8 +245,10 @@ def list_view_popup_from_widget(request, ct_id, o2m, **kwargs):
                                                         )
     except NoHeaderFilterAvailable:
         #TODO: true HeaderFilter creation in inner popup
-        return inner_popup(request, '', {}, RequestContext(request), is_valid=False,
+        #return inner_popup(request, '', {}, RequestContext(request), is_valid=False,
+        return inner_popup(request, '', {}, is_valid=False,
                            html=_(u"The desired list does not have any view, please create one.")
                           )
 
-    return inner_popup(request, template_name, template_dict, RequestContext(request), is_valid=False)
+    #return inner_popup(request, template_name, template_dict, RequestContext(request), is_valid=False)
+    return inner_popup(request, template_name, template_dict, is_valid=False)
