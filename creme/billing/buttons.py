@@ -62,7 +62,7 @@ class _AddBillingDocumentButton(Button):
 
 
 class AddInvoiceButton(_AddBillingDocumentButton):
-    id_             = Button.generate_id('persons', 'add_invoice')
+    id_             = Button.generate_id('billing', 'add_invoice')
     verbose_name    = _(u'Add a related invoice')
     permission      = 'billing.add_invoice'
     which_document  = "invoice"
@@ -70,7 +70,7 @@ class AddInvoiceButton(_AddBillingDocumentButton):
 
 
 class AddSalesOrderButton(_AddBillingDocumentButton):
-    id_             = Button.generate_id('persons', 'add_salesorder')
+    id_             = Button.generate_id('billing', 'add_salesorder')
     verbose_name    = _(u'Add a related sales order')
     permission      = 'billing.add_salesorder'
     which_document  = "salesorder"
@@ -78,7 +78,7 @@ class AddSalesOrderButton(_AddBillingDocumentButton):
 
 
 class AddQuoteButton(_AddBillingDocumentButton):
-    id_             = Button.generate_id('persons', 'add_quote')
+    id_             = Button.generate_id('billing', 'add_quote')
     verbose_name    = _(u'Add a related quote')
     permission      = 'billing.add_quote'
     which_document  = "quote"
