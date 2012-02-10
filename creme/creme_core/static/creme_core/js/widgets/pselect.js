@@ -43,7 +43,10 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
     _update_selector: function(element, value) {
         var self = creme.widget.PolymorphicSelect;
 
-        var values = creme.widget.cleanval(value, {'type':null, 'value':null});
+        var old_values = self.val(element);
+        var values = creme.widget.cleanval(value);
+
+        values['type'] = values['type'] === null ? old_values['type'] : values['type'];
 
         self._toggle_selector(element, values['type'], values['value'], {});
         self._update(element);
@@ -76,7 +79,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
              return;
          }
 
-          element.removeClass('widget-ready');
+         element.removeClass('widget-ready');
 
          var model = $('.inner-polymorphicselect-model li[input-type="' + type + '"] > .ui-creme-widget', element);
 
@@ -106,7 +109,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
 
     reload: function(element, url, cb, error_cb, sync) {
         var self = creme.widget.PolymorphicSelect;
-        var values = creme.widget.cleanval(self.val(element), {"type":null, "value":null});
+        var values = self.val(element);
 
         if (values['type'] === url)
             return;
@@ -114,7 +117,7 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
         values['type'] = url;
         self.val(element, values);
 
-        //console.log("reloaded > value >", self.val(element));
+        //console.log("pselect.reload > value >", self.val(element));
 
         if (cb != undefined) cb(element);
     },
@@ -123,11 +126,10 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
         var self = creme.widget.PolymorphicSelect;
 
         if (value === undefined) {
-            var res = creme.widget.input(element).val();
-            return (!res) ? null : res;
+            return creme.widget.cleanval(creme.widget.input(element).val(), {"type":null, "value":null});
         }
 
-        //console.log("val >", element, "new=" + $.toJSON(value), "old=" + creme.widget.input(element).val());
+        //console.log("pselect.val >", element, "new=" + $.toJSON(value), "old=" + creme.widget.input(element).val());
         self._update_selector(element, value);
         //console.log("val > end");
     },
