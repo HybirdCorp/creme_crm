@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,6 +29,7 @@ from django import forms
 from django.forms import ModelForm
 
 from creme_core.models import CremeEntity, CremeModel
+from creme_core.signals import pre_merge_related
 
 
 class Address(CremeModel):
@@ -76,3 +77,14 @@ class Address(CremeModel):
                                       city=self.city, state=self.state, zipcode=self.zipcode,
                                       country=self.country, department=self.department,
                                       content_type=ContentType.objects.get_for_model(entity), object_id=entity.id)
+
+
+def _handle_merge(sender, other_entity, **kwargs):
+    #TODO: factorise with blocks.OtherAddressBlock.detailview_display()
+    excluded_pk = filter(None, [other_entity.billing_address_id, other_entity.shipping_address_id])
+
+    for address in Address.objects.filter(object_id=other_entity.id).exclude(pk__in=excluded_pk):
+        address.owner = sender
+        address.save()
+
+pre_merge_related.connect(_handle_merge)

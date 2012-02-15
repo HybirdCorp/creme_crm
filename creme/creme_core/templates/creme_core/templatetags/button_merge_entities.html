@@ -1,0 +1,13 @@
+{% load i18n %}
+{% load creme_core_tags %}{% has_perm_to change object as edit_perm %}{% comment %}TODO: change if swapping has been implemented{% endcomment %}
+{% if edit_perm %}
+    <a class="menu_button" onclick="creme.merge.selectOtherEntityNRedirect({{object.pk}});">
+        <img src="{% creme_media_url 'images/merge_32.png' %}" border="0" title="{% trans "Merge entities" %}" alt="{% trans "Merge entities" %}" />
+        {% trans "Merge with another entity" %}
+    </a>
+{% else %}
+    <span class="menu_button forbidden" title="{% trans "forbidden" %}">
+        <img src="{% creme_media_url 'images/merge_32.png' %}" border="0" title="{% trans "Merge entities" %}" alt="{% trans "Merge entities" %}" />
+        {% trans "Merge with another entity" %}
+    </span>
+{% endif %}

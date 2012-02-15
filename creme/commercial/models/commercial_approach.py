@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +27,7 @@ from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeModel, CremeEntity
+from creme_core.signals import pre_merge_related
 
 from activities.models import Activity
 
@@ -62,8 +63,14 @@ class CommercialApproach(CremeModel):
         return CommercialApproach.objects.filter(entity_content_type__in=ct_ids, ok_or_in_futur=False).select_related('related_activity')
 
 
-#TODO: can delete this with  a WeakForeignKey ??
-def dispose_entity_comapps(sender, instance, **kwargs):
+#TODO: with a real ForeignKey can not we remove these handlers ??
+def _dispose_entity_comapps(sender, instance, **kwargs):
     CommercialApproach.objects.filter(entity_id=instance.id).delete()
 
-pre_delete.connect(dispose_entity_comapps, sender=CremeEntity)
+def _handle_merge(sender, other_entity, **kwargs):
+    for commapp in CommercialApproach.objects.filter(entity_id=other_entity.id):
+        commapp.creme_entity = sender
+        commapp.save()
+
+pre_delete.connect(_dispose_entity_comapps, sender=CremeEntity)
+pre_merge_related.connect(_handle_merge)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,13 +22,15 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.registry import creme_registry
 from creme_core.gui import (creme_menu, button_registry, block_registry, icon_registry,
-                            quickforms_registry, csv_form_registry, bulk_update_registry)
+                            quickforms_registry, csv_form_registry, bulk_update_registry,
+                            merge_form_registry)
 
 from persons.models import Contact, Organisation
 from persons.buttons import button_list
 from persons.blocks import block_list, ContactBlock, OrganisationBlock
 from persons.forms.quick import ContactQuickForm, OrganisationQuickForm
 from persons.forms.csv_import import get_csv_form_builder
+from persons.forms.merge import get_merge_form_builder
 
 
 creme_registry.register_entity_models(Contact, Organisation)
@@ -56,9 +58,14 @@ reg_qform = quickforms_registry.register
 reg_qform(Contact,      ContactQuickForm)
 reg_qform(Organisation, OrganisationQuickForm)
 
-register_csv_form = csv_form_registry.register
-register_csv_form(Contact,      get_csv_form_builder)
-register_csv_form(Organisation, get_csv_form_builder)
+reg_csv_form = csv_form_registry.register
+reg_csv_form(Contact,      get_csv_form_builder)
+reg_csv_form(Organisation, get_csv_form_builder)
+
+reg_merge_form = merge_form_registry.register
+reg_merge_form(Contact,      get_merge_form_builder)
+reg_merge_form(Organisation, get_merge_form_builder)
+
 
 bulk_update_registry.register(
     (Contact,      ['is_user', 'billing_address', 'shipping_address']),

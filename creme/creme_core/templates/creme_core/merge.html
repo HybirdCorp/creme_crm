@@ -1,0 +1,33 @@
+{% extends "creme_core/base.html" %}
+{% load i18n %}
+
+{% block page_title %} - {% trans "Merge" %}{% endblock %}
+
+{% block content %}
+    {% comment %}TODO: move to a js file + init widgets automatically{% endcomment %}
+    <script type='text/javascript'>
+        $(document).ready(function() {
+            function copyToMerged(button, src_class) {
+                var $parent = $(button).parents('.merge_entity_field').first();
+                $parent.find('.merge_result').val($parent.find(src_class).val());
+            }
+
+            function copy1ToMerged() { copyToMerged(this, '.merge_entity1');}
+            function copy2ToMerged() { copyToMerged(this, '.merge_entity2');}
+
+            $('form').each(function() {
+                var button_html = '<input type="button" class="merge_button" />';
+
+                $('.merge_result').each(function() {
+                    $(this).before($(button_html).attr('value', '>').click(copy1ToMerged));
+                    $(this).after($(button_html).attr('value', '<').click(copy2ToMerged));
+                });
+
+            });
+        });
+    </script>
+
+    {% with 'images/merge_64.png' as logo %}
+        {% include "creme_core/generics/blockform/base.html" %}
+    {% endwith %}
+{% endblock %}

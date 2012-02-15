@@ -204,3 +204,314 @@ class OrganisationTestCase(CremeTestCase):
 
         response = self.client.get('/persons/leads_customers')
         self.assertEqual(0, response.context['entities'].paginator.count)
+
+    def test_merge01(self): #merging addresses
+        self.login()
+        user = self.user
+
+        create_orga = Organisation.objects.create
+        orga01 = create_orga(user=user, name='NERV')
+        orga02 = create_orga(user=user, name='Nerv')
+
+        create_address = Address.objects.create
+        bill_addr01 = create_address(name="Billing address 01",
+                                     address="BA1 - Address", po_box="BA1 - PO box",
+                                     zipcode="BA1 - Zip code", city="BA1 - City",
+                                     department="BA1 - Department",
+                                     state="BA1 - State", country="BA1 - Country",
+                                     owner=orga01,
+                                    )
+        ship_addr01 = create_address(name="Shipping address 01",
+                                     address="SA1 - Address", po_box="SA1 - PO box",
+                                     zipcode="SA1 - Zip code", city="SA1 - City",
+                                     department="SA1 - Department",
+                                     state="SA1 - State", country="SA1 - Country",
+                                     owner=orga01,
+                                    )
+        other_addr01 = create_address(name="Other address 01", owner=orga01)
+        orga01.billing_address = bill_addr01
+        orga01.shipping_address = ship_addr01
+        orga01.save()
+
+        bill_addr02 = create_address(name="Billing address 02",
+                                     address="BA2 - Address", po_box="BA2 - PO box",
+                                     zipcode="BA2 - Zip code", city="BA2 - City",
+                                     department="BA2 - Department",
+                                     state="BA2 - State", country="BA2 - Country",
+                                     owner=orga02,
+                                    )
+        ship_addr02 = create_address(name="Shipping address 02",
+                                     address="SA2 - Address", po_box="SA2 - PO box",
+                                     zipcode="SA2 - Zip code", city="SA2 - City",
+                                     department="SA2 - Department",
+                                     state="SA2 - State", country="SA2 - Country",
+                                     owner=orga02,
+                                    )
+        other_addr02 = create_address(name="Other address 02", owner=orga02)
+
+        orga02.billing_address = bill_addr02
+        orga02.shipping_address = ship_addr02
+        orga02.save()
+
+        url = '/creme_core/entity/merge/%s,%s' % (orga01.id, orga02.id)
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        with self.assertNoException():
+            f_baddr = response.context['form'].fields['billaddr_name']
+
+        self.assertFalse(f_baddr.required)
+        self.assertEqual([bill_addr01.name,  bill_addr02.name,  bill_addr01.name], f_baddr.initial)
+
+        response = self.client.post(url, follow=True,
+                                    data={'user_1':      user.id,
+                                          'user_2':      user.id,
+                                          'user_merged': user.id,
+
+                                          'name_1':      orga01.name,
+                                          'name_2':      orga02.name,
+                                          'name_merged': orga01.name,
+
+                                           #Billing address
+                                          'billaddr_address_1':      bill_addr01.address,
+                                          'billaddr_address_2':      bill_addr02.address,
+                                          'billaddr_address_merged': bill_addr01.address,
+
+                                          'billaddr_po_box_1':      bill_addr01.po_box,
+                                          'billaddr_po_box_2':      bill_addr02.po_box,
+                                          'billaddr_po_box_merged': bill_addr02.po_box,
+
+                                          'billaddr_city_1':      bill_addr01.city,
+                                          'billaddr_city_2':      bill_addr02.city,
+                                          'billaddr_city_merged': 'Merged city',
+
+                                          'billaddr_state_1':      bill_addr01.state,
+                                          'billaddr_state_2':      bill_addr02.state,
+                                          'billaddr_state_merged': 'Merged state',
+
+                                          'billaddr_zipcode_1':      bill_addr01.zipcode,
+                                          'billaddr_zipcode_2':      bill_addr02.zipcode,
+                                          'billaddr_zipcode_merged': 'Merged zipcode',
+
+                                          'billaddr_country_1':      bill_addr01.country,
+                                          'billaddr_country_2':      bill_addr02.country,
+                                          'billaddr_country_merged': 'Merged country',
+
+                                          'billaddr_department_1':      bill_addr01.department,
+                                          'billaddr_department_2':      bill_addr02.department,
+                                          'billaddr_department_merged': 'Merged department',
+
+                                          #Shipping address
+                                          'shipaddr_address_1':      ship_addr01.address,
+                                          'shipaddr_address_2':      ship_addr02.address,
+                                          'shipaddr_address_merged': ship_addr01.address,
+
+                                          'shipaddr_po_box_1':      ship_addr01.po_box,
+                                          'shipaddr_po_box_2':      ship_addr02.po_box,
+                                          'shipaddr_po_box_merged': ship_addr02.po_box,
+
+                                          'shipaddr_city_1':      ship_addr01.city,
+                                          'shipaddr_city_2':      ship_addr02.city,
+                                          'shipaddr_city_merged': 'Merged city 2',
+
+                                          'shipaddr_state_1':      ship_addr01.state,
+                                          'shipaddr_state_2':      ship_addr02.state,
+                                          'shipaddr_state_merged': 'Merged state 2',
+
+                                          'shipaddr_zipcode_1':      ship_addr01.zipcode,
+                                          'shipaddr_zipcode_2':      ship_addr02.zipcode,
+                                          'shipaddr_zipcode_merged': 'Merged zipcode 2',
+
+                                          'shipaddr_country_1':      ship_addr01.country,
+                                          'shipaddr_country_2':      ship_addr02.country,
+                                          'shipaddr_country_merged': 'Merged country 2',
+
+                                          'shipaddr_department_1':      ship_addr01.department,
+                                          'shipaddr_department_2':      ship_addr02.department,
+                                          'shipaddr_department_merged': 'Merged department 2',
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
+
+        self.assertFalse(Organisation.objects.filter(pk=orga02).exists())
+
+        with self.assertNoException():
+            orga01 = self.refresh(orga01)
+
+        addresses = Address.objects.filter(object_id=orga01.id)
+        self.assertEqual(4, len(addresses))
+
+        self.assertIn(bill_addr01,  addresses)
+        self.assertIn(ship_addr01,  addresses)
+        self.assertIn(other_addr01, addresses)
+        self.assertIn(other_addr02, addresses)
+
+        billing_address = orga01.billing_address
+        self.assertEqual(bill_addr01,         billing_address)
+        self.assertEqual(bill_addr01.address, billing_address.address)
+        self.assertEqual(bill_addr02.po_box,  billing_address.po_box)
+        self.assertEqual('Merged city',       billing_address.city)
+        self.assertEqual('Merged state',      billing_address.state)
+        self.assertEqual('Merged zipcode',    billing_address.zipcode)
+        self.assertEqual('Merged country',    billing_address.country)
+        self.assertEqual('Merged department', billing_address.department)
+
+        shipping_address = orga01.shipping_address
+        self.assertEqual(ship_addr01,           shipping_address)
+        self.assertEqual(ship_addr02.po_box,    shipping_address.po_box)
+        self.assertEqual('Merged city 2',       shipping_address.city)
+        self.assertEqual('Merged state 2',      shipping_address.state)
+        self.assertEqual('Merged zipcode 2',    shipping_address.zipcode)
+        self.assertEqual('Merged country 2',    shipping_address.country)
+        self.assertEqual('Merged department 2', shipping_address.department)
+
+    def test_merge02(self): #merging addresses
+        self.login()
+        user = self.user
+
+        create_orga = Organisation.objects.create
+        orga01 = create_orga(user=user, name='NERV')
+        orga02 = create_orga(user=user, name='Nerv')
+
+        response = self.client.post('/creme_core/entity/merge/%s,%s' % (orga01.id, orga02.id),
+                                    follow=True,
+                                    data={'user_1':      user.id,
+                                          'user_2':      user.id,
+                                          'user_merged': user.id,
+
+                                          'name_1':      orga01.name,
+                                          'name_2':      orga02.name,
+                                          'name_merged': orga01.name,
+
+                                           #Billing address
+                                          'billaddr_name_1':      '',
+                                          'billaddr_name_2':      '',
+                                          'billaddr_name_merged': 'Merged name',
+
+                                          'billaddr_address_1':      '',
+                                          'billaddr_address_2':      '',
+                                          'billaddr_address_merged': 'Merged address',
+
+                                          'billaddr_po_box_1':      '',
+                                          'billaddr_po_box_2':      '',
+                                          'billaddr_po_box_merged': 'Merged PO box',
+
+                                          'billaddr_city_1':      '',
+                                          'billaddr_city_2':      '',
+                                          'billaddr_city_merged': 'Merged city',
+
+                                          'billaddr_state_1':      '',
+                                          'billaddr_state_2':      '',
+                                          'billaddr_state_merged': 'Merged state',
+
+                                          'billaddr_zipcode_1':      '',
+                                          'billaddr_zipcode_2':      '',
+                                          'billaddr_zipcode_merged': 'Merged zipcode',
+
+                                          'billaddr_country_1':      '',
+                                          'billaddr_country_2':      '',
+                                          'billaddr_country_merged': 'Merged country',
+
+                                          'billaddr_department_1':      '',
+                                          'billaddr_department_2':      '',
+                                          'billaddr_department_merged': 'Merged department',
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
+
+        self.assertFalse(Organisation.objects.filter(pk=orga02).exists())
+
+        with self.assertNoException():
+            orga01 = self.refresh(orga01)
+
+        addresses = Address.objects.filter(object_id=orga01.id)
+        self.assertEqual(1, len(addresses))
+
+        address = addresses[0]
+        self.assertEqual(orga01.billing_address, address)
+        self.assertEqual('Merged name',          address.name)
+        self.assertEqual('Merged address',       address.address)
+        self.assertEqual('Merged PO box',        address.po_box)
+        self.assertEqual('Merged city',          address.city)
+        self.assertEqual('Merged state',         address.state)
+        self.assertEqual('Merged zipcode',       address.zipcode)
+        self.assertEqual('Merged country',       address.country)
+        self.assertEqual('Merged department',    address.department)
+
+        self.assertIsNone(orga01.shipping_address)
+
+    def test_merge03(self): #merging addresses
+        self.login()
+        user = self.user
+
+        create_orga = Organisation.objects.create
+        orga01 = create_orga(user=user, name='NERV')
+        orga02 = create_orga(user=user, name='Nerv')
+
+        bill_addr01 = Address.objects.create(name="Billing address 01",
+                                             address="BA1 - Address", po_box="BA1 - PO box",
+                                             zipcode="BA1 - Zip code", city="BA1 - City",
+                                             department="BA1 - Department",
+                                             state="BA1 - State", country="BA1 - Country",
+                                             owner=orga01,
+                                            )
+        orga01.billing_address = bill_addr01
+        orga01.save()
+
+        response = self.client.post('/creme_core/entity/merge/%s,%s' % (orga01.id, orga02.id),
+                                    follow=True,
+                                    data={'user_1':      user.id,
+                                          'user_2':      user.id,
+                                          'user_merged': user.id,
+
+                                          'name_1':      orga01.name,
+                                          'name_2':      orga02.name,
+                                          'name_merged': orga01.name,
+
+                                           #Billing address
+                                          'billaddr_name_1':      '',
+                                          'billaddr_name_2':      '',
+                                          'billaddr_name_merged': '',
+
+                                          'billaddr_address_1':      '',
+                                          'billaddr_address_2':      '',
+                                          'billaddr_address_merged': '',
+
+                                          'billaddr_po_box_1':      '',
+                                          'billaddr_po_box_2':      '',
+                                          'billaddr_po_box_merged': '',
+
+                                          'billaddr_city_1':      '',
+                                          'billaddr_city_2':      '',
+                                          'billaddr_city_merged': '',
+
+                                          'billaddr_state_1':      '',
+                                          'billaddr_state_2':      '',
+                                          'billaddr_state_merged': '',
+
+                                          'billaddr_zipcode_1':      '',
+                                          'billaddr_zipcode_2':      '',
+                                          'billaddr_zipcode_merged': '',
+
+                                          'billaddr_country_1':      '',
+                                          'billaddr_country_2':      '',
+                                          'billaddr_country_merged': '',
+
+                                          'billaddr_department_1':      '',
+                                          'billaddr_department_2':      '',
+                                          'billaddr_department_merged': '',
+                                         }
+                                   )
+        self.assertFalse(Organisation.objects.filter(pk=orga02).exists())
+
+        with self.assertNoException():
+            orga01 = self.refresh(orga01)
+
+        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
+
+        self.assertFalse(Address.objects.filter(object_id=orga01.id))
+        self.assertIsNone(orga01.billing_address)
+        self.assertIsNone(orga01.shipping_address)

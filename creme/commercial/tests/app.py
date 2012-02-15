@@ -6,7 +6,7 @@ try:
     from creme_core.models import CremeEntity
     from creme_core.tests.base import CremeTestCase
 
-    from persons.models import Contact
+    from persons.models import Contact, Organisation
 
     from opportunities.models import Opportunity
 
@@ -46,7 +46,7 @@ class CommercialTestCase(CremeTestCase):
 
         title       = 'TITLE'
         description = 'DESCRIPTION'
-        response = self.client.post(url, data={'user':        self.user.pk,
+        response = self.client.post(url, data={#'user':        self.user.pk,
                                                'title':       title,
                                                'description': description,
                                               }
@@ -62,6 +62,44 @@ class CommercialTestCase(CremeTestCase):
         self.assertEqual(entity.id,   commapp.entity_id)
 
         self.assertLess((datetime.today() - commapp.creation_date).seconds, 10)
+
+    def test_commapp_merge(self):
+        self.login()
+        user = self.user
+
+        create_orga = Organisation.objects.create
+        orga01 = create_orga(user=user, name='NERV')
+        orga02 = create_orga(user=user, name='Nerv')
+
+        create_commapp = CommercialApproach.objects.create
+        create_commapp(title='Commapp01', description='...', creation_date=datetime.now(), creme_entity=orga01)
+        create_commapp(title='Commapp02', description='...', creation_date=datetime.now(), creme_entity=orga02)
+        self.assertEqual(2, CommercialApproach.objects.count())
+
+        response = self.client.post('/creme_core/entity/merge/%s,%s' % (orga01.id, orga02.id),
+                                    follow=True,
+                                    data={'user_1':      user.id,
+                                          'user_2':      user.id,
+                                          'user_merged': user.id,
+
+                                          'name_1':      orga01.name,
+                                          'name_2':      orga02.name,
+                                          'name_merged': orga01.name,
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
+
+        self.assertFalse(Organisation.objects.filter(pk=orga02).exists())
+
+        with self.assertNoException():
+            orga01 = self.refresh(orga01)
+
+        commapps = CommercialApproach.objects.all()
+        self.assertEqual(2, len(commapps))
+
+        for commapp in commapps:
+            self.assertEqual(orga01, commapp.creme_entity)
 
     def test_salesman_create(self):
         self.login()

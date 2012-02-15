@@ -386,6 +386,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/list_view.core.js',
                     'creme_core/js/lv_widget.js',
                     'creme_core/js/export.js',
+                    'creme_core/js/merge.js',
 
                     #OTHER APPS (mandatory ones)
                     'activities/js/activities.js',

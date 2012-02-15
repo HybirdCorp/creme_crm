@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,6 +31,7 @@ from django.contrib.auth.models import User
 from creme_core.models import CremeModel, CremeEntity
 from creme_core.models.fields import CremeUserForeignKey
 from creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
+from creme_core.signals import pre_merge_related
 
 
 class Alert(CremeModel):
@@ -67,10 +68,16 @@ class Alert(CremeModel):
 
 
 #TODO: can delete this with  a WeakForeignKey ??
-def dispose_entity_alerts(sender, instance, **kwargs):
+def _dispose_entity_alerts(sender, instance, **kwargs):
     Alert.objects.filter(entity_id=instance.id).delete()
 
-pre_delete.connect(dispose_entity_alerts, sender=CremeEntity)
+def _handle_merge(sender, other_entity, **kwargs):
+    for alert in Alert.objects.filter(entity_id=other_entity.id):
+        alert.creme_entity = sender
+        alert.save()
+
+pre_delete.connect(_dispose_entity_alerts, sender=CremeEntity)
+pre_merge_related.connect(_handle_merge)
 
 
 class _GetAlerts(FunctionField):

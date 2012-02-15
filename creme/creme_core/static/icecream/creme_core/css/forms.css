@@ -39,3 +39,25 @@ form .table_detail_view.dual_column input, form .table_detail_view.dual_column s
     margin-left: 0;
 }
 
+/* MERGE TOOL */
+.merge_entity1, input.merge_entity1[type="text"][readonly], textarea.merge_entity1[readonly] {
+    width: 31%;
+    color: #5a92ab;
+    background: #edf9ff;
+    border: 1px solid #bbe0f0;
+}
+
+.merge_entity2, input.merge_entity2[type="text"][readonly], textarea.merge_entity2[readonly] {
+    width: 31%;
+    color: #d87d72;
+    background: #ffedeb;
+    border: 1px solid #f9c9c4;
+}
+
+.merge_result {
+    width: 31%;
+}
+
+.merge_button {
+    width: 2%;
+}
