@@ -20,6 +20,7 @@
 
 from collections import defaultdict
 
+
 class CrudityFetcher(object):
     def __init__(self, *args, **kwargs):
         self._inputs = defaultdict(dict)

@@ -166,7 +166,7 @@ class InfopathFormField(object):
             tpl_dict.update({'allowed_file_types': settings.ALLOWED_EXTENSIONS})
             template_name = "crudity/infopath/create_template/frags/editing/file_field.xml"
 
-        elif isinstance(model_field, models.ImageField) or\
+        elif isinstance(model_field, models.ImageField) or \
           (isinstance(model_field, models.ForeignKey) and issubclass(model_field.rel.to, Image)):
             tpl_dict.update({'allowed_file_types': settings.ALLOWED_IMAGES_EXTENSIONS})
             template_name = "crudity/infopath/create_template/frags/editing/file_field.xml"
@@ -208,7 +208,7 @@ class InfopathFormField(object):
         return isinstance(self.model_field, models.BooleanField)
 
     def get_m2m_xsl_choices_str(self):
-        return " and ".join(['.!="%s"' % c[0] for c in self._get_choices()])
+        return " and ".join(['.!="%s"' % c[0] for c in self._get_choices()]) #TODO: generator expression
 
 
 class InfopathFormBuilder(object):
@@ -226,7 +226,11 @@ class InfopathFormBuilder(object):
 
     def get_urn(self):
         #TODO:Change 'create' ? Make a constant ?
-        return 'urn:schemas-microsoft-com:office:infopath:%s-%s:-myXSD-%s' % ('create', self.backend.subject.lower(), self.now.strftime('%Y-%m-%dT%H:%M:%S'))
+        return 'urn:schemas-microsoft-com:office:infopath:%s-%s:-myXSD-%s' % (
+                    'create',
+                    self.backend.subject.lower(),
+                    self.now.strftime('%Y-%m-%dT%H:%M:%S'),
+                )
 
     def _get_lang_code(self, code):
         return INFOPATH_LANGUAGES_CODES.get(code, '1033')
@@ -253,13 +257,12 @@ class InfopathFormBuilder(object):
 
     def _render(self):
         request = self.request
-        cab_files = {
-            "manifest.xsf": self._render_manifest_xsf(request),
-            "myschema.xsd": self._render_myschema_xsd(request),
-            "template.xml": self._render_template_xml(request),
-            "upgrade.xsl":  self._render_upgrade_xsl(request),
-            "view1.xsl":    self._render_view_xsl(request),
-        }
+        cab_files = {"manifest.xsf": self._render_manifest_xsf(request),
+                     "myschema.xsd": self._render_myschema_xsd(request),
+                     "template.xml": self._render_template_xml(request),
+                     "upgrade.xsl":  self._render_upgrade_xsl(request),
+                     "view1.xsl":    self._render_view_xsl(request),
+                    }
 
         media_files = set(["creme.png"])
 
@@ -286,22 +289,20 @@ class InfopathFormBuilder(object):
 
         if sys.platform.startswith('win'):
             ddf_file_content = render_to_string("crudity/infopath/create_template/create_cab.ddf",
-                                                {
-                                                    'file_name': "%s.xsn" % self.backend.subject,
-                                                    'backend_path':backend_path,
+                                                {'file_name': "%s.xsn" % self.backend.subject,
+                                                 'backend_path':backend_path,
                                                 },
-                                                context_instance=RequestContext(request))
+                                                context_instance=RequestContext(request)
+                                               )
 
             ddf_path = path_join(backend_path, "create_cab.ddf")
             with open(ddf_path, 'wb') as f:
                 f.write(ddf_file_content)
 
             cabify_content = render_to_string("crudity/infopath/create_template/cabify.bat",
-                                    {
-                                        'ddf_path': ddf_path,
-                                    },
-                                    context_instance=RequestContext(request))
-
+                                              {'ddf_path': ddf_path},
+                                              context_instance=RequestContext(request)
+                                             )
 
             cabify_path = path_join(backend_path, "cabify.bat")
             with open(cabify_path, 'wb') as f:
@@ -325,49 +326,49 @@ class InfopathFormBuilder(object):
 
     def _render_manifest_xsf(self, request):
         return render_to_string("crudity/infopath/create_template/manifest.xsf",
-                                {
-                                    'creme_namespace': self.namespace,
-                                    'form_urn':        self.urn,
-                                    'lang_code':       self._get_lang_code(request.LANGUAGE_CODE),
-                                    'form_name':       self.backend.subject,
-                                    'fields':          self.fields,
-                                    'file_fields':     self.file_fields,
-                                    'to':              settings.CREME_GET_EMAIL,
-                                    'password':        self.backend.password
+                                {'creme_namespace': self.namespace,
+                                 'form_urn':        self.urn,
+                                 'lang_code':       self._get_lang_code(request.LANGUAGE_CODE),
+                                 'form_name':       self.backend.subject,
+                                 'fields':          self.fields,
+                                 'file_fields':     self.file_fields,
+                                 'to':              settings.CREME_GET_EMAIL,
+                                 'password':        self.backend.password
                                 },
-                                context_instance=RequestContext(request))
+                                context_instance=RequestContext(request)
+                               )
 
     def _render_myschema_xsd(self, request):
         return render_to_string("crudity/infopath/create_template/myschema.xsd",
-                        {
-                            'creme_namespace': self.namespace,
-                            'fields':          self.fields,
-                        },
-                        context_instance=RequestContext(request))
+                                {'creme_namespace': self.namespace,
+                                 'fields':          self.fields,
+                                },
+                                context_instance=RequestContext(request)
+                               )
 
     def _render_template_xml(self, request):
         return render_to_string("crudity/infopath/create_template/template.xml",
-                        {
-                            'creme_namespace': self.namespace,
-                            'form_urn':        self.urn,
-                            'fields':          self.fields,
-                        },
-                        context_instance=RequestContext(request))
+                                {'creme_namespace': self.namespace,
+                                 'form_urn':        self.urn,
+                                 'fields':          self.fields,
+                                },
+                                context_instance=RequestContext(request)
+                               )
 
     def _render_upgrade_xsl(self, request):
         return render_to_string("crudity/infopath/create_template/upgrade.xsl",
-                        {
-                            'creme_namespace': self.namespace,
-                            'fields':          self.fields,
-                        },
-                        context_instance=RequestContext(request))
+                                {'creme_namespace': self.namespace,
+                                 'fields':          self.fields,
+                                },
+                                context_instance=RequestContext(request)
+                               )
 
     def _render_view_xsl(self, request):
         backend = self.backend
         return render_to_string("crudity/infopath/create_template/view1.xsl",
-                        {
-                            'creme_namespace': self.namespace,
-                            'fields':          self.fields,
-                            'form_title':      u"%s %s" % (_(u"Create"), backend.model._meta.verbose_name)
-                        },
-                        context_instance=RequestContext(request))
+                                {'creme_namespace': self.namespace,
+                                 'fields':          self.fields,
+                                 'form_title':      u"%s %s" % (_(u"Create"), backend.model._meta.verbose_name)
+                                },
+                                context_instance=RequestContext(request)
+                               )

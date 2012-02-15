@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,38 +17,29 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 import logging
 import re
-
 from itertools import ifilter
 from pyexpat import ExpatError
 from xml.etree import ElementTree as ET
 
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.core.files.base import ContentFile
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.db.models.fields import FieldDoesNotExist
-from django.db.models.fields.files import FileField, ImageField
-from django.db.models.fields.related import ForeignKey, ManyToManyField
-from django.template.context import Context
+from django.db.models import FieldDoesNotExist, FileField, ForeignKey
 from django.utils.translation import ugettext_lazy as _
-
-from creme_core.gui.button_menu import Button
-from creme_core.gui.button_menu import Button
-from creme_core.views.file_handling import handle_uploaded_file
-from crudity.buttons import infopath_create_form_button, email_template_create_button
 
 from persons.models.contact import Contact
 
-from media_managers.models.image import Image
+from media_managers.models import Image
 
 from crudity.backends.models import CrudityBackend
-from crudity.models.actions import WaitingAction
-from crudity.utils import strip_html, strip_html_
+from crudity.models import WaitingAction
+from crudity.utils import strip_html, strip_html_, decode_b64binary
 from crudity.inputs.base import CrudityInput
 from crudity.constants import LEFT_MULTILINE_SEP, RIGHT_MULTILINE_SEP
-from crudity.utils import decode_b64binary
+from crudity.buttons import infopath_create_form_button, email_template_create_button
+
 
 passwd_pattern = re.compile(r'password=(?P<password>\w+)', flags=re.IGNORECASE)
 re_html_br     = re.compile(r'<br[/\s]*>')
@@ -90,14 +81,18 @@ class CreateEmailInput(EmailInput):
                     left_idx = body.find(LEFT_MULTILINE_SEP)
                     continue
 
-                malformed_idx = (body[:left_idx]+body[left_idx+MULTILINE_SEP_LEN:right_idx]).find(LEFT_MULTILINE_SEP)#The body excepted current LEFT_MULTILINE_SEP
+                malformed_idx = (body[:left_idx] + body[left_idx + MULTILINE_SEP_LEN:right_idx]).find(LEFT_MULTILINE_SEP)#The body excepted current LEFT_MULTILINE_SEP
                 if malformed_idx > -1:#This means that a next occurrence of multiline is opened before closing current one
-                    body = body[:left_idx]+body[left_idx+MULTILINE_SEP_LEN:]
+                    body = body[:left_idx] + body[left_idx + MULTILINE_SEP_LEN:]
                     left_idx = body.find(LEFT_MULTILINE_SEP)
                     continue
 
                 if right_idx > -1:
-                    body = body[:left_idx]+body[left_idx:right_idx+MULTILINE_SEP_LEN].replace('\n','\\n').replace(LEFT_MULTILINE_SEP, '').replace(RIGHT_MULTILINE_SEP, '')+body[right_idx+MULTILINE_SEP_LEN:]
+                    body = body[:left_idx] + \
+                           body[left_idx:right_idx + MULTILINE_SEP_LEN].replace('\n', '\\n') \
+                                                                       .replace(LEFT_MULTILINE_SEP, '') \
+                                                                       .replace(RIGHT_MULTILINE_SEP, '') + \
+                           body[right_idx + MULTILINE_SEP_LEN:]
                     left_idx = body.find(LEFT_MULTILINE_SEP)
                 else:
                     left_idx = -1
@@ -209,6 +204,7 @@ class CreateInfopathInput(CreateEmailInput):
 
             if self.is_allowed_password(backend.password, split_body):
                 is_created = False
+                 #TODO: iterator not used very smartly (a useless list is created...)
                 for data in ifilter(lambda x: x is not None, [self.get_data_from_infopath_file(backend, attachment) for attachment_name, attachment in attachments]):
                     is_created |= self._create(backend, data, email.senders[0])
                 return is_created
@@ -225,7 +221,7 @@ class CreateInfopathInput(CreateEmailInput):
 
         try:
             xml = ET.fromstring(content)
-        except ExpatError, e:
+        except ExpatError as e:
             logging.error(e)
             return None
 

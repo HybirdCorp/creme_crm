@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 import logging
 import re
 
@@ -29,16 +30,17 @@ from django.db.utils import IntegrityError
 from django.template.context import Context
 from django.utils.translation import ugettext_lazy as _
 
-from creme_config.models.setting import SettingValue
-
 from creme_core.utils.dates import get_dt_from_str
 from creme_core.utils.meta import is_date_field
 from creme_core.views.file_handling import handle_uploaded_file
 
+from creme_config.models import SettingValue
+
+from media_managers.models.image import Image
+
+from crudity.models import History
 from crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
 from crudity.exceptions import ImproperlyConfiguredBackend
-from crudity.models.history import History
-from media_managers.models.image import Image
 
 
 class CrudityBackend(object):
@@ -89,15 +91,15 @@ class CrudityBackend(object):
                     else:
                         raise ImproperlyConfiguredBackend(e)
 
-    def _get_is_sandbox_by_user(self):
+    @property
+    def is_sandbox_by_user(self):
         if self._sandbox_by_user is None:
             self._sandbox_by_user = SettingValue.objects.get(key=SETTING_CRUDITY_SANDBOX_BY_USER, user=None).value
         return self._sandbox_by_user
 
-    def _set_is_sandbox_by_user(self, value):
+    @is_sandbox_by_user.setter
+    def is_sandbox_by_user(self, value):
         self._sandbox_by_user = value
-
-    is_sandbox_by_user = property(_get_is_sandbox_by_user, _set_is_sandbox_by_user);del _get_is_sandbox_by_user, _set_is_sandbox_by_user
 
     @staticmethod
     def normalize_subject(subject):
@@ -179,7 +181,7 @@ class CrudityBackend(object):
                 data.pop(field_name)
                 continue
 
-            elif issubclass(field.__class__, FileField):
+            elif issubclass(field.__class__, FileField): #TODO: why not isinstance(field, FileField) ??
                 filename, blob = field_value#should be pre-processed by the input
                 upload_path = field.upload_to.split('/')
                 setattr(instance, field_name, handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename))
@@ -188,6 +190,7 @@ class CrudityBackend(object):
 
             data[field_name] = field.to_python(field_value)
 
+        #TODO: why not setattr() ??
         instance.__dict__.update(data)#TODO: Improve this when virtual fields will be added
 
         is_created = True
@@ -197,14 +200,14 @@ class CrudityBackend(object):
             need_new_save = self._create_instance_after_save(instance, data)
             if need_new_save:
                 instance.save()
-            history = History()
+            history = History() #TODO: History.objects.create(entity=intance [...])
             history.entity = instance
             history.action = "create"
             history.source = source
             history.user = user
             history.description = _(u"Creation of %(entity)s") % {'entity': instance}
             history.save()
-        except IntegrityError, e:
+        except IntegrityError as e:
             logging.error(e)
             is_created = False
 

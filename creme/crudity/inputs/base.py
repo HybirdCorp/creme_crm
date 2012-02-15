@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+
 class CrudityInput(object):
     name   = u""
     method = u""
@@ -43,7 +44,7 @@ class CrudityInput(object):
         """Call the method of the Input defined in subclasses
          @return: True if data were used else False
         """
-        if hasattr(self, self.method):
+        if hasattr(self, self.method): #TODO: use getattr only
             return getattr(self, self.method)(data)
         return False
 
