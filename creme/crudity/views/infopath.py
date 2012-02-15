@@ -17,11 +17,14 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from django.contrib.auth.decorators import permission_required, login_required
 from django.http import Http404
+
 from crudity.backends.models import CrudityBackend
 from crudity.registry import crudity_registry
 from crudity.builders.infopath import InfopathFormBuilder
+
 
 @login_required
 @permission_required('crudity')

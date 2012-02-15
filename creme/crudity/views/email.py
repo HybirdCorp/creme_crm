@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from unicodedata import normalize
 
 from django.contrib.auth.decorators import login_required, permission_required
@@ -26,10 +27,11 @@ from django.conf import settings
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 
+from persons.models.contact import Contact
+
 from crudity.backends.models import CrudityBackend
 from crudity.registry import crudity_registry
 
-from persons.models.contact import Contact
 
 @login_required
 @permission_required('crudity')
@@ -50,8 +52,14 @@ def download_email_template(request, subject):
         raise Http404(u"You have no contact file")
 
     response = HttpResponse(render_to_string("crudity/create_email_template.html",
-                                        {'backend': backend, 'contact': contact_user, 'to': settings.CREME_GET_EMAIL},
-                                         context_instance=RequestContext(request)),
-                  mimetype="application/vnd.sealed.eml")
-    response['Content-Disposition'] = 'attachment; filename=%s.eml' % normalize('NFKD', unicode(CrudityBackend.normalize_subject(backend.subject))).encode('ascii', 'ignore')
+                                             {'backend': backend,
+                                              'contact': contact_user,
+                                              'to':      settings.CREME_GET_EMAIL
+                                             },
+                                             context_instance=RequestContext(request)
+                                            ),
+                            mimetype="application/vnd.sealed.eml"
+                           )
+    response['Content-Disposition'] = 'attachment; filename=%s.eml' % \
+                                        normalize('NFKD', unicode(CrudityBackend.normalize_subject(backend.subject))).encode('ascii', 'ignore')
     return response

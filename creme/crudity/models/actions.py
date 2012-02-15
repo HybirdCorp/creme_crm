@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,21 +23,23 @@ from base64 import encodestring, decodestring
 from pickle import loads, dumps
 
 from django.db.models.signals import post_save
-from django.db.models.fields import TextField, PositiveIntegerField, CharField
-from django.db.models.fields.related import ForeignKey
+from django.db.models import TextField, PositiveIntegerField, CharField, ForeignKey
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.encoding import smart_str
 #from django.utils.simplejson import loads, dumps
 
-from creme_config.models.setting import SettingValue
-from creme_core.models.base import CremeModel
+from creme_core.models import CremeModel
 from creme_core.models.fields import CremeUserForeignKey
+
+from creme_config.models import SettingValue
 
 from crudity.signals import post_save_setting_value
 
+
 __all__ = ("WaitingAction",)
+
 
 class WaitingAction(CremeModel):
     action  = CharField(_(u"Action"), max_length=100)#Action (i.e: create, update...)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,22 +17,21 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import PermissionDenied
 
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, Http404
-from django.shortcuts import get_object_or_404, render_to_response, get_list_or_404
-from django.contrib.auth.decorators import login_required, permission_required
+from django.shortcuts import render_to_response, get_list_or_404
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
+from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.utils import get_ct_or_404, jsonify
-from crudity.backends.models import CrudityBackend
 
-from crudity.models.actions import WaitingAction
+from crudity.models import WaitingAction
 from crudity.registry import crudity_registry
 from crudity.blocks import WaitingActionBlock
+
 
 def _retrieve_actions_ids(request):
     return request.POST.getlist('ids')

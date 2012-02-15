@@ -28,6 +28,7 @@ from creme_core.utils import get_ct_or_404, jsonify
 from crudity.registry import crudity_registry
 from crudity.blocks import HistoryBlock
 
+
 @login_required
 @permission_required('crudity')
 def history(request):
