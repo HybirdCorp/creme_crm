@@ -38,6 +38,39 @@ class AssistantsTestCase(CremeTestCase):
         self.login()
         self.entity = CremeEntity.objects.create(user=self.user)
 
+    def aux_test_merge(self, creator, assertor):
+        user = self.user
+        create_contact = Contact.objects.create
+        contact01 = create_contact(user=user, first_name='Ryoga', last_name='Hibiki')
+        contact02 = create_contact(user=user, first_name='Ryoag', last_name='Hibiik')
+
+        creator(contact01, contact02)
+
+        response = self.client.post('/creme_core/entity/merge/%s,%s' % (contact01.id, contact02.id),
+                                    follow=True,
+                                    data={'user_1':      user.id,
+                                          'user_2':      user.id,
+                                          'user_merged': user.id,
+
+                                          'first_name_1':      contact01.first_name,
+                                          'first_name_2':      contact02.first_name,
+                                          'first_name_merged': contact01.first_name,
+
+                                          'last_name_1':      contact01.last_name,
+                                          'last_name_2':      contact02.last_name,
+                                          'last_name_merged': contact01.last_name,
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
+
+        self.assertFalse(Contact.objects.filter(pk=contact02).exists())
+
+        with self.assertNoException():
+            contact01 = self.refresh(contact01)
+
+        assertor(contact01)
+
 
 class TodoTestCase(AssistantsTestCase):
     def _create_todo(self, title='TITLE', description='DESCRIPTION', entity=None, user=None):
@@ -252,6 +285,21 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(u'<ul><li>Todo02</li><li>Todo01</li></ul>', result1.for_html())
         self.assertEqual(u'<ul><li>Todo04</li></ul>',                result2.for_html())
 
+    def test_merge(self):
+        def creator(contact01, contact02):
+            self._create_todo('Todo01', 'Fight against him', contact01)
+            self._create_todo('Todo02', 'Train with him',    contact02)
+            self.assertEqual(2, ToDo.objects.count())
+
+        def assertor(contact01):
+            todos = ToDo.objects.all()
+            self.assertEqual(2, len(todos))
+
+            for todo in todos:
+                self.assertEqual(contact01, todo.creme_entity)
+
+        self.aux_test_merge(creator, assertor)
+
 
 class AlertTestCase(AssistantsTestCase):
     def _create_alert(self, title='TITLE', description='DESCRIPTION', trigger_date='2010-9-29', entity=None):
@@ -404,6 +452,21 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual(u'<ul><li>Alert02</li><li>Alert01</li></ul>', result1.for_html())
         self.assertEqual(u'<ul><li>Alert04</li></ul>',                 result2.for_html())
 
+    def test_merge(self):
+        def creator(contact01, contact02):
+            self._create_alert('Alert01', 'Fight against him', '2011-1-9',  contact01)
+            self._create_alert('Alert02', 'Train with him',    '2011-1-10', contact02)
+            self.assertEqual(2, Alert.objects.count())
+
+        def assertor(contact01):
+            alerts = Alert.objects.all()
+            self.assertEqual(2, len(alerts))
+
+            for alert in alerts:
+                self.assertEqual(contact01, alert.creme_entity)
+
+        self.aux_test_merge(creator, assertor)
+
 
 class MemoTestCase(AssistantsTestCase):
     def _create_memo(self, content='Content', on_homepage=True, entity=None):
@@ -515,6 +578,21 @@ class MemoTestCase(AssistantsTestCase):
 
         self.assertEqual(u'<ul><li>Content02</li><li>Content01</li></ul>', result1.for_html())
         self.assertEqual(u'<ul><li>Content04</li><li>Content03</li></ul>', result2.for_html())
+
+    def test_merge(self):
+        def creator(contact01, contact02):
+            self._create_memo('This guy is strong',           entity=contact01)
+            self._create_memo('This guy lost himself easily', entity=contact02)
+            self.assertEqual(2, Memo.objects.count())
+
+        def assertor(contact01):
+            memos = Memo.objects.all()
+            self.assertEqual(2, len(memos))
+
+            for memo in memos:
+                self.assertEqual(contact01, memo.creme_entity)
+
+        self.aux_test_merge(creator, assertor)
 
 
 class UserMessageTestCase(AssistantsTestCase):
@@ -711,6 +789,24 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertIn(unicode(me), body)
         self.assertIn(unicode(ranma), body)
 
+    def test_merge(self):
+        def creator(contact01, contact02):
+            priority = UserMessagePriority.objects.create(title='Important')
+            user01 = User.objects.create_user('User01', 'user01@foobar.com', 'password')
+            self._create_usermessage('Beware', 'This guy wants to fight against you', priority, [user01], contact01)
+            self._create_usermessage('Oh',     'This guy wants to meet you',          priority, [user01], contact02)
+            self.assertEqual(2, UserMessage.objects.count())
+
+        def assertor(contact01):
+            messages = UserMessage.objects.all()
+            self.assertEqual(2, len(messages))
+
+            for msg in messages:
+                self.assertEqual(contact01, msg.creme_entity)
+
+        self.aux_test_merge(creator, assertor)
+
+
 
 class ActionTestCase(AssistantsTestCase):
     def _create_action(self, deadline, title='TITLE', descr='DESCRIPTION', reaction='REACTION', entity=None, user=None):
@@ -813,5 +909,21 @@ class ActionTestCase(AssistantsTestCase):
         action = self.refresh(action)
         self.assertTrue(action.is_ok)
         self.assertLess((datetime.now() - action.validation_date).seconds, 10)
+
+    def test_merge(self):
+        def creator(contact01, contact02):
+            self._create_action('2011-2-9',  'Fight',      'I have trained', 'I expect a fight',    entity=contact01)
+            self._create_action('2011-2-10', 'Rendezvous', 'I have flower',  'I want a rendezvous', entity=contact02)
+            self.assertEqual(2, Action.objects.count())
+
+        def assertor(contact01):
+            actions = Action.objects.all()
+            self.assertEqual(2, len(actions))
+
+            for action in actions:
+                self.assertEqual(contact01, action.creme_entity)
+
+        self.aux_test_merge(creator, assertor)
+
 
     #TODO: improve block reloading tests with several blocks

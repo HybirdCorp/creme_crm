@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,6 +23,7 @@ from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
+from creme_core.signals import pre_merge_related
 from base import CremeModel
 from entity import CremeEntity
 
@@ -95,3 +96,18 @@ class CremeProperty(CremeModel):
 
     def get_related_entity(self): #for generic views
         return self.creme_entity
+
+
+def _handle_merge(sender, other_entity, **kwargs):
+    sender_id = sender.id
+    prop_filter = sender.properties.filter
+
+    for prop in other_entity.properties.all():
+        if prop_filter(creme_entity=sender_id, type=prop.type_id).exists():
+            prop.delete()
+        else:
+            prop.creme_entity = sender
+            prop.save()
+
+
+pre_merge_related.connect(_handle_merge, dispatch_uid='creme_core-properties_handle_merge')

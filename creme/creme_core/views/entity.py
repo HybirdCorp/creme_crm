@@ -22,7 +22,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q, FieldDoesNotExist, ForeignKey
 from django.db.models.fields.related import ManyToManyField
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import get_object_or_404, get_list_or_404
+from django.shortcuts import get_object_or_404, get_list_or_404, render
 from django.core import serializers
 from django.forms.models import modelform_factory
 from django.utils.translation import ugettext as _
@@ -33,7 +33,8 @@ from django.contrib.auth.decorators import login_required
 from creme_core.models import CremeEntity, CustomField, EntityCredentials
 from creme_core.forms import CremeEntityForm
 from creme_core.forms.bulk import _get_choices, EntitiesBulkUpdateForm, _FIELDS_WIDGETS, EntityInnerEditForm
-from creme_core.views.generic.popup import inner_popup
+from creme_core.forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseForm
+from creme_core.views.generic import inner_popup, list_view_popup_from_widget
 from creme_core.utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify
 from creme_core.utils.meta import get_flds_with_fk_flds_str
 
@@ -354,3 +355,59 @@ def edit_field(request, id, field_str):
                        is_valid=form.is_valid(),
                        reload=False, delegate_reload=True,
                       )
+
+@login_required
+def select_entity_for_merge(request, entity1_id):
+    entity1 = get_object_or_404(CremeEntity, pk=entity1_id)
+
+    user = request.user
+    entity1.can_view_or_die(user); entity1.can_change_or_die(user)
+
+    #TODO: filter viewable & deletable entities + (manage swapping ?)
+    #TODO: change list_view_popup_from_widget code (o2m should be '1', but True works)
+    return list_view_popup_from_widget(request, entity1.entity_type_id, o2m=True,
+                                       extra_q=~Q(pk=entity1_id)
+                                      )
+
+@login_required
+def merge(request, entity1_id, entity2_id):
+    entity1 = get_object_or_404(CremeEntity, pk=entity1_id)
+    entity2 = get_object_or_404(CremeEntity, pk=entity2_id)
+
+    if entity1.entity_type_id != entity2.entity_type_id:
+        raise Http404('You can not merge entities of different types.')
+
+    user = request.user
+    entity1.can_view_or_die(user); entity1.can_change_or_die(user)
+    entity2.can_view_or_die(user); entity2.can_delete_or_die(user)
+
+    #TODO: try to swap 1 & 2
+
+    entity1 = entity1.get_real_entity()
+    entity2 = entity2.get_real_entity()
+
+    EntitiesMergeForm = merge_form_factory(entity1.__class__)
+
+    if request.method == 'POST':
+        merge_form = EntitiesMergeForm(user=request.user, data=request.POST,
+                                       entity1=entity1, entity2=entity2
+                                      )
+
+        if merge_form.is_valid():
+            merge_form.save()
+
+            return HttpResponseRedirect(entity1.get_absolute_url())
+    else:
+        try:
+            merge_form = EntitiesMergeForm(user=request.user, entity1=entity1, entity2=entity2)
+        except MergeEntitiesBaseForm.CanNotMergeError as e:
+            raise Http404(e)
+
+    return render(request, 'creme_core/merge.html',
+                  {'form':   merge_form,
+                   'title': _('Merge <%(entity1)s> with <%(entity2)s>') % {
+                                   'entity1': entity1,
+                                   'entity2': entity2,
+                                }
+                  }
+                 )

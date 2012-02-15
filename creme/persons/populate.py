@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,6 +33,7 @@ from creme_core.models import (RelationType, CremeProperty, CremePropertyType,
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme_core.utils import create_if_needed
 from creme_core.blocks import relations_block, properties_block, customfields_block, history_block
+from creme_core.buttons import merge_entities_button
 from creme_core.management.commands.creme_populate import BasePopulator
 
 from persons.models import *
@@ -135,6 +136,7 @@ class Populator(BasePopulator):
         create_bmi(pk='persons-prospect_contact_button', model=Contact, button=become_prospect_button, order=21)
         create_bmi(pk='persons-suspect_contact_button',  model=Contact, button=become_suspect_button,  order=22)
         create_bmi(pk='persons-inactive_contact_button', model=Contact, button=become_inactive_button, order=24)
+        create_bmi(pk='persons-merge_contacts_button',   model=Contact, button=merge_entities_button,  order=30)
 
         create_bmi(pk='persons-customer_orga_button',  model=Organisation, button=become_customer_button,    order=20)
         create_bmi(pk='persons-prospect_orga_button',  model=Organisation, button=become_prospect_button,    order=21)
@@ -142,6 +144,7 @@ class Populator(BasePopulator):
         create_bmi(pk='persons-inactive_orga_button',  model=Organisation, button=become_inactive_button,    order=23)
         create_bmi(pk='persons-supplier_button',       model=Organisation, button=become_supplier_button,    order=24)
         create_bmi(pk='persons-linked_contact_button', model=Organisation, button=add_linked_contact_button, order=25)
+        create_bmi(pk='persons-merge_orgas_button',    model=Organisation, button=merge_entities_button,     order=30)
 
         managed_by_creme = CremePropertyType.objects.get(pk=PROP_IS_MANAGED_BY_CREME)
 

@@ -7,7 +7,7 @@ try:
     from creme_core.gui.quick_forms import quickforms_registry
     from creme_core.tests.base import CremeTestCase
 
-    from persons.models import Contact, Organisation
+    from persons.models import Contact, Organisation, Address
     from persons.constants import REL_OBJ_EMPLOYED_BY
 except Exception as e:
     print 'Error:', e
@@ -257,3 +257,273 @@ class ContactTestCase(CremeTestCase):
 
         for first_name, last_name in data:
             self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+
+    def test_merge01(self): #merging addresses
+        self.login()
+        user = self.user
+
+        create_contact = Contact.objects.create
+        contact01 = create_contact(user=user, first_name='Faye', last_name='Valentine')
+        contact02 = create_contact(user=user, first_name='FAYE', last_name='VALENTINE')
+
+        create_address = Address.objects.create
+        bill_addr01 = create_address(name="Billing address 01",
+                                     address="BA1 - Address", po_box="BA1 - PO box",
+                                     zipcode="BA1 - Zip code", city="BA1 - City",
+                                     department="BA1 - Department",
+                                     state="BA1 - State", country="BA1 - Country",
+                                     owner=contact01,
+                                    )
+        #NB: no shipping address for contact01
+        contact01.billing_address = bill_addr01
+        contact01.save()
+
+        #NB: no billing address for contact02
+        ship_addr02 = create_address(name="Shipping address 02",
+                                     address="SA2 - Address", po_box="SA2 - PO box",
+                                     zipcode="SA2 - Zip code", city="SA2 - City",
+                                     department="SA2 - Department",
+                                     state="SA2 - State", country="SA2 - Country",
+                                     owner=contact02,
+                                    )
+        other_addr02 = create_address(name="Other address 02", owner=contact02)
+
+        contact02.shipping_address = ship_addr02
+        contact02.save()
+
+        url = '/creme_core/entity/merge/%s,%s' % (contact01.id, contact02.id)
+        context = self.client.get(url).context
+
+        with self.assertNoException():
+            f_baddr = context['form'].fields['billaddr_address']
+
+        self.assertEqual([bill_addr01.address, '', bill_addr01.address], f_baddr.initial)
+
+        response = self.client.post(url, follow=True,
+                                    data={'user_1':      user.id,
+                                          'user_2':      user.id,
+                                          'user_merged': user.id,
+
+                                          'first_name_1':      contact01.first_name,
+                                          'first_name_2':      contact02.first_name,
+                                          'first_name_merged': contact01.first_name,
+
+                                          'last_name_1':      contact01.last_name,
+                                          'last_name_2':      contact02.last_name,
+                                          'last_name_merged': contact01.last_name,
+
+                                           #Billing address
+                                          'billaddr_address_1':      bill_addr01.address,
+                                          'billaddr_address_2':      '',
+                                          'billaddr_address_merged': bill_addr01.address,
+
+                                          'billaddr_po_box_1':      bill_addr01.po_box,
+                                          'billaddr_po_box_2':      '',
+                                          'billaddr_po_box_merged': 'Merged PO box',
+
+                                          'billaddr_city_1':      bill_addr01.city,
+                                          'billaddr_city_2':      '',
+                                          'billaddr_city_merged': 'Merged city',
+
+                                          'billaddr_state_1':      bill_addr01.state,
+                                          'billaddr_state_2':      '',
+                                          'billaddr_state_merged': 'Merged state',
+
+                                          'billaddr_zipcode_1':      bill_addr01.zipcode,
+                                          'billaddr_zipcode_2':      '',
+                                          'billaddr_zipcode_merged': 'Merged zipcode',
+
+                                          'billaddr_country_1':      bill_addr01.country,
+                                          'billaddr_country_2':      '',
+                                          'billaddr_country_merged': 'Merged country',
+
+                                          'billaddr_department_1':      bill_addr01.department,
+                                          'billaddr_department_2':      '',
+                                          'billaddr_department_merged': 'Merged department',
+
+                                          #Shipping address
+                                          'shipaddr_address_1':      '',
+                                          'shipaddr_address_2':      ship_addr02.address,
+                                          'shipaddr_address_merged': ship_addr02.address,
+
+                                          'shipaddr_po_box_1':      '',
+                                          'shipaddr_po_box_2':      ship_addr02.po_box,
+                                          'shipaddr_po_box_merged': 'Merged PO box 2',
+
+                                          'shipaddr_city_1':      '',
+                                          'shipaddr_city_2':      ship_addr02.city,
+                                          'shipaddr_city_merged': 'Merged city 2',
+
+                                          'shipaddr_state_1':      '',
+                                          'shipaddr_state_2':      ship_addr02.state,
+                                          'shipaddr_state_merged': 'Merged state 2',
+
+                                          'shipaddr_zipcode_1':      '',
+                                          'shipaddr_zipcode_2':      ship_addr02.zipcode,
+                                          'shipaddr_zipcode_merged': 'Merged zipcode 2',
+
+                                          'shipaddr_country_1':      '',
+                                          'shipaddr_country_2':      ship_addr02.country,
+                                          'shipaddr_country_merged': 'Merged country 2',
+
+                                          'shipaddr_department_1':      '',
+                                          'shipaddr_department_2':      ship_addr02.department,
+                                          'shipaddr_department_merged': 'Merged department 2',
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
+
+        self.assertFalse(Organisation.objects.filter(pk=contact02).exists())
+
+        with self.assertNoException():
+            contact01 = self.refresh(contact01)
+
+        addresses = Address.objects.filter(object_id=contact01.id)
+        self.assertEqual(3, len(addresses))
+
+        self.assertIn(bill_addr01,  addresses)
+        self.assertIn(ship_addr02,  addresses)
+        self.assertIn(other_addr02, addresses)
+
+        billing_address = contact01.billing_address
+        self.assertEqual(bill_addr01,         billing_address)
+        self.assertEqual(bill_addr01.address, billing_address.address)
+        self.assertEqual('Merged PO box',     billing_address.po_box)
+        self.assertEqual('Merged city',       billing_address.city)
+        self.assertEqual('Merged state',      billing_address.state)
+        self.assertEqual('Merged zipcode',    billing_address.zipcode)
+        self.assertEqual('Merged country',    billing_address.country)
+        self.assertEqual('Merged department', billing_address.department)
+
+        shipping_address = contact01.shipping_address
+        self.assertEqual(ship_addr02,           shipping_address)
+        self.assertEqual(contact01,             shipping_address.owner)
+        self.assertEqual('Merged PO box 2',     shipping_address.po_box)
+        self.assertEqual('Merged city 2',       shipping_address.city)
+        self.assertEqual('Merged state 2',      shipping_address.state)
+        self.assertEqual('Merged zipcode 2',    shipping_address.zipcode)
+        self.assertEqual('Merged country 2',    shipping_address.country)
+        self.assertEqual('Merged department 2', shipping_address.department)
+
+    def test_merge02(self): #merging addresses -> empty addresses
+        self.login()
+        user = self.user
+
+        create_contact = Contact.objects.create
+        contact01 = create_contact(user=user, first_name='Faye', last_name='Valentine')
+        contact02 = create_contact(user=user, first_name='FAYE', last_name='VALENTINE')
+
+        ship_addr02 = Address.objects.create(name="Shipping address 02",
+                                             address="SA2 - Address", po_box="SA2 - PO box",
+                                             zipcode="SA2 - Zip code", city="SA2 - City",
+                                             department="SA2 - Department",
+                                             state="SA2 - State", country="SA2 - Country",
+                                             owner=contact02,
+                                            )
+        contact02.shipping_address = ship_addr02
+        contact02.save()
+
+        response = self.client.post('/creme_core/entity/merge/%s,%s' % (contact01.id, contact02.id),
+                                    follow=True,
+                                    data={'user_1':      user.id,
+                                          'user_2':      user.id,
+                                          'user_merged': user.id,
+
+                                          'first_name_1':      contact01.first_name,
+                                          'first_name_2':      contact02.first_name,
+                                          'first_name_merged': contact01.first_name,
+
+                                          'last_name_1':      contact01.last_name,
+                                          'last_name_2':      contact02.last_name,
+                                          'last_name_merged': contact01.last_name,
+
+                                           #Billing address
+                                          'billaddr_name_1':      '',
+                                          'billaddr_name_2':      '',
+                                          'billaddr_name_merged': '',
+
+                                          'billaddr_address_1':      '',
+                                          'billaddr_address_2':      '',
+                                          'billaddr_address_merged': '',
+
+                                          'billaddr_po_box_1':      '',
+                                          'billaddr_po_box_2':      '',
+                                          'billaddr_po_box_merged': '',
+
+                                          'billaddr_city_1':      '',
+                                          'billaddr_city_2':      '',
+                                          'billaddr_city_merged': '',
+
+                                          'billaddr_state_1':      '',
+                                          'billaddr_state_2':      '',
+                                          'billaddr_state_merged': '',
+
+                                          'billaddr_zipcode_1':      '',
+                                          'billaddr_zipcode_2':      '',
+                                          'billaddr_zipcode_merged': '',
+
+                                          'billaddr_country_1':      '',
+                                          'billaddr_country_2':      '',
+                                          'billaddr_country_merged': '',
+
+                                          'billaddr_department_1':      '',
+                                          'billaddr_department_2':      '',
+                                          'billaddr_department_merged': '',
+
+                                          #Shipping address
+                                          'shipaddr_name_1':      '',
+                                          'shipaddr_name_2':      ship_addr02.name,
+                                          'shipaddr_name_merged': '',
+
+                                          'shipaddr_address_1':      '',
+                                          'shipaddr_address_2':      ship_addr02.address,
+                                          'shipaddr_address_merged': '',
+
+                                          'shipaddr_po_box_1':      '',
+                                          'shipaddr_po_box_2':      ship_addr02.po_box,
+                                          'shipaddr_po_box_merged': '',
+
+                                          'shipaddr_city_1':      '',
+                                          'shipaddr_city_2':      ship_addr02.city,
+                                          'shipaddr_city_merged': '',
+
+                                          'shipaddr_state_1':      '',
+                                          'shipaddr_state_2':      ship_addr02.state,
+                                          'shipaddr_state_merged': '',
+
+                                          'shipaddr_zipcode_1':      '',
+                                          'shipaddr_zipcode_2':      ship_addr02.zipcode,
+                                          'shipaddr_zipcode_merged': '',
+
+                                          'shipaddr_country_1':      '',
+                                          'shipaddr_country_2':      ship_addr02.country,
+                                          'shipaddr_country_merged': '',
+
+                                          'shipaddr_department_1':      '',
+                                          'shipaddr_department_2':      ship_addr02.department,
+                                          'shipaddr_department_merged': '',
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
+
+        self.assertFalse(Organisation.objects.filter(pk=contact02).exists())
+
+        with self.assertNoException():
+            contact01 = self.refresh(contact01)
+
+        self.assertFalse(Address.objects.filter(object_id=contact01.id))
+        self.assertIsNone(contact01.billing_address)
+        self.assertIsNone(contact01.shipping_address)
+
+    def test_merge03(self): #cannot merge Contacts that represent a user
+        self.login()
+        user = self.user
+
+        create_contact = Contact.objects.create
+        contact01 = create_contact(user=user, first_name='Faye', last_name='Valentine', is_user=user)
+        contact02 = create_contact(user=user, first_name='FAYE', last_name='VALENTINE')
+
+        self.assertEqual(404, self.client.get('/creme_core/entity/merge/%s,%s' % (contact01.id, contact02.id)).status_code)
+        self.assertEqual(404, self.client.get('/creme_core/entity/merge/%s,%s' % (contact02.id, contact01.id)).status_code)
