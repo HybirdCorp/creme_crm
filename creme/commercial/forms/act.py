@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,6 @@
 
 from math import ceil
 
-from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.forms import ModelChoiceField, IntegerField
 
@@ -37,14 +36,6 @@ class ActForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = Act
 
-    def clean(self):
-        cleaned_data = self.cleaned_data
-
-        if not self._errors:
-            if cleaned_data['due_date'] < cleaned_data['start']:
-                raise ValidationError(_(u"Due date can't be before start."))
-
-        return cleaned_data
 
 class ObjectiveForm(CremeModelForm):
     class Meta:

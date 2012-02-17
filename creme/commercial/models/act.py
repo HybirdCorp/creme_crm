@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.exceptions import ValidationError
 from django.db.models import CharField, TextField, PositiveIntegerField, DateField, BooleanField, ForeignKey
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, CremeModel, Relation
@@ -66,6 +67,10 @@ class Act(CremeEntity):
     def __unicode__(self):
         return self.name
 
+    def clean(self):
+        if self.due_date < self.start:
+            raise ValidationError(ugettext(u"Due date can't be before start."))
+
     def get_absolute_url(self):
         return "/commercial/act/%s" % self.id
 
@@ -91,6 +96,7 @@ class Act(CremeEntity):
         return relopps
 
     def _post_save_clone(self, source):
+        #TODO: use bulk_create() when django 1.4
         ActObjective_create = ActObjective.objects.create
         for act_objective in ActObjective.objects.filter(act=source):
             ActObjective_create(name=act_objective.name,
