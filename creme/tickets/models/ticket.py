@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,9 +30,10 @@ from creme_core.models import CremeEntity
 from creme_core.templatetags.creme_date import timedelta_pprint
 from creme_core.utils import truncate_str
 
-from status import Status, CLOSED_PK
+from status import Status, OPEN_PK, CLOSED_PK
 from priority import Priority
 from criticity import Criticity
+
 
 MAXINT = 100000
 
@@ -74,6 +75,10 @@ class Ticket(AbstractTicket):
         verbose_name = _(u'Ticket')
         verbose_name_plural = _(u'Tickets')
 
+    def __init__(self, *args, **kwargs):
+        super(Ticket, self).__init__(*args, **kwargs)
+        self.old_status_id = self.status_id
+
     def get_absolute_url(self):
         return "/tickets/ticket/%s" % self.id
 
@@ -94,6 +99,15 @@ class Ticket(AbstractTicket):
         super(Ticket, self)._pre_save_clone(source)
         if self.status_id == CLOSED_PK:
             self.closing_date = self.created = self.modified = datetime.now()
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            if (self.status_id == CLOSED_PK) and (self.old_status_id != CLOSED_PK):
+                self.closing_date = datetime.now()
+        else: #creation
+            self.status_id = self.status_id or OPEN_PK
+
+        super(Ticket, self).save(*args, **kwargs)
 
 
 class TicketTemplate(AbstractTicket):
