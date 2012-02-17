@@ -30,7 +30,7 @@ from django.utils.translation import ugettext, ugettext_lazy as _
 
 from creme_core.models import fields, EntityCredentials, CremeEntity
 from creme_core.models.custom_field import CustomField, CustomFieldEnumValue, CustomFieldValue, CustomFieldMultiEnum, CustomFieldEnum
-from creme_core.forms import widgets
+from creme_core.forms.widgets import DateTimeWidget, CalendarWidget, UnorderedMultipleChoiceWidget, Label, AdaptiveWidget
 from creme_core.forms.base import CremeForm, _CUSTOM_NAME
 from creme_core.forms.fields import AjaxMultipleChoiceField
 from creme_core.utils import entities2unicode
@@ -38,20 +38,24 @@ from creme_core.utils.meta import get_flds_with_fk_flds_str, get_verbose_field_n
 from creme_core.gui.bulk_update import bulk_update_registry
 
 
-_datetime_widget = lambda name, choices, value=None: widgets.DateTimeWidget({'id': 'id_%s' % name}) \
-                                                            .render(name=name, value=value, attrs=None)
+def _datetime_widget(name, choices, value=None):
+    return DateTimeWidget({'id': 'id_%s' % name}).render(name=name, value=value, attrs=None)
+
+def _calendar_widget(name, choices, value=None):
+    return CalendarWidget({'id': 'id_%s' % name}).render(name=name, value=value, attrs=None)
+
+def _multiplechoice_widget(name, choices, value=None):
+    return UnorderedMultipleChoiceWidget({'id': 'id_%s' % name}).render(name=name, value=value, attrs=None, choices=choices)
+
 
 _FIELDS_WIDGETS = {
-    models.ManyToManyField: lambda name, choices, value=None: widgets.UnorderedMultipleChoiceWidget({'id': 'id_%s' % name}) \
-                                                                     .render(name=name, value=value, attrs=None, choices=choices),
-    models.DateField:       lambda name, choices, value=None: widgets.CalendarWidget({'id': 'id_%s' % name}) \
-                                                                     .render(name=name, value=value, attrs=None),
-    models.DateTimeField:             _datetime_widget,
-    fields.CreationDateTimeField:     _datetime_widget,
-    fields.ModificationDateTimeField: _datetime_widget,
-    CustomFieldMultiEnum:   lambda name, choices, value=None: widgets.UnorderedMultipleChoiceWidget({'id': 'id_%s' % name}) \
-                                                                     .render(name=name, value=value, attrs=None, choices=choices),
-   }
+        models.ManyToManyField:           _multiplechoice_widget,
+        models.DateField:                 _calendar_widget,
+        models.DateTimeField:             _datetime_widget,
+        fields.CreationDateTimeField:     _datetime_widget,
+        fields.ModificationDateTimeField: _datetime_widget,
+        CustomFieldMultiEnum:             _multiplechoice_widget,
+    }
 
 _CUSTOM_PREFIX = _CUSTOM_NAME.partition('%s')[0]
 
@@ -59,6 +63,7 @@ _CUSTOM_PREFIX = _CUSTOM_NAME.partition('%s')[0]
 def _get_choices(model_field, user):
     form_field = model_field.formfield()
     choices = ()
+
     if isinstance(model_field, (models.ForeignKey, models.ManyToManyField)) and issubclass(model_field.rel.to, CremeEntity):
         fk_entities = model_field.rel.to._default_manager \
                                         .filter(pk__in=[id_ for id_, text in form_field.choices if id_])
@@ -73,7 +78,7 @@ def _get_choices(model_field, user):
 
 
 class EntitiesBulkUpdateForm(CremeForm):
-    entities_lbl = CharField(label=_(u"Entities to update"), required=False, widget=widgets.Label)
+    entities_lbl = CharField(label=_(u"Entities to update"), required=False, widget=Label)
     field_name   = ChoiceField(label=_(u"Field to update"))
     field_value  = AjaxMultipleChoiceField(label=_(u"Value"), required=False)
 
@@ -89,7 +94,7 @@ class EntitiesBulkUpdateForm(CremeForm):
 
         if forbidden_subjects:
             fields['bad_entities_lbl'] = CharField(label=ugettext(u"Unchangeable entities"),
-                                                   widget=widgets.Label,
+                                                   widget=Label,
                                                    initial=entities2unicode(forbidden_subjects, user)
                                                   )
 
@@ -98,7 +103,7 @@ class EntitiesBulkUpdateForm(CremeForm):
         sort = partial(sorted, key=lambda k: ugettext(k[1]))
         cfields_map = self._cfields_cache = dict((cf.pk, cf) for cf in CustomField.objects.filter(content_type=self.ct))
         f_field_name = fields['field_name']
-        f_field_name.widget = widgets.AdaptiveWidget(ct_id=self.ct.id, field_value_name='field_value')
+        f_field_name.widget = AdaptiveWidget(ct_id=self.ct.id, field_value_name='field_value')
         f_field_name.choices = (
             (ugettext(u"Regular fields"), sort(get_flds_with_fk_flds_str(model, deep=0, exclude_func=lambda f: f.name in excluded_fields))),
             (ugettext(u"Custom fields"),  sort((_CUSTOM_NAME % cf.id, cf.name) for cf in cfields_map.itervalues()))
@@ -220,7 +225,7 @@ class EntityInnerEditForm(EntitiesBulkUpdateForm):
         fields['entities_lbl'].label = ugettext(u'Entity')
 
         f_field_name = fields['field_name']
-        f_field_name.widget = widgets.AdaptiveWidget(ct_id=self.ct.id, field_value_name='field_value', object_id=subject.id)
+        f_field_name.widget = AdaptiveWidget(ct_id=self.ct.id, field_value_name='field_value', object_id=subject.id)
         f_field_name.widget.attrs['disabled'] = True #TODO: in the previous line
         f_field_name.label = ugettext(u'Field')
         f_field_name.choices = [(field_name, "%s - %s" % (model._meta.verbose_name.title(), verbose_field_name))]
