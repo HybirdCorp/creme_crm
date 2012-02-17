@@ -19,8 +19,7 @@
 ################################################################################
 
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q, FieldDoesNotExist, ForeignKey
-from django.db.models.fields.related import ManyToManyField
+from django.db.models import Q, FieldDoesNotExist, ForeignKey, ManyToManyField
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, get_list_or_404, render
 from django.core import serializers
@@ -86,6 +85,7 @@ def get_info_fields(request, ct_id):
     if not issubclass(model, CremeEntity):
         raise Http404('No a CremeEntity subclass: %s' % model)
 
+    #TODO: use django.forms.models.fields_for_model ?
     form = modelform_factory(model, CremeEntityForm)(user=request.user)
     required_fields = [name for name, field in form.fields.iteritems() if field.required and name != 'user']
 
@@ -194,18 +194,22 @@ def get_function_fields(request):
 @jsonify
 def get_widget(request, ct_id):
     model             = get_ct_or_404(ct_id).model_class()
-    field_name        = get_from_POST_or_404(request.POST, 'field_name')
-    field_value_name  = get_from_POST_or_404(request.POST, 'field_value_name')
+    POST = request.POST
+    field_name        = get_from_POST_or_404(POST, 'field_name')
+    field_value_name  = get_from_POST_or_404(POST, 'field_value_name')
 
     initial_value = None
+    model_field, is_custom = EntitiesBulkUpdateForm.get_field(model, field_name)
 
-    if EntitiesBulkUpdateForm.is_custom_field(field_name):
-        model_field = CustomField.objects.get(pk=EntitiesBulkUpdateForm.get_custom_field_id(field_name))
+    #TODO: manage invalid field ('model_field is None')
+    #TODO: check if field is bulk_editable ?
+
+    if is_custom:
         form_field  = model_field.get_formfield(None)
         form_field.choices = form_field.choices if hasattr(form_field, 'choices') else ()
         widget = _FIELDS_WIDGETS.get(model_field.get_value_class())
 
-        object_id = request.POST.get('object_id')
+        object_id = POST.get('object_id')
         if object_id: # Inner edit case only in order to set current custom field value
             entity = CremeEntity.objects.get(pk=object_id)
             if entity.can_change(request.user):
@@ -221,12 +225,11 @@ def get_widget(request, ct_id):
                 else:
                     initial_value = model_field.get_pretty_value(entity.id)
     else:
-        model_field = model._meta.get_field(field_name)
         form_field = model_field.formfield()
         form_field.choices = _get_choices(model_field, request.user)
         widget = _FIELDS_WIDGETS.get(model_field.__class__)
 
-        object_id = request.POST.get('object_id')
+        object_id = POST.get('object_id')
         if object_id: # Inner edit case only in order to set current regular field value
             entity = CremeEntity.objects.get(pk=object_id)
             if entity.can_change(request.user):
@@ -243,9 +246,7 @@ def get_widget(request, ct_id):
     else:
         rendered = widget(field_value_name, form_field.choices, value=initial_value)
 
-    return {
-        'rendered': rendered
-    }
+    return {'rendered': rendered}
 
 @login_required
 def clone(request):

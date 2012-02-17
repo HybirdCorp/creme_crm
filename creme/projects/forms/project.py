@@ -36,7 +36,7 @@ from projects.constants import REL_OBJ_PROJECT_MANAGER
 
 
 class ProjectEditForm(CremeEntityForm):
-    start_date         = DateTimeField(label=_(u'Start date'), required=True, widget=DateTimeWidget())
+    start_date         = DateTimeField(label=_(u'Start date'), required=True, widget=DateTimeWidget()) #TODO: not required in the model !
     end_date           = DateTimeField(label=_(u'End date'), required=True, widget=DateTimeWidget())
     effective_end_date = DateTimeField(widget=HiddenInput(), required=False)
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,8 +20,9 @@
 
 from datetime import date
 
+from django.core.exceptions import ValidationError
 from django.db.models import CharField, TextField, ForeignKey, DateTimeField, Max
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models import CremeEntity
 
@@ -61,6 +62,13 @@ class Project(CremeEntity):
     ##### ------------------ #####
     ##### Business functions #####
     ##### ------------------ #####
+
+    def clean(self):
+        super(Project, self).clean()
+
+        #TODO: refactor if start/end can not be null
+        if self.start_date and self.end_date and self.start_date >= self.end_date:
+            raise ValidationError(ugettext(u'Start must be before end.'))
 
     def delete(self):
         for task in self.get_tasks():

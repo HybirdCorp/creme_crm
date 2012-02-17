@@ -24,9 +24,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.gui.block import QuerysetBlock
 
-from creme_config.models.setting import SettingValue
+from creme_config.models import SettingValue
 
-from emails.models.mail import EntityEmail
+from emails.models import EntityEmail
 
 from crudity.backends.models import CrudityBackend
 from crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
@@ -44,6 +44,7 @@ class CrudityQuerysetBlock(QuerysetBlock):
     @property
     def is_sandbox_by_user(self):
         return SettingValue.objects.get(key=SETTING_CRUDITY_SANDBOX_BY_USER, user=None).value#No cache need sub-blocks are created on the fly
+
 
 class WaitingActionBlock(CrudityQuerysetBlock):
     dependencies  = ()
