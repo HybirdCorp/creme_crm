@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,7 +42,7 @@ class Populator(BasePopulator):
                             (REL_OBJ_LINKED_2_TICKET, _(u'(ticket) linked to the entitity'), [Ticket]))
 
         for pk, name in BASE_STATUS:
-            create_if_needed(Status, {'pk': pk}, name=name, is_custom=False)
+            create_if_needed(Status, {'pk': pk}, name=unicode(name), is_custom=False)
 
         for i, name in enumerate([_('Low'), _('Normal'), _('High'), _('Urgent'), _('Blocking')], start=1):
             create_if_needed(Priority, {'pk': i}, name=name)
