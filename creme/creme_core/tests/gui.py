@@ -9,7 +9,7 @@ try:
     from creme_core.models import *
     from creme_core.gui.listview import get_field_name_from_pattern
     from creme_core.gui.last_viewed import LastViewedItem
-    from creme_core.gui.bulk_update import BulkUpdateRegistry
+    from creme_core.gui.bulk_update import _BulkUpdateRegistry
     from creme_core.gui.block import Block, SimpleBlock, SpecificRelationsBlock, _BlockRegistry, BlocksManager
     from creme_core.tests.base import CremeTestCase
 
@@ -20,13 +20,15 @@ except Exception as e:
     print 'Error:', e
 
 
-__all__ = ('GuiTestCase', 'ListViewStateTestCase', 'BlockRegistryTestCase', 'BlocksManagerTestCase')
+__all__ = ('GuiTestCase', 'BulkUpdateRegistryTestCase', 'ListViewStateTestCase',
+           'BlockRegistryTestCase', 'BlocksManagerTestCase',
+          )
 
 
 class GuiTestCase(CremeTestCase):
-    def setUp(self):
-        self.populate('creme_core', 'creme_config')
-        self.bulk_update_registry = BulkUpdateRegistry()
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config')
 
     def test_last_viewed_items(self):
         self.login()
@@ -77,15 +79,22 @@ class GuiTestCase(CremeTestCase):
         self.assertEqual(200, self.client.get(Contact.get_lv_absolute_url()).status_code)
         self.assertEqual([contact02.pk, contact01.pk], [i.pk for i in get_items()])
 
+
+class BulkUpdateRegistryTestCase(CremeTestCase):
+    def setUp(self):
+        self.bulk_update_registry = _BulkUpdateRegistry()
+
     def test_bulk_update_registry01(self):
         bulk_update_registry = self.bulk_update_registry
 
         contact_excluded_fields = ['position', 'first_name']
+        #contact_uneditable_fields = ['is_user', 'billing_address', 'shipping_address'] #TODO
         ce_excluded_fields = ['created']
 
         bulk_update_registry.register((Contact, contact_excluded_fields))
         self.assertEqual(bulk_update_registry.get_excluded_fields(Contact),
                          set(contact_excluded_fields)
+                         #set(contact_excluded_fields + contact_uneditable_fields) #TODO
                         )
 
         bulk_update_registry.register((CremeEntity, ce_excluded_fields))
@@ -124,13 +133,14 @@ class GuiTestCase(CremeTestCase):
                                       (Meeting,      meeting_excluded_fields),
                                       (Activity,     activity_excluded_fields),
                                      )
-
-        meeting_excluded_fields_expected = set(activity_excluded_fields)   | set(ce_excluded_fields) | set(meeting_excluded_fields)
-        self.assertEqual(bulk_update_registry.get_excluded_fields(Meeting), meeting_excluded_fields_expected)
+        self.assertEqual(bulk_update_registry.get_excluded_fields(Meeting),
+                         set(activity_excluded_fields) | set(ce_excluded_fields) | set(meeting_excluded_fields)
+                        )
 
         bulk_update_registry.register((Activity, ['status']))
-        activity_excluded_fields_expected = set(activity_excluded_fields) | set(ce_excluded_fields) | set(['status'])
-        self.assertEqual(bulk_update_registry.get_excluded_fields(Activity), activity_excluded_fields_expected)
+        self.assertEqual(bulk_update_registry.get_excluded_fields(Activity),
+                         set(activity_excluded_fields) | set(ce_excluded_fields) | set(['status'])
+                        )
 
     def test_bulk_update_registry04(self):
         bulk_update_registry = self.bulk_update_registry
