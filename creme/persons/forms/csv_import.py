@@ -18,8 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.forms.csv_import import CSVImportForm4CremeEntity, extractorfield_factory
 from django.utils.translation import ugettext as _
+
+from creme_core.forms.csv_import import CSVImportForm4CremeEntity, extractorfield_factory
 
 from persons.models import Address
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from functools import partial
 from itertools import chain
 
 from django.db import models
+from django.db.models.fields import FieldDoesNotExist
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.forms.fields import CharField, ChoiceField
@@ -51,7 +53,9 @@ _FIELDS_WIDGETS = {
                                                                      .render(name=name, value=value, attrs=None, choices=choices),
    }
 
+_CUSTOM_PREFIX = _CUSTOM_NAME.partition('%s')[0]
 
+#TODO: staticmethod ??
 def _get_choices(model_field, user):
     form_field = model_field.formfield()
     choices = ()
@@ -62,7 +66,6 @@ def _get_choices(model_field, user):
 
         if model_field.null and isinstance(model_field, models.ForeignKey):
             choices = chain([(u"", _(u"None"))], choices)
-
     elif hasattr(form_field, 'choices'):
         choices = form_field.choices
 
@@ -70,9 +73,9 @@ def _get_choices(model_field, user):
 
 
 class EntitiesBulkUpdateForm(CremeForm):
-    entities_lbl = CharField(label=_(u"Entities to update"), widget=widgets.Label)
-    field_name = ChoiceField(label=_(u"Field to update"))
-    field_value = AjaxMultipleChoiceField(label=_(u"Value"), required=False)
+    entities_lbl = CharField(label=_(u"Entities to update"), required=False, widget=widgets.Label)
+    field_name   = ChoiceField(label=_(u"Field to update"))
+    field_value  = AjaxMultipleChoiceField(label=_(u"Value"), required=False)
 
     def __init__(self, model, subjects, forbidden_subjects, user, *args, **kwargs):
         super(EntitiesBulkUpdateForm, self).__init__(user, *args, **kwargs)
@@ -83,7 +86,6 @@ class EntitiesBulkUpdateForm(CremeForm):
         fields = self.fields
 
         fields['entities_lbl'].initial = entities2unicode(subjects, user) if subjects else ugettext(u'NONE !')
-        fields['field_name'].widget = widgets.AdaptiveWidget(ct_id=self.ct.id, field_value_name='field_value')
 
         if forbidden_subjects:
             fields['bad_entities_lbl'] = CharField(label=ugettext(u"Unchangeable entities"),
@@ -91,28 +93,40 @@ class EntitiesBulkUpdateForm(CremeForm):
                                                    initial=entities2unicode(forbidden_subjects, user)
                                                   )
 
+        # Field 'field_name'
         excluded_fields = bulk_update_registry.get_excluded_fields(model)#Doesn't include cf
-        model_fields = sorted(get_flds_with_fk_flds_str(model, deep=0, exclude_func=lambda f: f.name in excluded_fields),
-                              key=lambda k: ugettext(k[1])
-                             )
-        cf_fields = sorted(((_CUSTOM_NAME % cf.id, cf.name) for cf in CustomField.objects.filter(content_type=self.ct)),
-                           key=lambda k: ugettext(k[1])
-                          )
-        fields['field_name'].choices = ((_(u"Regular fields"), model_fields), (_(u"Custom fields"), cf_fields))
-
-    def _get_field(self, field_name):
-        if EntitiesBulkUpdateForm.is_custom_field(field_name):
-            return CustomField.objects.get(pk=EntitiesBulkUpdateForm.get_custom_field_id(field_name)) #TODO: cache ??
-        else:
-            return self.model._meta.get_field(field_name)
+        sort = partial(sorted, key=lambda k: ugettext(k[1]))
+        cfields_map = self._cfields_cache = dict((cf.pk, cf) for cf in CustomField.objects.filter(content_type=self.ct))
+        f_field_name = fields['field_name']
+        f_field_name.widget = widgets.AdaptiveWidget(ct_id=self.ct.id, field_value_name='field_value')
+        f_field_name.choices = (
+            (ugettext(u"Regular fields"), sort(get_flds_with_fk_flds_str(model, deep=0, exclude_func=lambda f: f.name in excluded_fields))),
+            (ugettext(u"Custom fields"),  sort((_CUSTOM_NAME % cf.id, cf.name) for cf in cfields_map.itervalues()))
+          )
 
     @staticmethod
-    def is_custom_field(field_name):
-        return field_name.startswith(_CUSTOM_NAME.partition('%s')[0])
+    def get_field(model, field_name, cfields_cache=None):
+        field = None
 
-    @staticmethod
-    def get_custom_field_id(field_name):
-        return field_name.replace(_CUSTOM_NAME.partition('%s')[0], '')
+        try:
+            cf_id = int(field_name.replace(_CUSTOM_PREFIX, ''))
+        except:
+            is_custom = False
+
+            try:
+                field = model._meta.get_field(field_name)
+            except FieldDoesNotExist:
+                pass
+        else: #custom_field
+            is_custom = True
+
+            try:
+                field = cfields_cache[cf_id] if cfields_cache is not None else \
+                        CustomField.objects.get(pk=cf_id)
+            except KeyError, CustomField.DoesNotExist:
+                pass
+
+        return (field, is_custom)
 
     def clean(self, *args, **kwargs):
         super(EntitiesBulkUpdateForm, self).clean(*args, **kwargs)
@@ -124,55 +138,41 @@ class EntitiesBulkUpdateForm(CremeForm):
         field_value = cleaned_data['field_value']
         field_name  = cleaned_data['field_name']
 
-        if EntitiesBulkUpdateForm.is_custom_field(field_name):
-            try:
-                field = self._get_field(field_name)
-            except CustomField.DoesNotExist:
-                raise ValidationError(_(u'Select a valid field.'))
-            else:
-                try:
-                    field_klass = field.get_value_class()
-                    if field_value and not issubclass(field_klass, CustomFieldMultiEnum):
-                        field_value = field_value[0]
+        field, is_custom = self.get_field(self.model, field_name, self._cfields_cache)
 
-                    form_field = field.get_formfield(None)
-                    form_field.initial = field_value
-                    field_value = form_field.widget.value_from_datadict(self.data, self.files, 'field_value')
-                    field_value = cleaned_data['field_value'] = form_field.clean(field_value)
+        if field is None:
+            raise ValidationError(_(u'Select a valid field.'))
 
-                except ValidationError, ve:
-                    raise ve#For displaying the field error on non-field error
+        if is_custom:
+            self._custom_field = field
+            field_klass = field.get_value_class()
+            if field_value and not issubclass(field_klass, CustomFieldMultiEnum):
+                field_value = field_value[0]
 
+            form_field = field.get_formfield(None)
+            form_field.initial = field_value #TODO: useful ??
+            cleaned_value = form_field.clean(form_field.widget.value_from_datadict(self.data, self.files, 'field_value'))
 
-                if field_value and issubclass(field_klass, CustomFieldEnum):
-                    try:
-#                        field_value = cleaned_data['field_value'] = CustomFieldEnumValue.objects.get(pk=field_value)
-                        field_value = CustomFieldEnumValue.objects.get(pk=field_value)
-                    except CustomFieldEnumValue.DoesNotExist:
-                        raise ValidationError(_(u'Select a valid choice.'))
-
+            if cleaned_value and issubclass(field_klass, CustomFieldEnum):
+                if not CustomFieldEnumValue.objects.filter(pk=cleaned_value).exists():
+                    raise ValidationError(_(u'Select a valid choice.'))
         else:
-            field = self._get_field(field_name)
+            self._custom_field = None
             m2m = True
 
             if field_value and not isinstance(field, models.ManyToManyField):
                 field_value = field_value[0]
                 m2m = False
 
-            try:
-                field_value = cleaned_data['field_value'] = field.formfield().clean(field_value)
-            except ValidationError, ve:
-                raise ve#For displaying the field error on non-field error
+            cleaned_value = field.formfield().clean(field_value)
 
-            if isinstance(field_value, CremeEntity) and not field_value.can_view(self.user):
+            if isinstance(cleaned_value, CremeEntity) and not cleaned_value.can_view(self.user):
                 raise ValidationError(ugettext(u"You can't view this value, so you can't set it."))
 
-            if field_value is None and not field.null:
+            if cleaned_value is None and not field.null:
                 raise ValidationError(ugettext(u'This field is required.'))
 
-            # TODO comment on 30/11/2011 : old condition does not allow 0 value
-#           if not (field_value or field.blank):
-            if not (field_value is not None or field.blank):
+            if not (cleaned_value is not None or field.blank):
                 raise ValidationError(ugettext(u'This field is required.'))
 
             valid_choices = [entity for id_, entity  in _get_choices(field, self.user)]
@@ -180,79 +180,50 @@ class EntitiesBulkUpdateForm(CremeForm):
             #Checking valid choices & credentials
             if isinstance(field, (models.ForeignKey, models.ManyToManyField)) and issubclass(field.rel.to, CremeEntity):
                 if m2m:
-                    for field_val in field_value:
+                    for field_val in cleaned_value:
                         if field_val not in valid_choices:
                             raise ValidationError(_(u'Select a valid choice.'))
-                else:
-                    if field_value not in valid_choices:
-                        raise ValidationError(_(u'Select a valid choice.'))
+                elif cleaned_value not in valid_choices:
+                    raise ValidationError(_(u'Select a valid choice.'))
+
+            for subject in self.subjects:
+                setattr(subject, field_name, cleaned_value)
+                subject.full_clean()
+
+        cleaned_data['field_value'] = cleaned_value
 
         return cleaned_data
 
     def save(self):
-        cleaned_data = self.cleaned_data
-        field_value = cleaned_data['field_value']
-        field_name  = cleaned_data['field_name']
+        custom_field = self._custom_field
 
-        ##post_save_function = self.model.post_save_bulk if hasattr(self.model, 'post_save_bulk') else lambda x, y, z: None
-        #already_saved = False
-
-        if EntitiesBulkUpdateForm.is_custom_field(field_name):
-            field = self._get_field(field_name)
-            CustomFieldValue.save_values_for_entities(field, self.subjects, field_value)
+        if custom_field is not None:
+            CustomFieldValue.save_values_for_entities(custom_field, self.subjects,
+                                                      self.cleaned_data['field_value']
+                                                     )
         else:
-            ##.update doesn't either send any signal or call save, and when changing entity's user credentials have to be regenerated
-            ## todo: Override the default manager ?
-            #if field_name == "user":
-                #for subject in self.subjects:
-                    #subject.user = field_value
-                    #subject.save()
-                #already_saved = True
-            #else:
-                #model_field = self._get_field(field_name)#self.model._meta.get_field(field_name)
-                #if not isinstance(model_field, models.ManyToManyField):
-                    #self.model.objects.filter(pk__in=self.subjects)\
-                                      #.update(**{field_name: field_value})#Doesn't work with m2m
-                #else:
-                    #for subject in self.subjects:
-                        #setattr(subject, field_name, field_value)
-                        #subject.save()
-                    #already_saved = True
-
-            # TODO: Override the default manager ?
-            #NB: we do not use update() because it avoids signal, method overloading etc...
             for subject in self.subjects:
-                setattr(subject, field_name, field_value)
                 subject.save()
-
-        ##post_save_function(self.subjects, field_name, already_saved)
-        #post_save_function = getattr(self.model, 'post_save_bulk', None)
-        #if post_save_function:
-            #post_save_function(self.subjects, field_name, already_saved)
 
 
 class EntityInnerEditForm(EntitiesBulkUpdateForm):
-    #def __init__(self, model, field_name, subjects, forbidden_subjects, user, *args, **kwargs):
     def __init__(self, model, field_name, subject, user, *args, **kwargs):
-        #super(EntityInnerEditForm, self).__init__(model, subjects, forbidden_subjects, user, *args, **kwargs)
+        #TODO: improve this (base class ?) this __init__ will retrieve all CustomFields even if it is useless
         super(EntityInnerEditForm, self).__init__(model, [subject], (), user, *args, **kwargs)
         self.field_name = field_name
 
-        verbose_field_name = self._get_field(field_name).name if self.is_custom_field(field_name) else get_verbose_field_name(model, field_name)
-        verbose_model_name = model._meta.verbose_name.title()
+        field, is_custom = self.get_field(self.model, field_name, self._cfields_cache)
+        verbose_field_name = field.name if is_custom else get_verbose_field_name(model, field_name)
 
         fields = self.fields
 
-        f_entities_lbl = fields['entities_lbl']
-        f_entities_lbl.label    = ugettext(u'Entity')
-        f_entities_lbl.required = False
+        fields['entities_lbl'].label = ugettext(u'Entity')
 
         f_field_name = fields['field_name']
-        #f_field_name.widget = widgets.AdaptiveWidget(ct_id=self.ct.id, field_value_name='field_value', object_id=subjects[0].id)
         f_field_name.widget = widgets.AdaptiveWidget(ct_id=self.ct.id, field_value_name='field_value', object_id=subject.id)
         f_field_name.widget.attrs['disabled'] = True #TODO: in the previous line
         f_field_name.label = ugettext(u'Field')
-        f_field_name.choices = [(field_name, "%s - %s" % (verbose_model_name, verbose_field_name))]
+        f_field_name.choices = [(field_name, "%s - %s" % (model._meta.verbose_name.title(), verbose_field_name))]
         f_field_name.required = False
 
     def clean(self, *args, **kwargs):

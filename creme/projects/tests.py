@@ -36,14 +36,15 @@ class ProjectsTestCase(CremeTestCase):
         self.login()
         self.assertEqual(200, self.client.get('/projects/').status_code)
 
-    def create_project(self, name):
+    def create_project(self, name, status=None, start_date='2010-10-11', end_date='2010-12-31'):
+        status = status or ProjectStatus.objects.all()[0]
         manager = Contact.objects.create(user=self.user, first_name='Gendo', last_name='Ikari')
         response = self.client.post('/projects/project/add', follow=True,
                                     data={'user':         self.user.pk,
                                           'name':         name,
-                                          'status':       ProjectStatus.objects.all()[0].id,
-                                          'start_date':   '2010-10-11',
-                                          'end_date':     '2010-12-31',
+                                          'status':       status.id,
+                                          'start_date':   start_date,
+                                          'end_date':     end_date,
                                           'responsibles': manager.id,
                                          }
                                    )
@@ -58,10 +59,17 @@ class ProjectsTestCase(CremeTestCase):
         response = self.client.get('/projects/project/add')
         self.assertEqual(200, response.status_code)
 
-        project, manager = self.create_project('Eva00')
-        self.assertEqual(1, Relation.objects.filter(subject_entity=project, type=REL_OBJ_PROJECT_MANAGER, object_entity=manager).count())
+        name = 'Eva00'
+        status = ProjectStatus.objects.all()[0]
+        project, manager = self.create_project(name, status, '2010-10-11', '2010-12-31')
+        self.assertEqual(self.user, project.user)
+        self.assertEqual(name,      project.name)
+        self.assertEqual(status,    project.status)
+        self.assertEqual(datetime(year=2010, month=10, day=11), project.start_date)
+        self.assertEqual(datetime(year=2010, month=12, day=31), project.end_date)
+        self.assertRelationCount(1, project, REL_OBJ_PROJECT_MANAGER, manager)
 
-    def test_project_createview02(self):
+    def test_project_createview02(self): #credentials error
         self.login(is_superuser=False, creatable_models=[Project])
 
         create_sc = SetCredentials.objects.create
@@ -91,12 +99,55 @@ class ProjectsTestCase(CremeTestCase):
                              [_(u"Some entities are not linkable: %s") % (_(u'Entity #%s (not viewable)') % manager.id)]
                             )
 
+    def test_project_createview03(self): #validation error with start/end
+        self.login()
+
+        manager = Contact.objects.create(user=self.user, first_name='Gendo', last_name='Ikari')
+
+        response = self.client.post('/projects/project/add', follow=True,
+                                    data={'user':         self.user.pk,
+                                          'name':         'Eva00',
+                                          'status':       ProjectStatus.objects.all()[0].id,
+                                          'start_date':   '2012-2-16',
+                                          'end_date':     '2012-2-15',
+                                          'responsibles': manager.id,
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', None, [_(u'Start must be before end.')])
+
     def test_project_lisview(self):
         self.login()
 
         self.create_project('Eva00')
         self.create_project('Eva01')
         self.assertEqual(200, self.client.get('/projects/projects').status_code)
+
+    def test_project_inner_edit01(self):
+        self.login()
+
+        project = self.create_project('Eva01', start_date='2012-2-16', end_date='2012-3-26')[0]
+        url = '/creme_core/entity/edit/%s/field/%s' % (project.id, 'start_date')
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        response = self.client.post(url, data={'entities_lbl': [unicode(project)],
+                                               'field_value':  '2012-3-4',
+                                              }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(datetime(year=2012, month=3, day=4), self.refresh(project).start_date)
+
+    def test_project_inner_edit02(self): #validation error
+        self.login()
+
+        project = self.create_project('Eva01', start_date='2012-2-16', end_date='2012-3-26')[0]
+        response = self.client.post('/creme_core/entity/edit/%s/field/%s' % (project.id, 'start_date'),
+                                    data={'entities_lbl': [unicode(project)],
+                                          'field_value':  '2012-3-27', #<= after end_date
+                                         }
+                                   )
+        self.assertFormError(response, 'form', None, [_(u'Start must be before end.')])
+        self.assertEqual(datetime(year=2012, month=2, day=16), self.refresh(project).start_date)
 
     def test_task_createview01(self):
         self.login()
@@ -305,7 +356,7 @@ class ProjectsTestCase(CremeTestCase):
 
         project = self.create_project('Eva02')[0]
         task    = self.create_task(project, 'legs')
-        self.failIf(task.resources_set.all())
+        self.assertFalse(task.resources_set.all())
 
         worker   = Contact.objects.create(user=self.user, first_name='Yui', last_name='Ikari')
         response = self.client.post('/projects/task/%s/resource/add' % task.id, follow=True,

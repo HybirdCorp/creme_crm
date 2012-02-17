@@ -22,6 +22,9 @@ except Exception as e:
     print 'Error:', e
 
 
+__all__ = ('EntityViewsTestCase', 'BulkEditTestCase', 'InnerEditTestCase')
+
+
 class EntityViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
@@ -521,10 +524,14 @@ class _BulkEditTestCase(ViewsTestCase):
     def get_cf_values(self, cf, entity):
         return cf.get_value_class().objects.get(custom_field=cf, entity=entity)
 
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_config')
+
 
 class BulkEditTestCase(_BulkEditTestCase):
     def setUp(self):
-        self.populate('creme_config')
+        #self.populate('creme_config')
         self.contact_ct = ContentType.objects.get_for_model(Contact)
         self.url = '/creme_core/entity/bulk_update/%s/'
 
@@ -541,7 +548,7 @@ class BulkEditTestCase(_BulkEditTestCase):
 
         return mario, luigi, self.build_url(mario.id, luigi.id)
 
-    def test_edit_entities_bulk01(self):
+    def test_regular_field01(self):
         self.login()
 
         self.assertEqual(404, self.client.get('/creme_core/entity/bulk_update/%s/' % self.contact_ct.id).status_code)
@@ -551,7 +558,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
         self.assertEqual(200, self.client.get(self.build_url(mario.id)).status_code)
 
-    def test_edit_entities_bulk02(self):
+    def test_regular_field02(self):
         self.login()
 
         unemployed   = Position.objects.create(title='unemployed')
@@ -572,7 +579,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertEqual(unemployed, self.refresh(mario).position)
         self.assertEqual(unemployed, self.refresh(luigi).position)
 
-    def test_edit_entities_bulk03(self):
+    def test_regular_field03(self):
         self.login()
 
         plumbing = Sector.objects.create(title='Plumbing')
@@ -596,7 +603,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertEqual(plumbing, self.refresh(luigi).sector)
         self.assertEqual(games,    self.refresh(nintendo).sector)
 
-    def test_edit_entities_bulk04(self):
+    def test_regular_field04(self):
         self.login()
 
         mario, luigi, url = self.create_2_contacts_n_url()
@@ -607,7 +614,7 @@ class BulkEditTestCase(_BulkEditTestCase):
                                    )
         self.assertFormError(response, 'form', None, [_(u'This field is required.')])
 
-    def test_edit_entities_bulk05(self):
+    def test_regular_field05(self):
         self.login()
 
         bulk_update_registry.register((Contact, ['position', ]))
@@ -622,7 +629,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertTrue(response.context['form'].errors)
 #        self.assertFormError(response, 'form', 'field_name', [_(u'Select a valid choice. %s is not one of the available choices.') % 'position'])
 
-    def test_edit_entities_bulk06(self):
+    def test_regular_field06(self):
         self.login()
 
         mario, luigi, url = self.create_2_contacts_n_url(mario_kwargs={'description': "Luigi's brother"},
@@ -641,7 +648,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertEqual('', mario.description)
         self.assertEqual('', luigi.description)
 
-    def test_edit_entities_bulk07(self):
+    def test_regular_field07(self):
         self.login(is_superuser=False, allowed_apps=('creme_core', 'persons'))
 
         mario_desc = u"Luigi's brother"
@@ -659,7 +666,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertEqual(mario_desc, self.refresh(mario).description)
         self.assertEqual('',         self.refresh(luigi).description)
 
-    def test_edit_entities_bulk08(self):
+    def test_regular_field08(self):
         self.login()
 
         mario, luigi, url = self.create_2_contacts_n_url()
@@ -680,7 +687,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertEqual(birthday, self.refresh(mario).birthday)
         self.assertEqual(birthday, self.refresh(luigi).birthday)
 
-    def test_edit_entities_bulk09(self):
+    def test_regular_field09(self):
         self.login(is_superuser=False, allowed_apps=('creme_core', 'persons', 'media_managers'))
 
         mario_desc = u"Luigi's brother"
@@ -713,7 +720,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertNotEqual(allowed, self.refresh(mario).image)
         self.assertEqual(allowed,    self.refresh(luigi).image)
 
-    def test_edit_entities_bulk_cf01(self):
+    def test_custom_field01(self):
         self.login()
 
         cf_int = CustomField.objects.create(name='int', content_type=self.contact_ct, field_type=CustomField.INT)
@@ -739,7 +746,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertRaises(CustomFieldInteger.DoesNotExist, self.get_cf_values, cf_int, self.refresh(mario))
         self.assertRaises(CustomFieldInteger.DoesNotExist, self.get_cf_values, cf_int, self.refresh(luigi))
 
-    def test_edit_entities_bulk_cf02(self):
+    def test_custom_field02(self):
         self.login()
 
         mario, luigi, url = self.create_2_contacts_n_url()
@@ -765,7 +772,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertRaises(CustomFieldFloat.DoesNotExist, self.get_cf_values, cf_float, self.refresh(mario))
         self.assertRaises(CustomFieldFloat.DoesNotExist, self.get_cf_values, cf_float, self.refresh(luigi))
 
-    def test_edit_entities_bulk_cf03(self):
+    def test_custom_field03(self):
         self.login()
 
         mario, luigi, url = self.create_2_contacts_n_url()
@@ -801,7 +808,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertRaises(CustomFieldBoolean.DoesNotExist, self.get_cf_values, cf_bool, self.refresh(mario))
         self.assertRaises(CustomFieldBoolean.DoesNotExist, self.get_cf_values, cf_bool, self.refresh(luigi))
 
-    def test_edit_entities_bulk_cf04(self):
+    def test_custom_field04(self):
         self.login()
 
         mario, luigi, url = self.create_2_contacts_n_url()
@@ -827,7 +834,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertRaises(CustomFieldString.DoesNotExist, self.get_cf_values, cf_str, self.refresh(mario))
         self.assertRaises(CustomFieldString.DoesNotExist, self.get_cf_values, cf_str, self.refresh(luigi))
 
-    def test_edit_entities_bulk_cf05(self):
+    def test_custom_field05(self):
         self.login()
 
         get_cf_values = self.get_cf_values
@@ -857,7 +864,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertRaises(CustomFieldDateTime.DoesNotExist, get_cf_values, cf_date, self.refresh(mario))
         self.assertRaises(CustomFieldDateTime.DoesNotExist, get_cf_values, cf_date, self.refresh(luigi))
 
-    def test_edit_entities_bulk_cf06(self):
+    def test_custom_field06(self):
         self.login()
         get_cf_values = self.get_cf_values
         mario, luigi, url = self.create_2_contacts_n_url()
@@ -886,7 +893,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertRaises(CustomFieldEnum.DoesNotExist, get_cf_values, cf_enum, self.refresh(mario))
         self.assertRaises(CustomFieldEnum.DoesNotExist, get_cf_values, cf_enum, self.refresh(luigi))
 
-    def test_edit_entities_bulk_cf07(self):
+    def test_custom_field07(self):
         self.login()
         get_cf_values = self.get_cf_values
 
@@ -909,11 +916,13 @@ class BulkEditTestCase(_BulkEditTestCase):
         mario = self.refresh(mario)
         luigi = self.refresh(luigi)
 
-        self.assertIn(m_enum1.id, get_cf_values(cf_multi_enum, mario).value.values_list('pk', flat=True))
-        self.assertIn(m_enum3.id, get_cf_values(cf_multi_enum, mario).value.values_list('pk', flat=True))
+        values_set = set(get_cf_values(cf_multi_enum, mario).value.values_list('pk', flat=True))
+        self.assertIn(m_enum1.id, values_set)
+        self.assertIn(m_enum3.id, values_set)
 
-        self.assertIn(m_enum1.id, get_cf_values(cf_multi_enum, luigi).value.values_list('pk', flat=True))
-        self.assertIn(m_enum3.id, get_cf_values(cf_multi_enum, luigi).value.values_list('pk', flat=True))
+        values_set = set(get_cf_values(cf_multi_enum, luigi).value.values_list('pk', flat=True))
+        self.assertIn(m_enum1.id, values_set)
+        self.assertIn(m_enum3.id, values_set)
 
         #Multi-Enum empty
         response = self.client.post(url, data={'field_name':   _CUSTOM_NAME % cf_multi_enum.id,
@@ -925,7 +934,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertRaises(CustomFieldMultiEnum.DoesNotExist, get_cf_values, cf_multi_enum, self.refresh(mario))
         self.assertRaises(CustomFieldMultiEnum.DoesNotExist, get_cf_values, cf_multi_enum, self.refresh(luigi))
 
-    def test_get_widget(self):#Bulk edition uses this widget
+    def test_get_widget01(self): #regular field
         self.login()
 
         url = '/creme_core/entity/get_widget/%s'
@@ -937,20 +946,44 @@ class BulkEditTestCase(_BulkEditTestCase):
                                    )
         self.assertEqual(200,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
-        self.assertTrue(simplejson.loads(response.content)['rendered'])
+        #self.assertTrue(simplejson.loads(response.content)['rendered'])
+        self.assertEqual('<input id="id_field_value" type="text" name="field_value" maxlength="100" />',
+                         simplejson.loads(response.content)['rendered']
+                        )
 
-        response = self.client.post(url % 0, data={})
+        response = self.client.post(url % 0)
         self.assertEqual(404,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
 
-        self.assertEqual(404, self.client.post(url % 'notint', data={}).status_code)
+        self.assertEqual(404, self.client.post(url % 'notint').status_code)
+
+        #TODO: test unknown field
+
+    def test_get_widget02(self): #custom field
+        self.login()
+
+        cf_int = CustomField.objects.create(name='int', content_type=self.contact_ct, field_type=CustomField.INT)
+        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
+
+        url = '/creme_core/entity/get_widget/%s'
+
+        response = self.client.post(url % self.contact_ct.id,
+                                    data={'field_name':       _CUSTOM_NAME % cf_int.id, #'first_name',
+                                          'field_value_name': 'field_value', #??
+                                         }
+                                   )
+        self.assertEqual(200,               response.status_code)
+        self.assertEqual('text/javascript', response['Content-Type'])
+        self.assertEqual('<input type="text" name="field_value" id="id_field_value" />',
+                         simplejson.loads(response.content)['rendered']
+                        )
 
 
 class InnerEditTestCase(_BulkEditTestCase):
     url = '/creme_core/entity/edit/%s/field/%s'
 
-    def setUp(self):
-        self.populate('creme_config')
+    #def setUp(self):
+        #self.populate('creme_config')
         #self.login()
         #self.contact = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
 
@@ -969,7 +1002,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         response = self.client.post(url, data={'entities_lbl': [unicode(mario)],
                                                'field_value':  first_name,
                                               }
-        )
+                                   )
         self.assertNoFormError(response)
         self.assertEqual(first_name, self.refresh(mario).first_name)
 
