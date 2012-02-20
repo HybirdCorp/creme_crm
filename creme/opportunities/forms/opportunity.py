@@ -23,13 +23,12 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.forms import CremeEntityForm, CremeDateTimeField, GenericEntityField
 from creme_core.forms.validators import validate_linkable_entity
+from creme_core.signals import form_post_save
 
 from persons.models import Organisation, Contact
 from persons.workflow import transform_target_into_prospect
 
 from opportunities.models import Opportunity
-
-from creme import form_post_save
 
 
 class OpportunityEditForm(CremeEntityForm):
@@ -52,14 +51,12 @@ class OpportunityCreateForm(OpportunityEditForm):
         return validate_linkable_entity(self.cleaned_data['emit_orga'], self.user)
 
     def save(self, *args, **kwargs):
-        instance = self.instance
-
-        super(OpportunityCreateForm, self).save(*args, **kwargs)
+        instance = super(OpportunityCreateForm, self).save(*args, **kwargs)
 
         cleaned_data = self.cleaned_data
         instance.link_to_target(cleaned_data['target'])
         instance.link_to_emit_orga(cleaned_data['emit_orga'])
-        transform_target_into_prospect(cleaned_data['emit_orga'],cleaned_data['target'],instance.user)
+        transform_target_into_prospect(cleaned_data['emit_orga'], cleaned_data['target'], instance.user)
 
         form_post_save.send(sender=Opportunity, instance=instance, created=True)
 
