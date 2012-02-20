@@ -685,6 +685,7 @@ class SalesPhaseTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         SalesPhase.objects.all().delete()
+        cls.populate('creme_core', 'creme_config')
 
     def test_create_n_order(self):
         create_phase = SalesPhase.objects.create
@@ -692,10 +693,6 @@ class SalesPhaseTestCase(CremeTestCase):
         sp2 = create_phase(name='Abandoned',   description='...', order=1)
 
         self.assertEqual([sp2, sp1], list(SalesPhase.objects.all()))
-
-    def login(self, *args, **kwargs):
-        self.populate('creme_core', 'creme_config')
-        super(SalesPhaseTestCase, self).login(*args, **kwargs)
 
     def test_incr_order01(self):
         self.login()
@@ -761,7 +758,7 @@ class SalesPhaseTestCase(CremeTestCase):
         self.assertEqual(2, self.refresh(sp3).order)
         self.assertEqual(4, self.refresh(sp4).order)
 
-    def test_decr_order02(self): #errror
+    def test_decr_order02(self): #error
         self.login()
 
         create_phase = SalesPhase.objects.create
