@@ -153,6 +153,20 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
         self.assertEqual(2, self.subject01.relations.count()) #and not 3
 
+    def test_add_relations06(self): #can not link an entity to itself
+        self._aux_test_add_relations()
+
+        subject = self.subject01
+        response = self.client.post(self._build_add_url(subject),
+                                    data={'relations': self.format_str % (
+                                                            self.rtype01.id, self.ct_id, subject.id
+                                                        ),
+                                         }
+                                   )
+        self.assertFormError(response, 'form', 'relations',
+                             [_(u'An entity can not be linked to itself : %s') % subject]
+                            )
+
     def test_add_relations_with_semi_fixed01(self): #only semi fixed
         self._aux_test_add_relations()
 
@@ -193,13 +207,27 @@ class RelationViewsTestCase(ViewsTestCase):
         sfrt2 = create_sfrt(predicate='Related to "object02"',
                             relation_type=self.rtype02, object_entity=self.object02,
                            )
+        sfrt3 = create_sfrt(predicate='Related to "subject01"',
+                            relation_type=self.rtype02, object_entity=self.subject01,
+                           ) #should not be proposed
 
-        response = self.client.post(self._build_add_url(subject),
-                                    data={'relations': self.format_str % (
-                                                            self.rtype01.id, self.ct_id, self.object01.id,
-                                                        ),
-                                          'semifixed_rtypes': [sfrt2.id],
-                                         }
+        url = self._build_add_url(subject)
+        context = self.client.get(url).context
+
+        with self.assertNoException():
+            field_sfrt = context['form'].fields['semifixed_rtypes']
+
+        self.assertEqual(set([sfrt1.id, sfrt2.id]), 
+                         set(pk for pk, sfrt in field_sfrt.choices)
+                        )
+
+        response = self.client.post(url, data={'relations': self.format_str % (
+                                                                self.rtype01.id,
+                                                                self.ct_id,
+                                                                self.object01.id,
+                                                             ),
+                                               'semifixed_rtypes': [sfrt2.id],
+                                              }
                                    )
         self.assertNoFormError(response)
         self.assertEqual(2, subject.relations.count())
@@ -423,6 +451,27 @@ class RelationViewsTestCase(ViewsTestCase):
                                               })
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'relations', [_(u'Some entities are not linkable: %s') % unlinkable])
+
+    def test_add_relations_bulk05(self):  #can not link an entity to itself
+        self._aux_test_add_relations()
+
+        ct_id = self.ct_id
+        subject01 = self.subject01
+        subject02 = self.subject02
+        response = self.client.post(self._build_bulk_add_url(ct_id, subject01, subject02), 
+                                    data={'entities_lbl': 'wtf',
+                                          'relations':    self.format_str_2x % (
+                                                                self.rtype01.id, ct_id, subject01.id,
+                                                                self.rtype02.id, ct_id, subject02.id,
+                                                            ),
+                                         }
+                                   )
+        self.assertFormError(response, 'form', 'relations',
+                             [_(u'An entity can not be linked to itself : %s') % (
+                                    '%s, %s' % (subject01, subject02)
+                                  )
+                             ]
+                            )
 
     def test_add_relations_bulk_with_semifixed01(self):
         self._aux_test_add_relations()

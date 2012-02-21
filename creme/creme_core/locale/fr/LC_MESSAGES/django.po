@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-02-15 15:01+0100\n"
+"POT-Creation-Date: 2012-02-21 19:32+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,7 +27,7 @@ msgstr "Propriétés"
 msgid "Relationships"
 msgstr "Relations"
 
-#: blocks.py:78 forms/bulk.py:101 forms/header_filter.py:44
+#: blocks.py:78 forms/bulk.py:109 forms/header_filter.py:44
 #: models/custom_field.py:59
 #: templates/creme_core/templatetags/block_customfields.html:7
 msgid "Custom fields"
@@ -189,7 +189,7 @@ msgstr "L'opérateur '%s' a besoin d'une valeur."
 msgid "%(operator)s : %(message)s."
 msgstr "%(operator)s : %(message)s."
 
-#: forms/base.py:158 forms/base.py:179 forms/relation.py:151
+#: forms/base.py:158 forms/base.py:179 forms/relation.py:171
 msgid "General information"
 msgstr "Informations générales"
 
@@ -235,56 +235,56 @@ msgstr "Tout"
 msgid "Actions"
 msgstr "Actions"
 
-#: forms/bulk.py:64
+#: forms/bulk.py:73
 msgid "None"
 msgstr "Aucun"
 
-#: forms/bulk.py:73
+#: forms/bulk.py:81
 msgid "Entities to update"
 msgstr "Entités à mettre à jour"
 
-#: forms/bulk.py:74
+#: forms/bulk.py:82
 msgid "Field to update"
 msgstr "Champ à mettre à jour"
 
-#: forms/bulk.py:75
+#: forms/bulk.py:83
 msgid "Value"
 msgstr "Valeur"
 
-#: forms/bulk.py:85 forms/creme_property.py:78 forms/relation.py:158
+#: forms/bulk.py:93 forms/creme_property.py:78 forms/relation.py:183
 msgid "NONE !"
 msgstr "AUCUNE !"
 
-#: forms/bulk.py:89
+#: forms/bulk.py:96
 msgid "Unchangeable entities"
 msgstr "Entités non éditables"
 
-#: forms/bulk.py:101 forms/header_filter.py:43
+#: forms/bulk.py:108 forms/header_filter.py:43
 msgid "Regular fields"
 msgstr "Champs normaux"
 
-#: forms/bulk.py:131
+#: forms/bulk.py:149
 msgid "Select a valid field."
 msgstr "Sélectionnez un champ valide"
 
-#: forms/bulk.py:152 forms/bulk.py:185 forms/bulk.py:188
+#: forms/bulk.py:163 forms/bulk.py:190 forms/bulk.py:192
 msgid "Select a valid choice."
 msgstr "Sélectionnez un choix valide."
 
-#: forms/bulk.py:168
+#: forms/bulk.py:175
 msgid "You can't view this value, so you can't set it."
 msgstr ""
 "Vous ne pouvez pas voir cette valeur, donc vous ne pouvez pas l'attribuer."
 
-#: forms/bulk.py:171 forms/bulk.py:176
+#: forms/bulk.py:178 forms/bulk.py:181
 msgid "This field is required."
 msgstr "Ce champ est obligatoire."
 
-#: forms/bulk.py:247 templates/creme_core/batch_process_report.html:34
+#: forms/bulk.py:225 templates/creme_core/batch_process_report.html:34
 msgid "Entity"
 msgstr "Fiche"
 
-#: forms/bulk.py:254 models/search.py:93
+#: forms/bulk.py:230 models/search.py:93
 msgid "Field"
 msgstr "Champ"
 
@@ -292,7 +292,7 @@ msgstr "Champ"
 msgid "Type of property"
 msgstr "Type de propriété"
 
-#: forms/creme_property.py:66 forms/relation.py:150
+#: forms/creme_property.py:66 forms/relation.py:169
 msgid "Related entities"
 msgstr "Entités associées"
 
@@ -670,16 +670,21 @@ msgstr "Vous devez choisir au moins un élément dans les listes disponibles"
 msgid "Semi-fixed types of relationship"
 msgstr "Type de relation semi-fixés"
 
-#: forms/relation.py:81
+#: forms/relation.py:88
 #, python-format
 msgid "There are duplicates: %s"
 msgstr "Il y a des doublons: %s"
 
-#: forms/relation.py:109
+#: forms/relation.py:99
+#, python-format
+msgid "An entity can not be linked to itself : %s"
+msgstr "Une fiche ne peut pas être reliée à elle-même : %s"
+
+#: forms/relation.py:123
 msgid "You must give one relationship at least."
 msgstr "Vous devez donner au moins une relation."
 
-#: forms/relation.py:161
+#: forms/relation.py:186
 msgid "Unlinkable entities"
 msgstr "Fiches non reliables"
 
@@ -999,7 +1004,7 @@ msgstr "Liste de choix"
 msgid "List of choices (multi sélection)"
 msgstr "Liste de choix (multi sélection)"
 
-#: models/entity.py:101 views/entity.py:52
+#: models/entity.py:101 views/entity.py:51
 #, python-format
 msgid "Entity #%s (not viewable)"
 msgstr "Fiche #%s (non visible)"
@@ -1063,7 +1068,7 @@ msgid "This filter can't be edited/deleted"
 msgstr "Ce filtre ne peut être modifié/effacé"
 
 #: models/entity_filter.py:113 models/header_filter.py:114
-#: views/batch_process.py:42 views/batch_process.py:77 views/entity.py:285
+#: views/batch_process.py:42 views/batch_process.py:77 views/entity.py:286
 #: views/entity_filter.py:49 views/entity_filter.py:124
 #: views/header_filter.py:45 views/header_filter.py:106
 #: views/generic/listview.py:207
@@ -1972,15 +1977,15 @@ msgstr "Nouvelles propriétés pour <%s>"
 msgid "%s [CREATION]"
 msgstr "%s [CRÉATION]"
 
-#: views/entity.py:312
+#: views/entity.py:313
 msgid "No entity corresponding to your search was found."
 msgstr "Aucun élément correspondant à votre recherche n'a été trouvé"
 
-#: views/entity.py:353
+#: views/entity.py:354
 msgid "Inner update"
 msgstr "Edition rapide"
 
-#: views/entity.py:405
+#: views/entity.py:409
 #, python-format
 msgid "Merge <%(entity1)s> with <%(entity2)s>"
 msgstr "Fusionner <%(entity1)s> avec <%(entity2)s>"
@@ -2012,26 +2017,26 @@ msgstr "Ajout multiple de relations"
 msgid "%s : <b>Permission denied</b>,"
 msgstr "%s : <b>Permission refusée</b>,"
 
-#: views/relation.py:296 views/relation.py:416 views/generic/delete.py:83
+#: views/relation.py:296 views/relation.py:408 views/generic/delete.py:83
 msgid "Operation successfully completed"
 msgstr "Opération déroulée avec succès"
 
-#: views/relation.py:385 views/generic/delete.py:58
+#: views/relation.py:377 views/generic/delete.py:58
 #, python-format
 msgid "%s entities doesn't exist / doesn't exist any more"
 msgstr "%s entité(s) n'existe(nt) pas ou plus"
 
-#: views/relation.py:406
+#: views/relation.py:398
 #, python-format
 msgid "Incompatible type for object entity with id=%s"
 msgstr "Type incompatible pour l'entité objet avec l'id=%s"
 
-#: views/relation.py:408
+#: views/relation.py:400
 #, python-format
 msgid "Missing compatible property for object entity with id=%s"
 msgstr "Il manque une propriété compatible pour l'entité objet avec l'id=%s"
 
-#: views/relation.py:410
+#: views/relation.py:402
 #, python-format
 msgid "Permission denied to entity with id=%s"
 msgstr "Permission refusée pour l'entité avec l'id=%s"

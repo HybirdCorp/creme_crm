@@ -40,7 +40,7 @@ class JSONSelectError(Exception):
         super(Exception, self).__init__(message)
         self.status = status
 
-def __json_select(query, fields, range, sort_field=None, use_columns=False):
+def _json_select(query, fields, range, sort_field=None, use_columns=False):
     try:
         start, end = range
 
@@ -60,10 +60,10 @@ def __json_select(query, fields, range, sort_field=None, use_columns=False):
             result = list(query.values_list(flat=flat, *fields)[start:end])
 
         return JSONEncoder().encode(result) #TODO: move out the 'try' block
-    except Exception, err:
+    except Exception as err:
         raise JSONSelectError(unicode(err), 500)
 
-def __json_parse_field(field, allowed_fields, use_columns=False):
+def _json_parse_field(field, allowed_fields, use_columns=False):
     if field not in allowed_fields.keys():
         raise JSONSelectError("forbidden field '%s'" % field, 403)
 
@@ -77,21 +77,22 @@ def __json_parse_field(field, allowed_fields, use_columns=False):
 
     return getter
 
-def __json_parse_fields(fields, allowed_fields, use_columns=False):
+def _json_parse_fields(fields, allowed_fields, use_columns=False):
     if not fields:
         raise JSONSelectError("no such field", 400)
 
-    return list(__json_parse_field(field, allowed_fields, use_columns) for field in fields) #TODO: list comprehension ??
+    #return list(_json_parse_field(field, allowed_fields, use_columns) for field in fields)
+    return [_json_parse_field(field, allowed_fields, use_columns) for field in fields]
 
-def __json_parse_select_request(request, allowed_fields):
+def _json_parse_select_request(request, allowed_fields):
     if not request:
         raise JSONSelectError("not such parameter", 400)
 
     use_columns = bool(request.get('value_list', 0))
     range = [int(i) if i is not None else None for i in (request.get('start'), request.get('end'))]
-    fields = __json_parse_fields(request.getlist('fields'), allowed_fields, use_columns)
+    fields = _json_parse_fields(request.getlist('fields'), allowed_fields, use_columns)
     sort = request.get('sort')
-    sort = __json_parse_field(sort, allowed_fields, use_columns) if sort is not None else None
+    sort = _json_parse_field(sort, allowed_fields, use_columns) if sort is not None else None
 
     return (fields, range, sort, use_columns)
 
@@ -103,10 +104,10 @@ JSON_ENTITY_FIELDS = {'unicode':     unicode,
 @login_required
 def json_entity_get(request, id):
     try:
-        fields, range, sort, use_columns = __json_parse_select_request(request.GET, JSON_ENTITY_FIELDS)
+        fields, range, sort, use_columns = _json_parse_select_request(request.GET, JSON_ENTITY_FIELDS)
         query = EntityCredentials.filter(request.user, CremeEntity.objects.filter(pk=id))
-        return HttpResponse(__json_select(query, fields, (0, 1), sort, use_columns), mimetype="text/javascript") #TODO: move out the 'try' block
-    except JSONSelectError, err:
+        return HttpResponse(_json_select(query, fields, (0, 1), sort, use_columns), mimetype="text/javascript") #TODO: move out the 'try' block
+    except JSONSelectError as err:
         return HttpResponse(err.message, mimetype="text/javascript", status=err.status)
 
 JSON_PREDICATE_FIELDS = {'unicode': unicode,
@@ -116,18 +117,17 @@ JSON_PREDICATE_FIELDS = {'unicode': unicode,
 @login_required
 def json_entity_predicates(request, id):
     try:
-        predicates = __get_entity_predicates(request, id)
-        parameters = __json_parse_select_request(request.GET, JSON_PREDICATE_FIELDS)
-        return HttpResponse(__json_select(predicates, *parameters), mimetype="text/javascript")
-    except JSONSelectError, err:
+        predicates = _get_entity_predicates(request, id)
+        parameters = _json_parse_select_request(request.GET, JSON_PREDICATE_FIELDS)
+        return HttpResponse(_json_select(predicates, *parameters), mimetype="text/javascript")
+    except JSONSelectError as err:
         return HttpResponse(err.message, mimetype="text/javascript", status=err.status)
-    except Http404, err:
+    except Http404 as err:
         return HttpResponse(err, mimetype="text/javascript", status=404)
-    except Exception, err:
+    except Exception as err:
         return HttpResponse(err, mimetype="text/javascript", status=500)
 
-JSON_CONTENT_TYPE_FIELDS = {
-                            'unicode':  unicode,
+JSON_CONTENT_TYPE_FIELDS = {'unicode':  unicode,
                             'name':     lambda e: e.name,
                             'id':       lambda e: e.id
                            }
@@ -136,22 +136,22 @@ JSON_CONTENT_TYPE_FIELDS = {
 def json_predicate_content_types(request, id):
     try:
         content_types = get_object_or_404(RelationType, pk=id).object_ctypes.all()
-        fields, range, sort, use_columns = __json_parse_select_request(request.GET, JSON_CONTENT_TYPE_FIELDS)
+        fields, range, sort, use_columns = _json_parse_select_request(request.GET, JSON_CONTENT_TYPE_FIELDS)
 
         if not content_types:
             content_type_from_model = ContentType.objects.get_for_model
             content_types = [content_type_from_model(model) for model in creme_registry.iter_entity_models()]
-            return HttpResponse(__json_select(content_types, fields, range, sort))
+            return HttpResponse(_json_select(content_types, fields, range, sort))
 
-        return HttpResponse(__json_select(content_types, fields, range, sort, use_columns), mimetype="text/javascript")
-    except JSONSelectError, err:
+        return HttpResponse(_json_select(content_types, fields, range, sort, use_columns), mimetype="text/javascript")
+    except JSONSelectError as err:
         return HttpResponse(err.message, mimetype="text/javascript", status=err.status)
-    except Http404, err:
+    except Http404 as err:
         return HttpResponse(err, mimetype="text/javascript", status=404)
-    except Exception, err:
+    except Exception as err:
         return HttpResponse(err, mimetype="text/javascript", status=500)
 
-def __get_entity_predicates(request, id):
+def _get_entity_predicates(request, id):
     entity = get_object_or_404(CremeEntity, pk=id).get_real_entity() #TODO: useful 'get_real_entity() ??'
 
     entity.can_view_or_die(request.user)
@@ -309,13 +309,6 @@ def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=F
     @param o2m One-To-Many ; if false, it seems Manay-To-Many => multi selection.
     Tip: see the js function creme.relations.handleAddFromPredicateEntity()
     """
-    #TODO: COMMENTED on 3 may 2011
-    #template_dict = {
-        #'predicate_id': rtype_id,
-        #'subject_id':   subject_id,
-        #'o2m':          o2m
-    #}
-
     subject = get_object_or_404(CremeEntity, pk=subject_id)
     subject.can_link_or_die(request.user)
 
@@ -334,7 +327,6 @@ def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=F
     if extra_q_kw is not None:
         extra_q &= extra_q_kw
 
-    #return list_view_popup_from_widget(request, object_ct_id, o2m, extra_dict=template_dict, extra_q=extra_q)
     return list_view_popup_from_widget(request, object_ct_id, o2m, extra_q=extra_q)
 
 
