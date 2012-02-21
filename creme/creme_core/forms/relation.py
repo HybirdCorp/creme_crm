@@ -31,36 +31,43 @@ from creme_core.forms.validators import validate_linkable_entities
 from creme_core.utils import entities2unicode
 
 
-class RelationCreateForm(CremeForm):
+class _RelationsCreateForm(CremeForm):
     relations        = MultiRelationEntityField(label=_(u'Relationships'), required=False)
     semifixed_rtypes = ModelMultipleChoiceField(label=_(u'Semi-fixed types of relationship'),
                                                 queryset=SemiFixedRelationType.objects.none(),
                                                 required=False, widget=UnorderedMultipleChoiceWidget
                                                )
 
-    def __init__(self, subject, relations_types=None, *args, **kwargs):
+    def __init__(self, subjects, content_type, relations_types=None, *args, **kwargs):
         """Constructor.
-        @param subject CremeEntity instance that will be the subject of Relations.
+        @param subjects CremeEntity instances that will be the subjects of Relations.
+        @param content_type Type of the sujects
         @param relations_types Sequence of RelationTypes ids to narrow to these types ;
-                               or None that means all types compatible with the subject.
+                               or None that means all types compatible with the parameter 'content_type'.
         """
-        super(RelationCreateForm, self).__init__(*args, **kwargs)
-        self.subject = subject
-        fields = self.fields
+        super(_RelationsCreateForm, self).__init__(*args, **kwargs)
+        self.subjects = subjects
+        self.subjects_ids = subjects_ids = frozenset(s.id for s in subjects)
 
+        fields = self.fields
         #TODO: improve queries ??
         user = self.user
-        entities = [sfrt.object_entity for sfrt in SemiFixedRelationType.objects.select_related('object_entity')]
+        entities = [sfrt.object_entity 
+                        for sfrt in SemiFixedRelationType.objects
+                                                         .exclude(object_entity__in=subjects_ids)
+                                                         .select_related('object_entity')
+                   ]
         CremeEntity.populate_credentials(entities, user)
         sfrt_queryset = SemiFixedRelationType.objects.filter(object_entity__in=[e for e in entities if e.can_link(user)])
 
         if not relations_types:
-            relations_types = RelationType.get_compatible_ones(subject.entity_type)
+            relations_types = RelationType.get_compatible_ones(content_type)
         else:
             sfrt_queryset = sfrt_queryset.filter(relation_type__in=relations_types)
 
         fields['semifixed_rtypes'].queryset = sfrt_queryset
 
+        #TODO: add a qfilter to exclude the subjects from possible objects
         relations_field = fields['relations']
         relations_field.allowed_rtypes = relations_types
         relations_field.initial = [(relations_field.allowed_rtypes.all()[0], None)]
@@ -79,9 +86,19 @@ class RelationCreateForm(CremeForm):
 
         if duplicates:
             raise ValidationError(ugettext(u'There are duplicates: %s') % \
-                                      u', '.join(u'(%s, %s)' % (rtype, e.allowed_unicode(user))
-                                                     for rtype, e in duplicates
-                                                )
+                                    u', '.join(u'(%s, %s)' % (rtype, e.allowed_unicode(user))
+                                                   for rtype, e in duplicates
+                                              )
+                                 )
+
+    def _check_loops(self, relations):
+        subjects_ids = self.subjects_ids
+        bad_objects = [unicode(entity) for rtype, entity in relations if entity.id in subjects_ids]
+
+        if bad_objects:
+            raise ValidationError(ugettext(u'An entity can not be linked to itself : %s') % (
+                                        u', '.join(bad_objects)
+                                    )
                                  )
 
     def clean_relations(self):
@@ -89,13 +106,10 @@ class RelationCreateForm(CremeForm):
         user = self.user
 
         self._check_duplicates(relations, user)
+        self._check_loops(relations)
         validate_linkable_entities([entity for rt_id, entity in relations], user)
 
         return relations
-
-    #TODO
-    #def clean_semifixed_rtypes(self):
-        #validate_linkable_entities([entity for rt_id, entity in relations], self.user)
 
     def clean(self):
         cdata = self.cleaned_data
@@ -103,7 +117,7 @@ class RelationCreateForm(CremeForm):
         if not self._errors:
             relations_desc = cdata['relations']
             #TODO: improve queries ??
-            relations_desc.extend((sfrt.relation_type, sfrt.object_entity) for sfrt in self.cleaned_data['semifixed_rtypes'])
+            relations_desc.extend((sfrt.relation_type, sfrt.object_entity) for sfrt in cdata['semifixed_rtypes'])
 
             if not relations_desc:
                 raise ValidationError(ugettext(u'You must give one relationship at least.'))
@@ -118,8 +132,9 @@ class RelationCreateForm(CremeForm):
     def _hash_relation(subject_id, rtype_id, object_id):
         return '%s#%s#%s' % (subject_id, rtype_id, object_id)
 
-    def _create_relations(self, subjects):
+    def save(self):
         user = self.user
+        subjects = self.subjects
         hash_relation = self._hash_relation
         relations_desc = self.relations_desc
         existing_relations_query = Q()
@@ -142,26 +157,33 @@ class RelationCreateForm(CremeForm):
                                     object_entity=object_entity,
                                    )
 
-    def save(self):
-        self._create_relations([self.subject])
+class RelationCreateForm(_RelationsCreateForm):
+    def __init__(self, subject, relations_types=None, *args, **kwargs):
+        super(RelationCreateForm, self).__init__([subject], subject.entity_type,
+                                                 relations_types=relations_types,
+                                                 *args, **kwargs
+                                                )
 
 
-class MultiEntitiesRelationCreateForm(RelationCreateForm):
+class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
     entities_lbl = CharField(label=_(u"Related entities"), widget=Label())
+
+    #TODO: use Meta.fields ?? (beware to bad_entities_lbl)
     blocks = FieldBlockManager(('general', _(u'General information'), ['entities_lbl', 'relations', 'semifixed_rtypes']),)
 
-    def __init__(self, subjects, forbidden_subjects, user, relations_types=None, *args, **kwargs):
-        subject = subjects[0] if subjects else forbidden_subjects[0]
-        super(MultiEntitiesRelationCreateForm, self).__init__(subject=subject, user=user, relations_types=relations_types, *args, **kwargs)
-        self.subjects = subjects
-        self.user = user
-        self.fields['entities_lbl'].initial = entities2unicode(subjects, user) if subjects else ugettext(u'NONE !')
+    def __init__(self, subjects, forbidden_subjects, relations_types=None, *args, **kwargs):
+        first_subject = subjects[0] if subjects else forbidden_subjects[0]
+        super(MultiEntitiesRelationCreateForm, self).__init__(subjects, first_subject.entity_type,
+                                                              relations_types=relations_types,
+                                                              *args, **kwargs
+                                                             )
+
+        user = self.user
+        fields = self.fields
+        fields['entities_lbl'].initial = entities2unicode(subjects, user) if subjects else ugettext(u'NONE !')
 
         if forbidden_subjects:
-            self.fields['bad_entities_lbl'] = CharField(label=ugettext(u"Unlinkable entities"),
-                                                        widget=Label,
-                                                        initial=entities2unicode(forbidden_subjects, user)
-                                                       )
-
-    def save(self):
-        self._create_relations(self.subjects)
+            fields['bad_entities_lbl'] = CharField(label=ugettext(u"Unlinkable entities"),
+                                                   widget=Label,
+                                                   initial=entities2unicode(forbidden_subjects, user)
+                                                  )
