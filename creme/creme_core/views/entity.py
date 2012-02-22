@@ -409,6 +409,13 @@ def merge(request, entity1_id, entity2_id):
                    'title': _('Merge <%(entity1)s> with <%(entity2)s>') % {
                                    'entity1': entity1,
                                    'entity2': entity2,
-                                }
+                                },
+                    'help_message': _(u'You are going to merge two entities into a new one.\n'
+                                      'Choose which information you want the old entities '
+                                      'give to the new entity.\n'
+                                      'The relationships, the properties and the other links '
+                                      'with any of old entities will be automatically '
+                                      'available in the new merged entity.'
+                                     ),
                   }
                  )

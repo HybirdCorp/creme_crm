@@ -24,10 +24,28 @@ from django.forms import Field, Widget, Select
 from django.forms.models import fields_for_model, model_to_dict
 from django.forms.util import flatatt
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 
 from creme_core.forms import CremeForm
 from creme_core.signals import pre_merge_related
 from creme_core.gui.merge import merge_form_registry
+
+
+class EntitiesHeaderWidget(Widget):
+    def render(self, name, value, attrs=None):
+        value_1, value_2, value_m = value or ('', '', '')
+
+        return mark_safe(u'<ul %(attrs)s>'
+                              '<li><input readOnly="True" class="merge_entity_header1" value="%(header_1)s" /></li>'
+                              '<li><input readOnly="True" class="merge_result_header"  value="%(header_merged)s" /></li>'
+                              '<li><input readOnly="True" class="merge_entity_header2" value="%(header_2)s" /></li>'
+                          '</ul>' % {
+                            'attrs':         flatatt(self.build_attrs(attrs, name=name, **{'class': 'merge_entity_field ui-layout hbox'})),
+                            'header_1':      value_1,
+                            'header_merged': value_m,
+                            'header_2':      value_2,
+                          }
+                        )
 
 
 class MergeWidget(Widget):
@@ -74,6 +92,8 @@ class MergeField(Field):
 
 
 class MergeEntitiesBaseForm(CremeForm):
+    entities_labels = Field(label="", required=False, widget=EntitiesHeaderWidget)
+
     class CanNotMergeError(Exception):
         pass
 
@@ -90,9 +110,12 @@ class MergeEntitiesBaseForm(CremeForm):
         initial_index = 0 if entity1.modified <= entity2.modified else 1
 
         for name, field in self.fields.iteritems():
-            initial = [entity1_initial[name], entity2_initial[name]]
-            #we try to initialize with prefered onr, but we use the other if it is empty.
-            initial.append(initial[initial_index] or initial[1 - initial_index])
+            if name == 'entities_labels': 
+                initial = (unicode(entity1), unicode(entity2), _('Merged entity'))
+            else:
+                initial = [entity1_initial[name], entity2_initial[name]]
+                #we try to initialize with prefered onr, but we use the other if it is empty.
+                initial.append(initial[initial_index] or initial[1 - initial_index])
 
             field.initial = initial
 

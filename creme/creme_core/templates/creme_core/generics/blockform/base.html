@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% if help_message %}
-    <div class="help_box">{{help_message}}</div>
+    <div class="help_box">{{help_message|linebreaks}}</div>
 {% endif%}
 
 <p>{% trans "Fields marked with * are required."%} </p>
