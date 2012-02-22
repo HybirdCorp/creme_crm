@@ -81,7 +81,7 @@ class CSVUploadForm(CremeForm):
                 try:
                     filedata.open()
                     self._csv_header = UnicodeReader(filedata).next()
-                except Exception, e:
+                except Exception as e:
                     raise ValidationError(ugettext("Error reading document: %s.") % e)
                 finally:
                     filedata.close()
@@ -119,7 +119,7 @@ class CSVExtractor(object):
                 try:
                     retriever = self._fk_model.objects.filter if self._m2m else self._fk_model.objects.get
                     return retriever(**data) #TODO: improve self._value_castor avoid te direct 'return' ?
-                except Exception, e:
+                except Exception as e:
                     fk_form = self._fk_form
 
                     if fk_form: #try to create the referenced instance
@@ -215,8 +215,7 @@ class CSVExtractorWidget(SelectMultiple):
 
     def value_from_datadict(self, data, files, name):
         get = data.get
-        return {
-                'selected_column':  get("%s_colselect" % name),
+        return {'selected_column':  get("%s_colselect" % name),
                 'subfield_search':  get("%s_subfield" % name),
                 'subfield_create':  get("%s_create" % name, False),
                 'default_value':    self.default_value_widget.value_from_datadict(data, files, "%s_defval" % name)
@@ -308,7 +307,7 @@ class CSVRelationExtractor(object):
 
         try:
             object_entities = EntityCredentials.filter(user, self._related_model.objects.filter(**data))[:1]
-        except Exception, e:
+        except Exception as e:
             import_errors.append((line, ugettext('Error while extracting value (%(raw_error)s) to build a Relation: tried to retrieve %(field)s="%(value)s" on %(model)s') %{
                                                 'raw_error': e,
                                                 'field':     self._subfield_search,
@@ -547,6 +546,7 @@ class CSVImportForm(CremeModelForm):
                 for name, cleaned_field in extractor_fields:
                     setattr(instance, name, cleaned_field.extract_value(line, self.import_errors))
 
+                instance.full_clean()
                 instance.save()
                 self.imported_objects_count += 1
 
@@ -556,7 +556,7 @@ class CSVImportForm(CremeModelForm):
                     extractor = get_cleaned(m2m.name) #can be a regular_field ????
                     if extractor:
                         setattr(instance, m2m.name, extractor.extract_value(line, self.import_errors))
-            except Exception, e:
+            except Exception as e:
                 self.import_errors.append((line, str(e)))
                 info('Exception in CSV importing: %s (%s)', e, type(e))
         else:
