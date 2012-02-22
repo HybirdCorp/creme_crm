@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-02-21 19:32+0100\n"
+"POT-Creation-Date: 2012-02-22 21:29+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -189,7 +189,7 @@ msgstr "L'opérateur '%s' a besoin d'une valeur."
 msgid "%(operator)s : %(message)s."
 msgstr "%(operator)s : %(message)s."
 
-#: forms/base.py:158 forms/base.py:179 forms/relation.py:171
+#: forms/base.py:158 forms/base.py:179 forms/relation.py:172
 msgid "General information"
 msgstr "Informations générales"
 
@@ -335,7 +335,7 @@ msgstr ""
 "La 1ère ligne du fichier contient-il l'entête des colonnes de valeurs (ex: "
 "\"Nom\",\"Prénom\") ?"
 
-#: forms/csv_import.py:76 forms/csv_import.py:504
+#: forms/csv_import.py:76 forms/csv_import.py:503
 msgid "You have not the credentials to read this document."
 msgstr "Vous n'avez pas les droits pour lire ce document."
 
@@ -374,7 +374,7 @@ msgstr "Créer si non trouvé ?"
 msgid "Default value"
 msgstr "Valeur par défaut"
 
-#: forms/csv_import.py:312
+#: forms/csv_import.py:311
 #, python-format
 msgid ""
 "Error while extracting value (%(raw_error)s) to build a Relation: tried to "
@@ -383,7 +383,7 @@ msgstr ""
 "Erreur lors de l'extraction de valeur (%(raw_error)s) pour construire une "
 "Relation: a essayé de retrouver %(field)s=\"%(value)s\" sur %(model)s"
 
-#: forms/csv_import.py:328
+#: forms/csv_import.py:327
 #, python-format
 msgid ""
 "Error while extracting value: tried to build  %(model)s with data=%(data)s "
@@ -392,7 +392,7 @@ msgstr ""
 "Erreur lors de l'extraction  de valeur: a essayé de construire %(model)s "
 "avec données=%(data)s => errors=%(errors)s"
 
-#: forms/csv_import.py:338
+#: forms/csv_import.py:337
 #, python-format
 msgid ""
 "Error while extracting value to build a Relation: tried to retrieve "
@@ -401,7 +401,7 @@ msgstr ""
 "Erreur lors de l'extraction de valeur pour construire une Relation: a essayé "
 "de retrouver %(field)s=\"%(value)s\" sur %(model)s"
 
-#: forms/csv_import.py:379
+#: forms/csv_import.py:378
 msgid ""
 "Create entities if they are not found ? (only fields followed by [CREATION] "
 "allows you to create, if they exist)"
@@ -409,19 +409,19 @@ msgstr ""
 "Créer les fiches si elle ne sont pas trouvées ? (seuls les champs suivi de "
 "[CRÉATION] vous permettent de créer, si ils existent)"
 
-#: forms/csv_import.py:391
+#: forms/csv_import.py:390
 msgid "This field doesn't exist in this ContentType."
 msgstr "Ce champ n'existe pas dans ce type de fiche."
 
-#: forms/csv_import.py:392
+#: forms/csv_import.py:391
 msgid "This column is not a valid choice."
 msgstr "Cette colonne n'est pas un choix valide'."
 
-#: forms/csv_import.py:483
+#: forms/csv_import.py:482
 msgid "Importing from a CSV file"
 msgstr "Import depuis un fichier CSV"
 
-#: forms/csv_import.py:501
+#: forms/csv_import.py:500
 msgid "This document doesn't exist or doesn't exist any more."
 msgstr "Ce document n'existe pas/plus."
 
@@ -665,6 +665,10 @@ msgstr "Fonctions"
 #: forms/header_filter.py:107
 msgid "You have to choose at least one element in available lists."
 msgstr "Vous devez choisir au moins un élément dans les listes disponibles"
+
+#: forms/merge.py:114
+msgid "Merged entity"
+msgstr "Fiche fusionnée"
 
 #: forms/relation.py:36 models/relation.py:313
 msgid "Semi-fixed types of relationship"
@@ -1967,7 +1971,7 @@ msgstr "Demain"
 msgid "Multiple adding of properties"
 msgstr "Ajout multiple de propriétés"
 
-#: views/creme_property.py:122
+#: views/creme_property.py:85
 #, python-format
 msgid "New properties for <%s>"
 msgstr "Nouvelles propriétés pour <%s>"
@@ -1989,6 +1993,20 @@ msgstr "Edition rapide"
 #, python-format
 msgid "Merge <%(entity1)s> with <%(entity2)s>"
 msgstr "Fusionner <%(entity1)s> avec <%(entity2)s>"
+
+#: views/entity.py:413
+msgid ""
+"You are going to merge two entities into a new one.\n"
+"Choose which information you want the old entities give to the new entity.\n"
+"The relationships, the properties and the other links with any of old "
+"entities will be automatically available in the new merged entity."
+msgstr ""
+"Vous êtes sur le point de fusionner deux fiches en une seule.\n"
+"Choisissez quelles informations vous voulez que les vieilles fiches donnent "
+"à la nouvelle fiche.\n"
+"Les relations, les propriétés et les autres liens avec n'importe laquelle "
+"des vieilles fiches seront automatiquement disponibles dans la nouvelle "
+"fiche fusionnée."
 
 #: views/entity_filter.py:97
 msgid "Filter sucessfully deleted"
