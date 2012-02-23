@@ -3,7 +3,7 @@
 try:
     from creme_core.tests.base import CremeTestCase
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('PortalTestCase',)

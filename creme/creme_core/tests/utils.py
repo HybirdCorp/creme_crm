@@ -21,7 +21,7 @@ try:
 
     from persons.models import Civility
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class MiscTestCase(CremeTestCase):
@@ -56,17 +56,15 @@ class MiscTestCase(CremeTestCase):
 
     def test_create_if_needed01(self):
         title = 'Mister'
-        pk = 1
-        civ = create_if_needed(Civility, {'pk': pk}, title=title)
+        pk = 1024
+        self.assertFalse(Civility.objects.filter(pk=pk).exists())
 
+        civ = create_if_needed(Civility, {'pk': pk}, title=title)
         self.assertIsInstance(civ, Civility)
         self.assertEqual(pk,       civ.pk)
         self.assertEqual(title,    civ.title)
 
-        try:
-            civ = Civility.objects.get(pk=pk)
-        except Civility.DoesNotExist:
-            self.fail('Not saved ?!')
+        civ = self.get_object_or_fail(Civility, pk=pk) #Check has been saved
 
         self.assertEqual(title, civ.title)
 
@@ -87,10 +85,7 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual(label,  pmi.label)
         self.assertEqual(order,  pmi.order)
 
-        try:
-            pmi = PreferedMenuItem.objects.get(pk=pmi.pk)
-        except PreferedMenuItem.DoesNotExist:
-            self.fail('Not saved ?!')
+        pmi = self.get_object_or_fail(PreferedMenuItem, pk=pmi.pk) #Check has been saved
 
         self.assertEqual(label,  pmi.label)
         self.assertEqual(order,  pmi.order)
@@ -124,22 +119,18 @@ class MetaTestCase(CremeTestCase):
         #[{'field': <django.db.models.fields.related.ForeignKey object at ...>,
         #  'model': <class 'creme_core.models.creme_property.CremePropertyType'>}]
         with self.assertNoException():
-        #try:
             info = meta.get_model_field_infos(CremeProperty, 'type')
             self.assertEqual(1, len(info))
 
             desc = info[0]
             self.assertIsInstance(desc['field'], fields.related.ForeignKey)
             self.assertEqual(CremePropertyType, desc['model'])
-        #except Exception as e:
-            #self.fail(str(e))
 
         #[{ 'field': <django.db.models.fields.related.ForeignKey object at ...>,
         #   'model': <class 'creme_core.models.creme_property.CremePropertyType'>},
         # {'field': <django.db.models.fields.CharField object at ...>,
         #   'model': None}]
         with self.assertNoException():
-        #try:
             info = meta.get_model_field_infos(CremeProperty, 'type__text')
             self.assertEqual(2, len(info))
 
@@ -150,8 +141,6 @@ class MetaTestCase(CremeTestCase):
             desc = info[1]
             self.assertIsInstance(desc['field'], fields.CharField)
             self.assertIsNone(desc['model'])
-        #except Exception as e:
-            #self.fail(str(e))
 
         #[{'field': <django.db.models.fields.related.ForeignKey object at 0x9d123ec>,
         #  'model': <class 'creme_core.models.entity.CremeEntity'>},
@@ -160,7 +149,6 @@ class MetaTestCase(CremeTestCase):
         # {'field': <django.db.models.fields.CharField object at 0x99d302c>,
         #  'model': None}]
         with self.assertNoException():
-        #try:
             info = meta.get_model_field_infos(CremeProperty, 'creme_entity__entity_type__name')
             self.assertEqual(3, len(info))
 
@@ -175,8 +163,6 @@ class MetaTestCase(CremeTestCase):
             desc = info[2]
             self.assertIsInstance(desc['field'], fields.CharField)
             self.assertIsNone(desc['model'])
-        #except Exception, e:
-            #self.fail(str(e))
 
     def test_get_date_fields(self):
         entity = CremeEntity()

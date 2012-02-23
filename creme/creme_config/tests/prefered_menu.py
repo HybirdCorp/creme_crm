@@ -8,7 +8,7 @@ try:
     from creme_core.tests.base import CremeTestCase
     from creme_core import autodiscover
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('PreferedMenuTestCase',)
@@ -60,7 +60,7 @@ class PreferedMenuTestCase(CremeTestCase):
         return data
 
     def test_edit(self):
-        self.assertFalse(PreferedMenuItem.objects.exists())
+        self.assertFalse(PreferedMenuItem.objects.all())
 
         url = '/creme_config/prefered_menu/edit/'
         response = self.client.get(url)

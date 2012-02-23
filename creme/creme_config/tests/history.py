@@ -6,7 +6,7 @@ try:
     from creme_core.models import RelationType, HistoryConfigItem
     from creme_core.tests.base import CremeTestCase
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('HistoryConfigTestCase',)
@@ -21,15 +21,16 @@ class HistoryConfigTestCase(CremeTestCase):
 
     def test_portal(self):
         self.login()
-        self.populate('creme_core')
+        #self.populate('creme_core')
         self.assertEqual(200, self.client.get('/creme_config/history/portal/').status_code)
 
     def test_add01(self):
         self.login()
         self.assertFalse(HistoryConfigItem.objects.exists())
 
-        rtype01, srtype01 = RelationType.create(('test-subject_foo', 'fooes'), ('test-object_foo', 'fooed'))
-        rtype02, srtype02 = RelationType.create(('test-subject_bar', 'bars'),  ('test-object_bar', 'bared'))
+        create_rt = RelationType.create
+        rtype01 = create_rt(('test-subject_foo', 'fooes'), ('test-object_foo', 'fooed'))[0]
+        rtype02 = create_rt(('test-subject_bar', 'bars'),  ('test-object_bar', 'bared'))[0]
 
         url = '/creme_config/history/add/'
         self.assertEqual(200, self.client.get(url).status_code)
@@ -46,8 +47,9 @@ class HistoryConfigTestCase(CremeTestCase):
     def test_add02(self): #no doublons
         self.login()
 
-        rtype01, srtype01 = RelationType.create(('test-subject_foo', 'fooes'), ('test-object_foo', 'fooed'))
-        rtype02, srtype02 = RelationType.create(('test-subject_bar', 'bars'),  ('test-object_bar', 'bared'))
+        create_rt = RelationType.create
+        rtype01 = create_rt(('test-subject_foo', 'fooes'), ('test-object_foo', 'fooed'))[0]
+        rtype02 = create_rt(('test-subject_bar', 'bars'),  ('test-object_bar', 'bared'))[0]
 
         HistoryConfigItem.objects.create(relation_type=rtype01)
 
@@ -60,9 +62,9 @@ class HistoryConfigTestCase(CremeTestCase):
     def test_delete(self):
         self.login()
 
-        rtype, srtype = RelationType.create(('test-subject_foo', 'fooes'), ('test-object_foo', 'fooed'))
+        rtype = RelationType.create(('test-subject_foo', 'fooes'), ('test-object_foo', 'fooed'))[0]
         hci = HistoryConfigItem.objects.create(relation_type=rtype)
 
         response = self.client.post('/creme_config/history/delete', data={'id': hci.id})
         self.assertEqual(200, response.status_code)
-        self.assertFalse(HistoryConfigItem.objects.filter(pk=hci.id).exists())
+        self.assertFalse(HistoryConfigItem.objects.filter(pk=hci.id))

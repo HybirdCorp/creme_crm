@@ -9,7 +9,7 @@ try:
 
     from persons.models import Contact, Organisation
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('SearchConfigTestCase',)
@@ -18,6 +18,9 @@ __all__ = ('SearchConfigTestCase',)
 class SearchConfigTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
+        SearchField.objects.all().delete()
+        SearchConfigItem.objects.all().delete()
+
         cls.populate('creme_core', 'creme_config')
 
     def setUp(self):
@@ -57,7 +60,9 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertEqual(self.other_user, sc_items[0].user)
 
         response = self.client.post(url, post_data)
-        self.assertFormError(response, 'form', None, [_(u'The pair search configuration/user(s) already exists !')])
+        self.assertFormError(response, 'form', None,
+                             [_(u'The pair search configuration/user(s) already exists !')]
+                            )
 
     def _find_field_index(self, formfield, field_name):
         for i, (f_field_name, f_field_vname) in enumerate(formfield.choices):
@@ -90,14 +95,13 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertNoChoice(fields, 'birthday')
 
         response = self.client.post(url,
-                                    data={
-                                            'fields_check_%s' % index1: 'on',
-                                            'fields_value_%s' % index1: 'first_name',
-                                            'fields_order_%s' % index1: 1,
+                                    data={'fields_check_%s' % index1: 'on',
+                                          'fields_value_%s' % index1: 'first_name',
+                                          'fields_order_%s' % index1: 1,
 
-                                            'fields_check_%s' % index2: 'on',
-                                            'fields_value_%s' % index2: 'last_name',
-                                            'fields_order_%s' % index2: 2,
+                                          'fields_check_%s' % index2: 'on',
+                                          'fields_value_%s' % index2: 'last_name',
+                                          'fields_order_%s' % index2: 2,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -111,10 +115,12 @@ class SearchConfigTestCase(CremeTestCase):
     def test_delete(self):
         ct = ContentType.objects.get_for_model(Contact)
         sci = SearchConfigItem.objects.create(content_type=ct, user=None)
-        sf1 = SearchField.objects.create(search_config_item=sci, field='first_name', order=1)
-        sf2 = SearchField.objects.create(search_config_item=sci, field='last_name', order=2)
+
+        create_sf = SearchField.objects.create
+        sf1 = create_sf(search_config_item=sci, field='first_name', order=1)
+        sf2 = create_sf(search_config_item=sci, field='last_name',  order=2)
 
         response = self.client.post('/creme_config/search/delete', data={'id': sci.id})
         self.assertEqual(200, response.status_code)
-        self.assertFalse(SearchConfigItem.objects.filter(pk=sci.pk).exists())
-        self.assertFalse(SearchField.objects.filter(pk__in=[sf1.pk, sf2.pk]).exists())
+        self.assertFalse(SearchConfigItem.objects.filter(pk=sci.pk))
+        self.assertFalse(SearchField.objects.filter(pk__in=[sf1.pk, sf2.pk]))

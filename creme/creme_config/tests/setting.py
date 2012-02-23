@@ -5,7 +5,7 @@ try:
 
     from creme_config.models import SettingKey, SettingValue
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('SettingTestCase',)
@@ -105,7 +105,7 @@ class SettingTestCase(CremeTestCase):
                                        hidden=True,
                                       )
         sv = SettingValue.objects.create(key=sk, user=None, value=True)
-        self.assertEqual(404, self.client.get('/creme_config/settings/edit/%s' % sv.id).status_code)
+        self.assertGET404('/creme_config/settings/edit/%s' % sv.id)
 
     def test_edit05(self): #hidden => not editable
         self.login()
@@ -115,4 +115,4 @@ class SettingTestCase(CremeTestCase):
                                        hidden=False,
                                       )
         sv = SettingValue.objects.create(key=sk, user=self.user, value=True)
-        self.assertEqual(404, self.client.get('/creme_config/settings/edit/%s' % sv.id).status_code)
+        self.assertGET404('/creme_config/settings/edit/%s' % sv.id)

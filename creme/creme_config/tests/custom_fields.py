@@ -9,7 +9,7 @@ try:
 
     from persons.models import Contact, Organisation
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('CustomFieldsTestCase',)
@@ -30,7 +30,7 @@ class CustomFieldsTestCase(CremeTestCase):
     def test_add_ct(self):
         ct = ContentType.objects.get_for_model(Contact)
 
-        self.assertEqual(0, CustomField.objects.count())
+        self.assertFalse(CustomField.objects.all())
 
         url = '/creme_config/custom_fields/ct/add/'
         self.assertEqual(200, self.client.get(url).status_code)
@@ -121,9 +121,7 @@ class CustomFieldsTestCase(CremeTestCase):
         response = self.client.post(url, data={'name': name})
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
-
-        cfield = CustomField.objects.get(pk=cfield.pk) #refresh
-        self.assertEqual(name, cfield.name)
+        self.assertEqual(name, self.refresh(cfield).name)
 
     def test_edit02(self): #ENUM
         ct = ContentType.objects.get_for_model(Contact)
@@ -149,15 +147,14 @@ class CustomFieldsTestCase(CremeTestCase):
 
         self.assertEqual([u'C', u'ABC', u'Java'], old_choices.content)
 
-        response = self.client.post(url, data={
-                                                'name': cfield.name,
-                                                'new_choices': 'C++\nHaskell',
+        response = self.client.post(url, data={'name': cfield.name,
+                                               'new_choices': 'C++\nHaskell',
 
-                                                'old_choices_check_0': 'on',
-                                                'old_choices_value_0': 'C',
+                                               'old_choices_check_0': 'on',
+                                               'old_choices_value_0': 'C',
 
-                                                'old_choices_check_1': 'on',
-                                                'old_choices_value_1': 'Python',
+                                               'old_choices_check_1': 'on',
+                                               'old_choices_value_1': 'Python',
                                               }
                                    )
         self.assertNoFormError(response)
@@ -169,9 +166,10 @@ class CustomFieldsTestCase(CremeTestCase):
 
     def test_delete(self):
         ct = ContentType.objects.get_for_model(Contact)
-        cfield1 = CustomField.objects.create(content_type=ct, name='Day',       field_type=CustomField.DATE)
-        cfield2 = CustomField.objects.create(content_type=ct, name='Languages', field_type=CustomField.ENUM)
-        cfield3 = CustomField.objects.create(content_type=ct, name='Hobbies',   field_type=CustomField.MULTI_ENUM)
+        create_cf = CustomField.objects.create
+        cfield1 = create_cf(content_type=ct, name='Day',       field_type=CustomField.DATE)
+        cfield2 = create_cf(content_type=ct, name='Languages', field_type=CustomField.ENUM)
+        cfield3 = create_cf(content_type=ct, name='Hobbies',   field_type=CustomField.MULTI_ENUM)
 
         create_evalue = CustomFieldEnumValue.objects.create
         eval1 = create_evalue(custom_field=cfield2, value='C')
@@ -183,9 +181,9 @@ class CustomFieldsTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
 
         self.assertEqual(2, CustomField.objects.filter(pk__in=[cfield1.pk, cfield3.pk]).count())
-        self.assertEqual(0, CustomField.objects.filter(pk=cfield2.pk).count())
+        self.assertFalse(CustomField.objects.filter(pk=cfield2.pk))
 
         self.assertEqual(2, CustomFieldEnumValue.objects.filter(pk__in=[eval3.pk, eval4.pk]).count())
-        self.assertEqual(0, CustomFieldEnumValue.objects.filter(pk__in=[eval1.pk, eval2.pk]).count())
+        self.assertFalse(CustomFieldEnumValue.objects.filter(pk__in=[eval1.pk, eval2.pk]))
 
     #TODO: (r'^custom_fields/(?P<ct_id>\d+)/reload/$', 'custom_fields.reload_block'),
