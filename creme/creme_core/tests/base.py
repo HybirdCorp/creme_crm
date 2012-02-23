@@ -50,12 +50,16 @@ class _CremeTestCase(object):
         logged = self.client.login(username=self.user.username, password=password)
         self.assertTrue(logged, 'Not logged in')
 
-    #def populate(self, *args):
     @classmethod
     def populate(cls, *args):
         PopulateCommand().handle(application=args)
 
-    #def assertNoException(self, function, *args, **kwargs):
+    def assertGET404(self, *args, **kwargs):
+        self.assertEqual(404, self.client.get(*args, **kwargs).status_code)
+
+    def assertPOST404(self, *args, **kwargs):
+        self.assertEqual(404, self.client.post(*args, **kwargs).status_code)
+
     def assertNoException(self, function=None, *args, **kwargs):
         if function is None:
             return _AssertNoExceptionContext(self)
@@ -64,7 +68,6 @@ class _CremeTestCase(object):
             function(*args, **kwargs)
         except Exception as e:
             raise self.failureException('An exception <%s> occured: %s' % (e.__class__.__name__, e))
-            #self.fail('An exception <%s> occured: %s' % (e.__class__.__name__, e))
 
     def assertNoFormError(self, response, form='form'):
         try:
@@ -76,7 +79,12 @@ class _CremeTestCase(object):
                 self.fail(errors)
 
     def assertRelationCount(self, count, subject_entity, type_id, object_entity):
-        self.assertEqual(count, Relation.objects.filter(subject_entity=subject_entity.id, type=type_id, object_entity=object_entity.id).count())
+        self.assertEqual(count,
+                         Relation.objects.filter(subject_entity=subject_entity.id,
+                                                 type=type_id,
+                                                 object_entity=object_entity.id)
+                                         .count()
+                        )
 
     def get_object_or_fail(self, model, **kwargs):
         try:

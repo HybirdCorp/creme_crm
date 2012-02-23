@@ -4,7 +4,7 @@ try:
     from creme_core.models import SetCredentials
     from creme_core.tests.base import CremeTestCase
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('ViewsTestCase', 'MiscViewsTestCase')
@@ -38,25 +38,30 @@ class ViewsTestCase(CremeTestCase):
 
 
 class MiscViewsTestCase(ViewsTestCase):
-    def setUp(self):
-        self.populate('creme_core', 'creme_config')
+    #@classmethod
+    #def setUpClass(cls):
+        #cls.populate()
+
+    #def setUp(self):
+        #self.populate('creme_core', 'creme_config')
+        #self.login()
 
     def test_home(self): #TODO: improve test
+        self.populate('creme_core', 'creme_config')
         self.login()
         self.assertEqual(200, self.client.get('/').status_code)
 
     def test_my_page(self):
+        self.populate('creme_core', 'creme_config')
         self.login()
         self.assertEqual(200, self.client.get('/my_page').status_code)
 
     def test_clean(self):
+        self.populate()
         self.login()
 
-        #try:
         with self.assertNoException():
             response = self.client.get('/creme_core/clean/', follow=True)
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertEqual(200, response.status_code)
         self.assertEqual(2,   len(response.redirect_chain))

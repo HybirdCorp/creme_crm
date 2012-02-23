@@ -13,7 +13,7 @@ try:
 
     from persons.models import Contact  #need CremeEntity
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('BlocksConfigTestCase',)
@@ -22,12 +22,18 @@ __all__ = ('BlocksConfigTestCase',)
 class BlocksConfigTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
+        BlockDetailviewLocation.objects.all().delete()
+        BlockPortalLocation.objects.all().delete()
+        BlockMypageLocation.objects.all().delete()
+        RelationBlockItem.objects.all().delete()
+
         cls.populate('creme_core', 'creme_config')
+        autodiscover()
 
     def setUp(self):
         self.login()
         #self.populate('creme_core', 'creme_config')
-        autodiscover()
+        #autodiscover()
 
     def test_portal(self):
         self.assertEqual(200, self.client.get('/creme_config/blocks/portal/').status_code)
@@ -37,7 +43,7 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertEqual(200, self.client.get(url).status_code)
 
         ct = ContentType.objects.get_for_model(Contact)
-        self.assertEqual(0, BlockDetailviewLocation.objects.filter(content_type=ct).count())
+        self.assertFalse(BlockDetailviewLocation.objects.filter(content_type=ct))
 
         response = self.client.post(url, data={'ct_id': ct.id})
         self.assertNoFormError(response)
@@ -51,10 +57,8 @@ class BlocksConfigTestCase(CremeTestCase):
 
         response = self.client.get(url)
 
-        try:
+        with self.assertNoException():
             choices = response.context['form'].fields['ct_id'].choices
-        except Exception, e:
-            self.fail(str(e))
 
         self.assertNotIn(ct.id, (ct_id for ct_id, ctype in choices))
 
@@ -141,30 +145,29 @@ class BlocksConfigTestCase(CremeTestCase):
         block_bottom_index = self._find_field_index(bottom_field, block_bottom_id)
 
         response = self.client.post(url,
-                                    data={
-                                            'top_check_%s' % block_top_index1: 'on',
-                                            'top_value_%s' % block_top_index1: block_top_id1,
-                                            'top_order_%s' % block_top_index1: 1,
+                                    data={'top_check_%s' % block_top_index1: 'on',
+                                          'top_value_%s' % block_top_index1: block_top_id1,
+                                          'top_order_%s' % block_top_index1: 1,
 
-                                            'top_check_%s' % block_top_index2: 'on',
-                                            'top_value_%s' % block_top_index2: block_top_id2,
-                                            'top_order_%s' % block_top_index2: 2,
+                                          'top_check_%s' % block_top_index2: 'on',
+                                          'top_value_%s' % block_top_index2: block_top_id2,
+                                          'top_order_%s' % block_top_index2: 2,
 
-                                            'left_check_%s' % block_left_index1: 'on',
-                                            'left_value_%s' % block_left_index1: block_left_id1,
-                                            'left_order_%s' % block_left_index1: 1,
+                                          'left_check_%s' % block_left_index1: 'on',
+                                          'left_value_%s' % block_left_index1: block_left_id1,
+                                          'left_order_%s' % block_left_index1: 1,
 
-                                            'left_check_%s' % block_left_index2: 'on',
-                                            'left_value_%s' % block_left_index2: block_left_id2,
-                                            'left_order_%s' % block_left_index2: 2,
+                                          'left_check_%s' % block_left_index2: 'on',
+                                          'left_value_%s' % block_left_index2: block_left_id2,
+                                          'left_order_%s' % block_left_index2: 2,
 
-                                            'right_check_%s' % block_right_index: 'on',
-                                            'right_value_%s' % block_right_index: block_right_id,
-                                            'right_order_%s' % block_right_index: 1,
+                                          'right_check_%s' % block_right_index: 'on',
+                                          'right_value_%s' % block_right_index: block_right_id,
+                                          'right_order_%s' % block_right_index: 1,
 
-                                            'bottom_check_%s' % block_bottom_index: 'on',
-                                            'bottom_value_%s' % block_bottom_index: block_bottom_id,
-                                            'bottom_order_%s' % block_bottom_index: 1,
+                                          'bottom_check_%s' % block_bottom_index: 'on',
+                                          'bottom_value_%s' % block_bottom_index: block_bottom_id,
+                                          'bottom_order_%s' % block_bottom_index: 1,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -228,14 +231,13 @@ class BlocksConfigTestCase(CremeTestCase):
         block_top_index2 = self._find_field_index(top_field, block_top_id2)
 
         response = self.client.post(url,
-                                    data={
-                                            'top_check_%s' % block_top_index1: 'on',
-                                            'top_value_%s' % block_top_index1: block_top_id1,
-                                            'top_order_%s' % block_top_index1: 1,
+                                    data={'top_check_%s' % block_top_index1: 'on',
+                                          'top_value_%s' % block_top_index1: block_top_id1,
+                                          'top_order_%s' % block_top_index1: 1,
 
-                                            'top_check_%s' % block_top_index2: 'on',
-                                            'top_value_%s' % block_top_index2: block_top_id2,
-                                            'top_order_%s' % block_top_index2: 2,
+                                          'top_check_%s' % block_top_index2: 'on',
+                                          'top_value_%s' % block_top_index2: block_top_id2,
+                                          'top_order_%s' % block_top_index2: 2,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -305,14 +307,13 @@ class BlocksConfigTestCase(CremeTestCase):
         block_right_index = self._find_field_index(right_field, block_right_id)
 
         response = self.client.post(url,
-                                    data={
-                                            'right_check_%s' % block_right_index: 'on',
-                                            'right_value_%s' % block_right_index: block_right_id,
-                                            'right_order_%s' % block_right_index: 1,
+                                    data={'right_check_%s' % block_right_index: 'on',
+                                          'right_value_%s' % block_right_index: block_right_id,
+                                          'right_order_%s' % block_right_index: 1,
 
-                                            'left_check_%s' % block_left_index: 'on',
-                                            'left_value_%s' % block_left_index: block_left_id,
-                                            'left_order_%s' % block_left_index: 1,
+                                          'left_check_%s' % block_left_index: 'on',
+                                          'left_value_%s' % block_left_index: block_left_id,
+                                          'left_order_%s' % block_left_index: 1,
                                          }
                                    )
         self.assertFormError(response, 'form', field=None,
@@ -367,14 +368,14 @@ class BlocksConfigTestCase(CremeTestCase):
 
         response = self.client.post('/creme_config/blocks/detailview/delete', data={'id': ct.id})
         self.assertEqual(200, response.status_code)
-        self.assertEqual(0, BlockDetailviewLocation.objects.filter(content_type=ct).count())
+        self.assertFalse(BlockDetailviewLocation.objects.filter(content_type=ct))
 
     def test_add_portal(self):
         url = '/creme_config/blocks/portal/add/'
         self.assertEqual(200, self.client.get(url).status_code)
 
         app_name = 'persons'
-        self.assertEqual(0, BlockPortalLocation.objects.filter(app_name=app_name).count())
+        self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
 
         response = self.client.post(url, data={'app_name': app_name})
         self.assertNoFormError(response)
@@ -389,10 +390,8 @@ class BlocksConfigTestCase(CremeTestCase):
 
         response = self.client.get(url)
 
-        try:
+        with self.assertNoException():
             choices = response.context['form'].fields['app_name'].choices
-        except Exception as e:
-            self.fail(str(e))
 
         names = set(name for name, vname in choices)
         self.assertNotIn(app_name,       names)
@@ -599,7 +598,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
         response = self.client.post('/creme_config/blocks/portal/delete', data={'id': app_name})
         self.assertEqual(200, response.status_code)
-        self.assertEqual(0,   BlockPortalLocation.objects.filter(app_name=app_name).count())
+        self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
 
     def test_delete_home(self): #can not delete home conf
         #TODO: use a helper method ??
@@ -635,14 +634,13 @@ class BlocksConfigTestCase(CremeTestCase):
         index2 = self._find_field_index(blocks_field, block_id2)
 
         response = self.client.post(url,
-                                    data={
-                                            'blocks_check_%s' % index1: 'on',
-                                            'blocks_value_%s' % index1: block_id1,
-                                            'blocks_order_%s' % index1: 1,
+                                    data={'blocks_check_%s' % index1: 'on',
+                                          'blocks_value_%s' % index1: block_id1,
+                                          'blocks_order_%s' % index1: 1,
 
-                                            'blocks_check_%s' % index2: 'on',
-                                            'blocks_value_%s' % index2: block_id2,
-                                            'blocks_order_%s' % index2: 2,
+                                          'blocks_check_%s' % index2: 'on',
+                                          'blocks_value_%s' % index2: block_id2,
+                                          'blocks_order_%s' % index2: 2,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -676,14 +674,13 @@ class BlocksConfigTestCase(CremeTestCase):
         index2 = self._find_field_index(blocks_field, block_id2)
 
         response = self.client.post(url,
-                                    data={
-                                            'blocks_check_%s' % index1: 'on',
-                                            'blocks_value_%s' % index1: block_id1,
-                                            'blocks_order_%s' % index1: 1,
+                                    data={'blocks_check_%s' % index1: 'on',
+                                          'blocks_value_%s' % index1: block_id1,
+                                          'blocks_order_%s' % index1: 1,
 
-                                            'blocks_check_%s' % index2: 'on',
-                                            'blocks_value_%s' % index2: block_id2,
-                                            'blocks_order_%s' % index2: 2,
+                                          'blocks_check_%s' % index2: 'on',
+                                          'blocks_value_%s' % index2: block_id2,
+                                          'blocks_order_%s' % index2: 2,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -697,7 +694,7 @@ class BlocksConfigTestCase(CremeTestCase):
         loc = BlockMypageLocation.objects.create(user=None, block_id=history_block.id_, order=1)
         response = self.client.post('/creme_config/blocks/mypage/default/delete', data={'id': loc.id})
         self.assertEqual(200, response.status_code)
-        self.assertEqual(0,   BlockMypageLocation.objects.filter(pk=loc.pk).count())
+        self.assertFalse(BlockMypageLocation.objects.filter(pk=loc.pk))
 
     def test_delete_default_mypage02(self): #'user' must be 'None'
         loc = BlockMypageLocation.objects.create(user=self.user, block_id=history_block.id_, order=1)
@@ -709,7 +706,7 @@ class BlocksConfigTestCase(CremeTestCase):
         loc = BlockMypageLocation.objects.create(user=self.user, block_id=history_block.id_, order=1)
         response = self.client.post('/creme_config/blocks/mypage/delete', data={'id': loc.id})
         self.assertEqual(200, response.status_code)
-        self.assertEqual(0,   BlockMypageLocation.objects.filter(pk=loc.pk).count())
+        self.assertFalse(BlockMypageLocation.objects.filter(pk=loc.pk))
 
     def test_delete_mypage02(self): #BlockMypageLocation must belong to the user
         loc = BlockMypageLocation.objects.create(user=self.other_user, block_id=history_block.id_, order=1)

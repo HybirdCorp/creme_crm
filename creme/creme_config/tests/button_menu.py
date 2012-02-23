@@ -9,7 +9,7 @@ try:
 
     from persons.models import Contact, Organisation
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('ButtonMenuConfigTestCase',)
@@ -18,6 +18,7 @@ __all__ = ('ButtonMenuConfigTestCase',)
 class ButtonMenuConfigTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
+        ButtonMenuItem.objects.all().delete()
         cls.populate('creme_core', 'creme_config')
 
     def setUp(self):
@@ -29,7 +30,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
     def test_add_detailview(self):
         ct = ContentType.objects.get_for_model(Contact)
-        self.assertEqual(0, ButtonMenuItem.objects.filter(content_type=ct).count())
+        self.assertFalse(ButtonMenuItem.objects.filter(content_type=ct))
 
         url = '/creme_config/button_menu/add/'
         self.assertEqual(200, self.client.get(url).status_code)
@@ -44,10 +45,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         response = self.client.get(url)
 
-        try:
+        with self.assertNoException():
             choices = response.context['form'].fields['ct_id'].choices
-        except Exception as e:
-            self.fail(str(e))
 
         self.assertNotIn(ct.id, (ct_id for ct_id, ctype in choices))
 
@@ -83,10 +82,9 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         button_index = self._find_field_index(button_ids, button.id_)
 
         response = self.client.post(url,
-                                    data={
-                                            'button_ids_check_%s' % button_index: 'on',
-                                            'button_ids_value_%s' % button_index: button.id_,
-                                            'button_ids_order_%s' % button_index: 1,
+                                    data={'button_ids_check_%s' % button_index: 'on',
+                                          'button_ids_value_%s' % button_index: button.id_,
+                                          'button_ids_order_%s' % button_index: 1,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -143,14 +141,13 @@ class ButtonMenuConfigTestCase(CremeTestCase):
                 self.fail('Button03 is incompatible with Contact')
 
         response = self.client.post(url,
-                                    data={
-                                            'button_ids_check_%s' % button01_index: 'on',
-                                            'button_ids_value_%s' % button01_index: button01.id_,
-                                            'button_ids_order_%s' % button01_index: 1,
+                                    data={'button_ids_check_%s' % button01_index: 'on',
+                                          'button_ids_value_%s' % button01_index: button01.id_,
+                                          'button_ids_order_%s' % button01_index: 1,
 
-                                            'button_ids_check_%s' % button02_index: 'on',
-                                            'button_ids_value_%s' % button02_index: button02.id_,
-                                            'button_ids_order_%s' % button02_index: 2,
+                                          'button_ids_check_%s' % button02_index: 'on',
+                                          'button_ids_value_%s' % button02_index: button02.id_,
+                                          'button_ids_order_%s' % button02_index: 2,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -173,4 +170,4 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         response = self.client.post('/creme_config/button_menu/delete', data={'id': ct.id})
         self.assertEqual(200, response.status_code)
-        self.assertEqual(0, ButtonMenuItem.objects.filter(content_type=ct).count())
+        self.assertFalse(ButtonMenuItem.objects.filter(content_type=ct))

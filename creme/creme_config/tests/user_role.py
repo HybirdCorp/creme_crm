@@ -11,7 +11,7 @@ try:
 
     from persons.models import Contact, Organisation #need CremeEntity
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('UserRoleTestCase',)
@@ -30,31 +30,26 @@ class UserRoleTestCase(CremeTestCase):
         self.assertEqual(200, self.client.get('/creme_config/role/portal/').status_code)
 
     def test_create01(self):
-        response = self.client.get('/creme_config/role/add/')
-        self.assertEqual(200,  response.status_code)
+        url = '/creme_config/role/add/'
+        self.assertEqual(200,  self.client.get(url).status_code)
 
         get_ct = ContentType.objects.get_for_model
         name = 'CEO'
         creatable_ctypes = [get_ct(Contact).id, get_ct(Organisation).id]
         exportable_ctypes = [get_ct(Contact).id, get_ct(Meeting).id]
         apps = ['persons']
-        response = self.client.post('/creme_config/role/add/', follow=True,
-                                    data={
-                                            'name':                 name,
-                                            'creatable_ctypes':     creatable_ctypes,
-                                            'exportable_ctypes':    exportable_ctypes,
-                                            'allowed_apps':         apps,
-                                            'admin_4_apps':         apps,
+        response = self.client.post(url, follow=True,
+                                    data={'name':              name,
+                                          'creatable_ctypes':  creatable_ctypes,
+                                          'exportable_ctypes': exportable_ctypes,
+                                          'allowed_apps':      apps,
+                                          'admin_4_apps':      apps,
                                          }
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        try:
-            role = UserRole.objects.get(name=name)
-        except Exception as e:
-            self.fail(str(e))
-
+        role = self.get_object_or_fail(UserRole, name=name)
         self.assertEqual(set(creatable_ctypes),  set(ctype.id for ctype in role.creatable_ctypes.all()))
         self.assertEqual(set(exportable_ctypes), set(ctype.id for ctype in role.exportable_ctypes.all()))
 
@@ -77,14 +72,13 @@ class UserRoleTestCase(CremeTestCase):
         self.assertEqual(200, self.client.get(url).status_code)
 
         set_type = SetCredentials.ESET_ALL
-        response = self.client.post(url, data={
-                                                'can_view':   True,
-                                                'can_change': False,
-                                                'can_delete': False,
-                                                'can_link':   False,
-                                                'can_unlink': False,
-                                                'set_type':   set_type,
-                                                'ctype':      0,
+        response = self.client.post(url, data={'can_view':   True,
+                                               'can_change': False,
+                                               'can_delete': False,
+                                               'can_link':   False,
+                                               'can_unlink': False,
+                                               'set_type':   set_type,
+                                               'ctype':      0,
                                               }
                                    )
         self.assertNoFormError(response)
@@ -109,14 +103,13 @@ class UserRoleTestCase(CremeTestCase):
         set_type = SetCredentials.ESET_OWN
         ct_id = ContentType.objects.get_for_model(Contact).id
         response = self.client.post('/creme_config/role/add_credentials/%s' % role.id,
-                                    data={
-                                            'can_view':   True,
-                                            'can_change': True,
-                                            'can_delete': False,
-                                            'can_link':   False,
-                                            'can_unlink': False,
-                                            'set_type':   set_type,
-                                            'ctype':      ct_id,
+                                    data={'can_view':   True,
+                                          'can_change': True,
+                                          'can_delete': False,
+                                          'can_link':   False,
+                                          'can_unlink': False,
+                                          'set_type':   set_type,
+                                          'ctype':      ct_id,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -149,14 +142,13 @@ class UserRoleTestCase(CremeTestCase):
         apps   = ['persons', 'tickets']
         admin_apps = ['persons']
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'name':                    name,
-                                            'creatable_ctypes':        creatable_ctypes,
-                                            'exportable_ctypes':       exportable_ctypes,
-                                            'allowed_apps':            apps,
-                                            'admin_4_apps':            admin_apps,
-                                            'set_credentials_check_0': True,
-                                            'set_credentials_value_0': SetCredentials.ESET_ALL,
+                                    data={'name':                    name,
+                                          'creatable_ctypes':        creatable_ctypes,
+                                          'exportable_ctypes':       exportable_ctypes,
+                                          'allowed_apps':            apps,
+                                          'admin_4_apps':            admin_apps,
+                                          'set_credentials_check_0': True,
+                                          'set_credentials_value_0': SetCredentials.ESET_ALL,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -196,12 +188,11 @@ class UserRoleTestCase(CremeTestCase):
         self.assertTrue(altena.can_view(other_user))
 
         response = self.client.post('/creme_config/role/edit/%s' % role.id, follow=True,
-                                    data={
-                                            'name':                    role.name,
-                                            'allowed_apps':            apps,
-                                            'admin_4_apps':            [],
-                                            'set_credentials_check_1': True,
-                                            'set_credentials_value_1': SetCredentials.ESET_OWN,
+                                    data={'name':                    role.name,
+                                          'allowed_apps':            apps,
+                                          'admin_4_apps':            [],
+                                          'set_credentials_check_1': True,
+                                          'set_credentials_value_1': SetCredentials.ESET_OWN,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -211,8 +202,10 @@ class UserRoleTestCase(CremeTestCase):
         self.assertFalse(role.creatable_ctypes.exists())
         self.assertFalse(role.exportable_ctypes.exists())
 
-        yuki = Contact.objects.get(pk=yuki.id) #refresh caches
-        altena = Contact.objects.get(pk=altena.id)
+        #yuki = Contact.objects.get(pk=yuki.id) #refresh caches
+        yuki = self.refresh(yuki) #refresh caches
+        #altena = Contact.objects.get(pk=altena.id)
+        altena = self.refresh(altena)
         self.assertFalse(yuki.can_view(other_user)) #no more SetCredentials
         self.assertTrue(altena.can_view(other_user))
 
@@ -250,16 +243,15 @@ class UserRoleTestCase(CremeTestCase):
         self.assertFalse(defcreds.can_link())
         self.assertFalse(defcreds.can_unlink())
 
-        response = self.client.get('/creme_config/role/set_default_creds/')
-        self.assertEqual(200, response.status_code)
+        url = '/creme_config/role/set_default_creds/'
+        self.assertEqual(200, self.client.get(url).status_code)
 
         response = self.client.post('/creme_config/role/set_default_creds/', follow=True,
-                                    data={
-                                            'can_view':   True,
-                                            'can_change': True,
-                                            'can_delete': True,
-                                            'can_link':   True,
-                                            'can_unlink': True,
+                                    data={'can_view':   True,
+                                          'can_change': True,
+                                          'can_delete': True,
+                                          'can_link':   True,
+                                          'can_unlink': True,
                                          }
                                    )
         self.assertEqual(200, response.status_code)

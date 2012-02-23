@@ -20,7 +20,7 @@ try:
     from creme_config.utils import get_user_theme
     from creme_config import blocks
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('UserTestCase', 'UserSettingsTestCase')
@@ -75,7 +75,7 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(email,      user.email)
         self.assertTrue(user.check_password(password))
 
-        self.assertFalse(EntityCredentials.objects.filter(user=user).exists())
+        self.assertFalse(EntityCredentials.objects.filter(user=user))
 
     def test_create02(self):
         role = UserRole(name='Mangaka')
@@ -224,8 +224,9 @@ class UserTestCase(CremeTestCase):
         user02 = create_user('Yokiji',  'yokiji@century.jp')
         user03 = create_user('Koizumi', 'koizumi@century.jp')
 
-        response = self.client.get('/creme_config/team/edit/%s' % user01.id)
-        self.assertEqual(404, response.status_code)
+        #response = self.client.get('/creme_config/team/edit/%s' % user01.id)
+        #self.assertEqual(404, response.status_code)
+        self.assertGET404('/creme_config/team/edit/%s' % user01.id)
 
         teamname = 'Teamee'
         team = self._create_team(teamname, [user01, user02])
@@ -274,7 +275,7 @@ class UserTestCase(CremeTestCase):
         url = '/creme_config/team/delete/%s' % team.id
         self.assertEqual(200, self.client.get(url).status_code)
         self.assertEqual(200, self.client.post(url, data={'to_user': user.id}).status_code)
-        self.assertEqual(0,   User.objects.filter(pk=team.id).count())
+        self.assertFalse(User.objects.filter(pk=team.id))
 
     def test_team_delete02(self):
         user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
@@ -290,7 +291,7 @@ class UserTestCase(CremeTestCase):
 
         response = self.client.post(url, data={'to_user': team2.id})
         self.assertEqual(200, response.status_code)
-        self.assertEqual(0, User.objects.filter(pk=team.id).count())
+        self.assertFalse(User.objects.filter(pk=team.id))
 
         try:
             ce = CremeEntity.objects.get(pk=ce.id)#Refresh
@@ -305,7 +306,7 @@ class UserTestCase(CremeTestCase):
 
         response = self.client.post('/creme_config/team/delete/%s' % team.id, data={'to_user': self.user.id})
         self.assertEqual(200, response.status_code)
-        self.assertEqual(0, User.objects.filter(pk=team.id).count())
+        self.assertFalse(User.objects.filter(pk=team.id))
 
     def test_user_delete01(self):
         CremeEntity.objects.all().delete()#In creme_core populate some entities are created, so we avoid an IntegrityError
@@ -339,10 +340,10 @@ class UserTestCase(CremeTestCase):
 
         ce = CremeEntity.objects.create(user=other_user)
 
-        response = self.client.get('/creme_config/user/delete/%s' % other_user.id)
-        self.assertEqual(200, response.status_code)
+        url = '/creme_config/user/delete/%s' % other_user.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
-        response = self.client.post('/creme_config/user/delete/%s' % other_user.id, {'to_user': user.id})
+        response = self.client.post(url, {'to_user': user.id})
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
         self.assertFalse(User.objects.filter(id=other_user.id).exists())
@@ -354,6 +355,7 @@ class UserTestCase(CremeTestCase):
 
         self.assertEqual(user, ce.user)
 
+    #TODO: move to 'activities'
     def test_user_delete04(self):
         user       = self.user
         other_user = self.other_user
