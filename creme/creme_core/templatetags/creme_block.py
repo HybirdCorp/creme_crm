@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -575,6 +575,12 @@ def do_detailview_blocks_importer(parser, token):
     return DetailviewBlocksImporterNode()
 
 class DetailviewBlocksImporterNode(TemplateNode):
+    _GROUPS = ((_DETAIL_BLOCKS_TOP,    BlockDetailviewLocation.TOP),
+               (_DETAIL_BLOCKS_LEFT,   BlockDetailviewLocation.LEFT),
+               (_DETAIL_BLOCKS_RIGHT,  BlockDetailviewLocation.RIGHT),
+               (_DETAIL_BLOCKS_BOTTOM, BlockDetailviewLocation.BOTTOM),
+              )
+
     def render(self, context):
         blocks_manager = BlocksManager.get(context)
         entity = context['object']
@@ -597,11 +603,8 @@ class DetailviewBlocksImporterNode(TemplateNode):
         add_group  = blocks_manager.add_group
         get_blocks = block_registry.get_blocks
 
-        for group_name, zone in ((_DETAIL_BLOCKS_TOP,    BlockDetailviewLocation.TOP),
-                                 (_DETAIL_BLOCKS_LEFT,   BlockDetailviewLocation.LEFT),
-                                 (_DETAIL_BLOCKS_RIGHT,  BlockDetailviewLocation.RIGHT),
-                                 (_DETAIL_BLOCKS_BOTTOM, BlockDetailviewLocation.BOTTOM)):
-            add_group(group_name, *get_blocks(loc_map[zone]))
+        for group_name, zone in self._GROUPS:
+            add_group(group_name, *get_blocks(loc_map[zone], entity=entity))
 
         return ''
 
@@ -671,9 +674,8 @@ class BlockPortalViewerNode(TemplateNode):
 
     def render(self, context):
         block = BlocksManager.get(context).pop_group(self.alias)[0]
-        ct_ids = context[self.ct_ids_varname] #TODO: inline
 
-        return block.portal_display(context, ct_ids)
+        return block.portal_display(context, context[self.ct_ids_varname])
 
 
 def _parse_one_var_tag(token): #TODO: move in creme_core.utils
@@ -811,8 +813,7 @@ class MypageBlocksDisplayerNode(HomeBlocksDisplayerNode):
 def get_blocks_dependencies(context):
     blocks_manager = BlocksManager.get(context)
 
-    return {
-            'deps_map':         blocks_manager.get_dependencies_map(),
+    return {'deps_map':         blocks_manager.get_dependencies_map(),
             'remaining_groups': blocks_manager.get_remaining_groups(),
            }
 
@@ -835,10 +836,9 @@ def do_blocks_importer(parser, token):
 
     _arg_in_quotes_or_die(alias, tag_name)
 
-    compile_filter = parser.compile_filter
-
-    return BlocksImporterNode(blocks_var=TemplateLiteral(compile_filter(blocks_str), blocks_str),
-                              alias=alias[1:-1])
+    return BlocksImporterNode(blocks_var=TemplateLiteral(parser.compile_filter(blocks_str), blocks_str),
+                              alias=alias[1:-1]
+                             )
 
 
 class BlocksImporterNode(TemplateNode):
