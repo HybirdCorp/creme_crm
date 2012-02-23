@@ -2,15 +2,16 @@
 
 try:
     from django.template import Template, RequestContext
+    from django.core.serializers.json import simplejson
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation
-    from creme_core.gui.block import block_registry, SimpleBlock, BlocksManager
+    from creme_core.models import BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation, InstanceBlockConfigItem
+    from creme_core.gui.block import block_registry, Block, SimpleBlock, BlocksManager
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Contact, Organisation
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class CremeBlockTagsTestCase(CremeTestCase):
@@ -32,14 +33,12 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         block_registry.register(FooBlock())
 
-        try:
+        with self.assertNoException():
             template = Template("{% load creme_block %}"
                                 "{% import_block from_app 'creme_core' named 'test_import_n_display_block' as 'my_block' %}"
                                 "{% display_block_detailview 'my_block' %}"
                                )
             render = template.render(RequestContext({}))
-        except Exception as e:
-            self.fail(str(e))
 
         self.assertEqual(blockstr, render.strip())
 
@@ -59,14 +58,12 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         ct_ids = [ContentType.objects.get_for_model(Organisation).id]
 
-        try:
+        with self.assertNoException():
             template = Template("{% load creme_block %}"
                                 "{% import_block from_app 'creme_core' named 'test_import_n_display_block_on_portal' as 'my_block' %}"
                                 "{% display_block_portal 'my_block' ct_ids %}"
                                )
             render = template.render(RequestContext({}, {'ct_ids': ct_ids}))
-        except Exception as e:
-            self.fail(str(e))
 
         self.assertEqual(blockstr, render.strip())
         self.assertEqual(ct_ids, block1.ct_ids)
@@ -101,7 +98,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         block_registry.register(*blocks)
 
-        try:
+        with self.assertNoException():
             template = Template("{% load creme_block %}"
                                 "{% import_detailview_blocks %}"
                                 "<div>{% display_detailview_blocks top %}</div>"
@@ -110,8 +107,6 @@ class CremeBlockTagsTestCase(CremeTestCase):
                                 "<div>{% display_detailview_blocks bottom %}</div>"
                                )
             render = template.render(RequestContext({}, {'object': orga}))
-        except Exception as e:
-            self.fail(str(e))
 
         self.assertEqual('<div><p>BLOCK#1</p><p>BLOCK#2</p></div>'
                          '<div><p>BLOCK#3</p></div>'
@@ -151,7 +146,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
         BlockDetailviewLocation.create(block_id=blocks[0].id_, order=1, zone=BlockDetailviewLocation.BOTTOM) #default conf should be ignored
         block_registry.register(*blocks)
 
-        try:
+        with self.assertNoException():
             template = Template("{% load creme_block %}"
                                 "{% import_detailview_blocks %}"
                                 "<div>{% display_detailview_blocks top %}</div>"
@@ -160,14 +155,88 @@ class CremeBlockTagsTestCase(CremeTestCase):
                                 "<div>{% display_detailview_blocks bottom %}</div>"
                                )
             render = template.render(RequestContext({}, {'object': orga}))
-        except Exception as e:
-            self.fail(str(e))
 
         self.assertEqual('<div><p>BLOCK#1</p><p>BLOCK#2</p></div>'
                          '<div><p>BLOCK#3</p></div>'
                          '<div><p>BLOCK#4</p><p>BLOCK#5</p><p>BLOCK#6</p></div>'
                          '<div><p>BLOCK#7</p></div>',
                          render.strip()
+                        )
+
+    def test_import_n_display_on_detail_from_conf03(self): # InstanceBlock dependencies
+        self.login()
+
+        orga = Organisation.objects.create(user=self.user, name='Xing')
+
+        class OrgaInfoBlock(SimpleBlock):
+            id_          = SimpleBlock.generate_id('creme_core', 'test_import_n_display_on_detail_from_conf03')
+            verbose_name = u'Testing purpose'
+            dependencies = (Organisation,)
+
+            def detailview_display(self, context):
+                return ('<table id="%s">'
+                            '<thead><th>Information on the organisation</th></thead>'
+                            '<tbody>'
+                                '<tr>'
+                                    '<th>Name</th>'
+                                    '<td>%s</td>'
+                                '</tr>'
+                            '</tbody>'
+                        '</table>' % (self.id_, context['object'].name)
+                       )
+
+        class OrgaInstanceBlock(Block):
+            id_  = InstanceBlockConfigItem.generate_base_id('creme_core', 'base_block')
+            #dependencies = ()
+            template_name = 'persons/templatetags/block_thatdoesnotexist.html'
+
+            def __init__(self, instance_block_config_item):
+                self.ibci = instance_block_config_item
+
+            def detailview_display(self, context):
+                return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (
+                            self.id_, self.ibci.entity
+                        )
+
+        infoblock = OrgaInfoBlock()
+        ibci = InstanceBlockConfigItem.objects \
+                                      .create(entity=orga,
+                                              block_id=InstanceBlockConfigItem.generate_id(OrgaInstanceBlock, orga, ''),
+                                              verbose=u"I am an awesome block",
+                                              data='',
+                                             )
+
+        BlockDetailviewLocation.create(block_id=ibci.block_id, order=1, zone=BlockDetailviewLocation.RIGHT)
+        BlockDetailviewLocation.create(block_id=infoblock.id_, order=2, zone=BlockDetailviewLocation.RIGHT)
+
+        block_registry.register(infoblock)
+        block_registry.register_4_instance(OrgaInstanceBlock)
+
+        with self.assertNoException():
+            template = Template("{% load creme_block %}"
+                                "{% import_detailview_blocks %}"
+                                "<div>{% display_detailview_blocks right %}</div>"
+                                "{% get_blocks_dependencies %}"
+                               )
+            render = template.render(RequestContext({}, {'object': orga}))
+
+        render = render.strip()
+
+        self.assertIn('BEWARE ! There are some unused imported blocks', render)
+
+        js_varname = 'creme.utils.blocks_deps ='
+        idx = render.find(js_varname)
+        self.assertNotEqual(-1, idx)
+
+        idx += len(js_varname)
+
+        with self.assertNoException():
+            deps_map = simplejson.loads(render[idx:render.find('}', idx) + 1])
+
+        self.assertEqual({infoblock.id_: ibci.block_id,
+                          ibci.block_id: infoblock.id_,
+                         },
+                         deps_map
                         )
 
     def test_import_n_display_on_portal_from_conf01(self):
@@ -198,14 +267,12 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         ct_ids = [ContentType.objects.get_for_model(Organisation).id]
 
-        try:
+        with self.assertNoException():
             template = Template("{% load creme_block %}"
                                 "{% import_portal_blocks 'persons' %}"
                                 "<div>{% display_portal_blocks ct_ids %}</div>"
                                )
             render = template.render(RequestContext({}, {'ct_ids': ct_ids}))
-        except Exception as e:
-            self.fail(str(e))
 
         self.assertEqual('<div><p>BLOCK#1</p><p>BLOCK#2</p><p>BLOCK#3</p></div>',
                          render.strip()
@@ -240,14 +307,12 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         ct_ids = [ContentType.objects.get_for_model(Organisation).id]
 
-        try:
+        with self.assertNoException():
             template = Template("{% load creme_block %}"
                                 "{% import_portal_blocks app_name %}"
                                 "<div>{% display_portal_blocks ct_ids %}</div>"
                                )
             render = template.render(RequestContext({}, {'ct_ids': ct_ids, 'app_name': 'persons'}))
-        except Exception as e:
-            self.fail(str(e))
 
         self.assertEqual('<div><p>BLOCK#1</p><p>BLOCK#2</p><p>BLOCK#3</p></div>',
                          render.strip()
@@ -279,14 +344,12 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         block_registry.register(*blocks)
 
-        try:
+        with self.assertNoException():
             template = Template("{% load creme_block %}"
                                 "{% import_home_blocks %}"
                                 "<div>{% display_home_blocks %}</div>"
                                )
             render = template.render(RequestContext({}))
-        except Exception as e:
-            self.fail(str(e))
 
         self.assertEqual('<div><p>BLOCK#1</p><p>BLOCK#2</p><p>BLOCK#3</p></div>',
                          render.strip()
@@ -322,14 +385,12 @@ class CremeBlockTagsTestCase(CremeTestCase):
         context = RequestContext({})
         context['user'] = user
 
-        try:
+        with self.assertNoException():
             template = Template("{% load creme_block %}"
                                 "{% import_mypage_blocks %}"
                                 "<div>{% display_mypage_blocks %}</div>"
                                )
             render = template.render(context)
-        except Exception as e:
-            self.fail(str(e))
 
         self.assertEqual('<div><p>BLOCK#1</p><p>BLOCK#2</p><p>BLOCK#3</p></div>',
                          render.strip()
@@ -357,14 +418,12 @@ class CremeBlockTagsTestCase(CremeTestCase):
         block2 = FooBlock2()
         #block_registry.register(block1, block2) #useless
 
-        try:
+        with self.assertNoException():
             template = Template("{% load creme_block %}"
                                 "{% import_blocks blocks as 'my_blocks' %}"
                                 "{% display_blocks 'my_blocks' %}"
                                )
             render = template.render(RequestContext({}, {'blocks': [block1, block2]}))
-        except Exception as e:
-            self.fail(str(e))
 
         self.assertEqual('<div>FOO</div><div>BAR</div>', render.strip())
 
@@ -394,14 +453,15 @@ class CremeBlockTagsTestCase(CremeTestCase):
         mngr = BlocksManager()
         mngr.add_group('gname1', block1, block2, block3, block4)
 
-        try:
+        with self.assertNoException():
             template = Template("{% load creme_block %}"
                                 "{% import_blocks blocks as 'my_blocks' %}"
                                 "{% display_blocks 'my_blocks' %}"
                                 "{% get_blocks_dependencies %}"
                                )
             render = template.render(RequestContext({}, {'blocks': [block1, block2, block3, block4]}))
-        except Exception as e:
-            self.fail(str(e))
 
-        self.assertTrue(render.strip()) #TODO: improve...
+        #TODO: improve...
+        render = render.strip()
+        self.assertIn('creme.utils.blocks_deps', render)
+        self.assertIn('creme.utils.getBlocksDeps', render)

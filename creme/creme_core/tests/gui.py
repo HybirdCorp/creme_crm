@@ -17,7 +17,7 @@ try:
 
     from activities.models import Meeting, Activity
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('GuiTestCase', 'BulkUpdateRegistryTestCase', 'ListViewStateTestCase',
@@ -484,25 +484,31 @@ class BlockRegistryTestCase(CremeTestCase):
 
     def test_block_4_instance01(self):
         self.login()
-        casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Mylove')
+
+        create_contact = Contact.objects.create
+        casca = create_contact(user=self.user, first_name='Casca', last_name='Mylove')
 
         class ContactBlock(Block):
             id_  = InstanceBlockConfigItem.generate_base_id('creme_core', 'base_block')
+            dependencies = (Organisation,)
             template_name = 'persons/templatetags/block_thatdoesnotexist.html'
 
             def __init__(self, instance_block_config_item):
                 self.ibci = instance_block_config_item
 
             def detailview_display(self, context):
-                return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity) #useless :)
+                return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (
+                            self.id_, self.ibci.entity
+                        ) #useless :)
 
         self.assertTrue(InstanceBlockConfigItem.id_is_specific(ContactBlock.id_))
 
-        ibci = InstanceBlockConfigItem.objects.create(entity=casca,
-                                                      block_id=InstanceBlockConfigItem.generate_id(ContactBlock, casca, ''),
-                                                      verbose=u"I am an awesome block",
-                                                      data='',
-                                                     )
+        ibci = InstanceBlockConfigItem.objects \
+                                      .create(entity=casca,
+                                              block_id=InstanceBlockConfigItem.generate_id(ContactBlock, casca, ''),
+                                              verbose=u"I am an awesome block",
+                                              data='',
+                                             )
 
         block_registry = _BlockRegistry()
         block_registry.register_4_instance(ContactBlock)
@@ -514,6 +520,17 @@ class BlockRegistryTestCase(CremeTestCase):
         self.assertIsInstance(block, ContactBlock)
         self.assertEqual(ibci, block.ibci)
         self.assertEqual(ibci.block_id, block.id_)
+        self.assertEqual((Organisation,), block.dependencies)
+
+        #-----------------------------------------------------------------------
+        #In detailviews of an entity we give it in order to compute dependencies correctly
+        judo = create_contact(user=self.user, first_name='Judo',  last_name='Doe')
+        blocks = block_registry.get_blocks([ibci.block_id], entity=judo)
+        self.assertEqual((Organisation, Contact), blocks[0].dependencies)
+
+        hawk = Organisation.objects.create(user=self.user, name='Hawk')
+        blocks = block_registry.get_blocks([ibci.block_id], entity=hawk)
+        self.assertEqual((Organisation,), blocks[0].dependencies)
 
         #-----------------------------------------------------------------------
         bad_block_id = InstanceBlockConfigItem.generate_base_id('creme_core', 'does_not_exist') + '#%s_' % casca.id
@@ -698,11 +715,8 @@ class BlocksManagerTestCase(CremeTestCase):
     def test_get(self):
         mngr = BlocksManager()
 
-        #try:
         with self.assertNoException():
             fake_context = {mngr.var_name: mngr}
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertIs(mngr, BlocksManager.get(fake_context))
 

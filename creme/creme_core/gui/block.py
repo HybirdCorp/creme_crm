@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -468,7 +468,7 @@ class _BlockRegistry(object):
     def __iter__(self):
         return self._blocks.iteritems()
 
-    def _get_block_4_instance(self, ibi):
+    def _get_block_4_instance(self, ibi, entity=None):
         block_id = ibi.block_id
         block_class = self._instance_block_classes.get(InstanceBlockConfigItem.get_base_id(block_id))
 
@@ -480,11 +480,22 @@ class _BlockRegistry(object):
         block.id_ = block_id
         block.verbose_name = ugettext(u"Block of instance: %s") % ibi
 
+        if entity:
+            # When an InstanceBlock is on a detailview of a entity, the content
+            # of this blockdepends (generally) of this entity, so we have to
+            # complete the dependencies.
+            model = entity.__class__
+            if model not in block.dependencies:
+                block.dependencies += (model,)
+
         return block
 
-    def get_blocks(self, block_ids):
+    def get_blocks(self, block_ids, entity=None):
         """Blocks type can be SpecificRelationsBlock/InstanceBlockConfigItem:
         in this case,they are not really registered, but created on the fly.
+        @param block_ids Sequence of id of blocks
+        @param entity If given, the dependencies are better computed when the
+                      blocks are displayed of the detailview of this entity.
         """
         specific_ids = filter(SpecificRelationsBlock.id_is_specific, block_ids)
         instance_ids = filter(InstanceBlockConfigItem.id_is_specific, block_ids)
@@ -503,7 +514,7 @@ class _BlockRegistry(object):
             if rbi:
                 block = SpecificRelationsBlock(rbi.block_id, rbi.relation_type_id)
             elif ibi:
-                block = self._get_block_4_instance(ibi) or Block()
+                block = self._get_block_4_instance(ibi, entity) or Block()
             elif id_.startswith('modelblock_'): #TODO: constant ?
                 block = self.get_block_4_object(ContentType.objects.get_by_natural_key(*id_[len('modelblock_'):].split('-')))
             else:
