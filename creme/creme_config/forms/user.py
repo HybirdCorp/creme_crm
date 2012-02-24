@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -194,54 +194,40 @@ class TeamEditForm(TeamCreateForm):
 
 
 class UserAssignationForm(CremeForm):
-#    to_user = ChoiceField(_(u"Choose a user to transfer to"), required=True)
-    to_user = ModelChoiceField(label=_(u"Choose a user to transfer to"), required=True, queryset=User.objects.all())
+    to_user = ModelChoiceField(label=_(u"Choose a user to transfer to"),
+                               queryset=User.objects.none()
+                              )
 
     def __init__(self, user, *args, **kwargs):
         super(UserAssignationForm, self).__init__(user, *args, **kwargs)
+        self.user_to_delete = self.initial['user_to_delete']
 
-        initial_get         = self.initial.get
-        self.user_to_delete = initial_get('user_to_delete')
-        self.is_team        = initial_get('is_team')
+        users = User.objects.exclude(pk=self.user_to_delete.pk)
+        choices = defaultdict(list)
+        for user in users:
+            choices[user.is_team].append((user.id, unicode(user)))
 
-        users_n_teams = User.objects.all()
-        users = defaultdict(list)
-        for user in users_n_teams:
-            users['t' if user.is_team else 'u'].append((user.id, unicode(user)))
-
-        self.fields['to_user'].choices =  [(_(u'Users'), users['u']), (_(u'Teams'), users['t'])]
-
-    def clean(self, *args, **kwargs):
-        if self._errors:
-            return self._errors
-
-        user_to_delete = self.user_to_delete
-
-        if user_to_delete is None:
-            raise ValidationError(_(u"No selected user."))
-
-        cleaned_data = self.cleaned_data
-
-        if user_to_delete == cleaned_data['to_user']:
-            raise ValidationError(_(u"You can't delete and assign to the same user."))
-
-        return cleaned_data
+        to_user = self.fields['to_user']
+        to_user.queryset = users
+        to_user.choices =  [(ugettext(u'Users'), choices[False]),
+                            (ugettext(u'Teams'), choices[True]),
+                           ]
 
     def save(self, *args, **kwargs):
         target_user = self.cleaned_data['to_user']
+        user_2_delete = self.user_to_delete
+        is_team = user_2_delete.is_team
 
-        Contact.objects.filter(is_user=self.user_to_delete).update(is_user=None)#TODO: Don't know why SET_NULL doesn't wok on Contact.is_user
+        Contact.objects.filter(is_user=user_2_delete).update(is_user=None)#TODO: Don't know why SET_NULL doesn't wok on Contact.is_user
 
         mutex = Mutex.get_n_lock('creme_config-forms-user-transfer_user')
         CremeUserForeignKey._TRANSFER_TO_USER = target_user
         try:
-            self.user_to_delete.delete()
-        except Exception, e:
-            raise e
+            user_2_delete.delete()
         finally:
             CremeUserForeignKey._TRANSFER_TO_USER = None
             mutex.release()
 
-        if not self.is_team:
-            target_user.update_credentials()
+        if not is_team:
+            target_user.update_credentials() #TODO: delete 'self.is_team' when fast credentials
 
