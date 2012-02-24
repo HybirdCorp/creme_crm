@@ -32,7 +32,6 @@ class UserTestCase(CremeTestCase):
         cls.populate('creme_core', 'creme_config', 'persons')
 
     def setUp(self):
-        #self.populate('creme_core', 'creme_config', 'persons')
         self.login()
 
     def test_portal(self):
@@ -150,6 +149,14 @@ class UserTestCase(CremeTestCase):
         briareos = self.refresh(briareos) #refresh cache
         self.assertFalse(briareos.can_view(other_user))
 
+    def test_edit02(self): #can not edit a team with the user edit view
+        user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
+        team  = self._create_team('Teamee', [user])
+
+        url = '/creme_config/user/edit/%s' % team.id
+        self.assertGET404(url)
+        self.assertPOST404(url)
+
     def test_change_password(self):
         other_user = User.objects.create(username='deunan')
         url = '/creme_config/user/edit/password/%s' % other_user.id
@@ -224,8 +231,6 @@ class UserTestCase(CremeTestCase):
         user02 = create_user('Yokiji',  'yokiji@century.jp')
         user03 = create_user('Koizumi', 'koizumi@century.jp')
 
-        #response = self.client.get('/creme_config/team/edit/%s' % user01.id)
-        #self.assertEqual(404, response.status_code)
         self.assertGET404('/creme_config/team/edit/%s' % user01.id)
 
         teamname = 'Teamee'
@@ -267,12 +272,7 @@ class UserTestCase(CremeTestCase):
         user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
         team = self._create_team('Teamee', [])
 
-        #user is not a team
-        url = '/creme_config/team/delete/%s' % user.id
-        self.assertEqual(400, self.client.get(url).status_code)
-        self.assertEqual(400, self.client.post(url, data={'to_user': None}).status_code)
-
-        url = '/creme_config/team/delete/%s' % team.id
+        url = '/creme_config/user/delete/%s' % team.id
         self.assertEqual(200, self.client.get(url).status_code)
         self.assertEqual(200, self.client.post(url, data={'to_user': user.id}).status_code)
         self.assertFalse(User.objects.filter(pk=team.id))
@@ -284,8 +284,7 @@ class UserTestCase(CremeTestCase):
 
         ce = CremeEntity.objects.create(user=team)
 
-        url = '/creme_config/team/delete/%s' % team.id
-
+        url = '/creme_config/user/delete/%s' % team.id
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
@@ -293,51 +292,55 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
         self.assertFalse(User.objects.filter(pk=team.id))
 
-        try:
-            ce = CremeEntity.objects.get(pk=ce.id)#Refresh
-        except CremeEntity.DoesNotExist as e:
-            self.fail(e)
-
+        ce = self.get_object_or_fail(CremeEntity, pk=ce.id)
         self.assertEqual(team2, ce.user)
 
     def test_team_delete03(self):
         team = self._create_team('Teamee', [])
         CremeEntity.objects.create(user=team)
 
-        response = self.client.post('/creme_config/team/delete/%s' % team.id, data={'to_user': self.user.id})
+        response = self.client.post('/creme_config/user/delete/%s' % team.id,
+                                    data={'to_user': self.user.id}
+                                   )
         self.assertEqual(200, response.status_code)
         self.assertFalse(User.objects.filter(pk=team.id))
 
-    def test_user_delete01(self):
+    def test_user_delete01(self): #Delete is not permitted when there is only one user
         CremeEntity.objects.all().delete()#In creme_core populate some entities are created, so we avoid an IntegrityError
         HistoryLine.objects.all().delete()
-        User.objects.all().exclude(pk=self.user.pk).delete()#Ensure there is only one user
+        User.objects.exclude(pk=self.user.pk).delete()#Ensure there is only one user
 
         self.assertEqual(1, User.objects.count())
 
-        response = self.client.get('/creme_config/user/delete/%s' % self.user.id)
+        url = '/creme_config/user/delete/%s' % self.user.id
+        self.assertEqual(400, self.client.get(url).status_code)
+
+        response = self.client.post(url, {'to_user': self.user.id})
         self.assertEqual(400, response.status_code)
-
-        response = self.client.post('/creme_config/user/delete/%s' % self.user.id, {'to_user': self.user.id})
-
-        self.assertEqual(400, response.status_code)#Delete is not permitted when there is only one user
         self.assertEqual(1, User.objects.count())
 
-    def test_user_delete02(self):
-        self.assertGreater(User.objects.count(), 1)
+    def test_user_delete02(self): #Validation error
+        count = User.objects.count()
+        self.assertGreater(count, 1)
 
-        response = self.client.get('/creme_config/user/delete/%s' % self.user.id)
-        self.assertEqual(200, response.status_code)
+        url = '/creme_config/user/delete/%s' % self.user.id
+        self.assertEqual(200, self.client.get(url).status_code)
 
-        response = self.client.post('/creme_config/user/delete/%s' % self.user.id, {'to_user': self.user.id})
+        response = self.client.post(url) #no data
         self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', None, [_(u"You can't delete and assign to the same user.")])
+        self.assertFormError(response, 'form', 'to_user', [_(u'This field is required.')])
+        self.assertEqual(count, User.objects.count())
+
+        response = self.client.post(url, {'to_user': self.user.id})
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', 'to_user',
+                             [_(u'Select a valid choice. That choice is not one of the available choices.')]
+                            )
         self.assertTrue(User.objects.filter(pk=self.user.id).exists())
 
     def test_user_delete03(self):
         user       = self.user
         other_user = self.other_user
-
         ce = CremeEntity.objects.create(user=other_user)
 
         url = '/creme_config/user/delete/%s' % other_user.id
@@ -348,11 +351,7 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
         self.assertFalse(User.objects.filter(id=other_user.id).exists())
 
-        try:
-            ce = CremeEntity.objects.get(pk=ce.id)#Refresh
-        except CremeEntity.DoesNotExist as e:
-            self.fail(e)
-
+        ce = self.get_object_or_fail(CremeEntity, pk=ce.id)
         self.assertEqual(user, ce.user)
 
     #TODO: move to 'activities'
@@ -369,14 +368,9 @@ class UserTestCase(CremeTestCase):
         response = self.client.post(url, {'to_user': user.id})
         self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
-
         self.assertFalse(User.objects.filter(id=other_user.id).exists())
 
-        try:
-            cal = Calendar.objects.get(pk=cal.id)
-        except Calendar.DoesNotExist as e:
-            self.fail(e)
-
+        cal = self.get_object_or_fail(Calendar, pk=cal.id)
         self.assertEqual(user, cal.user)
 
     def test_user_delete05(self):
@@ -420,7 +414,6 @@ class UserSettingsTestCase(CremeTestCase):
         cls.populate('creme_core', 'creme_config')
 
     def setUp(self):
-        #self.populate('creme_core', 'creme_config')
         self.login()
 
     def test_user_settings(self):

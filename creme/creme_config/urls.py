@@ -7,14 +7,13 @@ user_patterns = patterns('creme_config.views.user',
     (r'^portal/$',                        'portal'),
     (r'^add/$',                           'add'),
     (r'^edit/(?P<user_id>\d+)$',          'edit'),
-    (r'^delete/(?P<user_id>\d+)$',        'assign_user_n_delete', {'is_team': False}),
+    (r'^delete/(?P<user_id>\d+)$',        'delete'),
     (r'^edit/password/(?P<user_id>\d+)$', 'change_password'),
 )
 
 team_patterns = patterns('creme_config.views.user',
     (r'^add/$',                    'add_team'),
     (r'^edit/(?P<user_id>\d+)$',   'edit_team'),
-    (r'^delete/(?P<user_id>\d+)$', 'assign_user_n_delete', {'is_team': True}),
 )
 
 user_settings_patterns = patterns('creme_config.views.user_settings',

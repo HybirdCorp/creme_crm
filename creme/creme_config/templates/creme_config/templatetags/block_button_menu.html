@@ -19,7 +19,7 @@
         {% comment %} ONLY IF PAGE==1 ?? {% endcomment %}
         <tr class="content">
             <td class="{{row_color}}">{% trans "Default configuration" %}</td>
-            <td class="{{row_color}}">
+            <td class="{{row_color}} action">
                 {% get_line_editor at_url '/creme_config/button_menu/edit/0' with_perms 1 %}
             </td>
             <td class="{{row_color}}"></td>

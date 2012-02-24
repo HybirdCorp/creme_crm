@@ -55,7 +55,7 @@ def portal(request):
 @login_required
 @permission_required('creme_config.can_admin')
 def edit(request, user_id):
-    return edit_model_with_popup(request, {'pk': user_id}, User, UserEditForm)
+    return edit_model_with_popup(request, {'pk': user_id, 'is_team': False}, User, UserEditForm)
 
 @login_required
 @permission_required('creme_config.can_admin')
@@ -64,16 +64,16 @@ def edit_team(request, user_id):
 
 @login_required
 @permission_required('creme_config.can_admin')
-def assign_user_n_delete(request, user_id, is_team):
+def delete(request, user_id):
+    """Delete a User (who can be a Team). Objects linked to this User are
+    linked to a new User.
+    """
     user_to_delete = get_object_or_404(User, pk=user_id)
 
-    if User.objects.filter(is_team=False).count() == 1:
+    if not user_to_delete.is_team and User.objects.filter(is_team=False).count() == 1:
         return HttpResponse(_(u"You can't delete the last user."), status=400)
-
-    if is_team and not user_to_delete.is_team:
-        return HttpResponse(_(u"You have to select a team."), status=400)
 
     return add_model_with_popup(request, UserAssignationForm,
                                 _(u'Delete %s and assign his files to user') % user_to_delete,
-                                initial={'user_to_delete': user_to_delete, 'is_team': is_team},
+                                initial={'user_to_delete': user_to_delete},
                                )
