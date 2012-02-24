@@ -7,10 +7,10 @@ try:
     from creme_core.gui.quick_forms import quickforms_registry
     from creme_core.tests.base import CremeTestCase
 
-    from persons.models import Contact, Organisation, Address
+    from persons.models import Contact, Organisation, Address, Position, Civility, Sector
     from persons.constants import REL_OBJ_EMPLOYED_BY
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('ContactTestCase',)
@@ -212,15 +212,15 @@ class ContactTestCase(CremeTestCase):
         orga = Organisation.objects.create(user=self.user, name='Acme')
         url = "/persons/contact/add_with_relation/%(orga_id)s/%(rtype_id)s?callback_url=%(url)s"
 
-        self.assertEqual(404, self.client.get(url % {'orga_id':  1024, #doesn't exist
-                                                     'rtype_id': REL_OBJ_EMPLOYED_BY,
-                                                     'url':      orga.get_absolute_url(),
-                                                }).status_code
-                        )
-        self.assertEqual(404, self.client.get(url % {'orga_id':  orga.id, #doesn't exist
-                                                     'rtype_id': 'IDONOTEXIST',
-                                                     'url':      orga.get_absolute_url(),
-                                                    }).status_code
+        self.assertGET404(url % {'orga_id':  1024, #doesn't exist
+                                 'rtype_id': REL_OBJ_EMPLOYED_BY,
+                                 'url':      orga.get_absolute_url(),
+                                }
+                         )
+        self.assertGET404(url % {'orga_id':  orga.id, #doesn't exist
+                                 'rtype_id': 'IDONOTEXIST',
+                                 'url':      orga.get_absolute_url(),
+                                }
                         )
 
     #TODO: test relation's object creds
@@ -525,5 +525,48 @@ class ContactTestCase(CremeTestCase):
         contact01 = create_contact(user=user, first_name='Faye', last_name='Valentine', is_user=user)
         contact02 = create_contact(user=user, first_name='FAYE', last_name='VALENTINE')
 
-        self.assertEqual(404, self.client.get('/creme_core/entity/merge/%s,%s' % (contact01.id, contact02.id)).status_code)
-        self.assertEqual(404, self.client.get('/creme_core/entity/merge/%s,%s' % (contact02.id, contact01.id)).status_code)
+        url = '/creme_core/entity/merge/%s,%s'
+        self.assertGET404(url % (contact01.id, contact02.id))
+        self.assertGET404(url % (contact02.id, contact01.id))
+
+    def test_delete_civility(self): #set to null
+        self.login()
+        captain = Civility.objects.create(title='Captain')
+        harlock = Contact.objects.create(user=self.user, first_name='Harlock',
+                                         last_name='Matsumoto', civility=captain,
+                                        )
+
+        response = self.client.post('/creme_config/persons/civility/delete', data={'id': captain.pk})
+        self.assertEqual(200, response.status_code)
+        self.assertFalse(Civility.objects.filter(pk=captain.pk).exists())
+
+        harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
+        self.assertIsNone(harlock.civility)
+
+    def test_delete_position(self): #set to null
+        self.login()
+        captain = Position.objects.create(title='Captain')
+        harlock = Contact.objects.create(user=self.user, first_name='Harlock',
+                                         last_name='Matsumoto', position=captain,
+                                        )
+
+        response = self.client.post('/creme_config/persons/position/delete', data={'id': captain.pk})
+        self.assertEqual(200, response.status_code)
+        self.assertFalse(Position.objects.filter(pk=captain.pk).exists())
+
+        harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
+        self.assertIsNone(harlock.position)
+
+    def test_delete_sector(self): #set to null
+        self.login()
+        piracy = Sector.objects.create(title='Piracy')
+        harlock = Contact.objects.create(user=self.user, first_name='Harlock',
+                                         last_name='Matsumoto', sector=piracy,
+                                        )
+
+        response = self.client.post('/creme_config/persons/sector/delete', data={'id': piracy.pk})
+        self.assertEqual(200, response.status_code)
+        self.assertFalse(Sector.objects.filter(pk=piracy.pk).exists())
+
+        harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
+        self.assertIsNone(harlock.sector)
