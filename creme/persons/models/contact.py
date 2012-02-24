@@ -20,7 +20,8 @@
 
 from logging import debug
 
-from django.db.models import ForeignKey, CharField, TextField, ManyToManyField, DateField, EmailField, ProtectedError, SET_NULL, URLField
+from django.db.models import (ForeignKey, CharField, TextField, ManyToManyField,
+                              DateField, EmailField, ProtectedError, URLField, SET_NULL)
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 
@@ -37,7 +38,7 @@ from persons.constants import REL_OBJ_EMPLOYED_BY
 
 
 class Contact(CremeEntity):
-    civility        = ForeignKey(Civility, verbose_name=_(u'Civility'), blank=True, null=True)
+    civility        = ForeignKey(Civility, verbose_name=_(u'Civility'), blank=True, null=True, on_delete=SET_NULL)
     first_name      = CharField(_(u'First name'), max_length=100)
     last_name       = CharField(_(u'Last name'), max_length=100)
     description     = TextField(_(u'Description'), blank=True, null=True)
@@ -45,8 +46,8 @@ class Contact(CremeEntity):
     phone           = PhoneField(_(u'Phone number'), max_length=100, blank=True, null=True)
     mobile          = PhoneField(_(u'Mobile'), max_length=100, blank=True, null=True)
     fax             = CharField(_(u'Fax'), max_length=100 , blank=True, null=True)
-    position        = ForeignKey(Position, verbose_name=_(u'Position'), blank=True, null=True)
-    sector          = ForeignKey(Sector, verbose_name=_(u'Line of business'), blank=True, null=True)
+    position        = ForeignKey(Position, verbose_name=_(u'Position'), blank=True, null=True, on_delete=SET_NULL)
+    sector          = ForeignKey(Sector, verbose_name=_(u'Line of business'), blank=True, null=True, on_delete=SET_NULL)
     email           = EmailField(_(u'Email'), max_length=100, blank=True, null=True)
     url_site        = URLField(_(u'Web Site'), max_length=100, blank=True, null=True, verify_exists=False)
     language        = ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'), blank=True, null=True)

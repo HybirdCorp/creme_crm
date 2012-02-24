@@ -8,7 +8,7 @@ try:
     from persons.models import *
     from persons.constants import *
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('OrganisationTestCase',)
@@ -515,3 +515,39 @@ class OrganisationTestCase(CremeTestCase):
         self.assertFalse(Address.objects.filter(object_id=orga01.id))
         self.assertIsNone(orga01.billing_address)
         self.assertIsNone(orga01.shipping_address)
+
+    def test_delete_sector(self): #set to null
+        self.login()
+        hunting = Sector.objects.create(title='Bounty hunting')
+        bebop = Organisation.objects.create(user=self.user, name='Bebop', sector=hunting)
+
+        response = self.client.post('/creme_config/persons/sector/delete', data={'id': hunting.pk})
+        self.assertEqual(200, response.status_code)
+        self.assertFalse(Sector.objects.filter(pk=hunting.pk).exists())
+
+        bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
+        self.assertIsNone(bebop.sector)
+
+    def test_delete_legal_form(self): #set to null
+        self.login()
+        band = LegalForm.objects.create(title='Bounty hunting band')
+        bebop = Organisation.objects.create(user=self.user, name='Bebop', legal_form=band)
+
+        response = self.client.post('/creme_config/persons/legal_form/delete', data={'id': band.pk})
+        self.assertEqual(200, response.status_code)
+        self.assertFalse(LegalForm.objects.filter(pk=band.pk).exists())
+
+        bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
+        self.assertIsNone(bebop.legal_form)
+
+    def test_delete_staff_size(self): #set to null
+        self.login()
+        size = StaffSize.objects.create(size='4 and a dog')
+        bebop = Organisation.objects.create(user=self.user, name='Bebop', staff_size=size)
+
+        response = self.client.post('/creme_config/persons/staff_size/delete', data={'id': size.pk})
+        self.assertEqual(200, response.status_code)
+        self.assertFalse(StaffSize.objects.filter(pk=size.pk).exists())
+
+        bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
+        self.assertIsNone(bebop.staff_size)
