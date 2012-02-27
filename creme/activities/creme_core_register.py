@@ -42,6 +42,8 @@ reg_item('/activities/activity/add/phonecall', _(u'Add a phone call'),       'ac
 reg_item('/activities/activity/add/task',      _(u'Add a task'),             'activities.add_activity')
 reg_item('/activities/activity/add/activity',  _(u'Add an activity'),        'activities.add_activity')
 reg_item('/activities/activities',             _(u'All activities'),         'activities')
+reg_item('/activities/phone_calls',            _(u'All phone calls'),        'activities')
+reg_item('/activities/meetings',               _(u'All meetings'),           'activities')
 
 block_registry.register(*block_list)
 
@@ -54,8 +56,5 @@ reg_icon(Meeting,   'images/map_%(size)s.png')
 reg_icon(Task,      'images/task_%(size)s.png')
 
 bulk_update_registry.register(
-    (Activity,  ['type', 'start_date', 'end_date', 'busy', 'is_all_day']),
-    (PhoneCall, ['type', 'start_date', 'end_date', 'busy', 'is_all_day']),
-    (Meeting,   ['type', 'start_date', 'end_date', 'busy', 'is_all_day']),
-    (Task,      ['type', 'start_date', 'end_date', 'busy', 'is_all_day']),
+    (Activity,  ['type', 'start', 'end', 'busy', 'is_all_day']),
 )

@@ -83,8 +83,8 @@ class CremeModel(Model):
 
 
 class CremeAbstractEntity(CremeModel):
-    created  = CreationDateTimeField(_('Creation date'))
-    modified = ModificationDateTimeField(_('Last modification'))
+    created  = CreationDateTimeField(_('Creation date'), editable=False)
+    modified = ModificationDateTimeField(_('Last modification'), editable=False)
 
     entity_type = ForeignKey(ContentType, editable=False)
     header_filter_search_field = CharField(max_length=200, editable=False)

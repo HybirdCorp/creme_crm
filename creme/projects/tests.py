@@ -127,7 +127,7 @@ class ProjectsTestCase(CremeTestCase):
         self.login()
 
         project = self.create_project('Eva01', start_date='2012-2-16', end_date='2012-3-26')[0]
-        url = '/creme_core/entity/edit/%s/field/%s' % (project.id, 'start_date')
+        url = '/creme_core/entity/edit/%s/%s/field/%s' % (project.entity_type_id, project.id, 'start_date')
         self.assertEqual(200, self.client.get(url).status_code)
 
         response = self.client.post(url, data={'entities_lbl': [unicode(project)],
@@ -141,7 +141,7 @@ class ProjectsTestCase(CremeTestCase):
         self.login()
 
         project = self.create_project('Eva01', start_date='2012-2-16', end_date='2012-3-26')[0]
-        response = self.client.post('/creme_core/entity/edit/%s/field/%s' % (project.id, 'start_date'),
+        response = self.client.post('/creme_core/entity/edit/%s/%s/field/%s' % (project.entity_type_id, project.id, 'start_date'),
                                     data={'entities_lbl': [unicode(project)],
                                           'field_value':  '2012-3-27', #<= after end_date
                                          }

@@ -17,7 +17,7 @@ try:
 
     from media_managers.models.image import Image
 
-    from persons.models import Contact, Organisation, Position, Sector
+    from persons.models import Contact, Organisation, Position, Sector, Address
 except Exception as e:
     print 'Error:', e
 
@@ -980,21 +980,19 @@ class BulkEditTestCase(_BulkEditTestCase):
 
 
 class InnerEditTestCase(_BulkEditTestCase):
-    url = '/creme_core/entity/edit/%s/field/%s'
-
-    #def setUp(self):
-        #self.populate('creme_config')
-        #self.login()
-        #self.contact = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
+    url = '/creme_core/entity/edit/%s/%s/field/%s'
 
     def create_contact(self):
         return Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
+
+    def create_orga(self):
+        return Organisation.objects.create(user=self.user, name="Organisation")
 
     def test_regular_field_01(self):
         self.login()
 
         mario = self.create_contact()
-        url = self.url % (mario.id, 'first_name')
+        url = self.url % (mario.entity_type_id, mario.id, 'first_name')
 
         self.assertEqual(200, self.client.get(url).status_code)
 
@@ -1010,7 +1008,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.login()
 
         mario = self.create_contact()
-        response = self.client.post(self.url % (mario.id, 'birthday'),
+        response = self.client.post(self.url % (mario.entity_type_id, mario.id, 'birthday'),
                                     data={'entities_lbl': [unicode(mario)],
                                           'field_value':  'whatever',
                                          }
@@ -1024,13 +1022,13 @@ class InnerEditTestCase(_BulkEditTestCase):
         mario = self.create_contact()
         self.assertFalse(mario.can_change(self.user))
 
-        self.assertEqual(403, self.client.get(self.url % (mario.id, 'first_name')).status_code)
+        self.assertEqual(403, self.client.get(self.url % (mario.entity_type_id, mario.id, 'first_name')).status_code)
 
     def test_custom_field(self):
         self.login()
         mario = self.create_contact()
         cfield = CustomField.objects.create(name='custom 1', content_type=mario.entity_type, field_type=CustomField.STR)
-        url = self.url % (mario.id, cfield.id)
+        url = self.url % (mario.entity_type_id, mario.id, cfield.id)
 
         self.assertEqual(200, self.client.get(url).status_code)
 
@@ -1041,3 +1039,22 @@ class InnerEditTestCase(_BulkEditTestCase):
                                    )
         self.assertNoFormError(response)
         self.assertEqual(value, self.get_cf_values(cfield, self.refresh(mario)).value)
+
+    def test_related_field(self):
+        self.login()
+        orga = self.create_orga()
+        address = Address.objects.create(owner=orga, name='adress 1')
+        ct_address = ContentType.objects.get_for_model(Address)
+
+        url = self.url % (ct_address.pk, address.pk, 'city')
+
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        city = 'Marseille'
+        response = self.client.post(url, data={'entities_lbl': [unicode(address)],
+                                               'field_value':  city,
+                                               }
+        )
+        self.assertNoFormError(response)
+        self.assertEqual(city, self.refresh(address).city)
+

@@ -132,8 +132,8 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
     def assertFieldEditorTag(self, render, entity, field_name):
         self.assertTrue(render.strip() \
-                              .startswith("""<a onclick="creme.utils.innerPopupNReload('/creme_core/entity/edit/%s/field/%s',""" % (
-                                              entity.id, field_name)
+                              .startswith("""<a onclick="creme.utils.innerPopupNReload('/creme_core/entity/edit/%s/%s/field/%s',""" % (
+                                              entity.entity_type_id, entity.id, field_name)
                                          )
                        )
 
@@ -234,4 +234,4 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
         self._unauthorized_get_field_editor(orga, r"{% get_field_editor on regular 'created' for object %}") # not editable
         self._unauthorized_get_field_editor(orga, r"{% get_field_editor on regular 'modified' for object %}") # not editable
-        self._unauthorized_get_field_editor(orga, r"{% get_field_editor on regular 'siren' for object %}") # not in bulk update registry
+#        self._unauthorized_get_field_editor(orga, r"{% get_field_editor on regular 'siren' for object %}") # not in bulk update registry

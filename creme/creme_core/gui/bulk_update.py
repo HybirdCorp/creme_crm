@@ -19,67 +19,6 @@
 ################################################################################
 
 
-#class BulkUpdateRegistry(object):
-    #def __init__(self):
-        #self._excluded_fields_names = {}
-        #self._excluded_fields_names_cache = None
-
-    #def _build_cache(self):
-        #self._excluded_fields_names_cache = {}
-        #_excluded_fields_names_cache = self._excluded_fields_names_cache
-        #_excluded_fields_names_get = self._excluded_fields_names.get
-
-        #for model, fields in self._excluded_fields_names.iteritems():
-            #for model_key in self._excluded_fields_names.iterkeys():
-                #if issubclass(model, model_key) and not model_key is model:
-                    #fields |= _excluded_fields_names_get(model_key)
-
-            #_excluded_fields_names_cache[model] = fields
-
-    #def _register(self, *fields_to_exclude):
-        #_excluded_fields_names = self._excluded_fields_names
-
-        #for model, fields in fields_to_exclude:
-            #if _excluded_fields_names.has_key(model):
-                ##warning("Fields of model <%s> registered twice", model)
-                #_excluded_fields_names[model] |= set(fields)#If another app have to overide an already registered model
-            #else:
-                #_excluded_fields_names[model] = set(fields)
-
-    #def register(self, *fields_to_exclude):
-        #self._register(*fields_to_exclude)
-        #self._build_cache()
-
-    #def get_excluded_fields(self, model):
-        #"""
-        #@params model: A django model
-        #Returns a set of excluded fields names for this model
-        #"""
-        #if self._excluded_fields_names_cache is None:
-            #self._build_cache()
-
-        #excluded_fields = self._excluded_fields_names_cache.get(model)
-
-        #if excluded_fields is None:#This model is not registered but its parent class may be
-            #_cache_get = self._excluded_fields_names_cache.get
-            #_found = False
-            #excluded_fields = set()
-
-            #for model_key in self._excluded_fields_names_cache.iterkeys():
-                #if issubclass(model, model_key):
-                    #self._register((model, _cache_get(model_key)))#We register it as it was registered
-                    #_found = True
-
-            #if _found:
-                #self._build_cache()
-                #excluded_fields = self._excluded_fields_names_cache.get(model)
-
-        #return excluded_fields
-
-
-#bulk_update_registry = BulkUpdateRegistry()
-
-
 class _BulkUpdateRegistry(object):
     def __init__(self):
         self._excluded_fieldnames = {} #key: model / values: set of field names (strings)
@@ -104,19 +43,16 @@ class _BulkUpdateRegistry(object):
             else:
                 old_names |= new_names
 
-    def get_excluded_fields(self, model):
-        """
-        @params model A django model.
-        @return A set of excluded fields names for this model.
-        """
-        excluded_fieldnames = self._excluded_fieldnames
-        names = excluded_fieldnames.get(model)
+    def get_fields(self, model, exclude_unique=True):
+        excluded_fields = self._excluded_fieldnames.get(model) or {}
+        for field in model._meta.fields:
+            if field.editable and field.name not in excluded_fields and not (exclude_unique and field.unique):
+                yield field
 
-        if names is None:
-            self.register((model, ()))
-            names = excluded_fieldnames[model]
-
-        return names
+    def is_bulk_updatable(self, model, field_name, exclude_unique=True):
+        for field in self.get_fields(model, exclude_unique=exclude_unique):
+            if field.name == field_name:
+                return True
 
 
 bulk_update_registry = _BulkUpdateRegistry()

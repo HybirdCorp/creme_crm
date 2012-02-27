@@ -42,8 +42,8 @@ from settings import MEDIA_URL
 class Image(CremeEntity):
     name        = CharField(_(u'Name'), max_length=100, blank=True, null=True)
     description = TextField(_(u'Description'), max_length=500, blank=True, null=True)
-    height      = CharField(_(u'Height'), max_length=50, blank=True, null=True)
-    width       = CharField(_(u'Width'), max_length=50, blank=True, null=True)
+    height      = CharField(_(u'Height'), max_length=50, blank=True, null=True, editable=False)
+    width       = CharField(_(u'Width'), max_length=50, blank=True, null=True, editable=False)
     image       = ImageField(_('Image'), height_field='height', width_field='width',
                              upload_to='upload/images', max_length=500)
     categories = ManyToManyField(MediaCategory, verbose_name=_(u'Categories'),

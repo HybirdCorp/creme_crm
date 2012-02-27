@@ -38,72 +38,67 @@
                 <th class="block_header_line_dark" width="6%">{% trans "Total (without tax)<br>discounted" %}</th>
                 <th class="block_header_line_dark" width="6%">{% trans "Total (inclusive of tax)" %}</th>
             </tr>
-            {% for line in page.object_list %}<!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
-                {% with object.currency.pk as currency_id %}
-                    <tr class="content" name="tr_line_{{ line.id }}" id="tr_line_{{ line.id }}" method="POST" action="/billing/line/{{line.id}}/edit_inner">
-                            <td class="{{row_color}}" align="center">
-                                <input name="select_one" value="{{line.pk}}" type="checkbox" />
-                            </td>
-                            <td class="{{row_color}}" align="center">
-                                {% csrf_token %}
-                                <input type="hidden" id="line_number" value="{{ line.number }}">
-                                {{ line.number }}
-                            </td>
-                            <td class="{{row_color}}" align="center">
-                                {% if line.related_item %}
-                                    <a href="{{line.related_item.get_absolute_url}}">{{line.related_item}}</a>
-                                {% else %}
-                                    {{line.on_the_fly_item}}
-                                {% endif %}
-                            </td>
-                            <td class="{{row_color}}" align="right">
-                                <input style="text-align:right;" type="textbox" size="8" name="unit_price" id="unit_price{{ line.pk }}" value="{{line.unit_price}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, creme.billing.checkPositiveDecimal);">
-                                {{ object.currency.local_symbol }}
-                            </td>
-                            <td class="{{row_color}}" align="center">
-                                / <input style="text-align:right;" type="textbox" size="8" name="unit" id="unit{{ line.pk }}" value="{% if line.unit %}{{line.unit}}{% endif %}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, null);">
-                            </td>
-                            <td class="{{row_color}}" align="center">
-                                    <input style="text-align:right;" type="textbox" size="4" name="quantity" id="quantity{{ line.pk }}" value="{{line.quantity}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, creme.billing.checkPositiveDecimal);">
-                            </td>
-                            <td class="{{row_color}}" align="center" id="comment{{ line.pk }}" name="comment{{ line.pk }}" {% if line.comment %}title="{{ line.comment }}"{% endif %}>
-                                {% if line.comment %}
-                                    {{ line.comment|truncatewords:3 }}
-                                {% endif %}
-                                {% has_perm_to change object as has_perm %}
-                                {% get_line_editor at_url '/billing/line/{{line.id}}/edit' with_perms has_perm %}
-                                <script type='text/javascript'>
-                                    $('#comment{{ line.pk }}').twipsy ({live: true});
-                                </script>
-                            </td>
-                            <td class="{{row_color}}" align="center" id="discount_td" name="discount_td">
-                                    <input style="text-align:right;" type="textbox" size="5" name="discount" id="discount{{ line.pk }}" value="{{line.discount}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, null);">
-                                    <select name="discount_unit" id="discount_unit{{ line.pk }}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, null);">
-                                        <option value="1" {% ifequal line.discount_unit 1 %}selected="true"{% endifequal %}>%</option>
-                                        <option value="2" {% ifnotequal line.discount_unit 1 %}selected="true"{% endifnotequal %}>{{ object.currency.local_symbol }}</option>
-                                    </select>
-                                    <select name="total_discount" id="total_discount{{ line.pk }}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, null);">
-                                        <option value="1" {% if line.total_discount %}selected="true"{% endif %}>{% trans "On the line" %}</option>
-                                        <option value="2" {% if not line.total_discount %}selected="true"{% endif %}>{% trans " On product/service" %}</option>
-                                    </select>
-                            </td>
-                            <td class="{{row_color}}" align="center">
-                                <select style="text-align:right;" name="vat" name="vat{{line.id}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, null);">
-                                    {% for vat in vat_list %}
-                                        <option value="{{ vat.id }}" {% ifequal line.vat_value vat %}selected="true"{% endifequal %}>{{ vat.value }}</option>
-                                    {% endfor %}
-                                </select> %
-                            </td>
-                        </form>
-                        <td class="{{row_color}}" align="right">{{line.get_raw_price|format_amount:currency_id}}</td>
-                        <td class="{{row_color}}" align="right">{{line.get_price_exclusive_of_tax|format_amount:currency_id}}</td>
-                        <td class="{{row_color}}" align="right">{{line.get_price_inclusive_of_tax|format_amount:currency_id}}</td>
-                        {% comment %}<td class="{{row_color}}" align="center">
-                            {% has_perm_to change object as has_perm %}
-                            {% get_line_deletor at_url '{{line.get_delete_absolute_url}}' with_args "{'id': '{{line.id}}' }" with_perms has_perm %}
-                        </td>{% endcomment %}
+            {% for line in page.object_list %}
+                <!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
+                <tr class="content" name="tr_line_{{line.id}}" id="tr_line_{{line.id}}" method="POST" action="/billing/line/{{line.id}}/edit_inner">
+                    {% csrf_token %}
+                    <td class="{{row_color}}" align="center">
+                        <input name="select_one" value="{{line.pk}}" type="checkbox" />
+                    </td>
+                    <td class="{{row_color}}" align="center">
+                        <input type="hidden" id="line_number" value="{{line.number}}">{{line.number}}
+                    </td>
+                    <td class="{{row_color}}" align="center">
+                        {% if line.related_item %}
+                            <a href="{{line.related_item.get_absolute_url}}">{{line.related_item}}</a>
+                        {% else %}
+                            <input class="line-on_the_fly" type="textbox" name="on_the_fly" id="on_the_fly{{line.pk}}" value="{{line.on_the_fly_item}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, creme.billing.checkValue);">
+                        {% endif %}
+                    </td>
+                    <td class="{{row_color}}" align="right">
+                        <input class="line-unit_price" type="textbox" name="unit_price" id="unit_price{{line.pk}}" value="{{line.unit_price}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, creme.billing.checkPositiveDecimal);">
+                        {{ object.currency.local_symbol }}
+                    </td>
+                    <td class="{{row_color}}" align="center">
+                        / <input class="line-unit" type="textbox" name="unit" id="unit{{line.pk}}" value="{% if line.unit %}{{line.unit}}{% endif %}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, null);">
+                    </td>
+                    <td class="{{row_color}}" align="center">
+                        <input class="line-quantity_discount" type="textbox" name="quantity" id="quantity{{line.pk}}" value="{{line.quantity}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, creme.billing.checkPositiveDecimal);">
+                    </td>
+                    <td class="{{row_color}}" align="center" id="comment{{ line.pk }}" name="comment{{line.pk}}" {% if line.comment %}title="{{line.comment}}"{% endif %}>
+                        {% if line.comment %}
+                            {{line.comment|truncatewords:3}}
+                        {% endif %}
+                        {% has_perm_to change object as has_perm %}
+                        {% get_line_editor at_url '/billing/line/{{line.id}}/edit' with_perms has_perm %}
+                        <script type='text/javascript'>
+                            $('#comment{{line.pk}}').twipsy ({live: true});
+                        </script>
+                    </td>
+                    <td class="{{row_color}}" align="center" id="discount_td" name="discount_td">
+                        <input class="line-quantity_discount" type="textbox" name="discount" id="discount{{line.pk}}" value="{{line.discount}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, null);">
+                        <select name="discount_unit" id="discount_unit{{ line.pk }}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, null);">
+                            <option value="1" {% ifequal line.discount_unit 1 %}selected="true"{% endifequal %}>%</option>
+                            <option value="2" {% ifnotequal line.discount_unit 1 %}selected="true"{% endifnotequal %}>{{ object.currency.local_symbol }}</option>
+                        </select>
+                        <select name="total_discount" id="total_discount{{line.pk}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, null);">
+                            <option value="1" {% if line.total_discount %}selected="true"{% endif %}>{% trans "On the line" %}</option>
+                            <option value="2" {% if not line.total_discount %}selected="true"{% endif %}>{% trans " On product/service" %}</option>
+                        </select>
+                    </td>
+                    <td class="{{row_color}}" align="center">
+                        <select style="text-align:right;" name="vat" name="vat{{line.id}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, null);">
+                            {% for vat in vat_list %}
+                                <option value="{{vat.id}}" {% ifequal line.vat_value vat %}selected="true"{% endifequal %}>{{vat.value}}</option>
+                            {% endfor %}
+                        </select> %
+                    </td>
+                    {% with object.currency.pk as currency_id %}
+                    <td class="{{row_color}}" align="right">{{line.get_raw_price|format_amount:currency_id}}</td>
+                    <td class="{{row_color}}" align="right">{{line.get_price_exclusive_of_tax|format_amount:currency_id}}</td>
+                    <td class="{{row_color}}" align="right">{{line.get_price_inclusive_of_tax|format_amount:currency_id}}</td>
+                    {% endwith %}
                     </tr>
-                {% endwith %}
             {% endfor %}
         {% else %}
             <tr class="content empty">

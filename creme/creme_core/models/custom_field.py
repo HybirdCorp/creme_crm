@@ -151,7 +151,6 @@ class CustomFieldValue(CremeModel):
     def get_formfield(cls, custom_field, custom_value):
         field = cls._get_formfield(label=custom_field.name, required=False)
         cls._build_formfield(custom_field, field)
-
         if custom_value:
             custom_value._set_formfield_value(field)
 
@@ -333,7 +332,8 @@ class CustomFieldMultiEnum(CustomFieldValue):
 
     @staticmethod
     def _get_formfield(**kwargs):
-        return forms.MultipleChoiceField(**kwargs)
+        from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+        return forms.MultipleChoiceField(widget=UnorderedMultipleChoiceWidget, **kwargs)
 
     @classmethod
     def _get_4_entities(cls, entities, cfields):

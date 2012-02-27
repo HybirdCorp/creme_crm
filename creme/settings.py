@@ -323,6 +323,7 @@ CREME_CORE_CSS = ('main.css',
                     'activities/css/activities.css',
                     'commercial/css/commercial.css',
                     'billing/css/billing.css',
+                    'persons/css/persons.css',
                  )
 
 CREME_OPT_CSS = ( #OPTIONNAL APPS

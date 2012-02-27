@@ -65,7 +65,7 @@
                     {% if add_url %}
                         <a {% if creation_perm %}href="{{add_url}}"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
                             <img border="0" src="{% creme_media_url 'images/add_22.png' %}" alt="{% trans "New" %}" title="{% trans "New" %}"/>{% trans "New" %}
-                        </a>
+                        </a>&nbsp;
                     {% endif %}
                     <a {% if export_perm %}href="/creme_core/list_view/dl_csv/{{content_type_id}}?list_url={{request.path}}"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
                         <img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{% trans "Download CSV" %}" title="{% trans "Download CSV" %}"/>{% trans "Download CSV" %}
@@ -77,7 +77,7 @@
                         <img border="0" src="{% creme_media_url 'images/batch_process_22.png' %}" alt="{% trans "Batch process" %}" title="{% trans "Batch process" %}"/>{% trans "Batch process" %}
                     </a>&nbsp;
                 {% endif %}
-                <button class="clear-search" value="0" type="button" name="_search"{% if not search %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %}>{% trans "Clean the search" %}</button>
+                <button class="clear-search" value="0" type="button" name="_search"{% if not search %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %}>{% trans "Clean the search" %}</button>&nbsp;
                 <button class="do-search"    value="1" type="button" name="_search" onclick="$(this.form).list_view('getSubmit')(this);"><img border="0" src="{% creme_media_url 'images/looking_glass_22.png' %}" alt="{% trans "Research" %}" title="{% trans "Research" %}"/>{% trans "Research" %}</button>
                 {% block extra_buttons %}{% endblock %}
                 {% if extra_bt_templates|isiterable %}

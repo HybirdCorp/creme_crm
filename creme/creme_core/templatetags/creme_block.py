@@ -21,6 +21,7 @@
 from collections import defaultdict
 from re import compile as compile_re
 
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode
 from django.template.defaulttags import TemplateLiteral
@@ -30,7 +31,6 @@ from django.utils.translation import ugettext, ungettext
 from creme_core.models import BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation
 from creme_core.gui.block import Block, block_registry, BlocksManager
 from creme_core.gui.bulk_update import bulk_update_registry
-from creme_core.models.custom_field import CustomField
 from creme_core.models.header_filter import HFI_FIELD, HFI_CUSTOM
 from creme_core.models.relation import Relation
 
@@ -341,20 +341,22 @@ class RegularFieldEditorNode(TemplateNode):
         self.object_var     = object_var
 
     def _update_context(self, context, field, object):
-        model = object.entity_type.model_class()
+        model = object.__class__
         field_eval = model._meta.get_field(field) if isinstance(field, basestring) else field
         field_name = field_eval.name
 
         context['field']     = field_name
-        context['editable']  = field_eval.editable
-        context['updatable'] = field_name not in bulk_update_registry.get_excluded_fields(model)
+        context['updatable'] = bulk_update_registry.is_bulk_updatable(model, field_name, exclude_unique=False)
 
     def render(self, context):
         object = self.object_var.eval(context)
         field  = self.field_var.eval(context)
 
+        owner = object.get_related_entity() if hasattr(object, 'get_related_entity') else object
+
         context['object']    = object
-        context['edit_perm'] = object.can_change(context['user'])
+        context['ct_id']     = ContentType.objects.get_for_model(object).pk
+        context['edit_perm'] = owner.can_change(context['user'])
 
         self._update_context(context, field, object)
 
@@ -363,8 +365,7 @@ class RegularFieldEditorNode(TemplateNode):
 class CustomFieldEditorNode(RegularFieldEditorNode):
     def _update_context(self, context, field, object):
         context['field']     = field.id
-        context['editable']  = True # one day if we want to exclude custom field from inner editable feature, it will be here
-        context['updatable'] = True # same here
+        context['updatable'] = True
 
 class HeaderFilterColumnEditorNode(RegularFieldEditorNode):
     def __init__(self, field_var, object_var):
@@ -376,13 +377,10 @@ class HeaderFilterColumnEditorNode(RegularFieldEditorNode):
         if column.type == HFI_FIELD:
             model = object.entity_type.model_class()
             field_name = column.name.partition('__')[0]
-            field = model._meta.get_field(field_name)
             context['field'] = field_name
-            context['editable']  = field.editable
-            context['updatable'] = field_name not in bulk_update_registry.get_excluded_fields(model)
+            context['updatable'] = bulk_update_registry.is_bulk_updatable(model, field_name, exclude_unique=False)
         elif column.type == HFI_CUSTOM:
             context['field'] = column.name
-            context['editable'] = True
             context['updatable'] = True
         else:
             context['is_header_filter_item_valid'] = False
