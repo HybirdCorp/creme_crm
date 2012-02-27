@@ -18,15 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
-
-from django.db.models import Model, CharField, TextField, ForeignKey, PositiveIntegerField
+from django.db.models import CharField, TextField, ForeignKey, PositiveIntegerField
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
-#from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext_lazy as _
-from django import forms
-from django.forms import ModelForm
 
 from creme_core.models import CremeEntity, CremeModel
 from creme_core.signals import pre_merge_related
@@ -54,13 +49,8 @@ class Address(CremeModel):
         verbose_name = _(u'Address')
         verbose_name_plural = _(u'Addresses')
 
-    #COMMENTED on 21 march 2011
-    #def __str__(self):
-        #return '%s %s %s %s' % (self.address, self.zipcode, self.city, self.department)
-
     def __unicode__(self):
-        #return force_unicode('%s %s %s %s' % (self.address, self.zipcode, self.city, self.department)) #COMMENTED on 21 march 2011
-        return u'%s %s %s %s' % (self.address, self.zipcode, self.city, self.department)
+        return u'%s %s %s %s' % (self.address or '', self.zipcode or '', self.city or '', self.department or '')
 
     def get_related_entity(self): #for generic views
         return self.owner

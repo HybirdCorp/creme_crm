@@ -41,5 +41,5 @@ block_registry.register(last_images_block, image_view_block)
 icon_registry.register(Image, 'images/image_%(size)s.png')
 
 bulk_update_registry.register(
-    (Image, ['height', 'width', 'image']),
+    (Image, ['image']),
 )

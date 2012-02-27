@@ -33,28 +33,18 @@ from creme_core.models.custom_field import CustomField, CustomFieldEnumValue, Cu
 from creme_core.forms.widgets import DateTimeWidget, CalendarWidget, UnorderedMultipleChoiceWidget, Label, AdaptiveWidget
 from creme_core.forms.base import CremeForm, _CUSTOM_NAME
 from creme_core.forms.fields import AjaxMultipleChoiceField
-from creme_core.utils import entities2unicode
+from creme_core.utils import entities2unicode, related2unicode
 from creme_core.utils.meta import get_flds_with_fk_flds_str, get_verbose_field_name
 from creme_core.gui.bulk_update import bulk_update_registry
 
 
-def _datetime_widget(name, choices, value=None):
-    return DateTimeWidget({'id': 'id_%s' % name}).render(name=name, value=value, attrs=None)
-
-def _calendar_widget(name, choices, value=None):
-    return CalendarWidget({'id': 'id_%s' % name}).render(name=name, value=value, attrs=None)
-
-def _multiplechoice_widget(name, choices, value=None):
-    return UnorderedMultipleChoiceWidget({'id': 'id_%s' % name}).render(name=name, value=value, attrs=None, choices=choices)
-
-
 _FIELDS_WIDGETS = {
-        models.ManyToManyField:           _multiplechoice_widget,
-        models.DateField:                 _calendar_widget,
-        models.DateTimeField:             _datetime_widget,
-        fields.CreationDateTimeField:     _datetime_widget,
-        fields.ModificationDateTimeField: _datetime_widget,
-        CustomFieldMultiEnum:             _multiplechoice_widget,
+        models.ManyToManyField:           UnorderedMultipleChoiceWidget(),
+        models.DateField:                 CalendarWidget(),
+        models.DateTimeField:             DateTimeWidget(),
+        fields.CreationDateTimeField:     DateTimeWidget(),
+        fields.ModificationDateTimeField: DateTimeWidget(),
+        CustomFieldMultiEnum:             UnorderedMultipleChoiceWidget(),
     }
 
 _CUSTOM_PREFIX = _CUSTOM_NAME.partition('%s')[0]
@@ -90,7 +80,10 @@ class EntitiesBulkUpdateForm(CremeForm):
         self.ct = ContentType.objects.get_for_model(model)
         fields = self.fields
 
-        fields['entities_lbl'].initial = entities2unicode(subjects, user) if subjects else ugettext(u'NONE !')
+        if subjects:
+            fields['entities_lbl'].initial = related2unicode(subjects[0], user) if hasattr(subjects[0], 'get_related_entity') else entities2unicode(subjects, user)
+        else:
+            fields['entities_lbl'].initial = ugettext(u'NONE !')
 
         if forbidden_subjects:
             fields['bad_entities_lbl'] = CharField(label=ugettext(u"Unchangeable entities"),
@@ -99,14 +92,13 @@ class EntitiesBulkUpdateForm(CremeForm):
                                                   )
 
         # Field 'field_name'
-        excluded_fields = bulk_update_registry.get_excluded_fields(model)#Doesn't include cf
         sort = partial(sorted, key=lambda k: ugettext(k[1]))
         cfields_map = self._cfields_cache = dict((cf.pk, cf) for cf in CustomField.objects.filter(content_type=self.ct))
         f_field_name = fields['field_name']
         f_field_name.widget = AdaptiveWidget(ct_id=self.ct.id, field_value_name='field_value')
         f_field_name.choices = (
-            (ugettext(u"Regular fields"), sort(get_flds_with_fk_flds_str(model, deep=0, exclude_func=lambda f: f.name in excluded_fields))),
-            (ugettext(u"Custom fields"),  sort((_CUSTOM_NAME % cf.id, cf.name) for cf in cfields_map.itervalues()))
+            (ugettext(u"Regular fields"), sort((unicode(field.name), unicode(field.verbose_name)) for field in bulk_update_registry.get_fields(model))),
+            (ugettext(u"Custom fields"),  sort((_CUSTOM_NAME % cf.id, cf.name) for cf in cfields_map.itervalues())),
           )
 
     @staticmethod
@@ -225,8 +217,7 @@ class EntityInnerEditForm(EntitiesBulkUpdateForm):
         fields['entities_lbl'].label = ugettext(u'Entity')
 
         f_field_name = fields['field_name']
-        f_field_name.widget = AdaptiveWidget(ct_id=self.ct.id, field_value_name='field_value', object_id=subject.id)
-        f_field_name.widget.attrs['disabled'] = True #TODO: in the previous line
+        f_field_name.widget = AdaptiveWidget(ct_id=self.ct.id, field_value_name='field_value', object_id=subject.id, attrs={'disabled' : True})
         f_field_name.label = ugettext(u'Field')
         f_field_name.choices = [(field_name, "%s - %s" % (model._meta.verbose_name.title(), verbose_field_name))]
         f_field_name.required = False

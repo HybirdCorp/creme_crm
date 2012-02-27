@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.db.utils import IntegrityError
     from django.contrib.contenttypes.models import ContentType
 
     from creme_core.models import HeaderFilter
@@ -278,6 +279,24 @@ class TicketTestCase(CremeTestCase):
             self.assertNotEqual(stack[-1].title, clone.title)
             stack_append(clone)
 
+    def test_unique_title(self):
+        self.login()
+
+        title       = 'Test ticket'
+        description = 'Test description'
+        priority    = Priority.objects.all()[0]
+        criticity   = Criticity.objects.all()[0]
+
+        with self.assertNoException():
+            Ticket.objects.create(title=title, description=description,
+                                  priority=priority, criticity=criticity,
+                                  user=self.user)
+
+        self.assertRaises(IntegrityError, Ticket.objects.create,
+                          title=title, user=self.user, priority=priority,
+                          criticity=criticity, description=description)
+
+        self.assertEqual(1, Ticket.objects.count())
 
 class TicketTemplateTestCase(CremeTestCase):
     @classmethod

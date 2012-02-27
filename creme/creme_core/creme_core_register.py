@@ -47,6 +47,3 @@ block_registry.register(relations_block, properties_block, customfields_block, h
 
 button_registry.register(merge_entities_button)
 
-bulk_update_registry.register(
-    (CremeEntity, ['created', 'modified']),
-)

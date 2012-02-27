@@ -65,9 +65,3 @@ reg_csv_form(Organisation, get_csv_form_builder)
 reg_merge_form = merge_form_registry.register
 reg_merge_form(Contact,      get_merge_form_builder)
 reg_merge_form(Organisation, get_merge_form_builder)
-
-
-bulk_update_registry.register(
-    (Contact,      ['is_user', 'billing_address', 'shipping_address']),
-    (Organisation, ['siren', 'billing_address', 'shipping_address']),
-)

@@ -601,13 +601,13 @@ class OpportunitiesTestCase(CremeTestCase):
         self.assertEqual(200, self.client.post(url, follow=True).status_code)
 
         opportunity = self.refresh(opportunity)
-        self.assertEqual(opportunity.estimated_sales, quote1.get_total()) # 300
+        self.assertEqual(opportunity.estimated_sales, quote1.total_no_vat) # 300
 
         url = self._build_setcurrentquote_url(opportunity, quote2)
         self.assertEqual(200, self.client.post(url, follow=True).status_code)
 
         opportunity = self.refresh(opportunity)
-        self.assertEqual(opportunity.estimated_sales, quote2.get_total()) # 500
+        self.assertEqual(opportunity.estimated_sales, quote2.total_no_vat) # 500
 
     def test_set_current_quote_3(self):
         self.login()

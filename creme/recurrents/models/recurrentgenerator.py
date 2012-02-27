@@ -31,11 +31,11 @@ class RecurrentGenerator(CremeEntity):
     name             = CharField(_(u'Name of the generator'), max_length=100, blank=True, null=True)
     description      = TextField(_(u'Description'), blank=True, null=True)
     first_generation = DateTimeField(_(u'Date of the first recurrent generation'), blank=True, null=True)
-    last_generation  = DateTimeField(_(u'Date of the last recurrent generation'), blank=True, null=True)
+    last_generation  = DateTimeField(_(u'Date of the last recurrent generation'), blank=True, null=True, editable=False)
     periodicity      = ForeignKey(Periodicity, verbose_name=_(u'Periodicity of the generation'))
     ct               = ForeignKey(ContentType, verbose_name=_(u'Type of the recurrent resource'))
     template         = ForeignKey(CremeEntity, verbose_name=_(u'Related model'), related_name='template_set')
-    is_working       = BooleanField(_(u'Active ?'), default=True)
+    is_working       = BooleanField(_(u'Active ?'), editable=False, default=True)
 
     class Meta:
         app_label = 'recurrents'

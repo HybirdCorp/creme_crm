@@ -74,7 +74,7 @@ class _Email(CremeModel):
 
 
 class EntityEmail(_Email, CremeEntity):
-    identifier  = CharField(_(u'Email ID'), unique=True, max_length=ID_LENGTH, null=False, blank=False, default=generate_id)#TODO: lambda for this
+    identifier  = CharField(_(u'Email ID'), unique=True, max_length=ID_LENGTH, null=False, blank=False, editable=False, default=generate_id)#TODO: lambda for this
     body_html   = TextField(_(u'Body (HTML)'))
     signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True) ##merge with body ????
     attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'))

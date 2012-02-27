@@ -45,7 +45,7 @@ class Organisation(CremeEntity):
     url_site        = URLField(_(u'Web Site'), max_length=100, blank=True, null=True, verify_exists=False)
     sector          = ForeignKey(Sector, verbose_name=_(u'Sector'), blank=True, null=True, on_delete=SET_NULL)
     capital         = PositiveIntegerField(_(u'Capital'), blank=True, null=True)
-    siren           = CharField(_(u'SIREN'), max_length=100, blank=True, null=True)
+    siren           = CharField(_(u'SIREN'), max_length=100, blank=True, null=True, unique=True)
     naf             = CharField(_(u'NAF code'), max_length=100 , blank=True, null=True)
     siret           = CharField(_(u'SIRET'), max_length=100, blank=True, null=True)
     rcs             = CharField(_(u'RCS/RM'), max_length=100, blank=True, null=True)

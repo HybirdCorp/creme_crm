@@ -19,17 +19,18 @@
 ################################################################################
 
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q, FieldDoesNotExist, ForeignKey, ManyToManyField
+from django.db.models import Q, FieldDoesNotExist, ForeignKey
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, get_list_or_404, render
 from django.core import serializers
-from django.forms.models import modelform_factory
+from django.forms.models import modelform_factory, model_to_dict
 from django.utils.translation import ugettext as _
 from django.utils.simplejson import JSONEncoder
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import login_required
 
 from creme_core.models import CremeEntity, CustomField, EntityCredentials
+from creme_core.gui.bulk_update import bulk_update_registry
 from creme_core.forms import CremeEntityForm
 from creme_core.forms.bulk import _get_choices, EntitiesBulkUpdateForm, _FIELDS_WIDGETS, EntityInnerEditForm
 from creme_core.forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseForm
@@ -193,60 +194,44 @@ def get_function_fields(request):
 
 @jsonify
 def get_widget(request, ct_id):
-    model             = get_ct_or_404(ct_id).model_class()
-    POST = request.POST
-    field_name        = get_from_POST_or_404(POST, 'field_name')
-    field_value_name  = get_from_POST_or_404(POST, 'field_value_name')
+    model               = get_ct_or_404(ct_id).model_class()
+    POST                = request.POST
+    field_name          = get_from_POST_or_404(POST, 'field_name')
+    field_value_name    = get_from_POST_or_404(POST, 'field_value_name')
+    inner_edit_obj_id   = POST.get('object_id')
 
-    initial_value = None
     model_field, is_custom = EntitiesBulkUpdateForm.get_field(model, field_name)
 
-    #TODO: manage invalid field ('model_field is None')
-    #TODO: check if field is bulk_editable ?
+    # Check if model field really exists
+    if model_field is None:
+        raise Http404(u'Unknown field')
 
-    if is_custom:
-        form_field  = model_field.get_formfield(None)
-        form_field.choices = form_field.choices if hasattr(form_field, 'choices') else ()
-        widget = _FIELDS_WIDGETS.get(model_field.get_value_class())
-
-        object_id = POST.get('object_id')
-        if object_id: # Inner edit case only in order to set current custom field value
-            entity = CremeEntity.objects.get(pk=object_id)
-            if entity.can_change(request.user):
-                if model_field.field_type == CustomField.ENUM:
-                    cf_values = model_field.get_value_class().objects.filter(custom_field=model_field.id, entity=entity.id)
-                    initial_value = cf_values[0].value.id if cf_values else None
-                elif model_field.field_type == CustomField.MULTI_ENUM:
-                    cf_values = model_field.get_value_class().objects.filter(custom_field=model_field.id, entity=entity.id)
-                    initial_value = cf_values[0].value.values_list('id', flat=True) if cf_values else None
-                elif model_field.field_type == CustomField.BOOL:
-                    cf_values = model_field.get_value_class().objects.filter(custom_field=model_field.id, entity=entity.id)
-                    initial_value = cf_values[0].value if cf_values else None
-                else:
-                    initial_value = model_field.get_pretty_value(entity.id)
+    # Set up context and credentials for inner edit case
+    if inner_edit_obj_id:
+        object = model.objects.get(pk=inner_edit_obj_id)
+        owner = object.get_related_entity() if hasattr(object, 'get_related_entity') else object
+        owner.can_change_or_die(request.user)
+        is_updatable = bulk_update_registry.is_bulk_updatable(model, field_name, exclude_unique=False)
     else:
+        is_updatable = bulk_update_registry.is_bulk_updatable(model, field_name)
+
+    # Prepare form field with custom widget if needed and initial value according to edit type
+    if is_custom:
+        if inner_edit_obj_id:
+            #TODO why get_custom_value doesnt seem to work when populate custom values has not been called
+            CremeEntity.populate_custom_values([object], [model_field])
+            form_field = model_field.get_formfield(object.get_custom_value(model_field))
+        else:
+            form_field = model_field.get_formfield(None)
+    elif is_updatable:
         form_field = model_field.formfield()
         form_field.choices = _get_choices(model_field, request.user)
-        widget = _FIELDS_WIDGETS.get(model_field.__class__)
+        form_field.widget = _FIELDS_WIDGETS.get(model_field.__class__) or form_field.widget
 
-        object_id = POST.get('object_id')
-        if object_id: # Inner edit case only in order to set current regular field value
-            entity = CremeEntity.objects.get(pk=object_id)
-            if entity.can_change(request.user):
-                initial_value = getattr(entity.get_real_entity(), field_name)
-                if isinstance(model._meta.get_field(field_name), ForeignKey) and initial_value is not None:
-                    initial_value = initial_value.id
-                elif isinstance(model._meta.get_field(field_name), ManyToManyField) and initial_value is not None:
-                    initial_value = initial_value.all().values_list('id', flat=True)
+        if inner_edit_obj_id:
+            form_field.initial = model_to_dict(object, [field_name])[field_name]
 
-    rendered = None
-
-    if widget is None:
-        rendered = form_field.widget.render(name=field_value_name, value=initial_value, attrs={'id': 'id_%s' % field_value_name})
-    else:
-        rendered = widget(field_value_name, form_field.choices, value=initial_value)
-
-    return {'rendered': rendered}
+    return {'rendered': form_field.widget.render(name=field_value_name, value=form_field.initial, attrs={'id': 'id_%s' % field_value_name})}
 
 @login_required
 def clone(request):
@@ -315,25 +300,20 @@ def search_and_view(request):
 _CUSTOM_NAME = 'custom_field_%s'
 
 @login_required
-def edit_field(request, id, field_str):
-    user = request.user
-    #entity = get_object_or_404(CremeEntity, pk=id)
-    entity = get_object_or_404(CremeEntity, pk=id).get_real_entity()
-    #model  = entity.entity_type.model_class()
-    model  = entity.__class__
+def edit_field(request, ct_id, id, field_str):
+    user   = request.user
+    model  = get_ct_or_404(ct_id).model_class()
+    entity = get_object_or_404(model, pk=id)
 
     field_name = _CUSTOM_NAME % int(field_str) if field_str.isdigit() else field_str
 
-    #filtered = {True: [], False: []}
-    #filtered[entity.can_change(user)].append(entity)
-    entity.can_change_or_die(user)
+    owner = entity.get_related_entity() if hasattr(entity, 'get_related_entity') else entity
+    owner.can_change_or_die(user)
 
     if request.method == 'POST':
         form = EntityInnerEditForm(model=model,
-                                   field_name = field_name,
-                                   #subjects=filtered[True],
+                                   field_name=field_name,
                                    subject=entity,
-                                   #forbidden_subjects=filtered[False],
                                    user=user,
                                    data=request.POST,
                                   )
@@ -342,10 +322,8 @@ def edit_field(request, id, field_str):
             form.save()
     else:
         form = EntityInnerEditForm(model=model,
-                                   field_name = field_name,
-                                   #subjects=filtered[True],
+                                   field_name=field_name,
                                    subject=entity,
-                                   #forbidden_subjects=filtered[False],
                                    user=user,
                                   )
 

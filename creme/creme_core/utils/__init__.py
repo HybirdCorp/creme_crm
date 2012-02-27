@@ -25,6 +25,7 @@ from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
 from django.db.models.query_utils import Q
 from django.http import HttpResponse, Http404
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import ugettext
 
 from creme_core.registry import creme_registry
 
@@ -130,11 +131,17 @@ def find_first(iterable, function, *default):
     raise IndexError
 
 def entities2unicode(entities, user):
-    """Return a unicdde objects representing a sequence of CremeEntities,
+    """Return a unicode objects representing a sequence of CremeEntities,
     with care of permissions.
     Tips: for performance, call "CremeEntity.populate_credentials(entities, user)" before.
     """
     return u', '.join(entity.allowed_unicode(user) for entity in entities)
+
+def related2unicode(entity, user):
+    """Return a unicode object representing a related entity with its owner,
+    with care of permissions of this owner.
+    """
+    return u'%s - %s' % (entity.get_related_entity().allowed_unicode(user), unicode(entity))
 
 __B2S_MAP = {
         'true':  True,

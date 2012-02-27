@@ -58,6 +58,5 @@ bulk_update_registry.register(
     (_Email,        ['reads', 'status', 'recipient', 'body_html', 'body', 'sending_date',
                      'reception_date', 'signature', 'attachments', 'subject',
                      'sender']),#TODO: Remove bulk update instead of that ?
-    (EntityEmail, ['identifier']),
 )
 
