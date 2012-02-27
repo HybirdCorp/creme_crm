@@ -25,25 +25,29 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 
 from creme_core.views.generic import add_model_with_popup, edit_model_with_popup
+from creme_core.auth.decorators import superuser_required
 
 from creme_config.forms.user import (UserAddForm, UserChangePwForm, UserEditForm,
                                      TeamCreateForm, TeamEditForm, UserAssignationForm)
 
 
 @login_required
-@permission_required('creme_config.can_admin')
+#@permission_required('creme_config.can_admin')
+@superuser_required
 def change_password(request, user_id):
     return edit_model_with_popup(request, {'pk': user_id}, User,
                                  UserChangePwForm, _(u'Change password for <%s>')
                                 )
 
 @login_required
-@permission_required('creme_config.can_admin')
+#@permission_required('creme_config.can_admin')
+@superuser_required
 def add(request):
     return add_model_with_popup(request, UserAddForm, _(u'New user'))
 
 @login_required
-@permission_required('creme_config.can_admin')
+#@permission_required('creme_config.can_admin')
+@superuser_required
 def add_team(request):
     return add_model_with_popup(request, TeamCreateForm, _(u'New team'))
 
@@ -53,17 +57,20 @@ def portal(request):
     return render(request, 'creme_config/user_portal.html')
 
 @login_required
-@permission_required('creme_config.can_admin')
+#@permission_required('creme_config.can_admin')
+@superuser_required
 def edit(request, user_id):
     return edit_model_with_popup(request, {'pk': user_id, 'is_team': False}, User, UserEditForm)
 
 @login_required
-@permission_required('creme_config.can_admin')
+#@permission_required('creme_config.can_admin')
+@superuser_required
 def edit_team(request, user_id):
     return edit_model_with_popup(request, {'pk': user_id, 'is_team': True}, User, TeamEditForm)
 
 @login_required
-@permission_required('creme_config.can_admin')
+#@permission_required('creme_config.can_admin')
+@superuser_required
 def delete(request, user_id):
     """Delete a User (who can be a Team). Objects linked to this User are
     linked to a new User.

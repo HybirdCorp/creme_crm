@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load creme_block creme_widgets creme_core_tags %}
-<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
+{% with user.is_superuser as has_perm %}
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=11 %}
         <th class="collapser label">{% get_block_title  _('%s Team') _('%s Teams') %}</th>
         <th class="actions"></th>
@@ -8,7 +9,7 @@
     <tbody class="collapsable">
         <tr class="header toolbar">
             <th class="block_header_line_light" style="font-size:14px;" align="left" colspan="3">
-                {% get_line_adder at_url '/creme_config/team/add/' with_label _("New team") with_perms 1 %}
+                {% get_line_adder at_url '/creme_config/team/add/' with_label _("New team") with_perms has_perm %}
             </th>
         </tr>
         {% if page.paginator.count %}
@@ -24,10 +25,14 @@
                         {% widget_select_or_msg team.teammates.values _('No teammate') %} ({{team.teammates|length}})
                     </td>
                     <td class="{{row_color}} action">
-                        {% get_line_editor at_url '/creme_config/team/edit/{{team.id}}' with_perms 1 %}
-                        <a onclick="creme.utils.innerPopupNReload('/creme_config/user/delete/{{team.id}}', {% get_block_reload_uri %});">
-                            <img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}">
-                        </a>
+                        {% get_line_editor at_url '/creme_config/team/edit/{{team.id}}' with_perms has_perm %}
+                        {% if has_perm %}
+                            <a onclick="creme.utils.innerPopupNReload('/creme_config/user/delete/{{team.id}}', {% get_block_reload_uri %});">
+                                <img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}">
+                            </a>
+                        {% else %}
+                            <img class="forbidden" src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{% trans "Can't delete" %}" alt="{% trans "Can't delete" %}" />
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}
@@ -39,3 +44,4 @@
     </tbody>
     {% include 'creme_core/templatetags/widgets/block_footer.html' %}
 </table>
+{% endwith %}
