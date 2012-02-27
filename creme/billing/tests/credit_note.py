@@ -73,8 +73,6 @@ class CreditNoteTestCase(_BillingTestCase, CremeTestCase):
 
         invoice = self.refresh(invoice)
         expected_total = Decimal('1')
-        self.assertEqual(expected_total, invoice.get_total())
-        self.assertEqual(expected_total, invoice.get_total_with_tax())
         self.assertEqual(expected_total, invoice.total_no_vat)
         self.assertEqual(expected_total, invoice.total_vat)
 
@@ -96,8 +94,6 @@ class CreditNoteTestCase(_BillingTestCase, CremeTestCase):
 
         invoice = self.refresh(invoice)
         expected_total = Decimal('0')
-        self.assertEqual(expected_total, invoice.get_total())
-        self.assertEqual(expected_total, invoice.get_total_with_tax())
         self.assertEqual(expected_total, invoice.total_no_vat)
         self.assertEqual(expected_total, invoice.total_vat)
 

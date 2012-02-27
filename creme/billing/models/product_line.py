@@ -24,6 +24,10 @@ from line import Line, PRODUCT_LINE_TYPE
 
 
 class ProductLine(Line):
+
+    excluded_fields_in_html_output = Line.excluded_fields_in_html_output + ['line_ptr']
+    header_filter_exclude_fields = Line.header_filter_exclude_fields + ['line_ptr'] #TODO: use a set() ??
+
     def __init__(self, *args, **kwargs):
         super(ProductLine, self).__init__(*args, **kwargs)
         self.type = PRODUCT_LINE_TYPE
@@ -33,10 +37,6 @@ class ProductLine(Line):
         verbose_name = _(u'Product line')
         verbose_name_plural = _(u'Product lines')
 
-    #def __unicode__(self):
-        #if self.related_item:
-            #return u"Related to product '%s'" % self.related_item
-        #return u"On the fly product '%s'" % self.on_the_fly_item
     def __unicode__(self):
         if self.on_the_fly_item:
             return u"On the fly product '%s'" % self.on_the_fly_item

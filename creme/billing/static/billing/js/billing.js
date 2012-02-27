@@ -122,6 +122,10 @@ creme.billing.checkPercent = function(value) {
     return value.match(/^(100(\.[0]{1,2}){0,1}|[0-9]{1,2}(\.[0-9]{1,2}){0,1})$/) ? null : "This is not a percentage !";
 }
 
+creme.billing.checkValue = function(value) {
+    return value ? null : gettext("A value is needed for this field !");
+}
+
 creme.billing.printLinesErrors = function(target, table, reload_url) {
 
     target.addClass('line-error');

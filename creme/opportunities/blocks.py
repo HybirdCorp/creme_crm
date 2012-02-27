@@ -163,21 +163,12 @@ class TargettingOpportunitiesBlock(_LinkedStuffBlock):
     def _get_queryset(self, entity):
         return Opportunity.objects.filter(relations__object_entity=entity.id, relations__type=REL_SUB_TARGETS)
 
-# comment on 16/01 unused + lines are not used anymore in opportunities app
-#class OppProductLinesBlock(ProductLinesBlock):
-#    id_           = ProductLinesBlock.generate_id('opportunities', 'product_lines')
-#    target_ctypes = (Opportunity,)
-#
-#
-#class OppServiceLinesBlock(ServiceLinesBlock):
-#    id_           = ServiceLinesBlock.generate_id('opportunities', 'service_lines')
-#    target_ctypes = (Opportunity,)
-
 
 class OppTotalBlock(TotalBlock):
     id_                 = TotalBlock.generate_id('opportunities', 'total')
     dependencies        = (Opportunity, Relation,)
     relation_type_deps  = (REL_OBJ_LINKED_QUOTE,)
+    template_name       = 'opportunities/templatetags/block_total.html'
     target_ctypes       = (Opportunity,)
 
 

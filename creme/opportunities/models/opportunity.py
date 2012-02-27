@@ -134,26 +134,6 @@ class Opportunity(CremeEntity):
                 self._use_current_quote = False
         return self._use_current_quote
 
-# comment on 16/01 lines system is not used anymore in opportunities app
-#    #TODO: factorise with billing ??
-#    @property
-#    def product_lines(self):
-#        if self._product_lines is None:
-#            self._product_lines = list(ProductLine.objects.filter(relations__object_entity=self.id))
-#        return self._product_lines
-#
-#    #TODO: factorise with billing ??
-#    @property
-#    def service_lines(self):
-#        if self._service_lines is None:
-#            self._service_lines = list(ServiceLine.objects.filter(relations__object_entity=self.id))
-#        return self._service_lines
-#
-#    #TODO: factorise with billing ??
-#    def invalidate_cache(self):
-#        self._productlines_cache = None
-#        self._servicelines_cache = None
-
     def get_total(self):
         if self.made_sales:
             return self.made_sales

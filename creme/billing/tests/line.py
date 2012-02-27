@@ -25,46 +25,44 @@ __all__ = ('LineTestCase',)
 
 
 class LineTestCase(_BillingTestCase, CremeTestCase):
-# comment on 17/01 because add product no longer exists in this way
-#    def test_add_product_lines01(self):
-#        self.login()
-#
-#        #simpler to test with 2 super users (do not have to create SetCredentials etc...)
-#        other_user = self.other_user
-#        other_user.superuser = True
-#        other_user.save()
-#
-#        invoice  = self.create_invoice_n_orgas('Invoice001', user=other_user)[0]
-#        url = '/billing/%s/product_line/add' % invoice.id
-#        self.assertEqual(200, self.client.get(url).status_code)
-#
-#        unit_price = Decimal('1.0')
-#        product = self.create_product(unit_price=unit_price)
-#        response = self.client.post(url, data={'related_item':  product.id,
-#                                               'comment':       'no comment !',
-#                                               'quantity':      1,
-#                                               'unit_price':    unit_price,
-#                                               'discount':      Decimal(),
-#                                               'discount_unit': 1,
-#                                               'vat_value':     Vat.objects.get(value='0.0').id,
-##                                               'credit':       Decimal(),
-#                                              }
-#                                   )
-#        self.assertNoFormError(response)
-#        self.assertEqual(200, response.status_code)
-#
-#        lines = invoice.product_lines
-#        self.assertEqual(1, len(lines))
-#
-#        line = lines[0]
-#        self.assertEqual(other_user, line.user)
-#        self.assertEqual(product,    line.related_item)
-#        self.assertEqual(unit_price, line.unit_price)
-#        self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE,          line)
-#        self.assertRelationCount(1, line,    REL_SUB_LINE_RELATED_ITEM, product)
-#
-#        self.assertEqual(unit_price, invoice.get_total())
-#        self.assertEqual(unit_price, invoice.get_total_with_tax())
+
+    def test_add_product_lines01(self): #multiple
+        self.login()
+        self.populate('products')
+
+        invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
+        url = '/billing/%s/product_line/add_multiple' % invoice.id
+        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertFalse(invoice.service_lines)
+
+        product1 = self.create_product()
+        product2 = self.create_product()
+        vat = Vat.objects.get_or_create(value=Decimal('5.5'))[0]
+        quantity = 2
+        response = self.client.post(url, data={'items': '%s,%s' % (product1.id, product2.id),
+                                               'quantity':       quantity,
+                                               'discount_value': Decimal('20'),
+                                               'vat':            vat.id,
+                                               }
+        )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        invoice = self.refresh(invoice) #refresh lines cache
+        self.assertEqual(2, len(invoice.product_lines))
+
+        lines = invoice.product_lines
+        line0 = lines[0]
+        line1 = lines[1]
+        self.assertEqual(quantity,        line0.quantity)
+        self.assertEqual(quantity,        line1.quantity)
+        self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE,          line0)
+        self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE,          line1)
+        self.assertRelationCount(1, line0,    REL_SUB_LINE_RELATED_ITEM, product1)
+        self.assertRelationCount(1, line1,    REL_SUB_LINE_RELATED_ITEM, product2)
+
+        self.assertEqual(Decimal('3.2'), invoice.total_no_vat) # 2 * 0.8 + 2 * 0.8
+        self.assertEqual(Decimal('3.38'), invoice.total_vat) # 3.2 * 1.07 = 3.38
 
     def test_add_product_lines02(self): #on-the-fly
         self.login()
@@ -79,10 +77,10 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
                                                'comment':         'no comment !',
                                                'quantity':        1,
                                                'unit_price':      unit_price,
+                                               'unit':            'Box',
                                                'discount':        Decimal(),
                                                'discount_unit':   1,
                                                'vat_value':       Vat.objects.get(value='0.0').id,
-#                                               'credit':          Decimal(),
                                              }
                                    )
         self.assertNoFormError(response)
@@ -96,8 +94,8 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
         self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE, line)
         self.assertEqual(0, Relation.objects.filter(subject_entity=line, type=REL_SUB_LINE_RELATED_ITEM).count())
 
-        self.assertEqual(unit_price, invoice.get_total())
-        self.assertEqual(unit_price, invoice.get_total_with_tax())
+        self.assertEqual(unit_price, invoice._get_total())
+        self.assertEqual(unit_price, invoice._get_total_with_tax())
 
     def test_add_product_lines03(self): #on-the-fly + product creation
         self.login()
@@ -113,10 +111,10 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
                                           'comment':            'no comment !',
                                           'quantity':           1,
                                           'unit_price':         unit_price,
+                                          'unit':               'Box',
                                           'discount':           Decimal(),
                                           'discount_unit':      1,
                                           'vat_value':          Vat.objects.get(value='0.0').id,
-#                                          'credit':             Decimal(),
                                           'has_to_register_as': 'on',
                                           'sub_category':       '{"category":%s, "subcategory":%s}' % (cat.id, subcat.id)
                                          }
@@ -158,7 +156,6 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
                                           'discount':            Decimal(),
                                           'discount_unit':       1,
                                           'vat_value':           Vat.objects.get(value='0.0').id,
-#                                          'credit':              Decimal(),
                                           'has_to_register_as':  'on',
                                           'category':            cat.id,
                                           'sub_category':        subcat.id,
@@ -179,90 +176,43 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
         self.assertFalse(self.refresh(invoice).product_lines)
         self.assertFalse(ProductLine.objects.exists())
 
-# commented on 19/11/2011 Edit line using this way is no longer possible
-#    def test_invoice_edit_product_lines01(self):
-##        self.populate('creme_core', 'persons')
-#        self.login()
-#
-#        name = 'Stuff'
-#        unit_price = Decimal('42.0')
-#        quantity = 1
-#        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
-#        line = ProductLine.objects.create(on_the_fly_item=name, quantity=quantity,
-#                                          unit_price=unit_price, user=self.user,
-#                                         )
-#        line.related_document = invoice
-#
-#        url = '/billing/productline/%s/edit' % line.id
-#        self.assertEqual(200, self.client.get(url).status_code)
-#
-#        name += '_edited'
-#        unit_price += Decimal('1.0')
-#        quantity *= 2
-#        response = self.client.post(url, data={
-#                                                #'user':            self.user.pk,
-#                                                'on_the_fly_item': name,
-#                                                'comment':         'no comment !',
-#                                                'quantity':        quantity,
-#                                                'unit_price':      unit_price,
-#                                                'discount':        Decimal(),
-#                                                'discount_unit':   1,
-#                                                'vat_value':       Vat.objects.get(value='0.0').id,
-##                                                'credit':          Decimal(),
-#                                              }
-#                                   )
-#        self.assertNoFormError(response)
-#        self.assertEqual(200, response.status_code)
-#
-#        line = self.refresh(line)
-#        self.assertEqual(name,       line.on_the_fly_item)
-#        self.assertEqual(unit_price, line.unit_price)
-#        self.assertEqual(quantity,   line.quantity)
+    def test_add_service_lines01(self): #multiple
+        self.login()
+        self.populate('products')
 
-# comment on 17/01 add line no longer exists
-#    def test_add_service_lines01(self):
-#        self.login()
-#        self.populate('products')
-#
-#        #simpler to test with 2 super users (do not have to create SetCredentials etc...)
-#        other_user = self.other_user
-#        other_user.superuser = True
-#        other_user.save()
-#
-#        invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
-#        url = '/billing/%s/service_line/add' % invoice.id
-#        self.assertEqual(200, self.client.get(url).status_code)
-#        self.assertFalse(invoice.service_lines)
-#
-#        unit_price = Decimal('1.33')
-#        service = self.create_service()
-#        vat = Vat.objects.get_or_create(value=Decimal('19.60'))[0]
-#        response = self.client.post(url, data={'related_item': service.id,
-#                                               'comment':      'no comment !',
-#                                               'quantity':     2,
-#                                               'unit_price':   unit_price,
-#                                               'discount':     Decimal(),
-#                                               'discount_unit':1,
-#                                               #'vat_value':    Vat.get_default_vat().id,
-#                                               'vat_value':    vat.id,
-##                                               'credit':       Decimal(),
-#                                              }
-#                                   )
-#        self.assertNoFormError(response)
-#        self.assertEqual(200, response.status_code)
-#
-#        invoice = self.refresh(invoice) #refresh lines cache
-#        self.assertEqual(1, len(invoice.service_lines))
-#
-#        line = invoice.service_lines[0]
-#        self.assertEqual(self.other_user, line.user)
-#        self.assertEqual(service,         line.related_item)
-#        self.assertEqual(unit_price,      line.unit_price)
-#        self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE,          line)
-#        self.assertRelationCount(1, line,    REL_SUB_LINE_RELATED_ITEM, service)
-#
-#        self.assertEqual(Decimal('2.66'), invoice.get_total()) # 2 * 1.33
-#        self.assertEqual(Decimal('3.19'), invoice.get_total_with_tax()) #2.66 * 1.196 == 3.18136
+        invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
+        url = '/billing/%s/service_line/add_multiple' % invoice.id
+        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertFalse(invoice.service_lines)
+
+        service1 = self.create_service()
+        service2 = self.create_service()
+        vat = Vat.objects.get_or_create(value=Decimal('19.6'))[0]
+        quantity = 2
+        response = self.client.post(url, data={'items': '%s,%s' % (service1.id, service2.id),
+                                               'quantity':       quantity,
+                                               'discount_value': Decimal('10'),
+                                               'vat':            vat.id,
+                                              }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        invoice = self.refresh(invoice) #refresh lines cache
+        self.assertEqual(2, len(invoice.service_lines))
+
+        lines = invoice.service_lines
+        line0 = lines[0]
+        line1 = lines[1]
+        self.assertEqual(quantity,        line0.quantity)
+        self.assertEqual(quantity,        line1.quantity)
+        self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE,          line0)
+        self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE,          line1)
+        self.assertRelationCount(1, line0,    REL_SUB_LINE_RELATED_ITEM, service1)
+        self.assertRelationCount(1, line1,    REL_SUB_LINE_RELATED_ITEM, service2)
+
+        self.assertEqual(Decimal('21.6'), invoice.total_no_vat) # 2 * 5.4 + 2 * 5.4
+        self.assertEqual(Decimal('25.84'), invoice.total_vat) # 21.6 * 1.196 = 25.84
 
     def test_add_service_lines02(self): #on-the-fly
         self.login()
@@ -277,10 +227,10 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
                                                'comment':         'no comment !',
                                                'quantity':        2,
                                                'unit_price':      unit_price,
+                                               'unit':            'Day',
                                                'discount':        Decimal(),
                                                'discount_unit':   1,
                                                'vat_value':       Vat.objects.get(value='0.0').id,
-#                                               'credit':          Decimal(),
                                               }
                                    )
         self.assertNoFormError(response)
@@ -310,10 +260,10 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
                                           'comment':            'no comment !',
                                           'quantity':           2,
                                           'unit_price':         unit_price,
+                                          'unit':               'Day',
                                           'discount':           Decimal(),
                                           'discount_unit':      1,
                                           'vat_value':          Vat.get_default_vat().id,
-#                                          'credit':             Decimal(),
                                           'has_to_register_as': 'on',
                                           'sub_category': """{"category":%s, "subcategory":%s}""" % (cat.id, subcat.id)
                                          }
@@ -364,45 +314,6 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
         self.assertFormError(response, 'form', 'has_to_register_as', [_(u'You are not allowed to create this entity')])
         self.assertFalse(invoice.service_lines)
         self.assertFalse(Service.objects.exists())
-
-# commented on 19/11/2011 Edit line using this way is no longer possible
-#    def test_invoice_edit_service_lines01(self):
-#        self.login()
-#
-#        name = 'Stuff'
-#        unit_price = Decimal('42.0')
-#        quantity = 1
-#        invoice  = self.create_invoice_n_orgas('Invoice001')[0]
-#        line = ServiceLine.objects.create(on_the_fly_item=name, quantity=quantity,
-#                                          unit_price=unit_price, user=self.user,
-#                                         )
-#        line.related_document = invoice
-#
-#        url = '/billing/serviceline/%s/edit' % line.id
-#        self.assertEqual(200, self.client.get(url).status_code)
-#
-#        name += '_edited'
-#        unit_price += Decimal('1.0')
-#        quantity *= 2
-#        response = self.client.post(url, data={
-#                                                #'user':            self.user.pk,
-#                                                'on_the_fly_item': name,
-#                                                'comment':         'no comment !',
-#                                                'quantity':        quantity,
-#                                                'unit_price':      unit_price,
-#                                                'discount':        Decimal(),
-#                                                'discount_unit':   1,
-#                                                'vat_value':       Vat.objects.get(value='0.0').id,
-##                                                'credit':          Decimal(),
-#                                              }
-#                                   )
-#        self.assertNoFormError(response)
-#        self.assertEqual(200, response.status_code)
-#
-#        line = self.refresh(line)
-#        self.assertEqual(name,       line.on_the_fly_item)
-#        self.assertEqual(unit_price, line.unit_price)
-#        self.assertEqual(quantity,   line.quantity)
 
     def test_related_document01(self):
         self.login()
@@ -491,20 +402,6 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(verbose_type, unicode(sl.get_verbose_type()))
         self.assertEqual(verbose_type, sl.function_fields.get('get_verbose_type')(sl).for_html())
 
-    def test_discount_rules(self):
-        is_valid = Line.is_discount_valid
-
-        self.assertFalse(is_valid(100, 1, 150, PERCENT_PK, True))
-        self.assertFalse(is_valid(100, 1, 101, AMOUNT_PK,  True))
-        self.assertFalse(is_valid(100, 2, 201, AMOUNT_PK,  True))
-        self.assertFalse(is_valid(100, 1, 101, AMOUNT_PK,  False))
-        self.assertFalse(is_valid(100, 4, 101, AMOUNT_PK,  False))
-
-        self.assertTrue(is_valid(100, 2.1, 95.8, PERCENT_PK, False))
-        self.assertTrue(is_valid(100, 2,   101,  AMOUNT_PK,  True))
-        self.assertTrue(is_valid(100, 2,   99,   AMOUNT_PK,  False))
-        self.assertTrue(is_valid(20,  20,  399,  AMOUNT_PK,  True))
-
     def test_inline_edit(self):
         self.login()
 
@@ -534,13 +431,9 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
         pl = self.refresh(pl)
         invoice = self.refresh(invoice)
 
-        self.assertTrue(Line.is_discount_valid(20, 20, 10, AMOUNT_PK, False))
-
         self.assertEqual(Decimal('20'),  pl.unit_price)
         self.assertEqual(Decimal('20'),  pl.quantity)
         self.assertEqual(null_vat,       pl.vat_value)
-        self.assertEqual(Decimal('200'), invoice.get_total())
-        self.assertEqual(Decimal('200'), invoice.get_total_with_tax())
         self.assertEqual(Decimal('200'), invoice.total_no_vat)
         self.assertEqual(Decimal('200'), invoice.total_vat)
 
@@ -560,9 +453,7 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
 
         self.assertEqual(2, len(invoice.product_lines))
         expected_total = Decimal('30')
-        self.assertEqual(expected_total, invoice.get_total())
         self.assertEqual(expected_total, invoice.total_no_vat)
-        self.assertEqual(expected_total, invoice.get_total_with_tax())
         self.assertEqual(expected_total, invoice.total_vat)
 
         response = self.client.post('/creme_core/delete_js', follow=True, data={'ids': '%s,%s' % ids})
@@ -573,8 +464,6 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
         self.assertFalse(invoice.product_lines)
 
         expected_total = Decimal('0')
-        self.assertEqual(expected_total, invoice.get_total())
-        self.assertEqual(expected_total, invoice.get_total_with_tax())
         self.assertEqual(expected_total, invoice.total_no_vat)
         self.assertEqual(expected_total, invoice.total_vat)
 
@@ -633,9 +522,7 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(2, len(invoice.service_lines))
 
         expected_total = Decimal('430')
-        self.assertEqual(expected_total, invoice.get_total())
         self.assertEqual(expected_total, invoice.total_no_vat)
-        self.assertEqual(expected_total, invoice.get_total_with_tax())
         self.assertEqual(expected_total, invoice.total_vat)
 
         url = self._build_bulk_url(ProductLine, pl1, pl2)
@@ -662,7 +549,5 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
 
         invoice = self.refresh(invoice)
         expected_total = Decimal('1060')
-        self.assertEqual(expected_total, invoice.get_total())
-        self.assertEqual(expected_total, invoice.get_total_with_tax())
         self.assertEqual(expected_total, invoice.total_no_vat)
         self.assertEqual(expected_total, invoice.total_vat)

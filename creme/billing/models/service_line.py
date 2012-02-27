@@ -24,6 +24,10 @@ from line import Line, SERVICE_LINE_TYPE
 
 
 class ServiceLine(Line):
+
+    excluded_fields_in_html_output = Line.excluded_fields_in_html_output + ['line_ptr']
+    header_filter_exclude_fields = Line.header_filter_exclude_fields + ['line_ptr'] #TODO: use a set() ??
+
     def __init__(self, *args, **kwargs):
         super(ServiceLine, self).__init__(*args, **kwargs)
         self.type = SERVICE_LINE_TYPE
@@ -33,10 +37,6 @@ class ServiceLine(Line):
         verbose_name = _(u'Service line')
         verbose_name_plural = _(u'Service lines')
 
-    #def __unicode__(self):
-        #if self.related_item:
-            #return u"Related to service '%s'" % self.related_item
-        #return u"On the fly service '%s'" % self.on_the_fly_item
     def __unicode__(self):
         if self.on_the_fly_item:
             return u"On the fly service '%s'" % self.on_the_fly_item

@@ -414,7 +414,7 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
-        self.assertEqual(0, invoice.get_total_with_tax())
+        self.assertEqual(0, invoice._get_total_with_tax())
 
         product_line = ProductLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyy product', quantity=3, unit_price=Decimal("5"))
         expected = product_line.get_price_inclusive_of_tax()
@@ -422,14 +422,14 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
 
         invoice.save()
         invoice = self.refresh(invoice)
-        self.assertEqual(expected, invoice.get_total_with_tax())
+        self.assertEqual(expected, invoice._get_total_with_tax())
         self.assertEqual(expected, invoice.total_vat)
 
         service_line = ServiceLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyy service', quantity=9, unit_price=Decimal("10"))
         expected = product_line.get_price_inclusive_of_tax() + service_line.get_price_inclusive_of_tax()
         invoice.save()
         invoice = self.refresh(invoice)
-        self.assertEqual(expected, invoice.get_total_with_tax())
+        self.assertEqual(expected, invoice._get_total_with_tax())
         self.assertEqual(expected, invoice.total_vat)
 
     def test_clone_with_lines01(self):
@@ -479,7 +479,7 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(1620, product_line.get_price_exclusive_of_tax())
 
         invoice = self.refresh(invoice)
-        self.assertEqual(1620, invoice.get_total())
+        self.assertEqual(1620, invoice._get_total())
         self.assertEqual(1620, invoice.total_no_vat)
 
         service_line = ServiceLine.objects.create(user=self.user,
@@ -492,7 +492,7 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(90, service_line.get_price_exclusive_of_tax())
 
         invoice = self.refresh(invoice)
-        self.assertEqual(1710, invoice.get_total()) #total_exclusive_of_tax
+        self.assertEqual(1710, invoice._get_total()) #total_exclusive_of_tax
         self.assertEqual(1710, invoice.total_no_vat)
 
 
