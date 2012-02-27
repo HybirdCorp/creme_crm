@@ -31,13 +31,28 @@ class UserTestCase(CremeTestCase):
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'persons')
 
-    def setUp(self):
-        self.login()
+    def login_not_as_superuser(self):
+        apps = ('creme_config',)
+        self.login(is_superuser=False, allowed_apps=apps, admin_4_apps=apps)
 
-    def test_portal(self):
-        self.assertEqual(200, self.client.get('/creme_config/user/portal/').status_code)
+    def aux_test_portal(self):
+        response = self.client.get('/creme_config/user/portal/')
+        self.assertEqual(200, response.status_code)
+
+        self.assertContains(response, 'id="%s"' % blocks.UsersBlock.id_)
+        self.assertContains(response, 'id="%s"' % blocks.TeamsBlock.id_)
+
+    def test_portal01(self):
+        self.login()
+        self.aux_test_portal()
+
+    def test_portal02(self):
+        self.login_not_as_superuser()
+        self.aux_test_portal()
 
     def test_create01(self):
+        self.login()
+
         url = '/creme_config/user/add/'
         self.assertEqual(200, self.client.get(url).status_code)
 
@@ -77,6 +92,8 @@ class UserTestCase(CremeTestCase):
         self.assertFalse(EntityCredentials.objects.filter(user=user))
 
     def test_create02(self):
+        self.login()
+
         role = UserRole(name='Mangaka')
         role.allowed_apps = ['persons']
         role.save()
@@ -111,7 +128,31 @@ class UserTestCase(CremeTestCase):
 
         self.assertTrue(orga.can_view(user))
 
+    def test_create03(self):
+        self.login_not_as_superuser()
+
+        url = '/creme_config/user/add/'
+        self.assertGETRedirectsToLogin(url)
+
+        orga = Organisation.objects.create(user=self.user, name='Olympus')
+        CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
+
+        password = 'password'
+        self.assertPOSTRedirectsToLogin(url, data={'username':     'deunan',
+                                                   'password_1':   password,
+                                                   'password_2':   password,
+                                                   'first_name':   'Deunan',
+                                                   'last_name':    'Knut',
+                                                   'email':        'd.knut@eswat.ol',
+                                                   'is_superuser': False,
+                                                   'organisation': orga.id,
+                                                   'relation':     REL_SUB_EMPLOYED_BY,
+                                                  }
+                                       )
+
     def test_edit01(self):
+        self.login()
+
         role1 = UserRole(name='Master')
         role1.allowed_apps = ['persons']
         role1.save()
@@ -150,6 +191,8 @@ class UserTestCase(CremeTestCase):
         self.assertFalse(briareos.can_view(other_user))
 
     def test_edit02(self): #can not edit a team with the user edit view
+        self.login()
+
         user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
         team  = self._create_team('Teamee', [user])
 
@@ -157,7 +200,34 @@ class UserTestCase(CremeTestCase):
         self.assertGET404(url)
         self.assertPOST404(url)
 
-    def test_change_password(self):
+    def test_edit03(self):
+        self.login_not_as_superuser()
+
+        role1 = UserRole(name='Master')
+        role1.allowed_apps = ['persons']
+        role1.save()
+        SetCredentials.objects.create(role=role1, value=SetCredentials.CRED_VIEW,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+        other_user = User.objects.create(username='deunan', role=role1)
+
+        briareos = Contact.objects.create(user=self.user, first_name='Briareos', last_name='Hecatonchires')
+        self.assertTrue(briareos.can_view(other_user))
+
+        url = '/creme_config/user/edit/%s' % other_user.id
+        self.assertGETRedirectsToLogin(url)
+
+        role2 = UserRole.objects.create(name='Slave')
+        self.assertPOSTRedirectsToLogin(url,data={'first_name': 'Deunan',
+                                                  'last_name':  'Knut',
+                                                  'email':      'd.knut@eswat.ol',
+                                                  'role':       role2.id,
+                                                 }
+                                       )
+
+    def test_change_password01(self):
+        self.login()
+
         other_user = User.objects.create(username='deunan')
         url = '/creme_config/user/edit/password/%s' % other_user.id
         self.assertEqual(200, self.client.get(url).status_code)
@@ -172,10 +242,22 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
         self.assertTrue(self.refresh(other_user).check_password(password))
 
-    def test_portal(self):
-        self.assertEqual(200, self.client.get('/creme_config/user/portal/').status_code)
+    def test_change_password02(self):
+        self.login_not_as_superuser()
 
-    def test_team_create(self):
+        other_user = User.objects.create(username='deunan')
+        url = '/creme_config/user/edit/password/%s' % other_user.id
+        self.assertGETRedirectsToLogin(url)
+
+        password = 'password'
+        self.assertPOSTRedirectsToLogin(url, data={'password_1': password,
+                                                   'password_2': password,
+                                                  }
+                                       )
+
+    def test_team_create01(self):
+        self.login()
+
         url = '/creme_config/team/add/'
         self.assertEqual(200, self.client.get(url).status_code)
 
@@ -206,13 +288,27 @@ class UserTestCase(CremeTestCase):
         self.assertIn(user01.id, teammates)
         self.assertIn(user02.id, teammates)
 
+    def test_team_create02(self):
+        self.login_not_as_superuser()
+
+        url = '/creme_config/team/add/'
+        self.assertGETRedirectsToLogin(url)
+
+        user01 = User.objects.create_user('Shogun', 'shogun@century.jp', 'uselesspw')
+        self.assertPOSTRedirectsToLogin(url, data={'username':  'Team-A',
+                                                   'teammates': [user01.id],
+                                                  }
+                                       )
+
     def _create_team(self, name, teammates):
         team = User.objects.create(username=name, is_team=True, role=None)
         team.teammates = teammates
 
         return team
 
-    def test_team_edit(self):
+    def test_team_edit01(self):
+        self.login()
+
         role = UserRole(name='Role')
         role.allowed_apps = ['creme_core']
         role.save()
@@ -268,7 +364,26 @@ class UserTestCase(CremeTestCase):
         self.assertTrue(entity.can_view(user02))
         self.assertTrue(entity.can_view(user03))
 
+    def test_team_edit02(self):
+        self.login_not_as_superuser()
+
+        create_user = User.objects.create_user
+        user01 = create_user('Maruo',  'maruo@century.jp',  'uselesspw1')
+        user02 = create_user('Yokiji', 'yokiji@century.jp', 'uselesspw2')
+
+        teamname = 'Teamee'
+        team = self._create_team(teamname, [user01, user02])
+
+        url = '/creme_config/team/edit/%s' % team.id
+        self.assertGETRedirectsToLogin(url)
+        self.assertPOSTRedirectsToLogin(url, data={'username':  teamname,
+                                                  'teammates': [user02.id],
+                                                 }
+                                      )
+
     def test_team_delete01(self):
+        self.login()
+
         user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
         team = self._create_team('Teamee', [])
 
@@ -278,6 +393,8 @@ class UserTestCase(CremeTestCase):
         self.assertFalse(User.objects.filter(pk=team.id))
 
     def test_team_delete02(self):
+        self.login()
+
         user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
         team  = self._create_team('Teamee', [user])
         team2 = self._create_team('Teamee2', [user])
@@ -296,6 +413,8 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(team2, ce.user)
 
     def test_team_delete03(self):
+        self.login()
+
         team = self._create_team('Teamee', [])
         CremeEntity.objects.create(user=team)
 
@@ -305,7 +424,19 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
         self.assertFalse(User.objects.filter(pk=team.id))
 
+    def test_team_delete04(self):
+        self.login_not_as_superuser()
+
+        user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
+        team = self._create_team('Teamee', [])
+
+        url = '/creme_config/user/delete/%s' % team.id
+        self.assertGETRedirectsToLogin(url)
+        self.assertPOSTRedirectsToLogin(url, data={'to_user': user.id})
+
     def test_user_delete01(self): #Delete is not permitted when there is only one user
+        self.login()
+
         CremeEntity.objects.all().delete()#In creme_core populate some entities are created, so we avoid an IntegrityError
         HistoryLine.objects.all().delete()
         User.objects.exclude(pk=self.user.pk).delete()#Ensure there is only one user
@@ -320,6 +451,8 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(1, User.objects.count())
 
     def test_user_delete02(self): #Validation error
+        self.login()
+
         count = User.objects.count()
         self.assertGreater(count, 1)
 
@@ -339,6 +472,8 @@ class UserTestCase(CremeTestCase):
         self.assertTrue(User.objects.filter(pk=self.user.id).exists())
 
     def test_user_delete03(self):
+        self.login()
+
         user       = self.user
         other_user = self.other_user
         ce = CremeEntity.objects.create(user=other_user)
@@ -356,6 +491,8 @@ class UserTestCase(CremeTestCase):
 
     #TODO: move to 'activities'
     def test_user_delete04(self):
+        self.login()
+
         user       = self.user
         other_user = self.other_user
 
@@ -374,6 +511,8 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(user, cal.user)
 
     def test_user_delete05(self):
+        self.login()
+
         user       = self.user
         other_user = self.other_user
 
@@ -394,6 +533,8 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(1, Contact.objects.filter(is_user=user).count())
 
     def test_user_delete06(self):
+        self.login()
+
         setting_key = 'unit_test-test_userl_delete06'
         sk = SettingKey.create(pk=setting_key, description="",
                                app_label='creme_config', type=SettingKey.BOOL
@@ -406,6 +547,13 @@ class UserTestCase(CremeTestCase):
 
         self.assertFalse(User.objects.filter(id=self.other_user.id).exists())
         self.assertFalse(SettingValue.objects.filter(key=setting_key).exists())
+
+    def test_user_delete07(self):
+        self.login_not_as_superuser()
+
+        url = '/creme_config/user/delete/%s' % self.other_user.id
+        self.assertGETRedirectsToLogin(url)
+        self.assertPOSTRedirectsToLogin(url, data={'to_user': self.user.id})
 
 
 class UserSettingsTestCase(CremeTestCase):

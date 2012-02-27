@@ -24,7 +24,7 @@ class _AssertNoExceptionContext(object):
 
 
 class _CremeTestCase(object):
-    def login(self, is_superuser=True, allowed_apps=('creme_core',), creatable_models=None):
+    def login(self, is_superuser=True, allowed_apps=('creme_core',), creatable_models=None, admin_4_apps=()):
         password = 'test'
 
         superuser = User.objects.create(username='Kirika')
@@ -34,6 +34,7 @@ class _CremeTestCase(object):
 
         role = UserRole.objects.create(name='Basic')
         role.allowed_apps = allowed_apps
+        role.admin_4_apps = admin_4_apps
         role.save()
 
         if creatable_models is not None:
@@ -59,6 +60,15 @@ class _CremeTestCase(object):
 
     def assertPOST404(self, *args, **kwargs):
         self.assertEqual(404, self.client.post(*args, **kwargs).status_code)
+
+    def assertRedirectsToLogin(self, response, url):
+        self.assertRedirects(response, 'http://testserver/creme_login/?next=%s' % url)
+
+    def assertGETRedirectsToLogin(self, url):
+        self.assertRedirectsToLogin(self.client.get(url), url)
+
+    def assertPOSTRedirectsToLogin(self, url, data):
+        self.assertRedirectsToLogin(self.client.post(url, data=data), url)
 
     def assertNoException(self, function=None, *args, **kwargs):
         if function is None:

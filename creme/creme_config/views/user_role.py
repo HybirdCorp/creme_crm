@@ -25,23 +25,27 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import UserRole
 from creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
+from creme_core.auth.decorators import superuser_required
 from creme_core.utils import get_from_POST_or_404
 
 from creme_config.forms.user_role import UserRoleCreateForm, UserRoleEditForm, AddCredentialsForm, DefaultCredsForm
 
 
 @login_required
-@permission_required('creme_config.can_admin')
+#@permission_required('creme_config.can_admin')
+@superuser_required
 def add(request):
     return add_model_with_popup(request, UserRoleCreateForm, _(u'New role'))
 
 @login_required
-@permission_required('creme_config.can_admin')
+#@permission_required('creme_config.can_admin')
+@superuser_required
 def edit(request, role_id):
     return edit_model_with_popup(request, {'pk': role_id}, UserRole, UserRoleEditForm)
 
 @login_required
-@permission_required('creme_config.can_admin')
+#@permission_required('creme_config.can_admin')
+@superuser_required
 def add_credentials(request, role_id):
     role = get_object_or_404(UserRole, pk=role_id)
 
@@ -68,15 +72,16 @@ def portal(request):
     return render(request, 'creme_config/user_role_portal.html')
 
 @login_required
-@permission_required('creme_config.can_admin')
+#@permission_required('creme_config.can_admin')
+@superuser_required
 def delete(request):
-    role = get_object_or_404(UserRole, pk=get_from_POST_or_404(request.POST, 'id'))
-    role.delete()
+    get_object_or_404(UserRole, pk=get_from_POST_or_404(request.POST, 'id')).delete()
 
     return HttpResponse()
 
 @login_required
-@permission_required('creme_config.can_admin')
+#@permission_required('creme_config.can_admin')
+@superuser_required
 def set_default_creds(request):
     if request.method == 'POST':
         form = DefaultCredsForm(user=request.user, data=request.POST)

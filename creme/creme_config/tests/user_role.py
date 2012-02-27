@@ -10,6 +10,8 @@ try:
     from activities.models import Meeting
 
     from persons.models import Contact, Organisation #need CremeEntity
+
+    from creme_config import blocks
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -22,14 +24,28 @@ class UserRoleTestCase(CremeTestCase):
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config')
 
-    def setUp(self):
-        #self.populate('creme_core', 'creme_config')
-        self.login()
+    def login_not_as_superuser(self):
+        apps = ('creme_config',)
+        self.login(is_superuser=False, allowed_apps=apps, admin_4_apps=apps)
 
-    def test_portal(self):
-        self.assertEqual(200, self.client.get('/creme_config/role/portal/').status_code)
+    def _aux_test_portal(self):
+        response = self.client.get('/creme_config/role/portal/')
+        self.assertEqual(200, response.status_code)
+
+        self.assertContains(response, 'id="%s"' % blocks.DefaultCredentialsBlock.id_)
+        self.assertContains(response, 'id="%s"' % blocks.UserRolesBlock.id_)
+
+    def test_portal01(self):
+        self.login()
+        self._aux_test_portal()
+
+    def test_portal02(self):
+        self.login_not_as_superuser()
+        self._aux_test_portal()
 
     def test_create01(self):
+        self.login()
+
         url = '/creme_config/role/add/'
         self.assertEqual(200,  self.client.get(url).status_code)
 
@@ -57,7 +73,23 @@ class UserRoleTestCase(CremeTestCase):
         self.assertEqual(app_set, role.allowed_apps)
         self.assertEqual(app_set, role.admin_4_apps)
 
+    def test_create02(self):
+        self.login_not_as_superuser()
+
+        url = '/creme_config/role/add/'
+        self.assertGETRedirectsToLogin(url)
+        self.assertPOSTRedirectsToLogin(url,
+                                    data={'name':              'CEO',
+                                          'creatable_ctypes':  [],
+                                          'exportable_ctypes': [],
+                                          'allowed_apps':      [],
+                                          'admin_4_apps':      [],
+                                         }
+                                   )
+
     def test_add_credentials01(self):
+        self.login()
+
         role = UserRole(name='CEO')
         role.allowed_apps = ['persons']
         role.save()
@@ -96,6 +128,8 @@ class UserRoleTestCase(CremeTestCase):
         self.assertTrue(contact.can_view(other_user))
 
     def test_add_credentials02(self):
+        self.login()
+
         role = UserRole(name='CEO')
         role.allowed_apps = ['persons']
         role.save()
@@ -123,7 +157,28 @@ class UserRoleTestCase(CremeTestCase):
         self.assertEqual(SetCredentials.ESET_OWN, creds.set_type)
         self.assertEqual(ct_id,                   creds.ctype_id)
 
+    def test_add_credentials03(self):
+        self.login_not_as_superuser()
+
+        role = UserRole(name='CEO')
+        role.allowed_apps = ['persons']
+        role.save()
+
+        url = '/creme_config/role/add_credentials/%s' % role.id
+        self.assertGETRedirectsToLogin(url)
+        self.assertPOSTRedirectsToLogin(url, data={'can_view':   True,
+                                                   'can_change': False,
+                                                   'can_delete': False,
+                                                   'can_link':   False,
+                                                   'can_unlink': False,
+                                                   'set_type':   SetCredentials.ESET_ALL,
+                                                   'ctype':      0,
+                                                   }
+                                       )
+
     def test_edit01(self):
+        self.login()
+
         role = UserRole.objects.create(name='CEO')
         SetCredentials.objects.create(role=role, value=SetCredentials.CRED_VIEW,
                                       set_type=SetCredentials.ESET_ALL)
@@ -171,6 +226,8 @@ class UserRoleTestCase(CremeTestCase):
         self.assertTrue(contact.can_view(other_user)) #role.allowed_apps contains 'persons' now
 
     def test_edit02(self):
+        self.login()
+
         apps = ['persons']
 
         role = UserRole(name='CEO')
@@ -202,14 +259,28 @@ class UserRoleTestCase(CremeTestCase):
         self.assertFalse(role.creatable_ctypes.exists())
         self.assertFalse(role.exportable_ctypes.exists())
 
-        #yuki = Contact.objects.get(pk=yuki.id) #refresh caches
         yuki = self.refresh(yuki) #refresh caches
-        #altena = Contact.objects.get(pk=altena.id)
         altena = self.refresh(altena)
         self.assertFalse(yuki.can_view(other_user)) #no more SetCredentials
         self.assertTrue(altena.can_view(other_user))
 
+    def test_edit03(self):
+        self.login_not_as_superuser()
+
+        role = UserRole.objects.create(name='CEO')
+        url = '/creme_config/role/edit/%s' % role.id
+        self.assertGETRedirectsToLogin(url)
+        self.assertPOSTRedirectsToLogin(url, data={'name':              role.name,
+                                                   'creatable_ctypes':  [],
+                                                   'exportable_ctypes': [],
+                                                   'allowed_apps':      [],
+                                                   'admin_4_apps':      [],
+                                                  }
+                                       )
+
     def test_delete01(self):
+        self.login()
+
         role = self.role
         role.allowed_apps = ['persons']
         role.save()
@@ -235,7 +306,13 @@ class UserRoleTestCase(CremeTestCase):
         yuki = self.refresh(yuki) #refresh caches
         self.assertFalse(yuki.can_view(other_user)) #defaultCreds are applied
 
-    def test_set_default_creds(self):
+    def test_delete02(self):
+        self.login_not_as_superuser()
+        self.assertPOSTRedirectsToLogin('/creme_config/role/delete', data={'id': self.role.id})
+
+    def test_set_default_creds01(self):
+        self.login()
+
         defcreds = EntityCredentials.get_default_creds()
         self.assertFalse(defcreds.can_view())
         self.assertFalse(defcreds.can_change())
@@ -246,7 +323,7 @@ class UserRoleTestCase(CremeTestCase):
         url = '/creme_config/role/set_default_creds/'
         self.assertEqual(200, self.client.get(url).status_code)
 
-        response = self.client.post('/creme_config/role/set_default_creds/', follow=True,
+        response = self.client.post(url, follow=True,
                                     data={'can_view':   True,
                                           'can_change': True,
                                           'can_delete': True,
@@ -262,3 +339,17 @@ class UserRoleTestCase(CremeTestCase):
         self.assertTrue(defcreds.can_delete())
         self.assertTrue(defcreds.can_link())
         self.assertTrue(defcreds.can_unlink())
+
+    def test_set_default_creds02(self):
+        self.login_not_as_superuser()
+
+        url = '/creme_config/role/set_default_creds/'
+        self.assertGETRedirectsToLogin(url)
+        self.assertPOSTRedirectsToLogin(url,
+                                        data={'can_view':   True,
+                                              'can_change': True,
+                                              'can_delete': True,
+                                              'can_link':   True,
+                                              'can_unlink': True,
+                                             }
+                                       )
