@@ -47,9 +47,11 @@ class Populator(BasePopulator):
         RelationType.create((REL_SUB_LINKED_2_ACTIVITY, _(u"related to the activity")),
                             (REL_OBJ_LINKED_2_ACTIVITY, _(u"(activity) related to"),        [Activity, Meeting, PhoneCall, Task])
                            )
+        rt_sub_activity_subject, rt_obj_activity_subject =\
         RelationType.create((REL_SUB_ACTIVITY_SUBJECT, _(u"is subject of the activity")),
                             (REL_OBJ_ACTIVITY_SUBJECT, _(u'(activity) is to subject'),      [Activity, Meeting, PhoneCall, Task])
                            )
+        rt_sub_part_2_activity, rt_obj_part_2_activity =\
         RelationType.create((REL_SUB_PART_2_ACTIVITY,  _(u"participates to the activity"),  [Contact]),
                             (REL_OBJ_PART_2_ACTIVITY,  _(u'(activity) has as participant'), [Activity, Meeting, PhoneCall, Task])
                            )
@@ -72,13 +74,26 @@ class Populator(BasePopulator):
         create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_DEMO},      name=_(u"Demonstration"),   color="4EEF65", default_day_duration=0, default_hour_duration="01:00:00", is_custom=False)
         create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_INDISPO},   name=_(u"Indisponibility"), color="CC0000", default_day_duration=1, default_hour_duration="00:00:00", is_custom=False)
 
-        hf   = HeaderFilter.create(pk='activities-hf', name=_(u'Activity view'), model=Activity)
+        hf = HeaderFilter.create(pk='activities-hf_activity', name=_(u'Activity view'), model=Activity)
         hf.set_items([HeaderFilterItem.build_4_field(model=Activity, name='title'),
                       HeaderFilterItem.build_4_field(model=Activity, name='start'),
                       HeaderFilterItem.build_4_field(model=Activity, name='end'),
-                      HeaderFilterItem.build_4_field(model=Activity, name='type__name'),
-                      HeaderFilterItem.build_4_field(model=Activity, name='status__name'),
-                     ])
+                      HeaderFilterItem.build_4_field(model=Activity, name='type'),
+                      HeaderFilterItem.build_4_field(model=Activity, name='status'),
+                      ])
+
+        def create_hf(hf_pk, name, model):
+            hf = HeaderFilter.create(pk=hf_pk, name=name, model=model)
+            hf.set_items([HeaderFilterItem.build_4_field(model=model, name='start'),
+                          HeaderFilterItem.build_4_field(model=model, name='title'),
+                          HeaderFilterItem.build_4_relation(rtype=rt_obj_part_2_activity),
+                          HeaderFilterItem.build_4_relation(rtype=rt_obj_activity_subject),
+                          HeaderFilterItem.build_4_field(model=model, name='user'),
+                          HeaderFilterItem.build_4_field(model=model, name='end'),
+                         ])
+
+        create_hf('activities-hf_phonecall', _(u'Phone call view'), PhoneCall)
+        create_hf('activities-hf_meeting',   _(u'Meeting view'),    Meeting)
 
         models = (Activity, Meeting, PhoneCall, Task)
 
