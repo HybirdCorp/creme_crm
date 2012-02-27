@@ -9,6 +9,8 @@ urlpatterns = patterns('activities.views',
     (r'^$', 'portal.portal'),
 
     (r'^activities$',                             'activity.listview'),
+    (r'^phone_calls$',                            'phone_call.listview'),
+    (r'^meetings$',                               'meeting.listview'),
     (r'^activities/(?P<ids>([\d][,]*)+)/ical$',   'activity.download_ical'),
     (r'^activity/add/(?P<act_type>\w+)$',         'activity.add'),
     (r'^activity/add_related/(?P<act_type>\w+)$', 'activity.add_related'),

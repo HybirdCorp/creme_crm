@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-29 16:44+0100\n"
+"POT-Creation-Date: 2012-02-24 08:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
 #: blocks.py:37 forms/activity.py:76 forms/activity.py:161
 msgid "Participants"
@@ -30,7 +30,7 @@ msgstr "Sujets"
 msgid "Future activities"
 msgstr "Activités futures"
 
-#: blocks.py:146
+#: blocks.py:149
 #: templates/activities/templatetags/block_past_activities.html:10
 #: templates/activities/templatetags/block_past_activities.html:12
 msgid "Past activities"
@@ -74,15 +74,23 @@ msgstr "Ajouter une activité"
 msgid "All activities"
 msgstr "Lister les activités"
 
-#: populate.py:48
+#: creme_core_register.py:45
+msgid "All phone calls"
+msgstr "Lister les appels téléphoniques"
+
+#: creme_core_register.py:46
+msgid "All meetings"
+msgstr "Lister les rendez-vous"
+
+#: populate.py:47 tests.py:711 tests.py:719
 msgid "related to the activity"
 msgstr "relié à l'activité"
 
-#: populate.py:49
+#: populate.py:48
 msgid "(activity) related to"
 msgstr "(activité) relié à"
 
-#: populate.py:51
+#: populate.py:51 tests.py:710 tests.py:718
 msgid "is subject of the activity"
 msgstr "est sujet de l'activité"
 
@@ -90,59 +98,59 @@ msgstr "est sujet de l'activité"
 msgid "(activity) is to subject"
 msgstr "(activité) a pour sujet"
 
-#: populate.py:54
+#: populate.py:55 tests.py:709
 msgid "participates to the activity"
 msgstr "participe à l'activité"
 
-#: populate.py:55
+#: populate.py:56
 msgid "(activity) has as participant"
 msgstr "(activité) a comme participant"
 
-#: populate.py:58
+#: populate.py:59
 msgid "Incoming"
 msgstr "Entrant"
 
-#: populate.py:58
+#: populate.py:59
 msgid "Incoming call"
 msgstr "Appel entrant"
 
-#: populate.py:59
+#: populate.py:60
 msgid "Outgoing"
 msgstr "Sortant"
 
-#: populate.py:59
+#: populate.py:60
 msgid "Outgoing call"
 msgstr "Appel sortant"
 
-#: populate.py:60
+#: populate.py:61
 msgid "Other"
 msgstr "Autre"
 
-#: populate.py:60
+#: populate.py:61
 msgid "Example: a conference"
 msgstr "Exemple: une conférence"
 
-#: populate.py:62
+#: populate.py:63
 msgid "Planned"
 msgstr "Prévue"
 
-#: populate.py:63
+#: populate.py:64
 msgid "In progress"
 msgstr "En cours"
 
-#: populate.py:64
+#: populate.py:65
 msgid "Done"
 msgstr "Finie"
 
-#: populate.py:65
+#: populate.py:66
 msgid "Delayed"
 msgstr "En retard"
 
-#: populate.py:66
+#: populate.py:67
 msgid "Cancelled"
 msgstr "Annulé"
 
-#: populate.py:68 models/activity.py:268
+#: populate.py:69 models/activity.py:283
 #: templates/activities/calendar.html:244
 #: templates/activities/calendar.html:263
 #: templates/activities/templatetags/button_add_related_task.html:5
@@ -150,7 +158,7 @@ msgstr "Annulé"
 msgid "Task"
 msgstr "Tâche"
 
-#: populate.py:69 models/activity.py:251
+#: populate.py:70 models/activity.py:268
 #: templates/activities/calendar.html:232
 #: templates/activities/calendar.html:251
 #: templates/activities/frags/button_add_meeting.html:2
@@ -159,7 +167,7 @@ msgstr "Tâche"
 msgid "Meeting"
 msgstr "Rendez-vous"
 
-#: populate.py:70 models/activity.py:296
+#: populate.py:71 models/activity.py:311
 #: templates/activities/calendar.html:238
 #: templates/activities/calendar.html:257
 #: templates/activities/frags/button_add_phonecall.html:2
@@ -168,35 +176,56 @@ msgstr "Rendez-vous"
 msgid "Phone call"
 msgstr "Appel téléphonique"
 
-#: populate.py:71
+#: populate.py:72
 msgid "Gathering"
 msgstr "Réunion"
 
-#: populate.py:72
+#: populate.py:73
 msgid "Show"
 msgstr "Salon"
 
-#: populate.py:73
+#: populate.py:74
 msgid "Demonstration"
 msgstr "Démonstration"
 
-#: populate.py:74
+#: populate.py:75
 msgid "Indisponibility"
 msgstr "Indisponibilité"
 
-#: populate.py:76
+#: populate.py:77
 msgid "Activity view"
 msgstr "Vue d'Activité"
 
-#: populate.py:127
+#: populate.py:95
+#, fuzzy
+msgid "Phone call view"
+msgstr "Appel téléphonique"
+
+#: populate.py:96
+#, fuzzy
+msgid "Meeting view"
+msgstr "Rendez-vous"
+
+#: populate.py:141
 msgid "Display minutes information in activities blocks"
 msgstr "Afficher le bilan d'une activité dans les blocks d'activités ?"
 
-#: utils.py:75
+#: tests.py:145
+#, fuzzy, python-format
+msgid "You are not allowed to link this entity: %s"
+msgstr "Vous n'êtes pas autorisé à effacer ce calendrier."
+
+#: tests.py:146 tests.py:147 tests.py:148 tests.py:149 tests.py:644
+#: tests.py:694
 #, python-format
+msgid "Some entities are not linkable: %s"
+msgstr ""
+
+#: utils.py:75
+#, fuzzy, python-format
 msgid ""
-"%(participant)s already participates to the activity «%(activity)s» between "
-"%(start)s and %(end)s."
+"%(participant)s already participates to the activity Â«%(activity)sÂ» "
+"between %(start)s and %(end)s."
 msgstr ""
 "%(participant)s participe déjà à l'activité «%(activity)s» entre %(start)s "
 "et %(end)s."
@@ -221,16 +250,18 @@ msgstr "Semaine"
 msgid "End time is before start time"
 msgstr "L'heure de fin est avant le début"
 
-#: forms/activity.py:138 forms/activity.py:322 forms/indisponibility.py:34
-#: models/activity.py:117
+#: forms/activity.py:138 forms/activity.py:322
+#: forms/indisponibility.py:34 models/activity.py:117
 msgid "Start"
 msgstr "Début"
 
-#: forms/activity.py:139 forms/activity.py:323 forms/indisponibility.py:37
+#: forms/activity.py:139 forms/activity.py:323
+#: forms/indisponibility.py:37
 msgid "Start time"
 msgstr "Heure de début"
 
-#: forms/activity.py:140 forms/activity.py:324 forms/indisponibility.py:38
+#: forms/activity.py:140 forms/activity.py:324
+#: forms/indisponibility.py:38
 msgid "End time"
 msgstr "Heure de fin"
 
@@ -380,7 +411,7 @@ msgstr "Type d'activité"
 msgid "Activity types"
 msgstr "Types d'activité"
 
-#: models/activity.py:103 models/activity.py:119 models/activity.py:274
+#: models/activity.py:103 models/activity.py:119 models/activity.py:289
 msgid "Description"
 msgstr "Description"
 
@@ -408,35 +439,35 @@ msgstr "Occupé ?"
 msgid "Activity"
 msgstr "Activité"
 
-#: models/activity.py:241
+#: models/activity.py:258
 msgid "Meeting place"
 msgstr "Lieu de rendez-vous"
 
-#: models/activity.py:252
+#: models/activity.py:269
 msgid "Meetings"
 msgstr "Rendez-vous"
 
-#: models/activity.py:258
+#: models/activity.py:273
 msgid "Duration (in hour)"
 msgstr "Durée (en heures)"
 
-#: models/activity.py:269
+#: models/activity.py:284
 msgid "Tasks"
 msgstr "Tâches"
 
-#: models/activity.py:273
+#: models/activity.py:288
 msgid "Call type"
 msgstr "Type d'appel"
 
-#: models/activity.py:281 models/activity.py:286
+#: models/activity.py:296 models/activity.py:301
 msgid "Phonecall type"
 msgstr "Type d'appel"
 
-#: models/activity.py:282
+#: models/activity.py:297
 msgid "Phonecall types"
 msgstr "Types d'appel"
 
-#: models/activity.py:297
+#: models/activity.py:312
 msgid "Phone calls"
 msgstr "Appels Téléphoniques"
 
@@ -650,10 +681,10 @@ msgstr "Télécharger au format iCalendar"
 #: templates/activities/templatetags/activity_date.html:7
 #, python-format
 msgid ""
-"Begin %(start_date)s, %(start_hour)s<br />\n"
+"Begin %(start_date)s, %(start_hour)s<br />/n"
 "        End %(end_date)s, %(end_hour)s"
 msgstr ""
-"Début %(start_date)s, %(start_hour)s<br />\n"
+"Début %(start_date)s, %(start_hour)s<br />/n"
 "            Fin %(end_date)s, %(end_hour)s"
 
 #: templates/activities/templatetags/activity_date.html:10
@@ -814,11 +845,11 @@ msgstr "Ajout de sujets pour l'activité <%s>"
 msgid "One entity does not exist any more."
 msgstr "Une entité n'existe plus."
 
-#: views/calendar.py:222
+#: views/calendar.py:207
 msgid "Add a calendar"
 msgstr "Ajouter un calendrier"
 
-#: views/calendar.py:243
+#: views/calendar.py:229
 msgid "You are not allowed to delete this calendar."
 msgstr "Vous n'êtes pas autorisé à effacer ce calendrier."
 
@@ -828,12 +859,12 @@ msgstr "Nombre d'activité(s)"
 
 #~ msgid ""
 #~ "Begin %(activity.start|date:'SHORT_DATE_FORMAT')s, %(activity.start|"
-#~ "date:'H:i')s<br />\n"
+#~ "date:'H:i')s<br />/n"
 #~ "    End %(activity.end|date:'SHORT_DATE_FORMAT')s, %(activity.end|date:'H:"
 #~ "i')s"
 #~ msgstr ""
 #~ "Début %(activity.start|date:'SHORT_DATE_FORMAT')s, %(activity.start|"
-#~ "date:'H:i')s<br />\n"
+#~ "date:'H:i')s<br />/n"
 #~ "    Fin %(activity.end|date:'SHORT_DATE_FORMAT')s, %(activity.end|date:'H:"
 #~ "i')s"
 
