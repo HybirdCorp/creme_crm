@@ -79,22 +79,15 @@ def edit_inner_line(request, line_id):
     new_discount_value  = Decimal(request_POST_get('discount'))   if 'discount' in request_POST else None
     new_discount_unit   = int(request_POST_get('discount_unit'))  if 'discount_unit' in request_POST else None
     new_unit            = request_POST_get('unit')                if 'unit' in request_POST else None
+    new_on_the_fly_item = request_POST_get('on_the_fly')          if 'on_the_fly' in request_POST else None
 
     if 'total_discount' in request_POST:
         new_discount_type = request_POST_get('total_discount') == '1'
     else:
         new_discount_type = None
 
-    if not Line.is_discount_valid(new_unit_price if new_unit_price is not None else line.unit_price,
-                                  new_quantity if new_quantity is not None else line.quantity,
-                                  new_discount_value if new_discount_value is not None else line.discount,
-                                  new_discount_unit if new_discount_unit is not None else line.discount_unit,
-                                  new_discount_type if new_discount_type is not None else line.total_discount):
-        # TODO Improve this functional error case by an error popup ?
-        # For the moment data will always be verified by js functions so this server side validation is useless
-        # return HttpResponse("", mimetype="text/javascript")
-        return
-
+    if new_on_the_fly_item:
+        line.on_the_fly_item = new_on_the_fly_item
     if new_unit_price is not None:
         line.unit_price = new_unit_price
     if new_quantity is not None:
@@ -110,8 +103,8 @@ def edit_inner_line(request, line_id):
     if new_unit is not None:
         line.unit = new_unit
 
+    line.full_clean()
     line.save()
-    document.save()
 
 @login_required
 @permission_required('billing')

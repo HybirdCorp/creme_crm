@@ -44,7 +44,7 @@ default_decimal = Decimal()
 
 class Base(CremeEntity):
     name             = CharField(_(u'Name'), max_length=100)
-    number           = CharField(_(u'Number'), max_length=100, blank=True, null=True)
+    number           = CharField(_(u'Number'), max_length=100, blank=True, null=True, editable=False)
     issuing_date     = DateField(_(u"Issuing date"), blank=True, null=True)
     expiration_date  = DateField(_(u"Expiration date"), blank=True, null=True) # TODO blank, null = False, required in form
     discount         = DecimalField(_(u'Overall discount'), max_digits=10, decimal_places=2, default=default_decimal)
@@ -69,11 +69,6 @@ class Base(CremeEntity):
 
     class Meta:
         app_label = 'billing'
-
-    #def __init__(self, *args, **kwargs):
-        #super(Base, self).__init__(*args, **kwargs)
-        #self._productlines_cache = None
-        #self._servicelines_cache = None
 
     def __unicode__(self):
         return self.name
@@ -177,14 +172,13 @@ class Base(CremeEntity):
     def get_service_lines_total_price_inclusive_of_tax(self):
         return round_to_2(sum(l.get_price_inclusive_of_tax() for l in self.service_lines))
 
-    #TODO: make protected (use corresponding attributes)
-    def get_total(self):
-        total_credits = sum(credit_note.get_total() for credit_note in self.get_credit_notes())
+    def _get_total(self):
+        total_credits = sum(credit_note.total_no_vat for credit_note in self.get_credit_notes())
         total = self.get_service_lines_total_price_exclusive_of_tax() + self.get_product_lines_total_price_exclusive_of_tax() - total_credits
         return default_decimal if total < default_decimal else total
 
-    def get_total_with_tax(self):
-        total_credits = sum(credit_note.get_total_with_tax() for credit_note in self.get_credit_notes())
+    def _get_total_with_tax(self):
+        total_credits = sum(credit_note.total_vat for credit_note in self.get_credit_notes())
         total_with_tax =  self.get_service_lines_total_price_inclusive_of_tax() + self.get_product_lines_total_price_inclusive_of_tax() - total_credits
         return default_decimal if total_with_tax < default_decimal else total_with_tax
 
@@ -238,14 +232,7 @@ class Base(CremeEntity):
 
     def _build_relations(self, template):
         debug("=> Clone relations")
-        # TODO : method clones only actors relations of the base object...should clone all others... (use self._copy_relations ?)
-        get_relation = Relation.objects.get
-        source = get_relation(subject_entity=template, type=REL_SUB_BILL_ISSUED).object_entity
-        target = get_relation(subject_entity=template, type=REL_SUB_BILL_RECEIVED).object_entity
-
-        create_relation = Relation.objects.create
-        create_relation(subject_entity=self, type_id=REL_SUB_BILL_ISSUED,   object_entity=source, user=self.user)
-        create_relation(subject_entity=self, type_id=REL_SUB_BILL_RECEIVED, object_entity=target, user=self.user)
+        self._copy_relations(template)
 
     def _build_properties(self, template):
         debug("=> Clone properties")
@@ -254,6 +241,6 @@ class Base(CremeEntity):
     def save(self, *args, **kwargs):
         self.invalidate_cache()
 
-        self.total_vat    = self.get_total_with_tax()
-        self.total_no_vat = self.get_total()
+        self.total_vat    = self._get_total_with_tax()
+        self.total_no_vat = self._get_total()
         return super(Base, self).save(*args, **kwargs)

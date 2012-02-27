@@ -21,16 +21,17 @@
 from functools import partial
 from decimal import Decimal
 from logging import debug, warn
+from django.core.exceptions import ValidationError
 
-from django.db.models import CharField, IntegerField, DecimalField, BooleanField, TextField, ForeignKey, PositiveIntegerField
+from django.db.models import CharField, IntegerField, DecimalField, BooleanField, TextField, PositiveIntegerField, ForeignKey
 from django.db.models.query_utils import Q
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models import CremeEntity, Relation
 from creme_core.core.function_field import FunctionField
 
+from billing.constants import REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM, PERCENT_PK, DISCOUNT_UNIT
 from billing.models.other_models import Vat
-from billing.constants import REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM, PERCENT_PK
 from billing.utils import round_to_2
 
 
@@ -60,13 +61,13 @@ class _LineTypeField(FunctionField):
 #      for the moment when have to re-save the model manually.
 
 class Line(CremeEntity):
-    on_the_fly_item = CharField(_(u'On-the-fly line'), max_length=100, blank=False, null=True)
+    on_the_fly_item = CharField(_(u'On-the-fly line'), max_length=100, blank=True, null=True)
     comment         = TextField(_('Comment'), blank=True, null=True)
     quantity        = DecimalField(_(u'Quantity'), max_digits=10, decimal_places=2, default=default_quantity)
     unit_price      = DecimalField(_(u'Unit price'), max_digits=10, decimal_places=2, default=default_decimal)
     unit            = CharField(_(u'Unit'), max_length=100, blank=True, null=True)
     discount        = DecimalField(_(u'Discount'), max_digits=10, decimal_places=2, default=default_decimal)
-    discount_unit   = PositiveIntegerField(_(u'Discount Unit'), blank=True, null=True, default=PERCENT_PK)
+    discount_unit   = PositiveIntegerField(_(u'Discount Unit'), blank=True, null=True, choices=DISCOUNT_UNIT.items(), default=PERCENT_PK)
     total_discount  = BooleanField(_('Total discount ?'))
     vat_value       = ForeignKey(Vat, verbose_name=_(u'VAT'), blank=True, null=True)
     type            = IntegerField(_(u'Type'), blank=False, null=False, choices=LINE_TYPES.items(), editable=False)
@@ -90,6 +91,25 @@ class Line(CremeEntity):
     def _pre_save_clone(self, source):
         self.related_document = source._new_related_document
         self.related_item     = source.related_item
+
+    def clean(self):
+        if self.discount_unit == PERCENT_PK:
+            if not (0 <= self.discount <= 100):
+                raise ValidationError(ugettext(u"If you choose % for your discount unit, your discount must be between 1 and 100%"))
+        else: # amount €/$/...
+            if self.total_discount: # Global discount
+                if self.discount > self.unit_price * self.quantity:
+                    raise ValidationError(ugettext(u"Your overall discount is superior than the total line (unit price * quantity)"))
+            else: # Unitary discount
+                if self.discount > self.unit_price:
+                    raise ValidationError(ugettext(u"Your discount is superior than the unit price"))
+        if self.related_item:
+            if self.on_the_fly_item:
+                raise ValidationError(ugettext(u"You cannot set an on the fly name to a line with a related item"))
+        else:
+            if not self.on_the_fly_item:
+                raise ValidationError(ugettext(u"You must define a name for an on the fly item"))
+        super(Line, self).clean()
 
     def clone(self, new_related_document=None):
         #BEWARE: CremeProperty and Relation are not cloned (except our 2 internal relations)
@@ -168,18 +188,6 @@ class Line(CremeEntity):
 
     def get_verbose_type(self):
         return LINE_TYPES.get(self.type, "")
-
-    @staticmethod
-    def is_discount_valid(unit_price, quantity, discount_value, discount_unit, discount_type):
-        if discount_unit == PERCENT_PK:
-            return 0 <= discount_value <= 100
-        else: # amount €/$/...
-            if discount_type: # Global discount
-                return not (discount_value > unit_price * quantity)
-            else: # Unitary discount
-                return not (discount_value > unit_price)
-
-        return True
 
     def save(self, *args, **kwargs):
         if not self.pk: #creation

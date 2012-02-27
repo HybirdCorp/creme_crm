@@ -9,3 +9,23 @@ td.discount-functional-error {
 td.line-error {
     background-color: #f7d6d2;
 }
+
+input.line-on_the_fly {
+    text-align: center;
+    width: 200px;
+}
+
+input.line-unit {
+    text-align: left;
+    width: 60px;
+}
+
+input.line-unit_price {
+    text-align: right;
+    width: 60px;
+}
+
+input.line-quantity_discount {
+    text-align: right;
+    width: 40px;
+}
