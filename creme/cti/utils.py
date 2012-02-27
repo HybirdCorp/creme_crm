@@ -29,7 +29,7 @@ def print_phone(entity, fval, user):
     if not fval:
         return simple_print(entity, fval, user)
 
-    return """%(number)s&nbsp;<a onclick="creme.cti.phoneCall('%(url)s', '%(number)s', %(id)s);">%(label)s<img src="%(img)s" alt="%(label)s"/></a>""" % {
+    return """%(number)s&nbsp;<a onclick="creme.cti.phoneCall('%(url)s', '%(number)s', %(id)s);"><img width="18px" height="18px" src="%(img)s" alt="%(label)s"/></a>""" % {
             'url':    settings.ABCTI_URL,
             'number': fval,
             'id':     entity.id,
