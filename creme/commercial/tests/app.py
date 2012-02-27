@@ -13,7 +13,7 @@ try:
     from commercial.models import Act, ActType, CommercialApproach
     from commercial.constants import *
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('CommercialTestCase',)
@@ -23,12 +23,8 @@ class CommercialTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'persons', 'commercial')
-    #def setUp(self):
-        #self.populate('creme_core', 'creme_config', 'persons', 'commercial')
 
     def test_populate(self):
-        #self.populate('creme_core', 'persons', 'commercial')
-
         self.get_relationtype_or_fail(REL_SUB_SOLD_BY)
         self.get_relationtype_or_fail(REL_OBJ_SOLD_BY)
         self.get_relationtype_or_fail(REL_SUB_OPPORT_LINKED, [Opportunity], [Act])
@@ -46,8 +42,7 @@ class CommercialTestCase(CremeTestCase):
 
         title       = 'TITLE'
         description = 'DESCRIPTION'
-        response = self.client.post(url, data={#'user':        self.user.pk,
-                                               'title':       title,
+        response = self.client.post(url, data={'title':       title,
                                                'description': description,
                                               }
                                    )
@@ -134,11 +129,8 @@ class CommercialTestCase(CremeTestCase):
         response = self.client.get('/commercial/salesmen')
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             salesmen_page = response.context['entities']
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertEqual(1, salesmen_page.number)
         self.assertFalse(salesmen_page.paginator.count)
@@ -146,19 +138,26 @@ class CommercialTestCase(CremeTestCase):
     def test_salesman_listview02(self):
         self.login()
 
-        self.client.post('/commercial/salesman/add', data={'user': self.user.pk, 'first_name': 'first_name1', 'last_name': 'last_name1'})
-        self.client.post('/commercial/salesman/add', data={'user': self.user.pk, 'first_name': 'first_name2', 'last_name': 'last_name2'})
+        def add_salesman(first_name, last_name):
+            self.client.post('/commercial/salesman/add',
+                             data={'user':        self.user.pk,
+                                   'first_name': 'first_name1',
+                                   'last_name':   'last_name1',
+                                  }
+                            )
+        
+        #self.client.post('/commercial/salesman/add', data={'user': self.user.pk, 'first_name': 'first_name1', 'last_name': 'last_name1'})
+        #self.client.post('/commercial/salesman/add', data={'user': self.user.pk, 'first_name': 'first_name2', 'last_name': 'last_name2'})
+        add_salesman('first_name1', 'last_name1')
+        add_salesman('first_name2', 'last_name2')
         salesmen = Contact.objects.filter(properties__type=PROP_IS_A_SALESMAN)
         self.assertEqual(2, len(salesmen))
 
         response = self.client.get('/commercial/salesmen')
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             salesmen_page = response.context['entities']
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertEqual(1, salesmen_page.number)
         self.assertEqual(2, salesmen_page.paginator.count)

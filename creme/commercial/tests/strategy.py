@@ -8,7 +8,7 @@ try:
     from commercial.models import *
     from commercial.tests.base import CommercialBaseTestCase
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('StrategyTestCase',)
@@ -82,7 +82,9 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertIn(name, description.segment.property_type.text)
 
     def _create_segment_desc(self, strategy, name):
-        self.client.post('/commercial/strategy/%s/add/segment/' % strategy.id, data={'name': name})
+        self.client.post('/commercial/strategy/%s/add/segment/' % strategy.id,
+                         data={'name': name}
+                        )
         return strategy.segment_info.get(segment__name=name)
 
     def test_segment_link(self):
@@ -231,7 +233,9 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertEqual(1, strategy.charms.count())
 
         ct = ContentType.objects.get_for_model(MarketSegmentCharm)
-        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': charm.id}, follow=True)
+        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id,
+                                    data={'id': charm.id}, follow=True
+                                   )
         self.assertEqual(200, response.status_code)
         self.assertEqual(0,   strategy.charms.count())
 
@@ -501,7 +505,9 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertEqual(1, MarketSegment.objects.count())
 
         ct = ContentType.objects.get_for_model(MarketSegmentDescription)
-        self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': segment_desc.id})
+        self.client.post('/creme_core/entity/delete_related/%s' % ct.id,
+                         data={'id': segment_desc.id}
+                        )
         self.assertEqual(0, strategy.segment_info.count())
         self.assertEqual(1, MarketSegment.objects.count())
 
@@ -541,7 +547,9 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertEqual(2, MarketSegmentCategory.objects.count())
 
         ct = ContentType.objects.get_for_model(MarketSegmentDescription)
-        self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': industry.id})
+        self.client.post('/creme_core/entity/delete_related/%s' % ct.id,
+                         data={'id': industry.id}
+                        )
         self.assertEqual(1, MarketSegmentDescription.objects.count())
 
         asset_scores = CommercialAssetScore.objects.all()

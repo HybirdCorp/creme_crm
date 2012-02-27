@@ -19,7 +19,8 @@
 ################################################################################
 
 from django.core.exceptions import ValidationError
-from django.db.models import CharField, TextField, PositiveIntegerField, DateField, BooleanField, ForeignKey
+from django.db.models import (CharField, TextField, PositiveIntegerField, DateField,
+                              BooleanField, ForeignKey, PROTECT)
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
@@ -54,7 +55,7 @@ class Act(CremeEntity):
     goal           = TextField(_(u"Goal of the action"), blank=True, null=True)
     start          = DateField(_(u'Start'))
     due_date       = DateField(_(u'Due date'))
-    act_type       = ForeignKey(ActType, verbose_name=_(u'Type'))
+    act_type       = ForeignKey(ActType, verbose_name=_(u'Type'), on_delete=PROTECT)
     segment        = ForeignKey(MarketSegment, verbose_name=_(u'Related segment'))
 
     _related_opportunities = None

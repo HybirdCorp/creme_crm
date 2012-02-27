@@ -26,17 +26,12 @@ from creme_core.models import CremeModel
 
 class FolderCategory(CremeModel):
     """Category for the folders"""
-    name = CharField(_(u'Category name'), max_length=100, blank=False, null=False, unique=True)
+    name = CharField(_(u'Category name'), max_length=100, unique=True)
 
     #research_fields = CremeEntity.research_fields + ['name']
 
     def __unicode__(self):
         return self.name
-
-    #def get_absolute_url(self):
-        ##TODO : FolderCategory n'a pas de detailview et n'a pas besoin d'en avoir
-        ## Derivation de CremeEntity necessaire ?
-        #return ""
 
     class Meta:
         app_label = 'documents'

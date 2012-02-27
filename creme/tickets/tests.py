@@ -10,15 +10,13 @@ try:
     from tickets.models import *
     from tickets.models.status import BASE_STATUS, OPEN_PK, CLOSED_PK, INVALID_PK
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class TicketTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'tickets')
-    #def setUp(self):
-        #self.populate('creme_core', 'creme_config', 'tickets')
 
     def test_populate(self):
         for pk, name in BASE_STATUS:
@@ -57,10 +55,6 @@ class TicketTestCase(CremeTestCase):
         response = self.client.get('/tickets/ticket/%s' % ticket.pk)
         self.assertEqual(200, response.status_code)
 
-        #try:
-            #retr_ticket = response.context['object']
-        #except KeyError as e:
-            #self.fail(str(e))
         with self.assertNoException():
             retr_ticket = response.context['object']
 
@@ -111,10 +105,6 @@ class TicketTestCase(CremeTestCase):
         self.assertFalse(ticket.closing_date)
         self.assertFalse(ticket.get_resolving_duration())
 
-        #try:
-            #funf = ticket.function_fields.get('get_resolving_duration')
-        #except Exception as e:
-            #self.fail(str(e))
         with self.assertNoException():
             funf = ticket.function_fields.get('get_resolving_duration')
 
@@ -197,10 +187,6 @@ class TicketTestCase(CremeTestCase):
         response = self.client.get('/tickets/tickets')
         self.assertEqual(response.status_code, 200)
 
-        #try:
-            #tickets_page = response.context['entities']
-        #except Exception as e:
-            #self.fail(str(e))
         with self.assertNoException():
             tickets_page = response.context['entities']
 
@@ -221,10 +207,6 @@ class TicketTestCase(CremeTestCase):
         response = self.client.get('/tickets/tickets')
         self.assertEqual(200, response.status_code)
 
-        #try:
-            #tickets_page = response.context['entities']
-        #except KeyError as e:
-            #self.fail(str(e))
         with self.assertNoException():
             tickets_page = response.context['entities']
 
@@ -298,12 +280,65 @@ class TicketTestCase(CremeTestCase):
 
         self.assertEqual(1, Ticket.objects.count())
 
+    def test_delete_status(self):
+        self.login()
+
+        status = Status.objects.create(name='Delete me please')
+        ticket = Ticket.objects.create(user=self.user,
+                                       title='title',
+                                       description='description',
+                                       status=status,
+                                       priority=Priority.objects.all()[0],
+                                       criticity=Criticity.objects.all()[0],
+                                      )
+        response = self.client.post('/creme_config/tickets/status/delete', data={'id': status.pk})
+        self.assertEqual(404, response.status_code)
+        self.assertTrue(Status.objects.filter(pk=status.pk).exists())
+
+        ticket = self.get_object_or_fail(Ticket, pk=ticket.pk)
+        self.assertEqual(status, ticket.status)
+
+    def test_delete_priority(self):
+        self.login()
+
+        priority = Priority.objects.create(name='Not so important')
+        ticket = Ticket.objects.create(user=self.user,
+                                       title='title',
+                                       description='description',
+                                       status=Status.objects.all()[0],
+                                       priority=priority,
+                                       criticity=Criticity.objects.all()[0],
+                                      )
+        response = self.client.post('/creme_config/tickets/priority/delete', data={'id': priority.pk})
+        self.assertEqual(404, response.status_code)
+        self.assertTrue(Priority.objects.filter(pk=priority.pk).exists())
+
+        ticket = self.get_object_or_fail(Ticket, pk=ticket.pk)
+        self.assertEqual(priority, ticket.priority)
+
+    def test_delete_criticity(self):
+        self.login()
+
+        criticity = Criticity.objects.create(name='Not so important')
+        ticket = Ticket.objects.create(user=self.user,
+                                       title='title',
+                                       description='description',
+                                       status=Status.objects.all()[0],
+                                       priority=Priority.objects.all()[0],
+                                       criticity=criticity,
+                                      )
+        response = self.client.post('/creme_config/tickets/criticity/delete', data={'id': criticity.pk})
+        self.assertEqual(404, response.status_code)
+        self.assertTrue(Criticity.objects.filter(pk=criticity.pk).exists())
+
+        ticket = self.get_object_or_fail(Ticket, pk=ticket.pk)
+        self.assertEqual(criticity, ticket.criticity)
+
+
 class TicketTemplateTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'tickets')
-    #def setUp(self):
-        #self.populate('creme_core', 'creme_config', 'tickets')
 
     def create_template(self, title, description='description', status=None):
         status = status or Status.objects.get(pk=OPEN_PK)
@@ -367,10 +402,7 @@ class TicketTemplateTestCase(CremeTestCase):
         self.login()
 
         template = self.create_template('Title', status=Status.objects.get(pk=OPEN_PK))
-        #try:
-            #ticket = template.create_entity()
-        #except Exception as e:
-            #self.fail(str(e))
+
         with self.assertNoException():
             ticket = template.create_entity()
 
@@ -385,10 +417,7 @@ class TicketTemplateTestCase(CremeTestCase):
         self.login()
 
         template = self.create_template('Title', status=Status.objects.get(pk=CLOSED_PK))
-        #try:
-            #ticket = template.create_entity()
-        #except Exception as e:
-            #self.fail(str(e))
+
         with self.assertNoException():
             ticket = template.create_entity()
 
@@ -405,11 +434,7 @@ class TicketTemplateTestCase(CremeTestCase):
         self.assertEqual(0, Ticket.objects.count())
 
         template = self.create_template('Title')
-        #try:
-            #template.create_entity()
-            #template.create_entity()
-        #except Exception as e:
-            #self.fail(str(e))
+
         with self.assertNoException():
             template.create_entity()
             template.create_entity()

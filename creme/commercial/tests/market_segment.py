@@ -8,7 +8,7 @@ try:
     from commercial.models import MarketSegment
     from commercial.tests.base import CommercialBaseTestCase
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('MarketSegmentTestCase',)
@@ -24,11 +24,8 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             segment = MarketSegment.objects.get(name=name)
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertEqual(_(u'is in the segment "%s"') % name,
                          segment.property_type.text
@@ -43,7 +40,9 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
 
         response = self.client.post(url, data={'name': name})
         self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'name', [_(u'A segment with this name already exists')])
+        self.assertFormError(response, 'form', 'name',
+                             [_(u'A segment with this name already exists')]
+                            )
 
     def test_create03(self): #property with same name already exists
         name = 'Industry'
@@ -52,7 +51,9 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
 
         response = self.client.post('/commercial/market_segment/add', data={'name': name})
         self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'name', [_(u'A property with the name <%s> already exists') % pname])
+        self.assertFormError(response, 'form', 'name',
+                             [_(u'A property with the name <%s> already exists') % pname]
+                            )
 
     def test_listview(self):
         response = self.client.get('/commercial/market_segments')

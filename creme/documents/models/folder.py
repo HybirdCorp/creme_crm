@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from random import randint
 import re
 
-from django.db.models import CharField, TextField, ForeignKey
+from django.db.models import CharField, TextField, ForeignKey, SET_NULL
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models import CremeEntity
@@ -35,10 +35,10 @@ MAXINT = 100000
 
 class Folder(CremeEntity):
     """Folder: contains Documents"""
-    title         = CharField(_(u'Title'), max_length=100, blank=False, null=False, unique=True)
+    title         = CharField(_(u'Title'), max_length=100, unique=True)
     description   = TextField(_(u'Description'))
     parent_folder = ForeignKey('self', verbose_name=_(u'Parent folder'), blank=True, null=True, related_name='parent_folder_set')
-    category      = ForeignKey(FolderCategory, verbose_name=_(u'Category'), blank=True, null=True, related_name='folder_category_set')
+    category      = ForeignKey(FolderCategory, verbose_name=_(u'Category'), blank=True, null=True, related_name='folder_category_set', on_delete=SET_NULL)
 
     research_fields = CremeEntity.research_fields + ['title', 'description', 'parent_folder__title', 'category__name']
     allowed_related = CremeEntity.allowed_related | set(['document'])

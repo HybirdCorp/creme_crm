@@ -18,7 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponseRedirect, Http404, HttpResponse
+from django.db.models.deletion import ProtectedError
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
@@ -78,7 +79,16 @@ def delete_model(request, app_name, model_name):
     if not getattr(object_, 'is_custom', True):
         raise Http404('Can not delete (is not custom)')
 
-    object_.delete()
+    try:
+        object_.delete()
+    except ProtectedError:
+        msg = _('%s can not be deleted because of its dependencies.') % object_
+
+        #TODO: factorise ??
+        if request.is_ajax():
+            return HttpResponse(msg, mimetype="text/javascript", status=400)
+
+        raise Http404(msg)
 
     return HttpResponse()
 

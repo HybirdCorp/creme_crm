@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,13 +20,15 @@
 
 from datetime import datetime
 
-from django.db.models import CharField, IntegerField, DateTimeField, TextField, ForeignKey, BooleanField, PositiveIntegerField
+from django.db.models import (CharField, IntegerField, DateTimeField, TextField,
+                              ForeignKey, BooleanField, PositiveIntegerField, PROTECT)
 from django.db.models.fields.related import ManyToManyField
 from django.utils.translation import ugettext_lazy as _
-from creme_config.models.setting import SettingValue
 
 from creme_core.models import CremeEntity, CremeModel
 from creme_core.models.fields import DurationField, CremeUserForeignKey
+
+from creme_config.models.setting import SettingValue
 
 from activities.constants import *
 from activities.utils import get_ical_date
@@ -118,7 +120,7 @@ class Activity(CremeEntity):
     end         = DateTimeField(_(u'End'), blank=True, null=True)
     description = TextField(_(u'Description'), blank=True, null=True)
     minutes     = TextField(_(u'Minutes'), blank=True, null=True)
-    type        = ForeignKey(ActivityType, verbose_name=_(u"Activity type"))
+    type        = ForeignKey(ActivityType, verbose_name=_(u"Activity type"), on_delete=PROTECT)
     calendars   = ManyToManyField(Calendar, verbose_name=_(u"Calendars"), blank=True, null=True)
     is_all_day  = BooleanField(_(u'All day ?'), blank=True, default=False)
     status      = ForeignKey(Status, verbose_name=_(u'Status'), blank=True, null=True)
