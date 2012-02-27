@@ -22,15 +22,13 @@ try:
     from activities.constants import *
     from activities.forms.activity import _check_activity_collisions
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class ActivitiesTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'activities') #'persons'
-    #def setUp(self):
-        #self.populate('creme_core', 'creme_config', 'activities') #'persons'
 
     def login(self, is_superuser=True):
         super(ActivitiesTestCase, self).login(is_superuser, allowed_apps=['activities', 'persons']) #'creme_core'
@@ -55,7 +53,9 @@ class ActivitiesTestCase(CremeTestCase):
         self.assertEqual(len(rtypes_pks), len(rtypes))
 
         acttypes_pks = [ACTIVITYTYPE_TASK, ACTIVITYTYPE_MEETING, ACTIVITYTYPE_PHONECALL,
-                        ACTIVITYTYPE_GATHERING, ACTIVITYTYPE_SHOW, ACTIVITYTYPE_DEMO, ACTIVITYTYPE_INDISPO]
+                        ACTIVITYTYPE_GATHERING, ACTIVITYTYPE_SHOW, ACTIVITYTYPE_DEMO,
+                        ACTIVITYTYPE_INDISPO,
+                       ]
         acttypes = ActivityType.objects.filter(pk__in=acttypes_pks)
         self.assertEqual(len(acttypes_pks), len(acttypes))
 
@@ -63,13 +63,19 @@ class ActivitiesTestCase(CremeTestCase):
         self.login()
         self.assertEqual(200, self.client.get('/activities/').status_code)
 
+    def _build_rel_field(self, entity):
+        return '[{"ctype":"%s", "entity":"%s"}]' % (entity.entity_type_id, entity.id)
+
     def test_activity_createview01(self):
         self.login()
 
         user = self.user
-        me = Contact.objects.create(user=user, is_user=user, first_name='Ryoga', last_name='Hibiki')
-        ranma = Contact.objects.create(user=user, first_name='Ranma', last_name='Saotome')
-        genma = Contact.objects.create(user=user, first_name='Genma', last_name='Saotome')
+
+        create_contact = Contact.objects.create
+        me    = create_contact(user=user, first_name='Ryoga', last_name='Hibiki', is_user=user)
+        ranma = create_contact(user=user, first_name='Ranma', last_name='Saotome')
+        genma = create_contact(user=user, first_name='Genma', last_name='Saotome')
+
         dojo = Organisation.objects.create(user=user, name='Dojo')
 
         url = '/activities/activity/add/task'
@@ -78,7 +84,6 @@ class ActivitiesTestCase(CremeTestCase):
         title  = 'my_task'
         status = Status.objects.all()[0]
         my_calendar = Calendar.get_user_default_calendar(self.user)
-        field_format = '[{"ctype":"%s", "entity":"%s"}]'
         response = self.client.post(url, follow=True,
                                     data={'user':               user.pk,
                                           'title':              title,
@@ -87,19 +92,16 @@ class ActivitiesTestCase(CremeTestCase):
                                           'my_participation':   True,
                                           'my_calendar':        my_calendar.pk,
                                           'other_participants': genma.id,
-                                          'subjects':           field_format % (ranma.entity_type_id, ranma.id),
-                                          'linked_entities':    field_format % (dojo.entity_type_id, dojo.id),
+                                          'subjects':           self._build_rel_field(ranma),
+                                          'linked_entities':    self._build_rel_field(dojo),
                                          }
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             act  = Activity.objects.get(type=ACTIVITYTYPE_TASK, title=title)
             task = Task.objects.get(title=title)
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertEqual(act.id, task.id)
         self.assertEqual(status, task.status)
@@ -120,15 +122,16 @@ class ActivitiesTestCase(CremeTestCase):
         user = self.user
         other_user = self.other_user
 
-        ryoga = Contact.objects.create(user=other_user, is_user=user, first_name='Ryoga', last_name='Hibiki')
         my_calendar = Calendar.get_user_default_calendar(user)
 
-        ranma = Contact.objects.create(user=other_user, is_user=other_user, first_name='Ranma', last_name='Saotome')
-        genma = Contact.objects.create(user=other_user, first_name='Genma', last_name='Saotome')
-        akane = Contact.objects.create(user=other_user, first_name='Akane', last_name='Tendo')
+        create_contact = Contact.objects.create
+        ryoga = create_contact(user=other_user, first_name='Ryoga', last_name='Hibiki',  is_user=user)
+        ranma = create_contact(user=other_user, first_name='Ranma', last_name='Saotome', is_user=other_user)
+        genma = create_contact(user=other_user, first_name='Genma', last_name='Saotome')
+        akane = create_contact(user=other_user, first_name='Akane', last_name='Tendo')
+
         dojo = Organisation.objects.create(user=other_user, name='Dojo')
 
-        field_format = '[{"ctype":"%s", "entity":"%s"}]'
         response = self.client.post('/activities/activity/add/meeting', follow=True,
                                     data={'user':                user.pk,
                                           'title':               'Fight !!',
@@ -137,24 +140,29 @@ class ActivitiesTestCase(CremeTestCase):
                                           'my_calendar':         my_calendar.pk,
                                           'participating_users': other_user.pk,
                                           'other_participants':  genma.id,
-                                          'subjects':            field_format % (akane.entity_type_id, akane.id),
-                                          'linked_entities':     field_format % (dojo.entity_type_id, dojo.id),
+                                          'subjects':            self._build_rel_field(akane),
+                                          'linked_entities':     self._build_rel_field(dojo),
                                          }
                                    )
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'my_participation',    [_(u'You are not allowed to link this entity: %s') % ryoga])
-        self.assertFormError(response, 'form', 'participating_users', [_(u'Some entities are not linkable: %s') % ranma])
-        self.assertFormError(response, 'form', 'other_participants',  [_(u'Some entities are not linkable: %s') % genma])
-        self.assertFormError(response, 'form', 'subjects',            [_(u'Some entities are not linkable: %s') % akane])
-        self.assertFormError(response, 'form', 'linked_entities',     [_(u'Some entities are not linkable: %s') % dojo])
+
+        msg = _(u'Some entities are not linkable: %s')
+        self.assertFormError(response, 'form', 'participating_users', [msg % ranma])
+        self.assertFormError(response, 'form', 'other_participants',  [msg % genma])
+        self.assertFormError(response, 'form', 'subjects',            [msg % akane])
+        self.assertFormError(response, 'form', 'linked_entities',     [msg % dojo])
 
     def test_activity_createview03(self):
         self.login()
 
         user = self.user
-        me = Contact.objects.create(user=user, is_user=user, first_name='Ryoga', last_name='Hibiki')
-        ranma = Contact.objects.create(user=user, first_name='Ranma', last_name='Saotome')
-        genma = Contact.objects.create(user=user, first_name='Genma', last_name='Saotome')
+
+        create_contact = Contact.objects.create
+        me    = create_contact(user=user, first_name='Ryoga', last_name='Hibiki', is_user=user)
+        ranma = create_contact(user=user, first_name='Ranma', last_name='Saotome')
+        genma = create_contact(user=user, first_name='Genma', last_name='Saotome')
+
         dojo = Organisation.objects.create(user=user, name='Dojo')
 
         url = '/activities/activity/add/activity'
@@ -163,7 +171,6 @@ class ActivitiesTestCase(CremeTestCase):
         title  = 'my_task'
         status = Status.objects.all()[0]
         my_calendar = Calendar.get_user_default_calendar(self.user)
-        field_format = '[{"ctype":"%s", "entity":"%s"}]'
         ACTIVITYTYPE_ACTIVITY = 'activities-activity_custom_1'
         create_or_update(ActivityType, ACTIVITYTYPE_ACTIVITY, name='Karate session', color="FFFFFF",
                          default_day_duration=0, default_hour_duration="00:15:00", is_custom=True
@@ -177,8 +184,8 @@ class ActivitiesTestCase(CremeTestCase):
                                           'my_participation':   True,
                                           'my_calendar':        my_calendar.pk,
                                           'other_participants': genma.id,
-                                          'subjects':           field_format % (ranma.entity_type_id, ranma.id),
-                                          'linked_entities':    field_format % (dojo.entity_type_id, dojo.id),
+                                          'subjects':           self._build_rel_field(ranma),
+                                          'linked_entities':    self._build_rel_field(dojo),
                                           'type':               ACTIVITYTYPE_ACTIVITY,
                                          }
                                    )
@@ -206,7 +213,6 @@ class ActivitiesTestCase(CremeTestCase):
         title  = 'meeting01'
         status = Status.objects.all()[0]
         my_calendar = Calendar.get_user_default_calendar(self.user)
-        field_format = '[{"ctype":"%s", "entity":"%s"}]'
         response = self.client.post(url, follow=True,
                                     data={'user':                     user.pk,
                                           'title':                    title,
@@ -221,12 +227,9 @@ class ActivitiesTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             act  = Activity.objects.get(type=ACTIVITYTYPE_MEETING, title=title)
             meeting = Meeting.objects.get(title=title)
-        #except Exception, e:
-            #self.fail(str(e))
 
         self.assertEqual(act.id, meeting.id)
         self.assertEqual(status, meeting.status)
@@ -241,8 +244,9 @@ class ActivitiesTestCase(CremeTestCase):
         user = self.user
         other_user = self.other_user
 
-        contact01 = Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki')
-        contact02 = Contact.objects.create(user=user, first_name='Akane', last_name='Tendo', is_user=other_user)
+        create_contact = Contact.objects.create
+        contact01 = create_contact(user=user, first_name='Ryoga', last_name='Hibiki')
+        contact02 = create_contact(user=user, first_name='Akane', last_name='Tendo', is_user=other_user)
 
         args = '&'.join(['ct_entity_for_relation=%s' % contact01.entity_type_id,
                          'id_entity_for_relation=%s' % contact01.id,
@@ -253,11 +257,8 @@ class ActivitiesTestCase(CremeTestCase):
         response = self.client.get(uri)
         self.assertEqual(response.status_code, 200)
 
-        #try:
         with self.assertNoException():
             other_participants = response.context['form'].fields['other_participants']
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertEqual([contact01.id], other_participants.initial)
 
@@ -301,11 +302,8 @@ class ActivitiesTestCase(CremeTestCase):
                                   )
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             users = response.context['form'].fields['participating_users']
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertEqual([self.other_user.id], [e.id for e in users.initial])
 
@@ -322,11 +320,8 @@ class ActivitiesTestCase(CremeTestCase):
                                   )
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             subjects = response.context['form'].fields['subjects']
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertEqual([ryoga.id], [e.id for e in subjects.initial])
 
@@ -344,10 +339,7 @@ class ActivitiesTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
 
         with self.assertNoException():
-        #try:
             linked_entities = response.context['form'].fields['linked_entities']
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertEqual([ryoga.id], [e.id for e in linked_entities.initial])
 
@@ -436,9 +428,9 @@ class ActivitiesTestCase(CremeTestCase):
     def test_collision01(self):
         self.login()
 
-        #try:
         with self.assertNoException():
-            act01 = PhoneCall.objects.create(user=self.user, title='call01', call_type=PhoneCallType.objects.all()[0],
+            act01 = PhoneCall.objects.create(user=self.user, title='call01',
+                                             call_type=PhoneCallType.objects.all()[0],
                                              start=datetime(year=2010, month=10, day=1, hour=12, minute=0),
                                              end=datetime(year=2010, month=10, day=1, hour=13, minute=0)
                                             )
@@ -450,10 +442,9 @@ class ActivitiesTestCase(CremeTestCase):
             c1 = Contact.objects.create(user=self.user, first_name='first_name1', last_name='last_name1')
             c2 = Contact.objects.create(user=self.user, first_name='first_name2', last_name='last_name2')
 
-            Relation.objects.create(subject_entity=c1, type_id=REL_SUB_PART_2_ACTIVITY, object_entity=act01, user=self.user)
-            Relation.objects.create(subject_entity=c1, type_id=REL_SUB_PART_2_ACTIVITY, object_entity=act02, user=self.user)
-        #except Exception as e:
-            #self.fail(str(e))
+            create_rel = Relation.objects.create
+            create_rel(subject_entity=c1, type_id=REL_SUB_PART_2_ACTIVITY, object_entity=act01, user=self.user)
+            create_rel(subject_entity=c1, type_id=REL_SUB_PART_2_ACTIVITY, object_entity=act02, user=self.user)
 
         try:
             #no collision
@@ -515,7 +506,8 @@ class ActivitiesTestCase(CremeTestCase):
     def test_listview(self):
         self.login()
 
-        PhoneCall.objects.create(user=self.user, title='call01', call_type=PhoneCallType.objects.all()[0],
+        PhoneCall.objects.create(user=self.user, title='call01',
+                                 call_type=PhoneCallType.objects.all()[0],
                                  start=datetime(year=2010, month=10, day=1, hour=12, minute=0),
                                  end=datetime(year=2010, month=10, day=1, hour=13, minute=0)
                                 )
@@ -564,7 +556,9 @@ class ActivitiesTestCase(CremeTestCase):
 
         activity = self._create_meeting()
         contact = Contact.objects.create(user=self.user, first_name='Musashi', last_name='Miyamoto')
-        relation = Relation.objects.create(subject_entity=contact, type_id=REL_SUB_PART_2_ACTIVITY, object_entity=activity, user=self.user)
+        relation = Relation.objects.create(subject_entity=contact, type_id=REL_SUB_PART_2_ACTIVITY,
+                                           object_entity=activity, user=self.user
+                                          )
 
         self.assertEqual(403, self.client.post('/activities/linked_activity/unlink', data={'id': activity.id, 'object_id': contact.id}).status_code)
         self.assertEqual(1,   contact.relations.filter(pk=relation.id).count())
@@ -587,17 +581,25 @@ class ActivitiesTestCase(CremeTestCase):
 
         activity = self._create_meeting()
         contact = Contact.objects.create(user=self.other_user, first_name='Musashi', last_name='Miyamoto')
-        relation = Relation.objects.create(subject_entity=contact, type_id=REL_SUB_PART_2_ACTIVITY, object_entity=activity, user=self.user)
+        relation = Relation.objects.create(subject_entity=contact, type_id=REL_SUB_PART_2_ACTIVITY,
+                                           object_entity=activity, user=self.user
+                                          )
 
-        self.assertEqual(403, self.client.post('/activities/linked_activity/unlink', data={'id': activity.id, 'object_id': contact.id}).status_code)
+        self.assertEqual(403, self.client.post('/activities/linked_activity/unlink',
+                                               data={'id': activity.id, 'object_id': contact.id}
+                                              ) \
+                                         .status_code
+                        )
         self.assertEqual(1,   contact.relations.filter(pk=relation.id).count())
 
     def test_add_participants01(self):
         self.login()
 
         activity = self._create_meeting()
-        contact01 = Contact.objects.create(user=self.user, first_name='Musashi', last_name='Miyamoto')
-        contact02 = Contact.objects.create(user=self.user, first_name='Kojiro',  last_name='Sasaki')
+
+        create_contact = Contact.objects.create
+        contact01 = create_contact(user=self.user, first_name='Musashi', last_name='Miyamoto')
+        contact02 = create_contact(user=self.user, first_name='Kojiro',  last_name='Sasaki')
         ids = (contact01.id, contact02.id)
 
         uri = '/activities/activity/%s/participant/add' % activity.id
@@ -653,7 +655,7 @@ class ActivitiesTestCase(CremeTestCase):
         uri = '/activities/activity/%s/subject/add' % activity.id
         self.assertEqual(200, self.client.get(uri).status_code)
 
-        response = self.client.post(uri, data={'subjects': '[{"ctype":"%s", "entity":"%s"}]' % (orga.entity_type_id, orga.id)})
+        response = self.client.post(uri, data={'subjects': self._build_rel_field(orga)})
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
@@ -689,19 +691,20 @@ class ActivitiesTestCase(CremeTestCase):
         uri = '/activities/activity/%s/subject/add' % activity.id
         self.assertEqual(200, self.client.get(uri).status_code)
 
-        response = self.client.post(uri, data={'subjects': '[{"ctype":"%s", "entity":"%s"}]' % (orga.entity_type_id, orga.id)})
+        response = self.client.post(uri, data={'subjects': self._build_rel_field(orga)})
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'subjects', [_(u'Some entities are not linkable: %s') % orga])
-        self.assertEqual(0, Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_ACTIVITY_SUBJECT).count())
+        self.assertFalse(Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_ACTIVITY_SUBJECT))
 
     def test_get_entity_relation_choices(self):
         self.login()
 
-        self.assertEqual(404, self.client.post('/activities/get_relationtype_choices').status_code)
-        self.assertEqual(404, self.client.post('/activities/get_relationtype_choices', data={'ct_id': 'blubkluk'}).status_code)
+        url = '/activities/get_relationtype_choices'
+        self.assertPOST404(url)
+        self.assertPOST404(url, data={'ct_id': 'blubkluk'})
 
         get_ct = ContentType.objects.get_for_model
-        response = self.client.post('/activities/get_relationtype_choices', data={'ct_id': get_ct(Contact).id})
+        response = self.client.post(url, data={'ct_id': get_ct(Contact).id})
         self.assertEqual(200, response.status_code)
 
         content = simplejson.loads(response.content)
@@ -713,7 +716,7 @@ class ActivitiesTestCase(CremeTestCase):
                          content
                         )
 
-        response = self.client.post('/activities/get_relationtype_choices', data={'ct_id': get_ct(Organisation).id})
+        response = self.client.post(url, data={'ct_id': get_ct(Organisation).id})
         self.assertEqual(200, response.status_code)
         self.assertEqual([{"pk": REL_SUB_ACTIVITY_SUBJECT,  "predicate": _(u"is subject of the activity")},
                           {"pk": REL_SUB_LINKED_2_ACTIVITY, "predicate": _(u"related to the activity")},
@@ -722,11 +725,8 @@ class ActivitiesTestCase(CremeTestCase):
                         )
 
     def assertUserHasDefaultCalendar(self, user):
-        #try:
         with self.assertNoException():
             return Calendar.objects.get(is_default=True, user=user)
-        #except Exception as e:
-            #self.fail(str(e))
 
     def test_user_default_calendar(self):
         self.login()
@@ -837,3 +837,32 @@ class ActivitiesTestCase(CremeTestCase):
         self.assertTrue(act.is_all_day)
         self.assertEqual(date(year=2010, month=1, day=10), act.start.date())
         self.assertEqual(date(year=2010, month=1, day=12), act.end.date())
+
+    def test_detete_activity_type01(self):
+        self.login()
+
+        ACTIVITYTYPE_ACTIVITY = 'activities-activity_custom_1'
+        atype = create_or_update(ActivityType, ACTIVITYTYPE_ACTIVITY, name='Karate session', color="FFFFFF",
+                                 default_day_duration=0, default_hour_duration="00:15:00", is_custom=True
+                                )
+
+        response = self.client.post('/creme_config/activities/activity_type/delete', data={'id': atype.pk})
+        self.assertEqual(200, response.status_code)
+        self.assertFalse(ActivityType.objects.filter(pk=atype.pk).exists())
+
+    def test_detete_activity_type02(self):
+        self.login()
+
+        ACTIVITYTYPE_ACTIVITY = 'activities-activity_custom_1'
+        atype = create_or_update(ActivityType, ACTIVITYTYPE_ACTIVITY, name='Karate session', color="FFFFFF",
+                                 default_day_duration=0, default_hour_duration="00:15:00", is_custom=True
+                                )
+
+        activity = Activity.objects.create(user=self.user, type=atype)
+
+        response = self.client.post('/creme_config/activities/activity_type/delete', data={'id': atype.pk})
+        self.assertEqual(404, response.status_code)
+        self.assertTrue(ActivityType.objects.filter(pk=atype.pk).exists())
+
+        activity = self.get_object_or_fail(Activity, pk=activity.pk)
+        self.assertEqual(atype, activity.type)

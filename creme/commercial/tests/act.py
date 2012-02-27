@@ -16,7 +16,7 @@ try:
     from commercial.constants import REL_SUB_COMPLETE_GOAL, REL_SUB_OPPORT_LINKED
     from commercial.tests.base import CommercialBaseTestCase
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('ActTestCase',)
@@ -146,8 +146,6 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(date(year=2011, month=12, day=26), self.refresh(act).due_date)
 
     def test_listview(self):
-        #self.populate('creme_core', 'persons', 'commercial')
-
         atype = ActType.objects.create(title='Show')
         segment = self._create_segment()
         create_act = Act.objects.create
@@ -160,11 +158,8 @@ class ActTestCase(CommercialBaseTestCase):
         response = self.client.get('/commercial/acts')
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             acts_page = response.context['entities']
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertEqual(1, acts_page.number)
         self.assertEqual(2, acts_page.paginator.count)
@@ -260,15 +255,12 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(5,   ActObjective.objects.filter(act=act).count())
 
-        #try:
         with self.assertNoException():
             objective01 = act.objectives.get(name='Root01')
             objective02 = act.objectives.get(name='Root02')
             objective11 = act.objectives.get(name='Child 01')
             objective12 = act.objectives.get(name='Child 02')
             objective00 = act.objectives.exclude(pk__in=[objective01.id, objective02.id, objective11.id, objective12.id,])[0]
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertTrue(all(o.counter == 0 for o in [objective00, objective01, objective02, objective11, objective12]))
         self.assertIsNone(objective00.ctype_id)
@@ -350,7 +342,6 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(0,   self.refresh(objective).counter)
 
     def test_count_relations(self):
-        #self.populate('commercial') #'creme_core', 'persons'
         RelationType.objects.get(pk=REL_SUB_COMPLETE_GOAL) #raise exception if error
 
         act = self.create_act()
@@ -379,16 +370,20 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertTrue(objective.reached)
 
     def test_related_opportunities(self):
-        #self.populate('commercial') #'creme_core', 'persons'
         RelationType.objects.get(pk=REL_SUB_OPPORT_LINKED) #raise exception if error
+
+        user = self.user
 
         act = self.create_act()
         self.assertEqual([], act.get_related_opportunities())
         self.assertEqual(0,  act.get_made_sales())
 
+        create_rel = Relation.objects.create
+        create_opp = Opportunity.objects.create
+
         sales_phase = SalesPhase.objects.create(name='Foresale', description='Foresale')
-        opp01 = Opportunity.objects.create(user=self.user, name='OPP01', sales_phase=sales_phase, closing_date=date.today())
-        Relation.objects.create(subject_entity=opp01, type_id=REL_SUB_OPPORT_LINKED, object_entity=act, user=self.user)
+        opp01 = create_opp(user=user, name='OPP01', sales_phase=sales_phase, closing_date=date.today())
+        create_rel(subject_entity=opp01, type_id=REL_SUB_OPPORT_LINKED, object_entity=act, user=user)
 
         act = self.refresh(act) #refresh cache
         self.assertEqual([opp01], list(act.get_related_opportunities()))
@@ -397,10 +392,24 @@ class ActTestCase(CommercialBaseTestCase):
         opp01.made_sales = 1500; opp01.save()
         self.assertEqual(1500, self.refresh(act).get_made_sales())
 
-        opp02 = Opportunity.objects.create(user=self.user, name='OPP01', sales_phase=sales_phase, closing_date=date.today(), made_sales=500)
-        Relation.objects.create(subject_entity=opp02, type_id=REL_SUB_OPPORT_LINKED, object_entity=act, user=self.user)
+        opp02 = create_opp(user=user, name='OPP01', sales_phase=sales_phase,
+                           closing_date=date.today(), made_sales=500
+                          )
+        create_rel(subject_entity=opp02, type_id=REL_SUB_OPPORT_LINKED, object_entity=act, user=user)
+
         act  = self.refresh(act) #refresh cache
         opps = act.get_related_opportunities()
         self.assertEqual(2, len(opps))
         self.assertEqual(set([opp01, opp02]), set(opps))
         self.assertEqual(2000, self.refresh(act).get_made_sales())
+
+    def test_delete_type(self):
+        act = self.create_act()
+        atype = act.act_type
+
+        response = self.client.post('/creme_config/commercial/act_type/delete', data={'id': atype.pk})
+        self.assertEqual(404, response.status_code)
+        self.assertTrue(ActType.objects.filter(pk=atype.pk).exists())
+
+        act = self.get_object_or_fail(Act, pk=act.pk)
+        self.assertEqual(atype, act.act_type)

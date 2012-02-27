@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, TextField, DateTimeField, DecimalField, ForeignKey, Count
+from django.db.models import CharField, TextField, DateTimeField, DecimalField, ForeignKey, Count, PROTECT
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeEntity, CremeModel, RelationType, Relation
@@ -26,7 +26,9 @@ from creme_core.models import CremeEntity, CremeModel, RelationType, Relation
 from events.constants import *
 
 
-_STATS_TYPES = (REL_OBJ_IS_INVITED_TO, REL_OBJ_ACCEPTED_INVITATION,REL_OBJ_REFUSED_INVITATION, REL_OBJ_CAME_EVENT)
+_STATS_TYPES = (REL_OBJ_IS_INVITED_TO, REL_OBJ_ACCEPTED_INVITATION,
+                REL_OBJ_REFUSED_INVITATION, REL_OBJ_CAME_EVENT
+               )
 
 
 class EventType(CremeModel):
@@ -43,7 +45,7 @@ class EventType(CremeModel):
 
 class Event(CremeEntity):
     name        = CharField(_(u'Name'), max_length=100)
-    type        = ForeignKey(EventType, verbose_name=_(u'Type'))
+    type        = ForeignKey(EventType, verbose_name=_(u'Type'), on_delete=PROTECT)
     description = TextField(_(u'Description'), blank=True)
     place       = CharField(_(u'Place'), max_length=100, blank=True)
     start_date  = DateTimeField(_(u'Start date'))
@@ -83,8 +85,7 @@ class Event(CremeEntity):
                                                .values_list('id', 'relations_count'))
         get_count = types_count.get
 
-        return {
-                'invations_count': get_count(REL_OBJ_IS_INVITED_TO, 0),
+        return {'invations_count': get_count(REL_OBJ_IS_INVITED_TO, 0),
                 'accepted_count':  get_count(REL_OBJ_ACCEPTED_INVITATION, 0),
                 'refused_count':   get_count(REL_OBJ_REFUSED_INVITATION, 0),
                 'visitors_count':  get_count(REL_OBJ_CAME_EVENT, 0),

@@ -21,7 +21,7 @@
 from datetime import datetime
 from random import randint
 
-from django.db.models import ForeignKey, CharField, TextField, DateTimeField
+from django.db.models import ForeignKey, CharField, TextField, DateTimeField, PROTECT
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.formats import date_format
 
@@ -44,10 +44,10 @@ class _ResolvingDurationField(FunctionField):
 
 class AbstractTicket(CremeEntity):
     title        = CharField(_(u'Title'), max_length=100, blank=True, null=False, unique=True)
-    description  = TextField(_(u'Description'), blank=False, null=False)
-    status       = ForeignKey(Status, verbose_name=_(u'Status'), blank=False, null=False)
-    priority     = ForeignKey(Priority, verbose_name=_(u'Priority'), blank=False, null=False)
-    criticity    = ForeignKey(Criticity, verbose_name=_(u'Criticity'), blank=False, null=False)
+    description  = TextField(_(u'Description'))
+    status       = ForeignKey(Status, verbose_name=_(u'Status'), on_delete=PROTECT)
+    priority     = ForeignKey(Priority, verbose_name=_(u'Priority'), on_delete=PROTECT)
+    criticity    = ForeignKey(Criticity, verbose_name=_(u'Criticity'), on_delete=PROTECT)
     solution     = TextField(_(u'Solution'), blank=True, null=False)
 
     class Meta:

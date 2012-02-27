@@ -13,15 +13,13 @@ try:
     from documents.models import *
     from documents.constants import *
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class DocumentTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'documents')
-    #def setUp(self):
-        #self.populate('creme_core', 'creme_config', 'documents')
 
     def test_populate(self):
         self.assertTrue(RelationType.objects.filter(pk=REL_SUB_RELATED_2_DOC).exists())
@@ -60,12 +58,11 @@ class DocumentTestCase(CremeTestCase):
         filedata    = self._build_filedata(content)
         folder      = Folder.objects.all()[0]
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':         self.user.pk,
-                                            'title':        title,
-                                            'description':  description,
-                                            'filedata':     filedata.file,
-                                            'folder':       folder.id,
+                                    data={'user':         self.user.pk,
+                                          'title':        title,
+                                          'description':  description,
+                                          'filedata':     filedata.file,
+                                          'folder':       folder.id,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -96,20 +93,16 @@ class DocumentTestCase(CremeTestCase):
         filedata    = self._build_filedata(content)
         folder      = Folder.objects.all()[0]
         self.client.post('/documents/document/add',
-                         data={
-                                'user':         self.user.pk,
-                                'title':        title,
-                                'description':  description,
-                                'filedata':     filedata.file,
-                                'folder':       folder.id,
+                         data={'user':         self.user.pk,
+                               'title':        title,
+                               'description':  description,
+                               'filedata':     filedata.file,
+                               'folder':       folder.id,
                               }
                         )
 
-        #try:
         with self.assertNoException():
             doc = Document.objects.all()[0]
-        #except Exception, e:
-            #self.fail(str(e))
 
         url = '/documents/document/edit/%s' % doc.id
         self.assertEqual(200, self.client.get(url).status_code)
@@ -124,11 +117,10 @@ class DocumentTestCase(CremeTestCase):
         file_to_delete = doc.filedata
 
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':         self.user.pk,
-                                            'title':        title,
-                                            'description':  description,
-                                            'folder':       folder.id,
+                                    data={'user':         self.user.pk,
+                                          'title':        title,
+                                          'description':  description,
+                                          'folder':       folder.id,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -152,29 +144,21 @@ class DocumentTestCase(CremeTestCase):
         self.assertEqual(200, self.client.get(url).status_code)
 
         title    = 'Related doc'
-        filedata = self._build_filedata("""Yes I am the content""")
+        filedata = self._build_filedata("Yes I am the content")
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':         self.user.pk,
-                                            'title':        title,
-                                            'description':  'Test description',
-                                            'filedata':     filedata.file,
+                                    data={'user':         self.user.pk,
+                                          'title':        title,
+                                          'description':  'Test description',
+                                          'filedata':     filedata.file,
                                          }
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             doc = Document.objects.get(title=title)
-        #except Exception as e:
-            #self.fail(str(e))
 
-        self.assertEqual(1, Relation.objects.filter(subject_entity=entity,
-                                                    type=REL_SUB_RELATED_2_DOC,
-                                                    object_entity=doc)\
-                                            .count()
-                        )
+        self.assertRelationCount(1, entity, REL_SUB_RELATED_2_DOC, doc)
 
         doc.filedata.delete(doc.filedata) #clean
 
@@ -185,29 +169,24 @@ class DocumentTestCase(CremeTestCase):
         self.assertEqual(200, self.client.get(url).status_code)
 
         title = 'Test folder'
-
         self.assertFalse(Folder.objects.filter(title=title).exists())
 
         description = 'Test description'
         parent      = Folder.objects.all()[0]
         category    = FolderCategory.objects.all()[0]
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':          self.user.pk,
-                                            'title':         title,
-                                            'description':   description,
-                                            'parent_folder': parent.id,
-                                            'category':      category.id,
+                                    data={'user':          self.user.pk,
+                                          'title':         title,
+                                          'description':   description,
+                                          'parent_folder': parent.id,
+                                          'category':      category.id,
                                          }
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             folder = Folder.objects.get(title=title)
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertEqual(description, folder.description)
         self.assertEqual(parent,      folder.parent_folder)
@@ -233,12 +212,11 @@ class DocumentTestCase(CremeTestCase):
         description = description.upper()
         parent      = Folder.objects.all()[0]
         response = self.client.post(url, follow=True,
-                                    data={
-                                            'user':          self.user.pk,
-                                            'title':         title,
-                                            'description':   description,
-                                            'parent_folder': parent.id,
-                                            'category':      category.id,
+                                    data={'user':          self.user.pk,
+                                          'title':         title,
+                                          'description':   description,
+                                          'parent_folder': parent.id,
+                                          'category':      category.id,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -249,6 +227,19 @@ class DocumentTestCase(CremeTestCase):
         self.assertEqual(description, folder.description)
         self.assertEqual(parent,      folder.parent_folder)
         self.assertEqual(category,    folder.category)
+
+    def test_delete_category(self): #set to null
+        self.login()
+
+        cat = FolderCategory.objects.create(name='Manga')
+        folder = Folder.objects.create(user=self.user, title='One piece', category=cat)
+
+        response = self.client.post('/creme_config/documents/category/delete', data={'id': cat.pk})
+        self.assertEqual(200, response.status_code)
+        self.assertFalse(FolderCategory.objects.filter(pk=cat.pk).exists())
+
+        folder = self.get_object_or_fail(Folder, pk=folder.pk)
+        self.assertIsNone(folder.category)
 
     #TODO complete
 

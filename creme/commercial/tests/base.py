@@ -12,7 +12,6 @@ class CommercialBaseTestCase(CremeTestCase):
         cls.populate('creme_core', 'creme_config')
 
     def setUp(self):
-        #self.populate('creme_core', 'creme_config')
         self.login()
 
     def _create_segment(self):

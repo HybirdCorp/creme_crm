@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-13 18:09+0100\n"
+"POT-Creation-Date: 2012-02-27 17:49+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,31 +17,31 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: blocks.py:91
+#: blocks.py:92
 msgid "Property types configuration"
 msgstr "Configuration des types de propriété"
 
-#: blocks.py:103
+#: blocks.py:104
 msgid "List of standard relation types"
 msgstr "Liste des types de relation standard"
 
-#: blocks.py:116
+#: blocks.py:117
 msgid "Custom relation types configuration"
 msgstr "Configuration des types de relation personnalisés"
 
-#: blocks.py:129
+#: blocks.py:130
 msgid "List of semi-fixed relation types"
 msgstr "Liste des types de relation semi-fixés"
 
-#: blocks.py:146
+#: blocks.py:147
 msgid "General configuration of custom fields"
 msgstr "Configuration générale des champs personnalisés"
 
-#: blocks.py:161
+#: blocks.py:162
 msgid "Custom fields configuration"
 msgstr "Configuration des champs personnalisés"
 
-#: blocks.py:179
+#: blocks.py:180
 msgid "Users configuration"
 msgstr "Configuration des utilisateurs"
 
@@ -303,7 +303,7 @@ msgid "Value"
 msgstr "Valeur"
 
 #: forms/user.py:46 forms/user.py:146
-#: templates/creme_config/templatetags/block_users.html:25
+#: templates/creme_config/templatetags/block_users.html:26
 msgid "Password"
 msgstr "Mot de passe"
 
@@ -312,7 +312,7 @@ msgid "Confirm password"
 msgstr "Confirmation du mot de passe"
 
 #: forms/user.py:48 forms/user.py:114
-#: templates/creme_config/templatetags/block_users.html:18
+#: templates/creme_config/templatetags/block_users.html:19
 msgid "Role"
 msgstr "Rôle"
 
@@ -357,7 +357,7 @@ msgstr "Les mots de passe sont différents"
 msgid "Choose a role or set superuser status to 'True'."
 msgstr "Choisissez un rôle ou mettez le statut super-utilisateur à 'Vrai'"
 
-#: forms/user.py:171 templates/creme_config/templatetags/block_teams.html:17
+#: forms/user.py:171 templates/creme_config/templatetags/block_teams.html:18
 msgid "Teammates"
 msgstr "Coéquipiers"
 
@@ -365,7 +365,7 @@ msgstr "Coéquipiers"
 msgid "Team name"
 msgstr "Nom de l'équipe"
 
-#: forms/user.py:198
+#: forms/user.py:197
 msgid "Choose a user to transfer to"
 msgstr "Choisissez un utilisateur auquel transférer"
 
@@ -373,17 +373,9 @@ msgstr "Choisissez un utilisateur auquel transférer"
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: forms/user.py:212
+#: forms/user.py:213
 msgid "Teams"
 msgstr "Équipes"
-
-#: forms/user.py:221
-msgid "No selected user."
-msgstr "Aucun utilisateur sélectionné."
-
-#: forms/user.py:226
-msgid "You can't delete and assign to the same user."
-msgstr "Vous ne pouvez supprimer et assigner le même utilisateur."
 
 #: forms/user_role.py:46
 msgid "Creatable resources"
@@ -394,12 +386,12 @@ msgid "Exportable resources"
 msgstr "Ressources exportables"
 
 #: forms/user_role.py:48
-#: templates/creme_config/templatetags/block_user_roles.html:20
+#: templates/creme_config/templatetags/block_user_roles.html:21
 msgid "Allowed applications"
 msgstr "Applications autorisées"
 
 #: forms/user_role.py:49
-#: templates/creme_config/templatetags/block_user_roles.html:21
+#: templates/creme_config/templatetags/block_user_roles.html:22
 msgid "Administrated applications"
 msgstr "Applications administrées"
 
@@ -456,7 +448,7 @@ msgid "Apply to a specific type"
 msgstr "Appliquer à un type spécifique"
 
 #: forms/user_role.py:131
-#: templates/creme_config/templatetags/block_users.html:32
+#: templates/creme_config/templatetags/block_users.html:33
 msgid "None"
 msgstr "Aucun"
 
@@ -616,9 +608,9 @@ msgstr "Éditer la configuration de blocs"
 
 #: templates/creme_config/templatetags/block_blockdefmypagelocations.html:16
 #: templates/creme_config/templatetags/block_custom_fields.html:16
-#: templates/creme_config/templatetags/block_teams.html:16
+#: templates/creme_config/templatetags/block_teams.html:17
 #: templates/creme_config/templatetags/block_user_prefered_menus.html:20
-#: templates/creme_config/templatetags/block_user_roles.html:19
+#: templates/creme_config/templatetags/block_user_roles.html:20
 msgid "Name"
 msgstr "Nom"
 
@@ -635,8 +627,8 @@ msgstr "Nom"
 #: templates/creme_config/templatetags/block_relationblocksconfig.html:17
 #: templates/creme_config/templatetags/block_searchconfig.html:22
 #: templates/creme_config/templatetags/block_semifixed_relation_types.html:21
-#: templates/creme_config/templatetags/block_teams.html:29
-#: templates/creme_config/templatetags/block_users.html:41
+#: templates/creme_config/templatetags/block_teams.html:31
+#: templates/creme_config/templatetags/block_users.html:43
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -664,7 +656,7 @@ msgstr "%s Types de ressource configurés"
 
 #: templates/creme_config/templatetags/block_blocklocations.html:11
 #: templates/creme_config/templatetags/block_blockportallocations.html:11
-#: views/blocks.py:41 views/blocks.py:46
+#: views/blocks.py:38 views/blocks.py:43
 msgid "New blocks configuration"
 msgstr "Nouvelle configuration de blocs"
 
@@ -721,7 +713,7 @@ msgid "Home configuration"
 msgstr "Configuration de l'accueil"
 
 #: templates/creme_config/templatetags/block_button_menu.html:11
-#: views/button_menu.py:38
+#: views/button_menu.py:37
 msgid "New buttons configuration"
 msgstr "Nouvelle configuration de boutons"
 
@@ -771,8 +763,8 @@ msgstr "Peut délier la fiche"
 #: templates/creme_config/templatetags/block_default_credentials.html:19
 #: templates/creme_config/templatetags/block_default_credentials.html:20
 #: templates/creme_config/templatetags/block_default_credentials.html:21
-#: templates/creme_config/templatetags/block_users.html:34
 #: templates/creme_config/templatetags/block_users.html:35
+#: templates/creme_config/templatetags/block_users.html:36
 msgid "Yes,No"
 msgstr "Oui,Non"
 
@@ -787,7 +779,7 @@ msgid "%s Used relation types"
 msgstr "%s Types de relation utilisés"
 
 #: templates/creme_config/templatetags/block_historyconfig.html:11
-#: views/history.py:37
+#: views/history.py:36
 msgid "New relation types"
 msgstr "Nouveaux types de relation"
 
@@ -814,7 +806,7 @@ msgid "No type of instance block created for the moment"
 msgstr "Aucun bloc d'instance créé pour le moment"
 
 #: templates/creme_config/templatetags/block_models.html:19
-#: views/generics_views.py:56
+#: views/generics_views.py:57
 msgid "New value"
 msgstr "Nouvelle valeur"
 
@@ -849,7 +841,7 @@ msgid "%s Types of property"
 msgstr "%s Types de propriété"
 
 #: templates/creme_config/templatetags/block_property_types.html:14
-#: views/creme_property_type.py:37
+#: views/creme_property_type.py:36
 msgid "New custom type of property"
 msgstr "Nouveau type de propriété personnalisé"
 
@@ -886,7 +878,7 @@ msgid "%s Standard types of relation"
 msgstr "%s Types de relation standard"
 
 #: templates/creme_config/templatetags/block_relation_types.html:18
-#: views/relation_type.py:46
+#: views/relation_type.py:43
 msgid "New custom type"
 msgstr "Nouveau type personnalisé"
 
@@ -904,9 +896,9 @@ msgid "Object(s)"
 msgstr "Objet(s)"
 
 #: templates/creme_config/templatetags/block_relation_types.html:27
-#: templates/creme_config/templatetags/block_teams.html:18
-#: templates/creme_config/templatetags/block_user_roles.html:25
-#: templates/creme_config/templatetags/block_users.html:24
+#: templates/creme_config/templatetags/block_teams.html:19
+#: templates/creme_config/templatetags/block_user_roles.html:26
+#: templates/creme_config/templatetags/block_users.html:25
 msgid "Actions"
 msgstr "Actions"
 
@@ -935,7 +927,7 @@ msgid "%s Types of relation block created"
 msgstr "%s Types de bloc de relation créés"
 
 #: templates/creme_config/templatetags/block_relationblocksconfig.html:11
-#: views/blocks.py:51
+#: views/blocks.py:48
 msgid "New type of block"
 msgstr "Nouveau type de bloc"
 
@@ -952,7 +944,7 @@ msgid "Search"
 msgstr "Recherche"
 
 #: templates/creme_config/templatetags/block_searchconfig.html:11
-#: views/search.py:38
+#: views/search.py:37
 msgid "New search configuration"
 msgstr "Nouvelle configuration de recherche"
 
@@ -1008,25 +1000,30 @@ msgstr "Description"
 msgid "No setting value for this app"
 msgstr "Aucune valeur de réglage pour cette application"
 
-#: templates/creme_config/templatetags/block_teams.html:5
+#: templates/creme_config/templatetags/block_teams.html:6
 #, python-format
 msgid "%s Team"
 msgstr "%s Équipe"
 
-#: templates/creme_config/templatetags/block_teams.html:5
+#: templates/creme_config/templatetags/block_teams.html:6
 #, python-format
 msgid "%s Teams"
 msgstr "%s Équipes"
 
-#: templates/creme_config/templatetags/block_teams.html:11 views/user.py:49
+#: templates/creme_config/templatetags/block_teams.html:12 views/user.py:52
 msgid "New team"
 msgstr "Nouvelle équipe"
 
-#: templates/creme_config/templatetags/block_teams.html:24
+#: templates/creme_config/templatetags/block_teams.html:25
 msgid "No teammate"
 msgstr "Aucun Coéquipier"
 
-#: templates/creme_config/templatetags/block_teams.html:36
+#: templates/creme_config/templatetags/block_teams.html:34
+#: templates/creme_config/templatetags/block_users.html:46
+msgid "Can't delete"
+msgstr "Suppression interdite"
+
+#: templates/creme_config/templatetags/block_teams.html:41
 msgid "No team for the moment"
 msgstr "Aucune équipe pour le moment"
 
@@ -1042,7 +1039,7 @@ msgstr "Mes %s menus préférés"
 
 #: templates/creme_config/templatetags/block_user_prefered_menus.html:12
 #: templates/creme_config/templatetags/block_user_prefered_menus.html:13
-#: views/prefered_menu.py:64
+#: views/prefered_menu.py:60
 msgid "Edit my prefered menus"
 msgstr "Éditer mes menus préférés"
 
@@ -1062,171 +1059,171 @@ msgstr ""
 "Rappelez vous que si vous supprimez un rôle, les utilisateurs associés "
 "auront les droits par défaut."
 
-#: templates/creme_config/templatetags/block_user_roles.html:8
+#: templates/creme_config/templatetags/block_user_roles.html:9
 #, python-format
 msgid "%s Role"
 msgstr "%s Rôle"
 
-#: templates/creme_config/templatetags/block_user_roles.html:8
+#: templates/creme_config/templatetags/block_user_roles.html:9
 #, python-format
 msgid "%s Roles"
 msgstr "%s Rôles"
 
-#: templates/creme_config/templatetags/block_user_roles.html:14
-#: views/user_role.py:37
+#: templates/creme_config/templatetags/block_user_roles.html:15
+#: views/user_role.py:38
 msgid "New role"
 msgstr "Nouveau rôle"
 
-#: templates/creme_config/templatetags/block_user_roles.html:22
+#: templates/creme_config/templatetags/block_user_roles.html:23
 msgid "Creation credentials"
 msgstr "Droits de création"
 
-#: templates/creme_config/templatetags/block_user_roles.html:23
+#: templates/creme_config/templatetags/block_user_roles.html:24
 msgid "Export credentials"
 msgstr "Droits d'export"
 
-#: templates/creme_config/templatetags/block_user_roles.html:24
+#: templates/creme_config/templatetags/block_user_roles.html:25
 msgid "Entities credentials"
 msgstr "Droits des entités"
 
-#: templates/creme_config/templatetags/block_user_roles.html:30
+#: templates/creme_config/templatetags/block_user_roles.html:31
 msgid "No allowed application"
 msgstr "Pas d'application autorisée"
 
-#: templates/creme_config/templatetags/block_user_roles.html:31
+#: templates/creme_config/templatetags/block_user_roles.html:32
 msgid "No administrated application"
 msgstr "Pas d'application administrée"
 
-#: templates/creme_config/templatetags/block_user_roles.html:32
+#: templates/creme_config/templatetags/block_user_roles.html:33
 msgid "No creation credential"
 msgstr "Pas de droit de création"
 
-#: templates/creme_config/templatetags/block_user_roles.html:33
+#: templates/creme_config/templatetags/block_user_roles.html:34
 msgid "No export credential"
 msgstr "Pas de droit d'export"
 
-#: templates/creme_config/templatetags/block_user_roles.html:36
+#: templates/creme_config/templatetags/block_user_roles.html:37
 msgid "No credential"
 msgstr "Aucun droit"
 
 #: templates/creme_config/templatetags/block_user_roles.html:38
-#: templates/creme_config/templatetags/block_user_roles.html:39
 msgid "New credentials"
 msgstr "Nouveaux droits"
 
-#: templates/creme_config/templatetags/block_user_roles.html:50
+#: templates/creme_config/templatetags/block_user_roles.html:48
 msgid "No role for the moment"
 msgstr "Aucun rôle pour le moment"
 
-#: templates/creme_config/templatetags/block_users.html:5
+#: templates/creme_config/templatetags/block_users.html:6
 #, python-format
 msgid "%s User"
 msgstr "%s Utilisateur"
 
-#: templates/creme_config/templatetags/block_users.html:5
+#: templates/creme_config/templatetags/block_users.html:6
 #, python-format
 msgid "%s Users"
 msgstr "%s Utilisateurs"
 
-#: templates/creme_config/templatetags/block_users.html:11 views/user.py:44
+#: templates/creme_config/templatetags/block_users.html:12 views/user.py:46
 msgid "New user"
 msgstr "Nouvel utilisateur"
 
-#: templates/creme_config/templatetags/block_users.html:15
+#: templates/creme_config/templatetags/block_users.html:16
 msgid "User name"
 msgstr "Nom d'utilisateur"
 
-#: templates/creme_config/templatetags/block_users.html:16
+#: templates/creme_config/templatetags/block_users.html:17
 msgid "Last name"
 msgstr "Nom"
 
-#: templates/creme_config/templatetags/block_users.html:17
+#: templates/creme_config/templatetags/block_users.html:18
 msgid "First name"
 msgstr "Prénom"
 
-#: templates/creme_config/templatetags/block_users.html:19
+#: templates/creme_config/templatetags/block_users.html:20
 msgid "Email"
 msgstr "Adresse électronique"
 
-#: templates/creme_config/templatetags/block_users.html:20
+#: templates/creme_config/templatetags/block_users.html:21
 msgid "Super-user ?"
 msgstr "Super-utilisateur ?"
 
-#: templates/creme_config/templatetags/block_users.html:21
+#: templates/creme_config/templatetags/block_users.html:22
 msgid "Active ?"
 msgstr "Actif ?"
 
-#: templates/creme_config/templatetags/block_users.html:22
+#: templates/creme_config/templatetags/block_users.html:23
 msgid "Last login"
 msgstr "Dernière connexion"
 
-#: templates/creme_config/templatetags/block_users.html:23
+#: templates/creme_config/templatetags/block_users.html:24
 msgid "Date joined"
 msgstr "Date d'inscription"
 
-#: views/blocks.py:67 views/button_menu.py:64
+#: views/blocks.py:62 views/button_menu.py:61
 #, python-format
 msgid "Edit configuration for %s"
 msgstr "Éditer la configuration pour %s"
 
-#: views/blocks.py:70 views/button_menu.py:65
+#: views/blocks.py:65 views/button_menu.py:62
 msgid "Edit default configuration"
 msgstr "Éditer la configuration par défaut"
 
-#: views/blocks.py:102
+#: views/blocks.py:95
 msgid "Edit default portal configuration"
 msgstr "Éditer la configuration de portail par défaut"
 
-#: views/blocks.py:104
+#: views/blocks.py:97
 msgid "Edit home configuration"
 msgstr "Éditer la configuration de l'accueil"
 
-#: views/blocks.py:111
+#: views/blocks.py:104
 #, python-format
 msgid "Edit portal configuration for <%s>"
 msgstr "Éditer la configuration de portail pour <%s>"
 
-#: views/blocks.py:162
+#: views/blocks.py:151
 msgid "Edit default \"My page\""
 msgstr "Éditer le \"Ma page\" par défaut"
 
-#: views/blocks.py:167
+#: views/blocks.py:156
 msgid "Edit \"My page\""
 msgstr "Éditer \"Ma page\""
 
-#: views/creme_property_type.py:59 views/relation_type.py:73
+#: views/creme_property_type.py:57 views/relation_type.py:69
 #, python-format
 msgid "Edit the type \"%s\""
 msgstr "Éditer le type \"%s\""
 
-#: views/relation_type.py:51
+#: views/generics_views.py:85
+#, python-format
+msgid "%s can not be deleted because of its dependencies."
+msgstr "%s ne peut pas être effacé à cause de ses dépendances."
+
+#: views/relation_type.py:48
 msgid "New semi-fixed type of relationship"
 msgstr "Nouveau type de relation semi-fixé"
 
-#: views/setting.py:61
+#: views/setting.py:60
 #, python-format
 msgid "Edit \"%s\""
 msgstr "Éditer \"%s\""
 
-#: views/user.py:38
+#: views/user.py:39
 #, python-format
 msgid "Change password for <%s>"
 msgstr "Changer le mot de passe pour <%s>"
 
-#: views/user.py:74
+#: views/user.py:81
 msgid "You can't delete the last user."
 msgstr "Vous ne pouvez pas supprimer le dernier utilisateur."
 
-#: views/user.py:77
-msgid "You have to select a team."
-msgstr "Vous devez choisir une équipe."
-
-#: views/user.py:80
+#: views/user.py:84
 #, python-format
 msgid "Delete %s and assign his files to user"
 msgstr "Supprimer %s et réassigner ses fiches"
 
-#: views/user_role.py:60
+#: views/user_role.py:62
 #, python-format
 msgid "Add creddentials to <%s>"
 msgstr "Ajouter des droits à <%s>"
@@ -1234,6 +1231,15 @@ msgstr "Ajouter des droits à <%s>"
 #: views/user_role.py:96
 msgid "Edit default credentials"
 msgstr "Éditer les droits par défaut"
+
+#~ msgid "No selected user."
+#~ msgstr "Aucun utilisateur sélectionné."
+
+#~ msgid "You can't delete and assign to the same user."
+#~ msgstr "Vous ne pouvez supprimer et assigner le même utilisateur."
+
+#~ msgid "You have to select a team."
+#~ msgstr "Vous devez choisir une équipe."
 
 #~ msgid "Relation block: %s"
 #~ msgstr "Bloc de relation: %s"
@@ -1273,9 +1279,6 @@ msgstr "Éditer les droits par défaut"
 
 #~ msgid "Blocks configuration"
 #~ msgstr "Configuration des blocs"
-
-#~ msgid "%s can not be deleted because of his dependencies."
-#~ msgstr "%s ne peut pas être effacé à cause de ses dépendances."
 
 #~ msgid "Block to display"
 #~ msgstr "Blocs à afficher"

@@ -9,7 +9,7 @@ try:
     from commercial.models import *
     from commercial.tests.base import CommercialBaseTestCase
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('ActObjectivePatternTestCase',)
@@ -79,8 +79,6 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertEqual(segment,       pattern.segment)
 
     def test_listview(self):
-        #self.populate('creme_core', 'persons', 'commercial')
-
         create_patterns = ActObjectivePattern.objects.create
         patterns = [create_patterns(user=self.user,
                                     name='ObjPattern#%s' % i,
@@ -92,11 +90,8 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         response = self.client.get('/commercial/objective_patterns')
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             patterns_page = response.context['entities']
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertEqual(1, patterns_page.number)
         self.assertEqual(3, patterns_page.paginator.count)
@@ -146,7 +141,9 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
     def test_add_child_pattern_component01(self): #parent component
         pattern = self._create_pattern()
-        comp01 = ActObjectivePatternComponent.objects.create(name='Signed opportunities', pattern=pattern, success_rate=50)
+        comp01 = ActObjectivePatternComponent.objects.create(name='Signed opportunities',
+                                                             pattern=pattern, success_rate=50
+                                                            )
 
         url = '/commercial/objective_pattern/component/%s/add_child' % comp01.id
         self.assertEqual(200, self.client.get(url).status_code)
@@ -178,17 +175,17 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(2,   comp01.children.count())
 
-        #try:
         with self.assertNoException():
             comp03 = comp01.children.get(name=name)
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertEqual(ct, comp03.ctype)
 
     def test_add_parent_pattern_component01(self):
         pattern = self._create_pattern()
-        comp01 = ActObjectivePatternComponent.objects.create(name='Sent mails', pattern=pattern, success_rate=5)
+        comp01 = ActObjectivePatternComponent.objects.create(name='Sent mails',
+                                                             pattern=pattern,
+                                                             success_rate=5
+                                                            )
 
         url = '/commercial/objective_pattern/component/%s/add_parent' % comp01.id
         self.assertEqual(200, self.client.get(url).status_code)
@@ -217,8 +214,10 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
     def test_add_parent_pattern_component02(self):
         pattern = self._create_pattern()
-        comp01 = ActObjectivePatternComponent.objects.create(name='Signed opportunities', pattern=pattern, success_rate=50)
-        comp02 = ActObjectivePatternComponent.objects.create(name='Spread Vcards',        pattern=pattern, success_rate=1, parent=comp01)
+
+        create_comp = ActObjectivePatternComponent.objects.create
+        comp01 = create_comp(name='Signed opportunities', pattern=pattern, success_rate=50)
+        comp02 = create_comp(name='Spread Vcards',        pattern=pattern, success_rate=1, parent=comp01)
 
         name = 'Called contacts'
         ct   = ContentType.objects.get_for_model(Contact)
@@ -303,7 +302,9 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
     def test_delete_pattern_component01(self):
         pattern = self._create_pattern()
-        comp01 = ActObjectivePatternComponent.objects.create(name='Signed opportunities', pattern=pattern, success_rate=20)
+        comp01 = ActObjectivePatternComponent.objects.create(name='Signed opportunities',
+                                                             pattern=pattern, success_rate=20
+                                                            )
         ct = ContentType.objects.get_for_model(ActObjectivePatternComponent)
 
         response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id,
@@ -354,26 +355,29 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         cloned_pattern = pattern.clone()
 
-        self.assertEqual(14, ActObjectivePatternComponent.objects.filter(pattern=cloned_pattern).count())
-        self.assertEqual(2,  ActObjectivePatternComponent.objects.filter(pattern=cloned_pattern, parent=None).count())
-        self.assertEqual(1,  ActObjectivePatternComponent.objects.filter(pattern=cloned_pattern, name=comp1.name).count())
+        filter_comp = ActObjectivePatternComponent.objects.filter
+        filter_get = ActObjectivePatternComponent.objects.get
+
+        self.assertEqual(14, filter_comp(pattern=cloned_pattern).count())
+        self.assertEqual(2,  filter_comp(pattern=cloned_pattern, parent=None).count())
+        self.assertEqual(1,  filter_comp(pattern=cloned_pattern, name=comp1.name).count())
 
         self.assertEqual(set(['1.1', '1.2']),
-                         set(ActObjectivePatternComponent.objects.get(pattern=cloned_pattern, name=comp1.name).children.values_list('name', flat=True))
+                         set(filter_get(pattern=cloned_pattern, name=comp1.name).children.values_list('name', flat=True))
                         )
         self.assertEqual(set(['1.1.1', '1.1.2', '1.2.1', '1.2.2']),
-                         set(ActObjectivePatternComponent.objects.filter(pattern=cloned_pattern, parent__name__in=['1.1', '1.2']) \
-                                                                 .values_list('name', flat=True)
+                         set(filter_comp(pattern=cloned_pattern, parent__name__in=['1.1', '1.2']) \
+                                        .values_list('name', flat=True)
                             )
                         )
-        self.assertEqual(1, ActObjectivePatternComponent.objects.filter(pattern=cloned_pattern, name=comp2.name).count())
+        self.assertEqual(1, filter_comp(pattern=cloned_pattern, name=comp2.name).count())
         self.assertEqual(set(['2.1', '2.2']),
-                         set(ActObjectivePatternComponent.objects.get(pattern=cloned_pattern, name=comp2.name) \
-                                                                 .children.values_list('name', flat=True)
+                         set(filter_get(pattern=cloned_pattern, name=comp2.name) \
+                                       .children.values_list('name', flat=True)
                             )
                         )
         self.assertEqual(set(['2.1.1', '2.1.2', '2.2.1', '2.2.2']),
-                         set(ActObjectivePatternComponent.objects.filter(pattern=cloned_pattern, parent__name__in=['2.1', '2.2']) \
-                                                                 .values_list('name', flat=True)
+                         set(filter_comp(pattern=cloned_pattern, parent__name__in=['2.1', '2.2']) \
+                                        .values_list('name', flat=True)
                             )
                         )
