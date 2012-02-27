@@ -200,6 +200,7 @@
 
 .list_view tbody td ul{
     text-align:left;
+    margin: 3px;
 }
 
 .list_view tfoot tr td table tr td{
