@@ -6,9 +6,7 @@
         post_contact_status = function(url, select) {
             creme.ajax.post({
                         'url': url,
-                        'data': {
-                                'status': $(select).find('[selected="true"]').attr("value")
-                            },
+                        'data': {'status': $(select).val()},
                     });
         }
     </script>

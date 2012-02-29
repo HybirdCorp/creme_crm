@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,6 +28,7 @@ from creme_core.models import CremeEntity
 from creme_core.models.entity import EntityAction
 from creme_core.models.header_filter import HeaderFilterItem, HFI_RELATION, HFI_VOLATILE
 from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
+from creme_core.utils import get_from_POST_or_404
 
 from persons.models import Contact
 
@@ -75,8 +76,7 @@ PRES_STATUS_MAP = {
 def build_get_actions(event, entity):
     """Build bound method to overload 'get_actions()' method of CremeEntities"""
     def _get_actions(user):
-        return {
-                'default': EntityAction(entity.get_absolute_url(), ugettext(u"See"), entity.can_view(user), icon="images/view_16.png"),
+        return {'default': EntityAction(entity.get_absolute_url(), ugettext(u"See"), entity.can_view(user), icon="images/view_16.png"),
                 'others':  [EntityAction('/events/event/%s/add_opportunity_with/%s' % (event.id, entity.id),
                                          ugettext(u"Create an opportunity"),
                                          user.has_perm('opportunities.add_opportunity') and event.can_link(user),
@@ -84,9 +84,17 @@ def build_get_actions(event, entity):
                                         ),
                            ]
                }
+
     return _get_actions
 
 class ListViewPostProcessor(object):
+    _HIDDEN_HFI_DESC = (('relations_invited',  u'Invited',  REL_SUB_IS_INVITED_TO),
+                        ('relations_accepted', u'Accepted', REL_SUB_ACCEPTED_INVITATION),
+                        ('relations_refused',  u'Refused',  REL_SUB_REFUSED_INVITATION),
+                        ('relations_came',     u'Came',     REL_SUB_CAME_EVENT),
+                        ('relations_notcame',  u'Not come', REL_SUB_NOT_CAME_EVENT),
+                       )
+
     def __init__(self, event):
         self.event = event
         self.user = None
@@ -98,14 +106,9 @@ class ListViewPostProcessor(object):
         #NB: add relations items to use the pre-cache system of HeaderFilter (TO: problem: retrieve other related events too)
         hfitems.extend(HeaderFilterItem(name=name, title=title, is_hidden=True,
                                         type=HFI_RELATION, relation_predicat_id=type_id,
-                                    )
-                        for name, title, type_id in (('relations_invited',  u'Invited',  REL_SUB_IS_INVITED_TO),
-                                                     ('relations_accepted', u'Accepted', REL_SUB_ACCEPTED_INVITATION),
-                                                     ('relations_refused',  u'Refused',  REL_SUB_REFUSED_INVITATION),
-                                                     ('relations_came',     u'Came',     REL_SUB_CAME_EVENT),
-                                                     ('relations_notcame',  u'Not come', REL_SUB_NOT_CAME_EVENT),
-                                                    )
-                    )
+                                       )
+                            for name, title, type_id in self._HIDDEN_HFI_DESC
+                      )
 
         hfi = HeaderFilterItem(name='invitation_management', title=_(u'Invitation'), type=HFI_VOLATILE)
         hfi.volatile_render = self.invitation_render
@@ -136,8 +139,11 @@ class ListViewPostProcessor(object):
         else:
             current_status = INV_STATUS_NO_ANSWER
 
-        select = ["""<select onchange="post_contact_status('/events/event/%s/contact/%s/set_invitation_status', this);" %s>""" % \
-                    (event.id, entity.id, '' if event.can_link(user) and entity.can_link(user) else 'disabled="True"')
+        select = ["""<select onchange="post_contact_status('/events/event/%s/contact/%s/set_invitation_status', this);" %s>""" % (
+                        event.id,
+                        entity.id,
+                        '' if event.can_link(user) and entity.can_link(user) else 'disabled="True"'
+                    )
                  ]
         select.extend(u'<option value="%s" %s>%s</option>' % (
                             status,
@@ -161,8 +167,11 @@ class ListViewPostProcessor(object):
         else:
             current_status = PRES_STATUS_DONT_KNOW
 
-        select = ["""<select onchange="post_contact_status('/events/event/%s/contact/%s/set_presence_status', this);" %s>""" % \
-                    (event.id, entity.id, '' if event.can_link(user) and entity.can_link(user) else 'disabled="True"')
+        select = ["""<select onchange="post_contact_status('/events/event/%s/contact/%s/set_presence_status', this);" %s>""" % (
+                        event.id,
+                        entity.id,
+                        '' if event.can_link(user) and entity.can_link(user) else 'disabled="True"'
+                    )
                  ]
         select.extend(u'<option value="%s" %s>%s</option>' % (
                             status,
@@ -175,6 +184,13 @@ class ListViewPostProcessor(object):
         return u''.join(select)
 
 
+_FILTER_RELATIONTYPES = (REL_SUB_IS_INVITED_TO,
+                         REL_SUB_ACCEPTED_INVITATION,
+                         REL_SUB_REFUSED_INVITATION,
+                         REL_SUB_CAME_EVENT,
+                         REL_SUB_NOT_CAME_EVENT,
+                        )
+
 @login_required
 @permission_required('events')
 #@permission_required('persons') ????
@@ -184,17 +200,10 @@ def list_contacts(request, event_id):
     event.can_view_or_die(request.user)
 
     return list_view(request, Contact, template='events/list_events.html',
-                     extra_dict={
-                                    'list_title': _(u'List of contacts related to <%s>') % event,
-                                    'add_url':    '/events/event/%s/link_contacts' % event_id,
+                     extra_dict={'list_title': _(u'List of contacts related to <%s>') % event,
+                                 'add_url':    '/events/event/%s/link_contacts' % event_id,
                                 },
-                     extra_q=Q(relations__type__in=[REL_SUB_IS_INVITED_TO,
-                                                    REL_SUB_ACCEPTED_INVITATION,
-                                                    REL_SUB_REFUSED_INVITATION,
-                                                    REL_SUB_CAME_EVENT,
-                                                    REL_SUB_NOT_CAME_EVENT,
-                                                   ]
-                              ),
+                     extra_q=Q(relations__type__in=_FILTER_RELATIONTYPES),
                      post_process=ListViewPostProcessor(event),
                     )
 
@@ -204,10 +213,12 @@ def link_contacts(request, event_id):
     return edit_entity(request, event_id, Event, AddContactsToEventForm)
 
 def _get_status(request, valid_status):
+    status_str = get_from_POST_or_404(request.POST, 'status')
+
     try:
-        status = int(request.POST['status'])
-    except Exception, e:
-        raise Http404('Problem with status arg: %s' % status)
+        status = int(status_str)
+    except Exception:
+        raise Http404('Status is not an integer: %s' % status_str)
 
     if not status in valid_status:
         raise Http404('Unknow status: %s' % status)
