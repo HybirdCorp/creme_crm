@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-02-27 17:49+0100\n"
+"POT-Creation-Date: 2012-02-29 15:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1215,8 +1215,8 @@ msgid "Change password for <%s>"
 msgstr "Changer le mot de passe pour <%s>"
 
 #: views/user.py:81
-msgid "You can't delete the last user."
-msgstr "Vous ne pouvez pas supprimer le dernier utilisateur."
+msgid "You can't delete the last super user."
+msgstr "Vous ne pouvez pas supprimer le dernier super utilisateur."
 
 #: views/user.py:84
 #, python-format
