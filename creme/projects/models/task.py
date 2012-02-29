@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from itertools import chain
 
-from django.db.models import ForeignKey, ManyToManyField, PositiveIntegerField
+from django.db.models import ForeignKey, ManyToManyField, PositiveIntegerField, PROTECT
 from django.utils.translation import ugettext_lazy as _
 
 from activities.models import Activity, ActivityType
@@ -36,7 +36,7 @@ class ProjectTask(Activity):
     order        = PositiveIntegerField(_(u'Order'), blank=True, null=True)
     parent_tasks = ManyToManyField("self", blank=True, null=True, symmetrical=False, related_name='children_set') #TODO: rename parent_tasks
     duration     = PositiveIntegerField(_(u'Estimated duration (in hours)'), blank=False, null=False)
-    tstatus      = ForeignKey(TaskStatus, verbose_name=_(u'Status'))
+    tstatus      = ForeignKey(TaskStatus, verbose_name=_(u'Status'), on_delete=PROTECT)
 
     header_filter_exclude_fields = Activity.header_filter_exclude_fields + ['activity_ptr'] #TODO: use a set() ??
     excluded_fields_in_html_output = Activity.excluded_fields_in_html_output + ['status']

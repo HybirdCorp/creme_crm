@@ -225,3 +225,25 @@ class UserMessageTestCase(AssistantsTestCase):
                 self.assertEqual(contact01, msg.creme_entity)
 
         self.aux_test_merge(creator, assertor)
+
+    def test_delete_priority01(self):
+        priority = UserMessagePriority.objects.create(title='Important')
+        response = self.client.post('/creme_config/assistants/message_priority/delete', data={'id': priority.pk})
+        self.assertEqual(200, response.status_code)
+        self.assertFalse(UserMessagePriority.objects.filter(pk=priority.pk).exists())
+
+    def test_delete_priority02(self):
+        priority = UserMessagePriority.objects.create(title='Important')
+        self._create_usermessage('TITLE', 'BODY', priority, [self.user], None)
+
+        messages = UserMessage.objects.all()
+        self.assertEqual(1, len(messages))
+
+        message = messages[0]
+
+        response = self.client.post('/creme_config/assistants/message_priority/delete', data={'id': priority.pk})
+        self.assertEqual(404, response.status_code)
+        self.assertTrue(UserMessagePriority.objects.filter(pk=priority.pk).exists())
+
+        message = self.get_object_or_fail(UserMessage, pk=message.pk)
+        self.assertEqual(priority, message.priority)

@@ -17,7 +17,7 @@ try:
     from billing.constants import *
     from billing.tests.base import _BillingTestCase
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('ConvertTestCase',)
@@ -30,7 +30,6 @@ class ConvertTestCase(_BillingTestCase, CremeTestCase):
 
     def test_convert01(self):
         self.login()
-        #self.populate('persons')
 
         quote, source, target = self.create_quote_n_orgas('My Quote')
         self.assertFalse(Invoice.objects.count())

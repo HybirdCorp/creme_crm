@@ -12,7 +12,7 @@ try:
     from products.models import Category, SubCategory, Product, Service
     from products.forms.product import ProductCategoryField
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class ProductCategoryFieldTestCase(FieldTestCase):
@@ -71,7 +71,7 @@ class ProductCategoryFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(ProductCategoryField, 'invalidformat', field.clean, '{"category":"notanumber","subcategory":"1"}')
         self.assertFieldValidationError(ProductCategoryField, 'invalidformat', field.clean, '{"category":"12","category":"notanumber"}')
 
-    # data injection : unallowed category
+    #data injection : unallowed category
     def test_clean_unallowed_category(self):
         cat1 = Category.objects.create(name='cat1', description='description')
 
@@ -82,7 +82,7 @@ class ProductCategoryFieldTestCase(FieldTestCase):
         value = self.format_str % (cat2.id, cat21.id)
         self.assertFieldValidationError(ProductCategoryField, 'categorynotallowed', field.clean, value)
 
-    # data injection : category doesn't exist
+    #data injection : category doesn't exist
     def test_clean_unknown_category(self):
         cat1 = Category.objects.create(name='cat1', description='description')
         cat11 = SubCategory.objects.create(name='sub11', description='description', category=cat1)
@@ -92,7 +92,7 @@ class ProductCategoryFieldTestCase(FieldTestCase):
         # same error has unallowed, cause unknown category cannot be in list
         self.assertFieldValidationError(ProductCategoryField, 'categorynotallowed', field.clean, value)
 
-    # data injection : subcategory doesn't exist
+    #data injection : subcategory doesn't exist
     def test_clean_unknown_subcategory(self):
         cat1 = Category.objects.create(name='cat1', description='description')
 
@@ -100,7 +100,7 @@ class ProductCategoryFieldTestCase(FieldTestCase):
         value = self.format_str % (cat1.id, 0)
         self.assertFieldValidationError(ProductCategoryField, 'doesnotexist', field.clean, value)
 
-    # data injection : use incompatible category/subcategory pair
+    #data injection : use incompatible category/subcategory pair
     def test_clean_invalid_category_pair(self):
         cat1 = Category.objects.create(name='cat1', description='description')
 
@@ -120,13 +120,16 @@ class ProductCategoryFieldTestCase(FieldTestCase):
         self.assertEqual(cat11, field.clean(value))
 
 
-class ProductsTestCase(CremeTestCase):
+class _ProductsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'products')
-    #def setUp(self):
-        #self.populate('creme_core', 'creme_config', 'products')
 
+    def _cat_field(self, category, sub_category):
+        return '{"category": %s, "subcategory": %s}' % (category.id, sub_category.id)
+
+
+class ProductTestCase(_ProductsTestCase):
     def test_populate(self):
         self.assertTrue(Category.objects.exists())
         self.assertTrue(SubCategory.objects.exists())
@@ -155,8 +158,10 @@ class ProductsTestCase(CremeTestCase):
         name1 = 'subcat1'
         name2 = 'subcat2'
         cat = Category.objects.create(name='category', description='description')
-        subcat1 = SubCategory.objects.create(name=name1, description='description', category=cat)
-        subcat2 = SubCategory.objects.create(name=name2, description='description', category=cat)
+
+        create_subcat = SubCategory.objects.create
+        subcat1 = create_subcat(name=name1, description='description', category=cat)
+        subcat2 = create_subcat(name=name2, description='description', category=cat)
 
         response = self.client.get('/products/sub_category/%s/json' % cat.id)
         self.assertEqual(200, response.status_code)
@@ -165,7 +170,7 @@ class ProductsTestCase(CremeTestCase):
                          simplejson.loads(response.content)
                         )
 
-    def test_product_createview(self):
+    def test_createview(self):
         self.login()
 
         self.assertEqual(0, Product.objects.count())
@@ -186,9 +191,7 @@ class ProductsTestCase(CremeTestCase):
                                           'description':  description,
                                           'unit_price':   unit_price,
                                           'unit':         "anything",
-                                          'sub_category': '{"category": %s, "subcategory": %s}' % (
-                                                              cat.id, sub_cat.id
-                                                            )
+                                          'sub_category': self._cat_field(cat, sub_cat)
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -213,7 +216,7 @@ class ProductsTestCase(CremeTestCase):
         response = self.client.get('/products/product/%s' % product.id)
         self.assertEqual(response.status_code, 200)
 
-    def test_product_editview(self):
+    def test_editview(self):
         self.login()
 
         name    = 'Eva00'
@@ -237,9 +240,9 @@ class ProductsTestCase(CremeTestCase):
                                           'description':  product.description,
                                           'unit_price':   unit_price,
                                           'unit':         "anything",
-                                          'sub_category': '{"category": %s, "subcategory": %s}' % (
-                                                              product.category_id, product.sub_category_id
-                                                            ),
+                                          'sub_category': self._cat_field(product.category,
+                                                                          product.sub_category
+                                                                         ),
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -249,7 +252,7 @@ class ProductsTestCase(CremeTestCase):
         self.assertEqual(name,                product.name)
         self.assertEqual(Decimal(unit_price), product.unit_price)
 
-    def test_product_listview(self):
+    def test_listview(self):
         self.login()
 
         cat     = Category.objects.all()[0]
@@ -269,19 +272,64 @@ class ProductsTestCase(CremeTestCase):
         response = self.client.get('/products/products')
         self.assertEqual(200, response.status_code)
 
-        #try:
-            #products_page = response.context['entities']
-        #except Exception as e:
-            #self.fail(str(e))
         with self.assertNoException():
             products_page = response.context['entities']
 
         self.assertEqual(2, products_page.paginator.count)
         self.assertEqual(set(products), set(products_page.object_list))
 
-    def test_service_createview(self):
+    def test_delete_category01(self):
         self.login()
 
+        cat = Category.objects.create(name='Mecha', description='Mechanical devices')
+        sub_cat = SubCategory.objects.create(name='Eva', description='Fake gods', category=cat)
+
+        response = self.client.post('/creme_config/products/subcategory/delete', data={'id': sub_cat.pk})
+        self.assertEqual(200, response.status_code)
+        self.assertFalse(SubCategory.objects.filter(pk=sub_cat.pk).exists())
+
+    def _build_product_cat_subcat(self):
+        cat = Category.objects.create(name='Mecha', description='Mechanical devices')
+        sub_cat = SubCategory.objects.create(name='Eva', description='Fake gods', category=cat)
+        product = Product.objects.create(user=self.user, name='Eva00', description='A fake god',
+                                         unit_price=Decimal('1.23'), code=42,
+                                         category=cat, sub_category=sub_cat
+                                        )
+
+        return product, cat, sub_cat
+
+    def test_delete_category02(self):
+        self.login()
+
+        product, cat, sub_cat = self._build_product_cat_subcat()
+
+        response = self.client.post('/creme_config/products/subcategory/delete', data={'id': sub_cat.pk})
+        self.assertEqual(404, response.status_code)
+        self.assertTrue(SubCategory.objects.filter(pk=sub_cat.pk).exists())
+
+        product = self.get_object_or_fail(Product, pk=product.pk)
+        self.assertEqual(sub_cat, product.sub_category)
+
+    def test_delete_category03(self):
+        self.login()
+
+        product, cat, sub_cat = self._build_product_cat_subcat()
+
+        response = self.client.post('/creme_config/products/category/delete', data={'id': cat.pk})
+        self.assertEqual(404, response.status_code)
+        self.assertTrue(SubCategory.objects.filter(pk=sub_cat.pk).exists())
+        self.assertTrue(Category.objects.filter(pk=cat.pk).exists())
+
+        product = self.get_object_or_fail(Product, pk=product.pk)
+        self.assertEqual(sub_cat, product.sub_category)
+        self.assertEqual(cat,     product.category)
+
+
+class ServiceTestCase(_ProductsTestCase):
+    def setUp(self):
+        self.login()
+
+    def test_createview(self):
         self.assertEqual(0, Service.objects.count())
 
         url = '/products/service/add'
@@ -301,9 +349,7 @@ class ProductsTestCase(CremeTestCase):
                                           'description':  description,
                                           'unit':         unit,
                                           'unit_price':   unit_price,
-                                          'sub_category': '{"category": %s, "subcategory": %s}' % (
-                                                              cat.id, sub_cat.id
-                                                            ),
+                                          'sub_category': self._cat_field(cat, sub_cat),
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -319,7 +365,7 @@ class ProductsTestCase(CremeTestCase):
         self.assertEqual(unit,                service.unit)
         self.assertEqual(Decimal(unit_price), service.unit_price)
         self.assertEqual(cat,                 service.category)
-        self.assertEqual(sub_cat,            service.sub_category)
+        self.assertEqual(sub_cat,             service.sub_category)
 
         self.assertEqual(200, response.status_code)
         self.assertTrue(response.redirect_chain)
@@ -329,9 +375,7 @@ class ProductsTestCase(CremeTestCase):
         response = self.client.get('/products/service/%s' % service.id)
         self.assertEqual(response.status_code, 200)
 
-    def test_service_editview(self):
-        self.login()
-
+    def test_editview(self):
         name = 'Eva washing'
         cat = Category.objects.all()[0]
         sub_cat = SubCategory.objects.all()[0]
@@ -350,9 +394,9 @@ class ProductsTestCase(CremeTestCase):
                                           'reference':    service.reference,
                                           'description':  service.description,
                                           'unit_price':   unit_price,
-                                          'sub_category': '{"category":%s, "subcategory":%s}' % (
-                                                              service.category_id, service.sub_category_id
-                                                           ),
+                                          'sub_category': self._cat_field(service.category,
+                                                                          service.sub_category
+                                                                         ),
                                           'unit':         service.unit,
                                          }
                                    )
@@ -363,9 +407,7 @@ class ProductsTestCase(CremeTestCase):
         self.assertEqual(name,                service.name)
         self.assertEqual(Decimal(unit_price), service.unit_price)
 
-    def test_service_listview(self):
-        self.login()
-
+    def test_listview(self):
         cat = Category.objects.all()[0]
         sub_cat = SubCategory.objects.all()[0]
 
@@ -383,12 +425,39 @@ class ProductsTestCase(CremeTestCase):
         response = self.client.get('/products/services')
         self.assertEqual(200, response.status_code)
 
-        #try:
-            #services_page = response.context['entities']
-        #except Exception as e:
-            #self.fail(str(e))
         with self.assertNoException():
             services_page = response.context['entities']
 
         self.assertEqual(2, services_page.paginator.count)
         self.assertEqual(set(services), set(services_page.object_list))
+
+    def _build_service_cat_subcat(self):
+        cat = Category.objects.create(name='Mecha', description='Mechanical devices')
+        sub_cat = SubCategory.objects.create(name='Eva', description='Fake gods', category=cat)
+        service = Service.objects.create(user=self.user, name='Eva00', description='description#1',
+                                         unit_price=Decimal('1.23'), reference='42',
+                                         category=cat, sub_category=sub_cat, unit='unit'
+                                        )
+        return service, cat, sub_cat
+
+    def test_delete_category01(self):
+        service, cat, sub_cat = self._build_service_cat_subcat()
+
+        response = self.client.post('/creme_config/products/subcategory/delete', data={'id': sub_cat.pk})
+        self.assertEqual(404, response.status_code)
+        self.assertTrue(SubCategory.objects.filter(pk=sub_cat.pk).exists())
+
+        service = self.get_object_or_fail(Service, pk=service.pk)
+        self.assertEqual(sub_cat, service.sub_category)
+
+    def test_delete_category02(self):
+        service, cat, sub_cat = self._build_service_cat_subcat()
+
+        response = self.client.post('/creme_config/products/category/delete', data={'id': cat.pk})
+        self.assertEqual(404, response.status_code)
+        self.assertTrue(SubCategory.objects.filter(pk=sub_cat.pk).exists())
+        self.assertTrue(Category.objects.filter(pk=cat.pk).exists())
+
+        service = self.get_object_or_fail(Service, pk=service.pk)
+        self.assertEqual(sub_cat, service.sub_category)
+        self.assertEqual(cat,     service.category)

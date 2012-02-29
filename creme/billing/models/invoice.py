@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,18 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import ForeignKey
+from django.db.models import ForeignKey, PROTECT
 from django.utils.translation import ugettext_lazy as _
+
+from persons.workflow import transform_target_into_customer
 
 from base import Base
 from other_models import InvoiceStatus, SettlementTerms
 from product_line import ProductLine
 from service_line import ServiceLine
-from persons.workflow import transform_target_into_customer
 
 
 class Invoice(Base):
-    status       = ForeignKey(InvoiceStatus, verbose_name=_(u'Status of invoice'), blank=False, null=False)
+    status       = ForeignKey(InvoiceStatus, verbose_name=_(u'Status of invoice'), on_delete=PROTECT)
     payment_type = ForeignKey(SettlementTerms, verbose_name=_(u'Settlement terms'), blank=True, null=True)
 
     research_fields = Base.research_fields + ['status__name']
@@ -79,21 +80,6 @@ class Invoice(Base):
 #        total = 0
 #        for line in ServiceLine.objects.filter(document=self):
 #            total += line.get_price_exclusive_of_tax()
-#        return total
-
-# Commented on 24/11/2011 : is_paid information no longer exists in line table, functions are tagged useless and are no longer used
-#    def remaining_payment_for_products(self): #TODO: useless ??
-#        total = 0
-#        for line in ProductLine.objects.filter(document=self):
-#            if not line.is_paid:
-#                total += line.get_price_inclusive_of_tax()
-#        return total
-#
-#    def remaining_payment_for_services(self): #TODO: useless ??
-#        total = 0
-#        for line in ServiceLine.objects.filter(document=self):
-#            if not line.is_paid:
-#                total += line.get_price_inclusive_of_tax()
 #        return total
 
     def build(self, template):

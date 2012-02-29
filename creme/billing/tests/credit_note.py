@@ -12,22 +12,26 @@ try:
     from billing.constants import *
     from billing.tests.base import _BillingTestCase
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('CreditNoteTestCase',)
 
 
 class CreditNoteTestCase(_BillingTestCase, CremeTestCase):
-    def create_credit_note(self, name, source, target, currency=None, discount=Decimal(), user=None):
+    def setUp(self):
+        self.login()
+
+    def create_credit_note(self, name, source, target, currency=None, discount=Decimal(), user=None, status=None):
         user = user or self.user
+        status = status or CreditNoteStatus.objects.all()[0]
         currency = currency or Currency.objects.all()[0]
         response = self.client.post('/billing/credit_note/add', follow=True,
                                     data={'user':            user.pk,
                                           'name':            name,
                                           'issuing_date':    '2010-9-7',
                                           'expiration_date': '2010-10-13',
-                                          'status':          1,
+                                          'status':          status.id,
                                           'currency':        currency.id,
                                           'discount':        discount,
                                           'source':          source.id,
@@ -43,19 +47,17 @@ class CreditNoteTestCase(_BillingTestCase, CremeTestCase):
 
         return credit_note
 
-    def create_credit_note_n_orgas(self, name, user=None):
+    def create_credit_note_n_orgas(self, name, user=None, status=None):
         user = user or self.user
         create = Organisation.objects.create
         source = create(user=user, name='Source Orga')
         target = create(user=user, name='Target Orga')
 
-        credit_note = self.create_credit_note(name, source, target, user=user)
+        credit_note = self.create_credit_note(name, source, target, user=user, status=status)
 
         return credit_note, source, target
 
     def test_createview01(self): # credit note total < billing document total where the credit note is applied
-        self.login()
-
         self.assertEqual(200, self.client.get('/billing/credit_note/add').status_code)
         user = self.user
 
@@ -77,8 +79,6 @@ class CreditNoteTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(expected_total, invoice.total_vat)
 
     def test_createview02(self): # credit note total > document billing total where the credit note is applied
-        self.login()
-
         user = self.user
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
 
@@ -96,5 +96,15 @@ class CreditNoteTestCase(_BillingTestCase, CremeTestCase):
         expected_total = Decimal('0')
         self.assertEqual(expected_total, invoice.total_no_vat)
         self.assertEqual(expected_total, invoice.total_vat)
+
+    def test_delete_status01(self):
+        status = CreditNoteStatus.objects.create(name='OK')
+        self.assertDeleteStatusOK(status, 'credit_note_status')
+
+    def test_delete_status02(self):
+        status = CreditNoteStatus.objects.create(name='OK')
+        credit_note = self.create_credit_note_n_orgas('Credit Note 001', status=status)[0]
+
+        self.assertDeleteStatusKO(status, 'credit_note_status', credit_note)
 
     #TODO: complete (other views)

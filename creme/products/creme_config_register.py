@@ -3,5 +3,6 @@
 from models import Category, SubCategory
 
 
-to_register = ((Category,        'product_category'),
-               (SubCategory,     'product_subcategory'))
+to_register = ((Category,    'category'),
+               (SubCategory, 'subcategory'),
+              )

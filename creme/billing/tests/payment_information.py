@@ -12,7 +12,7 @@ try:
     from billing.constants import *
     from billing.tests.base import _BillingTestCase
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('PaymentInformationTestCase',)

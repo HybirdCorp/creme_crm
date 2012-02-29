@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import ForeignKey
+from django.db.models import ForeignKey, PROTECT
 from django.utils.translation import ugettext_lazy as _
 
 from base import Base
@@ -26,7 +26,7 @@ from other_models import CreditNoteStatus
 
 
 class CreditNote(Base):
-    status = ForeignKey(CreditNoteStatus, verbose_name=_(u"Status of credit note"), blank=False, null=False)
+    status = ForeignKey(CreditNoteStatus, verbose_name=_(u"Status of credit note"), on_delete=PROTECT)
 
     research_fields = Base.research_fields + ['status__name']
     excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr']

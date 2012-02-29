@@ -20,7 +20,8 @@
 
 from logging import error, debug
 
-from django.db.models import CharField, TextField, ForeignKey, PositiveIntegerField, DateField
+from django.db.models import (CharField, TextField, ForeignKey, PositiveIntegerField,
+                              DateField, PROTECT, SET_NULL)
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
@@ -77,12 +78,12 @@ class Opportunity(CremeEntity):
     reference             = CharField(_(u"Reference"), max_length=100, blank=True, null=True)
     estimated_sales       = PositiveIntegerField(_(u'Estimated sales'), blank=True, null=True)
     made_sales            = PositiveIntegerField(_(u'Made sales'), blank=True, null=True)
-    currency              = ForeignKey(Currency, verbose_name=_(u'Currency'), default=DEFAULT_CURRENCY_PK)
-    sales_phase           = ForeignKey(SalesPhase, verbose_name=_(u'Sales phase'))
+    currency              = ForeignKey(Currency, verbose_name=_(u'Currency'), default=DEFAULT_CURRENCY_PK, on_delete=PROTECT)
+    sales_phase           = ForeignKey(SalesPhase, verbose_name=_(u'Sales phase'), on_delete=PROTECT)
     chance_to_win         = PositiveIntegerField(_(ur"% of chance to win"), blank=True, null=True)
     expected_closing_date = DateField(_(u'Expected closing date'), blank=True, null=True)
     closing_date          = DateField(_(u'Actual closing date'), blank=True, null=True)
-    origin                = ForeignKey(Origin, verbose_name=_(u'Origin'), blank=True, null=True)
+    origin                = ForeignKey(Origin, verbose_name=_(u'Origin'), blank=True, null=True, on_delete=SET_NULL)
     description           = TextField(_(u'Description'), blank=True, null=True)
     first_action_date     = DateField(_(u'Date of the first action'), blank=True, null=True)
 
