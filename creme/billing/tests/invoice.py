@@ -18,7 +18,7 @@ try:
     from billing.constants import *
     from billing.tests.base import _BillingTestCase
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('InvoiceTestCase', 'BillingDeleteTestCase')
@@ -31,7 +31,6 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
 
     def test_createview01(self):
         self.login()
-        #self.populate('persons')
 
         self.assertEqual(200, self.client.get('/billing/invoice/add').status_code)
 
@@ -98,11 +97,14 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         role = self.user.role
         create_sc = SetCredentials.objects.create
         create_sc(role=role,
-                  value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
+                  value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | \
+                        SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
                   set_type=SetCredentials.ESET_ALL
                  )
         create_sc(role=role,
-                  value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK | SetCredentials.CRED_UNLINK,
+                  value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | \
+                        SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK | \
+                        SetCredentials.CRED_UNLINK,
                   set_type=SetCredentials.ESET_OWN
                  )
         role.creatable_ctypes = [ContentType.objects.get_for_model(Invoice)]
@@ -114,11 +116,9 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         self.assertFalse(target.can_link(self.user))
 
         response = self.client.get('/billing/invoice/add', follow=True)
-        #try:
+
         with self.assertNoException():
             form = response.context['form']
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertIn('source', form.fields, 'Bad form ?!')
 
@@ -157,11 +157,8 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             form = response.context['form']
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertEqual(source.id, form['source'].field.initial)
         #self.assertEqual(target.id, form['target'].field.initial) #TODO: should work ?
@@ -199,11 +196,8 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         response = self.client.get('/billing/invoices')
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             invoices_page = response.context['entities']
-        #except KeyError as e:
-            #self.fail(str(e))
 
         self.assertEqual(2, invoices_page.paginator.count)
         self.assertEqual(set([invoice1, invoice2]), set(invoices_page.paginator.object_list))
@@ -495,6 +489,68 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(1710, invoice._get_total()) #total_exclusive_of_tax
         self.assertEqual(1710, invoice.total_no_vat)
 
+    def test_delete_status01(self):
+        self.login()
+
+        status = InvoiceStatus.objects.create(name='OK')
+        self.assertDeleteStatusOK(status, 'invoice_status')
+
+    def test_delete_status02(self):
+        self.login()
+
+        status = InvoiceStatus.objects.create(name='OK')
+        invoice = self.create_invoice_n_orgas('Nerv')[0]
+        invoice.status = status
+        invoice.save()
+
+        self.assertDeleteStatusKO(status, 'invoice_status', invoice)
+
+    def test_delete_paymentterms(self):
+        self.login()
+
+        self.assertEqual(200, self.client.get('/creme_config/billing/payment_terms/portal/').status_code)
+
+        pterms = PaymentTerms.objects.create(name='3 months')
+
+        invoice = self.create_invoice_n_orgas('Nerv')[0]
+        invoice.payment_terms = pterms
+        invoice.save()
+
+        response = self.client.post('/creme_config/billing/payment_terms/delete', data={'id': pterms.pk})
+        self.assertEqual(200, response.status_code)
+        self.assertFalse(PaymentTerms.objects.filter(pk=pterms.pk).exists())
+
+        invoice = self.get_object_or_fail(Invoice, pk=invoice.pk)
+        self.assertIsNone(invoice.payment_terms)
+
+    def test_delete_currency(self):
+        self.login()
+
+        currency = Currency.objects.create(name=u'Berry', local_symbol=u'B', international_symbol=u'BRY')
+        invoice = self.create_invoice_n_orgas('Nerv', currency=currency)[0]
+
+        response = self.client.post('/creme_config/creme_core/currency/delete', data={'id': currency.pk})
+        self.assertEqual(404, response.status_code)
+        self.assertTrue(Currency.objects.filter(pk=currency.pk).exists())
+
+        invoice = self.get_object_or_fail(Invoice, pk=invoice.pk)
+        self.assertEqual(currency, invoice.currency)
+
+    def test_delete_additional_info(self):
+        self.login()
+
+        info = AdditionalInformation.objects.create(name='Agreement')
+        invoice = self.create_invoice_n_orgas('Nerv')[0]
+        invoice.additional_info = info
+        invoice.save()
+
+        response = self.client.post('/creme_config/billing/additional_information/delete', data={'id': info.pk})
+        self.assertEqual(200, response.status_code)
+        self.assertFalse(AdditionalInformation.objects.filter(pk=info.pk).exists())
+
+        invoice = self.get_object_or_fail(Invoice, pk=invoice.pk)
+        self.assertIsNone(invoice.additional_info)
+
 
 class BillingDeleteTestCase(_BillingTestCase, CremeTransactionTestCase):
     def setUp(self): #setUpClass does not work here
@@ -510,12 +566,9 @@ class BillingDeleteTestCase(_BillingTestCase, CremeTransactionTestCase):
         self.assertFalse(Invoice.objects.filter(pk=invoice.pk).exists())
         self.assertFalse(ServiceLine.objects.filter(pk=service_line.pk).exists())
 
-        #try:
         with self.assertNoException():
             Organisation.objects.get(pk=source.pk)
             Organisation.objects.get(pk=target.pk)
-        #except Organisation.DoesNotExist as e:
-            #self.fail(e)
 
     def test_delete02(self):#Can't be deleted
         invoice, source, target = self.create_invoice_n_orgas('Invoice001')

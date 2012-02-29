@@ -13,15 +13,13 @@ try:
     from projects.models import *
     from projects.constants import *
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class ProjectsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'activities', 'projects')
-    #def setUp(self):
-        #self.populate('creme_core', 'creme_config', 'activities', 'projects')
 
     def login(self, is_superuser=True, *args, **kwargs):
         super(ProjectsTestCase, self).login(is_superuser, allowed_apps=['projects'], *args, **kwargs)
@@ -74,11 +72,14 @@ class ProjectsTestCase(CremeTestCase):
 
         create_sc = SetCredentials.objects.create
         create_sc(role=self.role,
-                  value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
+                  value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | \
+                        SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
                   set_type=SetCredentials.ESET_ALL
                  )
         create_sc(role=self.role,
-                  value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK | SetCredentials.CRED_UNLINK,
+                  value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | \
+                        SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK | \
+                        SetCredentials.CRED_UNLINK,
                   set_type=SetCredentials.ESET_OWN
                  )
 
@@ -103,7 +104,6 @@ class ProjectsTestCase(CremeTestCase):
         self.login()
 
         manager = Contact.objects.create(user=self.user, first_name='Gendo', last_name='Ikari')
-
         response = self.client.post('/projects/project/add', follow=True,
                                     data={'user':         self.user.pk,
                                           'name':         'Eva00',
@@ -337,14 +337,15 @@ class ProjectsTestCase(CremeTestCase):
                              [_(u'Select a valid choice. %(value)s is not an available choice.') % {'value': task03.id}]
                             )
 
-    def create_task(self, project, title):
+    def create_task(self, project, title, status=None):
+        status = status or TaskStatus.objects.all()[0]
         response = self.client.post('/projects/project/%s/task/add' % project.id, follow=True,
                                     data={'user':     self.user.id,
                                           'title':    title,
                                           'start':    '2010-10-11',
                                           'end':      '2010-10-30',
                                           'duration': 50,
-                                          'tstatus':  TaskStatus.objects.all()[0].id,
+                                          'tstatus':  status.id,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -486,57 +487,49 @@ class ProjectsTestCase(CremeTestCase):
 
     def test_project_clone01(self):
         self.login()
-        #self.populate('creme_core', 'activities')
+
         user = self.user
+        project = self.create_project('Project')[0]
 
-        project, manager = self.create_project('Project')
-
-        task1 = self._create_task('1', project)
-        task11 = self._create_task('1.1', project, [task1])
-        task111 = self._create_task('1.1.1', project, [task11])
+        task1    = self._create_task('1', project)
+        task11   = self._create_task('1.1', project, [task1])
+        task111  = self._create_task('1.1.1', project, [task11])
         task1111 = self._create_task('1.1.1.1', project, [task111])
-
-        task_all_1 = self._create_task('all 1', project, [task1, task11, task111, task1111])
+        self._create_task('all 1', project, [task1, task11, task111, task1111])
 
         task2 = self._create_task('2', project)
-
-        task_all = self._create_task('all 2', project, [task1, task11, task111, task1111, task2])
+        self._create_task('all 2', project, [task1, task11, task111, task1111, task2])
 
         cloned_project = project.clone()
 
-        self.assertEqual(set(['1', '1.1', '1.1.1', '1.1.1.1', 'all 1', '2', 'all 2']), set(cloned_project.get_tasks().values_list('title', flat=True)))
-        self.assertNotEqual(set(project.get_tasks().values_list('pk', flat=True)), set(cloned_project.get_tasks().values_list('pk', flat=True)))
+        self.assertEqual(set(['1', '1.1', '1.1.1', '1.1.1.1', 'all 1', '2', 'all 2']),
+                         set(cloned_project.get_tasks().values_list('title', flat=True))
+                        )
 
-        self.assertFalse(set(project.get_tasks().values_list('pk', flat=True)) & set(cloned_project.get_tasks().values_list('pk', flat=True)))
+        tasks_pks        = set(project.get_tasks().values_list('pk', flat=True))
+        cloned_tasks_pks = set(cloned_project.get_tasks().values_list('pk', flat=True))
+        self.assertNotEqual(tasks_pks, cloned_tasks_pks)
+        self.assertFalse(tasks_pks & cloned_tasks_pks)
 
-        c_task1 = cloned_project.get_tasks().get(title='1')
-        c_task11 = cloned_project.get_tasks().get(title='1.1')
-        c_task111 = cloned_project.get_tasks().get(title='1.1.1')
-        c_task1111 = cloned_project.get_tasks().get(title='1.1.1.1')
-
-        c_task_all_1 = cloned_project.get_tasks().get(title='all 1')
-
-        c_task2 = cloned_project.get_tasks().get(title='2')
-
-        c_task_all = cloned_project.get_tasks().get(title='all 2')
-
-        self.assertEqual(set(), set(c_task1.get_parents().values_list('title', flat=True)))
-        self.assertEqual(set(['1']), set(c_task11.get_parents().values_list('title', flat=True)))
-        self.assertEqual(set(['1.1']), set(c_task111.get_parents().values_list('title', flat=True)))
-        self.assertEqual(set(['1.1.1']), set(c_task1111.get_parents().values_list('title', flat=True)))
-
-        self.assertEqual(set(['1', '1.1', '1.1.1', '1.1.1.1']), set(c_task_all_1.get_parents().values_list('title', flat=True)))
-
-        self.assertEqual(set(), set(c_task2.get_parents().values_list('title', flat=True)))
-
-        self.assertEqual(set(['1', '1.1', '1.1.1', '1.1.1.1', '2']), set(c_task_all.get_parents().values_list('title', flat=True)))
+        get_task = cloned_project.get_tasks().get
+        self.assertFalse(get_task(title='1').get_parents())
+        self.assertEqual(['1'],     list(get_task(title='1.1').get_parents().values_list('title', flat=True)))
+        self.assertEqual(['1.1'],   list(get_task(title='1.1.1').get_parents().values_list('title', flat=True)))
+        self.assertEqual(['1.1.1'], list(get_task(title='1.1.1.1').get_parents().values_list('title', flat=True)))
+        self.assertEqual(set(['1', '1.1', '1.1.1', '1.1.1.1']),
+                         set(get_task(title='all 1').get_parents().values_list('title', flat=True))
+                        )
+        self.assertFalse(get_task(title='2').get_parents())
+        self.assertEqual(set(['1', '1.1', '1.1.1', '1.1.1.1', '2']),
+                         set(get_task(title='all 2').get_parents().values_list('title', flat=True))
+                        )
 
     def test_project_clone02(self):
         self.login()
-        #self.populate('creme_core', 'activities')
+
         user = self.user
 
-        project, manager = self.create_project('Project')
+        project = self.create_project('Project')[0]
         contact1 = Contact.objects.create(user=self.user)
         contact2 = Contact.objects.create(user=self.user)
 
@@ -560,21 +553,79 @@ class ProjectsTestCase(CremeTestCase):
         for attr in ['name', 'description', 'status', 'start_date', 'end_date', 'effective_end_date']:
             self.assertEqual(getattr(project, attr), getattr(cloned_project, attr))
 
-        c_tasks1 = cloned_project.get_tasks().get(title='1')
-        c_tasks2 = cloned_project.get_tasks().get(title='2')
-        c_tasks3 = cloned_project.get_tasks().get(title='3')
-        c_tasks4 = cloned_project.get_tasks().get(title='4')
+        get_task = cloned_project.get_tasks().get
+        c_tasks1 = get_task(title='1')
+        c_tasks2 = get_task(title='2')
+        c_tasks3 = get_task(title='3')
+        c_tasks4 = get_task(title='4')
 
-        self.assertEqual(set(['1', '2', '3', '4']), set(cloned_project.get_tasks().values_list('title', flat=True)))
-        self.assertNotEqual(set(project.get_tasks().values_list('pk', flat=True)), set(cloned_project.get_tasks().values_list('pk', flat=True)))
+        self.assertEqual(set(['1', '2', '3', '4']),
+                         set(cloned_project.get_tasks().values_list('title', flat=True))
+                        )
+        self.assertNotEqual(set(project.get_tasks().values_list('pk', flat=True)),
+                            set(cloned_project.get_tasks().values_list('pk', flat=True))
+                           )
 
         self.assertEqual(set(['1', '2']), set(c_tasks3.get_parents().values_list('title', flat=True)))
-        self.assertEqual(set(['3']), set(c_tasks4.get_parents().values_list('title', flat=True)))
+        self.assertEqual(['3'],           list(c_tasks4.get_parents().values_list('title', flat=True)))
 
-        self.assertEqual(set([contact1.pk, contact2.pk]), set(c_tasks1.get_resources().values_list('linked_contact', flat=True)))
-        self.assertEqual(set([contact1.pk, contact2.pk]), set(c_tasks2.get_resources().values_list('linked_contact', flat=True)))
+        self.assertEqual(set([contact1.pk, contact2.pk]),
+                         set(c_tasks1.get_resources().values_list('linked_contact', flat=True))
+                        )
+        self.assertEqual(set([contact1.pk, contact2.pk]),
+                         set(c_tasks2.get_resources().values_list('linked_contact', flat=True))
+                        )
 
-        self.assertEqual(set([resource1.pk, resource2.pk]), set(c_tasks1.get_working_periods().values_list('resource', flat=True)))
-        self.assertEqual(set([resource3.pk, resource4.pk]), set(c_tasks2.get_working_periods().values_list('resource', flat=True)))
+        self.assertEqual(set([resource1.pk, resource2.pk]),
+                         set(c_tasks1.get_working_periods().values_list('resource', flat=True))
+                        )
+        self.assertEqual(set([resource3.pk, resource4.pk]),
+                         set(c_tasks2.get_working_periods().values_list('resource', flat=True))
+                        )
+
+    def test_delete_project_status01(self):
+        self.login()
+
+        status = ProjectStatus.objects.create(name='Sinking')
+
+        response = self.client.post('/creme_config/projects/projectstatus/delete', data={'id': status.pk})
+        self.assertEqual(200, response.status_code)
+        self.assertFalse(ProjectStatus.objects.filter(pk=status.pk).exists())
+
+    def test_delete_project_status02(self):
+        self.login()
+
+        status = ProjectStatus.objects.create(name='Sinking')
+        project = self.create_project('Project', status=status)[0]
+
+        response = self.client.post('/creme_config/projects/projectstatus/delete', data={'id': status.pk})
+        self.assertEqual(404, response.status_code)
+        self.assertTrue(ProjectStatus.objects.filter(pk=status.pk).exists())
+
+        project = self.get_object_or_fail(Project, pk=project.pk)
+        self.assertEqual(status, project.status)
+
+    def test_delete_task_status01(self):
+        self.login()
+
+        status = TaskStatus.objects.create(name='Coming soon')
+        response = self.client.post('/creme_config/projects/taskstatus/delete', data={'id': status.pk})
+        self.assertEqual(200, response.status_code)
+        self.assertFalse(TaskStatus.objects.filter(pk=status.pk).exists())
+
+    def test_delete_task_status02(self):
+        self.login()
+
+        project = self.create_project('Eva01')[0]
+        status  = TaskStatus.objects.create(name='Coming soon')
+        task    = self.create_task(project, 'Building head', status=status)
+
+        response = self.client.post('/creme_config/projects/taskstatus/delete', data={'id': status.pk})
+        self.assertEqual(404, response.status_code)
+        self.assertTrue(TaskStatus.objects.filter(pk=status.pk).exists())
+
+        self.get_object_or_fail(Project, pk=project.pk)
+        task = self.get_object_or_fail(ProjectTask, pk=task.pk)
+        self.assertEqual(status, task.tstatus)
 
     #TODO: test better get_project_cost(), get_effective_duration(), get_delay()

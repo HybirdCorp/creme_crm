@@ -23,7 +23,8 @@ from decimal import Decimal
 from logging import debug, warn
 from django.core.exceptions import ValidationError
 
-from django.db.models import CharField, IntegerField, DecimalField, BooleanField, TextField, PositiveIntegerField, ForeignKey
+from django.db.models import (CharField, IntegerField, DecimalField, BooleanField,
+                              TextField, PositiveIntegerField, ForeignKey, PROTECT)
 from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _, ugettext
 
@@ -69,7 +70,7 @@ class Line(CremeEntity):
     discount        = DecimalField(_(u'Discount'), max_digits=10, decimal_places=2, default=default_decimal)
     discount_unit   = PositiveIntegerField(_(u'Discount Unit'), blank=True, null=True, choices=DISCOUNT_UNIT.items(), default=PERCENT_PK)
     total_discount  = BooleanField(_('Total discount ?'))
-    vat_value       = ForeignKey(Vat, verbose_name=_(u'VAT'), blank=True, null=True)
+    vat_value       = ForeignKey(Vat, verbose_name=_(u'VAT'), blank=True, null=True, on_delete=PROTECT) #TODO null=False
     type            = IntegerField(_(u'Type'), blank=False, null=False, choices=LINE_TYPES.items(), editable=False)
 
     excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['type']

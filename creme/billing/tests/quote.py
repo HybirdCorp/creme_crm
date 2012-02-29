@@ -12,7 +12,7 @@ try:
     from billing.constants import *
     from billing.tests.base import _BillingTestCase
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('QuoteTestCase',)
@@ -24,8 +24,6 @@ class QuoteTestCase(_BillingTestCase, CremeTestCase):
         self.login()
 
     def test_createview01(self):
-        #self.populate('persons')
-
         self.assertEqual(200, self.client.get('/billing/quote/add').status_code)
 
         quote, source, target = self.create_quote_n_orgas('My Quote')
@@ -39,8 +37,6 @@ class QuoteTestCase(_BillingTestCase, CremeTestCase):
         self.assertRelationCount(1, target, REL_SUB_PROSPECT, source)
 
     def test_editview(self):
-        #self.populate('persons')
-
         name = 'my quote'
         quote, source, target = self.create_quote_n_orgas(name)
 
@@ -79,11 +75,18 @@ class QuoteTestCase(_BillingTestCase, CremeTestCase):
         response = self.client.get('/billing/quotes')
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             quotes_page = response.context['entities']
-        #except KeyError as e:
-            #self.fail(str(e))
 
         self.assertEqual(2, quotes_page.paginator.count)
         self.assertEqual(set([quote1, quote2]), set(quotes_page.paginator.object_list))
+
+    def test_delete_status01(self):
+        status = QuoteStatus.objects.create(name='OK')
+        self.assertDeleteStatusOK(status, 'quote_status')
+
+    def test_delete_status02(self):
+        status = QuoteStatus.objects.create(name='OK')
+        quote = self.create_quote_n_orgas('Nerv', status=status)[0]
+
+        self.assertDeleteStatusKO(status, 'quote_status', quote)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, IntegerField, DecimalField, ForeignKey, ManyToManyField
+from django.db.models import CharField, IntegerField, DecimalField, ForeignKey, ManyToManyField, PROTECT
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
@@ -42,7 +42,7 @@ class Product(CremeEntity):
     stock             = IntegerField(_(u'Quantity/Stock'), blank=True, null=True)
     web_site          = CharField(_(u'Web Site'), max_length=100, blank=True, null=True)
     category          = ForeignKey(Category, verbose_name=_(u'Category'))
-    sub_category      = ForeignKey(SubCategory, verbose_name=_(u'Sub-category'))
+    sub_category      = ForeignKey(SubCategory, verbose_name=_(u'Sub-category'), on_delete=PROTECT)
     images            = ManyToManyField(Image, blank=True, null=True, verbose_name=_(u'Images'), related_name='ProductImages_set')
 
     research_fields = CremeEntity.research_fields + ['name', 'code', 'description', 'sub_category__name', 'category__name', 'images']

@@ -6,7 +6,6 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    #from creme_core import autodiscover
     from creme_core.models import Relation, SetCredentials
     from creme_core.tests.base import CremeTestCase
 
@@ -18,17 +17,19 @@ try:
     from billing.constants import *
     from billing.tests.base import _BillingTestCase
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('LineTestCase',)
 
 
 class LineTestCase(_BillingTestCase, CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'products', 'billing')
 
     def test_add_product_lines01(self): #multiple
         self.login()
-        self.populate('products')
 
         invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
         url = '/billing/%s/product_line/add_multiple' % invoice.id
@@ -141,7 +142,8 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
 
         SetCredentials.objects.create(role=self.role,
                                       value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
-                                            SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK | SetCredentials.CRED_UNLINK,
+                                            SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK   | \
+                                            SetCredentials.CRED_UNLINK,
                                       set_type=SetCredentials.ESET_OWN
                                      )
 
@@ -178,7 +180,6 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
 
     def test_add_service_lines01(self): #multiple
         self.login()
-        self.populate('products')
 
         invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
         url = '/billing/%s/service_line/add_multiple' % invoice.id
@@ -345,7 +346,6 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
 
         product = self.create_product()
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
-
         invoice2 = self.create_invoice_n_orgas('Invoice002')[0]
 
         product_line = ProductLine.objects.create(user=self.user, related_document=invoice, related_item=product)
@@ -551,3 +551,26 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
         expected_total = Decimal('1060')
         self.assertEqual(expected_total, invoice.total_no_vat)
         self.assertEqual(expected_total, invoice.total_vat)
+
+    def test_delete_vat01(self):
+        self.login()
+
+        vat = Vat.objects.create(value=Decimal('5.0'), is_default=True, is_custom=True)
+        response = self.client.post('/creme_config/billing/vat_value/delete', data={'id': vat.pk})
+        self.assertEqual(200, response.status_code)
+        self.assertFalse(Vat.objects.filter(pk=vat.pk).exists())
+
+    def test_delete_vat02(self):
+        self.login()
+
+        vat = Vat.objects.create(value=Decimal('5.0'), is_default=True, is_custom=True)
+        invoice = self.create_invoice_n_orgas('Nerv')[0]
+        line = ProductLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyyyy', vat_value=vat)
+
+        response = self.client.post('/creme_config/billing/vat_value/delete', data={'id': vat.pk})
+        self.assertEqual(404, response.status_code)
+        self.assertTrue(Vat.objects.filter(pk=vat.pk).exists())
+
+        invoice = self.get_object_or_fail(Invoice, pk=invoice.pk)
+        line    = self.get_object_or_fail(ProductLine, pk=line.pk)
+        self.assertEqual(vat, line.vat_value)

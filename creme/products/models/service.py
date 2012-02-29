@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, ForeignKey, BooleanField, IntegerField, DecimalField, ManyToManyField
+from django.db.models import (CharField, ForeignKey, BooleanField, IntegerField,
+                              DecimalField, ManyToManyField, PROTECT)
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeEntity
@@ -35,7 +36,7 @@ class Service(CremeEntity):
     description       = CharField(_(u'Description'), max_length=200)
     reference         = CharField(_(u'Reference'), max_length=100)
     category          = ForeignKey(Category, verbose_name=_(u'Category'))
-    sub_category      = ForeignKey(SubCategory, verbose_name=_(u'Sub-category'))
+    sub_category      = ForeignKey(SubCategory, verbose_name=_(u'Sub-category'), on_delete=PROTECT)
     countable         = BooleanField(_(u'Countable'))
     unit              = CharField(_(u'Unit'), max_length=100)
     quantity_per_unit = IntegerField(_(u'Quantity/Unit'), blank=True, null=True)

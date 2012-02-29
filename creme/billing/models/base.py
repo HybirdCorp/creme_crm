@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from decimal import Decimal
 from itertools import chain
 from logging import debug
 
-from django.db.models import CharField, TextField, ForeignKey, DateField, DecimalField
+from django.db.models import CharField, TextField, ForeignKey, DateField, DecimalField, SET_NULL, PROTECT
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeEntity, Relation, Currency
@@ -50,12 +50,12 @@ class Base(CremeEntity):
     discount         = DecimalField(_(u'Overall discount'), max_digits=10, decimal_places=2, default=default_decimal)
     billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'), related_name='BillingAddress_set', blank=True, null=True)
     shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'), related_name='ShippingAddress_set', blank=True, null=True)
-    currency         = ForeignKey(Currency, verbose_name=_(u'Currency'), related_name='Currency_set', default=DEFAULT_CURRENCY_PK)
+    currency         = ForeignKey(Currency, verbose_name=_(u'Currency'), related_name='Currency_set', default=DEFAULT_CURRENCY_PK, on_delete=PROTECT)
     comment          = TextField(_(u'Comment'), blank=True, null=True)
     total_vat        = DecimalField(_(u'Total with VAT'),    max_digits=14, decimal_places=2, blank=True, null=True, editable=False, default=0)
     total_no_vat     = DecimalField(_(u'Total without VAT'), max_digits=14, decimal_places=2, blank=True, null=True, editable=False, default=0)
-    additional_info  = ForeignKey(AdditionalInformation, verbose_name=_(u'Additional Information'), related_name='AdditionalInformation_set', blank=True, null=True)
-    payment_terms    = ForeignKey(PaymentTerms,          verbose_name=_(u'Payment Terms'),          related_name='PaymentTerms_set',          blank=True, null=True)
+    additional_info  = ForeignKey(AdditionalInformation, verbose_name=_(u'Additional Information'), related_name='AdditionalInformation_set', blank=True, null=True, on_delete=SET_NULL)
+    payment_terms    = ForeignKey(PaymentTerms,          verbose_name=_(u'Payment Terms'),          related_name='PaymentTerms_set',          blank=True, null=True, on_delete=SET_NULL)
     payment_info     = ForeignKey(PaymentInformation, verbose_name=_(u'Payment information'), blank=True, null=True, editable=False)
 
     research_fields = CremeEntity.research_fields + ['name']

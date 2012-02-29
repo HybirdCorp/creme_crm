@@ -14,7 +14,7 @@ try:
     from billing.constants import *
     from billing.tests.base import _BillingTestCase
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('SalesOrderTestCase',)
@@ -25,7 +25,7 @@ class SalesOrderTestCase(_BillingTestCase, CremeTestCase):
         #_BillingTestCase.setUp(self)
         self.login()
 
-    def create_salesorder(self, name, source, target, currency=None, status=None): #TODO useful ??
+    def create_salesorder(self, name, source, target, currency=None, status=None): #TODO inline (used once)
         currency = currency or Currency.objects.all()[0]
         response = self.client.post('/billing/sales_order/add', follow=True,
                                     data={'user':            self.user.pk,
@@ -106,11 +106,18 @@ class SalesOrderTestCase(_BillingTestCase, CremeTestCase):
         response = self.client.get('/billing/sales_orders')
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             orders_page = response.context['entities']
-        #except KeyError as e:
-            #self.fail(str(e))
 
         self.assertEqual(2, orders_page.paginator.count)
         self.assertEqual(set([order1, order2]), set(orders_page.paginator.object_list))
+
+    def test_delete_status01(self):
+        status = SalesOrderStatus.objects.create(name='OK')
+        self.assertDeleteStatusOK(status, 'sales_order_status')
+
+    def test_delete_status02(self):
+        status = SalesOrderStatus.objects.create(name='OK')
+        order = self.create_salesorder_n_orgas('Order', status=status)[0]
+
+        self.assertDeleteStatusKO(status, 'sales_order_status', order)

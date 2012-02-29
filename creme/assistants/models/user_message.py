@@ -20,7 +20,8 @@
 
 from datetime import datetime
 
-from django.db.models import CharField, BooleanField, TextField, DateTimeField, BooleanField, ForeignKey, PositiveIntegerField
+from django.db.models import (CharField, BooleanField, TextField, DateTimeField,
+                              BooleanField, ForeignKey, PositiveIntegerField, PROTECT)
 from django.db.models.signals import pre_delete
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
@@ -49,7 +50,7 @@ class UserMessage(CremeModel):
     title         = CharField(_(u'Title'), max_length=200)
     body          = TextField(_(u'Message body'))
     creation_date = DateTimeField(_(u"Creation date"))
-    priority      = ForeignKey(UserMessagePriority, verbose_name=_(u'Priority'))
+    priority      = ForeignKey(UserMessagePriority, verbose_name=_(u'Priority'), on_delete=PROTECT)
     sender        = CremeUserForeignKey(verbose_name=_(u'Sender'), related_name='sent_assistants_messages_set')
     recipient     = CremeUserForeignKey(verbose_name=_(u'Recipient'), related_name='received_assistants_messages_set') #, null=True
 

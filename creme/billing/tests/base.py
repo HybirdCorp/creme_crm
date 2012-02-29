@@ -13,15 +13,13 @@ try:
     from billing.models import *
     from billing.constants import *
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class _BillingTestCase(object):
     def login(self, is_superuser=True, allowed_apps=None, *args, **kwargs):
         super(_BillingTestCase, self).login(is_superuser, allowed_apps=allowed_apps or ['billing'], *args, **kwargs)
 
-    #def setUp(self):
-        #self.populate('creme_core', 'creme_config', 'billing')
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'billing')
@@ -53,24 +51,25 @@ class _BillingTestCase(object):
 
         return invoice
 
-    def create_invoice_n_orgas(self, name, user=None, discount=Decimal()):
+    def create_invoice_n_orgas(self, name, user=None, discount=Decimal(), currency=None):
         user = user or self.user
         create = Organisation.objects.create
         source = create(user=user, name='Source Orga')
         target = create(user=user, name='Target Orga')
 
-        invoice = self.create_invoice(name, source, target, user=user, discount=discount)
+        invoice = self.create_invoice(name, source, target, user=user, discount=discount, currency=currency)
 
         return invoice, source, target
 
-    def create_quote(self, name, source, target, currency=None):
+    def create_quote(self, name, source, target, currency=None, status=None):
+        status = status or QuoteStatus.objects.all()[0]
         currency = currency or Currency.objects.all()[0]
         response = self.client.post('/billing/quote/add', follow=True,
                                     data={'user':            self.user.pk,
                                           'name':            name,
                                           'issuing_date':    '2011-3-15',
                                           'expiration_date': '2012-4-22',
-                                          'status':          1,
+                                          'status':          status.id,
                                           'currency':        currency.id,
                                           'discount':        Decimal(),
                                           'source':          source.id,
@@ -86,12 +85,12 @@ class _BillingTestCase(object):
 
         return quote
 
-    def create_quote_n_orgas(self, name):
+    def create_quote_n_orgas(self, name, currency=None, status=None):
         create = Organisation.objects.create
         source = create(user=self.user, name='Source Orga')
         target = create(user=self.user, name='Target Orga')
 
-        quote = self.create_quote(name, source, target)
+        quote = self.create_quote(name, source, target, currency, status)
 
         return quote, source, target
 
@@ -115,6 +114,19 @@ class _BillingTestCase(object):
                                       unit_price=Decimal("6"),
                                       category=cat, sub_category=subcat
                                      )
+
+    def assertDeleteStatusOK(self, status, short_name):
+        response = self.client.post('/creme_config/billing/%s/delete' % short_name, data={'id': status.pk})
+        self.assertEqual(200, response.status_code)
+        self.assertFalse(status.__class__.objects.filter(pk=status.pk).exists())
+
+    def assertDeleteStatusKO(self, status, short_name, doc):
+        response = self.client.post('/creme_config/billing/%s/delete' % short_name, data={'id': status.pk})
+        self.assertEqual(404, response.status_code)
+        self.assertTrue(status.__class__.objects.filter(pk=status.pk).exists())
+
+        doc = self.get_object_or_fail(doc.__class__, pk=doc.pk)
+        self.assertEqual(status, doc.status)
 
 
 class AppTestCase(_BillingTestCase, CremeTestCase):

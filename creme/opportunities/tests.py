@@ -8,7 +8,7 @@ try:
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import RelationType, Relation, CremeProperty, SetCredentials
+    from creme_core.models import RelationType, Relation, CremeProperty, SetCredentials, Currency
     from creme_core.constants import PROP_IS_MANAGED_BY_CREME, DEFAULT_CURRENCY_PK
     from creme_core.models.entity import CremeEntity
     from creme_core.tests.base import CremeTestCase
@@ -32,7 +32,7 @@ except Exception as e:
 class OpportunitiesTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'documents', 'persons', 
+        cls.populate('creme_core', 'creme_config', 'documents', 'persons',
                      'commercial', 'billing', 'activities', 'opportunities'
                     )
 
@@ -151,7 +151,7 @@ class OpportunitiesTestCase(CremeTestCase):
         self.assertRelationCount(1, target,  REL_OBJ_TARGETS,   opportunity)
         self.assertRelationCount(1, emitter, REL_SUB_EMIT_ORGA, opportunity)
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
-    
+
     def test_opportunity_createview02(self):
         self.login()
 
@@ -176,7 +176,6 @@ class OpportunitiesTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
-
 
         opportunity =  self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(phase,              opportunity.sales_phase)
@@ -637,6 +636,7 @@ class OpportunitiesTestCase(CremeTestCase):
 
     def test_get_weighted_sales(self):
         self.login()
+
         opportunity, target, emitter = self.create_opportunity('Opportunity01')
         funf = opportunity.function_fields.get('get_weighted_sales')
         self.assertIsNotNone(funf)
@@ -650,6 +650,21 @@ class OpportunitiesTestCase(CremeTestCase):
         opportunity.chance_to_win   =  10
         self.assertEqual(100, opportunity.get_weighted_sales())
         self.assertEqual(100, funf(opportunity).for_html())
+
+    def test_delete_currency(self):
+        self.login()
+
+        currency = Currency.objects.create(name=u'Berry', local_symbol=u'B', international_symbol=u'BRY')
+        opp = Opportunity.objects.create(user=self.user, name='Opp', currency=currency,
+                                         sales_phase=SalesPhase.objects.all()[0],
+                                        )
+
+        response = self.client.post('/creme_config/creme_core/currency/delete', data={'id': currency.pk})
+        self.assertEqual(404, response.status_code)
+        self.assertTrue(Currency.objects.filter(pk=currency.pk).exists())
+
+        opp = self.get_object_or_fail(Opportunity, pk=opp.pk)
+        self.assertEqual(currency, opp.currency)
 
 
 class SalesPhaseTestCase(CremeTestCase):
@@ -738,12 +753,37 @@ class SalesPhaseTestCase(CremeTestCase):
 
         self.assertPOST404('/creme_config/opportunities/sales_phase/up/%s' % sp1.id)
 
+    def test_delete01(self):
+        self.login()
+
+        sp = SalesPhase.objects.create(name='Forthcoming', description='...', order=1)
+        response = self.client.post('/creme_config/opportunities/sales_phase/delete', data={'id': sp.pk})
+        self.assertEqual(200, response.status_code)
+        self.assertFalse(SalesPhase.objects.filter(pk=sp.pk).exists())
+
+    def test_delete02(self):
+        self.login()
+
+        sp = SalesPhase.objects.create(name='Forthcoming', description='...', order=1)
+        opp = Opportunity.objects.create(user=self.user, name='Opp', sales_phase=sp)
+
+        response = self.client.post('/creme_config/opportunities/sales_phase/delete', data={'id': sp.pk})
+        self.assertEqual(404, response.status_code)
+        self.assertTrue(SalesPhase.objects.filter(pk=sp.pk).exists())
+
+        opp = self.get_object_or_fail(Opportunity, pk=opp.pk)
+        self.assertEqual(sp, opp.sales_phase)
+
 
 class OriginTestCase(CremeTestCase):
-    def test_config(self):
-        self.login()
-        self.populate('creme_core', 'creme_config')
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config')
 
+    def setUp(self):
+        self.login()
+
+    def test_config(self):
         create_origin = Origin.objects.create
         origin1 = create_origin(name='Web site', description='...')
         origin2 = create_origin(name='Mouth',    description='...')
@@ -754,3 +794,19 @@ class OriginTestCase(CremeTestCase):
         self.assertContains(response, origin2.name)
 
         self.assertPOST404('/creme_config/opportunities/origin/down/%s' % origin1.id)
+
+    def test_delete(self): #set to null
+        origin = Origin.objects.create(name='Web site', description='...')
+        opp = Opportunity.objects.create(user=self.user, name='Opp', origin=origin,
+                                         sales_phase=SalesPhase.objects.create(name='Forthcoming',
+                                                                               description='...',
+                                                                               order=1
+                                                                              ),
+                                        )
+
+        response = self.client.post('/creme_config/opportunities/origin/delete', data={'id': origin.pk})
+        self.assertEqual(200, response.status_code)
+        self.assertFalse(Origin.objects.filter(pk=origin.pk).exists())
+
+        opp = self.get_object_or_fail(Opportunity, pk=opp.pk)
+        self.assertIsNone(opp.origin)

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, TextField, ForeignKey, DateTimeField, BooleanField
+from django.db.models import CharField, TextField, ForeignKey, DateTimeField, BooleanField, PROTECT
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
@@ -32,7 +32,7 @@ class RecurrentGenerator(CremeEntity):
     description      = TextField(_(u'Description'), blank=True, null=True)
     first_generation = DateTimeField(_(u'Date of the first recurrent generation'), blank=True, null=True)
     last_generation  = DateTimeField(_(u'Date of the last recurrent generation'), blank=True, null=True, editable=False)
-    periodicity      = ForeignKey(Periodicity, verbose_name=_(u'Periodicity of the generation'))
+    periodicity      = ForeignKey(Periodicity, verbose_name=_(u'Periodicity of the generation'), on_delete=PROTECT)
     ct               = ForeignKey(ContentType, verbose_name=_(u'Type of the recurrent resource'))
     template         = ForeignKey(CremeEntity, verbose_name=_(u'Related model'), related_name='template_set')
     is_working       = BooleanField(_(u'Active ?'), editable=False, default=True)
