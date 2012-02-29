@@ -434,21 +434,25 @@ class UserTestCase(CremeTestCase):
         self.assertGETRedirectsToLogin(url)
         self.assertPOSTRedirectsToLogin(url, data={'to_user': user.id})
 
-    def test_user_delete01(self): #Delete is not permitted when there is only one user
+    def test_user_delete01(self): #Delete can not delete the last super user
         self.login()
 
-        CremeEntity.objects.all().delete()#In creme_core populate some entities are created, so we avoid an IntegrityError
-        HistoryLine.objects.all().delete()
-        User.objects.exclude(pk=self.user.pk).delete()#Ensure there is only one user
+        user = self.user
 
-        self.assertEqual(1, User.objects.count())
+        #CremeEntity.objects.all().delete()#In creme_core populate some entities are created, so we avoid an IntegrityError
+        #HistoryLine.objects.all().delete()
+        self.assertTrue(user.is_superuser)
+        User.objects.exclude(pk=user.pk).update(is_superuser=False)
 
-        url = '/creme_config/user/delete/%s' % self.user.id
+        count = User.objects.count()
+        self.assertGreater(count, 1)
+
+        url = '/creme_config/user/delete/%s' % user.id
         self.assertEqual(400, self.client.get(url).status_code)
 
         response = self.client.post(url, {'to_user': self.user.id})
         self.assertEqual(400, response.status_code)
-        self.assertEqual(1, User.objects.count())
+        self.assertEqual(count, User.objects.count())
 
     def test_user_delete02(self): #Validation error
         self.login()
