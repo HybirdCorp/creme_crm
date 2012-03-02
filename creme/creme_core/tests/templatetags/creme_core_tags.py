@@ -11,7 +11,7 @@ try:
 
     from persons.models import Organisation
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('CremeCoreTagsTestCase',)
@@ -19,14 +19,15 @@ __all__ = ('CremeCoreTagsTestCase',)
 
 class CremeCoreTagsTestCase(CremeTestCase):
     def test_templatize(self):
-        try:
+        #try:
+        with self.assertNoException():
             template = Template('{% load creme_core_tags %}'
                                 '{% templatize "{{columns|length}}" as colspan %}'
                                 '<h1>{{colspan}}</h1>'
                                )
             render = template.render(Context({'columns': range(3)}))
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual('<h1>3</h1>', render.strip())
 
@@ -34,7 +35,8 @@ class CremeCoreTagsTestCase(CremeTestCase):
         self.login()
         orga = Organisation.objects.create(user=self.user, name='Amestris', url_site='www.amestris.org')
 
-        try:
+        #try:
+        with self.assertNoException():
             template = Template("{% load creme_core_tags %}"
                                 "<ul>"
                                 "<li>{% print_field object=entity field='name' %}</li>"
@@ -42,8 +44,8 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                 "</ul>"
                                )
             render = template.render(Context({'entity': orga, 'user': self.user}))
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual('<ul><li>Amestris</li><li><a href="www.amestris.org" target="_blank">www.amestris.org</a></li></ul>',
                          render.strip()
@@ -53,7 +55,8 @@ class CremeCoreTagsTestCase(CremeTestCase):
         self.login()
         orga = Organisation.objects.create(user=self.user, name='Xing')
 
-        try:
+        #try:
+        with self.assertNoException():
             template = Template("{% load creme_core_tags %}"
                                 "{% has_perm_to view entity as vperm %}{{vperm}}"
                                 "{% has_perm_to change entity as cperm %}{{cperm}}"
@@ -69,8 +72,8 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                               'user':   self.user,
                                               'ct':     ContentType.objects.get_for_model(Organisation),
                                              }))
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual('True' * 9, render.strip())
 
@@ -78,7 +81,8 @@ class CremeCoreTagsTestCase(CremeTestCase):
         self.login(is_superuser=False)
         orga = Organisation.objects.create(user=self.user, name='Xerces')
 
-        try:
+        #try:
+        with self.assertNoException():
             template = Template("{% load creme_core_tags %}"
                                 "{% has_perm_to view entity as vperm %}{{vperm}}"
                                 "{% has_perm_to change entity as cperm %}{{cperm}}"
@@ -94,8 +98,8 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                               'user':   self.user,
                                               'ct':     ContentType.objects.get_for_model(Organisation),
                                              }))
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual('False' * 9, render.strip())
 
@@ -109,7 +113,8 @@ class CremeCoreTagsTestCase(CremeTestCase):
         orga = Organisation.objects.create(user=self.user, name='Amestris')
         self.assertTrue(orga.can_view(self.user))
 
-        try:
+        #try:
+        with self.assertNoException():
             template = Template("{% load creme_core_tags %}"
                                 "{% has_perm_to view entity as vperm %}{{vperm}}"
                                 "{% has_perm_to change entity as cperm %}{{cperm}}"
@@ -125,8 +130,8 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                               'user':   self.user,
                                               'ct':     ContentType.objects.get_for_model(Organisation),
                                              }))
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual('True' + 'False' * 4 + 'True' * 2 + 'False' * 2, render.strip())
 
@@ -141,13 +146,14 @@ class CremeCoreTagsTestCase(CremeTestCase):
         self.login()
         orga = Organisation.objects.create(user=self.user, name='Amestris')
 
-        try:
+        #try:
+        with self.assertNoException():
             template = Template(r"{% load creme_block %}"
                                 r"{% get_field_editor on regular 'name' for object %}"
                                )
             render = template.render(Context({'object': orga, 'user': self.user}))
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertFieldEditorTag(render, orga, 'name')
 
@@ -155,13 +161,14 @@ class CremeCoreTagsTestCase(CremeTestCase):
         self.login()
         orga = Organisation.objects.create(user=self.user, name='Amestris')
 
-        try:
+        #try:
+        with self.assertNoException():
             template = Template(r"{% load creme_block %}"
                                 r'{% get_field_editor on regular "name" for object %}'
                                )
             render = template.render(Context({'object': orga, 'user': self.user}))
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertFieldEditorTag(render, orga, 'name')
 
@@ -170,13 +177,14 @@ class CremeCoreTagsTestCase(CremeTestCase):
         orga = Organisation.objects.create(user=self.user, name='Amestris')
         orga_field_name = orga.entity_type.model_class()._meta.get_field('name')
 
-        try:
+        #try:
+        with self.assertNoException():
             template = Template(r"{% load creme_block %}"
                                 r"{% get_field_editor on regular field for object %}"
                                )
             render = template.render(Context({'object': orga, 'user': self.user, 'field': orga_field_name}))
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertFieldEditorTag(render, orga, orga_field_name.name)
 
@@ -185,23 +193,25 @@ class CremeCoreTagsTestCase(CremeTestCase):
         orga = Organisation.objects.create(user=self.user, name='Amestris')
         custom_field_orga = CustomField.objects.create(name='custom 1', content_type=orga.entity_type, field_type=CustomField.STR)
 
-        try:
+        #try:
+        with self.assertNoException():
             template = Template("{% load creme_block %}"
                                 "{% get_field_editor on custom custom_field_id for object %}"
             )
             render = template.render(Context({'object': orga, 'user': self.user, 'custom_field_id': custom_field_orga}))
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         #self.assertTrue(render.strip().startswith("""<a onclick="creme.utils.innerPopupNReload('/creme_core/entity/edit/%s/field/%s',""" % (orga.id, custom_field_orga.id)))
         self.assertFieldEditorTag(render, orga, custom_field_orga.id)
 
     def _unauthorized_get_field_editor(self, orga, unauthorized_tag):
-        try:
+        #try:
+        with self.assertNoException():
             template = Template(r"{% load creme_block %}" + unauthorized_tag)
             render = template.render(Context({'object': orga, 'user': self.user}))
-        except Exception as e:
-            self.fail(str(e))
+        #except Exception as e:
+            #self.fail(str(e))
 
         self.assertEqual("", render.strip())
 

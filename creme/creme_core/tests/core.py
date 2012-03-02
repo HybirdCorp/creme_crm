@@ -10,7 +10,7 @@ try:
 
     from persons.models import Contact, Organisation
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('FunctionFieldsTestCase', 'BatchOperatorTestCase', 'BatchActionTestCase')
@@ -19,7 +19,7 @@ __all__ = ('FunctionFieldsTestCase', 'BatchOperatorTestCase', 'BatchActionTestCa
 class FunctionFieldsTestCase(CremeTestCase):
     def test_manager01(self): #constructor with no args, add() & get() methods
         ffm = FunctionFieldsManager()
-        self.assertEqual([], list(ffm))
+        self.assertFalse(list(ffm))
 
         fname01 = "name01"
         fname02 = "name02"

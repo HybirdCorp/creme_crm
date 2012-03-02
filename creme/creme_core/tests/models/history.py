@@ -12,14 +12,19 @@ try:
 
     from persons.models import Contact, Organisation, Sector
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
+
 
 __all__ = ('HistoryTestCase',)
 
 
 class HistoryTestCase(ViewsTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config')
+
     def setUp(self):
-        self.populate('creme_core', 'creme_config')
+        #self.populate('creme_core', 'creme_config')
         self.old_time = datetime.now().replace(microsecond=0)
         self.login()
 

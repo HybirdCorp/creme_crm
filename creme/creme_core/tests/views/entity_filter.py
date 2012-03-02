@@ -13,7 +13,7 @@ try:
 
     from persons.models import Contact, Organisation
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('EntityFilterViewsTestCase', )
@@ -23,6 +23,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_config')
+
+        EntityFilterCondition.objects.all().delete()
+        EntityFilter.objects.all().delete()
 
     def test_create01(self): #check app credentials
         self.login(is_superuser=False)

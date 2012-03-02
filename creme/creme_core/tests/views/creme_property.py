@@ -43,7 +43,7 @@ class PropertyViewsTestCase(ViewsTestCase):
         #-----------------------------------------------------------------------
         response = self.client.post(url, data={'types': [ptype01.id, ptype03.id]}) #one new and one old property
         self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'types', 
+        self.assertFormError(response, 'form', 'types',
                              [_(u'Select a valid choice. %s is not one of the available choices.') % ptype01.id]
                             )
 
@@ -133,7 +133,7 @@ class PropertyViewsTestCase(ViewsTestCase):
                          label.initial
                         )
 
-        response = self.client.post(url, 
+        response = self.client.post(url,
                                     data={'entities_lbl':     'do not care',
                                           'bad_entities_lbl': 'do not care',
                                           'entities':         '%s,%s' % (entity03.id, entity04.id),

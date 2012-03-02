@@ -88,7 +88,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
     def test_bulk_update_registry01(self):
         is_bulk_updatable = partial(self.bulk_update_registry.is_bulk_updatable, model=Organisation)
-        
+
         self.assertTrue(is_bulk_updatable(field_name='siren', exclude_unique=False)) # Inner editable
         self.assertTrue(is_bulk_updatable(field_name='name'))
         self.assertTrue(is_bulk_updatable(field_name='phone'))

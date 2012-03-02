@@ -9,7 +9,7 @@ try:
 
     from persons.models import Contact, Organisation
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('RelationsTestCase',)
@@ -18,37 +18,35 @@ __all__ = ('RelationsTestCase',)
 class RelationsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
+        cls.populate('creme_config')
         cls.contact_ct_id = ContentType.objects.get_for_model(Contact).id
 
+        Relation.objects.all().delete()
+        RelationType.objects.all().delete()
+
     def setUp(self):
-        self.populate('creme_config')
+        #self.populate('creme_config')
         self.user = User.objects.create(username='name')
 
     def test_relation01(self):
         subject_pred = 'is loving'
         object_pred  = 'is loved by'
 
-        #try:
         with self.assertNoException():
             rtype1, rtype2 = RelationType.create(('test-subject_foobar', subject_pred),
                                                  ('test-object_foobar',  object_pred))
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertEqual(rtype1.symmetric_type, rtype2)
         self.assertEqual(rtype2.symmetric_type, rtype1)
         self.assertEqual(rtype1.predicate,      subject_pred)
         self.assertEqual(rtype2.predicate,      object_pred)
 
-        #try:
         with self.assertNoException():
             entity1  = CremeEntity.objects.create(user=self.user)
             entity2  = CremeEntity.objects.create(user=self.user)
             relation = Relation.objects.create(user=self.user, type=rtype1,
                                                subject_entity=entity1, object_entity=entity2
                                               )
-        #except Exception as e:
-            #self.fail(str(e))
 
         sym = relation.symmetric_relation
         self.assertEqual(sym.type,           rtype2)

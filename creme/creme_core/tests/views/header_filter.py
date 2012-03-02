@@ -11,16 +11,20 @@ try:
 
     from persons.models import Contact, Organisation
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('HeaderFilterViewsTestCase', )
 
 
 class HeaderFilterViewsTestCase(ViewsTestCase):
-    def setUp(self):
-        self.populate('creme_config')
-        self.contact_ct = ContentType.objects.get_for_model(Contact)
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_config')
+        cls.contact_ct = ContentType.objects.get_for_model(Contact)
+
+        HeaderFilterItem.objects.all().delete()
+        HeaderFilter.objects.all().delete()
 
     def _find_field_index(self, formfield, name):
         for i, (fname, fvname) in enumerate(formfield.choices):
@@ -39,21 +43,17 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         response = self.client.get(uri)
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             form = response.context['form']
             fields_field = form.fields['fields']
-        #except KeyError as e:
-            #self.fail(str(e))
 
         created_index = self._find_field_index(fields_field, 'created')
         name = 'DefaultHeaderFilter'
         response = self.client.post(uri,
-                                    data={
-                                            'name':                            name,
-                                            'fields_check_%s' % created_index: 'on',
-                                            'fields_value_%s' % created_index: 'created',
-                                            'fields_order_%s' % created_index: 1,
+                                    data={'name':                            name,
+                                          'fields_check_%s' % created_index: 'on',
+                                          'fields_value_%s' % created_index: 'created',
+                                          'fields_order_%s' % created_index: 1,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -86,15 +86,12 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         uri = '/creme_core/header_filter/add/%s' % self.contact_ct.id
         response = self.client.get(uri)
 
-        #try:
         with self.assertNoException():
             fields = response.context['form'].fields
             fields_field    = fields['fields']
             cfields_field   = fields['custom_fields']
             rtypes_field    = fields['relations']
             funfields_field = fields['functions']
-        #except KeyError as e:
-            #self.fail(str(e))
 
         field_name = 'first_name'
         firstname_index = self._find_field_index(fields_field, field_name)
@@ -103,25 +100,24 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         propfunc_index  = self._find_field_index(funfields_field, prop_funcfield.name)
         name = 'DefaultHeaderFilter'
         response = self.client.post(uri,
-                                    data={
-                                            'name': name,
-                                            'user': self.user.id,
+                                    data={'name': name,
+                                          'user': self.user.id,
 
-                                            'fields_check_%s' % firstname_index: 'on',
-                                            'fields_value_%s' % firstname_index: field_name,
-                                            'fields_order_%s' % firstname_index: 1,
+                                          'fields_check_%s' % firstname_index: 'on',
+                                          'fields_value_%s' % firstname_index: field_name,
+                                          'fields_order_%s' % firstname_index: 1,
 
-                                            'custom_fields_check_%s' % cfield_index: 'on',
-                                            'custom_fields_value_%s' % cfield_index: customfield.id,
-                                            'custom_fields_order_%s' % cfield_index: 1,
+                                          'custom_fields_check_%s' % cfield_index: 'on',
+                                          'custom_fields_value_%s' % cfield_index: customfield.id,
+                                          'custom_fields_order_%s' % cfield_index: 1,
 
-                                            'relations_check_%s' % loves_index: 'on',
-                                            'relations_value_%s' % loves_index: loves.id,
-                                            'relations_order_%s' % loves_index: 1,
+                                          'relations_check_%s' % loves_index: 'on',
+                                          'relations_value_%s' % loves_index: loves.id,
+                                          'relations_order_%s' % loves_index: 1,
 
-                                            'functions_check_%s' % loves_index: 'on',
-                                            'functions_value_%s' % loves_index: prop_funcfield.name,
-                                            'functions_order_%s' % loves_index: 1,
+                                          'functions_check_%s' % loves_index: 'on',
+                                          'functions_value_%s' % loves_index: prop_funcfield.name,
+                                          'functions_order_%s' % loves_index: 1,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -181,11 +177,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         response = self.client.get(uri)
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             fields_field = response.context['form'].fields['fields']
-        #except KeyError, e:
-            #self.fail(str(e))
 
         first_name_index  = None
         last_name_index = None
@@ -198,14 +191,13 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         name = 'Entity view v2'
         response = self.client.post(uri,
-                                    data={
-                                            'name':                               name,
-                                            'fields_check_%s' % first_name_index: 'on',
-                                            'fields_value_%s' % first_name_index: 'first_name',
-                                            'fields_order_%s' % first_name_index: 1,
-                                            'fields_check_%s' % last_name_index:  'on',
-                                            'fields_value_%s' % last_name_index:  'last_name',
-                                            'fields_order_%s' % last_name_index:  2,
+                                    data={'name':                               name,
+                                          'fields_check_%s' % first_name_index: 'on',
+                                          'fields_value_%s' % first_name_index: 'first_name',
+                                          'fields_order_%s' % first_name_index: 1,
+                                          'fields_check_%s' % last_name_index:  'on',
+                                          'fields_value_%s' % last_name_index:  'last_name',
+                                          'fields_order_%s' % last_name_index:  2,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -223,13 +215,13 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.login(is_superuser=False)
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view', model=Contact, is_custom=True, user=self.other_user)
-        self.assertEqual(404, self.client.get('/creme_core/header_filter/edit/%s' % hf.id).status_code)
+        self.assertGET404('/creme_core/header_filter/edit/%s' % hf.id)
 
     def test_edit04(self): #user do not have the app credentials
         self.login(is_superuser=False)
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view', model=Contact, is_custom=True, user=self.user)
-        self.assertEqual(404, self.client.get('/creme_core/header_filter/edit/%s' % hf.id).status_code)
+        self.assertGET404('/creme_core/header_filter/edit/%s' % hf.id)
 
     def test_delete01(self):
         self.login()

@@ -11,7 +11,7 @@ try:
 
     from persons.models import Contact, Organisation
 except Exception, e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class BlockViewTestCase(CremeTestCase):

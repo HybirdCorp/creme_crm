@@ -23,6 +23,11 @@ class CSVImportViewsTestCase(ViewsTestCase):
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config')
 
+        Contact.objects.all().delete()
+        Organisation.objects.all().delete()
+        Position.objects.all().delete()
+        Sector.objects.all().delete()
+
     def setUp(self):
         self.doc = None
 

@@ -18,7 +18,7 @@ class SearchConfigTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         SearchConfigItem.objects.all().delete()
-    
+
     def test_create_if_needed01(self):
         self.assertEqual(0, SearchConfigItem.objects.count())
         self.assertEqual(0, SearchField.objects.count())

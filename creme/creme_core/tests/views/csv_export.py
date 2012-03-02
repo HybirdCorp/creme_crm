@@ -10,40 +10,53 @@ try:
 
     from persons.models import Contact, Organisation
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('CSVExportViewsTestCase',)
 
 
 class CSVExportViewsTestCase(ViewsTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'persons')
+
     def setUp(self):
-        self.populate('creme_core', 'creme_config', 'persons')
         self.ct = ContentType.objects.get_for_model(Contact)
 
     def _build_hf_n_contacts(self):
-        bebop     = Organisation.objects.create(user=self.user, name='Bebop')
-        swordfish = Organisation.objects.create(user=self.user, name='Swordfish')
+        user = self.user
 
-        rtype_pilots, __ = RelationType.create(('test-subject_pilots', 'pilots'),
-                                               ('test-object_pilots',  'is piloted by')
-                                              )
+        create_orga = Organisation.objects.create
+        bebop     = create_orga(user=user, name='Bebop')
+        swordfish = create_orga(user=user, name='Swordfish')
 
-        ptype_beautiful = CremePropertyType.create(str_pk='test-prop_beautiful', text='is beautiful')
-        ptype_girl      = CremePropertyType.create(str_pk='test-prop_girl',      text='is a girl')
+        rtype_pilots = RelationType.create(('test-subject_pilots', 'pilots'),
+                                           ('test-object_pilots',  'is piloted by')
+                                          )[0]
+
+        create_ptype = CremePropertyType.create
+        ptype_beautiful = create_ptype(str_pk='test-prop_beautiful', text='is beautiful')
+        ptype_girl      = create_ptype(str_pk='test-prop_girl',      text='is a girl')
 
         create_contact = Contact.objects.create
-        contacts = dict((first_name, create_contact(user=self.user, first_name=first_name, last_name=last_name))
-                            for first_name, last_name in [('Spike', 'Spiegel'), ('Jet', 'Black'), ('Faye', 'Valentine'), ('Edward', 'Wong')]
+        contacts = dict((first_name, create_contact(user=user, first_name=first_name, last_name=last_name))
+                            for first_name, last_name in [('Spike', 'Spiegel'),
+                                                          ('Jet', 'Black'),
+                                                          ('Faye', 'Valentine'),
+                                                          ('Edward', 'Wong')
+                                                         ]
                         )
 
-        Relation.objects.create(user=self.user, subject_entity=contacts['Jet'],   type=rtype_pilots, object_entity=bebop)
-        Relation.objects.create(user=self.user, subject_entity=contacts['Spike'], type=rtype_pilots, object_entity=bebop)
-        Relation.objects.create(user=self.user, subject_entity=contacts['Spike'], type=rtype_pilots, object_entity=swordfish)
+        create_rel = Relation.objects.create
+        create_rel(user=user, subject_entity=contacts['Jet'],   type=rtype_pilots, object_entity=bebop)
+        create_rel(user=user, subject_entity=contacts['Spike'], type=rtype_pilots, object_entity=bebop)
+        create_rel(user=user, subject_entity=contacts['Spike'], type=rtype_pilots, object_entity=swordfish)
 
-        CremeProperty.objects.create(type=ptype_girl,      creme_entity=contacts['Edward'])
-        CremeProperty.objects.create(type=ptype_girl,      creme_entity=contacts['Faye'])
-        CremeProperty.objects.create(type=ptype_beautiful, creme_entity=contacts['Faye'])
+        create_prop = CremeProperty.objects.create
+        create_prop(type=ptype_girl,      creme_entity=contacts['Faye'])
+        create_prop(type=ptype_girl,      creme_entity=contacts['Edward'])
+        create_prop(type=ptype_beautiful, creme_entity=contacts['Faye'])
 
         hf = HeaderFilter.create(pk='test-hf_contact', name='Contact view', model=Contact)
         hf_items =[HeaderFilterItem.build_4_field(model=Contact, name='last_name'),
@@ -69,15 +82,6 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         response = self.client.get('/creme_core/list_view/dl_csv/%s' % self.ct.id, data={'list_url': lv_url})
         self.assertEqual(200, response.status_code)
-        #self.assertEqual([u','.join(u'"%s"' % hfi.title for hfi in hf_items),
-                          #u'"Black","Jet","Bebop",""',
-                          #u'"Creme","Fulbert","",""',
-                          #u'"Spiegel","Spike","Bebop/Swordfish",""',
-                          #u'"Valentine","Faye","","is a girl/is beautiful"',
-                          #u'"Wong","Edward","","is a girl"',
-                         #],
-                         #map(force_unicode, response.content.splitlines())
-                        #)
 
         #TODO: sort the relations/properties by they verbose_name ??
         result = map(force_unicode, response.content.splitlines())

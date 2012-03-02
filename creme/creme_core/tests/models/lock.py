@@ -4,7 +4,8 @@ try:
     from creme_core.models.lock import Mutex, MutexLockedException, MutexNotLockedException
     from creme_core.tests.views.base import ViewsTestCase
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
+
 
 __all__ = ('MutexTestCase',)
 

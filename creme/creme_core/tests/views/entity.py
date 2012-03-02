@@ -19,7 +19,7 @@ try:
 
     from persons.models import Contact, Organisation, Position, Sector, Address
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('EntityViewsTestCase', 'BulkEditTestCase', 'InnerEditTestCase')
@@ -29,8 +29,6 @@ class EntityViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config')
-    #def setUp(self):
-        #self.populate('creme_core', 'creme_config')
 
     def test_get_fields(self):
         self.login()
