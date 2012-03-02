@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
     from creme_core.models import *
@@ -8,15 +9,17 @@ try:
 
     from persons.models import Contact, Organisation
 except Exception, e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('SearchViewTestCase', )
 
 
 class SearchViewTestCase(ViewsTestCase):
-    def setUp(self):
-        self.populate('creme_config')
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_config')
+        cls.contact_ct_id = ContentType.objects.get_for_model(Contact).id
 
     def _build_contacts(self):
         self.linus = Contact.objects.create(user=self.user, first_name='Linus', last_name='Torvalds')
@@ -32,42 +35,40 @@ class SearchViewTestCase(ViewsTestCase):
         self.linusfo = Organisation.objects.create(user=self.user, name='FoobarLinusFoundation')
         self.coxco   = Organisation.objects.create(user=self.user, name='StuffCoxCorp')
 
+    def _search(self, research=None, ct_id=None):
+        data = {}
+
+        if research is not None:
+            data['research'] = research
+
+        if ct_id is not None:
+            data['ct_id'] = ct_id,
+
+        return self.client.post('/creme_core/search', data=data)
+
     def test_search01(self):
         self.login()
         self._setup_contacts()
 
-        response = self.client.post('/creme_core/search',
-                                    data={
-                                            'research': 'john',
-                                            'ct_id':    ContentType.objects.get_for_model(Contact).id,
-                                         }
-                                   )
+        response = self._search('john', self.contact_ct_id)
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             results = response.context['results']
             total   = response.context['total']
-        #except Exception, e:
-            #self.fail(str(e))
 
         self.assertEqual(0, total)
         self.assertEqual(1, len(results))
 
         result = results[0]
-        self.assert_(result['model'] is Contact)
+        self.assertIs(result['model'], Contact)
         self.assertEqual(0, len(result['entities']))
 
     def test_search02(self):
         self.login()
         self._setup_contacts()
 
-        response = self.client.post('/creme_core/search',
-                                    data={
-                                            'research': 'linu',
-                                            'ct_id':    ContentType.objects.get_for_model(Contact).id,
-                                         }
-                                   )
+        response = self._search('linu', self.contact_ct_id)
         self.assertEqual(200, response.status_code)
 
         results = response.context['results']
@@ -78,7 +79,7 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertEqual(1, len(entities))
 
         entity = entities[0]
-        self.assert_(isinstance(entity, Contact))
+        self.assertIsInstance(entity, Contact)
         self.assertEqual(self.linus.id, entity.id)
 
     def test_search03(self):
@@ -86,7 +87,7 @@ class SearchViewTestCase(ViewsTestCase):
         self._setup_contacts()
         self._setup_orgas()
 
-        context = self.client.post('/creme_core/search', data={'research': 'cox'}).context
+        context = self._search('cox').context
         self.assertEqual(2, context['total'])
 
         contacts_result = None
@@ -95,16 +96,16 @@ class SearchViewTestCase(ViewsTestCase):
         for result in context['results']:
             model = result['model']
             if model is Contact:
-                self.assert_(contacts_result is None)
+                self.assertIsNone(contacts_result)
                 contacts_result = result
             elif model is Organisation:
-                self.assert_(orgas_result is None)
+                self.assertIsNone(orgas_result)
                 orgas_result = result
             else:
                 self.assertEqual(0, len(result['entities']))
 
-        self.assert_(contacts_result is not None)
-        self.assert_(orgas_result is not None)
+        self.assertIsNotNone(contacts_result)
+        self.assertIsNotNone(orgas_result)
 
         entities = contacts_result['entities']
         self.assertEqual(1, len(entities))
@@ -119,15 +120,13 @@ class SearchViewTestCase(ViewsTestCase):
         self._setup_contacts()
         self._setup_orgas()
 
-        self.assert_(self.client.post('/creme_core/search', data={'research': 'ox'}).context['error_message'])
-        self.assert_(self.client.post('/creme_core/search').context['error_message'])
-        self.assertEqual(404, self.client.post('/creme_core/search',
-                                               data={
-                                                       'research': 'linus',
-                                                       'ct_id':     1024, #DOES NOT EXIST
-                                                    }
-                                              ).status_code
+        self.assertEqual(_(u"Please enter at least 3 characters"),
+                         self._search('ox').context['error_message']
                         )
+        self.assertEqual(_(u"Empty search..."),
+                         self._search().context['error_message']
+                        )
+        self.assertEqual(404, self._search('linus', 1024).status_code) # ct_id=1024 DOES NOT EXIST
 
     def test_search05(self): #no config for contact
         self.login()
@@ -135,9 +134,8 @@ class SearchViewTestCase(ViewsTestCase):
         self._setup_orgas()
 
         response = self.client.post('/creme_core/search',
-                                    data={
-                                            'research': 'torvalds',
-                                            'ct_id':    ContentType.objects.get_for_model(Contact).id,
+                                    data={'research': 'torvalds',
+                                          'ct_id':    self.contact_ct_id,
                                          }
                                    )
         results = response.context['results']
@@ -156,10 +154,4 @@ class SearchViewTestCase(ViewsTestCase):
         self.linus.description = 'He is very smart but wears ugly shorts.'
         self.linus.save()
 
-        response = self.client.post('/creme_core/search',
-                                    data={
-                                            'research': 'very smart',
-                                            'ct_id':    ContentType.objects.get_for_model(Contact).id,
-                                         }
-                                   )
-        self.assertEqual(0, response.context['total'])
+        self.assertEqual(0, self._search('very smart', self.contact_ct_id).context['total'])

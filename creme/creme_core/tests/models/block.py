@@ -10,7 +10,7 @@ try:
 
     from persons.models import Contact, Organisation
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('BlockTestCase',)
@@ -120,7 +120,7 @@ class BlockTestCase(CremeTestCase):
 
         loc = [loc for loc in locs if loc.zone == zone][0]
         self.assertEqual(model,  loc.content_type.model_class())
- 
+
     def test_create_portal01(self):
         app_name = 'persons'
         order = 25
@@ -205,7 +205,7 @@ class BlockTestCase(CremeTestCase):
 
         try:
             BlockMypageLocation.objects.get(user=user, block_id=block_id, order=order)
-        except Exception, e:
+        except BlockMypageLocation.DoesNotExist as e:
             self.fail('%s (all locations: %s)' % (e, BlockMypageLocation.objects.all()))
 
 #TODO: test other models

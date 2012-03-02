@@ -7,7 +7,7 @@ try:
 
     from persons.models import Contact
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class EntityFieldTestCase(FieldTestCase):
@@ -103,9 +103,12 @@ class MultiCremeEntityFieldTestCase(FieldTestCase):
                                        )
 
     def test_invalid_choice02(self):
+        last_entities = CremeEntity.objects.order_by('-id')[:1]
+        max_id = last_entities[0].id + 1 if last_entities else 1
+        ids = (max_id, max_id + 1)
         self.assertFieldValidationError(MultiCremeEntityField, 'invalid_choice',
-                                        MultiCremeEntityField().clean, [u'2', u'3'],
-                                        message_args={"value": '2, 3'}
+                                        MultiCremeEntityField().clean, [str(i) for i in ids],
+                                        message_args={"value": '%s, %s' % ids}
                                        )
 
     def test_ok01(self):

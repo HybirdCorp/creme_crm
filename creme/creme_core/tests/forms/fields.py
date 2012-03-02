@@ -6,7 +6,7 @@ try:
     from creme_core.forms.fields import DateRangeField, ColorField, DurationField
     from creme_core.tests.forms.base import FieldTestCase
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('DateRangeFieldTestCase', 'ColorFieldTestCase', 'DurationFieldTestCase')

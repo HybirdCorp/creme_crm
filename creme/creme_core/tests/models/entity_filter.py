@@ -2,6 +2,7 @@
 
 try:
     from datetime import date
+    from functools import partial
     from logging import info
 
     from django.utils.translation import ugettext as _
@@ -13,40 +14,48 @@ try:
 
     from persons.models import Contact, Organisation, Civility
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('EntityFiltersTestCase',)
 
 
 class EntityFiltersTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        Contact.objects.all().delete()
+        Organisation.objects.all().delete()
+
     def setUp(self):
         self.login()
 
-        create = Contact.objects.create
-        user = self.user
+        create = partial(Contact.objects.create, user=self.user)
 
         self.civ_miss   = miss   = Civility.objects.create(title='Miss')
         self.civ_mister = mister = Civility.objects.create(title='Mister')
 
-        self.contacts = [
-            create(user=user, first_name=u'Spike',  last_name=u'Spiegel',   civility=mister), #0
-            create(user=user, first_name=u'Jet',    last_name=u'Black',     civility=mister), #1
-            create(user=user, first_name=u'Faye',   last_name=u'Valentine', civility=miss,
-                   description=u'Sexiest woman is the universe'),                             #2
-            create(user=user, first_name=u'Ed',     last_name=u'Wong', description=u''),      #3
-            create(user=user, first_name=u'Rei',    last_name=u'Ayanami'),   #4
-            create(user=user, first_name=u'Misato', last_name=u'Katsuragi',
-                  birthday=date(year=1986, month=12, day=8)),                #5
-            create(user=user, first_name=u'Asuka',  last_name=u'Langley',
-                   birthday=date(year=2001, month=12, day=4)),               #6
-            create(user=user, first_name=u'Shinji', last_name=u'Ikari',
-                   birthday=date(year=2001, month=6, day=6)),                #7
-            create(user=user, first_name=u'Yui',    last_name=u'Ikari'),     #8
-            create(user=user, first_name=u'Gendô',  last_name=u'IKARI'),     #9
-            create(user=user, first_name=u'Genji',  last_name=u'Ikaru'),     #10 NB: startswith 'Gen'
-            create(user=user, first_name=u'Risato', last_name=u'Katsuragu'), #11 NB contains 'isat' like #5
-        ]
+        self.contacts = {
+            'spike':  create(first_name=u'Spike',  last_name=u'Spiegel',   civility=mister),
+            'jet':    create(first_name=u'Jet',    last_name=u'Black',     civility=mister),
+            'faye':   create(first_name=u'Faye',   last_name=u'Valentine', civility=miss,
+                             description=u'Sexiest woman is the universe',
+                            ),
+            'ed':     create(first_name=u'Ed',     last_name=u'Wong', description=u''),
+            'rei':    create(first_name=u'Rei',    last_name=u'Ayanami'),
+            'misato': create(first_name=u'Misato', last_name=u'Katsuragi',
+                             birthday=date(year=1986, month=12, day=8)
+                            ),
+            'asuka':  create(first_name=u'Asuka',  last_name=u'Langley',
+                             birthday=date(year=2001, month=12, day=4)
+                            ),
+            'shinji': create(first_name=u'Shinji', last_name=u'Ikari',
+                             birthday=date(year=2001, month=6, day=6)
+                            ),
+            'yui':    create(first_name=u'Yui',    last_name=u'Ikari'),
+            'gendou': create(first_name=u'Gendô',  last_name=u'IKARI'),
+            'genji':  create(first_name=u'Genji',  last_name=u'Ikaru'),
+            'risato': create(first_name=u'Risato', last_name=u'Katsuragu'),
+        }
 
         self.contact_ct = ContentType.objects.get_for_model(Contact)
 
@@ -63,6 +72,17 @@ class EntityFiltersTestCase(CremeTestCase):
             info('INFO: your DB is Case insentive')
 
         return [ikari.id for ikari in ikaris]
+
+    def _list_contact_ids(self, *short_names, **kwargs):
+        contacts = self.contacts
+
+        if kwargs.get('exclude', False):
+            excluded = frozenset(short_names)
+            ids = [c.id for sn, c in contacts.iteritems() if sn not in excluded]
+        else:
+            ids = [contacts[sn].id for sn in short_names]
+
+        return ids
 
     def test_filter_field_equals01(self):
         self.assertEqual(len(self.contacts), Contact.objects.count())
@@ -85,7 +105,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                    )
                                ])
         self.assertEqual(1, efilter.conditions.count())
-        self.assertExpectedFiltered(self.refresh(efilter), Contact, [self.contacts[0].id, self.contacts[2].id])
+        self.assertExpectedFiltered(self.refresh(efilter), Contact, self._list_contact_ids('spike', 'faye'))
 
     def test_filter_field_iequals(self):
         efilter = EntityFilter.create('test-filter01', 'Ikari (insensitive)', Contact,
@@ -96,7 +116,10 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                     name='last_name', values=['Ikari']
                                                                    )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[i].id for i in (7, 8, 9)], True)
+        self.assertExpectedFiltered(efilter, Contact,
+                                    self._list_contact_ids('shinji', 'yui', 'gendou'),
+                                    case_insensitive=True
+                                   )
 
     def test_filter_field_not_equals(self):
         efilter = EntityFilter.create('test-filter01', 'Not Ikari', Contact, is_custom=True)
@@ -106,8 +129,10 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                    )
                                ])
 
-        exclude = set(self._get_ikari_case_sensitive())
-        self.assertExpectedFiltered(efilter, Contact, [c.id for c in self.contacts if c.id not in exclude])
+        excluded = frozenset(self._get_ikari_case_sensitive())
+        self.assertExpectedFiltered(efilter, Contact,
+                                    [c.id for c in self.contacts.itervalues() if c.id not in excluded]
+                                   )
 
     def test_filter_field_not_iequals(self):
         pk = 'test-filter01'
@@ -124,7 +149,9 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                     name='last_name', values=['Ikari']
                                                                    )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i not in (7, 8, 9)])
+        self.assertExpectedFiltered(efilter, Contact,
+                                    self._list_contact_ids('shinji', 'yui', 'gendou', exclude=True)
+                                   )
 
     def test_filter_field_contains(self):
         efilter = EntityFilter.create('test-filter01', name='Contains "isat"', model=Contact, is_custom=True)
@@ -133,7 +160,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                     name='first_name', values=['isat']
                                                                    )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[5].id, self.contacts[11].id])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('misato', 'risato'))
 
     def test_filter_field_icontains(self):
         efilter = EntityFilter.create(pk='test-filter01', name='Not contains "Misa"', model=Contact, user=self.user)
@@ -142,7 +169,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                     name='first_name', values=['misa']
                                                                    )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[5].id], True)
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts['misato'].id], True)
 
     def test_filter_field_contains_not(self):
         efilter = EntityFilter.create('test-filter01', 'Not Ikari', Contact)
@@ -151,7 +178,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                     name='first_name', values=['sato']
                                                                    )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i not in (5, 11)])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('misato', 'risato', exclude=True))
 
     def test_filter_field_icontains_not(self):
         efilter = EntityFilter.create('test-filter01', 'Not contains "sato" (ci)', Contact)
@@ -160,7 +187,10 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                     name='first_name', values=['sato']
                                                                    )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i not in (5, 11)], True)
+        self.assertExpectedFiltered(efilter, Contact,
+                                    self._list_contact_ids('misato', 'risato', exclude=True),
+                                    case_insensitive=True
+                                   )
 
     def test_filter_field_gt(self):
         efilter = EntityFilter.create(pk='test-filter01', name='> Yua', model=Contact)
@@ -169,7 +199,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                     name='first_name', values=['Yua']
                                                                    )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[8].id])
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts['yui'].id])
 
     def test_filter_field_gte(self):
         efilter = EntityFilter.create('test-filter01', '>= Spike', Contact)
@@ -178,7 +208,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                     name='first_name', values=['Spike']
                                                                    )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[0].id, self.contacts[8].id])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('spike', 'yui'))
 
     def test_filter_field_lt(self):
         efilter = EntityFilter.create('test-filter01', '< Faye', Contact)
@@ -187,7 +217,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                     name='first_name', values=['Faye']
                                                                    )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[3].id, self.contacts[6].id])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('ed', 'asuka'))
 
     def test_filter_field_lte(self):
         efilter = EntityFilter.create('test-filter01', '<= Faye', Contact)
@@ -196,7 +226,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                     name='first_name', values=['Faye']
                                                                    )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[i].id for i in (2, 3, 6)])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('faye', 'ed', 'asuka'))
 
     def test_filter_field_startswith(self):
         efilter = EntityFilter.create(pk='test-filter01', name='starts "Gen"', model=Contact)
@@ -205,7 +235,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                     name='first_name', values=['Gen']
                                                                    )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[9].id, self.contacts[10].id])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('gendou', 'genji'))
 
     def test_filter_field_istartswith(self):
         efilter = EntityFilter.create(pk='test-filter01', name='starts "Gen" (ci)', model=Contact)
@@ -214,7 +244,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                     name='first_name', values=['gen']
                                                                    )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[9].id, self.contacts[10].id])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('gendou', 'genji'))
 
     def test_filter_field_startswith_not(self):
         efilter = EntityFilter.create(pk='test-filter01', name='starts not "Asu"', model=Contact)
@@ -223,7 +253,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                     name='first_name', values=['Asu']
                                                                    )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i != 6])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('asuka', exclude=True))
 
     def test_filter_field_istartswith_not(self):
         efilter = EntityFilter.create('test-filter01', 'starts not "asu"', Contact)
@@ -232,7 +262,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                     name='first_name', values=['asu']
                                                                    )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i != 6])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('asuka', exclude=True))
 
     def test_filter_field_endswith(self):
         efilter = EntityFilter.create('test-filter01', 'ends "sato"', Contact)
@@ -241,7 +271,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                     name='first_name', values=['sato']
                                                                    )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[5].id, self.contacts[11].id])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('misato', 'risato'))
 
     def test_filter_field_iendswith(self):
         efilter = EntityFilter.create('test-filter01', 'ends "SATO"', Contact)
@@ -250,7 +280,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                     name='first_name', values=['SATO']
                                                                    )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[5].id, self.contacts[11].id])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('misato', 'risato'))
 
     def test_filter_field_endswith_not(self):
         efilter = EntityFilter.create('test-filter01', 'ends not "sato"', Contact)
@@ -259,7 +289,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                     name='first_name', values=['sato']
                                                                    )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i not in (5, 11)])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('misato', 'risato', exclude=True))
 
     def test_filter_field_iendswith_not(self):
         efilter = EntityFilter.create('test-filter01', 'ends not "SATO" (ci)', Contact)
@@ -268,7 +298,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                     name='first_name', values=['SATO']
                                                                    )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i not in (5, 11)])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('misato', 'risato', exclude=True))
 
     def test_filter_field_isempty01(self):
         efilter = EntityFilter.create(pk='test-filter01', name='is empty', model=Contact)
@@ -278,7 +308,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                    )
                                ])
         self.assertEqual(1, efilter.conditions.count())
-        self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i != 2])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('faye', exclude=True))
 
     def test_filter_field_isempty02(self):
         efilter = EntityFilter.create('test-filter01', 'is not empty', Contact)
@@ -288,7 +318,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                    )
                                ])
         self.assertEqual(1, efilter.conditions.count())
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[2].id])
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts['faye'].id])
 
     def test_filter_field_isempty03(self): #not charfield
         create = Organisation.objects.create
@@ -313,9 +343,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                    )
                                ])
         self.assertEqual(1, efilter.conditions.count())
-
-        excluded = set([0, 1, 2]) #Spike, Jet & Faye
-        self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i not in excluded])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('spike', 'jet', 'faye', exclude=True))
 
     def test_filter_field_range(self):
         create = Organisation.objects.create
@@ -339,7 +367,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                     name='civility', values=[self.civ_mister.id] #TODO: "self.mister" ??
                                                                    )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[0].id, self.contacts[1].id])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('spike', 'jet'))
 
         efilter = EntityFilter.create('test-filter01', 'Not Misses', Contact)
         efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
@@ -347,7 +375,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                     name='civility', values=[self.civ_miss.id]
                                                                    )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i != 2])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('faye', exclude=True))
 
     def test_filter_fk02(self):
         efilter = EntityFilter.create('test-filter01', 'Mist..', Contact)
@@ -356,16 +384,17 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                     name='civility__title', values=['Mist']
                                                                    )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[0].id, self.contacts[1].id])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('spike', 'jet'))
 
     def test_filter_m2m(self):
         l1 = Language.objects.create(name='Japanese', code='JP')
         l2 = Language.objects.create(name='German',   code='G')
         l3 = Language.objects.create(name='Engrish',  code='EN')
 
-        jet = self.contacts[1];     jet.language   = [l1, l3]
-        rei = self.contacts[4];     rei.language   = [l1]
-        asuka = self.contacts[6];   asuka.language = [l1, l2, l3]
+        contacts = self.contacts
+        jet   = contacts['jet'];   jet.language   = [l1, l3]
+        rei   = contacts['rei'];   rei.language   = [l1]
+        asuka = contacts['asuka']; asuka.language = [l1, l2, l3]
 
         self.assertEqual(3, Contact.objects.filter(language__code='JP').count())
         self.assertEqual(4, Contact.objects.filter(language__name__contains='an').count()) #BEWARE: doublon !!
@@ -391,24 +420,15 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter = EntityFilter.create('test-filter01', 'Mist..', Contact)
         build = EntityFilterCondition.build_4_field
 
-        #try:
         with self.assertNoException():
             #Problem a part of a email address is not a valid email address
             efilter.set_conditions([build(model=Contact, operator=EntityFilterCondition.ISTARTSWITH, name='email', values=['misato'])])
-        #except Exception as e:
-            #self.fail(str(e))
 
-        #try:
         with self.assertNoException():
             efilter.set_conditions([build(model=Contact, operator=EntityFilterCondition.RANGE, name='email', values=['misato', 'yui'])])
-        #except Exception as e:
-            #self.fail(str(e))
 
-        #try:
         with self.assertNoException():
             efilter.set_conditions([build(model=Contact, operator=EntityFilterCondition.EQUALS, name='email', values=['misato@nerv.jp'])])
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertRaises(EntityFilterCondition.ValueError, build,
                           model=Contact, operator=EntityFilterCondition.EQUALS, name='email', values=['misato'],
@@ -534,7 +554,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                       name='first_name', values=['Shin']
                                      )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[7].id])
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts['shinji'].id])
 
     def test_multi_conditions_or01(self):
         efilter = EntityFilter.create(pk='test-filter01', name='Filter01', model=Contact, use_or=True)
@@ -546,7 +566,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                       name='first_name', values=['Shin']
                                      )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[0].id, self.contacts[7].id])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('spike', 'shinji'))
 
     def test_subfilter01(self):
         build_4_field = EntityFilterCondition.build_4_field
@@ -559,14 +579,12 @@ class EntityFiltersTestCase(CremeTestCase):
         conds = [build_4_field(model=Contact, operator=EntityFilterCondition.STARTSWITH, name='first_name', values=['Spi']),
                  build_sf(sub_efilter),
                 ]
-        #try:
+
         with self.assertNoException():
             efilter.check_cycle(conds)
-        #except Exception as e:
-            #self.fail(str(e))
 
         efilter.set_conditions(conds)
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[0].id])
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts['spike'].id])
 
         #Test that a CycleError is not raised
         sub_sub_efilter = EntityFilter.create(pk='test-filter03', name='Filter03', model=Contact)
@@ -577,11 +595,9 @@ class EntityFiltersTestCase(CremeTestCase):
         conds = [build_4_field(model=Contact, operator=EntityFilterCondition.STARTSWITH, name='first_name', values=['Spi']),
                  build_sf(sub_sub_efilter),
                 ]
-        #try:
+
         with self.assertNoException():
             sub_efilter.check_cycle(conds)
-        #except Exception as e:
-            #self.fail(str(e))
 
     def test_subfilter02(self): #cycle error (lenght = 0)
         efilter = EntityFilter.create(pk='test-filter02', name='Filter01', model=Contact, use_or=False)
@@ -641,17 +657,17 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_properties01(self):
         ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text=u'Kawaii')
-        cute_ones = (2, 4, 5, 6)
+        cute_ones = ('faye', 'rei', 'misato', 'asuka')
 
-        for girl_id in cute_ones:
-            CremeProperty.objects.create(type=ptype, creme_entity=self.contacts[girl_id])
+        for fn in cute_ones:
+            CremeProperty.objects.create(type=ptype, creme_entity=self.contacts[fn])
 
         efilter = EntityFilter.create(pk='test-filter01', name='Filter01', model=Contact)
         efilter.set_conditions([EntityFilterCondition.build_4_property(ptype=ptype, has=True)])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[i].id for i in cute_ones])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids(*cute_ones))
 
         efilter.set_conditions([EntityFilterCondition.build_4_property(ptype=ptype, has=False)])
-        self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i not in cute_ones])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids(*cute_ones, exclude=True))
 
     def _aux_test_relations(self):
         self.loves, self.loved = RelationType.create(('test-subject_love', u'Is loving'),
@@ -667,52 +683,52 @@ class EntityFiltersTestCase(CremeTestCase):
         loves = self.loves
         c = self.contacts
         create = Relation.objects.create
-        create(subject_entity=c[2], type=loves, object_entity=c[0],  user=self.user)
-        create(subject_entity=c[7], type=loves, object_entity=c[4],  user=self.user)
-        create(subject_entity=c[9], type=loves, object_entity=c[4],  user=self.user)
-        create(subject_entity=c[1], type=loves, object_entity=bebop, user=self.user)
+        create(subject_entity=c['faye'],   type=loves, object_entity=c['spike'], user=self.user)
+        create(subject_entity=c['shinji'], type=loves, object_entity=c['rei'],   user=self.user)
+        create(subject_entity=c['gendou'], type=loves, object_entity=c['rei'],   user=self.user)
+        create(subject_entity=c['jet'],    type=loves, object_entity=bebop,      user=self.user)
 
-        create(subject_entity=c[7], type=self.hates, object_entity=c[9],  user=self.user)
+        create(subject_entity=c['shinji'], type=self.hates, object_entity=c['gendou'],  user=self.user)
 
         return loves
 
     def test_relations01(self): #no ct/entity
         loves = self._aux_test_relations()
-        in_love = [self.contacts[2].id, self.contacts[7].id, self.contacts[9].id, self.contacts[1].id]
+        in_love = ('faye', 'shinji', 'gendou', 'jet')
 
         efilter = EntityFilter.create(pk='test-filter01', name='Filter01', model=Contact)
         efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=True)])
-        self.assertExpectedFiltered(efilter, Contact, in_love)
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids(*in_love))
 
         efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=False)])
-        self.assertExpectedFiltered(efilter, Contact, [c.id for c in self.contacts if c.id not in in_love])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids(*in_love, exclude=True))
 
     def test_relations02(self): #wanted ct
         loves = self._aux_test_relations()
-        in_love = [self.contacts[2].id, self.contacts[7].id, self.contacts[9].id] # not 'jet' ('bebop' not is a Contact)
+        in_love = ('faye', 'shinji', 'gendou') # not 'jet' ('bebop' not is a Contact)
 
         efilter = EntityFilter.create(pk='test-filter01', name='Filter01', model=Contact)
         efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=True, ct=self.contact_ct)])
-        self.assertExpectedFiltered(efilter, Contact, in_love)
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids(*in_love))
 
         efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=False, ct=self.contact_ct)])
-        self.assertExpectedFiltered(efilter, Contact, [c.id for c in self.contacts if c.id not in in_love])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids(*in_love, exclude=True))
 
     def test_relations03(self): #wanted entity
         loves = self._aux_test_relations()
-        in_love = [self.contacts[7].id, self.contacts[9].id]
-        rei = self.contacts[4]
+        in_love = ('shinji', 'gendou')
+        rei = self.contacts['rei']
 
         efilter = EntityFilter.create(pk='test-filter01', name='Filter 01', model=Contact)
         efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=True, entity=rei)])
-        self.assertExpectedFiltered(efilter, Contact, in_love)
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids(*in_love))
 
         efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=False, entity=rei)])
-        self.assertExpectedFiltered(efilter, Contact, [c.id for c in self.contacts if c.id not in in_love])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids(*in_love, exclude=True))
 
     def test_relations04(self): #wanted entity is deleted
         loves = self._aux_test_relations()
-        rei = self.contacts[4]
+        rei = self.contacts['rei']
 
         efilter = EntityFilter.create(pk='test-filter01', name='Filter 01', model=Contact)
         efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=True, entity=rei)])
@@ -730,7 +746,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
         efilter = EntityFilter.create(pk='test-filter01', name='Filter 01', model=Contact)
         build = EntityFilterCondition.build_4_relation
-        efilter.set_conditions([build(rtype=loves,      has=True, entity=self.contacts[4]),
+        efilter.set_conditions([build(rtype=loves,      has=True, entity=self.contacts['rei']),
                                 build(rtype=self.loved, has=True, ct=self.contact_ct),
                                 build(rtype=self.hates, has=True),
                                ])
@@ -740,50 +756,47 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_relations06(self): #several conditions on relations (with OR)
         loves = self._aux_test_relations()
-        gendo = self.contacts[9]
+        gendo = self.contacts['gendou']
 
         efilter = EntityFilter.create(pk='test-filter01', name='Filter 01', model=Contact, use_or=True)
         build = EntityFilterCondition.build_4_relation
-        efilter.set_conditions([build(rtype=loves,      has=True, entity=self.contacts[4]),
+        efilter.set_conditions([build(rtype=loves,      has=True, entity=self.contacts['rei']),
                                 build(rtype=self.hates, has=True, entity=gendo),
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[7].id, gendo.id])
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts['shinji'].id, gendo.id])
 
     def test_relations07(self): #several conditions on relations (with AND)
         loves = self._aux_test_relations()
 
         efilter = EntityFilter.create(pk='test-filter01', name='Filter 01', model=Contact, use_or=False)
         build = EntityFilterCondition.build_4_relation
-        efilter.set_conditions([build(rtype=loves,      has=True, entity=self.contacts[4]),
-                                build(rtype=self.hates, has=True, entity=self.contacts[9]),
+        efilter.set_conditions([build(rtype=loves,      has=True, entity=self.contacts['rei']),
+                                build(rtype=self.hates, has=True, entity=self.contacts['gendou']),
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[7].id])
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts['shinji'].id])
 
     def test_relations_subfilter01(self):
         loves = self._aux_test_relations()
-        in_love = [self.contacts[7].id, self.contacts[9].id]
+        in_love = ('shinji', 'gendou')
 
         sub_efilter = EntityFilter.create(pk='test-filter01', name='Filter Rei', model=Contact)
         build_4_field = EntityFilterCondition.build_4_field
         sub_efilter.set_conditions([build_4_field(model=Contact, operator=EntityFilterCondition.STARTSWITH, name='last_name',  values=['Ayanami']),
                                     build_4_field(model=Contact, operator=EntityFilterCondition.EQUALS,     name='first_name', values=['Rei'])
                                    ])
-        self.assertExpectedFiltered(sub_efilter, Contact, [self.contacts[4].id])
+        self.assertExpectedFiltered(sub_efilter, Contact, [self.contacts['rei'].id])
 
         efilter = EntityFilter.create(pk='test-filter02', name='Filter Rei lovers', model=Contact)
         conds = [EntityFilterCondition.build_4_relation_subfilter(rtype=loves, has=True, subfilter=sub_efilter)]
 
-        #try:
         with self.assertNoException():
             efilter.check_cycle(conds)
-        #except Exception as e:
-            #self.fail(str(e))
 
         efilter.set_conditions(conds)
-        self.assertExpectedFiltered(efilter, Contact, in_love)
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids(*in_love))
 
         efilter.set_conditions([EntityFilterCondition.build_4_relation_subfilter(rtype=loves, has=False, subfilter=sub_efilter)])
-        self.assertExpectedFiltered(efilter, Contact, [c.id for c in self.contacts if c.id not in in_love])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids(*in_love, exclude=True))
 
     def test_relations_subfilter02(self): #cycle error (lenght = 0)
         loves = self._aux_test_relations()
@@ -838,18 +851,18 @@ class EntityFiltersTestCase(CremeTestCase):
         sub_efilter01.set_conditions([build_4_field(model=Contact, operator=EntityFilterCondition.STARTSWITH, name='last_name',  values=['Ayanami']),
                                       build_4_field(model=Contact, operator=EntityFilterCondition.EQUALS,     name='first_name', values=['Rei'])
                                     ])
-        self.assertExpectedFiltered(sub_efilter01, Contact, [self.contacts[4].id])
+        self.assertExpectedFiltered(sub_efilter01, Contact, [self.contacts['rei'].id])
 
-        sub_efilter02 = EntityFilter.create(pk='test-filter02', name='Filter Gendo', model=Contact)
+        sub_efilter02 = EntityFilter.create(pk='test-filter02', name=u'Filter Gendô', model=Contact)
         sub_efilter02.set_conditions([build_4_field(model=Contact, operator=EntityFilterCondition.EQUALS, name='first_name', values=[u'Gendô'])])
-        self.assertExpectedFiltered(sub_efilter02, Contact, [self.contacts[9].id])
+        self.assertExpectedFiltered(sub_efilter02, Contact, [self.contacts['gendou'].id])
 
         efilter = EntityFilter.create(pk='test-filter03', name='Filter with 2 sublovers', model=Contact, use_or=True)
         build = EntityFilterCondition.build_4_relation_subfilter
         efilter.set_conditions([build(rtype=loves,      has=True, subfilter=sub_efilter01),
                                 build(rtype=self.hates, has=True, subfilter=sub_efilter02),
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[7].id, self.contacts[9].id])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('shinji', 'gendou'))
 
     def test_relations_subfilter06(self): #several conditions (with AND)
         loves = self._aux_test_relations()
@@ -860,18 +873,18 @@ class EntityFiltersTestCase(CremeTestCase):
         sub_efilter01.set_conditions([build_4_field(model=Contact, operator=EntityFilterCondition.STARTSWITH, name='last_name',  values=['Ayanami']),
                                       build_4_field(model=Contact, operator=EntityFilterCondition.EQUALS,     name='first_name', values=['Rei'])
                                     ])
-        self.assertExpectedFiltered(sub_efilter01, Contact, [self.contacts[4].id])
+        self.assertExpectedFiltered(sub_efilter01, Contact, [self.contacts['rei'].id])
 
         sub_efilter02 = EntityFilter.create(pk='test-filter02', name='Filter Gendo', model=Contact)
         sub_efilter02.set_conditions([build_4_field(model=Contact, operator=EntityFilterCondition.EQUALS, name='first_name', values=[u'Gendô'])])
-        self.assertExpectedFiltered(sub_efilter02, Contact, [self.contacts[9].id])
+        self.assertExpectedFiltered(sub_efilter02, Contact, [self.contacts['gendou'].id])
 
         efilter = EntityFilter.create(pk='test-filter03', name='Filter with 2 sublovers', model=Contact, use_or=False)
         build = EntityFilterCondition.build_4_relation_subfilter
         efilter.set_conditions([build(rtype=loves,      has=True, subfilter=sub_efilter01),
                                 build(rtype=self.hates, has=True, subfilter=sub_efilter02),
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[7].id])
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts['shinji'].id])
 
     def test_date01(self): # GTE operator
         efilter = EntityFilter.create('test-filter01', 'After 2000-1-1', Contact)
@@ -879,7 +892,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                    start=date(year=2000, month=1, day=1),
                                                                   )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[6].id, self.contacts[7].id])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('asuka', 'shinji'))
 
     def test_date02(self): # LTE operator
         efilter = EntityFilter.create('test-filter01', 'Before 1999-12-31', Contact)
@@ -887,7 +900,7 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                    end=date(year=1999, month=12, day=31),
                                                                   )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[5].id])
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts['misato'].id])
 
     def test_date03(self): #range
         efilter = EntityFilter.create('test-filter01', name='Between 2001-1-1 & 2001-12-1', model=Contact)
@@ -896,10 +909,10 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                    end=date(year=2001, month=12, day=1),
                                                                   )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[7].id])
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts['shinji'].id])
 
     def test_date04(self): #relative to now
-        faye = self.contacts[2]
+        faye = self.contacts['faye']
         future = date.today()
         future = future.replace(year=future.year + 100)
         faye.birthday = future
@@ -931,11 +944,11 @@ class EntityFiltersTestCase(CremeTestCase):
                          )
 
     def test_customfield01(self): #INT, only one CustomField, LTE operator
-        rei = self.contacts[4]
+        rei = self.contacts['rei']
 
         custom_field = CustomField.objects.create(name='size (cm)', content_type=self.contact_ct, field_type=CustomField.INT)
         custom_field.get_value_class()(custom_field=custom_field, entity=rei).set_value_n_save(150)
-        custom_field.get_value_class()(custom_field=custom_field, entity=self.contacts[5]).set_value_n_save(170)
+        custom_field.get_value_class()(custom_field=custom_field, entity=self.contacts['misato']).set_value_n_save(170)
         self.assertEqual(2, CustomFieldInteger.objects.count())
 
         efilter = EntityFilter.create('test-filter01', name='Small', model=Contact)
@@ -949,15 +962,16 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertExpectedFiltered(efilter, Contact, [rei.id])
 
     def test_customfield02(self): #2 INT CustomFields (can interfere), GTE operator
-        asuka = self.contacts[6]
+        contacts = self.contacts
+        asuka = contacts['asuka']
 
         custom_field01 = CustomField.objects.create(name='size (cm)', content_type=self.contact_ct, field_type=CustomField.INT)
-        custom_field01.get_value_class()(custom_field=custom_field01, entity=self.contacts[4]).set_value_n_save(150)
+        custom_field01.get_value_class()(custom_field=custom_field01, entity=contacts['rei']).set_value_n_save(150)
         custom_field01.get_value_class()(custom_field=custom_field01, entity=asuka).set_value_n_save(160)
 
         #should not be retrieved, because fiklter is relative to 'custom_field01'
         custom_field02 = CustomField.objects.create(name='weight (pound)', content_type=self.contact_ct, field_type=CustomField.INT)
-        custom_field02.get_value_class()(custom_field=custom_field02, entity=self.contacts[0]).set_value_n_save(156)
+        custom_field02.get_value_class()(custom_field=custom_field02, entity=self.contacts['spike']).set_value_n_save(156)
 
         self.assertEqual(3, CustomFieldInteger.objects.count())
 
@@ -972,9 +986,9 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_customfield03(self): #STR, CONTAINS_NOT operator (negate)
         custom_field = CustomField.objects.create(name='Eva', content_type=self.contact_ct, field_type=CustomField.STR)
         klass = custom_field.get_value_class()
-        klass(custom_field=custom_field, entity=self.contacts[4]).set_value_n_save('Eva-00')
-        klass(custom_field=custom_field, entity=self.contacts[7]).set_value_n_save('Eva-01')
-        klass(custom_field=custom_field, entity=self.contacts[5]).set_value_n_save('Eva-02')
+        klass(custom_field=custom_field, entity=self.contacts['rei']).set_value_n_save('Eva-00')
+        klass(custom_field=custom_field, entity=self.contacts['shinji']).set_value_n_save('Eva-01')
+        klass(custom_field=custom_field, entity=self.contacts['misato']).set_value_n_save('Eva-02')
         self.assertEqual(3, CustomFieldString.objects.count())
 
         efilter = EntityFilter.create('test-filter01', name='not 00', model=Contact)
@@ -983,16 +997,17 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                           value='00'
                                                                          )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [c.id for i, c in enumerate(self.contacts) if i != 4])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('rei', exclude=True))
 
     def test_customfield04(self): #2 INT CustomFields with 2 conditions
-        asuka = self.contacts[6]
-        spike = self.contacts[0]
+        contacts = self.contacts
+        asuka = contacts['asuka']
+        spike = contacts['spike']
 
         custom_field01 = CustomField.objects.create(name='size (cm)', content_type=self.contact_ct, field_type=CustomField.INT)
         klass = custom_field01.get_value_class()
         klass(custom_field=custom_field01, entity=spike).set_value_n_save(180)
-        klass(custom_field=custom_field01, entity=self.contacts[4]).set_value_n_save(150)
+        klass(custom_field=custom_field01, entity=contacts['rei']).set_value_n_save(150)
         klass(custom_field=custom_field01, entity=asuka).set_value_n_save(160)
 
         custom_field02 = CustomField.objects.create(name='weight (pound)', content_type=self.contact_ct, field_type=CustomField.INT)
@@ -1014,14 +1029,15 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertExpectedFiltered(efilter, Contact, [asuka.id])
 
     def test_customfield05(self): #FLOAT
-        ed  = self.contacts[3]
-        rei = self.contacts[4]
+        contacts = self.contacts
+        ed  = contacts['ed']
+        rei = contacts['rei']
 
         custom_field = CustomField.objects.create(name='Weight (kg)', content_type=self.contact_ct, field_type=CustomField.FLOAT)
         klass = custom_field.get_value_class()
         klass(custom_field=custom_field, entity=ed).set_value_n_save('38.20')
         klass(custom_field=custom_field, entity=rei).set_value_n_save('40.00')
-        klass(custom_field=custom_field, entity=self.contacts[6]).set_value_n_save('40.5')
+        klass(custom_field=custom_field, entity=contacts['asuka']).set_value_n_save('40.5')
 
         self.assertEqual(3, CustomFieldFloat.objects.count())
 
@@ -1034,7 +1050,7 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertExpectedFiltered(efilter, Contact, [ed.id, rei.id])
 
     def test_customfield06(self): #ENUM
-        rei = self.contacts[4]
+        rei = self.contacts['rei']
 
         custom_field = CustomField.objects.create(name='Eva', content_type=self.contact_ct, field_type=CustomField.ENUM)
         create_evalue = CustomFieldEnumValue.objects.create
@@ -1044,7 +1060,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
         klass = custom_field.get_value_class()
         klass(custom_field=custom_field, entity=rei).set_value_n_save(eva00.id)
-        klass(custom_field=custom_field, entity=self.contacts[6]).set_value_n_save(eva02.id)
+        klass(custom_field=custom_field, entity=self.contacts['asuka']).set_value_n_save(eva02.id)
 
         self.assertEqual(2, CustomFieldEnum.objects.count())
 
@@ -1057,11 +1073,11 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertExpectedFiltered(efilter, Contact, [rei.id])
 
     def test_customfield07(self): #BOOL
-        rei = self.contacts[4]
+        rei = self.contacts['rei']
 
         custom_field = CustomField.objects.create(name='cute ??', content_type=self.contact_ct, field_type=CustomField.BOOL)
         custom_field.get_value_class()(custom_field=custom_field, entity=rei).set_value_n_save(True)
-        custom_field.get_value_class()(custom_field=custom_field, entity=self.contacts[1]).set_value_n_save(False)
+        custom_field.get_value_class()(custom_field=custom_field, entity=self.contacts['jet']).set_value_n_save(False)
         self.assertEqual(2, CustomFieldBoolean.objects.count())
 
         efilter = EntityFilter.create('test-filter01', name='Cuties', model=Contact)
@@ -1073,8 +1089,6 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertExpectedFiltered(efilter, Contact, [rei.id])
 
     def test_customfield08(self): #CustomField is deleted
-        rei = self.contacts[4]
-
         custom_field01 = CustomField.objects.create(name='Size (cm)', content_type=self.contact_ct, field_type=CustomField.INT)
         custom_field02 = CustomField.objects.create(name='IQ',        content_type=self.contact_ct, field_type=CustomField.INT)
 
@@ -1114,10 +1128,10 @@ class EntityFiltersTestCase(CremeTestCase):
         custom_field = CustomField.objects.create(name='First fight', content_type=self.contact_ct, field_type=CustomField.DATE)
 
         klass = custom_field.get_value_class()
-        klass(custom_field=custom_field, entity=self.contacts[4]).set_value_n_save(date(year=2015, month=3, day=14))
-        klass(custom_field=custom_field, entity=self.contacts[7]).set_value_n_save(date(year=2015, month=4, day=21))
-        klass(custom_field=custom_field, entity=self.contacts[6]).set_value_n_save(date(year=2015, month=5, day=3))
-
+        contacts = self.contacts
+        klass(custom_field=custom_field, entity=contacts['rei']).set_value_n_save(date(year=2015, month=3, day=14))
+        klass(custom_field=custom_field, entity=contacts['shinji']).set_value_n_save(date(year=2015, month=4, day=21))
+        klass(custom_field=custom_field, entity=contacts['asuka']).set_value_n_save(date(year=2015, month=5, day=3))
         self.assertEqual(3, CustomFieldDateTime.objects.count())
 
         return custom_field
@@ -1125,26 +1139,24 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_datecustomfield01(self): # GTE operator
         custom_field = self._aux_test_datecf()
 
-        year = 2015; month = 4; day = 1
         efilter = EntityFilter.create('test-filter01', 'After April', Contact)
         cond = EntityFilterCondition.build_4_datecustomfield(custom_field=custom_field,
-                                                             start=date(year=year, month=month, day=day),
+                                                             start=date(year=2015, month=4, day=1),
                                                             )
         self.assertEqual(EntityFilterCondition.EFC_DATECUSTOMFIELD, cond.type)
 
         efilter.set_conditions([cond])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[6].id, self.contacts[7].id])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('asuka', 'shinji'))
 
     def test_datecustomfield02(self): # LTE operator
         custom_field = self._aux_test_datecf()
 
-        year = 2015; month = 5; day = 1
         efilter = EntityFilter.create('test-filter01', 'Before May', Contact)
         efilter.set_conditions([EntityFilterCondition.build_4_datecustomfield(custom_field=custom_field,
-                                                                              end=date(year=year, month=month, day=day),
+                                                                              end=date(year=2015, month=5, day=1),
                                                                              )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[4].id, self.contacts[7].id])
+        self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('shinji', 'rei'))
 
     def test_datecustomfield03(self): #range
         custom_field = self._aux_test_datecf()
@@ -1155,17 +1167,18 @@ class EntityFiltersTestCase(CremeTestCase):
                                                                               end=date(year=2015, month=4, day=30),
                                                                              )
                                ])
-        self.assertExpectedFiltered(efilter, Contact, [self.contacts[7].id])
+        self.assertExpectedFiltered(efilter, Contact, [self.contacts['shinji'].id])
 
     def test_datecustomfield04(self): #relative to now
         custom_field = CustomField.objects.create(name='First flight', content_type=self.contact_ct, field_type=CustomField.DATE)
 
-        spike = self.contacts[0]
-        jet   = self.contacts[1]
+        contacts = self.contacts
+        spike = contacts['spike']
+        jet   = contacts['jet']
         today = date.today()
 
         klass = custom_field.get_value_class()
-        klass(custom_field=custom_field, entity=self.contacts[2]).set_value_n_save(date(year=2000, month=3, day=14))
+        klass(custom_field=custom_field, entity=contacts['faye']).set_value_n_save(date(year=2000, month=3, day=14))
         klass(custom_field=custom_field, entity=spike).set_value_n_save(today.replace(year=today.year + 100))
         klass(custom_field=custom_field, entity=jet).set_value_n_save(today.replace(year=today.year + 95))
 
@@ -1177,14 +1190,15 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertExpectedFiltered(efilter, Contact, [spike.id, jet.id])
 
     def test_datecustomfield05(self): #2 DATE CustomFields with 2 conditions
-        shinji = self.contacts[7]
+        contacts = self.contacts
+        shinji = contacts['shinji']
         custom_field01 = self._aux_test_datecf()
         custom_field02 = CustomField.objects.create(name='Last fight', content_type=self.contact_ct, field_type=CustomField.DATE)
 
         klass = custom_field02.get_value_class()
-        klass(custom_field=custom_field02, entity=self.contacts[4]).set_value_n_save(date(year=2020, month=3, day=14))
+        klass(custom_field=custom_field02, entity=contacts['rei']).set_value_n_save(date(year=2020, month=3, day=14))
         klass(custom_field=custom_field02, entity=shinji).set_value_n_save(date(year=2030, month=4, day=21))
-        klass(custom_field=custom_field02, entity=self.contacts[6]).set_value_n_save(date(year=2040, month=5, day=3))
+        klass(custom_field=custom_field02, entity=contacts['asuka']).set_value_n_save(date(year=2040, month=5, day=3))
 
         efilter = EntityFilter.create('test-filter01', 'Complex filter', Contact, use_or=False)
         build_cond = EntityFilterCondition.build_4_datecustomfield
@@ -1194,13 +1208,14 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertExpectedFiltered(efilter, Contact, [shinji.id])
 
     def test_build_datecustomfield(self): #errors
-        custom_field = CustomField.objects.create(name='First flight', content_type=self.contact_ct, field_type=CustomField.INT) #not a DATE
+        create_cf = CustomField.objects.create
+        custom_field = create_cf(name='First flight', content_type=self.contact_ct, field_type=CustomField.INT) #not a DATE
         self.assertRaises(EntityFilterCondition.ValueError,
                           EntityFilterCondition.build_4_datecustomfield,
                           custom_field=custom_field, date_range='in_future'
                          )
 
-        custom_field = CustomField.objects.create(name='Day', content_type=self.contact_ct, field_type=CustomField.DATE)
+        custom_field = create_cf(name='Day', content_type=self.contact_ct, field_type=CustomField.DATE)
         self.assertRaises(EntityFilterCondition.ValueError,
                           EntityFilterCondition.build_4_datecustomfield,
                           custom_field=custom_field, #no date

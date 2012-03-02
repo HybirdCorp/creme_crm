@@ -3,6 +3,8 @@
 try:
     from creme_core.models import SetCredentials, Language, Currency
     from creme_core.tests.base import CremeTestCase
+
+    from persons.models import Contact
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -38,27 +40,32 @@ class ViewsTestCase(CremeTestCase):
 
 
 class MiscViewsTestCase(ViewsTestCase):
-    #@classmethod
-    #def setUpClass(cls):
-        #cls.populate()
+    @classmethod
+    def setUpClass(cls):
+        cls.populate()
 
-    #def setUp(self):
+    def setUp(self):
         #self.populate('creme_core', 'creme_config')
-        #self.login()
+        self.login()
+
+        user = self.user
+        Contact.objects.create(user=user, is_user=user,
+                               first_name='Fulbert', last_name='Creme'
+                              ) #TODO: move into login()
 
     def test_home(self): #TODO: improve test
-        self.populate('creme_core', 'creme_config')
-        self.login()
+        #self.populate('creme_core', 'creme_config')
+        #self.login()
         self.assertEqual(200, self.client.get('/').status_code)
 
     def test_my_page(self):
-        self.populate('creme_core', 'creme_config')
-        self.login()
+        #self.populate('creme_core', 'creme_config')
+        #self.login()
         self.assertEqual(200, self.client.get('/my_page').status_code)
 
     def test_clean(self):
-        self.populate()
-        self.login()
+        #self.populate()
+        #self.login()
 
         with self.assertNoException():
             response = self.client.get('/creme_core/clean/', follow=True)

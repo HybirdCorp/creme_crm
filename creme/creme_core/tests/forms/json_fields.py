@@ -14,7 +14,7 @@ try:
 
     from persons.models import Organisation, Contact, Address
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('JSONFieldTestCase',
@@ -174,10 +174,6 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                                         GenericEntityField(models=[Organisation, Contact, Address]).clean,
                                         '{"ctype":"%s","entity":"%s"}' % (ct_id, contact.pk)
                                        )
-
-    #TODO: complete this test after form right management refactor ??
-    #def test_clean_unallowed_entity(self):
-        #pass
 
     def test_clean_entity(self):
         self.login()
@@ -546,6 +542,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
                                                 rtype.id, contact.entity_type_id
                                             )
                                        )
+
 
 class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     format_str    = '[{"rtype":"%s", "ctype":"%s","entity":"%s"}]'

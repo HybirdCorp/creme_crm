@@ -21,22 +21,23 @@ try:
     from activities.models import Activity, ActivityType, Status, Meeting
     from activities.constants import REL_SUB_PART_2_ACTIVITY
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('EntityTestCase',)
 
 
 class EntityTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'media_managers', 'persons', 'activities')
+
     def setUp(self):
         self.user = User.objects.create(username='name')
 
     def test_entity01(self):
-        #try:
         with self.assertNoException():
             entity = CremeEntity.objects.create(user=self.user)
-        #except Exception as e:
-            #self.fail(str(e))
 
         now = datetime.now()
         self.assertLess((now - entity.created).seconds,  10)
@@ -45,13 +46,10 @@ class EntityTestCase(CremeTestCase):
     def test_property01(self): #TODO: create a test case for CremeProperty ???
         text = 'TEXT'
 
-        #try:
         with self.assertNoException():
             ptype  = CremePropertyType.create(str_pk='test-prop_foobar', text=text)
             entity = CremeEntity.objects.create(user=self.user)
             prop   = CremeProperty.objects.create(type=ptype, creme_entity=entity)
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertEqual(text, ptype.text)
 
@@ -107,7 +105,7 @@ class EntityTestCase(CremeTestCase):
     def test_clone02(self):
         self._setUpClone()
 
-        self.populate('creme_core', 'persons')
+        #self.populate('creme_core', 'persons')
         civility = Civility.objects.all()[0]
         position = Position.objects.all()[0]
         sector   = Sector.objects.all()[0]
@@ -219,7 +217,7 @@ class EntityTestCase(CremeTestCase):
 
     def test_clone04(self):
         self._setUpClone()
-        self.populate('creme_core', 'activities')
+        #self.populate('creme_core', 'activities')
 
         ct_activity = ContentType.objects.get_for_model(Activity)
         act_type = ActivityType.objects.all()[0]
@@ -231,7 +229,7 @@ class EntityTestCase(CremeTestCase):
             self.assertEqual(getattr(activity1, attr), getattr(activity2, attr))
 
     def test_clone05(self):
-        self.populate('creme_core', 'activities')
+        #self.populate('creme_core', 'activities')
 
         ct_activity = ContentType.objects.get_for_model(Activity)
 
@@ -260,7 +258,7 @@ class EntityTestCase(CremeTestCase):
         self.assertSameRelationsNProperties(activity1, activity2)
 
     def test_clone06(self):
-        self.populate('creme_core', 'media_managers')
+        #self.populate('creme_core', 'media_managers')
         tmpfile = NamedTemporaryFile()
         tmpfile.width = tmpfile.height = 0
         tmpfile._committed = True
