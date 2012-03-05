@@ -24,7 +24,6 @@ class HistoryTestCase(ViewsTestCase):
         cls.populate('creme_core', 'creme_config')
 
     def setUp(self):
-        #self.populate('creme_core', 'creme_config')
         self.old_time = datetime.now().replace(microsecond=0)
         self.login()
 
@@ -54,12 +53,12 @@ class HistoryTestCase(ViewsTestCase):
 
         return self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
 
-    def _assert_between_dates(self, hline):
+    def assertBetweenDates(self, hline):
         now = datetime.now()
         hdate = hline.date
         old_time = self.old_time
         self.assertTrue(old_time <= hdate <= now,
-                         'old_time=%s ; hline.date=%s ; now=%s' % (old_time, hdate, now)
+                        'old_time=%s ; hline.date=%s ; now=%s' % (old_time, hdate, now)
                        )
 
     def test_creation01(self):
@@ -75,7 +74,7 @@ class HistoryTestCase(ViewsTestCase):
         self.assertEqual(self.user.username,        hline.username)
         self.assertEqual(HistoryLine.TYPE_CREATION, hline.type)
         self.assertEqual([],                        hline.modifications)
-        self._assert_between_dates(hline)
+        self.assertBetweenDates(hline)
 
     def test_creation02(self): #double save() beacuse of addresses caused problems
         old_count = HistoryLine.objects.count()
@@ -95,7 +94,7 @@ class HistoryTestCase(ViewsTestCase):
         self.assertEqual(self.other_user,           hline.entity_owner)
         self.assertEqual(HistoryLine.TYPE_CREATION, hline.type)
         self.assertEqual([],                        hline.modifications)
-        self._assert_between_dates(hline)
+        self.assertBetweenDates(hline)
 
     def test_edition01(self):
         old_count = HistoryLine.objects.count()
@@ -108,10 +107,9 @@ class HistoryTestCase(ViewsTestCase):
 
         capital = old_capital * 2
         response = self.client.post('/persons/organisation/edit/%s' % gainax.id, follow=True,
-                                    data={
-                                            'user':    self.user.id,
-                                            'name':    name,
-                                            'capital': capital,
+                                    data={'user':    self.user.id,
+                                          'name':    name,
+                                          'capital': capital,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -147,22 +145,21 @@ about this fantastic animation studio."""
         email = 'contact@gainax.jp'
         description += 'In this studio were created lots of excellent animes like "Evangelion" or "Fushigi no umi no Nadia".'
         response = self.client.post('/persons/organisation/edit/%s' % gainax.id, follow=True,
-                                    data={
-                                            'user':          self.user.id,
-                                            'name':          name,
-                                            'phone':         phone,
-                                            'email':         email,
-                                            'description':   description,
-                                            'sector':        sector02.id,
-                                            'creation_date': '1984-12-24',
-                                            'subject_to_vat': True,
+                                    data={'user':          self.user.id,
+                                          'name':          name,
+                                          'phone':         phone,
+                                          'email':         email,
+                                          'description':   description,
+                                          'sector':        sector02.id,
+                                          'creation_date': '1984-12-24',
+                                          'subject_to_vat': True,
                                          }
                                    )
         self.assertNoFormError(response)
 
         hline = HistoryLine.objects.filter(type=HistoryLine.TYPE_EDITION, entity=gainax).latest('date')
         modifs = hline.modifications
-        self.assert_(isinstance(modifs, list))
+        self.assertIsInstance(modifs, list)
         self.assertEqual(6, len(modifs))
         self.assertIn(['phone', old_phone, phone], modifs)
         self.assertIn(['email', email], modifs)
@@ -173,40 +170,36 @@ about this fantastic animation studio."""
 
         vmodifs = hline.verbose_modifications
         self.assertEqual(6, len(vmodifs))
-        #print 'VMODIFS:', vmodifs
 
         #TODO: move in HistoryLine code ???
         FSTRING_1_VALUE  = _(u'Set field “%(field)s”')
         FSTRING_2_VALUES = _(u'Set field “%(field)s” to “%(value)s”')
         FSTRING_3_VALUES = _(u'Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”')
 
-        msg = FSTRING_3_VALUES % {'field':    _(u'Phone number'),
-                                  'oldvalue': old_phone,
-                                  'value':    phone,
-                                 }
-        self.assert_(msg in vmodifs, msg)
-
-        msg = FSTRING_2_VALUES % {'field': _(u'Email'),
-                                  'value': email,
-                                 }
-        self.assertIn(msg, vmodifs)
-
-        msg = FSTRING_1_VALUE % {'field': _(u'Description')}
-        self.assertIn(msg, vmodifs)
-
-        msg = FSTRING_3_VALUES % {'field':    _(u'Sector'),
-                                  'oldvalue': sector01,
-                                  'value':    sector02,
-                                 }
-        self.assertIn(msg, vmodifs)
-
-        msg = FSTRING_1_VALUE % {'field': _(u'Date of creation of the organisation')}
-        self.assertIn(msg, vmodifs)
-
-        msg = FSTRING_2_VALUES % {'field': _(u'Subject to VAT'),
-                                  'value': _('True'),
-                                 }
-        self.assertIn(msg, vmodifs)
+        self.assertIn(FSTRING_3_VALUES % {'field':    _(u'Phone number'),
+                                          'oldvalue': old_phone,
+                                          'value':    phone,
+                                         },
+                      vmodifs
+                     )
+        self.assertIn(FSTRING_2_VALUES % {'field': _(u'Email'), 'value': email},
+                      vmodifs
+                     )
+        self.assertIn(FSTRING_1_VALUE % {'field': _(u'Description')}, vmodifs)
+        self.assertIn(FSTRING_3_VALUES % {'field':    _(u'Sector'),
+                                          'oldvalue': sector01,
+                                          'value':    sector02,
+                                         },
+                      vmodifs
+                     )
+        self.assertIn(FSTRING_1_VALUE % {'field': _(u'Date of creation of the organisation')},
+                      vmodifs
+                     )
+        self.assertIn(FSTRING_2_VALUES % {'field': _(u'Subject to VAT'),
+                                          'value': _('True'),
+                                         },
+                      vmodifs
+                     )
 
     def test_edition03(self): #no change
         name = 'gainax'
@@ -216,10 +209,9 @@ about this fantastic animation studio."""
         old_count = HistoryLine.objects.count()
 
         response = self.client.post('/persons/organisation/edit/%s' % gainax.id, follow=True,
-                                    data={
-                                            'user':    self.user.id,
-                                            'name':    name,
-                                            'capital': capital,
+                                    data={'user':    self.user.id,
+                                          'name':    name,
+                                          'capital': capital,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -232,11 +224,10 @@ about this fantastic animation studio."""
 
         capital = old_capital * 2
         response = self.client.post('/persons/organisation/edit/%s' % gainax.id, follow=True,
-                                    data={
-                                            'user':           self.user.id,
-                                            'name':           name,
-                                            'capital':        capital,
-                                            'subject_to_vat': True,
+                                    data={'user':           self.user.id,
+                                          'name':           name,
+                                          'capital':        capital,
+                                          'subject_to_vat': True,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -262,13 +253,13 @@ about this fantastic animation studio."""
         self.assertEqual(old_count + 2, len(hlines))
 
         hline = hlines[-1]
-        self.assert_(hline.entity is None, hline.entity)
+        self.assertIsNone(hline.entity)
         self.assertEqual(entity_repr,               hline.entity_repr)
         self.assertEqual(self.other_user,           hline.entity_owner)
         self.assertEqual(self.user.username,        hline.username)
         self.assertEqual(HistoryLine.TYPE_DELETION, hline.type)
         self.assertEqual([],                        hline.modifications)
-        self._assert_between_dates(hline)
+        self.assertBetweenDates(hline)
 
         creation_line = self.refresh(creation_line)
         self.assertIsNone(hline.entity)
@@ -286,11 +277,10 @@ about this fantastic animation studio."""
 
         old_count = HistoryLine.objects.count()
         response = self.client.post('/persons/contact/edit/%s' % hayao.id, follow=True,
-                                    data={
-                                            'user':        self.user.id,
-                                            'first_name':  first_name,
-                                            'last_name':   last_name,
-                                            'description': 'A great animation movie maker'
+                                    data={'user':        self.user.id,
+                                          'first_name':  first_name,
+                                          'last_name':   last_name,
+                                          'description': 'A great animation movie maker'
                                          }
                                    )
         self.assertNoFormError(response)
@@ -318,11 +308,10 @@ about this fantastic animation studio."""
 
         old_count = HistoryLine.objects.count()
         response = self.client.post('/persons/contact/edit/%s' % hayao.id, follow=True,
-                                    data={
-                                            'user':        self.user.id,
-                                            'first_name':  first_name,
-                                            'last_name':   last_name,
-                                            'description': 'A great animation movie maker',
+                                    data={'user':        self.user.id,
+                                          'first_name':  first_name,
+                                          'last_name':   last_name,
+                                          'description': 'A great animation movie maker',
                                          }
                                    )
         self.assertNoFormError(response)
@@ -341,7 +330,7 @@ about this fantastic animation studio."""
         self.assertEqual(unicode(ghibli),          hline.entity_repr)
         self.assertEqual([],                       hline.modifications)
         self.assertEqual(edition_hline.id,         hline.related_line.id)
-        self._assert_between_dates(hline)
+        self.assertBetweenDates(hline)
         self.assertEqual(self.refresh(hayao).modified, hline.date)
 
     def test_add_property01(self):
@@ -367,10 +356,9 @@ about this fantastic animation studio."""
         FSTRING = _(u'Add property “%s”')
         self.assertEqual([FSTRING % ptype.text], hline.verbose_modifications)
 
-        ptype_id = ptype.id
+        expected = [FSTRING % ptype.id]
         prop.delete(); ptype.delete()
-        hline = HistoryLine.objects.get(pk=hline.id) #refresh
-        self.assertEqual([FSTRING % ptype_id], hline.verbose_modifications)
+        self.assertEqual(expected, self.refresh(hline).verbose_modifications)
 
     def test_add_relation(self):
         nerv = Organisation.objects.create(user=self.user, name='Nerv')
@@ -400,7 +388,7 @@ about this fantastic animation studio."""
         self.assertEqual(HistoryLine.TYPE_SYM_RELATION,  hline_sym.type)
         self.assertEqual([srtype.id],                    hline_sym.modifications)
         self.assertEqual(relation.modified,              hline_sym.date)
-        self.assertEqual(True,                           hline.is_about_relation)
+        self.assertIs(True,                              hline.is_about_relation)
 
         self.assertEqual(hline_sym.id, hline.related_line.id)
         self.assertEqual(hline.id,     hline_sym.related_line.id)
@@ -413,5 +401,57 @@ about this fantastic animation studio."""
         relation.delete(); rtype.delete()
         self.assertFalse(RelationType.objects.filter(pk=rtype_id).exists())
         self.assertEqual([FSTRING % rtype_id], self.refresh(hline).verbose_modifications)
+
+    def test_multi_save01(self):
+        old_last_name = 'Ayami'
+        new_last_name = 'Ayanami'
+
+        rei = Contact.objects.create(user=self.user, first_name='Rei', last_name=old_last_name)
+        self.assertEqual(1, HistoryLine.objects.filter(entity=rei.id).count())
+
+        rei.last_name = new_last_name
+        rei.save()
+
+        hlines = list(HistoryLine.objects.filter(entity=rei.id).order_by('id'))
+        self.assertEqual(1, len(hlines))
+        self.assertEqual(HistoryLine.TYPE_CREATION, hlines[0].type)
+
+    def test_multi_save02(self): #beware internal backup must be recreated after the save()
+        old_last_name = 'Ayami'; new_last_name = 'Ayanami'
+        old_first_name = 'Rey';  new_first_name = 'Rei'
+
+        rei = Contact.objects.create(user=self.user, first_name=old_first_name, last_name=old_last_name)
+        self.assertEqual(1, HistoryLine.objects.filter(entity=rei.id).count())
+
+        rei = self.refresh(rei) #force internal backup, we can begin our edition stuffs
+
+        rei.last_name = new_last_name
+        rei.save()
+
+        hlines = list(HistoryLine.objects.filter(entity=rei.id).order_by('id'))
+        self.assertEqual(2, len(hlines))
+
+        creation_hline = hlines[0]
+        self.assertEqual(HistoryLine.TYPE_CREATION, creation_hline.type)
+
+        edition_hline01 = hlines[1]
+        self.assertEqual(HistoryLine.TYPE_EDITION, edition_hline01.type)
+        self.assertEqual([['last_name', old_last_name, new_last_name]],
+                         edition_hline01.modifications
+                        )
+
+        rei.first_name = new_first_name
+        rei.save()
+
+        hlines = list(HistoryLine.objects.filter(entity=rei.id).order_by('id'))
+        self.assertEqual(3, len(hlines))
+        self.assertEqual(creation_hline,  hlines[0])
+        self.assertEqual(edition_hline01, hlines[1])
+
+        edition_hline02 = hlines[2]
+        self.assertEqual(HistoryLine.TYPE_EDITION, edition_hline02.type)
+        self.assertEqual([['first_name', old_first_name, new_first_name]],
+                         edition_hline02.modifications
+                        )
 
     #TODO: test populate related lines + query counter ??

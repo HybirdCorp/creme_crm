@@ -217,7 +217,7 @@ class RelationViewsTestCase(ViewsTestCase):
         with self.assertNoException():
             field_sfrt = context['form'].fields['semifixed_rtypes']
 
-        self.assertEqual(set([sfrt1.id, sfrt2.id]), 
+        self.assertEqual(set([sfrt1.id, sfrt2.id]),
                          set(pk for pk, sfrt in field_sfrt.choices)
                         )
 
@@ -458,7 +458,7 @@ class RelationViewsTestCase(ViewsTestCase):
         ct_id = self.ct_id
         subject01 = self.subject01
         subject02 = self.subject02
-        response = self.client.post(self._build_bulk_add_url(ct_id, subject01, subject02), 
+        response = self.client.post(self._build_bulk_add_url(ct_id, subject01, subject02),
                                     data={'entities_lbl': 'wtf',
                                           'relations':    self.format_str_2x % (
                                                                 self.rtype01.id, ct_id, subject01.id,
@@ -548,7 +548,7 @@ class RelationViewsTestCase(ViewsTestCase):
                     self.ct_id, self.rtype01.id, self.subject01.id, self.subject02.id
                 )
         self.assertEqual(200, self.client.get(url).status_code)
-        
+
         ct_id = self.ct_id
         response = self.client.post(url, data={'entities_lbl': 'wtf',
                                                'relations': self.format_str_2x % (
@@ -578,11 +578,11 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def _build_selection_url(self, rtype, subject, ct):
         return '/creme_core/relation/objects2link/rtype/%s/entity/%s/%s' % (
-                    rtype.id, 
+                    rtype.id,
                     subject.id,
                     ct.id
                 )
-    
+
     def test_objects_to_link_selection01(self):
         self._aux_relation_objects_to_link_selection()
 

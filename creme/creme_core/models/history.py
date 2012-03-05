@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -129,6 +129,10 @@ class HistoryLine(Model):
                 )
 
     @staticmethod
+    def _create_entity_backup(entity):
+        entity._instance_backup = entity.__dict__.copy()
+
+    @staticmethod
     def _encode_attrs(instance, modifs=(), related_line_id=None):
         value = [unicode(instance)]
         if related_line_id:
@@ -190,7 +194,7 @@ class HistoryLine(Model):
 
             try:
                 predicate = RelationType.objects.get(pk=rtype_id).predicate #TODO: use cache
-            except RelationType.DoesNotExist, e:
+            except RelationType.DoesNotExist:
                 predicate = rtype_id
 
             vmodifs.append(_(u'Add a relationship “%s”') % predicate)
@@ -287,6 +291,10 @@ class HistoryLine(Model):
     def _log_creation_edition_entity(instance, created, **kwargs):
         if created:
             HistoryLine._create_line_4_instance(instance, HistoryLine.TYPE_CREATION)
+            #we do not backup here, in order to keep a kind of 'creation session'.
+            # So when you create a CremeEntity, while you still use the same
+            # python object, multiple save() will not generate several
+            # HistoryLine objects.
         else:
             backup = getattr(instance, '_instance_backup', None)
             if backup is None:
@@ -332,13 +340,14 @@ class HistoryLine(Model):
 
                 if relations:
                     object_entities = [r.object_entity for r in relations]
-                    #now = datetime.now()
                     now = instance.modified
 
                     CremeEntity.populate_real_entities(object_entities) #optimisation
 
                     for entity in object_entities:
                         create_line(entity.get_real_entity(), HistoryLine.TYPE_RELATED, date=now, related_line_id=hline.id)
+
+                HistoryLine._create_entity_backup(instance)
 
     @staticmethod
     def _log_deletion(sender, instance, **kwargs):
@@ -354,7 +363,7 @@ class HistoryLine(Model):
     @staticmethod
     def _prepare_edition(sender, instance, **kwargs):
         if isinstance(instance, CremeEntity) and instance.id and instance.entity_type_id == _get_ct(instance).id:
-            instance._instance_backup = instance.__dict__.copy()
+            HistoryLine._create_entity_backup(instance)
 
 
 post_init.connect(HistoryLine._prepare_edition,      dispatch_uid='creme_core-historyline._prepare_edition')
