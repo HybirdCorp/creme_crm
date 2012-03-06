@@ -95,14 +95,18 @@ class UserAddForm(CremeModelForm):
         if not contact:
             contact = Contact(last_name=(user.last_name or user.username),
                               first_name=(user.first_name or user.username),
-                              user=user)
+                              user=user
+                             )
 
         contact.is_user = user
         contact.save()
 
-        Relation.objects.create(subject_entity=contact, type=cleaned['relation'],
-                                object_entity=cleaned['organisation'], user=user,
-                               )
+        relation_desc = {'subject_entity': contact,
+                         'type':           cleaned['relation'],
+                         'object_entity':  cleaned['organisation'],
+                        }
+        if not Relation.objects.filter(**relation_desc).exists():
+            Relation.objects.create(user=user, **relation_desc)
 
         user.update_credentials()
 
