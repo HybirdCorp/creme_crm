@@ -2,12 +2,15 @@
 
 try:
     from datetime import timedelta
+    from tempfile import NamedTemporaryFile
 
     from django.utils.translation import ugettext as _
 
     from creme_core.models import (RelationType, Relation, SetCredentials,
                                    CremePropertyType, CremeProperty, Language)
     from creme_core.tests.views.base import ViewsTestCase
+
+    from media_managers.models import Image
 
     from persons.models import Organisation, Contact
 except Exception as e:
@@ -31,6 +34,17 @@ class MergeViewsTestCase(ViewsTestCase):
     def _oldify(self, entity, hours_delta=1):
         mdate = entity.modified - timedelta(hours=hours_delta)
         entity.__class__.objects.filter(pk=entity.pk).update(modified=mdate)
+
+    def _create_image(self, ident=1): #TODO factorise ? (see tests.models.entity._create_image)
+        tmpfile = NamedTemporaryFile()
+        tmpfile.width = tmpfile.height = 0
+        tmpfile._committed = True
+        tmpfile.path = 'upload/file_%s.jpg' % ident
+
+        return Image.objects.create(user=self.user, image=tmpfile,
+                                    name=u'Image #%s' % ident,
+                                    description=u"Desc"
+                                   )
 
     def test_select_entity_for_merge01(self):
         self.login()
@@ -187,13 +201,17 @@ class MergeViewsTestCase(ViewsTestCase):
         #prop3 should have been deleted (no doublon)
         self.assertFalse(CremeProperty.objects.filter(pk=prop3.pk).exists())
 
-    def test_merge02(self): #other ct, M2M
+    def test_merge02(self): #other ct, M2M, foreign key to CremeEntities
         self.login()
+
+        image1 = self._create_image(ident=1)
+        image2 = self._create_image(ident=2)
+        image3 = self._create_image(ident=3) #should not be proposed by the form
 
         user = self.user
         create_contact = Contact.objects.create
-        contact01 = create_contact(user=user, first_name=u'Makoto', last_name=u'Kōsaka')
-        contact02 = create_contact(user=user, first_name=u'Makoto', last_name='Kousaka')
+        contact01 = create_contact(user=user, first_name=u'Makoto', last_name=u'Kōsaka', image=image1)
+        contact02 = create_contact(user=user, first_name=u'Makoto', last_name='Kousaka', image=image2)
 
         language1, language2 = Language.objects.all()[:2]
         language3 = Language.objects.create(name=u'Klingon', code='KLN')
@@ -201,7 +219,20 @@ class MergeViewsTestCase(ViewsTestCase):
         contact01.language = [language1]
         contact02.language = [language1, language2]
 
-        response = self.client.post(self.build_merge_url(contact01, contact02), follow=True,
+        url = self.build_merge_url(contact01, contact02)
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        with self.assertNoException():
+            f_image = response.context['form'].fields['image']
+
+        self.assertFalse(f_image.required)
+        self.assertEqual([image1.id,  image2.id,  image1.id],  f_image.initial)
+        self.assertEqual(set([(image1.id, unicode(image1)), (image2.id, unicode(image2))]), #not image3 !
+                         set(f_image._original_field.choices)
+                        )
+
+        response = self.client.post(url, follow=True,
                                     data={'user_1':      user.id,
                                           'user_2':      user.id,
                                           'user_merged': user.id,
@@ -217,6 +248,10 @@ class MergeViewsTestCase(ViewsTestCase):
                                           'language_1':      [language1.id],
                                           'language_2':      [language1.id, language2.id],
                                           'language_merged': [language3.id], #<======
+
+                                          'image_1':      image1.id,
+                                          'image_2':      image2.id,
+                                          'image_merged': image2.id,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -230,7 +265,8 @@ class MergeViewsTestCase(ViewsTestCase):
         new_contact01 = self.refresh(contact01)
         self.assertEqual(contact01.first_name, new_contact01.first_name)
         self.assertEqual(contact01.last_name,  new_contact01.last_name)
-        self.assertEqual([language3], list(contact01.language.all()))
+        self.assertEqual([language3],          list(new_contact01.language.all()))
+        self.assertEqual(image2,               new_contact01.image)
 
     def test_merge03(self): #initial values come in priority from the last edited entity
         self.login()
@@ -251,6 +287,27 @@ class MergeViewsTestCase(ViewsTestCase):
             f_name = response.context['form'].fields['name']
 
         self.assertEqual([orga01.name, orga02.name, orga02.name], f_name.initial)
+
+    def test_merge04(self): #nullable foreign key to CremeEntities
+        self.login()
+
+        image = self._create_image()
+
+        user = self.user
+        create_contact = Contact.objects.create
+        contact01 = create_contact(user=user, first_name=u'Makoto', last_name=u'Kōsaka', image=image)
+        contact02 = create_contact(user=user, first_name=u'Makoto', last_name='Kousaka')
+
+        response = self.client.get(self.build_merge_url(contact01, contact02))
+        self.assertEqual(200, response.status_code)
+
+        with self.assertNoException():
+            f_image = response.context['form'].fields['image']
+
+        self.assertEqual([image.id,  None,  image.id],  f_image.initial)
+        self.assertEqual(set([(image.id, unicode(image)), ('', '---------')]),
+                         set(f_image._original_field.choices)
+                        )
 
     def test_error01(self): #merge 2 entities with different types
         self.login()

@@ -205,11 +205,8 @@ class UserTestCase(CremeTestCase):
         orga = Organisation.objects.create(user=self.user, name='Olympus')
         CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
 
-        #Relation.objects.create(user=self.user, subject_entity=contact, type_id=REL_SUB_MANAGES, object_entity=orga)
-
         username = 'deunan'
         password = 'password'
-        #response = self.client.get('/creme_config/user/add/')
         response = self.client.post('/creme_config/user/add/', follow=True,
                                     data={'username':     username,
                                           'password_1':   password,
@@ -225,9 +222,6 @@ class UserTestCase(CremeTestCase):
 
         self.assertEqual(user, self.refresh(contact).is_user)
 
-        #self.assertFormError(response, 'form', 'contact',
-                             #[_(u'This contact is already linked to the user "%s"') % user]
-                            #)
         new_user = self.get_object_or_fail(User, username=username)
         contact = self.get_object_or_fail(Contact, is_user=new_user,
                                           first_name=username,
