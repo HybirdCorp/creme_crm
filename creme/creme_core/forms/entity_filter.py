@@ -90,8 +90,14 @@ class RegularFieldsConditionsWidget(SelectorList):
         fields_by_cat = defaultdict(list) #fields grouped by category (a category by FK)
 
         for fname, fieldlist in fields.iteritems():
-            key = '' if len(fieldlist) == 1 else unicode(fieldlist[0].verbose_name) # == 1 -> not a FK
-            fields_by_cat[key].append((fname, fieldlist[-1].verbose_name))
+            if len(fieldlist) == 1:  #not a FK
+                cat = ''
+                vname = fieldlist[0].verbose_name
+            else: #FK case
+                cat = unicode(fieldlist[0].verbose_name)
+                vname = u'[%s] - %s' % (cat, fieldlist[1].verbose_name)
+
+            fields_by_cat[cat].append((fname, vname))
 
         return [(cat, sorted(fields_by_cat[cat], key=lambda item: item[1]))
                     for cat in sorted(fields_by_cat.keys())
