@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,6 +29,9 @@ from documents.models import Folder, Document
 from documents.constants import REL_SUB_RELATED_2_DOC
 
 
+_CT_DOC = ContentType.objects.get_for_model(Document)
+
+
 class FolderDocsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('documents', 'folder_docs')
     dependencies  = (Document,)
@@ -42,7 +45,7 @@ class FolderDocsBlock(QuerysetBlock):
         btc = self.get_block_template_context(context,
                                               Document.objects.filter(**q_dict),
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, folder.id),
-                                              ct_id=ContentType.objects.get_for_model(Document).id,
+                                              ct_id=_CT_DOC.id,
                                               q_filter=JSONEncoder().encode(q_dict),
                                              )
         CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
@@ -52,7 +55,7 @@ class FolderDocsBlock(QuerysetBlock):
 
 class LinkedDocsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('documents', 'linked_docs')
-    dependencies  = (Relation,) #Document
+    dependencies  = (Relation, Document)
     relation_type_deps = (REL_SUB_RELATED_2_DOC, )
     verbose_name  = _(u'Linked documents')
     template_name = 'documents/templatetags/block_linked_docs.html'
@@ -65,11 +68,12 @@ class LinkedDocsBlock(QuerysetBlock):
                                               Document.get_linkeddoc_relations(entity),
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),
                                               predicate_id=REL_SUB_RELATED_2_DOC,
-                                              ct_id=ContentType.objects.get_for_model(Document).id,
-                                              has_creation_perm=user.has_perm_to_create(Document),
+                                              ct_doc=_CT_DOC,
                                              )
         relations = btc['page'].object_list
-        docs = dict((c.id, c) for c in Document.objects.filter(pk__in=[r.object_entity_id for r in relations]).select_related('folder'))
+        docs = dict((c.id, c) for c in Document.objects.filter(pk__in=[r.object_entity_id for r in relations])
+                                                       .select_related('folder')
+                   )
 
         CremeEntity.populate_credentials(docs.values(), user)
 

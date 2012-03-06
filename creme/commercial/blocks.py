@@ -257,7 +257,7 @@ class ActObjectivesBlock(QuerysetBlock):
 
 class RelatedOpportunitiesBlock(PaginatedBlock):
     id_           = PaginatedBlock.generate_id('commercial', 'opportunities')
-    dependencies  = (Relation,)
+    dependencies  = (Relation, Opportunity)
     relation_type_deps = (REL_OBJ_OPPORT_LINKED,)
     verbose_name  = _(u'Opportunities related to a Commercial Action')
     template_name = 'commercial/templatetags/block_opportunities.html'

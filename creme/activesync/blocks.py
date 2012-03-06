@@ -36,7 +36,7 @@ from activesync.constants import (USER_MOBILE_SYNC_SERVER_URL, MAPI_SERVER_URL, 
 
 class UserMobileSyncConfigBlock(Block):
     id_           = Block.generate_id('activesync', 'user_mobile_sync')
-    dependencies  = ()
+    dependencies  = () #TODO: useless
     verbose_name  = u'Mobile synchronization configuration for a user'
     template_name = 'activesync/templatetags/block_user_mobile_sync.html'
     configurable  = False
@@ -86,6 +86,7 @@ class UserMobileSyncConfigBlock(Block):
                 except SettingValue.DoesNotExist:
                     pass
 
+            #TODO: factorise
             try:
                 username = sv_get(key__id=USER_MOBILE_SYNC_SERVER_LOGIN, user=user).value
             except SettingValue.DoesNotExist:
