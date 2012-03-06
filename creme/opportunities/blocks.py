@@ -45,7 +45,7 @@ class OpportunityBlock(SimpleBlock):
 
 class _LinkedStuffBlock(QuerysetBlock):
     #id_           = SET ME
-    dependencies  = (Relation,) #Contact
+    dependencies  = (Relation,)
     #relation_type_deps = SET ME
     #verbose_name  = SET ME
     #template_name = SET ME
@@ -72,6 +72,7 @@ class _LinkedStuffBlock(QuerysetBlock):
 
 class LinkedContactsBlock(_LinkedStuffBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'linked_contacts')
+    dependencies  = (Relation, Contact)
     relation_type_deps = (REL_OBJ_LINKED_CONTACT, )
     verbose_name  = _(u'Linked Contacts')
     template_name = 'opportunities/templatetags/block_contacts.html'
@@ -82,6 +83,7 @@ class LinkedContactsBlock(_LinkedStuffBlock):
 
 class LinkedProductsBlock(_LinkedStuffBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'linked_products')
+    dependencies  = (Relation, Product)
     relation_type_deps = (REL_OBJ_LINKED_PRODUCT, )
     verbose_name  = _(u'Linked Products')
     template_name = 'opportunities/templatetags/block_products.html'
@@ -94,6 +96,7 @@ class LinkedProductsBlock(_LinkedStuffBlock):
 
 class LinkedServicesBlock(_LinkedStuffBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'linked_services')
+    dependencies  = (Relation, Service)
     relation_type_deps = (REL_OBJ_LINKED_SERVICE, )
     verbose_name  = _(u'Linked Services')
     template_name = 'opportunities/templatetags/block_services.html'
@@ -106,6 +109,7 @@ class LinkedServicesBlock(_LinkedStuffBlock):
 
 class ResponsiblesBlock(_LinkedStuffBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'responsibles')
+    dependencies  = (Relation, Contact)
     relation_type_deps = (REL_OBJ_RESPONSIBLE, )
     verbose_name  = _(u'Responsibles')
     template_name = 'opportunities/templatetags/block_responsibles.html'
@@ -116,6 +120,7 @@ class ResponsiblesBlock(_LinkedStuffBlock):
 
 class QuotesBlock(_LinkedStuffBlock):
     id_                 = QuerysetBlock.generate_id('opportunities', 'quotes')
+    dependencies  = (Relation, Quote)
     relation_type_deps  = (REL_OBJ_LINKED_QUOTE,)
     verbose_name        = _(u"Quotes linked to the opportunity")
     template_name       = 'opportunities/templatetags/block_quotes.html'
@@ -128,6 +133,7 @@ class QuotesBlock(_LinkedStuffBlock):
 
 class SalesOrdersBlock(_LinkedStuffBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'sales_orders')
+    dependencies  = (Relation, SalesOrder)
     relation_type_deps = (REL_OBJ_LINKED_SALESORDER, )
     verbose_name  = _(u"Salesorders linked to the opportunity")
     template_name = 'opportunities/templatetags/block_sales_orders.html'
@@ -140,6 +146,7 @@ class SalesOrdersBlock(_LinkedStuffBlock):
 
 class InvoicesBlock(_LinkedStuffBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'invoices')
+    dependencies  = (Relation, Invoice)
     relation_type_deps = (REL_OBJ_LINKED_INVOICE, )
     verbose_name  = _(u"Invoices linked to the opportunity")
     template_name = 'opportunities/templatetags/block_invoices.html'
@@ -152,6 +159,7 @@ class InvoicesBlock(_LinkedStuffBlock):
 
 class TargettingOpportunitiesBlock(_LinkedStuffBlock):
     id_           = QuerysetBlock.generate_id('opportunities', 'target_organisations')
+    dependencies  = (Relation, Opportunity)
     relation_type_deps = (REL_OBJ_TARGETS, )
     verbose_name  = _(u"Opportunities which target the organisation / contact")
     template_name = 'opportunities/templatetags/block_opportunities.html'
@@ -166,7 +174,7 @@ class TargettingOpportunitiesBlock(_LinkedStuffBlock):
 
 class OppTotalBlock(TotalBlock):
     id_                 = TotalBlock.generate_id('opportunities', 'total')
-    dependencies        = (Opportunity, Relation,)
+    dependencies        = (Opportunity, Relation)
     relation_type_deps  = (REL_OBJ_LINKED_QUOTE,)
     template_name       = 'opportunities/templatetags/block_total.html'
     target_ctypes       = (Opportunity,)
@@ -199,6 +207,4 @@ blocks_list = (
     total_block,
     target_block,
     targetting_opps_block,
-#    OppProductLinesBlock(),
-#    OppServiceLinesBlock(),
 )

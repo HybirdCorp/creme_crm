@@ -20,7 +20,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.gui.block import QuerysetBlock
 
@@ -34,12 +34,12 @@ from crudity.models import WaitingAction, History
 
 
 class CrudityQuerysetBlock(QuerysetBlock):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs): #TODO: useless
         super(CrudityQuerysetBlock, self).__init__()
 
     def detailview_display(self, context):
         if not context['user'].has_perm('crudity'):
-            raise PermissionDenied(_('Error: you are not allowed to view this block: %s' % self.id_))
+            raise PermissionDenied(ugettext('Error: you are not allowed to view this block: %s' % self.id_))
 
     @property
     def is_sandbox_by_user(self):
@@ -47,7 +47,7 @@ class CrudityQuerysetBlock(QuerysetBlock):
 
 
 class WaitingActionBlock(CrudityQuerysetBlock):
-    dependencies  = ()
+    dependencies  = () #TODO: useless
     verbose_name  = _(u'Waiting actions')
     template_name = 'crudity/templatetags/block_waiting_action.html'
 

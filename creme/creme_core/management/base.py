@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -123,9 +123,10 @@ class CSVImportCommand(BaseCommand):
 #                        department=l_get(u'Department'),
 #                    )
 #
+#            organisation.full_clean()
 #            organisation.save()
 #            self.handle_manager(l_get(u'Manager'), organisation)
-#        except Exception, e:
+#        except Exception as e:
 #            print "An error occurred at line :", line
 #            print e
 #

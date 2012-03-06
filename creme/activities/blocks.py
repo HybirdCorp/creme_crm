@@ -32,7 +32,7 @@ from constants import *
 
 class ParticipantsBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activities', 'participants')
-    dependencies  = (Relation,)
+    dependencies  = (Relation, Contact)
     relation_type_deps = (REL_OBJ_PART_2_ACTIVITY,)
     verbose_name  = _(u'Participants')
     template_name = 'activities/templatetags/block_participants.html'
@@ -86,7 +86,7 @@ class SubjectsBlock(QuerysetBlock):
 
 class FutureActivitiesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('activities', 'future_activities')
-    dependencies  = (Relation,) #Activity
+    dependencies  = (Relation, Activity)
     relation_type_deps = (REL_SUB_LINKED_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY)
     verbose_name  = _(u'Future activities')
     template_name = 'activities/templatetags/block_future_activities.html'

@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models.query_utils import Q
 from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
@@ -92,7 +91,7 @@ class ServiceLinesBlock(PaginatedBlock):
 
 class CreditNoteBlock(QuerysetBlock):
     id_                 = QuerysetBlock.generate_id('billing', 'credit_notes')
-    dependencies        = (Relation,)
+    dependencies        = (Relation, CreditNote)
     relation_type_deps  = (REL_OBJ_CREDIT_NOTE_APPLIED, )
     verbose_name        = _(u"Related Credit Notes")
     template_name       = 'billing/templatetags/block_credit_note.html'
@@ -132,7 +131,7 @@ class TargetBlock(SimpleBlock):
 
 class ReceivedInvoicesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('billing', 'received_invoices')
-    dependencies  = (Relation,) #Invoice
+    dependencies  = (Relation, Invoice)
     relation_type_deps = (REL_OBJ_BILL_RECEIVED, )
     verbose_name  = _(u"Received invoices")
     template_name = 'billing/templatetags/block_received_invoices.html'
@@ -153,7 +152,7 @@ class ReceivedInvoicesBlock(QuerysetBlock):
 
 class ReceivedBillingDocumentBlock(QuerysetBlock):#TODO: Check out and exclude TemplateBase if needed
     id_           = QuerysetBlock.generate_id('billing', 'received_billing_document')
-    dependencies  = (Relation,) #billing.Base subclasses except Invoice
+    dependencies  = (Relation, CreditNote, Quote, SalesOrder)
     relation_type_deps = (REL_OBJ_BILL_RECEIVED, )
     verbose_name  = _(u"Received billing documents")
     template_name = 'billing/templatetags/block_received_billing_document.html'
@@ -163,17 +162,15 @@ class ReceivedBillingDocumentBlock(QuerysetBlock):#TODO: Check out and exclude T
 
     def detailview_display(self, context):
         person = context['object']
-
+        get_ct = ContentType.objects.get_for_model
         qs = Base.objects.filter(relations__object_entity=person.id, relations__type=REL_SUB_BILL_RECEIVED)\
-                         .filter(~Q(entity_type=ContentType.objects.get_for_model(TemplateBase)))\
-                         .filter(~Q(entity_type=ContentType.objects.get_for_model(Invoice)))
+                         .exclude(entity_type__in=[get_ct(TemplateBase), get_ct(Invoice)])
 
         CremeEntity.populate_real_entities(qs)
 
-        btc= self.get_block_template_context(context,
-                                             qs,
-                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
-                                            )
+        btc = self.get_block_template_context(context, qs,
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
+                                             )
 
         CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
 
@@ -196,7 +193,7 @@ class PaymentInformationBlock(QuerysetBlock):
             has_to_be_displayed_cfg = SettingValue.objects.get(key__id=DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA).value
             is_managed_by_creme     = organisation.properties.filter(type=PROP_IS_MANAGED_BY_CREME)
 
-            if has_to_be_displayed_cfg and not is_managed_by_creme: #TODO: move out 'try.. except' block
+            if has_to_be_displayed_cfg and not is_managed_by_creme:
                 has_to_be_displayed = False
         except SettingValue.DoesNotExist:
             #Populate error ?
@@ -220,7 +217,7 @@ class BillingPaymentInformationBlock(QuerysetBlock):
     template_name = "billing/templatetags/block_billing_payment_information.html"
     #configurable  = False
     target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder)
-    dependencies  = (Relation, )
+    dependencies  = (Relation, PaymentInformation)
     relation_type_deps = (REL_OBJ_BILL_ISSUED, REL_SUB_BILL_ISSUED, REL_OBJ_BILL_RECEIVED, REL_SUB_BILL_RECEIVED)
     order_by      = 'name'
 
@@ -233,8 +230,7 @@ class BillingPaymentInformationBlock(QuerysetBlock):
         else:
             pi_qs = PaymentInformation.objects.none()
 
-        btc = self.get_block_template_context(context,
-                                              pi_qs,
+        btc = self.get_block_template_context(context, pi_qs,
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, billing.pk),
                                               ct_id=ContentType.objects.get_for_model(PaymentInformation).id,
                                               organisation=organisation,

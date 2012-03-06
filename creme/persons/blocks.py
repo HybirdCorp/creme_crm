@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -58,7 +58,7 @@ class OrgaCoordinatesBlock(SimpleBlock):
 
 class ManagersBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('persons', 'managers')
-    dependencies  = (Relation,) #Contact
+    dependencies  = (Relation, Contact)
     relation_type_deps = (REL_OBJ_MANAGES, )
     verbose_name  = _(u"Organisation managers")
     template_name = 'persons/templatetags/block_managers.html'
