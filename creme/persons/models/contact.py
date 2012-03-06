@@ -72,10 +72,6 @@ class Contact(CremeEntity):
 
         return u'%s %s' % (self.first_name, self.last_name)
 
-    #def save(self, *args, **kwargs):
-        #self.header_filter_search_field = unicode(self)
-        #super(Contact, self).save(*args, **kwargs)
-
     def get_employers(self):
         from organisation import Organisation
         return Organisation.objects.filter(relations__type=REL_OBJ_EMPLOYED_BY, relations__object_entity=self.id)

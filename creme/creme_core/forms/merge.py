@@ -20,12 +20,14 @@
 
 from logging import error
 
+from django.db.models import ForeignKey
 from django.forms import Field, Widget, Select
 from django.forms.models import fields_for_model, model_to_dict
 from django.forms.util import flatatt
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
+from creme_core.models import CremeEntity
 from creme_core.forms import CremeForm
 from creme_core.signals import pre_merge_related
 from creme_core.gui.merge import merge_form_registry
@@ -79,16 +81,33 @@ class MergeWidget(Widget):
                 value_from_datadict(data, files, '%s_merged' % name),
                )
 
-
 class MergeField(Field):
-    def __init__(self, modelform_field, *args, **kwargs):
+    def __init__(self, modelform_field, model_field, *args, **kwargs):
         super(MergeField, self).__init__(self, widget=MergeWidget(modelform_field.widget), *args, **kwargs)
 
         self.required = modelform_field.required
         self._original_field = modelform_field
+        self._restricted_queryset = None
+
+        #TODO: ManyToManyField ??
+        if isinstance(model_field, ForeignKey) and issubclass(model_field.rel.to, CremeEntity):
+            qs = modelform_field.queryset
+            self._restricted_queryset = qs
+            modelform_field.queryset = qs.none()
 
     def clean(self, value):
         return self._original_field.clean(value[2])
+
+    def set_merge_initial(self, initial):
+        self.initial = initial
+        qs = self._restricted_queryset
+
+        if qs is not None:
+            field = self._original_field
+            field.queryset = qs.filter(pk__in=initial)
+
+            if None not in initial:
+                field.empty_label = None
 
 
 class MergeEntitiesBaseForm(CremeForm):
@@ -110,14 +129,13 @@ class MergeEntitiesBaseForm(CremeForm):
         initial_index = 0 if entity1.modified <= entity2.modified else 1
 
         for name, field in self.fields.iteritems():
-            if name == 'entities_labels': 
-                initial = (unicode(entity1), unicode(entity2), _('Merged entity'))
+            if name == 'entities_labels':
+                field.initial = (unicode(entity1), unicode(entity2), _('Merged entity'))
             else:
                 initial = [entity1_initial[name], entity2_initial[name]]
-                #we try to initialize with prefered onr, but we use the other if it is empty.
+                #we try to initialize with prefered one, but we use the other if it is empty.
                 initial.append(initial[initial_index] or initial[1 - initial_index])
-
-            field.initial = initial
+                field.set_merge_initial(initial)
 
     def _build_initial_dict(self, entity):
         return model_to_dict(entity)
@@ -169,7 +187,7 @@ def mergefield_factory(modelfield):
     if not formfield: #happens for crementity_ptr (OneToOneField)
         return None
 
-    return MergeField(formfield, label=modelfield.verbose_name)
+    return MergeField(formfield, modelfield, label=modelfield.verbose_name)
 
 def form_factory(model):
     #TODO: use a cache ??

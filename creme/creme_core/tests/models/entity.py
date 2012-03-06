@@ -77,6 +77,17 @@ class EntityTestCase(CremeTestCase):
                          set(p.type_id for p in entity2.properties.all())
                         )
 
+    def _create_image(self, ident=1):
+        tmpfile = NamedTemporaryFile()
+        tmpfile.width = tmpfile.height = 0
+        tmpfile._committed = True
+        tmpfile.path = 'upload/file_%s.jpg' % ident
+
+        return Image.objects.create(user=self.user, image=tmpfile,
+                                    name=u'Image #%s' % ident,
+                                    description=u"Desc"
+                                   )
+
     def test_clone01(self):
         self._setUpClone()
 
@@ -105,7 +116,6 @@ class EntityTestCase(CremeTestCase):
     def test_clone02(self):
         self._setUpClone()
 
-        #self.populate('creme_core', 'persons')
         civility = Civility.objects.all()[0]
         position = Position.objects.all()[0]
         sector   = Sector.objects.all()[0]
@@ -114,11 +124,7 @@ class EntityTestCase(CremeTestCase):
         sasuke  = CremeEntity.objects.create(user=self.user)
         sakura  = CremeEntity.objects.create(user=self.user)
 
-        tmpfile = NamedTemporaryFile()
-        tmpfile.width = tmpfile.height = 0
-        tmpfile._committed = True
-        tmpfile.path = 'upload/file.jpg'
-        image = Image.objects.create(user=self.user, image=tmpfile)
+        image = self._create_image()
 
         naruto = Contact.objects.create(civility=civility, first_name=u'Naruto', last_name=u'Uzumaki',
                                         description=u"Ninja", skype=u"naruto.uzu", phone=u"+81 0 0 0 00 00",
@@ -217,7 +223,6 @@ class EntityTestCase(CremeTestCase):
 
     def test_clone04(self):
         self._setUpClone()
-        #self.populate('creme_core', 'activities')
 
         ct_activity = ContentType.objects.get_for_model(Activity)
         act_type = ActivityType.objects.all()[0]
@@ -229,8 +234,6 @@ class EntityTestCase(CremeTestCase):
             self.assertEqual(getattr(activity1, attr), getattr(activity2, attr))
 
     def test_clone05(self):
-        #self.populate('creme_core', 'activities')
-
         ct_activity = ContentType.objects.get_for_model(Activity)
 
         act_type = ActivityType.objects.all()[0]
@@ -258,14 +261,8 @@ class EntityTestCase(CremeTestCase):
         self.assertSameRelationsNProperties(activity1, activity2)
 
     def test_clone06(self):
-        #self.populate('creme_core', 'media_managers')
-        tmpfile = NamedTemporaryFile()
-        tmpfile.width = tmpfile.height = 0
-        tmpfile._committed = True
-        tmpfile.path = 'upload/file.jpg'
-        image = Image.objects.create(user=self.user, image=tmpfile, name=u'file', description=u"Desc")
+        image = self._create_image()
         image.categories = MediaCategory.objects.all()
-        image.save()
 
         image2 = image.clone()
         self.assertNotEqual(image.pk, image2.pk)
