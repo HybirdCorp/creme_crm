@@ -61,7 +61,7 @@ form .table_detail_view.dual_column .td_info > input.hasDatepicker {
     font-size: 1.6em;
     font-weight: bold;
     color: #5a92ab;
-    text-overflow:ellipsis;
+    text-overflow: ellipsis;
 
     background: none repeat scroll 0 0 transparent;
     border: medium none;
@@ -74,7 +74,7 @@ form .table_detail_view.dual_column .td_info > input.hasDatepicker {
     font-size: 1.6em;
     font-weight: bold;
     color: #d87d72;
-    text-overflow:ellipsis;
+    text-overflow: ellipsis;
 
     background: none repeat scroll 0 0 transparent;
     border: medium none;
@@ -86,7 +86,7 @@ form .table_detail_view.dual_column .td_info > input.hasDatepicker {
 
     font-size: 1.6em;
     font-weight: bold;
-    text-overflow:ellipsis;
+    text-overflow: ellipsis;
 
     background: none repeat scroll 0 0 transparent;
     border: medium none;

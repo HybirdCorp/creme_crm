@@ -11,7 +11,7 @@
     /*font-size:16px;*/
     /*font-weight:bold;*/
     /*color:white;*/
-    color:#2C596C;
+    color: #2C596C;
     /*background-color:#94c6db;*/
     background: #94c6db url(jquery-css/creme-theme/images/ui-bg_diagonals-thick_15_94c6db_40x40.png) 50% 50% repeat;
     padding : 0px;
@@ -22,11 +22,11 @@
     padding-bottom:0.6em;
 }
 
-.list_view thead .sub_title th h4, .list_view thead .title th h2{
+.list_view thead .sub_title th h4, .list_view thead .title th h2 {
     height: 1px;
 }
 
-.list_view thead .lines_modifiers > th > table{
+.list_view thead .lines_modifiers > th > table {
     width: 100%;
     border: 0;
 }
@@ -76,11 +76,11 @@
     border: 1px solid #d5e0e5;
     background: #d9e5ea url(../css/jquery-css/creme-theme/images/ui-bg_highlight-hard_75_d9e5ea_1x100.png) 50% 50% repeat-x;
     font-weight: normal;
-    color: #22439f;
+    /*color: #22439f;*/
+    color: #254B5B;
     outline: none;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
-
 }
 
 .list_view .toolbar button:hover, .list_view .toolbar a:hover, .list_view button:hover {
@@ -119,10 +119,12 @@
 .list_view .columns_top th.search input,
 .list_view .columns_top th.search select {
     background-color: #FCD3CF;
+    color: #C05C50;
+    border: 1px solid #D87D72;
     /*background: #fdd5d1 url(jquery-css/creme-theme/images/ui-bg_glass_75_f7d6d2_1x400.png) 50% 50% repeat-x;*/
 }
 
-.list_view .columns_bottom th{
+.list_view .columns_bottom th {
     border-bottom: 1px solid #548295;
     border-left: 1px solid #548295;
     border-right: 1px solid #548295;
@@ -139,7 +141,7 @@
     border-bottom: 1px solid #333;
 }
 
-.list_view tbody td{
+.list_view tbody td {
     color:#376e86;
     padding-left:5px;
     padding-right:5px;
@@ -157,10 +159,10 @@
     margin: 3px;
 }
 
-.list_view tfoot tr td table tr td{
+.list_view tfoot tr td table tr td {
     border: 0;
-    color:#2C596C;
-    font-weight:bold;
+    color: #2C596C;
+    font-weight: bold;
 }
 
 .list_view tfoot tr td {
@@ -190,12 +192,15 @@
 
 .list_view input, .list_view select, .list_view input, .list_view select {
     border: #548295 1px solid;
-    /*background-color: #DDEEFF;*/
+    border-radius: 4px;
+    color: #254B5B;
+    background-color: #DDEEFF;
 }
 
 .list_view input:hover, .list_view select:hover, .list_view input:focus, .list_view select:focus {
-    border: #548295 1px solid;
-    background-color: #D7E2E7;
+    /*border: #548295 1px solid;
+    background-color: #D7E2E7;*/
+    background-color: #E9EEFF;
 }
 
 .list_view_actions {
