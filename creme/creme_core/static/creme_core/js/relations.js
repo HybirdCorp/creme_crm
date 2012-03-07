@@ -28,6 +28,7 @@ creme.relations.handleAddFromPredicateEntity = function(url, predicate_id, subje
                 'send_button': function(dialog){
                         var lv = $('form', $(dialog));
                         if(lv.size() > 0) {
+                            //TODO: factorise 'lv.list_view("countEntities")' ??
                             var ids = lv.list_view("getSelectedEntitiesAsArray");
                             if(ids.length == 0 || lv.list_view("countEntities") == 0) {
                                 creme.utils.showDialog(gettext("Please select at least one entity."), {'title': gettext("Error")});
@@ -74,7 +75,7 @@ creme.relations.handleAddFromPredicateEntity = function(url, predicate_id, subje
     creme.utils.showInnerPopup(url, options);
 }
 
-
+//TODO: move to listview.core ? (used to add relations, properties etc...)
 creme.relations.addFromListView = function(lv_selector, url, ids) {
     if($(lv_selector).list_view('ensureSelection')) {
             $(lv_selector).list_view('option', 'entity_separator', ',');
