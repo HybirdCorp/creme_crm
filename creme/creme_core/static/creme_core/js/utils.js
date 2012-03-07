@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2011  Hybird
+    Copyright (C) 2009-2012  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,28 +16,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-//if(typeof(creme)==undefined) creme = {};
-
 creme.utils = {};
-//creme.utils.reload = function(something){
-//    console.log("creme.utils.reload("+something+")");
-//    console.log("$(something).attr('location') : "+$(something).attr('location'));
-//    console.log("$(something).dialog('isOpen') : "+$(something).dialog('isOpen'));
-//
-//    if(typeof($(something).attr('location')) === undefined)  {
-//        if($(something).dialog('isOpen')) {
-//            creme.utils.reloadDialog(something);
-//        }
-//    } else {
-//        reload(something);
-//    }
-//}
+
 creme.utils.openWindow = function (url, name, params) {
     if(!params || params == '' || typeof(params) == "undefined")
         params = 'menubar=no, status=no, scrollbars=yes, menubar=no, width=800, height=600';
     window[name] = window.open(url,name,params);
 }
-
 
 creme.utils.reload = function (w) {
     w.location.href = w.location.href;
@@ -191,7 +176,6 @@ creme.utils.bindShowHideTbody = function() {
     $('.table_detail_view').find('.collapser').each(function() {creme.utils.bindToggle($(this));});
 }
 
-
 creme.utils.simpleConfirm = function(cb, msg) {
     var buttons = {};
     buttons[gettext("Cancel")] = function() {$(this).dialog("destroy");$(this).remove();}
@@ -325,7 +309,7 @@ creme.utils.showInnerPopup = function(url, options, div_id, ajax_options) {
     var $div = $('#'+div_id);
     if($div.size() == 0) {
         var d = new Date();
-        div_id = d.getTime().toString()+Math.ceil(Math.random()*1000000);
+        div_id = d.getTime().toString() + Math.ceil(Math.random() * 1000000);
         $div = $('<div id="'+div_id+'"  style="display:none;"></div>');
         $(document.body).append($div);
     }
@@ -354,9 +338,10 @@ creme.utils.showInnerPopup = function(url, options, div_id, ajax_options) {
                                    jQuery.extend({
                                        buttons: close_button,
                                        close: function(event, ui) {
-                                           if(options != undefined && options.beforeClose != undefined && $.isFunction(options.beforeClose)) {
-                                              options.beforeClose(event, ui, $(this));
-                                           }
+                                           // COMNENTED on 7 march 2012 (seems usless, already called by jquery close handler)
+                                           //if(options != undefined && options.beforeClose != undefined && $.isFunction(options.beforeClose)) {
+                                           //   options.beforeClose(event, ui, $(this));
+                                           //}
                                            creme.utils.closeDialog($(this), false);
                                        },
                                        open: function(event, ui) {
@@ -454,11 +439,11 @@ creme.utils.iframeInnerPopup = function(url) {
                         						var div_id = $dialog.attr('id');
                                                 var body = $('[name=inner_body]', $dialog);
                                                 var data = $(data);
-                                                
+
                                                 body.empty();
                                                 body.append(data);
                                                 body.append($('<input type="hidden" name="whoami">').val(div_id));
-                                                
+
                                                 if(data.attr('closing') !== undefined) {
                                                     creme.utils.closeDialog($dialog, true);
                                                 }
@@ -751,7 +736,8 @@ creme.utils.RGBtoHSB = function(rgb){
 
 creme.utils.showErrorNReload = function() {
     creme.utils.showDialog('<p><b>' + gettext("Error !") + '</b></p><p>' + gettext("The page will be reload !") + '</p>',
-                                       {'title': gettext("Error")});
+                           {'title': gettext("Error")}
+                          );
     creme.utils.sleep("creme.utils.reload(window)");
 };
 
