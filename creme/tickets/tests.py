@@ -228,7 +228,7 @@ class TicketTestCase(CremeTestCase):
         self.assertEqual(1, len(response.redirect_chain))
         self.assertTrue(response.redirect_chain[0][0].endswith('/tickets/tickets'))
 
-    def test_ticket_clone01(self):
+    def test_clone01(self):
         self.login()
         title = 'ticket'
         ticket = Ticket.objects.create(user=self.user, title=title, description="d",
@@ -245,7 +245,7 @@ class TicketTestCase(CremeTestCase):
             self.assertNotEqual(ticket.title, clone.title)
             stack_append(clone)
 
-    def test_ticket_clone02(self):
+    def test_clone02(self):
         self.login()
         title = 'ticket'
         ticket = Ticket.objects.create(user=self.user, title=title, description="d",

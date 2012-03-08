@@ -113,7 +113,7 @@ class OpportunitiesTestCase(CremeTestCase):
 
         return self.get_object_or_fail(Opportunity, name=name), target, emitter
 
-    def test_opportunity_createview01(self):
+    def test_createview01(self):
         self.login()
 
         url = '/opportunities/opportunity/add'
@@ -152,7 +152,7 @@ class OpportunitiesTestCase(CremeTestCase):
         self.assertRelationCount(1, emitter, REL_SUB_EMIT_ORGA, opportunity)
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
 
-    def test_opportunity_createview02(self):
+    def test_createview02(self):
         self.login()
 
         target  = Contact.objects.create(user=self.user, first_name='Target', last_name='renegade')
@@ -187,7 +187,7 @@ class OpportunitiesTestCase(CremeTestCase):
         self.assertRelationCount(1, emitter, REL_SUB_EMIT_ORGA, opportunity)
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
 
-    def test_opportunity_createview03(self):#Only contact & orga models are allowed
+    def test_createview03(self):#Only contact & orga models are allowed
         self.login()
 
         response = self.client.post('/opportunities/opportunity/add')
@@ -213,7 +213,7 @@ class OpportunitiesTestCase(CremeTestCase):
                                    )
         self.assertRaises(Opportunity.DoesNotExist, Opportunity.objects.get, name=name)
 
-    def test_opportunity_createview04(self): #link creds error
+    def test_createview04(self): #link creds error
         self.login(is_superuser=False, allowed_apps=['opportunities'], creatable_models=[Opportunity])
 
         SetCredentials.objects.create(role=self.role,
@@ -461,12 +461,28 @@ class OpportunitiesTestCase(CremeTestCase):
         self.assertEqual(opportunity_count, Opportunity.objects.count())#No new opportunity was created
         self.assertFormError(response, 'form', 'target', [_(u'This content type is not allowed.')])
 
+    def test_clone(self):
+        self.login()
+
+        opportunity, target, emitter = self.create_opportunity('Opportunity01')
+        cloned = opportunity.clone()
+
+        self.assertEqual(opportunity.name,         cloned.name)
+        self.assertEqual(opportunity.sales_phase,  cloned.sales_phase)
+        self.assertEqual(opportunity.closing_date, cloned.closing_date)
+
+        self.assertRelationCount(1, emitter, REL_SUB_EMIT_ORGA, opportunity)
+        self.assertRelationCount(1, emitter, REL_SUB_EMIT_ORGA, cloned)
+
+        self.assertRelationCount(1, target, REL_OBJ_TARGETS, opportunity)
+        self.assertRelationCount(1, target, REL_OBJ_TARGETS, cloned) #<== internal
+
     def _build_gendoc_url(self, opportunity, ct):
         return '/opportunities/opportunity/generate_new_doc/%s/%s' % (
                         opportunity.id, ct.id
                     )
 
-    def test_opportunity_generate_new_doc01(self):
+    def test_generate_new_doc01(self):
         self.login()
 
         self.assertEqual(0, Quote.objects.count())
@@ -491,7 +507,7 @@ class OpportunitiesTestCase(CremeTestCase):
 
         self.assertRelationCount(1, target, REL_SUB_PROSPECT, emitter)
 
-    def test_opportunity_generate_new_doc02(self):
+    def test_generate_new_doc02(self):
         self.login()
 
         opportunity, target, emitter = self.create_opportunity('Opportunity01')
@@ -519,7 +535,7 @@ class OpportunitiesTestCase(CremeTestCase):
 
     #def test_opportunity_generate_new_doc03(self): #TODO test with credentials problems
 
-    def test_opportunity_generate_new_doc04(self):
+    def test_generate_new_doc04(self):
         self.login()
 
         opportunity, target, emitter = self.create_opportunity('Opportunity01')

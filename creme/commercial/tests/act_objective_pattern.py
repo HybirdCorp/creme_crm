@@ -334,6 +334,9 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertEqual(3, len(remaining_ids))
         self.assertEqual(set([comp00.id, comp05.id, comp06.id]), set(remaining_ids))
 
+    def _names_set(self, comp_qs):
+        return set(comp_qs.values_list('name', flat=True))
+
     def test_actobjectivepattern_clone01(self):
         pattern  = self._create_pattern()
         create_comp = ActObjectivePatternComponent.objects.create
@@ -362,22 +365,17 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertEqual(2,  filter_comp(pattern=cloned_pattern, parent=None).count())
         self.assertEqual(1,  filter_comp(pattern=cloned_pattern, name=comp1.name).count())
 
+        names_set = self._names_set
         self.assertEqual(set(['1.1', '1.2']),
-                         set(filter_get(pattern=cloned_pattern, name=comp1.name).children.values_list('name', flat=True))
+                         names_set(filter_get(pattern=cloned_pattern, name=comp1.name).children)
                         )
         self.assertEqual(set(['1.1.1', '1.1.2', '1.2.1', '1.2.2']),
-                         set(filter_comp(pattern=cloned_pattern, parent__name__in=['1.1', '1.2']) \
-                                        .values_list('name', flat=True)
-                            )
+                         names_set(filter_comp(pattern=cloned_pattern, parent__name__in=['1.1', '1.2']))
                         )
         self.assertEqual(1, filter_comp(pattern=cloned_pattern, name=comp2.name).count())
         self.assertEqual(set(['2.1', '2.2']),
-                         set(filter_get(pattern=cloned_pattern, name=comp2.name) \
-                                       .children.values_list('name', flat=True)
-                            )
+                         names_set(filter_get(pattern=cloned_pattern, name=comp2.name).children)
                         )
         self.assertEqual(set(['2.1.1', '2.1.2', '2.2.1', '2.2.2']),
-                         set(filter_comp(pattern=cloned_pattern, parent__name__in=['2.1', '2.2']) \
-                                        .values_list('name', flat=True)
-                            )
+                         names_set(filter_comp(pattern=cloned_pattern, parent__name__in=['2.1', '2.2']))
                         )

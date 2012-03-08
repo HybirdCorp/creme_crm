@@ -106,6 +106,9 @@ class Opportunity(CremeEntity):
     def __unicode__(self):
         return self.name
 
+    def _copy_relations(self, source):
+        super(Opportunity, self)._copy_relations(source, allowed_internal=[REL_SUB_TARGETS])
+
     def _pre_delete(self):
         for relation in Relation.objects.filter(type__in=[REL_SUB_TARGETS],
                                                 subject_entity=self):

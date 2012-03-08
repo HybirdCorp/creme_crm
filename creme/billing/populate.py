@@ -66,8 +66,8 @@ class Populator(BasePopulator):
                             (REL_OBJ_LINE_RELATED_ITEM, _(u"is the related item of"), [Product, Service]),
                             is_internal=True
                            )
-        RelationType.create((REL_SUB_CREDIT_NOTE_APPLIED, _(u"is used in the billing document"),   [CreditNote]),
-                            (REL_OBJ_CREDIT_NOTE_APPLIED, _(u"used the credit note"), [Quote, SalesOrder, Invoice]),
+        RelationType.create((REL_SUB_CREDIT_NOTE_APPLIED, _(u"is used in the billing document"), [CreditNote]),
+                            (REL_OBJ_CREDIT_NOTE_APPLIED, _(u"used the credit note"),            [Quote, SalesOrder, Invoice]),
                             is_internal=True
                            )
 
