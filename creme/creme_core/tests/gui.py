@@ -18,6 +18,8 @@ try:
     from persons.models import Contact, Organisation
 
     from activities.models import Meeting, Activity
+
+    from tickets.models import Ticket
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -89,13 +91,18 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
     def test_bulk_update_registry01(self):
         is_bulk_updatable = partial(self.bulk_update_registry.is_bulk_updatable, model=Organisation)
 
-        self.assertTrue(is_bulk_updatable(field_name='siren', exclude_unique=False)) # Inner editable
+        organisation_excluded_fields = ['siren']
+
+        self.bulk_update_registry.register((Organisation, organisation_excluded_fields))
+
+        # TODO uncomment when bulk registry will manage empty_or_unique fields
+#        self.assertTrue(is_bulk_updatable(field_name='siren', exclude_unique=False)) # Inner editable
         self.assertTrue(is_bulk_updatable(field_name='name'))
         self.assertTrue(is_bulk_updatable(field_name='phone'))
 
         self.assertFalse(is_bulk_updatable(field_name='created')) # Editable = False
         self.assertFalse(is_bulk_updatable(field_name='billing_address')) # Editable = False
-        self.assertFalse(is_bulk_updatable(field_name='siren')) # Unique
+        self.assertFalse(is_bulk_updatable(field_name='siren')) # excluded field
 
     def test_bulk_update_registry02(self):
         is_bulk_updatable = partial(self.bulk_update_registry.is_bulk_updatable, model=Contact)
@@ -165,6 +172,14 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertFalse(is_bulk_updatable_for_meeting(field_name='type'))
         self.assertFalse(is_bulk_updatable_for_meeting(field_name='end'))
         self.assertFalse(is_bulk_updatable_for_meeting(field_name='busy'))
+
+    def test_bulk_update_registry06(self): # unique field
+        is_bulk_updatable = partial(self.bulk_update_registry.is_bulk_updatable, model=Ticket)
+
+        # 'title' is an unique field which means that its not bulk updtable if the registry manage the unique
+        # and it is if not
+        self.assertTrue(is_bulk_updatable(field_name='title', exclude_unique=False))
+        self.assertFalse(is_bulk_updatable(field_name='title'))
 
 
 class ListViewStateTestCase(CremeTestCase):
