@@ -34,7 +34,7 @@ from creme_core.forms.widgets import DateTimeWidget, CalendarWidget, UnorderedMu
 from creme_core.forms.base import CremeForm, _CUSTOM_NAME
 from creme_core.forms.fields import AjaxMultipleChoiceField
 from creme_core.utils import entities2unicode, related2unicode
-from creme_core.utils.meta import get_flds_with_fk_flds_str, get_verbose_field_name
+from creme_core.utils.meta import get_verbose_field_name
 from creme_core.gui.bulk_update import bulk_update_registry
 
 
@@ -49,7 +49,7 @@ _FIELDS_WIDGETS = {
 
 _CUSTOM_PREFIX = _CUSTOM_NAME.partition('%s')[0]
 
-#TODO: staticmethod ??
+#TODO : staticmethod ??
 def _get_choices(model_field, user):
     form_field = model_field.formfield()
     choices = ()
@@ -67,17 +67,23 @@ def _get_choices(model_field, user):
     return choices
 
 
-class EntitiesBulkUpdateForm(CremeForm):
+class _EntitiesEditForm(CremeForm):
     entities_lbl = CharField(label=_(u"Entities to update"), required=False, widget=Label)
     field_name   = ChoiceField(label=_(u"Field to update"))
     field_value  = AjaxMultipleChoiceField(label=_(u"Value"), required=False)
 
+    def get_cfields_cache(self):
+        return dict((cf.pk, cf) for cf in CustomField.objects.filter(content_type=self.ct))
+
     def __init__(self, model, subjects, forbidden_subjects, user, *args, **kwargs):
-        super(EntitiesBulkUpdateForm, self).__init__(user, *args, **kwargs)
+        super(_EntitiesEditForm, self).__init__(user, *args, **kwargs)
+
         self.subjects = subjects
         self.user = user
         self.model = model
         self.ct = ContentType.objects.get_for_model(model)
+        self._cfields_cache = None
+
         fields = self.fields
 
         if subjects:
@@ -90,16 +96,6 @@ class EntitiesBulkUpdateForm(CremeForm):
                                                    widget=Label,
                                                    initial=entities2unicode(forbidden_subjects, user)
                                                   )
-
-        # Field 'field_name'
-        sort = partial(sorted, key=lambda k: ugettext(k[1]))
-        cfields_map = self._cfields_cache = dict((cf.pk, cf) for cf in CustomField.objects.filter(content_type=self.ct))
-        f_field_name = fields['field_name']
-        f_field_name.widget = AdaptiveWidget(ct_id=self.ct.id, field_value_name='field_value')
-        f_field_name.choices = (
-            (ugettext(u"Regular fields"), sort((unicode(field.name), unicode(field.verbose_name)) for field in bulk_update_registry.get_fields(model))),
-            (ugettext(u"Custom fields"),  sort((_CUSTOM_NAME % cf.id, cf.name) for cf in cfields_map.itervalues())),
-          )
 
     @staticmethod
     def get_field(model, field_name, cfields_cache=None):
@@ -126,7 +122,7 @@ class EntitiesBulkUpdateForm(CremeForm):
         return (field, is_custom)
 
     def clean(self, *args, **kwargs):
-        super(EntitiesBulkUpdateForm, self).clean(*args, **kwargs)
+        super(_EntitiesEditForm, self).clean(*args, **kwargs)
         cleaned_data = self.cleaned_data
 
         if self._errors:
@@ -203,13 +199,29 @@ class EntitiesBulkUpdateForm(CremeForm):
                 subject.save()
 
 
-class EntityInnerEditForm(EntitiesBulkUpdateForm):
+class EntitiesBulkUpdateForm(_EntitiesEditForm):
+    def __init__(self, model, subjects, forbidden_subjects, user, *args, **kwargs):
+        super(EntitiesBulkUpdateForm, self).__init__(model, subjects, forbidden_subjects, user, *args, **kwargs)
+
+        self._cfields_cache = self.get_cfields_cache()
+
+        sort = partial(sorted, key=lambda k: ugettext(k[1]))
+
+        f_field_name = self.fields['field_name']
+        f_field_name.widget = AdaptiveWidget(ct_id=self.ct.id, field_value_name='field_value')
+        f_field_name.choices = (
+            (ugettext(u"Regular fields"), sort((unicode(field.name), unicode(field.verbose_name)) for field in bulk_update_registry.get_fields(model))),
+            (ugettext(u"Custom fields"),  sort((_CUSTOM_NAME % cf.id, cf.name) for cf in self._cfields_cache.itervalues())),
+          )
+
+
+class EntityInnerEditForm(_EntitiesEditForm):
     def __init__(self, model, field_name, subject, user, *args, **kwargs):
-        #TODO: improve this (base class ?) this __init__ will retrieve all CustomFields even if it is useless
         super(EntityInnerEditForm, self).__init__(model, [subject], (), user, *args, **kwargs)
+
         self.field_name = field_name
 
-        field, is_custom = self.get_field(self.model, field_name, self._cfields_cache)
+        field, is_custom = self.get_field(self.model, field_name)
         verbose_field_name = field.name if is_custom else get_verbose_field_name(model, field_name)
 
         fields = self.fields
