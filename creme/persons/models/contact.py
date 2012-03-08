@@ -39,8 +39,8 @@ from persons.constants import REL_OBJ_EMPLOYED_BY
 
 class Contact(CremeEntity):
     civility        = ForeignKey(Civility, verbose_name=_(u'Civility'), blank=True, null=True, on_delete=SET_NULL)
-    first_name      = CharField(_(u'First name'), max_length=100)
     last_name       = CharField(_(u'Last name'), max_length=100)
+    first_name      = CharField(_(u'First name'), max_length=100, blank=True, null=True)
     description     = TextField(_(u'Description'), blank=True, null=True)
     skype           = CharField('Skype', max_length=100, blank=True, null=True)
     phone           = PhoneField(_(u'Phone number'), max_length=100, blank=True, null=True)
