@@ -8,7 +8,7 @@ try:
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Contact, Organisation, Address, Position, Civility, Sector
-    from persons.constants import REL_OBJ_EMPLOYED_BY
+    from persons.constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -252,11 +252,80 @@ class ContactTestCase(CremeTestCase):
                                    )
         self.assertEqual(200, response.status_code)
 
-        contacts = Contact.objects.all()
-        self.assertEqual(3, len(contacts))
+        self.assertEqual(3, Contact.objects.count())
+        self.assertEqual(1, Organisation.objects.count())
 
         for first_name, last_name in data:
             self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+
+    def test_quickform02(self):
+        self.login()
+
+        orga_name = 'Organisation'
+        data = [('Faye', 'Valentine', orga_name), ('Spike', 'Spiegel', orga_name)]
+
+        ct = ContentType.objects.get_for_model(Contact)
+        url = '/creme_core/quickforms/%s/%s' % (ct.id, len(data))
+
+        response = self.client.post(url, data={'form-TOTAL_FORMS':      len(data),
+                                               'form-INITIAL_FORMS':    0,
+                                               'form-MAX_NUM_FORMS':    u'',
+                                               'form-0-user':           self.user.id,
+                                               'form-0-first_name':     data[0][0],
+                                               'form-0-last_name':      data[0][1],
+                                               'form-0-organisation':   data[0][2],
+                                               'form-1-user':           self.user.id,
+                                               'form-1-first_name':     data[1][0],
+                                               'form-1-last_name':      data[1][1],
+                                               'form-1-organisation':   data[1][2],
+                                               }
+        )
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual(3, Contact.objects.count())
+        self.assertEqual(2, Organisation.objects.count())
+
+        for first_name, last_name, orga_name in data:
+            contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+            self.assertEqual(1, Organisation.objects.filter(name=orga_name).count())
+
+            created_orga = self.get_object_or_fail(Organisation, name=orga_name)
+            self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, created_orga)
+
+    def test_quickform03(self):
+        self.login()
+
+        orga_name = 'Organisation'
+        orga = Organisation.objects.create(name=orga_name, user=self.user)
+        self.assertEqual(2, Organisation.objects.count())
+
+        data = [('Faye', 'Valentine', orga_name), ('Spike', 'Spiegel', orga_name)]
+
+        ct = ContentType.objects.get_for_model(Contact)
+        url = '/creme_core/quickforms/%s/%s' % (ct.id, len(data))
+
+        response = self.client.post(url, data={'form-TOTAL_FORMS':      len(data),
+                                               'form-INITIAL_FORMS':    0,
+                                               'form-MAX_NUM_FORMS':    u'',
+                                               'form-0-user':           self.user.id,
+                                               'form-0-first_name':     data[0][0],
+                                               'form-0-last_name':      data[0][1],
+                                               'form-0-organisation':   data[0][2],
+                                               'form-1-user':           self.user.id,
+                                               'form-1-first_name':     data[1][0],
+                                               'form-1-last_name':      data[1][1],
+                                               'form-1-organisation':   data[1][2],
+                                               }
+        )
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual(3, Contact.objects.count())
+        self.assertEqual(2, Organisation.objects.count())
+
+        for first_name, last_name, orga_name in data:
+            contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+            self.assertEqual(1, Organisation.objects.filter(name=orga_name).count())
+            self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga)
 
     def test_merge01(self): #merging addresses
         self.login()

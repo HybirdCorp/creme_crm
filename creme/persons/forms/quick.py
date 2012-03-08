@@ -18,15 +18,39 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.forms import CremeModelWithUserForm
+from django.forms.fields import CharField
+from django.utils.translation import ugettext_lazy as _
 
+from creme_core.forms import CremeModelWithUserForm
+from creme_core.models.entity import Relation
+
+from persons.constants import REL_SUB_EMPLOYED_BY
 from persons.models import Contact, Organisation
 
 
 class ContactQuickForm(CremeModelWithUserForm): #not CremeEntityForm to ignore custom fields
+    organisation = CharField(label=_(u"Organisation"), required=False,
+                             help_text=_(u'If no organisation found, a new one will be created.'))
+
     class Meta:
         model = Contact
-        fields = ('first_name', 'last_name', 'user')
+        fields = ('user', 'last_name', 'first_name', 'phone', 'email')
+
+    def save(self):
+        contact = super(ContactQuickForm, self).save()
+
+        orga_name = self.cleaned_data['organisation']
+        if orga_name:
+            try:
+                orga = Organisation.objects.get(name=orga_name)
+            except Organisation.DoesNotExist:
+                orga = Organisation.objects.create(name=orga_name, user=contact.user)
+
+            Relation.objects.create(subject_entity=contact,
+                                    type_id=REL_SUB_EMPLOYED_BY,
+                                    object_entity=orga,
+                                    user=contact.user,
+                                    )
 
 
 class OrganisationQuickForm(CremeModelWithUserForm):
