@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,7 +42,7 @@ class _RecurrentGeneratorForm(CremeEntityForm):
 
 class RecurrentGeneratorEditForm(_RecurrentGeneratorForm):
     class Meta(_RecurrentGeneratorForm.Meta):
-        exclude = _RecurrentGeneratorForm.Meta.exclude + ('last_generation', 'ct', 'template', 'is_working')
+        exclude = _RecurrentGeneratorForm.Meta.exclude + ('ct', 'template')
 
 
 class RecurrentGeneratorCreateForm(_RecurrentGeneratorForm):
@@ -50,7 +50,7 @@ class RecurrentGeneratorCreateForm(_RecurrentGeneratorForm):
                           label=_(u'Type of resource used as template'))
 
     class Meta(_RecurrentGeneratorForm.Meta):
-        exclude = _RecurrentGeneratorForm.Meta.exclude + ('last_generation', 'template', 'is_working')
+        exclude = _RecurrentGeneratorForm.Meta.exclude + ('template',)
 
     def __init__(self, *args, **kwargs):
         kwargs['user'] = kwargs['initial']['user']

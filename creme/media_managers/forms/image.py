@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,7 @@ from media_managers.models import Image
 class _ImageForm(CremeEntityForm):
     class Meta:
         model = Image
-        exclude = CremeEntityForm.Meta.exclude + ('height', 'width')
+        exclude = CremeEntityForm.Meta.exclude
 
     #def __init__(self, *args, **kwargs):
         #super(_ImageForm, self).__init__(*args, **kwargs)

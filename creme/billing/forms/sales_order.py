@@ -23,16 +23,10 @@ from base import BaseCreateForm, BaseEditForm
 
 
 class SalesOrderCreateForm(BaseCreateForm):
-    class Meta:
+    class Meta(BaseCreateForm.Meta):
         model = SalesOrder
-        exclude = BaseCreateForm.Meta.exclude + ('number',)
-
-    #def save(self):
-        #instance = super(SalesOrderCreateForm, self).save()
-        #return instance
 
 
 class SalesOrderEditForm(BaseEditForm):
-    class Meta:
+    class Meta(BaseEditForm.Meta):
         model = SalesOrder
-        exclude = BaseEditForm.Meta.exclude + ('number',)

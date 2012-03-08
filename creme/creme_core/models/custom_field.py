@@ -22,6 +22,7 @@ from collections import defaultdict
 
 from django.db.models import ForeignKey, CharField, PositiveSmallIntegerField, IntegerField, DecimalField, DateTimeField, BooleanField, ManyToManyField
 from django import forms
+from django.utils.formats import date_format
 from django.utils.translation import ugettext, ugettext_lazy as _
 from django.utils.datastructures import SortedDict as OrderedDict #use python2.7 OrderedDict later.....
 from django.contrib.contenttypes.models import ContentType
@@ -239,8 +240,14 @@ class CustomFieldDateTime(CustomFieldValue):
     class Meta:
         app_label = 'creme_core'
 
+    def __unicode__(self):
+        value = self.value
+        return date_format(value, 'DATETIME_FORMAT') if value else ''
+
     @staticmethod
     def _get_formfield(**kwargs):
+        # TODO don't know why but this widget does not allow datetime, only date (spaces, ':' are forbidden characters)
+        # So it's not really a CustomFieldDateTime for the moment but a CustomFieldDate until this problem is fixed
         from creme_core.forms.fields import CremeDateTimeField #avoid cyclic import
         return CremeDateTimeField(**kwargs)
 
