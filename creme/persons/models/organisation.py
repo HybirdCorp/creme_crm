@@ -22,8 +22,8 @@
 
 from django.db.models import (ForeignKey, CharField, TextField, PositiveIntegerField,
                               BooleanField, DateField, EmailField, URLField, SET_NULL)
-from django.utils.translation import ugettext_lazy as _
-from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import ugettext_lazy as _, ugettext
+from django.core.exceptions import ValidationError
 
 from creme_core.models import CremeEntity
 from creme_core.models.fields import PhoneField
@@ -31,9 +31,7 @@ from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
 from media_managers.models import Image
 
-from address import Address
-from contact import Contact
-from other_models import StaffSize, LegalForm, Sector
+from persons.models import Contact, Address, StaffSize, LegalForm, Sector
 from persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 
 
@@ -45,7 +43,7 @@ class Organisation(CremeEntity):
     url_site        = URLField(_(u'Web Site'), max_length=100, blank=True, null=True, verify_exists=False)
     sector          = ForeignKey(Sector, verbose_name=_(u'Sector'), blank=True, null=True, on_delete=SET_NULL)
     capital         = PositiveIntegerField(_(u'Capital'), blank=True, null=True)
-    siren           = CharField(_(u'SIREN'), max_length=100, blank=True, null=True, unique=True)
+    siren           = CharField(_(u'SIREN'), max_length=100, blank=True, null=True)
     naf             = CharField(_(u'NAF code'), max_length=100 , blank=True, null=True)
     siret           = CharField(_(u'SIRET'), max_length=100, blank=True, null=True)
     rcs             = CharField(_(u'RCS/RM'), max_length=100, blank=True, null=True)
@@ -76,6 +74,22 @@ class Organisation(CremeEntity):
 
     def __unicode__(self):
         return self.name
+
+    # TODO create an empty_or_unique custom model field to handle unique field case properly
+    # TODO override validate method of this custom model field to fix validation error display in forms (global -> field)
+    # TODO modify the bulk update registry to manage empty or unique fields using instance of this futur custom model field ??
+
+    # TODO Validation error is displayed twice in the global errors block
+    def clean(self, *args, **kwargs):
+        super(Organisation, self).clean(*args, **kwargs)
+        siren = self.siren
+        if siren:
+            qs = Organisation.objects.filter(siren=siren)
+            self_pk = self.pk
+            if self_pk:
+                qs = qs.exclude(pk=self_pk)
+            if qs.exists():
+                raise ValidationError(ugettext(u"This siren already exists and must be unique !"))
 
     def get_absolute_url(self):
         return "/persons/organisation/%s" % self.id
