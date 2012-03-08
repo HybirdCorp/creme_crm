@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from collections import defaultdict
 from logging import debug
 
 from django.db import models
-from django.db.models import ForeignKey
+from django.db.models import ForeignKey, Q
 from django.core.exceptions import PermissionDenied
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
@@ -421,11 +421,22 @@ class CremeEntity(CremeAbstractEntity):
         for type_id in source.properties.values_list('type', flat=True):
             creme_property_create(type_id=type_id, creme_entity=self)
 
-    def _copy_relations(self, source):
+    def _copy_relations(self, source, allowed_internal=()):
+        """@param allowed_internal Sequence of RelationTypes pk with is_internal=True.
+                                   Relationships with these types will be cloned anyway.
+        """
         relation_create  = Relation.objects.create
+        query = Q(type__is_internal=False)
 
-        for user_id, rtype_id, object_entity_id in source.relations.values_list('user', 'type', 'object_entity'):
-            relation_create(user_id=user_id, type_id=rtype_id, object_entity_id=object_entity_id, subject_entity=self)
+        if allowed_internal:
+            query |= Q(type__in=allowed_internal)
+
+        for relation in source.relations.filter(query):
+            relation_create(user_id=relation.user_id,
+                            subject_entity=self,
+                            type=relation.type,
+                            object_entity_id=relation.object_entity_id,
+                           )
 
     def clone(self):
         """Take an entity and makes it copy.
@@ -435,7 +446,7 @@ class CremeEntity(CremeAbstractEntity):
         new_entity = self._clone_object()
 
         new_entity._copy_properties(self)#TODO: Add which properties types to include ?
-        new_entity._copy_relations(self)#TODO: Add which relations types to include ?
+        new_entity._copy_relations(self)
 
         new_entity._post_clone(self)
         return new_entity

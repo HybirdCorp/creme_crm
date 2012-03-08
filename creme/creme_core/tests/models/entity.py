@@ -54,28 +54,36 @@ class EntityTestCase(CremeTestCase):
         self.assertEqual(text, ptype.text)
 
     def _setUpClone(self):
-        self.rtype1, self.rtype2 = RelationType.create(('test-subject_foobar', 'is loving'),
-                                                       ('test-object_foobar',  'is loved by'))
+        create_rtype = RelationType.create
+        self.rtype1, self.rtype2 = create_rtype(('test-subject_loving', 'is loving'),
+                                                ('test-object_loving',  'is loved by'),
+                                               )
+        self.rtype3, self.rtype4 = create_rtype(('test-subject_hating', 'is hating'),
+                                                ('test-object_hating',  'is hated by'),
+                                                is_internal=True
+                                               )
 
-        self.ptype01 = CremePropertyType.create(str_pk='test-prop_foobar01', text='wears strange hats')
-        self.ptype02 = CremePropertyType.create(str_pk='test-prop_foobar02', text='wears strange pants')
+        create_ptype = CremePropertyType.create
+        self.ptype01 = create_ptype(str_pk='test-prop_foobar01', text='wears strange hats')
+        self.ptype02 = create_ptype(str_pk='test-prop_foobar02', text='wears strange pants')
 
     def assertSameRelationsNProperties(self, entity1, entity2):
         self.assertSameProperties(entity1, entity2)
         self.assertSameRelations(entity1, entity2)
 
-    def assertSameRelations(self, entity1, entity2):
-        self.assertEqual(set(r.type_id for r in entity1.relations.all()),
-                         set(r.type_id for r in entity2.relations.all())
-                        )
-        self.assertEqual(set(r.object_entity.id for r in entity1.relations.all()),
-                         set(r.object_entity.id for r in entity2.relations.all())
-                        )
+    def assertSameRelations(self, entity1, entity2): #not internal relations
+        relations_desc = lambda entity: list((r.type_id, r.object_entity_id) for r in entity.relations.exclude(type__is_internal=True))
+        rd1 = relations_desc(entity1)
+        rd2 = relations_desc(entity2)
+        self.assertEqual(len(rd1), len(rd2))
+        self.assertEqual(set(rd1), set(rd2))
 
     def assertSameProperties(self, entity1, entity2):
-        self.assertEqual(set(p.type_id for p in entity1.properties.all()),
-                         set(p.type_id for p in entity2.properties.all())
-                        )
+        properties_desc  = lambda entity: list(p.type_id for p in entity.properties.all())
+        pd1 = properties_desc(entity1)
+        pd2 = properties_desc(entity2)
+        self.assertEqual(len(pd1), len(pd2))
+        self.assertEqual(set(pd1), set(pd2))
 
     def _create_image(self, ident=1):
         tmpfile = NamedTemporaryFile()
@@ -95,11 +103,16 @@ class EntityTestCase(CremeTestCase):
         entity1 = CremeEntity.objects.create(user=self.user)
         original_ce = CremeEntity.objects.create(created=created, modified=modified, is_deleted=False, is_actived=True, user=self.user)
 
-        Relation.objects.create(user=self.user, type=self.rtype1, subject_entity=original_ce, object_entity=entity1)
-        CremeProperty.objects.create(type=self.ptype01, creme_entity=original_ce)
+        create_rel = Relation.objects.create
+        create_rel(user=self.user, type=self.rtype1, subject_entity=original_ce, object_entity=entity1)
+        create_rel(user=self.user, type=self.rtype3, subject_entity=original_ce, object_entity=entity1) #internal
+
+        create_prop = CremeProperty.objects.create
+        create_prop(type=self.ptype01, creme_entity=original_ce)
+        create_prop(type=self.ptype02, creme_entity=original_ce)
 
         clone_ce = original_ce.clone()
-        self.assertTrue(clone_ce.pk is not None)
+        self.assertIsNotNone(clone_ce.pk)
         self.assertNotEqual(original_ce.pk, clone_ce.pk)
 
         self.assertNotEqual(original_ce.created,  clone_ce.created)
@@ -112,6 +125,7 @@ class EntityTestCase(CremeTestCase):
         self.assertEqual(original_ce.header_filter_search_field, clone_ce.header_filter_search_field)
 
         self.assertSameRelationsNProperties(original_ce, clone_ce)
+        self.assertFalse(clone_ce.relations.filter(type__is_internal=True))
 
     def test_clone02(self):
         self._setUpClone()

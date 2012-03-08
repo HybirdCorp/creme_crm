@@ -54,9 +54,12 @@ class OpportunityCreateForm(OpportunityEditForm):
         instance = super(OpportunityCreateForm, self).save(*args, **kwargs)
 
         cleaned_data = self.cleaned_data
-        instance.link_to_target(cleaned_data['target'])
-        instance.link_to_emit_orga(cleaned_data['emit_orga'])
-        transform_target_into_prospect(cleaned_data['emit_orga'], cleaned_data['target'], instance.user)
+        target = cleaned_data['target']
+        emit_orga = cleaned_data['emit_orga']
+
+        instance.link_to_target(target)
+        instance.link_to_emit_orga(emit_orga)
+        transform_target_into_prospect(emit_orga, target, instance.user)
 
         form_post_save.send(sender=Opportunity, instance=instance, created=True)
 

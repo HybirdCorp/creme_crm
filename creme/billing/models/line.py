@@ -116,9 +116,8 @@ class Line(CremeEntity):
         #BEWARE: CremeProperty and Relation are not cloned (except our 2 internal relations)
         self._new_related_document = new_related_document or self.related_document
 
-        #NB: not "super(Line, self).clone()", because it copies our 2 internal relations
-        #TODO: change when internal relations are excluded in CremeEntity._copy_relations()
-        return self._clone_object()
+        #return self._clone_object() #NB: it does not copy our 2 internal relations
+        return super(Line, self).clone()
 
     def get_price_inclusive_of_tax(self):
         total_ht = self.get_price_exclusive_of_tax()

@@ -188,13 +188,9 @@ class Base(CremeEntity):
         else:
             self.number = None
 
-    #TODO: move to CremeEntity (when "exclude(type__is_internal=True)" is used)
     def _copy_relations(self, source):
-        relation_create  = Relation.objects.create
-
-        #for user_id, rtype_id, object_entity_id in source.relations.exclude(type__is_internal=True).values_list('user', 'type', 'object_entity'):
-        for user_id, rtype_id, object_entity_id in source.relations.exclude(type=REL_SUB_HAS_LINE).values_list('user', 'type', 'object_entity'):
-            relation_create(user_id=user_id, type_id=rtype_id, object_entity_id=object_entity_id, subject_entity=self)
+        #not REL_OBJ_CREDIT_NOTE_APPLIED, links to CreditNote are not cloned.
+        super(Base, self)._copy_relations(source, allowed_internal=[REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED])
 
     def _post_clone(self, source):
         source.invalidate_cache()

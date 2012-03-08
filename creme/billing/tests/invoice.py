@@ -452,11 +452,20 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(2, len(cloned.service_lines))
         self.assertEqual(2, len(cloned.product_lines))
 
-        self.assertNotEqual(set(p.pk for p in invoice.service_lines), set(p.pk for p in cloned.service_lines))
-        self.assertNotEqual(set(p.pk for p in invoice.product_lines), set(p.pk for p in cloned.product_lines))
+        self.assertFalse(set(p.pk for p in invoice.service_lines) & set(p.pk for p in cloned.service_lines))
+        self.assertFalse(set(p.pk for p in invoice.product_lines) & set(p.pk for p in cloned.product_lines))
 
-#        rel_filter = Relation.objects.filter
-#        self.assertEqual(1, rel_filter(subject_entity=invoice, type=REL_SUB_BILL_ISSUED,   object_entity=source).count())
+    def test_clone_source_n_target(self): #internal relationtypes should not be cloned
+        self.login()
+
+        invoice, source, target = self.create_invoice_n_orgas('Invoice001')
+        cloned_source = source.clone()
+        cloned_target = target.clone()
+
+        self.assertRelationCount(1, invoice, REL_SUB_BILL_ISSUED,   source)
+        self.assertRelationCount(1, invoice, REL_SUB_BILL_RECEIVED, target)
+        self.assertRelationCount(0, invoice, REL_SUB_BILL_ISSUED,   cloned_source)
+        self.assertRelationCount(0, invoice, REL_SUB_BILL_RECEIVED, cloned_target)
 
     def test_discounts(self):
         self.login()
