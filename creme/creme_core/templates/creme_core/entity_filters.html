@@ -1,9 +1,7 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
 {% block content %}
-    {% with 'images/filter_64.png' as logo %}
-    {% with _('Filter') as title %}
+    {% with logo='images/filter_64.png' title=_('Filter') %}
         {% include "creme_core/generics/blockform/base.html" %}
-    {% endwith %}
     {% endwith %}
 {% endblock %}

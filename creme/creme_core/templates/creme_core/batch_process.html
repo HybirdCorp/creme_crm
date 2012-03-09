@@ -1,9 +1,7 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
 {% block content %}
-    {% with 'images/batch_process_64.png' as logo %}
-    {% with _('Batch process') as title %}
+    {% with logo='images/batch_process_64.png' title=_('Batch process') %}
         {% include "creme_core/generics/blockform/base.html" %}
-    {% endwith %}
     {% endwith %}
 {% endblock %}
