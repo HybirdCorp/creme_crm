@@ -127,69 +127,42 @@ class EntityTestCase(CremeTestCase):
         self.assertSameRelationsNProperties(original_ce, clone_ce)
         self.assertFalse(clone_ce.relations.filter(type__is_internal=True))
 
-    def test_clone02(self):
+    def test_clone02(self): #clone regular fields
         self._setUpClone()
 
         civility = Civility.objects.all()[0]
-        position = Position.objects.all()[0]
-        sector   = Sector.objects.all()[0]
         language = Language.objects.all()[0]
-        ct_contact = ContentType.objects.get_for_model(Contact)
         sasuke  = CremeEntity.objects.create(user=self.user)
         sakura  = CremeEntity.objects.create(user=self.user)
 
         image = self._create_image()
 
-        naruto = Contact.objects.create(civility=civility, first_name=u'Naruto', last_name=u'Uzumaki',
-                                        description=u"Ninja", skype=u"naruto.uzu", phone=u"+81 0 0 0 00 00",
-                                        mobile=u"+81 0 0 0 00 01", fax=u"+81 0 0 0 00 02", position=position,
-                                        sector=sector, email=u"naruto.uzumaki@konoha.jp",
-                                        is_user=self.user, birthday=datetime.now(), image=image, user=self.user
+        naruto = Contact.objects.create(user=self.user, civility=civility,
+                                        first_name=u'Naruto', last_name=u'Uzumaki',
+                                        description=u"Ninja", birthday=datetime.now(),
+                                        mobile=u"+81 0 0 0 00 01", email=u"naruto.uzumaki@konoha.jp",
+                                        image=image,
                                        )
         naruto.language = [language]
 
-        naruto.billing_address = Address.objects.create(name=u"Naruto's", address=u"Home", po_box=u"000",
-                                                        city=u"Konoha", state=u"Konoha", zipcode=u"111",
-                                                        country=u"The land of fire", department=u"Ninjas homes",
-                                                        content_type=ct_contact, object_id=naruto.id
-                                                       )
-
-        naruto.shipping_address = Address.objects.create(name=u"Naruto's", address=u"Home", po_box=u"000",
-                                                         city=u"Konoha", state=u"Konoha", zipcode=u"111",
-                                                         country=u"The land of fire", department=u"Ninjas homes",
-                                                         content_type=ct_contact, object_id=naruto.id
-                                                        )
-        naruto.save()
-
-        for i in xrange(5):
-            Address.objects.create(name=u"Naruto's", address=u"Home", po_box=u"000",
-                                   city=u"Konoha", state=u"Konoha", zipcode=u"111",
-                                   country=u"The land of fire", department=u"Ninjas homes",
-                                   content_type=ct_contact, object_id=naruto.id
-                                  )
-
         CremeProperty.objects.create(type=self.ptype01, creme_entity=naruto)
-        CremeProperty.objects.create(type=self.ptype02, creme_entity=naruto)
 
-        Relation.objects.create(user=self.user, type=self.rtype1, subject_entity=naruto, object_entity=sasuke)
-        Relation.objects.create(user=self.user, type=self.rtype2, subject_entity=naruto, object_entity=sakura)
+        create_rel = Relation.objects.create
+        create_rel(user=self.user, type=self.rtype1, subject_entity=naruto, object_entity=sasuke)
+        create_rel(user=self.user, type=self.rtype2, subject_entity=naruto, object_entity=sakura)
 
+        count = Contact.objects.count()
         kage_bunshin = naruto.clone()
+        self.assertEqual(count + 1, Contact.objects.count())
+
         self.assertNotEqual(kage_bunshin.pk, naruto.pk)
         self.assertSameRelationsNProperties(naruto, kage_bunshin)
 
-        for attr in ['civility', 'first_name', 'last_name', 'description', 'skype', 'phone',
-                     'mobile', 'fax', 'position', 'sector', 'email', 'birthday', 'image']:
+        for attr in ['civility', 'first_name', 'last_name', 'description',
+                     'birthday', 'mobile', 'email', 'image']:
             self.assertEqual(getattr(naruto, attr), getattr(kage_bunshin, attr))
 
-        self.assertIsNone(kage_bunshin.is_user)
-        self.assertNotEqual(naruto.is_user, kage_bunshin.is_user)
-        self.assertNotEqual(naruto.billing_address.object_id,  kage_bunshin.billing_address.object_id)
-        self.assertNotEqual(naruto.shipping_address.object_id, kage_bunshin.shipping_address.object_id)
-
-        self.assertEqual(Address.objects.filter(object_id=naruto.id).count(),
-                         Address.objects.filter(object_id=kage_bunshin.id).count()
-                        )
+        self.assertEqual(set(naruto.language.all()), set(kage_bunshin.language.all()))
 
     def test_clone03(self):
         orga_ct       = ContentType.objects.get_for_model(Organisation)

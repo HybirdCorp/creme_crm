@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+
+    from django.contrib.contenttypes.models import ContentType
+
     from creme_core.models import Relation, CremeProperty, SetCredentials
     from creme_core.constants import PROP_IS_MANAGED_BY_CREME
-    from creme_core.tests.base import CremeTestCase
 
     from persons.models import *
     from persons.constants import *
+    from persons.tests.base import _BaseTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -14,14 +18,7 @@ except Exception as e:
 __all__ = ('OrganisationTestCase',)
 
 
-class OrganisationTestCase(CremeTestCase):
-    def login(self, is_superuser=True):
-        super(OrganisationTestCase, self).login(is_superuser, allowed_apps=['persons'])
-
-    @classmethod
-    def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'persons')
-
+class OrganisationTestCase(_BaseTestCase):
     def test_createview01(self):
         self.login()
 
@@ -94,6 +91,49 @@ class OrganisationTestCase(CremeTestCase):
         orgas_set = set(orgas_page.object_list)
         self.assertIn(nerv, orgas_set)
         self.assertIn(acme, orgas_set)
+
+    def test_clone(self): #addresses are problematic
+        self.login()
+
+        bebop = Organisation.objects.create(user=self.user, name='Bebop')
+
+        create_address = partial(Address.objects.create, address='XXX',
+                                 city='Red city', state='North', zipcode='111',
+                                 country='Mars', department='Dome #12',
+                                 content_type=ContentType.objects.get_for_model(Organisation),
+                                 object_id=bebop.id
+                                )
+        bebop.billing_address  = create_address(name='Hideout #1')
+        bebop.shipping_address = create_address(name='Hideout #2')
+        bebop.save()
+
+        for i in xrange(3, 5):
+            create_address(name='Hideout #%s' % i)
+
+        cloned = bebop.clone()
+
+        self.assertEqual(bebop.name, cloned.name)
+
+        self.assertEqual(bebop.id, bebop.billing_address.object_id)
+        self.assertEqual(bebop.id, bebop.shipping_address.object_id)
+
+        self.assertEqual(cloned.id, cloned.billing_address.object_id)
+        self.assertEqual(cloned.id, cloned.shipping_address.object_id)
+
+        addresses   = list(Address.objects.filter(object_id=bebop.id))
+        c_addresses = list(Address.objects.filter(object_id=cloned.id))
+        self.assertEqual(4, len(addresses))
+        self.assertEqual(4, len(c_addresses))
+
+        addresses_map   = dict((a.name, a) for a in addresses)
+        c_addresses_map = dict((a.name, a) for a in c_addresses)
+        self.assertEqual(4, len(addresses_map))
+        self.assertEqual(4, len(c_addresses_map))
+
+        for ident, address in addresses_map.iteritems():
+            address2 = c_addresses_map.get(ident)
+            self.assertIsNotNone(address2, ident)
+            self.assertAddressOnlyContentEqual(address, address2)
 
     def _build_managed_orga(self, user=None):
         user = user or self.user
