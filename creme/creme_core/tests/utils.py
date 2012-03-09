@@ -94,6 +94,17 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual(label,  pmi.label)
         self.assertEqual(order,  pmi.order)
 
+    def test_get_from_request_or_404(self):
+        request = {'name': 'robert', 'age': '36'}
+
+        self.assertRaises(Http404, get_from_GET_or_404, request, 'name_') # key error
+        self.assertRaises(Http404, get_from_GET_or_404, request, 'name', int) # cast error
+        self.assertRaises(Http404, get_from_GET_or_404, request, 'name_', int, default='string') #cast error
+
+        self.assertEqual('36', get_from_POST_or_404(request, 'age'))
+        self.assertEqual(36, get_from_POST_or_404(request, 'age', int))
+        self.assertEqual(1,  get_from_POST_or_404(request, 'name_', int, default=1))
+
 
 class MetaTestCase(CremeTestCase):
     def test_get_field_infos(self):

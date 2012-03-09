@@ -96,26 +96,30 @@ def jsonify(func):
 
     return _aux
 
-def get_from_GET_or_404(GET, key): #TODO: factorise with get_from_POST_or_404()
-    try:
-        return GET[key]
-    except KeyError:
-        raise Http404('No GET argument with this key: %s' % key)
-
-def get_from_POST_or_404(POST, key, cast=None):
+def _get_from_request_or_404(method, method_name, key, cast=None, **kwargs):
     """@param cast A function that cast the return value, and raise an Exception if it is not possible (eg: int)
     """
-    try:
-        value = POST[key]
+    value = method.get(key)
 
-        if cast:
+    if value is None:
+        if 'default' not in kwargs:
+            raise Http404('No %s argument with this key: %s' % (method_name, key))
+
+        value = kwargs['default']
+
+    if cast:
+        try:
             value = cast(value)
-    except KeyError:
-        raise Http404('No POST argument with this key: %s' % key)
-    except Exception, e:
-        raise Http404('Problen with argument "%s" : it can not be coerced (%s)' % (key, str(e)))
+        except Exception as e:
+            raise Http404('Problem with argument "%s" : it can not be coerced (%s)' % (key, str(e)))
 
     return value
+
+def get_from_GET_or_404(GET, key, cast=None, **kwargs):
+    return _get_from_request_or_404(GET, 'GET', key, cast, **kwargs)
+
+def get_from_POST_or_404(POST, key, cast=None, **kwargs):
+    return _get_from_request_or_404(POST, 'POST', key, cast, **kwargs)
 
 def find_first(iterable, function, *default):
     """
