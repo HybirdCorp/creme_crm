@@ -375,6 +375,11 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
         refreshButtons($(this));
     }
 
+    function toggleRow() {
+        $('.buttons a', $layout).toggleClass('view_more view_less');
+        $('tr.content', $layout).toggle();
+    }
+
     buildColumns($store, addAvailableLi, addChosenLi);
 
     var $buttons = $('<div></div>').append($add_button.click(choseOne))
@@ -390,14 +395,19 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
     $store.css('display', 'none');
     $store.replaceWith($div);
 
-    var $layout = $('<table></table>');
+    var $layout = $('<table id="test"></table>');
+    var $div_display = $('<div class="buttons"></div>').append($('<a class="view_more"></a>').click(toggleRow));
+
     $('<tbody></tbody>').appendTo($layout)
-                        .append($('<tr class="header"></tr>').append($('<th class="available"></th>').append(gettext("Available")))
+                        .append($('<tr class="header"></tr>').append($('<th width="3%"></th>').append($div_display))
+                                                             .append($('<th class="available"></th>').append(gettext("Available")))
                                                              .append($('<th class="buttons"></th>'))
                                                              .append($('<th class="chosen"></th>').append(gettext("Chosen"))))
-                        .append($('<tr class="content"></tr>').append($('<td class="available"></td>').append($available))
-                                                              .append($('<td class="buttons"></td>').append($buttons))
-                                                              .append($('<td class="chosen"></td>').append($chosen)));
+                        .append($('<tr class="content" style="display:none"></tr>')
+                                                             .append($('<td></td>'))
+                                                             .append($('<td class="available"></td>').append($available))
+                                                             .append($('<td class="buttons"></td>').append($buttons))
+                                                             .append($('<td class="chosen"></td>').append($chosen)));
 
     $div.append($store).append($layout);
 

@@ -18,12 +18,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from datetime import datetime
+from functools import partial
+
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required, permission_required
+from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import RelationType, EntityCredentials
-from creme_core.views.generic import view_real_entity, add_entity, list_view
+from creme_core.views.generic import view_real_entity, add_entity, list_view, inner_popup
 from creme_core.utils import get_ct_or_404, get_from_GET_or_404
 
 from activities.models import Activity
@@ -102,6 +106,35 @@ def add(request, act_type):
         raise Http404('No activity type matches with: %s' % act_type)
 
     return _add_activity(request, form_class[1])
+
+@login_required
+@permission_required('activities')
+@permission_required('activities.add_activity')
+def add_popup(request):
+    if request.method == 'POST':
+        form = CalendarActivityCreateForm(user=request.user, data=request.POST, files=request.FILES or None)
+        if form.is_valid():
+            form.save()
+    else:
+        get_or_404 = partial(get_from_GET_or_404, GET=request.GET, cast=int)
+
+        today = datetime.today()
+        start_date = datetime(get_or_404(key='year',   default=today.year),
+                              get_or_404(key='month',  default=today.month),
+                              get_or_404(key='day',    default=today.day),
+                              get_or_404(key='hour',   default=today.hour),
+                              get_or_404(key='minute', default=today.minute))
+
+        form = CalendarActivityCreateForm(start=start_date, user=request.user)
+
+    return inner_popup(request, "activities/add_popup_activity_form.html",
+                       {'form':   form,
+                        'title':  _(u'New activity'),
+                       },
+                       is_valid=form.is_valid(),
+                       reload=False,
+                       delegate_reload=True,
+                      )
 
 #TODO: use edit_entity() ? (problem additionnal get_real_entity())
 @login_required

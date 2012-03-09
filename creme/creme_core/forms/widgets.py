@@ -400,7 +400,8 @@ class CalendarWidget(TextInput):
     def render(self, name, value, attrs=None):
         #be carefull: JS and python date format should be equal (here: date == "yy-mm-dd")
         if isinstance(value, datetime):
-            self.default_help_text = settings.DATETIME_FORMAT_VERBOSE
+            # TODO cremedatetimefield is not working properly for the moment
+            self.default_help_text = settings.DATE_FORMAT_VERBOSE
             value = value.date()
 
 #        value = date_format(value, 'DATE_FORMAT') if value is not None else None
@@ -417,14 +418,7 @@ class CalendarWidget(TextInput):
         for f in date_format_js.split(settings.DATE_FORMAT_JS_SEP):
             cmd_js.append(dates_js.get(f))
 
-        #if hasattr(self, 'help_text') and self.help_text not in ('', u'', None):
-        help_text = getattr(self, 'help_text', None)
-        if help_text:
-            help_text = _(help_text)
-        else:
-            help_text = _(self.default_help_text)
-
-        return mark_safe("""%(help_text)s
+        return mark_safe(u"""%(help_text)s
             <br/>
             %(input)s
             <button type="button" onclick="d=new Date();$('#%(id)s').val(%(today_js)s);">
@@ -433,13 +427,13 @@ class CalendarWidget(TextInput):
             <script type="text/javascript">
                 $("#%(id)s").datepicker({dateFormat: "%(date_format_js)s", showOn: "button", buttonImage: "%(img_url)s", buttonImageOnly: true });
             </script>""" % {
-                    'input':          super(CalendarWidget, self).render(name, value, attrs),
-                    'id':             attrs['id'],
-                    'today_label':    _(u"Today"),
-                    'date_format_js': date_format_js,
-                    'today_js':       ("+'%s'+" % settings.DATE_FORMAT_JS_SEP).join(cmd_js),
-                    'help_text':      help_text,
-                    'img_url':        media_url('images/icon_calendar.gif'),
+                    'input':           super(CalendarWidget, self).render(name, value, attrs),
+                    'id':              attrs['id'],
+                    'today_label':     _(u"Today"),
+                    'date_format_js':  date_format_js,
+                    'today_js':        ("+'%s'+" % settings.DATE_FORMAT_JS_SEP).join(cmd_js),
+                    'help_text':       self.default_help_text,
+                    'img_url':         media_url('images/icon_calendar.gif'),
                   })
 
 #TODO: Only used in reports for now. Kept until *Selector widgets accept optgroup

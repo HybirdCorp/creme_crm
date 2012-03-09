@@ -92,17 +92,17 @@ $(document).ready(function() {
                 else creme.utils.loading('loading', true, {});
                 //TODO creme.utils.loading('loading', bool, {}); ???
             },
-            dayClick : function( date, allDay, jsEvent, view) {
-                if(view.name=="month") {
-                    $("#calendar").fullCalendar('changeView', "agendaWeek");
-                    $("#calendar").fullCalendar('gotoDate', date);
-                } else if(view.name=="agendaWeek") {
-                    $("#calendar").fullCalendar('changeView', "agendaDay");
-                    $("#calendar").fullCalendar('gotoDate', date);
-                } else if(view.name=="agendaDay") {
-                    $("#calendar").fullCalendar('changeView', "agendaWeek");
-                    $("#calendar").fullCalendar('gotoDate', date);
-                }
+            dayClick : function(date, allDay, jsEvent, view) {
+                creme.utils.showInnerPopup('/activities/activity/add_popup',
+                                           {'beforeClose': function(){location.reload();}},
+                                           null,
+                                           {'data' : {'year':   date.getFullYear(),
+                                                      'month':  date.getMonth()+1,
+                                                      'day':    date.getDate(),
+                                                      'hour':   date.getHours(),
+                                                      'minute': date.getMinutes()
+                                                     }
+                                           });
             },
             eventAfterRender : function(event, element, view) {
                 $(element).find('a').css('background-color', event.entity_color);
@@ -277,7 +277,7 @@ $(document).ready(function() {
                                         <td>{% trans "See calendars of :" %}</td>
                                     </tr>
                                     <tr>
-                                        <td colspan="16">
+                                        <td colspan="16" align="center">
                                             <button type="button" id="show-hide-users">{% trans "Hide the list of users" %}</button>
                                             <button type="button" id="btn_select_all_users">{% trans "Select all users" %}</button>
                                             <input  type="submit" value="{% trans "See public calendars of selected users" %}" title="{% trans "See public calendars of selected users" %}"/>
@@ -305,9 +305,9 @@ $(document).ready(function() {
                                         <td>{% trans "My calendars :" %}</td>
                                     </tr>
                                     <tr>
-                                        <td colspan="16">
+                                        <td colspan="16" align="center">
                                             <button type="button" id="show-hide-mycalendars">{% trans "Hide the list of my calendars" %}</button>
-                                            <button type="button" id="btn_select_all_mycalendars">{% trans "Select all my calendars" %}</button>
+                                            <button type="button" id="btn_select_all_mycalendars">{% trans "Select all my calendars" %}</button></br>
                                             <input  type="submit" value="{% trans "See my selected calendars" %}" title="{% trans "See my selected calendars" %}" />
                                         </td>
                                     </tr>
