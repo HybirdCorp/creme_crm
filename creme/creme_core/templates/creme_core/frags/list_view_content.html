@@ -170,11 +170,9 @@
                                 </select>
                             </td>
                             <td class="page_information">
-                                {% with entities.start_index as start_index %}
-                                {% with entities.end_index as end_index %}
-                                {% with entities.paginator.count as entities_count %}
-                                    {% blocktrans  %}Recordings {{start_index}} - {{end_index}} on {{entities_count}}{% endblocktrans %}
-                                {% endwith %}{% endwith %}{% endwith %}
+                                {% with start_index=entities.start_index end_index=entities.end_index entities_count=entities.paginator.count %}
+                                    {% blocktrans %}Recordings {{start_index}} - {{end_index}} on {{entities_count}}{% endblocktrans %}
+                                {% endwith %}
                             </td>
                         </tr>
                     </tbody>
