@@ -23,14 +23,16 @@ from datetime import datetime, time, timedelta
 from logging import debug
 
 from django.forms import IntegerField, BooleanField, ModelChoiceField, ModelMultipleChoiceField
-from django.forms.fields import ChoiceField
+from django.forms.fields import ChoiceField, DateTimeField
 from django.forms.util import ValidationError, ErrorList
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
+from activities.models.activity import PhoneCall, Meeting
 
 from creme_core.models import Relation
 from creme_core.forms import CremeForm, CremeEntityForm
-from creme_core.forms.fields import CremeDateTimeField, CremeTimeField, MultiCremeEntityField, MultiGenericEntityField, CremeDateField
+from creme_core.forms.base import FieldBlockManager
+from creme_core.forms.fields import CremeDateTimeField, CremeTimeField, MultiCremeEntityField, MultiGenericEntityField
 from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme_core.forms.validators import validate_linkable_entities, validate_linkable_entity
 
@@ -133,10 +135,12 @@ class SubjectCreateForm(CremeForm):
 class ActivityCreateForm(CremeEntityForm):
     class Meta(CremeEntityForm.Meta):
         model = Activity
-        exclude = CremeEntityForm.Meta.exclude + ('end', 'calendars')
+        exclude = CremeEntityForm.Meta.exclude + ('calendars', )
 
     start      = CremeDateTimeField(label=_(u'Start'))
     start_time = CremeTimeField(label=_(u'Start time'), required=False)
+    end        = CremeDateTimeField(label=_(u'End'), required=False,
+                                    help_text=_(u"If you leave blank to end data, it will be set up with activity's start date"))
     end_time   = CremeTimeField(label=_(u'End time'), required=False)
 
     my_participation    = BooleanField(required=False, label=_(u"Do I participate to this meeting ?"),initial=True)
@@ -157,7 +161,7 @@ class ActivityCreateForm(CremeEntityForm):
     unity                   = ChoiceField(label=_(u"Unity"), choices=UNITY_TAB, required=False)
 
     blocks = CremeEntityForm.blocks.new(
-                ('datetime',       _(u'When'),                   ['start', 'start_time', 'end_time', 'is_all_day']),
+                ('datetime',       _(u'When'),                   ['start', 'start_time', 'end', 'end_time', 'is_all_day']),
                 ('participants',   _(u'Participants'),           ['my_participation', 'my_calendar', 'participating_users', 'other_participants', 'subjects', 'linked_entities']),
                 ('alert_datetime', _(u'Generate an alert on a specific date'),  ['generate_datetime_alert', 'alert_day', 'alert_start_time']),
                 ('alert_period',   _(u'Generate an alert in a while'),['generate_period_alert', 'alert_trigger_number', 'unity']),
@@ -235,7 +239,6 @@ class ActivityCreateForm(CremeEntityForm):
         instance     = self.instance
         cleaned_data = self.cleaned_data
 
-        instance.end = cleaned_data['end']
         super(ActivityCreateForm, self).save()
 
         self._generate_alert()
@@ -286,14 +289,15 @@ class ActivityCreateForm(CremeEntityForm):
         if cleaned_data['generate_period_alert']:
             activity = self.instance
             unity = cleaned_data['unity']
-            value = cleaned_data['alert_trigger_number'] or 0
+            value = cleaned_data['alert_trigger_number']
 
-            Alert.objects.create(user=activity.user,
-                                 trigger_date=datetime.today() + timedelta(**{self._TIME_DELTA[unity]: value}),
-                                 creme_entity=activity,
-                                 title=ugettext(u"Alert of activity"),
-                                 description=ugettext(u'Alert related to %s') % activity,
-                                )
+            if value and unity:
+                Alert.objects.create(user=activity.user,
+                                     trigger_date=datetime.today() + timedelta(**{self._TIME_DELTA[unity]: value}),
+                                     creme_entity=activity,
+                                     title=ugettext(u"Alert of activity"),
+                                     description=ugettext(u'Alert related to %s') % activity,
+                                    )
 
 
 class RelatedActivityCreateForm(ActivityCreateForm):
@@ -321,11 +325,13 @@ class RelatedActivityCreateForm(ActivityCreateForm):
 class ActivityEditForm(CremeEntityForm):
     start      = CremeDateTimeField(label=_(u'Start'))
     start_time = CremeTimeField(label=_(u'Start time'), required=False)
+    end        = CremeDateTimeField(label=_(u'End'), required=False,
+                                    help_text=_(u"If you leave blank to end data, it will be set up with activity's start date"))
     end_time   = CremeTimeField(label=_(u'End time'), required=False)
 
     class Meta(CremeEntityForm.Meta):
         model = Activity
-        exclude = CremeEntityForm.Meta.exclude + ('end', 'type', 'calendars')
+        exclude = CremeEntityForm.Meta.exclude + ('type', 'calendars')
 
     def __init__(self, *args, **kwargs):
         super(ActivityEditForm, self).__init__(*args, **kwargs)
@@ -383,3 +389,54 @@ class RelatedCustomActivityCreateForm(RelatedActivityCreateForm):
 
         if self.fields['type'].queryset.count() == 0:
             self.fields['type'].help_text = _(u"No custom activity type, you should create one in configuration in order to create an activity.")
+
+
+_ACTIVITY_TYPE_EXCLUDED_FROM_POPUP = [ACTIVITYTYPE_SHOW, ACTIVITYTYPE_TASK, ACTIVITYTYPE_GATHERING,
+                                      ACTIVITYTYPE_DEMO, ACTIVITYTYPE_INDISPO]
+
+_ACTIVITY_TYPE_MAP = {ACTIVITYTYPE_PHONECALL: PhoneCall,
+                      ACTIVITYTYPE_MEETING:   Meeting
+                     }
+
+class CalendarActivityCreateForm(ActivityCreateForm):
+    start = DateTimeField(label=_(u'Start'))
+
+    blocks = FieldBlockManager(
+        ('general',        _(u'General information'),           ['user', 'title', 'description', 'type']),
+        ('datetime',       _(u'When'),                          ['start', 'start_time', 'end', 'end_time', 'is_all_day']),
+        ('participants',   _(u'Participants'),                  ['my_participation', 'my_calendar', 'participating_users',
+                                                                 'other_participants', 'subjects', 'linked_entities']),
+        ('alert_period',   _(u'Generate an alert in a while'),  ['alert_trigger_number', 'unity']),
+    )
+
+    class Meta:
+        model = Activity
+        exclude = ActivityCreateForm.Meta.exclude + ('calendars', 'minutes', 'is_comapp', 'place', 'call_type'
+                                                     'generate_datetime_alert', 'alert_day', 'alert_start_time')
+
+    def __init__(self, start=None, *args, **kwargs):
+        super(CalendarActivityCreateForm, self).__init__(*args, **kwargs)
+
+        fields = self.fields
+        field_start = fields['start']
+
+        fields['end'].help_text = ""
+        fields['busy'].initial = False
+        fields['type'].queryset = ActivityType.objects.exclude(pk__in=_ACTIVITY_TYPE_EXCLUDED_FROM_POPUP)
+
+        if start:
+            field_start.initial = start
+            fields['end'].initial = start
+
+            hour = start.hour
+            minute = start.minute
+            if hour or minute:
+                start_time = time(hour=hour, minute=minute)
+                fields['start_time'].initial = start_time
+                # TODO arbitrary duration (1h), we don't know, at this point, the activity type, to retrieve its default duration
+                fields['end_time'].initial = time(start_time.hour + 1, start_time.minute)
+
+    def clean_type(self):
+        type = self.cleaned_data['type']
+        self.instance = _ACTIVITY_TYPE_MAP.get(type.id, Activity)()
+        return type

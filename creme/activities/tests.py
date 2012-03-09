@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.utils.formats import date_format
 
 try:
     from datetime import datetime, date
@@ -866,3 +867,89 @@ class ActivitiesTestCase(CremeTestCase):
 
         activity = self.get_object_or_fail(Activity, pk=activity.pk)
         self.assertEqual(atype, activity.type)
+
+    def test_activity_createview_popup1(self): # with existing activity type and start date given
+        self.login()
+
+        url = '/activities/activity/add_popup'
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        title = "meeting activity popup 1"
+
+        response = self.client.post(url, data={'user':       self.user.pk,
+                                               'title':      title,
+                                               'type':       ACTIVITYTYPE_MEETING,
+                                               'start':      '2010-1-10',
+                                               'end':        '2010-1-10',
+                                               'start_time': '09:30:00',
+                                               'end_time':   '15:00:00',
+                                              }
+                                   )
+
+        self.assertNoFormError(response)
+        self.assertEqual(1, Meeting.objects.count())
+
+        activity = self.get_object_or_fail(Meeting, title=title)
+        self.assertEqual(datetime(year=2010, month=1, day=10, hour=9, minute=30, second=0), activity.start)
+        self.assertEqual(datetime(year=2010, month=1, day=10, hour=15, minute=0, second=0), activity.end)
+        self.assertEqual(ACTIVITYTYPE_MEETING, activity.type_id)
+
+    def test_activity_createview_popup2(self): # with existing activity type and start date given
+        self.login()
+
+        url = '/activities/activity/add_popup'
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        title = "meeting activity popup 2"
+
+        response = self.client.post(url, data={'user':       self.user.pk,
+                                               'title':      title,
+                                               'type':       ACTIVITYTYPE_PHONECALL,
+                                               'start':      '2010-3-15',
+                                               'end':        '2010-3-15',
+                                               'start_time': '19:30:00',
+                                               'end_time':   '20:00:00',
+                                               }
+        )
+
+        self.assertNoFormError(response)
+        self.assertEqual(1, PhoneCall.objects.count())
+
+        activity = self.get_object_or_fail(PhoneCall, title=title)
+        self.assertEqual(datetime(year=2010, month=3, day=15, hour=19, minute=30, second=0), activity.start)
+        self.assertEqual(datetime(year=2010, month=3, day=15, hour=20, minute=0, second=0), activity.end)
+        self.assertEqual(ACTIVITYTYPE_PHONECALL, activity.type_id)
+
+    def test_activity_createview_popup3(self): # with custom activity type and without start date given
+        self.login()
+
+        ACTIVITYTYPE_ACTIVITY = 'activities-activity_custom_1'
+        create_or_update(ActivityType, ACTIVITYTYPE_ACTIVITY, name='Karate session', color="FFFFFF",
+                         default_day_duration=0, default_hour_duration="00:15:00", is_custom=True
+                        )
+        today = datetime.today()
+
+        title = "meeting activity popup 3"
+
+        url = '/activities/activity/add_popup'
+        self.assertEqual(200, self.client.get(url).status_code)
+
+
+        response = self.client.post(url, data={'user':       self.user.pk,
+                                               'title':      title,
+                                               'type':       ACTIVITYTYPE_ACTIVITY,
+                                               'start':      date_format(today),
+                                              }
+                                   )
+
+        self.assertNoFormError(response)
+        self.assertEqual(1, Activity.objects.count())
+
+        activity = self.get_object_or_fail(Activity, title=title)
+        mydate = datetime(year=today.year, month=today.month, day=today.day, hour=0, minute=0, second=0)
+
+        self.assertEqual(mydate, activity.start)
+        self.assertEqual(mydate, activity.end)
+        self.assertEqual(ACTIVITYTYPE_ACTIVITY, activity.type_id)
+
+
