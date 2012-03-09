@@ -94,13 +94,18 @@ class Contact(CremeEntity):
 
     #TODO: factorise with Contact (move in a base abstract class ?)
     def _post_save_clone(self, source):
+        save = False
+
         if source.billing_address is not None:
             self.billing_address = source.billing_address.clone(self)
+            save = True
 
         if source.shipping_address is not None:
             self.shipping_address = source.shipping_address.clone(self)
+            save = True
 
-        self.save() #TODO: save only if needed ??
+        if save:
+            self.save()
 
         excl_source_addr_ids = filter(None, [source.billing_address_id, source.shipping_address_id])
         for address in Address.objects.filter(object_id=source.id).exclude(pk__in=excl_source_addr_ids):
