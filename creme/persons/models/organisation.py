@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from logging import debug
-
 from django.db.models import (ForeignKey, CharField, TextField, PositiveIntegerField,
                               BooleanField, DateField, EmailField, URLField, SET_NULL)
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -58,19 +56,14 @@ class Organisation(CremeEntity):
     creation_date   = DateField(_(u"Date of creation of the organisation"), blank=True, null=True)
     image           = ForeignKey(Image, verbose_name=_(u'Logo'), blank=True, null=True)
 
-#    addresses = ManyToManyField (Address, verbose_name = _(u'Adresse(s)'),blank=True, null=True, related_name='AdressesOrganisation_set')
-
     research_fields = CremeEntity.research_fields + ['name']
+    _clone_excluded_fields = CremeEntity._clone_excluded_fields | set(['billing_address', 'shipping_address'])
 
     class Meta:
         app_label = "persons"
         ordering = ('name',)
         verbose_name = _(u'Organisation')
         verbose_name_plural = _(u'Organisations')
-
-    #def save(self, *args, **kwargs):
-        #self.header_filter_search_field = self.name
-        #super(Organisation, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return self.name
@@ -112,15 +105,23 @@ class Organisation(CremeEntity):
     def get_all_managed_by_creme():
         return Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)
 
+    #TODO: factorise with Contact (move in a base abstract class ?)
     def _post_save_clone(self, source):
+        save = False
+
         if source.billing_address is not None:
             self.billing_address = source.billing_address.clone(self)
+            save = True
 
         if source.shipping_address is not None:
             self.shipping_address = source.shipping_address.clone(self)
+            save = True
 
-        self.save()
+        if save:
+            self.save()
 
+        #TODO: factorise with OtherAdressesBlock ??
         excl_source_addr_ids = filter(None, [source.billing_address_id, source.shipping_address_id])
+
         for address in Address.objects.filter(object_id=source.id).exclude(pk__in=excl_source_addr_ids):
             address.clone(self)

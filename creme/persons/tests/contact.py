@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+
     from django.contrib.contenttypes.models import ContentType
 
     from creme_core.models import Relation, SetCredentials
     from creme_core.gui.quick_forms import quickforms_registry
-    from creme_core.tests.base import CremeTestCase
 
     from persons.models import Contact, Organisation, Address, Position, Civility, Sector
     from persons.constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
+    from persons.tests.base import _BaseTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -16,14 +18,7 @@ except Exception as e:
 __all__ = ('ContactTestCase',)
 
 
-class ContactTestCase(CremeTestCase):
-    def login(self, is_superuser=True, **kwargs):
-        super(ContactTestCase, self).login(is_superuser, allowed_apps=['persons'], **kwargs)
-
-    @classmethod
-    def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'persons')
-
+class ContactTestCase(_BaseTestCase):
     def test_createview01(self):
         self.login()
 
@@ -225,6 +220,54 @@ class ContactTestCase(CremeTestCase):
 
     #TODO: test relation's object creds
     #TODO: test bad rtype (doesn't exist, constraints) => fixed list of types ??
+
+    def test_clone(self): #addresses & is_user are problematic
+        self.login()
+
+        user = self.user
+        naruto = Contact.objects.create(user=user, is_user=user,
+                                        first_name='Naruto', last_name='Uzumaki'
+                                       )
+
+        create_address = partial(Address.objects.create,
+                                 city='Konoha', state='Konoha', zipcode='111',
+                                 country='The land of fire', department="Ninjas' homes",
+                                 content_type=ContentType.objects.get_for_model(Contact),
+                                 object_id=naruto.id
+                                )
+        naruto.billing_address  = create_address(name="Naruto's", address='Home', po_box='000')
+        naruto.shipping_address = create_address(name="Naruto's", address='Home (second entry)', po_box='001')
+        naruto.save()
+
+        for i in xrange(5):
+            create_address(name='Secret Cave #%s' % i, address='Cave #%s' % i, po_box='XXX')
+
+        kage_bunshin = naruto.clone()
+
+        self.assertEqual(naruto.first_name, kage_bunshin.first_name)
+        self.assertEqual(naruto.last_name, kage_bunshin.last_name)
+        self.assertIsNone(kage_bunshin.is_user) #<====
+
+        self.assertEqual(naruto.id, naruto.billing_address.object_id)
+        self.assertEqual(naruto.id, naruto.shipping_address.object_id)
+
+        self.assertEqual(kage_bunshin.id, kage_bunshin.billing_address.object_id)
+        self.assertEqual(kage_bunshin.id, kage_bunshin.shipping_address.object_id)
+
+        addresses   = list(Address.objects.filter(object_id=naruto.id))
+        c_addresses = list(Address.objects.filter(object_id=kage_bunshin.id))
+        self.assertEqual(7, len(addresses))
+        self.assertEqual(7, len(c_addresses))
+
+        addresses_map   = dict((a.address, a) for a in addresses)
+        c_addresses_map = dict((a.address, a) for a in c_addresses)
+        self.assertEqual(7, len(addresses_map))
+        self.assertEqual(7, len(c_addresses_map))
+
+        for ident, address in addresses_map.iteritems():
+            address2 = c_addresses_map.get(ident)
+            self.assertIsNotNone(address2, ident)
+            self.assertAddressOnlyContentEqual(address, address2)
 
     def test_quickform01(self):
         self.login()

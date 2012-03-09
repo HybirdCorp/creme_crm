@@ -92,6 +92,7 @@ class Contact(CremeEntity):
             raise ProtectedError(ugettext(u"A user is associated with this contact."), [self])
         super(Contact, self).delete()
 
+    #TODO: factorise with Contact (move in a base abstract class ?)
     def _post_save_clone(self, source):
         if source.billing_address is not None:
             self.billing_address = source.billing_address.clone(self)
