@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,7 @@ from persons.models import Contact, Organisation
 
 class ContactQuickForm(CremeModelWithUserForm): #not CremeEntityForm to ignore custom fields
     organisation = CharField(label=_(u"Organisation"), required=False,
-                             help_text=_(u'If no organisation found, a new one will be created.'))
+                             help_text=_(u'If no organisation is found, a new one will be created.'))
 
     class Meta:
         model = Contact

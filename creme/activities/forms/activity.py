@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,6 @@ from django.forms.fields import ChoiceField, DateTimeField
 from django.forms.util import ValidationError, ErrorList
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
-from activities.models.activity import PhoneCall, Meeting
 
 from creme_core.models import Relation
 from creme_core.forms import CremeForm, CremeEntityForm
@@ -40,9 +39,10 @@ from persons.models import Contact
 
 from assistants.models.alert import Alert
 
-from activities.models import ActivityType, Activity, Calendar
+from activities.models import ActivityType, Activity, PhoneCall, Meeting, Calendar
 from activities.constants import *
 from activities.utils import check_activity_collisions
+
 
 MINUTE  = '1'
 HOUR    = '2'
@@ -140,7 +140,7 @@ class ActivityCreateForm(CremeEntityForm):
     start      = CremeDateTimeField(label=_(u'Start'))
     start_time = CremeTimeField(label=_(u'Start time'), required=False)
     end        = CremeDateTimeField(label=_(u'End'), required=False,
-                                    help_text=_(u"If you leave blank to end data, it will be set up with activity's start date"))
+                                    help_text=_(u'If you leave end date blank, it will be set up with start date'))
     end_time   = CremeTimeField(label=_(u'End time'), required=False)
 
     my_participation    = BooleanField(required=False, label=_(u"Do I participate to this meeting ?"),initial=True)
@@ -326,7 +326,7 @@ class ActivityEditForm(CremeEntityForm):
     start      = CremeDateTimeField(label=_(u'Start'))
     start_time = CremeTimeField(label=_(u'Start time'), required=False)
     end        = CremeDateTimeField(label=_(u'End'), required=False,
-                                    help_text=_(u"If you leave blank to end data, it will be set up with activity's start date"))
+                                    help_text=_(u'If you leave end date blank, it will be set up with start date'))
     end_time   = CremeTimeField(label=_(u'End time'), required=False)
 
     class Meta(CremeEntityForm.Meta):
