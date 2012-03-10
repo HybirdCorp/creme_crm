@@ -1,26 +1,29 @@
 # FR LOCALISATION OF 'ACTIVITIES' APP
-# Copyright (C) 2011 Hybird
+# Copyright (C) 2012 Hybird
 # This file is distributed under the same license as the Creme package.
+#
+# > django-admin.py makemessages -l fr -e html -i tests.py
 #
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-02-24 08:47+0100\n"
+"POT-Creation-Date: 2012-03-10 12:26+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
-#: blocks.py:37 forms/activity.py:76 forms/activity.py:161
+#: blocks.py:37 forms/activity.py:78 forms/activity.py:165
+#: forms/activity.py:407
 msgid "Participants"
 msgstr "Participants"
 
-#: blocks.py:69 forms/activity.py:115 forms/activity.py:148
+#: blocks.py:69 forms/activity.py:117 forms/activity.py:152
 msgid "Subjects"
 msgstr "Sujets"
 
@@ -48,7 +51,7 @@ msgstr "Ajouter un appel téléphonique"
 msgid "Add a task"
 msgstr "Ajouter une tâche"
 
-#: creme_core_register.py:33 models/activity.py:135
+#: creme_core_register.py:33 models/activity.py:137
 #: templates/activities/portal.html:6
 msgid "Activities"
 msgstr "Activités"
@@ -57,7 +60,7 @@ msgstr "Activités"
 msgid "Portal of activities"
 msgstr "Portail des activités"
 
-#: creme_core_register.py:38 models/activity.py:44
+#: creme_core_register.py:38 models/activity.py:46
 #: templates/activities/portal.html:11
 msgid "Calendar"
 msgstr "Calendrier"
@@ -82,7 +85,7 @@ msgstr "Lister les appels téléphoniques"
 msgid "All meetings"
 msgstr "Lister les rendez-vous"
 
-#: populate.py:47 tests.py:711 tests.py:719
+#: populate.py:47
 msgid "related to the activity"
 msgstr "relié à l'activité"
 
@@ -90,7 +93,7 @@ msgstr "relié à l'activité"
 msgid "(activity) related to"
 msgstr "(activité) relié à"
 
-#: populate.py:51 tests.py:710 tests.py:718
+#: populate.py:51
 msgid "is subject of the activity"
 msgstr "est sujet de l'activité"
 
@@ -98,7 +101,7 @@ msgstr "est sujet de l'activité"
 msgid "(activity) is to subject"
 msgstr "(activité) a pour sujet"
 
-#: populate.py:55 tests.py:709
+#: populate.py:55
 msgid "participates to the activity"
 msgstr "participe à l'activité"
 
@@ -150,7 +153,7 @@ msgstr "En retard"
 msgid "Cancelled"
 msgstr "Annulé"
 
-#: populate.py:69 models/activity.py:283
+#: populate.py:69 models/activity.py:285
 #: templates/activities/calendar.html:244
 #: templates/activities/calendar.html:263
 #: templates/activities/templatetags/button_add_related_task.html:5
@@ -158,7 +161,7 @@ msgstr "Annulé"
 msgid "Task"
 msgstr "Tâche"
 
-#: populate.py:70 models/activity.py:268
+#: populate.py:70 models/activity.py:270
 #: templates/activities/calendar.html:232
 #: templates/activities/calendar.html:251
 #: templates/activities/frags/button_add_meeting.html:2
@@ -167,7 +170,7 @@ msgstr "Tâche"
 msgid "Meeting"
 msgstr "Rendez-vous"
 
-#: populate.py:71 models/activity.py:311
+#: populate.py:71 models/activity.py:313
 #: templates/activities/calendar.html:238
 #: templates/activities/calendar.html:257
 #: templates/activities/frags/button_add_phonecall.html:2
@@ -197,144 +200,139 @@ msgid "Activity view"
 msgstr "Vue d'Activité"
 
 #: populate.py:95
-#, fuzzy
 msgid "Phone call view"
-msgstr "Appel téléphonique"
+msgstr "Vue d'appel téléphonique"
 
 #: populate.py:96
-#, fuzzy
 msgid "Meeting view"
-msgstr "Rendez-vous"
+msgstr "Vue de rendez-vous"
 
 #: populate.py:141
 msgid "Display minutes information in activities blocks"
 msgstr "Afficher le bilan d'une activité dans les blocks d'activités ?"
 
-#: tests.py:145
-#, fuzzy, python-format
-msgid "You are not allowed to link this entity: %s"
-msgstr "Vous n'êtes pas autorisé à effacer ce calendrier."
-
-#: tests.py:146 tests.py:147 tests.py:148 tests.py:149 tests.py:644
-#: tests.py:694
-#, python-format
-msgid "Some entities are not linkable: %s"
-msgstr ""
-
 #: utils.py:75
-#, fuzzy, python-format
+#, python-format
 msgid ""
-"%(participant)s already participates to the activity Â«%(activity)sÂ» "
-"between %(start)s and %(end)s."
+"%(participant)s already participates to the activity «%(activity)s» between "
+"%(start)s and %(end)s."
 msgstr ""
 "%(participant)s participe déjà à l'activité «%(activity)s» entre %(start)s "
 "et %(end)s."
 
-#: forms/activity.py:49
+#: forms/activity.py:51
 msgid "Minute"
 msgstr "Minute"
 
-#: forms/activity.py:49
+#: forms/activity.py:51
 msgid "Hour"
 msgstr "Heure"
 
-#: forms/activity.py:49 templates/activities/calendar.html:76
+#: forms/activity.py:51 templates/activities/calendar.html:76
 msgid "Day"
 msgstr "Jour"
 
-#: forms/activity.py:49 templates/activities/calendar.html:75
+#: forms/activity.py:51 templates/activities/calendar.html:75
 msgid "Week"
 msgstr "Semaine"
 
-#: forms/activity.py:67
+#: forms/activity.py:69
 msgid "End time is before start time"
 msgstr "L'heure de fin est avant le début"
 
-#: forms/activity.py:138 forms/activity.py:322
-#: forms/indisponibility.py:34 models/activity.py:117
+#: forms/activity.py:140 forms/activity.py:326 forms/activity.py:402
+#: forms/indisponibility.py:34 models/activity.py:119
 msgid "Start"
 msgstr "Début"
 
-#: forms/activity.py:139 forms/activity.py:323
-#: forms/indisponibility.py:37
+#: forms/activity.py:141 forms/activity.py:327 forms/indisponibility.py:37
 msgid "Start time"
 msgstr "Heure de début"
 
-#: forms/activity.py:140 forms/activity.py:324
-#: forms/indisponibility.py:38
+#: forms/activity.py:142 forms/activity.py:328 forms/indisponibility.py:35
+#: models/activity.py:120
+msgid "End"
+msgstr "Fin"
+
+#: forms/activity.py:143 forms/activity.py:329
+msgid "If you leave end date blank, it will be set up with start date"
+msgstr ""
+"Si vous ne remplissez pas la date de fin, elle sera égale à la date de début"
+
+#: forms/activity.py:144 forms/activity.py:330 forms/indisponibility.py:38
 msgid "End time"
 msgstr "Heure de fin"
 
-#: forms/activity.py:142
+#: forms/activity.py:146
 msgid "Do I participate to this meeting ?"
 msgstr "Est-ce que je participe à ce rendez-vous ?"
 
-#: forms/activity.py:143
+#: forms/activity.py:147
 msgid "On which of my calendar this activity will appears?"
 msgstr "Sur lequel de mes calendriers cette activité doit apparaître?"
 
-#: forms/activity.py:144
+#: forms/activity.py:148
 msgid "Other participating users"
 msgstr "Autres utilsateurs participants"
 
-#: forms/activity.py:147
+#: forms/activity.py:151
 msgid "Other participants"
 msgstr "Autres participants"
 
-#: forms/activity.py:149
+#: forms/activity.py:153
 msgid "Entities linked to this activity"
 msgstr "Fiches reliées à l'activité"
 
-#: forms/activity.py:151
+#: forms/activity.py:155
 msgid "Do you want to generate an alert on a specific date ?"
 msgstr "Souhaitez-vous générer une alerte à une date spécifique ?"
 
-#: forms/activity.py:152
+#: forms/activity.py:156
 msgid "Alert day"
 msgstr "Jour de l'alerte"
 
-#: forms/activity.py:153
+#: forms/activity.py:157
 msgid "Alert time"
 msgstr "Heure de l'alerte"
 
-#: forms/activity.py:155
+#: forms/activity.py:159
 msgid "Do you want to generate an alert in a while ?"
 msgstr "Souhaitez-vous générer une alerte dans un certain temps à définir ?"
 
-#: forms/activity.py:156
+#: forms/activity.py:160
 msgid "Value"
 msgstr "Valeur"
 
-#: forms/activity.py:157
+#: forms/activity.py:161
 msgid "Unity"
 msgstr "Unité"
 
-#: forms/activity.py:160 forms/indisponibility.py:45
+#: forms/activity.py:164 forms/activity.py:406 forms/indisponibility.py:45
 msgid "When"
 msgstr "Quand"
 
-#: forms/activity.py:162
+#: forms/activity.py:166
 msgid "Generate an alert on a specific date"
 msgstr "Générer une alerte à une date spécifique"
 
-#: forms/activity.py:163
+#: forms/activity.py:167 forms/activity.py:409
 msgid "Generate an alert in a while"
 msgstr "Générer une alerte dans un certain temps"
 
-#: forms/activity.py:227
+#: forms/activity.py:231
 msgid "If you participe, you have to choose one of your calendars."
 msgstr "Si vous participez, vous devez choisir un de vos calendrier"
 
-#: forms/activity.py:282 forms/activity.py:294
+#: forms/activity.py:285 forms/activity.py:298
 msgid "Alert of activity"
 msgstr "Alerte d'activité"
 
-#: forms/activity.py:283 forms/activity.py:295
+#: forms/activity.py:286 forms/activity.py:299
 #, python-format
 msgid "Alert related to %s"
 msgstr "Alerte en rapport avec %s"
 
-#: forms/activity.py:376 forms/activity.py:385
+#: forms/activity.py:382 forms/activity.py:391
 msgid ""
 "No custom activity type, you should create one in configuration in order to "
 "create an activity."
@@ -342,7 +340,11 @@ msgstr ""
 "Aucun type d'activité personnalisé n'existe, vous devriez en créer un dans "
 "la configuration pour pouvoir créer une activité."
 
-#: forms/activity_type.py:31 models/activity.py:87
+#: forms/activity.py:405
+msgid "General information"
+msgstr "Informations générales"
+
+#: forms/activity_type.py:31 models/activity.py:89
 msgid "Color"
 msgstr "Couleur"
 
@@ -354,10 +356,6 @@ msgstr "Durée"
 msgid "User"
 msgstr "Utilisateur"
 
-#: forms/indisponibility.py:35 models/activity.py:118
-msgid "End"
-msgstr "Fin"
-
 #: forms/indisponibility.py:64 forms/indisponibility.py:67
 msgid "End date is before start date"
 msgstr "L'heure de fin est avant le début"
@@ -366,113 +364,113 @@ msgstr "L'heure de fin est avant le début"
 msgid "Do I participate to this task"
 msgstr "Est-ce que je participe à cette tâche"
 
-#: models/activity.py:36 models/activity.py:86 models/activity.py:102
+#: models/activity.py:38 models/activity.py:88 models/activity.py:104
 #: templates/activities/templatetags/block_user_calendars.html:23
 msgid "Name"
 msgstr "Nom"
 
-#: models/activity.py:37
+#: models/activity.py:39
 msgid "Default ?"
 msgstr "Par défaut ?"
 
-#: models/activity.py:39
+#: models/activity.py:41
 #: templates/activities/templatetags/block_user_calendars.html:25
 msgid "Is public ?"
 msgstr "Est public ?"
 
-#: models/activity.py:40
+#: models/activity.py:42
 msgid "Calendar owner"
 msgstr "Propriétaire du calendrier"
 
-#: models/activity.py:45 models/activity.py:122
+#: models/activity.py:47 models/activity.py:124
 #: templates/activities/calendar.html:4
 #: templates/activities/templatetags/block_user_calendars.html:8
 msgid "Calendars"
 msgstr "Calendriers"
 
-#: models/activity.py:70
+#: models/activity.py:72
 #, python-format
 msgid "Default %(user)s's calendar"
 msgstr "Calendrier de %(user)s par défaut"
 
-#: models/activity.py:88
+#: models/activity.py:90
 msgid "Default day duration"
 msgstr "Durée en jours par défaut"
 
-#: models/activity.py:89
+#: models/activity.py:91
 msgid "Default hour duration"
 msgstr "Durée en heures/minutes/secondes par défaut"
 
-#: models/activity.py:97 models/activity.py:121
+#: models/activity.py:99 models/activity.py:123
 msgid "Activity type"
 msgstr "Type d'activité"
 
-#: models/activity.py:98
+#: models/activity.py:100
 msgid "Activity types"
 msgstr "Types d'activité"
 
-#: models/activity.py:103 models/activity.py:119 models/activity.py:289
+#: models/activity.py:105 models/activity.py:121 models/activity.py:291
 msgid "Description"
 msgstr "Description"
 
-#: models/activity.py:110 models/activity.py:111 models/activity.py:124
+#: models/activity.py:112 models/activity.py:113 models/activity.py:126
 msgid "Status"
 msgstr "Statut"
 
-#: models/activity.py:116
+#: models/activity.py:118
 msgid "Title"
 msgstr "Titre"
 
-#: models/activity.py:120
+#: models/activity.py:122
 msgid "Minutes"
 msgstr "Bilan"
 
-#: models/activity.py:123
+#: models/activity.py:125
 msgid "All day ?"
 msgstr "Jour entier ?"
 
-#: models/activity.py:125
+#: models/activity.py:127
 msgid "Busy ?"
 msgstr "Occupé ?"
 
-#: models/activity.py:134
+#: models/activity.py:136
 msgid "Activity"
 msgstr "Activité"
 
-#: models/activity.py:258
+#: models/activity.py:260
 msgid "Meeting place"
 msgstr "Lieu de rendez-vous"
 
-#: models/activity.py:269
+#: models/activity.py:271
 msgid "Meetings"
 msgstr "Rendez-vous"
 
-#: models/activity.py:273
+#: models/activity.py:275
 msgid "Duration (in hour)"
 msgstr "Durée (en heures)"
 
-#: models/activity.py:284
+#: models/activity.py:286
 msgid "Tasks"
 msgstr "Tâches"
 
-#: models/activity.py:288
+#: models/activity.py:290
 msgid "Call type"
 msgstr "Type d'appel"
 
-#: models/activity.py:296 models/activity.py:301
+#: models/activity.py:298 models/activity.py:303
 msgid "Phonecall type"
 msgstr "Type d'appel"
 
-#: models/activity.py:297
+#: models/activity.py:299
 msgid "Phonecall types"
 msgstr "Types d'appel"
 
-#: models/activity.py:312
+#: models/activity.py:314
 msgid "Phone calls"
 msgstr "Appels Téléphoniques"
 
 #: templates/activities/add_activity_form.html:5
-#: templates/activities/add_activity_form.html:9
+#: templates/activities/add_activity_form.html:8
 msgid "Add"
 msgstr "Ajouter"
 
@@ -681,11 +679,11 @@ msgstr "Télécharger au format iCalendar"
 #: templates/activities/templatetags/activity_date.html:7
 #, python-format
 msgid ""
-"Begin %(start_date)s, %(start_hour)s<br />/n"
+"Begin %(start_date)s, %(start_hour)s<br />\n"
 "        End %(end_date)s, %(end_hour)s"
 msgstr ""
-"Début %(start_date)s, %(start_hour)s<br />/n"
-"            Fin %(end_date)s, %(end_hour)s"
+"Début %(start_date)s, %(start_hour)s<br />/n            Fin %(end_date)s, "
+"%(end_hour)s"
 
 #: templates/activities/templatetags/activity_date.html:10
 #, python-format
@@ -831,6 +829,10 @@ msgstr "Éditer calendrier"
 msgid "No calendar for the moment"
 msgstr "Aucun calendrier pour le moment"
 
+#: views/activity.py:132
+msgid "New activity"
+msgstr "Nouvelle activité"
+
 #: views/blocks.py:38
 #, python-format
 msgid "Adding participants to activity <%s>"
@@ -857,16 +859,17 @@ msgstr "Vous n'êtes pas autorisé à effacer ce calendrier."
 msgid "Activities' count"
 msgstr "Nombre d'activité(s)"
 
+#~ msgid "You are not allowed to link this entity: %s"
+#~ msgstr "Vous n'êtes pas autorisé à effacer ce calendrier."
+
 #~ msgid ""
 #~ "Begin %(activity.start|date:'SHORT_DATE_FORMAT')s, %(activity.start|"
-#~ "date:'H:i')s<br />/n"
-#~ "    End %(activity.end|date:'SHORT_DATE_FORMAT')s, %(activity.end|date:'H:"
-#~ "i')s"
+#~ "date:'H:i')s<br />/n    End %(activity.end|date:'SHORT_DATE_FORMAT')s, "
+#~ "%(activity.end|date:'H:i')s"
 #~ msgstr ""
 #~ "Début %(activity.start|date:'SHORT_DATE_FORMAT')s, %(activity.start|"
-#~ "date:'H:i')s<br />/n"
-#~ "    Fin %(activity.end|date:'SHORT_DATE_FORMAT')s, %(activity.end|date:'H:"
-#~ "i')s"
+#~ "date:'H:i')s<br />/n    Fin %(activity.end|date:'SHORT_DATE_FORMAT')s, "
+#~ "%(activity.end|date:'H:i')s"
 
 #~ msgid ""
 #~ "The %(activity.start|date:'SHORT_DATE_FORMAT')s at %(activity.start|"
@@ -901,9 +904,6 @@ msgstr "Nombre d'activité(s)"
 
 #~ msgid "Status - Name"
 #~ msgstr "Statut - Nom"
-
-#~ msgid "Other Information"
-#~ msgstr "Autres Informations"
 
 #~ msgid "Information"
 #~ msgstr "Information"
