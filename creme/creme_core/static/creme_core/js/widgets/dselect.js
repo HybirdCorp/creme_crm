@@ -29,6 +29,10 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         self._fill(element, options, cb, cb, sync);
     },
 
+    _update_disabled_state: function(element) {
+    	($('option', element).length > 1) ? element.removeAttr('disabled') : element.attr('disabled', 'disabled')
+    },
+
     reload: function(element, url, cb, error_cb, sync) {
         var self = creme.widget.DynamicSelect;
         var opts = creme.widget.parseopt(element, self.options, {url:url});
@@ -44,7 +48,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     	creme.forms.Select.fill(element, data);
     	element.addClass('widget-ready');
     	
-    	($('option', element).length > 1) ? element.removeAttr('disabled') : element.attr('disabled', 'disabled');
+    	self._update_disabled_state(element);
     },
 
     _ajaxfill: function(element, source, url, cb, error_cb, sync) 
@@ -59,7 +63,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 		       },
 			   function(error) {
 		           element.addClass('widget-ready');
-		    	   ($('option', element).length > 1) ? element.removeAttr('disabled') : element.attr('disabled', 'disabled');
+		           self._update_disabled_state(element);
 		           if (error_cb != undefined) error_cb(element, error);
 			   }, 
 			   sync);
@@ -77,13 +81,14 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
             self._ajaxfill(element, source, url, cb, error_cb, sync);
         } else {
         	element.addClass('widget-ready');
-        	($('option', element).length > 1) ? element.removeAttr('disabled') : element.attr('disabled', 'disabled');
+        	self._update_disabled_state(element);
         }
 
         if (cb != undefined) cb(element);
     },
 
     val: function(element, value) {
+    	var self = creme.widget.DynamicSelect;
         //console.log(element, value, element.val());
 
         if (value === undefined)
@@ -92,7 +97,11 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         if (typeof value !== 'string')
     		value = $.toJSON(value);
 
-        return element.val(value).change();
+        // Chrome behaviour (bug ?) : select value is not updated if disabled.
+        // so enable it before change value !
+        element.removeAttr('disabled');
+        element.val(value).change();
+        self._update_disabled_state(element);
     },
 
     clone: function(element) {

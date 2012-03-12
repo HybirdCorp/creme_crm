@@ -92,10 +92,10 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
         $('.ui-creme-chainedselect-item > .ui-creme-widget', element).each(function() {
             var item = $(this);
             var itemname = item.parent().attr('chained-name');
-            var itemval = (values) ? values[itemname] : null;
+            var itemval = (values && itemname) ? values[itemname] : null;
+            itemval = (itemval !== undefined) ? itemval : null;
 
-            //console.log("chainedselect._update_selectors > ", item, " > [" + itemname + "] =", itemval);
-
+            //console.log("chainedselect._update_selectors >       > ", item, " > [" + itemname + "] =", itemval);
             item.data('widget').val(item, itemval);
         });
 
