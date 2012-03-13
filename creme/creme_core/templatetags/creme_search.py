@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2010  Hybird
@@ -28,7 +29,10 @@ register = template.Library()
 @register.inclusion_tag('creme_core/templatetags/search_panel.html', takes_context=True)
 def get_search_panel(context, target_node_id='sub_content'):
     get_ct = ContentType.objects.get_for_model
-    content_types = [{'id': get_ct(model).id, 'verbose_name': model._meta.verbose_name} for model in creme_registry.iter_entity_models()]
+    content_types = [{'id':           get_ct(model).id,
+                      'verbose_name': model._meta.verbose_name,
+                     } for model in creme_registry.iter_entity_models()
+                    ]
     content_types.sort(key=lambda k: k['verbose_name'])
 
     context.update({

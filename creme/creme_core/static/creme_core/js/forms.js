@@ -309,7 +309,7 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
 
     function choseOne() {
         var $sel = $available.find('.dcms_focused');
-        addChosenLi($sel.text(), $sel.attr('name'));
+        addChosenLi($sel.html(), $sel.attr('name')); // not "$sel.text()" (xss)
         $sel.hide();
 
         refreshWidget();
@@ -320,7 +320,7 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
             var name = $(this).attr('name');
 
             if ($chosen.find('li[name="' + name + '"]').size() == 0) {
-                addChosenLi($(this).text(), name);
+                addChosenLi($(this).html(), name); // not "$(this).text()" (xss)
                 $(this).hide();
             }
         });
@@ -430,7 +430,7 @@ creme.forms.toUnorderedMultiSelect = function(select_id) {
     function buildColumns($select, addAvailableLi, addChosenLi) { //TODO: use inheritage instead ??
         $select.find('option').each(function(i) {
             var $this   = $(this);
-            var label   = $this.text();
+            var label   = $this.html(); //NB not "$this.text()" because it unexcapes html (so can cause xss)
             var li_name = $this.attr('value');
 
             if ($this.is(':selected')) {
@@ -470,7 +470,7 @@ creme.forms.toOrderedMultiSelect = function(table_id) {
         $table.find('tr').each(function(i) {
             var $this   = $(this);
             var checked = $this.find('.oms_check').is(':checked');
-            var label   = $this.find('.oms_value').text();
+            var label   = $this.find('.oms_value').html(); // not ".text()" (can cause xss)
             var li_name = 'oms_row_' + i;
 
             if (checked == true) {

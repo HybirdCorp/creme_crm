@@ -23,7 +23,6 @@ from logging import debug, info
 
 from django.db.models import Model, PositiveSmallIntegerField, CharField, TextField, DateTimeField, ForeignKey, SET_NULL
 from django.db.models.signals import post_save, post_init, pre_delete
-from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
 from django.contrib.contenttypes.models import ContentType
@@ -184,10 +183,10 @@ class HistoryLine(Model):
 
             try:
                 ptype_text = CremePropertyType.objects.get(pk=ptype_id).text #TODO: use cache
-            except CremePropertyType.DoesNotExist, e:
+            except CremePropertyType.DoesNotExist:
                 ptype_text = ptype_id
 
-            vmodifs.append(_(u'Add property “%s”') % ptype_text)
+            vmodifs.append(ugettext(u'Add property “%s”') % ptype_text)
         elif htype in (HistoryLine.TYPE_RELATION, HistoryLine.TYPE_SYM_RELATION):
             rtype_id = self.modifications[0]
             related_line = self.related_line
@@ -197,7 +196,7 @@ class HistoryLine(Model):
             except RelationType.DoesNotExist:
                 predicate = rtype_id
 
-            vmodifs.append(_(u'Add a relationship “%s”') % predicate)
+            vmodifs.append(ugettext(u'Add a relationship “%s”') % predicate)
         else:
             get_field = self.entity_ctype.model_class()._meta.get_field
 
@@ -206,21 +205,19 @@ class HistoryLine(Model):
                 field_name = field.verbose_name
 
                 if len(modif) == 1:
-                    vmodif = mark_safe(ugettext(u'Set field “%(field)s”') % {
-                                            'field': field_name,
-                                        })
+                    vmodif = ugettext(u'Set field “%(field)s”') % {'field': field_name}
                 elif len(modif) == 2:
-                    vmodif = mark_safe(ugettext(u'Set field “%(field)s” to “%(value)s”') % {
-                                            'field': field_name,
-                                            'value': _PRINTERS.get(field.get_internal_type(), _basic_printer)(field, modif[1]),
-                                        })
+                    vmodif = ugettext(u'Set field “%(field)s” to “%(value)s”') % {
+                                         'field': field_name,
+                                         'value': _PRINTERS.get(field.get_internal_type(), _basic_printer)(field, modif[1]),
+                                        }
                 else: #len(modif) == 3
                     printer = _PRINTERS.get(field.get_internal_type(), _basic_printer)
-                    vmodif = mark_safe(ugettext(u'Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”') % {
-                                            'field':    field_name,
-                                            'oldvalue': printer(field, modif[1]), #TODO: improve for fk ???
-                                            'value':    printer(field, modif[2]),
-                                        })
+                    vmodif = ugettext(u'Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”') % {
+                                             'field':    field_name,
+                                             'oldvalue': printer(field, modif[1]), #TODO: improve for fk ???
+                                             'value':    printer(field, modif[2]),
+                                            }
 
                 vmodifs.append(vmodif)
 

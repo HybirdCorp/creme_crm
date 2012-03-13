@@ -30,6 +30,7 @@ from django.forms.widgets import SelectMultiple, HiddenInput
 from django.forms.util import flatatt
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.safestring import mark_safe
+from django.utils.html import escape
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
@@ -163,8 +164,10 @@ class CSVExtractorWidget(SelectMultiple):
     def _render_select(self, name, choices, sel_val, attrs=None):
         output = ['<select %s>' % flatatt(self.build_attrs(attrs, name=name))]
 
-        output.extend(u"""<option value="%s" %s>%s</option>""" % (
-                            opt_value, (u'selected="selected"' if sel_val == opt_value else u''), opt_label
+        output.extend(u'<option value="%s" %s>%s</option>' % (
+                            opt_value,
+                            (u'selected="selected"' if sel_val == opt_value else u''),
+                            escape(opt_label)
                         ) for opt_value, opt_label in choices
                      )
 
@@ -205,7 +208,7 @@ class CSVExtractorWidget(SelectMultiple):
                           'id':     attrs['id'],
                         })
 
-        out_append(u"""</td><td>&nbsp;%s:%s</td></tr></tbody></table>""" % (
+        out_append(u'</td><td>&nbsp;%s:%s</td></tr></tbody></table>' % (
                         ugettext(u"Default value"),
                         self.default_value_widget.render("%s_defval" % name, value.get('default_value')),
                     )

@@ -88,10 +88,11 @@ class _GetAlerts(FunctionField):
         cache = getattr(entity, '_alerts_cache', None)
 
         if cache is None:
-            cache = entity._alerts_cache = list(Alert.objects.filter(entity_id=entity.id, is_validated=False) \
-                                                              .order_by('trigger_date') \
-                                                              .values_list('title', flat=True)
-                                             )
+            cache = entity._alerts_cache = list(Alert.objects
+                                                     .filter(entity_id=entity.id, is_validated=False)
+                                                     .order_by('trigger_date')
+                                                     .values_list('title', flat=True)
+                                               )
 
         return FunctionFieldResultsList(FunctionFieldResult(title) for title in cache)
 

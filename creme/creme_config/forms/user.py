@@ -22,7 +22,6 @@ import re
 from logging import debug
 from collections import defaultdict
 
-from django.utils.safestring import mark_safe
 from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField, ValidationError, ChoiceField
 from django.forms.widgets import PasswordInput
 from django.utils.translation import ugettext_lazy as _, ugettext

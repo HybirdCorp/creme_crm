@@ -25,6 +25,7 @@ from django.forms import Field, Widget, Select
 from django.forms.models import fields_for_model, model_to_dict
 from django.forms.util import flatatt
 from django.utils.safestring import mark_safe
+from django.utils.html import escape
 from django.utils.translation import ugettext as _
 
 from creme_core.models import CremeEntity
@@ -43,9 +44,9 @@ class EntitiesHeaderWidget(Widget):
                               '<li><input readOnly="True" class="merge_entity_header2" value="%(header_2)s" /></li>'
                           '</ul>' % {
                             'attrs':         flatatt(self.build_attrs(attrs, name=name, **{'class': 'merge_entity_field ui-layout hbox'})),
-                            'header_1':      value_1,
-                            'header_merged': value_m,
-                            'header_2':      value_2,
+                            'header_1':      escape(value_1),
+                            'header_merged': escape(value_m),
+                            'header_2':      escape(value_2),
                           }
                         )
 
