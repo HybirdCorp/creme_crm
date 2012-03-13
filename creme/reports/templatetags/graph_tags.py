@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.template import Library
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _ #TODO: ugettext instead ?
 
 from creme_core.utils.meta import get_verbose_field_name
 from creme_core.models.relation import RelationType

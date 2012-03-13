@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,6 +29,7 @@ from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_FUNCTIO
 from creme_core.models import CustomField
 from creme_core.utils.meta import get_model_field_infos
 from creme_core.gui.field_printers import field_printers_registry
+from creme_core.templatetags.creme_widgets import widget_entity_hyperlink
 
 register = Library()
 
@@ -70,14 +71,13 @@ def _build_bool_search_widget(widget_ctx, search_value):
     #TODO : Hack or not ? / Remember selected value ?
     selected_value = search_value[0] if search_value else None
     widget_ctx['type'] = 'checkbox'
-    widget_ctx['values'] = [{
-                                'value':    '1',
-                                'text':     _("Yes"),
-                                'selected': 'selected' if selected_value == '1' else ''
-                            }, {
-                                'value':    '0',
-                                'text':     _("No"),
-                                'selected': 'selected' if selected_value == '0' else ''
+    widget_ctx['values'] = [{'value':    '1',
+                             'text':     _("Yes"),
+                             'selected': 'selected' if selected_value == '1' else ''
+                            },
+                            {'value':    '0',
+                             'text':     _("No"),
+                             'selected': 'selected' if selected_value == '0' else ''
                             }
                            ]
 
@@ -90,10 +90,9 @@ def _build_date_search_widget(widget_ctx, search_value):
 def _build_select_search_widget(widget_ctx, search_value, choices):
     selected_value = unicode(search_value[0].decode('utf-8')) if search_value else None #bof bof
     widget_ctx['type'] = 'select'
-    widget_ctx['values'] = [{
-                                'value':    id_,
-                                'text':     unicode(val),
-                                'selected': 'selected' if selected_value == unicode(id_) else ''
+    widget_ctx['values'] = [{'value':    id_,
+                             'text':     unicode(val),
+                             'selected': 'selected' if selected_value == unicode(id_) else ''
                             } for id_, val in choices
                            ]
 
@@ -162,16 +161,20 @@ def get_listview_columns_header(context):
 #get_listview_cell##############################################################
 
 def _render_relations(entity, hfi, user):
-    relations_list = ["<ul>"]
-    append = relations_list.append
+    relations_list = ['<ul>']
+    #append = relations_list.append
 
-    for e in entity.get_related_entities(hfi.relation_predicat_id, True):
-        if e.can_view(user):
-            append(u'<li><a href="%s">%s</a></li>' % (e.get_absolute_url(), escape(unicode(e))))
-        else:
-            append(u'<li>%s</li>' % escape(e.allowed_unicode(user)))
+    #for e in entity.get_related_entities(hfi.relation_predicat_id, True):
+        #if e.can_view(user):
+            #append(u'<li><a href="%s">%s</a></li>' % (e.get_absolute_url(), escape(unicode(e))))
+        #else:
+            #append(u'<li>%s</li>' % escape(e.allowed_unicode(user)))
+    relations_list.extend(u'<li>%s</li>' % widget_entity_hyperlink(e, user)
+                            for e in entity.get_related_entities(hfi.relation_predicat_id, True)
+                         )
 
-    append("</ul>")
+    #append("</ul>")
+    relations_list.append('</ul>')
 
     return u''.join(relations_list)
 
@@ -181,7 +184,7 @@ _RENDER_FUNCS = { #TODO: use a method in HeaderFilterItem ??
     HFI_FIELD:    lambda entity, hfi, user: _GET_HTML_FIELD_VALUE(entity, hfi.name, user),
     HFI_FUNCTION: lambda entity, hfi, user: hfi.get_functionfield()(entity).for_html(),
     HFI_RELATION: _render_relations,
-    HFI_CUSTOM:   lambda entity, hfi, user: entity.get_custom_value(hfi.get_customfield()),
+    HFI_CUSTOM:   lambda entity, hfi, user: escape(entity.get_custom_value(hfi.get_customfield())),
     HFI_VOLATILE: lambda entity, hfi, user: hfi.volatile_render(entity),
 }
 
@@ -191,7 +194,7 @@ def get_listview_cell(hfi, entity, user):
         render_func = _RENDER_FUNCS.get(hfi.type)
         if render_func:
             return render_func(entity, hfi, user)
-    except AttributeError, e:
+    except AttributeError as e:
         debug('Templatetag "get_listview_cell": %s', e)
 
     return u""

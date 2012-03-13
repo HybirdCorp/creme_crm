@@ -33,7 +33,8 @@ def get_quickforms_panel(context, target_node_id='sub_content'):
     has_perm = context['request'].user.has_perm_to_create
     content_types = [{'id':           get_ct(model).id,
                       'verbose_name': model._meta.verbose_name
-                     } for model in quickforms_registry.iter_models() if has_perm(model)]
+                     } for model in quickforms_registry.iter_models() if has_perm(model)
+                    ]
 
     content_types.sort(key=lambda k: k['verbose_name'])
 

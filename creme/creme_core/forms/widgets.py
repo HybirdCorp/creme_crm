@@ -83,7 +83,7 @@ class DynamicInput(TextInput):
         return mark_safe(widget_render_input(TextInput.render, self, name, value, context)) #, url=self.url
 
 #TODO ??? DynamicHiddenInput
-#class HiddenInput(Input): #from django 
+#class HiddenInput(Input): #from django
     #input_type = 'hidden'
     #is_hidden = True
 
@@ -644,7 +644,7 @@ class OrderedMultipleChoiceWidget(SelectMultiple):
                     <td class="oms_value">%(label)s<input type="hidden" name="%(name)s_value_%(i)s" value="%(value)s" /></td>
                     <td><input class="oms_order" type="text" name="%(name)s_order_%(i)s" value="%(order)s"/></td>
                 </tr>""" % {'i':        i,
-                            'label':    opt_label,
+                            'label':    escape(opt_label),
                             'name':     name,
                             'value':    opt_value,
                             'checked':  'checked' if order else '',
@@ -680,7 +680,7 @@ class OrderedMultipleChoiceWidget(SelectMultiple):
 
 class Label(TextInput):
     def render(self, name, value, attrs=None):
-        return mark_safe(u"""%(input)s<span %(attrs)s>%(content)s</span>""" % {
+        return mark_safe(u'%(input)s<span %(attrs)s>%(content)s</span>' % {
                 'input':   super(Label, self).render(name, value, {'style': 'display:none;'}),
                 'attrs':   flatatt(self.build_attrs(attrs, name=name)),
                 'content': conditional_escape(force_unicode(value)),
@@ -715,12 +715,12 @@ class ListEditionWidget(Widget):
 
             output.append(row  % {'i':        i,
                                   'name':     name,
-                                  'label':    label,
+                                  'label':    escape(label),
                                   'checked':  checked,
                                  }
                          )
 
-        output.append(u"""</tbody></table>""")
+        output.append(u'</tbody></table>')
 
         return mark_safe(u'\n'.join(output))
 
@@ -745,22 +745,20 @@ class AdaptiveWidget(Select):
 
     def render(self, name, value, attrs=None, choices=()):
         attrs = self.build_attrs(attrs, name=name)
-
         context = widget_render_context('ui-creme-adaptive-widget', attrs,
                                         url=self.url,
                                         object_id=self.object_id,
                                         style=attrs.pop('style', ''),
                                         field_value_name=self.field_value_name
                                        )
-
         context['input'] = super(AdaptiveWidget, self).render(name, value, attrs, choices)
 
-        html_output = """
-            <span class="%(css)s" style="%(style)s" widget="%(typename)s" url="%(url)s" field_value_name="%(field_value_name)s" object_id="%(object_id)s">
-                %(input)s
-            </span>""" % context
-
-        return mark_safe(html_output)
+        return mark_safe('<span class="%(css)s" style="%(style)s" widget="%(typename)s" '
+                               'url="%(url)s" field_value_name="%(field_value_name)s" '
+                               'object_id="%(object_id)s">'
+                            '%(input)s'
+                         '</span>' % context
+                        )
 
 
 class DateRangeWidget(MultiWidget):
@@ -779,22 +777,21 @@ class DateRangeWidget(MultiWidget):
         return None, None, None
 
     def format_output(self, rendered_widgets):
-        _css_class = "ui-creme-daterange"
-
+        _css_class = "ui-creme-daterange" #TODO: inline ?
         context = widget_render_context('ui-creme-daterange', {})
 
         if self.render_as == 'table':
-            return u"".join([u"""<table class="%(css)s" style="%(style)s" widget="%(typename)s"><tbody><tr>""" % context,
-                             u''.join(u"<td>%s</td>" % w for w in rendered_widgets),
-                             u"""</tr></tbody></table>"""
+            return u"".join([u'<table class="%(css)s" style="%(style)s" widget="%(typename)s"><tbody><tr>' % context,
+                             u''.join(u'<td>%s</td>' % w for w in rendered_widgets),
+                             u'</tr></tbody></table>'
                             ])
         elif self.render_as == 'ul':
-            return u"".join([u"""<ul class="%(css)s" style="%(style)s" widget="%(typename)s">""" % context,
-                             u''.join(u"<li>%s</li>" % w for w in rendered_widgets),
-                             u"""</ul>"""
+            return u"".join([u'<ul class="%(css)s" style="%(style)s" widget="%(typename)s">' % context,
+                             u''.join(u'<li>%s</li>' % w for w in rendered_widgets),
+                             u'</ul>'
                             ])
 
-        return u"""<div class="%s">%s</div>""" % (_css_class, u''.join(u"<div>%s</div>" % w for w in rendered_widgets))
+        return u'<div class="%s">%s</div>' % (_css_class, u''.join(u'<div>%s</div>' % w for w in rendered_widgets))
 
 
 class DurationWidget(MultiWidget):
@@ -815,10 +812,9 @@ class DurationWidget(MultiWidget):
         return u"""<span>%(hours)s&nbsp;%(hours_label)s&nbsp;
                          %(minutes)s&nbsp;%(minutes_label)s&nbsp;
                          %(seconds)s&nbsp;%(seconds_label)s&nbsp;</span>
-                """ % {
-                        'hours':   hours_widget,   'hours_label': _(u'Hour(s)'),
-                        'minutes': minutes_widget, 'minutes_label': _(u'Minute(s)'),
-                        'seconds': seconds_widget, 'seconds_label': _(u'Second(s)'),
+                """ % {'hours':   hours_widget,   'hours_label':   _(u'Hour(s)'),
+                       'minutes': minutes_widget, 'minutes_label': _(u'Minute(s)'),
+                       'seconds': seconds_widget, 'seconds_label': _(u'Second(s)'),
                       }
 
 

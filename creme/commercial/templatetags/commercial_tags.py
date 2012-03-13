@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,15 +19,19 @@
 ################################################################################
 
 from django.template import Library
+from django.utils.html import escape
 
 from commercial.models import CommercialAssetScore
 
 
 register = Library()
 
-@register.simple_tag #TODO: inclusion_tag => takes_context ??????
+@register.simple_tag #TODO: inclusion_tag ?? takes_context ??????
 def get_segments_for_category(strategy, orga, category):
-    return u'<ul>%s</ul>' % (u'\n'.join(u'<li><h3>%s</h3></li>' % segment for segment in strategy.get_segments_for_category(orga, category)))
+    return u'<ul>%s</ul>' % (u'\n'.join(u'<li><h3>%s</h3></li>' % escape(segment)
+                                            for segment in strategy.get_segments_for_category(orga, category)
+                                       )
+                            )
 
 @register.inclusion_tag('commercial/templatetags/widget_score.html', takes_context=True)
 def widget_asset_score(context, segment_desc, asset):

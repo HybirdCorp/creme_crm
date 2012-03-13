@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,8 +27,8 @@ from django.template import Library, Template, TemplateSyntaxError, Node as Temp
 from django.template.defaulttags import TemplateLiteral
 from django.template.defaultfilters import escape
 from django.utils.safestring import mark_safe
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
+from django.contrib.contenttypes.models import ContentType
 
 from mediagenerator.templatetags.media import include_media
 
@@ -43,7 +43,13 @@ register = Library()
 @register.filter(name="print_boolean") #TODO: factorise with field_printers ?
 def print_boolean(x):
     if isinstance(x, bool):
-        return mark_safe('<input type="checkbox" value="%s" %s disabled/>%s' % (escape(x), 'checked' if x else '', _('Yes') if x else _('No')))#Potentially double safe marked
+        return mark_safe('<input type="checkbox" value="%s" %s disabled/>%s' % (
+                                x, #escape(x),
+                                'checked' if x else '',
+                                _('Yes') if x else _('No')
+                            )
+                        ) #Potentially double safe marked
+
     return x
 
 @register.filter(name="get_value")
@@ -168,7 +174,7 @@ def isiterable(iterable):
 def format(ustring, format_str):
     return format_str % ustring
 
-@register.filter(name="enumerate")
+@register.filter(name="enumerate") #TODO: why not use forloopforloop.counter/counter0
 def enumerate_iterable(iterable):
     return enumerate(iterable)
 
@@ -320,16 +326,13 @@ class HasPermToNode(TemplateNode):
 
     def render(self, context):
         var  = self.entity_var.eval(context) #can raise template.VariableDoesNotExist...
-        #user = context['request'].user
         user = context['user']
-
         context[self.var_name] = self.perm_func(var, user)
 
         return ''
 
 @register.simple_tag(takes_context=True)
 def creme_media_url(context, url):
-    #return get_creme_media_url(context['THEME_NAME'], url)
     return get_creme_media_url(context.get('THEME_NAME', 'chantilly'), url)
 
 @register.tag

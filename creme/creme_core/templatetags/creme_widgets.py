@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.template import Library
+from django.utils.html import escape
 
 from creme_core.gui.icon_registry import icon_registry
 from creme_core.utils.media import get_creme_media_url
@@ -65,9 +66,10 @@ def get_entity_actions(context, entity):
     return context
 
 @register.simple_tag
-def widget_entity_hyperlink(entity, user):
+def widget_entity_hyperlink(entity, user): #TODO: takes_context for user ???
+    """{% widget_entity_hyperlink my_entity user %}"""
     if entity.can_view(user):
-        return u'<a href="%s">%s</a>' % (entity.get_absolute_url(), entity)
+        return u'<a href="%s">%s</a>' % (entity.get_absolute_url(), escape(entity))
 
     return entity.allowed_unicode(user)
 
