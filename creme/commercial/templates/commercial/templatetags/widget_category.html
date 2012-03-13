@@ -1,4 +1,4 @@
-{% load i18n %}{% load creme_block %}<select name="segment_catselect_{{segment.id}}" {% if not has_perm %}disabled="true"{% else %}onchange="creme.commercial.post_category('/commercial/strategy/{{strategy.id}}/set_segment_cat', {{segment_desc.id}}, {{orga.id}}, this, {% get_block_reload_uri %});"{% endif %}>
+{% load i18n %}{% load creme_block %}<select name="segment_catselect_{{segment.id}}" {% if not has_perm %}disabled="true"{% else %}onchange="creme.commercial.postCategory('/commercial/strategy/{{strategy.id}}/set_segment_cat', {{segment_desc.id}}, {{orga.id}}, this, {% get_block_reload_uri %});"{% endif %}>
     <option value="1" {% if category == 1 %}selected{% endif %}>{% trans "Priority segment" %}</option>
     <option value="2" {% if category == 2 %}selected{% endif %}>{% trans "Pool segment [1]" %}</option>
     <option value="3" {% if category == 3 %}selected{% endif %}>{% trans "Pool segment [2]" %}</option>

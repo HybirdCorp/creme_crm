@@ -13,11 +13,12 @@
         //TODO: move to a commercial.js file
         creme.commercial = {};
 
-        creme.commercial.post_category = function(url, segment_desc_id, orga_id, select, reload_url) {
+        creme.commercial.postCategory = function(url, segment_desc_id, orga_id, select, reload_url) {
             creme.ajax.post({
                         'url': url,
                         'data': {
-                                'category':        $(select).find('[selected="true"]').attr("value"),
+                                //'category':        $(select).find('[selected="true"]').attr("value"),
+                                'category':        $(select).val(),
                                 'segment_desc_id': segment_desc_id,
                                 'orga_id':         orga_id
                             },
