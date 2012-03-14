@@ -246,13 +246,13 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         entity_str = unicode(contact01)
 
         with self.assertRaises(ValidationError) as cm:
-            contact01.first_name = ''
+            contact01.last_name = ''
             contact01.full_clean()
 
         response = self.client.post(self.build_url(Contact), follow=True,
                                     data={'actions': self.format_str2 % {
-                                                            'name01': 'first_name', 'operator01': 'rm_start', 'value01': 6,
-                                                            'name02': 'last_name',  'operator02': 'upper',    'value02': '',
+                                                            'name01': 'last_name',  'operator01': 'rm_start', 'value01': 6,
+                                                            'name02': 'first_name', 'operator02': 'upper',    'value02': '',
                                                         },
                                          }
                                    )
@@ -260,8 +260,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
 
         contact01 = self.refresh(contact01)
-        self.assertEqual(first_name, contact01.first_name) #no change !!
-        self.assertEqual(last_name,  contact01.last_name) #TODO: make the changes that are possible (u'ŌNO') ??
+        self.assertEqual(last_name,  contact01.last_name) #no change !!
+        self.assertEqual(first_name, contact01.first_name) #TODO: make the changes that are possible (u'KANAKO') ??
 
         form = response.context['form']
         count = Contact.objects.count()
@@ -273,7 +273,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         error = iter(errors).next()
         self.assertEqual(entity_str, error[0])
-        self.assertEqual([u'%s => %s' % (_('First name'), _(u'This field cannot be blank.'))],
+        self.assertEqual([u'%s => %s' % (_('Last name'), _(u'This field cannot be blank.'))],
                          error[1]
                         )
 
