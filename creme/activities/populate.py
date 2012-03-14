@@ -53,7 +53,8 @@ class Populator(BasePopulator):
                            )
         rt_sub_part_2_activity, rt_obj_part_2_activity =\
         RelationType.create((REL_SUB_PART_2_ACTIVITY,  _(u"participates to the activity"),  [Contact]),
-                            (REL_OBJ_PART_2_ACTIVITY,  _(u'(activity) has as participant'), [Activity, Meeting, PhoneCall, Task])
+                            (REL_OBJ_PART_2_ACTIVITY,  _(u'(activity) has as participant'), [Activity, Meeting, PhoneCall, Task]),
+                            is_internal=True
                            )
 
         create_if_needed(PhoneCallType, {'pk': PHONECALLTYPE_INCOMING}, name=_(u"Incoming"), description=_(u"Incoming call"))

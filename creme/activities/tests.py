@@ -943,4 +943,46 @@ class ActivitiesTestCase(CremeTestCase):
         self.assertEqual(mydate, activity.end)
         self.assertEqual(ACTIVITYTYPE_ACTIVITY, activity.type_id)
 
+    def _set_activity_context(self):
+        self.login()
+        # Case 1 : logged contact user
+        logged_user = Contact.objects.create(last_name='robert', first_name='foo', user=self.user, is_user=self.user)
+        # Case 2 : contact user
+        other_contact_user = Contact.objects.create(last_name='jean', first_name='bon', user=self.user, is_user=self.other_user)
+        # Case 3 : classic contact
+        classic_contact = Contact.objects.create(last_name='michel', first_name='durant', user=self.user)
+        # Activity
+        phone_call = PhoneCall.objects.create(title='a random activity',
+                                              start=datetime.today(), end=datetime.today(),
+                                              user=self.user, type_id=ACTIVITYTYPE_PHONECALL
+                                             )
+        return (logged_user, other_contact_user, classic_contact, phone_call)
 
+    def test_create_participants(self):
+        logged_user, other_contact_user, classic_contact, phone_call = self._set_activity_context()
+
+        url = '/activities/activity/%s/participant/add' % phone_call.id
+        response = self.client.post(url, follow=True, data={'my_participation': True,
+                                                            'my_calendar': Calendar.get_user_default_calendar(logged_user.is_user).pk,
+                                                            'participating_users': other_contact_user.is_user_id,
+                                                            'participants': classic_contact.pk,
+                                                           }
+                                   )
+        self.assertEqual(200, response.status_code)
+
+        self.assertRelationCount(1, phone_call, REL_OBJ_PART_2_ACTIVITY, logged_user) # logged user, push in his calendar
+        self.assertRelationCount(1, phone_call, REL_OBJ_PART_2_ACTIVITY, other_contact_user) # other contact user, push in his calendar too
+        self.assertRelationCount(1, phone_call, REL_OBJ_PART_2_ACTIVITY, classic_contact) # classic contact, has no calendar
+        self.assertEqual(2, phone_call.calendars.count())
+
+    def test_delete_participant(self):
+        logged_user, other_contact_user, classic_contact, phone_call = self._set_activity_context()
+
+        qs = Relation.objects.filter(type=REL_OBJ_PART_2_ACTIVITY, object_entity=phone_call)
+
+        for participant_rel in qs:
+            response = self.client.post('/activities/activity/participant/delete', data={'id': participant_rel.pk})
+            self.assertRedirects(response, activity.get_absolute_url())
+
+        self.assertEqual(0, qs.count())
+        self.assertEqual(0, phone_call.calendars.count())

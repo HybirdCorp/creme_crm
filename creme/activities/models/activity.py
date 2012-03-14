@@ -255,6 +255,9 @@ END:VEVENT
             total += 1
         return total
 
+    def _copy_relations(self, source):
+        super(Activity, self)._copy_relations(source, allowed_internal=[REL_OBJ_PART_2_ACTIVITY])
+
 
 class Meeting(Activity):
     place = CharField(_(u'Meeting place'), max_length=100, blank=True, null=True)
