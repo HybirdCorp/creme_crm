@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.db.models import CharField, TextField, DateTimeField, DecimalField, ForeignKey, Count, PROTECT
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme_core.models import CremeEntity, CremeModel, RelationType, Relation
 
@@ -47,7 +47,7 @@ class Event(CremeEntity):
     name        = CharField(_(u'Name'), max_length=100)
     type        = ForeignKey(EventType, verbose_name=_(u'Type'), on_delete=PROTECT)
     description = TextField(_(u'Description'), blank=True)
-    place       = CharField(_(u'Place'), max_length=100, blank=True)
+    place       = CharField(pgettext_lazy('events', u'Place'), max_length=100, blank=True)
     start_date  = DateTimeField(_(u'Start date'))
     end_date    = DateTimeField(_(u'End date'), blank=True, null=True)
     budget      = DecimalField(_(u'Budget (€)'), max_digits=10, decimal_places=2, blank=True, null=True)
