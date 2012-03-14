@@ -351,15 +351,17 @@ def date_filter_form(request, report_id):
 
 @jsonify
 @login_required
-def get_predicates_choices_4_ct(request):
-    ct = get_ct_or_404(get_from_POST_or_404(request.POST, 'ct_id'))
-    predicates = [(rtype.id, rtype.predicate) for rtype in RelationType.get_compatible_ones(ct, include_internals=True).order_by('predicate')]
-    return predicates
+def get_predicates_choices_4_ct(request): #move to creme_core ???
+    ct = get_ct_or_404(get_from_POST_or_404(request.POST, 'ct_id'))  #TODO: why not GET ??
+    return [(rtype.id, rtype.predicate)
+                for rtype in RelationType.get_compatible_ones(ct, include_internals=True)
+                                         .order_by('predicate') #TODO: move in RelationType meta ??
+           ]
 
 @jsonify
 @login_required
 @permission_required('reports')
 def get_related_fields(request):
-    ct = get_ct_or_404(get_from_POST_or_404(request.POST, 'ct_id'))
+    ct = get_ct_or_404(get_from_POST_or_404(request.POST, 'ct_id')) #TODO: why not GET ??
     return Report.get_related_fields_choices(ct.model_class())
 
