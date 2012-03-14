@@ -20,7 +20,7 @@
 
 from functools import partial
 from datetime import datetime, time, timedelta
-from logging import debug
+from logging import warn
 
 from django.forms import IntegerField, BooleanField, ModelChoiceField, ModelMultipleChoiceField
 from django.forms.fields import ChoiceField, DateTimeField
@@ -73,27 +73,69 @@ def _check_activity_collisions(activity_start, activity_end, participants, exclu
     if collisions:
         raise ValidationError(collisions)
 
-#TODO: factorise with ActivityCreateForm ??
+#TODO: factorise with ActivityCreateForm !!
 class ParticipantCreateForm(CremeForm):
-    participants = MultiCremeEntityField(label=_(u'Participants'), model=Contact)
+    my_participation    = BooleanField(required=False, label=_(u"Do I participate to this meeting ?"),initial=False)
+    my_calendar         = ModelChoiceField(queryset=Calendar.objects.none(), required=False, empty_label=None,
+                                           label=_(u"On which of my calendar this activity will appears?"))
+    participating_users = ModelMultipleChoiceField(label=_(u'Creme users'), queryset=User.objects.all(),
+                                                   required=False, widget=UnorderedMultipleChoiceWidget)
+    participants        = MultiCremeEntityField(label=_(u'Participants'), model=Contact, required=False)
 
     def __init__(self, entity, *args, **kwargs):
         super(ParticipantCreateForm, self).__init__(*args, **kwargs)
+
         self.activity = entity
         self.participants = []
 
-        existing = Contact.objects.filter(relations__type=REL_SUB_PART_2_ACTIVITY, relations__object_entity=entity.id)
-        self.fields['participants'].q_filter = {'~pk__in': [c.id for c in existing]}
+        user = self.user
+        fields = self.fields
+        existing = Contact.objects.filter(relations__type=REL_SUB_PART_2_ACTIVITY, relations__object_entity=entity.id).values_list('id', flat=True)
+
+        fields['participants'].q_filter = {'~pk__in': [c.id for c in existing], 'is_user__isnull': True}
+
+        #TODO: exclude already associated participating users ??
+        fields['participating_users'].queryset = User.objects.exclude(pk=user.id)
+
+        #TODO: refactor this with a smart widget that manages dependencies
+        #TODO: hide my participation and my calendar field if logged user already linked ??
+        fields['my_participation'].widget.attrs['onclick'] = "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
+
+        my_calendar_field = fields['my_calendar']
+        my_calendar_field.queryset = Calendar.objects.filter(user=user)
+        my_calendar_field.widget.attrs['disabled'] = True
 
     def clean_participants(self):
         return validate_linkable_entities(self.cleaned_data['participants'], self.user)
+
+    def clean_participating_users(self):
+        return validate_linkable_entities(Contact.objects.filter(is_user__in=self.cleaned_data['participating_users']), self.user)
+
+    def clean_my_participation(self):
+        my_participation = self.cleaned_data.get('my_participation', False)
+        user = self.user
+
+        if my_participation:
+            try:
+                user_contact = Contact.objects.get(is_user=user)
+            except Contact.DoesNotExist:
+                warn('No Contact linked to this user: %s', user)
+            else:
+                self.participants.append(validate_linkable_entity(user_contact, user))
+
+        return my_participation
 
     def clean(self):
         cleaned_data = self.cleaned_data
 
         if not self._errors:
             activity = self.activity
-            self.participants += cleaned_data['participants']
+            extend_participants = self.participants.extend
+            extend_participants(cleaned_data['participating_users'])
+            extend_participants(cleaned_data['participants'])
+
+            if cleaned_data['my_participation'] and not cleaned_data.get('my_calendar'):
+                self.errors['my_calendar'] = ErrorList([_(u"If you participe, you have to choose one of your calendars.")])
 
             if activity.busy:
                 _check_activity_collisions(activity.start, activity.end, self.participants)
@@ -102,13 +144,16 @@ class ParticipantCreateForm(CremeForm):
 
     def save(self):
         activity = self.activity
+
         create_relation = partial(Relation.objects.create, object_entity=activity,
                                   type_id=REL_SUB_PART_2_ACTIVITY, user=activity.user
                                  )
 
         for participant in self.participants:
-            if participant.is_user:
-                activity.calendars.add(Calendar.get_user_default_calendar(participant.is_user))
+            user = participant.is_user
+            if user:
+                calendar = self.cleaned_data['my_calendar'] if user == self.user else Calendar.get_user_default_calendar(user)
+                activity.calendars.add(calendar)
 
             create_relation(subject_entity=participant)
 
@@ -199,7 +244,7 @@ class ActivityCreateForm(CremeEntityForm):
             try:
                 user_contact = Contact.objects.get(is_user=user)
             except Contact.DoesNotExist:
-                debug('No Contact linked to this user: %s', user)
+                warn('No Contact linked to this user: %s', user)
             else:
                 self.participants.append(validate_linkable_entity(user_contact, user))
 

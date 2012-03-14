@@ -19,9 +19,9 @@
                         <td class="{{row_color}}">
                             {% if participant.is_user %}({{participant.is_user}} -> {{participant.calendar_cache}}){% endif %}
                         </td>
-                        <td class="{{row_color}} action">
+                        <td class="{{row_color}} action" width="5%">
                             {% has_perm_to unlink participant as participant_unlink_perm %}
-                            {% get_line_unlinker at_url '/creme_core/relation/delete' with_args "{'id':{{relation.pk}} }" with_perms activity_unlink_perm|and_op:participant_unlink_perm %}
+                            {% get_line_unlinker at_url '/activities/activity/participant/delete' with_args "{'id':{{relation.pk}} }" with_perms activity_unlink_perm|and_op:participant_unlink_perm %}
                         </td>
                     </tr>
                 {% endwith %}

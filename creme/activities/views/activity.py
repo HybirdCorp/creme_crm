@@ -26,9 +26,9 @@ from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import RelationType, EntityCredentials
+from creme_core.models import RelationType, EntityCredentials, Relation
 from creme_core.views.generic import view_real_entity, add_entity, list_view, inner_popup
-from creme_core.utils import get_ct_or_404, get_from_GET_or_404
+from creme_core.utils import get_ct_or_404, get_from_GET_or_404, get_from_POST_or_404
 
 from activities.models import Activity
 from activities.forms import *
@@ -190,3 +190,17 @@ def download_ical(request, ids):
     response['Content-Disposition'] = "attachment; filename=Calendar.ics"
 
     return response
+
+@login_required
+@permission_required('activities')
+def delete_participant(request):
+    relation = get_object_or_404(Relation, pk=get_from_POST_or_404(request.POST, 'id'))
+    subject  = relation.subject_entity
+    user     = request.user
+
+    subject.can_unlink_or_die(user)
+    relation.object_entity.can_unlink_or_die(user)
+
+    relation.delete()
+
+    return HttpResponseRedirect(subject.get_real_entity().get_absolute_url())
