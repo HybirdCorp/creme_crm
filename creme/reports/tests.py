@@ -8,6 +8,8 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.utils.datastructures import SortedDict as OrderedDict
     from django.utils.translation import ugettext as _
+    from django.utils.encoding import smart_str
+    from django.core.serializers.json import simplejson
 
     from creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation, Language, InstanceBlockConfigItem
     from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CALCULATED
@@ -27,16 +29,16 @@ try:
     from reports.models import *
     from reports.models.graph import RGT_MONTH
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class ReportsTestCase(CremeTestCase):
-    #@classmethod #TODO ?
-    #def setUpClass(cls):
-        #cls.populate('creme_core', 'creme_config', 'reports', 'persons', 'opportunities', 'billing')
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config', 'reports', 'persons', 'opportunities', 'billing')
 
     def setUp(self):
-        self.populate('creme_core', 'creme_config', 'reports')
+        #self.populate('creme_core', 'creme_config', 'reports')
         self.login()
 
     def test_report_createview01(self):
@@ -52,25 +54,17 @@ class ReportsTestCase(CremeTestCase):
         self.assertTrue(response.context['form'].errors, 'No view or field selected')
 
     def create_report(self, name):
-        ct_id = ContentType.objects.get_for_model(Contact).id
-
         hf = HeaderFilter.create(pk='test_hf', name='name', model=Contact)
-        create_hfi = HeaderFilterItem.objects.create
-        create_hfi(pk='hfi1', order=1, name='last_name',             title='Last name',  type=HFI_FIELD,    header_filter=hf, filter_string="last_name__icontains")
-        create_hfi(pk='hfi2', order=2, name='user',                  title='User',       type=HFI_FIELD,    header_filter=hf, filter_string="user__username__icontains")
-        create_hfi(pk='hfi3', order=3, name='related_to',            title='Related to', type=HFI_RELATION, header_filter=hf, filter_string="", relation_predicat_id=REL_SUB_HAS)
-        create_hfi(pk='hfi4', order=4, name='get_pretty_properties', title='Properties', type=HFI_FUNCTION, header_filter=hf, filter_string="")
-        #TODO
-        #hf.set_items([HeaderFilterItem.build_4_field(model=Contact, name='last_name'),
-                      #HeaderFilterItem.build_4_field(model=Contact, name='user'),
-                      #HeaderFilterItem.build_4_relation(RelationType.objects.get(pk=REL_SUB_RELATED_TO)),
-                      #HeaderFilterItem.build_4_functionfield(Contact.function_fields.get('get_pretty_properties')),
-                     #])
+        hf.set_items([HeaderFilterItem.build_4_field(model=Contact, name='last_name'),
+                      HeaderFilterItem.build_4_field(model=Contact, name='user'),
+                      HeaderFilterItem.build_4_relation(RelationType.objects.get(pk=REL_SUB_HAS)),
+                      HeaderFilterItem.build_4_functionfield(Contact.function_fields.get('get_pretty_properties')),
+                     ])
 
         response = self.client.post('/reports/report/add', follow=True,
                                     data={'user': self.user.pk,
                                           'name': name,
-                                          'ct':   ct_id,
+                                          'ct':   ContentType.objects.get_for_model(Contact).id,
                                           'hf':   hf.id,
                                          }
                                    )
@@ -88,7 +82,7 @@ class ReportsTestCase(CremeTestCase):
     def create_simple_contact(self):
         return Contact.objects.create(user=self.user)
 
-    def get_field(self, report, field_name):
+    def get_field_or_fail(self, report, field_name):
         try:
             return report.columns.get(name=field_name)
         except Field.DoesNotExist as e:
@@ -103,9 +97,9 @@ class ReportsTestCase(CremeTestCase):
         self.assertEqual(4, len(columns))
 
         field = columns[0]
-        self.assertEqual('last_name', field.name)
-        self.assertEqual('Last name', field.title)
-        self.assertEqual(HFI_FIELD,   field.type)
+        self.assertEqual('last_name',     field.name)
+        self.assertEqual(_(u'Last name'), field.title)
+        self.assertEqual(HFI_FIELD,       field.type)
         self.assertFalse(field.selected)
         self.assertFalse(field.report)
 
@@ -113,15 +107,15 @@ class ReportsTestCase(CremeTestCase):
 
         field = columns[2]
         self.assertEqual(REL_SUB_HAS,  field.name)
-        self.assertEqual('Related to', field.title)
+        self.assertEqual(_(u'owns'),   field.title)
         self.assertEqual(HFI_RELATION, field.type)
         self.assertFalse(field.selected)
         self.assertFalse(field.report)
 
         field = columns[3]
         self.assertEqual('get_pretty_properties', field.name)
-        self.assertEqual('Properties', field.title)
-        self.assertEqual(HFI_FUNCTION, field.type)
+        self.assertEqual(_(u'Properties'),        field.title)
+        self.assertEqual(HFI_FUNCTION,            field.type)
 
     def test_report_editview(self):
         report = self.create_report('trinita')
@@ -136,7 +130,7 @@ class ReportsTestCase(CremeTestCase):
         self.assertEqual(404, self.client.post(url).status_code)
 
         report = self.create_report('trinita')
-        field  = self.get_field(report, 'user')
+        field  = self.get_field_or_fail(report, 'user')
         response = self.client.post(url, data={'report_id': report.id,
                                                'field_id':  field.id,
                                                'direction': 'up',
@@ -151,7 +145,7 @@ class ReportsTestCase(CremeTestCase):
 
     def test_report_change_field_order02(self):
         report = self.create_report('trinita')
-        field  = self.get_field(report, 'user')
+        field  = self.get_field_or_fail(report, 'user')
         response = self.client.post('/reports/report/field/change_order',
                                     data={'report_id': report.id,
                                           'field_id':  field.id,
@@ -170,7 +164,7 @@ class ReportsTestCase(CremeTestCase):
         self.assertEqual(404, self.client.post(url).status_code)
 
         report = self.create_report('trinita')
-        field  = self.get_field(report, 'last_name')
+        field  = self.get_field_or_fail(report, 'last_name')
         response = self.client.post(url, data={'report_id': report.id,
                                                'field_id':  field.id,
                                                'direction': 'up',
@@ -178,39 +172,74 @@ class ReportsTestCase(CremeTestCase):
                                    )
         self.assertEqual(403, response.status_code)
 
-    def test_report_csv01(self):
-        report   = self.create_report('trinita')
+    def test_report_csv01(self): #void report
+        self.assertFalse(Invoice.objects.all())
+
+        rt = RelationType.objects.get(pk=REL_SUB_HAS)
+        hf = HeaderFilter.create(pk='test_hf', name='Invoice view', model=Invoice)
+        hf.set_items([HeaderFilterItem.build_4_field(model=Invoice, name='name'),
+                      HeaderFilterItem.build_4_field(model=Invoice, name='user'),
+                      HeaderFilterItem.build_4_relation(rt),
+                      HeaderFilterItem.build_4_functionfield(Invoice.function_fields.get('get_pretty_properties')),
+                     ])
+
+        name = 'Report on invoices'
+        response = self.client.post('/reports/report/add', follow=True, #TODO: factorise ??
+                                    data={'user': self.user.pk,
+                                          'name': name,
+                                          'ct':   ContentType.objects.get_for_model(Invoice).id,
+                                          'hf':   hf.id,
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+
+        report = self.get_object_or_fail(Report, name=name)
+
         response = self.client.get('/reports/report/%s/csv' % report.id)
-        self.assertEqual(200,                                        response.status_code)
-        self.assertEqual('text/html; charset=utf-8',                 response.request['CONTENT_TYPE'])
-        self.assertEqual("Last name;User;Related to;Properties\r\n", response.content)
+        self.assertEqual(200,                        response.status_code)
+        self.assertEqual('text/html; charset=utf-8', response.request['CONTENT_TYPE'])
+        self.assertEqual(smart_str("%s;%s;%s;%s\r\n" % (
+                                      _(u'Name'), _(u'User'), rt.predicate, _(u'Properties')
+                                    )
+                                  ),
+                         response.content
+                        )
 
     def create_contacts(self):
         create_contact = Contact.objects.create
-        asuka  = create_contact(user=self.user, last_name='Langley',   first_name='Asuka',  birthday=datetime(year=1981, month=7, day=25))
-        rei    = create_contact(user=self.user, last_name='Ayanami',   first_name='Rei',    birthday=datetime(year=1981, month=3, day=26))
-        misato = create_contact(user=self.user, last_name='Katsuragi', first_name='Misato', birthday=datetime(year=1976, month=8, day=12))
-        nerv   = Organisation.objects.create(user=self.user, name='Nerv')
+        user = self.user
+        asuka  = create_contact(user=user, last_name='Langley',   first_name='Asuka',  birthday=datetime(year=1981, month=7, day=25))
+        rei    = create_contact(user=user, last_name='Ayanami',   first_name='Rei',    birthday=datetime(year=1981, month=3, day=26))
+        misato = create_contact(user=user, last_name='Katsuragi', first_name='Misato', birthday=datetime(year=1976, month=8, day=12))
+        nerv   = Organisation.objects.create(user=user, name='Nerv')
 
         ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text='Kawaii')
         CremeProperty.objects.create(type=ptype, creme_entity=rei)
 
-        Relation.objects.create(user=self.user, type_id=REL_SUB_HAS,
+        Relation.objects.create(user=user, type_id=REL_SUB_HAS,
                                 subject_entity=misato, object_entity=nerv
                                )
 
     def test_report_csv02(self):
         self.create_contacts()
+        self.assertEqual(4, Contact.objects.count()) #create_contacts + Fulbert
+
         report   = self.create_report('trinita')
         response = self.client.get('/reports/report/%s/csv' % report.id)
         self.assertEqual(response.status_code, 200)
 
         content = [s for s in response.content.split('\r\n') if s]
-        self.assertEqual(4, len(content))
-        self.assertEqual('Last name;User;Related to;Properties', content[0])
-        self.assertEqual('Ayanami;Kirika;;Kawaii',               content[1]) #alphabetical ordering ??
-        self.assertEqual('Katsuragi;Kirika;Nerv;',               content[2])
-        self.assertEqual('Langley;Kirika;;',                     content[3])
+        self.assertEqual(5, len(content)) #4 contacts + header
+        self.assertEqual(smart_str("%s;%s;%s;%s" % (
+                                      _(u'Name'), _(u'User'), _(u'owns'), _(u'Properties')
+                                    )
+                                  ),
+                         content[0]
+                        )
+        self.assertEqual('Ayanami;Kirika;;Kawaii', content[1]) #alphabetical ordering ??
+        self.assertEqual('Creme;root;;',           content[2])
+        self.assertEqual('Katsuragi;Kirika;Nerv;', content[3])
+        self.assertEqual('Langley;Kirika;;',       content[4])
 
     def test_report_csv03(self): #with date filter
         self.create_contacts()
@@ -235,12 +264,9 @@ class ReportsTestCase(CremeTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             form = response.context['form']
             fields_columns = form.fields['columns']
-        #except KeyError as e:
-            #self.fail(str(e))
 
         for i, (fname, fvname) in enumerate(fields_columns.choices):
             if fname == 'last_name': created_index = i; break
@@ -259,8 +285,12 @@ class ReportsTestCase(CremeTestCase):
         self.assertEqual(1, report.columns.count())
 
     def test_report_fetch01(self):
+        for i in xrange(10):
+            self.create_simple_contact()
+
         report = self.create_simple_report("Contacts report")
-        self.assertEqual(set(str(self.create_simple_contact().id) for i in xrange(10)),
+
+        self.assertEqual(set(str(cid) for cid in Contact.objects.values_list('id', flat=True)),
                          set(chain.from_iterable(report.fetch()))
                         )
 
@@ -269,60 +299,59 @@ class ReportsTestCase(CremeTestCase):
                                     data={'ct_id': ContentType.objects.get_for_model(Report).id}
                                    )
         self.assertEqual(200, response.status_code)
+        self.assertEqual('text/javascript', response['Content-Type'])
+
+        content = simplejson.loads(response.content)
+        self.assertIsInstance(content, list)
+        self.assertTrue(content)
+
+        def relationtype_2_tuple(rtype_id):
+            rt = RelationType.objects.get(pk=rtype_id)
+            return [rt.id, rt.predicate]
+
+        self.assertIn(relationtype_2_tuple(REL_SUB_HAS), content)
+        self.assertNotIn(relationtype_2_tuple(REL_SUB_EMPLOYED_BY), content)
 
     def _setUp_big_report(self):
-        ct_invoice     = ContentType.objects.get_for_model(Invoice)
-        ct_orga        = ContentType.objects.get_for_model(Organisation)
-        ct_contact     = ContentType.objects.get_for_model(Contact)
-        ct_opportunity = ContentType.objects.get_for_model(Opportunity)
+        get_ct = ContentType.objects.get_for_model
         user = self.user
+        create_field = Field.objects.create
+        create_report = Report.objects.create
 
-        opp_fields_data = [
-            #Opportunities
-            {"name": "name",         "title": "Name",         "selected": False, "report": None, "type": HFI_FIELD, "order": 1},
-            {"name": "reference",    "title": "Reference",    "selected": False, "report": None, "type": HFI_FIELD, "order": 2},
-            {"name": "closing_date", "title": "Closing date", "selected": False, "report": None, "type": HFI_FIELD, "order": 3},
-        ]
-        opp_fields = [Field.objects.create(**d) for d in opp_fields_data]
-        report_opp = self.report_opp = Report.objects.create(filter=None, name="Report on opportunities", ct=ct_opportunity, user=user)
-        report_opp.columns = opp_fields
+        report_opp = self.report_opp = create_report(filter=None, name="Report on opportunities", ct=get_ct(Opportunity), user=user)
+        report_opp.columns = [
+            create_field(name="name",         title="Name",         selected=False, report=None, type=HFI_FIELD, order=1),
+            create_field(name="reference",    title="Reference",    selected=False, report=None, type=HFI_FIELD, order=2),
+            create_field(name="closing_date", title="Closing date", selected=False, report=None, type=HFI_FIELD, order=3),
+          ]
 
-        invoice_fields_data = [
-            #Invoice
-            {"name": "name",           "title": "Name",                         "selected": False, "report": None, "type": HFI_FIELD,      "order": 1},
-            {"name": "issuing_date",   "title": "Issuing date",                 "selected": False, "report": None, "type": HFI_FIELD,      "order": 2},
-            {"name": "status__name",   "title": "Status - title",               "selected": False, "report": None, "type": HFI_FIELD,      "order": 3},
-            {"name": "total_vat__sum", "title": "Sum - Total inclusive of tax", "selected": False, "report": None, "type": HFI_CALCULATED, "order": 4},
-        ]
-        invoice_fields = [Field.objects.create(**d) for d in invoice_fields_data]
-        report_invoice = self.report_invoice = Report.objects.create(filter=None, name="Report on invoices", ct=ct_invoice, user=user)
-        report_invoice.columns = invoice_fields
+        report_invoice = self.report_invoice = create_report(filter=None, name="Report on invoices", ct=get_ct(Invoice), user=user)
+        report_invoice.columns = [
+            create_field(name="name",           title="Name",                         selected=False, report=None, type=HFI_FIELD,      order=1),
+            create_field(name="issuing_date",   title="Issuing date",                 selected=False, report=None, type=HFI_FIELD,      order=2),
+            create_field(name="status__name",   title="Status - title",               selected=False, report=None, type=HFI_FIELD,      order=3),
+            create_field(name="total_vat__sum", title="Sum - Total inclusive of tax", selected=False, report=None, type=HFI_CALCULATED, order=4),
+          ]
 
-        orga_fields_data = [
-            #Orga
-            {"name": "name",                    "title": "Name",                                                        "selected": False, "report": None,           "type": HFI_FIELD,      "order": 1},
-            {"name": "user__username",          "title": "User - username",                                             "selected": False, "report": None,           "type": HFI_FIELD,      "order": 2},
-            {"name": "legal_form__title",       "title": "Legal form - title",                                          "selected": False, "report": None,           "type": HFI_FIELD,      "order": 3},
-            {"name": REL_OBJ_BILL_ISSUED,       "title": "has issued &mdash; issued by",                                "selected": True,  "report": report_invoice, "type": HFI_RELATION,   "order": 4},
-            {"name": REL_OBJ_CUSTOMER_SUPPLIER, "title": "is a supplier of &mdash; is a customer of",                   "selected": False, "report": None,           "type": HFI_RELATION,   "order": 5},
-            {"name": REL_SUB_EMIT_ORGA,         "title": "has generated the opportunity &mdash; has been generated by", "selected": False, "report": report_opp, "type": HFI_RELATION, "order": 6},
-            {"name": "capital__min",            "title": "Minimum - Capital",                                           "selected": False, "report": None,           "type": HFI_CALCULATED, "order": 7},
-            {"name": "get_pretty_properties",   "title": "Properties",                                                  "selected": False, "report": None,           "type": HFI_FUNCTION,   "order": 8},
-        ]
-        orga_fields = [Field.objects.create(**d) for d in orga_fields_data]
-        report_orga = self.report_orga = Report.objects.create(**{"filter": None, "name": "Organisations report", "ct": ct_orga, "user": user})
-        report_orga.columns = orga_fields
+        report_orga = self.report_orga = create_report(filter=None, name="Organisations report", ct=get_ct(Organisation), user=user)
+        report_orga.columns = [
+            create_field(name="name",                    title="Name",                                                        selected=False, report=None,           type=HFI_FIELD,      order=1),
+            create_field(name="user__username",          title="User - username",                                             selected=False, report=None,           type=HFI_FIELD,      order=2),
+            create_field(name="legal_form__title",       title="Legal form - title",                                          selected=False, report=None,           type=HFI_FIELD,      order=3),
+            create_field(name=REL_OBJ_BILL_ISSUED,       title="has issued &mdash; issued by",                                selected=True,  report=report_invoice, type=HFI_RELATION,   order=4),
+            create_field(name=REL_OBJ_CUSTOMER_SUPPLIER, title="is a supplier of &mdash; is a customer of",                   selected=False, report=None,           type=HFI_RELATION,   order=5),
+            create_field(name=REL_SUB_EMIT_ORGA,         title="has generated the opportunity &mdash; has been generated by", selected=False, report=report_opp,     type=HFI_RELATION,   order=6),
+            create_field(name="capital__min",            title="Minimum - Capital",                                           selected=False, report=None,           type=HFI_CALCULATED, order=7),
+            create_field(name="get_pretty_properties",   title="Properties",                                                  selected=False, report=None,           type=HFI_FUNCTION,   order=8),
+          ]
 
-        contact_fields_data = [
-            #Contact
-            {"name": "last_name",         "title": "Last name",          "selected": False, "report": None,        "type": HFI_FIELD,    "order": 1},
-            {"name": "first_name",        "title": "First name",         "selected": False, "report": None,        "type": HFI_FIELD,    "order": 2},
-            {"name": "language__name",    "title": "Language(s) - Name", "selected": False, "report": None,        "type": HFI_FIELD,    "order": 3},
-            {"name": REL_SUB_EMPLOYED_BY, "title": "is employed by",     "selected": True,  "report": report_orga, "type": HFI_RELATION, "order": 4},
-        ]
-        contact_fields = [Field.objects.create(**d) for d in contact_fields_data]
-        report_contact = self.report_contact = Report.objects.create(**{"filter": None, "name": "Rapport contact", "ct": ct_contact, "user": user})
-        report_contact.columns = contact_fields
+        report_contact = self.report_contact = create_report(filter=None, name="Report on contacts", ct=get_ct(Contact), user=user)
+        report_contact.columns = [
+            create_field(name="last_name",         title="Last name",          selected=False, report=None,        type=HFI_FIELD,    order=1),
+            create_field(name="first_name",        title="First name",         selected=False, report=None,        type=HFI_FIELD,    order=2),
+            create_field(name="language__name",    title="Language(s) - Name", selected=False, report=None,        type=HFI_FIELD,    order=3),
+            create_field(name=REL_SUB_EMPLOYED_BY, title="is employed by",     selected=True,  report=report_orga, type=HFI_RELATION, order=4),
+          ]
 
     def _setUp_data_for_big_report(self):
         now = datetime.now()
