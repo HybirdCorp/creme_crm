@@ -21,7 +21,7 @@
 from itertools import izip as zip
 
 from django.db.models import CharField, TextField, PositiveSmallIntegerField, ForeignKey, ManyToManyField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme_core.models import CremeEntity, CremeModel
 
@@ -291,7 +291,7 @@ class MarketSegmentDescription(CremeModel):
     strategy  = ForeignKey(Strategy, related_name='segment_info')
     segment   = ForeignKey(MarketSegment)
     product   = TextField(_(u'Product'), blank=True, null=True)
-    place     = TextField(_(u'Place'), blank=True, null=True)
+    place     = TextField(pgettext_lazy('commercial-4p', u'Place'), blank=True, null=True)
     price     = TextField(_(u'Price'), blank=True, null=True)
     promotion = TextField(_(u'Promotion'), blank=True, null=True)
 
