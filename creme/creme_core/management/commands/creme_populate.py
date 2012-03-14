@@ -54,7 +54,7 @@ class Command(BaseCommand):
         make_option("-P", "--populate", action="store_const", const="populate", dest="action"),
 
         make_option("-a", "--app",     action="append",      dest="application", default=None),
-        make_option("-v", "--verbose", action="store_const", dest="verbose",     const="true"),
+        make_option("-v", "--verbose", action="store_const", dest="verbose",     const="true"), #TODO: action="store_true" ??
     )
 
     def create_parser(self, prog_name, subcommand):
