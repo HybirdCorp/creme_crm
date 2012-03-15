@@ -4,6 +4,7 @@ try:
     from django.db.models.fields import FieldDoesNotExist
     from django.template import Template, Context, TemplateSyntaxError
     from django.contrib.contenttypes.models import ContentType
+    from django.conf import settings
 
     from creme_core.gui.bulk_update import bulk_update_registry
     from creme_core.models import SetCredentials, CustomField
@@ -16,6 +17,7 @@ except Exception as e:
 
 __all__ = ('CremeCoreTagsTestCase',)
 
+settings.TEMPLATE_DEBUG = False #TODO: remove this in django 1.4 (Exception are not wrapped in TemplateSyntaxError any more)
 
 class CremeCoreTagsTestCase(CremeTestCase):
     def test_templatize(self):
@@ -193,19 +195,19 @@ class CremeCoreTagsTestCase(CremeTestCase):
         with self.assertRaises(TemplateSyntaxError): # invalid field type : Should be 'regular' or 'custom'
             Template(r"{% load creme_block %}{% get_field_editor on unknown_type 'name' for object %}")
 
-        #with self.assertRaises(FieldDoesNotExist): # invalid field name for object model
-        with self.assertRaises(TemplateSyntaxError) as cm: # invalid field name for object model
+        with self.assertRaises(FieldDoesNotExist): # invalid field name for object model
+        #with self.assertRaises(TemplateSyntaxError) as cm: # invalid field name for object model
             template = Template(r"{% load creme_block %}{% get_field_editor on regular 'unkwnown_field' for object %}")
             template.render(Context(cdict))
 
-        self.assertIn('FieldDoesNotExist', str(cm.exception))
+        #self.assertIn('FieldDoesNotExist', str(cm.exception))
 
-        #with self.assertRaises(AttributeError): # invalid custom field object for object model
-        with self.assertRaises(TemplateSyntaxError) as cm: # invalid custom field object for object model
+        with self.assertRaises(AttributeError): # invalid custom field object for object model
+        #with self.assertRaises(TemplateSyntaxError) as cm: # invalid custom field object for object model
             template = Template(r"{% load creme_block %}{% get_field_editor on custom unkwnown_custom for object %}")
             template.render(Context(cdict))
 
-        self.assertIn('AttributeError', str(cm.exception))
+        #self.assertIn('AttributeError', str(cm.exception))
 
     def test_get_field_editor06(self):
         self.login()
