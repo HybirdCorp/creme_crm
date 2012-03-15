@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -54,7 +54,7 @@ class VcfForm(CremeForm):
         file = self.cleaned_data['vcf_file']
         try:
             vcf_data = vcf_lib.readOne(file)
-        except Exception, e:
+        except Exception as e:
            raise ValidationError(_(u'VCF file is invalid') + ' [%s]' % str(e))
 
         return vcf_data
@@ -69,8 +69,8 @@ class VcfImportForm(CremeModelWithUserForm):
     vcf_step      = IntegerField(widget=HiddenInput)
 
     civility      = ModelChoiceField(label=_('Civility'), required=False, queryset=Civility.objects.all())
-    first_name    = CharField(label=_('First name'),)
-    last_name     = CharField(label=_('Last name'),)
+    first_name    = CharField(label=_('First name'))
+    last_name     = CharField(label=_('Last name'))
     position      = ModelChoiceField(label=_('Position'), required=False, queryset=Position.objects.all())
     image_encoded = CharField(required=False, widget=HiddenInput)
 
@@ -98,7 +98,8 @@ class VcfImportForm(CremeModelWithUserForm):
     update_orga_address  = BooleanField(label=_('Update address'),  required=False, initial=False, help_text=_(u'Update organisation selected address'))
 
     relation      = ModelChoiceField(label=_('Position in the organisation'),
-                                     queryset=RelationType.objects.filter(subject_ctypes=_get_ct(Contact), object_ctypes=_get_ct(Organisation)),
+                                     #queryset=RelationType.objects.filter(subject_ctypes=_get_ct(Contact), object_ctypes=_get_ct(Organisation)),
+                                     queryset=RelationType.objects.none(),
                                      initial=REL_SUB_EMPLOYED_BY, required=False
                                     )
     work_name     = CharField(label=_('Name'),         required=False)
@@ -141,9 +142,9 @@ class VcfImportForm(CremeModelWithUserForm):
 
     def __init__(self, vcf_data=None, *args, **kwargs):
         super(VcfImportForm, self).__init__(*args, **kwargs)
+        fields = self.fields
 
         if vcf_data:
-            fields = self.fields
             other_help_text = self.other_help_text
 
             tel_dict   = dict(self.tel_dict)
@@ -222,13 +223,17 @@ class VcfImportForm(CremeModelWithUserForm):
                     value = ', '.join([value.box, value.street, value.city, value.region, value.code, value.country])
                     self._generate_help_text(fields, 'address', value)
 
+        #Beware: this queryset diretcly in the field declaration does not work on some systems in unit tests...
+        #        (it seems that the problem it caused by the M2M - other fields work, but why ???)
+        fields['relation'].queryset = RelationType.objects.filter(subject_ctypes=_get_ct(Contact), object_ctypes=_get_ct(Organisation))
+
     def _generate_help_text(self, fields, field_name, value):
         field = fields[field_name]
 
         if not field.help_text:
             field.help_text = self.type_help_text + value
         else:
-            field.help_text = '%s | %s' % field.help_text, value
+            field.help_text = '%s | %s' % (field.help_text, value)
 
     def _manage_coordinates(self, vcf_data, fields, key, field_dict):
         """
@@ -246,36 +251,44 @@ class VcfImportForm(CremeModelWithUserForm):
                 else:
                     self._generate_help_text(fields, field_dict['HOME'], key.value)
 
-    def clean_field(self, field_name):
+    def _clean_orga_field(self, field_name):
         cleaned_data = self.cleaned_data
-        if cleaned_data['create_or_attach_orga'] and not cleaned_data[field_name]:
-            raise ValidationError(_(u'Required, if you want to create organisation'))
-        return cleaned_data[field_name]
+        cleaned = cleaned_data.get(field_name)
 
-    clean_work_name = lambda self: self.clean_field('work_name')
-    clean_relation  = lambda self: self.clean_field('relation')
+        if cleaned_data['create_or_attach_orga'] and not cleaned:
+            raise ValidationError(ugettext(u'Required, if you want to create organisation'))
 
-    def clean_update_checkbox(self, checkbox_name):
+        return cleaned
+
+    clean_work_name = lambda self: self._clean_orga_field('work_name')
+    clean_relation  = lambda self: self._clean_orga_field('relation')
+
+    def _clean_update_checkbox(self, checkbox_name):
         cleaned_data = self.cleaned_data
-        if cleaned_data[checkbox_name]:
+        checked = cleaned_data[checkbox_name]
+
+        if checked:
             if not cleaned_data['create_or_attach_orga']:
-                raise ValidationError(_(u'Create organisation not checked'))
+                raise ValidationError(ugettext(u'Create organisation not checked'))
             elif not cleaned_data['organisation']:
-                raise ValidationError(_(u'Organisation not selected'))
-        return cleaned_data[checkbox_name]
+                raise ValidationError(ugettext(u'Organisation not selected'))
 
-    clean_update_orga_name     = lambda self: self.clean_update_checkbox('update_orga_name')
-    clean_update_orga_phone    = lambda self: self.clean_update_checkbox('update_orga_phone')
-    clean_update_orga_email    = lambda self: self.clean_update_checkbox('update_orga_email')
-    clean_update_orga_fax      = lambda self: self.clean_update_checkbox('update_orga_fax')
-    clean_update_orga_url_site = lambda self: self.clean_update_checkbox('update_orga_url_site')
-    clean_update_orga_address  = lambda self: self.clean_update_checkbox('update_orga_address')
+        return checked
+
+    clean_update_orga_name     = lambda self: self._clean_update_checkbox('update_orga_name')
+    clean_update_orga_phone    = lambda self: self._clean_update_checkbox('update_orga_phone')
+    clean_update_orga_email    = lambda self: self._clean_update_checkbox('update_orga_email')
+    clean_update_orga_fax      = lambda self: self._clean_update_checkbox('update_orga_fax')
+    clean_update_orga_url_site = lambda self: self._clean_update_checkbox('update_orga_url_site')
+    clean_update_orga_address  = lambda self: self._clean_update_checkbox('update_orga_address')
 
     def clean_update_field(self, checkbox_name, field_name):
         cleaned_data = self.cleaned_data
         cleaned_data_field_name = cleaned_data[field_name]
+
         if not cleaned_data_field_name and all(cleaned_data[k] for k in ('create_or_attach_orga', 'organisation', checkbox_name)):
-            raise ValidationError(_(u'Required, if you want to update organisation'))
+            raise ValidationError(ugettext(u'Required, if you want to update organisation'))
+
         return cleaned_data_field_name
 
     clean_work_phone    = lambda self: self.clean_update_field('update_orga_phone', 'work_phone')
