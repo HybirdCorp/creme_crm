@@ -1,7 +1,6 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# FR LOCALISATION OF 'BILLING' APP (JavaScript)
+# Copyright (C) 2012 Hybird
+# This file is distributed under the same license as the Creme package.
 #
 #, fuzzy
 msgid ""
@@ -19,11 +18,11 @@ msgstr ""
 
 #: .\static\billing\js\billing.js.py:77 .\static\billing\js\billing.js.py:94
 msgid "Nothing is selected."
-msgstr "Rien n'est sélectionné"
+msgstr "Rien n'est sélectionné."
 
 #: .\static\billing\js\billing.js.py:87
 msgid "Are you sure ?"
-msgstr "Êtes-vous sur?"
+msgstr "Êtes-vous sûr ?"
 
 #: .\static\billing\js\billing.js.py:129
 msgid "Some errors were found on your lines. Click => "

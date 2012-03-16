@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from logging import info
 
 from django.conf import settings
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _, pgettext
 from django.contrib.auth.models import User
 
 from creme_core.models import (RelationType, BlockDetailviewLocation, BlockPortalLocation,
@@ -61,11 +61,11 @@ class Populator(BasePopulator):
         create_if_needed(PhoneCallType, {'pk': PHONECALLTYPE_OUTGOING}, name=_(u"Outgoing"), description=_(u"Outgoing call"))
         create_if_needed(PhoneCallType, {'pk': PHONECALLTYPE_OTHER},    name=_(u"Other"),    description=_(u"Example: a conference"))
 
-        create_if_needed(Status, {'pk': STATUS_PLANNED},     name=_(u"Planned"),     description=_(u"Planned"))
-        create_if_needed(Status, {'pk': STATUS_IN_PROGRESS}, name=_(u"In progress"), description=_(u"In progress"))
-        create_if_needed(Status, {'pk': STATUS_DONE},        name=_(u"Done"),        description=_(u"Done"))
-        create_if_needed(Status, {'pk': STATUS_DELAYED},     name=_(u"Delayed"),     description=_(u"Delayed"))
-        create_if_needed(Status, {'pk': STATUS_CANCELLED},   name=_(u"Cancelled"),   description=_(u"Cancelled"))
+        create_if_needed(Status, {'pk': STATUS_PLANNED},     name=pgettext('activities-status', 'Planned'),     description=pgettext('activities-status', 'Planned'))
+        create_if_needed(Status, {'pk': STATUS_IN_PROGRESS}, name=pgettext('activities-status', 'In progress'), description=pgettext('activities-status', 'In progress'))
+        create_if_needed(Status, {'pk': STATUS_DONE},        name=pgettext('activities-status', 'Done'),        description=pgettext('activities-status', 'Done'))
+        create_if_needed(Status, {'pk': STATUS_DELAYED},     name=pgettext('activities-status', 'Delayed'),     description=pgettext('activities-status', 'Delayed'))
+        create_if_needed(Status, {'pk': STATUS_CANCELLED},   name=pgettext('activities-status', 'Cancelled'),   description=pgettext('activities-status', 'Cancelled'))
 
         create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_TASK},      name=_(u"Task"),            color="987654", default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)
         create_if_needed(ActivityType, {'pk': ACTIVITYTYPE_MEETING},   name=_(u"Meeting"),         color="456FFF", default_day_duration=0, default_hour_duration="00:15:00", is_custom=False)

@@ -28,16 +28,21 @@ from django.conf import settings
 
 
 class Command(BaseCommand):
-    help = 'Find doublons in .po files of your project.'
+    help = 'Find doublons in .po files of your project. Diverging doublons are different translations for the same key.'
     option_list = BaseCommand.option_list + (
                      make_option('-l', '--language', action='store', dest='language',
                                  default='en', help='Search doublons for LANGUAGE files. '
                                                     '[default: %default]'
                                 ),
-                     make_option('-d', '--only_diverging', action='store_true',
-                                 dest='only_diverging', default=True,
-                                 help='Display only diverging translations '
-                                      '(different translations for the same key). [default: %default]'
+                     make_option('-d', '--not_diverging', action='store_true',
+                                 dest='not_diverging', default=False,
+                                 help='Display the not diverging doublons in translations too. '
+                                      '[default: %default]'
+                                ),
+                     make_option('-n', '--no_context', action='store_true',
+                                 dest='no_context', default=False,
+                                 help='Display the diverging doublons without problem (context are distinct), '
+                                      'but with some translations without context. [default: %default]'
                                 ),
                     )
 
@@ -57,12 +62,17 @@ class Command(BaseCommand):
             print 'The required "polib" library seems not installed ; aborting.'
             return
 
-        print 'OK "polib" library is installed.'
+        verbosity = int(options.get('verbosity'))
+
+        if verbosity >= 2:
+            print 'OK "polib" library is installed.'
 
         language = options.get('language')
-        only_diverging = options.get('only_diverging')
+        not_diverging = options.get('not_diverging')
+        no_context = options.get('no_context')
+
         entry_count = 0
-        entries = defaultdict(list)
+        entries_per_id = defaultdict(list)
 
         for app_name in settings.INSTALLED_CREME_APPS:
             basepath = '%s/locale/%s/LC_MESSAGES/' % (app_name, language)
@@ -74,22 +84,48 @@ class Command(BaseCommand):
 
                         for entry in pofile(path).translated_entries():
                             entry_count += 1
-                            entries[entry.msgid].append((entry.msgstr, path))
+                            entry.file_path = path
+                            entries_per_id[entry.msgid].append(entry)
 
-        print 'Number of entries:', entry_count
+        if verbosity >= 1:
+            print 'Number of entries:', entry_count
 
-        for msgid, trans_info in entries.iteritems():
-            if len(trans_info) > 1:
-                analysis = defaultdict(list)
+        problems_count = 0
 
-                for msgstr, path in trans_info:
-                    analysis[msgstr].append(path)
+        for msgid, entries in entries_per_id.iteritems():
+            if len(entries) > 1:
+                entries_per_msg = defaultdict(list)
 
-                if len(analysis) == 1:
-                    if not only_diverging:
-                        paths = analysis.itervalues().next()
-                        print '[doublon] {%s} in %s' % (msgid, paths)
+                for entry in entries:
+                    entries_per_msg[entry.msgstr].append(entry)
+
+                if len(entries_per_msg) == 1:
+                    if not_diverging:
+                        msg_entries = entries_per_msg.itervalues().next()
+                        print '[doublon] {%s} in %s' % (msgid, [entry.file_path for entry in msg_entries])
+
+                        problems_count += 1
                 else:
-                    print '[diverging] {%s}' % msgid
-                    for msgstr, paths in analysis.iteritems():
-                        print '    {%s} in %s' % (msgstr, paths)
+                    cxt_conflict = bool(reduce(lambda s1, s2: s1 & s2,
+                                               (set(entry.msgctxt for entry in msg_entries)
+                                                    for msg_entries in entries_per_msg.itervalues()
+                                               )
+                                              )
+                                       )
+
+                    if not cxt_conflict and no_context:
+                        cxt_conflict = any(entry.msgctxt is None
+                                              for msg_entries in entries_per_msg.itervalues()
+                                                  for entry in msg_entries
+                                          )
+
+                    if cxt_conflict:
+                        print '[diverging]\n {%s} in :' % msgid
+
+                        for msgstr, msg_entries in entries_per_msg.iteritems():
+                            print '    {%s} in %s' % (msgstr, [(entry.file_path, entry.msgctxt) for entry in msg_entries])
+
+                        problems_count += 1
+
+        if verbosity >= 1:
+            print '\nNumber of problems:', problems_count

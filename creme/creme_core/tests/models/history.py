@@ -182,7 +182,7 @@ about this fantastic animation studio."""
                                          },
                       vmodifs
                      )
-        self.assertIn(FSTRING_2_VALUES % {'field': _(u'Email'), 'value': email},
+        self.assertIn(FSTRING_2_VALUES % {'field': _(u'Email address'), 'value': email},
                       vmodifs
                      )
         self.assertIn(FSTRING_1_VALUE % {'field': _(u'Description')}, vmodifs)
