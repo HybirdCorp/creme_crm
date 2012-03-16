@@ -469,6 +469,8 @@ class CalendarActivityCreateForm(ActivityCreateForm):
         fields['busy'].initial = False
         fields['type'].queryset = ActivityType.objects.exclude(pk__in=_ACTIVITY_TYPE_EXCLUDED_FROM_POPUP)
 
+        fields['participating_users'].widget.attrs = {'reduced':'true'}
+
         if start:
             field_start.initial = start
             fields['end'].initial = start
