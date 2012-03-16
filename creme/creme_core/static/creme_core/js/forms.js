@@ -222,7 +222,7 @@ creme.forms.DateTimePicker.set = function(self, year, month, day, hour, minute) 
 }
 
 //TODO: refactor in order the widget can be properly reload (see report.js)
-creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumns, refreshStore) {
+creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumns, refreshStore, reduced) {
     //Containers
     var $div   = $('<div class="dcms_div"></div>');
     var $store = $('#' + store_id);
@@ -377,7 +377,7 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
 
     function toggleRow() {
         $('.buttons a', $layout).toggleClass('view_more view_less');
-        $('tr.content', $layout).toggle();
+        $layout.toggleClass('reduced');
     }
 
     buildColumns($store, addAvailableLi, addChosenLi);
@@ -395,19 +395,19 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
     $store.css('display', 'none');
     $store.replaceWith($div);
 
-    var $layout = $('<table id="test"></table>');
-    var $div_display = $('<div class="buttons"></div>').append($('<a class="view_more"></a>').click(toggleRow));
+    var $layout = $('<table></table>');
+    var $div_display = $('<div class="buttons"></div>').append($('<a class="view_less"></a>').click(toggleRow));
 
     $('<tbody></tbody>').appendTo($layout)
                         .append($('<tr class="header"></tr>').append($('<th width="3%"></th>').append($div_display))
-                                                             .append($('<th class="available"></th>').append(gettext("Available")))
-                                                             .append($('<th class="buttons"></th>'))
-                                                             .append($('<th class="chosen"></th>').append(gettext("Chosen"))))
-                        .append($('<tr class="content" style="display:none"></tr>')
-                                                             .append($('<td></td>'))
-                                                             .append($('<td class="available"></td>').append($available))
-                                                             .append($('<td class="buttons"></td>').append($buttons))
-                                                             .append($('<td class="chosen"></td>').append($chosen)));
+                                                             .append($('<th class="available more"></th>').append(gettext("Available")))
+                                                             .append($('<th class="buttons more"></th>'))
+                                                             .append($('<th class="chosen more"></th>').append(gettext("Chosen")))
+                                                             .append($('<th class="less"></th>').append(gettext("Select"))))
+                        .append($('<tr class="content"></tr>').append($('<td></td>'))
+                                                              .append($('<td class="available"></td>').append($available))
+                                                              .append($('<td class="buttons"></td>').append($buttons))
+                                                              .append($('<td class="chosen"></td>').append($chosen)));
 
     $div.append($store).append($layout);
 
@@ -424,9 +424,12 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
         $chosen.css('min-height', 200);
         $available.css('min-height', 200);
     }
+
+    if (reduced === true)
+    	toggleRow();
 }
 
-creme.forms.toUnorderedMultiSelect = function(select_id) {
+creme.forms.toUnorderedMultiSelect = function(select_id, reduced) {
     function buildColumns($select, addAvailableLi, addChosenLi) { //TODO: use inheritage instead ??
         $select.find('option').each(function(i) {
             var $this   = $(this);
@@ -460,10 +463,10 @@ creme.forms.toUnorderedMultiSelect = function(select_id) {
         });
     }
 
-    creme.forms._toDualColumnMultiSelect(select_id, false, buildColumns, refreshSelect);
+    creme.forms._toDualColumnMultiSelect(select_id, false, buildColumns, refreshSelect, reduced);
 }
 
-creme.forms.toOrderedMultiSelect = function(table_id) {
+creme.forms.toOrderedMultiSelect = function(table_id, reduced) {
     function buildColumns($table, addAvailableLi, addChosenLi) {
         var selected_tmp = [];
 
@@ -509,7 +512,7 @@ creme.forms.toOrderedMultiSelect = function(table_id) {
         });
     }
 
-    creme.forms._toDualColumnMultiSelect(table_id, true, buildColumns, refreshTable);
+    creme.forms._toDualColumnMultiSelect(table_id, true, buildColumns, refreshTable, reduced);
 }
 
 creme.forms.toCSVImportField = function(table_id) {

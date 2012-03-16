@@ -616,14 +616,18 @@ class UnorderedMultipleChoiceWidget(SelectMultiple):
     def render(self, name, value, attrs=None, choices=()):
         attrs = self.build_attrs(attrs, name=name)
 
+        reduced = attrs.get('reduced', 'false')
+        assert reduced in ('true', 'false')
+
         return mark_safe(u"""%(select)s
                      <script type="text/javascript">
                         $(document).ready(function() {
-                            creme.forms.toUnorderedMultiSelect('%(id)s');
+                            creme.forms.toUnorderedMultiSelect('%(id)s', %(reduced)s);
                         });
                      </script>""" % {
-                        'select': super(UnorderedMultipleChoiceWidget, self).render(name, value, attrs=attrs, choices=choices),
-                        'id':     attrs['id'],
+                        'select':  super(UnorderedMultipleChoiceWidget, self).render(name, value, attrs=attrs, choices=choices),
+                        'id':      attrs['id'],
+                        'reduced': reduced,
                      })
 
 
@@ -632,6 +636,9 @@ class OrderedMultipleChoiceWidget(SelectMultiple):
         if value is None: value = ()
         value_dict = dict((opt_value, order + 1) for order, opt_value in enumerate(value))
         attrs = self.build_attrs(attrs, name=name)
+
+        reduced = attrs.get('reduced', 'false')
+        assert reduced in ('true', 'false')
 
         output = [u'<table %s><tbody>' % flatatt(attrs)]
 
@@ -654,9 +661,12 @@ class OrderedMultipleChoiceWidget(SelectMultiple):
         output.append(u"""</tbody></table>
                           <script type="text/javascript">
                               $(document).ready(function() {
-                                  creme.forms.toOrderedMultiSelect('%s');
+                                  creme.forms.toOrderedMultiSelect('%(id)s', %(reduced)s);
                               });
-                          </script>""" % attrs['id'])
+                          </script>""" % {
+                              'id':      attrs['id'],
+                              'reduced': reduced,
+                          })
 
         return mark_safe(u'\n'.join(output))
 
