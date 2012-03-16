@@ -22,7 +22,7 @@ from datetime import date
 from decimal import Decimal
 from logging import info
 
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _, pgettext
 
 from creme_core.models import (RelationType, SearchConfigItem, BlockDetailviewLocation,
                                ButtonMenuItem, HeaderFilterItem, HeaderFilter,
@@ -82,10 +82,10 @@ class Populator(BasePopulator):
                 create_vat(value=value, is_default=(value == DEFAULT_VAT), is_custom=False)
 
         #NB: pk=1 --> default status (used when a quote is converted in invoice for example)
-        create_if_needed(QuoteStatus, {'pk': 1}, name=_(u"Pending"),  order=2) #default status
-        create_if_needed(QuoteStatus, {'pk': 2}, name=_(u"Accepted"), order=3)
-        create_if_needed(QuoteStatus, {'pk': 3}, name=_(u"Rejected"), order=4)
-        create_if_needed(QuoteStatus, {'pk': 4}, name=_(u"Created"),  order=1)
+        create_if_needed(QuoteStatus, {'pk': 1}, name=pgettext('billing-quote', "Pending"),  order=2) #default status
+        create_if_needed(QuoteStatus, {'pk': 2}, name=pgettext('billing-quote', "Accepted"), order=3)
+        create_if_needed(QuoteStatus, {'pk': 3}, name=pgettext('billing-quote', "Rejected"), order=4)
+        create_if_needed(QuoteStatus, {'pk': 4}, name=pgettext('billing-quote', "Created"),  order=1)
 
         create_if_needed(SettlementTerms, {'pk': 1}, name=_(u"30 days")) #default status
         create_if_needed(SettlementTerms, {'pk': 2}, name=_(u"Cash"))
@@ -100,32 +100,32 @@ class Populator(BasePopulator):
                          description=_(u"being certified trainer courses could be supported by your OPCA")
                         )
 
-        create_if_needed(SalesOrderStatus, {'pk': 1}, name=_(u"Issued"),   is_custom=False, order=1) #default status
-        create_if_needed(SalesOrderStatus, {'pk': 2}, name=_(u"Accepted"), is_custom=True,  order=3)
-        create_if_needed(SalesOrderStatus, {'pk': 3}, name=_(u"Rejected"), is_custom=True,  order=4)
-        create_if_needed(SalesOrderStatus, {'pk': 4}, name=_(u"Created"),  is_custom=True,  order=2)
+        create_if_needed(SalesOrderStatus, {'pk': 1}, name=pgettext('billing-salesorder', 'Issued'),   is_custom=False, order=1) #default status
+        create_if_needed(SalesOrderStatus, {'pk': 2}, name=pgettext('billing-salesorder', 'Accepted'), is_custom=True,  order=3)
+        create_if_needed(SalesOrderStatus, {'pk': 3}, name=pgettext('billing-salesorder', 'Rejected'), is_custom=True,  order=4)
+        create_if_needed(SalesOrderStatus, {'pk': 4}, name=pgettext('billing-salesorder', 'Created'),  is_custom=True,  order=2)
 
 
         def create_invoice_status(pk, name, order, is_custom=True):
             istatus = create_if_needed(InvoiceStatus, {'pk': pk}, name=name, is_custom=is_custom, order=order)
             return istatus if istatus.name == name else None
 
-        create_invoice_status(1, _(u"Draft"),               order=1, is_custom=False) #default status
-        create_invoice_status(2, _(u"To be sent"),          order=2, is_custom=False)
-        create_invoice_status(3, _(u"Sent"),                order=3)
+        create_invoice_status(1, pgettext('billing-invoice', 'Draft'),           order=1, is_custom=False) #default status
+        create_invoice_status(2, pgettext('billing-invoice', 'To be sent'),      order=2, is_custom=False)
+        create_invoice_status(3, pgettext('billing-invoice', 'Sent'),            order=3)
         resulted = \
-        create_invoice_status(4, _(u"Resulted"),            order=5)
-        create_invoice_status(5, _(u"Partly resulted"),     order=4)
-        create_invoice_status(6, _(u"Collection"),          order=7)
+        create_invoice_status(4, pgettext('billing-invoice', 'Resulted'),        order=5)
+        create_invoice_status(5, pgettext('billing-invoice', 'Partly resulted'), order=4)
+        create_invoice_status(6, _('Collection'),                                order=7)
         resulted_collection = \
-        create_invoice_status(7, _(u"Resulted collection"), order=6)
-        create_invoice_status(8, _(u"Canceled"),            order=8)
+        create_invoice_status(7, _('Resulted collection'),                       order=6)
+        create_invoice_status(8, pgettext('billing-invoice', 'Canceled'),        order=8)
 
 
-        create_if_needed(CreditNoteStatus, {'pk': 1}, name=_(u"Draft"),       is_custom=False, order=1)
-        create_if_needed(CreditNoteStatus, {'pk': 2}, name=_(u"Issued"),      is_custom=True,  order=2)
-        create_if_needed(CreditNoteStatus, {'pk': 3}, name=_(u"Consumed"),    is_custom=True,  order=3)
-        create_if_needed(CreditNoteStatus, {'pk': 4}, name=_(u"Out of date"), is_custom=True,  order=4)
+        create_if_needed(CreditNoteStatus, {'pk': 1}, name=pgettext('billing-creditnote', 'Draft'),       is_custom=False, order=1)
+        create_if_needed(CreditNoteStatus, {'pk': 2}, name=pgettext('billing-creditnote', 'Issued'),      is_custom=True,  order=2)
+        create_if_needed(CreditNoteStatus, {'pk': 3}, name=pgettext('billing-creditnote', 'Consumed'),    is_custom=True,  order=3)
+        create_if_needed(CreditNoteStatus, {'pk': 4}, name=pgettext('billing-creditnote', 'Out of date'), is_custom=True,  order=4)
 
         ButtonMenuItem.create_if_needed(pk='billing-generate_invoice_number', model=Invoice, button=generate_invoice_number_button, order=0)
 

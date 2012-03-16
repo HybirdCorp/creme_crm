@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'REPORTS' APP
-# Copyright (C) 2011 Hybird
+# Copyright (C) 2012 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 #, fuzzy
@@ -105,7 +105,7 @@ msgstr "Abscisse : Grouper par"
 
 #: forms/graph.py:52
 msgid "Entities count"
-msgstr "Comptage d'entités"
+msgstr "Comptage de fiches"
 
 #: forms/graph.py:52 models/graph.py:60
 msgid "Make a count instead of aggregate ?"
@@ -272,7 +272,7 @@ msgstr "Nom du rapport"
 
 #: models/report.py:344
 msgid "Entity type"
-msgstr "Type d'entité"
+msgstr "Type de fiche"
 
 #: models/report.py:345
 msgid "Displayed columns"
@@ -321,7 +321,7 @@ msgstr "Télécharger CSV"
 #: templates/reports/preview_report.html:45
 #, python-format
 msgid "Preview of %(limit_to)s first entities"
-msgstr "Aperçu des %(limit_to)s premières entités"
+msgstr "Aperçu des %(limit_to)s premières fiches"
 
 #: templates/reports/view_graph.html:6
 #, python-format
@@ -389,7 +389,7 @@ msgstr "Créer un bloc à partir de ce graph"
 #: templates/reports/templatetags/block_report_fields.html:26
 #: templates/reports/templatetags/block_report_graphs.html:83
 msgid "Can't add"
-msgstr "Ajout interdit"
+msgstr "Création interdite"
 
 #: templates/reports/view_report.html:22
 #, python-format
@@ -425,7 +425,7 @@ msgstr "Supprimer une colonne"
 
 #: templates/reports/templatetags/block_report_fields.html:28
 msgid "Can't delete"
-msgstr "Effacement interdit"
+msgstr "Suppression interdite"
 
 #: templates/reports/templatetags/block_report_fields.html:36
 msgid "#"
@@ -549,7 +549,7 @@ msgstr "Éditer"
 
 #: templates/reports/templatetags/block_report_graphs.html:47
 msgid "Can't edit"
-msgstr "Edition interdite"
+msgstr "Modification interdite"
 
 #: templates/reports/templatetags/block_report_graphs.html:98
 msgid "No graphs registered for the moment"
@@ -578,7 +578,7 @@ msgstr "Fonction"
 
 #: templatetags/report_tags.py:34
 msgid "Custom field"
-msgstr "Champ personalisé"
+msgstr "Champ personnalisé"
 
 #: templatetags/report_tags.py:35
 msgid "Calculated value"
@@ -630,7 +630,7 @@ msgstr "Filtres temporels pour <%s>"
 #~ msgstr "Nouveau"
 
 #~ msgid "Entity type - Name"
-#~ msgstr "Type d'entité - Nom"
+#~ msgstr "Type de fiche - Nom"
 
 #~ msgid "Portal"
 #~ msgstr "Portail"

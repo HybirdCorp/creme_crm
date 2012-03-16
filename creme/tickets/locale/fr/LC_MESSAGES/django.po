@@ -1,13 +1,14 @@
 # FR LOCALISATION OF 'TICKETS' APP
-# Copyright (C) 2011 Hybird
+# Copyright (C) 2012 Hybird
 # This file is distributed under the same license as the Creme package.
 #
+# > django-admin.py makemessages -l fr -e html -i tests.py
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-11 16:07+0200\n"
+"POT-Creation-Date: 2012-03-15 17:39+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,7 +21,7 @@ msgstr ""
 msgid "Is linked to a ticket"
 msgstr "Est lié à un ticket"
 
-#: creme_core_register.py:31 models/ticket.py:75
+#: creme_core_register.py:31 models/ticket.py:76
 msgid "Tickets"
 msgstr "Tickets"
 
@@ -36,11 +37,11 @@ msgstr "Lister les tickets"
 msgid "Add a ticket"
 msgstr "Ajouter un ticket"
 
-#: populate.py:40
+#: populate.py:41
 msgid "is linked to the ticket"
 msgstr "est lié au ticket"
 
-#: populate.py:41
+#: populate.py:42
 msgid "(ticket) linked to the entitity"
 msgstr "(ticket) lié à la fiche"
 
@@ -117,6 +118,7 @@ msgid "Ticket priorities"
 msgstr "Priorités de ticket"
 
 #: models/status.py:33
+msgctxt "tickets-status"
 msgid "Open"
 msgstr "Ouvert"
 
@@ -140,53 +142,53 @@ msgstr "Ne sera pas corrigé"
 msgid "Ticket status"
 msgstr "Statut(s) de ticket"
 
-#: models/ticket.py:41 templates/tickets/templatetags/block_ticket.html:28
+#: models/ticket.py:42 templates/tickets/templatetags/block_ticket.html:30
 msgid "Resolving duration"
 msgstr "Temps de résolution"
 
-#: models/ticket.py:45
+#: models/ticket.py:46
 msgid "Title"
 msgstr "Titre"
 
-#: models/ticket.py:46
+#: models/ticket.py:47
 msgid "Description"
 msgstr "Description"
 
-#: models/ticket.py:47
+#: models/ticket.py:48
 msgid "Status"
 msgstr "Statut"
 
-#: models/ticket.py:48
+#: models/ticket.py:49
 msgid "Priority"
 msgstr "Priorité"
 
-#: models/ticket.py:49
+#: models/ticket.py:50
 msgid "Criticity"
 msgstr "Criticité"
 
-#: models/ticket.py:50
+#: models/ticket.py:51
 msgid "Solution"
 msgstr "Solution"
 
-#: models/ticket.py:61
+#: models/ticket.py:62
 msgid "Copy"
 msgstr "Copie"
 
-#: models/ticket.py:68
+#: models/ticket.py:69
 msgid "Closing date"
 msgstr "Date de clôture"
 
-#: models/ticket.py:74 templates/tickets/portal.html:4
+#: models/ticket.py:75 templates/tickets/portal.html:4
 #: templates/tickets/templatetags/button_linked.html:5
 #: templates/tickets/templatetags/button_linked.html:10
 msgid "Ticket"
 msgstr "Ticket"
 
-#: models/ticket.py:103
+#: models/ticket.py:117
 msgid "Ticket template"
 msgstr "Patron de ticket"
 
-#: models/ticket.py:104
+#: models/ticket.py:118
 msgid "Ticket templates"
 msgstr "Patrons de ticket"
 
@@ -199,9 +201,9 @@ msgid "List of tickets"
 msgstr "Liste des tickets"
 
 #: templates/tickets/templatetags/block_ticket.html:7
-#, fuzzy, python-format
+#, python-format
 msgid "Information %s"
-msgstr "Informations"
+msgstr "Informations %s"
 
 #: templates/tickets/templatetags/block_ticket.html:8
 msgid "Information"

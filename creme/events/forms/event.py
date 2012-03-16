@@ -21,7 +21,7 @@
 from collections import defaultdict
 
 from django.forms import DateTimeField, ModelChoiceField, ValidationError
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
 
 from creme_core.models import Relation
 from creme_core.forms import CremeEntityForm, CremeForm, MultiRelationEntityField
@@ -130,7 +130,7 @@ class RelatedOpportunityCreateForm(OpportunityCreateForm):
         if not qs:
             fields['target_orga'].help_text = ugettext(u'(The contact "%s" is not related to an organisation).') % contact
         else:
-            fields['target_orga'] = ModelChoiceField(label=ugettext(u"Target organisation"), queryset=qs, empty_label=None)
+            fields['target_orga'] = ModelChoiceField(label=pgettext('events-opportunity', 'Target organisation'), queryset=qs, empty_label=None)
 
     def save(self, *args, **kwargs):
         opp = super(RelatedOpportunityCreateForm, self).save(*args, **kwargs)

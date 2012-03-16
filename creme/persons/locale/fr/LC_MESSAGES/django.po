@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-03-10 12:05+0100\n"
+"POT-Creation-Date: 2012-03-16 17:22+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -340,7 +340,7 @@ msgstr "Département"
 #: templates/persons/templatetags/block_address.html:71
 #: templates/persons/templatetags/block_other_address.html:39
 msgid "State"
-msgstr "Etat"
+msgstr "État"
 
 #: models/address.py:38 templates/persons/templatetags/block_address.html:76
 #: templates/persons/templatetags/block_address.html:80
@@ -397,9 +397,10 @@ msgid "Line of business"
 msgstr "Secteur d'activités"
 
 #: models/contact.py:51 models/organisation.py:40
-#: templates/persons/templatetags/block_linked_people.html:29
-msgid "Email"
-msgstr "Courriel"
+#: templates/persons/templatetags/block_contact_coordinates.html:32
+#: templates/persons/templatetags/block_orga_coordinates.html:27
+msgid "Email address"
+msgstr "Adresse e-mail"
 
 #: models/contact.py:52 models/organisation.py:41
 #: templates/persons/templatetags/block_contact_coordinates.html:37
@@ -500,7 +501,7 @@ msgstr "Ce siren existe déjà et doit être unique !"
 #: models/other_models.py:30 models/other_models.py:42
 #: models/other_models.py:54 models/other_models.py:66
 msgid "Title"
-msgstr "intitulé"
+msgstr "Intitulé"
 
 #: models/other_models.py:38
 msgid "Civilities"
@@ -592,7 +593,7 @@ msgstr "Dernière modification"
 #: templates/persons/templatetags/block_contact.html:52
 #: templates/persons/templatetags/block_organisation.html:82
 msgid "Assigned to"
-msgstr "Est assigné à"
+msgstr "Assigné à"
 
 #: templates/persons/templatetags/block_contact.html:57
 msgid "Linked Creme user"
@@ -616,11 +617,6 @@ msgstr "Coordonnées du contact"
 msgid "Phone"
 msgstr "Téléphone"
 
-#: templates/persons/templatetags/block_contact_coordinates.html:32
-#: templates/persons/templatetags/block_orga_coordinates.html:27
-msgid "E-mail"
-msgstr "Courriel"
-
 #: templates/persons/templatetags/block_employees.html:7
 #, python-format
 msgid "%s Employee"
@@ -640,12 +636,16 @@ msgid "No employee for the moment"
 msgstr "Aucun salarié enregistré pour le moment"
 
 #: templates/persons/templatetags/block_linked_people.html:16
-msgid "Can't add"
-msgstr "Impossible d'ajouter"
+msgid "Can't add or link"
+msgstr "Création ou liaison interdite"
 
 #: templates/persons/templatetags/block_linked_people.html:19
 msgid "Link to existing contacts"
 msgstr "Lier des contacts existants"
+
+#: templates/persons/templatetags/block_linked_people.html:29
+msgid "Email"
+msgstr "E-mail"
 
 #: templates/persons/templatetags/block_linked_people.html:30
 #: templates/persons/templatetags/block_other_address.html:20
@@ -654,7 +654,7 @@ msgstr "Actions"
 
 #: templates/persons/templatetags/block_linked_people.html:49
 msgid "Can't edit"
-msgstr "Édition interdite"
+msgstr "Modification interdite"
 
 #: templates/persons/templatetags/block_linked_people.html:58
 msgid "No related contact for the moment"

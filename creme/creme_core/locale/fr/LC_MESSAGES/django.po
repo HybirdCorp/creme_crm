@@ -241,7 +241,7 @@ msgstr "Aucun"
 
 #: forms/bulk.py:81
 msgid "Entities to update"
-msgstr "Entités à mettre à jour"
+msgstr "Fiches à mettre à jour"
 
 #: forms/bulk.py:82
 msgid "Field to update"
@@ -257,7 +257,7 @@ msgstr "AUCUNE !"
 
 #: forms/bulk.py:96
 msgid "Unchangeable entities"
-msgstr "Entités non éditables"
+msgstr "Fiches non éditables"
 
 #: forms/bulk.py:108 forms/header_filter.py:43
 msgid "Regular fields"
@@ -294,7 +294,7 @@ msgstr "Type de propriété"
 
 #: forms/creme_property.py:66 forms/relation.py:169
 msgid "Related entities"
-msgstr "Entités associées"
+msgstr "Fiches associées"
 
 #: forms/creme_property.py:81
 msgid "Uneditable entities"
@@ -594,7 +594,7 @@ msgstr "Ce type de resource n'est pas autorisé'."
 
 #: forms/fields.py:127 forms/fields.py:285 forms/fields.py:620
 msgid "This entity doesn't exist."
-msgstr "Cette entité n'existe pas."
+msgstr "Cette fiche n'existe pas."
 
 #: forms/fields.py:280
 msgid "This type of relationship doesn't exist."
@@ -616,7 +616,7 @@ msgstr ""
 
 #: forms/fields.py:284
 msgid "The entity is required."
-msgstr "L'entité est obligatoire."
+msgstr "La fiche est obligatoire."
 
 #: forms/fields.py:286
 msgid ""
@@ -672,7 +672,7 @@ msgstr "Fiche fusionnée"
 
 #: forms/relation.py:36 models/relation.py:313
 msgid "Semi-fixed types of relationship"
-msgstr "Type de relation semi-fixés"
+msgstr "Types de relation semi-fixés"
 
 #: forms/relation.py:88
 #, python-format
@@ -807,7 +807,7 @@ msgstr "Ressources exportables"
 
 #: models/auth.py:364
 msgid "all entities"
-msgstr "toutes les entités"
+msgstr "toutes les fiches"
 
 #: models/auth.py:365
 msgid "user's own entities"
@@ -908,7 +908,7 @@ msgstr "Blocs de relation spécifique"
 
 #: models/block.py:205
 msgid "Block related entity"
-msgstr "Entité associée au bloc"
+msgstr "Fiche associée au bloc"
 
 #: models/block.py:207
 msgid "Verbose"
@@ -1209,11 +1209,11 @@ msgstr "Création"
 
 #: models/history.py:115
 msgid "Edition"
-msgstr "Édition"
+msgstr "Modification"
 
 #: models/history.py:116
 msgid "Deletion"
-msgstr "Supression"
+msgstr "Suppression"
 
 #: models/history.py:117
 msgid "Related modification"
@@ -1382,15 +1382,15 @@ msgstr "Traitement par lots : résultats"
 msgid "%(counter)s entity with type \"%(verbose_name)s\" has been read."
 msgid_plural ""
 "%(counter)s entities with type \"%(verbose_name)s\" have been read."
-msgstr[0] "%(counter)s entité de type \"%(verbose_name)s\" a été lue."
-msgstr[1] "%(counter)s entités de type \"%(verbose_name)s\" ont été lues."
+msgstr[0] "%(counter)s fiche de type \"%(verbose_name)s\" a été lue."
+msgstr[1] "%(counter)s fiches de type \"%(verbose_name)s\" ont été lues."
 
 #: templates/creme_core/batch_process_report.html:21
 #, python-format
 msgid "%(counter)s entity has been sucessfully modified."
 msgid_plural "%(counter)s entities have been sucessfully modified."
-msgstr[0] "%(counter)s entité a été modifiée avec succés."
-msgstr[1] "%(counter)s entités ont été modifiées avec succés."
+msgstr[0] "%(counter)s fiche a été modifiée avec succés."
+msgstr[1] "%(counter)s fiches ont été modifiées avec succés."
 
 #: templates/creme_core/batch_process_report.html:29
 #: templates/creme_core/csv_importing_report.html:29
@@ -1440,9 +1440,9 @@ msgid_plural ""
 "%(counter)s entities with type \"%(verbose_name)s\" have been sucessfully "
 "imported."
 msgstr[0] ""
-"%(counter)s entité de type \"%(verbose_name)s\" a été importée avec succés."
+"%(counter)s fiche de type \"%(verbose_name)s\" a été importée avec succés."
 msgstr[1] ""
-"%(counter)s entités de type \"%(verbose_name)s\" ont été importées avec "
+"%(counter)s fiches de type \"%(verbose_name)s\" ont été importées avec "
 "succés."
 
 #: templates/creme_core/csv_importing_report.html:21
@@ -1606,7 +1606,7 @@ msgstr "Envoyer"
 #: templates/creme_core/generics/form/edit.html:6
 #, python-format
 msgid "Modify %(object)s"
-msgstr "Modifier '%(object)s'"
+msgstr "Modifier %(object)s"
 
 #: templates/creme_core/generics/form/base.html:26
 msgid "Form"
@@ -1630,7 +1630,7 @@ msgstr "Par"
 
 #: templates/creme_core/templatetags/block_history.html:57
 msgid "Edition of :"
-msgstr "Édition de :"
+msgstr "Modification de :"
 
 #: templates/creme_core/templatetags/block_history.html:59
 #, python-format
@@ -1693,11 +1693,11 @@ msgstr "Aucune relation pour le moment"
 #: templates/creme_core/templatetags/block_specific_relations.html:7
 #, python-format
 msgid "Entities related to: %(predicate)s"
-msgstr "Entités relatives à: %(predicate)s"
+msgstr "Fiches relatives à: %(predicate)s"
 
 #: templates/creme_core/templatetags/block_specific_relations.html:34
 msgid "No related entity for the moment"
-msgstr "Aucune entité liée pour le moment"
+msgstr "Aucune fiche liée pour le moment"
 
 #: templates/creme_core/templatetags/button_merge_entities.html:6
 #: templates/creme_core/templatetags/button_merge_entities.html:11
@@ -1745,7 +1745,7 @@ msgstr "Ajout de relation multiple"
 #: templates/creme_core/templatetags/listview_columns_header.html:76
 #: views/entity.py:136
 msgid "Multiple update"
-msgstr "Édition multiple"
+msgstr "Modification multiple"
 
 #: templates/creme_core/templatetags/listview_entityfilters.html:20
 msgid "Filter the lines of the table"
@@ -1815,7 +1815,7 @@ msgstr "Montrer/Cacher les champs vides"
 #: templates/creme_core/templatetags/widgets/block_listview_field_editor.html:9
 #: templates/creme_core/templatetags/widgets/edit_button.html:8
 msgid "Can't edit"
-msgstr "Édition interdite"
+msgstr "Modification interdite"
 
 #: templates/creme_core/templatetags/widgets/block_footer.html:9
 msgid "Previous page"
@@ -1987,7 +1987,7 @@ msgstr "Aucun élément correspondant à votre recherche n'a été trouvé"
 
 #: views/entity.py:354
 msgid "Inner update"
-msgstr "Edition rapide"
+msgstr "Modification rapide"
 
 #: views/entity.py:409
 #, python-format
@@ -2037,27 +2037,27 @@ msgstr "%s : <b>Permission refusée</b>,"
 
 #: views/relation.py:296 views/relation.py:408 views/generic/delete.py:83
 msgid "Operation successfully completed"
-msgstr "Opération déroulée avec succès"
+msgstr "Opération effectuée avec succès"
 
 #: views/relation.py:377 views/generic/delete.py:58
 #, python-format
 msgid "%s entities doesn't exist / doesn't exist any more"
-msgstr "%s entité(s) n'existe(nt) pas ou plus"
+msgstr "%s fiche(s) n'existe(nt) pas ou plus"
 
 #: views/relation.py:398
 #, python-format
 msgid "Incompatible type for object entity with id=%s"
-msgstr "Type incompatible pour l'entité objet avec l'id=%s"
+msgstr "Type incompatible pour la fiche objet avec l'id=%s"
 
 #: views/relation.py:400
 #, python-format
 msgid "Missing compatible property for object entity with id=%s"
-msgstr "Il manque une propriété compatible pour l'entité objet avec l'id=%s"
+msgstr "Il manque une propriété compatible pour la fiche objet avec l'id=%s"
 
 #: views/relation.py:402
 #, python-format
 msgid "Permission denied to entity with id=%s"
-msgstr "Permission refusée pour l'entité avec l'id=%s"
+msgstr "Permission refusée pour la fiche avec l'id=%s"
 
 #: views/search.py:87
 msgid "Empty search..."
@@ -2069,7 +2069,7 @@ msgstr "Veuillez entrer au moins 3 caractères"
 
 #: views/generic/delete.py:48
 msgid "No selected entities"
-msgstr "Aucune entitée séléctionnée"
+msgstr "Aucune fiche séléctionnée"
 
 #: views/generic/delete.py:73
 #, python-format
@@ -2189,7 +2189,7 @@ msgstr "Vous n'avez pas accés à cette application: %s"
 #~ msgid ""
 #~ "Leave empty values to filter all entities having the selected relation."
 #~ msgstr ""
-#~ "Laissez les valeurs vides pour filtrer toutes les entités ayant la "
+#~ "Laissez les valeurs vides pour filtrer toutes les fiches ayant la "
 #~ "relation sélectionnée."
 
 #~ msgid "Edit filter"
@@ -2211,7 +2211,7 @@ msgstr "Vous n'avez pas accés à cette application: %s"
 #~ msgstr "Vous ne pouvez pas créer %(predicate)s depuis ici"
 
 #~ msgid "Link to existing entities"
-#~ msgstr "Lier à des entités existantes"
+#~ msgstr "Lier à des fiches existantes"
 
 #~ msgid "Permission denied"
 #~ msgstr "Permission refusée"
@@ -2220,7 +2220,7 @@ msgstr "Vous n'avez pas accés à cette application: %s"
 #~ msgstr "Peut supprimer"
 
 #~ msgid "Can not find entity with id=%s"
-#~ msgstr "L'entité avec l'id=%s ne peut pas être trouvée"
+#~ msgstr "La fiche avec l'id=%s ne peut pas être trouvée"
 
 #~ msgid "Incompatible type for subject"
 #~ msgstr "Type incompatible pour le sujet"

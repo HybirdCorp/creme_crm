@@ -124,7 +124,7 @@ class TotalBlock(SimpleBlock):
 class TargetBlock(SimpleBlock):
     id_           = SimpleBlock.generate_id('billing', 'target')
     dependencies  = (Invoice, SalesOrder, Quote)
-    verbose_name  = _(u'Target Organisation')
+    verbose_name  = _(u'Target organisation')
     template_name = 'billing/templatetags/block_target.html'
     target_ctypes = (Base, Invoice, CreditNote, Quote, SalesOrder)
 
