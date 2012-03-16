@@ -19,7 +19,7 @@
             <tr class="header">
                 {% if not object %}<th class="block_header_line_dark">{% trans "Concerned entity" %}</th>{% endif %}
                 {% get_column_header _('Sender') 'sender' %}
-                {% get_column_header _('Created') 'creation_date' %}
+                {% get_column_header _('Created on') 'creation_date' %}
                 {% get_column_header _('Title') 'title' %}
                 {% get_column_header _('Body') 'body' %}
                 <th class="block_header_line_dark action">{% trans "Delete" %}</th>

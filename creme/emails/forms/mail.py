@@ -26,7 +26,7 @@ from django.core.validators import validate_email
 from django.forms.fields import EmailField, BooleanField, CharField, IntegerField
 from django.forms.widgets import HiddenInput
 from django.forms.util import ErrorList
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme_core.models.relation import Relation
 from creme_core.forms.base import CremeForm, CremeEntityForm, FieldBlockManager
@@ -154,7 +154,7 @@ class EntityEmailForm(CremeEntityForm):
 
 class TemplateSelectionForm(CremeForm):
     step     = IntegerField(widget=HiddenInput, initial=1)
-    template = CremeEntityField(label=_(u'Template'), model=EmailTemplate)
+    template = CremeEntityField(label=pgettext_lazy('emails', 'Template'), model=EmailTemplate)
 
 
 class EntityEmailFromTemplateForm(EntityEmailForm):

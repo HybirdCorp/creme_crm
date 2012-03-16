@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.db.models import ForeignKey, CharField, DateField, TextField
 from django.db.models.aggregates import Count
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme_core.models import CremeModel
 from creme_core.utils import chunktools
@@ -43,12 +43,13 @@ MESSAGE_STATUS_ACCEPT = SAMOUSSA_STATUS_ACCEPT
 MESSAGE_STATUS_SENT = SAMOUSSA_STATUS_SENT
 MESSAGE_STATUS_ERROR = SAMOUSSA_STATUS_ERROR
 
+#TODO: can we manage plural in a better way ?
 MESSAGE_STATUS = {
-    MESSAGE_STATUS_NOTSENT: (_(u'Not sent'), _(u'Not sent')),
-    MESSAGE_STATUS_WAITING: (_(u'Waiting'),  _(u'Waiting')),
-    MESSAGE_STATUS_ACCEPT:  (_(u'Accepted'), _(u'Accepted')),
-    MESSAGE_STATUS_SENT:    (_(u'Sent'),     _(u'Sent')),
-    MESSAGE_STATUS_ERROR:   (_(u'Error'),    _(u'Errors'))
+    MESSAGE_STATUS_NOTSENT: (pgettext_lazy('sms', u'Not sent'), pgettext_lazy('sms-plural', u'Not sent')),
+    MESSAGE_STATUS_WAITING: (pgettext_lazy('sms', u'Waiting'),  pgettext_lazy('sms-plural', u'Waiting')),
+    MESSAGE_STATUS_ACCEPT:  (pgettext_lazy('sms', u'Accepted'), pgettext_lazy('sms-plural', u'Accepted')),
+    MESSAGE_STATUS_SENT:    (pgettext_lazy('sms', u'Sent'),     pgettext_lazy('sms-plural', u'Sent')),
+    MESSAGE_STATUS_ERROR:   (_(u'Error'),                       _(u'Errors')),
 }
 
 

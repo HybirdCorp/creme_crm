@@ -13,7 +13,7 @@
                     </a>
                 {% else %}
                     <span class="add forbidden">
-                        <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />{{add_title}}
+                        <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't add or link" %}" alt="{% trans "Can't add or link" %}" />{{add_title}}
                     </span>
                 {% endif %}
                 {% get_line_relator to_subject object with_rtype_id rtype_id with_ct_id ct.id with_label _("Link to existing contacts") with_perms link_perm %}

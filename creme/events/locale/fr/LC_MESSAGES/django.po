@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-03-14 17:41+0100\n"
+"POT-Creation-Date: 2012-03-16 17:47+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -134,6 +134,7 @@ msgid "(The contact \"%s\" is not related to an organisation)."
 msgstr "(Le contact \"%s\" n'est relié à aucune société)."
 
 #: forms/event.py:133
+msgctxt "events-opportunity"
 msgid "Target organisation"
 msgstr "Société cible"
 

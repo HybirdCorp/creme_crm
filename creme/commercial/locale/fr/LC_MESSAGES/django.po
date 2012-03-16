@@ -231,7 +231,7 @@ msgstr "Nom"
 
 #: forms/strategy.py:76
 msgid "General information"
-msgstr "Informations Générales"
+msgstr "Informations générales"
 
 #: forms/strategy.py:122
 #: templates/commercial/templatetags/block_evalorgas.html:6
