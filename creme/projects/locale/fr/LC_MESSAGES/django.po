@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'PROJECTS' APP
-# Copyright (C) 2011 Hybird
+# Copyright (C) 2012 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 #, fuzzy
@@ -175,11 +175,11 @@ msgstr "Vue de Ressource"
 
 #: forms/project.py:39
 msgid "Start date"
-msgstr "Début"
+msgstr "Date de début"
 
 #: forms/project.py:40
 msgid "End date"
-msgstr "Fin du projet"
+msgstr "Date de fin"
 
 #: forms/project.py:48
 msgid "Project leaders"
@@ -524,7 +524,7 @@ msgstr "Affectation d'une nouvelle ressource"
 
 #: views/resource.py:42
 msgid "Edition of a resource"
-msgstr "Édition d'une ressource"
+msgstr "Modification d'une ressource"
 
 #: views/task.py:38
 #, python-format
@@ -541,7 +541,7 @@ msgstr ""
 
 #: views/workingperiod.py:41
 msgid "Edition of a working period"
-msgstr "Édition d'une période travaillée"
+msgstr "Modification d'une période travaillée"
 
 #~ msgid "Name of the task"
 #~ msgstr "Nom de la tâche"

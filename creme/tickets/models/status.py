@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.db.models import CharField, BooleanField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme_core.models import CremeModel
 
@@ -30,7 +30,7 @@ INVALID_PK    = 3
 DUPLICATED_PK = 4
 WONTFIX_PK    = 5
 
-BASE_STATUS = ((OPEN_PK,        _('Open')),
+BASE_STATUS = ((OPEN_PK,        pgettext_lazy('tickets-status', 'Open')),
                (CLOSED_PK,      _('Closed')),
                (INVALID_PK,     _('Invalid')),
                (DUPLICATED_PK,  _('Duplicated')),

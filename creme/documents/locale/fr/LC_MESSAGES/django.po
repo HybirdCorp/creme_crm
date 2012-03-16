@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'DOCUMENTS' APP
-# Copyright (C) 2011 Hybird
+# Copyright (C) 2012 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 #, fuzzy
@@ -65,7 +65,7 @@ msgstr "Documents crées à partir des fiches"
 
 #: populate.py:46
 msgid "Documents received by email"
-msgstr "Documents reçus par email"
+msgstr "Documents reçus par e-mail"
 
 #: populate.py:50
 msgid "Folder containing all the documents related to entities"
@@ -204,8 +204,8 @@ msgid "%s linked Documents"
 msgstr "%s Documents liés"
 
 #: templates/documents/templatetags/block_linked_docs.html:23
-msgid "Can't add"
-msgstr "Impossible d'ajouter"
+msgid "Can't add or link"
+msgstr "Création ou liaison interdite"
 
 #: templates/documents/templatetags/block_linked_docs.html:27
 msgid "Link to an existing document"

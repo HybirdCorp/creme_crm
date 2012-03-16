@@ -50,7 +50,7 @@ msgstr "Types des relations périphériques"
 
 #: forms/root_node.py:33
 msgid "Root entities"
-msgstr "Entités racines"
+msgstr "Fiches racines"
 
 #: forms/root_node.py:34 forms/root_node.py:55
 msgid "Related types of relations"
@@ -127,11 +127,11 @@ msgstr "Nœuds racines"
 
 #: templates/graphs/templatetags/block_root_nodes.html:10
 msgid "Add root nodes from existing entities"
-msgstr "Ajouter des nœuds racines depuis des entités existantes"
+msgstr "Ajouter des nœuds racines depuis des fiches existantes"
 
 #: templates/graphs/templatetags/block_root_nodes.html:17
 msgid "Entity"
-msgstr "Entité"
+msgstr "Fiche"
 
 #: templates/graphs/templatetags/block_root_nodes.html:18
 msgid "Types of relation"
@@ -151,7 +151,7 @@ msgstr "Pas de nœud racine pour le moment"
 
 #: views/graph.py:53
 msgid "This graph is too big!"
-msgstr "Ce graphique est trop gros!"
+msgstr "Ce graphique est trop gros !"
 
 #: views/graph.py:76
 #, python-format

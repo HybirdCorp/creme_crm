@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-02-29 15:40+0100\n"
+"POT-Creation-Date: 2012-03-16 16:42+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -158,7 +158,7 @@ msgstr "Par exemple: 'est poilu'"
 
 #: forms/creme_property_type.py:32
 msgid "Related to types of entities"
-msgstr "S'applique aux types d'entités"
+msgstr "S'applique aux types de fiches"
 
 #: forms/creme_property_type.py:33
 msgid "No selected type means that all types are accepted"
@@ -302,29 +302,29 @@ msgstr "Champs concernés"
 msgid "Value"
 msgstr "Valeur"
 
-#: forms/user.py:46 forms/user.py:146
+#: forms/user.py:45 forms/user.py:149
 #: templates/creme_config/templatetags/block_users.html:26
 msgid "Password"
 msgstr "Mot de passe"
 
-#: forms/user.py:47 forms/user.py:147
+#: forms/user.py:46 forms/user.py:150
 msgid "Confirm password"
 msgstr "Confirmation du mot de passe"
 
-#: forms/user.py:48 forms/user.py:114
+#: forms/user.py:47 forms/user.py:117
 #: templates/creme_config/templatetags/block_users.html:19
 msgid "Role"
 msgstr "Rôle"
 
-#: forms/user.py:49 forms/user.py:115
+#: forms/user.py:48 forms/user.py:118
 msgid "You must choose a role for a non-super user."
 msgstr "Vous devez choisir un rôle pour un utilisateur non super-utilisateur."
 
-#: forms/user.py:50
+#: forms/user.py:49
 msgid "Related contact"
 msgstr "Contact associé"
 
-#: forms/user.py:51
+#: forms/user.py:50
 msgid ""
 "Select the related contact if he already exists (if you don't, a contact "
 "will be automatically created)."
@@ -332,15 +332,15 @@ msgstr ""
 "Sélectionnez le contact associé si il existe déjà (sinon, un contact sera "
 "automatiquement créé)."
 
-#: forms/user.py:52
+#: forms/user.py:51
 msgid "User organisation"
 msgstr "Société de l'utilisateur"
 
-#: forms/user.py:53
+#: forms/user.py:52
 msgid "Position in the organisation"
 msgstr "Statut dans la société"
 
-#: forms/user.py:63
+#: forms/user.py:62
 msgid ""
 "The username must only contain alphanumeric (a-z, A-Z, 0-9), hyphen and "
 "underscores are allowed (but not as first character)."
@@ -349,31 +349,31 @@ msgstr ""
 "alphanumériques (a-z, A-Z, 0-9), les tirets et les underscore ( _ ) sont "
 "admis (sauf comme premier caractère)."
 
-#: forms/user.py:72 forms/user.py:158
+#: forms/user.py:71 forms/user.py:161
 msgid "Passwords are different"
 msgstr "Les mots de passe sont différents"
 
-#: forms/user.py:82 forms/user.py:131
+#: forms/user.py:81 forms/user.py:134
 msgid "Choose a role or set superuser status to 'True'."
 msgstr "Choisissez un rôle ou mettez le statut super-utilisateur à 'Vrai'"
 
-#: forms/user.py:171 templates/creme_config/templatetags/block_teams.html:18
+#: forms/user.py:174 templates/creme_config/templatetags/block_teams.html:18
 msgid "Teammates"
 msgstr "Coéquipiers"
 
-#: forms/user.py:179
+#: forms/user.py:182
 msgid "Team name"
 msgstr "Nom de l'équipe"
 
-#: forms/user.py:197
+#: forms/user.py:200
 msgid "Choose a user to transfer to"
 msgstr "Choisissez un utilisateur auquel transférer"
 
-#: forms/user.py:212 templates/creme_config/user_portal.html:6
+#: forms/user.py:215 templates/creme_config/user_portal.html:6
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: forms/user.py:213
+#: forms/user.py:216
 msgid "Teams"
 msgstr "Équipes"
 
@@ -724,7 +724,7 @@ msgstr "Nouveau champ personnalisé"
 #: templates/creme_config/templatetags/block_custom_fields.html:31
 #: templates/creme_config/templatetags/block_custom_fields_portal.html:35
 msgid "No type of entity has custom field for the moment"
-msgstr "Aucun type d'entité n'a de champ personnalisé pour le moment"
+msgstr "Aucun type de fiche n'a de champ personnalisé pour le moment"
 
 #: templates/creme_config/templatetags/block_custom_fields_portal.html:11
 msgid "New custom field configuration"
@@ -799,7 +799,7 @@ msgstr "%s Blocs d'instance créés"
 
 #: templates/creme_config/templatetags/block_instanceblocksconfig.html:11
 msgid "Related entity"
-msgstr "Relatif à l'entité"
+msgstr "Fiche concernée"
 
 #: templates/creme_config/templatetags/block_instanceblocksconfig.html:26
 msgid "No type of instance block created for the moment"
@@ -847,7 +847,7 @@ msgstr "Nouveau type de propriété personnalisé"
 
 #: templates/creme_config/templatetags/block_property_types.html:20
 msgid "Applies on entities with following types"
-msgstr "S'applique aux entités des types suivants"
+msgstr "S'applique aux fiches des types suivants"
 
 #: templates/creme_config/templatetags/block_property_types.html:28
 msgid "No related type of resource"
@@ -968,7 +968,7 @@ msgstr "%s Types de relation semi-fixés"
 
 #: templates/creme_config/templatetags/block_semifixed_relation_types.html:6
 msgid "Semi-fixed types of relationship"
-msgstr "Type de relation semi-fixé"
+msgstr "Types de relation semi-fixés"
 
 #: templates/creme_config/templatetags/block_semifixed_relation_types.html:13
 msgid "New semi-fixed type"
@@ -1084,7 +1084,7 @@ msgstr "Droits d'export"
 
 #: templates/creme_config/templatetags/block_user_roles.html:25
 msgid "Entities credentials"
-msgstr "Droits des entités"
+msgstr "Droits des fiches"
 
 #: templates/creme_config/templatetags/block_user_roles.html:31
 msgid "No allowed application"
@@ -1141,8 +1141,8 @@ msgid "First name"
 msgstr "Prénom"
 
 #: templates/creme_config/templatetags/block_users.html:20
-msgid "Email"
-msgstr "Adresse électronique"
+msgid "Email address"
+msgstr "Adresse e-mail"
 
 #: templates/creme_config/templatetags/block_users.html:21
 msgid "Super-user ?"
@@ -1331,7 +1331,7 @@ msgstr "Éditer les droits par défaut"
 #~ msgstr "Éditer '%(object)s'"
 
 #~ msgid "Entities credentials settings"
-#~ msgstr "Gestion des droits d'entité"
+#~ msgstr "Gestion des droits de fiche"
 
 #~ msgid "Applications credentials settings"
 #~ msgstr "Gestion des droits des applications"
@@ -1383,13 +1383,13 @@ msgstr "Éditer les droits par défaut"
 
 #~ msgid "Assign an entity/a role/ a team with necessary credentials"
 #~ msgstr ""
-#~ "Pensez à assigner une entité/un rôle/une équipe aux droits nécessaires"
+#~ "Pensez à assigner une fiche/un rôle/une équipe aux droits nécessaires"
 
 #~ msgid "Type of entity"
-#~ msgstr "Type d'entité"
+#~ msgstr "Type de fiche"
 
 #~ msgid "Particular Entity/Role/Team"
-#~ msgstr "Entité/Rôle/Équipe particulier"
+#~ msgstr "Fiche/Rôle/Équipe particulier"
 
 #~ msgid "Contacts"
 #~ msgstr "Contacts"

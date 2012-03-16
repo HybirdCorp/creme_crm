@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,7 @@ from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerFie
 from django.core.mail import send_mail, SMTPConnection
 from django.template import Template, Context
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _, ugettext, activate
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy, activate
 
 from creme_core.models import CremeModel, CremeEntity
 
@@ -46,7 +46,7 @@ SENDING_TYPE_DEFERRED  = 2
 
 SENDING_TYPES = {
                     SENDING_TYPE_IMMEDIATE: _(u"Immediate"),
-                    SENDING_TYPE_DEFERRED:  _(u"Deferred"),
+                    SENDING_TYPE_DEFERRED:  pgettext_lazy('emails-sending', 'Deferred'),
                 }
 
 SENDING_STATE_DONE       = 1
@@ -55,9 +55,9 @@ SENDING_STATE_PLANNED    = 3
 SENDING_STATE_ERROR      = 4
 
 SENDING_STATES = {
-                    SENDING_STATE_DONE:       _(u"Done"),
+                    SENDING_STATE_DONE:       pgettext_lazy('emails-sending', 'Done'),
                     SENDING_STATE_INPROGRESS: _(u"In progress"),
-                    SENDING_STATE_PLANNED:    _(u"Planned"),
+                    SENDING_STATE_PLANNED:    pgettext_lazy('emails-sending', 'Planned'),
                     SENDING_STATE_ERROR:      _(u"Error during sending"),
                  }
 

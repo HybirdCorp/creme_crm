@@ -11,7 +11,7 @@
         {% if page.paginator.count %}
             <tr class="header">
                 {% get_column_header _('Type') 'type' %}
-                {% get_column_header _('Created') 'created' %}
+                {% get_column_header _('Creation date') 'created' %}
                 {% get_column_header _('What') 'entity_ct' %}
                 <th class="block_header_line_dark">{% trans "Entity" %}</th>
                 <th class="block_header_line_dark">{% trans "Changes" %}</th>
