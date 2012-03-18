@@ -73,13 +73,16 @@ class Origin(CremeModel):
         verbose_name_plural = _(u"Origins of opportunity")
 
 
+#_default_salesphase = SalesPhase.objects.all()[:1]
+#_default_salesphase = _default_salesphase[0] if _default_salesphase else None
+
 class Opportunity(CremeEntity):
     name                  = CharField(_(u"Name of the opportunity"), max_length=100)
     reference             = CharField(_(u"Reference"), max_length=100, blank=True, null=True)
     estimated_sales       = PositiveIntegerField(_(u'Estimated sales'), blank=True, null=True)
     made_sales            = PositiveIntegerField(_(u'Made sales'), blank=True, null=True)
     currency              = ForeignKey(Currency, verbose_name=_(u'Currency'), default=DEFAULT_CURRENCY_PK, on_delete=PROTECT)
-    sales_phase           = ForeignKey(SalesPhase, verbose_name=_(u'Sales phase'), on_delete=PROTECT)
+    sales_phase           = ForeignKey(SalesPhase, verbose_name=_(u'Sales phase'), on_delete=PROTECT) #, default=_default_salesphase
     chance_to_win         = PositiveIntegerField(_(ur"% of chance to win"), blank=True, null=True)
     expected_closing_date = DateField(_(u'Expected closing date'), blank=True, null=True)
     closing_date          = DateField(_(u'Actual closing date'), blank=True, null=True)

@@ -45,7 +45,7 @@ class EventType(CremeModel):
 
 class Event(CremeEntity):
     name        = CharField(_(u'Name'), max_length=100)
-    type        = ForeignKey(EventType, verbose_name=_(u'Type'), on_delete=PROTECT)
+    type        = ForeignKey(EventType, verbose_name=_(u'Type'), on_delete=PROTECT, default=1)
     description = TextField(_(u'Description'), blank=True)
     place       = CharField(pgettext_lazy('events', u'Place'), max_length=100, blank=True)
     start_date  = DateTimeField(_(u'Start date'))
