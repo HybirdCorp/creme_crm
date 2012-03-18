@@ -1,8 +1,58 @@
+== Version 1.2 ==
+
+  Users side :
+  ------------
+    # New inner edition feature : the most fields can be edited directly in the detail/list views.
+    # A new view that merges 2 entities.
+    # Light batch process : several entities returned by a filtered are modified with the same pattern :
+        - String actions : 'To upper case', 'To lower case', 'Prefix', 'Suffix', 'Remove a sub-string'...
+        - Integer actions : 'Add', 'Subtract', 'Multiply', 'Divide'.
+    # New SemiFixedRelationType model that allows to accelerate the creation of Relation when one branch is always the same.
+    # The deletion of small models (status/sector etc...) is better managed (protected or FK are set to NULL).
+    # CSV import : the 'dialect' of the csv file is now guessed.
+    # Apps :
+        * Emails :
+            - The raw text and the HTML text of the bodies of emails (standalone ones and grouped by campaigns ones) can be written separately.
+            - A standalone email can be created from a template as base.
+        * Billing :
+            - Line management was improved : you can create/edit/delete several lines at once.
+            - Line fields can be edited directly.
+            - Status of Invoice/Quote/Sales Order/Credit Note are ordered by config.
+        * Activities :
+            - List views for meetings and phone calls.
+            - Activities can be created directly in the Calendar view.
+            - The view to add participants from the detailview of an Activity has been improved (it manages users like in the Activity creation view).
+        * Assistants :
+            - New FunctionFields for 'Todos', Memos' & 'Alerts'.
+        * Opportunities :
+            - Sales Phases are ordered by config.
+        * Persons :
+            - First name is no more required.
+            - Siren is now unique or empty.
+    # Bug fixes :
+        * Creme_config: only superusers can create/edit Users.
+        * Activities: 'participates' relationship is now internal (to manage correctly Calendars).
+        * Some HTML escaping problems fixed.
+        * ...
+
+  Developpers side :
+  ------------------
+    # Upgrade to jquery 1.6.2 & jquery ui 1.8.15.
+    # Improvements for FunctionFields (old API is broken) :
+        * Return FunctionFieldResult objects (which can be easily serialised in HTML & CSV outputs).
+        * Can now easily inject FunctionFields in a model.
+    # In Billing app, the Line API was changed to be less error-prone (old API is broken).
+    # Creme_config : handles automatically the ordering of models with a field 'order'.
+    # The API of instance blocks has changed.
+    # The API of BulkUpdateRegistry has changed.
+
+
+
 == Version 1.1 ==
 
   Users side :
   ------------
-    # Blocks:
+    # Blocks :
         * New blocks :
             - 'History' (timeline).
             - 'Received billing documents'.
@@ -34,9 +84,9 @@
         * Billing : currency management. For each billing Entity you choose the currency, and the displays of amounts are better.
         * Activesync : Can limit mobile synchronization to contacts or calendars.
         * Vcfs (NEW app) : you can now import a Contact (and the related Organisation) from a vCard.
-    # Bug fixes:
+    # Bug fixes :
         * Credentials problem in billing lines.
-        * Billing lines were not added to the billing documents created from an Opportunity with related Products/Services
+        * Billing lines were not added to the billing documents created from an Opportunity with related Products/Services.
         * Image file duplicated when an Image was edited.
         * ...
 
