@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,6 @@
 
 from django.db.models import CharField, TextField, FileField, ForeignKey
 from django.utils.translation import ugettext_lazy as _
-#from django.utils.encoding import force_unicode
 from django.contrib.auth.models import User
 
 from creme_core.models import CremeEntity, Relation
@@ -33,7 +32,7 @@ class Document(CremeEntity):
     title       = CharField(_(u'Title'), max_length=100)
     description = TextField(_(u'Description'), blank=True, null=True)
     filedata    = FileField(_(u'File'), max_length=500, upload_to='upload/documents')
-    folder      = ForeignKey(Folder, verbose_name=_(u'Folder'))
+    folder      = ForeignKey(Folder, verbose_name=_(u'Folder'), default=1)
 
     research_fields = CremeEntity.research_fields + ['title', 'description', 'folder__title']
 
@@ -43,7 +42,6 @@ class Document(CremeEntity):
         verbose_name_plural = _(u'Documents')
 
     def __unicode__(self):
-        #return force_unicode(u'%s - %s' % (self.folder.title, self.title))
         return u'%s - %s' % (self.folder, self.title)
 
     def get_absolute_url(self):

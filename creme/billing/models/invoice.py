@@ -30,7 +30,7 @@ from service_line import ServiceLine
 
 
 class Invoice(Base):
-    status       = ForeignKey(InvoiceStatus, verbose_name=_(u'Status of invoice'), on_delete=PROTECT)
+    status       = ForeignKey(InvoiceStatus, verbose_name=_(u'Status of invoice'), on_delete=PROTECT, default=1)
     payment_type = ForeignKey(SettlementTerms, verbose_name=_(u'Settlement terms'), blank=True, null=True)
 
     research_fields = Base.research_fields + ['status__name']
