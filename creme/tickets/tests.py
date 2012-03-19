@@ -185,7 +185,7 @@ class TicketTestCase(CremeTestCase):
         self.login()
 
         response = self.client.get('/tickets/tickets')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
 
         with self.assertNoException():
             tickets_page = response.context['entities']
@@ -225,6 +225,7 @@ class TicketTestCase(CremeTestCase):
 
         response = self.client.post('/creme_core/entity/delete/%s' % ticket.pk, follow=True)
         self.assertEqual(200, response.status_code)
+        self.assertFalse(Ticket.objects.filter(pk=ticket.pk).exists())
         self.assertEqual(1, len(response.redirect_chain))
         self.assertTrue(response.redirect_chain[0][0].endswith('/tickets/tickets'))
 

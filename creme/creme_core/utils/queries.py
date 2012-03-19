@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,3 +45,8 @@ def get_q_from_dict(dict, is_or=False):
             q &= sub_q
 
     return q
+
+def get_first_or_None(model):
+    """Get the first model instance, if there is at least one, or return None."""
+    objects = model.objects.all()[:1]
+    return objects[0] if objects else None

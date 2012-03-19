@@ -24,6 +24,7 @@ from django.utils.translation import ugettext as _
 
 from creme_core.models import CremeEntity
 from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view, add_model_with_popup
+from creme_core.utils.queries import get_first_or_None
 
 from documents.models import Document, Folder
 from documents.forms.document import DocumentCreateForm, DocumentCreateViewForm, DocumentEditForm
@@ -33,10 +34,8 @@ from documents.forms.document import DocumentCreateForm, DocumentCreateViewForm,
 @permission_required('documents')
 @permission_required('documents.add_document')
 def add(request):
-    folders = Folder.objects.all()[:1]
-
     return add_entity(request, DocumentCreateForm,
-                      extra_initial={'folder': folders[0]} if folders else None
+                      extra_initial={'folder': get_first_or_None(Folder)}
                      )
 
 @login_required
