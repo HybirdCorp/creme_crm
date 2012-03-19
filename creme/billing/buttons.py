@@ -41,6 +41,7 @@ class GenerateInvoiceNumberButton(Button):
         return not bool(entity.number)
 
 
+#TODO: rename 'become' (surely copied-pasted)
 class _AddBillingDocumentButton(Button):
     template_name   = 'billing/templatetags/button_add_billing_document.html'
     which_document  = "OVERLOADME"

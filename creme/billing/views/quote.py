@@ -32,13 +32,15 @@ from billing.forms.quote import QuoteCreateForm, QuoteEditForm
 @permission_required('billing')
 @permission_required('billing.add_quote')
 def add(request):
-    return add_entity(request, QuoteCreateForm)
+    return add_entity(request, QuoteCreateForm, extra_initial={'status': 1})
 
 @login_required
 @permission_required('billing')
 @permission_required('billing.add_quote')
 def add_with_relations(request, target_id, source_id):
-    return _add_with_relations(request, target_id, source_id, QuoteCreateForm, _(u"Add a quote for <%s>"))
+    return _add_with_relations(request, target_id, source_id, QuoteCreateForm,
+                               _(u"Add a quote for <%s>"), status_id=1
+                              )
 
 @login_required
 @permission_required('billing')
@@ -52,10 +54,9 @@ def detailview(request, quote_id):
 
     return view_entity(request, quote_id, Quote, '/billing/quote',
                        'billing/view_quote.html',
-                       {
-                           'can_download':       True,
-                           'can_create_order':   has_perm('billing.add_salesorder'),
-                           'can_create_invoice': has_perm('billing.add_invoice'),
+                       {'can_download':       True,
+                        'can_create_order':   has_perm('billing.add_salesorder'),
+                        'can_create_invoice': has_perm('billing.add_invoice'),
                        },
                       )
 
