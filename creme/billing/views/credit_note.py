@@ -35,7 +35,7 @@ from billing.constants import REL_OBJ_CREDIT_NOTE_APPLIED
 @permission_required('billing')
 @permission_required('billing.add_creditnote')
 def add(request):
-    return add_entity(request, CreditNoteCreateForm)
+    return add_entity(request, CreditNoteCreateForm, extra_initial={'status': 1})
 
 @login_required
 @permission_required('billing')
@@ -63,7 +63,7 @@ def listview(request):
 @login_required
 @permission_required('billing')
 def add_related_credit_note(request, base_id):
-    return add_to_entity(request, base_id, CreditNoteRelatedForm, _(u"Credit notes for <%s>"), link_perm = True)
+    return add_to_entity(request, base_id, CreditNoteRelatedForm, _(u"Credit notes for <%s>"), link_perm=True)
 
 @login_required
 @permission_required('billing')

@@ -24,10 +24,20 @@ from creme_core.models.entity import CremeEntity
 from creme_core.views.generic import add_model_with_popup
 
 
-def _add_with_relations(request, target_id, source_id, template, title):
+def _add_with_relations(request, target_id, source_id, form, title, status_id=None):
+    user = request.user
+
     target = get_object_or_404(CremeEntity, pk=target_id).get_real_entity()
+    target.can_link_or_die(user)
+
     source = get_object_or_404(CremeEntity, pk=source_id).get_real_entity()
-    target.can_link_or_die(request.user)
-    source.can_link_or_die(request.user)
-    return add_model_with_popup(request, template, title=title % target,
-                                initial={'target': target, 'source': source_id})
+    source.can_link_or_die(user)
+
+    initial = {'target': target,
+               'source': source_id,
+              }
+
+    if status_id:
+        initial['status'] = status_id
+
+    return add_model_with_popup(request, form, title=title % target, initial=initial)

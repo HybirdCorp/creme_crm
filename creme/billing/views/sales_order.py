@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,13 +32,15 @@ from billing.forms.sales_order import SalesOrderCreateForm, SalesOrderEditForm
 @permission_required('billing')
 @permission_required('billing.add_salesorder')
 def add(request):
-    return add_entity(request, SalesOrderCreateForm)
+    return add_entity(request, SalesOrderCreateForm, extra_initial={'status': 1})
 
 @login_required
 @permission_required('billing')
 @permission_required('billing.add_salesorder')
 def add_with_relations(request, target_id, source_id):
-    return _add_with_relations(request, target_id, source_id, SalesOrderCreateForm, _(u"Add a sales order for <%s>"))
+    return _add_with_relations(request, target_id, source_id, SalesOrderCreateForm,
+                               _(u"Add a sales order for <%s>"), status_id=1,
+                              )
 
 @login_required
 @permission_required('billing')
@@ -50,9 +52,8 @@ def edit(request, order_id):
 def detailview(request, order_id):
     return view_entity(request, order_id, SalesOrder, '/billing/sales_order',
                        'billing/view_sales_order.html',
-                       {
-                           'can_download':       True,
-                           'can_create_invoice': request.user.has_perm('billing.add_invoice'),
+                       {'can_download':       True,
+                        'can_create_invoice': request.user.has_perm('billing.add_invoice'),
                        }
                       )
 
