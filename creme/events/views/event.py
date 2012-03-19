@@ -29,10 +29,11 @@ from creme_core.models.entity import EntityAction
 from creme_core.models.header_filter import HeaderFilterItem, HFI_RELATION, HFI_VOLATILE
 from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 from creme_core.utils import get_from_POST_or_404
+from creme_core.utils.queries import get_first_or_None
 
 from persons.models import Contact
 
-from events.models import Event
+from events.models import Event, EventType
 from events.forms.event import EventForm, AddContactsToEventForm, RelatedOpportunityCreateForm
 from events.constants import *
 
@@ -41,7 +42,7 @@ from events.constants import *
 @permission_required('events')
 @permission_required('events.add_event')
 def add(request):
-    return add_entity(request, EventForm)
+    return add_entity(request, EventForm, extra_initial={'type':  get_first_or_None(EventType)})
 
 @login_required
 @permission_required('events')
