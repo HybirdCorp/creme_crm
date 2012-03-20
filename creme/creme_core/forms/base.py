@@ -119,9 +119,9 @@ class FieldBlockManager(object):
 
 class HookableForm(object):
     #Beware: use related method to manipulate
-    _post_clean_callbacks = () # ==> add_post_clean_callback()
-    _post_init_callbacks  = () # ==> add_post_init_callback()
-    _post_save_callbacks  = () # ==> add_post_save_callback()
+    _creme_post_clean_callbacks = () # ==> add_post_clean_callback()
+    _creme_post_init_callbacks  = () # ==> add_post_init_callback()
+    _creme_post_save_callbacks  = () # ==> add_post_save_callback()
 
     @classmethod
     def __add_callback(cls, attrname, callback):
@@ -131,26 +131,26 @@ class HookableForm(object):
 
     @classmethod
     def add_post_clean_callback(cls, callback):
-        cls.__add_callback('_post_clean_callbacks', callback)
+        cls.__add_callback('_creme_post_clean_callbacks', callback)
 
     @classmethod
     def add_post_init_callback(cls, callback):
-        cls.__add_callback('_post_init_callbacks', callback)
+        cls.__add_callback('_creme_post_init_callbacks', callback)
 
     @classmethod
     def add_post_save_callback(cls, callback):
-        cls.__add_callback('_post_save_callbacks', callback)
+        cls.__add_callback('_creme_post_save_callbacks', callback)
 
-    def _post_clean(self):
-        for callback in self._post_clean_callbacks:
+    def _creme_post_clean(self):
+        for callback in self._creme_post_clean_callbacks:
             callback(self)
 
-    def _post_init(self):
-        for callback in self._post_init_callbacks:
+    def _creme_post_init(self):
+        for callback in self._creme_post_init_callbacks:
             callback(self)
 
-    def _post_save(self):
-        for callback in self._post_save_callbacks:
+    def _creme_post_save(self):
+        for callback in self._creme_post_save_callbacks:
             callback(self)
 
 
@@ -161,18 +161,18 @@ class CremeForm(Form, HookableForm):
         """@param user The user that sends the request (i order to check the permissions)"""
         super(CremeForm, self).__init__(*args, **kwargs)
         self.user = user
-        self._post_init()
+        self._creme_post_init()
 
     def clean(self, *args, **kwargs):
         res = super(CremeForm, self).clean(*args, **kwargs)
-        self._post_clean()
+        self._creme_post_clean()
         return res
 
     def get_blocks(self):
         return self.blocks.build(self)
 
     def save(self, *args, **kwargs):
-        self._post_save()
+        self._creme_post_save()
 
 
 class CremeModelForm(ModelForm, HookableForm):
@@ -182,11 +182,11 @@ class CremeModelForm(ModelForm, HookableForm):
         """@param user The user that sends the request (i order to check the permissions)"""
         super(CremeModelForm, self).__init__(*args, **kwargs)
         self.user = user
-        self._post_init()
+        self._creme_post_init()
 
     def clean(self, *args, **kwargs):
         res = super(CremeModelForm, self).clean(*args, **kwargs)
-        self._post_clean()
+        self._creme_post_clean()
         return res
 
     def get_blocks(self):
@@ -194,7 +194,7 @@ class CremeModelForm(ModelForm, HookableForm):
 
     def save(self, *args, **kwargs):
         instance = super(CremeModelForm, self).save(*args, **kwargs)
-        self._post_save()
+        self._creme_post_save()
         return instance
 
 
