@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,8 @@
 ################################################################################
 
 from datetime import datetime
+from functools import partial
+from logging import warn, error
 
 from django.core.exceptions import PermissionDenied
 from django.template import RequestContext
@@ -49,9 +51,13 @@ def _build_blocks_render(request, block_id, blocks_manager, block_render_functio
     if check_permission:
         has_perm = request.user.has_perm
         for block in blocks:
-            permission = block.permission #'crash' if the coder forgot to set a 'permission' attribute -> OK :)
-            if permission is not None and not has_perm(permission):
-                raise PermissionDenied('Error: you are not allowed to view this block: %s' % block.id_)
+            try:
+                permission = block.permission
+            except AttributeError:
+                error('You should set "permission" on the block: %s (id=%s)', block.__class__, block.id_)
+            else:
+                if permission is not None and not has_perm(permission):
+                    raise PermissionDenied('Error: you are not allowed to view this block: %s' % block.id_)
 
     for block in blocks:
         blocks_manager.add_group(block.id_, block)
@@ -59,9 +65,20 @@ def _build_blocks_render(request, block_id, blocks_manager, block_render_functio
     #Blocks are iterated twice for knowing all imported blocks when rendering
     #Used for caching states notably...
     for block in blocks:
-        block_renders.append((block.id_, block_render_function(block)))
+        block_render = block_render_function(block)
+
+        if block_render is not None:
+            block_renders.append((block.id_, block_render))
 
     return block_renders
+
+def _render_detail(block, context):
+    fun = getattr(block, 'detailview_display', None)
+
+    if fun:
+        return fun(context)
+
+    warn('Block without detailview_display() : %s (id=%s)', block.__class__, block.id_)
 
 @login_required
 @jsonify
@@ -74,15 +91,23 @@ def reload_detailview(request, block_id, entity_id):
     context['object'] = entity
 
     return _build_blocks_render(request, block_id, BlocksManager.get(context),
-                                lambda block: block.detailview_display(context))
+                                partial(_render_detail, context=context)
+                               )
 
 @login_required
 @jsonify
 def reload_home(request, block_id):
     context = RequestContext(request)
 
-    return _build_blocks_render(request, block_id, BlocksManager.get(context),
-                                lambda block: block.home_display(context))
+    def render_home(block):
+        fun = getattr(block, 'home_display', None)
+
+        if fun:
+            return fun(context)
+
+        warn('Block without home_display() : %s (id=%s)', block.__class__, block.id_)
+
+    return _build_blocks_render(request, block_id, BlocksManager.get(context), render_home)
 
 @login_required
 @jsonify
@@ -99,8 +124,15 @@ def reload_portal(request, block_id, ct_ids):
     if not request.user.has_perm(app_label): #TODO: in a role method ??
         raise PermissionDenied('You are not allowed to access to the app: %s' % app_label)
 
-    return _build_blocks_render(request, block_id, BlocksManager.get(context),
-                                lambda block: block.portal_display(context, ct_ids))
+    def render_portal(block):
+        fun = getattr(block, 'portal_display', None)
+
+        if fun:
+            return fun(context, ct_ids)
+
+        warn('Block without portal_display() : %s (id=%s)', block.__class__, block.id_)
+
+    return _build_blocks_render(request, block_id, BlocksManager.get(context), render_portal)
 
 @login_required
 @jsonify
@@ -114,7 +146,7 @@ def reload_basic(request, block_id):
     blocks_manager = BlocksManager.get(context)
 
     return _build_blocks_render(request, block_id, blocks_manager,
-                                lambda block: block.detailview_display(context),
+                                partial(_render_detail, context=context),
                                 check_permission=True
                                )
 
@@ -132,7 +164,8 @@ def reload_relations_block(request, entity_id, relation_type_ids=''):
     blocks_manager.set_used_relationtypes_ids(rtype_id for rtype_id in relation_type_ids.split(',') if rtype_id)
 
     return _build_blocks_render(request, relations_block.id_, blocks_manager,
-                                lambda block: block.detailview_display(context))
+                                lambda block: block.detailview_display(context)
+                               )
 
 @login_required
 @jsonify

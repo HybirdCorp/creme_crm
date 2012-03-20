@@ -10,13 +10,17 @@ try:
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Contact, Organisation
-except Exception, e:
+except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
 
+__all__ = ('BlockViewTestCase', )
+
+
 class BlockViewTestCase(CremeTestCase):
-    def setUp(self):
-        self.populate('creme_config')
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config')
 
     def test_set_state01(self):
         self.login()
@@ -38,53 +42,42 @@ class BlockViewTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(1,   BlockState.objects.count())
 
-        #try:
-        with self.assertNoException():
-            bstate = BlockState.objects.get(user=self.user, block_id=block_id)
-        #except Exception, e:
-            #self.fail(e)
-
+        bstate = self.get_object_or_fail(BlockState, user=self.user, block_id=block_id)
         self.assertFalse(bstate.is_open)
 
         response = self.client.post('/creme_core/blocks/reload/set_state/%s/' % block_id, data={})#No data
         self.assertEqual(200, response.status_code)
         self.assertEqual(1,   BlockState.objects.count())
-        #try:
-        with self.assertNoException():
-            bstate = BlockState.objects.get(user=self.user, block_id=block_id)
-        #except Exception, e:
-            #self.fail(e)
 
+        bstate = self.get_object_or_fail(BlockState, user=self.user, block_id=block_id)
         self.assertFalse(bstate.is_open)
 
     def test_set_state02(self):
         self.login()
         block_id = RelationsBlock.id_
         response = self.client.post('/creme_core/blocks/reload/set_state/%s/' % block_id,
-                                    data={'is_open': 1, 'show_empty_fields': 1})
+                                    data={'is_open': 1, 'show_empty_fields': 1}
+                                   )
         self.assertEqual(200, response.status_code)
 
-        #try:
-        with self.assertNoException():
-            block_state = BlockState.objects.get(user=self.user, block_id=block_id)
-        #except Exception, e:
-            #self.fail(e)
-
-        self.assertTrue(block_state.is_open)
-        self.assertTrue(block_state.show_empty_fields)
+        bstate = self.get_object_or_fail(BlockState, user=self.user, block_id=block_id)
+        self.assertTrue(bstate.is_open)
+        self.assertTrue(bstate.show_empty_fields)
 
     def test_set_state03(self):
         self.login()
         block_id = RelationsBlock.id_
         response = self.client.post('/creme_core/blocks/reload/set_state/%s/' % block_id,
-                                    data={'is_open': 1, 'show_empty_fields': 1})
+                                    data={'is_open': 1, 'show_empty_fields': 1}
+                                   )
 
         self.client.logout()
         self.client.login(username=self.other_user.username, password="test")
 
         block_id = RelationsBlock.id_
-        response = self.client.post('/creme_core/blocks/reload/set_state/%s/' % block_id,
-                                    data={'is_open': 0, 'show_empty_fields': 0})
+        self.client.post('/creme_core/blocks/reload/set_state/%s/' % block_id,
+                         data={'is_open': 0, 'show_empty_fields': 0}
+                        )
 
         blocks_states = BlockState.objects.filter(block_id=block_id)
 
@@ -201,6 +194,15 @@ class BlockViewTestCase(CremeTestCase):
                          simplejson.loads(response.content)
                         )
 
+    def test_reload_detailview05(self): #invalid block_id
+        self.login()
+        atom = Contact.objects.create(user=self.user, first_name='Atom', last_name='Tenma')
+
+        response = self.client.get('/creme_core/blocks/reload/%s/%s/' % ('test_reload_detailview05', atom.id))
+        self.assertEqual(200, response.status_code)
+        self.assertEqual('text/javascript', response['Content-Type'])
+        self.assertEqual([], simplejson.loads(response.content))
+
     def test_reload_home(self):
         self.login()
 
@@ -215,7 +217,7 @@ class BlockViewTestCase(CremeTestCase):
         block_registry.register(block1, block2)
 
         response = self.client.get('/creme_core/blocks/reload/home/%s/' % block1.id_,
-                                   data={block1.id_ + '_deps': block2.id_}
+                                   data={block1.id_ + '_deps': ','.join([block2.id_, 'silly_id'])}
                                   )
         self.assertEqual(200, response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
@@ -244,7 +246,7 @@ class BlockViewTestCase(CremeTestCase):
         response = self.client.get('/creme_core/blocks/reload/portal/%s/%s,%s/' % (
                                             block1.id_, ct_id1, ct_id2
                                         ),
-                                   data={block1.id_ + '_deps': block2.id_}
+                                   data={block1.id_ + '_deps': ','.join([block2.id_, 'silly_id'])}
                                   )
         self.assertEqual(200, response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
@@ -308,7 +310,7 @@ class BlockViewTestCase(CremeTestCase):
         block_registry.register(block1, block2)
 
         response = self.client.get('/creme_core/blocks/reload/basic/%s/' % block1.id_,
-                                   data={block1.id_ + '_deps': block2.id_}
+                                   data={block1.id_ + '_deps': '%s,silly_id' % block2.id_}
                                   )
         self.assertEqual(200, response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
@@ -348,21 +350,28 @@ class BlockViewTestCase(CremeTestCase):
                         )
 
     def test_reload_relations01(self):
-        self.populate('creme_core', 'creme_config')
         self.login()
-        atom  = Contact.objects.create(user=self.user, first_name='Atom', last_name='Tenma')
-        tenma = Contact.objects.create(user=self.user, first_name='Dr', last_name='Tenma')
-        uran  = Contact.objects.create(user=self.user, first_name='Uran', last_name='Ochanomizu')
+        user = self.user
 
-        rtype1, srtype1 = RelationType.create(('test-subject_son', 'is the son of'), ('test-object_father',  'is the father of'))
-        rel1 = Relation.objects.create(subject_entity=atom, type=rtype1, object_entity=tenma, user=self.user)
+        create_contact = Contact.objects.create
+        atom  = create_contact(user=user, first_name='Atom', last_name='Tenma')
+        tenma = create_contact(user=user, first_name='Dr',   last_name='Tenma')
+        uran  = create_contact(user=user, first_name='Uran', last_name='Ochanomizu')
 
-        rtype2, srtype2 = RelationType.create(('test-subject_brother', 'is the brother of'), ('test-object_sister',  'is the sister of'))
-        rel2 = Relation.objects.create(subject_entity=atom, type=rtype2, object_entity=uran, user=self.user)
+        rtype1 = RelationType.create(('test-subject_son',   'is the son of'),
+                                     ('test-object_father', 'is the father of')
+                                    )[0]
+        rel1 = Relation.objects.create(subject_entity=atom, type=rtype1, object_entity=tenma, user=user)
+
+        rtype2 = RelationType.create(('test-subject_brother', 'is the brother of'),
+                                     ('test-object_sister',   'is the sister of')
+                                    )[0]
+        rel2 = Relation.objects.create(subject_entity=atom, type=rtype2, object_entity=uran, user=user)
 
         response = self.client.get('/creme_core/blocks/reload/relations_block/%s/' % atom.id)
         self.assertEqual(200, response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
+
         content = simplejson.loads(response.content)
         self.assertTrue(isinstance(content, list))
         self.assertEqual(1, len(content))
@@ -372,21 +381,27 @@ class BlockViewTestCase(CremeTestCase):
         self.assertEqual(2, len(content))
         self.assertEqual(RelationsBlock.id_, content[0])
 
-        self.assertEqual(atom,  response.context['object'])
+        self.assertEqual(atom, response.context['object'])
         self.assertEqual(set([rel1, rel2]), set(response.context['page'].object_list))
 
     def test_reload_relations02(self): #with relationtype to exclude
-        self.populate('creme_core', 'creme_config')
         self.login()
-        atom  = Contact.objects.create(user=self.user, first_name='Atom', last_name='Tenma')
-        tenma = Contact.objects.create(user=self.user, first_name='Dr', last_name='Tenma')
-        uran  = Contact.objects.create(user=self.user, first_name='Uran', last_name='Ochanomizu')
+        user = self.user
 
-        rtype1, srtype1 = RelationType.create(('test-subject_son', 'is the son of'), ('test-object_father',  'is the father of'))
-        rel1 = Relation.objects.create(subject_entity=atom, type=rtype1, object_entity=tenma, user=self.user)
+        create_contact = Contact.objects.create
+        atom  = create_contact(user=user, first_name='Atom', last_name='Tenma')
+        tenma = create_contact(user=user, first_name='Dr',   last_name='Tenma')
+        uran  = create_contact(user=user, first_name='Uran', last_name='Ochanomizu')
 
-        rtype2, srtype2 = RelationType.create(('test-subject_brother', 'is the brother of'), ('test-object_sister',  'is the sister of'))
-        rel2 = Relation.objects.create(subject_entity=atom, type=rtype2, object_entity=uran, user=self.user)
+        rtype1 = RelationType.create(('test-subject_son',   'is the son of'),
+                                     ('test-object_father', 'is the father of')
+                                    )[0]
+        rel1 = Relation.objects.create(subject_entity=atom, type=rtype1, object_entity=tenma, user=user)
+
+        rtype2 = RelationType.create(('test-subject_brother', 'is the brother of'),
+                                     ('test-object_sister',   'is the sister of')
+                                    )[0]
+        rel2 = Relation.objects.create(subject_entity=atom, type=rtype2, object_entity=uran, user=user)
 
         response = self.client.get('/creme_core/blocks/reload/relations_block/%s/%s/' % (atom.id, rtype1.id))
         self.assertEqual(200, response.status_code)
@@ -400,7 +415,6 @@ class BlockViewTestCase(CremeTestCase):
         self.assertEqual(403, response.status_code)
 
     def test_reload_relations04(self): #not superuser
-        self.populate('creme_core', 'creme_config')
         self.login(is_superuser=False, allowed_apps=['persons'])
         SetCredentials.objects.create(role=self.role, value=SetCredentials.CRED_VIEW, set_type=SetCredentials.ESET_ALL)
 
