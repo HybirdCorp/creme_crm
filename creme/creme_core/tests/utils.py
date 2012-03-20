@@ -17,6 +17,7 @@ try:
     from creme_core.utils.date_range import date_range_registry
     from creme_core.utils.dates import(get_dt_from_iso8601_str, get_dt_from_iso8601_str, get_dt_to_iso8601_str,
                                        get_naive_dt_from_tzdate, get_creme_dt_from_utc_dt, get_utc_dt_from_creme_dt)
+    from creme_core.utils.queries import get_first_or_None
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Civility
@@ -623,3 +624,15 @@ class DateRangeTestCase(CremeTestCase):
                          date_range_registry.get_range(name='tomorrow')\
                                             .get_q_dict(field='modified', now=today)
                         )
+
+
+class QueriesTestCase(CremeTestCase):
+    def test_get_first_or_None01(self):
+        ptype = CremePropertyType.objects.create(text='Is cute', is_custom=True)
+        self.assertIsInstance(get_first_or_None(CremePropertyType), CremePropertyType)
+
+    def test_get_first_or_None02(self):
+        Civility.objects.all().delete()
+        self.assertIsNone(get_first_or_None(Civility))
+
+    #TODO: test get_q_from_dict()

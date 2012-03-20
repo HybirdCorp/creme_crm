@@ -32,10 +32,10 @@ from creme_config.models import SettingValue
 from opportunities.models import Opportunity
 from opportunities.constants import REL_SUB_TARGETS
 
-from persons.models.organisation import Organisation
+from persons.models import Organisation
 
 from commercial.models import *
-from commercial.constants import REL_OBJ_OPPORT_LINKED, DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW
+from commercial.constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW, REL_OBJ_COMPLETE_GOAL
 
 
 class ApproachesBlock(QuerysetBlock):
@@ -258,7 +258,7 @@ class ActObjectivesBlock(QuerysetBlock):
 class RelatedOpportunitiesBlock(PaginatedBlock):
     id_           = PaginatedBlock.generate_id('commercial', 'opportunities')
     dependencies  = (Relation, Opportunity)
-    relation_type_deps = (REL_OBJ_OPPORT_LINKED,)
+    relation_type_deps = (REL_OBJ_COMPLETE_GOAL,)
     verbose_name  = _(u'Opportunities related to a Commercial Action')
     template_name = 'commercial/templatetags/block_opportunities.html'
     target_ctypes = (Act,)
@@ -269,7 +269,7 @@ class RelatedOpportunitiesBlock(PaginatedBlock):
         act = context['object']
         btc = self.get_block_template_context(context, act.get_related_opportunities(),
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act.pk),
-                                              predicate_id=REL_OBJ_OPPORT_LINKED,
+                                              predicate_id=REL_OBJ_COMPLETE_GOAL,
                                               opp_ct=self._ct,
                                              )
 

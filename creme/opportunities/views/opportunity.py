@@ -24,29 +24,31 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
-from billing.models.other_models import Vat
 
 from creme_core.models import Relation, CremeEntity
+from creme_core.utils.queries import get_first_or_None
 from creme_core.views.generic import add_entity, add_model_with_popup, edit_entity, view_entity, list_view
 from creme_core.utils import get_ct_or_404
 
 from persons.workflow import transform_target_into_customer, transform_target_into_prospect
 
-from products.models import Product, Service
+from products.models import Product
 
-from billing.models import Quote, Invoice, SalesOrder, Line, ProductLine, ServiceLine
+from billing.models import Quote, Invoice, SalesOrder, ProductLine, ServiceLine, Vat
 from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
-from opportunities.models import Opportunity
+from opportunities.models import Opportunity, SalesPhase
 from opportunities.forms.opportunity import OpportunityCreateForm, OpportunityEditForm
-from opportunities.constants import REL_OBJ_LINKED_QUOTE, REL_OBJ_LINKED_INVOICE, REL_OBJ_LINKED_SALESORDER, REL_SUB_CURRENT_DOC, REL_OBJ_LINKED_SERVICE, REL_OBJ_LINKED_PRODUCT
+from opportunities.constants import *
 
 
 @login_required
 @permission_required('opportunities')
 @permission_required('opportunities.add_opportunity')
 def add(request):
-    return add_entity(request, OpportunityCreateForm)
+    return add_entity(request, OpportunityCreateForm,
+                      extra_initial={'sales_phase':  get_first_or_None(SalesPhase)}
+                     )
 
 @login_required
 @permission_required('opportunities')
@@ -57,7 +59,9 @@ def add_to(request, ce_id, inner_popup=False):
 
     centity.can_link_or_die(user) #TODO: test the link creds with the future opp in the form.clean()
 
-    initial = {"target": '{"ctype":"%s","entity":"%s"}' % (centity.entity_type_id, centity.id)}#TODO: This is not an easy way to init the field...
+    initial = {'target': '{"ctype":"%s","entity":"%s"}' % (centity.entity_type_id, centity.id), #TODO: This is not an easy way to init the field...
+               'sales_phase': get_first_or_None(SalesPhase),
+              }
 
     if inner_popup:
         response = add_model_with_popup(request, OpportunityCreateForm,

@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, TextField, FileField, ForeignKey
+from django.db.models import CharField, TextField, FileField, ForeignKey, PROTECT
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 
@@ -32,7 +32,7 @@ class Document(CremeEntity):
     title       = CharField(_(u'Title'), max_length=100)
     description = TextField(_(u'Description'), blank=True, null=True)
     filedata    = FileField(_(u'File'), max_length=500, upload_to='upload/documents')
-    folder      = ForeignKey(Folder, verbose_name=_(u'Folder'), default=1)
+    folder      = ForeignKey(Folder, verbose_name=_(u'Folder'), on_delete=PROTECT) #TODO: required ??
 
     research_fields = CremeEntity.research_fields + ['title', 'description', 'folder__title']
 

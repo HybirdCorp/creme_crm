@@ -370,7 +370,7 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertTrue(objective.reached)
 
     def test_related_opportunities(self):
-        RelationType.objects.get(pk=REL_SUB_OPPORT_LINKED) #raise exception if error
+        RelationType.objects.get(pk=REL_SUB_COMPLETE_GOAL) #raise exception if error
 
         user = self.user
 
@@ -383,7 +383,7 @@ class ActTestCase(CommercialBaseTestCase):
 
         sales_phase = SalesPhase.objects.create(name='Foresale', description='Foresale')
         opp01 = create_opp(user=user, name='OPP01', sales_phase=sales_phase, closing_date=date.today())
-        create_rel(subject_entity=opp01, type_id=REL_SUB_OPPORT_LINKED, object_entity=act, user=user)
+        create_rel(subject_entity=opp01, type_id=REL_SUB_COMPLETE_GOAL, object_entity=act, user=user)
 
         act = self.refresh(act) #refresh cache
         self.assertEqual([opp01], list(act.get_related_opportunities()))
@@ -395,7 +395,7 @@ class ActTestCase(CommercialBaseTestCase):
         opp02 = create_opp(user=user, name='OPP01', sales_phase=sales_phase,
                            closing_date=date.today(), made_sales=500
                           )
-        create_rel(subject_entity=opp02, type_id=REL_SUB_OPPORT_LINKED, object_entity=act, user=user)
+        create_rel(subject_entity=opp02, type_id=REL_SUB_COMPLETE_GOAL, object_entity=act, user=user)
 
         act  = self.refresh(act) #refresh cache
         opps = act.get_related_opportunities()

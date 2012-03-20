@@ -44,7 +44,7 @@ default_decimal = Decimal()
 
 class Base(CremeEntity):
     name             = CharField(_(u'Name'), max_length=100)
-    number           = CharField(_(u'Number'), max_length=100, blank=True, null=True, editable=False)
+    number           = CharField(_(u'Number'), max_length=100, blank=True, null=True)
     issuing_date     = DateField(_(u"Issuing date"), blank=True, null=True)
     expiration_date  = DateField(_(u"Expiration date"), blank=True, null=True) # TODO blank, null = False, required in form
     discount         = DecimalField(_(u'Overall discount'), max_digits=10, decimal_places=2, default=default_decimal)
