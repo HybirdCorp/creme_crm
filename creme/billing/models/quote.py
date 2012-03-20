@@ -26,7 +26,7 @@ from other_models import QuoteStatus
 
 
 class Quote(Base):
-    status = ForeignKey(QuoteStatus, verbose_name=_(u'Status of quote'), on_delete=PROTECT, default=1)
+    status = ForeignKey(QuoteStatus, verbose_name=_(u'Status of quote'), on_delete=PROTECT)
 
     research_fields = Base.research_fields + ['status__name']
     excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr']

@@ -73,16 +73,13 @@ class Origin(CremeModel):
         verbose_name_plural = _(u"Origins of opportunity")
 
 
-#_default_salesphase = SalesPhase.objects.all()[:1]
-#_default_salesphase = _default_salesphase[0] if _default_salesphase else None
-
 class Opportunity(CremeEntity):
     name                  = CharField(_(u"Name of the opportunity"), max_length=100)
     reference             = CharField(_(u"Reference"), max_length=100, blank=True, null=True)
     estimated_sales       = PositiveIntegerField(_(u'Estimated sales'), blank=True, null=True)
     made_sales            = PositiveIntegerField(_(u'Made sales'), blank=True, null=True)
     currency              = ForeignKey(Currency, verbose_name=_(u'Currency'), default=DEFAULT_CURRENCY_PK, on_delete=PROTECT)
-    sales_phase           = ForeignKey(SalesPhase, verbose_name=_(u'Sales phase'), on_delete=PROTECT) #, default=_default_salesphase
+    sales_phase           = ForeignKey(SalesPhase, verbose_name=_(u'Sales phase'), on_delete=PROTECT)
     chance_to_win         = PositiveIntegerField(_(ur"% of chance to win"), blank=True, null=True)
     expected_closing_date = DateField(_(u'Expected closing date'), blank=True, null=True)
     closing_date          = DateField(_(u'Actual closing date'), blank=True, null=True)
@@ -93,8 +90,6 @@ class Opportunity(CremeEntity):
     function_fields = CremeEntity.function_fields.new(_TurnoverField())
 
     _use_current_quote  = None
-#    _product_lines      = None
-#    _service_lines      = None
 
     class Meta:
         app_label = "opportunities"
@@ -110,10 +105,10 @@ class Opportunity(CremeEntity):
         return self.name
 
     def _copy_relations(self, source):
-        super(Opportunity, self)._copy_relations(source, allowed_internal=[REL_SUB_TARGETS])
+        super(Opportunity, self)._copy_relations(source, allowed_internal=[REL_SUB_TARGETS, REL_OBJ_EMIT_ORGA])
 
     def _pre_delete(self):
-        for relation in Relation.objects.filter(type__in=[REL_SUB_TARGETS],
+        for relation in Relation.objects.filter(type__in=[REL_SUB_TARGETS, REL_OBJ_EMIT_ORGA],
                                                 subject_entity=self):
             relation._delete_without_transaction()
 

@@ -53,17 +53,15 @@ _CUSTOM_PREFIX = _CUSTOM_NAME.partition('%s')[0]
 def _get_choices(model_field, user):
     form_field = model_field.formfield()
     choices = ()
-
     if isinstance(model_field, (models.ForeignKey, models.ManyToManyField)) and issubclass(model_field.rel.to, CremeEntity):
         fk_entities = model_field.rel.to._default_manager \
                                         .filter(pk__in=[id_ for id_, text in form_field.choices if id_])
         choices = ((e.id, e) for e in EntityCredentials.filter(user, fk_entities))
 
         if model_field.null and isinstance(model_field, models.ForeignKey):
-            choices = chain([(u"", _(u"None"))], choices)
+            choices = chain([(u"", ugettext(u"None"))], choices)
     elif hasattr(form_field, 'choices'):
         choices = form_field.choices
-
     return choices
 
 
@@ -168,15 +166,14 @@ class _EntitiesEditForm(CremeForm):
             if not (cleaned_value is not None or field.blank):
                 raise ValidationError(ugettext(u'This field is required.'))
 
-            valid_choices = [entity for id_, entity  in _get_choices(field, self.user)]
-
             #Checking valid choices & credentials
             if isinstance(field, (models.ForeignKey, models.ManyToManyField)) and issubclass(field.rel.to, CremeEntity):
+                valid_choices = [entity or None for id_, entity in _get_choices(field, self.user)]
                 if m2m:
                     for field_val in cleaned_value:
                         if field_val not in valid_choices:
                             raise ValidationError(_(u'Select a valid choice.'))
-                elif cleaned_value not in valid_choices:
+                elif cleaned_value is not None and cleaned_value not in valid_choices:
                     raise ValidationError(_(u'Select a valid choice.'))
 
             for subject in self.subjects:

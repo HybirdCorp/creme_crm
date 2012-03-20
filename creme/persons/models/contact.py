@@ -55,7 +55,7 @@ class Contact(CremeEntity):
     shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'), blank=True, null=True, related_name='shipping_address_contact_set', editable=False)
     is_user         = ForeignKey(User, verbose_name=_(u'Is an user'), blank=True, null=True, related_name='related_contact', on_delete=SET_NULL, editable=False)
     birthday        = DateField(_(u"Birthday"), blank=True, null=True)
-    image           = ForeignKey(Image, verbose_name=_(u'Photograph'), blank=True, null=True)
+    image           = ForeignKey(Image, verbose_name=_(u'Photograph'), blank=True, null=True, on_delete=SET_NULL)
 
     research_fields = CremeEntity.research_fields + ['last_name', 'first_name', 'email']
     _clone_excluded_fields = CremeEntity._clone_excluded_fields | set(['is_user', 'billing_address', 'shipping_address'])

@@ -17,10 +17,12 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from functools import partial
 
 from django.core.exceptions import ValidationError
 from django.db.models import (CharField, TextField, PositiveIntegerField, DateField,
                               BooleanField, ForeignKey, PROTECT)
+from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
@@ -28,8 +30,10 @@ from creme_core.models import CremeEntity, CremeModel, Relation
 
 from opportunities.models import Opportunity
 
+from activities.constants import REL_OBJ_ACTIVITY_SUBJECT
+
 from commercial.models import MarketSegment
-from commercial.constants import REL_SUB_OPPORT_LINKED, REL_SUB_COMPLETE_GOAL
+from commercial.constants import REL_SUB_COMPLETE_GOAL
 
 
 _NAME_LENGTH = 100
@@ -89,7 +93,7 @@ class Act(CremeEntity):
         relopps = self._related_opportunities
 
         if relopps is None:
-            relopps = list(Opportunity.objects.filter(relations__type=REL_SUB_OPPORT_LINKED,
+            relopps = list(Opportunity.objects.filter(relations__type=REL_SUB_COMPLETE_GOAL,
                                                       relations__object_entity=self.id)
                           )
             self._related_opportunities = relopps
@@ -258,4 +262,24 @@ class ActObjectivePatternComponent(CremeModel):
 
         for sub_aopc in self.children.all():
             sub_aopc.clone(pattern, me)
+
+
+#Catching the save of the relation between an activity and an opportunity as a subject
+def post_save_relation_opp_subject_activity(sender, instance, **kwargs):
+    if instance.type_id == REL_OBJ_ACTIVITY_SUBJECT:
+        object_entity = instance.object_entity
+        if object_entity.entity_type == ContentType.objects.get_for_model(Opportunity):
+            relations = Relation.objects.filter(subject_entity=object_entity,
+                                                type=REL_SUB_COMPLETE_GOAL,
+                                                object_entity__entity_type=ContentType.objects.get_for_model(Act))
+
+            create_relation = partial(Relation.objects.create, subject_entity=instance.subject_entity,
+                                                               type_id=REL_SUB_COMPLETE_GOAL,
+                                                               user=instance.user
+                                     )
+            for relation in relations:
+                create_relation(object_entity=relation.object_entity)
+
+post_save.connect(post_save_relation_opp_subject_activity, sender=Relation)
+
 

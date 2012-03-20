@@ -22,8 +22,9 @@
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
+from creme_core.utils.queries import get_first_or_None
 
-from tickets.models.ticket import Ticket
+from tickets.models import Ticket, Priority, Criticity
 from tickets.forms.ticket import TicketCreateForm, TicketEditForm
 
 
@@ -31,7 +32,11 @@ from tickets.forms.ticket import TicketCreateForm, TicketEditForm
 @permission_required('tickets')
 @permission_required('tickets.add_ticket')
 def add(request):
-    return add_entity(request, TicketCreateForm)
+    return add_entity(request, TicketCreateForm,
+                      extra_initial={'priority':  get_first_or_None(Priority),
+                                     'criticity': get_first_or_None(Criticity),
+                                    }
+                     )
 
 @login_required
 @permission_required('tickets')

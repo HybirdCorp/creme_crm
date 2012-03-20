@@ -32,7 +32,7 @@ from projects.models import ProjectStatus
 class Project(CremeEntity):
     name                = CharField(_(u'Name of the project'), max_length=100, blank=True, null=True)
     description         = TextField(_(u'Description'), blank=True, null=True)
-    status              = ForeignKey(ProjectStatus, verbose_name=_(u'Status'), on_delete=PROTECT, default=1)
+    status              = ForeignKey(ProjectStatus, verbose_name=_(u'Status'), on_delete=PROTECT)
     start_date          = DateTimeField(_(u'Estimated start'), blank=True, null=True)
     end_date            = DateTimeField(_(u'Estimated end'), blank=True, null=True)
     effective_end_date  = DateTimeField(_(u'Effective end date'), blank=True, null=True)
