@@ -632,7 +632,7 @@ class QueriesTestCase(CremeTestCase):
         self.assertIsInstance(get_first_or_None(CremePropertyType), CremePropertyType)
 
     def test_get_first_or_None02(self):
-        Civility.objects.all().delete
+        Civility.objects.all().delete()
         self.assertIsNone(get_first_or_None(Civility))
 
     #TODO: test get_q_from_dict()
