@@ -21,7 +21,7 @@
 from itertools import chain
 from logging import debug
 
-from django.db.models import FieldDoesNotExist
+from django.db.models import FieldDoesNotExist, Max
 from django.forms.models import modelform_factory
 from django.contrib.contenttypes.models import ContentType
 
@@ -43,17 +43,35 @@ class ModelConfig(object):
         self.name_in_url = name_in_url
         self._form_class = form_class
 
+    @staticmethod
+    def _manage_order(form):
+        instance = form.instance
+
+        if not instance.pk:
+            aggr = instance.__class__.objects.aggregate(Max('order'))
+            instance.order = (aggr['order__max'] or 0) + 1
+
     @property
     def model_form(self):
         if self._form_class is None:
+            model = self.model
+            get_field_by_name = model._meta.get_field_by_name
+
             try:
-                self.model._meta.get_field_by_name('is_custom')
+                get_field_by_name('is_custom')
             except FieldDoesNotExist:
                 exclude = None
             else:
                 exclude = ('is_custom',)
 
-            self._form_class = modelform_factory(self.model, form=CremeModelForm, exclude=exclude)
+            self._form_class = form_class = modelform_factory(model, form=CremeModelForm, exclude=exclude)
+
+            try:
+                get_field_by_name('order')
+            except FieldDoesNotExist:
+                pass
+            else:
+                form_class.add_post_clean_callback(self._manage_order)
 
         return self._form_class
 
