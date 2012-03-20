@@ -31,14 +31,14 @@ from creme_core.views.generic import add_entity, edit_entity, list_view, view_en
 from billing.models import Invoice, InvoiceStatus
 from billing.views.workflow import _add_with_relations
 from billing.forms.invoice import InvoiceCreateForm, InvoiceEditForm
-from billing.constants import DEFAULT_INVOICE_STATUS
+from billing.constants import DEFAULT_INVOICE_STATUS, DEFAULT_DRAFT_INVOICE_STATUS
 
 
 @login_required
 @permission_required('billing')
 @permission_required('billing.add_invoice')
 def add(request):
-    return add_entity(request, InvoiceCreateForm)
+    return add_entity(request, InvoiceCreateForm, extra_initial={'status': DEFAULT_DRAFT_INVOICE_STATUS})
 
 @login_required
 @permission_required('billing')
@@ -49,15 +49,15 @@ def add_from_detailview(request, entity_id):
 
     return add_model_with_popup(request, InvoiceCreateForm,
                                 title=_(u"Add an invoice for <%s>") % entity,
-                                initial={'target': entity}
+                                initial={'target': entity, 'status': DEFAULT_DRAFT_INVOICE_STATUS}
                                )
 
 @login_required
 @permission_required('billing')
 @permission_required('billing.add_invoice')
 def add_with_relations(request, target_id, source_id):
-    return _add_with_relations(request, target_id, source_id,
-                               InvoiceCreateForm, _(u"Add an invoice for <%s>")
+    return _add_with_relations(request, target_id, source_id, InvoiceCreateForm,
+                               _(u"Add an invoice for <%s>"), status_id=DEFAULT_DRAFT_INVOICE_STATUS,
                               )
 
 @login_required
