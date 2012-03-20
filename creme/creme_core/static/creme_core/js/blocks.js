@@ -18,8 +18,9 @@
 
 creme.blocks = {
     __registeredBlocks: {},
-    collapsed_class: 'collapsed',
-    hide_fields_class: 'hide_empty_fields'
+    collapsed_class:    'collapsed',
+    hide_fields_class:  'hide_empty_fields',
+    status_stave_delay: 500
 };
 
 creme.blocks.register = function(block_id) {
@@ -36,97 +37,121 @@ creme.blocks.get_block = function(block_id) {
     return this.__registeredBlocks[block_id];
 };
 
-creme.blocks.saveState = function(block, state) {
-    var collapsed_class = this.collapsed_class;
-    var hide_fields_class = this.hide_fields_class;
+creme.blocks.reload = function(url) {
+    $.ajax({
+        url:        url,
+        async:      false,
+        type:       "GET",
+        dataType:   "json",
+        cache:      false, // ??
+        beforeSend: creme.utils.loading('loading', false),
+        success:    function(data) {
+                        for (var i = 0; i < data.length; ++i) {
+                            var block_data    = data[i];                  // tuple: (block_name, block_html)
+                            var block           = $('#' + block_data[0])
+                            var block_content = $(block_data[1]);         // 'compile' to DOM
 
-    var stateToSend = {}
-
-    var isOpen = state['isOpen'];
-    var showEmptyFields = state['showEmptyFields']
-
-    if (typeof(isOpen) != "undefined") {
-        stateToSend['is_open'] = +isOpen;
-    }
-
-    if (typeof(showEmptyFields) != "undefined") {
-        stateToSend['show_empty_fields'] = +showEmptyFields;
-    }
-
-    if (!$.isEmptyObject(stateToSend)) {
-        creme.ajax.json.post('/creme_core/blocks/reload/set_state/' + block[0].id + '/', stateToSend, function(data, status) {
-            if (isOpen) {
-                block.removeClass(collapsed_class);
-            } else {
-                block.addClass(collapsed_class);
-            }
-
-            if (showEmptyFields) {
-                block.removeClass(hide_fields_class);
-            } else {
-                block.addClass(hide_fields_class);
-            }
-        }, null, true);
-    }
+                            creme.blocks.fill(block, block_content);
+                        }
+                    },
+        complete:   creme.utils.loading('loading', true)
+    });
 };
 
-creme.blocks._applyOpenState = function(block) {
-    if (block.hasClass(this.collapsed_class)) {
-        creme.utils.tableCollapse(block.find('.collapser'), false);
-    }
+creme.blocks.fill = function(block, content) {
+    block.replaceWith(content);
+    content.find('.collapser').each(function() {creme.utils.bindTableToggle($(this));});
+    creme.blocks.initialize(content);
 };
 
-creme.blocks._applyShowFieldState = function(block) {
-    if (block.find('.view_more, .view_less').size() > 0) {//Apply state only when toggle button is present
-//        var $lines = block.find('tbody td:empty').parent('tr');
-        var $lines = block.find('tbody tr:has(td:not(.edit_inner):empty)').filter(function(i) {
-            return !($(this).find('td:not(.edit_inner):not(:empty)').size() > 0);
-        })
+// TODO : make a generic method for deferred save. something like:
+//        deferredAction(element, action_name, action_func, action_delay)
+creme.blocks.saveState = function(block) {
+    var state = {
+            is_open:           $(block).hasClass('collapsed') ? 0 : 1,
+            show_empty_fields: $(block).hasClass(this.hide_fields_class) ? 0 : 1
+    };
 
-        if (block.hasClass(this.hide_fields_class)) {
-            $lines.hide();
-        } else {
-            $lines.show();
-            block.removeClass(this.hide_fields_class);
-        }
-    }
+    var previous = block.data('block-deferred-save');
+
+    if (previous !== undefined)
+        previous.reject();
+
+    var deferred = $.Deferred();
+
+    $.when(deferred.promise()).then(function(status) {
+    	block.removeData('block-deferred-save');
+        creme.ajax.json.post('/creme_core/blocks/reload/set_state/' + block[0].id + '/',
+                             state, null, null, true);
+    }, null, null);
+
+    block.data('block-deferred-save', deferred);
+
+    window.setTimeout(function() {
+        deferred.resolve();
+    }, this.status_stave_delay);
 };
+
+creme.blocks.initEmptyFields = function(block) {
+	$('tbody > tr.content').not(':has(> td:not(.edit_inner):not(:empty))', block).addClass('collapsable-field');
+    creme.blocks.updateFieldsColors(block);
+};
+
+creme.blocks.updateFieldsColors = function(block) {
+	var line_collapsed = block.hasClass(this.hide_fields_class);
+
+	if (!line_collapsed) {
+    	$('tbody > tr.content:even td', block).toggleClass('block_line_light', true).toggleClass('block_line_dark', false);
+    	$('tbody > tr.content:odd td', block).toggleClass('block_line_light', false).toggleClass('block_line_dark', true);
+
+    	$('tbody > tr.content:even th', block).toggleClass('block_header_line_light', true).toggleClass('block_header_line_dark', false);
+    	$('tbody > tr.content:odd th', block).toggleClass('block_header_line_light', false).toggleClass('block_header_line_dark', true);
+    } else {
+    	$('tbody > tr.content:not(.collapsable-field):even td', block).toggleClass('block_line_light', true).toggleClass('block_line_dark', false);
+    	$('tbody > tr.content:not(.collapsable-field):odd td', block).toggleClass('block_line_light', false).toggleClass('block_line_dark', true);
+
+    	$('tbody > tr.content:not(.collapsable-field):even th', block).toggleClass('block_header_line_light', true).toggleClass('block_header_line_dark', false);
+    	$('tbody > tr.content:not(.collapsable-field):odd th', block).toggleClass('block_header_line_light', false).toggleClass('block_header_line_dark', true);
+    }
+}
 
 creme.blocks.toggleEmptyFields = function(button) {
     var $button = $(button);
-    var $block = $button.parents('table[id!=].table_detail_view');
-    var state = {action : "hide"};
+    var $block = $button.parents('table[id!=].table_detail_view:not(.collapsed)');
 
-    if ($button.hasClass('view_less')) {
-        $button.removeClass('view_less').addClass('view_more');
-    } else {
-        $button.removeClass('view_more').addClass('view_less');
-        state = {action : "show"};
-        $block.removeClass(this.hide_fields_class);
-    }
-    $block.trigger('creme-blocks-field-display-changed', state);
-    creme.blocks._applyShowFieldState($block);
-}
+    if ($block.size() == 0)
+        return;
 
-creme.blocks.applyState = function(block) {
-    this._applyOpenState(block);
-    this._applyShowFieldState(block);
+    var line_collapsed = $block.hasClass(this.hide_fields_class);
+
+    $button.toggleClass('view_less view_more');
+    $block.toggleClass(this.hide_fields_class);
+
+    creme.blocks.updateFieldsColors($block);
+
+    $block.trigger('creme-blocks-field-display-changed', {action : line_collapsed ? 'show' : 'hide'});
 };
 
-creme.blocks.bindEvents = function() {
+creme.blocks.initialize = function(block)
+{
+	block.bind('creme-table-collapse', function(e, params) {
+        creme.blocks.saveState($(this));
+    });
+
+    block.bind('creme-blocks-field-display-changed', function(e, params) {
+        creme.blocks.saveState($(this));
+    });
+
+    creme.blocks.initEmptyFields(block);
+};
+
+creme.blocks.bindEvents = function(block) {
     var __registeredBlocks = this.__registeredBlocks;
 
     for (var i in __registeredBlocks) {
-        var block = __registeredBlocks[i];
-
-        block.bind('creme-table-collapse', function(e, params) {
-            creme.blocks.saveState($(this), {isOpen: (params.action == 'show')})
-        });
-
-        block.bind('creme-blocks-field-display-changed', function(e, params) {
-            creme.blocks.saveState($(this), {showEmptyFields: (params.action == 'show')})
-        });
-
-        creme.blocks.applyState(block);
+    	creme.blocks.initialize(__registeredBlocks[i]);
     }
 };
+
+//TODO: remove this alias after templates refactor !
+creme.utils.loadBlock = creme.blocks.reload;

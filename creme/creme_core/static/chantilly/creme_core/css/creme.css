@@ -562,14 +562,6 @@ div.sidebar1separator2 {
     background-color: #b4e6fb;
 }
 
-.block_header tbody tr td:hover {
-    background-color: transparent;
-}
-
-table.collapsed .block_icon {
-    height: 22px;
-}
-
 .button_link:hover {
     cursor: pointer;
     text-decoration: none;
