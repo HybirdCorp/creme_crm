@@ -22,7 +22,7 @@ from imp import find_module
 from functools import partial
 from logging import warn
 
-from django.db.models import (CharField, ForeignKey, PositiveIntegerField, 
+from django.db.models import (CharField, ForeignKey, PositiveIntegerField,
                               PositiveSmallIntegerField, BooleanField, TextField)
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext_lazy as _
@@ -232,11 +232,11 @@ class InstanceBlockConfigItem(CremeModel):
         """@param key String that allows to make the difference between 2 instances
                       of the same Block class and the same CremeEntity instance.
         """
-        return u'%s#%s-%s' % (block_class.id_, entity.id, key)
+        return u'%s|%s-%s' % (block_class.id_, entity.id, key)
 
     @staticmethod
     def get_base_id(block_id):
-        return block_id.split('#', 1)[0]
+        return block_id.split('|', 1)[0]
 
 
 class BlockState(CremeModel):
