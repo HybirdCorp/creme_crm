@@ -20,7 +20,6 @@ class GenericModelConfigTestCase(CremeTestCase):
         cls.populate('creme_core', 'creme_config')
 
     def setUp(self):
-        #self.populate('creme_core', 'creme_config')
         self.login()
 
     def test_portals(self):
@@ -33,7 +32,6 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertEqual(200, self.client.get('/creme_config/billing/invoice_status/portal/').status_code)
 
     def test_add01(self):
-        #self.assertEqual(0, Civility.objects.count())
         count = Civility.objects.count()
 
         url = '/creme_config/persons/civility/add/'
@@ -47,7 +45,6 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.get_object_or_fail(Civility, title=title)
 
     def test_add02(self):
-        #self.assertEqual(0, InvoiceStatus.objects.count())
         count = InvoiceStatus.objects.count()
 
         url = '/creme_config/billing/invoice_status/add/'
@@ -58,9 +55,16 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
         self.assertEqual(count + 1, InvoiceStatus.objects.count())
-        self.get_object_or_fail(InvoiceStatus, name=name, is_custom=True)
 
-    def test_edit(self):
+        status = self.get_object_or_fail(InvoiceStatus, name=name, is_custom=True)
+        self.assertEqual(count + 1, status.order) #order is set to max
+
+        name = 'Youkaidi'
+        self.client.post(url, data={'name': name})
+        status = self.get_object_or_fail(InvoiceStatus, name=name)
+        self.assertEqual(count + 2, status.order) #order is set to max
+
+    def test_edit01(self):
         title = 'herr'
         civ = Civility.objects.create(title=title)
 
@@ -72,6 +76,25 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200,   response.status_code)
         self.assertEqual(title, self.refresh(civ).title)
+
+    def test_edit02(self): #order not changed
+        count = InvoiceStatus.objects.count()
+
+        create_status = InvoiceStatus.objects.create
+        status1 = create_status(name='okidoki',  order=count + 1)
+        status2 = create_status(name='Youkaidi', order=count + 2)
+
+        url = '/creme_config/billing/invoice_status/edit/%s' % status1.id
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        name = status1.name.title()
+        response = self.client.post(url, data={'name': name})
+        self.assertNoFormError(response)
+        self.assertEqual(200,   response.status_code)
+
+        new_status1 = self.refresh(status1)
+        self.assertEqual(name,          new_status1.name)
+        self.assertEqual(status1.order, new_status1.order)
 
     def test_delete01(self):
         pk = Civility.objects.create(title='Herr').pk
