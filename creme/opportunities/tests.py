@@ -46,6 +46,9 @@ class OpportunitiesTestCase(CremeTestCase):
         self.assertNotIn(REL_SUB_TARGETS, relation_types)
         self.get_relationtype_or_fail(REL_SUB_TARGETS, [Opportunity], [Contact, Organisation])
 
+        self.assertNotIn(REL_SUB_EMIT_ORGA, relation_types)
+        self.get_relationtype_or_fail(REL_OBJ_EMIT_ORGA, [Opportunity], [Organisation])
+
         self.assertIn(REL_OBJ_LINKED_PRODUCT, relation_types)
         self.assertNotIn(REL_SUB_LINKED_PRODUCT, relation_types)
         self.get_relationtype_or_fail(REL_OBJ_LINKED_PRODUCT, [Opportunity], [Product])
@@ -73,10 +76,6 @@ class OpportunitiesTestCase(CremeTestCase):
         self.assertIn(REL_OBJ_RESPONSIBLE, relation_types)
         self.assertNotIn(REL_SUB_RESPONSIBLE, relation_types)
         self.get_relationtype_or_fail(REL_OBJ_RESPONSIBLE, [Opportunity], [Contact])
-
-        self.assertIn(REL_OBJ_EMIT_ORGA, relation_types)
-        self.assertNotIn(REL_SUB_EMIT_ORGA, relation_types)
-        self.get_relationtype_or_fail(REL_OBJ_EMIT_ORGA, [Opportunity], [Organisation])
 
         self.get_relationtype_or_fail(REL_OBJ_CURRENT_DOC, [Opportunity], [Invoice, Quote, SalesOrder])
 
@@ -660,12 +659,12 @@ class OpportunitiesTestCase(CremeTestCase):
         self.assertIsNone(opportunity.estimated_sales)
         self.assertIsNone(opportunity.chance_to_win)
         self.assertEqual(0, opportunity.get_weighted_sales())
-        self.assertEqual(0, funf(opportunity).for_html())
+        self.assertEqual('0.0', funf(opportunity).for_html())
 
         opportunity.estimated_sales = 1000
         opportunity.chance_to_win   =  10
         self.assertEqual(100, opportunity.get_weighted_sales())
-        self.assertEqual(100, funf(opportunity).for_html())
+        self.assertEqual('100.0', funf(opportunity).for_html())
 
     def test_delete_currency(self):
         self.login()
