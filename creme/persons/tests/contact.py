@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    import settings
+    from os.path import join, exists, split
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
@@ -11,6 +13,8 @@ try:
     from persons.models import Contact, Organisation, Address, Position, Civility, Sector
     from persons.constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
     from persons.tests.base import _BaseTestCase
+
+    from media_managers.models.image import Image
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -682,3 +686,27 @@ class ContactTestCase(_BaseTestCase):
 
         harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
         self.assertIsNone(harlock.sector)
+
+    def test_delete_image(self): #set to null
+        self.login()
+
+        path = join(settings.CREME_ROOT, 'static', 'chantilly', 'images', 'creme_22.png')
+
+        image_name = 'My image'
+        self.client.post('/media_managers/image/add', follow=True,
+                         data={'user':        self.user.pk,
+                               'name':        image_name,
+                               'description': 'Blabala',
+                               'image':       open(path, 'rb'),
+                              }
+                        )
+
+        with self.assertNoException():
+            image = Image.objects.get(name=image_name)
+
+        harlock = Contact.objects.create(user=self.user, last_name='Matsumoto', image=image)
+
+        image.delete()
+
+        self.assertFalse(Image.objects.filter(pk=image.pk).exists())
+        self.assertIsNone(self.refresh(harlock).image)
