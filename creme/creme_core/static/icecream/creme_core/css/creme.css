@@ -46,7 +46,8 @@ body.central_panel {
 .central_panel .form-row {
     padding: 4px 0;
     float: left;
-    width: 100%; }
+    width: 100%;
+}
 
 .central_panel .form-row label {
     float: left;
@@ -869,6 +870,10 @@ a img:hover {
 
 .dcms_div table th.available, .dcms_div table th.chosen {
     width: 45%;
+}
+
+.dcms_div table tr.content td:hover {
+    background:none;
 }
 
 .dcms_div table th.less {

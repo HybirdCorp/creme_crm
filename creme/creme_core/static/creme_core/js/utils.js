@@ -124,56 +124,39 @@ creme.utils.build_q_input = function(field, value, is_or, is_negated, name) {//T
     return $('<input />').attr('name',name).attr('type','hidden').val(creme.utils.build_q_value(field, value, is_or, is_negated));
 }
 
-creme.utils.tableCollapse = function($self, trigger) {//TODO: Factorise with creme.utils.tableExpand
-    //TODO: Include trigger in options?
-    //TODO: Make constants with tbody.collapsable, .block_icon, ... ?
+creme.utils.tableExpandState = function($self, state, trigger) {
+    var $table = $self.parents('table[id!=]');
+    var $collapsable = $table.find('.collapsable');
 
-    if(typeof(trigger) == "undefined") {
-        trigger = true;
+    var old_state = !$table.hasClass('collapsed');
+
+    if (state === old_state)
+        return;
+
+    $table.toggleClass('collapsed faded', !state);
+
+    if (trigger === undefined || trigger) {
+        $table.trigger('creme-table-collapse', {action: state ? 'show' : 'hide'});
     }
+}
 
-    var table = $self.parents('table[id!=]');
-    table.find('.collapsable').hide();
-//    table.find('tbody.collapsable').hide();
-//    table.find('tfoot.collapsable').hide();
-
-    table.addClass('faded');
-//     table.find('.block_icon').css({'height': '22px'});
-
-    if(trigger) { //Sometimes triggering the event is not necessary.
-        table.trigger('creme-table-collapse', {action: 'hide'});
-    }
+creme.utils.tableIsCollapsed = function($self) {
+    return $self.parents('table[id!=]').hasClass('collapsed');
 }
 
 creme.utils.tableExpand = function($self, trigger) {
-    if(typeof(trigger) == "undefined") {
-        trigger = true;
-    }
-
-    var table = $self.parents('table[id!=]');
-    table.find('.collapsable').show();
-//    table.find('tbody.collapsable').show();
-//    table.find('tfoot.collapsable').show();
-
-    table.removeClass('faded');
-//     table.find('.block_icon').css({'height': 'auto'});
-
-    if(trigger) { //Sometimes triggering the event is not necessary.
-        table.trigger('creme-table-collapse', {action: 'show'});
-    }
+    creme.utils.tableExpandState($self, true, trigger);
 }
 
-creme.utils.bindToggle = function($self) {
-        $self.toggle(function(e) {
-            creme.utils.tableCollapse($self);
-        },function(e) {
-            creme.utils.tableExpand($self);
-        });
-    }
+creme.utils.bindTableToggle = function($self) {
+    $self.click(function(e) {
+        creme.utils.tableExpandState($self, creme.utils.tableIsCollapsed($self));
+    });
+}
 
 creme.utils.bindShowHideTbody = function() {
 //    $('.table_detail_view thead').each(function() {creme.utils.bindToggle($(this));});
-    $('.table_detail_view').find('.collapser').each(function() {creme.utils.bindToggle($(this));});
+    $('.table_detail_view').find('.collapser').each(function() {creme.utils.bindTableToggle($(this));});
 }
 
 creme.utils.simpleConfirm = function(cb, msg) {
@@ -277,28 +260,6 @@ creme.utils.handleSort = function(sort_field, sort_order, new_sort_field, input,
     }
     $sort_field.val(new_sort_field);
     if(typeof(callback) == "function") callback(input);
-}
-
-creme.utils.loadBlock = function(url) {//TODO: move to creme.blocks
-    $.ajax({
-        url:      url,
-        async:    false,
-        type:     "GET",
-        dataType: "json",
-        cache:    false, // ??
-        beforeSend: this.loading('loading', false),
-        success:  function(data) {
-                        for (var i = 0; i < data.length; ++i) {
-                            var block_data = data[i];          //tuple: (block_name, block_html)
-                            var block      = $(block_data[1]); //'compile' to DOM
-
-                            $('#' + block_data[0]).replaceWith(block);
-                            $(block).find('.collapser').each(function() {creme.utils.bindToggle($(this));});
-                            creme.blocks.applyState(block);
-                        }
-                  },
-      complete: this.loading('loading',true)
-    });
 }
 
 if(typeof(creme.utils.stackedPopups)=="undefined") creme.utils.stackedPopups = [];//Avoid the re-declaration in case of reload of creme_utils.js
@@ -436,7 +397,7 @@ creme.utils.iframeInnerPopup = function(url) {
                                         creme.ajax.jqueryFormSubmit(
                                             $('[name=inner_body]', $dialog).find('form'),
                                             function(data) {
-                        						var div_id = $dialog.attr('id');
+                                                var div_id = $dialog.attr('id');
                                                 var body = $('[name=inner_body]', $dialog);
                                                 var data = $(data);
 
@@ -449,8 +410,8 @@ creme.utils.iframeInnerPopup = function(url) {
                                                 }
                                             },
                                             function(error) {
-                                            	creme.utils.closeDialog($dialog, true);
-                                            	creme.utils.showErrorNReload();
+                                                creme.utils.closeDialog($dialog, true);
+                                                creme.utils.showErrorNReload();
                                             },
                                             {'action': $('[name=inner_header_from_url]',$dialog).val()}
                                         );

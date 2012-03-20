@@ -45,12 +45,13 @@
 }
 
 .table_detail_view .block_header .label {
-    width: 80%;
+    /*width: 80%;*/
+    width: 100%;
     text-align: left;
 }
 
 .table_detail_view .block_header .actions {
-    width: 20%;
+    /*width: 20%;*/
     text-align: right;
 }
 
@@ -82,28 +83,26 @@
 .block_header_line_light {background-color: #bdd8e4;}
 .block_header_line_dark  {background-color: #b3d2df;}
 
-.th_info{
+.th_info {
     max-width: 30%;
     width: 30%;
     text-align: left;
-
 }
 
-.td_info{
+.td_info {
     max-width: 70%;
     width: 70%;
 /*    text-align: right;*/
     text-align: left;
 }
 
-.th_info_4_columns{
+.th_info_4_columns {
     max-width: 15%;
     width: 15%;
     text-align: left;
-
 }
 
-.td_info_4_columns{
+.td_info_4_columns {
     max-width: 33%;
     width: 35%;
     text-align: left;
@@ -123,3 +122,29 @@
     content: "";
 }
 
+.edit_inner {
+    max-width: 70%;
+    width: 0;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.block_header tbody tr td:hover {
+    background-color: transparent;
+}
+
+table.collapsed .block_icon {
+    height: 22px;
+}
+
+table.collapsed .collapsable {
+    display:none;
+}
+
+table.hide_empty_fields tr.content.collapsable-field {
+	display:none;
+}
+
+table.collapsed {
+    opacity: 0.5;
+}
