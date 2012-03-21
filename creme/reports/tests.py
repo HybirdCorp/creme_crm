@@ -38,7 +38,6 @@ class ReportsTestCase(CremeTestCase):
         cls.populate('creme_core', 'creme_config', 'reports', 'persons', 'opportunities', 'billing')
 
     def setUp(self):
-        #self.populate('creme_core', 'creme_config', 'reports')
         self.login()
 
     def test_report_createview01(self):
@@ -582,7 +581,7 @@ class ReportsTestCase(CremeTestCase):
         self.assertEqual(1, len(items))
 
         item = items[0]
-        self.assertEqual(u'instanceblock_reports-graph#%s-' % rgraph.id, item.block_id)
+        self.assertEqual(u'instanceblock_reports-graph|%s-' % rgraph.id, item.block_id)
         self.assertEqual(u'%s - %s' % (rgraph.name, _(u'None')), item.verbose)
         self.assertEqual('', item.data)
 
@@ -602,7 +601,7 @@ class ReportsTestCase(CremeTestCase):
         rtype_id = self.rtype.id
         response = self.client.post('/reports/graph/%s/block/add' % rgraph.id,
                                     data={'graph':           rgraph.name,
-                                          'volatile_column': '%s#%s' % (rtype_id, HFI_RELATION),
+                                          'volatile_column': '%s|%s' % (rtype_id, HFI_RELATION),
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -612,11 +611,11 @@ class ReportsTestCase(CremeTestCase):
         self.assertEqual(1, len(items))
 
         item = items[0]
-        self.assertEqual(u'instanceblock_reports-graph#%s-%s#%s' % (rgraph.id, rtype_id, HFI_RELATION),
+        self.assertEqual(u'instanceblock_reports-graph|%s-%s|%s' % (rgraph.id, rtype_id, HFI_RELATION),
                          item.block_id
                         )
         self.assertEqual(u'%s - %s' % (rgraph.name, self.rtype), item.verbose)
-        self.assertEqual('%s#%s' % (rtype_id, HFI_RELATION), item.data)
+        self.assertEqual('%s|%s' % (rtype_id, HFI_RELATION), item.data)
 
     #def test_add_graph_instance_block03(self): #TODO: volatile field
 

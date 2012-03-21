@@ -232,6 +232,9 @@ class InstanceBlockConfigItem(CremeModel):
         """@param key String that allows to make the difference between 2 instances
                       of the same Block class and the same CremeEntity instance.
         """
+        if key and any((c in key) for c in ('#', '@', '&', ':', ' ')):
+            raise ValueError('InstanceBlockConfigItem.generate_id: useage of a forbidden character in key "%s"' % key)
+
         return u'%s|%s-%s' % (block_class.id_, entity.id, key)
 
     @staticmethod
