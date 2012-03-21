@@ -18,10 +18,10 @@ class AddressTestCase(CremeTestCase):
     def setUpClass(cls):
         cls.populate('creme_config')
 
-    def setUp(self):
-        self.login()
+    def login(self, *args, **kwargs):
+        super(AddressTestCase, self).login(*args, **kwargs)
 
-        self.orga = Organisation.objects.create(user=self.user, name='Nerv')
+        return Organisation.objects.create(user=self.user, name='Nerv')
 
     def _create_address(self, orga, name, address, po_box, city, state, zipcode, country, department):
         response = self.client.post('/persons/address/add/%s' % orga.id,
@@ -39,8 +39,7 @@ class AddressTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
     def test_createview(self):
-        orga = self.orga
-
+        orga = self.login()
         self.assertEqual(0, Address.objects.filter(object_id=orga.id).count())
 
         response = self.client.get('/persons/address/add/%s' % orga.id)
@@ -49,7 +48,7 @@ class AddressTestCase(CremeTestCase):
         name = 'Address#1'
         address_value = '21 jump street'
         po_box = 'Popop'
-        city = 'Antlantis'
+        city = 'Atlantis'
         state = '??'
         zipcode = '424242'
         country = 'wtf'
@@ -71,12 +70,12 @@ class AddressTestCase(CremeTestCase):
         self.assertEqual(department, address.department)
 
     def test_editview(self):
-        orga = self.orga
+        orga = self.login()
 
         name = 'Address#1'
         address_value = '21 jump street'
         po_box = 'Popop'
-        city = 'Antlantis'
+        city = 'Atlantis'
         state = '??'
         zipcode = '424242'
         country = 'wtf'
@@ -108,7 +107,7 @@ class AddressTestCase(CremeTestCase):
         self.assertEqual(country, address.country)
 
     def test_deleteview(self):
-        orga = self.orga
+        orga = self.login()
 
         self._create_address(orga, 'name', 'address', 'po_box', 'city', 'state', 'zipcode', 'country', 'department')
         address = Address.objects.filter(object_id=orga.id)[0]
@@ -116,3 +115,53 @@ class AddressTestCase(CremeTestCase):
 
         response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': address.id})
         self.assertEqual(0, Address.objects.filter(object_id=orga.id).count())
+
+    def test_bool(self):
+        self.assertFalse(Address())
+        self.assertTrue(Address(name='Address#1'))
+        self.assertTrue(Address(address='21 jump street'))
+        self.assertTrue(Address(po_box='Popop'))
+        self.assertTrue(Address(zipcode='424242'))
+        self.assertTrue(Address(city='Atlantis'))
+        self.assertTrue(Address(department='rucrazy'))
+        self.assertTrue(Address(state='OfTheArt'))
+        self.assertTrue(Address(country='Yeeeha'))
+
+        self.assertTrue(Address(address='21 jump street', country='Yeeeha'))
+
+    def test_unicode(self):
+        name = 'Address#1'
+        address_value = '21 jump street'
+        po_box = 'Popop'
+        zipcode = '424242'
+        city = 'Atlantis'
+        department = 'rucrazy'
+        state = '??'
+        country = 'wtf'
+
+        address = Address(name=name,
+                          address=address_value,
+                          po_box=po_box,
+                          zipcode=zipcode,
+                          city=city,
+                          department=department,
+                          state=state,
+                          country=country
+                         )
+        self.assertEqual(u'%s %s %s %s' % (address_value, zipcode, city, department),
+                         unicode(address)
+                        )
+
+        address.zipcode = None
+        self.assertEqual(u'%s %s %s' % (address_value, city, department), unicode(address))
+
+        address.department = None
+        self.assertEqual(u'%s %s' % (address_value, city), unicode(address))
+
+        self.assertEqual(po_box, unicode(Address(po_box=po_box)))
+        self.assertEqual(state, unicode(Address(state=state)))
+        self.assertEqual(country, unicode(Address(country=country)))
+
+        self.assertEqual('%s %s %s' % (po_box, state, country),
+                         unicode(Address(po_box=po_box, state=state, country=country))
+                        )

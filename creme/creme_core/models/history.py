@@ -76,7 +76,7 @@ def _fk_printer(field, val):
 
     try:
         out = model.objects.get(pk=val)
-    except model.DoesNotExist, e:
+    except model.DoesNotExist as e:
         info(str(e))
         out = val
 
@@ -87,6 +87,7 @@ _PRINTERS = {
         'ForeignKey':   _fk_printer,
     }
 
+#TODO: manage the related objects edition (Addresses, Alerts...)
 class HistoryLine(Model):
     entity       = ForeignKey(CremeEntity, null=True, on_delete=SET_NULL)
     entity_ctype = ForeignKey(ContentType)  #we do not use entity.entity_type because we keep history of the deleted entities
@@ -139,8 +140,8 @@ class HistoryLine(Model):
 
         try:
             attrs = jsondumps(value + list(modifs))
-        except TypeError, e:
-            debug('HistoryLine: ' + str(e))
+        except TypeError as e:
+            debug('HistoryLine: %s', e)
             attrs = jsondumps(value)
 
         return attrs

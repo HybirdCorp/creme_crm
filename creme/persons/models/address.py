@@ -50,14 +50,18 @@ class Address(CremeModel):
         verbose_name_plural = _(u'Addresses')
 
     def __unicode__(self):
-        return u'%s %s %s %s' % (self.address or '', self.zipcode or '', self.city or '', self.department or '')
+        s = u' '.join(filter(None, [self.address, self.zipcode, self.city, self.department]))
+
+        if not s:
+            s = u' '.join(filter(None, [self.po_box, self.state, self.country]))
+
+        return s
 
     def get_related_entity(self): #for generic views
         return self.owner
 
     _INFO_FIELD_NAMES = ('name', 'address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country')
 
-    #TODO: unitest ??
     def __nonzero__(self): #used by forms to detect empty addresses
         return any(getattr(self, fname) for fname in self._INFO_FIELD_NAMES)
 
@@ -66,7 +70,8 @@ class Address(CremeModel):
         return Address.objects.create(name=self.name, address=self.address, po_box=self.po_box,
                                       city=self.city, state=self.state, zipcode=self.zipcode,
                                       country=self.country, department=self.department,
-                                      content_type=ContentType.objects.get_for_model(entity), object_id=entity.id)
+                                      content_type=ContentType.objects.get_for_model(entity), object_id=entity.id
+                                     )
 
 
 def _handle_merge(sender, other_entity, **kwargs):
