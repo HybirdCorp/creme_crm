@@ -112,7 +112,6 @@ creme.reports.loadHeaderFilters = function(ct_id, $target_select) {
 }
 
 creme.reports.loadFilters = function(ct_id, $target_select) {
-//     var url = '/creme_core/filter/get_4_ct/' + ct_id;
     var url = '/creme_core/entity_filter/get_for_ctype/' + ct_id;
     var $all_opt = $('<option value="">' + gettext("All") + '</option>');
 

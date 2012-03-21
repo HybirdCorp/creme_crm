@@ -69,7 +69,7 @@ class GraphInstanceBlockForm(CremeForm):
                 continue
 
             if field.get_internal_type() == 'ForeignKey' and ct_get(field.rel.to) in cts:
-                results.append((u"%s#%s" % (field_name, HFI_FIELD), column.title))
+                results.append((u"%s|%s" % (field_name, HFI_FIELD), column.title))
 
         self.rtypes = rtypes = RelationType.objects.in_bulk([c.name for c in targets[HFI_RELATION]])
 
@@ -77,7 +77,7 @@ class GraphInstanceBlockForm(CremeForm):
             name = column.name
 
             if rtypes.get(name):
-                results.append((u"%s#%s" % (name, HFI_RELATION), column.title))
+                results.append((u"%s|%s" % (name, HFI_RELATION), column.title))
 
         if not results:
             results = [("", ugettext(u"No available choice"))]
@@ -92,7 +92,7 @@ class GraphInstanceBlockForm(CremeForm):
         kwargs = {}
 
         if volatile_column:
-            col_value, col_type = volatile_column.split('#')
+            col_value, col_type = volatile_column.split('|')
             col_type = int(col_type)
 
             if col_type == HFI_FIELD:

@@ -226,10 +226,10 @@ class ReportGraph(CremeEntity):
         if volatile_field:
             assert volatile_rtype is None
             verbose = get_verbose_field_name(self.report.ct.model_class(), volatile_field)
-            key = u"%s#%s" % (volatile_field, HFI_FIELD)
+            key = u"%s|%s" % (volatile_field, HFI_FIELD)
         elif volatile_rtype:
             verbose = unicode(volatile_rtype)
-            key = u"%s#%s" % (volatile_rtype.id, HFI_RELATION)
+            key = u"%s|%s" % (volatile_rtype.id, HFI_RELATION)
         else:
             verbose = ugettext(u'None')
             key = ''
@@ -280,7 +280,7 @@ def fetch_graph_from_instance_block(instance_block, entity, order='ASC'):
     model             = entity.__class__
     ct_entity         = entity.entity_type #entity should always be a CremeEntity because graphs can be created only on CremeEntities
 
-    columns = volatile_column.split('#')
+    columns = volatile_column.split('|')
     volatile_column, hfi_type = (columns[0], columns[1]) if columns[0] else ('', 0)
 
     try:
