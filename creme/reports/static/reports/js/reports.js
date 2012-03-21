@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2010  Hybird
+    Copyright (C) 2009-2012  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -41,7 +41,7 @@ creme.reports.load = function(options) {
         return;
     }
 
-    var $hf   = $(options.hf);
+    var $hf = $(options.hf);
     this.loadHeaderFilters(ct_id, $hf);
 
     var $filter   = $(options.filter);
@@ -63,7 +63,7 @@ creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters) {
 
     var params = $.extend({
         'err_label' : gettext("None available"),
-        'always_option': null,//Always the 1st <option /> in non-empty success cases
+        'always_option': null,//Always the 1st option in non-empty success cases
         'empty_option' : null,
         'error_option' : null
     }, parameters);
@@ -73,6 +73,7 @@ creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters) {
     var success_cb = function(data, textStatus, req){
         $target_select.empty();
 
+        //TODO: factorise 'data.length == 0'
         if(data.length == 0 && !params.empty_option){
             $target_select.append($def_option);
         }
@@ -103,7 +104,6 @@ creme.reports.__loadFilters = function(url, ct_id, $target_select, parameters) {
 }
 
 creme.reports.loadHeaderFilters = function(ct_id, $target_select) {
-//     var url = '/creme_core/header_filter/get_4_ct/' + ct_id;
     var url = '/creme_core/header_filter/get_for_ctype/' + ct_id;
     var params = {
         'always_option': $('<option value="">' + gettext("No selected view") + '</option>')

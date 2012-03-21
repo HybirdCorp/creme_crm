@@ -17,10 +17,11 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from datetime import datetime
 from collections import defaultdict
-
 from itertools import chain
+
 from django.db.models.query_utils import Q
 from django.forms.fields import MultipleChoiceField, ChoiceField
 from django.forms import ValidationError
@@ -160,7 +161,6 @@ def get_aggregate_fields(fields, model, initial_data=None):
 
 class CreateForm(CremeEntityForm):
     hf     = AjaxModelChoiceField(label=_(u"Existing view"), queryset=HeaderFilter.objects.none(), required=False)
-    #filter = AjaxModelChoiceField(label=_(u"Filter"), queryset=Filter.objects.none(), required=False)
     filter = AjaxModelChoiceField(label=_(u"Filter"), queryset=EntityFilter.objects.none(), required=False)
 
     columns        = AjaxMultipleChoiceField(label=_(u'Regular fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)

@@ -639,7 +639,7 @@ msgstr "Cacher la liste des utilisateurs"
 
 #: templates/activities/calendar.html:282
 msgid "Select all users"
-msgstr "Sélectionner tout les utilisateurs"
+msgstr "Sélectionner tous les utilisateurs"
 
 #: templates/activities/calendar.html:283
 msgid "See public calendars of selected users"
@@ -647,11 +647,11 @@ msgstr "Voir les calendriers publics des utilisateurs sélectionnés"
 
 #: templates/activities/calendar.html:305
 msgid "My calendars :"
-msgstr "Mes calendriers"
+msgstr "Mes calendriers :"
 
 #: templates/activities/calendar.html:310
 msgid "Select all my calendars"
-msgstr "Sélectionner tout mes calendriers"
+msgstr "Sélectionner tous mes calendriers"
 
 #: templates/activities/calendar.html:311
 msgid "See my selected calendars"
