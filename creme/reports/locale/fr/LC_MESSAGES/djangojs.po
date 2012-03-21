@@ -1,13 +1,14 @@
 # FR LOCALISATION OF 'REPORTS' APP (JavaScript only)
-# Copyright (C) 2010 Hybird
+# Copyright (C) 2012 Hybird
 # This file is distributed under the same license as the Creme package.
 #
+# > django-admin.py makemessages -d djangojs -l fr
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-11 16:07+0200\n"
+"POT-Creation-Date: 2012-03-21 10:39+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,24 +22,26 @@ msgstr ""
 msgid "None available"
 msgstr "Aucun disponible"
 
-#: static/reports/js/reports.js:243
+#: static/reports/js/reports.js:107
+msgid "No selected view"
+msgstr "Aucune vue sélectionnée"
+
+#: static/reports/js/reports.js:115
+msgid "All"
+msgstr "Tout"
+
+#: static/reports/js/reports.js:242
 msgid "Select a type"
 msgstr "Sélectionnez un type"
 
-#: static/reports/js/reports.js:246
+#: static/reports/js/reports.js:245
 msgid "Ok"
-msgstr ""
+msgstr "Ok"
 
-#: static/reports/js/reports.js:248
+#: static/reports/js/reports.js:247
 msgid "Please select a type."
 msgstr "Veuillez sélectionner un type."
 
-#: static/reports/js/reports.js:275 static/reports/js/reports.js.py:294
+#: static/reports/js/reports.js:274 static/reports/js/reports.js.py:293
 msgid "Error"
-msgstr ""
-
-#~ msgid "No selected view"
-#~ msgstr "Aucune vue sélectionnée"
-
-#~ msgid "All"
-#~ msgstr "Tout"
+msgstr "Erreur"
