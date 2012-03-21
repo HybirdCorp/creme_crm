@@ -42,9 +42,10 @@ class ContactForm(_BasePersonForm):
 
     blocks = _BasePersonForm.blocks.new(('coordinates', _(u'Coordinates'), ['skype', 'phone', 'mobile', 'fax', 'email', 'url_site']))
 
-    class Meta:
+    #class Meta:
+    class Meta(_BasePersonForm.Meta):
         model = Contact
-        exclude = _BasePersonForm.Meta.exclude + ('language',)
+        #exclude = _BasePersonForm.Meta.exclude + ('language',)
 
 
 class ContactWithRelationForm(ContactForm):

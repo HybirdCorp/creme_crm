@@ -55,7 +55,8 @@ def get_csv_form_builder(header_dict, choices):
         shipaddr_department = extractorfield_factory(f_dpt,     header_dict, choices)
 
         class Meta:
-            exclude = ('language',)
+            #exclude = ('language',)
+            exclude = ('image',)
 
         blocks = CSVImportForm4CremeEntity.blocks.new(
                         ('billing_address', _(u'Billing address'), ['billaddr_address', 'billaddr_po_box', 'billaddr_city',

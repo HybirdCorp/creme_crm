@@ -64,7 +64,7 @@ def get_merge_form_builder():
         shipaddr_department = mergefield_factory(f_dpt)
 
         #class Meta:
-            #exclude = ('language',) #TODO
+            #exclude = ('language',)
 
         blocks = MergeEntitiesBaseForm.blocks.new(
                     ('billing_address',  _(u'Billing address'),  ['billaddr_' + fn for fn in _FIELD_NAMES]),
