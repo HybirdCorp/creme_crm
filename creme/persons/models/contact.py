@@ -25,15 +25,13 @@ from django.db.models import (ForeignKey, CharField, TextField, ManyToManyField,
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 
-from creme_core.models import CremeEntity#, Language
-from creme_core.models.i18n import Language
+from creme_core.models import CremeEntity, Language
 from creme_core.models.fields import PhoneField
 
 from media_managers.models import Image
 
 from address import Address
 from other_models import Civility, Position, Sector
-
 from persons.constants import REL_OBJ_EMPLOYED_BY
 
 
@@ -50,7 +48,7 @@ class Contact(CremeEntity):
     sector          = ForeignKey(Sector, verbose_name=_(u'Line of business'), blank=True, null=True, on_delete=SET_NULL)
     email           = EmailField(_(u'Email address'), max_length=100, blank=True, null=True)
     url_site        = URLField(_(u'Web Site'), max_length=100, blank=True, null=True, verify_exists=False)
-    language        = ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'), blank=True, null=True)
+    language        = ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'), blank=True, null=True, editable=False) #TODO: remove this field
     billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'), blank=True, null=True, related_name='billing_address_contact_set', editable=False)
     shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'), blank=True, null=True, related_name='shipping_address_contact_set', editable=False)
     is_user         = ForeignKey(User, verbose_name=_(u'Is an user'), blank=True, null=True, related_name='related_contact', on_delete=SET_NULL, editable=False)

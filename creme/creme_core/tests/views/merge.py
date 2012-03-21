@@ -201,6 +201,7 @@ class MergeViewsTestCase(ViewsTestCase):
         #prop3 should have been deleted (no doublon)
         self.assertFalse(CremeProperty.objects.filter(pk=prop3.pk).exists())
 
+    #TODO: we need an other Entity with a M2M to test the fusion of M2M fields (language is now uneditable)
     def test_merge02(self): #other ct, M2M, foreign key to CremeEntities
         self.login()
 
@@ -213,11 +214,11 @@ class MergeViewsTestCase(ViewsTestCase):
         contact01 = create_contact(user=user, first_name=u'Makoto', last_name=u'Kōsaka', image=image1)
         contact02 = create_contact(user=user, first_name=u'Makoto', last_name='Kousaka', image=image2)
 
-        language1, language2 = Language.objects.all()[:2]
-        language3 = Language.objects.create(name=u'Klingon', code='KLN')
+        #language1, language2 = Language.objects.all()[:2]
+        #language3 = Language.objects.create(name=u'Klingon', code='KLN')
 
-        contact01.language = [language1]
-        contact02.language = [language1, language2]
+        #contact01.language = [language1]
+        #contact02.language = [language1, language2]
 
         url = self.build_merge_url(contact01, contact02)
         response = self.client.get(url)
@@ -245,9 +246,9 @@ class MergeViewsTestCase(ViewsTestCase):
                                           'last_name_2':      contact02.last_name,
                                           'last_name_merged': contact01.last_name,
 
-                                          'language_1':      [language1.id],
-                                          'language_2':      [language1.id, language2.id],
-                                          'language_merged': [language3.id], #<======
+                                          #'language_1':      [language1.id],
+                                          #'language_2':      [language1.id, language2.id],
+                                          #'language_merged': [language3.id], #<======
 
                                           'image_1':      image1.id,
                                           'image_2':      image2.id,
@@ -265,7 +266,7 @@ class MergeViewsTestCase(ViewsTestCase):
         new_contact01 = self.refresh(contact01)
         self.assertEqual(contact01.first_name, new_contact01.first_name)
         self.assertEqual(contact01.last_name,  new_contact01.last_name)
-        self.assertEqual([language3],          list(new_contact01.language.all()))
+        #self.assertEqual([language3],          list(new_contact01.language.all()))
         self.assertEqual(image2,               new_contact01.image)
 
     def test_merge03(self): #initial values come in priority from the last edited entity
