@@ -21,7 +21,6 @@
 import re
 from collections import defaultdict
 from itertools import chain
-from logging import debug
 
 from django.forms import Field, CharField, MultipleChoiceField, ChoiceField, ModelChoiceField, DateField, TimeField, DateTimeField, IntegerField
 from django.forms.util import ValidationError
@@ -35,12 +34,12 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.validators import validate_email
 from django.db.models.query import QuerySet
 
-from creme_core.models import RelationType, CremeEntity, Relation
+from creme_core.models import RelationType, CremeEntity
 from creme_core.utils import creme_entity_content_types
 from creme_core.utils.queries import get_q_from_dict
 from creme_core.utils.date_range import date_range_registry
 from creme_core.forms.widgets import (CTEntitySelector, SelectorList, RelationSelector, ListViewWidget, ListEditionWidget,
-                                      CalendarWidget, TimeWidget, DateRangeWidget, ColorPickerWidget, DurationWidget, DateTimeWidget)
+                                      CalendarWidget, TimeWidget, DateRangeWidget, ColorPickerWidget, DurationWidget)
 from creme_core.constants import REL_SUB_HAS
 
 
@@ -71,7 +70,7 @@ class JSONField(CharField):
 
         return []
 
-    def clean_value(self, data, name, type, required=True):
+    def clean_value(self, data, name, type, required=True, required_error_key='required'):
         if not data:
             raise ValidationError(self.error_messages['invalidformat'])
 
@@ -82,7 +81,7 @@ class JSONField(CharField):
 
         #value can be "False" if a boolean value is expected.
         if value is None:
-            return self._return_none_or_raise(required, 'invalidformat')
+            return self._return_none_or_raise(required, required_error_key)
 
         if isinstance(value, type):
             return value
@@ -124,13 +123,23 @@ class JSONField(CharField):
 class GenericEntityField(JSONField):
     default_error_messages = {
         'ctypenotallowed': _(u"This content type is not allowed."),
+        'ctyperequired':   _(u"The content type is required."),
         'doesnotexist':    _(u"This entity doesn't exist."),
+        'entityrequired':  _(u"The entity is required."),
     }
+
+    @property
+    def allowed_models(self):
+        return self._allowed_models
+
+    @allowed_models.setter
+    def allowed_models(self, allowed=()):
+        self._allowed_models = allowed if allowed else list()
+        self._build_widget()
 
     def __init__(self, models=None, *args, **kwargs):
         super(GenericEntityField, self).__init__(models, *args, **kwargs)
-        self.allowed_models = models if models else list()
-        self._build_widget()
+        self.allowed_models = models
 
     def _create_widget(self):
         return CTEntitySelector(self._get_ctypes_options(self.get_ctypes()))
@@ -161,19 +170,22 @@ class GenericEntityField(JSONField):
         if not data:
             return self._return_none_or_raise(self.required)
 
-        return self.clean_entity(self.clean_value(data, 'ctype', int), self.clean_value(data, 'entity', int))
+        clean_value = self.clean_value
+
+        ctype_pk  = clean_value(data, 'ctype',  int, self.required, 'ctyperequired')
+        entity_pk  = clean_value(data, 'entity',  int, self.required, 'entityrequired')
+
+        return self.clean_entity(ctype_pk, entity_pk)
 
     def clean_entity(self, ctype_pk, entity_pk):
         ctype = self.clean_ctype(ctype_pk)
         model = ctype.model_class()
 
         try:
-            entity = model.objects.get(pk=entity_pk)
+            return model.objects.get(pk=entity_pk)
         except model.DoesNotExist:
             if self.required:
                 raise ValidationError(self.error_messages['doesnotexist'])
-
-        return entity
 
     def clean_ctype(self, ctype_pk):
         #check ctype in allowed ones
@@ -182,26 +194,12 @@ class GenericEntityField(JSONField):
 
         raise ValidationError(self.error_messages['ctypenotallowed'])
 
-    def clean_rtype(self, rtype_pk):
-        # is relation type allowed
-        if rtype_pk not in self.allowed_rtypes:
-            raise ValidationError(self.error_messages['rtypenotallowed'], params={'rtype':rtype_pk})
-
-        try:
-            return RelationType.objects.get(pk=rtype_pk)
-        except RelationType.DoesNotExist:
-            raise ValidationError(self.error_messages['rtypedoesnotexist'], params={'rtype':rtype_pk})
-
     def _get_ctypes_options(self, ctypes):
         return ((ctype.pk, unicode(ctype)) for ctype in ctypes)
 
     def get_ctypes(self):
         get_ct = ContentType.objects.get_for_model
-        return [get_ct(model) for model in self.allowed_models] if self.allowed_models else list(creme_entity_content_types())
-
-    def set_allowed_models(self, models=None):
-        self.allowed_models = models or []
-        self._build_widget()
+        return [get_ct(model) for model in self._allowed_models] if self._allowed_models else list(creme_entity_content_types())
 
 
 #TODO: Add a q_filter, see utilization in EntityEmailForm
@@ -239,12 +237,16 @@ class MultiGenericEntityField(GenericEntityField):
         clean_value = self.clean_value
 
         #TODO : the entities order can be lost, see for refactor.
-        #build a dictionnary of entity pks by content type (ignore invalid entries)
         for entry in data:
-            try:
-                entities_map[clean_value(entry, 'ctype', int)].append(clean_value(entry, 'entity', int))
-            except Exception:
-                raise ValidationError(self.error_messages['invalidformat'])
+            ctype_pk = clean_value(entry, 'ctype', int, required=False)
+            if not ctype_pk:
+                continue
+
+            entity_pk = clean_value(entry, 'entity', int, required=False)
+            if not entity_pk:
+                continue
+
+            entities_map[ctype_pk].append(entity_pk)
 
         entities = []
 
@@ -257,6 +259,9 @@ class MultiGenericEntityField(GenericEntityField):
                 raise ValidationError(self.error_messages['doesnotexist'])
 
             entities.extend(ctype_entities.itervalues())
+
+        if not entities:
+            return self._return_list_or_raise(self.required)
 
         return entities
 

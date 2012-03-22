@@ -5,10 +5,10 @@ try:
     from django.db.models.query import QuerySet
 
     from creme_core import autodiscover
-    from creme_core.forms.fields import *
+    from creme_core.forms.fields import GenericEntityField, RelationEntityField, MultiGenericEntityField, MultiRelationEntityField
     from creme_core.forms.fields import JSONField
     from creme_core.utils import creme_entity_content_types
-    from creme_core.models import *
+    from creme_core.models import CremeProperty, CremePropertyType, RelationType
     from creme_core.constants import REL_SUB_HAS
     from creme_core.tests.forms.base import FieldTestCase
 
@@ -28,7 +28,7 @@ class _JSONFieldBaseTestCase(FieldTestCase):
         contact = Contact.objects.create(user=self.user, first_name=first_name, last_name=last_name)
 
         if ptype:
-             CremeProperty.objects.create(type=ptype, creme_entity=contact)
+            CremeProperty.objects.create(type=ptype, creme_entity=contact)
 
         return contact
 
@@ -116,6 +116,25 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual(list(creme_entity_content_types()), ctypes)
         self.assertTrue(ctypes)
 
+    def test_models_property(self):
+        self.login()
+
+        contact = self.create_contact()
+        orga = self.create_orga('orga')
+
+        ctype1 = contact.entity_type
+        ctype2 = orga.entity_type
+
+        field = GenericEntityField()
+        self.assertEqual(list(), field.allowed_models)
+        self.assertEqual(list(creme_entity_content_types()), field.get_ctypes())
+
+        field.allowed_models = [Contact, Organisation]
+        ctypes = list(field.get_ctypes())
+        self.assertEqual(2, len(ctypes))
+        self.assertIn(ctype1, ctypes)
+        self.assertIn(ctype2, ctypes)
+
     def test_format_object(self):
         self.login()
         contact = self.create_contact()
@@ -151,8 +170,6 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_invalid_data(self):
         clean = GenericEntityField(required=False).clean
-        self.assertFieldValidationError(GenericEntityField, 'invalidformat', clean, '{"entity":"1"}')
-        self.assertFieldValidationError(GenericEntityField, 'invalidformat', clean, '{"ctype":"12"}')
         self.assertFieldValidationError(GenericEntityField, 'invalidformat', clean, '{"ctype":"notanumber","entity":"1"}')
         self.assertFieldValidationError(GenericEntityField, 'invalidformat', clean, '{"ctype":"12","entity":"notanumber"}')
 
@@ -182,6 +199,27 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         field = GenericEntityField(models=[Organisation, Contact, Address])
         self.assertEqual(contact, field.clean('{"ctype":"%s","entity":"%s"}' % (contact.entity_type_id, contact.pk)))
 
+    def test_clean_incomplete_not_required(self): #not required
+        self.login()
+        contact = self.create_contact()
+
+        clean = GenericEntityField(models=[Organisation, Contact, Address], required=False).clean
+        self.assertFieldValidationError(GenericEntityField, 'ctypenotallowed', clean,
+                                        '{"ctype": null}')
+        self.assertIsNone(clean('{"ctype": "%s"}' % contact.entity_type_id))
+        self.assertIsNone(clean('{"ctype": "%s", "entity": null}' % contact.entity_type_id))
+
+    def test_clean_incomplete_required(self): #required -> 'friendly' errors :)
+        self.login()
+        contact = self.create_contact()
+
+        clean = GenericEntityField(models=[Organisation, Contact, Address], required=True).clean
+        self.assertFieldValidationError(GenericEntityField, 'ctyperequired', clean,
+                                        '{"ctype": null}')
+        self.assertFieldValidationError(GenericEntityField, 'entityrequired', clean,
+                                        '{"ctype": "%s"}' % contact.entity_type_id)
+        self.assertFieldValidationError(GenericEntityField, 'entityrequired', clean,
+                                        '{"ctype": "%s", "entity": null}' % contact.entity_type_id)
 
 class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_models_ctypes(self):
@@ -237,8 +275,6 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_invalid_data(self):
         clean = MultiGenericEntityField(required=False).clean
-        self.assertFieldValidationError(MultiGenericEntityField, 'invalidformat', clean, '[{"entity":"1"}]')
-        self.assertFieldValidationError(MultiGenericEntityField, 'invalidformat', clean, '[{"ctype":"12"}]')
         self.assertFieldValidationError(MultiGenericEntityField, 'invalidformat', clean, '[{"ctype":"notanumber","entity":"1"}]')
         self.assertFieldValidationError(MultiGenericEntityField, 'invalidformat', clean, '[{"ctype":"12","entity":"notanumber"}]')
 
@@ -281,6 +317,51 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual(2, len(entities))
         self.assertEqual(set([contact, orga]), set(entities))
 
+    def test_clean_incomplete_not_required(self): #not required
+        self.login()
+        contact = self.create_contact()
+        orga    = self.create_orga()
+
+        clean = MultiGenericEntityField(models=[Organisation, Contact], required=False).clean
+        self.assertEqual([], clean('[{"ctype": "%s"}]' % contact.entity_type_id))
+        self.assertEqual([], clean('[{"ctype": "%s", "entity": null}]' % contact.entity_type_id))
+        self.assertEqual([contact, orga],
+                         clean('[{"ctype": "%s"},'
+                               ' {"ctype": "%s", "entity": null},'
+                               ' {"ctype": "%s", "entity": "%s"},'
+                               ' {"ctype": "%s", "entity": "%s"}]' % (
+                                     contact.entity_type_id,
+                                     contact.entity_type_id,
+                                     contact.entity_type_id, contact.pk,
+                                     orga.entity_type_id, orga.pk,
+                                    )
+                              )
+                        )
+
+    def test_clean_incomplete_required(self): #required -> 'friendly' errors :)
+        self.login()
+        contact = self.create_contact()
+        orga    = self.create_orga()
+
+        clean = MultiGenericEntityField(models=[Organisation, Contact], required=True).clean
+        self.assertFieldValidationError(RelationEntityField, 'required', clean,
+                                        '[{"ctype": "%s"}, {"ctype": "%s", "entity": null}]' % (
+                                             contact.entity_type_id,
+                                             contact.entity_type_id,
+                                            )
+                                       )
+        self.assertEqual([contact, orga],
+                         clean('[{"ctype": "%s"},'
+                               ' {"ctype": "%s", "entity": null},'
+                               ' {"ctype": "%s", "entity": "%s"},'
+                               ' {"ctype": "%s", "entity":"%s"}]' % (
+                                     contact.entity_type_id,
+                                     contact.entity_type_id,
+                                     contact.entity_type_id, contact.pk,
+                                     orga.entity_type_id, orga.pk,
+                                    )
+                              )
+                        )
 
 class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     format_str = '{"rtype": "%s", "ctype": "%s", "entity": "%s"}'
