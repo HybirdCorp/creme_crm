@@ -66,10 +66,13 @@ class ProductCategoryFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_data(self):
         field = ProductCategoryField(required=False)
-        self.assertFieldValidationError(ProductCategoryField, 'invalidformat', field.clean, '{"category":"1"}')
-        self.assertFieldValidationError(ProductCategoryField, 'invalidformat', field.clean, '{"category":"12"}')
         self.assertFieldValidationError(ProductCategoryField, 'invalidformat', field.clean, '{"category":"notanumber","subcategory":"1"}')
         self.assertFieldValidationError(ProductCategoryField, 'invalidformat', field.clean, '{"category":"12","category":"notanumber"}')
+
+    def test_clean_incomplete_data_required(self):
+        field = ProductCategoryField()
+        self.assertFieldValidationError(ProductCategoryField, 'required', field.clean, '{"category":"1"}')
+        self.assertFieldValidationError(ProductCategoryField, 'required', field.clean, '{"category":"12"}')
 
     #data injection : unallowed category
     def test_clean_unallowed_category(self):
