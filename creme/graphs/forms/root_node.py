@@ -38,6 +38,8 @@ class AddRootNodesForm(CremeForm):
     def __init__(self, entity, *args, **kwargs):
         super(AddRootNodesForm, self).__init__(*args, **kwargs)
         self.graph = entity
+        entities_field = self.fields['entities']
+        entities_field.initial = [[(entities_field.get_ctypes()[0].pk, None)]]
 
     def save(self):
         graph = self.graph

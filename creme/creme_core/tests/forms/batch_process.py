@@ -35,10 +35,13 @@ class BatchActionsFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_data(self):
         clean = BatchActionsField(model=Contact).clean
-        self.assertFieldValidationError(BatchActionsField, 'invalidformat', clean, '[{"operator": "upper"}]') #no name
-        self.assertFieldValidationError(BatchActionsField, 'invalidformat', clean, '[{"name": "first_name"}]') #no operator
-        self.assertFieldValidationError(BatchActionsField, 'invalidformat', clean, '[{"name": "first_name", "value": "Rei"}]') #value is not a dict
-        self.assertFieldValidationError(BatchActionsField, 'invalidformat', clean, '[{"name": "first_name", "value": {"foobar":"Rei"}}]') #value has no 'value' key
+        self.assertFieldValidationError(BatchActionsField, 'invalidformat', clean, '[{"operator": "upper", "name": "first_name", "value": "Rei"}]') #value is not a dict
+
+    def test_clean_incomplete_data_required(self):
+        clean = BatchActionsField(model=Contact).clean
+        self.assertFieldValidationError(BatchActionsField, 'required', clean, '[{"operator": "upper"}]') #no name
+        self.assertFieldValidationError(BatchActionsField, 'required', clean, '[{"name": "first_name"}]') #no operator
+        self.assertFieldValidationError(BatchActionsField, 'required', clean, '[{"operator": "upper", "name": "first_name", "value": {"foobar":"Rei"}}]') #value has no 'value' key
 
     def test_clean_invalid_field(self):
         clean = BatchActionsField(model=Contact).clean
