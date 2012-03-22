@@ -107,8 +107,8 @@ class MergeViewsTestCase(ViewsTestCase):
         orga02 = create_orga(user=user, name='Gen-shi-ken', description='A great club.', email='genshiken@univ.jp')
 
         create_contact = Contact.objects.create
-        contact01 = create_contact(user=user, first_name='Chika',     last_name='Ogiue')
-        contact02 = create_contact(user=user, first_name=u'Sōichirō', last_name='Tanaka')
+        contact01 = create_contact(user=user, first_name='Chika',       last_name='Ogiue')
+        contact02 = create_contact(user=user, first_name=u'Souichirou', last_name='Tanaka')
 
         # contact01 linked with the 2 organisations -> after merge, we expect only one relation, not 2
         # contact02 should be linked to the merged entity
@@ -211,8 +211,8 @@ class MergeViewsTestCase(ViewsTestCase):
 
         user = self.user
         create_contact = Contact.objects.create
-        contact01 = create_contact(user=user, first_name=u'Makoto', last_name=u'Kōsaka', image=image1)
-        contact02 = create_contact(user=user, first_name=u'Makoto', last_name='Kousaka', image=image2)
+        contact01 = create_contact(user=user, first_name='Makoto', last_name='Kosaka', image=image1)
+        contact02 = create_contact(user=user, first_name='Makoto', last_name='Kousaka', image=image2)
 
         #language1, language2 = Language.objects.all()[:2]
         #language3 = Language.objects.create(name=u'Klingon', code='KLN')
@@ -296,8 +296,8 @@ class MergeViewsTestCase(ViewsTestCase):
 
         user = self.user
         create_contact = Contact.objects.create
-        contact01 = create_contact(user=user, first_name=u'Makoto', last_name=u'Kōsaka', image=image)
-        contact02 = create_contact(user=user, first_name=u'Makoto', last_name='Kousaka')
+        contact01 = create_contact(user=user, first_name='Makoto', last_name='Kosaka', image=image)
+        contact02 = create_contact(user=user, first_name='Makoto', last_name='Kousaka')
 
         response = self.client.get(self.build_merge_url(contact01, contact02))
         self.assertEqual(200, response.status_code)

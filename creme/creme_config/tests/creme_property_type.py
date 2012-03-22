@@ -20,7 +20,6 @@ class PropertyTypeTestCase(CremeTestCase):
         cls.populate('creme_core', 'creme_config')
 
     def setUp(self):
-        #self.populate('creme_core', 'creme_config')
         self.login()
 
     def test_portal(self):
@@ -37,7 +36,7 @@ class PropertyTypeTestCase(CremeTestCase):
         url = '/creme_config/property_type/add/'
         self.assertEqual(200, self.client.get(url).status_code)
 
-        self.assertEqual(1, CremePropertyType.objects.count())#The one from creme_core populate
+        count = CremePropertyType.objects.count()
 
         text = 'is beautiful'
         response = self.client.post(url, data={'text': text})
@@ -45,7 +44,7 @@ class PropertyTypeTestCase(CremeTestCase):
         self.assertEqual(200, response.status_code)
 
         prop_types = CremePropertyType.objects.all()
-        self.assertEqual(2, len(prop_types))
+        self.assertEqual(count + 1, len(prop_types))
 
         prop_type = self._find_property_type(prop_types, text)
         self.assertFalse(prop_type.subject_ctypes.all())
@@ -62,7 +61,7 @@ class PropertyTypeTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        prop_type = self._find_property_type(CremePropertyType.objects.all(), text)
+        prop_type = self.get_object_or_fail(CremePropertyType, text=text)
         ctypes = prop_type.subject_ctypes.all()
         self.assertEqual(2,           len(ctypes))
         self.assertEqual(set(ct_ids), set(ct.id for ct in ctypes))
@@ -88,9 +87,9 @@ class PropertyTypeTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        prop_type = CremePropertyType.objects.get(pk=pt.id)
-        self.assertEqual(text,         prop_type.text)
-        self.assertEqual([ct_orga.id], [ct.id for ct in prop_type.subject_ctypes.all()])
+        pt = self.refresh(pt)
+        self.assertEqual(text,         pt.text)
+        self.assertEqual([ct_orga.id], [ct.id for ct in pt.subject_ctypes.all()])
 
     def test_delete01(self):
         pt = CremePropertyType.create('test-foobar', 'is beautiful', [], is_custom=False)

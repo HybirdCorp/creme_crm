@@ -25,7 +25,7 @@ try:
 
     from persons.models import Contact
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class InfopathFormBuilderTestCase(CrudityTestCase):
@@ -193,30 +193,31 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         self.assertEqual(expected_ref_attrs, ref_attrs)
 
         xsd_elements = {'CremeCRMCrudity': {'name': 'CremeCRMCrudity'},
-                        'user_id':        {'name': 'user_id', 'type': 'xsd:integer'},#"""<xsd:element name="user_id" type="xsd:integer"/>""",
-                        'is_actived':     {'name': 'is_actived', 'type': 'xsd:boolean'},#"""<xsd:element name="is_actived" type="xsd:boolean"/>""",
-                        "first_name":     {'name': 'first_name', 'type': 'my:requiredString'},#"""<xsd:element name="first_name" type="xsd:requiredString"/>""",
-                        "last_name":      {'name': 'last_name', 'type': 'my:requiredString'},#"""<xsd:element name="last_name" type="xsd:requiredString"/>""",
-                        "email":          {'name': 'email', 'type': 'xsd:string'},#"""<xsd:element name="email" type="xsd:string"/>""",
-                        "description":    {'name': 'description'},#"""<xsd:element name="description"><xsd:complexType mixed="true"><xsd:sequence><xsd:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/1999/xhtml" processContents="lax"/></xsd:sequence></xsd:complexType></xsd:element>""",
-                        "birthday":       {'name': 'birthday', 'type': 'xsd:date', 'nillable': 'true'},#"""<xsd:element name="birthday" nillable="true" type="xsd:date"/>""",
-                        "created":        {'name': 'created', 'type': 'xsd:dateTime'},#"""<xsd:element name="created" type="xsd:dateTime"/>""",
-                        "url_site":       {'name': 'url_site', 'type': 'xsd:anyURI'},
-                        "image":          {'name': 'image', 'type': 'xsd:base64Binary', 'nillable': 'true'},
-                        "language":       {'name': 'language'},
-                        "language_value": {'name': 'language_value', "nillable": "true", "type": "xsd:integer"},
-                        }
+                        'user_id':         {'name': 'user_id',    'type': 'xsd:integer'},#"""<xsd:element name="user_id" type="xsd:integer"/>""",
+                        'is_actived':      {'name': 'is_actived', 'type': 'xsd:boolean'},#"""<xsd:element name="is_actived" type="xsd:boolean"/>""",
+                        'first_name':      {'name': 'first_name', 'type': 'xsd:string'},#"""<xsd:element name="first_name" type="xsd:requiredString"/>""",
+                        'last_name':       {'name': 'last_name',  'type': 'my:requiredString'},#"""<xsd:element name="last_name" type="xsd:requiredString"/>""",
+                        'email':           {'name': 'email',      'type': 'xsd:string'},#"""<xsd:element name="email" type="xsd:string"/>""",
+                        'description':     {'name': 'description'},#"""<xsd:element name="description"><xsd:complexType mixed="true"><xsd:sequence><xsd:any minOccurs="0" maxOccurs="unbounded" namespace="http://www.w3.org/1999/xhtml" processContents="lax"/></xsd:sequence></xsd:complexType></xsd:element>""",
+                        'birthday':        {'name': 'birthday',   'type': 'xsd:date',         'nillable': 'true'},#"""<xsd:element name="birthday" nillable="true" type="xsd:date"/>""",
+                        'created':         {'name': 'created',    'type': 'xsd:dateTime'},#"""<xsd:element name="created" type="xsd:dateTime"/>""",
+                        'url_site':        {'name': 'url_site',   'type': 'xsd:anyURI'},
+                        'image':           {'name': 'image',      'type': 'xsd:base64Binary', 'nillable': 'true'},
+                        'language':        {'name': 'language'},
+                        'language_value':  {'name': 'language_value', "type": "xsd:integer", "nillable": "true"},
+                       }
 
-        element_nodes = xml.findall('%(xsd)selement' % d_ns)
-        for element_node in element_nodes:
-            xsd_element_attrs = xsd_elements.get(element_node.get('name'))
+        for element_node in xml.findall('%(xsd)selement' % d_ns):
+            name = element_node.get('name')
+            xsd_element_attrs = xsd_elements.get(name)
 
-            if xsd_element_attrs is not None:
-                self.assertEqual(set(xsd_element_attrs.keys()), set(element_node.keys()))
-                for attr in element_node.keys():
-                    self.assertEqual(xsd_element_attrs[attr], element_node.get(attr))
-            else:
-                self.fail("There is at least an extra node named: %s" % element_node.get('name'))
+            if xsd_element_attrs is None:
+                self.fail("There is at least an extra node named: %s" % name)
+
+            self.assertEqual(set(xsd_element_attrs.keys()), set(element_node.keys()))
+
+            for attr in element_node.keys():
+                self.assertEqual(xsd_element_attrs[attr], element_node.get(attr))
 
     def test_myschema_xsd02(self):#test with Document
         body_map = {'user_id': 1, "title": "",
