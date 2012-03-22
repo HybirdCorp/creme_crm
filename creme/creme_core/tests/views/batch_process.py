@@ -239,7 +239,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.login()
 
         first_name = 'Kanako'
-        last_name = u'Ōno'
+        last_name = 'Ouno'
         contact01 = Contact.objects.create(user=self.user, first_name=first_name,  last_name=last_name)
         contact02 = Contact.objects.create(user=self.user, first_name='Mitsunori', last_name='Kugayama')
 
