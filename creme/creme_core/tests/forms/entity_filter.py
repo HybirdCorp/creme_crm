@@ -45,11 +45,14 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_data(self):
         clean = RegularFieldsConditionsField(model=Contact).clean
-        EQUALS = EntityFilterCondition.EQUALS
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', clean, '[{"operator": "%s", "name": "first_name"}]' % EQUALS)
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', clean, '[{"operator": "%s", "value": "Rei"}]' % EQUALS)
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', clean, '[{"name": "first_name", "value": "Rei"}]')
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', clean, '[{"operator": "notanumber", "name": "first_name", "value": "Rei"}]')
+
+    def test_clean_incomplete_data_required(self):
+        clean = RegularFieldsConditionsField(model=Contact).clean
+        EQUALS = EntityFilterCondition.EQUALS
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'required', clean, '[{"operator": "%s", "name": "first_name"}]' % EQUALS)
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'required', clean, '[{"operator": "%s", "value": {"type":"%s", "value":"Rei"}}]' % (EQUALS, EQUALS))
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'required', clean, '[{"name": "first_name", "value": "Rei"}]')
 
     def test_clean_invalid_field(self):
         clean = RegularFieldsConditionsField(model=Contact).clean
@@ -420,11 +423,16 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(PropertiesConditionsField, 'invalidformat', clean, '"{}"')
         self.assertFieldValidationError(PropertiesConditionsField, 'invalidformat', clean, '{"foobar":{"ptype":"test-foobar","has":"true"}}')
 
-    def test_clean_invalid_data(self):
-        clean = PropertiesConditionsField(model=Contact).clean
-        self.assertFieldValidationError(PropertiesConditionsField, 'invalidformat', clean, '[{"ptype":"%s"}]' % self.ptype01.id)
-        self.assertFieldValidationError(PropertiesConditionsField, 'invalidformat', clean, '[{"has":"true"}]')
+#    def test_clean_invalid_data(self):
+#        clean = PropertiesConditionsField(model=Contact).clean
+#        self.assertFieldValidationError(PropertiesConditionsField, 'invalidformat', clean, '[{"ptype":"%s"}]' % self.ptype01.id)
+#        self.assertFieldValidationError(PropertiesConditionsField, 'invalidformat', clean, '[{"has":"true"}]')
         #self.assertFieldValidationError(PropertiesConditionsField, 'invalidformat', clean, '[{"ptype":"%s","has":"not a boolean"}]' % self.ptype02.id)
+
+    def test_clean_incomplete_data_required(self):
+        clean = PropertiesConditionsField(model=Contact).clean
+        self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, '[{"ptype":"%s"}]' % self.ptype01.id)
+        self.assertFieldValidationError(PropertiesConditionsField, 'required', clean, '[{"has":"true"}]')
 
     def test_unknown_ptype(self):
         self.assertFieldValidationError(PropertiesConditionsField, 'invalidptype',
@@ -479,11 +487,15 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_data(self):
         clean = RelationsConditionsField(model=Contact).clean
-        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '[{"rtype":"%s"}]' % self.rtype01.id)
-        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '[{"has":"true"}]')
-        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '[{"rtype":"%s","has":"not a boolean"}]' % self.rtype01.id)
+        ct = ContentType.objects.get_for_model(Contact)
         self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '[{"rtype":"%s","has":"true", "ctype":"not an int"}]' % self.rtype01.id)
-        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '[{"rtype":"%s","has":"true", "entity":"not an int"}]' % self.rtype01.id)
+        self.assertFieldValidationError(RelationsConditionsField, 'invalidformat', clean, '[{"rtype":"%s","has":"true", "ctype":%d, "entity":"not an int"}]' % (self.rtype01.id, ct.id))
+
+    def test_clean_incomplete_data_required(self):
+        clean = RelationsConditionsField(model=Contact).clean
+        self.assertFieldValidationError(RelationsConditionsField, 'required', clean, '[{"rtype":"%s"}]' % self.rtype01.id)
+        self.assertFieldValidationError(RelationsConditionsField, 'required', clean, '[{"has":"true"}]')
+        self.assertFieldValidationError(RelationsConditionsField, 'required', clean, '[{"rtype":"%s","has":"not a boolean"}]' % self.rtype01.id)
 
     def test_unknown_ct(self):
         clean = RelationsConditionsField(model=Contact).clean
@@ -619,10 +631,15 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, "")
         self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, "[]")
 
-    def test_clean_invalid_data(self):
+#    def test_clean_invalid_data(self):
+#        clean = RelationSubfiltersConditionsField(model=Contact).clean
+#        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'invalidformat', clean, '[{"rtype":"%s"}]' % self.rtype01.id)
+#        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'invalidformat', clean, '[{"has":"true"}]')
+
+    def test_clean_incomplete_data_required(self):
         clean = RelationSubfiltersConditionsField(model=Contact).clean
-        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'invalidformat', clean, '[{"rtype":"%s"}]' % self.rtype01.id)
-        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'invalidformat', clean, '[{"has":"true"}]')
+        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, '[{"rtype":"%s"}]' % self.rtype01.id)
+        self.assertFieldValidationError(RelationSubfiltersConditionsField, 'required', clean, '[{"has":"true"}]')
 
     def test_unknown_filter(self):
         clean = RelationSubfiltersConditionsField(model=Contact).clean
