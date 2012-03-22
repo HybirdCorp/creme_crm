@@ -9,7 +9,20 @@
         $(document).ready(function() {
             function copyToMerged(button, src_class) {
                 var $parent = $(button).parents('.merge_entity_field').first();
-                $parent.find('.merge_result').val($parent.find(src_class).val());
+
+                //NB: sadly the val() method does not work with checkbox - it always returns 'on')*
+                //    so we manage checkbox separately....
+                //TODO: uncomment this line (and remve the others) when the bug has been fixed in jquery
+                //$parent.find('.merge_result').val($parent.find(src_class).val());
+
+                $dest = $parent.find('.merge_result');
+                $src  = $parent.find(src_class);
+
+                if ($dest.is('input[type="checkbox"]')) {
+                    $dest.attr('checked', $src.is(':checked'));
+                } else {
+                    $dest.val($src.val());
+                }
             }
 
             function copy1ToMerged() { copyToMerged(this, '.merge_entity1');}

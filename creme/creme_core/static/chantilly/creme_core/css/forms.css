@@ -106,6 +106,13 @@ form .table_detail_view.dual_column .td_info > input.hasDatepicker {
     border: 1px solid #f9c9c4;
 }
 
+/* 'width: 31%;' does not work fine with checkbox in Firefox (but works with Chrome) */
+input.merge_entity1[type="checkbox"], input.merge_entity2[type="checkbox"], input.merge_result[type="checkbox"] {
+    width: auto;
+    margin-left: 15%;
+    margin-right: 15%;
+}
+
 .merge_result {
     width: 31%;
 }
