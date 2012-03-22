@@ -21,7 +21,7 @@
 from logging import error
 
 from django.db.models import ForeignKey
-from django.forms import Field, Widget, Select
+from django.forms import Field, Widget, Select, CheckboxInput
 from django.forms.models import fields_for_model, model_to_dict
 from django.forms.util import flatatt
 from django.utils.safestring import mark_safe
@@ -61,7 +61,7 @@ class MergeWidget(Widget):
         widget = self._original_widget
         render = widget.render
         #TODO: improve Wigdets with a 'read_only' param -> each type choose the right html attribute
-        ro_attr = 'disabled' if isinstance(widget, Select) else 'readOnly'
+        ro_attr = 'disabled' if isinstance(widget, (Select, CheckboxInput)) else 'readOnly'
 
         return mark_safe(u'<ul %(attrs)s>'
                               '<li>%(input_1)s</li>'
