@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -160,25 +160,17 @@ class ReportGraph(CremeEntity):
                         max_date = end
 
         elif gtype == RGT_FK:
-            #TODO: There is a problem with values_list and inheritance
-#            fk_ids = set(entities.values_list(abscissa, flat=True))#.distinct()
-            fk_ids = set()
-            fk_ids_add = fk_ids.add
-
-            for entity in entities:
-                try:
-                    fk_ids_add(getattr(entity, abscissa).id)
-                except AttributeError:
-                    pass
-            _fks = entities.model._meta.get_field(abscissa).rel.to.objects.filter(pk__in=fk_ids)
+            _fks = entities.model._meta.get_field(abscissa).rel.to.objects.all() #TODO: rename
 
             if order == 'DESC':
-                _fks.reverse()#Seems useless on models which haven't ordering
-            fks = dict((rel.id, unicode(rel)) for rel in _fks)
+                #_fks.reverse()#Seems useless on models which haven't ordering
+                _fks = _fks.reverse()
 
-            for fk_id in fk_ids:
-                x_append(fks.get(fk_id, ''))
-                sub_entities = entities_filter(Q(**{str('%s' % abscissa): fk_id}))
+
+            for fk in _fks:
+                x_append(unicode(fk))
+                sub_entities = entities_filter(Q(**{str('%s' % abscissa): fk.id})) #TODO: Q useless ??
+
                 if is_count:
                     y_append(sub_entities.count())
                 else:
