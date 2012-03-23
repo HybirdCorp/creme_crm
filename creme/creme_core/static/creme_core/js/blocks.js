@@ -95,6 +95,7 @@ creme.blocks.saveState = function(block) {
 creme.blocks.initEmptyFields = function(block) {
 	$('tbody > tr.content').not(':has(> td:not(.edit_inner):not(:empty))', block).addClass('collapsable-field');
     creme.blocks.updateFieldsColors(block);
+    creme.blocks.updateToggleButton(block);
 };
 
 creme.blocks.updateFieldsColors = function(block) {
@@ -115,21 +116,30 @@ creme.blocks.updateFieldsColors = function(block) {
     }
 }
 
+creme.blocks.updateToggleButton = function(block, collapsed) {
+	var button = $('table.block_header th.actions a.view_more, table.block_header th.actions a.view_less', block);
+	var collapsed = block.hasClass(this.hide_fields_class);
+	var button_title = collapsed ? gettext('Show empty fields') : gettext('Hide empty fields');
+
+	button.toggleClass('view_less', !collapsed).toggleClass('view_more', collapsed);
+	button.attr('title', button_title)
+	   	  .attr('alt', button_title);
+}
+
 creme.blocks.toggleEmptyFields = function(button) {
-    var $button = $(button);
-    var $block = $button.parents('table[id!=].table_detail_view:not(.collapsed)');
+    var $block = $(button).parents('table[id!=].table_detail_view:not(.collapsed)');
 
     if ($block.size() == 0)
         return;
 
-    var line_collapsed = $block.hasClass(this.hide_fields_class);
+    var previous_state = $block.hasClass(this.hide_fields_class);
 
-    $button.toggleClass('view_less view_more');
     $block.toggleClass(this.hide_fields_class);
 
     creme.blocks.updateFieldsColors($block);
+    creme.blocks.updateToggleButton($block);
 
-    $block.trigger('creme-blocks-field-display-changed', {action : line_collapsed ? 'show' : 'hide'});
+    $block.trigger('creme-blocks-field-display-changed', {action : previous_state ? 'show' : 'hide'});
 };
 
 creme.blocks.initialize = function(block)

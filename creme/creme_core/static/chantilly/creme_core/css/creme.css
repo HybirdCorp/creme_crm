@@ -46,7 +46,8 @@ body.central_panel {
 .central_panel .form-row {
     padding: 4px 0;
     float: left;
-    width: 100%; }
+    width: 100%;
+}
 
 .central_panel .form-row label {
     float: left;
@@ -211,17 +212,17 @@ ul.button_list {
     list-style: none;
 }
 ul.button_list li {
-    margin: 2px;
+    margin: 0px 2px;
     padding: 0;
     list-style: none;
 }
 ul.button_list.hbox {
-    display: inline;
+    display: inline-table;
     line-height: 30px;
 }
 ul.button_list.hbox li {
     position: relative;
-    display:inline;
+    display:inline-table;
 }
 ul.button_list.vbox li {
     position: relative;
@@ -660,6 +661,10 @@ a img:hover {
     z-index: 1100; /* use z-index to display over inner popups (1000) */
 }
 
+.ui-datepicker-trigger {
+    cursor: pointer;
+}
+
 /* DualColumnMultiSelect (dcms) (move to creme-ui ??)*/
 .dcms_div li.dcms_focused {
     background: #f7b5ad none repeat scroll 0 0;
@@ -939,10 +944,6 @@ a img:hover {
 	width: 200%;
 	height: 200%;
     z-index: 2000;
-}
-
-.ui-datepicker-trigger {
-    cursor: pointer;
 }
 
 .top_fixed {

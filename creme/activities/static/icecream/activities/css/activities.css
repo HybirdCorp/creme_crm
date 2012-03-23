@@ -3,3 +3,8 @@
     margin: 0;
     padding-left: 0;
 }
+
+.creme-future-activity {
+    width: 15%;
+    white-space: nowrap;
+}
