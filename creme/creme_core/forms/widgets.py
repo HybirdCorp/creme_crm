@@ -343,17 +343,17 @@ class DateTimeWidget(TextInput):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
 
         return mark_safe("""
-            <ul id="%(id)s_datetimepicker" class="ui-creme-datetimepicker" style="list-style:none;margin:0;padding:0;">
+            <ul id="%(id)s_datetimepicker" class="ui-creme-datetimepicker">
                 %(input)s
-                <li>%(date_label)s&nbsp;</li>
+                <li>%(date_label)s</li>
                 <li class="date"><input class="ui-corner-all" type="text" maxlength="12"/></li>
-                <li>&nbsp;%(time_label)s&nbsp;</li>
+                <li>%(time_label)s</li>
                 <li class="hour"><input class="ui-corner-all" type="text" maxlength="2"/></li>
-                <li>&nbsp;%(hour_label)s&nbsp;</li>
+                <li>%(hour_label)s</li>
                 <li class="minute"><input class="ui-corner-all" type="text" maxlength="2"/></li>
-                <li>&nbsp;%(minute_label)s</li>
+                <li>%(minute_label)s</li>
                 <li class="clear"><button type="button">%(clear_label)s</button></li>
-                <li class="now last"><button type="button">%(now_label)s</button></li>
+                <li class="now"><button type="button">%(now_label)s</button></li>
             </ul>
             <script type="text/javascript">
                 $('.ui-creme-datetimepicker#%(id)s_datetimepicker').each(function() {creme.forms.DateTimePicker.init($(this));});
@@ -374,13 +374,13 @@ class TimeWidget(TextInput):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
 
         return mark_safe("""
-            <ul id="%(id)s_timepicker" class="ui-creme-timepicker" style="list-style:none;margin:0;padding:0;">
+            <ul id="%(id)s_timepicker" class="ui-creme-timepicker">
                 %(input)s
                 <li class="hour"><input class="ui-corner-all" type="text" maxlength="2"/></li>
-                <li>&nbsp;%(hour_label)s&nbsp;</li>
+                <li>%(hour_label)s</li>
                 <li class="minute"><input class="ui-corner-all" type="text" maxlength="2"/></li>
-                <li>&nbsp;%(minute_label)s</li>
-                <li class="last"><button type="button">%(now_label)s</button></li>
+                <li>%(minute_label)s</li>
+                <li><button type="button">%(now_label)s</button></li>
             </ul>
             <script type="text/javascript">
                 $('.ui-creme-timepicker#%(id)s_timepicker').each(function() {creme.forms.TimePicker.init($(this));});
@@ -418,12 +418,18 @@ class CalendarWidget(TextInput):
         for f in date_format_js.split(settings.DATE_FORMAT_JS_SEP):
             cmd_js.append(dates_js.get(f))
 
-        return mark_safe(u"""%(help_text)s
-            <br/>
-            %(input)s
-            <button type="button" onclick="d=new Date();$('#%(id)s').val(%(today_js)s);">
-                %(today_label)s
-            </button>
+        return mark_safe(u"""<div class="ui-creme-calendarpicker">
+                %(help_text)s
+                <br/>
+                <ul class="ui-layout hbox">
+                    <li>%(input)s</li>
+                    <li>
+                        <button type="button" onclick="d=new Date();$('#%(id)s').val(%(today_js)s);">
+                            %(today_label)s
+                        </button>
+                    </li>
+                </ul>
+            </div>
             <script type="text/javascript">
                 $("#%(id)s").datepicker({dateFormat: "%(date_format_js)s", showOn: "button", buttonImage: "%(img_url)s", buttonImageOnly: true });
             </script>""" % {

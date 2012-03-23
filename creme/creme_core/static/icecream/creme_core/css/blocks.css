@@ -77,9 +77,20 @@
     cursor: pointer;
 }
 
+.block_line_light {
+	background-color: #F4FAFD;
+	padding:2px 4px 2px 4px;
+}
 
-.block_line_light        {background-color: #f4fafd;}
-.block_line_dark         {background-color: #e6f2f7;}
+.block_line_dark {
+	background-color: #e6f2f7;
+    padding:2px 4px 2px 4px;
+}
+
+.block_line_light > p, .block_line_dark > p {
+    margin:0;
+}
+
 .block_header_line_light {background-color: #bdd8e4;}
 .block_header_line_dark  {background-color: #b3d2df;}
 
@@ -125,6 +136,7 @@
 .edit_inner {
     max-width: 70%;
     width: 0;
+    padding: 2px;
     text-align: right;
     white-space: nowrap;
 }

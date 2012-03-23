@@ -214,17 +214,17 @@ ul.button_list {
     list-style: none;
 }
 ul.button_list li {
-    margin: 2px;
+    margin: 0px 2px;
     padding: 0;
     list-style: none;
 }
 ul.button_list.hbox {
-    display: inline;
+    display: inline-table;
     line-height: 34px;
 }
 ul.button_list.hbox li {
     position: relative;
-    display:inline;
+    display:inline-table;
 }
 ul.button_list.vbox li {
     position: relative;
@@ -667,14 +667,19 @@ div#sub_content > div:nth-child(5) {
 .block_line_dark         {background-color: #e6f2f7;}
 .block_header_line_light {background-color: #bdd8e4;}
 .block_header_line_dark  {background-color: #b3d2df;}*/
+
+/*
 .block_line_light        {background-color: #F4FAFD;}
 .block_line_dark         {background-color: #F4FAFD;}
 .block_header_line_light {background-color: #F0FAFF;}
 .block_header_line_dark  {background-color: #F0FAFF;}
+*/
 
+/*
 .table_detail_view tbody td table tbody td:hover {
     background-color:#ffffff;
 }
+*/
 
 /*.table_detail_view tbody td{
     border-width: 1px 1px 0 0;
@@ -839,6 +844,10 @@ a img:hover {
 
 .ui-datepicker {
     z-index: 1100; /* use z-index to display over inner popups (1000) */
+}
+
+.ui-datepicker-trigger {
+    cursor: pointer;
 }
 
 /* DualColumnMultiSelect (dcms) (move to creme-ui ??)*/

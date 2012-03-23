@@ -51,7 +51,7 @@
                 </tr>
                 {% if activity.get_subject_relations %}
                 <tr>
-                    <td class="{{row_color}}" align="left" style="width: 15%;">{% trans "Subject(s)" %} : </td>
+                    <td class="{{row_color}} creme-future-activity" align="left">{% trans "Subject(s)" %} : </td>
                     <td colspan="2" class="{{row_color}}">
                         {% with activity.get_subject_relations as relations %}
                             {% include 'activities/templatetags/activity_relations_field.html' %}
@@ -61,7 +61,7 @@
                 {% endif %}
                 {% if activity.get_participant_relations %}
                     <tr>
-                        <td style="width: 15%;" class="{{row_color}}" align="left">{% trans "Participant(s)" %} : </td>
+                        <td class="{{row_color}} creme-future-activity" align="left">{% trans "Participant(s)" %} : </td>
                         <td colspan="2" class="{{row_color}}">
                             {% with activity.get_participant_relations as relations %}
                                 {% include 'activities/templatetags/activity_relations_field.html' %}
@@ -71,7 +71,7 @@
                 {% endif %}
                 {% if activity.get_linkedto_relations %}
                     <tr>
-                        <td style="width: 15%;" class="{{row_color}}" align="left">{% trans "Related to" %} : </td>
+                        <td class="{{row_color}} creme-future-activity" align="left">{% trans "Related to" %} : </td>
                         <td colspan="2" class="{{row_color}}">
                             {% with activity.get_linkedto_relations as relations %}
                                 {% include 'activities/templatetags/activity_relations_field.html' %}

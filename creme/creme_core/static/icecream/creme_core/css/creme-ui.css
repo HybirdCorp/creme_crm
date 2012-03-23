@@ -1,15 +1,19 @@
 /*----------------------------------*/
-.ui-creme-timepicker { margin:0; padding:0; }
-.ui-creme-timepicker li { float:left; }
-.ui-creme-timepicker li.last { float:none; }
-.ui-creme-timepicker li input { width:3em; border:1px solid #6eaac4; text-align:right;}
+.ui-creme-timepicker { margin:0; padding:0; list-style:none;}
+.ui-creme-timepicker li { margin:0; padding:0; position:relative; display:inline-block;}
+.ui-creme-timepicker li input { width:3em !important; border:1px solid #6eaac4; text-align:right; margin:0px 2px;}
+.ui-creme-timepicker li button[type="button"] { padding:0px 6px;}
 
 /*----------------------------------*/
-.ui-creme-datetimepicker { margin:0; padding:0; }
-.ui-creme-datetimepicker li { float:left; }
-.ui-creme-datetimepicker li.last { float:none; }
-.ui-creme-datetimepicker li input { width:3em; border:1px solid #6eaac4;text-align: right;}
+.ui-creme-datetimepicker { margin:0; padding:0; list-style:none;}
+.ui-creme-datetimepicker li { position:relative; display:inline-block;}
+.ui-creme-datetimepicker li input { width:3em; border:1px solid #6eaac4;text-align: right; margin:0px 2px;}
 .ui-creme-datetimepicker li.date input { width: 8em; }
+.ui-creme-datetimepicker li button[type="button"] { padding:0px 6px;}
+.ui-creme-datetimepicker li img.ui-datepicker-trigger { vertical-align:middle; }
+
+/*----------------------------------*/
+.ui-creme-calendarpicker li img.ui-datepicker-trigger { vertical-align:middle; }
 
 /*----------------------------------*/
 .ui-creme-rel-selector-list { margin:0;padding:0; }
@@ -24,8 +28,9 @@
 ul.ui-layout { margin:0; padding:0; list-style:none; }
 ul.ui-layout li { margin:0; padding:0; list-style:none; }
 
-ul.ui-layout.hbox { display:inline; }
-ul.ui-layout.hbox li { position:relative; display:inline; }
+ul.ui-layout.hbox li { position:relative; display:inline-block; }
+ul.ui-layout.hbox li button[type="button"] { padding-top: 0px; padding-bottom: 0px; }
+ul.ui-layout.hbox li input { margin: 0px 2px; }
 
 ul.ui-layout.vbox li { position:relative; display:block; }
 
