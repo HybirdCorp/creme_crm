@@ -173,10 +173,12 @@ class BatchAction(object):
         """
         fname = self._field_name
         old_value = getattr(entity, fname)
-        new_value = self._operator(old_value, self._value)
 
-        if old_value != new_value:
-            setattr(entity, fname, new_value)
-            return True
+        if old_value is not None:
+            new_value = self._operator(old_value, self._value)
+
+            if old_value != new_value:
+                setattr(entity, fname, new_value)
+                return True
 
         return False

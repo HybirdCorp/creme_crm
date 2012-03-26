@@ -219,6 +219,12 @@ class BatchActionTestCase(CremeTestCase):
         baction(haruhi)
         self.assertEqual('umiya', haruhi.last_name)
 
+    def test_null_field(self):
+        baction = BatchAction(Contact, 'first_name', 'upper', value='')
+        haruhi = Contact(first_name=None, last_name='Suzumiya')
+        self.assertFalse(baction(haruhi))
+        self.assertIsNone(haruhi.first_name)
+
     def test_operand_error(self):
         with self.assertRaises(BatchAction.ValueError) as cm:
             BatchAction(Contact, 'last_name', 'rm_start', value='three') #not int
