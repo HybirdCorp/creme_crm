@@ -27,7 +27,6 @@ class CommercialTestCase(CremeTestCase):
     def test_populate(self):
         self.get_relationtype_or_fail(REL_SUB_SOLD_BY)
         self.get_relationtype_or_fail(REL_OBJ_SOLD_BY)
-        self.get_relationtype_or_fail(REL_SUB_OPPORT_LINKED, [Opportunity], [Act])
         self.get_relationtype_or_fail(REL_SUB_COMPLETE_GOAL, [], [Act])
 
         self.get_propertytype_or_fail(PROP_IS_A_SALESMAN, [Contact])
