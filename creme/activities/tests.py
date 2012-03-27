@@ -962,6 +962,9 @@ class ActivitiesTestCase(CremeTestCase):
         logged_user, other_contact_user, classic_contact, phone_call = self._set_activity_context()
 
         url = '/activities/activity/%s/participant/add' % phone_call.id
+
+        self.assertEqual(200, self.client.get(url).status_code)
+
         response = self.client.post(url, follow=True, data={'my_participation': True,
                                                             'my_calendar': Calendar.get_user_default_calendar(logged_user.is_user).pk,
                                                             'participating_users': other_contact_user.is_user_id,

@@ -78,7 +78,7 @@ class ParticipantCreateForm(CremeForm):
     my_participation    = BooleanField(required=False, label=_(u"Do I participate to this meeting ?"),initial=False)
     my_calendar         = ModelChoiceField(queryset=Calendar.objects.none(), required=False, empty_label=None,
                                            label=_(u"On which of my calendar this activity will appears?"))
-    participating_users = ModelMultipleChoiceField(label=_(u'Creme users'), queryset=User.objects.all(),
+    participating_users = ModelMultipleChoiceField(label=_(u'Other participating users'), queryset=User.objects.all(),
                                                    required=False, widget=UnorderedMultipleChoiceWidget)
     participants        = MultiCremeEntityField(label=_(u'Participants'), model=Contact, required=False)
 
@@ -89,17 +89,27 @@ class ParticipantCreateForm(CremeForm):
         self.participants = []
 
         user = self.user
+        user_pk = user.pk
         fields = self.fields
-        existing = Contact.objects.filter(relations__type=REL_SUB_PART_2_ACTIVITY, relations__object_entity=entity.id).values_list('id', flat=True)
 
+        existing = Contact.objects.filter(relations__type=REL_SUB_PART_2_ACTIVITY, relations__object_entity=entity.id)
         fields['participants'].q_filter = {'~pk__in': [c.id for c in existing], 'is_user__isnull': True}
 
-        #TODO: exclude already associated participating users ??
-        fields['participating_users'].queryset = User.objects.exclude(pk=user.id)
+        existing_users = [c.is_user.pk for c in existing if c.is_user]
+        user_qs = User.objects.exclude(pk__in=existing_users).exclude(pk=user_pk)
+
+        fields['participating_users'].queryset = user_qs
+        if not user_qs:
+            fields['participating_users'].widget.attrs = {'reduced': 'true'}
 
         #TODO: refactor this with a smart widget that manages dependencies
         #TODO: hide my participation and my calendar field if logged user already linked ??
-        fields['my_participation'].widget.attrs['onclick'] = "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
+        my_participation_field = fields['my_participation']
+        my_participation_field.widget.attrs['onclick'] = "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
+
+        if user_pk in existing_users:
+            my_participation_field.initial = True
+            my_participation_field.widget.attrs['disabled'] = True
 
         my_calendar_field = fields['my_calendar']
         my_calendar_field.queryset = Calendar.objects.filter(user=user)
