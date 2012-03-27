@@ -9,7 +9,7 @@
         - Integer actions : 'Add', 'Subtract', 'Multiply', 'Divide'.
     # New SemiFixedRelationType model that allows to accelerate the creation of Relation when one branch is always the same.
     # The deletion of small models (status/sector etc...) is better managed (protected or FK are set to NULL).
-    # CSV import : the 'dialect' of the csv file is now guessed.
+    # CSV import : the 'dialect' of the CSV file is now guessed.
     # Apps :
         * Emails :
             - The raw text and the HTML text of the bodies of emails (standalone ones and grouped by campaigns ones) can be written separately.
@@ -18,6 +18,7 @@
             - Line management was improved : you can create/edit/delete several lines at once.
             - Line fields can be edited directly.
             - Status of Invoice/Quote/Sales Order/Credit Note are ordered by config.
+            - Numbers of Invoices are now editable, and all status can be chosen at creation.
         * Activities :
             - List views for meetings and phone calls.
             - Activities can be created directly in the Calendar view.
@@ -25,13 +26,19 @@
         * Assistants :
             - New FunctionFields for 'Todos', Memos' & 'Alerts'.
         * Opportunities :
-            - Sales Phases are ordered by config.
+            - Sales Phases are ordered by configuration.
         * Persons :
             - First name is no more required.
             - Siren is now unique or empty.
+            - When the photograh is deleted, the Contact is no more deleted (FK is set to NULL).
+        * Documents:
+            - When a Folder is not empty, it can not be deleted any more (old behaviour: all the Documents in the Folder were deleted too).
+        * Commercial:
+            - The relationship type 'is related to the opportunity' has been removed.
     # Bug fixes :
         * Creme_config: only superusers can create/edit Users.
         * Activities: 'participates' relationship is now internal (to manage correctly Calendars).
+        * Internal relationships are no more automatically cloned (eg: it caused problems when cloning an Organisation targeted by an Invoice).
         * Some HTML escaping problems fixed.
         * ...
 
@@ -106,4 +113,4 @@
     # User settings blocks are now registrable in creme_config.
     # Fix the small but annoying bugs that prevented Creme to run correctly with PostgreSQL.
     # Documentation for people who want to install Creme on Windows.
-    # Code cleanup (in .js files for example), lots of unit tests were added.
+    # Code clean-up (in .js files for example), lots of unit tests were added.
