@@ -13,7 +13,7 @@ try:
     from opportunities.models import Opportunity, SalesPhase
 
     from commercial.models import *
-    from commercial.constants import REL_SUB_COMPLETE_GOAL, REL_SUB_OPPORT_LINKED
+    from commercial.constants import REL_SUB_COMPLETE_GOAL
     from commercial.tests.base import CommercialBaseTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
