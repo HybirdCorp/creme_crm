@@ -20,6 +20,7 @@
 
 import base64
 import mimetypes
+import os
 
 try:
     from PIL import ImageFile as PILImageFile
@@ -74,7 +75,7 @@ class Image(CremeEntity):
         return self.get_image_name()
 
     def get_image_url(self):
-        return "%s%s" % (MEDIA_URL, self.image)
+        return MEDIA_URL + unicode(self.image).replace(os.sep,'/') #TODO credentials static/dynamic image
 
     def get_entity_summary(self, user):
         if not self.can_view(user):

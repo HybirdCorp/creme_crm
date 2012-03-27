@@ -97,7 +97,8 @@ def download_file(request, location, mimetype=None):
                 name = '.'.join(type)
             type = type[len(type)-1]
 
-    with open(settings.MEDIA_ROOT+'/'+location.replace('../','').replace('..\\',''),'rb+') as f:
+    image_url = settings.MEDIA_ROOT + os.sep + location.replace('../','').replace('..\\','')
+    with open(image_url, 'rb+') as f:
         data = f.read()
 
     response = HttpResponse(data, mimetype=type)
