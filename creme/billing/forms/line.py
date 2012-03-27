@@ -87,7 +87,7 @@ class _LineOnTheFlyForm(CremeModelForm):
 
         fields = self.fields
         fields['total_discount'].help_text = ugettext(u'Check if you want to apply the discount to the total line. If not it will be applied on the unit price.')
-        fields['unit'].required = True
+#        fields['unit'].required = True
 
         if not self.user.has_perm_to_create(self._get_related_item_class()):
             has_to_register_as = fields['has_to_register_as']
