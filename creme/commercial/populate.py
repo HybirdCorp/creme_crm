@@ -47,8 +47,6 @@ class Populator(BasePopulator):
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_SOLD_BY,       _(u'has sold')),
                             (REL_OBJ_SOLD_BY,       _(u'has been sold by')))
-        RelationType.create((REL_SUB_OPPORT_LINKED, _(u'is related to the commercial action'), [Opportunity]),
-                            (REL_OBJ_OPPORT_LINKED, _(u'is related to the opportunity'),       [Act]))
         RelationType.create((REL_SUB_COMPLETE_GOAL, _(u'completes a goal of the commercial action')),
                             (REL_OBJ_COMPLETE_GOAL, _(u'is completed thanks to'),              [Act]))
 
