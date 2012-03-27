@@ -113,20 +113,20 @@
    \endfoot
 \hline
 \multicolumn{3}{c} {} \tabularnewline \cline{3-4}
-\multicolumn{2}{c|} {} & \centering{ Total HT } & \centering{ {{object.get_total}} Euros } \tabularnewline \cline{3-4}
-\multicolumn{2}{c|} {} & \centering{ TVA } & \centering{ {{object.get_total_with_tax|sub:object.get_total}} Euros } \tabularnewline \cline{3-4}
-\multicolumn{2}{c|} {} & \centering{ TTC } & \centering{ {{object.get_total_with_tax}} Euros } \tabularnewline \cline{3-4}
+\multicolumn{2}{c|} {} & \centering{ Total HT } & \centering{ {{object.total_no_vat}} Euros } \tabularnewline \cline{3-4}
+\multicolumn{2}{c|} {} & \centering{ TVA } & \centering{ {{object.total_vat|sub:object.total_no_vat}} Euros } \tabularnewline \cline{3-4}
+\multicolumn{2}{c|} {} & \centering{ TTC } & \centering{ {{object.total_vat}} Euros } \tabularnewline \cline{3-4}
 \endlastfoot
    
 {% for line in plines %}
    \hline
-    {% if line.related_item %} \centering{ {{line.related_item}} } {% else %} \centering{ {{line.on_the_fly_item}} } {% endif %} & \centering{ {{line.quantity}} } &  \centering{ {{line.unit_price}} } & \centering{ {{line.quantity|mult:line.unit_price}} } \tabularnewline
+    {% if line.related_item %} \centering{ {{line.related_item|safe}} } {% else %} \centering{ {{line.on_the_fly_item|safe}} } {% endif %} & \centering{ {{line.quantity}} } &  \centering{ {{line.unit_price}} } & \centering{ {{line.quantity|mult:line.unit_price}} } \tabularnewline
    \hline
 {% endfor %}
 
 {% for line in slines %}
 
-    {% if line.related_item %}\centering{ {{line.related_item}} } {% else %} \centering{ {{line.on_the_fly_item}} } {% endif %} & \centering{ {{line.quantity}} } &  \centering{ {{line.unit_price}} } & \centering{ {{line.quantity|mult:line.unit_price}} }  \tabularnewline
+    {% if line.related_item %}\centering{ {{line.related_item|safe}} } {% else %} \centering{ {{line.on_the_fly_item|safe}} } {% endif %} & \centering{ {{line.quantity}} } &  \centering{ {{line.unit_price}} } & \centering{ {{line.quantity|mult:line.unit_price}} }  \tabularnewline
    \hline
 {% endfor %}
 \end{longtable}
