@@ -106,7 +106,7 @@ def print_many2many(entity, fval, user):
 def print_duration(entity, fval, user):
     try:
         h, m, s = fval.split(':')
-    except ValueError:
+    except (ValueError, AttributeError):
         return ''
 
     h = int(h)
