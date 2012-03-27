@@ -36,7 +36,7 @@ class Product(CremeEntity):
     code              = IntegerField(_(u'Code'), default=0)
     description       = CharField(_(u'Description'), max_length=200)
     unit_price        = DecimalField(_(u'Unit price'), max_digits=8, decimal_places=2)
-    unit              = CharField(_(u'Unit'), max_length=100)
+    unit              = CharField(_(u'Unit'), max_length=100, blank=True)
     quantity_per_unit = IntegerField(_(u'Quantity/Unit'), blank=True, null=True)
     weight            = DecimalField(_(u'Weight'), max_digits=8, decimal_places=2, blank=True, null=True)
     stock             = IntegerField(_(u'Quantity/Stock'), blank=True, null=True)
