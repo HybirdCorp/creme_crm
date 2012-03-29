@@ -63,7 +63,7 @@ def get_images_from_html(html):
             </head>
             <body>
                 <p>blabla</p>
-                <p><img title="je bandeuuuu" src="http://127.0.0.1:8000/site_media/upload/images/12_imagename.jpg" alt="Image esc" width="159" height="130" /></p>
+                <p><img title="My image" src="http://127.0.0.1:8000/site_media/upload/images/12_imagename.jpg" alt="Image esc" width="159" height="130" /></p>
             </body>
         </html>
 

@@ -584,10 +584,7 @@ msgstr "Modification d'une période travaillée"
 #~ msgstr "Ajouter une ressource"
 
 #~ msgid "Edit resource"
-#~ msgstr "Éditer la ressource"
-
-#~ msgid "Editer period"
-#~ msgstr "Éditer la période"
+#~ msgstr "Modifier la ressource"
 
 #~ msgid "This resource is already assigned to this task"
 #~ msgstr "Cette ressource est déjà affectée à la tâche"

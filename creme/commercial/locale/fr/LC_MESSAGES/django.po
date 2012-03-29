@@ -883,7 +883,7 @@ msgstr ""
 #~ msgstr "Commentaire"
 
 #~ msgid "Edit"
-#~ msgstr "Éditer"
+#~ msgstr "Modifier"
 
 #~ msgid "Paid"
 #~ msgstr "Payée"

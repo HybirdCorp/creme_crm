@@ -1201,7 +1201,7 @@ msgstr "Ajouter un bon de commande pour <%s>"
 #~ msgstr "Ajouter depuis un Service existant"
 
 #~ msgid "Edition of a line in the document <%s>"
-#~ msgstr "Édition d'une ligne dans le document <%s>"
+#~ msgstr "Modification d'une ligne dans le document <%s>"
 
 #~ msgid "Overall"
 #~ msgstr "Globale"

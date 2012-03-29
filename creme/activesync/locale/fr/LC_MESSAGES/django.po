@@ -96,12 +96,12 @@ msgstr "Vous n'avez pas le droit de créer le contact <%s> dans Crème"
 
 #: errors.py:55
 msgid "You haven't the right to change contacts in Creme"
-msgstr "Vous n'avez pas le droit d'éditer des contacts dans Crème"
+msgstr "Vous n'avez pas le droit de modifier des contacts dans Crème"
 
 #: errors.py:56
 #, python-format
 msgid "You haven't the right to change the contact <%s> in Creme"
-msgstr "Vous n'avez pas le droit d'éditer le contact <%s> dans Crème"
+msgstr "Vous n'avez pas le droit de modifier le contact <%s> dans Crème"
 
 #: errors.py:57
 msgid "You haven't the right to delete contacts in Creme"
@@ -398,7 +398,7 @@ msgstr "Synchronisation de téléphone"
 
 #: templates/activesync/frags/ajax/main_sync.html:10
 msgid "Edit your mobile configuration"
-msgstr "Éditez votre configuration mobile"
+msgstr "Modifier votre configuration mobile"
 
 #: templates/activesync/frags/ajax/main_sync.html:14
 msgid "Refresh"
@@ -475,7 +475,7 @@ msgstr "Configuration de synchronisation mobile par défaut"
 #: templates/activesync/templatetags/block_user_mobile_sync.html:13
 #: templates/activesync/templatetags/block_user_mobile_sync.html:14
 msgid "Edit"
-msgstr "Éditer"
+msgstr "Modifier"
 
 #: templates/activesync/templatetags/block_user_mobile_sync.html:6
 msgid "Your mobile synchronization configuration"
@@ -525,11 +525,11 @@ msgstr "Historique vide pour le moment"
 
 #: views/mobile_sync.py:43
 msgid "Edit default mobile synchronization configuration"
-msgstr "Éditer ka configuration de synchronisation mobile par défaut"
+msgstr "Modifier la configuration de synchronisation mobile par défaut"
 
 #: views/user_settings.py:44
 msgid "Edit your mobile synchronization configuration"
-msgstr "Éditer votre configuration de synchronisation mobile"
+msgstr "Modifier votre configuration de synchronisation mobile"
 
 #~ msgid "User synchronization history"
 #~ msgstr "Historique de la synchronisation de l'utilisateur"

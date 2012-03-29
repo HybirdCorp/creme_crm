@@ -824,7 +824,7 @@ msgstr "Par défaut ?"
 
 #: templates/activities/templatetags/block_user_calendars.html:26
 msgid "Edit"
-msgstr "Éditer"
+msgstr "Modifier"
 
 #: templates/activities/templatetags/block_user_calendars.html:27
 msgid "Delete"
@@ -832,7 +832,7 @@ msgstr "Supprimer"
 
 #: templates/activities/templatetags/block_user_calendars.html:36
 msgid "Edit calendar"
-msgstr "Éditer calendrier"
+msgstr "Modifier calendrier"
 
 #: templates/activities/templatetags/block_user_calendars.html:49
 msgid "No calendar for the moment"

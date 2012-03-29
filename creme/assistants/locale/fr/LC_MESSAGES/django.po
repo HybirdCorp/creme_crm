@@ -328,7 +328,7 @@ msgstr "OK ?"
 
 #: templates/assistants/block_actions_it.html:47
 msgid "Edit"
-msgstr "Éditer"
+msgstr "Modifier"
 
 #: templates/assistants/block_actions_it.html:62
 msgid "No action in time"
