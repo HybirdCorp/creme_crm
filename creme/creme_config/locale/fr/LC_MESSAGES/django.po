@@ -140,7 +140,7 @@ msgid ""
 "The buttons related to this type of resource will be chosen by editing the "
 "configuration"
 msgstr ""
-"Les boutons associés à ce type de ressource seront choisis en éditant la "
+"Les boutons associés à ce type de ressource seront choisis en modifiant la "
 "configuration"
 
 #: forms/button_menu.py:56
@@ -197,7 +197,7 @@ msgid ""
 "the configuration"
 msgstr ""
 "Les autres champs personnalisés de ce type de ressource seront choisis en "
-"éditant la configuration"
+"modifiant la configuration"
 
 #: forms/custom_fields.py:102
 msgid "Existing choices of the list"
@@ -550,7 +550,7 @@ msgstr ""
 
 #: templates/creme_config/search_portal.html:19
 msgid "Edit a configuration to specify the search fields."
-msgstr "Éditez une configuration pour spécifier des champs de recherche."
+msgstr "Modifiez une configuration pour spécifier des champs de recherche."
 
 #: templates/creme_config/user_role_portal.html:6
 msgid "Roles"
@@ -562,7 +562,7 @@ msgstr "Voir vos réglages"
 
 #: templates/creme_config/user_settings.html:20
 msgid "View and edit your Creme settings"
-msgstr "Voir et éditer vos réglages Creme"
+msgstr "Voir et modifier vos réglages Creme"
 
 #: templates/creme_config/custom_fields/portal.html:6
 #: templates/creme_config/custom_fields/view.html:7
@@ -604,7 +604,7 @@ msgstr "%s Blocs sur \"Ma page\" par défaut"
 #: templates/creme_config/templatetags/block_blockdefmypagelocations.html:11
 #: templates/creme_config/templatetags/block_blockmypagelocations.html:6
 msgid "Edit blocks configuration"
-msgstr "Éditer la configuration de blocs"
+msgstr "Modifier la configuration de blocs"
 
 #: templates/creme_config/templatetags/block_blockdefmypagelocations.html:16
 #: templates/creme_config/templatetags/block_custom_fields.html:16
@@ -680,7 +680,7 @@ msgstr "Type"
 #: templates/creme_config/templatetags/block_searchconfig.html:21
 #: templates/creme_config/templatetags/block_settings.html:20
 msgid "Edit"
-msgstr "Éditer"
+msgstr "Modifier"
 
 #: templates/creme_config/templatetags/block_blocklocations.html:21
 #: templates/creme_config/templatetags/block_blockportallocations.html:27
@@ -1041,7 +1041,7 @@ msgstr "Mes %s menus préférés"
 #: templates/creme_config/templatetags/block_user_prefered_menus.html:13
 #: views/prefered_menu.py:60
 msgid "Edit my prefered menus"
-msgstr "Éditer mes menus préférés"
+msgstr "Modifier mes menus préférés"
 
 #: templates/creme_config/templatetags/block_user_prefered_menus.html:21
 msgid "Order"
@@ -1163,37 +1163,37 @@ msgstr "Date d'inscription"
 #: views/blocks.py:62 views/button_menu.py:61
 #, python-format
 msgid "Edit configuration for %s"
-msgstr "Éditer la configuration pour %s"
+msgstr "Modifier la configuration pour %s"
 
 #: views/blocks.py:65 views/button_menu.py:62
 msgid "Edit default configuration"
-msgstr "Éditer la configuration par défaut"
+msgstr "Modifier la configuration par défaut"
 
 #: views/blocks.py:95
 msgid "Edit default portal configuration"
-msgstr "Éditer la configuration de portail par défaut"
+msgstr "Modifier la configuration de portail par défaut"
 
 #: views/blocks.py:97
 msgid "Edit home configuration"
-msgstr "Éditer la configuration de l'accueil"
+msgstr "Modifier la configuration de l'accueil"
 
 #: views/blocks.py:104
 #, python-format
 msgid "Edit portal configuration for <%s>"
-msgstr "Éditer la configuration de portail pour <%s>"
+msgstr "Modifier la configuration de portail pour <%s>"
 
 #: views/blocks.py:151
 msgid "Edit default \"My page\""
-msgstr "Éditer le \"Ma page\" par défaut"
+msgstr "Modifier le \"Ma page\" par défaut"
 
 #: views/blocks.py:156
 msgid "Edit \"My page\""
-msgstr "Éditer \"Ma page\""
+msgstr "Modifier \"Ma page\""
 
 #: views/creme_property_type.py:57 views/relation_type.py:69
 #, python-format
 msgid "Edit the type \"%s\""
-msgstr "Éditer le type \"%s\""
+msgstr "Modifier le type \"%s\""
 
 #: views/generics_views.py:85
 #, python-format
@@ -1207,7 +1207,7 @@ msgstr "Nouveau type de relation semi-fixé"
 #: views/setting.py:60
 #, python-format
 msgid "Edit \"%s\""
-msgstr "Éditer \"%s\""
+msgstr "Modifier \"%s\""
 
 #: views/user.py:39
 #, python-format
@@ -1230,7 +1230,7 @@ msgstr "Ajouter des droits à <%s>"
 
 #: views/user_role.py:96
 msgid "Edit default credentials"
-msgstr "Éditer les droits par défaut"
+msgstr "Modifier les droits par défaut"
 
 #~ msgid "No selected user."
 #~ msgstr "Aucun utilisateur sélectionné."
@@ -1287,7 +1287,7 @@ msgstr "Éditer les droits par défaut"
 #~ msgstr "Portail"
 
 #~ msgid "Edit portal"
-#~ msgstr "Éditer le portail"
+#~ msgstr "Modifier le portail"
 
 #~ msgid "Default"
 #~ msgstr "Par défaut"
@@ -1328,7 +1328,7 @@ msgstr "Éditer les droits par défaut"
 #~ msgstr "Aucun profil enregistré pour le moment"
 
 #~ msgid "Edit '%(object)s'"
-#~ msgstr "Éditer '%(object)s'"
+#~ msgstr "Modifier '%(object)s'"
 
 #~ msgid "Entities credentials settings"
 #~ msgstr "Gestion des droits de fiche"

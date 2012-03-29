@@ -170,7 +170,7 @@ msgstr "Ajouter des nœuds racines à <%s>"
 #: views/root_node.py:43
 #, python-format
 msgid "Edit root node for <%s>"
-msgstr "Éditer le nœud racine pour <%s>"
+msgstr "Modifier le nœud racine pour <%s>"
 
 #~ msgid "Name"
 #~ msgstr "Nom"
@@ -191,7 +191,7 @@ msgstr "Éditer le nœud racine pour <%s>"
 #~ msgstr "Supprimer"
 
 #~ msgid "Edit"
-#~ msgstr "Éditer"
+#~ msgstr "Modifier"
 
 #~ msgid "Subjects"
 #~ msgstr "Sujets"

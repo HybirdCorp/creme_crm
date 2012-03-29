@@ -90,7 +90,7 @@ class _EntitiesEditForm(CremeForm):
             fields['entities_lbl'].initial = ugettext(u'NONE !')
 
         if forbidden_subjects:
-            fields['bad_entities_lbl'] = CharField(label=ugettext(u"Unchangeable entities"),
+            fields['bad_entities_lbl'] = CharField(label=ugettext(u"Uneditable entities"),
                                                    widget=Label,
                                                    initial=entities2unicode(forbidden_subjects, user)
                                                   )

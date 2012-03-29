@@ -545,7 +545,7 @@ msgstr "Réduire"
 
 #: templates/reports/templatetags/block_report_graphs.html:44
 msgid "Edit"
-msgstr "Éditer"
+msgstr "Modifier"
 
 #: templates/reports/templatetags/block_report_graphs.html:47
 msgid "Can't edit"
@@ -601,7 +601,7 @@ msgstr "Ajouter un graphique pour <%s>"
 #: views/graph.py:47
 #, python-format
 msgid "Edit a graph for <%s>"
-msgstr "Éditer un graphique pour <%s>"
+msgstr "Modifier un graphique pour <%s>"
 
 #: views/graph.py:66
 msgid "Choose an abscissa field"

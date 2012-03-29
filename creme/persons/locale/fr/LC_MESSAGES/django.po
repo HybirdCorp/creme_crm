@@ -554,7 +554,7 @@ msgstr "Modifier %(object)s"
 #: templates/persons/edit_contact_form.html:7
 #: templates/persons/edit_organisation_form.html:7
 msgid "Edit"
-msgstr "Éditer"
+msgstr "Modifier"
 
 #: templates/persons/portal.html:6
 msgid "Accounts & contacts portal"

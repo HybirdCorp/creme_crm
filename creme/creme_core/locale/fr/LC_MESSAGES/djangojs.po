@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CORE' APP (JavaScript only)
-# Copyright (C) 2010 Hybird
+# Copyright (C) 2012 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 #, fuzzy
@@ -157,8 +157,8 @@ msgstr "Erreur !"
 msgid "The page will be reload !"
 msgstr "La page va être rechargée !"
 
-#~ msgid "No data"
-#~ msgstr "Aucune donnée"
+msgid "No data"
+msgstr "Aucune donnée"
 
 #~ msgid "Selection..."
 #~ msgstr "Sélection..."
