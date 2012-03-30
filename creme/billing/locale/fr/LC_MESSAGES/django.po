@@ -877,22 +877,22 @@ msgstr ""
 #: templates/billing/templatetags/block_payment_information.html:5
 #, python-format
 msgid "%s Payment information"
-msgstr "%s Information de paiment"
+msgstr "%s Information de paiement"
 
 #: templates/billing/templatetags/block_billing_payment_information.html:5
 #: templates/billing/templatetags/block_payment_information.html:5
 #, python-format
 msgid "%s Payments information"
-msgstr "%s Informations de paiment"
+msgstr "%s Informations de paiement"
 
 #: templates/billing/templatetags/block_billing_payment_information.html:11
 #: templates/billing/templatetags/block_payment_information.html:9
 msgid "Add a payment information"
-msgstr "Ajouter une information de paiment"
+msgstr "Ajouter une information de paiement"
 
 #: templates/billing/templatetags/block_billing_payment_information.html:13
 msgid "Add a payment information (no source organisation)"
-msgstr "Ajouter une information de paiment (aucune société émettrice)"
+msgstr "Ajouter une information de paiement (aucune société émettrice)"
 
 #: templates/billing/templatetags/block_billing_payment_information.html:23
 msgid "Selected by default in this document"
