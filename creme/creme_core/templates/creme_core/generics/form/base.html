@@ -30,8 +30,8 @@
                 {% for field in form.visible_fields %}
                     {% if not field.is_hidden %}
                         <tr>
-                            <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{{field.label}}</th>
-                            <td class="{% cycle "block_line_dark" "block_line_light" %}">
+                            <th class="th_info {% cycle "block_header_line_dark" "block_header_line_light" %}">{{field.label}}</th>
+                            <td class="td_info {% cycle "block_line_dark" "block_line_light" %}">
                                 {% if field.help_text %}
                                     {{field.help_text}} <br />
                                 {% endif %}
