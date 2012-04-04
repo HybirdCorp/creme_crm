@@ -3,9 +3,10 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 21-09-2011 pour la version 1.1 de Creme
+:Version: 04-04-2012 pour la version 1.2 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
+:Errata: Hugo Smett
 
 .. contents:: Sommaire
 
@@ -558,7 +559,7 @@ la vue de liste. Créons un nouveau fichier : ``beavers/populate.py``. ::
                           HeaderFilterItem.build_4_field(model=Beaver, name='birthday'),
                          ])
 
-            SearchConfigItem.create(Beaver, ['name'])
+            SearchConfigItem.create_if_needed(Beaver, ['name'])
 
 Explications :
 
