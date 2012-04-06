@@ -504,7 +504,7 @@ class BlockImporterNode(TemplateNode):
 
 # UTILS ------------------------------------------------------------------------
 
-def _parse_block_alias(block_alias):
+def _parse_block_alias(tag_name, block_alias):
     first_char = block_alias[0]
     if not (first_char == block_alias[-1] and first_char in ('"', "'")):
         raise TemplateSyntaxError, "%r tag's argument should be in quotes" % tag_name
@@ -527,7 +527,7 @@ def do_block_detailviewer(parser, token):
     except ValueError:
         raise TemplateSyntaxError, "%r tag requires one argument" % token.contents.split()[0]
 
-    return BlockDetailViewerNode(_parse_block_alias(block_alias))
+    return BlockDetailViewerNode(_parse_block_alias(tag_name, block_alias))
 
 class BlockDetailViewerNode(TemplateNode):
     def __init__(self, block_alias):
@@ -663,7 +663,7 @@ def do_block_portalviewer(parser, token):
     except ValueError:
         raise TemplateSyntaxError, "%r tag requires two arguments" % token.contents.split()[0]
 
-    return BlockPortalViewerNode(_parse_block_alias(block_alias), ct_ids_varname)
+    return BlockPortalViewerNode(_parse_block_alias(tag_name, block_alias), ct_ids_varname)
 
 class BlockPortalViewerNode(TemplateNode):
     def __init__(self, block_alias, ct_ids_varname):

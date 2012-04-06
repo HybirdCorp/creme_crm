@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,9 +17,9 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-from logging import error, info
 
-from datetime import datetime, timedelta, timedelta
+from logging import error, info
+from datetime import datetime, timedelta
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import get_connection
@@ -67,7 +67,7 @@ class Command(BaseCommand):
         try:
             lock = Mutex.get_n_lock(LOCK_NAME)
 
-        except MutexLockedException, e:
+        except MutexLockedException:
             print 'A process is already running'
 
         else:
@@ -116,7 +116,7 @@ class Command(BaseCommand):
                         connection.close()
 
                         info(u"Emails sended")
-                    except Exception, e:
+                    except Exception as e:
                         error(u"An error has occurred during sending mails (%s)" % e)
         finally:
             Mutex.graceful_release(LOCK_NAME)

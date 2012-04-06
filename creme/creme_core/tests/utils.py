@@ -15,7 +15,7 @@ try:
     from creme_core.utils import *
     from creme_core.utils import meta, chunktools
     from creme_core.utils.date_range import date_range_registry
-    from creme_core.utils.dates import(get_dt_from_iso8601_str, get_dt_from_iso8601_str, get_dt_to_iso8601_str,
+    from creme_core.utils.dates import(get_dt_from_iso8601_str, get_dt_to_iso8601_str,
                                        get_naive_dt_from_tzdate, get_creme_dt_from_utc_dt, get_utc_dt_from_creme_dt)
     from creme_core.utils.queries import get_first_or_None
     from creme_core.tests.base import CremeTestCase
