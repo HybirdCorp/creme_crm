@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.db import transaction
     from django.db.utils import IntegrityError
+    from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
+    from creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
     from creme_core.models import HeaderFilter
-    from creme_core.tests.base import CremeTestCase
 
     from tickets.models import *
     from tickets.models.status import BASE_STATUS, OPEN_PK, CLOSED_PK, INVALID_PK
@@ -79,14 +81,13 @@ class TicketTestCase(CremeTestCase):
         description = 'Test description'
         priority    = Priority.objects.all()[0]
         criticity   = Criticity.objects.all()[0]
-        response = self.client.post(url, follow=True,
-                                    data={'user':         self.user.pk,
-                                          'title':        title,
-                                          'description':  description,
-                                          'priority':     priority.id,
-                                          'criticity':    criticity.id,
-                                         }
-                                   )
+        data = {'user':         self.user.pk,
+                'title':        title,
+                'description':  description,
+                'priority':     priority.id,
+                'criticity':    criticity.id,
+               }
+        response = self.client.post(url, follow=True, data=data)
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
         self.assertTrue(response.redirect_chain)
@@ -109,6 +110,16 @@ class TicketTestCase(CremeTestCase):
             funf = ticket.function_fields.get('get_resolving_duration')
 
         self.assertEqual('', funf(ticket).for_html())
+
+        response = self.client.post(url, follow=True, data=data)
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', 'title',
+                             [_(u"%(model_name)s with this %(field_label)s already exists.") %  {
+                                    'model_name': _(u'Ticket'),
+                                    'field_label': _(u'Title'),
+                                }
+                             ]
+                            )
 
     def test_editview01(self):
         self.login()
@@ -262,25 +273,6 @@ class TicketTestCase(CremeTestCase):
             self.assertNotEqual(stack[-1].title, clone.title)
             stack_append(clone)
 
-    def test_unique_title(self):
-        self.login()
-
-        title       = 'Test ticket'
-        description = 'Test description'
-        priority    = Priority.objects.all()[0]
-        criticity   = Criticity.objects.all()[0]
-
-        with self.assertNoException():
-            Ticket.objects.create(title=title, description=description,
-                                  priority=priority, criticity=criticity,
-                                  user=self.user)
-
-        self.assertRaises(IntegrityError, Ticket.objects.create,
-                          title=title, user=self.user, priority=priority,
-                          criticity=criticity, description=description)
-
-        self.assertEqual(1, Ticket.objects.count())
-
     def test_delete_status(self):
         self.login()
 
@@ -334,6 +326,38 @@ class TicketTestCase(CremeTestCase):
 
         ticket = self.get_object_or_fail(Ticket, pk=ticket.pk)
         self.assertEqual(criticity, ticket.criticity)
+
+
+class TicketTestUniqueCase(CremeTransactionTestCase):
+    def test_unique_title(self):
+        self.populate('tickets')
+        self.login()
+
+        title       = 'Test ticket'
+        description = 'Test description %s'
+
+        with self.assertNoException():
+            Ticket.objects.create(user=self.user,
+                                  title=title,
+                                  description=description % 1,
+                                  priority=Priority.objects.all()[0],
+                                  criticity=Criticity.objects.all()[0],
+                                 )
+
+        try:
+            Ticket.objects.create(user=self.user,
+                                  title=title, # <====
+                                  description=description % 2,
+                                  priority=Priority.objects.all()[1],
+                                  criticity=Criticity.objects.all()[1],
+                                 )
+            transaction.commit()
+        except IntegrityError:
+            transaction.rollback()
+        else:
+            self.fail('IntegrityError not raised')
+
+        self.assertEqual(1, Ticket.objects.count())
 
 
 class TicketTemplateTestCase(CremeTestCase):
