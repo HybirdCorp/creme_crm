@@ -24,7 +24,7 @@ from django.utils.translation import ugettext as _
 from django.conf import settings
 from django.contrib.auth.models import User
 
-from creme_core import autodiscover as creme_core_autodiscover
+#from creme_core import autodiscover as creme_core_autodiscover
 from creme_core.models import (RelationType, CremeProperty, CremePropertyType,
                                HeaderFilter, HeaderFilterItem,
                                EntityFilter, EntityFilterCondition,

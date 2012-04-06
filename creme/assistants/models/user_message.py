@@ -21,12 +21,11 @@
 from datetime import datetime
 
 from django.db.models import (CharField, BooleanField, TextField, DateTimeField,
-                              BooleanField, ForeignKey, PositiveIntegerField, PROTECT)
+                              ForeignKey, PositiveIntegerField, PROTECT)
 from django.db.models.signals import pre_delete
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
-from django.contrib.auth.models import User
 
 from creme_core.models import CremeModel, CremeEntity
 from creme_core.models.fields import CremeUserForeignKey

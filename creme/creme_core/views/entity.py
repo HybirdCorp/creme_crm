@@ -45,11 +45,11 @@ def get_creme_entities_repr(request, entities_ids):
     entities = CremeEntity.objects.filter(pk__in=[id for id in entities_ids.split(',') if id])
     user = request.user
 
-    #TODO: populate real entities and credentials....
+    #TODO: populate real entities....
 
     return [{'id': entity.id,
              'text': entity.get_real_entity().get_entity_summary(user) if entity.can_view(user) else \
-                     ugettext(u'Entity #%s (not viewable)') % entity.id
+                     _(u'Entity #%s (not viewable)') % entity.id
             } for entity in entities
            ]
 

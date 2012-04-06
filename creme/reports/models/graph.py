@@ -298,7 +298,7 @@ def fetch_graph_from_instance_block(instance_block, entity, order='ASC'):
         except RelationType.DoesNotExist:
             pass
         else:
-            obj_ctypes = rt.object_ctypes.all()
+            obj_ctypes = rtype.object_ctypes.all()
 
             if not obj_ctypes or ct_entity in obj_ctypes:
                 x, y = graph.fetch(extra_q=Q(relations__type=rtype) & \
