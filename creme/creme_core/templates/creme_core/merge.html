@@ -29,13 +29,14 @@
             function copy2ToMerged() { copyToMerged(this, '.merge_entity2');}
 
             $('form').each(function() {
-                var button_html = '<input type="button" class="merge_button" />';
+                var button_html = '<input type="button" />';
+                var li_html = '<li class="li_merge_button"></li>';
 
-                $('.merge_result').each(function() {
-                    $(this).before($(button_html).attr('value', '>').click(copy1ToMerged));
-                    $(this).after($(button_html).attr('value', '<').click(copy2ToMerged));
+                $('li.li_merge_result').each(function() {
+                    var $result_li = $(this);
+                    $result_li.before($(li_html).append($(button_html).attr('value', '>').click(copy1ToMerged)));
+                    $result_li.after($(li_html).append($(button_html).attr('value', '<').click(copy2ToMerged)));
                 });
-
             });
         });
     </script>

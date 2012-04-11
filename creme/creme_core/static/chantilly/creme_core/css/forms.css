@@ -54,69 +54,56 @@ form .table_detail_view.dual_column .td_info > input.hasDatepicker {
 }
 
 /* MERGE TOOL */
-.merge_entity_header1 {
+.li_merge_entity_header1 {
     display: inline;
-    width: 32%;
+    width: 33%;
 
     font-size: 1.6em;
     font-weight: bold;
     color: #5a92ab;
     text-overflow: ellipsis;
-
-    background: none repeat scroll 0 0 transparent;
-    border: medium none;
+    text-align: center;
 }
 
-.merge_entity_header2 {
+.li_merge_entity_header2 {
     display: inline;
-    width: 32%;
+    width: 33%;
 
     font-size: 1.6em;
     font-weight: bold;
     color: #d87d72;
     text-overflow: ellipsis;
-
-    background: none repeat scroll 0 0 transparent;
-    border: medium none;
+    text-align: center;
 }
 
-.merge_result_header {
+.li_merge_result_header {
     display: inline;
-    width: 32%;
+    width: 33%;
 
     font-size: 1.6em;
     font-weight: bold;
     text-overflow: ellipsis;
-
-    background: none repeat scroll 0 0 transparent;
-    border: medium none;
+    text-align: center;
 }
 
-.merge_entity1, input.merge_entity1[type="text"][readonly], textarea.merge_entity1[readonly] {
+.li_merge_entity1, .li_merge_entity2, .li_merge_result {
     width: 31%;
+}
+
+form .table_detail_view .merge_entity1 {
+    width: 99%;
     color: #5a92ab;
     background: #edf9ff;
     border: 1px solid #bbe0f0;
 }
 
-.merge_entity2, input.merge_entity2[type="text"][readonly], textarea.merge_entity2[readonly] {
-    width: 31%;
+form .table_detail_view .merge_entity2 {
+    width: 99%;
     color: #d87d72;
     background: #ffedeb;
     border: 1px solid #f9c9c4;
 }
 
-/* 'width: 31%;' does not work fine with checkbox in Firefox (but works with Chrome) */
-input.merge_entity1[type="checkbox"], input.merge_entity2[type="checkbox"], input.merge_result[type="checkbox"] {
-    width: auto;
-    margin-left: 15%;
-    margin-right: 15%;
-}
-
-.merge_result {
-    width: 31%;
-}
-
-.merge_button {
-    width: 2%;
+form .table_detail_view .merge_result {
+    width: 99%;
 }
