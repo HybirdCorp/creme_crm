@@ -39,9 +39,9 @@ class EntitiesHeaderWidget(Widget):
         value_1, value_2, value_m = value or ('', '', '')
 
         return mark_safe(u'<ul %(attrs)s>'
-                              '<li><input readOnly="True" class="merge_entity_header1" value="%(header_1)s" /></li>'
-                              '<li><input readOnly="True" class="merge_result_header"  value="%(header_merged)s" /></li>'
-                              '<li><input readOnly="True" class="merge_entity_header2" value="%(header_2)s" /></li>'
+                             ' <li class="li_merge_entity_header1">%(header_1)s</li>'
+                             ' <li class="li_merge_result_header">%(header_merged)s</li>'
+                             ' <li class="li_merge_entity_header2">%(header_2)s</li>'
                           '</ul>' % {
                             'attrs':         flatatt(self.build_attrs(attrs, name=name, **{'class': 'merge_entity_field ui-layout hbox'})),
                             'header_1':      escape(value_1),
@@ -64,9 +64,9 @@ class MergeWidget(Widget):
         ro_attr = 'disabled' if isinstance(widget, (Select, CheckboxInput)) else 'readOnly'
 
         return mark_safe(u'<ul %(attrs)s>'
-                              '<li>%(input_1)s</li>'
-                              '<li>%(input_merged)s</li>'
-                              '<li>%(input_2)s</li>'
+                              '<li class="li_merge_entity1">%(input_1)s</li>'
+                              '<li class="li_merge_result">%(input_merged)s</li>'
+                              '<li class="li_merge_entity2">%(input_2)s</li>'
                           '</ul>' % {
                             'attrs':        flatatt(self.build_attrs(attrs, name=name, **{'class': 'merge_entity_field ui-layout hbox'})),
                             'input_1':      render('%s_1' % name,      value_1, attrs={ro_attr: True, 'class': 'merge_entity1'}),
@@ -81,6 +81,7 @@ class MergeWidget(Widget):
                 value_from_datadict(data, files, '%s_2' % name),
                 value_from_datadict(data, files, '%s_merged' % name),
                )
+
 
 class MergeField(Field):
     def __init__(self, modelform_field, model_field, *args, **kwargs):
