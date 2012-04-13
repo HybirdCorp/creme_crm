@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,11 +19,10 @@
 ################################################################################
 
 from datetime import datetime
-from itertools import chain
 from logging import debug
 
 from django.http import Http404, HttpResponse
-from django.db.models import ForeignKey, ManyToManyField, FieldDoesNotExist, Q
+from django.db.models import ForeignKey, ManyToManyField, Q
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
@@ -35,8 +34,8 @@ from creme_core.models import RelationType
 from creme_core.utils.date_range import date_range_registry
 from creme_core.views.generic import (add_entity, edit_entity, view_entity,
                                       list_view, inner_popup, add_to_entity)
-from creme_core.utils.meta import get_model_field_infos, get_flds_with_fk_flds, get_date_fields, is_date_field, get_related_field
-from creme_core.utils import get_ct_or_404, get_from_GET_or_404, get_from_POST_or_404, jsonify
+from creme_core.utils.meta import get_model_field_infos, get_flds_with_fk_flds, get_related_field
+from creme_core.utils import get_ct_or_404, get_from_POST_or_404, jsonify
 
 from reports.models import Report, Field
 from reports.forms.report import CreateForm, EditForm, LinkFieldToReportForm, AddFieldToReportForm, get_aggregate_custom_fields, DateReportFilterForm
@@ -263,6 +262,14 @@ def set_selected(request):
 
     return HttpResponse("", status=200, mimetype="text/javascript")
 
+_DATETIME_FILTER_FORMAT = '%d|%m|%Y|%H|%M|%S'
+
+def _encode_datetime(date):
+    return date.strftime(_DATETIME_FILTER_FORMAT) if date else None
+
+def _decode_datetime(date_str):
+    return datetime.strptime(date_str, _DATETIME_FILTER_FORMAT) if date_str else None
+
 @login_required
 @permission_required('reports')
 def csv(request, report_id):
@@ -277,17 +284,10 @@ def csv(request, report_id):
     field_name    = GET_get('field')
     if field_name is not None:
         dt_range_name = GET_get('range_name')#Empty str should get CustomRange
-        from_ts = lambda s: datetime.fromtimestamp(float(s))
-        start_dt      = GET_get('start')
-        end_dt        = GET_get('end')
 
-        if start_dt is not None:
-            start_dt = from_ts(start_dt)
-
-        if end_dt is not None:
-            end_dt = from_ts(end_dt)
-
-        dt_range = date_range_registry.get_range(dt_range_name, start_dt, end_dt)
+        dt_range = date_range_registry.get_range(dt_range_name,
+                                                 _decode_datetime(GET_get('start')),
+                                                 _decode_datetime(GET_get('end')))
 
         if dt_range is not None:
             extra_q_filter = Q(**dt_range.get_q_dict(field_name, datetime.now()))
@@ -341,8 +341,8 @@ def date_filter_form(request, report_id):
                         'report_id':       report_id,
                         'redirect':        redirect,
                         'simple_redirect': simple_redirect,
-                        'start':           start,
-                        'end':             end,
+                        'start':           _encode_datetime(start),
+                        'end':             _encode_datetime(end),
                        },
                        is_valid=valid,
                        reload=False,

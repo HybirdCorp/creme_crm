@@ -22,7 +22,7 @@ MANAGERS = ADMINS
 #'OPTIONS': {'init_command': 'SET storage_engine=INNODB'}#Example to use a transaction engine in mysql
 DATABASES = {
     'default': {
-        'ENGINE':   'django.db.backends.mysql', # 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+        'ENGINE':   'django.db.backends.mysql', # 'postgresql_psycopg2', 'mysql', 'sqlite3' ('oracle' backend is not working with creme for now).
         'NAME':     'cremecrm',                 # Or path to database file if using sqlite3.
         'USER':     'creme',                    # Not used with sqlite3.
         'PASSWORD': 'creme',                    # Not used with sqlite3.

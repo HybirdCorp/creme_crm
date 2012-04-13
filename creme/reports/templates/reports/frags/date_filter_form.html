@@ -6,7 +6,7 @@
         {% if simple_redirect %}
             creme.utils.go_to("/reports/report/{{report_id}}/csv", false);
         {% else %}
-            creme.utils.go_to("/reports/report/{{report_id}}/csv?field={{form.cleaned_data.date_fields}}&range_name={{ form.cleaned_data.date_filter.name }}{% if start %}&start={{start|to_timestamp}}{% endif %}{% if end %}&end={{end|to_timestamp}}{% endif %}", false);
+            creme.utils.go_to("/reports/report/{{report_id}}/csv?field={{form.cleaned_data.date_fields}}&range_name={{ form.cleaned_data.date_filter.name }}{% if start %}&start={{start}}{% endif %}{% if end %}&end={{end}}{% endif %}", false);
         {% endif %}
     </script>
 {% endif %}

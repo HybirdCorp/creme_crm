@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.utils.unittest.case import skipIf
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
@@ -9,7 +10,14 @@ try:
 
     from graphs.models import *
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
+
+skip_graphviz_test = False
+
+try:
+    import pygraphviz
+except ImportError:
+    skip_graphviz_test = True
 
 
 class GraphsTestCase(CremeTestCase):
@@ -109,6 +117,7 @@ class GraphsTestCase(CremeTestCase):
                                                ).status_code
                         )
 
+    @skipIf(skip_graphviz_test, 'Pygraphviz is not installed (are you under Wind*ws ??')
     def test_download01(self):
         self.login()
 

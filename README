@@ -20,7 +20,7 @@ DEPENDENCIES:
             - pdflatex (if you want PDF export)
 
         -creme.graphs:
-            - pygraphviz
+            - pygraphviz (seems unavailable on windows)
 
         - creme.activesync:
             - PIL >= 1.1.7
