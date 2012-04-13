@@ -245,8 +245,8 @@ class ReportsTestCase(CremeTestCase):
         report   = self.create_report('trinita')
         response = self.client.get('/reports/report/%s/csv' % report.id,
                                    data={'field': 'birthday',
-                                         'start': datetime(year=1980, month=1, day=1).strftime('%s'),
-                                         'end':   datetime(year=2000, month=1, day=1).strftime('%s'),
+                                         'start': datetime(year=1980, month=1, day=1).strftime('%d|%m|%Y|%H|%M|%S'),
+                                         'end':   datetime(year=2000, month=1, day=1).strftime('%d|%m|%Y|%H|%M|%S'),
                                         }
                                   )
         self.assertEqual(response.status_code, 200)

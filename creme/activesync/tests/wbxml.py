@@ -25,7 +25,7 @@ class ActiveSyncWbxmlTestCase(CremeTestCase):
         self.xml_path = join(dirname(abspath(__file__)), 'data')
         self.files = [("test_%s.xml" % i, "test_%s.wbxml" % i) for i in xrange(1, 7)]
 
-    def _open_n_read(self, filename, mode='r'):
+    def _open_n_read(self, filename, mode='rb'):
         path = join(self.xml_path, filename)
         content = StringIO()
 
