@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,15 +20,18 @@
 
 from logging import debug
 
-from django.db import IntegrityError
+from django.db import transaction, IntegrityError
 
 from billing.models import SimpleBillingAlgo
 from billing.registry import Algo
 
 
 class SimpleAlgo(Algo):
+    #We use transaction because the IntegrityError aborts the current transaction on PGSQL
+    @transaction.commit_manually
     def generate_number(self, organisation, ct, *args, **kwargs):
         while True:
+            sid = transaction.savepoint()
             old_conf = max(SimpleBillingAlgo.objects.filter(organisation=organisation, ct=ct),
                            key=lambda algo: algo.last_number
                           )
@@ -41,9 +44,12 @@ class SimpleAlgo(Algo):
             try:
                 # remember the <unique_together = ("organisation", "last_number", "ct")> in SimpleBillingAlgo.Meta
                 conf.save(force_insert=True)
-            except IntegrityError, e: #problen with the 'unique_together' constraint
+            except IntegrityError as e: #problen with the 'unique_together' constraint
                 debug('SimpleAlgo.generate_number() (save new conf): %s', e)
+                transaction.savepoint_rollback(sid)
                 continue
+
+            transaction.savepoint_commit(sid)
 
             try:
                 # protect against case that must never happen
@@ -53,5 +59,7 @@ class SimpleAlgo(Algo):
                 debug('SimpleAlgo.generate_number() (delete old conf): %s', e)
                 conf.delete()
                 continue
+
+            transaction.commit()
 
             return conf.prefix + str(conf.last_number)

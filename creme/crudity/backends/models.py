@@ -26,7 +26,7 @@ from django.core.files.base import ContentFile
 from django.db.models.fields import FieldDoesNotExist, TextField, BooleanField
 from django.db.models.fields.files import FileField
 from django.db.models.fields.related import ForeignKey, ManyToManyField
-from django.db.utils import IntegrityError
+from django.db import transaction, IntegrityError
 from django.template.context import Context
 from django.utils.translation import ugettext_lazy as _
 
@@ -74,6 +74,7 @@ class CrudityBackend(object):
     @property
     def is_configured(self):
         return all([self.subject, self.body_map, self.model])
+        #TODO ? return bool(self.subject and self.body_map and self.model)
 
     def _check_configuration(self):
         """Check if declared fields exists in the model
@@ -131,9 +132,9 @@ class CrudityBackend(object):
 
         return need_new_save
 
+    @transaction.commit_manually
     def _create_instance_n_history(self, data, user=None, source="", action=""):
         instance = self.model()
-
         model_get_field = self.model._meta.get_field
 
         for field_name, field_value in data.items():
@@ -210,6 +211,9 @@ class CrudityBackend(object):
         except IntegrityError as e:
             logging.error(e)
             is_created = False
+            transaction.rollback()
+        else:
+            transaction.commit()
 
         return is_created, instance
 
