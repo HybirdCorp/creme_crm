@@ -22,7 +22,7 @@ from logging import debug
 from pickle import loads
 from time import sleep
 
-from django.db import IntegrityError
+from django.db import transaction, IntegrityError
 from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerField,
                               EmailField, CharField, TextField, ManyToManyField)
 from django.core.mail import send_mail, SMTPConnection
@@ -179,17 +179,26 @@ class LightWeightEmail(_Email):
     def get_related_entity(self): #for generic views
         return self.sending.campaign
 
+    #TODO: factorise
+    @transaction.commit_manually
     def genid_n_save(self):
         #BEWARE: manage manually
         while True:
+            sid = transaction.savepoint()
+
             try:
                 self.id = generate_id()
                 self.save(force_insert=True)
             except IntegrityError:  #a mail with this id already exists
                 debug('Mail id already exists: %s', self.id)
                 self.pk = None
+
+                transaction.savepoint_rollback(sid)
             else:
+                transaction.savepoint_commit(sid)
                 break
+
+        transaction.commit()
 
 
 class LightWeightEmailSender(EMailSender):

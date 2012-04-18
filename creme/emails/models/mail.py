@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from os.path import join, basename
 from django.contrib.auth.models import User
 from django.db.models import (PositiveIntegerField, PositiveSmallIntegerField, CharField,
                               TextField, DateTimeField, ForeignKey, ManyToManyField)
-from django.db import IntegrityError
+from django.db import transaction, IntegrityError
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.utils.safestring import mark_safe
@@ -40,6 +40,7 @@ from emails.utils import generate_id
 from emails.models import EmailSignature
 from emails.constants import MAIL_STATUS_NOTSENT, MAIL_STATUS
 from emails.utils import EMailSender
+
 
 ID_LENGTH = 32
 
@@ -84,17 +85,25 @@ class EntityEmail(_Email, CremeEntity):
         verbose_name = _(u'Email')
         verbose_name_plural = _(u'Emails')
 
+    @transaction.commit_manually
     def genid_n_save(self):
         #BEWARE: manage manually
         while True:
+            sid = transaction.savepoint()
+
             try:
                 self.identifier = generate_id()
                 self.save(force_insert=True)
             except IntegrityError:  #a mail with this id already exists
                 debug('Mail id already exists: %s', self.identifier)
                 self.pk = None
+
+                transaction.savepoint_rollback(sid)
             else:
+                transaction.savepoint_commit(sid)
                 break
+
+        transaction.commit()
 
     def __unicode__(self):
         return u"Mail <de: %s> <à: %s><status: %s>" % (self.sender, self.recipient, self.get_status_str())

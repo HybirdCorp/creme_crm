@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,9 +20,11 @@
 
 from logging import debug
 
-from django.db import IntegrityError
+from django.db import transaction, IntegrityError
 
 
+#We use transaction because the IntegrityError aborts the current transaction on PGSQL
+@transaction.commit_manually
 def generate_string_id_and_save(model, objects, prefix):
     if not objects:
         return
@@ -32,22 +34,27 @@ def generate_string_id_and_save(model, objects, prefix):
     #TODO: do-able in SQL ????
     #TODO: would it be cool to fill the 'holes' in id ranges ???
     index = max(int(string[prefix_len:]) for string in id_list) if id_list else 0
-
     last_exception = None
 
     for obj in objects:
         for i in xrange(1000): #avoid infinite loop.....
+            sid = transaction.savepoint()
             index += 1
             obj.id = prefix + str(index)
 
             try:
                 obj.save(force_insert=True)
-            except IntegrityError, e:  #an object with this id already exists
+            except IntegrityError as e:  #an object with this id already exists
                 #TODO: indeed it can be raise if the given object if badly build.... --> improve this (detect the guilty column)???
                 debug('gen_id_and_save(): id %s already exists ? (%s)', obj.id, e)
                 last_exception = e
                 obj.pk = None
+
+                transaction.savepoint_rollback(sid)
             else:
+                transaction.savepoint_commit(sid)
                 break
         else:
             raise last_exception #use transaction to delete saved objects ????
+
+    transaction.commit()
