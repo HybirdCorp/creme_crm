@@ -592,7 +592,7 @@ div#sub_content > div:nth-child(5) {
     width: 100%;
     border-bottom: 1px solid rgba(0, 0, 0, 0.4);
     margin-bottom: 12px;
-    margin-left: 5px;
+    /*margin-left: 5px; problem with address blocks in contact form */
     padding-bottom: 10px;
     border-spacing: 0px;
 }
