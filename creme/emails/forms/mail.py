@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -72,10 +72,15 @@ class EntityEmailForm(CremeEntityForm):
         super(EntityEmailForm, self).__init__(*args, **kwargs)
         self.entity = entity
 
-        if isinstance(entity, Organisation):
-            self.fields['o_recipients'].initial = [entity.pk]
-        elif isinstance(entity, Contact):
-            self.fields['c_recipients'].initial = [entity.pk]
+        if isinstance(entity, (Contact, Organisation)):
+            fn, msg = ('c_recipients', _(u'Beware: the contact «%s» has no email address!')) if isinstance(entity, Contact) else \
+                      ('o_recipients', _(u'Beware: the organisation «%s» has no email address!'))
+            field = self.fields[fn]
+
+            if entity.email:
+                field.initial = [entity.pk]
+            else:
+                field.help_text = msg % entity
 
         self.user_contact = contact = Contact.objects.get(is_user=self.user)
 

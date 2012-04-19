@@ -29,7 +29,7 @@ from django.db import transaction, IntegrityError
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.template.defaultfilters import removetags
 
 from creme_core.models import CremeModel, CremeEntity
@@ -106,7 +106,11 @@ class EntityEmail(_Email, CremeEntity):
         transaction.commit()
 
     def __unicode__(self):
-        return u"Mail <de: %s> <à: %s><status: %s>" % (self.sender, self.recipient, self.get_status_str())
+        return ugettext('EMail <from: %(from)s> <to: %(to)s> <status: %(status)s>') % {
+                                'from':   self.sender,
+                                'to':     self.recipient,
+                                'status': self.get_status_str(),
+                            }
 
     def get_absolute_url(self):
         return u"/emails/mail/%s" % self.pk
