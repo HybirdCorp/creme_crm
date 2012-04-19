@@ -836,11 +836,8 @@ class EntityEmailTestCase(CremeTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             c_recipients = response.context['form'].fields['c_recipients']
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertEqual([contact.id], c_recipients.initial)
 
@@ -883,11 +880,8 @@ class EntityEmailTestCase(CremeTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             o_recipients = response.context['form'].fields['o_recipients']
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertEqual([orga.id], o_recipients.initial)
 
@@ -956,7 +950,33 @@ class EntityEmailTestCase(CremeTestCase):
                              [_(u"The email address for %s is invalid") % orga01]
                             )
 
-    def test_createview04(self): #credentials problem
+    def test_createview04(self): #related contact has no emails address
+        self.login()
+
+        contact = Contact.objects.create(user=self.user, first_name='Vincent', last_name='Law')
+        response = self.client.get('/emails/mail/add/%s' % contact.id)
+        self.assertEqual(200, response.status_code)
+
+        with self.assertNoException():
+            c_recipients = response.context['form'].fields['c_recipients']
+
+        self.assertIsNone(c_recipients.initial)
+        self.assertEqual(_(u'Beware: the contact «%s» has no email address!') % contact, c_recipients.help_text)
+
+    def test_createview05(self): #related organisation has no emails address
+        self.login()
+
+        orga = Organisation.objects.create(user=self.user, name='Venus gate')
+        response = self.client.get('/emails/mail/add/%s' % orga.id)
+        self.assertEqual(200, response.status_code)
+
+        with self.assertNoException():
+            o_recipients = response.context['form'].fields['o_recipients']
+
+        self.assertIsNone(o_recipients.initial)
+        self.assertEqual(_(u'Beware: the organisation «%s» has no email address!') % orga, o_recipients.help_text)
+
+    def test_createview06(self): #credentials problem
         user = self.login(is_superuser=False)
 
         role = user.role
