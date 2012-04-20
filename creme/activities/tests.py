@@ -439,6 +439,10 @@ class ActivitiesTestCase(CremeTestCase):
                                            start=datetime(year=2010, month=10, day=1, hour=14, minute=0),
                                            end=datetime(year=2010, month=10, day=1, hour=15, minute=0)
                                           )
+            act03 = Meeting.objects.create(user=self.user, title='meet02', busy=True,
+                                           start=datetime(year=2010, month=10, day=1, hour=18, minute=0),
+                                           end=datetime(year=2010, month=10, day=1, hour=19, minute=0)
+                                          )
 
             c1 = Contact.objects.create(user=self.user, first_name='first_name1', last_name='last_name1')
             c2 = Contact.objects.create(user=self.user, first_name='first_name2', last_name='last_name2')
@@ -446,6 +450,7 @@ class ActivitiesTestCase(CremeTestCase):
             create_rel = Relation.objects.create
             create_rel(subject_entity=c1, type_id=REL_SUB_PART_2_ACTIVITY, object_entity=act01, user=self.user)
             create_rel(subject_entity=c1, type_id=REL_SUB_PART_2_ACTIVITY, object_entity=act02, user=self.user)
+            create_rel(subject_entity=c1, type_id=REL_SUB_PART_2_ACTIVITY, object_entity=act03, user=self.user)
 
         try:
             #no collision
@@ -465,6 +470,11 @@ class ActivitiesTestCase(CremeTestCase):
             _check_activity_collisions(activity_start=datetime(year=2010, month=10, day=1, hour=13, minute=1),
                                        activity_end=datetime(year=2010, month=10, day=1, hour=13, minute=10),
                                        participants=[c1, c2]
+                                      )
+            #not busy
+            _check_activity_collisions(activity_start=datetime(year=2010, month=10, day=1, hour=14, minute=0),
+                                       activity_end=datetime(year=2010, month=10, day=1, hour=15, minute=0),
+                                       participants=[c1, c2], busy=False
                                       )
         except ValidationError as e:
             self.fail(str(e))
@@ -496,6 +506,18 @@ class ActivitiesTestCase(CremeTestCase):
                           activity_start=datetime(year=2010, month=10, day=1, hour=11, minute=0),
                           activity_end=datetime(year=2010, month=10, day=1, hour=13, minute=30),
                           participants=[c1, c2]
+                         )
+        #busy1
+        self.assertRaises(ValidationError, _check_activity_collisions,
+                          activity_start=datetime(year=2010, month=10, day=1, hour=17, minute=30),
+                          activity_end=datetime(year=2010, month=10, day=1, hour=18, minute=30),
+                          participants=[c1, c2]
+                         )
+        #busy2
+        self.assertRaises(ValidationError, _check_activity_collisions,
+                          activity_start=datetime(year=2010, month=10, day=1, hour=18, minute=0),
+                          activity_end=datetime(year=2010, month=10, day=1, hour=18, minute=30),
+                          busy=False, participants=[c1, c2]
                          )
 
     def _create_meeting(self):

@@ -191,9 +191,9 @@ def update_activity_date(request):
             return HttpResponse("error", mimetype="text/javascript", status=400)
 
         participants = [act.object_entity for act in activity.get_participant_relations()]
-        collisions = check_activity_collisions(activity.start, activity.end, participants, exclude_activity_id=activity.id)
+        collisions = check_activity_collisions(activity.start, activity.end, participants, busy=activity.busy, exclude_activity_id=activity.id)
         if collisions:
-            return HttpResponse(JSONEncoder().encode(u", ".join(collisions)), mimetype="text/javascript", status=409)
+            return HttpResponse(u", ".join(collisions), mimetype="text/plain", status=409)
 
         activity.save()
 
