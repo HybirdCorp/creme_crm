@@ -56,7 +56,7 @@
                         {% endif %}
                     </td>
                     <td class="{{row_color}}" align="right">
-                        <input class="line-unit_price" type="textbox" name="unit_price" id="unit_price{{line.pk}}" value="{{line.unit_price}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, creme.billing.checkPositiveDecimal);">
+                        <input class="line-unit_price" type="textbox" name="unit_price" id="unit_price{{line.pk}}" value="{{line.unit_price}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, creme.billing.checkDecimal);">
                         {{ object.currency.local_symbol }}
                     </td>
                     <td class="{{row_color}}" align="center">
