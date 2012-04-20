@@ -43,7 +43,7 @@ def get_last_day_of_a_month(date):
     return rdate
 
 
-def check_activity_collisions(activity_start, activity_end, participants, exclude_activity_id=None):
+def check_activity_collisions(activity_start, activity_end, participants, busy=True, exclude_activity_id=None):
     from activities.models.activity import Activity
 
     collision_test = ~(Q(end__lte=activity_start) | Q(start__gte=activity_end))
@@ -65,7 +65,8 @@ def check_activity_collisions(activity_start, activity_end, participants, exclud
         #  eg:  Activity.objects.filter(relations__object_entity=participant.id, relations__object_entity__type=REL_OBJ_PART_2_ACTIVITY).filter(collision_test)
         #activity_collisions = Activity.objects.exclude(busy=False).filter(pk__in=activity_ids).filter(collision_test)[:1]
         #activity_collisions = Activity.objects.filter(pk__in=activity_ids).filter(collision_test)[:1]
-        activity_collisions = Activity.objects.filter(collision_test).filter(pk__in=activity_ids)[:1]
+        busy_args = {} if busy else {'busy': True}
+        activity_collisions = Activity.objects.filter(collision_test, **busy_args).filter(pk__in=activity_ids)[:1]
 
         if activity_collisions:
             collision = activity_collisions[0]

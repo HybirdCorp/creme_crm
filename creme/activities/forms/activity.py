@@ -68,8 +68,8 @@ def _clean_interval(cleaned_data):
     if cleaned_data['start'] > cleaned_data['end']:
         raise ValidationError(ugettext(u"End time is before start time"))
 
-def _check_activity_collisions(activity_start, activity_end, participants, exclude_activity_id=None):
-    collisions = check_activity_collisions(activity_start, activity_end, participants, exclude_activity_id=exclude_activity_id)
+def _check_activity_collisions(activity_start, activity_end, participants, busy=True, exclude_activity_id=None):
+    collisions = check_activity_collisions(activity_start, activity_end, participants, busy=busy, exclude_activity_id=exclude_activity_id)
     if collisions:
         raise ValidationError(collisions)
 
