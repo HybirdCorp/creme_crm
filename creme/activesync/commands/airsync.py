@@ -88,6 +88,7 @@ class AirSync(Base):
         exch_map_manager     = CremeExchangeMapping.objects
         exch_map_manager_get    = exch_map_manager.get
         exch_map_manager_create = exch_map_manager.create
+        exch_map_manager_get_or_create = exch_map_manager.get_or_create
 #        self.last_synckey    = synckey
         self.last_synckey    = folder.sync_key
         CONFLICT_MODE        = self.CONFLICT_MODE
@@ -235,19 +236,37 @@ class AirSync(Base):
                                     c_field = c_field(needs_attr=True)
                                 data[c_field] = u""
 
-                    entity = save_entity(data, user, folder)
-                    self.add_history_create_in_creme(entity)
+                    uid_google = data['UID']
+                    from activesync.models import EntityASData
+                    uids = EntityASData.objects.filter(field_value=uid_google).order_by('-id')
+                    if uids.count() > 0:
+                        entity= uids[0].entity
+                        try:
+                            entity_mapping = exch_map_manager_get(creme_entity_id=entity.id, user=user)
+                            entity_mapping.exchange_entity_id = server_id_pk
+                            entity_mapping.synced = True
+                            entity_mapping.save()
+                        except Exception :
+                            pass
+                    else:
+                        entity = save_entity(data, user, folder)
+                        self.add_history_create_in_creme(entity)
 
-                    try:
-                        exch_map_manager_create(creme_entity_id=entity.id, exchange_entity_id=server_id_pk, synced=True, user=user, creme_entity_ct=ct_creme_model)
-                        self.add_message(MessageSucceedContactAdd(contact=entity, message=_(u"Successfully created %s") % entity))
-                    except IntegrityError:
-                        error(u"Entity : %s (pk=%s) created twice and only one in the mapping", entity, entity.pk)#TODO:Make a merge UI?
-                        add_error_message(u"TODO: REMOVE ME : Entity : %s (pk=%s) created twice and only one in the mapping" % (entity, entity.pk))
+#                    entity = save_entity(data, user, folder)
+#                    self.add_history_create_in_creme(entity)
 
-    #                create(creme_entity_id=entity.id, exchange_entity_id=server_id_pk, synced=True, user=user)
-    ##                debug("Create a entity: %s", entity)
-    #                self.add_success_message(_(u"Successfully created %s") % entity)
+                        try:
+                            #exch_map_manager_create(creme_entity_id=entity.id, exchange_entity_id=server_id_pk, synced=True, user=user, creme_entity_ct=ct_creme_model)
+                            obj, created = exch_map_manager_get_or_create(creme_entity_id=entity.id, exchange_entity_id=server_id_pk,
+                                user=user, creme_entity_ct=ct_creme_model)
+                            obj.synced = True
+                            obj.save()
+                            msg = _(u"Successfully created %s")  if created else _(u"WARNING : %s was already created")
+                            self.add_message(MessageSucceedContactAdd(contact=entity, message=msg % entity))
+                        except IntegrityError:
+                            error(u"Entity : %s (pk=%s) big error in the mapping", entity, entity.pk)#TODO:Make a merge UI?
+                            add_error_message(u"TODO: REMOVE ME : Entity : %s (pk=%s) big error in the mapping" % (entity, entity.pk))
+
             else:
                 add_error_message(SYNC_ERR_VERBOSE[SYNC_ERR_CREME_PERMISSION_DENIED_CREATE])
 

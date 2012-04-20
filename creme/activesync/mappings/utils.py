@@ -81,7 +81,10 @@ def serialize_entity(entity, mapping):
 
 
             if value:
-                value = escape(value)
+                try:
+                    value = escape(value)
+                except Exception:
+                    pass
                 xml_append("<%(prefix)s%(tag)s>%(value)s</%(prefix)s%(tag)s>" %
                            {
                             'prefix': '%s:' % prefix if prefix else '',
