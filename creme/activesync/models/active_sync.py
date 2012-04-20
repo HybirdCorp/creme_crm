@@ -32,7 +32,7 @@ from django.conf import settings
 from creme_core.models import CremeModel, CremeEntity, Relation
 from creme_core.models.fields import CreationDateTimeField
 
-from activities.models import Meeting
+from activities.models import Meeting, Activity
 
 from persons.models.contact import Contact
 
@@ -153,12 +153,19 @@ class SyncKeyHistory(CremeModel):
 
     @staticmethod
     def _get_previous_key(client):
-        keys = SyncKeyHistory.objects.filter(client=client).order_by('-created')[:2]
+        #keys = SyncKeyHistory.objects.filter(client=client).order_by('-created')[:2]
+        keys = SyncKeyHistory.objects.filter(client=client).order_by('-created')
 
         if keys:
             keys[0].delete()
-            if len(keys) == 2:
-                return keys[1]
+#            if len(keys) == 2:
+#                return keys[1]
+            for key in keys.all() :
+                if key == '1' or key == '0':
+                    key.delete()
+                else:
+                    return key
+
         return 0
 
     @staticmethod
@@ -329,7 +336,7 @@ post_save.connect(post_save_activesync_handler,     sender=Contact)
 post_save.connect(post_save_activesync_handler,     sender=Meeting)
 post_delete.connect(post_delete_activesync_handler, sender=Contact)
 post_delete.connect(post_delete_activesync_handler, sender=Meeting)
-
+post_save.connect(post_save_activesync_handler,     sender=Activity)
 post_save.connect(post_save_relation_employed_by, sender=Relation)
 post_delete.connect(post_delete_relation_employed_by, sender=Relation)
 

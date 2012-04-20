@@ -18,15 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 from datetime import datetime, timedelta
-
 from django.conf import settings
 
+from creme_core.models import Relation
 from activesync.models.active_sync import AS_Folder
 from activesync.models.other_models import EntityASData
 
 from activesync.utils import generate_guid, encode_AS_timezone
 from activities.models.activity import Meeting, Calendar
+from activities.constants import REL_SUB_PART_2_ACTIVITY
 from creme_core.utils.dates import get_utc_dt_from_creme_dt, get_utc_now, get_creme_dt_from_utc_dt, get_dt_to_iso8601_str, get_dt_from_iso8601_str, get_naive_dt_from_tzdate
+
+from persons.models import Contact
 
 ALL_DAY_EVENT = 1#An item marked as an all day event is understood to begin on midnight of the current day and to end on midnight of the next day.
 
@@ -235,6 +238,13 @@ def save_meeting(data, user, folder, *args, **kwargs):
 
     meeting.calendars.add(calendar)
     meeting.save()
+
+    #TODO is the except really usefull (can be the related contact deleted?)
+    try :
+        Relation.objects.create(object_entity=meeting, type_id=REL_SUB_PART_2_ACTIVITY,
+                                subject_entity=meeting.user.related_contact.all()[0], user=meeting.user)
+    except Exception :
+        pass
 
     return meeting
 
