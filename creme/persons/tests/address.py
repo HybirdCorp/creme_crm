@@ -5,7 +5,7 @@ try:
 
     from creme_core.tests.base import CremeTestCase
 
-    from persons.models import Address, Organisation
+    from persons.models import Address, Organisation, Contact
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -165,3 +165,49 @@ class AddressTestCase(CremeTestCase):
         self.assertEqual('%s %s %s' % (po_box, state, country),
                          unicode(Address(po_box=po_box, state=state, country=country))
                         )
+
+    def test_delete_orga(self): #are addresses cleaned ?
+        orga = self.login()
+
+        create_address = Address.objects.create
+        orga.billing_address = b_addr = create_address(name="Billing address",
+                                                       address="BA - Address",
+                                                       owner=orga,
+                                                      )
+        orga.save()
+
+        orga.shipping_address = s_addr = create_address(name="Shipping address",
+                                                        address="SA - Address",
+                                                        owner=orga,
+                                                       )
+        orga.save()
+
+        other_addr = create_address(name="Other address", address="OA - Address", owner=orga)
+
+        orga.delete()
+        self.assertFalse(Organisation.objects.filter(pk=orga.id).exists())
+        self.assertFalse(Address.objects.filter(pk__in=[b_addr.id, s_addr.id, other_addr.id]))
+
+    def test_delete_contact(self): #are addresses cleaned ?
+        self.login()
+
+        contact = Contact.objects.create(user=self.user, first_name='Rei', last_name='Ayanami')
+
+        create_address = Address.objects.create
+        contact.billing_address = b_addr = create_address(name="Billing address",
+                                                          address="BA - Address",
+                                                          owner=contact,
+                                                         )
+        contact.save()
+
+        contact.shipping_address = s_addr = create_address(name="Shipping address",
+                                                           address="SA - Address",
+                                                           owner=contact,
+                                                          )
+        contact.save()
+
+        other_addr = create_address(name="Other address", address="OA - Address", owner=contact)
+
+        contact.delete()
+        self.assertFalse(Contact.objects.filter(pk=contact.id).exists())
+        self.assertFalse(Address.objects.filter(pk__in=[b_addr.id, s_addr.id, other_addr.id]))
