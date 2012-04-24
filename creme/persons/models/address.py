@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.db.models import CharField, TextField, ForeignKey, PositiveIntegerField
+from django.db.models.signals import post_delete
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.utils.translation import ugettext_lazy as _
@@ -74,6 +75,16 @@ class Address(CremeModel):
                                      )
 
 
+#TODO: with a real ForeignKey can not we remove these handlers ??
+def _dispose_addresses(sender, instance, **kwargs):
+    from persons.models import Contact, Organisation
+
+    get_ct = ContentType.objects.get_for_model
+    ct_id = instance.entity_type_id
+
+    if ct_id == get_ct(Contact).id or ct_id == get_ct(Organisation).id:
+        Address.objects.filter(object_id=instance.id).delete()
+
 def _handle_merge(sender, other_entity, **kwargs):
     #TODO: factorise with blocks.OtherAddressBlock.detailview_display()
     excluded_pk = filter(None, [other_entity.billing_address_id, other_entity.shipping_address_id])
@@ -82,4 +93,5 @@ def _handle_merge(sender, other_entity, **kwargs):
         address.owner = sender
         address.save()
 
+post_delete.connect(_dispose_addresses, sender=CremeEntity)
 pre_merge_related.connect(_handle_merge)

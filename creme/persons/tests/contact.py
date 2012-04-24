@@ -326,7 +326,7 @@ class ContactTestCase(_BaseTestCase):
                                                'form-1-last_name':      data[1][1],
                                                'form-1-organisation':   data[1][2],
                                                }
-        )
+                                   )
         self.assertEqual(200, response.status_code)
 
         self.assertEqual(3, Contact.objects.count())
@@ -363,7 +363,7 @@ class ContactTestCase(_BaseTestCase):
                                                'form-1-last_name':      data[1][1],
                                                'form-1-organisation':   data[1][2],
                                                }
-        )
+                                    )
         self.assertEqual(200, response.status_code)
 
         self.assertEqual(3, Contact.objects.count())
