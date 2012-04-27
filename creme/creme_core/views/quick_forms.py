@@ -46,18 +46,22 @@ def add(request, ct_id, count):
 
     try:
         base_form_class = quickforms_registry.get_form(model)
-    except KeyError, e:
+    except KeyError:
         raise Http404('No form registered for model: %s' % model)
 
     #we had the mandatory 'user' argument
     class _QuickForm(base_form_class):
         def __init__(self, *args, **kwargs):
-            base_form_class.__init__(self, user=user, *args, **kwargs)
+            super(_QuickForm, self).__init__(user=user, *args, **kwargs)
+            # HACK : empty_permitted attribute allows formset to remove fields data that hasn't change from initial.
+            # This behaviour force user_id value to null when form is empty and causes an SQL integrity error.
+            # In django 1.3 empty_permitted cannot be set correctly so force it.
+            self.empty_permitted = False
 
     qformset_class = formset_factory(_QuickForm, extra=int(count))
 
     if request.method == 'POST':
-        qformset = qformset_class(request.POST)
+        qformset = qformset_class(request.POST, request.FILES)
 
         if qformset.is_valid():
             for form in qformset.forms: #TODO: django1.3 -> "for form in qformset:"
