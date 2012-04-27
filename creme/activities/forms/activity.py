@@ -147,8 +147,7 @@ class ParticipantCreateForm(CremeForm):
             if cleaned_data['my_participation'] and not cleaned_data.get('my_calendar'):
                 self.errors['my_calendar'] = ErrorList([_(u"If you participe, you have to choose one of your calendars.")])
 
-            if activity.busy:
-                _check_activity_collisions(activity.start, activity.end, self.participants)
+            _check_activity_collisions(activity.start, activity.end, self.participants, busy=activity.busy, exclude_activity_id=activity.id)
 
         return cleaned_data
 
@@ -285,8 +284,7 @@ class ActivityCreateForm(CremeEntityForm):
             if cleaned_data['my_participation'] and not cleaned_data.get('my_calendar'):
                 self.errors['my_calendar'] = ErrorList([_(u"If you participe, you have to choose one of your calendars.")])
 
-            if cleaned_data['busy']:
-                _check_activity_collisions(cleaned_data['start'], cleaned_data['end'], self.participants)
+            _check_activity_collisions(cleaned_data['start'], cleaned_data['end'], self.participants, busy=cleaned_data['busy'])
 
         return cleaned_data
 
@@ -411,11 +409,10 @@ class ActivityEditForm(CremeEntityForm):
         _clean_interval(cleaned_data)
 
         # check if activity period change cause collisions
-        if cleaned_data['busy']:
-            _check_activity_collisions(cleaned_data['start'], cleaned_data['end'],
-                                       instance.get_related_entities(REL_OBJ_PART_2_ACTIVITY),
-                                       instance.id
-                                      )
+        _check_activity_collisions(cleaned_data['start'], cleaned_data['end'],
+                                   instance.get_related_entities(REL_OBJ_PART_2_ACTIVITY),
+                                   busy=cleaned_data['busy'], exclude_activity_id=instance.id
+                                  )
 
         return cleaned_data
 
