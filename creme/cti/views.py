@@ -59,18 +59,24 @@ def _build_phonecall(user, entity_id, calltype_id, title_format):
 
     pcall.calendars.add(Calendar.get_user_default_calendar(user))
 
+    # if the entity is a contact with related user, should add the phone call to his calendar
+    if isinstance(entity, Contact) and entity.is_user:
+        pcall.calendars.add(Calendar.get_user_default_calendar(entity.is_user))
+
     #TODO: link credentials
     caller_rtype = constants.REL_SUB_PART_2_ACTIVITY
     entity_rtype = constants.REL_SUB_PART_2_ACTIVITY if isinstance(entity, Contact) else constants.REL_SUB_LINKED_2_ACTIVITY
-    rtypes_ids   =  set((caller_rtype, entity_rtype))
+    rtypes_ids   = set((caller_rtype, entity_rtype))
 
     rtypes_map = RelationType.objects.in_bulk(rtypes_ids)
     if len(rtypes_map) != len(rtypes_ids):
         raise Http404('An activities RelationType does not exists !!')
 
     rel_create = Relation.objects.create
-    rel_create(subject_entity=user_contact, type=rtypes_map[caller_rtype], object_entity=pcall, user=user)
-    rel_create(subject_entity=entity,       type=rtypes_map[entity_rtype], object_entity=pcall, user=user)
+
+    if entity.pk != user_contact.pk:
+        rel_create(subject_entity=user_contact, type=rtypes_map[caller_rtype], object_entity=pcall, user=user)
+    rel_create(subject_entity=entity, type=rtypes_map[entity_rtype], object_entity=pcall, user=user)
 
     return pcall
 
