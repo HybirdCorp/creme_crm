@@ -44,7 +44,13 @@ class _BulkUpdateRegistry(object):
                 old_names |= new_names
 
     def get_fields(self, model, exclude_unique=True):
-        excluded_fields = self._excluded_fieldnames.get(model) or {}
+        excluded_fields = self._excluded_fieldnames.get(model)
+
+        # get excluded field by inheritance in case of working model is not registered yet
+        if excluded_fields is None:
+            self.register((model, []))
+            excluded_fields = self._excluded_fieldnames.get(model)
+
         for field in model._meta.fields:
             if field.editable and field.name not in excluded_fields and not (exclude_unique and field.unique):
                 yield field
