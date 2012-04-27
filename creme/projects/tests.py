@@ -7,8 +7,12 @@ try:
 
     from creme_core.models import RelationType, Relation, SetCredentials
     from creme_core.tests.base import CremeTestCase
+    from creme_core.utils.dates import get_dt_from_str
 
     from persons.models import Contact
+
+    from activities.models import Calendar
+    from activities.constants import REL_SUB_PART_2_ACTIVITY
 
     from projects.models import *
     from projects.constants import *
@@ -149,8 +153,11 @@ class ProjectsTestCase(CremeTestCase):
         self.assertFormError(response, 'form', None, [_(u'Start must be before end.')])
         self.assertEqual(datetime(year=2012, month=2, day=16), self.refresh(project).start_date)
 
-    def test_task_createview01(self):
+    def test_task_createview01(self): #create 2 tasks without collisions
         self.login()
+
+        user = self.user
+        contact = Contact.objects.create(user=user, is_user=user, first_name='Rally', last_name='Vincent')
 
         project = self.create_project('Eva01')[0]
 
@@ -158,12 +165,14 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(200, self.client.get(url).status_code)
 
         response = self.client.post(url, follow=True,
-                                    data={'user':     self.user.id,
-                                          'title':    'head',
-                                          'start':    '2010-10-11',
-                                          'end':      '2010-10-30',
-                                          'duration': 50,
-                                          'tstatus':   TaskStatus.objects.all()[0].id,
+                                    data={'user':               user.id,
+                                          'title':              'head',
+                                          'start':              '2010-10-11 15:00',
+                                          'end':                '2010-10-11 17:00',
+                                          'duration':           50,
+                                          'tstatus':            TaskStatus.objects.all()[0].id,
+                                          'participating_users':user.id,
+                                          'busy':               True
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -174,15 +183,18 @@ class ProjectsTestCase(CremeTestCase):
 
         task1 = tasks[0]
         self.assertEqual(1, task1.order)
+        self.assertRelationCount(1, contact, REL_SUB_PART_2_ACTIVITY, task1)
+        self.assertEqual(1, task1.calendars.count())
 
         response = self.client.post(url, follow=True,
-                                    data={'user':         self.user.id,
-                                          'title':        'torso',
-                                          'start':        '2010-10-30',
-                                          'end':          '2010-11-20',
-                                          'duration':     180,
-                                          'tstatus':      TaskStatus.objects.all()[0].id,
-                                          'parent_tasks': task1.id,
+                                    data={'user':               user.id,
+                                          'title':              'torso',
+                                          'start':              '2010-10-11 17:01',
+                                          'end':                '2010-10-11 17:30',
+                                          'duration':           180,
+                                          'tstatus':            TaskStatus.objects.all()[0].id,
+                                          'parent_tasks':       task1.id,
+                                          'participating_users':user.id
                                          }
                                    )
         self.assertEqual(200, response.status_code)
@@ -192,11 +204,15 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(2, tasks.count())
 
         tasks2 = filter(lambda t: t.id != task1.id, tasks)
+        task2 = tasks2[0]
         self.assertEqual(1,          len(tasks2))
-        self.assertEqual([task1.id], [t.id for t in tasks2[0].parent_tasks.all()])
+        self.assertEqual([task1.id], [t.id for t in task2.parent_tasks.all()])
 
         self.assertEqual(list(tasks), list(project.get_tasks()))
         self.assertEqual(180 + 50,    project.get_expected_duration())
+
+        self.assertRelationCount(1, contact, REL_SUB_PART_2_ACTIVITY, task2)
+        self.assertEqual(1, task2.calendars.count())
 
     def test_task_createview02(self): #can be parented with task of an other project
         self.login()
@@ -218,6 +234,58 @@ class ProjectsTestCase(CremeTestCase):
         self.assertFormError(response, 'form', 'parent_tasks',
                              [_(u'Select a valid choice. %(value)s is not an available choice.') % {'value': task01.id}]
                             )
+
+    def test_task_createview03(self): #create 2 tasks with a collision
+        self.login()
+
+        user = self.user
+        contact = Contact.objects.create(user=user, is_user=user, first_name='Rally', last_name='Vincent')
+
+        project = self.create_project('Eva01')[0]
+
+        url = '/projects/project/%s/task/add' % project.id
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        response = self.client.post(url, follow=True,
+            data={'user':               user.id,
+                  'title':              'head',
+                  'start':              '2010-10-11 15:00',
+                  'end':                '2010-10-11 17:00',
+                  'duration':           50,
+                  'tstatus':            TaskStatus.objects.all()[0].id,
+                  'participating_users':user.id,
+                  'busy':               True
+            }
+        )
+        self.assertEqual(200, response.status_code)
+
+        task2_start = get_dt_from_str('2010-10-11 16:59')
+        task2_end = get_dt_from_str('2010-10-11 17:30')
+        response = self.client.post(url, follow=True,
+            data={'user':               user.id,
+                  'title':              'torso',
+                  'start':              task2_start,
+                  'end':                task2_end,
+                  'duration':           180,
+                  'tstatus':            TaskStatus.objects.all()[0].id,
+                  'participating_users':user.id
+            }
+        )
+
+        tasks = ProjectTask.objects.filter(project=project)
+        self.assertEqual(1, tasks.count())
+        task1 = tasks[0]
+
+        self.assertFormError(response, 'form', None,
+            [_(u'%(participant)s already participates to the activity «%(activity)s» between %(start)s and %(end)s.') %
+                {
+                    'participant': contact,
+                    'activity':    task1,
+                    'start':       max(task2_start.time(), task1.start.time()),
+                    'end':         min(task2_end.time(),   task1.end.time()),
+                }
+            ]
+        )
 
     def test_task_editview01(self):
         self.login()
