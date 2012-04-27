@@ -131,7 +131,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertFalse(is_bulk_updatable(field_name='end_date'))
         self.assertFalse(is_bulk_updatable(field_name='busy'))
 
-    def test_bulk_update_registry04(self): # Inheritance test case Parent / Child
+    def test_bulk_update_registry04_1(self): # Inheritance test case Parent / Child
         bulk_update_registry = self.bulk_update_registry
 
         is_bulk_updatable_for_activity = partial(bulk_update_registry.is_bulk_updatable, model=Activity)
@@ -146,6 +146,28 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertFalse(is_bulk_updatable_for_activity(field_name='busy'))
 
         bulk_update_registry.register((Meeting, []))
+
+        # inherited automatically from CremeEntity
+        self.assertFalse(is_bulk_updatable_for_meeting(field_name='created'))
+
+        # inherited from Activity excluded fields
+        self.assertFalse(is_bulk_updatable_for_meeting(field_name='type'))
+        self.assertFalse(is_bulk_updatable_for_meeting(field_name='end'))
+        self.assertFalse(is_bulk_updatable_for_meeting(field_name='busy'))
+
+    def test_bulk_update_registry04_2(self): # Inheritance test case Parent / Child without registering model first
+        bulk_update_registry = self.bulk_update_registry
+
+        is_bulk_updatable_for_activity = partial(bulk_update_registry.is_bulk_updatable, model=Activity)
+        is_bulk_updatable_for_meeting = partial(bulk_update_registry.is_bulk_updatable, model=Meeting)
+
+        activity_excluded_fields = ['type', 'start', 'end', 'busy', 'is_all_day']
+
+        bulk_update_registry.register((Activity, activity_excluded_fields))
+
+        self.assertFalse(is_bulk_updatable_for_activity(field_name='type'))
+        self.assertFalse(is_bulk_updatable_for_activity(field_name='end'))
+        self.assertFalse(is_bulk_updatable_for_activity(field_name='busy'))
 
         # inherited automatically from CremeEntity
         self.assertFalse(is_bulk_updatable_for_meeting(field_name='created'))
