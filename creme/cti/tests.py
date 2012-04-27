@@ -25,7 +25,9 @@ class CTITestCase(CremeTestCase):
         super(CTITestCase, self).login()
 
         user = self.user
+        other_user = self.other_user
         self.contact = Contact.objects.create(user=user, is_user=user, first_name='Rally', last_name='Vincent')
+        self.contact_other_user = Contact.objects.create(user=user, is_user=other_user, first_name='Bean', last_name='Bandit')
 
     def test_add_phonecall01(self):
         self.login()
@@ -186,3 +188,35 @@ class CTITestCase(CremeTestCase):
 
         calendar = Calendar.get_user_default_calendar(user)
         self.assertTrue(pcall.calendars.filter(pk=calendar.id).exists())
+
+    def test_create_phonecall02(self):
+        self.login()
+        user = self.user
+
+        self.assertEqual(302, self.client.post('/cti/phonecall/add/%s' % self.contact.id).status_code)
+
+        self.assertEqual(1, PhoneCall.objects.count())
+
+        phone_call = PhoneCall.objects.all()[0]
+        self.assertRelationCount(1, self.contact, REL_SUB_PART_2_ACTIVITY, phone_call)
+
+        calendar = Calendar.get_user_default_calendar(user)
+        self.assertTrue(phone_call.calendars.filter(pk=calendar.id).exists())
+
+    def test_create_phonecall03(self):
+        self.login()
+        user = self.user
+        other_user = self.other_user
+
+        self.assertEqual(302, self.client.post('/cti/phonecall/add/%s' % self.contact_other_user.id).status_code)
+
+        self.assertEqual(1, PhoneCall.objects.count())
+
+        phone_call = PhoneCall.objects.all()[0]
+        self.assertRelationCount(1, self.contact, REL_SUB_PART_2_ACTIVITY, phone_call)
+        self.assertRelationCount(1, self.contact_other_user, REL_SUB_PART_2_ACTIVITY, phone_call)
+
+        calendar_user = Calendar.get_user_default_calendar(user)
+        calendar_other_user = Calendar.get_user_default_calendar(other_user)
+        self.assertTrue(phone_call.calendars.filter(pk=calendar_user.id).exists())
+        self.assertTrue(phone_call.calendars.filter(pk=calendar_other_user.id).exists())
