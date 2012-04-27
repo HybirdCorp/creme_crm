@@ -23,8 +23,10 @@ from itertools import chain
 from django.db.models import ForeignKey, ManyToManyField, PositiveIntegerField, PROTECT
 from django.utils.translation import ugettext_lazy as _
 
-from activities.models import Activity, ActivityType
-from activities.constants import ACTIVITYTYPE_TASK
+from creme_core.models.relation import Relation
+
+from activities.models import Activity
+from activities.constants import ACTIVITYTYPE_TASK, REL_SUB_PART_2_ACTIVITY
 
 from projects import constants
 from project import Project
@@ -54,6 +56,10 @@ class ProjectTask(Activity):
     def __init__ (self, *args , **kwargs):
         super(ProjectTask, self).__init__(*args, **kwargs)
         self.type_id = ACTIVITYTYPE_TASK
+
+    def _pre_delete(self):
+        for relation in Relation.objects.filter(type=REL_SUB_PART_2_ACTIVITY, object_entity=self):
+            relation._delete_without_transaction()
 
     def get_absolute_url(self):
         return "/projects/task/%s" % self.id

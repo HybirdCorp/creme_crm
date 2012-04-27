@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,34 +18,73 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.contrib.auth.models import User
 from django.forms import DateTimeField, ValidationError
+from django.forms.models import ModelMultipleChoiceField
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.forms.widgets import HiddenInput
 
 from creme_core.forms import CremeForm, CremeEntityForm
 from creme_core.forms.fields import MultiCremeEntityField
-from creme_core.forms.widgets import DateTimeWidget
+from creme_core.forms.validators import validate_linkable_entities
+from creme_core.forms.widgets import DateTimeWidget, UnorderedMultipleChoiceWidget
+from creme_core.models.relation import Relation
+
+from persons.models.contact import Contact
+
+from activities.constants import REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY
+from activities.models.activity import Calendar
+from activities.utils import check_activity_collisions
 
 from projects.models import ProjectTask
 
 
-class TaskEditForm(CremeEntityForm):
+class _TaskForm(CremeEntityForm):
     start = DateTimeField(label=_(u'Start'), widget=DateTimeWidget(), required=True)
     end   = DateTimeField(label=_(u'End'), widget=DateTimeWidget(), required=True)
 
-    class Meta:
+    class Meta(CremeEntityForm.Meta):
         model = ProjectTask
-        exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'type', 'project', 'order', 'status', 'parent_tasks')
+        exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'calendars', 'type', 'project', 'order', 'status', 'parent_tasks')
+
+    def __init__(self, *args, **kwargs):
+        super(_TaskForm, self).__init__(*args, **kwargs)
+        self.participants = []
+
+    def clean(self, *args, **kwargs):
+        cleaned_data = self.cleaned_data
+
+        if not self._errors:
+            collisions = check_activity_collisions(cleaned_data['start'], cleaned_data['end'], self.participants, busy=cleaned_data['busy'], exclude_activity_id=self.instance.pk)
+            if collisions:
+                raise ValidationError(collisions)
+
+        return cleaned_data
 
 
-class TaskCreateForm(TaskEditForm):
+class TaskEditForm(_TaskForm):
+    def __init__(self, *args, **kwargs):
+        super(TaskEditForm, self).__init__(*args, **kwargs)
+        self.participants = self.instance.get_related_entities(REL_OBJ_PART_2_ACTIVITY)
+
+
+class TaskCreateForm(_TaskForm):
     parent_tasks = MultiCremeEntityField(label=_(u'Parent tasks'), required=False, model=ProjectTask)
+    participating_users = ModelMultipleChoiceField(label=_(u'Calendars'), queryset=User.objects.all(),
+                                                   required=False, widget=UnorderedMultipleChoiceWidget)
 
     def __init__(self, entity, *args, **kwargs):
         super(TaskCreateForm, self).__init__(*args, **kwargs)
+
         self._project = entity
 
-        self.fields['parent_tasks'].q_filter = {'project': entity.id}
+        fields = self.fields
+        fields['participating_users'].widget.attrs = {'reduced':'true'}
+        fields['parent_tasks'].q_filter = {'project': entity.id}
+
+    def clean_participating_users(self):
+        users = self.cleaned_data['participating_users']
+        self.participants.extend(validate_linkable_entities(Contact.objects.filter(is_user__in=users), self.user))
+        return users
 
     def save(self, *args, **kwargs):
         instance = self.instance
@@ -54,7 +93,11 @@ class TaskCreateForm(TaskEditForm):
         instance.project = project
         instance.order   = project.attribute_order_task()
 
-        return super(TaskCreateForm, self).save(*args, **kwargs)
+        super(TaskCreateForm, self).save(*args, **kwargs)
+
+        for part_user in self.participants:
+            Relation.objects.create(subject_entity=part_user, type_id=REL_SUB_PART_2_ACTIVITY, object_entity=instance, user=instance.user)
+            instance.calendars.add(Calendar.get_user_default_calendar(part_user.is_user))
 
 
 class TaskAddParentForm(CremeForm):
