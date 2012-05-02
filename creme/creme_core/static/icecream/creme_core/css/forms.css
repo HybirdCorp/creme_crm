@@ -26,18 +26,33 @@ textarea:disabled, textarea[readonly] {
     -webkit-border-radius: 4px;
 }
 
-form .table_detail_view input, form .table_detail_view select, form .table_detail_view textarea{
+form .table_detail_view .td_info > input,
+form .table_detail_view .td_info > select,
+form .table_detail_view .td_info > textarea {
     width: 45%;
 }
 
-form .table_detail_view.dual_column input, form .table_detail_view.dual_column select, form .table_detail_view.dual_column textarea {
+form .table_detail_view.dual_column .td_info > input,
+form .table_detail_view.dual_column .td_info > select,
+form .table_detail_view.dual_column .td_info > textarea,
+.in-popup form .table_detail_view .td_info > input,
+.in-popup form .table_detail_view .td_info > select,
+.in-popup form .table_detail_view .td_info span > select,
+.in-popup form .table_detail_view .td_info > textarea {
     width: 100%;
 }
 
-.table_detail_view input[type="checkbox"], .table_detail_view.dual_column input[type="checkbox"] {/* Fix for chrome & opera */
+.table_detail_view .td_info > input[type="checkbox"],
+.table_detail_view.dual_column .td_info > input[type="checkbox"] {/* Fix for chrome & opera */
     width: auto;
     margin-left: 0;
 }
+
+.in-popup form .table_detail_view .td_info > input.hasDatepicker,
+form .table_detail_view.dual_column .td_info > input.hasDatepicker {
+    width: 75%;
+}
+
 
 /* MERGE TOOL */
 .li_merge_entity_header1 {

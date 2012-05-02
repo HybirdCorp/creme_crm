@@ -658,7 +658,7 @@ div#sub_content > div:nth-child(5) {
     padding-right: 5px;
 }
 
-/* Boutons (par exemple, valider) dans les blocs */
+/* Buttons (for example: 'validate') in ths blocks */
 .table_detail_view td button {
     padding: 0px;
 }
@@ -693,7 +693,7 @@ div#sub_content > div:nth-child(5) {
 }
 */
 
-/* alignements des inputs dans les formulaires */
+/* alignments of inputs in the forms */
 /*.table_detail_view input, .table_detail_view textarea, .table_detail_view select {
     width: 25%;
 }*/
@@ -918,14 +918,6 @@ a img:hover {
     width: auto !important;
 }
 
-.td_valid {
-    background-color: #90ee90;
-}
-
-.td_error {
-    background-color: #f08080;
-}
-
 .research_box {padding : 7px; display:inline-block;}
 .research_box span{
     padding : 7px;
@@ -1130,4 +1122,18 @@ a img:hover {
 	width: 200%;
 	height: 200%;
     z-index: 2000;
+}
+
+.top_fixed {
+     display: block;
+     top: 0 !important;
+     z-index: 1000;
+     left: 0;
+     position: fixed;
+}
+
+#logo_container {
+    padding-left: 0%;
+    padding-bottom: 10px;
+    padding-top: 10px;
 }
