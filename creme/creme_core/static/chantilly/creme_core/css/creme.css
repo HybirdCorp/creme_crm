@@ -729,14 +729,6 @@ a img:hover {
     width: auto !important;
 }
 
-.td_valid {
-    background-color: #90ee90;
-}
-
-.td_error {
-    background-color: #f08080;
-}
-
 .research_box {padding : 7px;}
 .research_box span{
     padding : 7px;

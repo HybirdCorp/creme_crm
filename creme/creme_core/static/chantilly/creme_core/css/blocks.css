@@ -120,6 +120,14 @@
     text-align: left;
 }
 
+.td_valid {
+    background-color: #90ee90;
+}
+
+.td_error {
+    background-color: #f08080;
+}
+
 .table_detail_view.dual_column {
     width: 49.9%;
     height: 100%;
