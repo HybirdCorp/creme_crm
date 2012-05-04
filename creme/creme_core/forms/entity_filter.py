@@ -766,7 +766,9 @@ class _EntityFilterForm(CremeModelForm):
                                                                help_text=_(u'You can write several values, separated by commas.')
                                                               )
     datefields_conditions       = DateFieldsConditionsField(label=_(u'On date fields'), required=False)
-    customfields_conditions     = CustomFieldsConditionsField(label=_(u'On custom fields'), required=False, help_text=u'(Only integer, string and decimal for now)')
+    customfields_conditions     = CustomFieldsConditionsField(label=_(u'On custom fields'), required=False,
+                                                              help_text=_(u'(Only integers, strings and decimals for now)')
+                                                             )
     datecustomfields_conditions = DateCustomFieldsConditionsField(label=_(u'On date custom fields'), required=False)
     relations_conditions        = RelationsConditionsField(label=_(u'On relationships'), required=False,
                                                            help_text=_(u'Do not select any entity if you want to match them all.')
