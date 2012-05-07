@@ -36,11 +36,19 @@ from activities.utils import get_ical
 from activities.constants import ACTIVITYTYPE_INDISPO
 
 
+INDISPONIBILITY_HELP_MESSAGE = _("""*** How indisponibility works ***
+Unlike other kind of activities, an indisponibility works only for one Creme user participant. This user will be the one chosen by the assigned user field.
+He will be in charge of the indisponibility entity and considered as unavailable on the chosen dates.
+A user's indisponibility isn't linked to a specific calendar. It can be seen by anyone who chooses to see the activities of this user.
+Don't be surprised if you can't add new participant on an indisponibility's detailview and don't forget that the person unavailable by this indisponibility is the assigned user of this detailview.
+""")
+
 @login_required
 @permission_required('activities')
 @permission_required('activities.add_activity')
 def add_indisponibility(request):
-    return add_entity(request, IndisponibilityCreateForm, '/activities/calendar/user')
+    return add_entity(request, IndisponibilityCreateForm, '/activities/calendar/user',
+                      extra_template_dict={'help_message' : INDISPONIBILITY_HELP_MESSAGE})
 
 def _add_activity(request, class_form, **form_args):
     if request.method == 'POST':
