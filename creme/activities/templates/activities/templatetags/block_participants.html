@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load creme_core_tags creme_block creme_widgets %}
+{% if object.type_id != 'activities-activitytype_indispo' %}{% comment %}Ugly bugfix, will be removed soon{% endcomment %}
 {% has_perm_to link object as activity_link_perm %}{% has_perm_to unlink object as activity_unlink_perm %}
 <table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
     {% get_block_header colspan=3 %}
@@ -34,3 +35,4 @@
     </tbody>
     {% include 'creme_core/templatetags/widgets/block_footer.html' %}
 </table>
+{% endif %}

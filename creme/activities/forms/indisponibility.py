@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ import datetime
 from django.forms.util import ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.forms import CremeEntityForm, CremeDateTimeField
+from creme_core.forms import CremeEntityForm
 
 from activities.models import Activity
 from activities.constants import ACTIVITYTYPE_INDISPO
@@ -39,7 +39,7 @@ class IndisponibilityCreateForm(CremeEntityForm):
 
     class Meta(CremeEntityForm.Meta):
         model = Activity
-        exclude = CremeEntityForm.Meta.exclude + ('type',)
+        exclude = CremeEntityForm.Meta.exclude + ('type', 'calendars')
 
     blocks = CremeEntityForm.blocks.new(
                 ('datetime', _(u'When'), ['start', 'start_time', 'end', 'end_time', 'is_all_day']),

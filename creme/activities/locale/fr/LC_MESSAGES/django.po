@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-03-16 16:31+0100\n"
+"POT-Creation-Date: 2012-05-07 09:07+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,12 +18,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: blocks.py:37 forms/activity.py:83 forms/activity.py:210
-#: forms/activity.py:452
+#: blocks.py:37 forms/activity.py:83 forms/activity.py:219
+#: forms/activity.py:459
 msgid "Participants"
 msgstr "Participants"
 
-#: blocks.py:69 forms/activity.py:162 forms/activity.py:197
+#: blocks.py:69 forms/activity.py:171 forms/activity.py:206
 msgid "Subjects"
 msgstr "Sujets"
 
@@ -216,7 +216,7 @@ msgstr "Vue de rendez-vous"
 msgid "Display minutes information in activities blocks"
 msgstr "Afficher le bilan d'une activité dans les blocks d'activités ?"
 
-#: utils.py:75
+#: utils.py:76
 #, python-format
 msgid ""
 "%(participant)s already participates to the activity «%(activity)s» between "
@@ -245,103 +245,99 @@ msgstr "Semaine"
 msgid "End time is before start time"
 msgstr "L'heure de fin est avant le début"
 
-#: forms/activity.py:78 forms/activity.py:191
+#: forms/activity.py:78 forms/activity.py:200
 msgid "Do I participate to this meeting ?"
 msgstr "Est-ce que je participe à ce rendez-vous ?"
 
-#: forms/activity.py:80 forms/activity.py:192
+#: forms/activity.py:80 forms/activity.py:201
 msgid "On which of my calendar this activity will appears?"
 msgstr "Sur lequel de mes calendriers cette activité doit apparaître?"
 
-#: forms/activity.py:81
-msgid "Creme users"
-msgstr ""
+#: forms/activity.py:81 forms/activity.py:202
+msgid "Other participating users"
+msgstr "Autres utilsateurs participants"
 
-#: forms/activity.py:138 forms/activity.py:276
+#: forms/activity.py:148 forms/activity.py:285
 msgid "If you participe, you have to choose one of your calendars."
 msgstr "Si vous participez, vous devez choisir un de vos calendrier"
 
-#: forms/activity.py:185 forms/activity.py:371 forms/activity.py:447
+#: forms/activity.py:194 forms/activity.py:379 forms/activity.py:454
 #: forms/indisponibility.py:34 models/activity.py:119
 msgid "Start"
 msgstr "Début"
 
-#: forms/activity.py:186 forms/activity.py:372 forms/indisponibility.py:37
+#: forms/activity.py:195 forms/activity.py:380 forms/indisponibility.py:37
 msgid "Start time"
 msgstr "Heure de début"
 
-#: forms/activity.py:187 forms/activity.py:373 forms/indisponibility.py:35
+#: forms/activity.py:196 forms/activity.py:381 forms/indisponibility.py:35
 #: models/activity.py:120
 msgid "End"
 msgstr "Fin"
 
-#: forms/activity.py:188 forms/activity.py:374
+#: forms/activity.py:197 forms/activity.py:382
 msgid "If you leave end date blank, it will be set up with start date"
 msgstr ""
 "Si vous ne remplissez pas la date de fin, elle sera égale à la date de début"
 
-#: forms/activity.py:189 forms/activity.py:375 forms/indisponibility.py:38
+#: forms/activity.py:198 forms/activity.py:383 forms/indisponibility.py:38
 msgid "End time"
 msgstr "Heure de fin"
 
-#: forms/activity.py:193
-msgid "Other participating users"
-msgstr "Autres utilsateurs participants"
-
-#: forms/activity.py:196
+#: forms/activity.py:205
 msgid "Other participants"
 msgstr "Autres participants"
 
-#: forms/activity.py:198
+#: forms/activity.py:207
 msgid "Entities linked to this activity"
 msgstr "Fiches reliées à l'activité"
 
-#: forms/activity.py:200
+#: forms/activity.py:209
 msgid "Do you want to generate an alert on a specific date ?"
 msgstr "Souhaitez-vous générer une alerte à une date spécifique ?"
 
-#: forms/activity.py:201
+#: forms/activity.py:210
 msgid "Alert day"
 msgstr "Jour de l'alerte"
 
-#: forms/activity.py:202
+#: forms/activity.py:211
 msgid "Alert time"
 msgstr "Heure de l'alerte"
 
-#: forms/activity.py:204
+#: forms/activity.py:213
 msgid "Do you want to generate an alert in a while ?"
 msgstr "Souhaitez-vous générer une alerte dans un certain temps à définir ?"
 
-#: forms/activity.py:205
+#: forms/activity.py:214
 msgid "Value"
 msgstr "Valeur"
 
-#: forms/activity.py:206
+#: forms/activity.py:215
 msgid "Unity"
 msgstr "Unité"
 
-#: forms/activity.py:209 forms/activity.py:451 forms/indisponibility.py:45
+#: forms/activity.py:218 forms/activity.py:458 forms/indisponibility.py:45
 msgid "When"
 msgstr "Quand"
 
-#: forms/activity.py:211
+#: forms/activity.py:220
 msgid "Generate an alert on a specific date"
 msgstr "Générer une alerte à une date spécifique"
 
-#: forms/activity.py:212 forms/activity.py:454
+#: forms/activity.py:221 forms/activity.py:461
 msgid "Generate an alert in a while"
 msgstr "Générer une alerte dans un certain temps"
 
-#: forms/activity.py:330 forms/activity.py:343
+#: forms/activity.py:338 forms/activity.py:351
 msgid "Alert of activity"
 msgstr "Alerte d'activité"
 
-#: forms/activity.py:331 forms/activity.py:344
+#: forms/activity.py:339 forms/activity.py:352
 #, python-format
 msgid "Alert related to %s"
 msgstr "Alerte en rapport avec %s"
 
-#: forms/activity.py:427 forms/activity.py:436
+#: forms/activity.py:434 forms/activity.py:443
 msgid ""
 "No custom activity type, you should create one in configuration in order to "
 "create an activity."
@@ -349,7 +345,7 @@ msgstr ""
 "Aucun type d'activité personnalisé n'existe, vous devriez en créer un dans "
 "la configuration pour pouvoir créer une activité."
 
-#: forms/activity.py:450
+#: forms/activity.py:457
 msgid "General information"
 msgstr "Informations générales"
 
@@ -743,21 +739,21 @@ msgstr "Relié(s)"
 msgid "No future related activity for the moment"
 msgstr "Aucune activité future liée pour le moment"
 
-#: templates/activities/templatetags/block_participants.html:6
+#: templates/activities/templatetags/block_participants.html:8
 #, python-format
 msgid "%s Participant"
 msgstr "%s Participant"
 
-#: templates/activities/templatetags/block_participants.html:6
+#: templates/activities/templatetags/block_participants.html:8
 #, python-format
 msgid "%s Participants"
 msgstr "%s Participants"
 
-#: templates/activities/templatetags/block_participants.html:9
+#: templates/activities/templatetags/block_participants.html:11
 msgid "Add from existing contacts"
 msgstr "Ajouter depuis des contacts existants"
 
-#: templates/activities/templatetags/block_participants.html:31
+#: templates/activities/templatetags/block_participants.html:33
 msgid "No participant for the moment"
 msgstr "Aucun participant enregistré pour le moment"
 
@@ -838,7 +834,37 @@ msgstr "Modifier calendrier"
 msgid "No calendar for the moment"
 msgstr "Aucun calendrier pour le moment"
 
-#: views/activity.py:132
+#: views/activity.py:39
+msgid ""
+"*** How indisponibility works ***\n"
+"Unlike other kind of activities, an indisponibility works only for one Creme "
+"user participant. This user will be the one chosen by the assigned user "
+"field.\n"
+"He will be in charge of the indisponibility entity and considered as "
+"unavailable on the chosen dates.\n"
+"A user's indisponibility isn't linked to a specific calendar. It can be seen "
+"by anyone who chooses to see the activities of this user.\n"
+"Don't be surprised if you can't add new participant on an indisponibility's "
+"detailview and don't forget that the person unavailable by this "
+"indisponibility is the assigned user of this detailview.\n"
+msgstr ""
+"*** Fonctionnement des indisponibilités ***\n"
+"A contrario des autres natures d'activités, une indisponibilité ne peut "
+"avoir pour participant qu'un et un seul utilisateur Crème. Celui-ci sera "
+"choisi par l'intermédiaire du champ \"Utilisateur\" lors de la création de "
+"l'indisponibilité.\n"
+"Il sera alors non seulement propriétaire de la fiche mais donc aussi "
+"considéré comme indisponible aux dates choisies.\n"
+"Une indisponibilité, de plus, n'est liée à aucun calendrier de l'utilisateur "
+"auquel elle est affectée. Elle peut être visible de tous les autres "
+"utilisateurs Crème modulo qu'ils décident d'afficher le calendrier de "
+"l'utilisateur concerné par l'indisponibilité.\n"
+"Ne soyez donc pas surpris si vous ne pouvez pas ajouter de nouveaux "
+"participants sur une fiche indisponibilité et n'oubliez pas que "
+"l'utilisateur Crème concerné par cette dernière correspond à l'utilisateur "
+"propriétaire de la fiche.\n"
+
+#: views/activity.py:140
 msgid "New activity"
 msgstr "Nouvelle activité"
 
