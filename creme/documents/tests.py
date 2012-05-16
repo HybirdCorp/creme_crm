@@ -7,8 +7,10 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext
 
-    from creme_core.models import CremeEntity, RelationType, Relation, HeaderFilter, HistoryLine
+    from creme_core.models import CremeEntity, RelationType, Relation, HeaderFilter, HistoryLine, SetCredentials
     from creme_core.tests.base import CremeTestCase
+
+    from persons.models import Organisation
 
     from documents.models import *
     from documents.constants import *
@@ -137,7 +139,7 @@ class DocumentTestCase(_DocumentsTestCase):
 
         file_to_delete.delete(file_to_delete)#clean
 
-    def test_add_related_document(self):
+    def test_add_related_document01(self):
         self.login()
 
         entity = CremeEntity.objects.create(user=self.user)
@@ -157,12 +159,50 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        with self.assertNoException():
-            doc = Document.objects.get(title=title)
-
+        doc = self.get_object_or_fail(Document, title=title)
         self.assertRelationCount(1, entity, REL_SUB_RELATED_2_DOC, doc)
 
         doc.filedata.delete(doc.filedata) #clean
+
+    def test_add_related_document02(self): #creation credentials
+        self.login(is_superuser=False, allowed_apps=['documents', 'persons'])
+
+        entity = CremeEntity.objects.create(user=self.user)
+        self.assertEqual(302, self.client.get('/documents/document/add_related/%s' % entity.id).status_code)
+
+    def test_add_related_document03(self): #link credentials
+        self.login(is_superuser=False, allowed_apps=['documents', 'persons'], creatable_models=[Document])
+
+        SetCredentials.objects.create(role=self.role,
+                                      value=SetCredentials.CRED_VIEW   | \
+                                            SetCredentials.CRED_CHANGE | \
+                                            SetCredentials.CRED_DELETE | \
+                                            SetCredentials.CRED_UNLINK, #not CRED_LINK
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+        entity = CremeEntity.objects.create(user=self.other_user)
+        orga = Organisation.objects.create(user=self.other_user, name='NERV')
+        self.assertTrue(orga.can_view(self.user))
+        self.assertFalse(orga.can_link(self.user))
+        self.assertEqual(403, self.client.get('/documents/document/add_related/%s' % orga.id).status_code)
+
+    def test_add_related_document03(self): #view credentials
+        self.login(is_superuser=False, allowed_apps=['documents', 'persons'], creatable_models=[Document])
+
+        SetCredentials.objects.create(role=self.role,
+                                      value=SetCredentials.CRED_CHANGE | \
+                                            SetCredentials.CRED_DELETE | \
+                                            SetCredentials.CRED_LINK   | \
+                                            SetCredentials.CRED_UNLINK, #not SetCredentials.CRED_VIEW
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+        entity = CremeEntity.objects.create(user=self.other_user)
+        orga = Organisation.objects.create(user=self.other_user, name='NERV')
+        self.assertTrue(orga.can_link(self.user))
+        self.assertFalse(orga.can_view(self.user))
+        self.assertEqual(403, self.client.get('/documents/document/add_related/%s' % orga.id).status_code)
 
     def test_listview(self):
         self.login()

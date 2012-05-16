@@ -42,7 +42,12 @@ def add(request):
 @permission_required('documents')
 @permission_required('documents.add_document')
 def add_related(request, entity_id):
-    entity = get_object_or_404(CremeEntity, pk=entity_id);
+    entity = get_object_or_404(CremeEntity, pk=entity_id)
+    user = request.user
+
+    entity.can_view_or_die(user)
+    entity.can_link_or_die(user)
+
     return add_model_with_popup(request, DocumentCreateViewForm,
                                 _(u'New document for <%s>') % entity,
                                 initial={'entity': entity}
