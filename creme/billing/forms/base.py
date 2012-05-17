@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -140,30 +140,27 @@ class BaseCreateForm(BaseEditForm):
         except IndexError, e:
             debug('Exception in %s.__init__: %s', self.__class__, e)
 
-    def save(self):
+    def _copy_or_create_address(self, address, owner, name):
+        if address is None:
+            name = unicode(name)
+            return Address.objects.create(name=name, owner=owner, address=name)
+
+        return address.clone(owner)
+
+    def save(self, *args, **kwargs):
         instance = self.instance
         cleaned_data = self.cleaned_data
-        source = cleaned_data['source']
         target = cleaned_data['target']
-        save_target = False
-
-        if not target.shipping_address:
-            name = ugettext(u'Shipping address')
-            target.shipping_address = Address.objects.create(name=name, owner=target, address=name)
-            save_target = True
-
-        if not target.billing_address:
-            name = ugettext(u'Billing address')
-            target.billing_address = Address.objects.create(name=name, owner=target, address=name)
-            save_target = True
-
-        if save_target:
-            target.save()
-
-        instance.billing_address  = target.billing_address
-        instance.shipping_address = target.shipping_address
 
         if instance.generate_number_in_create:
-            instance.generate_number(source)
+            instance.generate_number(cleaned_data['source'])
 
-        return super(BaseCreateForm, self).save()
+        super(BaseCreateForm, self).save(*args, **kwargs)
+
+        copy_or_create_address    = self._copy_or_create_address
+        instance.billing_address  = copy_or_create_address(target.billing_address, instance,  _(u'Billing address'))
+        instance.shipping_address = copy_or_create_address(target.shipping_address, instance, _(u'Shipping address'))
+
+        instance.save()
+
+        return instance

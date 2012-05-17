@@ -3,8 +3,10 @@
 try:
     from datetime import date
     from decimal import Decimal
+    from functools import partial
 
     from django.db.models.deletion import ProtectedError
+    from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
     from creme_core.models import CremeEntity, Relation, CremeProperty, SetCredentials, Currency
@@ -54,16 +56,33 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(source, invoice.get_source().get_real_entity())
         self.assertEqual(target, invoice.get_target().get_real_entity())
 
-        target = Organisation.objects.get(pk=target.id)
-        b_addr = target.billing_address
-        s_addr = target.shipping_address
-        self.assertTrue(b_addr)
-        self.assertTrue(s_addr)
-        self.assertEqual(b_addr, invoice.billing_address)
-        self.assertEqual(s_addr, invoice.shipping_address)
+        #target = Organisation.objects.get(pk=target.id)
+        target = self.refresh(target)
+        #b_addr = target.billing_address
+        #s_addr = target.shipping_address
+        #self.assertTrue(b_addr)
+        #self.assertTrue(s_addr)
+        #self.assertEqual(b_addr, invoice.billing_address)
+        #self.assertEqual(s_addr, invoice.shipping_address)
+        self.assertIsNone(target.billing_address)
+        self.assertIsNone(target.shipping_address)
 
-        invoice2 = self.create_invoice('Invoice002', source, target, currency)
+        b_addr = invoice.billing_address
+        self.assertEqual(invoice,                b_addr.owner)
+        self.assertEqual(_(u'Billing address'),  b_addr.name)
+        self.assertEqual(_(u'Billing address'),  b_addr.address)
+
+        s_addr = invoice.shipping_address
+        self.assertEqual(invoice,                s_addr.owner)
+        self.assertEqual(_(u'Shipping address'), s_addr.name)
+        self.assertEqual(_(u'Shipping address'), s_addr.address)
+
+        self.create_invoice('Invoice002', source, target, currency)
         self.assertRelationCount(1, target, REL_SUB_CUSTOMER_SUPPLIER, source)
+
+    def assertAddressContentEqual(self, address1, address2): #TODO: move in persons ??
+        for f in ('name', 'address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country'):
+            self.assertEqual(getattr(address1, f), getattr(address1, f))
 
     def test_createview02(self):
         self.login()
@@ -75,17 +94,29 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         source = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
 
         target = Organisation.objects.create(user=self.user, name='Target Orga')
-        target.shipping_address = Address.objects.create(name='ShippingAddr', owner=target)
-        target.billing_address  = Address.objects.create(name='BillingAddr',  owner=target)
+
+        create_addr = partial(Address.objects.create, owner=target)
+        target.shipping_address = create_addr(name='ShippingAddr', address='Temple of fire',
+                                              po_box='6565', zipcode='789', city='Konoha',
+                                              department='dep1', state='Stuff', country='Land of Fire'
+                                             )
+        target.billing_address  = create_addr(name='BillingAddr', address='Temple of sand',
+                                              po_box='8778', zipcode='123', city='Suna',
+                                              department='dep2', state='Foo',   country='Land of Sand'
+                                             )
         target.save()
 
-        response = self.client.get('/billing/invoice/add')
-        self.assertEqual(source.id, response.context['form']['source'].field.initial)
+        self.assertEqual(source.id, self.client.get('/billing/invoice/add').context['form']['source'].field.initial)
 
         invoice = self.create_invoice(name, source, target)
 
-        self.assertEqual(target.billing_address.id,  invoice.billing_address_id)
-        self.assertEqual(target.shipping_address.id, invoice.shipping_address_id)
+        #self.assertEqual(target.billing_address.id,  invoice.billing_address_id)
+        #self.assertEqual(target.shipping_address.id, invoice.shipping_address_id)
+        self.assertAddressContentEqual(target.billing_address, invoice.billing_address)
+        self.assertEqual(invoice, invoice.billing_address.owner)
+
+        self.assertAddressContentEqual(target.shipping_address, invoice.shipping_address)
+        self.assertEqual(invoice, invoice.shipping_address.owner)
 
         url = invoice.get_absolute_url()
         self.assertEqual('/billing/invoice/%s' % invoice.id, url)
@@ -571,13 +602,22 @@ class BillingDeleteTestCase(_BillingTestCase, CremeTransactionTestCase):
         invoice, source, target = self.create_invoice_n_orgas('Invoice001')
         service_line = ServiceLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyyyy')
 
+        b_addr = invoice.billing_address
+        self.assertIsInstance(b_addr, Address)
+
+        s_addr = invoice.billing_address
+        self.assertIsInstance(s_addr, Address)
+
         invoice.delete()
         self.assertFalse(Invoice.objects.filter(pk=invoice.pk).exists())
         self.assertFalse(ServiceLine.objects.filter(pk=service_line.pk).exists())
 
-        with self.assertNoException():
+        with self.assertNoException(): #TODO: use get_object_or_fail
             Organisation.objects.get(pk=source.pk)
             Organisation.objects.get(pk=target.pk)
+
+        self.assertFalse(Address.objects.filter(pk=b_addr.id).exists())
+        self.assertFalse(Address.objects.filter(pk=s_addr.id).exists())
 
     def test_delete02(self):#Can't be deleted
         invoice, source, target = self.create_invoice_n_orgas('Invoice001')

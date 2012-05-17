@@ -77,13 +77,14 @@ class Address(CremeModel):
 
 #TODO: with a real ForeignKey can not we remove these handlers ??
 def _dispose_addresses(sender, instance, **kwargs):
-    from persons.models import Contact, Organisation
+    #from persons.models import Contact, Organisation
 
-    get_ct = ContentType.objects.get_for_model
-    ct_id = instance.entity_type_id
+    #get_ct = ContentType.objects.get_for_model
+    #ct_id = instance.entity_type_id
 
-    if ct_id == get_ct(Contact).id or ct_id == get_ct(Organisation).id:
-        Address.objects.filter(object_id=instance.id).delete()
+    #if ct_id == get_ct(Contact).id or ct_id == get_ct(Organisation).id:
+        #Address.objects.filter(object_id=instance.id).delete()
+    Address.objects.filter(object_id=instance.id).delete()
 
 def _handle_merge(sender, other_entity, **kwargs):
     #TODO: factorise with blocks.OtherAddressBlock.detailview_display()
