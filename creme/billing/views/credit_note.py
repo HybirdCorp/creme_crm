@@ -45,7 +45,9 @@ def edit(request, credit_note_id):
 @login_required
 @permission_required('billing')
 def edit_comment(request, credit_note_id):
-    return edit_model_with_popup(request, {'pk': credit_note_id}, CreditNote, CreditNotePopupEditForm)
+    return edit_model_with_popup(request, {'pk': credit_note_id},
+                                 CreditNote, CreditNotePopupEditForm,
+                                 can_change=CreditNote.can_change)
 
 @login_required
 @permission_required('billing')

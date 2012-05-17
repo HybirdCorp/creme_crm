@@ -54,8 +54,12 @@ def add_multiple_service_line(request, document_id):
 def add_service_line_on_the_fly(request, document_id):
     return _add_line(request, ServiceLineOnTheFlyForm, document_id)
 
+@login_required
+@permission_required('billing')
 def edit_line(request, line_id):
-    return edit_model_with_popup(request, {'pk': line_id}, Line, LineEditForm)
+    return edit_model_with_popup(request, {'pk': line_id},
+                                 Line, LineEditForm,
+                                 can_change=Line.can_change) #TODO check line or billing document credentials ??
 
 @jsonify
 @login_required
