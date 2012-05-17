@@ -77,8 +77,8 @@
 }
 
 \def\TargetAddress{%
-{{target.billing_address.address|safe}} \\
-{{target.billing_address.city|safe}} {{target.billing_address.po_box|safe}} \\
+{{object.billing_address.address|safe}} \\
+{{object.billing_address.city|safe}} {{object.billing_address.po_box|safe}} \\
 }
 
 \cfoot{ SIRET : {{source.siret}} - NAF : {{source.naf}} -  RCS : {{source.rcs}} - N° TVA : {{source.tvaintra}}}
@@ -98,8 +98,8 @@
 
 \begin{tabular}{@{}p{10cm} l }
 \multirow{3}{*} {\HyInvoiceHeader{\Number}} & \textbf{\TargetName} \\
- & {{target.billing_address.address|safe}} \\
- & {{target.billing_address.city|safe}} {{target.billing_address.po_box|safe}} \\
+ & {{object.billing_address.address|safe}} \\
+ & {{object.billing_address.city|safe}} {{object.billing_address.po_box|safe}} \\
 \end{tabular} 
 
 \vspace{2cm}
