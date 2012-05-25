@@ -51,7 +51,7 @@ block_registry.register_4_model(Organisation, OrganisationBlock())
 block_registry.register(*block_list)
 
 reg_icon = icon_registry.register
-reg_icon(Contact,      'images/contacts_%(size)s.png')
+reg_icon(Contact,      'images/contact_%(size)s.png')
 reg_icon(Organisation, 'images/organisation_%(size)s.png')
 
 reg_qform = quickforms_registry.register

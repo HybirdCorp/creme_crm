@@ -1,16 +1,26 @@
 .table_detail_view {
     width: 100%;
+
+    /*border-bottom: 1px solid rgba(0, 0, 0, 0.4);*/
     border: 1px solid #548295;
+
+    /*padding-bottom: 10px;*/
     padding: 2px;
+
+    /*margin-left: 5px; problem with address blocks in contact form */
     margin-bottom: 5px;
+    border-spacing: 0px;
 }
 
-.table_detail_view th, .table_detail_view td, .table_detail_view tr, .table_detail_view thead {
+.table_detail_view th,
+.table_detail_view td,
+.table_detail_view tr,
+.table_detail_view thead {
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
 }
 
-.table_detail_view > tbody > tr > th{
+.table_detail_view > tbody > tr > th {
     color:#376e86;
     padding-left:5px;
     padding-right:5px;
@@ -18,28 +28,42 @@
     padding:2px 6px;
 }
 
+/*.table_detail_view tbody th{
+    font-weight:bold;
+    background-color:#dde8ed;
+}
+*/
+
+/*.table_detail_view tbody td{
+    border-width: 1px 1px 0 0;
+    border-style: solid;
+    border-color: #548295;
+}*/
+
 .table_detail_view tbody td:hover {
     background-color: #f7d6d2;
 }
 
 .table_detail_view thead {
-    font-size:1em;
-    font-weight:bolder;
-    color:white;
-    background-color:#94c6db;
+    font-size: 1em;
+    font-weight: bolder;
+    color: #376e86;
+    background-color: #dcedf4;
 }
 
 .table_detail_view thead .title {
     width: 80%;
 }
+
 .table_detail_view thead .actions {
     width: 20%;
     text-align: right;
 }
 
 .table_detail_view tbody td table tbody td:hover {
-    background-color:#ffffff;
+    background-color: #ffffff;
 }
+
 .table_detail_view .block_header {
     width: 100%;
 }
@@ -77,22 +101,73 @@
     cursor: pointer;
 }
 
+.table_detail_view .collapsable tr:nth-child(1) td {
+    padding-top: 2px;
+}
+
+/*
+.table_detail_view tbody.collapsable tr th {
+    max-width: 30%;
+    width: 30%;
+
+}
+
+.table_detail_view tbody.collapsable tr td {
+    max-width: 70%;
+    width: 70%;
+}
+*/
+
+/*.table_detail_view > tbody > tr > th {
+    color:#376e86;
+    padding-left:5px;
+    padding-right:5px;
+    white-space:nowrap;
+    padding:2px 0px;
+}*/
+
+/*.table_detail_view tbody td:hover {
+    background-color: #f7d6d2;
+}*/
+
+/*.table_detail_view thead {
+    font-size: 1em;
+    font-weight: bolder;
+    color: #376e86;
+    background-color: #def2fa;
+}*/
+
+.table_detail_view tr.header th:not(.action) {
+    text-align: left;
+    padding-right: 5px;
+}
+
+.table_detail_view.with-header tr:not(.header) td {
+    padding-right: 5px;
+}
+
+.block_icon {
+    height: 22px;
+    position: relative;
+    top: 2px;
+}
+
 .block_line_light {
-	background-color: #F4FAFD;
-	padding:2px 4px 2px 4px;
+    background-color: #f4fafd;
+    padding: 2px 4px 2px 4px;
 }
 
 .block_line_dark {
-	background-color: #e6f2f7;
-    padding:2px 4px 2px 4px;
+    background-color: #e6f2f7;
+    padding: 2px 4px 2px 4px;
 }
 
 .block_line_light > p, .block_line_dark > p {
-    margin:0;
+    margin: 0;
 }
 
-.block_header_line_light {background-color: #bdd8e4;}
-.block_header_line_dark  {background-color: #b3d2df;}
+.block_header_line_light {background-color: #dcedf4;}
+.block_header_line_dark  {background-color: #cde5ef;}
 
 .th_info {
     max-width: 30%;
@@ -158,11 +233,11 @@ table.collapsed .block_icon {
 }
 
 table.collapsed .collapsable {
-    display:none;
+    display: none;
 }
 
 table.hide_empty_fields tr.content.collapsable-field {
-	display:none;
+	display: none;
 }
 
 table.collapsed {

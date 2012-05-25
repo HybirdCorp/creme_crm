@@ -4,7 +4,7 @@
 {% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=2 %}
-        <th class="collapser label">{% get_block_title _('%s Contact recipient') _('%s Contacts recipients') 'contacts_48.png' _('Contacts') %}</th>
+        <th class="collapser label">{% get_block_title _('%s Contact recipient') _('%s Contacts recipients') 'contact_48.png' _('Contacts') %}</th>
         <th class="actions">
             <div class="buttons">
                 {% get_line_linker at_url '/sms/messaging_list/{{object.pk}}/contact/add' with_label _("Add from existing contacts") with_perms has_perm %}

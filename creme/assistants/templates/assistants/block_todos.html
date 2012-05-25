@@ -3,7 +3,7 @@
 {% with object|yesno:'7,8' as colspan %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=colspan %}
-        <th class="collapser label">{% get_block_title _('%s Todo') _('%s Todos') 'memo_48.png' _('Todo') %}</th>
+        <th class="collapser label">{% get_block_title _('%s Todo') _('%s Todos') 'todo_48.png' _('Todo') %}</th>
         <th class="actions">
             {% if object %}
                 <div class="buttons">

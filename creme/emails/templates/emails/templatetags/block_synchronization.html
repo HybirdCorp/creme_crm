@@ -11,7 +11,7 @@
                     {% trans "Link to" %}
                 </a>
                 <a class="add" onclick="creme.emails.mass_action('/emails/mail/validated', '[name=select_one]:checked', {% get_block_reload_uri %});">
-                    <img src="{% creme_media_url 'images/jewel_ok_22.png' %}" border="0" title="{% trans "Mark as treated" %}" alt="{% trans "Mark as treated" %}" />
+                    <img src="{% creme_media_url 'images/ok_22.png' %}" border="0" title="{% trans "Mark as treated" %}" alt="{% trans "Mark as treated" %}" />
                     {% trans "Mark as treated" %}
                 </a>
             </div>
@@ -36,7 +36,7 @@
         <img src="{% creme_media_url 'images/spam_22.png' %}" border="0" title="{% trans "Mark as spam" %}" alt="{% trans "Mark as spam" %}" />
     </a>
     <a onclick="creme.emails.mass_action('/emails/mail/validated', 'input[name=select_one][value={{ mail.id }}]', {% get_block_reload_uri %});" style="cursor: pointer;">
-        <img src="{% creme_media_url 'images/jewel_ok_22.png' %}" border="0" title="{% trans "Mark as treated" %}" alt="{% trans "Mark as treated" %}" />
+        <img src="{% creme_media_url 'images/ok_22.png' %}" border="0" title="{% trans "Mark as treated" %}" alt="{% trans "Mark as treated" %}" />
     </a>
     <a onclick="creme.emails.mass_relation('/creme_core/relation/add_to_entities/{{entityemail_ct_id}}/{{rtypes}}/', 'input[name=select_one][value={{ mail.id }}]', {% get_block_reload_uri %});" style="cursor: pointer;">
         <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{% trans "Link to" %}" alt="{% trans "Link to" %}" />
