@@ -381,7 +381,7 @@ class ActTestCase(CommercialBaseTestCase):
         create_rel = Relation.objects.create
         create_opp = Opportunity.objects.create
 
-        sales_phase = SalesPhase.objects.create(name='Foresale', description='Foresale')
+        sales_phase = SalesPhase.objects.create(name='Foresale')
         opp01 = create_opp(user=user, name='OPP01', sales_phase=sales_phase, closing_date=date.today())
         create_rel(subject_entity=opp01, type_id=REL_SUB_COMPLETE_GOAL, object_entity=act, user=user)
 
