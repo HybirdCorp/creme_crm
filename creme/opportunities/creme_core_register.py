@@ -42,6 +42,3 @@ button_registry.register(linked_opportunity_button)
 block_registry.register(*blocks_list)
 
 icon_registry.register(Opportunity, 'images/opportunity_%(size)s.png')
-
-from signals import connect_to_signals
-connect_to_signals()
