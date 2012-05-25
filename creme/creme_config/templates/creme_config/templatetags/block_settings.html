@@ -1,7 +1,7 @@
 {% load i18n %}
 {% comment %}{% load creme_widgets %}{% endcomment %}{% load creme_block %}
-<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
-    {% get_block_header colspan=4 %}
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
+    {% get_block_header colspan=3 %}
         <th class="collapser label">{% get_block_title _('%s Setting value') _('%s Setting values') %}</th>
         <th class="actions"></th>
     {% end_get_block_header %}
@@ -28,9 +28,9 @@
             {% endfor %}
         {% else %}
             <tr class="content empty">
-                <td colspan="4" class="block_line_dark">{% trans "No setting value for this app" %}</td>
+                <td colspan="3" class="block_line_dark">{% trans "No setting value for this app" %}</td>
             </tr>
         {% endif %}
     </tbody>
-    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+    {% get_block_footer 3 %}
 </table>

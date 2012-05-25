@@ -1,7 +1,8 @@
 {% load i18n %}
 {% load creme_core_tags creme_block creme_widgets %}
+{% with object|yesno:'4,5' as colspan %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
-    {% get_block_header colspan=5 %}
+    {% get_block_header colspan=colspan %}
         <th class="collapser label">{% get_basic_block_header _('History') 'history_48.png' _('History') %}</th>
         <th class="actions"></th>
     {% end_get_block_header %}
@@ -71,5 +72,6 @@
             </tr>
         {% endif %}
     </tbody>
-    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+    {% get_block_footer colspan %}
 </table>
+{% endwith %}

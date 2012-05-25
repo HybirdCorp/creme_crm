@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load creme_block %}
-<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}><!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}"><!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
     {% get_block_header colspan=2 %}
         <th class="collapser label">{% get_block_title _("%s Instance's block created") _("%s Instances' blocks created") %}</th>
         <th class="actions"></th>
@@ -27,5 +27,5 @@
             </tr>
         {% endif %}
     </tbody>
-    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+    {% get_block_footer 2 %}
 </table>

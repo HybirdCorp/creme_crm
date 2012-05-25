@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
-<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=7 %}
         <th class="collapser label">
             {% block activities_header %}
@@ -26,7 +26,7 @@
         {% if page.paginator.count %}
             {% for activity in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
                 <tr class="content">{% has_perm_to view activity as activity_view_perm %}
-                    <td rowspan="{{ activity.count_lines_display_block }}" style="width: 25%;" class="{{row_color}}" align="center">
+                    <td rowspan="{{activity.count_lines_display_block}}" style="width: 25%;" class="{{row_color}}" align="center">
                         {% if activity_view_perm %}
                             {% print_field object=activity field='type' %}<br />
                             {% if activity.status %}{% print_field object=activity field='status' %}<br />{% endif %}
@@ -93,5 +93,5 @@
             </tr>
         {% endif %}
     </tbody>
-    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+    {% get_block_footer 7 %}
 </table>

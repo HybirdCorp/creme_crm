@@ -1,16 +1,16 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
-<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
-    {% comment %}{% with object|get_meta_value:"verbose_name"|format:"Informations %s" as title %} DOESN'T WORK ?!{% endcomment %}
+<table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=3 %}
-        {% with object|get_meta_value:"verbose_name" as tmp %} {% with tmp|format:_("Information %s") as title %}
+        {% comment %}TODO when inclusion_tag is improved in django <th class="collapser label">{% get_basic_block_header object|get_meta_value:"verbose_name"|format:_("Informations %s") 'infos_48.png' _('Information') %}</th>{% endcomment %}
+        {% with object|get_meta_value:"verbose_name"|format:_("Informations %s") as title %}
             <th class="collapser label">{% get_basic_block_header title 'infos_48.png' _('Information') %}</th>
-        {% endwith %} {% endwith %}
             <th class="actions">
                 <div class="buttons">
                     {% get_toggle_empty_field_button %}
                 </div>
             </th>
+        {% endwith %}
     {% end_get_block_header %}
     <tbody class="collapsable">
         <!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}

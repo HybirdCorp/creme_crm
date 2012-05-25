@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
 {% if has_app_perm %}{% comment %}TODO: indent{% endcomment %}
-<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=5 %}
         <th class="collapser label">
             {% get_block_title _('%s Calendar') _('%s Calendars') 'calendar_48.png' _('Calendars') %}
@@ -50,6 +50,6 @@
             </tr>
         {% endif %}
     </tbody>
-    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+    {% get_block_footer 5 %}
 </table>
 {% endif %}

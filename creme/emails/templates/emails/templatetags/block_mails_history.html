@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
-<table class="table_detail_view ui-corner-all {{state.classes}}" id={{block_name}}>
+<table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=6 %}
         <th class="collapser label">{% get_block_title _("%s Email in the history") _("%s Emails in the history") 'email_48.png' _('Emails') %}</th>
         <th class="actions">
@@ -53,5 +53,5 @@
             </tr>
         {% endif %}
     </tbody>
-    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+    {% get_block_footer 6 %}
 </table>

@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load creme_core_tags %}
 {% load creme_block %}
-<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
+<table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=2 %}
         <th style="width: 80%;" align="left" class="collapser">{% get_basic_block_header _("Target") %}</th>
         <th style="width: 20%;" align="right"></th>
