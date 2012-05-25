@@ -21,7 +21,8 @@
 import logging
 
 from django.db.models import CharField, BooleanField, TextField, DateTimeField, PositiveIntegerField, ForeignKey
-from django.db.models.signals import pre_delete
+from django.db.models.signals import pre_delete, post_save
+from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -64,13 +65,18 @@ class CommercialApproach(CremeModel):
 
 
 #TODO: with a real ForeignKey can not we remove these handlers ??
+@receiver(pre_delete, sender=CremeEntity)
 def _dispose_entity_comapps(sender, instance, **kwargs):
     CommercialApproach.objects.filter(entity_id=instance.id).delete()
 
+@receiver(pre_merge_related)
 def _handle_merge(sender, other_entity, **kwargs):
     for commapp in CommercialApproach.objects.filter(entity_id=other_entity.id):
         commapp.creme_entity = sender
         commapp.save()
 
-pre_delete.connect(_dispose_entity_comapps, sender=CremeEntity)
-pre_merge_related.connect(_handle_merge)
+@receiver(post_save) #TODO: sender=Activity (after activities refactoring)
+def _sync_with_activity(sender, instance, created, **kwargs):
+    #TODO: optimise (only if title has changed - factorise with HistoryLine ??)
+    if not created and isinstance(instance, Activity):
+        CommercialApproach.objects.filter(related_activity=instance).update(title=instance.title)
