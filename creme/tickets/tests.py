@@ -7,6 +7,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
+    from creme_core.tests.views.csv_import import CSVImportBaseTestCase
     from creme_core.models import HeaderFilter
 
     from tickets.models import *
@@ -15,7 +16,7 @@ except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
 
-class TicketTestCase(CremeTestCase):
+class TicketTestCase(CSVImportBaseTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'tickets')
@@ -326,6 +327,72 @@ class TicketTestCase(CremeTestCase):
 
         ticket = self.get_object_or_fail(Ticket, pk=ticket.pk)
         self.assertEqual(criticity, ticket.criticity)
+
+    def test_csv_import(self):
+        self.login()
+
+        count = Ticket.objects.count()
+
+        titles       = 'Ticket 01', 'Ticket 02'
+        descriptions = 'Description #1', 'Description #2'
+        status_l     = Status.objects.all()[:2]
+        priorities   = Priority.objects.all()[:2]
+        criticities  = Criticity.objects.all()[:2]
+
+        lines = [(titles[0], status_l[0].name, priorities[0].name, criticities[0].name, descriptions[0]),
+                 (titles[1], status_l[1].name, priorities[1].name, criticities[1].name, descriptions[1]),
+                ]
+
+        doc = self._build_doc(lines)
+        url = self._build_csvimport_url(Ticket)
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        response = self.client.post(url, data={'csv_step':     1,
+                                               'csv_document': doc.id,
+                                               #csv_has_header
+
+                                               'user': self.user.id,
+
+                                               'title_colselect': 1,
+
+                                               'status_colselect': 2,
+                                               'status_subfield':  'name',
+                                               #'status_create':    True,
+                                               #'status_defval':    def_status.pk,
+
+                                               'priority_colselect': 3,
+                                               'priority_subfield':  'name',
+                                               #'priority_create':    True,
+                                               #'priority_defval':    def_priority.pk,
+
+                                               'criticity_colselect': 4,
+                                               'criticity_subfield':  'name',
+                                               #'criticity_create':    True,
+                                               #'criticity_defval':    def_criticity.pk,
+
+                                               'description_colselect': 5,
+                                               #'description_defval':    def_description,
+
+                                               'solution_colselect': 0,
+                                               #'solution_defval':  def_solution,
+
+                                               #'property_types',
+                                               #'fixed_relations',
+                                               #'dyn_relations',
+                                              }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
+        self.assertEqual(count + len(lines), Ticket.objects.count())
+
+        for i, l in enumerate(lines):
+            ticket = self.get_object_or_fail(Ticket, title=titles[i])
+            self.assertEqual(self.user,       ticket.user)
+            self.assertEqual(status_l[i],     ticket.status)
+            self.assertEqual(priorities[i],   ticket.priority)
+            self.assertEqual(criticities[i],  ticket.criticity)
+            self.assertEqual(descriptions[i], ticket.description)
+            self.assertEqual('',              ticket.solution)
 
 
 class TicketTestUniqueCase(CremeTransactionTestCase):
