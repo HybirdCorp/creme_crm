@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,15 +19,15 @@
 ################################################################################
 
 from datetime import datetime
+from functools import partial
 
 from django.utils.translation import ugettext as _
 from django.forms import BooleanField
 
-from activities.forms.activity import ActivityCreateForm, ActivityEditForm
+from activities.forms.activity import ActivityCreateForm #, ActivityEditForm
 
 from commercial.models import CommercialApproach
 
- #TODO: to be tested ??
 
 def add_commapp_field(form):
     form.fields['is_comapp'] = BooleanField(required=False, label=_(u"Is a commercial approach ?"),
@@ -48,24 +48,22 @@ def save_commapp_field(form):
     if not comapp_subjects:
         return
 
-    #TODO: use functools.partial
-    now = datetime.now()
     instance = form.instance
-    create_comapp = CommercialApproach.objects.create
+    create_comapp = partial(CommercialApproach.objects.create,
+                            title=instance.title,
+                            description=instance.description,
+                            creation_date=datetime.now(),
+                            related_activity_id=instance.id, #TODO: related_activity=instance after activities refactoring ?
+                           )
 
     for entity in comapp_subjects:
-        create_comapp(title=instance.title,
-                      description=instance.description,
-                      creation_date=now,
-                      creme_entity=entity,
-                      related_activity_id=instance.id,
-                     )
+        create_comapp(creme_entity=entity)
 
-def update_commapp(form):
-    instance = form.instance
-    CommercialApproach.objects.filter(related_activity=instance).update(title=instance.title)
+#def update_commapp(form):
+    #instance = form.instance
+    #CommercialApproach.objects.filter(related_activity=instance).update(title=instance.title)
 
 ActivityCreateForm.add_post_init_callback(add_commapp_field)
 ActivityCreateForm.add_post_save_callback(save_commapp_field)
 
-ActivityEditForm.add_post_save_callback(update_commapp)
+#ActivityEditForm.add_post_save_callback(update_commapp)

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import date
+    from datetime import date, datetime
 
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
@@ -11,6 +11,9 @@ try:
     from persons.models import Contact, Organisation
 
     from opportunities.models import Opportunity, SalesPhase
+
+    from activities.models import Meeting
+    from activities.constants import REL_SUB_ACTIVITY_SUBJECT
 
     from commercial.models import *
     from commercial.constants import REL_SUB_COMPLETE_GOAL
@@ -25,7 +28,7 @@ __all__ = ('ActTestCase',)
 class ActTestCase(CommercialBaseTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'persons', 'commercial')
+        cls.populate('creme_core', 'creme_config', 'persons', 'activities', 'commercial')
 
     def test_create(self):
         url = '/commercial/act/add'
@@ -75,8 +78,8 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertFormError(response, 'form', None, [_(u"Due date can't be before start.")])
         self.assertEqual(0, Act.objects.count())
 
-    def create_act(self, expected_sales=1000):
-        return Act.objects.create(user=self.user, name='NAME',
+    def create_act(self, name='NAME', expected_sales=1000):
+        return Act.objects.create(user=self.user, name=name,
                                   expected_sales=expected_sales, cost=50,
                                   goal='GOAL', start=date(2010, 11, 25),
                                   due_date=date(2011, 12, 26),
@@ -419,3 +422,29 @@ class ActTestCase(CommercialBaseTestCase):
 
         act = self.get_object_or_fail(Act, pk=act.pk)
         self.assertEqual(atype, act.act_type)
+
+    def test_link_to_activity(self):
+        user = self.user
+        act1 = self.create_act('Act#1')
+        act2 = self.create_act('Act#2')
+
+        create_orga = Organisation.objects.create
+        opp = Opportunity.objects.create(user=user, name='Opp01',
+                                         sales_phase=SalesPhase.objects.create(name='Foresale'),
+                                         closing_date=date.today(),
+                                         emitter=create_orga(user=user, name='Ferraille corp'),
+                                         target=create_orga(user=user, name='World company'),
+                                        )
+
+        create_rel = Relation.objects.create
+        create_rel(subject_entity=opp, type_id=REL_SUB_COMPLETE_GOAL, object_entity=act1, user=user)
+        create_rel(subject_entity=opp, type_id=REL_SUB_COMPLETE_GOAL, object_entity=act2, user=user)
+
+        meeting = Meeting.objects.create(user=user, title='Meeting #01',
+                                         start=datetime(year=2011, month=5, day=20, hour=14, minute=0),
+                                         end=datetime(year=2011,   month=6, day=1,  hour=15, minute=0)
+                                        )
+
+        create_rel(subject_entity=opp, type_id=REL_SUB_ACTIVITY_SUBJECT, object_entity=meeting, user=user)
+        self.assertRelationCount(1, meeting, REL_SUB_COMPLETE_GOAL, act1)
+        self.assertRelationCount(1, meeting, REL_SUB_COMPLETE_GOAL, act2)

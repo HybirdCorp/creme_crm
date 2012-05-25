@@ -1,16 +1,11 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import datetime
-
-    from creme_core.models import CremeEntity
     from creme_core.tests.base import CremeTestCase
 
-    from persons.models import Contact, Organisation
+    from persons.models import Contact
 
-    from opportunities.models import Opportunity
-
-    from commercial.models import Act, ActType, CommercialApproach
+    from commercial.models import Act, ActType
     from commercial.constants import *
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
@@ -32,68 +27,6 @@ class CommercialTestCase(CremeTestCase):
         self.get_propertytype_or_fail(PROP_IS_A_SALESMAN, [Contact])
 
         self.assertEqual(3, ActType.objects.count())
-
-    def test_commapp01(self):
-        self.login()
-        entity = CremeEntity.objects.create(user=self.user)
-        url = '/commercial/approach/add/%s/' % entity.id
-        self.assertEqual(200, self.client.get(url).status_code)
-
-        title       = 'TITLE'
-        description = 'DESCRIPTION'
-        response = self.client.post(url, data={'title':       title,
-                                               'description': description,
-                                              }
-                                   )
-        self.assertEqual(200, response.status_code)
-
-        commapps = CommercialApproach.objects.all()
-        self.assertEqual(1, len(commapps))
-
-        commapp = commapps[0]
-        self.assertEqual(title,       commapp.title)
-        self.assertEqual(description, commapp.description)
-        self.assertEqual(entity.id,   commapp.entity_id)
-
-        self.assertLess((datetime.today() - commapp.creation_date).seconds, 10)
-
-    def test_commapp_merge(self):
-        self.login()
-        user = self.user
-
-        create_orga = Organisation.objects.create
-        orga01 = create_orga(user=user, name='NERV')
-        orga02 = create_orga(user=user, name='Nerv')
-
-        create_commapp = CommercialApproach.objects.create
-        create_commapp(title='Commapp01', description='...', creation_date=datetime.now(), creme_entity=orga01)
-        create_commapp(title='Commapp02', description='...', creation_date=datetime.now(), creme_entity=orga02)
-        self.assertEqual(2, CommercialApproach.objects.count())
-
-        response = self.client.post('/creme_core/entity/merge/%s,%s' % (orga01.id, orga02.id),
-                                    follow=True,
-                                    data={'user_1':      user.id,
-                                          'user_2':      user.id,
-                                          'user_merged': user.id,
-
-                                          'name_1':      orga01.name,
-                                          'name_2':      orga02.name,
-                                          'name_merged': orga01.name,
-                                         }
-                                   )
-        self.assertEqual(200, response.status_code)
-        self.assertNoFormError(response)
-
-        self.assertFalse(Organisation.objects.filter(pk=orga02).exists())
-
-        with self.assertNoException():
-            orga01 = self.refresh(orga01)
-
-        commapps = CommercialApproach.objects.all()
-        self.assertEqual(2, len(commapps))
-
-        for commapp in commapps:
-            self.assertEqual(orga01, commapp.creme_entity)
 
     def test_salesman_create(self):
         self.login()
@@ -144,9 +77,7 @@ class CommercialTestCase(CremeTestCase):
                                    'last_name':   'last_name1',
                                   }
                             )
-        
-        #self.client.post('/commercial/salesman/add', data={'user': self.user.pk, 'first_name': 'first_name1', 'last_name': 'last_name1'})
-        #self.client.post('/commercial/salesman/add', data={'user': self.user.pk, 'first_name': 'first_name2', 'last_name': 'last_name2'})
+
         add_salesman('first_name1', 'last_name1')
         add_salesman('first_name2', 'last_name2')
         salesmen = Contact.objects.filter(properties__type=PROP_IS_A_SALESMAN)
