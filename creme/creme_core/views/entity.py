@@ -75,6 +75,7 @@ def get_creme_entity_as_json(request):
     return HttpResponse(serializers.serialize('json', data, fields=fields), mimetype="text/javascript", status=status)
 
 
+#TODO: use fields tags
 EXCLUDED_FIELDS = frozenset(('id', 'entity_type', 'is_deleted', 'is_actived', 'cremeentity_ptr', 'header_filter_search_field'))
 
 @jsonify

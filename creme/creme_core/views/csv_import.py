@@ -44,10 +44,9 @@ def csv_import(request, ct_id):
                 cleaned_data = form.cleaned_data
                 CSVImportForm = form_factory(ct, form.csv_header)
                 form = CSVImportForm(user=user,
-                                     initial={
-                                                'csv_step':       1,
-                                                'csv_document':   cleaned_data['csv_document'].id,
-                                                'csv_has_header': cleaned_data['csv_has_header'],
+                                     initial={'csv_step':       1,
+                                              'csv_document':   cleaned_data['csv_document'].id,
+                                              'csv_has_header': cleaned_data['csv_has_header'],
                                              }
                                     )
         else:

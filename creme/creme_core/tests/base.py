@@ -82,11 +82,11 @@ class _CremeTestCase(object):
     def assertNoFormError(self, response, form='form'):
         try:
             errors = response.context[form].errors
-        except Exception, e:
+        except Exception:
             pass
         else:
             if errors:
-                self.fail(errors)
+                self.fail(errors.as_text())
 
     def assertListContainsSubset(self, expected, actual, msg=None):
         """Checks whether actual is a superset of expected."""
