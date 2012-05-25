@@ -52,11 +52,22 @@ class GenericModelsBlock(QuerysetBlock):
             #pass
             order_by = 'id'
 
+        meta = model._meta
+        fields = meta.fields
+        many_to_many = meta.many_to_many
+
+        colspan = len(fields) + len(meta.many_to_many) + 2 # "2" is for 'edit' & 'delete' actions
+        if any(field.name == 'is_custom' for field in fields):
+            colspan -= 1
+
         return self._render(self.get_block_template_context(context, model.objects.order_by(order_by),
                                                             update_url='/creme_config/models/%s/reload/' % ContentType.objects.get_for_model(model).id,
                                                             model=model,
                                                             model_name=context['model_name'],
-                                                            app_name=context['app_name']
+                                                            app_name=context['app_name'],
+                                                            fields=meta.fields,
+                                                            many_to_many=meta.many_to_many,
+                                                            colspan=colspan,
                                                            ))
 
 

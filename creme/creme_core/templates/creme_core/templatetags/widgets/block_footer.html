@@ -3,7 +3,7 @@
 {% if page.paginator.num_pages != 1 %}
     <tfoot class="collapsable">
         <tr>
-            <td colspan="13" class="block_header_line_dark">
+            <td colspan="{{colspan}}" class="block_header_line_dark">
                 {% if page.has_previous %}
                     <a class="button_link previous" onclick="creme.utils.loadBlock({% get_block_reload_uri %} + '&{{block_name}}_page={{page.previous_page_number}}')">
                         {% trans "Previous page" %}

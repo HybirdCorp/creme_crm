@@ -2,7 +2,7 @@
 {% load creme_core_tags creme_block %}
 {% load commercial_tags %}
 {% has_perm_to change strategy as has_perm %}
-<table class="table_detail_view ui-corner-all {{ state.classes }}" id={{block_name}}>
+<table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=10 %}{% comment %}TODO: improve get_block_header to accept variable as colpsan{% endcomment %}
         <th class="collapser label">{% trans 'Charms / Segments matrix'%}</th>
         <th class="actions"></th>

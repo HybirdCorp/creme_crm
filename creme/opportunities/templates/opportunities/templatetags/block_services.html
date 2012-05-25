@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load creme_core_tags creme_block creme_widgets %}
 {% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}
-<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=2 %}
         <th class="collapser label">{% get_block_title  _('%s Related Service') _('%s Related Services') 'service_48.png' _('Service') %}</th>
         <th class="actions">
@@ -31,5 +31,5 @@
             </tr>
         {% endif %}
     </tbody>
-    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+    {% get_block_footer 2 %}
 </table>

@@ -1,7 +1,8 @@
 {% load i18n %}
 {% load creme_core_tags creme_block creme_widgets %}
-<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
-    {% get_block_header colspan=9 %}
+{% with object|yesno:'8,9' as colspan %}
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
+    {% get_block_header colspan=colspan %}
         <th class="collapser label">{% get_block_title _('%s Reaction not in time') _('%s Reactions not in time') 'action_48.png' _('Reaction') %}</th>
         <th class="actions"></th>
     {% end_get_block_header %}
@@ -55,5 +56,6 @@
             </tr>
         {% endif %}
     </tbody>
-    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+    {% get_block_footer colspan %}
 </table>
+{% endwith %}

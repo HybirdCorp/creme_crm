@@ -12,7 +12,6 @@
                     <img src="{% creme_media_url 'images/edit_22.png' %}" border="0" alt="{% trans "Edit my prefered menus" %}" title="{% trans "Edit my prefered menus" %}"/>
                     {% trans "Edit my prefered menus" %}
                 </a>
-
             </th>
         </tr>
         {% if page.paginator.count %}
@@ -32,5 +31,5 @@
             </tr>
         {% endif %}
     </tbody>
-    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+    {% get_block_footer 2 %}
 </table>

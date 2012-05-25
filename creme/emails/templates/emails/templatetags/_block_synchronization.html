@@ -2,7 +2,7 @@
 {% load creme_block creme_core_tags %}
 
 {% with 7 as colspan %}
-    <table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
+    <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
         {% block top_header %}{% endblock %}
         <tbody class="collapsable">
             {% if page.paginator.count %}
@@ -45,6 +45,6 @@
                 </tr>
             {% endif %}
         </tbody>
-        {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+        {% get_block_footer colspan %}
     </table>
 {% endwith %}

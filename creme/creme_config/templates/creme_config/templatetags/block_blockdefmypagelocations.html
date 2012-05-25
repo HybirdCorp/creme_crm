@@ -1,7 +1,7 @@
 {% load i18n %}
 {% load creme_block %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
-    {% get_block_header colspan=4 %}
+    {% get_block_header colspan=2 %}
         <th class="collapser label">{% block title %}{% get_block_title _('%s Block on default "My page"') _('%s Blocks on default "My page"') %}{% endblock %}</th>
         <th class="actions"></th>
     {% end_get_block_header %}
@@ -28,5 +28,5 @@
             </tr>
         {% endif %}
     </tbody>
-    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+    {% get_block_footer 2 %}
 </table>

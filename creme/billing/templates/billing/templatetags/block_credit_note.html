@@ -1,8 +1,8 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
 {% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}
-<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
-    {% get_block_header colspan=11 %}
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
+    {% get_block_header colspan=10 %}
         <th class="collapser label">
             {% block block_header %}
                 {% get_block_title _("%s Credit Note") _("%s Credit Notes") 'invoice_48.png' _('Credit Notes') %}
@@ -76,5 +76,5 @@
             </tr>
         {% endif %}
     </tbody>
-    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+    {% get_block_footer 10 %}
 </table>

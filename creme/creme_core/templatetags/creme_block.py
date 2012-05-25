@@ -68,10 +68,11 @@ def do_block_header(parser, token):
     if not arg.startswith(_COLSPAN_ARG):
         raise TemplateSyntaxError("%r tag argument is on the model: %s12" % (tag_name, _COLSPAN_ARG))
 
+    raw_colspan = arg[len(_COLSPAN_ARG):]
+
     try:
-#        colspan = int(arg[len(_COLSPAN_ARG):])
-        colspan = TemplateLiteral(parser.compile_filter(arg[len(_COLSPAN_ARG):]), arg[len(_COLSPAN_ARG):])
-    except Exception, e:
+        colspan = TemplateLiteral(parser.compile_filter(raw_colspan), raw_colspan)
+    except Exception as e:
         raise TemplateSyntaxError(str(e))
 
     nodelist = parser.parse(('end_get_block_header',))
@@ -119,7 +120,8 @@ def get_block_title(context, singular_title, plural_title, icon='', short_title=
 @register.inclusion_tag('creme_core/templatetags/widgets/block_title.html', takes_context=True)
 def get_basic_block_header(context, title, icon='', short_title=''):
     context.update({
-            'title':       ugettext(title),
+            #'title':       ugettext(title),
+            'title':       title,
             'icon':        icon,
             'short_title': short_title,
            })
@@ -463,6 +465,15 @@ class ListViewButtonNode(TemplateNode):
         return self.template.render(context)
 
 #-------------------------------------------------------------------------------
+#TODO: Django 1.4 => can use keyword :)
+@register.inclusion_tag('creme_core/templatetags/widgets/block_footer.html', takes_context=True)
+def get_block_footer(context, colspan):
+    assert 'page' in context, 'Use the templatetag <get_block_footer> only on paginated blocks (problem with: %s)' % context.get('block_name', 'Unknown block id')
+    context['colspan'] = colspan
+    return context
+
+
+#-------------------------------------------------------------------------------
 _BLOCK_IMPORTER_RE = compile_re(r'from_app (.*?) named (.*?) as (.*?)$')
 
 @register.tag(name="import_block")
@@ -583,7 +594,7 @@ class DetailviewBlocksImporterNode(TemplateNode):
         blocks_manager = BlocksManager.get(context)
         entity = context['object']
         locs = BlockDetailviewLocation.objects.filter(Q(content_type=None) | Q(content_type=entity.entity_type)) \
-                                             .order_by('order')
+                                              .order_by('order')
 
         #we fallback to the default config is there is no config for this content type.
         locs = [loc for loc in locs if loc.content_type_id is not None] or locs

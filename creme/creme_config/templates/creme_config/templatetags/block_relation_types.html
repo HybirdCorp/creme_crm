@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load creme_widgets creme_block %}
-<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=4 %}
         <th class="collapser label">
             {% if custom %}
@@ -53,5 +53,5 @@
             </tr>
         {% endif %}
     </tbody>
-    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+    {% get_block_footer 4 %}
 </table>

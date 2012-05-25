@@ -1,7 +1,7 @@
 {% load i18n %}
-{% load creme_core_tags %}{% load creme_block %}
-<table class="table_detail_view ui-corner-all with-header {{ state.classes }}" id={{block_name}}>
-    {% get_block_header colspan=13 %}
+{% load creme_core_tags creme_block %}
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
+    {% get_block_header colspan=12 %}
         <th class="collapser label">{% block header %}HEADER{% endblock %}</th>
         <th class="actions">
             <div class="buttons">
@@ -106,5 +106,5 @@
             </tr>
         {% endif %}
     </tbody>
-    {% include 'creme_core/templatetags/widgets/block_footer.html' %}
+    {% get_block_footer 12 %}
 </table>
