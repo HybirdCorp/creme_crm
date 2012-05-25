@@ -704,8 +704,8 @@ class SalesPhaseTestCase(CremeTestCase):
 
     def test_create_n_order(self):
         create_phase = SalesPhase.objects.create
-        sp1 = create_phase(name='Forthcoming', description='...', order=2)
-        sp2 = create_phase(name='Abandoned',   description='...', order=1)
+        sp1 = create_phase(name='Forthcoming', order=2)
+        sp2 = create_phase(name='Abandoned',   order=1)
 
         self.assertEqual([sp2, sp1], list(SalesPhase.objects.all()))
 
@@ -713,8 +713,8 @@ class SalesPhaseTestCase(CremeTestCase):
         self.login()
 
         create_phase = SalesPhase.objects.create
-        sp1 = create_phase(name='Forthcoming', description='...', order=1)
-        sp2 = create_phase(name='Abandoned',   description='...', order=2)
+        sp1 = create_phase(name='Forthcoming', order=1)
+        sp2 = create_phase(name='Abandoned',   order=2)
 
         self.assertEqual(200, self.client.get('/creme_config/opportunities/portal/').status_code)
 
@@ -734,10 +734,10 @@ class SalesPhaseTestCase(CremeTestCase):
         self.login()
 
         create_phase = SalesPhase.objects.create
-        sp1 = create_phase(name='Forthcoming', description='...', order=1)
-        sp2 = create_phase(name='Abandoned',   description='...', order=2)
-        sp3 = create_phase(name='Won',         description='...', order=3)
-        sp4 = create_phase(name='Lost',        description='...', order=4)
+        sp1 = create_phase(name='Forthcoming', order=1)
+        sp2 = create_phase(name='Abandoned',   order=2)
+        sp3 = create_phase(name='Won',         order=3)
+        sp4 = create_phase(name='Lost',        order=4)
 
         self.assertEqual(200, self.client.post('/creme_config/opportunities/sales_phase/down/%s' % sp2.id).status_code)
 
@@ -750,8 +750,8 @@ class SalesPhaseTestCase(CremeTestCase):
         self.login()
 
         create_phase = SalesPhase.objects.create
-        sp1 = create_phase(name='Forthcoming', description='...', order=1)
-        sp2 = create_phase(name='Abandoned',   description='...', order=2)
+        sp1 = create_phase(name='Forthcoming', order=1)
+        sp2 = create_phase(name='Abandoned',   order=2)
 
         url = '/creme_config/opportunities/sales_phase/down/%s'
         self.assertPOST404(url % sp2.id)
@@ -761,10 +761,10 @@ class SalesPhaseTestCase(CremeTestCase):
         self.login()
 
         create_phase = SalesPhase.objects.create
-        sp1 = create_phase(name='Forthcoming', description='...', order=1)
-        sp2 = create_phase(name='Abandoned',   description='...', order=2)
-        sp3 = create_phase(name='Won',         description='...', order=3)
-        sp4 = create_phase(name='Lost',        description='...', order=4)
+        sp1 = create_phase(name='Forthcoming', order=1)
+        sp2 = create_phase(name='Abandoned',   order=2)
+        sp3 = create_phase(name='Won',         order=3)
+        sp4 = create_phase(name='Lost',        order=4)
 
         self.assertEqual(200, self.client.post('/creme_config/opportunities/sales_phase/up/%s' % sp3.id).status_code)
 
@@ -777,15 +777,15 @@ class SalesPhaseTestCase(CremeTestCase):
         self.login()
 
         create_phase = SalesPhase.objects.create
-        sp1 = create_phase(name='Forthcoming', description='...', order=1)
-        sp2 = create_phase(name='Abandoned',   description='...', order=2)
+        sp1 = create_phase(name='Forthcoming', order=1)
+        sp2 = create_phase(name='Abandoned',   order=2)
 
         self.assertPOST404('/creme_config/opportunities/sales_phase/up/%s' % sp1.id)
 
     def test_delete01(self):
         self.login()
 
-        sp = SalesPhase.objects.create(name='Forthcoming', description='...', order=1)
+        sp = SalesPhase.objects.create(name='Forthcoming', order=1)
         response = self.client.post('/creme_config/opportunities/sales_phase/delete', data={'id': sp.pk})
         self.assertEqual(200, response.status_code)
         self.assertFalse(SalesPhase.objects.filter(pk=sp.pk).exists())
@@ -793,7 +793,7 @@ class SalesPhaseTestCase(CremeTestCase):
     def test_delete02(self):
         self.login()
 
-        sp = SalesPhase.objects.create(name='Forthcoming', description='...', order=1)
+        sp = SalesPhase.objects.create(name='Forthcoming', order=1)
         opp = Opportunity.objects.create(user=self.user, name='Opp', sales_phase=sp)
 
         response = self.client.post('/creme_config/opportunities/sales_phase/delete', data={'id': sp.pk})
@@ -814,8 +814,8 @@ class OriginTestCase(CremeTestCase):
 
     def test_config(self):
         create_origin = Origin.objects.create
-        origin1 = create_origin(name='Web site', description='...')
-        origin2 = create_origin(name='Mouth',    description='...')
+        origin1 = create_origin(name='Web site')
+        origin2 = create_origin(name='Mouth')
 
         response = self.client.get('/creme_config/opportunities/origin/portal/')
         self.assertEqual(200, response.status_code)
@@ -825,12 +825,9 @@ class OriginTestCase(CremeTestCase):
         self.assertPOST404('/creme_config/opportunities/origin/down/%s' % origin1.id)
 
     def test_delete(self): #set to null
-        origin = Origin.objects.create(name='Web site', description='...')
+        origin = Origin.objects.create(name='Web site')
         opp = Opportunity.objects.create(user=self.user, name='Opp', origin=origin,
-                                         sales_phase=SalesPhase.objects.create(name='Forthcoming',
-                                                                               description='...',
-                                                                               order=1
-                                                                              ),
+                                         sales_phase=SalesPhase.objects.create(name='Forthcoming', order=1),
                                         )
 
         response = self.client.post('/creme_config/opportunities/origin/delete', data={'id': origin.pk})

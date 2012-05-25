@@ -82,27 +82,27 @@ class Populator(BasePopulator):
 
         if not SalesPhase.objects.exists():
             create_sphase = SalesPhase.objects.create
-            create_sphase(name=_(u"Forthcoming"),       description="...", order=1)
-            create_sphase(name=_(u"Abandoned"),         description="...", order=4)
-            won  = create_sphase(name=_(u"Won"),        description="...", order=5)
-            lost = create_sphase(name=_(u"Lost"),       description="...", order=6)
-            create_sphase(name=_(u"Under negotiation"), description="...", order=3)
-            create_sphase(name=_(u"In progress"),       description="...", order=2)
+            create_sphase(name=_(u"Forthcoming"),       order=1)
+            create_sphase(name=_(u"Abandoned"),         order=4)
+            won  = create_sphase(name=_(u"Won"),        order=5)
+            lost = create_sphase(name=_(u"Lost"),       order=6)
+            create_sphase(name=_(u"Under negotiation"), order=3)
+            create_sphase(name=_(u"In progress"),       order=2)
         else:
             won = None
             lost = None
 
         if not Origin.objects.exists():
             create_origin = Origin.objects.create
-            create_origin(name=_(u"None"),             description="...")
-            create_origin(name=_(u"Web site"),         description="...")
-            create_origin(name=_(u"Mouth"),            description="...")
-            create_origin(name=_(u"Show"),             description="...")
-            create_origin(name=_(u"Direct email"),     description="...")
-            create_origin(name=_(u"Direct phonecall"), description="...")
-            create_origin(name=_(u"Employee"),         description="...")
-            create_origin(name=_(u"Partner"),          description="...")
-            create_origin(name=_(u"Other"),            description="...")
+            create_origin(name=_(u"None"))
+            create_origin(name=_(u"Web site"))
+            create_origin(name=_(u"Mouth"))
+            create_origin(name=_(u"Show"))
+            create_origin(name=_(u"Direct email"))
+            create_origin(name=_(u"Direct phonecall"))
+            create_origin(name=_(u"Employee"))
+            create_origin(name=_(u"Partner"))
+            create_origin(name=_(u"Other"))
 
         hf = HeaderFilter.create(pk='opportunities-hf', name=_(u'Opportunity view'), model=Opportunity)
         hf.set_items([HeaderFilterItem.build_4_field(model=Opportunity, name='name'),

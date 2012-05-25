@@ -49,7 +49,7 @@ class _TurnoverField(FunctionField):
 
 class SalesPhase(CremeModel):
     name        = CharField(_(u"Name"), max_length=100, blank=False, null=False)
-    description = TextField(_(u"Description"))
+    #description = TextField(_(u"Description"))
     order       = PositiveIntegerField(_(u"Order"), default=1, editable=False)
 
     def __unicode__(self):
@@ -64,7 +64,7 @@ class SalesPhase(CremeModel):
 
 class Origin(CremeModel):
     name        = CharField(_(u'Origin'), max_length=100, blank=False, null=False)
-    description = TextField(_(u"Description"))
+    #description = TextField(_(u"Description"))
 
     def __unicode__(self):
         return self.name
