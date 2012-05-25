@@ -22,6 +22,8 @@ from logging import error, debug
 
 from django.db.models import (CharField, TextField, ForeignKey, PositiveIntegerField,
                               DateField, PROTECT, SET_NULL)
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
@@ -89,7 +91,7 @@ class Opportunity(CremeEntity):
 
     function_fields = CremeEntity.function_fields.new(_TurnoverField())
 
-    _use_current_quote  = None
+    #_use_current_quote  = None
 
     class Meta:
         app_label = "opportunities"
@@ -126,15 +128,24 @@ class Opportunity(CremeEntity):
     def get_weighted_sales(self):
         return (self.estimated_sales or 0) * (self.chance_to_win or 0) / 100.0
 
-    @property
-    def use_current_quote(self):
-        if self._use_current_quote is None:
-            try:
-                self._use_current_quote = SettingValue.objects.get(key=SETTING_USE_CURRENT_QUOTE).value
-            except Opportunity.DoesNotExist:
-                debug("Populate opportunities is not loaded")
-                self._use_current_quote = False
-        return self._use_current_quote
+    #@property
+    #def use_current_quote(self):
+        #if self._use_current_quote is None:
+            #try:
+                #self._use_current_quote = SettingValue.objects.get(key=SETTING_USE_CURRENT_QUOTE).value
+            #except SettingValue.DoesNotExist:
+                #debug("Populate opportunities is not loaded")
+                #self._use_current_quote = False
+        #return self._use_current_quote
+    @staticmethod
+    def use_current_quote():
+        try:
+            use_current_quote = SettingValue.objects.get(key=SETTING_USE_CURRENT_QUOTE).value
+        except SettingValue.DoesNotExist:
+            debug("Populate opportunities is not loaded")
+            use_current_quote = False
+
+        return use_current_quote
 
     def get_total(self):
         if self.made_sales:
@@ -175,9 +186,9 @@ class Opportunity(CremeEntity):
     def get_current_quote_id(self):
         ct        = ContentType.objects.get_for_model(Quote)
         quote_ids = Relation.objects.filter(object_entity=self.id,
-            type=REL_SUB_CURRENT_DOC,
-            subject_entity__entity_type=ct)\
-        .values_list('subject_entity_id', flat=True)
+                                            type=REL_SUB_CURRENT_DOC,
+                                            subject_entity__entity_type=ct)\
+                                    .values_list('subject_entity_id', flat=True)
 
         if len(quote_ids) > 1:
             error('Several current quotes for opportunity: %s', self)
@@ -211,3 +222,22 @@ class Opportunity(CremeEntity):
     def update_estimated_sales(self, document):
         self.estimated_sales = document.total_no_vat
         self.save()
+
+
+# Adding "current" feature to other billing document (sales order, invoice) does not really make sense.
+# If one day it does we will only have to add senders to the signal
+@receiver(post_save, sender=Quote)
+def _handle_current_quote_change(sender, instance, **kwargs):
+    relations = instance.get_relations(REL_SUB_CURRENT_DOC, real_obj_entities=True)
+
+    if relations and Opportunity.use_current_quote(): #optimisation for use_current_quote query
+        for r in relations:
+            r.object_entity.get_real_entity().update_estimated_sales(instance)
+
+@receiver(post_save, sender=Relation)
+def _handle_current_quote_set(sender, instance, **kwargs):
+    if instance.type_id == REL_SUB_CURRENT_DOC:
+        doc = instance.subject_entity.get_real_entity()
+
+        if isinstance(doc, Quote) and Opportunity.use_current_quote():
+            instance.object_entity.get_real_entity().update_estimated_sales(doc)

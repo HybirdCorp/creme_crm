@@ -563,7 +563,7 @@ class OpportunitiesTestCase(CremeTestCase):
                     opportunity.id, quote.id
                 )
 
-    def test_set_current_quote_1(self):
+    def test_current_quote_1(self):
         self.login()
 
         opportunity, target, emitter = self.create_opportunity('Opportunity01')
@@ -590,7 +590,12 @@ class OpportunitiesTestCase(CremeTestCase):
         self.assertRelationCount(1, quote1, REL_SUB_LINKED_QUOTE,  opportunity)
         self.assertRelationCount(1, quote1, REL_SUB_CURRENT_DOC,   opportunity)
 
-    def test_set_current_quote_2(self):
+    def _set_quote_config(self, use_current_quote):
+        sv = SettingValue.objects.get(key=SETTING_USE_CURRENT_QUOTE)
+        sv.value = use_current_quote
+        sv.save()
+
+    def test_current_quote_2(self): #refresh the estimated_sales when we change which quote is the current
         self.login()
 
         opportunity, target, emitter = self.create_opportunity('Opportunity01')
@@ -607,10 +612,7 @@ class OpportunitiesTestCase(CremeTestCase):
         quote2 = Quote.objects.exclude(pk=quote1.id)[0]
         sl2 = ServiceLine.objects.create(user=self.user, related_document=quote2, on_the_fly_item='Stuff1', unit_price=Decimal("500"))
 
-        use_current_quote = SettingValue.objects.get(key=SETTING_USE_CURRENT_QUOTE)
-        use_current_quote.value = True
-        use_current_quote.save()
-
+        self._set_quote_config(True)
         url = self._build_setcurrentquote_url(opportunity, quote1)
         self.assertEqual(200, self.client.post(url, follow=True).status_code)
 
@@ -623,14 +625,11 @@ class OpportunitiesTestCase(CremeTestCase):
         opportunity = self.refresh(opportunity)
         self.assertEqual(opportunity.estimated_sales, quote2.total_no_vat) # 500
 
-    def test_set_current_quote_3(self):
+    def test_current_quote_3(self):
         self.login()
 
         opportunity, target, emitter = self.create_opportunity('Opportunity01')
-
-        use_current_quote = SettingValue.objects.get(key=SETTING_USE_CURRENT_QUOTE)
-        use_current_quote.value = False
-        use_current_quote.save()
+        self._set_quote_config(False)
 
         estimated_sales = Decimal('69')
         opportunity.estimated_sales = estimated_sales
@@ -648,6 +647,21 @@ class OpportunitiesTestCase(CremeTestCase):
         opportunity = self.refresh(opportunity)
         self.assertEqual(opportunity.estimated_sales, opportunity.get_total()) # 69
         self.assertEqual(opportunity.estimated_sales, estimated_sales) # 69
+
+    def test_current_quote_4(self):
+        self.login()
+        self._set_quote_config(True)
+
+        opportunity, target, emitter = self.create_opportunity('Opportunity01')
+        self.client.post(self._build_gendoc_url(opportunity, ContentType.objects.get_for_model(Quote)))
+
+        quote = Quote.objects.all()[0]
+        self.assertEqual(self.refresh(opportunity).estimated_sales, quote.total_no_vat)
+        self.assertEqual(200, self.client.post(self._build_setcurrentquote_url(opportunity, quote), follow=True).status_code)
+
+        ServiceLine.objects.create(user=self.user, related_document=quote, on_the_fly_item='Stuff', unit_price=Decimal("300"))
+        self.assertEqual(300, self.refresh(quote).total_no_vat)
+        self.assertEqual(300, self.refresh(opportunity).estimated_sales)
 
     def test_get_weighted_sales(self):
         self.login()
