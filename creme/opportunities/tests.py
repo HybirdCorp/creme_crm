@@ -8,10 +8,11 @@ try:
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
+    from creme_core.tests.base import CremeTestCase
+    from creme_core.tests.views.csv_import import CSVImportBaseTestCase
     from creme_core.models import RelationType, Relation, CremeProperty, SetCredentials, Currency
     from creme_core.constants import PROP_IS_MANAGED_BY_CREME, DEFAULT_CURRENCY_PK
     from creme_core.models.entity import CremeEntity
-    from creme_core.tests.base import CremeTestCase
 
     from creme_config.models import SettingKey, SettingValue
 
@@ -29,12 +30,18 @@ except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
 
-class OpportunitiesTestCase(CremeTestCase):
+class OpportunitiesTestCase(CSVImportBaseTestCase):
+    doc = None
+
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'documents', 'persons',
                      'commercial', 'billing', 'activities', 'opportunities'
                     )
+
+    def tearDown(self):
+        if self.doc:
+            self.doc.filedata.delete() #clean
 
     def _genericfield_format_entity(self, entity):
         return '{"ctype":"%s", "entity":"%s"}' % (entity.entity_type_id, entity.id)
@@ -733,6 +740,302 @@ class OpportunitiesTestCase(CremeTestCase):
 
         opp = self.get_object_or_fail(Opportunity, pk=opp.pk)
         self.assertEqual(currency, opp.currency)
+
+    def test_csv_import01(self):
+        self.login()
+
+        count = Opportunity.objects.count()
+        max_order = max(sp.order for sp in SalesPhase.objects.all())
+
+        #Opportunity #1
+        emitter1 = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
+        target1  = Organisation.objects.create(user=self.user, name='Acme')
+        sp1 = SalesPhase.objects.all()[0]
+
+        #Opportunity #2
+        target2_name = 'Black label society'
+        sp2_name = 'IAmNotSupposedToAlreadyExist'
+        self.assertFalse(SalesPhase.objects.filter(name=sp2_name))
+
+        #Opportunity #3
+        target3 = Contact.objects.create(user=self.user, first_name='Mike', last_name='Danton')
+
+        #Opportunity #4
+        target4_last_name = 'Renegade'
+
+        #Opportunity #5
+        sp5 = SalesPhase.objects.all()[1]
+
+        lines = [('Opp01', sp1.name, '1000', '2000', target1.name, ''),
+                 ('Opp02', sp2_name, '100',  '200',  target2_name, ''),
+                 ('Opp03', sp1.name, '100',  '200',  '',           target3.last_name),
+                 ('Opp04', sp1.name, '100',  '200',  '',           target4_last_name),
+                 ('Opp05', '',       '100',  '200',  target1.name, ''),
+                 #TODO emitter by name
+                ]
+
+        doc = self._build_doc(lines)
+        url = self._build_csvimport_url(Opportunity)
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        response = self.client.post(url, data={'csv_step':     1,
+                                               'csv_document': doc.id,
+                                               #csv_has_header
+
+                                               'user':    self.user.id,
+                                               'emitter': emitter1.id,
+
+                                               'name_colselect':            1,
+                                               'estimated_sales_colselect': 3,
+                                               'made_sales_colselect':      4,
+
+                                               'sales_phase_colselect': 2,
+                                               'sales_phase_create':    True,
+                                               'sales_phase_defval':    sp5.pk,
+
+                                               'target_orga_colselect':    5,
+                                               'target_orga_create':       True,
+                                               'target_contact_colselect': 6,
+                                               'target_contact_create':    True,
+
+                                               'currency_colselect': 0,
+                                               'currency_defval':    DEFAULT_CURRENCY_PK,
+
+                                               'reference_colselect':              0,
+                                               'chance_to_win_colselect':          0,
+                                               'expected_closing_date_colselect':  0,
+                                               'closing_date_colselect':           0,
+                                               'origin_colselect':                 0,
+                                               'description_colselect':            0,
+                                               'first_action_date_colselect':      0,
+
+                                                #'property_types',
+                                                #'fixed_relations',
+                                                #'dyn_relations',
+                                              }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
+
+        with self.assertNoException():
+            form = response.context['form']
+
+        self.assertFalse(list(form.import_errors))
+        self.assertEqual(len(lines), form.imported_objects_count)
+        self.assertEqual(len(lines), form.lines_count)
+
+        self.assertEqual(count + len(lines), Opportunity.objects.count())
+
+        opp1 = self.get_object_or_fail(Opportunity, name='Opp01')
+        self.assertEqual(self.user, opp1.user)
+        self.assertEqual(1000,      opp1.estimated_sales)
+        self.assertEqual(2000,      opp1.made_sales)
+        self.assertEqual(sp1,       opp1.sales_phase)
+        self.assertFalse(opp1.reference)
+        self.assertIsNone(opp1.origin)
+        self.assertEqual(emitter1, opp1.get_source())
+        self.assertEqual(target1,  opp1.get_target())
+
+        sp2 = self.get_object_or_fail(SalesPhase, name=sp2_name)
+        self.assertEqual(max_order + 1, sp2.order)
+
+        opp2 = self.get_object_or_fail(Opportunity, name='Opp02')
+        self.assertEqual(self.user, opp2.user)
+        self.assertEqual(100,       opp2.estimated_sales)
+        self.assertEqual(200,       opp2.made_sales)
+        self.assertEqual(sp2, opp2.sales_phase)
+        self.assertEqual(self.get_object_or_fail(Organisation, name=target2_name),
+                         opp2.get_target()
+                        )
+
+        opp3 = self.get_object_or_fail(Opportunity, name='Opp03')
+        self.assertEqual(target3,  opp3.get_target())
+
+        opp4 = self.get_object_or_fail(Opportunity, name='Opp04')
+        self.assertEqual(self.get_object_or_fail(Contact, last_name=target4_last_name),
+                         opp4.get_target()
+                        )
+
+        opp5 = self.get_object_or_fail(Opportunity, name='Opp05')
+        self.assertEqual(sp5, opp5.sales_phase)
+
+    def test_csv_import02(self): #SalesPhase creation forbidden by the user
+        self.login()
+
+        count = Opportunity.objects.count()
+
+        emitter = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
+        target1  = Organisation.objects.create(user=self.user, name='Acme')
+
+        sp1_name = 'IAmNotSupposedToAlreadyExist'
+        self.assertFalse(SalesPhase.objects.filter(name=sp1_name))
+
+        lines = [('Opp01', sp1_name, '1000', '2000', target1.name, '')]
+        doc = self._build_doc(lines)
+        response = self.client.post(self._build_csvimport_url(Opportunity),
+                                    data={'csv_step':     1,
+                                          'csv_document': doc.id,
+                                          #csv_has_header
+
+                                          'user':    self.user.id,
+                                          'emitter': emitter.id,
+
+                                          'name_colselect':            1,
+                                          'estimated_sales_colselect': 3,
+                                          'made_sales_colselect':      4,
+
+                                          'sales_phase_colselect': 2,
+                                          'sales_phase_create':    '', #<=======
+                                          #'sales_phase_defval':   [...], #<=======
+
+                                          'target_orga_colselect':    5,
+                                          'target_orga_create':       True,
+                                          'target_contact_colselect': 6,
+                                          'target_contact_create':    True,
+
+                                          'currency_colselect': 0,
+                                          'currency_defval':    DEFAULT_CURRENCY_PK,
+
+                                          'reference_colselect':              0,
+                                          'chance_to_win_colselect':          0,
+                                          'expected_closing_date_colselect':  0,
+                                          'closing_date_colselect':           0,
+                                          'origin_colselect':                 0,
+                                          'description_colselect':            0,
+                                          'first_action_date_colselect':      0,
+
+                                           #'property_types',
+                                           #'fixed_relations',
+                                           #'dyn_relations',
+                                        }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
+
+        with self.assertNoException():
+            form = response.context['form']
+
+        self.assertEqual(2, len(form.import_errors)) #2 errors: retrieving of SalesPhase failed, creation of Opportunity failed
+        self.assertEqual(0, form.imported_objects_count)
+        self.assertEqual(len(lines), form.lines_count)
+
+        self.assertEqual(count, Opportunity.objects.count())
+        self.assertFalse(SalesPhase.objects.filter(name=sp1_name).count())
+
+    def test_csv_import03(self): #SalesPhase is required
+        self.login()
+
+        count = Opportunity.objects.count()
+
+        emitter = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
+        target  = Organisation.objects.create(user=self.user, name='Acme')
+
+        lines = [('Opp01', '1000', '2000', target.name)]
+        doc = self._build_doc(lines)
+        response = self.client.post(self._build_csvimport_url(Opportunity),
+                                    data={'csv_step':     1,
+                                          'csv_document': doc.id,
+                                          #csv_has_header
+
+                                          'user':    self.user.id,
+                                          'emitter': emitter.id,
+
+                                          'name_colselect':            1,
+                                          'estimated_sales_colselect': 2,
+                                          'made_sales_colselect':      3,
+
+                                          'sales_phase_colselect': 0,  #<=======
+                                          'sales_phase_create':    '',
+                                          #'sales_phase_defval':   [...],
+
+                                          'target_orga_colselect':    4,
+                                          'target_orga_create':       '',
+                                          'target_contact_colselect': 0,
+                                          'target_contact_create':    '',
+
+                                          'currency_colselect': 0,
+                                          'currency_defval':    DEFAULT_CURRENCY_PK,
+
+                                          'reference_colselect':              0,
+                                          'chance_to_win_colselect':          0,
+                                          'expected_closing_date_colselect':  0,
+                                          'closing_date_colselect':           0,
+                                          'origin_colselect':                 0,
+                                          'description_colselect':            0,
+                                          'first_action_date_colselect':      0,
+
+                                           #'property_types',
+                                           #'fixed_relations',
+                                           #'dyn_relations',
+                                        }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', 'sales_phase', [_('This field is required.')])
+
+    def test_csv_import04(self): #creation of Organisation/Contact is not wanted
+        self.login()
+
+        count = Opportunity.objects.count()
+        emitter = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
+
+        orga_name = 'NERV'
+        contact_name = 'Ikari'
+        lines = [('Opp01', 'SP name', '1000', '2000', orga_name, ''),
+                 ('Opp02', 'SP name', '1000', '2000', '',        contact_name),
+                ]
+        doc = self._build_doc(lines)
+        response = self.client.post(self._build_csvimport_url(Opportunity),
+                                    data={'csv_step':     1,
+                                          'csv_document': doc.id,
+                                          #csv_has_header
+
+                                          'user':    self.user.id,
+                                          'emitter': emitter.id,
+
+                                          'name_colselect':            1,
+                                          'estimated_sales_colselect': 3,
+                                          'made_sales_colselect':      4,
+
+                                          'sales_phase_colselect': 2,
+                                          'sales_phase_create':    True,
+
+                                          'target_orga_colselect':    5,
+                                          'target_orga_create':       '', #<===
+                                          'target_contact_colselect': 6,
+                                          'target_contact_create':    '', #<===
+
+                                          'currency_colselect': 0,
+                                          'currency_defval':    DEFAULT_CURRENCY_PK,
+
+                                          'reference_colselect':              0,
+                                          'chance_to_win_colselect':          0,
+                                          'expected_closing_date_colselect':  0,
+                                          'closing_date_colselect':           0,
+                                          'origin_colselect':                 0,
+                                          'description_colselect':            0,
+                                          'first_action_date_colselect':      0,
+
+                                          #'property_types',
+                                          #'fixed_relations',
+                                          #'dyn_relations',
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
+
+        with self.assertNoException():
+            form = response.context['form']
+
+        errors = list(form.import_errors)
+        self.assertEqual(4, len(errors)) #4 errors: retrieving of Organisation/Contact failed, creation of Opportunities failed
+        self.assertIn(_('Organisation'), errors[0][1])
+        self.assertIn(_('Contact'),      errors[2][1])
+
+        self.assertEqual(0, form.imported_objects_count)
+
+        self.assertEqual(count, Opportunity.objects.count())
+        self.assertFalse(Organisation.objects.filter(name=orga_name))
+        self.assertFalse(Contact.objects.filter(last_name=contact_name))
 
 
 class SalesPhaseTestCase(CremeTestCase):

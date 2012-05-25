@@ -18,7 +18,9 @@ except Exception as e:
 __all__ = ('CSVImportViewsTestCase', )
 
 
-class CSVImportViewsTestCase(ViewsTestCase):
+class CSVImportBaseTestCase(ViewsTestCase):
+    doc = None
+
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config')
@@ -28,8 +30,8 @@ class CSVImportViewsTestCase(ViewsTestCase):
         Position.objects.all().delete()
         Sector.objects.all().delete()
 
-    def setUp(self):
-        self.doc = None
+    #def setUp(self):
+        #self.doc = None
 
     def tearDown(self):
         if self.doc:
@@ -68,10 +70,12 @@ class CSVImportViewsTestCase(ViewsTestCase):
 
         return self.doc
 
-    def _build_url(self):
-        ct = ContentType.objects.get_for_model(Contact)
+    def _build_csvimport_url(self, model):
+        ct = ContentType.objects.get_for_model(model)
         return '/creme_core/list_view/import_csv/%s?list_url=%s' % (ct.id, Contact.get_lv_absolute_url())
 
+
+class CSVImportViewsTestCase(CSVImportBaseTestCase):
     def test_import01(self):
         self.login()
 
@@ -82,7 +86,7 @@ class CSVImportViewsTestCase(ViewsTestCase):
                 ]
 
         doc = self._build_doc(lines)
-        url = self._build_url()
+        url = self._build_csvimport_url(Contact)
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
@@ -193,11 +197,10 @@ class CSVImportViewsTestCase(ViewsTestCase):
                 ]
 
         doc = self._build_doc(lines)
-        url = self._build_url()
-        response = self.client.post(url, data={
-                                                'csv_step':       0,
-                                                'csv_document':   doc.id,
-                                                'csv_has_header': True,
+        url = self._build_csvimport_url(Contact)
+        response = self.client.post(url, data={'csv_step':       0,
+                                               'csv_document':   doc.id,
+                                               'csv_has_header': True,
                                               }
                                    )
         self.assertEqual(200, response.status_code)
@@ -313,7 +316,7 @@ class CSVImportViewsTestCase(ViewsTestCase):
                                             )
         orga_name = 'Nerv'
         doc = self._build_doc([('Ayanami', 'Rei', orga_name)])
-        response = self.client.post(self._build_url(),
+        response = self.client.post(self._build_csvimport_url(Contact),
                                     data={
                                             'csv_step':       1,
                                             'csv_document':   doc.id,
@@ -394,12 +397,9 @@ class CSVImportViewsTestCase(ViewsTestCase):
                 ]
 
         doc = self._build_doc(lines, separator=';')
-
-        url = self._build_url()
-
-        response = self.client.post(url, data={
-                                                'csv_step':     0,
-                                                'csv_document': doc.id,
+        url = self._build_csvimport_url(Contact)
+        response = self.client.post(url, data={'csv_step':     0,
+                                               'csv_document': doc.id,
                                               }
                                    )
         self.assertEqual(200, response.status_code)

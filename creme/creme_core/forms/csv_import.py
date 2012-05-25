@@ -183,8 +183,15 @@ class CSVExtractorWidget(SelectMultiple):
         out_append = output.append
         rselect    = self._render_select
 
-        out_append(rselect("%s_colselect" % name, choices=chain(self.choices, choices),
-                           sel_val=int(value.get('selected_column', -1)),
+        try:
+            sel_val = int(value.get('selected_column', -1))
+        except TypeError:
+            sel_val = 0
+
+        out_append(rselect("%s_colselect" % name,
+                           choices=chain(self.choices, choices),
+                           #sel_val=int(value.get('selected_column', -1)),
+                           sel_val=sel_val,
                            attrs={'class': 'csv_col_select'}
                           )
                   )
@@ -254,7 +261,11 @@ class CSVExtractorField(Field):
             widget.propose_creation = self._can_create = (not is_entity) and (len(sf_choices) == 1) #TODO: creation creds too...
 
     def clean(self, value):
-        col_index = int(value['selected_column'])
+        try:
+            col_index = int(value['selected_column'])
+        except TypeError:
+            raise ValidationError(self.error_messages['invalid'])
+
         def_value = value['default_value']
 
         if self.required and not col_index:
@@ -510,6 +521,9 @@ class CSVImportForm(CremeModelForm):
     def _post_instance_creation(self, instance, line): #overload me
         pass
 
+    def _pre_instance_save(self, instance, line): #overload me
+        pass
+
     def save(self):
         model_class = self._meta.model
         get_cleaned = self.cleaned_data.get
@@ -548,6 +562,8 @@ class CSVImportForm(CremeModelForm):
 
                 for name, cleaned_field in extractor_fields:
                     setattr(instance, name, cleaned_field.extract_value(line, self.import_errors))
+
+                self._pre_instance_save(instance, line)
 
                 instance.full_clean()
                 instance.save()
