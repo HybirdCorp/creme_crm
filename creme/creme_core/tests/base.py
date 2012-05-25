@@ -88,6 +88,21 @@ class _CremeTestCase(object):
             if errors:
                 self.fail(errors)
 
+    def assertListContainsSubset(self, expected, actual, msg=None):
+        """Checks whether actual is a superset of expected."""
+        old_index = -1
+
+        for elt in expected:
+            try:
+                index = actual.index(elt)
+            except ValueError:
+                self.fail(self._formatMessage(msg, u'Element not found in the superset : "%s"' % elt))
+
+            if index <= old_index:
+                self.fail(self._formatMessage(msg, u'Order is different in the superset (problem with element : "%s")' % elt))
+
+            old_index = index
+
     def assertRelationCount(self, count, subject_entity, type_id, object_entity):
         self.assertEqual(count,
                          Relation.objects.filter(subject_entity=subject_entity.id,
