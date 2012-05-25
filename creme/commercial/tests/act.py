@@ -380,9 +380,14 @@ class ActTestCase(CommercialBaseTestCase):
 
         create_rel = Relation.objects.create
         create_opp = Opportunity.objects.create
+        create_orga = Organisation.objects.create
 
         sales_phase = SalesPhase.objects.create(name='Foresale')
-        opp01 = create_opp(user=user, name='OPP01', sales_phase=sales_phase, closing_date=date.today())
+        emitter = create_orga(user=user, name='Ferraille corp')
+        target = create_orga(user=user, name='World company')
+        opp01 = create_opp(user=user, name='OPP01', sales_phase=sales_phase, closing_date=date.today(),
+                           emitter=emitter, target=target,
+                          )
         create_rel(subject_entity=opp01, type_id=REL_SUB_COMPLETE_GOAL, object_entity=act, user=user)
 
         act = self.refresh(act) #refresh cache
@@ -393,7 +398,8 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(1500, self.refresh(act).get_made_sales())
 
         opp02 = create_opp(user=user, name='OPP01', sales_phase=sales_phase,
-                           closing_date=date.today(), made_sales=500
+                           closing_date=date.today(), made_sales=500,
+                           emitter=emitter, target=target,
                           )
         create_rel(subject_entity=opp02, type_id=REL_SUB_COMPLETE_GOAL, object_entity=act, user=user)
 

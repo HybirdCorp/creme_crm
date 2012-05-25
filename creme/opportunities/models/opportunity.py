@@ -20,11 +20,12 @@
 
 from logging import error, debug
 
+from django.core.exceptions import ValidationError
 from django.db.models import (CharField, TextField, ForeignKey, PositiveIntegerField,
                               DateField, PROTECT, SET_NULL)
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeEntity, CremeModel, Relation, Currency
@@ -34,6 +35,7 @@ from creme_core.core.function_field import FunctionField
 from creme_config.models import SettingValue
 
 from persons.models import Contact, Organisation
+from persons.workflow import transform_target_into_prospect
 
 from products.models import Product, Service
 
@@ -91,7 +93,8 @@ class Opportunity(CremeEntity):
 
     function_fields = CremeEntity.function_fields.new(_TurnoverField())
 
-    #_use_current_quote  = None
+    _opp_emitter = None
+    _opp_target  = None
 
     class Meta:
         app_label = "opportunities"
@@ -106,13 +109,26 @@ class Opportunity(CremeEntity):
     def __unicode__(self):
         return self.name
 
-    def _copy_relations(self, source):
-        super(Opportunity, self)._copy_relations(source, allowed_internal=[REL_SUB_TARGETS, REL_OBJ_EMIT_ORGA])
+    def _clean_emitter_n_target(self):
+        if not self.pk: #creation
+            if not self._opp_emitter:
+                raise ValidationError(ugettext('Emitter is required.'))
+
+            if not self._opp_target:
+                raise ValidationError(ugettext('Target is required.'))
 
     def _pre_delete(self):
         for relation in Relation.objects.filter(type__in=[REL_SUB_TARGETS, REL_OBJ_EMIT_ORGA],
                                                 subject_entity=self):
             relation._delete_without_transaction()
+
+    def _pre_save_clone(self, source):
+        self.emitter = source.emitter
+        self.target  = source.target
+
+    def clean(self):
+        self._clean_emitter_n_target()
+        super(Opportunity, self).clean()
 
     def get_absolute_url(self):
         return "/opportunities/opportunity/%s" % self.id
@@ -128,15 +144,7 @@ class Opportunity(CremeEntity):
     def get_weighted_sales(self):
         return (self.estimated_sales or 0) * (self.chance_to_win or 0) / 100.0
 
-    #@property
-    #def use_current_quote(self):
-        #if self._use_current_quote is None:
-            #try:
-                #self._use_current_quote = SettingValue.objects.get(key=SETTING_USE_CURRENT_QUOTE).value
-            #except SettingValue.DoesNotExist:
-                #debug("Populate opportunities is not loaded")
-                #self._use_current_quote = False
-        #return self._use_current_quote
+    #TODO: move in utils.py ??
     @staticmethod
     def use_current_quote():
         try:
@@ -209,19 +217,51 @@ class Opportunity(CremeEntity):
     def get_invoices(self):
         return Invoice.objects.filter(relations__object_entity=self.id, relations__type=REL_SUB_LINKED_INVOICE)
 
-    def link_to_target(self, target):
-        Relation.objects.create(subject_entity=target, type_id=REL_OBJ_TARGETS,
-                                object_entity=self, user=self.user
-                               )
+    @property
+    def emitter(self):
+        if not self._opp_emitter:
+            self._opp_emitter = Organisation.objects.get(relations__type=REL_SUB_EMIT_ORGA, relations__object_entity=self.id)
 
-    def link_to_emit_orga(self, orga):
-        Relation.objects.create(subject_entity=orga, type_id=REL_SUB_EMIT_ORGA,
-                                object_entity=self, user=self.user
-                               )
+        return self._opp_emitter
+
+    @emitter.setter
+    def emitter(self, organisation):
+        assert self.pk is None, 'Opportunity.emitter(setter): emitter is already saved (can not change any more).'
+        self._opp_emitter = organisation
+
+    @property
+    def target(self):
+        if not self._opp_target:
+            self._opp_target = self.relations.get(type=REL_SUB_TARGETS).object_entity.get_real_entity()
+
+        return self._opp_target
+
+    @target.setter
+    def target(self, organisation):
+        assert self.pk is None, 'Opportunity.target(setter): emitter is already saved (can not change any more).'
+        self._opp_target = organisation
 
     def update_estimated_sales(self, document):
         self.estimated_sales = document.total_no_vat
         self.save()
+
+    def save(self, *args, **kwargs):
+        if not self.pk: #creation
+            self._clean_emitter_n_target()
+
+            super(Opportunity, self).save(*args, **kwargs)
+
+            create_relation = Relation.objects.create
+            create_relation(subject_entity=self._opp_emitter, type_id=REL_SUB_EMIT_ORGA,
+                            object_entity=self, user=self.user
+                           )
+            create_relation(subject_entity=self._opp_target, type_id=REL_OBJ_TARGETS,
+                            object_entity=self, user=self.user
+                           )
+
+            transform_target_into_prospect(self._opp_emitter, self._opp_target, self.user)
+        else:
+            super(Opportunity, self).save(*args, **kwargs)
 
 
 # Adding "current" feature to other billing document (sales order, invoice) does not really make sense.

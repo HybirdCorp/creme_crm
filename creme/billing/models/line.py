@@ -21,8 +21,8 @@
 from functools import partial
 from decimal import Decimal
 from logging import debug, warn
-from django.core.exceptions import ValidationError
 
+from django.core.exceptions import ValidationError
 from django.db.models import (CharField, IntegerField, DecimalField, BooleanField,
                               TextField, PositiveIntegerField, ForeignKey, PROTECT)
 from django.db.models.query_utils import Q
@@ -158,6 +158,7 @@ class Line(CremeEntity):
     @property
     def related_document(self):
         if not self._related_document:
+            #TODO: subject_entity=self.id ?? test with assertNumQueries
             self._related_document = self.relations.get(type=REL_OBJ_HAS_LINE, subject_entity=self.id).object_entity.get_real_entity()
 
         return self._related_document

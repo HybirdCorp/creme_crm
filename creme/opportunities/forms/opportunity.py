@@ -26,7 +26,6 @@ from creme_core.forms.validators import validate_linkable_entity
 from creme_core.signals import form_post_save
 
 from persons.models import Organisation, Contact
-from persons.workflow import transform_target_into_prospect
 
 from opportunities.models import Opportunity
 
@@ -41,25 +40,21 @@ class OpportunityEditForm(CremeEntityForm):
 
 
 class OpportunityCreateForm(OpportunityEditForm):
-    target    = GenericEntityField(label=_(u"Target organisation / contact"), models=[Organisation, Contact], required=True)
-    emit_orga = ModelChoiceField(label=_(u"Concerned organisation"), queryset=Organisation.get_all_managed_by_creme())
+    target  = GenericEntityField(label=_(u"Target organisation / contact"), models=[Organisation, Contact], required=True)
+    emitter = ModelChoiceField(label=_(u"Concerned organisation"), queryset=Organisation.get_all_managed_by_creme())
 
     def clean_target(self):
-        return validate_linkable_entity(self.cleaned_data['target'], self.user)
+        self.instance.target = target = validate_linkable_entity(self.cleaned_data['target'], self.user)
 
-    def clean_emit_orga(self):
-        return validate_linkable_entity(self.cleaned_data['emit_orga'], self.user)
+        return target
+
+    def clean_emitter(self):
+        self.instance.emitter = emitter = validate_linkable_entity(self.cleaned_data['emitter'], self.user)
+
+        return emitter
 
     def save(self, *args, **kwargs):
         instance = super(OpportunityCreateForm, self).save(*args, **kwargs)
-
-        cleaned_data = self.cleaned_data
-        target = cleaned_data['target']
-        emit_orga = cleaned_data['emit_orga']
-
-        instance.link_to_target(target)
-        instance.link_to_emit_orga(emit_orga)
-        transform_target_into_prospect(emit_orga, target, instance.user)
 
         form_post_save.send(sender=Opportunity, instance=instance, created=True)
 

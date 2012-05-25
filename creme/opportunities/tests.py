@@ -36,8 +36,28 @@ class OpportunitiesTestCase(CremeTestCase):
                      'commercial', 'billing', 'activities', 'opportunities'
                     )
 
-    def genericfield_format_entity(self, entity):
+    def _genericfield_format_entity(self, entity):
         return '{"ctype":"%s", "entity":"%s"}' % (entity.entity_type_id, entity.id)
+
+    def _create_target_n_emitter(self, managed=True):
+        user = self.user
+        create_orga = Organisation.objects.create
+        target  = create_orga(user=user, name='Target renegade')
+        emitter = create_orga(user=user, name='My society')
+
+        if managed:
+            CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
+
+        return target, emitter
+
+    def _create_opportunity_n_organisations(self, name='Opp'):
+        target, emitter = self._create_target_n_emitter()
+        opp = Opportunity.objects.create(user=self.user, name=name,
+                                         sales_phase=SalesPhase.objects.all()[0],
+                                         emitter=emitter, target=target,
+                                        )
+
+        return opp, target, emitter
 
     def test_populate(self): #test get_compatible_ones() too
         ct = ContentType.objects.get_for_model(Opportunity)
@@ -90,40 +110,13 @@ class OpportunitiesTestCase(CremeTestCase):
         self.login()
         self.assertEqual(self.client.get('/opportunities/').status_code, 200)
 
-    def create_opportunity(self, name):
-        create_orga = Organisation.objects.create
-        target  = create_orga(user=self.user, name='Target renegade')
-        emitter = create_orga(user=self.user, name='My society')
-
-        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
-
-        response = self.client.post('/opportunities/opportunity/add', follow=True,
-                                    data={'user':         self.user.pk,
-                                          'name':         name,
-                                          'sales_phase':  SalesPhase.objects.all()[0].id,
-                                          'closing_date': '2010-10-11',
-                                          'target':       self.genericfield_format_entity(target),
-                                          'emit_orga':    emitter.id,
-                                          'currency':     DEFAULT_CURRENCY_PK,
-                                         }
-                                   )
-        self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
-
-        return self.get_object_or_fail(Opportunity, name=name), target, emitter
-
     def test_createview01(self):
         self.login()
 
         url = '/opportunities/opportunity/add'
         self.assertEqual(200, self.client.post(url).status_code)
 
-        create_orga = Organisation.objects.create
-        target  = create_orga(user=self.user, name='Target renegade')
-        emitter = create_orga(user=self.user, name='My society')
-
-        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
-
+        target, emitter = self._create_target_n_emitter()
         name  = 'Opportunity01'
         phase = SalesPhase.objects.all()[0]
         response = self.client.post(url, follow=True,
@@ -132,8 +125,8 @@ class OpportunitiesTestCase(CremeTestCase):
                                           'sales_phase':           phase.id,
                                           'expected_closing_date': '2010-9-20',
                                           'closing_date':          '2010-10-11',
-                                          'target':                self.genericfield_format_entity(target),
-                                          'emit_orga':             emitter.id,
+                                          'target':                self._genericfield_format_entity(target),
+                                          'emitter':               emitter.id,
                                           'first_action_date':     '2010-7-13',
                                           'currency':              DEFAULT_CURRENCY_PK,
                                          }
@@ -148,17 +141,17 @@ class OpportunitiesTestCase(CremeTestCase):
         self.assertEqual(date(2010, 7,  13), opportunity.first_action_date)
 
         self.assertRelationCount(1, target,  REL_OBJ_TARGETS,   opportunity)
+        self.assertEqual(target, opportunity.target)
+
         self.assertRelationCount(1, emitter, REL_SUB_EMIT_ORGA, opportunity)
+        self.assertEqual(emitter, opportunity.emitter)
+
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
 
     def test_createview02(self):
         self.login()
 
-        target  = Contact.objects.create(user=self.user, first_name='Target', last_name='renegade')
-        emitter = Organisation.objects.create(user=self.user, name='My society')
-
-        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
-
+        target, emitter = self._create_target_n_emitter()
         name  = 'Opportunity01'
         phase = SalesPhase.objects.all()[0]
         response = self.client.post('/opportunities/opportunity/add', follow=True,
@@ -167,8 +160,8 @@ class OpportunitiesTestCase(CremeTestCase):
                                           'sales_phase':           phase.id,
                                           'expected_closing_date': '2010-9-20',
                                           'closing_date':          '2010-10-11',
-                                          'target':                self.genericfield_format_entity(target),
-                                          'emit_orga':             emitter.id,
+                                          'target':                self._genericfield_format_entity(target),
+                                          'emitter':               emitter.id,
                                           'first_action_date':     '2010-7-13',
                                           'currency':              DEFAULT_CURRENCY_PK,
                                          }
@@ -185,6 +178,14 @@ class OpportunitiesTestCase(CremeTestCase):
         self.assertRelationCount(1, target,  REL_OBJ_TARGETS,   opportunity)
         self.assertRelationCount(1, emitter, REL_SUB_EMIT_ORGA, opportunity)
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
+
+        with self.assertNumQueries(1):
+            prop_emitter = opportunity.emitter
+        self.assertEqual(emitter, prop_emitter)
+
+        with self.assertNumQueries(3):
+            prop_target = opportunity.target
+        self.assertEqual(target, prop_target)
 
     def test_createview03(self):#Only contact & orga models are allowed
         self.login()
@@ -192,11 +193,8 @@ class OpportunitiesTestCase(CremeTestCase):
         response = self.client.post('/opportunities/opportunity/add')
         self.assertEqual(200, response.status_code)
 
-        target  = CremeEntity.objects.create(user=self.user)
-        emitter = Organisation.objects.create(user=self.user, name='My society')
 
-        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
-
+        target, emitter = self._create_target_n_emitter()
         name  = 'Opportunity01'
         phase = SalesPhase.objects.all()[0]
         response = self.client.post('/opportunities/opportunity/add', follow=True,
@@ -205,8 +203,8 @@ class OpportunitiesTestCase(CremeTestCase):
                                           'sales_phase':           phase.id,
                                           'expected_closing_date': '2010-9-20',
                                           'closing_date':          '2010-10-11',
-                                          'target':                self.genericfield_format_entity(target),
-                                          'emit_orga':             emitter.id,
+                                          'target':                self._genericfield_format_entity(target),
+                                          'emitter':               emitter.id,
                                           'first_action_date':     '2010-7-13',
                                          }
                                    )
@@ -221,38 +219,46 @@ class OpportunitiesTestCase(CremeTestCase):
                                       set_type=SetCredentials.ESET_OWN
                                      )
 
-        create_orga = Organisation.objects.create
-        target  = create_orga(user=self.user, name='Target renegade')
-        emitter = create_orga(user=self.user, name='My society')
-
-        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
-
+        target, emitter = self._create_target_n_emitter()
         response = self.client.post('/opportunities/opportunity/add', follow=True,
                                     data={'user':         self.user.pk,
                                           'name':         'My opportunity',
                                           'sales_phase':  SalesPhase.objects.all()[0].id,
                                           'closing_date': '2011-03-14',
-                                          'target':       self.genericfield_format_entity(target),
-                                          'emit_orga':    emitter.id,
+                                          'target':       self._genericfield_format_entity(target),
+                                          'emitter':      emitter.id,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'target',
                              [_(u'You are not allowed to link this entity: %s') % (_(u'Entity #%s (not viewable)') % target.id)]
                             )
-        self.assertFormError(response, 'form', 'emit_orga',
+        self.assertFormError(response, 'form', 'emitter',
                              [_(u'You are not allowed to link this entity: %s') % (_(u'Entity #%s (not viewable)') % emitter.id)]
+                            )
+
+    def test_createview05(self): #emitter not managed by Creme
+        self.login()
+
+        target, emitter = self._create_target_n_emitter(managed=False)
+        response = self.client.post('/opportunities/opportunity/add', follow=True,
+                                    data={'user':         self.user.pk,
+                                          'name':         'My opportunity',
+                                          'sales_phase':  SalesPhase.objects.all()[0].id,
+                                          'closing_date': '2011-03-14',
+                                          'target':       self._genericfield_format_entity(target),
+                                          'emitter':      emitter.id,
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertFormError(response, 'form', 'emitter',
+                             [_('Select a valid choice. That choice is not one of the available choices.')]
                             )
 
     def test_add_to_orga01(self):
         self.login()
 
-        create_orga = Organisation.objects.create
-        target  = create_orga(user=self.user, name='Target renegade')
-        emitter = create_orga(user=self.user, name='My society')
-
-        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
-
+        target, emitter = self._create_target_n_emitter()
         url = '/opportunities/opportunity/add_to/%s' % target.id
         self.assertEqual(200, self.client.get(url).status_code)
 
@@ -262,8 +268,8 @@ class OpportunitiesTestCase(CremeTestCase):
                                                'name':         name,
                                                'sales_phase':  salesphase.id,
                                                'closing_date': '2011-03-12',
-                                               'target':       self.genericfield_format_entity(target),
-                                               'emit_orga':    emitter.id,
+                                               'target':       self._genericfield_format_entity(target),
+                                               'emitter':      emitter.id,
                                                'currency':     DEFAULT_CURRENCY_PK,
                                               }
                                    )
@@ -282,8 +288,8 @@ class OpportunitiesTestCase(CremeTestCase):
                                                'name':         name,
                                                'sales_phase':  salesphase.id,
                                                'closing_date': '2011-03-12',
-                                               'target':       self.genericfield_format_entity(target),
-                                               'emit_orga':    emitter.id,
+                                               'target':       self._genericfield_format_entity(target),
+                                               'emitter':      emitter.id,
                                                'currency':     DEFAULT_CURRENCY_PK,
                                               }
                                    )
@@ -294,12 +300,7 @@ class OpportunitiesTestCase(CremeTestCase):
     def test_add_to_orga02(self):
         self.login()
 
-        create_orga = Organisation.objects.create
-        target  = create_orga(user=self.user, name='Target renegade')
-        emitter = create_orga(user=self.user, name='My society')
-
-        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
-
+        target, emitter = self._create_target_n_emitter()
         url = '/opportunities/opportunity/add_to/%s/popup' % target.id
         self.assertEqual(200, self.client.get(url).status_code)
 
@@ -309,8 +310,8 @@ class OpportunitiesTestCase(CremeTestCase):
                                                'name':         name,
                                                'sales_phase':  salesphase.id,
                                                'closing_date': '2011-03-12',
-                                               'target':       self.genericfield_format_entity(target),
-                                               'emit_orga':    emitter.id,
+                                               'target':       self._genericfield_format_entity(target),
+                                               'emitter':      emitter.id,
                                                'currency':     DEFAULT_CURRENCY_PK,
                                               }
                                    )
@@ -333,22 +334,13 @@ class OpportunitiesTestCase(CremeTestCase):
                                       set_type=SetCredentials.ESET_OWN
                                      )
 
-        create_orga = Organisation.objects.create
-        target  = create_orga(user=self.user, name='Target renegade')
-        emitter = create_orga(user=self.user, name='My society')
-
-        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
-
+        target = Organisation.objects.create(user=self.user, name='Target renegade')
         self.assertEqual(403, self.client.get('/opportunities/opportunity/add_to/%s' % target.id).status_code)
 
     def test_add_to_contact01(self):
         self.login()
 
-        target  = Contact.objects.create(user=self.user, first_name='Target', last_name='renegade')
-        emitter = Organisation.objects.create(user=self.user, name='My society')
-
-        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
-
+        target, emitter = self._create_target_n_emitter()
         url = '/opportunities/opportunity/add_to/%s' % target.id
         self.assertEqual(200, self.client.get(url).status_code)
 
@@ -358,8 +350,8 @@ class OpportunitiesTestCase(CremeTestCase):
                                                'name':         name,
                                                'sales_phase':  salesphase.id,
                                                'closing_date': '2011-03-12',
-                                               'target':       self.genericfield_format_entity(target),
-                                               'emit_orga':    emitter.id,
+                                               'target':       self._genericfield_format_entity(target),
+                                               'emitter':      emitter.id,
                                                'currency':     DEFAULT_CURRENCY_PK,
                                               }
                                    )
@@ -378,8 +370,8 @@ class OpportunitiesTestCase(CremeTestCase):
                                                'name':         name,
                                                'sales_phase':  salesphase.id,
                                                'closing_date': '2011-03-12',
-                                               'target':       self.genericfield_format_entity(target),
-                                               'emit_orga':    emitter.id,
+                                               'target':       self._genericfield_format_entity(target),
+                                               'emitter':      emitter.id,
                                                'currency':     DEFAULT_CURRENCY_PK,
                                               }
                                    )
@@ -390,11 +382,7 @@ class OpportunitiesTestCase(CremeTestCase):
     def test_add_to_contact02(self):
         self.login()
 
-        target  = Contact.objects.create(user=self.user, first_name='Target', last_name='renegade')
-        emitter = Organisation.objects.create(user=self.user, name='My society')
-
-        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
-
+        target, emitter = self._create_target_n_emitter()
         url = '/opportunities/opportunity/add_to/%s/popup' % target.id
         self.assertEqual(200, self.client.get(url).status_code)
 
@@ -404,8 +392,8 @@ class OpportunitiesTestCase(CremeTestCase):
                                                'name':         name,
                                                'sales_phase':  salesphase.id,
                                                'closing_date': '2011-03-12',
-                                               'target':       self.genericfield_format_entity(target),
-                                               'emit_orga':    emitter.id,
+                                               'target':       self._genericfield_format_entity(target),
+                                               'emitter':      emitter.id,
                                                'currency':     DEFAULT_CURRENCY_PK,
                                               }
                                    )
@@ -428,11 +416,7 @@ class OpportunitiesTestCase(CremeTestCase):
                                       set_type=SetCredentials.ESET_OWN
                                      )
 
-        target  = Contact.objects.create(user=self.user, first_name='Target', last_name='renegade')
-        emitter = Organisation.objects.create(user=self.user, name='My society')
-
-        CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
-
+        target = Contact.objects.create(user=self.user, first_name='Target', last_name='renegade')
         self.assertEqual(403, self.client.get('/opportunities/opportunity/add_to/%s' % target.id).status_code)
 
     def test_add_to_something01(self): #Something different than a Contact or an Organisation
@@ -452,18 +436,68 @@ class OpportunitiesTestCase(CremeTestCase):
                                                'name':         name,
                                                'sales_phase':  SalesPhase.objects.all()[0].id,
                                                'closing_date': '2011-03-12',
-                                               'target':       self.genericfield_format_entity(target),
-                                               'emit_orga':    emitter.id,
+                                               'target':       self._genericfield_format_entity(target),
+                                               'emitter':      emitter.id,
                                               }
                                    )
 
         self.assertEqual(opportunity_count, Opportunity.objects.count())#No new opportunity was created
         self.assertFormError(response, 'form', 'target', [_(u'This content type is not allowed.')])
 
+    def test_editview(self):
+        self.login()
+
+        name = 'opportunity01'
+        opportunity = self._create_opportunity_n_organisations(name)[0]
+        url = '/opportunities/opportunity/edit/%s' % opportunity.id
+        self.assertEqual(200, self.client.post(url).status_code)
+
+        name = name.title()
+        reference = '1256'
+        phase = SalesPhase.objects.all()[1]
+        currency = Currency.objects.create(name='Oolong', local_symbol='0', international_symbol='OOL')
+        response = self.client.post(url, follow=True,
+                                    data={'user':                  self.user.pk,
+                                          'name':                  name,
+                                          'reference':             reference,
+                                          'sales_phase':           phase.id,
+                                          'expected_closing_date': '2011-4-26',
+                                          'closing_date':          '2011-5-15',
+                                          'first_action_date':     '2011-5-1',
+                                          'currency':              currency.id,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        opportunity = self.refresh(opportunity)
+        self.assertEqual(name,                             opportunity.name)
+        self.assertEqual(reference,                        opportunity.reference)
+        self.assertEqual(phase,                            opportunity.sales_phase)
+        self.assertEqual(currency,                         opportunity.currency)
+        self.assertEqual(date(year=2011, month=4, day=26), opportunity.expected_closing_date)
+        self.assertEqual(date(year=2011, month=5, day=15), opportunity.closing_date)
+        self.assertEqual(date(year=2011, month=5, day=1),  opportunity.first_action_date)
+
+    def test_listview(self):
+        self.login()
+
+        opp1 = self._create_opportunity_n_organisations('Opp1')[0]
+        opp2 = self._create_opportunity_n_organisations('Opp2')[0]
+
+        response = self.client.get('/opportunities/opportunities')
+        self.assertEqual(200, response.status_code)
+
+        with self.assertNoException():
+            opps_page = response.context['entities']
+
+        self.assertEqual(2, opps_page.paginator.count)
+        self.assertEqual(set([opp1, opp2]), set(opps_page.object_list))
+
     def test_clone(self):
         self.login()
 
-        opportunity, target, emitter = self.create_opportunity('Opportunity01')
+        opportunity, target, emitter = self._create_opportunity_n_organisations()
         cloned = opportunity.clone()
 
         self.assertEqual(opportunity.name,         cloned.name)
@@ -486,7 +520,7 @@ class OpportunitiesTestCase(CremeTestCase):
 
         self.assertEqual(0, Quote.objects.count())
 
-        opportunity, target, emitter = self.create_opportunity('Opportunity01')
+        opportunity, target, emitter = self._create_opportunity_n_organisations()
         url = self._build_gendoc_url(opportunity, ContentType.objects.get_for_model(Quote))
 
         self.assertGET404(url)
@@ -509,7 +543,7 @@ class OpportunitiesTestCase(CremeTestCase):
     def test_generate_new_doc02(self):
         self.login()
 
-        opportunity, target, emitter = self.create_opportunity('Opportunity01')
+        opportunity, target, emitter = self._create_opportunity_n_organisations()
         url = self._build_gendoc_url(opportunity, ContentType.objects.get_for_model(Quote))
 
         self.client.post(url)
@@ -537,7 +571,7 @@ class OpportunitiesTestCase(CremeTestCase):
     def test_generate_new_doc04(self):
         self.login()
 
-        opportunity, target, emitter = self.create_opportunity('Opportunity01')
+        opportunity, target, emitter = self._create_opportunity_n_organisations()
         url = self._build_gendoc_url(opportunity, ContentType.objects.get_for_model(Invoice))
 
         self.client.post(url)
@@ -566,7 +600,7 @@ class OpportunitiesTestCase(CremeTestCase):
     def test_current_quote_1(self):
         self.login()
 
-        opportunity, target, emitter = self.create_opportunity('Opportunity01')
+        opportunity, target, emitter = self._create_opportunity_n_organisations()
         ct = ContentType.objects.get_for_model(Quote)
         gendoc_url = self._build_gendoc_url(opportunity, ContentType.objects.get_for_model(Quote))
 
@@ -598,7 +632,7 @@ class OpportunitiesTestCase(CremeTestCase):
     def test_current_quote_2(self): #refresh the estimated_sales when we change which quote is the current
         self.login()
 
-        opportunity, target, emitter = self.create_opportunity('Opportunity01')
+        opportunity = self._create_opportunity_n_organisations()[0]
         url = self._build_gendoc_url(opportunity, ContentType.objects.get_for_model(Quote))
 
         opportunity.estimated_sales = Decimal('1000')
@@ -628,7 +662,7 @@ class OpportunitiesTestCase(CremeTestCase):
     def test_current_quote_3(self):
         self.login()
 
-        opportunity, target, emitter = self.create_opportunity('Opportunity01')
+        opportunity = self._create_opportunity_n_organisations()[0]
         self._set_quote_config(False)
 
         estimated_sales = Decimal('69')
@@ -652,7 +686,7 @@ class OpportunitiesTestCase(CremeTestCase):
         self.login()
         self._set_quote_config(True)
 
-        opportunity, target, emitter = self.create_opportunity('Opportunity01')
+        opportunity = self._create_opportunity_n_organisations()[0]
         self.client.post(self._build_gendoc_url(opportunity, ContentType.objects.get_for_model(Quote)))
 
         quote = Quote.objects.all()[0]
@@ -666,7 +700,7 @@ class OpportunitiesTestCase(CremeTestCase):
     def test_get_weighted_sales(self):
         self.login()
 
-        opportunity, target, emitter = self.create_opportunity('Opportunity01')
+        opportunity = self._create_opportunity_n_organisations()[0]
         funf = opportunity.function_fields.get('get_weighted_sales')
         self.assertIsNotNone(funf)
 
@@ -684,8 +718,13 @@ class OpportunitiesTestCase(CremeTestCase):
         self.login()
 
         currency = Currency.objects.create(name=u'Berry', local_symbol=u'B', international_symbol=u'BRY')
-        opp = Opportunity.objects.create(user=self.user, name='Opp', currency=currency,
+
+        create_orga = Organisation.objects.create
+        user = self.user
+        opp = Opportunity.objects.create(user=user, name='Opp', currency=currency,
                                          sales_phase=SalesPhase.objects.all()[0],
+                                         emitter=create_orga(user=user, name='My society'),
+                                         target=create_orga(user=user,  name='Target renegade'),
                                         )
 
         response = self.client.post('/creme_config/creme_core/currency/delete', data={'id': currency.pk})
@@ -794,7 +833,13 @@ class SalesPhaseTestCase(CremeTestCase):
         self.login()
 
         sp = SalesPhase.objects.create(name='Forthcoming', order=1)
-        opp = Opportunity.objects.create(user=self.user, name='Opp', sales_phase=sp)
+
+        create_orga = Organisation.objects.create
+        user = self.user
+        opp = Opportunity.objects.create(user=user, name='Opp', sales_phase=sp,
+                                         emitter=create_orga(user=user, name='My society'),
+                                         target=create_orga(user=user,  name='Target renegade'),
+                                        )
 
         response = self.client.post('/creme_config/opportunities/sales_phase/delete', data={'id': sp.pk})
         self.assertEqual(404, response.status_code)
@@ -826,8 +871,13 @@ class OriginTestCase(CremeTestCase):
 
     def test_delete(self): #set to null
         origin = Origin.objects.create(name='Web site')
+
+        create_orga = Organisation.objects.create
+        user = self.user
         opp = Opportunity.objects.create(user=self.user, name='Opp', origin=origin,
                                          sales_phase=SalesPhase.objects.create(name='Forthcoming', order=1),
+                                         emitter=create_orga(user=user, name='My society'),
+                                         target=create_orga(user=user,  name='Target renegade'),
                                         )
 
         response = self.client.post('/creme_config/opportunities/origin/delete', data={'id': origin.pk})
