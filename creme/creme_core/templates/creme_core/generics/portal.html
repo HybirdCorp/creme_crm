@@ -21,7 +21,7 @@
                 {% block header_link %}
                     <a href="{% block list_url %}{% endblock %}">
                         {% block list_msg %}{% endblock %}
-                        <img src="{% creme_media_url 'images/right_arrow_64.png' %}" title="{% trans "Go to the list" %}" alt="{% trans "Go to the list" %}"/>
+                        <img src="{% creme_media_url 'images/next_64.png' %}" title="{% trans "Go to the list" %}" alt="{% trans "Go to the list" %}"/>
                     </a>
                 {% endblock %}
             </td>
@@ -57,7 +57,7 @@
     {% block statistics %}
         <table class="table_detail_view ui-corner-all">
             {% get_block_header colspan=2 %}
-                <th class="collapser label">{% get_basic_block_header _('Statistics') 'infos_48.png' _('Information') %}</th>
+                <th class="collapser label">{% get_basic_block_header _('Statistics') 'info_48.png' _('Information') %}</th>
                 <th class="actions"></th>
             {% end_get_block_header %}
             <tbody class="collapsable">

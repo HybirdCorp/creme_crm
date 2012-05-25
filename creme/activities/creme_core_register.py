@@ -52,7 +52,7 @@ button_registry.register(add_meeting_button, add_phonecall_button, add_task_butt
 reg_icon = icon_registry.register
 reg_icon(Activity,  'images/calendar_%(size)s.png')
 reg_icon(PhoneCall, 'images/phone_%(size)s.png')
-reg_icon(Meeting,   'images/map_%(size)s.png')
+reg_icon(Meeting,   'images/meeting_%(size)s.png')
 reg_icon(Task,      'images/task_%(size)s.png')
 
 bulk_update_registry.register(

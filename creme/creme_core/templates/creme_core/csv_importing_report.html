@@ -26,7 +26,7 @@
             {% with errors|length as count %}
                 <table class="table_detail_view ui-corner-all with-header">
                     {% get_block_header colspan=2 %}
-                        <th class="collapser label">{% get_block_title  _('%s Error') _('%s Errors') 'infos_48.png' 'Infos' count %}</th>{# TODO: i18n #}
+                        <th class="collapser label">{% get_block_title  _('%s Error') _('%s Errors') 'info_48.png' 'Infos' count %}</th>{# TODO: i18n #}
                         <th class="actions"></th>
                     {% end_get_block_header %}
                     <tbody class="collapsable">
@@ -63,7 +63,7 @@
         <ul class="button_list hbox">
             <li>
                 <a class="menu_button" href="{{back_url}}">
-                    <img src="{% creme_media_url 'images/left_arrow_32.png' %}" border="0" title="{% trans "Back to the list" %}" alt="{% trans "Back to the list" %}" />
+                    <img src="{% creme_media_url 'images/listview_32.png' %}" border="0" title="{% trans "Back to the list" %}" alt="{% trans "Back to the list" %}" />
                     {% trans "Back to the list" %}
                 </a>
             </li>

@@ -536,7 +536,7 @@ div.sidebar1separator2 {
 }
 
 .successlist li {
-    list-style-image: url(chantilly/images/jewel_ok_16.png);
+    list-style-image: url(chantilly/images/ok_16.png);
     padding-top: 3px;
 }
 
@@ -551,7 +551,7 @@ div.sidebar1separator2 {
 }
 
 .infolist li {
-    list-style-image: url(chantilly/images/infos_16.png);
+    list-style-image: url(chantilly/images/info_16.png);
     padding-top: 3px;
 }
 
