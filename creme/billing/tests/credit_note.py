@@ -2,6 +2,7 @@
 
 try:
     from decimal import Decimal
+    from functools import partial
 
     from creme_core.models import Relation, Currency
     from creme_core.tests.base import CremeTestCase
@@ -63,11 +64,12 @@ class CreditNoteTestCase(_BillingTestCase, CremeTestCase):
 
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
 
-        ProductLine.objects.create(user=user, related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
-        ProductLine.objects.create(user=user, related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
+        create_line = partial(ProductLine.objects.create, user=user)
+        create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
+        create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
 
         credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
-        ProductLine.objects.create(user=user, related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("299"))
+        create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("299"))
 
         # TODO the credit note must be valid : Status OK (not out of date or consumed), Target = Billing document's target and currency = billing document's currency
         # Theses rules must be applied with q filter on list view before selection
@@ -82,20 +84,36 @@ class CreditNoteTestCase(_BillingTestCase, CremeTestCase):
         user = self.user
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
 
-        ProductLine.objects.create(user=user, related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
-        ProductLine.objects.create(user=user, related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
+        create_line = partial(ProductLine.objects.create, user=user)
+        create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
+        create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
 
         credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
-        ProductLine.objects.create(user=user, related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("301"))
+        create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("301"))
 
-        # TODO the credit note must be valid : Status OK (not out of date or consumed), Target = Billing document's target and currency = billing document's currency
-        # Theses rules must be applied with q filter on list view before selection
         Relation.objects.create(object_entity=invoice, subject_entity=credit_note, type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user)
 
         invoice = self.refresh(invoice)
         expected_total = Decimal('0')
         self.assertEqual(expected_total, invoice.total_no_vat)
         self.assertEqual(expected_total, invoice.total_vat)
+
+    def test_unlink_from_invoice(self):
+        user = self.user
+        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+
+        create_line = partial(ProductLine.objects.create, user=user)
+        create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
+        self.assertEqual(Decimal('100'), self.refresh(invoice).total_no_vat)
+
+        credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
+        create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("60"))
+
+        r = Relation.objects.create(object_entity=invoice, subject_entity=credit_note, type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user)
+        self.assertEqual(Decimal('40'), self.refresh(invoice).total_no_vat)
+
+        r.delete()
+        self.assertEqual(Decimal('100'), self.refresh(invoice).total_no_vat)
 
     def test_delete_status01(self):
         status = CreditNoteStatus.objects.create(name='OK')

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@
 
 from django.db.models import Model, CharField, ForeignKey, IntegerField
 from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -53,7 +54,8 @@ class SimpleBillingAlgo(Model):
         unique_together = ("organisation", "last_number", "ct")
 
 
-def simple_conf_billing_for_org_managed_by_creme(sender, instance, created, **kwargs):
+@receiver(post_save, sender=CremeProperty)
+def _simple_conf_billing_for_org_managed_by_creme(sender, instance, created, **kwargs):
     if not created:
         return
 
@@ -64,15 +66,12 @@ def simple_conf_billing_for_org_managed_by_creme(sender, instance, created, **kw
     get_ct = ContentType.objects.get_for_model
 
     if instance.type_id == PROP_IS_MANAGED_BY_CREME and instance.creme_entity.entity_type_id == get_ct(Organisation).id:
-        org = instance.creme_entity.get_real_entity()
+        orga = instance.creme_entity.get_real_entity()
 
-        if not ConfigBillingAlgo.objects.filter(organisation=org):
+        if not ConfigBillingAlgo.objects.filter(organisation=orga):
             for model, prefix in [(Quote, settings.QUOTE_NUMBER_PREFIX),
                                   (Invoice, settings.INVOICE_NUMBER_PREFIX),
                                   (SalesOrder, settings.SALESORDER_NUMBER_PREFIX)]:
                 ct = get_ct(model)
-                ConfigBillingAlgo.objects.create(organisation=org, name_algo=SimpleBillingAlgo.ALGO_NAME, ct=ct)
-                SimpleBillingAlgo.objects.create(organisation=org, last_number=0, prefix=prefix, ct=ct)
-
-
-post_save.connect(simple_conf_billing_for_org_managed_by_creme, sender=CremeProperty)
+                ConfigBillingAlgo.objects.create(organisation=orga, name_algo=SimpleBillingAlgo.ALGO_NAME, ct=ct)
+                SimpleBillingAlgo.objects.create(organisation=orga, last_number=0, prefix=prefix, ct=ct)

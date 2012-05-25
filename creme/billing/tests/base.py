@@ -3,8 +3,9 @@
 try:
     from decimal import Decimal
 
-    from creme_core.models import Relation, Currency
     from creme_core.tests.base import CremeTestCase
+    from creme_core.models import Relation, Currency, CremePropertyType, CremeProperty
+    from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
     from persons.models import Contact, Organisation
 
@@ -147,6 +148,29 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
     def test_portal(self):
         self.login()
         self.assertEqual(200, self.client.get('/billing/').status_code)
+
+    def test_algoconfig(self):
+        self.login()
+
+        orga = Organisation.objects.create(user=self.user, name='NERV')
+
+        self.assertFalse(ConfigBillingAlgo.objects.filter(organisation=orga))
+        self.assertFalse(SimpleBillingAlgo.objects.filter(organisation=orga))
+
+        ptype = self.get_object_or_fail(CremePropertyType, id=PROP_IS_MANAGED_BY_CREME)
+        CremeProperty.objects.create(type=ptype, creme_entity=orga)
+
+        algoconfs = ConfigBillingAlgo.objects.filter(organisation=orga)
+        self.assertEqual(['SIMPLE_ALGO'] * 3, [algoconf.name_algo for algoconf in algoconfs])
+        self.assertEqual(set([Quote, Invoice, SalesOrder]),
+                         set(algoconf.ct.model_class() for algoconf in algoconfs)
+                        )
+
+        simpleconfs = SimpleBillingAlgo.objects.filter(organisation=orga)
+        self.assertEqual([0] * 3, [simpleconf.last_number for simpleconf in simpleconfs])
+        self.assertEqual(set([Quote, Invoice, SalesOrder]),
+                         set(simpleconf.ct.model_class() for simpleconf in simpleconfs)
+                        )
 
 
 class VatTestCase(CremeTestCase):
