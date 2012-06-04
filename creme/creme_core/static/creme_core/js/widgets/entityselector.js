@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2010  Hybird
+    Copyright (C) 2009-2012  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -16,113 +16,180 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+creme.widget.EntitySelectorMode = {
+    MULTIPLE: 0,
+    SINGLE: 1
+};
+
 creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
+
     options : {
-        url: '',
-        multiple: 0,
-        source: function(url, cb, error_cb, sync) {
-            creme.ajax.json.get(url, {fields:['unicode']}, cb, error_cb, sync);
-        }
+        popupURL: '',
+        popupSelection: creme.widget.EntitySelectorMode.SINGLE,
+        labelURL: '',
+        label: gettext('Select'),
+        qfilter: '',
+        backend: new creme.ajax.Backend({dataType:'json', sync:true})
     },
 
-    _create: function(element, options) {
-        var self = creme.widget.EntitySelector;
-
-        element.data('popup', options['url']);
+    _create: function(element, options, cb, sync)
+    {
+        var self = this;
 
         $(element).bind('click', function() {
             self._select(element, $(this));
         });
 
-        //self.val(element, self.val(element));
+        var selection = creme.widget.cleanval(options.popupSelection, creme.widget.EntitySelectorMode.SINGLE);
+
+        this._popupURL = new creme.string.Template(options.popupURL, {
+                                                       qfilter: options.qfilter,
+                                                       selection: selection
+                                                   });
+
+        this._reloadLabel(element, cb, undefined, sync);
         element.addClass('widget-ready');
     },
 
-    reload: function(element, url, cb, error_cb, sync) {
-        var self = creme.widget.EntitySelector;
-        self.val(element, null);
-        element.data('popup', url);
-    },
-    
-    is_multiple: function(element) {
-    	return creme.widget.options($(element))['multiple'] === '1';
+    dependencies: function(element) {
+        return this._popupURL.tags();
     },
 
-    _update: function(element, values) {
-        var self = creme.widget.EntitySelector;
-        self.val(element, values[0]);
-        
+    reload: function(element, data, cb, error_cb, sync)
+    {
+        this._popupURL.update(data);
+        this.val(element, null);
+        creme.object.invoke(cb, element);
+    },
+
+    update: function(element, data)
+    {
+        var self = this;
+
+        if (typeof data === 'string')
+            data = creme.widget.parseval(data, creme.ajax.json.parse);
+
+        if (typeof data !== 'object')
+            return;
+
+        var selected = data['value'];
+        self.val(element, selected);
+    },
+
+    _update: function(element, values)
+    {
+        this.val(element, values[0]);
+
         // TODO : hack that automatically add lines when multiselection is enabled
-        if (self.is_multiple(element) && (values.length > 1)) {
-        	var selector_list = element.parents('.ui-creme-selectorlist');
-        	var selector = element.parents('.ui-creme-chainedselect');
-        	
-        	for(var index = 1; index < values.length; ++index) {
-        		var new_selector = selector_list.data('widget').append_selector(selector_list);
-        		var new_entity_selector = $('.ui-creme-widget.ui-creme-entityselector', new_selector);
-        		new_entity_selector.data('widget').val(new_entity_selector, values[index]);
-        	}
+        if (this.isMultiple(element) && (values.length > 1))
+        {
+            var list = element.parents('.ui-creme-selectorlist:first').creme().widget();
+            var chainname = element.parent().attr('chained-name');
+            var chain = chainname ? element.parents('.ui-creme-chainedselect:first').creme().widget() : undefined;
+
+            if (creme.object.isempty(list))
+                return;
+
+            if (creme.object.isempty(chain)) {
+                var data = this.val(element);
+
+                for(var index = 1; index < values.length; ++index) {
+                    var selector = list.appendSelector(data);
+                }
+            } else {
+                var data = creme.widget.cleanval(chain.val());
+
+                for(var index = 1; index < values.length; ++index) {
+                    data[chainname] = values[index];
+                    var selector = list.appendSelector(data);
+                }
+            }
         }
     },
 
-    _select: function(element, content_type, cb) {
-        //console.log(element.data('popup'), element);
+    _select: function(element, content_type, cb)
+    {
+        var self = this;
+        var url = this.popupURL(element);
 
-        var self = creme.widget.EntitySelector;
-        var o2m = self.is_multiple(element) ? '0' : '1';
-        var url = $(element).data('popup') + '/' + o2m;
+        // TODO : fix a bug in server view that doesn't accept empty q_filter
+        if (creme.object.isempty(this._popupURL.parameters.qfilter))
+            url = url.replace('?q_filter=', '');
 
         creme.utils.showInnerPopup(url, {
-                'send_button_label': gettext("Validate the selection"),
-                'send_button': function(dialog) {
-                        var lv = $('form[name="list_view_form"]');
-                        var result = lv.list_view("getSelectedEntitiesAsArray");
+                                    'send_button_label': gettext("Validate the selection"),
+                                    'send_button': function(dialog) {
+                                            var lv = $('form[name="list_view_form"]');
+                                            var result = lv.list_view("getSelectedEntitiesAsArray");
 
-                        if (result.length == 0) {
-                            creme.utils.showDialog(gettext("Please select at least one entity."), {'title': gettext("Error")});
-                            return;
-                        }
+                                            if (result.length == 0) {
+                                                creme.utils.showDialog(gettext("Please select at least one entity."), {'title': gettext("Error")});
+                                                return;
+                                            }
 
-                        self._update(element, result);
-                        creme.utils.closeDialog(dialog, false);
-                    }
-            });
+                                            self._update(element, result);
+                                            creme.utils.closeDialog(dialog, false);
+                                        }
+                                   });
     },
 
-    val: function(element, value) {
-    	//console.log(element, value);
-    	
-        if (value !== undefined) {
-            var input = creme.widget.input(element);
-            var button = $('button', element);
+    _reloadLabel: function(element, on_success, on_error, sync)
+    {
+        var options = this.options;
+        var button = $('button', element);
+        var value = creme.widget.input(element).val();
 
-            if (value !== null && value !== '') {
-                var url = creme.widget.template(button.attr('url'), {'id': value});
-                creme.ajax.json.get(url, {fields:['unicode']},
-                        function(data) {
-                            button.text(data[0][0]);
-                            input.val(value);
-                            element.trigger('change');
-                        },
-                        function(error) {
-                            button.text(button.attr('label'));
-                        },
-                        true);
-            } else {
-                button.text(button.attr('label'));
-                input.val(value);
-                element.trigger('change');
-            }
-        } else {
-            res = creme.widget.input(element).val();
-            return (res) ? res : null;
+        if (creme.object.isempty(value) === true)
+        {
+            button.text(options.label);
+            creme.object.invoke(on_success, element);
+            return;
         }
+
+        var url = creme.widget.template(options.labelURL, {'id': value});
+
+        options.backend.get(url, {fields:['unicode']},
+                            function(data, status) {
+                                button.text(data[0][0]);
+                                creme.object.invoke(on_success, element, data);
+                            },
+                            function(data, error) {
+                                button.text(options.label);
+                                creme.object.invoke(on_error, element, error);
+                            },
+                            {sync:sync});
     },
 
-    clone: function(element) {
-        var self = creme.widget.EntitySelector;
-        var copy = creme.widget.clone(element);
-        //copy.val(element.val(value));
-        return copy;
+    isMultiple: function(element) {
+        return this._popupURL.parameters.selection === creme.widget.EntitySelectorMode.MULTIPLE;
+    },
+
+    multiple: function(element, value) {
+        var value = value ? creme.widget.EntitySelectorMode.MULTIPLE : creme.widget.EntitySelectorMode.SINGLE;
+        this._popupURL.update({selection:value});
+    },
+
+    qfilter: function(element, value) {
+        this._popupURL.update({qfilter:value});
+    },
+
+    popupURL: function(element) {
+        return this._popupURL.render();
+    },
+
+    val: function(element, value)
+    {
+        if (value === undefined)
+            return creme.widget.input(element).val();
+
+        creme.widget.input(element).val(value);
+        this._reloadLabel(element);
+        element.trigger('change');
+    },
+
+    cleanedval: function(element)
+    {
+        var value = this.val(element);
+        return creme.object.isempty(value) ? null : value;
     }
 });

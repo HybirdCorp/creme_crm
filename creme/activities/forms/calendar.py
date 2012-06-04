@@ -49,8 +49,8 @@ class CalendarForm(CremeModelForm):
 
         #TODO: regroup with the code before save() (so save once) (use signals instead, for delete too)
         if not Calendar.objects.filter(user=user, is_default=True).exists():
-           instance.is_default = True
-           instance.save()
+            instance.is_default = True
+            instance.save()
 
         return instance
 

@@ -47,6 +47,7 @@ class DocumentEditForm(CremeEntityForm):
         model = Document
 
 
+#TODO : rename it in RelatedDocumentCreateForm
 class DocumentCreateViewForm(DocumentCreateForm):
     class Meta(CremeEntityForm.Meta):
         model   = Document

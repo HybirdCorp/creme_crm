@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
+
 try:
     from creme_core.tests.base import CremeTestCase
 
@@ -64,6 +66,57 @@ class GenericModelConfigTestCase(CremeTestCase):
         status = self.get_object_or_fail(InvoiceStatus, name=name)
         self.assertEqual(count + 2, status.order) #order is set to max
 
+    def test_add01_from_widget(self):
+        count = Civility.objects.count()
+
+        url = '/creme_config/persons/civility/add_widget/'
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        title = 'Generalissime'
+        response = self.client.post(url, data={'title': title})
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(count + 1, Civility.objects.count())
+        civility = self.get_object_or_fail(Civility, title=title)
+
+        self.assertEqual(u"""<json>%s</json>""" % JSONEncoder().encode({
+                            "added":[[civility.id, unicode(civility)]], 
+                            "value":civility.id
+                         }), 
+                         response.content)
+
+    def test_add02_from_widget(self):
+        count = InvoiceStatus.objects.count()
+
+        url = '/creme_config/billing/invoice_status/add_widget/'
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        name = 'Okidoki'
+        response = self.client.post(url, data={'name': name})
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+        self.assertEqual(count + 1, InvoiceStatus.objects.count())
+
+        status = self.get_object_or_fail(InvoiceStatus, name=name, is_custom=True)
+        self.assertEqual(count + 1, status.order) #order is set to max
+        
+        self.assertEqual(u"""<json>%s</json>""" % JSONEncoder().encode({
+                            "added":[[status.id, unicode(status)]], 
+                            "value":status.id
+                         }), 
+                         response.content)
+
+        name = 'Youkaidi'
+        response = self.client.post(url, data={'name': name})
+        status = self.get_object_or_fail(InvoiceStatus, name=name)
+        self.assertEqual(count + 2, status.order) #order is set to max
+
+        self.assertEqual(u"""<json>%s</json>""" % JSONEncoder().encode({
+                            "added":[[status.id, unicode(status)]], 
+                            "value":status.id
+                         }), 
+                         response.content)
+
     def test_edit01(self):
         title = 'herr'
         civ = Civility.objects.create(title=title)
@@ -82,7 +135,7 @@ class GenericModelConfigTestCase(CremeTestCase):
 
         create_status = InvoiceStatus.objects.create
         status1 = create_status(name='okidoki',  order=count + 1)
-        status2 = create_status(name='Youkaidi', order=count + 2)
+        #status2 = create_status(name='Youkaidi', order=count + 2)
 
         url = '/creme_config/billing/invoice_status/edit/%s' % status1.id
         self.assertEqual(200, self.client.get(url).status_code)

@@ -19,4 +19,6 @@ urlpatterns = patterns('documents.views',
     (r'^document/add_related/(?P<entity_id>\d+)',   'document.add_related'),
     (r'^document/edit/(?P<document_id>\d+)$',       'document.edit'),
     (r'^document/(?P<object_id>\d+)$',              'document.detailview'),
+
+    (r'^quickforms/from_widget/document/csv/add/(?P<count>\d)$', 'quick_forms.add_csv_from_widget'),
 )

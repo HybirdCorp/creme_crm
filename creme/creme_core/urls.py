@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from django.conf.urls.defaults import patterns, include
-from django.conf import settings
-
 
 entity_patterns = patterns('creme_core.views', #TODO: move delete* to entity.py
     (r'^delete/(?P<entity_id>\d+)$',                                    'generic.delete.delete_entity'),
@@ -89,6 +87,7 @@ creme_core_patterns = patterns('creme_core.views',
     (r'^search$', 'search.search'),
 
     (r'^quickforms/(?P<ct_id>\d+)/(?P<count>\d)$', 'quick_forms.add'),
+    (r'^quickforms/from_widget/(?P<ct_id>\d+)/add/(?P<count>\d)$', 'quick_forms.add_from_widget'),
 )
 
 creme_core_patterns += patterns('creme_core.views.generic',
@@ -102,10 +101,7 @@ urlpatterns = patterns('creme_core.views',
 
     (r'^download_file/(?P<location>.*)$', 'file_handling.download_file'), #TODO : To be replaced
 
-    (r'^creme_core/', include(creme_core_patterns))
-)
+    (r'^creme_core/', include(creme_core_patterns)),
 
-if settings.DEBUG:
-    urlpatterns += patterns('creme_core.views',
-                            (r'^test_js$', 'index.test_js'),
-                           )
+    (r'^test_js$', 'index.test_js'),
+)

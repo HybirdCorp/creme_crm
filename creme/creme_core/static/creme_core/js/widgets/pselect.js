@@ -18,125 +18,167 @@
 
 creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselect', {
     options: {
-        type: "",
+        type: null,
     },
 
-    _create: function(element, options, cb, sync) {
-        var self = creme.widget.PolymorphicSelect;
+    _create: function(element, options, cb, sync)
+    {
+        var self = this;
 
-        self._selector_change = function() {
+        this._selector_change = function() {
             self._update(element);
-        }
+        };
 
-        var value = self.val(element);
+        var value = creme.widget.cleanval(this.val(element), {type: options.type, value: ''});
 
-        if (!value) {
-            self._update(element);
-            value = self.val(element);
-        }
-
-        self._update_selector(element, value);
-
-        if (cb != undefined) cb(element);
+        this._selectorType = null;
+        this._updateSelector(element, value);
+        creme.object.invoke(cb, element);
     },
 
-    _update_selector: function(element, value) {
-        var self = creme.widget.PolymorphicSelect;
+    _updateSelector: function(element, value)
+    {
+        var previous = creme.widget.cleanval(this.val(element), {type: this._selectorType, value: ''});
+        var next = creme.widget.cleanval(value, {type: this._selectorType, value: ''});
 
-        var old_values = self.val(element);
-        var values = creme.widget.cleanval(value);
+        if (creme.object.isnone(next.type))
+            next.type = previous.type;
 
-        values['type'] = values['type'] === null ? old_values['type'] : values['type'];
+        //console.log("_update_selector > value:", value, ", previous:", previous, ", val:", this.val(element), ", next:", next);
 
-        self._toggle_selector(element, values['type'], values['value'], {});
-        self._update(element);
+        element.removeClass('widget-ready');
+        this._toggleSelector(element, next.type, next.value, {});
+        element.addClass('widget-ready');
 
 //        console.log("_update_selector > value  >", value, ' (type="' + (typeof value) + '")');
-//        console.log("                 > real   >", self.val(element));
-//        console.log("                 > widget >", $('.ui-creme-widget.polymorphicselect-widget', element).attr('input-type'));
+//        console.log("                 > real   >", this.val(element));
+//        console.log("                 > widget >", this.selector(element).attr('input-type'));
     },
 
-    _update: function(element) {
-        var self = creme.widget.PolymorphicSelect;
-        var widget = $('.ui-creme-widget.polymorphicselect-widget', element);
-        var value = null;
+    _update: function(element)
+    {
+        var data = {type: this.selectorType(element),
+                    value: this.selectorValue(element)};
 
-        if (creme.widget.is_valid(widget)) {
-            value = '{"type":"' + widget.attr('input-type') + '", "value":' + widget.data('widget').jsonval(widget) + '}';
-        } else {
-            value = '{"type":null, "value":null}';
-        }
-
-        creme.widget.input(element).val(value).change();
+//        console.log("_update > data:", data);
+        creme.widget.input(element).val($.toJSON(data));
     },
 
-    _toggle_selector: function(element, type, value, options) {
-         var self = creme.widget.PolymorphicSelect;
-         var current = $('.ui-creme-widget.polymorphicselect-widget', element);
+    _toggleSelector: function(element, type, value, options)
+    {
+         var current = this.selector(element).creme().widget();
 
-         if (creme.widget.is_valid(current) && type === current.attr('type')) {
-             current.data('widget').val(current, value);
+         // already active selector, set value and get out !
+         if (!creme.object.isnone(this._selectorType) && this._selectorType === type) {
+             current.val(value);
              return;
          }
 
-         element.removeClass('widget-ready');
+         var next = this._createSelector(element, type, options);
 
-         var model = $('.inner-polymorphicselect-model li[input-type="' + type + '"] > .ui-creme-widget', element);
+         // not such valid selector of this type, set value and get out !
+         if (creme.object.isnone(next))
+         {
+             if (!creme.object.isempty(current)) {
+                 current.val(value);
+             } else {
+                 creme.widget.input(element).val($.toJSON({type: this._selectorType, value: value}));
+             }
 
-         if (!creme.widget.is_valid(model)) {
-             var default_container = $('.inner-polymorphicselect-model li.default:first');
-             model = $('> .ui-creme-widget', default_container);
+             return;
          }
 
-         var widget = creme.widget.get(model).clone(model);
-         widget.data('widget').val(widget, value);
-         widget.data('widget').init(widget, options, undefined, undefined, true);
-
-         widget.addClass("polymorphicselect-widget")
-                .attr('style', 'display:inline;')
-                .attr('input-type', type);
-
-         if (creme.widget.is_valid(current)) {
-             current.unbind('change', self._widget_change);
-             current.remove();
+         if (!creme.object.isempty(current))
+         {
+             current.element.unbind('change', this._widget_change);
+             current.element.remove();
+             current.destroy();
          }
 
-         element.append(widget);
-         widget.bind('change', self._selector_change);
+         this._selectorType = type;
 
-         element.addClass('widget-ready');
+         next.element.addClass("active-selector").css('display', 'inline')
+                                                 .attr('input-type', type);
+         next.element.bind('change', this._selector_change);
+         element.append(next.element);
+
+         // force value in new selector and get the result
+         next.val(value);
     },
 
-    reload: function(element, url, cb, error_cb, sync) {
-        var self = creme.widget.PolymorphicSelect;
-        var values = self.val(element);
+    _createSelector: function(element, type, options)
+    {
+        var model = this.selectorModel(element, type);
 
-        if (values['type'] === url)
+        if (!creme.object.isempty(model))
+             return creme.widget.create(model.clone(), options, undefined, true);
+    },
+
+    selectorType: function(element) {
+        return this._selectorType;
+    },
+
+    selectorValue: function(element)
+    {
+        var selector = this.selector(element).creme().widget();
+        var value = selector !== undefined ? selector.val() : null;
+        return creme.widget.cleanval(value, value);
+    },
+
+    selector: function(element) {
+        return $('.ui-creme-widget.active-selector', element);
+    },
+
+    selectorModel: function(element, type)
+    {
+        if (creme.object.isnone(type))
             return;
 
-        values['type'] = url;
-        self.val(element, values);
+        var model = $('.selector-model li[input-type="' + type + '"] > .ui-creme-widget', element);
 
-        //console.log("pselect.reload > value >", self.val(element));
+        if (creme.object.isempty(model))
+             model = this.defaultSelectorModel(element);
 
-        if (cb != undefined) cb(element);
+        return model;
     },
 
-    val: function(element, value) {
-        var self = creme.widget.PolymorphicSelect;
+    defaultSelectorModel: function(element) {
+        return $('.selector-model li.default:first > .ui-creme-widget', element);
+    },
 
-        if (value === undefined) {
-            return creme.widget.cleanval(creme.widget.input(element).val(), {"type":null, "value":null});
-        }
+    selectorModelList: function(element) {
+        return $('.selector-model li > .ui-creme-widget', element);
+    },
+
+    dependencies: function(element) {
+        return ['operator'];
+    },
+
+    reload: function(element, data, cb, error_cb, sync)
+    {
+        if (creme.object.isempty(data))
+            return;
+
+        var values = creme.widget.cleanval(this.val(element), {type: this._selectorType, value: null});
+
+        if (typeof data === 'string')
+            values.type = data;
+
+        if (typeof data === 'object')
+            values['type'] = data.operator;
+
+        this.val(element, values);
+        creme.object.invoke(cb, element);
+        //console.log("pselect.reload > value >", this.val(element));
+    },
+
+    val: function(element, value)
+    {
+        if (value === undefined)
+            return creme.widget.input(element).val();
 
         //console.log("pselect.val >", element, "new=" + $.toJSON(value), "old=" + creme.widget.input(element).val());
-        self._update_selector(element, value);
-        //console.log("val > end");
+        this._updateSelector(element, value);
+        element.trigger('change');
     },
-
-    clone: function(element) {
-        var self = creme.widget.PolymorphicSelect;
-        var copy = creme.widget.clone(element);
-        return copy;
-    }
 });

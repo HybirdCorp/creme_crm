@@ -40,7 +40,7 @@ from creme_core.utils.unicode_csv import UnicodeReader
 from creme_core.utils.collections import LimitedList
 from creme_core.views.entity import EXCLUDED_FIELDS
 from base import CremeForm, CremeModelForm, FieldBlockManager
-from fields import MultiRelationEntityField, CremeEntityField
+from fields import MultiRelationEntityField, CremeEntityField, CreatorEntityField
 from widgets import UnorderedMultipleChoiceWidget, ChainedInput, SelectorList
 from validators import validate_linkable_entities
 
@@ -49,12 +49,18 @@ from documents.models import Document
 
 class CSVUploadForm(CremeForm):
     csv_step       = IntegerField(widget=HiddenInput)
-    csv_document   = CremeEntityField(label=_(u'CSV file'), model=Document,
-                                      help_text=_(u'A file that contains the fields values of an entity on each line, '
+    csv_document   = CreatorEntityField(label=_(u'CSV file'), model=Document,
+                                        create_action_url='/documents/quickforms/from_widget/document/csv/add/1',
+                                        help_text=_(u'A file that contains the fields values of an entity on each line, '
                                                    'separated by commas or semicolons and each one can be surrounded by quotation marks " '
                                                    '(to protect a value containing a comma for example).'
-                                                 )
-                                     )
+                                                 ))
+#    csv_document   = CremeEntityField(label=_(u'CSV file'), model=Document,
+#                                      help_text=_(u'A file that contains the fields values of an entity on each line, '
+#                                                   'separated by commas or semicolons and each one can be surrounded by quotation marks " '
+#                                                   '(to protect a value containing a comma for example).'
+#                                                 )
+#                                     )
     csv_has_header = BooleanField(label=_(u'Header present ?'), required=False,
                                   help_text=_(u'Does the first line of the line contain the header of the columns (eg: "Last name","First name") ?')
                                  )
@@ -62,6 +68,7 @@ class CSVUploadForm(CremeForm):
     def __init__(self, *args, **kwargs):
         super(CSVUploadForm, self).__init__(*args, **kwargs)
         self._csv_header = None
+        self.fields['csv_document'].user = self.user
 
     @property
     def csv_header(self):
@@ -127,8 +134,8 @@ class CSVExtractor(object):
                         creator = fk_form(data=data)
 
                         if creator.is_valid():
-                           creator.save()
-                           return creator.instance #TODO: improve self._value_castor avoid te direct 'return' ?
+                            creator.save()
+                            return creator.instance #TODO: improve self._value_castor avoid te direct 'return' ?
                         else:
                             import_errors.append((line, ugettext(u'Error while extracting value [%(raw_error)s]: tried to retrieve and then build "%(value)s" on %(model)s') % {
                                                                 'raw_error': e,
@@ -448,7 +455,7 @@ class RelationExtractorField(MultiRelationEntityField):
         rtypes_cache = {}
         allowed_rtypes_ids = frozenset(self._get_allowed_rtypes_ids())
 
-        need_property_validation = False
+#        need_property_validation = False
         allowed_columns = frozenset(c[0] for c in self._columns)
 
         for rtype_pk, ctype_pk, column, searchfield in cleaned_entries:
@@ -460,8 +467,8 @@ class RelationExtractorField(MultiRelationEntityField):
 
             rtype, rtype_allowed_ctypes, rtype_allowed_properties = self._get_cache(rtypes_cache, rtype_pk, self._build_rtype_cache)
 
-            if rtype_allowed_properties:
-                need_property_validation = True
+#            if rtype_allowed_properties:
+#                need_property_validation = True
 
             if rtype_allowed_ctypes and ctype_pk not in rtype_allowed_ctypes:
                 raise ValidationError(self.error_messages['ctypenotallowed'], params={'ctype': ctype_pk})

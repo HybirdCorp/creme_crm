@@ -602,7 +602,8 @@ creme.utils.handleQuickForms = function(url, $scope_from, targets) {
         uri += '/' + $('[name=' + this + ']', $scope_from).val();
     });
 
-    creme.utils.showInnerPopup(uri); //, {'width' : 950}
+    //creme.utils.showInnerPopup(uri); //, {'width' : 950}
+    creme.utils.iframeInnerPopup(uri);
 }
 
 creme.utils.multiDeleteFromListView = function(lv_selector, delete_url) {

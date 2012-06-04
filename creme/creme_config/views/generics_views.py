@@ -23,9 +23,11 @@ from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.decorators import login_required#, permission_required
 
-from creme_core.views.generic import add_model_with_popup, edit_model_with_popup
+from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
+
+from creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
 from creme_core.utils import get_from_POST_or_404, get_ct_or_404, jsonify
 
 from creme_config.registry import config_registry
@@ -57,6 +59,32 @@ def add_model(request, app_name, model_name):
                                 _('New value'),
                                 template='creme_core/generics/form/add_innerpopup.html',
                                )
+
+@login_required
+def add_model_from_widget(request, app_name, model_name):
+    if request.method == 'GET':
+        return add_model(request, app_name, model_name)
+
+    form_class = _get_modelconf(_get_appconf(request.user, app_name), model_name).model_form
+    form = form_class(user=request.user, data=request.POST, files=request.FILES or None, initial=None)
+
+    if not form.is_valid():
+        return inner_popup(request,  'creme_core/generics/form/add_innerpopup.html',
+                           {'form':   form,
+                            'title':  _('New value'),
+                           },
+                           is_valid=form.is_valid(),
+                           reload=False,
+                           delegate_reload=True,
+                          )
+
+    form.save()
+
+    response = {'value':form.instance.id,
+                'added':[(form.instance.id, unicode(form.instance))]}
+
+    return HttpResponse(u"""<json>%s</json>""" % JSONEncoder().encode(response), mimetype="text/html", status=200)
+
 
 @login_required
 def portal_model(request, app_name, model_name):

@@ -38,8 +38,8 @@ from creme_core.models import RelationType, CremeEntity
 from creme_core.utils import creme_entity_content_types
 from creme_core.utils.queries import get_q_from_dict
 from creme_core.utils.date_range import date_range_registry
-from creme_core.forms.widgets import (CTEntitySelector, SelectorList, RelationSelector, ListViewWidget, ListEditionWidget,
-                                      CalendarWidget, TimeWidget, DateRangeWidget, ColorPickerWidget, DurationWidget)
+from creme_core.forms.widgets import (CTEntitySelector, EntitySelector, SelectorList, RelationSelector, ListViewWidget, ListEditionWidget,
+                                      CalendarWidget, TimeWidget, DateRangeWidget, ColorPickerWidget, DurationWidget, ActionButtonList)
 from creme_core.constants import REL_SUB_HAS
 
 
@@ -50,12 +50,14 @@ __all__ = ('MultiGenericEntityField', 'GenericEntityField',
            'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
            'CremeTimeField', 'CremeDateField', 'CremeDateTimeField',
            'DateRangeField', 'ColorField', 'DurationField',
+           'CreatorEntityField'
           )
 
 
 class JSONField(CharField):
     default_error_messages = {
         'invalidformat': _(u'Invalid format'),
+        'doesnotexist':  _(u"This entity doesn't exist."),
     }
 
     def _return_none_or_raise(self, required, error_key='required'):
@@ -91,13 +93,16 @@ class JSONField(CharField):
         except:
             raise ValidationError(self.error_messages['invalidformat'])
 
-    def clean_json(self, value):
+    def clean_json(self, value, expected_type=None):
         if not value:
             return self._return_none_or_raise(self.required)
 
         try:
             data = jsonloads(value)
         except:
+            raise ValidationError(self.error_messages['invalidformat'])
+
+        if expected_type is not None and data is not None and not isinstance(data, expected_type):
             raise ValidationError(self.error_messages['invalidformat'])
 
         return data
@@ -110,6 +115,16 @@ class JSONField(CharField):
 
     def clean(self, value):
         return self.clean_json(value)
+
+    def clean_entity_from_model(self, model, entity_pk, filter=None):
+        try:
+            if filter is not None:
+                return model.objects.filter(filter).get(pk=entity_pk)
+
+            return model.objects.get(pk=entity_pk)
+        except model.DoesNotExist:
+            if self.required:
+                raise ValidationError(self.error_messages['doesnotexist'])
 
     def _create_widget(self):
         pass #TODO: raise NotImplementedError ??
@@ -162,10 +177,7 @@ class GenericEntityField(JSONField):
         return self.format_json({'ctype': ctype, 'entity': pk})
 
     def clean(self, value):
-        data = self.clean_json(value)
-
-        if data is not None and not isinstance(data, dict):
-            raise ValidationError(self.error_messages['invalidformat'])
+        data = self.clean_json(value, dict)
 
         if not data:
             return self._return_none_or_raise(self.required)
@@ -225,10 +237,7 @@ class MultiGenericEntityField(GenericEntityField):
                                )
 
     def clean(self, value):
-        data = self.clean_json(value)
-
-        if data is not None and not isinstance(data, list):
-            raise ValidationError(self.error_messages['invalidformat'])
+        data = self.clean_json(value, list)
 
         if not data:
             return self._return_list_or_raise(self.required)
@@ -331,7 +340,7 @@ class RelationEntityField(JSONField):
         return self.format_json(relation)
 
     def clean(self, value):
-        data = self.clean_json(value)
+        data = self.clean_json(value, dict)
 
         if not data:
             return self._return_none_or_raise(self.required)
@@ -459,13 +468,10 @@ class MultiRelationEntityField(RelationEntityField):
         return cache
 
     def clean(self, value):
-        data = self.clean_json(value)
+        data = self.clean_json(value, list)
 
         if not data:
             return self._return_list_or_raise(self.required)
-
-        if not isinstance(data, list):
-            raise ValidationError(self.error_messages['invalidformat'])
 
         clean_value = self.clean_value
         cleaned_entries = []
@@ -536,6 +542,118 @@ class MultiRelationEntityField(RelationEntityField):
             return self._return_list_or_raise(self.required)
 
         return relations
+
+
+class CreatorEntityField(JSONField):
+    default_error_messages = {
+        'doesnotexist':    _(u"This entity doesn't exist."),
+        'entityrequired':  _(u"The entity is required."),
+    }
+
+    @property
+    def model(self):
+        return self._model
+
+    @model.setter
+    def model(self, model=None):
+        self._model = model
+        self._build_widget()
+        self._update_actions()
+
+    @property
+    def qfilter(self):
+        return self._q_filter
+
+    @property
+    def create_action_url(self):
+        if self._create_action_url is not None:
+            return self._create_action_url
+
+        model_ctype = self.get_ctype()
+        return '/creme_core/quickforms/from_widget/%s/add/1' % model_ctype.pk
+
+    @create_action_url.setter
+    def create_action_url(self, url):
+        self._create_action_url = url
+        self._update_actions()
+
+    @property
+    def user(self):
+        return self._user
+
+    @user.setter
+    def user(self, user):
+        self._user = user
+        self._update_actions()
+
+    def __init__(self, model=None, q_filter=None, create_action_url=None, *args, **kwargs):
+        super(CreatorEntityField, self).__init__(model, *args, **kwargs)
+        self._model = model
+        self._user = None
+        self.qfilter_options(q_filter, create_action_url)
+
+    def qfilter_options(self, q_filter, create_action_url):
+        try:
+            self._q_filter = get_q_from_dict(q_filter) if q_filter is not None else None
+            self._q_filter_data = q_filter
+            self._create_action_url = create_action_url
+        except Exception:
+            raise ValueError('Unable to set an invalid qfilter %s' % q_filter)
+
+        if self.model is not None:
+            self._build_widget()
+            self._update_actions()
+
+    def _update_actions(self):
+        if self._q_filter is not None and self._create_action_url is None:
+            raise ValueError('If qfilter is set, a custom entity creation view is needed')
+
+        user = self._user
+        self.widget.clear_actions()
+        self.widget.add_action('reset', _(u'Clear'), title=_(u'Clear'), action='reset', value='')
+
+        if user is None:
+            return
+
+        model = self.model
+
+        from creme_core.gui import quickforms_registry
+
+        if quickforms_registry.get_form(model) is None:
+            return
+
+        allowed = user.has_perm_to_create(model)
+        self.widget.add_action('create', _(u'Add'), enabled=allowed,
+                                                    title=_(u'Add') if allowed else _(u"Can't add"),
+                                                    url=self.create_action_url)
+
+    def _create_widget(self):
+        options = {"auto": False, "qfilter": self._q_filter_data}
+        return ActionButtonList(delegate=EntitySelector(unicode(self.get_ctype().pk), options))
+
+    #TODO : wait for django 1.2 and new widget api to remove this hack
+    def from_python(self, value):
+        if not value:
+            return ''
+
+        if isinstance(value, basestring):
+            return value
+
+        if isinstance(value, CremeEntity):
+            pk = value.id
+
+        return self.format_json(pk)
+
+    def clean(self, value):
+        data = self.clean_json(value, int)
+
+        if not data:
+            return self._return_none_or_raise(self.required)
+
+        return self.clean_entity_from_model(self.model, data, self.qfilter)
+
+    def get_ctype(self):
+        return ContentType.objects.get_for_model(self.model) if self.model is not None else None
 
 
 class _CommaMultiValueField(CharField): #TODO: Charfield and not Field ??!! #TODO2: Remove ?

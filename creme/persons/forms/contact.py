@@ -29,16 +29,29 @@ from creme_core.models import RelationType, Relation
 from creme_core.forms import CremeEntityField, CremeDateTimeField
 from creme_core.forms.widgets import Label
 
+from creme_config.forms.fields import CreatorModelChoiceField
+
 from media_managers.models import Image
 from media_managers.forms.widgets import ImageM2MWidget
 
 from persons.models import Organisation, Contact
+from persons.models.other_models import Position, Sector, Civility
+
 from persons.forms.base import _BasePersonForm
 
 
 class ContactForm(_BasePersonForm):
     birthday = CremeDateTimeField(label=_('Birthday'), required=False)
     image    = CremeEntityField(label=_('Image'), required=False, model=Image, widget=ImageM2MWidget())
+#    position = ModelChoiceField(label=_('Position'), 
+#                                queryset=Position.objects.all(), 
+#                                required=False, 
+#                                widget=ActionButtonList(delegate=DynamicSelect(options=lambda:((position.pk, unicode(position)) for position in Position.objects.all())))
+#                                            .add_action('create', _(u'Add'), url='/creme_config/persons/position/add_widget/'))
+
+    civility = CreatorModelChoiceField(label=_('Civility'), queryset=Civility.objects.all(), required=False, initial=None)
+    position = CreatorModelChoiceField(label=_('Position'), queryset=Position.objects.all(), required=False, initial=None)
+    sector = CreatorModelChoiceField(label=_('Sector'), queryset=Sector.objects.all(), required=False, initial=None)
 
     blocks = _BasePersonForm.blocks.new(('coordinates', _(u'Coordinates'), ['skype', 'phone', 'mobile', 'fax', 'email', 'url_site']))
 
@@ -46,6 +59,12 @@ class ContactForm(_BasePersonForm):
     class Meta(_BasePersonForm.Meta):
         model = Contact
         #exclude = _BasePersonForm.Meta.exclude + ('language',)
+    
+    def __init__(self, *args, **kwargs):
+        super(ContactForm, self).__init__(*args, **kwargs)
+        self.fields['position'].user = self.user
+        self.fields['civility'].user = self.user
+        self.fields['sector'].user = self.user
 
 
 class ContactWithRelationForm(ContactForm):

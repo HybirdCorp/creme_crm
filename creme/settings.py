@@ -6,6 +6,9 @@ from django.utils.translation import ugettext_lazy as _
 #DEBUG = True
 DEBUG = False
 TEMPLATE_DEBUG = DEBUG
+JAVASCRIPT_DEBUG = DEBUG
+
+FORCE_JS_TESTVIEW = False
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
@@ -351,6 +354,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/jquery/extensions/wait.js',
                     'creme_core/js/jquery/extensions/bootstrap-twipsy.js',
                     'creme_core/js/jquery/extensions/jquery.form.js',
+                    'creme_core/js/jquery/extensions/jquery.tinymce.js',
 
                     #'creme_core/js/datejs/date-en-US.js', #TODO improve
                     'creme_core/js/datejs/date-fr-FR.js',
@@ -372,15 +376,19 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/blocks.js',
 
                     'creme_core/js/widgets/base.js',
+                    'creme_core/js/widgets/frame.js',
+                    'creme_core/js/widgets/pluginlauncher.js',
                     'creme_core/js/widgets/dinput.js',
                     'creme_core/js/widgets/dselect.js',
-                    'creme_core/js/widgets/daterangeselector.js',
+                    'creme_core/js/widgets/datetime.js',
                     'creme_core/js/widgets/daterange.js',
+                    'creme_core/js/widgets/daterangeselector.js',
                     'creme_core/js/widgets/chainedselect.js',
                     'creme_core/js/widgets/selectorlist.js',
                     'creme_core/js/widgets/entityselector.js',
                     'creme_core/js/widgets/pselect.js',
                     'creme_core/js/widgets/adaptivewidget.js',
+                    'creme_core/js/widgets/actionlist.js',
 
                     'creme_core/js/properties.js',
                     'creme_core/js/relations.js',
@@ -404,8 +412,19 @@ CREME_OPT_JS = ( #OPTIONNAL APPS
 
 TEST_CREME_CORE_JS = (#js Unit test files
     'test_core.js',
-    'creme_core/js/tests/qunit.js',
+    'creme_core/js/tests/qunit/qunit-1.6.0.js',
+    'creme_core/js/tests/mockajax.js',
     'creme_core/js/tests/utils.js',
+    'creme_core/js/tests/widgets/base.js',
+    'creme_core/js/tests/widgets/widget.js',
+    'creme_core/js/tests/widgets/frame.js',
+    'creme_core/js/tests/widgets/dselect.js',
+    'creme_core/js/tests/widgets/dinput.js',
+    'creme_core/js/tests/widgets/pselect.js',
+    'creme_core/js/tests/widgets/entityselector.js',
+    'creme_core/js/tests/widgets/chainedselect.js',
+    'creme_core/js/tests/widgets/selectorlist.js',
+    'creme_core/js/tests/widgets/actionlist.js',
 )
 
 ROOT_MEDIA_FILTERS = {

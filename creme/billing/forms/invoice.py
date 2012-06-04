@@ -18,15 +18,29 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.utils.translation import ugettext_lazy as _, ugettext
+
+from creme_config.forms.fields import CreatorModelChoiceField
+
 from persons.workflow import transform_target_into_customer
 
 from billing.models import Invoice
+from billing.models.other_models import InvoiceStatus, SettlementTerms
 from billing.forms.base import BaseCreateForm, BaseEditForm
 
 
 class InvoiceCreateForm(BaseCreateForm):
+    status = CreatorModelChoiceField(label=_(u'Status of invoice'), queryset=InvoiceStatus.objects.all())
+    payment_type = CreatorModelChoiceField(label=_(u'Settlement terms'), queryset=SettlementTerms.objects.all(), required=False)
+
     class Meta(BaseCreateForm.Meta):
         model = Invoice
+
+    def __init__(self, *args, **kwargs):
+        super(InvoiceCreateForm, self).__init__(*args, **kwargs)
+        user = self.user
+        self.fields['status'].user = user
+        self.fields['payment_type'].user = user
 
     def save(self, *args, **kwargs):
         instance = super(InvoiceCreateForm, self).save(*args, **kwargs)
@@ -36,6 +50,14 @@ class InvoiceCreateForm(BaseCreateForm):
 
 
 class InvoiceEditForm(BaseEditForm):
+    status = CreatorModelChoiceField(label=_(u'Status of invoice'), queryset=InvoiceStatus.objects.all())
+    payment_type = CreatorModelChoiceField(label=_(u'Settlement terms'), queryset=SettlementTerms.objects.all(), required=False)
+
     class Meta(BaseEditForm.Meta):
         model = Invoice
 
+    def __init__(self, *args, **kwargs):
+        super(InvoiceEditForm, self).__init__(*args, **kwargs)
+        user = self.user
+        self.fields['status'].user = user
+        self.fields['payment_type'].user = user

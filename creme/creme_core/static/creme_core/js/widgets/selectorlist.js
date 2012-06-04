@@ -19,41 +19,86 @@
 creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
     options: {},
 
-    _create: function(element, options) {
-        var self = creme.widget.SelectorList;
+    _create: function(element, options, cb, sync)
+    {
+        var self = this;
 
         $('div.add ul', element).click(function() {
-            self.append_selector(element);
+            self.appendLastSelector(element);
         });
 
-        self._update_selectors(element, self.val(element));
-        element.addClass('widget-ready');
-    },
+        var value = this.val(element);
 
-    _get_selector: function(element, selector) {
-        var self = creme.widget.SelectorList;
-
-        if (selector === undefined) {
-            var model = $('ul.selectors .selector:last', element);
-
-            if (model === undefined || model === null || model.length === 0) {
-                model = $('.inner-selector-model > .ui-creme-widget', element);
-            }
-
-            selector = model.data('widget').clone(model);
-            selector.data('widget').init(selector);
+        if (creme.object.isempty(value))
+        {
+            this._update(element);
+            value = this.val(element);
         }
 
-        return selector;
+        self._updateSelectors(element, self.val(element));
+
+        element.addClass('widget-ready');
+        creme.object.invoke(cb, element);
     },
 
-    append_selector: function(element, selector) {
-        var self = creme.widget.SelectorList;
+    _buildSelector: function(element)
+    {
+        var model = this.selectorModel(element).clone();
+        return creme.widget.create(model, {}, undefined, true);
+    },
 
-        var selector = self._get_selector(element, selector);
-        selector.addClass('selector').attr('style', 'display:inline;');
+    lastSelector: function(element) {
+        return $('ul.selectors > li.selector:last > ul > li > .ui-creme-widget', element);
+    },
 
-        var selector_item = $('<ul>').addClass('ui-layout hbox').css('display', 'block');
+    selectorModel: function(element) {
+        return $('.inner-selector-model > .ui-creme-widget', element);
+    },
+
+    selectors: function(element) {
+        return $('ul.selectors > li.selector > ul > li > .ui-creme-widget', element);
+    },
+
+    selector: function(element, index) {
+        return $('ul.selectors > li.selector:nth(' + index + ') > ul > li > .ui-creme-widget', element);
+    },
+
+    removeSelector: function(element, index)
+    {
+        var selector = this.selector(element, index);
+
+        selector.creme().destroy();
+        selector.parents('li.selector:first').remove();
+        this._update(element);
+
+        return selector.length ? selector[0] : undefined;
+    },
+
+    appendLastSelector: function(element)
+    {
+        var last = this.lastSelector(element);
+        return this.appendSelector(element, last.creme().isActive() ? last.creme().widget().val() : undefined);
+    },
+
+    appendSelector: function(element, value)
+    {
+        var selector = this._appendSelector(element, value);
+        this._update(element);
+        return selector.element;
+    },
+
+    _appendSelector: function(element, value)
+    {
+        var self = this;
+        var selector = self._buildSelector(element);
+
+        if (creme.object.isempty(selector))
+            return selector;
+
+        selector.element.attr('style', 'display:inline;');
+
+        var selector_item = $('<li>').addClass('selector');
+        var selector_layout = $('<ul>').addClass('ui-layout hbox').css('display', 'block').appendTo(selector_item);
 
         var delete_button = $('<img/>').attr('src', creme_media_url('images/delete_22.png'))
                                        .attr('alt', gettext("Delete"))
@@ -61,56 +106,50 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
                                        .attr('style', 'vertical-align:middle;')
                                        .addClass('delete')
                                        .click(function() {
+                                            self.removeSelector(selector_item)
                                             selector_item.remove();
                                             self._update(element);
                                         });
 
-        selector_item.append($('<li>').append(selector));
-        selector_item.append($('<li>').append(delete_button));
+        selector_layout.append($('<li>').append(selector.element));
+        selector_layout.append($('<li>').append(delete_button));
 
         $('ul.selectors', element).append(selector_item);
-        self._update(element);
 
-        //console.log('selector', selector);
-
-        selector.bind('change', function() {
+        selector.element.bind('change', function() {
             self._update(element);
         });
 
+        selector.val(value);
         return selector;
     },
 
-    _update: function(element) {
-        var self = creme.widget.SelectorList;
-        var values = creme.widget.val($('ul.selectors .selector', element));
+    _update: function(element)
+    {
+        var values = creme.widget.values_list(this.selectors(element));
         creme.widget.input(element).val('[' + values.join(',') + ']');
     },
 
-    _update_selectors: function(element, value) {
-        var self = creme.widget.SelectorList;
-        var values = creme.widget.parseval(value, creme.ajax.json.parse);
+    _updateSelectors: function(element, data)
+    {
+        var values = creme.widget.cleanval(data, []);
 
-        if (values === undefined)
+        if (typeof values !== 'object')
             return;
 
         $('ul.selectors', element).empty();
 
-        if (values === null)
-            return;
-
         for (var i = 0; i < values.length; ++i) {
-            var selector = self.append_selector(element);
-            selector.data('widget').val(selector, values[i]);
+            this._appendSelector(element, values[i]);
         }
     },
 
-    val: function(element, value) {
-        var self = creme.widget.SelectorList;
-
+    val: function(element, value)
+    {
         if (value === undefined)
             return creme.widget.input(element).val();
 
-        self._update_selectors(value);
-           creme.widget.input(element).val(value);
+        this._updateSelectors(element, value);
+        this._update(element);
     }
 });

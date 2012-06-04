@@ -15,6 +15,8 @@ try:
     from creme_core.tests.base import CremeTestCase
     from creme_core.utils import create_or_update
 
+    from creme_core import autodiscover
+
     from persons.models import Contact, Organisation
 
     from assistants.models import Alert
@@ -29,6 +31,7 @@ except Exception as e:
 class ActivitiesTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
+        autodiscover()
         cls.populate('creme_core', 'creme_config', 'activities') #'persons'
 
     def login(self, is_superuser=True):
