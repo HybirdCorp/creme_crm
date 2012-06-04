@@ -37,7 +37,7 @@ class QuickFormsRegistry(object):
         return self._forms.iterkeys()
 
     def get_form(self, model):
-        return self._forms[model]
+        return self._forms.get(model)
 
 
 quickforms_registry = QuickFormsRegistry()

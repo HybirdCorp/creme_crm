@@ -175,3 +175,6 @@ def truncate_str(str, max_length, suffix=""):
         return suffix
     else:
         return str[:total]
+
+def is_testenvironment(request):
+    return request.META.get('SERVER_NAME') == 'testserver'

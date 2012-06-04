@@ -201,16 +201,41 @@ creme.ajax.iframePopulate = function(iframe, form, options) {
 
 creme.ajax.jqueryFormSubmit = function(form, success_cb, error_cb, options)
 {
-	var form_action = form.attr('action');
-	form.attr('action', (options['action'] !== undefined ? options['action'] : form_action));
-	
-	$(form).ajaxSubmit({
-			iframe:true,
-			success:function(responseText, statusText, xhr, form) {
-						success_cb(responseText);
-						form.attr('action', form_action);
-					}
-	});
+    var form_action = form.attr('action');
+    var options = options || {};
+
+    form.attr('action', (options['action'] || form_action));
+
+    function parse_response_status(responseText) {
+        if (responseText === "") {
+            return 404;
+        } else if (/^HTTPError [0-9]+$/.test(responseText)) {
+            return parseInt(responseText.substr('HTTPError '.length));
+        } else {
+            return 200;
+        }
+    }
+
+    submit_options = {
+            iframe:true,
+            success:function(responseText, statusText, xhr, form) {
+                form.attr('action', form_action);
+                xhr.status = parse_response_status(responseText);
+
+                if (xhr.status === 200) {
+                    if (success_cb !== undefined)
+                        success_cb(responseText, statusText, xhr, form);
+
+                    return;
+                }
+
+                if (error_cb !== undefined)
+                    error_cb(responseText, {type:"request", status:xhr.status, message:"HTTP - " + xhr.status + " error", request:xhr});
+            }
+    };
+
+    submit_options = $.extend({}, submit_options, options, true);
+    $(form).ajaxSubmit(submit_options);
 }
 
 creme.ajax.iframeSubmit = function(form, success_cb, error_cb, options) {
@@ -284,16 +309,16 @@ creme.ajax.json.send = function(url, data, success_cb, error_cb, sync, method, p
         async: !sync,
         type: method,
         url: url,
-        data: data,
+        data: data !== undefined ? data : '',
         dataType: "json",
         success: function(data, textStatus) {
-            if (success_cb != undefined) {
-                success_cb(data);
+            if (success_cb !== undefined) {
+                success_cb(data, textStatus);
             }
         },
         error : function(req, textStatus, errorThrown) {
-               if (error_cb != undefined) {
-                   error_cb(creme.ajax.json._handleSendError(req, textStatus, errorThrown));
+               if (error_cb !== undefined) {
+                   error_cb(req.responseText, creme.ajax.json._handleSendError(req, textStatus, errorThrown));
                }
         }
     };
@@ -312,6 +337,13 @@ creme.ajax.json.post = function(url, data, success_cb, error_cb, sync, parameter
 creme.ajax.json.get = function(url, data, success_cb, error_cb, sync, parameters) {
     creme.ajax.json.send(url, data, success_cb, error_cb, sync, "GET", parameters);
 };
+
+creme.ajax.json.isvalid = function(data) {
+    return typeof data === 'string' &&
+           /^[\],:{}\s]*$/.test(data.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
+                                    .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]")
+                                    .replace(/(?:^|:|,)(?:\s*\[)+/g, ""));
+}
 
 // Code copied from JQuery 1.4.*
 creme.ajax.json.parse = function(data) {

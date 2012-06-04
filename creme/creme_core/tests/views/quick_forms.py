@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _
     from django.forms.formsets import BaseFormSet
@@ -205,3 +206,27 @@ class QuickFormTestCase(CremeTestCase):
         contact = self.get_object_or_fail(Contact, email='admin3@hello.com')
         self.assertEqual('admin3@hello.com', contact.email)
         self.assertEqual('Lain', contact.last_name)
+
+    def test_add_from_widget(self):
+        self.login()
+        count = Contact.objects.count()
+
+        data = {'last_name':'Kirika',
+                'email':'admin@hello.com',
+                'user':'1'}
+
+        response = self.client.post('/creme_core/quickforms/from_widget/%d/add/1' % ContentType.objects.get_for_model(Contact).pk, data)
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual(count + 1, Contact.objects.count())
+        contact = self.get_object_or_fail(Contact, email='admin@hello.com')
+        self.assertEqual('admin@hello.com', contact.email)
+        self.assertEqual('Kirika', contact.last_name)
+
+        self.assertEqual(u"""<json>%s</json>""" % JSONEncoder().encode({
+                            "added":[[contact.id, unicode(contact)]], 
+                            "value":contact.id
+                         }), 
+                         response.content)
+
+    #TODO : test_add_multiple_from_widget(self)

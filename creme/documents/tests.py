@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
+    
     from tempfile import NamedTemporaryFile
     from django.contrib.auth.models import User
 
@@ -14,6 +16,7 @@ try:
 
     from documents.models import *
     from documents.constants import *
+    from documents.utils import get_csv_folder_or_create
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -250,6 +253,101 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertIsNone(folder.category)
 
     #TODO complete
+
+class DocumentQuickFormTestCase(_DocumentsTestCase):
+    
+    def quickform_data(self, count):
+        return {
+                'form-INITIAL_FORMS': '0',
+                'form-MAX_NUM_FORMS': '',
+                'form-TOTAL_FORMS':   '%s' % count,
+               }
+
+    def quickform_data_append(self, data, id, user='', filedata='', folder=''):
+        return data.update({
+                 'form-%d-user' % id:        user,
+                 'form-%d-filedata' % id:    filedata,
+                 'form-%d-folder' % id:   folder,
+               })
+
+    def test_add(self):
+        self.login()
+
+        self.assertFalse(Document.objects.exists())
+        self.assertTrue(Folder.objects.exists())
+
+        url = '/creme_core/quickforms/%s/%d' % (ContentType.objects.get_for_model(Document).pk, 1)
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        content     = 'Yes I am the content (DocumentQuickFormTestCase.test_add)'
+        filedata    = self._build_filedata(content)
+        folder      = Folder.objects.all()[0]
+
+        data = self.quickform_data(1)
+        self.quickform_data_append(data, 0, user=self.user.pk, filedata=filedata.file, folder=folder.pk)
+
+        response = self.client.post(url, follow=True, data=data)
+
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        docs = Document.objects.all()
+        self.assertEqual(1, len(docs))
+
+        doc = docs[0]
+
+        self.assertTrue(doc.filedata.name.endswith('fdopen.txt'));
+        self.assertIsNone(doc.description)
+        self.assertEqual(folder,    doc.folder)
+
+        filedata = doc.filedata
+        filedata.open()
+        self.assertEqual([content], filedata.readlines())
+
+        filedata.delete(filedata) #clean
+
+class CSVDocumentQuickWidgetTestCase(_DocumentsTestCase):
+    def test_add_from_widget(self):
+        self.login()
+
+        self.assertFalse(Document.objects.exists())
+        self.assertTrue(Folder.objects.exists())
+
+        url = '/documents/quickforms/from_widget/document/csv/add/%d' % 1
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        content     = 'Yes I am the content (CSVDocumentQuickWidgetTestCase.test_add_from_widget)'
+        filedata    = self._build_filedata(content)
+        response = self.client.post(url, follow=True,
+                                    data={'user':         self.user.pk,
+                                          'filedata':     filedata.file,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        docs = Document.objects.all()
+        self.assertEqual(1, len(docs))
+
+        doc = docs[0]
+
+        folder = get_csv_folder_or_create(self.user)
+
+        self.assertTrue(doc.filedata.name.endswith('fdopen.txt'));
+        self.assertIsNone(doc.description)
+        self.assertEqual(folder,    doc.folder)
+
+        self.assertEqual(u"""<json>%s</json>""" % JSONEncoder().encode({
+                            "added":[[doc.id, unicode(doc)]], 
+                            "value":doc.id
+                         }),
+                         response.content)
+
+        filedata = doc.filedata
+        filedata.open()
+        self.assertEqual([content], filedata.readlines())
+
+        filedata.delete(filedata) #clean
 
 
 class FolderTestCase(_DocumentsTestCase):

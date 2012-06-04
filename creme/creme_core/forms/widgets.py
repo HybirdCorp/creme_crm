@@ -39,8 +39,8 @@ from creme_core.utils.date_range import date_range_registry
 
 
 def widget_render_input(renderer, widget, name, value, context, **kwargs):
-    input_attrs = {'class':  ' '.join(['ui-creme-input', context.get('css')]),
-                   'widget': context.get('typename'),
+    input_attrs = {'class':  ' '.join(['ui-creme-input', context.get('css', '')]),
+                   'widget': context.get('typename', None),
                   }
     input_attrs.update(kwargs)
 
@@ -89,9 +89,10 @@ class DynamicInput(TextInput):
 
 
 class DynamicSelect(Select):
-    def __init__(self, attrs=None, options=None, url=''):
+    def __init__(self, attrs=None, options=None, url='', label=None):
         super(DynamicSelect, self).__init__(attrs, ()) #TODO: options or ()
         self.url = url
+        self.label = label
 
         if not options:
             self.options = ()
@@ -100,13 +101,68 @@ class DynamicSelect(Select):
         else:
             self.options = list(options)
 
+    def _get_options(self):
+        return list(self.options()) if callable(self.options) else self.options
+
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name)
         context = widget_render_context('ui-creme-dselect', attrs)
-        self.choices = list(self.options()) if callable(self.options) else self.options
+        self.choices = self._get_options()
 
-        return mark_safe(widget_render_input(Select.render, self, name, value, context, url=self.url))
+        output = widget_render_input(Select.render, self, name, value, context, url=self.url)
 
+        if not self.label:
+            return mark_safe(output)
+
+        return mark_safe(u"""<span class="ui-creme-dselectlabel">%s</span>%s""" % (self.label, output))
+
+
+class ActionButtonList(Widget):
+    def __init__(self, delegate, attrs=None, actions=None):
+        super(ActionButtonList, self).__init__(attrs)
+        self.delegate = delegate
+        self.actions = actions or []
+
+    def add_action(self, name, label, enabled=True, **kwargs):
+        self.actions.append((name, label, enabled, kwargs))
+        return self
+
+    def clear_actions(self):
+        self.actions = []
+        return self
+
+    def render(self, name, value, attrs=None):
+        context = widget_render_context('ui-creme-actionbuttonlist', attrs)
+        context['delegate'] = self.delegate.render(name, value, attrs)
+        context['buttons'] = self._render_actions()
+
+        return mark_safe("""<ul class="ui-layout hbox %(css)s" style="%(style)s" widget="%(typename)s">
+                                <li class="delegate">%(delegate)s</li>
+                                %(buttons)s
+                            </ul>""" % context)
+
+    def _render_actions(self):
+        output = []
+        output.extend(self._render_action(name, label, enabled, **attrs) for name, label, enabled, attrs in self.actions)
+
+        return '\n'.join(output)
+
+    def _render_action(self, name, label, enabled, **kwargs):
+        if enabled is not None:
+            if enabled is False or (callable(enabled) and not enabled()):
+                kwargs['disabled'] = u''
+
+        title = kwargs.pop('title', label)
+
+        context = {'name':  name,
+                   'attr':  flatatt(kwargs),
+                   'label': label,
+                   'title': title,
+                  }
+
+        return u"""<li><button class="ui-creme-actionbutton" name="%(name)s" title="%(title)s" alt="%(title)s" %(attr)s>
+                       %(label)s
+                   </button></li>""" % context
 
 class PolymorphicInput(TextInput):
     class Model(object):
@@ -157,7 +213,7 @@ class PolymorphicInput(TextInput):
         self.default_input = widget(attrs=attrs, **kwargs) if isinstance(widget, type) else widget
 
     def _render_inputs(self, attrs):
-        output = ['<ul style="display:none;" class="inner-polymorphicselect-model">']
+        output = ['<ul style="display:none;" class="selector-model">']
 
         output.extend('<li input-type="%s">%s</li>' % (name, input.render('', ''))
                          for name, input in self.inputs
@@ -204,6 +260,9 @@ class DateRangeSelect(TextInput):
 
 
 class ChainedInput(TextInput):
+    HORIZONTAL = 'hbox'
+    VERTICAL = 'vbox'
+
     class Model(object):
         def __init__(self, name='', widget=DynamicSelect, attrs=None, **kwargs):
             self.name = name
@@ -243,10 +302,11 @@ class ChainedInput(TextInput):
             self.add_input(name, widget=DynamicSelect, attrs=attrs, options=options, **kwargs)
 
     def add_input(self, name, widget, attrs=None, **kwargs):
-        self.inputs.append((name, widget(attrs=attrs, **kwargs) if isinstance(widget, type) else widget))
+        self.inputs.append((name, widget(attrs=attrs or {}, **kwargs) if callable(widget) else widget))
 
     def _render_inputs(self, attrs):
-        output = ['<ul class="ui-layout hbox">']
+        direction = attrs.get('direction', ChainedInput.HORIZONTAL);
+        output = ['<ul class="ui-layout %s">' % direction]
 
         output.extend('<li chained-name="%s" class="ui-creme-chainedselect-item">%s</li>' % (name, input.render('', ''))
                          for name, input in self.inputs
@@ -295,26 +355,30 @@ class SelectorList(TextInput):
 class EntitySelector(TextInput):
     def __init__(self, content_type=None, attrs=None):
         super(EntitySelector, self).__init__(attrs)
-        self.url = '/creme_core/lv_popup/' + content_type if content_type else '/creme_core/lv_popup/${ctype}'
+        self.url = '/creme_core/lv_popup/' + content_type + '/${selection}?q_filter=${qfilter}' if content_type else '/creme_core/lv_popup/${ctype}/${selection}?q_filter=${qfilter}'
         self.text_url = '/creme_core/relation/entity/${id}/json'
 
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
+        selection_mode = '0' if attrs.pop('multiple', False) else '1'
 
         context = widget_render_context('ui-creme-entityselector', attrs,
                                         url=self.url,
                                         text_url=self.text_url,
-                                        multiple='1' if attrs.pop('multiple', False) else '0',
+                                        selection=selection_mode,
                                         style=attrs.pop('style', ''),
                                         label=_(u'Select...'),
                                        )
 
         context['input'] = widget_render_hidden_input(self, name, value, context)
 
+        qfilter = attrs.pop('qfilter', None)
+        context['qfilter'] = escape(JSONEncoder().encode(qfilter)) if qfilter else ''
+
         html_output = """
-            <span class="%(css)s" style="%(style)s" widget="%(typename)s" url="%(url)s" multiple="%(multiple)s">
+            <span class="%(css)s" style="%(style)s" widget="%(typename)s" labelURL="%(text_url)s" label="%(label)s" popupURL="%(url)s" popupSelection="%(selection)s" qfilter="%(qfilter)s">
                 %(input)s
-                <button type="button" url="%(text_url)s" label="%(label)s">%(label)s</button>
+                <button type="button">%(label)s</button>
             </span>
         """ % context;
 
@@ -398,49 +462,64 @@ class CalendarWidget(TextInput):
     default_help_text = settings.DATE_FORMAT_VERBOSE
 
     def render(self, name, value, attrs=None):
-        #be carefull: JS and python date format should be equal (here: date == "yy-mm-dd")
-        if isinstance(value, datetime):
-            # TODO cremedatetimefield is not working properly for the moment
-            self.default_help_text = settings.DATE_FORMAT_VERBOSE
-            value = value.date()
-
-#        value = date_format(value, 'DATE_FORMAT') if value is not None else None
         attrs = self.build_attrs(attrs, name=name)
+        context = widget_render_context('ui-creme-datepicker', attrs)
+        dateformat = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
 
-        date_format_js = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
-        dates_js = {
-            'dd': 'd.getDate()',
-            'mm': '(d.getMonth()+1)',
-            'yy': 'd.getFullYear()',
-        }
+        return mark_safe(u"""<div>%(help_text)s</div>%(input)s""" % {
+                                  'help_text': self.default_help_text,
+                                  'input': widget_render_input(TextInput.render, self, name, value, context,
+                                                               format=dateformat),
+                              })
 
-        cmd_js = []
-        for f in date_format_js.split(settings.DATE_FORMAT_JS_SEP):
-            cmd_js.append(dates_js.get(f))
-
-        return mark_safe(u"""<div class="ui-creme-calendarpicker">
-                %(help_text)s
-                <br/>
-                <ul class="ui-layout hbox">
-                    <li>%(input)s</li>
-                    <li>
-                        <button type="button" onclick="d=new Date();$('#%(id)s').val(%(today_js)s);">
-                            %(today_label)s
-                        </button>
-                    </li>
-                </ul>
-            </div>
-            <script type="text/javascript">
-                $("#%(id)s").datepicker({dateFormat: "%(date_format_js)s", showOn: "button", buttonImage: "%(img_url)s", buttonImageOnly: true });
-            </script>""" % {
-                    'input':           super(CalendarWidget, self).render(name, value, attrs),
-                    'id':              attrs['id'],
-                    'today_label':     _(u"Today"),
-                    'date_format_js':  date_format_js,
-                    'today_js':        ("+'%s'+" % settings.DATE_FORMAT_JS_SEP).join(cmd_js),
-                    'help_text':       self.default_help_text,
-                    'img_url':         media_url('images/icon_calendar.gif'),
-                  })
+        #be carefull: JS and python date format should be equal (here: date == "yy-mm-dd")
+#        if isinstance(value, datetime):
+#            # TODO cremedatetimefield is not working properly for the moment
+#            self.default_help_text = settings.DATE_FORMAT_VERBOSE
+#            value = value.date()
+#
+##        value = date_format(value, 'DATE_FORMAT') if value is not None else None
+#        attrs = self.build_attrs(attrs, name=name)
+#
+#        date_format_js = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
+#        dates_js = {
+#            'dd': 'd.getDate()',
+#            'mm': '(d.getMonth()+1)',
+#            'yy': 'd.getFullYear()',
+#        }
+#
+#        cmd_js = []
+#        for f in date_format_js.split(settings.DATE_FORMAT_JS_SEP):
+#            cmd_js.append(dates_js.get(f))
+#
+#        return mark_safe(u"""<div class="ui-creme-calendarpicker">
+#                %(help_text)s
+#                <br/>
+#                <ul class="ui-layout hbox">
+#                    <li>%(input)s</li>
+#                    <li>
+#                        <button type="button" onclick="d=new Date();$('#%(id)s').val(%(today_js)s);">
+#                            %(today_label)s
+#                        </button>
+#                    </li>
+#                </ul>
+#            </div>
+#            <script type="text/javascript">
+#                $("#%(id)s").datepicker({dateFormat: "%(date_format_js)s", 
+#                                         showOn: "button", 
+#                                         buttonText: "%(img_text)s",
+#                                         buttonImage: "%(img_url)s", 
+#                                         buttonImageOnly: true });
+#            </script>""" % {
+#                    'input':           super(CalendarWidget, self).render(name, value, attrs),
+#                    'id':              attrs['id'],
+#                    'today_label':     _(u"Today"),
+#                    'date_format_js':  date_format_js,
+#                    'today_js':        ("+'%s'+" % settings.DATE_FORMAT_JS_SEP).join(cmd_js),
+#                    'help_text':       self.default_help_text,
+#                    'img_url':         media_url('images/icon_calendar.gif'),
+#                    'img_text':        _(u'Calendar')
+#                  })
 
 #TODO: Only used in reports for now. Kept until *Selector widgets accept optgroup
 class DependentSelect(Select):
@@ -513,41 +592,68 @@ class UploadedFileWidget(FileInput):
 
 class TinyMCEEditor(Textarea):
     def render(self, name, value, attrs=None):
-        rendered = super(TinyMCEEditor, self).render(name, value, attrs)
-#        extended_valid_elements : "a[name|href|target|title|onclick]",
-#        script_url : '%(MEDIA_URL)stiny_mce/tiny_mce_src.js',
-        return mark_safe(u'''%(input)s
-                            <script type="text/javascript" src="%(MEDIA_URL)stiny_mce/jquery.tinymce.js"></script>
-                            <script type="text/javascript">
-                                jQuery('#id_%(name)s').tinymce({
-                                    mode : "textareas",
-                                    script_url : '%(MEDIA_URL)stiny_mce/tiny_mce.js',
-                                    convert_urls : false,
-                                    theme : "advanced",
-                                    height: 300,
-                                    plugins : "spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template, fullpage",
-                                    theme_advanced_buttons1 : "save,newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,styleselect,formatselect,fontselect,fontsizeselect",
-                                    theme_advanced_buttons2 : "cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,code,|,insertdate,inserttime,preview,|,forecolor,backcolor",
-                                    theme_advanced_buttons3 : "tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl,|,fullscreen",
-                                    theme_advanced_buttons4 : "insertlayer,moveforward,movebackward,absolute,|,styleprops,spellchecker,|,cite,abbr,acronym,del,ins,attribs,|,visualchars,nonbreaking,blockquote,pagebreak,|,insertfile,insertimage",
-                                    theme_advanced_toolbar_location : "top",
-                                    theme_advanced_toolbar_align : "left",
-                                    theme_advanced_path_location : "bottom",
-                                    theme_advanced_resizing : true
-                                });
-                            </script>''' % {'MEDIA_URL': settings.MEDIA_URL, 'name': name, 'input': rendered})
+        attrs = self.build_attrs(attrs, name=name)
+        context = widget_render_context('ui-creme-jqueryplugin', attrs)
+
+        plugin_options = JSONEncoder().encode({
+            "mode": "textareas",
+            "script_url": '%stiny_mce/tiny_mce.js' % settings.MEDIA_URL,
+            "convert_urls": False,
+            "theme": "advanced",
+            "height": 300,
+            "plugins": "spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template, fullpage",
+            "theme_advanced_buttons1": "save,newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,styleselect,formatselect,fontselect,fontsizeselect",
+            "theme_advanced_buttons2": "cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,code,|,insertdate,inserttime,preview,|,forecolor,backcolor",
+            "theme_advanced_buttons3": "tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl,|,fullscreen",
+            "theme_advanced_buttons4": "insertlayer,moveforward,movebackward,absolute,|,styleprops,spellchecker,|,cite,abbr,acronym,del,ins,attribs,|,visualchars,nonbreaking,blockquote,pagebreak,|,insertfile,insertimage",
+            "theme_advanced_toolbar_location": "top",
+            "theme_advanced_toolbar_align": "left",
+            "theme_advanced_path_location": "bottom",
+            "theme_advanced_resizing": True,
+        })
+
+        return mark_safe(widget_render_input(Textarea.render, self, name, value, context, 
+                                             plugin='tinymce', 
+                                             plugin_options=plugin_options))
+
+#        rendered = super(TinyMCEEditor, self).render(name, value, attrs)
+##        extended_valid_elements : "a[name|href|target|title|onclick]",
+##        script_url : '%(MEDIA_URL)stiny_mce/tiny_mce_src.js',
+#        return mark_safe(u'''%(input)s
+#                            <script type="text/javascript" src="%(MEDIA_URL)stiny_mce/jquery.tinymce.js"></script>
+#                            <script type="text/javascript">
+#                                jQuery('#id_%(name)s').tinymce({
+#                                    mode : "textareas",
+#                                    script_url : '%(MEDIA_URL)stiny_mce/tiny_mce.js',
+#                                    convert_urls : false,
+#                                    theme : "advanced",
+#                                    height: 300,
+#                                    plugins : "spellchecker,pagebreak,style,layer,table,save,advhr,advimage,advlink,emotions,iespell,inlinepopups,insertdatetime,preview,media,searchreplace,print,contextmenu,paste,directionality,fullscreen,noneditable,visualchars,nonbreaking,xhtmlxtras,template, fullpage",
+#                                    theme_advanced_buttons1 : "save,newdocument,|,bold,italic,underline,strikethrough,|,justifyleft,justifycenter,justifyright,justifyfull,|,styleselect,formatselect,fontselect,fontsizeselect",
+#                                    theme_advanced_buttons2 : "cut,copy,paste,pastetext,pasteword,|,search,replace,|,bullist,numlist,|,outdent,indent,blockquote,|,undo,redo,|,link,unlink,anchor,image,cleanup,code,|,insertdate,inserttime,preview,|,forecolor,backcolor",
+#                                    theme_advanced_buttons3 : "tablecontrols,|,hr,removeformat,visualaid,|,sub,sup,|,charmap,emotions,iespell,media,advhr,|,print,|,ltr,rtl,|,fullscreen",
+#                                    theme_advanced_buttons4 : "insertlayer,moveforward,movebackward,absolute,|,styleprops,spellchecker,|,cite,abbr,acronym,del,ins,attribs,|,visualchars,nonbreaking,blockquote,pagebreak,|,insertfile,insertimage",
+#                                    theme_advanced_toolbar_location : "top",
+#                                    theme_advanced_toolbar_align : "left",
+#                                    theme_advanced_path_location : "bottom",
+#                                    theme_advanced_resizing : true
+#                                });
+#                            </script>''' % {'MEDIA_URL': settings.MEDIA_URL, 'name': name, 'input': rendered})
 
 
 class ColorPickerWidget(TextInput):
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name)
+        context = widget_render_context('ui-creme-jqueryplugin', attrs)
 
-        return mark_safe("""<script type="text/javascript">
-                    $(document).ready(function() { $("#%(id)s").gccolor()});
-                </script>%(input)s""" % {
-                    'id':    attrs['id'],
-                    'input': super(ColorPickerWidget, self).render(name, value, attrs),
-                })
+        return mark_safe(widget_render_input(TextInput.render, self, name, value, context, plugin='gccolor'))
+#
+#        return mark_safe("""<script type="text/javascript">
+#                    $(document).ready(function() { $("#%(id)s").gccolor()});
+#                </script>%(input)s""" % {
+#                    'id':    attrs['id'],
+#                    'input': super(ColorPickerWidget, self).render(name, value, attrs),
+#                })
 
 
 class ListViewWidget(TextInput):
@@ -575,7 +681,7 @@ class ListViewWidget(TextInput):
 
     @property
     def model(self):
-         return self._model
+        return self._model
 
     @model.setter
     def model(self, model):

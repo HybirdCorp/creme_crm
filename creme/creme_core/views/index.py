@@ -32,4 +32,14 @@ def my_page(request):
 
 @login_required
 def test_js(request):
+    from logging import warn
+    from django.http import Http404
+    from django.conf import settings
+    from creme_core.utils import is_testenvironment
+
+    if not is_testenvironment(request) and not settings.FORCE_JS_TESTVIEW:
+        raise Http404('This is view is only reachable during unittests')
+
+    warn("Beware : If you are not running unittest this view shouldn't be reachable. Check your server configuration.")
+
     return render(request, 'creme_core/test_js.html')

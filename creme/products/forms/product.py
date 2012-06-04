@@ -18,13 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.contrib.contenttypes.models import ContentType
 from django.forms.util import ValidationError
 
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.forms import CremeEntityForm
 from creme_core.forms.fields import MultiCremeEntityField, JSONField
-from creme_core.forms.widgets import ChainedInput
+from creme_core.forms.widgets import ChainedInput, DynamicSelect
 
 from media_managers.models import Image
 from media_managers.forms.widgets import ImageM2MWidget
@@ -32,13 +33,13 @@ from media_managers.forms.widgets import ImageM2MWidget
 from products.models import Product, Category, SubCategory
 
 class ProductCategorySelector(ChainedInput):#TODO Rename to CategorySelector as its used for Service too
-    def __init__(self, categories, attrs=None):
+    def __init__(self, categories, attrs=None, creation_allowed=True):
         super(ProductCategorySelector, self).__init__(attrs)
-        attrs = {'auto': False}
+        input_attrs = {'auto': False}
+        self.creation_allowed = creation_allowed
 
-        self.add_dselect("category", options=categories, attrs=attrs)
-        self.add_dselect("subcategory", options='/products/sub_category/${category}/json', attrs=attrs)
-
+        self.add_dselect("category", options=categories, attrs=input_attrs, label=_(u'Category'))
+        self.add_dselect("subcategory", options='/products/sub_category/${category}/json', attrs=input_attrs, label=_(u'Sub-category'))
 
 class ProductCategoryField(JSONField):#TODO Rename to CategoryField as its used for Service too
     default_error_messages = {
@@ -53,8 +54,8 @@ class ProductCategoryField(JSONField):#TODO Rename to CategoryField as its used 
         self._build_widget()
 
     def _create_widget(self):
-        return ProductCategorySelector(self._get_categories_options(self._get_categories_objects()))
-
+        return ProductCategorySelector(self._get_categories_options(self._get_categories_objects()), 
+                                       attrs={'reset':False, 'direction':ChainedInput.VERTICAL})
     #TODO : wait for django 1.2 and new widget api to remove this hack
     def from_python(self, value):
         if not value:

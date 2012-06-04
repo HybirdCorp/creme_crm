@@ -35,6 +35,8 @@ from creme_core.forms.fields import CremeDateTimeField, CremeTimeField, MultiCre
 from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme_core.forms.validators import validate_linkable_entities, validate_linkable_entity
 
+from creme_config.forms.fields import CreatorModelChoiceField
+
 from persons.models import Contact
 
 from assistants.models.alert import Alert
@@ -364,14 +366,14 @@ class RelatedActivityCreateForm(ActivityCreateForm):
             assert isinstance(entity_for_relation, Contact)
 
             if entity_for_relation.is_user:
-                self.fields['participating_users'].initial = [entity_for_relation.is_user]
+                fields['participating_users'].initial = [entity_for_relation.is_user]
             else:
-                self.fields['other_participants'].initial = [entity_for_relation.id]
+                fields['other_participants'].initial = [entity_for_relation.id]
         elif rtype_id == REL_SUB_ACTIVITY_SUBJECT:
-            self.fields['subjects'].initial = [entity_for_relation]
+            fields['subjects'].initial = [entity_for_relation]
         else:
             assert rtype_id == REL_SUB_LINKED_2_ACTIVITY
-            self.fields['linked_entities'].initial = [entity_for_relation]
+            fields['linked_entities'].initial = [entity_for_relation]
 
 
 #TODO: factorise ?? (ex: CreateForm inherits from EditForm....)
@@ -426,9 +428,14 @@ class ActivityEditForm(CremeEntityForm):
         return super(ActivityEditForm, self).save()
 
 class CustomActivityCreateForm(ActivityCreateForm):
+    type = CreatorModelChoiceField(label=_('Activity type'), 
+                                   queryset=ActivityType.objects.filter(is_custom=True),
+                                   required=True, initial=None)
+
     def __init__(self, *args, **kwargs):
         super(CustomActivityCreateForm, self).__init__(*args, **kwargs)
-        self.fields['type'].queryset = self.fields['type'].queryset.filter(is_custom=True)
+        self.fields['type'].user = self.user
+        #self.fields['type'].queryset = self.fields['type'].queryset.filter(is_custom=True)
 
         if self.fields['type'].queryset.count() == 0:
             self.fields['type'].help_text = _(u"No custom activity type, you should create one in configuration in order to create an activity.")

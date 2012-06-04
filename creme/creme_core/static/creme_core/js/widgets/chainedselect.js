@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2010  Hybird
+    Copyright (C) 2009-2012  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -21,134 +21,138 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
         json: true
     },
 
-    _create: function(element, options) {
-        var self = creme.widget.ChainedSelect;
+    _create: function(element, options, cb, sync)
+    {
+        var self = this;
 
-        $('.ui-creme-chainedselect-item > .ui-creme-widget', element).each(function() {
-            $(this).data('widget').init($(this), {url:''}, undefined, true);
+        this.selectors(element).each(function() {
+            $(this).creme().create({}, undefined, true);
         });
 
-        self._dependency_change = function() {
+        this._dependency_change = function() {
             //console.log('chainedselect._dependency_change > element:' + $(this).parent().attr('chained-name') + ' has changed. val:' + $(this).val());
-            self._reload_dependencies(element, $(this).parent().attr('chained-name'));
+            self._reloadDependencies(element, $(this).parent().attr('chained-name'), $(this).creme().widget().val());
             self._update(element);
         };
-
-        $('.ui-creme-chainedselect-item > .ui-creme-widget', element).bind('change', self._dependency_change);
 
         $('img.reset', element).bind('click', function() {
             self.reset(element);
         });
 
-        var value = self.val(element);
+        var data = this.cleanedval(element);
 
-        if (!value) {
-            self._update(element);
-            value = self.val(element);
+        // reload all selectors from actual values in order to initialize them all
+        this._reloadSelectors(element, this._selectorValues(element));
+        this.selectors(element).bind('change', self._dependency_change);
+
+        // if empty data, get values from selector and try to force it in widget
+        if (creme.object.isempty(data)) {
+            this.val(element, this._selectorValues(element));
+        } else {
+            this._updateSelectors(element, data);
         }
 
-        self._update_selectors(element, value);
         element.addClass('widget-ready');
+        creme.object.invoke(cb, element);
+    },
+
+    _selectorValues: function(element)
+    {
+        var data = {}
+
+        this.selectors(element).each(function() {
+            var selector = $(this);
+
+            var value = selector.creme().widget().cleanedval();
+            var name = selector.parent().attr('chained-name');
+
+            //console.log('chainedselect._update > value="' + name + '", type=' + value);
+            data[name] = value;
+        });
+
+        return data;
     },
 
     _update: function(element) {
-        var self = creme.widget.ChainedSelect;
-        var values = []
-
-        $('.ui-creme-chainedselect-item > .ui-creme-widget.widget-active', element).each(function() {
-            var value = $(this).data('widget').jsonval($(this));
-            var name = $(this).parent().attr('chained-name');
-
-            //console.log('chainedselect._update > value="' + name + '", type=' + value);
-            values.push('"' + name + '":' + value);
-        });
-
-        creme.widget.input(element).val('{' + values.join(',') + '}');
+        creme.widget.input(element).val($.toJSON(this._selectorValues(element)));
     },
 
-    _buildurl: function(element, url) {
-        var self = creme.widget.ChainedSelect;
-        return creme.widget.template(url, function(key) {
-            //console.log("chainedselect._buildurl > " + key + " > " + item.val());
-            return element.data('widget').val(element);
+    _updateSelector: function(selector, data)
+    {
+        var name = selector.element.parent().attr('chained-name');
+        var value = typeof data === 'object' ? data[name] : undefined;
+        selector.val(value);
+    },
+
+    _updateSelectors: function(element, data)
+    {
+        var self = this;
+
+        this.selectors(element).each(function() {
+            self._updateSelector($(this).creme().widget(), data);
         });
     },
 
-    _update_selectors: function(element, value) {
-        var self = creme.widget.ChainedSelect;
+    _reloadSelector: function(target, name, data)
+    {
+        var target = target.creme().widget();
 
-        //console.log("chainedselect._update_selectors > value  : '" + value + "'");
-
-        if (value === undefined)
-            return;
-
-        var values = (typeof value !== 'object') ? creme.widget.parseval(value, creme.ajax.json.parse) : value;
-
-        //console.log("chainedselect._update_selectors > values : " + values + " [type:" + (typeof values) + ", value : '" + $.toJSON(value) + "' [type:" + (typeof values) + "]");
-
-        if (values === null || typeof values !== 'object')
-            return;
-
-        $('.ui-creme-chainedselect-item > .ui-creme-widget', element).each(function() {
-            var item = $(this);
-            var itemname = item.parent().attr('chained-name');
-            var itemval = (values && itemname) ? values[itemname] : null;
-            itemval = (itemval !== undefined) ? itemval : null;
-
-            //console.log("chainedselect._update_selectors >       > ", item, " > [" + itemname + "] =", itemval);
-            item.data('widget').val(item, itemval);
-        });
-
-        //console.log("chainedselect._update_selectors > end");
+        if ($.inArray(name, target.dependencies()) !== -1) {
+            target.reload(data, undefined, undefined, true);
+        }
     },
 
-    _reload_dependencies: function(element, name) {
-        var self = creme.widget.ChainedSelect;
+    _reloadSelectors: function(element, data)
+    {
+        for(name in data) {
+            this._reloadDependencies(element, name, data[name]);
+        }
+    },
 
-        //$('.ui-creme-widget', element).unbind('change', self._dependency_change);
+    _reloadDependencies: function(element, name, value)
+    {
+        var self = this;
+        var data = {};
+        data[name] = value;
 
-        var item = $('li[chained-name="' + name + '"] .ui-creme-widget.widget-active', element);
-        //console.log('chainedselect._reload_dependencies > ' + name + ':', item);
+        //console.log('chainedselect._reloadDependencies >', name, ':', data[name]);
 
-        $('.ui-creme-chainedselect-item > .ui-creme-widget[url*="${' + name + '}"]', element).each(function() {
-             var dep = $(this);
-             var url = self._buildurl(item, dep.attr('url'));
+        this.selectors(element).each(function() {
+            self._reloadSelector($(this), name, data);
+        });
 
-             //console.log('chainedselect._reload_dependencies > ' + dep.parent().attr('chained-name') + ':' + item + ' > url:' + url);
-             dep.data('widget').reload(dep, url, undefined, undefined, true);
-         });
+        //console.log('chainedselect._reloadDependencies >', data, '> end');
+    },
 
-        //console.log('chainedselect._reload_dependencies > ' + name + ':', item, '> end');
+    selector: function(element, name) {
+        return $('li[chained-name="' + name + '"].ui-creme-chainedselect-item:last > .ui-creme-widget', element);
+    },
 
-        //$('.ui-creme-widget', element).bind('change', self._dependency_change);
+    selectors: function(element) {
+        return $('li.ui-creme-chainedselect-item > .ui-creme-widget', element);
     },
 
     reset: function(element) {
-        var self = creme.widget.ChainedSelect;
-        self.val(element, '{}');
+        this.val(element, {});
     },
 
-    val: function(element, value) {
-        var self = creme.widget.ChainedSelect;
+    val: function(element, value)
+    {
+        if (value === undefined)
+            return creme.widget.input(element).val();
 
-        if (value === undefined) {
-            var res = creme.widget.input(element).val();
-            return (!res) ? null : res;
-        }
-
-        self._update_selectors(element, value);
-        self._update(element);
+        this._updateSelectors(element, creme.widget.cleanval(value, {}));
+        this._update(element);
+        element.trigger('change');
     },
 
-    clone: function(element) {
-        var self = creme.widget.ChainedSelect;
+    clone: function(element)
+    {
         var copy = creme.widget.clone(element);
+        var value = this.val(copy);
 
-        var value = self.val(copy);
-
-        if (!value) {
-            self._update(copy);
-        }
+        if (!value)
+            this._update(copy);
 
         return copy;
     }

@@ -23,19 +23,28 @@ from logging import debug
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.models import Relation
-from creme_core.forms import CremeEntityForm, CremeEntityField, CremeDateField, GenericEntityField
+from creme_config.forms.fields import CreatorModelChoiceField
+from creme_core.constants import DEFAULT_CURRENCY_PK
+
+from creme_core.models import Relation, Currency
+from creme_core.forms import CremeEntityForm, CremeEntityField, CremeDateField, GenericEntityField, CreatorEntityField
 from creme_core.forms.validators import validate_linkable_entity
 from creme_core.utils import find_first
 
 from persons.models import Organisation, Address, Contact
 
 from billing.models import Line
+from billing.models.other_models import AdditionalInformation, PaymentTerms, PaymentInformation
 from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
 
 class BaseEditForm(CremeEntityForm):
-    source = CremeEntityField(label=_(u"Source organisation"), model=Organisation)
+    currency = CreatorModelChoiceField(label=_(u'Currency'), queryset=Currency.objects.all(), initial=DEFAULT_CURRENCY_PK)
+
+    additional_info  = CreatorModelChoiceField(label=_(u'Additional Information'), queryset=AdditionalInformation.objects.all(), required=False, initial=None)
+    payment_terms    = CreatorModelChoiceField(label=_(u'Payment Terms'), queryset=PaymentTerms.objects.all(), required=False, initial=None)
+
+    source = CreatorEntityField(label=_(u"Source organisation"), model=Organisation)
     target = GenericEntityField(label=_(u"Target organisation"), models=[Organisation, Contact]) #, required=True
 
     issuing_date    = CremeDateField(label=_(u"Issuing date"), required=False)
@@ -53,6 +62,12 @@ class BaseEditForm(CremeEntityForm):
         self.issued_relation   = None
         self.received_relation = None
         self.old_user_id = self.instance.user_id
+
+        user = self.user
+        self.fields['currency'].user = user
+        self.fields['additional_info'].user = user
+        self.fields['payment_terms'].user = user
+        self.fields['source'].user = user
 
         pk = self.instance.pk
 

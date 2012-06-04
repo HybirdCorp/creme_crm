@@ -35,9 +35,9 @@ def get_q_from_dict(dict, is_or=False):
         k = str(k)
         unused, is_not, req = k.rpartition("~")
         if bool(is_not):
-          sub_q = ~Q(**{req:v})
+            sub_q = ~Q(**{req:v})
         else:
-          sub_q = Q(**{req:v})
+            sub_q = Q(**{req:v})
 
         if is_or:
             q |= sub_q

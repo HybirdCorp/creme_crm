@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from django.conf import settings
+
     from creme_core.models import SetCredentials, Language, Currency
     from creme_core.tests.base import CremeTestCase
 
@@ -47,11 +49,17 @@ class MiscViewsTestCase(ViewsTestCase):
     def setUp(self):
         #self.populate('creme_core', 'creme_config')
         self.login()
+        
+        self.FORCE_JS_TESTVIEW = settings.FORCE_JS_TESTVIEW
+        settings.FORCE_JS_TESTVIEW = False
 
         user = self.user
         Contact.objects.create(user=user, is_user=user,
                                first_name='Fulbert', last_name='Creme'
                               ) #TODO: move into login()
+
+    def tearDown(self):
+        settings.FORCE_JS_TESTVIEW = self.FORCE_JS_TESTVIEW
 
     def test_home(self): #TODO: improve test
         #self.populate('creme_core', 'creme_config')
@@ -76,6 +84,10 @@ class MiscViewsTestCase(ViewsTestCase):
         last = response.redirect_chain[-1]
         self.assertTrue(last[0].endswith('/creme_login/'))
         self.assertEqual(302, last[1])
+
+    def test_js_view(self):
+        self.assertFalse(settings.FORCE_JS_TESTVIEW)
+        self.assertEqual(200, self.client.get('/test_js').status_code)
 
 
 class LanguageTestCase(ViewsTestCase):

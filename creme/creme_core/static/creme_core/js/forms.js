@@ -177,9 +177,10 @@ creme.forms.DateTimePicker.init = function(self) {
         });
 
     $('li.date input[type="text"]', self).datepicker({
-            dateFormat: "yy-mm-dd",
-            showOn: "button",
-            buttonImage: creme_media_url("images/icon_calendar.gif"),
+            dateFormat:      "yy-mm-dd",
+            showOn:          "button",
+            buttonText:      gettext("Calendar"),
+            buttonImage:     creme_media_url("images/icon_calendar.gif"),
             buttonImageOnly: true
         });
 }

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-05 10:09+0100\n"
+"POT-Creation-Date: 2012-04-19 17:21+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,38 +16,38 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: blocks.py:35
+#: blocks.py:38
 msgid "Folder documents"
 msgstr "Documents du classeur"
 
-#: blocks.py:57
+#: blocks.py:60
 msgid "Linked documents"
 msgstr "Documents liés"
 
-#: creme_core_register.py:31 models/document.py:43
+#: creme_core_register.py:32 models/document.py:42
 msgid "Documents"
 msgstr "Documents"
 
-#: creme_core_register.py:34
+#: creme_core_register.py:35
 msgid "Portal of documents"
 msgstr "Portail des documents"
 
-#: creme_core_register.py:35
+#: creme_core_register.py:36
 msgid "All documents"
 msgstr "Lister les documents"
 
-#: creme_core_register.py:36
+#: creme_core_register.py:37
 #: templates/documents/templatetags/block_linked_docs.html:18
 #: templates/documents/templatetags/block_linked_docs.html:19
 #: templates/documents/templatetags/block_linked_docs.html:24
 msgid "Add a document"
 msgstr "Ajouter un document"
 
-#: creme_core_register.py:37
+#: creme_core_register.py:38
 msgid "All folders"
 msgstr "Lister les classeurs"
 
-#: creme_core_register.py:38
+#: creme_core_register.py:39
 msgid "Add a folder"
 msgstr "Ajouter un classeur"
 
@@ -79,28 +79,36 @@ msgstr "Vue de Document"
 msgid "Folder view"
 msgstr "Vue de Classeur"
 
+#: utils.py:26
+msgid "CSV Documents"
+msgstr "Documents CSV"
+
+#: utils.py:32
+msgid "Folder containing all the CSV documents used when importing data"
+msgstr "Classeur contenant tous les documents CSV utilisés lors des imports de données"
+
 #: forms/folder.py:39
 #, python-format
 msgid "Folder's category must be the same than its parent's one: %s"
 msgstr "La catégorie du classeur doit être la même que celle du parent: %s"
 
-#: models/document.py:33 models/folder.py:38
+#: models/document.py:32 models/folder.py:38
 msgid "Title"
 msgstr "Titre"
 
-#: models/document.py:34 models/folder.py:39
+#: models/document.py:33 models/folder.py:39
 msgid "Description"
 msgstr "Description"
 
-#: models/document.py:35
+#: models/document.py:34
 msgid "File"
 msgstr "Fichier"
 
-#: models/document.py:36 models/folder.py:48
+#: models/document.py:35 models/folder.py:48
 msgid "Folder"
 msgstr "Classeur"
 
-#: models/document.py:42
+#: models/document.py:41
 #: templates/documents/templatetags/block_documents.html:5
 #: templates/documents/templatetags/block_linked_docs.html:6
 msgid "Document"
@@ -130,11 +138,11 @@ msgstr "Explorer"
 msgid "Category name"
 msgstr "Nom de la catégorie"
 
-#: models/other_models.py:43
+#: models/other_models.py:38
 msgid "Folder category"
 msgstr "Catégorie de classeur"
 
-#: models/other_models.py:44
+#: models/other_models.py:39
 msgid "Folder categories"
 msgstr "Catégories de classeur"
 
@@ -228,7 +236,7 @@ msgstr "Impossible de télécharger"
 msgid "No linked document"
 msgstr "Aucun document lié"
 
-#: views/document.py:51
+#: views/document.py:47
 #, python-format
 msgid "New document for <%s>"
 msgstr "Ajout de document à <%s>"
@@ -245,6 +253,10 @@ msgstr "Nombre de document(s)"
 #: views/portal.py:33
 msgid "Number of folders"
 msgstr "Nombre de classeur(s)"
+
+#: views/quick_forms.py:58
+msgid "New value"
+msgstr ""
 
 #~ msgid "Folder - Title"
 #~ msgstr "Classeur - Titre"

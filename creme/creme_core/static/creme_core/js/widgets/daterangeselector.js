@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2011  Hybird
+    Copyright (C) 2009-2012  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -33,12 +33,14 @@ creme.widget.DateRangeSelector = creme.widget.declare('ui-creme-daterange-select
         return $('.range-type', element);
     },
 
-    _create: function(element, options, cb, sync) {
-        var self = creme.widget.DateRangeSelector;
+    _create: function(element, options, cb, sync)
+    {
+        var self = this;
         var value = self.val(element);
         var $datespan = $('span.daterange-inputs', element);
-        var datepicker_options = {dateFormat:      options['date_format'],
+        var datepicker_options = {dateFormat:      options.date_format,
                                   showOn:          "button",
+                                  buttonText:      gettext("Calendar"),
                                   buttonImage:     creme_media_url("images/icon_calendar.gif"),
                                   buttonImageOnly: true
                                  }
@@ -57,6 +59,7 @@ creme.widget.DateRangeSelector = creme.widget.declare('ui-creme-daterange-select
         // In order to "reuse" the cloned element with another datepicker we need to "remove" it from input
         self._clean_daterpickers($datespan);
 
+        // TODO : use different buttonText value for begin and end datepickers
         $('.daterange-input', $datespan).bind('change', function() {self._update(element);})
                                         .datepicker(datepicker_options);
 
@@ -77,47 +80,49 @@ creme.widget.DateRangeSelector = creme.widget.declare('ui-creme-daterange-select
     	$('img.ui-datepicker-trigger', datespan).remove();
     },
 
-    _update: function(element) {
-        var self = creme.widget.DateRangeSelector;
-        creme.widget.input(element).val(self.val(element)).change();
+    dependencies: function(element) {
+        return [];
     },
 
     reload: function(element, url, cb, error_cb, sync) {
         if (cb != undefined) cb(element);
     },
 
-    _update_inputs: function(element, value) {
-        var self = creme.widget.DateRangeSelector;
-        var type = value['type'];
+    _update: function(element)
+    {
+        var data = $.toJSON({'type':  this._get_type(element).val(),
+                             'start': this._get_start(element).val(),
+                             'end':   this._get_end(element).val()
+                            });
+
+        creme.widget.input(element).val(data).change();
+    },
+
+    _update_inputs: function(element, data)
+    {
+        var values = creme.widget.cleanval(data, {'type':'', 'start':null, 'end':null});
+
+        if (creme.object.isempty(values))
+            values = {'type':'', 'start':null, 'end':null};
 
         // TODO : use this method instead. parse json if value is a string and
         // a default value if undefined or invalid json.
         //var values = creme.widget.cleanval(value, {'type':'', 'start':null, 'end':null});
 
-        if (type !== undefined) {
-            self._get_type(element).val(type).change();
-            self._get_start(element).val(value['start']).change();
-            self._get_end(element).val(value['end']).change();
+        if (values.type !== undefined)
+        {
+            this._get_type(element).val(values.type).change();
+            this._get_start(element).val(values.start).change();
+            this._get_end(element).val(values.end).change();
         }
     },
 
-    val: function(element, value) {
-        var self = creme.widget.DateRangeSelector;
+    val: function(element, value)
+    {
+        if (value === undefined)
+            return creme.widget.input(element).val();
 
-        if (value === undefined) {
-        	// TODO : returns the hidden input value instead. easier for bug detection :))
-        	// var res = creme.widget.input(element).val();
-        	// return (!res) ? null : res;
-            return $.toJSON({'type':  self._get_type(element).val(),
-                             'start': self._get_start(element).val(),
-                             'end':   self._get_end(element).val()
-                            });
-        }
-
-        self._update_inputs(element, value);
-    },
-
-    clone: function(element) {
-        return creme.widget.clone(element);
+        creme.widget.input(element).val(value);
+        this._update_inputs(element, value);
     }
 });

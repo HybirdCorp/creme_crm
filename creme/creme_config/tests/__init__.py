@@ -15,3 +15,4 @@ from search import *
 from setting import *
 from user import *
 from user_role import *
+from fields import *
