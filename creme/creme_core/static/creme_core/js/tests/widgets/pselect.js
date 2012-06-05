@@ -74,10 +74,7 @@ test('creme.widgets.pselect.create (empty, multiple selector)', function() {
     var element = mock_pselect_create();
     var text = mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {}, true);
     var password = mock_pselect_add_selector(element, 'password', $('<input type="password"/>'), 'ui-creme-dinput', {});
-    var boolean = mock_pselect_add_selector(element, 'boolean', $('<select>' +
-                                                                      '<option value="true">True</option>' +
-                                                                      '<option value="false">False</option>' +
-                                                                  '</select>'), 'ui-creme-dselect', {});
+    var bool = mock_pselect_add_selector(element, 'boolean', $('<select><option value="true">True</option><option value="false">False</option></select>'), 'ui-creme-dselect', {});
 
     var widget = creme.widget.create(element);
 
@@ -104,10 +101,7 @@ test('creme.widgets.pselect.create (empty, multiple selector, no default)', func
     var element = mock_pselect_create();
     var text = mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {});
     var password = mock_pselect_add_selector(element, 'password', $('<input type="password"/>'), 'ui-creme-dinput', {});
-    var boolean = mock_pselect_add_selector(element, 'boolean', $('<select>' +
-                                                                      '<option value="true">True</option>' +
-                                                                      '<option value="false">False</option>' +
-                                                                  '</select>'), 'ui-creme-dselect', {});
+    var bool = mock_pselect_add_selector(element, 'boolean', $('<select><option value="true">True</option><option value="false">False</option></select>'), 'ui-creme-dselect', {});
 
     var widget = creme.widget.create(element);
 
@@ -191,10 +185,7 @@ test('creme.widgets.pselect.create (type, no value, multiple selector)', functio
     var element = mock_pselect_create('text');
     var text = mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {}, true);
     var password = mock_pselect_add_selector(element, 'password', $('<input type="password"/>'), 'ui-creme-dinput', {});
-    var boolean = mock_pselect_add_selector(element, 'boolean', $('<select>' +
-                                                                      '<option value="true">True</option>' +
-                                                                      '<option value="false">False</option>' +
-                                                                  '</select>'), 'ui-creme-dselect', {});
+    var bool = mock_pselect_add_selector(element, 'boolean', $('<select><option value="true">True</option><option value="false">False</option></select>'), 'ui-creme-dselect', {});
 
     var widget = creme.widget.create(element);
 
@@ -250,10 +241,7 @@ test('creme.widgets.pselect.val (type, value, multiple selector)', function() {
     var element = mock_pselect_create('text');
     var text = mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {});
     var password = mock_pselect_add_selector(element, 'password', $('<input type="password"/>'), 'ui-creme-dinput', {});
-    var boolean = mock_pselect_add_selector(element, 'boolean', $('<select>' +
-                                                                      '<option value="true">True</option>' +
-                                                                      '<option value="false">False</option>' +
-                                                                  '</select>'), 'ui-creme-dselect', {});
+    var bool = mock_pselect_add_selector(element, 'boolean', $('<select><option value="true">True</option><option value="false">False</option></select>'), 'ui-creme-dselect', {});
 
     var widget = creme.widget.create(element);
     assertSelector(widget, 'text', null, '.ui-creme-dinput[type="text"]');
@@ -290,10 +278,7 @@ test('creme.widgets.pselect.reload (type, value, multiple selector)', function()
     var element = mock_pselect_create('text');
     var text = mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {});
     var password = mock_pselect_add_selector(element, 'password', $('<input type="password"/>'), 'ui-creme-dinput', {});
-    var boolean = mock_pselect_add_selector(element, 'boolean', $('<select>' +
-                                                                      '<option value="true">True</option>' +
-                                                                      '<option value="false">False</option>' +
-                                                                  '</select>'), 'ui-creme-dselect', {});
+    var bool = mock_pselect_add_selector(element, 'boolean', $('<select><option value="true">True</option><option value="false">False</option></select>'), 'ui-creme-dselect', {});
 
     var widget = creme.widget.create(element);
     widget.val({type:'password', value:'toor'});
