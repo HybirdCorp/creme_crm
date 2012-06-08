@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 from base import ParseError
 
@@ -6,11 +7,11 @@ escapableCharList = '\\;,Nn"'
 
 def stringToTextValues(s, listSeparator=',', charList=None, strict=False):
     """Returns list of strings."""
-    
+
     if charList is None:
         charList = escapableCharList
 
-    def escapableChar (c):
+    def escapableChar(c):
         return c in charList
 
     def error(msg):
@@ -50,7 +51,7 @@ def stringToTextValues(s, listSeparator=',', charList=None, strict=False):
         elif state == "read escaped char":
             if escapableChar(char):
                 state = "read normal"
-                if char in 'nN': 
+                if char in 'nN':
                     current.append('\n')
                 else:
                     current.append(char)
@@ -59,13 +60,13 @@ def stringToTextValues(s, listSeparator=',', charList=None, strict=False):
                 # leave unrecognized escaped characters for later passes
                 current.append('\\' + char)
 
-        elif state == "end":    #an end state
+        elif state == "end":  # an end state
             if len(current) or len(results) == 0:
                 current = "".join(current)
                 results.append(current)
             return results
 
-        elif state == "error":  #an end state
+        elif state == "error":  # an end state
             return results
 
         else:

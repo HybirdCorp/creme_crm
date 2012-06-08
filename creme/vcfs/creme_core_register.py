@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,11 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.gui.menu import creme_menu
+from creme_core.gui.button_menu import button_registry
+
+from vcfs.buttons import generate_vcf_button
 
 
 creme_menu.get_app_item('persons').register_item('/vcfs/vcf', _(u'Import contact from VCF file'), 'persons.add_contact')
+
+button_registry.register(generate_vcf_button)
