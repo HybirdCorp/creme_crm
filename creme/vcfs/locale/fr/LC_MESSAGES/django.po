@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-03-16 16:54+0100\n"
+"POT-Creation-Date: 2012-06-07 14:52+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,7 +18,12 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1;\n"
 
-#: creme_core_register.py:26
+#: buttons.py:30 templates/vcfs/templatetags/button_generate_vcf.html:4
+#: templates/vcfs/templatetags/button_generate_vcf.html:5
+msgid "Generate a VCF"
+msgstr "Générer un fichier VCF"
+
+#: creme_core_register.py:29
 msgid "Import contact from VCF file"
 msgstr "Importer un contact depuis un fichier VCF"
 
@@ -30,9 +35,88 @@ msgstr "Fichier VCF"
 msgid "VCF file is invalid"
 msgstr "Fichier VCF non valide"
 
+#: forms/vcf.py:71
+# Already translated in persons app
+msgid "Civility"
+msgstr ""
+
+#: forms/vcf.py:72
+# Already translated in persons app
+msgid "First name"
+msgstr ""
+
+#: forms/vcf.py:73
+# Already translated in persons app
+msgid "Last name"
+msgstr ""
+
+#: forms/vcf.py:74
+# Already translated in persons app
+msgid "Position"
+msgstr ""
+
+#: forms/vcf.py:77 forms/vcf.py:106
+# Already translated in persons app
+msgid "Phone number"
+msgstr ""
+
+#: forms/vcf.py:78
+# Already translated in persons app
+msgid "Mobile"
+msgstr ""
+
+#: forms/vcf.py:79 forms/vcf.py:107
+# Already translated in persons app
+msgid "Fax"
+msgstr ""
+
+#: forms/vcf.py:80 forms/vcf.py:108
+# Already translated in persons app
+msgid "Email address"
+msgstr ""
+
+#: forms/vcf.py:81 forms/vcf.py:109
+# Already translated in persons app
+msgid "Web Site"
+msgstr ""
+
+#: forms/vcf.py:82 forms/vcf.py:105 forms/vcf.py:110
+# Already translated in persons app
+msgid "Name"
+msgstr ""
+
+#: forms/vcf.py:83 forms/vcf.py:111
+# Already translated in persons app
+msgid "Address"
+msgstr ""
+
+#: forms/vcf.py:84 forms/vcf.py:112
+# Already translated in persons app
+msgid "City"
+msgstr ""
+
+#: forms/vcf.py:85 forms/vcf.py:113
+# Already translated in persons app
+msgid "Country"
+msgstr ""
+
+#: forms/vcf.py:86 forms/vcf.py:114
+# Already translated in persons app
+msgid "Zip code"
+msgstr ""
+
+#: forms/vcf.py:87 forms/vcf.py:115
+msgid "Region"
+msgstr "Région"
+
 #: forms/vcf.py:89
 msgid "Create or attach organisation"
 msgstr "Créer ou attacher une organisation"
+
+#: forms/vcf.py:90 forms/vcf.py:120
+# Already translated in persons app
+msgid "Organisation"
+msgstr ""
 
 #: forms/vcf.py:93
 msgid "Update name"
@@ -87,38 +171,44 @@ msgid "Position in the organisation"
 msgstr "Statut dans la société"
 
 #: forms/vcf.py:118
-msgid "Billing address"
-msgstr "Adresse de facturation"
+# Already translated in persons app
+msgid "Coordinates"
+msgstr ""
 
-#: forms/vcf.py:120
+#: forms/vcf.py:119
+# Already translated in persons app
+msgid "Billing address"
+msgstr ""
+
+#: forms/vcf.py:121
 msgid "Organisation billing address"
 msgstr "Adresse de facturation de la société"
 
-#: forms/vcf.py:139
+#: forms/vcf.py:140
 msgid "Read in VCF File without type : "
 msgstr "Lu dans le fichier VCF sans type précisé : "
 
-#: forms/vcf.py:140
+#: forms/vcf.py:141
 msgid "Read in VCF File : "
 msgstr "Lu dans le fichier VCF : "
 
-#: forms/vcf.py:252
+#: forms/vcf.py:259
 msgid "Required, if you want to create organisation"
 msgstr "Requis, si vous voulez créer une organisation"
 
-#: forms/vcf.py:262
+#: forms/vcf.py:272
 msgid "Create organisation not checked"
 msgstr "Créer une organisation non sélectionnée"
 
-#: forms/vcf.py:264
+#: forms/vcf.py:274
 msgid "Organisation not selected"
 msgstr "Organisation non sélectionnée"
 
-#: forms/vcf.py:278
+#: forms/vcf.py:290
 msgid "Required, if you want to update organisation"
 msgstr "Requis, si vous voulez mettre à jour l'organisation"
 
-#: forms/vcf.py:335
+#: forms/vcf.py:348
 #, python-format
 msgid "Image of %s"
 msgstr "Image de %s"

@@ -18,11 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import render, get_object_or_404
+from django.utils.encoding import smart_str
 from django.contrib.auth.decorators import permission_required, login_required
-from django.http import HttpResponseRedirect
-from django.shortcuts import render
+
+from persons.models import Contact
 
 from vcfs.forms.vcf import VcfForm, VcfImportForm
+from vcfs.vcfgenerator import VcfGenerator
 
 
 @login_required
@@ -40,7 +44,7 @@ def vcf_import(request):
             if form.is_valid():
                 form = VcfImportForm(user=user,
                                      vcf_data=form.cleaned_data['vcf_file'],
-                                     initial={'vcf_step': 1,},
+                                     initial={'vcf_step': 1},
                                     )
         else:
             assert step == 1
@@ -55,3 +59,16 @@ def vcf_import(request):
         form = VcfForm(user=user, initial={'vcf_step': 0})
 
     return render(request, 'creme_core/generics/blockform/edit.html', {'form': form})
+
+@login_required
+@permission_required('persons')
+def vcf_export(request, contact_id):
+    person = get_object_or_404(Contact, pk=contact_id)
+    person.can_view_or_die(request.user)
+
+    vc = VcfGenerator(person).serialize()
+
+    response = HttpResponse(vc, mimetype='text/vcard')
+    response['Content-Disposition'] = 'attachment; filename="%s.vcf"' % smart_str(person.last_name)
+
+    return response
