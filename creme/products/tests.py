@@ -5,7 +5,7 @@ try:
 
     from django.core.serializers.json import simplejson
 
-    from creme_core import autodiscover
+    #from creme_core import autodiscover
     from creme_core.tests.base import CremeTestCase
     from creme_core.tests.forms import FieldTestCase
 
@@ -28,7 +28,7 @@ class ProductCategoryFieldTestCase(FieldTestCase):
         self.assertEqual(cat2, field._get_categories_objects()[1])
 
     def test_default_ctypes(self):
-        autodiscover()
+        #autodiscover()
         self.populate('creme_core', 'products')
 
         field = ProductCategoryField()

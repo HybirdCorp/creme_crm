@@ -6,7 +6,7 @@ try:
 
     from django.contrib.auth.models import User
 
-    from creme_core import autodiscover
+    #from creme_core import autodiscover
     from creme_core.tests.forms.base import CremeTestCase
     from creme_core.models import UserRole
     from creme_config.forms.fields import CreatorModelChoiceField
@@ -22,8 +22,8 @@ __all__ = ('CreatorModelChoiceFieldTestCase', )
 class CreatorModelChoiceFieldTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('persons')
-        autodiscover()
+        cls.populate('creme_core', 'persons')
+        cls.autodiscover()
 
     def test_actions_not_admin(self):
         field = CreatorModelChoiceField(queryset=Position.objects.all())

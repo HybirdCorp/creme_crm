@@ -6,6 +6,8 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import UserRole, RelationType, Relation, CremePropertyType
 from creme_core.management.commands.creme_populate import Command as PopulateCommand
+from creme_core import autodiscover
+from creme_core.registry import creme_registry
 
 
 class _AssertNoExceptionContext(object):
@@ -55,8 +57,19 @@ class _CremeTestCase(object):
     def populate(cls, *args):
         PopulateCommand().handle(application=args)
 
+    @staticmethod
+    def autodiscover():
+        if not list(creme_registry.iter_apps()):
+            autodiscover()
+
+    def assertGET200(self, *args, **kwargs):
+        self.assertEqual(200, self.client.get(*args, **kwargs).status_code)
+
     def assertGET404(self, *args, **kwargs):
         self.assertEqual(404, self.client.get(*args, **kwargs).status_code)
+
+    def assertPOST200(self, *args, **kwargs):
+        self.assertEqual(200, self.client.post(*args, **kwargs).status_code)
 
     def assertPOST404(self, *args, **kwargs):
         self.assertEqual(404, self.client.post(*args, **kwargs).status_code)

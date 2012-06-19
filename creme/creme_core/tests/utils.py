@@ -33,9 +33,9 @@ class MiscTestCase(CremeTestCase):
         i1, i2, i3, i4 = Info(1), Info(2), Info(2), Info(5)
         l = [i1, i2, i3, i4]
 
-        self.assert_(find_first(l, lambda i: i.data == 1) is i1)
-        self.assert_(find_first(l, lambda i: i.data == 2) is i2)
-        self.assert_(find_first(l, lambda i: i.data == 5) is i4)
+        self.assertIs(find_first(l, lambda i: i.data == 1), i1)
+        self.assertIs(find_first(l, lambda i: i.data == 2), i2)
+        self.assertIs(find_first(l, lambda i: i.data == 5), i4)
 
         self.assertIsNone(find_first(l, lambda i: i.data == 12, None))
         self.assertRaises(IndexError, find_first, l, lambda i: i.data == 12)
