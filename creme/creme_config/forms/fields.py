@@ -24,6 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.forms.widgets import ActionButtonList, DynamicSelect
 
+
 class CreatorModelChoiceField(ModelChoiceField):
     def _set_queryset(self, queryset):
         self._queryset = queryset
@@ -74,7 +75,7 @@ class CreatorModelChoiceField(ModelChoiceField):
         user = self.user
 
         # config_registry import is moved here to prevent many initialisation order issues in unit tests
-        # TODO : see if autodiscover can be move
+        #TODO : see if autodiscover can be move
         from creme_config.registry import config_registry
 
         model = self.queryset.model

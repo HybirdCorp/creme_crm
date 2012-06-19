@@ -5,7 +5,7 @@ try:
     from django.db.models.query import QuerySet
     from django.db.models import Q
 
-    from creme_core import autodiscover
+    #from creme_core import autodiscover
     from creme_core.forms.fields import GenericEntityField, RelationEntityField, MultiGenericEntityField, MultiRelationEntityField, CreatorEntityField
     from creme_core.forms.fields import JSONField
     from creme_core.utils import creme_entity_content_types
@@ -71,11 +71,8 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
         self.assertFieldValidationError(JSONField, 'required', JSONField(required=True).clean, None)
 
     def test_clean_empty_not_required(self):
-        #try:
         with self.assertNoException():
             JSONField(required=False).clean(None)
-        #except Exception as e:
-            #self.fail(str(e))
 
     def test_clean_invalid_json(self):
         clean = JSONField(required=True).clean
@@ -142,7 +139,8 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                         )
 
     def test_default_ctypes(self):
-        autodiscover()
+        #autodiscover()
+        self.autodiscover()
 
         ctypes = GenericEntityField().get_ctypes()
         self.assertEqual(list(creme_entity_content_types()), ctypes)
@@ -262,7 +260,8 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                         )
 
     def test_default_ctypes(self):
-        autodiscover()
+        #autodiscover()
+        self.autodiscover()
 
         ctypes = MultiGenericEntityField().get_ctypes()
         self.assertEqual(list(creme_entity_content_types()), ctypes)

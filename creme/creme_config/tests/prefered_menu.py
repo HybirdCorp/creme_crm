@@ -6,7 +6,7 @@ try:
     from creme_core.models import PreferedMenuItem
     from creme_core.gui.menu import creme_menu
     from creme_core.tests.base import CremeTestCase
-    from creme_core import autodiscover
+    #from creme_core import autodiscover
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -22,7 +22,7 @@ class PreferedMenuTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config')
-        autodiscover()
+        cls.autodiscover()
 
         reg_item = creme_menu.get_app_item('creme_config').register_item
         for item in cls.items_info:

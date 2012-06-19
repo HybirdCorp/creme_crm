@@ -5,7 +5,6 @@ try:
 
     from creme_core.models.custom_field import *
     from creme_core.tests.base import CremeTestCase
-    from creme_core import autodiscover
 
     from persons.models import Contact, Organisation
 except Exception as e:

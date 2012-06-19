@@ -6,7 +6,7 @@ try:
 
     from creme_core.models import RelationType
     from creme_core.models.block import *
-    from creme_core import autodiscover
+    #from creme_core import autodiscover
     from creme_core.gui.block import block_registry, Block, SpecificRelationsBlock
     from creme_core.blocks import history_block
     from creme_core.tests.base import CremeTestCase
@@ -28,19 +28,18 @@ class BlocksConfigTestCase(CremeTestCase):
         RelationBlockItem.objects.all().delete()
 
         cls.populate('creme_core', 'creme_config')
-        autodiscover()
+        #autodiscover()
+        cls.autodiscover()
 
     def setUp(self):
         self.login()
-        #self.populate('creme_core', 'creme_config')
-        #autodiscover()
 
     def test_portal(self):
-        self.assertEqual(200, self.client.get('/creme_config/blocks/portal/').status_code)
+        self.assertGET200('/creme_config/blocks/portal/')
 
     def test_add_detailview(self):
         url = '/creme_config/blocks/detailview/add/'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         ct = ContentType.objects.get_for_model(Contact)
         self.assertFalse(BlockDetailviewLocation.objects.filter(content_type=ct))
@@ -69,7 +68,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
         self.fail('No "%s" field' % name)
 
-    def _assertNoInChoices(self, formfield, id_, error_msg):
+    def _assertNotInChoices(self, formfield, id_, error_msg):
         for fid, fvname in formfield.choices:
             if fid == id_:
                 self.fail(error_msg + ' -> should not be in choices.')
@@ -83,7 +82,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def test_edit_detailview01(self):
         ct = ContentType.objects.get_for_model(Contact)
-        self.assertEqual(404, self.client.get('/creme_config/blocks/detailview/edit/%s' % ct.id).status_code)
+        self.assertGET404('/creme_config/blocks/detailview/edit/%s' % ct.id)
 
     def test_edit_detailview02(self):
         model = Contact
@@ -128,7 +127,7 @@ class BlocksConfigTestCase(CremeTestCase):
         blocks = list(block_registry.get_compatible_blocks(model))
         self.assertGreaterEqual(len(blocks), 5)
         self._find_field_index(top_field, foobar_block1.id_)
-        self._assertNoInChoices(top_field, foobar_block2.id_, 'Block has no detailview_display() method')
+        self._assertNotInChoices(top_field, foobar_block2.id_, 'Block has no detailview_display() method')
 
         block_top_id1   = blocks[0].id_
         block_top_id2   = blocks[1].id_
@@ -256,7 +255,7 @@ class BlocksConfigTestCase(CremeTestCase):
     def test_edit_detailview04(self): #default conf
         BlockDetailviewLocation.objects.filter(content_type=None).delete()
         url = '/creme_config/blocks/detailview/edit/0'
-        self.assertEqual(404, self.client.get(url).status_code)
+        self.assertGET404(url)
 
         blocks = list(block_registry.get_compatible_blocks(model=None))
         self.assertGreaterEqual(len(blocks), 5, blocks)
@@ -267,7 +266,7 @@ class BlocksConfigTestCase(CremeTestCase):
         create_loc(block_id=blocks[2].id_, order=1, zone=BlockDetailviewLocation.RIGHT)
         create_loc(block_id=blocks[3].id_, order=1, zone=BlockDetailviewLocation.BOTTOM)
 
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         response = self.client.post(url, data={})
         self.assertEqual(200, response.status_code)
@@ -359,20 +358,18 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertIn(instance_block_id, choices)
 
     def test_delete_detailview01(self): #can not delete default conf
-        response = self.client.post('/creme_config/blocks/detailview/delete', data={'id': 0})
-        self.assertEqual(404, response.status_code)
+        self.assertPOST404('/creme_config/blocks/detailview/delete', data={'id': 0})
 
     def test_delete_detailview02(self):
         ct = ContentType.objects.get_for_model(Contact)
         self.client.post('/creme_config/blocks/detailview/add/', data={'ct_id': ct.id})
 
-        response = self.client.post('/creme_config/blocks/detailview/delete', data={'id': ct.id})
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200('/creme_config/blocks/detailview/delete', data={'id': ct.id})
         self.assertFalse(BlockDetailviewLocation.objects.filter(content_type=ct))
 
     def test_add_portal(self):
         url = '/creme_config/blocks/portal/add/'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         app_name = 'persons'
         self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
@@ -399,7 +396,7 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertNotIn('creme_config', names)
 
     def test_edit_portal01(self):
-        self.assertEqual(404, self.client.get('/creme_config/blocks/portal/edit/persons').status_code)
+        self.assertGET404('/creme_config/blocks/portal/edit/persons')
 
     def test_edit_portal02(self):
         app_name = 'persons'
@@ -476,9 +473,9 @@ class BlocksConfigTestCase(CremeTestCase):
         choices = blocks_field.choices
         self.assertGreaterEqual(len(choices), 2)
         self._find_field_index(blocks_field, foobar_block1.id_)
-        self._assertNoInChoices(blocks_field, foobar_block2.id_, 'Block is not configurable')
+        self._assertNotInChoices(blocks_field, foobar_block2.id_, 'Block is not configurable')
         self._find_field_index(blocks_field, foobar_block3.id_)
-        self._assertNoInChoices(blocks_field, foobar_block4.id_, 'Block is not compatible with this app')
+        self._assertNotInChoices(blocks_field, foobar_block4.id_, 'Block is not compatible with this app')
         self._find_field_index(blocks_field, instance_block_id)
 
         block_id1 = choices[0][0]
@@ -542,14 +539,14 @@ class BlocksConfigTestCase(CremeTestCase):
     def test_edit_portal04(self): #default conf
         BlockPortalLocation.objects.filter(app_name='').delete()
         url = '/creme_config/blocks/portal/edit/default'
-        self.assertEqual(404, self.client.get(url).status_code)
+        self.assertGET404(url)
 
         blocks = self._get_blocks_4_portal()
         create_loc = BlockPortalLocation.objects.create
         create_loc(app_name='', block_id=blocks[0].id_, order=1)
         create_loc(app_name='', block_id=blocks[1].id_, order=2)
 
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         response = self.client.post(url, data={})
         self.assertEqual(200, response.status_code)
@@ -607,9 +604,7 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertGreaterEqual(len(blocks), 1)
 
         BlockPortalLocation.objects.create(app_name=app_name, block_id=blocks[0].id_, order=1)
-
-        response = self.client.post('/creme_config/blocks/portal/delete', data={'id': app_name})
-        self.assertEqual(404, response.status_code)
+        self.assertPOST404('/creme_config/blocks/portal/delete', data={'id': app_name})
 
     def test_edit_default_mypage(self):
         url = '/creme_config/blocks/mypage/edit/default'
@@ -692,26 +687,22 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def test_delete_default_mypage01(self):
         loc = BlockMypageLocation.objects.create(user=None, block_id=history_block.id_, order=1)
-        response = self.client.post('/creme_config/blocks/mypage/default/delete', data={'id': loc.id})
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200('/creme_config/blocks/mypage/default/delete', data={'id': loc.id})
         self.assertFalse(BlockMypageLocation.objects.filter(pk=loc.pk))
 
     def test_delete_default_mypage02(self): #'user' must be 'None'
         loc = BlockMypageLocation.objects.create(user=self.user, block_id=history_block.id_, order=1)
-        response = self.client.post('/creme_config/blocks/mypage/default/delete', data={'id': loc.id})
-        self.assertEqual(404, response.status_code)
+        self.assertPOST404('/creme_config/blocks/mypage/default/delete', data={'id': loc.id})
         self.assertEqual(1,   BlockMypageLocation.objects.filter(pk=loc.pk).count())
 
     def test_delete_mypage01(self):
         loc = BlockMypageLocation.objects.create(user=self.user, block_id=history_block.id_, order=1)
-        response = self.client.post('/creme_config/blocks/mypage/delete', data={'id': loc.id})
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200('/creme_config/blocks/mypage/delete', data={'id': loc.id})
         self.assertFalse(BlockMypageLocation.objects.filter(pk=loc.pk))
 
     def test_delete_mypage02(self): #BlockMypageLocation must belong to the user
         loc = BlockMypageLocation.objects.create(user=self.other_user, block_id=history_block.id_, order=1)
-        response = self.client.post('/creme_config/blocks/mypage/delete', data={'id': loc.id})
-        self.assertEqual(404, response.status_code)
+        self.assertPOST404('/creme_config/blocks/mypage/delete', data={'id': loc.id})
         self.assertEqual(1,   BlockMypageLocation.objects.filter(pk=loc.pk).count())
 
     def test_add_relationblock(self):
@@ -721,7 +712,7 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertFalse(RelationBlockItem.objects.count())
 
         url = '/creme_config/blocks/relation_block/add/'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         response = self.client.post(url, data={'relation_type': rt.id})
         self.assertNoFormError(response)
@@ -738,7 +729,7 @@ class BlocksConfigTestCase(CremeTestCase):
         rbi = RelationBlockItem.objects.create(block_id='foobarid', relation_type=rt)
         loc = BlockDetailviewLocation.create(block_id=rbi.block_id, order=5, zone=BlockDetailviewLocation.RIGHT, model=Contact)
 
-        self.assertEqual(200, self.client.post('/creme_config/blocks/relation_block/delete', data={'id': rbi.id}).status_code)
+        self.assertPOST200('/creme_config/blocks/relation_block/delete', data={'id': rbi.id})
         self.assertFalse(RelationBlockItem.objects.filter(pk=rbi.pk).exists())
         self.assertFalse(BlockDetailviewLocation.objects.filter(pk=loc.pk).exists())
 
@@ -759,7 +750,6 @@ class BlocksConfigTestCase(CremeTestCase):
                                                      entity=naru, verbose='All stuffes'
                                                     )
         loc = BlockDetailviewLocation.create(block_id=ibi.block_id, order=5, zone=BlockDetailviewLocation.RIGHT, model=Contact)
-
-        self.assertEqual(200, self.client.post('/creme_config/blocks/instance_block/delete', data={'id': ibi.id}).status_code)
+        self.assertPOST200('/creme_config/blocks/instance_block/delete', data={'id': ibi.id})
         self.assertFalse(InstanceBlockConfigItem.objects.filter(pk=ibi.pk).exists())
         self.assertFalse(BlockDetailviewLocation.objects.filter(pk=loc.pk).exists())

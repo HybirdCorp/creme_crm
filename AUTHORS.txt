@@ -28,3 +28,6 @@ Yann PRIME
 Rémy RAKIC
     Developper / Designer
     rrakic AT hybird DOT org
+
+Hugo SMETT
+    Developper
