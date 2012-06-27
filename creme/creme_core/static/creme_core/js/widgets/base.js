@@ -111,7 +111,7 @@ creme.ajax.Backend = function(options) {
     var defaults = {
         dataType:'html',
         sync:false,
-        debug:true
+        debug:false
     };
 
     var init_options = $.extend(defaults, options || {});
@@ -144,7 +144,7 @@ creme.ajax.Backend = function(options) {
             var opts = $.extend({}, this.options, options);
 
             if (opts.debug)
-                console.log('creme.ajax.Backend > SUBMIT', url, ' > data:', data, ', options:', opts);
+                console.log('creme.ajax.Backend > SUBMIT', form.attr('action'), '> options:', opts);
 
             creme.ajax.jqueryFormSubmit(form, on_success, on_error, opts);
         },
