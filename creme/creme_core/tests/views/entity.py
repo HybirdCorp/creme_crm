@@ -1022,6 +1022,19 @@ class InnerEditTestCase(_BulkEditTestCase):
 
         self.assertEqual(403, self.client.get(self.url % (mario.entity_type_id, mario.id, 'first_name')).status_code)
 
+    def test_regular_field_04(self): #not editable
+        self.login()
+
+        mario = self.create_contact()
+        self.assertFalse(mario._meta.get_field('is_user').editable)
+
+        url = self.url % (mario.entity_type_id, mario.id, 'is_user')
+        self.assertGET404(url)
+        self.assertPOST404(url, data={'entities_lbl': [unicode(mario)],
+                                      'field_value':  self.other_user.id,
+                                     }
+                          )
+
     def test_custom_field(self):
         self.login()
         mario = self.create_contact()
@@ -1051,8 +1064,8 @@ class InnerEditTestCase(_BulkEditTestCase):
         city = 'Marseille'
         response = self.client.post(url, data={'entities_lbl': [unicode(address)],
                                                'field_value':  city,
-                                               }
-        )
+                                              }
+                                   )
         self.assertNoFormError(response)
         self.assertEqual(city, self.refresh(address).city)
 

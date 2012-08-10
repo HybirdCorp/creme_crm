@@ -298,35 +298,34 @@ def search_and_view(request):
 
     raise Http404(_(u'No entity corresponding to your search was found.'))
 
-_CUSTOM_NAME = 'custom_field_%s'
-
 @login_required
 def edit_field(request, ct_id, id, field_str):
     user   = request.user
     model  = get_ct_or_404(ct_id).model_class()
     entity = get_object_or_404(model, pk=id)
 
-    field_name = _CUSTOM_NAME % int(field_str) if field_str.isdigit() else field_str
-
     owner = entity.get_related_entity() if hasattr(entity, 'get_related_entity') else entity
     owner.can_change_or_die(user)
 
-    if request.method == 'POST':
-        form = EntityInnerEditForm(model=model,
-                                   field_name=field_name,
-                                   subject=entity,
-                                   user=user,
-                                   data=request.POST,
-                                  )
+    try:
+        if request.method == 'POST':
+            form = EntityInnerEditForm(model=model,
+                                       field_id=field_str,
+                                       subject=entity,
+                                       user=user,
+                                       data=request.POST,
+                                      )
 
-        if form.is_valid():
-            form.save()
-    else:
-        form = EntityInnerEditForm(model=model,
-                                   field_name=field_name,
-                                   subject=entity,
-                                   user=user,
-                                  )
+            if form.is_valid():
+                form.save()
+        else:
+            form = EntityInnerEditForm(model=model,
+                                       field_id=field_str,
+                                       subject=entity,
+                                       user=user,
+                                      )
+    except EntityInnerEditForm.InvalidField as e:
+        raise Http404(e)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
                        {'form':  form,
