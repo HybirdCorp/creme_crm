@@ -114,7 +114,7 @@ class _EntitiesEditForm(CremeForm):
             try:
                 field = cfields_cache[cf_id] if cfields_cache is not None else \
                         CustomField.objects.get(pk=cf_id)
-            except KeyError, CustomField.DoesNotExist:
+            except (KeyError, CustomField.DoesNotExist):
                 pass
 
         return (field, is_custom)
@@ -213,20 +213,31 @@ class EntitiesBulkUpdateForm(_EntitiesEditForm):
 
 
 class EntityInnerEditForm(_EntitiesEditForm):
-    def __init__(self, model, field_name, subject, user, *args, **kwargs):
+    class InvalidField(Exception):
+        pass
+
+    def __init__(self, model, field_id, subject, user, *args, **kwargs):
+        """@param field_id Name of a regular field, or pk (as int or string) for CustomFields."""
         super(EntityInnerEditForm, self).__init__(model, [subject], (), user, *args, **kwargs)
 
-        self.field_name = field_name
-
+        self.field_name = field_name = _CUSTOM_NAME % field_id if field_id.isdigit() else \
+                                       field_id #TODO: the reverse work is done in self.get_field()...
         field, is_custom = self.get_field(self.model, field_name)
-        verbose_field_name = field.name if is_custom else get_verbose_field_name(model, field_name)
+
+        if is_custom:
+            verbose_field_name = field.name
+        else:
+            if not bulk_update_registry.is_bulk_updatable(model, field_name, exclude_unique=False):
+                raise self.InvalidField(u'The field %s.%s is not editable' % (model, field_name))
+
+            verbose_field_name = get_verbose_field_name(model, field_name)
 
         fields = self.fields
 
         fields['entities_lbl'].label = ugettext(u'Entity')
 
         f_field_name = fields['field_name']
-        f_field_name.widget = AdaptiveWidget(ct_id=self.ct.id, field_value_name='field_value', object_id=subject.id, attrs={'disabled' : True})
+        f_field_name.widget = AdaptiveWidget(ct_id=self.ct.id, field_value_name='field_value', object_id=subject.id, attrs={'disabled': True})
         f_field_name.label = ugettext(u'Field')
         f_field_name.choices = [(field_name, "%s - %s" % (model._meta.verbose_name.title(), verbose_field_name))]
         f_field_name.required = False
