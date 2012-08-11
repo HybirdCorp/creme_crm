@@ -111,7 +111,7 @@ msgstr "Région"
 
 #: forms/vcf.py:89
 msgid "Create or attach organisation"
-msgstr "Créer ou attacher une organisation"
+msgstr "Créer ou attacher une société"
 
 #: forms/vcf.py:90 forms/vcf.py:120
 # Already translated in persons app
@@ -124,7 +124,7 @@ msgstr "Mettre à jour le nom"
 
 #: forms/vcf.py:93
 msgid "Update organisation selected name"
-msgstr "Met à jour le nom de l'organisation sélectionnée"
+msgstr "Met à jour le nom de la société sélectionnée"
 
 #: forms/vcf.py:94
 msgid "Update phone"
@@ -132,7 +132,7 @@ msgstr "Mettre à jour le numéro de téléphone"
 
 #: forms/vcf.py:94
 msgid "Update organisation selected phone"
-msgstr "Met à jour le numéro de téléphone de l'organisation sélectionnée"
+msgstr "Met à jour le numéro de téléphone de la société sélectionnée"
 
 #: forms/vcf.py:95
 msgid "Update fax"
@@ -140,7 +140,7 @@ msgstr "Mettre à jour le fax"
 
 #: forms/vcf.py:95
 msgid "Update organisation selected fax"
-msgstr "Met à jour le fax de l'organisation sélectionnée"
+msgstr "Met à jour le fax de la société sélectionnée"
 
 #: forms/vcf.py:96
 msgid "Update email"
@@ -148,7 +148,7 @@ msgstr "Mettre à jour l'e-mail"
 
 #: forms/vcf.py:96
 msgid "Update organisation selected email"
-msgstr "Met à jour l'e-mail de l'organisation sélectionnée"
+msgstr "Met à jour l'e-mail de la société sélectionnée"
 
 #: forms/vcf.py:97
 msgid "Update web site"
@@ -156,7 +156,7 @@ msgstr "Mettre à jour le site web"
 
 #: forms/vcf.py:97
 msgid "Update organisation selected web site"
-msgstr "Met à jour le site web de l'organisation sélectionnée"
+msgstr "Met à jour le site web de la société sélectionnée"
 
 #: forms/vcf.py:98
 msgid "Update address"
@@ -164,7 +164,7 @@ msgstr "Mettre à jour l'adresse"
 
 #: forms/vcf.py:98
 msgid "Update organisation selected address"
-msgstr "Met à jour l'adresse de l'organisation sélectionnée"
+msgstr "Met à jour l'adresse de la société sélectionnée"
 
 #: forms/vcf.py:100
 msgid "Position in the organisation"
@@ -194,19 +194,19 @@ msgstr "Lu dans le fichier VCF : "
 
 #: forms/vcf.py:259
 msgid "Required, if you want to create organisation"
-msgstr "Requis, si vous voulez créer une organisation"
+msgstr "Requis, si vous voulez créer une société"
 
 #: forms/vcf.py:272
 msgid "Create organisation not checked"
-msgstr "Créer une organisation non sélectionnée"
+msgstr "Créer une société non sélectionnée"
 
 #: forms/vcf.py:274
 msgid "Organisation not selected"
-msgstr "Organisation non sélectionnée"
+msgstr "Société non sélectionnée"
 
 #: forms/vcf.py:290
 msgid "Required, if you want to update organisation"
-msgstr "Requis, si vous voulez mettre à jour l'organisation"
+msgstr "Requis, si vous voulez mettre à jour la société"
 
 #: forms/vcf.py:348
 #, python-format

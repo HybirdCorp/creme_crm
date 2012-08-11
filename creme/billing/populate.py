@@ -219,7 +219,7 @@ class Populator(BasePopulator):
             SearchConfigItem.create_if_needed(model, ['name', 'number', 'status__name'])
 
         sk = SettingKey.create(pk=DISPLAY_PAYMENT_INFO_ONLY_CREME_ORGA,
-                               description=_(u"Display payment information bloc only on creme managed organisations' detailview"),
+                               description=_(u"Display payment information block only on the detailview of organisations managed by Creme"),
                                app_label='billing', type=SettingKey.BOOL
                               )
         SettingValue.create_if_needed(key=sk, user=None, value=True)

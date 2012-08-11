@@ -324,22 +324,24 @@ msgstr "Mot de passe"
 #: forms/user_settings.py:51
 #: templates/activesync/templatetags/block_user_mobile_sync.html:39
 msgid "Synchronize activities (calendars)"
-msgstr ""
+msgstr "Synchronizer les activités (calendriers)"
 
 #: forms/user_settings.py:51
 msgid ""
 "Choose if either you want to synchronize your activities in both way or not."
 msgstr ""
+"Choisissez si vous voulez synchronizer vos activités dans les deux sens ou non."
 
 #: forms/user_settings.py:52
 #: templates/activesync/templatetags/block_user_mobile_sync.html:43
 msgid "Synchronize contacts"
-msgstr ""
+msgstr "Synchronizer les contacts"
 
 #: forms/user_settings.py:52
 msgid ""
 "Choose if either you want to synchronize your contacts in both way or not."
 msgstr ""
+"Choisissez si vous voulez synchronizer vos contacts dans les deux sens ou non."
 
 #: forms/user_settings.py:55
 msgid "Mobile synchronization configuration"
@@ -351,7 +353,7 @@ msgstr "Que synchroniser"
 
 #: mappings/contact.py:130
 msgid "Contact's organisation created"
-msgstr "Organisation d'un contact créée"
+msgstr "Société du contact créée"
 
 #: models/active_sync.py:51
 msgid "Creation"
@@ -422,19 +424,19 @@ msgstr "Jamais"
 
 #: templates/activesync/frags/ajax/main_sync.html:54
 msgid "Calendar"
-msgstr ""
+msgstr "Calendrier"
 
 #: templates/activesync/frags/ajax/main_sync.html:56
 msgid "Synchronize your calendars ?"
-msgstr ""
+msgstr "Synchronizer vos calendriers ?"
 
 #: templates/activesync/frags/ajax/main_sync.html:63
 msgid "Contacts"
-msgstr ""
+msgstr "Contacts"
 
 #: templates/activesync/frags/ajax/main_sync.html:65
 msgid "Synchronize your contacts ?"
-msgstr ""
+msgstr "Synchronizer vos contacts ?"
 
 #: templates/activesync/frags/ajax/main_sync.html:75
 msgid "Results of the synchronization"
@@ -442,7 +444,7 @@ msgstr "Résultats de la synchronisation"
 
 #: templates/activesync/frags/ajax/main_sync.html:92
 msgid "Nothing to synchronize..."
-msgstr ""
+msgstr "Rien à synchroniser..."
 
 #: templates/activesync/messages/message_info_contact_add.html:6
 #: templates/activesync/messages/message_succeed_contact_add.html:5

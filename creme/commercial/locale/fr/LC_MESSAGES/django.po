@@ -171,9 +171,9 @@ msgid ""
 "(Otherwise, display organisations', managers', employees', related "
 "opportunities' commercial approaches)"
 msgstr ""
-"Afficher uniquement les approches commerciales des organisations sur les "
-"fiches des organisations. (Dans le cas contraire, afficher également celles "
-"des responsables, employés et opportunités reliées à l'organisation"
+"Afficher uniquement les approches commerciales des sociétés sur les "
+"fiches des sociétés. (Dans le cas contraire, afficher également celles "
+"des responsables, employés et opportunités reliées à la société)"
 
 #: forms/act.py:33 models/act.py:56
 msgid "Start"
@@ -241,7 +241,7 @@ msgstr "Sociétés"
 #: management/commands/com_approaches_emails_send.py:108
 #, python-format
 msgid "[CremeCRM] The organisation <%s> seems neglected"
-msgstr "[CremeCRM] L'organisation <%s> semble délaissée"
+msgstr "[CremeCRM] La société <%s> semble délaissée"
 
 #: management/commands/com_approaches_emails_send.py:109
 #, python-format
@@ -250,7 +250,7 @@ msgid ""
 "since 30 days."
 msgstr ""
 "Il semblerait que vous n'ayez pas crée d'approche commerciale pour "
-"l'organisation <%s> depuis 30 jours"
+"la société <%s> depuis 30 jours"
 
 #: models/act.py:39 models/commercial_approach.py:36
 #: templates/commercial/templatetags/block_approaches.html:18
