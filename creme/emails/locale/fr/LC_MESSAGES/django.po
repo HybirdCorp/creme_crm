@@ -262,7 +262,7 @@ msgstr "L'adresse e-mail pour %s est invalide"
 
 #: forms/mail.py:131
 msgid "Select at least a Contact or an Organisation"
-msgstr "Sélectionnez au moins un Contact ou une Organisation"
+msgstr "Sélectionnez au moins un Contact ou une Société"
 
 #: forms/mail.py:162
 msgctxt "emails"

@@ -345,11 +345,11 @@ msgstr "Factures impayées et en retard"
 
 #: populate.py:222
 msgid ""
-"Display payment information bloc only on creme managed organisations' "
-"detailview"
+"Display payment information block only on the detailview of organisations "
+"managed by Creme"
 msgstr ""
-"Afficher le bloc d'Informations de paiement uniquement sur les fiches des "
-"organisations gérées par Creme"
+"Afficher le bloc d'informations de paiement uniquement sur les fiches des "
+"sociétés gérées par Creme"
 
 #: populate.py:248
 msgid "Current year invoices"

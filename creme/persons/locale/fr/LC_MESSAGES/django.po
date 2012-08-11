@@ -83,7 +83,7 @@ msgstr "Ajouter un contact lié"
 
 #: creme_core_register.py:37
 msgid "Accounts and Contacts"
-msgstr "Comptes et contacts"
+msgstr "Comptes et Contacts"
 
 #: creme_core_register.py:40
 msgid "Portal of accounts and contacts"
@@ -558,7 +558,7 @@ msgstr "Modifier"
 
 #: templates/persons/portal.html:6
 msgid "Accounts & contacts portal"
-msgstr "Portail contacts & organisations"
+msgstr "Portail Comptes & contacts"
 
 #: templates/persons/portal.html:8
 msgid "List of contacts"
@@ -753,7 +753,7 @@ msgstr "Ajouter une addresse à <%s>"
 #: views/address.py:40
 #, python-format
 msgid "Address for <%s>"
-msgstr "Adresses for <%s>"
+msgstr "Adresse pour <%s>"
 
 #: views/organisation.py:59
 msgid "List of my suspects / prospects / customers"
