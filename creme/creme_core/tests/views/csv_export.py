@@ -22,7 +22,8 @@ class CSVExportViewsTestCase(ViewsTestCase):
         cls.populate('creme_core', 'creme_config', 'persons')
 
     def setUp(self):
-        self.ct = ContentType.objects.get_for_model(Contact)
+        self.ct = ct = ContentType.objects.get_for_model(Contact)
+        HeaderFilter.objects.filter(entity_type=ct).delete()
 
     def _build_hf_n_contacts(self):
         user = self.user
