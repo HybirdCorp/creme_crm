@@ -84,6 +84,11 @@
             <td class="{% cycle row_edit_color %} td_info edit_inner">{% get_field_editor on regular 'user' for object %}</td>
         </tr>
         <tr class="content">
+            <th class="{% cycle header_color %} th_info">{% trans "Annual revenue" %}</th>
+            <td class="{% cycle row_color %} td_info">{% print_field object=object field='annual_revenue' %}</td>
+            <td class="{% cycle row_edit_color %} td_info edit_inner">{% get_field_editor on regular 'annual_revenue' for object %}</td>
+        </tr>
+        <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Description" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='description' %}</td>
             <td class="{% cycle row_edit_color %} td_info edit_inner">{% get_field_editor on regular 'description' for object %}</td>
