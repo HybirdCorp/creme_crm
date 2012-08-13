@@ -33,7 +33,7 @@ module("creme.widgets.pselect.js", {
   setup: function() {
   },
   teardown: function() {
-  },
+  }
 });
 
 

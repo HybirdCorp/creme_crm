@@ -1,6 +1,6 @@
 module("creme.widgets.base.js", {
   setup: function() {},
-  teardown: function() {},
+  teardown: function() {}
 
 });
 

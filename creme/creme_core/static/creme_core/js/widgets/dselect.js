@@ -195,7 +195,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
     selected: function(element) {
         return this.choice(element, this.val(element));
-    },
+    }
 });
 
 //(function($) {

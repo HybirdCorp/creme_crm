@@ -3,12 +3,12 @@ module("creme.widgets.widget.js", {
   },
   teardown: function() {
       creme.widget.unregister('ui-test');
-  },
+  }
 });
 
 MockWidget = function() {return {
     options: {
-        initial:42,
+        initial:42
     },
 
     _create: function(element, options, cb, sync) {

@@ -147,7 +147,7 @@ creme.ajax.Backend = function(options) {
                 console.log('creme.ajax.Backend > SUBMIT', form.attr('action'), '> options:', opts);
 
             creme.ajax.jqueryFormSubmit(form, on_success, on_error, opts);
-        },
+        }
     };
 };
 
@@ -302,7 +302,7 @@ creme.widget.Widget = function() {
 
             var value = element.creme().widget().val();
             return creme.widget.cleanval(value, value);
-        },
+        }
     };
 };
 
@@ -597,7 +597,7 @@ $.extend(creme.widget, {
             return element;
 
         return this.writeAttr(element, options);
-    },
+    }
 });
 
 $.fn.creme = function() {

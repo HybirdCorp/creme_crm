@@ -214,5 +214,5 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
                             minHeight: options.popupHeight,
                             open:      function() {self._handle_open_popup(element, $(this), frame);}
                            });
-    },
+    }
 });
