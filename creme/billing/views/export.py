@@ -28,6 +28,7 @@ from django.shortcuts import get_object_or_404
 from django.template import loader, Context
 from django.http import HttpResponseRedirect
 from django.conf import settings
+from django.contrib.auth.decorators import login_required, permission_required
 
 from creme_core.models import CremeEntity
 
@@ -35,6 +36,8 @@ from creme_core.models import CremeEntity
 from billing.models import Invoice
 
 
+@login_required
+@permission_required('billing')
 def export_as_pdf(request, base_id):
     entity = get_object_or_404(CremeEntity, pk=base_id).get_real_entity()
     source = entity.get_source().get_real_entity()
