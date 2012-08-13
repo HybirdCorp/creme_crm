@@ -324,14 +324,14 @@ CREME_CORE_CSS = ('main.css',
                     'creme_config/css/creme_config.css',
                     'activities/css/fullcalendar.css',
                     'activities/css/activities.css',
-                    'commercial/css/commercial.css',
-                    'billing/css/billing.css',
                     'persons/css/persons.css',
                  )
 
 CREME_OPT_CSS = ( #OPTIONNAL APPS
-                ('crudity', 'crudity/css/crudity.css'),
-               )
+                 ('billing',    'billing/css/billing.css'),
+                 ('commercial', 'commercial/css/commercial.css'),
+                 ('crudity',    'crudity/css/crudity.css'),
+                )
 
 CREME_I18N_JS = ('l10n.js',
                     {'filter': 'mediagenerator.filters.i18n.I18N'}, #to build the i18n catalog statically.
@@ -471,8 +471,7 @@ CREME_GET_EMAIL_JOB_USER_ID  = None #Only for job. Default user id which will ha
 
 CREME_GET_EMAIL_JOB_USER_ID  = 1#User used to synchronize mails with management command
 
-CRUDITY_BACKENDS = []#Configuration for backends (a list of dict)
-
+#CRUDITY_BACKENDS configurates the backends (it's a list of dict)
 #Here a template of a crudity backend configuration:
 #CRUDITY_BACKENDS = [
 #    {
@@ -491,7 +490,6 @@ CRUDITY_BACKENDS = []#Configuration for backends (a list of dict)
 #                                       #You can specify * as a fallback (no previous backend handle the data returned by the fetcher, but be careful you're backend has to have the method:'fetcher_fallback').
 #    },
 #]
-
 CRUDITY_BACKENDS = [
     {
         "fetcher": "email",
@@ -535,7 +533,7 @@ except ImportError:
     pass
 
 
-#GENERAL [FINAL SETTINGS -------------------------------------------------------
+#GENERAL [FINAL SETTINGS]-------------------------------------------------------
 
 LOCALE_PATHS = [join(CREME_ROOT, "locale")] + [join(CREME_ROOT, app, "locale") for app in INSTALLED_CREME_APPS]
 
@@ -544,22 +542,13 @@ INSTALLED_APPS = INSTALLED_DJANGO_APPS + INSTALLED_CREME_APPS
 
 #MEDIA GENERATOR [FINAL SETTINGS]-----------------------------------------------
 MEDIA_BUNDLES = (
-#                 CREME_CORE_CSS + tuple(css for app, css in CREME_OPT_CSS if app in INSTALLED_APPS),
                  CREME_I18N_JS,
-                 #CREME_CORE_JS + tuple(js for app, js in CREME_OPT_JS if app in INSTALLED_APPS)
                  CREME_CORE_JS + tuple(js for app, js in CREME_OPT_JS if app in INSTALLED_CREME_APPS)
                 )
 if DEBUG:
     MEDIA_BUNDLES += (TEST_CREME_CORE_JS,)
 
-#CREME_CSS = CREME_CORE_CSS + tuple(css for app, css in CREME_OPT_CSS if app in INSTALLED_APPS)
 CREME_CSS = CREME_CORE_CSS + tuple(css for app, css in CREME_OPT_CSS if app in INSTALLED_CREME_APPS)
 MEDIA_BUNDLES += tuple((theme_dir + CREME_CSS[0], ) + tuple(theme_dir + '/' + css_file if not isinstance(css_file, dict) else css_file for css_file in CREME_CSS[1:])
                         for theme_dir, theme_vb_name in THEMES
                        )
-
-#LOCALE_PATHS = [join(CREME_ROOT, "locale")]
-#for app_name in INSTALLED_APPS:
-    #prefix, sep, app = app_name.rpartition('.')
-    #if prefix == "creme":
-        #LOCALE_PATHS.append(join(CREME_ROOT, app, "locale"))
