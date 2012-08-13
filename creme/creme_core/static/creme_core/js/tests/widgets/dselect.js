@@ -36,7 +36,7 @@ module("creme.widgets.dselect.js", {
       creme.widget.declare('ui-creme-dselect', new MockDynamicSelect(this.backend));
   },
   teardown: function() {
-  },
+  }
 });
 
 test('creme.widget.DynamicSelect.create (empty)', function() {

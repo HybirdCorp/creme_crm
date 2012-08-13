@@ -93,7 +93,7 @@ module("creme.mockajax.js", {
     },
 
     teardown: function() {
-    },
+    }
 });
 
 

@@ -18,7 +18,7 @@
 
 creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselect', {
     options: {
-        type: null,
+        type: null
     },
 
     _create: function(element, options, cb, sync)
@@ -180,5 +180,5 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
         //console.log("pselect.val >", element, "new=" + $.toJSON(value), "old=" + creme.widget.input(element).val());
         this._updateSelector(element, value);
         element.trigger('change');
-    },
+    }
 });

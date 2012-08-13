@@ -29,7 +29,7 @@ module("creme.widgets.entityselector.js", {
       creme.widget.declare('ui-creme-entityselector', new MockEntitySelector(this.backend));
   },
   teardown: function() {
-  },
+  }
 });
 
 test('creme.widget.EntitySelector.create (empty, auto)', function() {

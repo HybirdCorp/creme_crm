@@ -15,7 +15,7 @@ module("creme.widgets.dinput.js", {
   setup: function() {
   },
   teardown: function() {
-  },
+  }
 });
 
 test('creme.widget.DynamicInput.create (empty)', function() {

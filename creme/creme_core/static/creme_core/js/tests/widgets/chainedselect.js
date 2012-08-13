@@ -82,7 +82,7 @@ module("creme.widgets.chainedselect.js", {
       creme.widget.declare('ui-creme-dselect', new MockDynamicSelect(this.backend));
   },
   teardown: function() {
-  },
+  }
 });
 
 

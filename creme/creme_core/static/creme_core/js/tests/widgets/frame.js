@@ -3,7 +3,7 @@ MockFrame = function(backend) {
         options: {
             url:'',
             backend: backend,
-            overlay_delay: 100,
+            overlay_delay: 100
         }
     });
 };
@@ -46,7 +46,7 @@ module("creme.widget.frame.js", {
     },
 
     teardown: function() {
-    },
+    }
 });
 
 function assertOverlay(element, status, zindex, active, waiting)
