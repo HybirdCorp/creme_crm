@@ -23,7 +23,7 @@ from logging import debug
 
 from django.db.models import ProtectedError
 from django.core.exceptions import PermissionDenied
-from django.utils.translation import ugettext as _, ugettext
+from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_unicode
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
@@ -101,7 +101,7 @@ def delete_entity(request, entity_id, callback_url=None):
         related = entity.get_related_entity()
 
         if related is None: #TODO: useful ??
-            raise PermissionDenied(ugettext(u'You are not allowed to delete this entity: %s') % entity.allowed_unicode(request.user))
+            raise PermissionDenied(_(u'You are not allowed to delete this entity: %s') % entity.allowed_unicode(request.user))
 
         related.can_delete_or_die(request.user)
         entity.relations.all().delete()  #TODO: entity.relations.exclude(type__is_internal=True).delete()
@@ -114,7 +114,7 @@ def delete_entity(request, entity_id, callback_url=None):
 
     try:
         entity.delete()
-    except ProtectedError, (e, entities):
+    except ProtectedError:
         msg = _(u'"%s" can not be deleted because of its dependencies.') % entity.allowed_unicode(request.user)
         if request.is_ajax():
             return HttpResponse(smart_unicode(msg), mimetype="text/javascript", status=400)
