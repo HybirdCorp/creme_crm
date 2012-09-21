@@ -197,6 +197,9 @@ class ContactTestCase(_BaseTestCase):
                                      )
 
         orga = Organisation.objects.create(user=self.user, name='Acme')
+        self.assertTrue(orga.can_view(self.user))
+        self.assertFalse(orga.can_link(self.user))
+
         response = self.client.get("/persons/contact/add_with_relation/%(orga_id)s/%(rtype_id)s?callback_url=%(url)s" % {
                                         'orga_id':  orga.id,
                                         'rtype_id': REL_OBJ_EMPLOYED_BY,

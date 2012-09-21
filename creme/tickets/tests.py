@@ -7,7 +7,8 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
-    from creme_core.tests.views.csv_import import CSVImportBaseTestCase
+    #from creme_core.tests.views.csv_import import CSVImportBaseTestCase
+    from creme_core.tests.views.csv_import import CSVImportBaseTestCaseMixin
     from creme_core.models import HeaderFilter
 
     from tickets.models import *
@@ -16,7 +17,8 @@ except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
 
-class TicketTestCase(CSVImportBaseTestCase):
+#class TicketTestCase(CSVImportBaseTestCase):
+class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'tickets')

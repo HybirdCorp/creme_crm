@@ -9,7 +9,8 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from creme_core.tests.base import CremeTestCase
-    from creme_core.tests.views.csv_import import CSVImportBaseTestCase
+    #from creme_core.tests.views.csv_import import CSVImportBaseTestCase
+    from creme_core.tests.views.csv_import import CSVImportBaseTestCaseMixin
     from creme_core.models import RelationType, Relation, CremeProperty, SetCredentials, Currency
     from creme_core.constants import PROP_IS_MANAGED_BY_CREME, DEFAULT_CURRENCY_PK
     from creme_core.models.entity import CremeEntity
@@ -30,8 +31,9 @@ except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
 
-class OpportunitiesTestCase(CSVImportBaseTestCase):
-    doc = None
+#class OpportunitiesTestCase(CSVImportBaseTestCase):
+class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
+    #doc = None
 
     @classmethod
     def setUpClass(cls):
