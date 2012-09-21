@@ -18,17 +18,18 @@ except Exception as e:
 __all__ = ('CSVImportViewsTestCase', )
 
 
-class CSVImportBaseTestCase(ViewsTestCase):
+#class CSVImportBaseTestCase(ViewsTestCase):
+class CSVImportBaseTestCaseMixin(object):
     doc = None
 
-    @classmethod
-    def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config')
+    #@classmethod
+    #def setUpClass(cls):
+        #cls.populate('creme_core', 'creme_config')
 
-        Contact.objects.all().delete()
-        Organisation.objects.all().delete()
-        Position.objects.all().delete()
-        Sector.objects.all().delete()
+        #Contact.objects.all().delete()
+        #Organisation.objects.all().delete()
+        #Position.objects.all().delete()
+        #Sector.objects.all().delete()
 
     #def setUp(self):
         #self.doc = None
@@ -75,7 +76,17 @@ class CSVImportBaseTestCase(ViewsTestCase):
         return '/creme_core/list_view/import_csv/%s?list_url=%s' % (ct.id, Contact.get_lv_absolute_url())
 
 
-class CSVImportViewsTestCase(CSVImportBaseTestCase):
+#class CSVImportViewsTestCase(CSVImportBaseTestCase):
+class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
+    @classmethod
+    def setUpClass(cls):
+        cls.populate('creme_core', 'creme_config')
+
+        Contact.objects.all().delete()
+        Organisation.objects.all().delete()
+        Position.objects.all().delete()
+        Sector.objects.all().delete()
+
     def test_import01(self):
         self.login()
 

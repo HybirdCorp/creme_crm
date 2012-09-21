@@ -5,6 +5,7 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
 
+    from creme_core.tests.views.csv_import import CSVImportBaseTestCaseMixin
     from creme_core.models import Relation, CremeProperty, SetCredentials
     from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
@@ -18,7 +19,7 @@ except Exception as e:
 __all__ = ('OrganisationTestCase',)
 
 
-class OrganisationTestCase(_BaseTestCase):
+class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
     def test_createview01(self):
         self.login()
 
@@ -591,3 +592,76 @@ class OrganisationTestCase(_BaseTestCase):
 
         bebop = self.get_object_or_fail(Organisation, pk=bebop.pk)
         self.assertIsNone(bebop.staff_size)
+
+    def test_csv_import(self):
+        self.login()
+
+        name1 = 'Nerv'
+        city1 = 'Tokyo'
+        name2 = 'Gunsmith Cats'
+        city2 = 'Chicago'
+        lines = [(name1, city1, ''), (name2, '', city2)]
+
+        doc = self._build_doc(lines)
+        response = self.client.post(self._build_csvimport_url(Organisation),
+                                    data={'csv_step':     1,
+                                          'csv_document': doc.id,
+                                          #csv_has_header
+
+                                          'user':           self.user.id,
+                                          'name_colselect': 1,
+
+                                          'sector_colselect':         0,
+                                          'creation_date_colselect':  0,
+                                          'staff_size_colselect':     0,
+                                          'email_colselect':          0,
+                                          'fax_colselect':            0,
+                                          'phone_colselect':          0,
+                                          'description_colselect':    0,
+                                          'siren_colselect':          0,
+                                          'naf_colselect':            0,
+                                          'annual_revenue_colselect': 0,
+                                          'url_site_colselect':       0,
+                                          'legal_form_colselect':     0,
+                                          'rcs_colselect':            0,
+                                          'tvaintra_colselect':       0,
+                                          'subject_to_vat_colselect': 0,
+                                          'capital_colselect':        0,
+                                          'siret_colselect':          0,
+
+                                          #'property_types',
+                                          #'fixed_relations',
+                                          #'dyn_relations',
+
+                                          'billaddr_address_colselect':    0,
+                                          'billaddr_po_box_colselect':     0,
+                                          'billaddr_city_colselect':       2,
+                                          'billaddr_state_colselect':      0,
+                                          'billaddr_zipcode_colselect':    0,
+                                          'billaddr_country_colselect':    0,
+                                          'billaddr_department_colselect': 0,
+
+                                          'shipaddr_address_colselect':    0,
+                                          'shipaddr_po_box_colselect':     0,
+                                          'shipaddr_city_colselect':       3,
+                                          'shipaddr_state_colselect':      0,
+                                          'shipaddr_zipcode_colselect':    0,
+                                          'shipaddr_country_colselect':    0,
+                                          'shipaddr_department_colselect': 0,
+                                         }
+                                   )
+        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
+
+        with self.assertNoException():
+            form = response.context['form']
+
+        self.assertEqual(len(lines), form.imported_objects_count)
+
+        billing_address = self.get_object_or_fail(Organisation, name=name1).billing_address
+        self.assertIsNotNone(billing_address)
+        self.assertEqual(city1, billing_address.city)
+
+        shipping_address = self.get_object_or_fail(Organisation, name=name2).shipping_address
+        self.assertIsNotNone(shipping_address)
+        self.assertEqual(city2, shipping_address.city)
