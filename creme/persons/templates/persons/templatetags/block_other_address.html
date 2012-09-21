@@ -19,42 +19,22 @@
                     <th colspan="2" class="block_header_line_dark">{{address.name}}</th>
                     <th class="block_header_line_dark action">{% trans "Actions" %}</th>
                 </tr>
-                <tr class="content">
-                    <th class="{% cycle header_color %} th_info">{% trans "Address" %}</th>
-                    <td class="{% cycle row_color %} td_info" >{{address.address}}</td>
-                    <td class="{{row_color}}" align="center" valign="center" rowspan="7">
-                        {% get_line_editor at_url '/persons/address/edit/{{address.id}}/' with_perms has_perm %}
-                        {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id': {{address.id}} }" with_perms has_perm %}
-                    </td>
-                </tr>
-                <tr class="content">
-                    <th class="{% cycle header_color %} th_info">{% trans "PO box" %}</th>
-                    <td class="{% cycle row_color %} td_info">{{address.po_box}}</td>
-                </tr>
-                <tr class="content">
-                    <th class="{% cycle header_color %} th_info">{% trans "City" %}</th>
-                    <td class="{% cycle row_color %} td_info">{{address.city}}</td>
-                </tr>
-                <tr class="content">
-                    <th class="{% cycle header_color %} th_info">{% trans "State" %}</th>
-                    <td class="{% cycle row_color %} td_info">{{address.state}}</td>
-                </tr>
-                <tr class="content">
-                    <th class="{% cycle header_color %} th_info">{% trans "Zip code" %}</th>
-                    <td class="{% cycle row_color %} td_info">{{address.zipcode}}</td>
-                </tr>
-                <tr class="content">
-                    <th class="{% cycle header_color %} th_info">{% trans "Country" %}</th>
-                    <td class="{% cycle row_color %} td_info">{{address.country}}</td>
-                </tr>
-                <tr class="content">
-                    <th class="{% cycle header_color %} th_info">{% trans "Department" %}</th>
-                    <td class="{% cycle row_color %} td_info">{{address.department}}</td>
-                </tr>
+                {% for field_name in field_names %}
+                    <tr class="content">
+                        <th class="{% cycle header_color %} th_info">{% get_field_verbose_name address field_name %}</th>
+                        <td class="{% cycle row_color %} td_info">{% print_field object=address field=field_name %}</td>
+                        {% if forloop.first %}
+                            <td class="{{row_color}}" align="center" valign="center" rowspan="{{field_names|length}}">
+                                {% get_line_editor at_url '/persons/address/edit/{{address.id}}/' with_perms has_perm %}
+                                {% get_line_deletor at_url '/creme_core/entity/delete_related/{{ct_id}}' with_args "{'id': {{address.id}} }" with_perms has_perm %}
+                            </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
             {% endfor %}
         {% else %}
             <tr class="content empty">
-                <td class="{% cycle "block_line_dark" "block_line_light" %}">{% trans 'No other address set for the moment' %}</td>
+                <td class="block_line_light">{% trans 'No other address set for the moment' %}</td>
             </tr>
         {% endif %}
     </tbody>

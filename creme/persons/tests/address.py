@@ -6,6 +6,7 @@ try:
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Address, Organisation, Contact
+    from persons.blocks import other_address_block
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -16,7 +17,7 @@ __all__ = ('AddressTestCase',)
 class AddressTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_config')
+        cls.populate('creme_config', 'creme_core', 'persons')
 
     def login(self, *args, **kwargs):
         super(AddressTestCase, self).login(*args, **kwargs)
@@ -68,6 +69,17 @@ class AddressTestCase(CremeTestCase):
         self.assertEqual(zipcode,    address.zipcode)
         self.assertEqual(country,    address.country)
         self.assertEqual(department, address.department)
+
+        response = self.client.get(orga.get_absolute_url())
+        self.assertContains(response, 'id="%s"' % other_address_block.id_)
+        self.assertContains(response, name)
+        self.assertContains(response, address_value)
+        self.assertContains(response, po_box)
+        self.assertContains(response, city)
+        self.assertContains(response, state)
+        self.assertContains(response, zipcode)
+        self.assertContains(response, country)
+        self.assertContains(response, department)
 
     def test_editview(self):
         orga = self.login()
