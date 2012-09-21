@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from django.db import models
 from django.utils.functional import curry
 
 
-def contribute_to_model(contrib, destination):
+def contribute_to_model(contrib, destination, fields_2_delete=()):
     """
     Update ``contrib`` model based on ``destination``.
 
@@ -53,7 +53,7 @@ def contribute_to_model(contrib, destination):
     >>>     def get_phone(self):
     >>>         return self.phone
     >>> 
-    >>> contribute_to_model(MyUser, User)
+    >>> contribute_to_model(MyUser, User, fields_2_delete=('is_staff',))
     """
     # Contrib should be abstract
     if not contrib._meta.abstract:
@@ -68,7 +68,7 @@ def contribute_to_model(contrib, destination):
             field.contribute_to_class(destination, field.name)
             if field.choices:
                 setattr(destination, 'get_%s_display' % field.name, curry(destination._get_FIELD_display, field=field))
-                protected_get_display_method.append ('get_%s_display' % field.name)
+                protected_get_display_method.append('get_%s_display' % field.name)
         else:
             current_field = destination._meta.get_field_by_name(field.name)[0]
             current_field.null = field.null
@@ -85,3 +85,19 @@ def contribute_to_model(contrib, destination):
     for k, v in contrib.__dict__.items(): #TODO: iteritems() instead ??
         if k not in protected_items:
             setattr(destination, k, v)
+
+    # Deletion of unwanted fields
+    delete_model_fields(destination, *fields_2_delete)
+
+def delete_model_fields(model, *field_names):
+    """Remove some django.db.models.Fields instance from a django.db.Model
+    @param field_names Sequence of strings
+    """
+    meta = model._meta
+    local_fields = meta.local_fields
+
+    for field in [f for f in local_fields if f.name in field_names]:
+        local_fields.remove(field)
+
+    if hasattr(meta, '_field_name_cache'):
+        del meta._field_name_cache
