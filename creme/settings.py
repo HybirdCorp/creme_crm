@@ -265,7 +265,7 @@ import logging
 
 logging.basicConfig(
     level=logging.DEBUG,
-    format='%(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
 )
 
 #LOGS [END]#####################################################################
