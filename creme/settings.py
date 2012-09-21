@@ -16,7 +16,7 @@ ADMINS = (
 
 #login / password for interface of administration : admin/admin
 
-from os.path import dirname, join, abspath
+from os.path import dirname, join, abspath, exists
 CREME_ROOT = dirname(abspath(__file__))
 
 MANAGERS = ADMINS
@@ -535,7 +535,13 @@ except ImportError:
 
 #GENERAL [FINAL SETTINGS]-------------------------------------------------------
 
-LOCALE_PATHS = [join(CREME_ROOT, "locale")] + [join(CREME_ROOT, app, "locale") for app in INSTALLED_CREME_APPS]
+#LOCALE_PATHS = [join(CREME_ROOT, "locale")] + [join(CREME_ROOT, app, "locale") for app in INSTALLED_CREME_APPS]
+_LOCALE_OVERLOAD = join(CREME_ROOT, 'locale_overload', 'locale')
+
+LOCALE_PATHS = [join(CREME_ROOT, "locale")]
+if exists(_LOCALE_OVERLOAD):
+    LOCALE_PATHS.append(_LOCALE_OVERLOAD)
+LOCALE_PATHS.extend(join(CREME_ROOT, app, "locale") for app in INSTALLED_CREME_APPS)
 
 INSTALLED_APPS = INSTALLED_DJANGO_APPS + INSTALLED_CREME_APPS
 
