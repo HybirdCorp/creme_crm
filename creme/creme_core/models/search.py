@@ -19,6 +19,8 @@
 ################################################################################
 
 from collections import defaultdict
+from functools import partial
+from logging import warn
 
 from django.db.models import CharField, ForeignKey, PositiveIntegerField
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -26,7 +28,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeModel
-from creme_core.utils.meta import get_verbose_field_name
+from creme_core.utils.meta import get_model_field_infos, get_verbose_field_name
 
 
 DEFAULT_PATTERN = '__icontains'
@@ -51,14 +53,14 @@ class SearchConfigItem(CremeModel):
 
     def get_fields(self):
         if self._searchfields is None:
-            self._searchfields = SearchField.objects.filter(search_config_item=self).order_by('order')
+            self._searchfields = list(SearchField.objects.filter(search_config_item=self))
 
         return self._searchfields
 
     @staticmethod
     def populate_searchfields(search_config_items):
         #list(search_config_items) is needed because of mysql
-        all_searchfields = SearchField.objects.filter(search_config_item__in=list(search_config_items)).order_by('order')
+        all_searchfields = SearchField.objects.filter(search_config_item__in=list(search_config_items))
         sfci_dict = defaultdict(list)
 
         for sf in all_searchfields:
@@ -76,14 +78,17 @@ class SearchConfigItem(CremeModel):
         sci, created = SearchConfigItem.objects.get_or_create(content_type=ct, user=user)
 
         if created:
-            create_sf = SearchField.objects.create
+            create_sf = partial(SearchField.objects.create, search_config_item=sci)
+            i = 1
 
-            for i, field in enumerate(fields, start=1):
-                create_sf(field=field,
-                          field_verbose_name=get_verbose_field_name(model, field),
-                          order=i,
-                          search_config_item=sci,
-                         )
+            for field in fields:
+                if get_verbose_field_name(model, field):
+                    create_sf(field=field, order=i,
+                              field_verbose_name=get_verbose_field_name(model, field),
+                             )
+                    i += 1
+                else:
+                    warn('SearchConfigItem.create_if_needed(): invalid field "%s"', field)
 
         return sci
 
@@ -99,6 +104,7 @@ class SearchField(CremeModel):
         app_label = 'creme_core'
         verbose_name = _(u'Search field')
         verbose_name_plural = _(u'Search fields')
+        ordering = ('order',)
 
     def __unicode__(self):
         return self.field_verbose_name
