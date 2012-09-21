@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import UserRole, RelationType, Relation, CremePropertyType
 from creme_core.management.commands.creme_populate import Command as PopulateCommand
+from creme_core.utils.xml_utils import xml_diff, XMLDiffError
 from creme_core import autodiscover
 from creme_core.registry import creme_registry
 
@@ -123,6 +124,24 @@ class _CremeTestCase(object):
                                                  object_entity=object_entity.id)
                                          .count()
                         )
+
+    def assertXMLEqual(self, expected, actual):
+        """Compare 2 strings representing XML document, with the XML semantic.
+        @param expected XML string ; tip: better if it is well indented to have better error message.
+        @param actual XML string.
+        """
+        try:
+            diff = xml_diff(expected, actual)
+        except XMLDiffError as e:
+            raise self.failureException('Bad XML document [%s]' % e)
+
+        if diff is not None:
+            msg = diff.long_msg
+
+            if self.maxDiff is not None and len(msg) > self.maxDiff:
+                msg = '%s\n[maxDiff too small for larger message]' % diff.short_msg
+
+            raise self.failureException('XML are not equal\n%s' % msg)
 
     def get_object_or_fail(self, model, **kwargs):
         try:
