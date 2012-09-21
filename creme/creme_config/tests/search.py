@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
@@ -16,6 +18,8 @@ __all__ = ('SearchConfigTestCase',)
 
 
 class SearchConfigTestCase(CremeTestCase):
+    ADD_URL = '/creme_config/search/add/'
+
     @classmethod
     def setUpClass(cls):
         SearchField.objects.all().delete()
@@ -23,21 +27,21 @@ class SearchConfigTestCase(CremeTestCase):
 
         cls.populate('creme_core', 'creme_config')
 
+        cls.ct_contact = ContentType.objects.get_for_model(Contact)
+
     def setUp(self):
-        #self.populate('creme_core', 'creme_config')
         self.login()
 
     def test_portal(self):
         self.assertEqual(200, self.client.get('/creme_config/search/portal/').status_code)
 
     def test_add01(self):
-        ct = ContentType.objects.get_for_model(Contact)
+        ct = self.ct_contact
         self.assertEqual(0, SearchConfigItem.objects.filter(content_type=ct).count())
 
-        url = '/creme_config/search/add/'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertEqual(200, self.client.get(self.ADD_URL).status_code)
 
-        response = self.client.post(url, data={'ct_id': ct.id})
+        response = self.client.post(self.ADD_URL, data={'ct_id': ct.id})
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
@@ -46,21 +50,19 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertIsNone(sc_items[0].user)
 
     def test_add02(self):
-        ct = ContentType.objects.get_for_model(Contact)
-        url = '/creme_config/search/add/'
-        post_data = {'ct_id': ct.id,
-                     'user':  self.other_user.id,
-                    }
-        response = self.client.post(url, post_data)
+        post = partial(self.client.post, self.ADD_URL, data={'ct_id': self.ct_contact.id,
+                                                             'user':  self.other_user.id,
+                                                            }
+                      )
+        response = post()
         self.assertNoFormError(response)
         self.assertEqual(200, response.status_code)
 
-        sc_items = SearchConfigItem.objects.filter(content_type=ct)
+        sc_items = SearchConfigItem.objects.filter(content_type=self.ct_contact)
         self.assertEqual(1, len(sc_items))
         self.assertEqual(self.other_user, sc_items[0].user)
 
-        response = self.client.post(url, post_data)
-        self.assertFormError(response, 'form', None,
+        self.assertFormError(post(), 'form', None,
                              [_(u'The pair search configuration/user(s) already exists !')]
                             )
 
@@ -77,8 +79,7 @@ class SearchConfigTestCase(CremeTestCase):
                 self.fail(field_name + ' in choices')
 
     def test_edit(self):
-        ct = ContentType.objects.get_for_model(Contact)
-        sci = SearchConfigItem.objects.create(content_type=ct, user=None)
+        sci = SearchConfigItem.objects.create(content_type=self.ct_contact, user=None)
         url = '/creme_config/search/edit/%s' % sci.id
 
         response = self.client.get(url)
@@ -113,8 +114,7 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertEqual('last_name',  sf[1].field)
 
     def test_delete(self):
-        ct = ContentType.objects.get_for_model(Contact)
-        sci = SearchConfigItem.objects.create(content_type=ct, user=None)
+        sci = SearchConfigItem.objects.create(content_type=self.ct_contact, user=None)
 
         create_sf = SearchField.objects.create
         sf1 = create_sf(search_config_item=sci, field='first_name', order=1)
