@@ -158,8 +158,15 @@ class NeglectedOrganisationsBlock(PaginatedBlock):
         return self._render(btc)
 
 
-class AddressBlock(SimpleBlock):
-    id_           = SimpleBlock.generate_id('persons', 'address')
+_ADDRESS_FIELD_NAMES = list(Address._INFO_FIELD_NAMES) #TODO: factorise (see CSV import) ?
+
+try:
+    _ADDRESS_FIELD_NAMES.remove('name')
+except ValueError:
+    pass
+
+class AddressBlock(Block):
+    id_           = Block.generate_id('persons', 'address')
     dependencies  = (Address,)
     verbose_name  = _(u'Address')
     template_name = 'persons/templatetags/block_address.html'
@@ -168,6 +175,8 @@ class AddressBlock(SimpleBlock):
     def detailview_display(self, context):
         return self._render(self.get_block_template_context(context,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, context['object'].pk),
+                                                            field_names=_ADDRESS_FIELD_NAMES,
+                                                            address_model=Address, #for fields' verbose name
                                                            ))
 
 
@@ -177,7 +186,7 @@ class OtherAddressBlock(QuerysetBlock):
     verbose_name  = _(u'Other Address')
     template_name = 'persons/templatetags/block_other_address.html'
     target_ctypes = (Contact, Organisation)
-    page_size = 1
+    page_size     = 1
 
     def detailview_display(self, context):
         person = context['object']
@@ -186,6 +195,7 @@ class OtherAddressBlock(QuerysetBlock):
         return self._render(self.get_block_template_context(context,
                                                             Address.objects.filter(object_id=person.id).exclude(pk__in=excluded_addresses_pk),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
+                                                            field_names=_ADDRESS_FIELD_NAMES,
                                                             ct_id=ContentType.objects.get_for_model(Address).id,
                                                            ))
 

@@ -77,6 +77,9 @@ class ContactTestCase(_BaseTestCase):
         self.assertIsNotNone(contact.shipping_address)
         self.assertEqual(s_address, contact.shipping_address.address)
 
+        self.assertContains(response, b_address)
+        self.assertContains(response, s_address)
+
     def test_editview01(self):
         self.login()
         first_name = 'Faye'
