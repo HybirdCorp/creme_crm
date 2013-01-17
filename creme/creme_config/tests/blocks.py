@@ -589,6 +589,12 @@ class BlocksConfigTestCase(CremeTestCase):
 
         self._find_field_index(blocks_field, foobar_block.id_)
 
+    def test_edit_portal06(self):
+        "Edit portal of unknown app"
+        app_name = 'unknown'
+        self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name).exists())
+        self.assertEqual(404, self.client.get('/creme_config/blocks/portal/edit/%s' % app_name).status_code)
+
     def test_delete_portal(self):
         app_name = 'persons'
         self.client.post('/creme_config/blocks/portal/add/', data={'app_name': app_name})
