@@ -75,12 +75,19 @@ def delete(request, user_id):
     """Delete a User (who can be a Team). Objects linked to this User are
     linked to a new User.
     """
-    user_to_delete = get_object_or_404(User, pk=user_id)
 
-    if not user_to_delete.is_team and User.objects.filter(is_superuser=True).count() == 1:
+    if int(user_id) == request.user.id:
         return HttpResponse(_(u"You can't delete the last super user."), status=400)
 
-    return add_model_with_popup(request, UserAssignationForm,
-                                _(u'Delete %s and assign his files to user') % user_to_delete,
-                                initial={'user_to_delete': user_to_delete},
-                               )
+    user_to_delete = get_object_or_404(User, pk=user_id)
+
+#    if not user_to_delete.is_team and User.objects.filter(is_superuser=True).count() == 1:
+#        return HttpResponse(_(u"You can't delete the last super user."), status=400)
+
+    try:
+        return add_model_with_popup(request, UserAssignationForm,
+                                    _(u'Delete %s and assign his files to user') % user_to_delete,
+                                    initial={'user_to_delete': user_to_delete},
+                                   )
+    except Exception:
+        return HttpResponse(_(u"You can't delete this user."), status=400)

@@ -7,7 +7,7 @@ try:
     from django.contrib.auth.models import User
 
     from creme_core.models import (CremeEntity, CremeProperty, Relation, EntityCredentials,
-                                   UserRole, HistoryLine, SetCredentials)
+                                   UserRole, HistoryLine, SetCredentials, Mutex)
     from creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme_core.tests.base import CremeTestCase
 
@@ -532,13 +532,102 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(400, response.status_code)
         self.assertEqual(count, User.objects.count())
 
+    def test_user_cannot_delete_last_superuser(self):
+        "Delete view can not delete the last superuser"
+
+        self.client.login(username='root', password='root')
+
+        self.assertEqual(1, User.objects.filter(is_superuser=True).count())
+        user = User.objects.get(is_superuser=True)
+
+        self.assertEqual(0, User.objects.exclude(id=user.id).filter(is_superuser=True).count())
+
+        url = '/creme_config/user/delete/%s' % user.id
+        self.assertEqual(400, self.client.get(url).status_code)
+
+        response = self.client.post(url, {'to_user': user.id})
+        self.assertEqual(400, response.status_code)
+
+        self.assertEqual(1, User.objects.filter(is_superuser=True).count())
+        self.assertEqual(0, User.objects.exclude(id=user.id).filter(is_superuser=True).count())
+
+    def test_user_cannot_delete_during_transfert(self):
+        "Delete view can not delete the last superuser"
+
+        self.login()
+        user = self.user
+        root = User.objects.get(username='root')
+
+        self.assertEqual(2, User.objects.filter(is_superuser=True).count())
+        self.assertEqual(1, User.objects.exclude(id=user.id).filter(is_superuser=True).count())
+
+        Mutex.get_n_lock('creme_config-forms-user-transfer_user')
+
+        url = '/creme_config/user/delete/%s' % root.id
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        response = self.client.post(url, {'to_user': user.id})
+        self.assertEqual(400, response.status_code)
+
+        self.assertEqual(2, User.objects.filter(is_superuser=True).count())
+        self.assertEqual(1, User.objects.exclude(id=user.id).filter(is_superuser=True).count())
+
+    def test_user_delete_not_last_superuser(self):
+        "Delete view can delete a superuser if at least one remains"
+
+        self.login()
+        user = self.user
+        root = User.objects.get(username='root')
+
+        self.assertEqual(2, User.objects.filter(is_superuser=True).count())
+        self.assertEqual(1, User.objects.exclude(id=user.id).filter(is_superuser=True).count())
+
+        url = '/creme_config/user/delete/%s' % root.id
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        response = self.client.post(url, {'to_user': user.id})
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual(1, User.objects.filter(is_superuser=True).count())
+        self.assertEqual(0, User.objects.filter(username='root').count())
+
+    def test_user_delete_last_basic_user(self):
+        "Delete view can delete any normal user"
+
+        role = UserRole.objects.create(name='Basic')
+        role.allowed_apps = ('creme_core',)
+        role.admin_4_apps = ()
+        role.save()
+
+        self.role = role
+        basic_user = User.objects.create(username='Mireille', role=role)
+        basic_user.set_password('test')
+        basic_user.save()
+
+        self.client.login(username='root', password='root')
+
+        self.assertEqual(1, User.objects.filter(is_superuser=True).count())
+        self.assertEqual(1, User.objects.filter(is_superuser=False).count())
+
+        root = User.objects.get(is_superuser=True)
+
+        url = '/creme_config/user/delete/%s' % basic_user.id
+        self.assertEqual(200, self.client.get(url).status_code)
+
+        response = self.client.post(url, {'to_user': root.id})
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual(1, User.objects.filter(is_superuser=True).count())
+        self.assertEqual(0, User.objects.filter(is_superuser=False).count())
+
     def test_user_delete02(self): #Validation error
         self.login()
+        root = User.objects.get(username='root')
 
         count = User.objects.count()
         self.assertGreater(count, 1)
 
-        url = '/creme_config/user/delete/%s' % self.user.id
+        url = '/creme_config/user/delete/%s' % root.id
         self.assertEqual(200, self.client.get(url).status_code)
 
         response = self.client.post(url) #no data
@@ -546,7 +635,7 @@ class UserTestCase(CremeTestCase):
         self.assertFormError(response, 'form', 'to_user', [_(u'This field is required.')])
         self.assertEqual(count, User.objects.count())
 
-        response = self.client.post(url, {'to_user': self.user.id})
+        response = self.client.post(url, {'to_user': root.id})  # cannot move entities to deleted user
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'to_user',
                              [_(u'Select a valid choice. That choice is not one of the available choices.')]
