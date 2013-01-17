@@ -98,7 +98,7 @@ def edit_portal(request, app_name):
     else:
         try:
             app = creme_registry.get_app(app_name)
-        except NotRegistered:
+        except NotRegistered as e:
             raise Http404(str(e))
 
         title = _(u'Edit portal configuration for <%s>') % app.verbose_name
