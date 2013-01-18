@@ -62,6 +62,7 @@ creme.widget.AdaptiveWidget = creme.widget.declare('ui-creme-adaptive-widget', {
             },
             success: function(data){
                 $parent_target.empty().html(data.rendered);
+                creme.widget.ready($parent_target);
                 //$target.remove();
                 //$parent_target.append($(data.rendered));
             }
