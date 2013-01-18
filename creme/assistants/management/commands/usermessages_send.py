@@ -36,12 +36,10 @@ class Command(BaseCommand):
 
         try:
             lock = Mutex.get_n_lock(LOCK_NAME)
-
         except MutexLockedException, e:
             print 'A process is already running'
-
         else:
             translation.activate(settings.LANGUAGE_CODE)
             UserMessage.send_mails()
-        finally:
+        #finally:
             Mutex.graceful_release(LOCK_NAME)

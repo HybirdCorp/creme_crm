@@ -41,5 +41,5 @@ class Command(BaseCommand):
         else:
             for email in EntityEmail.objects.filter(status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR]):
                 email.send()
-        finally:
+        #finally:
             Mutex.graceful_release(LOCK_NAME)
