@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import datetime, date
+    from datetime import datetime, date, time, timedelta
 
     from django.forms.util import ValidationError
     from django.core.serializers.json import simplejson
@@ -898,7 +898,25 @@ class ActivitiesTestCase(CremeTestCase):
         self.login()
 
         url = '/activities/activity/add_popup'
-        self.assertEqual(200, self.client.get(url).status_code)
+        today = datetime.today().replace(second=0, microsecond=0)
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            start_f = fields['start']
+            end_f = fields['end']
+
+        initial_start = start_f.initial
+        self.assertIsInstance(initial_start, datetime)
+
+        self.assertGreaterEqual(initial_start, today)
+        self.assertLessEqual(initial_start, datetime.today())
+
+        initial_end = end_f.initial
+        self.assertIsInstance(initial_start, datetime)
+        self.assertEqual(initial_end - initial_start, timedelta(hours=1))
 
         title = "meeting activity popup 1"
         response = self.client.post(url, data={'user':       self.user.pk,
@@ -968,6 +986,32 @@ class ActivitiesTestCase(CremeTestCase):
         self.assertEqual(mydate, activity.start)
         self.assertEqual(mydate, activity.end)
         self.assertEqual(ACTIVITYTYPE_ACTIVITY, activity.type_id)
+
+    def test_activity_createview_popup4(self):
+        "Beware when it's 23 o clock (bugfix)"
+        self.login()
+
+        response = self.client.get('/activities/activity/add_popup',
+                                   data={'year':   2012,
+                                         'month':  3,
+                                         'day':    26,
+                                         'hour':   23,
+                                         'minute': 16,
+                                        }
+                                  )
+        self.assertEqual(200, response.status_code)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            start_f = fields['start']
+            end_f = fields['end']
+            start_time_f = fields['start_time']
+            end_time_f = fields['end_time']
+
+        self.assertEqual(date(year=2012, month=3, day=26), start_f.initial.date())
+        self.assertEqual(date(year=2012, month=3, day=27), end_f.initial.date())
+        self.assertEqual(time(hour=23, minute=16), start_time_f.initial)
+        self.assertEqual(time(hour=0, minute=16),  end_time_f.initial)
 
     def _set_activity_context(self):
         self.login()

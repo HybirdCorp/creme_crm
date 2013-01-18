@@ -340,7 +340,7 @@ class ActivityCreateForm(CremeEntityForm):
                                  title=ugettext(u"Alert of activity"),
                                  description=ugettext(u'Alert related to %s') % activity,
                                 )
-            
+
         if cleaned_data['generate_period_alert']:
             activity = self.instance
             unity = cleaned_data['unity']
@@ -487,15 +487,14 @@ class CalendarActivityCreateForm(ActivityCreateForm):
 
         if start:
             field_start.initial = start
-            fields['end'].initial = start
 
-            hour = start.hour
-            minute = start.minute
-            if hour or minute:
-                start_time = time(hour=hour, minute=minute)
-                fields['start_time'].initial = start_time
-                # TODO arbitrary duration (1h), we don't know, at this point, the activity type, to retrieve its default duration
-                fields['end_time'].initial = time(start_time.hour + 1, start_time.minute)
+            # TODO arbitrary duration (1h), we don't know, at this point, the activity type, to retrieve its default duration
+            end = start + timedelta(hours=1)
+            fields['end'].initial = end
+
+            if start.hour or start.minute: #TODO: improve to make the difference between 0 (given) and None (not given)
+                fields['start_time'].initial = start.time()
+                fields['end_time'].initial = end.time()
 
     def clean_type(self):
         type = self.cleaned_data['type']
