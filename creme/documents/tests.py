@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
-    
     from tempfile import NamedTemporaryFile
-    from django.contrib.auth.models import User
 
-    from django.contrib.contenttypes.models import ContentType
+    from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
     from django.utils.translation import ugettext
+    from django.contrib.contenttypes.models import ContentType
+    from django.contrib.auth.models import User
 
     from creme_core.models import CremeEntity, RelationType, Relation, HeaderFilter, HistoryLine, SetCredentials
     from creme_core.tests.base import CremeTestCase
@@ -42,7 +41,7 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertTrue(RelationType.objects.filter(pk=REL_SUB_RELATED_2_DOC).exists())
 
         get_ct = ContentType.objects.get_for_model
-        self.assert_(HeaderFilter.objects.filter(entity_type=get_ct(Document)).exists())
+        self.assertTrue(HeaderFilter.objects.filter(entity_type=get_ct(Document)).exists())
 
         self.assertTrue(Folder.objects.exists())
         self.assertTrue(FolderCategory.objects.exists())
@@ -145,27 +144,48 @@ class DocumentTestCase(_DocumentsTestCase):
     def test_add_related_document01(self):
         self.login()
 
+        folders = Folder.objects.all()
+        self.assertEqual(1, len(folders))
+        root_folder = folders[0]
+
         entity = CremeEntity.objects.create(user=self.user)
 
         url = '/documents/document/add_related/%s' % entity.id
         self.assertEqual(200, self.client.get(url).status_code)
 
-        title    = 'Related doc'
-        filedata = self._build_filedata('Yes I am the content (DocumentTestCase.test_add_related_document)')
-        response = self.client.post(url, follow=True,
-                                    data={'user':         self.user.pk,
-                                          'title':        title,
-                                          'description':  'Test description',
-                                          'filedata':     filedata.file,
-                                         }
-                                   )
-        self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
+        def post(title):
+            filedata = self._build_filedata('Yes I am the content (DocumentTestCase.test_add_related_document)')
+            response = self.client.post(url, follow=True,
+                                        data={'user':         self.user.pk,
+                                              'title':        title,
+                                              'description':  'Test description',
+                                              'filedata':     filedata.file,
+                                             }
+                                    )
+            self.assertNoFormError(response)
+            self.assertEqual(200, response.status_code)
 
-        doc = self.get_object_or_fail(Document, title=title)
-        self.assertRelationCount(1, entity, REL_SUB_RELATED_2_DOC, doc)
+            return self.get_object_or_fail(Document, title=title)
 
-        doc.filedata.delete(doc.filedata) #clean
+        doc1 = post('Related doc')
+        self.assertRelationCount(1, entity, REL_SUB_RELATED_2_DOC, doc1)
+
+        entity_folder = doc1.folder
+        self.assertIsNotNone(entity_folder)
+        self.assertEqual(u'%s_%s' % (entity.id, unicode(entity)), entity_folder.title)
+
+        ct_folder = entity_folder.parent_folder
+        self.assertIsNotNone(ct_folder)
+        self.assertEqual(unicode(CremeEntity._meta.verbose_name), ct_folder.title)
+        self.assertEqual(root_folder, ct_folder.parent_folder)
+
+        doc2 = post('Related doc #2')
+        entity_folder2 = doc2.folder
+        self.assertEqual(entity_folder, entity_folder2)
+        self.assertEqual(ct_folder,     entity_folder2.parent_folder)
+
+        for doc in (doc1, doc2):
+            doc.filedata.delete(doc.filedata) #clean
 
     def test_add_related_document02(self): #creation credentials
         self.login(is_superuser=False, allowed_apps=['documents', 'persons'])
@@ -190,7 +210,7 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertFalse(orga.can_link(self.user))
         self.assertEqual(403, self.client.get('/documents/document/add_related/%s' % orga.id).status_code)
 
-    def test_add_related_document03(self): #view credentials
+    def test_add_related_document04(self): #view credentials
         self.login(is_superuser=False, allowed_apps=['documents', 'persons'], creatable_models=[Document])
 
         SetCredentials.objects.create(role=self.role,
@@ -206,6 +226,42 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertTrue(orga.can_link(self.user))
         self.assertFalse(orga.can_view(self.user))
         self.assertEqual(403, self.client.get('/documents/document/add_related/%s' % orga.id).status_code)
+
+    def test_add_related_document05(self):
+        "The Folder containing all the Documents related to the entity has a too long name."
+        self.login()
+
+        MAX_LEN = 100
+        self.assertEqual(MAX_LEN, Folder._meta.get_field('title').max_length)
+
+        with self.assertNoException():
+            entity = Organisation.objects.create(user=self.user, name='A' * MAX_LEN)
+
+        self.assertEqual(100, len(unicode(entity)))
+
+        title    = 'Related doc'
+        filedata = self._build_filedata('Yes I am the content (DocumentTestCase.test_add_related_document)')
+        response = self.client.post('/documents/document/add_related/%s' % entity.id,
+                                    follow=True,
+                                    data={'user':         self.user.pk,
+                                          'title':        title,
+                                          'description':  'Test description',
+                                          'filedata':     filedata.file,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        doc = self.get_object_or_fail(Document, title=title)
+        entity_folder = doc.folder
+        self.assertIsNotNone(entity_folder)
+
+        title = entity_folder.title
+        self.assertEqual(100, len(title))
+        self.assertTrue(title.startswith(u'%s_AAAAAAA' % entity.id))
+        self.assertTrue(title.endswith(u'…'))
+
+        doc.filedata.delete(doc.filedata) #clean
 
     def test_listview(self):
         self.login()
@@ -254,8 +310,8 @@ class DocumentTestCase(_DocumentsTestCase):
 
     #TODO complete
 
+
 class DocumentQuickFormTestCase(_DocumentsTestCase):
-    
     def quickform_data(self, count):
         return {
                 'form-INITIAL_FORMS': '0',
@@ -305,6 +361,7 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
         self.assertEqual([content], filedata.readlines())
 
         filedata.delete(filedata) #clean
+
 
 class CSVDocumentQuickWidgetTestCase(_DocumentsTestCase):
     def test_add_from_widget(self):
