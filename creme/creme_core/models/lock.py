@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,15 +19,21 @@
 ################################################################################
 
 from django.db.models import Model, CharField, IntegerField
+from django.db.utils import IntegrityError
 
-class MutexLockedException(Exception):
-    pass
+
+class MutexLockedException(Exception): #TODO: inner class
+    def __init__(self, *args, **kwargs):
+        super(MutexLockedException, self).__init__('Mutex is already locked')
+
 
 class MutexNotLockedException(Exception):
-    pass
+    def __init__(self, *args, **kwargs):
+        super(MutexNotLockedException, self).__init__('The mutex is not locked')
+
 
 class Mutex(Model):
-    id  = CharField(max_length=100, primary_key=True)
+    id = CharField(max_length=100, primary_key=True)
 
     class Meta:
         app_label = 'creme_core'
@@ -37,35 +43,42 @@ class Mutex(Model):
 
     def lock(self):
         if self.is_locked():
-            raise MutexLockedException(u"Mutex is already locked")
-        self.save()
-        return self
+            raise MutexLockedException()
+
+        try:
+            self.save()
+        except IntegrityError:
+            raise MutexLockedException('Mutex is already locked')
+
+        #return self
 
     def release(self):
         if not self.is_locked():
-            raise MutexNotLockedException(u"The mutex is not locked")
+            raise MutexNotLockedException()
+
         self.delete()
 
     @staticmethod
     def get_n_lock(id_):
-        if Mutex.objects.filter(id=id_).exists():
-            raise MutexLockedException(u"Mutex is already locked")
-        return Mutex(id=id_).lock()
+        mutex = Mutex(id=id_)
+        mutex.lock()
+        return mutex
 
     @staticmethod
     def graceful_release(id_):
         Mutex.objects.filter(id=id_).delete()
 
+    def save(self, *args, **kwargs):
+        super(Mutex, self).save(force_insert=True, *args, **kwargs)
+
+
 def mutexify(func, lock_name):
     def _aux(*args, **kwargs):
         try:
             lock = Mutex.get_n_lock(lock_name)
-
-        except MutexLockedException, e:
+        except MutexLockedException as e:
             print 'A process is already running'
-
         else:
             func(*args, **kwargs)
         finally:
             Mutex.graceful_release(lock_name)
-

@@ -39,10 +39,8 @@ class Command(BaseCommand):
 
         try:
             lock = Mutex.get_n_lock(LOCK_NAME)
-
         except MutexLockedException, e:
             print 'A process is already running'
-
         else:
             #for sending in EmailSending.objects.filter(state=SENDING_STATE_PLANNED):
             for sending in EmailSending.objects.exclude(state=SENDING_STATE_DONE):
@@ -59,5 +57,5 @@ class Command(BaseCommand):
                     #TODO: move in send_mails() ???
                     sending.state = status or SENDING_STATE_DONE
                     sending.save()
-        finally:
+        #finally:
             Mutex.graceful_release(LOCK_NAME)

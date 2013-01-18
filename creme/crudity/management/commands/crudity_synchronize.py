@@ -41,9 +41,7 @@ class Command(BaseCommand):
             try:
                 user = User.objects.get(pk=settings.CREME_GET_EMAIL_JOB_USER_ID)
                 print "There are %s new item(s)" % _fetch(user)
-
             except User.DoesNotExist:
                 pass
-        finally:
+        #finally:
             Mutex.graceful_release(LOCK_NAME)
-

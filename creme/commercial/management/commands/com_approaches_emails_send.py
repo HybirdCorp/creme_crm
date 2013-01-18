@@ -66,10 +66,8 @@ class Command(BaseCommand):
 
         try:
             lock = Mutex.get_n_lock(LOCK_NAME)
-
         except MutexLockedException:
             print 'A process is already running'
-
         else:
             if SettingValue.objects.get(key__id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW).value:
                 for extra_q, delay in self.list_target_orga:
@@ -118,5 +116,5 @@ class Command(BaseCommand):
                         info(u"Emails sended")
                     except Exception as e:
                         error(u"An error has occurred during sending mails (%s)" % e)
-        finally:
+        #finally:
             Mutex.graceful_release(LOCK_NAME)

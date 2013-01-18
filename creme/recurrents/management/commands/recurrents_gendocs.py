@@ -37,7 +37,6 @@ class Command(BaseCommand):
             lock = Mutex.get_n_lock(LOCK_NAME)
         except MutexLockedException, e:
             print 'A process is already running'
-
         else:
             for generator in RecurrentGenerator.objects.filter(is_working=True):
                 recurrent_date = generator.last_generation + timedelta(days = generator.periodicity.value_in_days)
@@ -53,6 +52,6 @@ class Command(BaseCommand):
 
                     generator.last_generation = datetime.now()
                     generator.save()
-        finally:
+        #finally:
             Mutex.graceful_release(LOCK_NAME)
 
