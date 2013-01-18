@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,6 @@
 
 from logging import debug
 
-from django.db.models.query_utils import Q
 from django.forms import CharField
 
 from creme_core.models import Relation
@@ -47,6 +46,15 @@ class DocumentEditForm(CremeEntityForm):
         model = Document
 
 
+_TITLE_MAX_LEN = Folder._meta.get_field('title').max_length
+
+#TODO: move in creme_core.utils ??
+def _ellipsis(s, length):
+    if len(s) > length:
+        s = s[:length - 1] + u'…'
+
+    return s
+
 #TODO : rename it in RelatedDocumentCreateForm
 class DocumentCreateViewForm(DocumentCreateForm):
     class Meta(CremeEntityForm.Meta):
@@ -65,25 +73,22 @@ class DocumentCreateViewForm(DocumentCreateForm):
         #TODO: reduce code depth
         try:
             creme_folder = Folder.objects.get(title='Creme') #Unique title (created in populate.py)
-            creme_folder_category = FolderCategory.objects.get(pk=DOCUMENTS_FROM_ENTITIES)
-            model_folder_kwargs = {'title': unicode(entity.entity_type), 'parent_folder': creme_folder, 'category': creme_folder_category}
-
-            try:
-                model_folder = Folder.objects.get(Q(**model_folder_kwargs))
-            except Folder.DoesNotExist, e:
-                debug('Folder.DoesNotExist: %s', e)
-                model_folder = Folder.objects.create(user=user, **model_folder_kwargs)
-
-            try:
-                entity_folder = Folder.objects.get(title=u'%s_%s' % (entity.id, unicode(entity))) #beurkkk
-            except Folder.DoesNotExist, e:
-                debug('Folder.DoesNotExist: %s', e)
-                entity_folder = Folder.objects.create(title=u'%s_%s' % (entity.id, unicode(entity)),
-                                                      parent_folder=model_folder,
-                                                      category=creme_folder_category,
-                                                      user=user
-                                                     )
-        except (Folder.DoesNotExist, FolderCategory.DoesNotExist), e:
+            category = FolderCategory.objects.get(pk=DOCUMENTS_FROM_ENTITIES)
+            get_folder = Folder.objects.get_or_create
+            model_folder = get_folder(title=unicode(entity.entity_type),
+                                      parent_folder=creme_folder,
+                                      category=category,
+                                      defaults={'user': user},
+                                     ) [0]
+            entity_folder = get_folder(title=_ellipsis(u'%s_%s' % (entity.id, unicode(entity)),
+                                                       _TITLE_MAX_LEN,
+                                                      ), #beurkkk
+                                       defaults={'parent_folder': model_folder,
+                                                 'category':      category,
+                                                 'user':          user,
+                                                },
+                                      ) [0]
+        except (Folder.DoesNotExist, FolderCategory.DoesNotExist) as e:
             debug("Populate.py had not been run ?! : %s", e)
             #TODO: continue !?
 
