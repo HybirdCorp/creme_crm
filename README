@@ -41,9 +41,6 @@ When you have chosen the creme apps you want (by commenting the unwanted ones), 
 run the following commands in the creme/ directory:
 >> python manage.py syncdb
 
-If you have already a database corresponding to Creme 1.0 (else skip the following command), backup your database and run:
->> python manage.py migrate 0001 --fake --all
-
 >> python manage.py migrate
 >> python manage.py generatemedia
 [Do not worry about 'URL not found' messages]
