@@ -30,7 +30,7 @@ from billing.models import Base
 
 class TemplateBase(Base):
     ct          = ForeignKey(ContentType)
-    status_id   = PositiveIntegerField()
+    status_id   = PositiveIntegerField() #TODO: avoid deletion of status
 
     research_fields = Base.research_fields + ['name']
     excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr', 'ct', 'status_id', 'number']

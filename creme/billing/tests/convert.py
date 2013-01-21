@@ -169,3 +169,42 @@ class ConvertTestCase(_BillingTestCase, CremeTestCase):
         properties = invoice.properties.all()
         self.assertEqual(1, len(properties))
         self.assertEqual(quote_property.type, properties[0].type)
+
+    def test_convert06(self):
+        "Quote -> SalesOrder : status id can not be converted (bugfix)"
+        self.login()
+
+        status = QuoteStatus.objects.create(name='Cashing', order=5)
+        self.assertFalse(SalesOrderStatus.objects.filter(pk=status.pk).exists())
+
+        quote = self.create_quote_n_orgas('My Quote')[0]
+        quote.status = status
+        quote.save()
+
+        response = self.client.post('/billing/%s/convert/' % quote.id, data={'type': 'sales_order'}, follow=True)
+        self.assertEqual(200, response.status_code) #TODO: assertPOST200
+
+        orders = SalesOrder.objects.all()
+        self.assertEqual(1, len(orders))
+        self.assertEqual(1, orders[0].status_id)
+
+    def test_convert07(self):
+        "Quote -> Invoice : status id can not be converted (bugfix)"
+        self.login()
+
+        pk = 12
+        self.assertFalse(InvoiceStatus.objects.filter(pk=pk).exists())
+
+        with self.assertNoException():
+            status = QuoteStatus.objects.create(pk=pk, name='Cashing', order=5)
+
+        quote = self.create_quote_n_orgas('My Quote')[0]
+        quote.status = status
+        quote.save()
+
+        response = self.client.post('/billing/%s/convert/' % quote.id, data={'type': 'invoice'}, follow=True)
+        self.assertEqual(200, response.status_code) #TODO: assertPOST200
+
+        invoices = Invoice.objects.all()
+        self.assertEqual(1, len(invoices))
+        self.assertEqual(1, invoices[0].status_id)

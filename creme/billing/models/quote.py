@@ -45,7 +45,12 @@ class Quote(Base):
 
     def build(self, template):
         # Specific recurrent generation rules
-        self.status = QuoteStatus.objects.get(pk = template.status_id) #TODO: self.status_id = template.status_id ??
+        tpl_status_id = template.status_id
+        self.status = QuoteStatus.objects.get_or_create(pk=tpl_status_id,
+                                                        defaults={'name': 'N/A',
+                                                                  'order': tpl_status_id,
+                                                                 },
+                                                       )[0]
         return super(Quote, self).build(template)
 
     class Meta:

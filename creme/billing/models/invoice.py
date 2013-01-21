@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,6 +24,7 @@ from django.utils.translation import ugettext_lazy as _
 from persons.workflow import transform_target_into_customer
 
 from base import Base
+from templatebase import TemplateBase
 from other_models import InvoiceStatus, SettlementTerms
 from product_line import ProductLine
 from service_line import ServiceLine
@@ -84,8 +85,15 @@ class Invoice(Base):
 
     def build(self, template):
         # Specific recurrent generation rules
-        self.status = InvoiceStatus.objects.get(pk=template.status_id) #TODO: "self.status_id = template.status_id" instead ???
-        invoice = super(Invoice, self).build(template)
-        transform_target_into_customer(invoice.get_source(), invoice.get_target(), invoice.user)
+        status_id = 1 #default status (see populate.py)
 
-        return invoice
+        if isinstance(template, TemplateBase):
+            tpl_status_id = template.status_id
+            if InvoiceStatus.objects.filter(pk=tpl_status_id).exists():
+                status_id = tpl_status_id
+
+        self.status_id = status_id
+        super(Invoice, self).build(template)
+        transform_target_into_customer(self.get_source(), self.get_target(), self.user)
+
+        return self
