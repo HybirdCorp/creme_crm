@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -82,26 +82,27 @@ def handle_uploaded_file(f, path=None, name=None):
 
 @login_required
 def download_file(request, location, mimetype=None):
-    #TODO : To be replaced
-    if mimetype is not None :
-        type = mimetype
-    else :
-        type = location.replace('\\','/').rpartition('/')[2].split('.')
-        if len(type) <= 1 :
-            type = "text/plain"
-            name = type[0]
-        else :
-            if len(type) >=3 and type[1]!=type[2]:
-                name = type[0]+'.'+type[1]
-            else:
-                name = '.'.join(type)
-            type = type[len(type)-1]
+    if mimetype is not None:
+        ftype = mimetype
+    else:
+        name_parts = location.replace('\\','/').rpartition('/')[2].split('.')
 
-    image_url = settings.MEDIA_ROOT + os.sep + location.replace('../','').replace('..\\','')
-    with open(image_url, 'rb+') as f:
+        if len(name_parts) == 1: #should not happen
+            ftype = 'text/plain'
+            name = name_parts[0]
+        else:
+            if len(name_parts) > 2 and name_parts[-1] == 'txt' and \
+               name_parts[-2] not in settings.ALLOWED_EXTENSIONS:
+                name_parts.pop() #drop the added '.txt'
+
+            name = '.'.join(name_parts)
+            ftype = name_parts[-1]
+
+    path = settings.MEDIA_ROOT + os.sep + location.replace('../','').replace('..\\','')
+    with open(path, 'rb+') as f:
         data = f.read()
 
-    response = HttpResponse(data, mimetype=type)
+    response = HttpResponse(data, mimetype=ftype)
     response['Content-Disposition'] = "attachment; filename=%s" % (name.replace(' ','_'))
     return response
 
