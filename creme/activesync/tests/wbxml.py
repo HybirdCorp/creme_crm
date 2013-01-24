@@ -13,7 +13,7 @@ try:
     from activesync.wbxml.dtd import AirsyncDTD_Reverse, AirsyncDTD_Forward
     from activesync.wbxml.codec import WBXMLEncoder, WBXMLDecoder, WrongXMLType
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 DEFAULT_CHUNK_SIZE = File.DEFAULT_CHUNK_SIZE
@@ -81,7 +81,8 @@ class ActiveSyncWbxmlTestCase(CremeTestCase):
 
     def test_encoder05(self):
         self.assertRaises(WrongXMLType, WBXMLEncoder(AirsyncDTD_Reverse).encode, None)
-        self.assertRaises(expat.ExpatError, WBXMLEncoder(AirsyncDTD_Reverse).encode, '')
+        #self.assertRaises(expat.ExpatError, WBXMLEncoder(AirsyncDTD_Reverse).encode, '')
+        self.assertRaises(Exception, WBXMLEncoder(AirsyncDTD_Reverse).encode, '') #expat.ExpatError in py2.6, ParseError in py2.7
 
     def test_encoder06(self):
         xml_str   = self._open_n_read('test_6.xml')

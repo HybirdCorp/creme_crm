@@ -21,7 +21,7 @@
 import logging
 import re
 from itertools import ifilter
-from pyexpat import ExpatError
+#from pyexpat import ExpatError
 from xml.etree import ElementTree as ET
 
 from django.contrib.auth.models import User
@@ -221,7 +221,8 @@ class CreateInfopathInput(CreateEmailInput):
 
         try:
             xml = ET.fromstring(content)
-        except ExpatError as e:
+        #except ExpatError as e:
+        except Exception as e: #ExpatError in py2.6, ParseError in py2.7...
             logging.error(e)
             return None
 
