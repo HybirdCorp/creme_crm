@@ -230,7 +230,7 @@ class ReportsTestCase(CremeTestCase):
         content = [s for s in response.content.split('\r\n') if s]
         self.assertEqual(5, len(content)) #4 contacts + header
         self.assertEqual(smart_str("%s;%s;%s;%s" % (
-                                      _(u'Name'), _(u'User'), _(u'owns'), _(u'Properties')
+                                      _(u'Last name'), _(u'User'), _(u'owns'), _(u'Properties')
                                     )
                                   ),
                          content[0]

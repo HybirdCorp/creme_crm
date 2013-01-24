@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,22 +17,25 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from struct import unpack
 import os
 import random
 import base64
-
-from PIL import Image
 from datetime import datetime
-from activesync.constants import USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS
-from creme_config.models.setting import SettingValue
 
 try:
     from cStringIO import StringIO
 except ImportError:
     from StringIO import StringIO
 
+from PIL import Image
+
 from django.core.files.base import File
+
+from creme_config.models.setting import SettingValue
+
+from activesync.constants import USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS
 
 
 DEFAULT_CHUNK_SIZE = File.DEFAULT_CHUNK_SIZE
@@ -71,14 +74,14 @@ def b64_encode_file(file_path):
     return (len_encoded, value)
 
 
-def b64_from_pil_image(im, quality=75, reduce_by=1,  out_format='JPEG'):
+def b64_from_pil_image(im, quality=75, reduce_by=1, out_format='JPEG'):
     """Get a PIL Image
     Returns (image content in base64), image content in base64)
     """
     img_content = StringIO()
     width, height = im.size
 
-    im.thumbnail((width*reduce_by, height*reduce_by))
+    im.thumbnail((int(width * reduce_by), int(height * reduce_by))) #TODO: round ??
     im.save(img_content, out_format, quality=quality)
 
     content = base64.b64encode(img_content.getvalue())

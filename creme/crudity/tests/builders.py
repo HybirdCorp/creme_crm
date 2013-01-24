@@ -107,7 +107,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         self.assertEqual(builder.get_namespace(), xml_find('%(ns)sapplicationParameters/%(ns)ssolutionProperties' % d_ns).get('fullyEditableNamespace'))
         self.assertEqual(builder.get_namespace(), xml_find('%(ns)sdocumentSchemas/%(ns)sdocumentSchema' % d_ns).get('location').split()[0])
 
-        file_nodes = xml.findall('%(ns)spackage/%(ns)sfiles/%(ns)sfile/' % d_ns)#ElementTree 1.2.6 (shipped with python <= 2.6) doesn't support advanced xpath expressions
+        #file_nodes = xml.findall('%(ns)spackage/%(ns)sfiles/%(ns)sfile/' % d_ns)#ElementTree 1.2.6 (shipped with python <= 2.6) doesn't support advanced xpath expressions
+        file_nodes = xml.findall('%(ns)spackage/%(ns)sfiles/%(ns)sfile' % d_ns)#ElementTree 1.2.6 (shipped with python <= 2.6) doesn't support advanced xpath expressions
         found_node = None
         for node in file_nodes:
             if node.get('name') == "view1.xsl":
@@ -296,7 +297,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         d_ns = {'xsl': "{http://www.w3.org/1999/XSL/Transform}"}
         xml  = XML(content)
         self.assertEqual(set("my:%s" % field_name for field_name in body_map.iterkeys()),
-                         set(element_node.get('name') for element_node in xml.findall("%(xsl)stemplate/%(xsl)scopy/%(xsl)selement/" % d_ns))
+                         #set(element_node.get('name') for element_node in xml.findall("%(xsl)stemplate/%(xsl)scopy/%(xsl)selement/" % d_ns))
+                         set(node.get('name') for node in xml.findall("%(xsl)stemplate/%(xsl)scopy/%(xsl)selement" % d_ns))
                         )
 
     def test_upgrade_xsl02(self):#m2m

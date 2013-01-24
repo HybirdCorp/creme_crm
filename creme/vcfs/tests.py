@@ -971,22 +971,31 @@ class ContactTestCase(VcfsTestCase):
         self.login()
 
         contact_count = Contact.objects.count()
-
-        content  = """BEGIN:VCARD\nN;ENCODING=8BIT:HUDARD;Jean;;Monsieur;\nTITLE:PDG\nEND:VCARD"""
+        content  = 'BEGIN:VCARD\nN;ENCODING=8BIT:HUDARD;Jean;;%(civility)s;\nTITLE:%(position)s\nEND:VCARD' % {
+                            'civility': _('Mr.'),
+                            'position': _('CEO'),
+                        }
         filedata = self._build_filedata(content)
 
         url = '/vcfs/vcf'
         response = self._post_form_step_0(url, filedata.file)
 
-        form = response.context['form']
-        user        = form['user'].field.initial
-        first_name  = form['first_name'].field.initial
-        last_name   = form['last_name'].field.initial
-        civility_id = form['civility'].field.initial
-        position_id = form['position'].field.initial
+        with self.assertNoException():
+            form = response.context['form']
+            user_id     = form.fields['user'].initial
+            first_name  = form.fields['first_name'].initial
+            last_name   = form.fields['last_name'].initial
+            civility_id = form.fields['civility'].initial
+            position_id = form.fields['position'].initial
+
+        self.assertEqual(self.user.id, user_id)
+        self.assertEqual('Jean', first_name)
+        self.assertEqual('HUDARD', last_name)
+        self.assertEqual(3, civility_id) #pk=3 see persons.populate
+        self.assertEqual(1, position_id) #pk=1 idem
 
         response = self.client.post(url, follow=True,
-                                    data={'user':       user,
+                                    data={'user':       user_id,
                                           'vcf_step':   1,
                                           'first_name': first_name,
                                           'last_name':  last_name,
