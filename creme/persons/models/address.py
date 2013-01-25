@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -64,26 +64,23 @@ class Address(CremeModel):
     _INFO_FIELD_NAMES = ('name', 'address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country')
 
     def __nonzero__(self): #used by forms to detect empty addresses
-        return any(getattr(self, fname) for fname in self._INFO_FIELD_NAMES)
+        #return any(getattr(self, fname) for fname in self._INFO_FIELD_NAMES)
+        return any(fvalue for fname, fvalue in self._get_info_fields())
+
+    def _get_info_fields(self):
+        for fname in self._INFO_FIELD_NAMES:
+            yield fname, getattr(self, fname)
 
     def clone(self, entity):
         """Returns a new cloned (saved) address for a (saved) entity"""
-        return Address.objects.create(name=self.name, address=self.address, po_box=self.po_box,
-                                      city=self.city, state=self.state, zipcode=self.zipcode,
-                                      country=self.country, department=self.department,
-                                      content_type=ContentType.objects.get_for_model(entity), object_id=entity.id
+        return Address.objects.create(object_id=entity.id,
+                                      content_type=ContentType.objects.get_for_model(entity),
+                                      **dict(self._get_info_fields())
                                      )
 
 
 #TODO: with a real ForeignKey can not we remove these handlers ??
 def _dispose_addresses(sender, instance, **kwargs):
-    #from persons.models import Contact, Organisation
-
-    #get_ct = ContentType.objects.get_for_model
-    #ct_id = instance.entity_type_id
-
-    #if ct_id == get_ct(Contact).id or ct_id == get_ct(Organisation).id:
-        #Address.objects.filter(object_id=instance.id).delete()
     Address.objects.filter(object_id=instance.id).delete()
 
 def _handle_merge(sender, other_entity, **kwargs):
