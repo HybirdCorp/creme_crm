@@ -21,6 +21,16 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
+def js_testview_or_404(request, message, error):
+    from logging import warn
+    from django.http import Http404
+    from django.conf import settings
+    from creme_core.utils import is_testenvironment
+
+    if not is_testenvironment(request) and not settings.FORCE_JS_TESTVIEW:
+        raise Http404(error)
+
+    warn(message)
 
 @login_required
 def home(request):
@@ -32,14 +42,16 @@ def my_page(request):
 
 @login_required
 def test_js(request):
-    from logging import warn
-    from django.http import Http404
-    from django.conf import settings
-    from creme_core.utils import is_testenvironment
-
-    if not is_testenvironment(request) and not settings.FORCE_JS_TESTVIEW:
-        raise Http404('This is view is only reachable during unittests')
-
-    warn("Beware : If you are not running unittest this view shouldn't be reachable. Check your server configuration.")
+    js_testview_or_404(request, 
+                       "Beware : If you are not running unittest this view shouldn't be reachable. Check your server configuration.",
+                       'This is view is only reachable during unittests')
 
     return render(request, 'creme_core/test_js.html')
+
+@login_required
+def test_widget(request, widget):
+    js_testview_or_404(request, 
+                       "Beware : If you are not running unittest this view shouldn't be reachable. Check your server configuration.",
+                       'This is view is only reachable during unittests')
+
+    return render(request, 'creme_core/tests/test_' + widget + '_widget.html')
