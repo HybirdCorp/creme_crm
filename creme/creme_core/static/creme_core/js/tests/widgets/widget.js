@@ -412,6 +412,8 @@ test('creme.widget.values_list (setter, inputs: widget, values: valid json)', fu
 test('creme.widget.values_list (setter, inputs: multiple input, values: object array)', function() {
     var element = create_inputs([40, 41, 42]);
     var inputs = $('input.ui-creme-input', element);
+    
+    console.log(inputs);
 
     equal(inputs.length, 3);
     equal($(inputs[0]).val(), 40);

@@ -22,7 +22,7 @@ creme.object = {
     },
 
     isempty: function(obj) {
-        return this.isnone(obj) || obj.length === 0 || $.isEmptyObject(obj)
+        return this.isnone(obj) || obj.length === 0 || (obj !== 0 && $.isEmptyObject(obj))
     },
 
     invoke: function()

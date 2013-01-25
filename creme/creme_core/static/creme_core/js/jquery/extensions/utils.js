@@ -37,3 +37,18 @@ $.fn.getValues = function(){
     });
     return arrOfSelected;
 }
+
+$.assertBrowserVersions = function(pattern) {
+    return $.browser.version.match('^(' + pattern + ')$') !== null;
+}
+
+$.assertIEVersions = function() {
+    pattern = '';
+
+    for(var i in arguments) {
+        var version =  arguments[i] + '\.[\\d]+';
+        pattern += i > 0 ? '|' + version : version;
+    }
+
+    return ($.browser.msie === true) && $.assertBrowserVersions(pattern);
+}
