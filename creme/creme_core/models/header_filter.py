@@ -19,7 +19,7 @@
 ################################################################################
 
 from collections import defaultdict
-from logging import debug
+from logging import debug, warn
 
 from django.db.models import (Model, CharField, ForeignKey, BooleanField, PositiveIntegerField,
                               PositiveSmallIntegerField, DateField, DateTimeField, ManyToManyField)
@@ -176,6 +176,9 @@ class HeaderFilter(Model): #CremeModel ???
             func_field.populate_entities(entities)
 
     def set_items(self, items): #TODO: reuse old items' pk ?? fill cache ?
+        "@param items Sequence of HeaderFilterItems (or None, that are ignored)"
+        items = filter(None, items)
+
         for i, hfi in enumerate(items, start=1):
             hfi.order = i
             hfi.header_filter = self
@@ -207,9 +210,10 @@ class HeaderFilterItem(Model):  #CremeModel ???
 
     class Meta:
         app_label = 'creme_core'
+        ordering = ('order',)
 
-    class ValueError(Exception):
-        pass
+    #class ValueError(Exception):
+        #pass
 
     _CF_PATTERNS = {
             CustomField.BOOL:       '%s__value__creme-boolean',
@@ -235,7 +239,9 @@ class HeaderFilterItem(Model):  #CremeModel ???
     def build_4_field(model, name):
         field_info = get_model_field_infos(model, name)
         if not field_info:
-            raise HeaderFilterItem.ValueError(u'Invalid field: %s' % name)
+            #raise HeaderFilterItem.ValueError(u'Invalid field: %s' % name)
+            warn('HeaderFilterItem.build_4_field(): invalid field "%s"', name)
+            return None
 
         field = field_info[0]['field']
         has_a_filter = True
