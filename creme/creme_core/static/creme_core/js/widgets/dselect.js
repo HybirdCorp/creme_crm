@@ -162,7 +162,12 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         if (typeof value !== 'string')
             value = $.toJSON(value);
 
-        element.val(value);
+        if ($('> option[value="' + value + '"]', element).length === 0) {
+            this.selectfirst(element);
+        } else {
+            element.val(value);
+        }
+
         this._triggerchanged(element, undefined);
     },
 
@@ -174,6 +179,10 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
             return value;
 
         return creme.widget.cleanval(value, value);
+    },
+
+    selectfirst: function(element) {
+        element.val($('> option:first', element).attr('value'));
     },
 
     choice: function(element, key)

@@ -82,7 +82,7 @@ function create_mocks(initials)
 {
     var element = $('<div>');
 
-    for(var i in initials)
+    for(var i = 0; i < initials.length; ++i)
         element.append(create_mock(initials[i]));
 
     return element;
@@ -92,7 +92,7 @@ function create_inputs(initials)
 {
     var element = $('<div>');
 
-    for(var i in initials)
+    for(var i = 0; i < initials.length; ++i)
         element.append(create_input(initials[i]));
 
     return element;
@@ -412,8 +412,6 @@ test('creme.widget.values_list (setter, inputs: widget, values: valid json)', fu
 test('creme.widget.values_list (setter, inputs: multiple input, values: object array)', function() {
     var element = create_inputs([40, 41, 42]);
     var inputs = $('input.ui-creme-input', element);
-    
-    console.log(inputs);
 
     equal(inputs.length, 3);
     equal($(inputs[0]).val(), 40);

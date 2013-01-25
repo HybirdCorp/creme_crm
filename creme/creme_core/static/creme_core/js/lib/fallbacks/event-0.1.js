@@ -16,7 +16,7 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
 
-if ($.assertIEVersions(7) === true) {
+if (!this['Event']) {
     this['Event'] = function() {};
 }
 

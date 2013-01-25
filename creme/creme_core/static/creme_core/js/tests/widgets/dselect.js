@@ -176,9 +176,10 @@ test('creme.widget.DynamicSelect.reload (static, unknown url)', function() {
 
     creme.widget.create(element);
     equal(element.creme().widget().url(), "");
-    deepEqual(element.creme().widget().delegate._initial, '<option value="1">a</option>' +
-                                                          '<option value="5">b</option>' +
-                                                          '<option value="3">c</option>');
+
+    assertHTMLEqual(element.creme().widget().delegate._initial, '<option value="1">a</option>' +
+                                                                '<option value="5">b</option>' +
+                                                                '<option value="3">c</option>');
 
     var response = [];
     element.creme().widget().reload('unknown', function() {response.push('ok');}, function() {response.push('error');});
