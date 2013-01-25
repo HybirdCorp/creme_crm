@@ -356,6 +356,10 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/jquery/extensions/jquery.form.js',
                     'creme_core/js/jquery/extensions/jquery.tinymce.js',
 
+                    'creme_core/js/lib/fallbacks/array-0.9.js',
+                    'creme_core/js/lib/fallbacks/event-0.1.js',
+                    'creme_core/js/lib/fallbacks/htmldocument-0.1.js',
+
                     #'creme_core/js/datejs/date-en-US.js', #TODO improve
                     'creme_core/js/datejs/date-fr-FR.js',
 
@@ -415,6 +419,7 @@ TEST_CREME_CORE_JS = (#js Unit test files
     'creme_core/js/tests/qunit/qunit-1.6.0.js',
     'creme_core/js/tests/mockajax.js',
     'creme_core/js/tests/utils.js',
+    'creme_core/js/tests/fallbacks.js',
     'creme_core/js/tests/widgets/base.js',
     'creme_core/js/tests/widgets/widget.js',
     'creme_core/js/tests/widgets/frame.js',
