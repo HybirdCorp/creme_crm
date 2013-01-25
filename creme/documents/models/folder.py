@@ -36,7 +36,7 @@ MAXINT = 100000
 class Folder(CremeEntity):
     """Folder: contains Documents"""
     title         = CharField(_(u'Title'), max_length=100, unique=True)
-    description   = TextField(_(u'Description'))
+    description   = TextField(_(u'Description'), null=True, blank=True)
     parent_folder = ForeignKey('self', verbose_name=_(u'Parent folder'), blank=True, null=True, related_name='parent_folder_set')
     category      = ForeignKey(FolderCategory, verbose_name=_(u'Category'), blank=True, null=True, related_name='folder_category_set', on_delete=SET_NULL)
 
