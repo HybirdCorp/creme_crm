@@ -45,7 +45,7 @@ $.assertBrowserVersions = function(pattern) {
 $.assertIEVersions = function() {
     pattern = '';
 
-    for(var i in arguments) {
+    for(var i = 0; i < arguments.length; ++i) {
         var version =  arguments[i] + '\.[\\d]+';
         pattern += i > 0 ? '|' + version : version;
     }

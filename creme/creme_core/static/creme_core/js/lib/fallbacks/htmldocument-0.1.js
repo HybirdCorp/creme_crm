@@ -16,11 +16,13 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *******************************************************************************/
 
-if ($.assertIEVersions(7, 8, 9))
+if (!this['HTMLDocument']) {
     this['HTMLDocument'] = function () {};
+}
 
-if ($.assertIEVersions(7))
+if (!this['CSSStyleDeclaration']) {
     this['CSSStyleDeclaration'] = function () {};
+}
 
 //HTMLDocument = $.assertIEVersions(7, 8, 9) ? function() {} : HTMLDocument;
 //CSSStyleDeclaration = $.assertIEVersions(7) ? function() {} : CSSStyleDeclaration;

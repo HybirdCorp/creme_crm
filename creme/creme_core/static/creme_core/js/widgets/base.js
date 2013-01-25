@@ -353,10 +353,10 @@ $.extend(creme.widget, {
             widget[key] = function() {
                 var args = [element];
 
-                for(var i in arguments)
+                for(var i = 0; i < arguments.length; ++i) {
                     args.push(arguments[i]);
+                }
 
-                //console.log('delegate', key, delegate);
                 return value.apply(delegate, args);
             }
         });

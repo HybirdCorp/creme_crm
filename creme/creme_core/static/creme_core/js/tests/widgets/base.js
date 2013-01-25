@@ -4,6 +4,10 @@ module("creme.widgets.base.js", {
 
 });
 
+function assertHTMLEqual(expected, value) {
+    deepEqual($(expected).html(), $(value).html());
+}
+
 test('creme.widget.parseopt (no default options)', function() {
     expect(3);
     var options = creme.widget.parseopt($('<div/>'));
