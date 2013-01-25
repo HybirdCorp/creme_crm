@@ -104,4 +104,5 @@ urlpatterns = patterns('creme_core.views',
     (r'^creme_core/', include(creme_core_patterns)),
 
     (r'^test_js$', 'index.test_js'),
+    (r'^test_widget/(?P<widget>\w+)$', 'index.test_widget'),
 )
