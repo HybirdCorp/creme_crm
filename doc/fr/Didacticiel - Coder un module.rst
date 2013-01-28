@@ -156,7 +156,7 @@ Nous venons de créer notre première classe de modèle, ``Beaver``. Ce modèle 
 à une table dans Système de Gestion de Base de Données (SGBD) : *beavers_beaver*.
 Pour le moment, on ne stocke pour chaque castor que son nom et sa date de naissance.
 Notre modèle dérive de ``CremeEntity``, et non d'un simple ``DjangoModel`` : ceci
-permettra aux castors de disposer de Propriétés, de Relations, de pourvoir être affichés
+permettra aux castors de disposer de Propriétés, de Relations, de pouvoir être affichés
 dans une vue en liste, ainsi que beaucoup d'autres services.
 
 En plus des champs contenus en base (fields), nous déclarons :
@@ -237,7 +237,7 @@ colonne nommée "name", de type VARCHAR(100), et une colonne "birthday" de type 
 Faire apparaître notre module
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Il bien falloir remplir cette base de données avec des castors. Pourtant si nous
+Il va bien falloir remplir cette base de données avec des castors. Pourtant si nous
 lançons Creme avec le serveur de développement de Django, et que nous y connectons
 avec notre navigateur Web (à l'adresse définie par SITE_DOMAIN dans la configuration),
 que ce passe-t-il ? ::
@@ -295,17 +295,11 @@ Nous allons à présent créer la vue permettant d'afficher la liste des castors
 auquelle on accède par l'url: '/beavers/beavers', que l'on a utilisé dans
 ``creme_core_register.py``.
 
-Premièrement, éditons le fichiers ``creme/urls.py`` ; on y trouve la configuration
-des chemins de base pour chaque app. Rajoutons donc la configuration de notre app,
-après celle de l'app "tickets" par exemple : ::
-
-    [...]
-    (r'^vcfs/',           include('vcfs.urls')),
-    (r'^beavers/',        include('beavers.urls')), # <- NEW
-
-    [...]
-
-Ensuite, dans ``beavers/``, créons le fichiers ``urls.py`` contenant : ::
+Premièrement, jettons un coup d'oeil au fichier ``creme/urls.py`` ; on y trouve
+la configuration des chemins de base pour chaque app. Nous remarquons ici que
+pour chaque app présente dans le tuple INSTALLED_CREME_APPS, on récupère le fichier
+``urls.py`` se trouvant dans le répertoire ``nom_de_votre_appli/``.
+Créons donc ce fichiers ``urls.py`` contenu dans ``beaver/`` : ::
 
     # -*- coding: utf-8 -*-
 
