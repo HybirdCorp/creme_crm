@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import Avg, Min, Max, Sum#, Count
-from django.utils.translation import ugettext_lazy as _
 from django.db import models
+#from django.db.models import Avg, Min, Max, Sum#, Count
+from django.utils.translation import ugettext_lazy as _
 
 
 class FieldAggregation(object):
@@ -30,10 +30,11 @@ class FieldAggregation(object):
         self.pattern = pattern
         self.title   = title
 
-class FieldAggregationRegistry(object):
 
+class FieldAggregationRegistry(object):
     authorized_fields = (models.DecimalField, models.FloatField, models.PositiveIntegerField,
-                         models.PositiveSmallIntegerField, models.IntegerField, models.SmallIntegerField, )
+                         models.PositiveSmallIntegerField, models.IntegerField, models.SmallIntegerField,
+                        )
 
     def __init__(self):
         self._aggregations = {}
@@ -51,7 +52,7 @@ class FieldAggregationRegistry(object):
         return self._aggregations.itervalues()
 
 field_aggregation_registry = FieldAggregationRegistry()
-field_aggregation_registry.register('avg',   FieldAggregation('avg',   Avg,   '%s__avg',   _(u'Average')))
-field_aggregation_registry.register('min',   FieldAggregation('min',   Min,   '%s__min',   _(u'Minimum')))
-field_aggregation_registry.register('max',   FieldAggregation('max',   Max,   '%s__max',   _(u'Maximum')))
-field_aggregation_registry.register('sum',   FieldAggregation('sum',   Sum,   '%s__sum',   _(u'Sum')))
+field_aggregation_registry.register('avg', FieldAggregation('avg', models.Avg, '%s__avg', _(u'Average')))
+field_aggregation_registry.register('min', FieldAggregation('min', models.Min, '%s__min', _(u'Minimum')))
+field_aggregation_registry.register('max', FieldAggregation('max', models.Max, '%s__max', _(u'Maximum')))
+field_aggregation_registry.register('sum', FieldAggregation('sum', models.Sum, '%s__sum', _(u'Sum')))

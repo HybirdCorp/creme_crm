@@ -58,12 +58,12 @@ class _PrettyPropertiesField(FunctionField):
 
 
 class CremeEntity(CremeAbstractEntity):
-    header_filter_exclude_fields = CremeAbstractEntity.header_filter_exclude_fields + ['cremeentity_ptr', 'entity_type', 'is_deleted', 'is_actived', 'header_filter_search_field'] #TODO: use a set() ??
-    extra_filter_exclude_fields  = CremeAbstractEntity.extra_filter_exclude_fields + ['id', 'cremeentity_ptr', 'header_filter_search_field']
+    #header_filter_exclude_fields = CremeAbstractEntity.header_filter_exclude_fields + ['cremeentity_ptr', 'entity_type', 'is_deleted', 'is_actived', 'header_filter_search_field'] #todo: use a set() ??
+    #extra_filter_exclude_fields  = CremeAbstractEntity.extra_filter_exclude_fields + ['id', 'cremeentity_ptr', 'header_filter_search_field']
 
     function_fields = CremeAbstractEntity.function_fields.new(_PrettyPropertiesField())
 
-    _clone_excluded_fields = set(['created', 'modified'])
+    #_clone_excluded_fields = set(['created', 'modified'])
     allowed_related        = set() #Currently used in reports (can be used elsewhere ?) to allow reporting on those related fields
 
     class Meta:
@@ -399,11 +399,14 @@ class CremeEntity(CremeAbstractEntity):
         fields_kv = {}
 
         for field in self._meta.fields:
-            if isinstance(field, (models.AutoField, models.OneToOneField)) or field.name in self._clone_excluded_fields:
-                continue
+            #if isinstance(field, (models.AutoField, models.OneToOneField)) or field.name in self._clone_excluded_fields:
+                #continue
 
-            field_value = getattr(self, field.name)
-            fields_kv[field.name] = field_value
+            #field_value = getattr(self, field.name)
+            #fields_kv[field.name] = field_value
+            if field.get_tag('clonable'):
+                fname = field.name
+                fields_kv[fname] = getattr(self, fname)
 
         new_entity = self.__class__(**fields_kv)
         new_entity._pre_save_clone(self)

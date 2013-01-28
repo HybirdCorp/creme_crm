@@ -29,11 +29,12 @@ from billing.models import Base
 
 
 class TemplateBase(Base):
-    ct          = ForeignKey(ContentType)
-    status_id   = PositiveIntegerField() #TODO: avoid deletion of status
+    ct        = ForeignKey(ContentType).set_tags(viewable=False)
+    status_id = PositiveIntegerField().set_tags(viewable=False) #TODO: avoid deletion of status
 
-    research_fields = Base.research_fields + ['name']
-    excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr', 'ct', 'status_id', 'number']
+    #research_fields = Base.research_fields + ['name']
+    #TODO: what about number (now it is viewable) ??
+    #excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr', 'ct', 'status_id', 'number']
 
     class Meta:
         app_label = 'billing'

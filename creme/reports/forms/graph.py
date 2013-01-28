@@ -30,7 +30,7 @@ from creme_core.models.relation import RelationType
 from creme_core.forms.base import CremeEntityForm
 from creme_core.forms.widgets import DependentSelect, Label
 from creme_core.forms.fields import AjaxChoiceField
-from creme_core.utils.meta import get_flds_with_fk_flds
+from creme_core.utils.meta import ModelFieldEnumerator #get_flds_with_fk_flds
 
 from reports.report_aggregation_registry import field_aggregation_registry
 from reports.models.graph import ReportGraph, RGT_FK, RGT_RANGE, RGT_RELATION
@@ -73,16 +73,20 @@ class ReportGraphAddForm(CremeEntityForm):
         aggregates        = fields['aggregates']
         abscissa_fields   = fields['abscissa_fields']
 
-        aggregates_fields.choices = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, AUTHORIZED_AGGREGATE_FIELDS)]
+        #aggregates_fields.choices = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, AUTHORIZED_AGGREGATE_FIELDS)]
+        aggregates_fields.choices = ModelFieldEnumerator(model, deep=0) \
+                                        .filter((lambda f: isinstance(f, AUTHORIZED_AGGREGATE_FIELDS)), viewable=True) \
+                                        .choices()
         if not aggregates_fields.choices:
-             #NB: WTF !!?? this line is exactly the same than previous one (Commented on 9 december 2010)
-             #aggregates_fields.choices = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, authorized_aggregate_fields)]
              aggregates_fields.required = False
              aggregates.required = False
 
-
-        abscissa_predicates     = [(rtype.id, rtype.predicate) for rtype in RelationType.get_compatible_ones(report_ct, include_internals=True).order_by('predicate')]#Relation type as abscissa
-        abscissa_model_fields   = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, AUTHORIZED_ABSCISSA_TYPES)]#One field of the model as abscissa
+        abscissa_predicates   = [(rtype.id, rtype.predicate) for rtype in RelationType.get_compatible_ones(report_ct, include_internals=True).order_by('predicate')]#Relation type as abscissa
+        #abscissa_model_fields   = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, AUTHORIZED_ABSCISSA_TYPES)]#One field of the model as abscissa
+        #One field of the model as abscissa
+        abscissa_model_fields = ModelFieldEnumerator(model, deep=0, only_leafs=False) \
+                                    .filter((lambda f: isinstance(f, AUTHORIZED_ABSCISSA_TYPES)), viewable=True) \
+                                    .choices()
         abscissa_model_fields.sort(key=lambda x: x[1])
 
         abscissa_fields.choices = ((_(u"Fields"), abscissa_model_fields), (_(u"Relations"), abscissa_predicates))

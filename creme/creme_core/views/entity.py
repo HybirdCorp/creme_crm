@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,7 +36,7 @@ from creme_core.forms.bulk import _get_choices, EntitiesBulkUpdateForm, _FIELDS_
 from creme_core.forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseForm
 from creme_core.views.generic import inner_popup, list_view_popup_from_widget
 from creme_core.utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify
-from creme_core.utils.meta import get_flds_with_fk_flds_str
+from creme_core.utils.meta import ModelFieldEnumerator #get_flds_with_fk_flds_str
 
 
 @login_required
@@ -72,7 +72,9 @@ def get_creme_entity_as_json(request):
                 data = [entity]
                 status = 200
 
-    return HttpResponse(serializers.serialize('json', data, fields=fields), mimetype="text/javascript", status=status)
+    return HttpResponse(serializers.serialize('json', data, fields=fields),
+                        mimetype="text/javascript", status=status,
+                       )
 
 
 #TODO: use fields tags
@@ -89,7 +91,9 @@ def get_info_fields(request, ct_id):
 
     #TODO: use django.forms.models.fields_for_model ?
     form = modelform_factory(model, CremeEntityForm)(user=request.user)
-    required_fields = [name for name, field in form.fields.iteritems() if field.required and name != 'user']
+    required_fields = [name for name, field in form.fields.iteritems()
+                           if field.required and name != 'user'
+                      ]
 
     if len(required_fields) == 1:
         required_field = required_fields[0]
@@ -99,7 +103,10 @@ def get_info_fields(request, ct_id):
     else:
         printer = lambda field: unicode(field.verbose_name)
 
-    return [(field.name, printer(field)) for field in model._meta.fields if field.name not in EXCLUDED_FIELDS and not isinstance(field, ForeignKey)]
+    return [(field.name, printer(field))
+                for field in model._meta.fields
+                    if field.name not in EXCLUDED_FIELDS and not isinstance(field, ForeignKey)
+           ]
 
 @login_required
 def bulk_update(request, ct_id):#TODO: Factorise with add_properties_bulk and add_relations_bulk?
@@ -153,14 +160,18 @@ def get_fields(request):
     try:
         model = get_ct_or_404(int(get_from_POST_or_404(POST, 'ct_id'))).model_class()
         deep  = int(POST.get('deep', 1))
-    except ValueError, e:
+    except ValueError as e:
         msg    = str(e)
         status = 400
-    except Http404, e:
+    except Http404 as e:
         msg    = str(e)
         status = 404
     else:
-        msg    = JSONEncoder().encode(get_flds_with_fk_flds_str(model, deep))
+        #msg    = JSONEncoder().encode(get_flds_with_fk_flds_str(model, deep))
+        msg = JSONEncoder().encode(ModelFieldEnumerator(model, deep=1, only_leafs=True)
+                                       .filter(viewable=True)
+                                       .choices()
+                                  )
         status = 200
 
     return HttpResponse(msg, mimetype="text/javascript", status=status)
@@ -169,10 +180,10 @@ def get_fields(request):
 def _get_ct_info(request, generator):
     try:
         ct = get_ct_or_404(int(get_from_POST_or_404(request.POST, 'ct_id')))
-    except ValueError, e:
+    except ValueError as e:
         status = 400
         msg    = str(e)
-    except Http404, e:
+    except Http404 as e:
         status = 404
         msg    = str(e)
     else:
@@ -185,12 +196,18 @@ def _get_ct_info(request, generator):
 def get_custom_fields(request):
     """@return Custom fields for a model [('cfield1_name', 'cfield1_name'), ...]"""
     return _get_ct_info(request,
-                        lambda ct: [(cf.name, cf.name) for cf in CustomField.objects.filter(content_type=ct)])
+                        lambda ct: [(cf.name, cf.name)
+                                        for cf in CustomField.objects.filter(content_type=ct)
+                                   ]
+                       )
 
 def get_function_fields(request):
     """@return functions fields for a model [('func_name', 'func_verbose_name'), ...]"""
     return _get_ct_info(request,
-                        lambda ct: [(f_field.name, unicode(f_field.verbose_name)) for f_field in ct.model_class().function_fields])
+                        lambda ct: [(f_field.name, unicode(f_field.verbose_name)) 
+                                        for f_field in ct.model_class().function_fields
+                                   ]
+                       )
 
 
 @jsonify
@@ -232,7 +249,11 @@ def get_widget(request, ct_id):
         if inner_edit_obj_id:
             form_field.initial = model_to_dict(object, [field_name])[field_name]
 
-    return {'rendered': form_field.widget.render(name=field_value_name, value=form_field.initial, attrs={'id': 'id_%s' % field_value_name})}
+    return {'rendered': form_field.widget.render(name=field_value_name,
+                                                 value=form_field.initial,
+                                                 attrs={'id': 'id_%s' % field_value_name},
+                                                ),
+           }
 
 @login_required
 def clone(request):

@@ -86,6 +86,11 @@ def get_related_entities(entity, relation_type_id):
 def get_extra_field_value(object, field_name):
     return object.__getattribute__(field_name)() #TODO: use getattr() ??
 
+@register.filter(name="get_tag")
+def get_fieldtag(field, tag):
+    """eg: {% if field|get_tag:'viewable' %}"""
+    return field.get_tag(tag)
+
 @register.simple_tag
 def get_field_verbose_name(model_or_entity, field_name):
     return get_verbose_field_name(model_or_entity, field_name) or field_name

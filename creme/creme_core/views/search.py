@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,56 +21,56 @@
 from functools import partial
 
 from django.http import HttpResponse
-from django.db.models import Q
+#from django.db.models import Q
 #from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
+#from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import EntityCredentials
-from creme_core.models.search import SearchConfigItem, SearchField, DEFAULT_PATTERN
+from creme_core.models.search import SearchConfigItem #SearchField, DEFAULT_PATTERN
 from creme_core.registry import creme_registry
-from creme_core.utils.meta import get_flds_with_fk_flds_str
+#from creme_core.utils.meta import get_flds_with_fk_flds_str
 from creme_core.utils import get_ct_or_404
 
-from creme_config.forms.search import EXCLUDED_FIELDS_TYPES #humm...
+#from creme_config.forms.search import EXCLUDED_FIELDS_TYPES #humm...
 
 
-BASE_Q = Q(is_deleted=False)
+#BASE_Q = Q(is_deleted=False)
 
-#TODO: move as SearchConfigItem method ??
-def _build_q_research(model, research, fields, is_or=True):
-    """Build a Q with all params fields"""
-    q = Q()
-#    for f_name, f_verb_name in fields:
-    for f in fields:
-        _q = Q(**{'%s%s' % (str(f.field), DEFAULT_PATTERN): research})
-        if is_or:
-            q |= _q
-        else:
-            q &= _q
+##todo: move as SearchConfigItem method ??
+#def _build_q_research(model, research, fields, is_or=True):
+    #"""Build a Q with all params fields"""
+    #q = Q()
+##    for f_name, f_verb_name in fields:
+    #for f in fields:
+        #_q = Q(**{'%s%s' % (str(f.field), DEFAULT_PATTERN): research})
+        #if is_or:
+            #q |= _q
+        #else:
+            #q &= _q
 
-    return BASE_Q & q
+    #return BASE_Q & q
 
-#TODO: move as SearchConfigItem method ??
-def _get_research_fields(model, user):
-    sc_items = SearchConfigItem.objects.filter(content_type=ContentType.objects.get_for_model(model)) \
-                                       .filter(Q(user=user) | Q(user__isnull=True)) \
-                                       .order_by('-user') #config of the user has higher priority than default one
+##todo: move as SearchConfigItem method ??
+#def _get_research_fields(model, user):
+    #sc_items = SearchConfigItem.objects.filter(content_type=ContentType.objects.get_for_model(model)) \
+                                       #.filter(Q(user=user) | Q(user__isnull=True)) \
+                                       #.order_by('-user') #config of the user has higher priority than default one
 
-    for sc_item in sc_items:
-        fields  = sc_item.get_fields()
-        if fields:
-            return fields
+    #for sc_item in sc_items:
+        #fields  = sc_item.get_fields()
+        #if fields:
+            #return fields
 
-    #The research will be on all unexcluded fields
-    _fields = get_flds_with_fk_flds_str(model, 1, exclude_func=lambda f: f.get_internal_type() in EXCLUDED_FIELDS_TYPES or f.name in model.header_filter_exclude_fields)
-    #Needed to match the SearchField api in template
-    fields  = [SearchField(field=f_name, field_verbose_name=f_verbname, order=i) for i, (f_name, f_verbname) in enumerate(_fields)]
-    fields.sort(key=lambda k: k.order)
-    return fields
+    ##The research will be on all unexcluded fields
+    #_fields = get_flds_with_fk_flds_str(model, 1, exclude_func=lambda f: f.get_internal_type() in EXCLUDED_FIELDS_TYPES or f.name in model.header_filter_exclude_fields)
+    ##Needed to match the SearchField api in template
+    #fields  = [SearchField(field=f_name, field_verbose_name=f_verbname, order=i) for i, (f_name, f_verbname) in enumerate(_fields)]
+    #fields.sort(key=lambda k: k.order)
+    #return fields
 
 @login_required
 def search(request):
@@ -98,17 +98,20 @@ def search(request):
         user = request.user
         filter_viewable = partial(EntityCredentials.filter, user=user)
 
-        for model in scope:
-            fields   = _get_research_fields(model, user) #TODO: regroup queries ??
-            entities = filter_viewable(queryset=model.objects.filter(BASE_Q)
-                                                             .filter(_build_q_research(model, research, fields))
-                                                             .distinct()
-                                      )
+        for model in scope: #TODO: regroup queries (ex: SearchConfigItem would return a Searcher object) ??
+            #fields   = _get_research_fields(model, user) #todo: regroup queries ??
+            search_fields = SearchConfigItem.get_searchfields_4_model(model, user) #todo: regroup queries ??
+            #entities = filter_viewable(queryset=model.objects.filter(BASE_Q)
+                                                             #.filter(_build_q_research(model, research, fields))
+                                                             #.distinct()
+                                      #)
+            entities = filter_viewable(queryset=SearchConfigItem.search(model, search_fields, research))
             total += len(entities)
 
             results.append({
                 'model':    model,
-                'fields':   fields,
+                #'fields':   fields,
+                'fields':   search_fields,
                 'entities': entities
             })
 

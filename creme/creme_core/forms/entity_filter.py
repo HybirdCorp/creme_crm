@@ -227,32 +227,36 @@ class RegularFieldsConditionsField(_ConditionsField):
     def _build_related_fields(self, field, fields):
         fname = field.name
         related_model = field.rel.to
-        rel_excluded = set(related_model.header_filter_exclude_fields if issubclass(related_model, CremeEntity) else
-                           ('id',)
-                          )
+        #rel_excluded = set(related_model.header_filter_exclude_fields if issubclass(related_model, CremeEntity) else
+                           #('id',)
+                          #)
 
         for subfield in related_model._meta.fields:
-            sfname = subfield.name
+            #sfname = subfield.name
 
-            if sfname not in rel_excluded and not is_date_field(subfield):
-                fields['%s__%s' % (fname, sfname)] =  [field, subfield]
+            #if sfname not in rel_excluded and not is_date_field(subfield):
+            if subfield.get_tag('viewable') and not is_date_field(subfield):
+                #fields['%s__%s' % (fname, sfname)] =  [field, subfield]
+                fields['%s__%s' % (fname, subfield.name)] =  [field, subfield]
 
     @_ConditionsField.model.setter
     def model(self, model):
         self._model = model
         self._fields = fields = {}
 
-        excluded = model.header_filter_exclude_fields
+        #excluded = model.header_filter_exclude_fields
 
-        #TODO: move code in meta.utils (and use in HeaderFilter for example) ??
+        #TODO: use meta.ModelFieldEnumerator (need to be improved for grouped options)
         for field in model._meta.fields:
-            fname = field.name
+            #fname = field.name
 
-            if fname not in excluded and not is_date_field(field):
+            #if fname not in excluded and not is_date_field(field):
+            if field.get_tag('viewable') and not is_date_field(field):
                if field.get_internal_type() == 'ForeignKey':
                     self._build_related_fields(field, fields)
                else:
-                   fields[fname] = [field]
+                   #fields[fname] = [field]
+                   fields[field.name] = [field]
 
         for field in model._meta.many_to_many:
             self._build_related_fields(field, fields)

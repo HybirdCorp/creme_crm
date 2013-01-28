@@ -38,12 +38,12 @@ class Address(CremeModel):
     state      = CharField(_(u"State"), max_length=100, blank=True, null=True)
     country    = CharField(_(u"Country"), max_length=40, blank=True, null=True)
 
-    content_type = ForeignKey(ContentType, related_name="object_set")
-    object_id    = PositiveIntegerField()
+    content_type = ForeignKey(ContentType, related_name="object_set", editable=False).set_tags(viewable=False)
+    object_id    = PositiveIntegerField(editable=False).set_tags(viewable=False)
     owner        = GenericForeignKey(ct_field="content_type", fk_field="object_id")
 
-    research_fields = CremeEntity.research_fields + ['address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country']
-    header_filter_exclude_fields = CremeEntity.header_filter_exclude_fields + ['object_id', ]
+    #research_fields = CremeEntity.research_fields + ['address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country']
+    #header_filter_exclude_fields = CremeEntity.header_filter_exclude_fields + ['object_id', ]
 
     class Meta:
         app_label = 'persons'

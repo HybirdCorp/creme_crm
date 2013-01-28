@@ -41,10 +41,11 @@ class BillingBlock(SimpleBlock):
 
     def detailview_display(self, context):
         document = context['object']
-        is_invoice = isinstance(document, Invoice)
         return self._render(self.get_block_template_context(context,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, document.pk),
-                                                            is_invoice=is_invoice))
+                                                            is_invoice=isinstance(document, Invoice),
+                                                           )
+                           )
 
 
 #NB PaginatedBlock and not QuerysetBlock to avoid the retrieving of a sliced

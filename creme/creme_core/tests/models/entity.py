@@ -10,9 +10,10 @@ try:
     from django.db.models.deletion import ProtectedError
     from django.utils.translation import ugettext as _
 
+    from creme_core.tests.base import CremeTestCase
     from creme_core.models import *
     from creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
-    from creme_core.tests.base import CremeTestCase
+    from creme_core.core.field_tags import InvalidFieldTag
 
     from persons.models import Contact, Organisation, Civility, Position, Sector, Address
 
@@ -66,6 +67,46 @@ class EntityTestCase(CremeTestCase):
         create_ptype = CremePropertyType.create
         self.ptype01 = create_ptype(str_pk='test-prop_foobar01', text='wears strange hats')
         self.ptype02 = create_ptype(str_pk='test-prop_foobar02', text='wears strange pants')
+
+    def test_fieldtags_clonable(self):
+        naruto = Contact.objects.create(user=self.user, first_name=u'Naruto', last_name=u'Uzumaki')
+        get_field = lambda name: naruto._meta.get_field_by_name(name)[0]
+
+        self.assertFalse(get_field('created').get_tag('clonable'))
+        self.assertFalse(get_field('modified').get_tag('clonable'))
+
+        field = get_field('first_name')
+        self.assertTrue(field.get_tag('clonable'))
+        self.assertRaises(InvalidFieldTag, field.get_tag, 'stuff')
+
+        self.assertFalse(get_field('id').get_tag('clonable'))
+        self.assertFalse(get_field('cremeentity_ptr').get_tag('clonable'))
+
+        self.assertRaises(InvalidFieldTag, field.set_tags, stuff=True)
+
+    def test_fieldtags_viewable(self):
+        naruto = Contact.objects.create(user=self.user, first_name=u'Naruto', last_name=u'Uzumaki')
+        get_field = lambda name: naruto._meta.get_field_by_name(name)[0]
+
+        self.assertTrue(get_field('modified').get_tag('viewable'))
+        self.assertTrue(get_field('first_name').get_tag('viewable'))
+
+        self.assertFalse(get_field('id').get_tag('viewable'))
+        self.assertFalse(get_field('cremeentity_ptr').get_tag('viewable'))
+
+    def test_fieldtags_user(self):
+        get_field = lambda name: self.user._meta.get_field_by_name(name)[0]
+
+        self.assertTrue(get_field('username').get_tag('viewable'))
+        self.assertFalse(get_field('id').get_tag('viewable'))
+        self.assertFalse(get_field('password').get_tag('viewable'))
+        self.assertFalse(get_field('is_active').get_tag('viewable'))
+        self.assertFalse(get_field('is_superuser').get_tag('viewable'))
+        self.assertFalse(get_field('is_staff').get_tag('viewable'))
+        self.assertFalse(get_field('last_login').get_tag('viewable'))
+        self.assertFalse(get_field('date_joined').get_tag('viewable'))
+        self.assertFalse(get_field('groups').get_tag('viewable'))
+        self.assertFalse(get_field('user_permissions').get_tag('viewable'))
 
     def assertSameRelationsNProperties(self, entity1, entity2):
         self.assertSameProperties(entity1, entity2)

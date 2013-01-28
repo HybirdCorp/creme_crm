@@ -127,9 +127,8 @@ class Activity(CremeEntity):
     busy        = BooleanField(_(u'Busy ?'), default=False)
 
 
-    research_fields = CremeEntity.research_fields + ['title', 'type__name']
-#    excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['type', 'activity_ptr']
-    excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['activity_ptr', ]
+    #research_fields = CremeEntity.research_fields + ['title', 'type__name']
+    #excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['activity_ptr', ]
 
     class Meta:
         app_label = 'activities'
@@ -262,7 +261,7 @@ END:VEVENT
 class Meeting(Activity):
     place = CharField(_(u'Meeting place'), max_length=100, blank=True, null=True)
 
-    excluded_fields_in_html_output = Activity.excluded_fields_in_html_output + ['type']
+    #excluded_fields_in_html_output = Activity.excluded_fields_in_html_output + ['type']
 
     def __init__(self, *args, **kwargs):
         super(Meeting, self).__init__(*args, **kwargs)
@@ -277,7 +276,7 @@ class Meeting(Activity):
 class Task(Activity):
     duration = PositiveIntegerField(_(u'Duration (in hour)'), blank=True, null=True)
 
-    excluded_fields_in_html_output = Activity.excluded_fields_in_html_output + ['type']
+    #excluded_fields_in_html_output = Activity.excluded_fields_in_html_output + ['type']
 
     def __init__ (self, *args , **kwargs):
         super(Task, self).__init__(*args, **kwargs)
@@ -305,7 +304,7 @@ class PhoneCallType(CremeModel):
 class PhoneCall(Activity):
     call_type = ForeignKey(PhoneCallType, verbose_name=_(u"Phonecall type"), blank=True, null=True)
 
-    excluded_fields_in_html_output = Activity.excluded_fields_in_html_output + ['type']
+    #excluded_fields_in_html_output = Activity.excluded_fields_in_html_output + ['type']
 
     def __init__(self, *args, **kwargs):
         super(PhoneCall, self).__init__(*args, **kwargs)
