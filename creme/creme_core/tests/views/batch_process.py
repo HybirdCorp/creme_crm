@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+
     from django.core.exceptions import ValidationError
     from django.core.serializers.json import simplejson
     from django.utils.translation import ugettext as _
@@ -26,6 +28,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config')
 
+        get_ct = ContentType.objects.get_for_model
+        cls.orga_ct_id    = get_ct(Organisation).id
+        cls.contact_ct_id = get_ct(Contact).id
+
     def build_url(self, model):
          return '/creme_core/list_view/batch_process/%s?list_url=http://testserver%s' % (
                         ContentType.objects.get_for_model(model).id,
@@ -34,11 +40,11 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
     def test_no_app_perm(self):
         self.login(is_superuser=False)
-        self.assertEqual(404, self.client.get(self.build_url(Organisation)).status_code)
+        self.assertGET404(self.build_url(Organisation))
 
     def test_app_perm(self):
         self.login(is_superuser=False, allowed_apps=['persons'])
-        self.assertEqual(200, self.client.get(self.build_url(Organisation)).status_code)
+        self.assertGET200(self.build_url(Organisation))
 
     def test_batching_upper01(self):
         self.login()
@@ -53,9 +59,9 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertIn('name', orga_fields)
         self.assertIn('capital', orga_fields)
 
-        create_orga = Organisation.objects.create
-        orga01 = create_orga(user=self.user, name='Genshiken')
-        orga02 = create_orga(user=self.user, name='Manga club')
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        orga01 = create_orga(name='Genshiken')
+        orga02 = create_orga(name='Manga club')
 
         response = self.client.post(url, follow=True,
                                     data={'actions': self.format_str1 % {
@@ -65,7 +71,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                                         },
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         self.assertEqual('GENSHIKEN',  self.refresh(orga01).name)
@@ -87,9 +92,9 @@ class BatchProcessViewsTestCase(ViewsTestCase):
     def test_batching_lower01(self): # & use ct
         self.login()
 
-        create_contact = Contact.objects.create
-        contact01 = create_contact(user=self.user, first_name='Saki',     last_name='Kasukabe')
-        contact02 = create_contact(user=self.user, first_name='Harunobu', last_name='Madarame')
+        create_contact = partial(Contact.objects.create, user=self.user)
+        contact01 = create_contact(first_name='Saki',     last_name='Kasukabe')
+        contact02 = create_contact(first_name='Harunobu', last_name='Madarame')
 
         response = self.client.post(self.build_url(Contact), follow=True,
                                     data={'actions': self.format_str1 % {
@@ -99,7 +104,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                                         },
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         self.assertEqual('saki',     self.refresh(contact01).first_name)
@@ -139,7 +143,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                                         },
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         contact = self.refresh(contact)
@@ -158,15 +161,17 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'actions', [_(u"The field '%s' can not be used twice.") % _('First name')])
+        self.assertFormError(response, 'form', 'actions',
+                             [_(u"The field '%s' can not be used twice.") % _('First name')]
+                            )
 
     def test_with_filter(self):
         self.login()
 
-        create_orga = Organisation.objects.create
-        orga01 = create_orga(user=self.user, name='Genshiken')
-        orga02 = create_orga(user=self.user, name='Manga club')
-        orga03 = create_orga(user=self.user, name='Anime club')
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        orga01 = create_orga(name='Genshiken')
+        orga02 = create_orga(name='Manga club')
+        orga03 = create_orga(name='Anime club')
 
         efilter = EntityFilter.create('test-filter01', 'Contains "club"', Organisation)
         efilter.set_conditions([EntityFilterCondition.build_4_field(model=Organisation,
@@ -185,7 +190,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                                         },
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         self.assertEqual('manga club', self.refresh(orga02).name)
@@ -227,7 +231,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                                         },
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         self.assertEqual('manga club', self.refresh(orga02).name)
@@ -240,8 +243,9 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         first_name = 'Kanako'
         last_name = 'Ouno'
-        contact01 = Contact.objects.create(user=self.user, first_name=first_name,  last_name=last_name)
-        contact02 = Contact.objects.create(user=self.user, first_name='Mitsunori', last_name='Kugayama')
+        create_contact = partial(Contact.objects.create, user=self.user)
+        contact01 = create_contact(first_name=first_name,  last_name=last_name)
+        contact02 = create_contact(first_name='Mitsunori', last_name='Kugayama')
 
         entity_str = unicode(contact01)
 
@@ -256,7 +260,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                                                         },
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         contact01 = self.refresh(contact01)
@@ -283,17 +286,15 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                         'field': field,
                     }
 
-    def test_get_ops01(self): #unknown CT
+    def test_get_ops01(self):
+        "Unknown ContentType"
         self.login()
-
-        response = self.client.get(self.build_ops_url(ct_id=1216545, field='name'))
-        self.assertEqual(404, response.status_code, response.content)
+        self.assertGET404(self.build_ops_url(ct_id=1216545, field='name'))
 
     def test_get_ops02(self):
         self.login()
 
-        ct_id = ContentType.objects.get_for_model(Contact).id
-        response = self.client.get(self.build_ops_url(ct_id, 'first_name'))
+        response = self.client.get(self.build_ops_url(self.contact_ct_id, 'first_name'))
         self.assertEqual(200, response.status_code, response.content)
 
         json_data = simplejson.loads(response.content)
@@ -306,8 +307,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
     def test_get_ops03(self): #other CT, other category of operator
         self.login()
 
-        ct_id = ContentType.objects.get_for_model(Organisation).id
-        response = self.client.get(self.build_ops_url(ct_id, 'capital'))
+        response = self.client.get(self.build_ops_url(self.orga_ct_id, 'capital'))
         self.assertEqual(200, response.status_code, response.content)
 
         json_data = simplejson.loads(response.content)
@@ -318,23 +318,20 @@ class BatchProcessViewsTestCase(ViewsTestCase):
     def test_get_ops04(self): #empty category
         self.login()
 
-        ct_id = ContentType.objects.get_for_model(Contact).id
-        response = self.client.get(self.build_ops_url(ct_id, 'image'))
+        response = self.client.get(self.build_ops_url(self.contact_ct_id, 'image'))
         self.assertEqual(200, response.status_code, response.content)
         self.assertEqual([], simplejson.loads(response.content))
 
     def test_get_ops05(self): #no app credentials
         self.login(is_superuser=False, allowed_apps=['creme_core']) #not 'persons'
 
-        ct_id = ContentType.objects.get_for_model(Contact).id
-        response = self.client.get(self.build_ops_url(ct_id, 'first_name'))
+        response = self.client.get(self.build_ops_url(self.contact_ct_id, 'first_name'))
         self.assertEqual(403, response.status_code, response.content)
 
     def test_get_ops06(self): #unknown field
         self.login()
 
-        ct_id = ContentType.objects.get_for_model(Contact).id
-        response = self.client.get(self.build_ops_url(ct_id, 'foobar'))
+        response = self.client.get(self.build_ops_url(self.contact_ct_id, 'foobar'))
         self.assertEqual(400, response.status_code, response.content)
 
     #TODO: custom fields ??

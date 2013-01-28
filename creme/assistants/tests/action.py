@@ -26,7 +26,6 @@ class ActionTestCase(AssistantsTestCase):
                                           'deadline':          deadline
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         return self.get_object_or_fail(Action, title=title, description=descr)
@@ -76,7 +75,6 @@ class ActionTestCase(AssistantsTestCase):
                                                'deadline_time':     '17:37:00',
                                               }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         action = self.refresh(action)

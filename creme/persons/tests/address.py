@@ -15,6 +15,8 @@ __all__ = ('AddressTestCase',)
 
 
 class AddressTestCase(CremeTestCase):
+    ADD_URL = '/persons/address/add/%s'
+
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_config', 'creme_core', 'persons')
@@ -25,7 +27,7 @@ class AddressTestCase(CremeTestCase):
         return Organisation.objects.create(user=self.user, name='Nerv')
 
     def _create_address(self, orga, name, address, po_box, city, state, zipcode, country, department):
-        response = self.client.post('/persons/address/add/%s' % orga.id,
+        response = self.client.post(self.ADD_URL % orga.id,
                                     data={'name':       name,
                                           'address':    address,
                                           'po_box':     po_box,
@@ -36,15 +38,13 @@ class AddressTestCase(CremeTestCase):
                                           'department': department,
                                          }
                                    )
-        self.assertEqual(response.status_code, 200)
         self.assertNoFormError(response)
 
     def test_createview(self):
         orga = self.login()
         self.assertEqual(0, Address.objects.filter(object_id=orga.id).count())
 
-        response = self.client.get('/persons/address/add/%s' % orga.id)
-        self.assertEqual(200, response.status_code)
+        self.assertGET200(self.ADD_URL % orga.id)
 
         name = 'Address#1'
         address_value = '21 jump street'
@@ -97,7 +97,7 @@ class AddressTestCase(CremeTestCase):
         address = Address.objects.filter(object_id=orga.id)[0]
 
         url = '/persons/address/edit/%s' % address.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         city = 'Groville'
         country = 'Groland'
@@ -111,7 +111,6 @@ class AddressTestCase(CremeTestCase):
                                                'department': department,
                                              }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         address = self.refresh(address)
@@ -178,7 +177,8 @@ class AddressTestCase(CremeTestCase):
                          unicode(Address(po_box=po_box, state=state, country=country))
                         )
 
-    def test_delete_orga(self): #are addresses cleaned ?
+    def test_delete_orga(self):
+        "Addresses are deleted when the related Organisation is deleted."
         orga = self.login()
 
         create_address = Address.objects.create
@@ -200,7 +200,8 @@ class AddressTestCase(CremeTestCase):
         self.assertFalse(Organisation.objects.filter(pk=orga.id).exists())
         self.assertFalse(Address.objects.filter(pk__in=[b_addr.id, s_addr.id, other_addr.id]))
 
-    def test_delete_contact(self): #are addresses cleaned ?
+    def test_delete_contact(self):
+        "Addresses are deleted when the related Contact is deleted."
         self.login()
 
         contact = Contact.objects.create(user=self.user, first_name='Rei', last_name='Ayanami')

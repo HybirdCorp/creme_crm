@@ -39,7 +39,6 @@ class SalesOrderTestCase(_BillingTestCase, CremeTestCase):
                                           'target':          self.genericfield_format_entity(target),
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         return self.get_object_or_fail(SalesOrder, name=name)
@@ -54,7 +53,7 @@ class SalesOrderTestCase(_BillingTestCase, CremeTestCase):
         return order, source, target
 
     def test_createview01(self):
-        self.assertEqual(200, self.client.get('/billing/sales_order/add').status_code)
+        self.assertGET200('/billing/sales_order/add')
 
         currency = Currency.objects.all()[0]
         status   = SalesOrderStatus.objects.all()[1]
@@ -64,15 +63,15 @@ class SalesOrderTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(currency,                         order.currency)
         self.assertEqual(status,                           order.status)
 
-        self.assertRelationCount(1, order,  REL_SUB_BILL_ISSUED,   source)
-        self.assertRelationCount(1, order,  REL_SUB_BILL_RECEIVED, target)
+        self.assertRelationCount(1, order, REL_SUB_BILL_ISSUED,   source)
+        self.assertRelationCount(1, order, REL_SUB_BILL_RECEIVED, target)
 
     def test_editview(self):
         name = 'my sales order'
         order, source, target = self.create_salesorder_n_orgas(name)
 
         url = '/billing/sales_order/edit/%s' % order.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         name     = name.title()
         currency = Currency.objects.create(name=u'Marsian dollar', local_symbol=u'M$', international_symbol=u'MUSD', is_custom=True)
@@ -89,7 +88,6 @@ class SalesOrderTestCase(_BillingTestCase, CremeTestCase):
                                           'target':          self.genericfield_format_entity(target),
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         order = self.refresh(order)

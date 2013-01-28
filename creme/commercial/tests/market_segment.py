@@ -17,12 +17,11 @@ __all__ = ('MarketSegmentTestCase',)
 class MarketSegmentTestCase(CommercialBaseTestCase):
     def test_create01(self):
         url = '/commercial/market_segment/add'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         name = 'Industry'
         response = self.client.post(url, data={'name': name})
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         with self.assertNoException():
             segment = MarketSegment.objects.get(name=name)
@@ -34,9 +33,7 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
     def test_create02(self): #segment with same name already exists
         name = 'Industry'
         url = '/commercial/market_segment/add'
-        response = self.client.post(url, data={'name': name})
-        self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(self.client.post(url, data={'name': name}))
 
         response = self.client.post(url, data={'name': name})
         self.assertEqual(200, response.status_code)
@@ -56,8 +53,7 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
                             )
 
     def test_listview(self):
-        response = self.client.get('/commercial/market_segments')
-        self.assertEqual(200, response.status_code)
+        self.assertGET200('/commercial/market_segments')
 
     #TODO: segment can be deleted ??
     #def test_segment_delete(self):

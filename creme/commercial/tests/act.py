@@ -173,11 +173,14 @@ class ActTestCase(CommercialBaseTestCase):
         response = self.client.get('/commercial/act/%s' % act.id)
         self.assertEqual(200, response.status_code)
 
+    def _build_addobjective_url(self, act):
+        return '/commercial/act/%s/add/objective' % act.id
+
     def test_add_objective01(self):
         act = self.create_act()
-        url = '/commercial/act/%s/add/objective' % act.id
-        self.assertEqual(200, self.client.get(url).status_code)
-        self.assertEqual(0,   ActObjective.objects.count())
+        url = self._build_addobjective_url(act)
+        self.assertGET200(url)
+        self.assertEqual(0, ActObjective.objects.count())
 
         name = 'Objective#1'
         counter_goal = 20
@@ -185,7 +188,6 @@ class ActTestCase(CommercialBaseTestCase):
                                                'counter_goal': counter_goal,
                                               }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         objectives = ActObjective.objects.filter(act=act)
@@ -209,19 +211,16 @@ class ActTestCase(CommercialBaseTestCase):
 
     def test_add_objective02(self):
         act = self.create_act()
-        url = '/commercial/act/%s/add/objective' % act.id
-        self.assertEqual(200, self.client.get(url).status_code)
-        self.assertEqual(0,   ActObjective.objects.count())
 
         name  = 'Objective#2'
         counter_goal = 2
         ct = ContentType.objects.get_for_model(Organisation)
-        response = self.client.post(url, data={'name':         name,
-                                               'ctype':        ct.id,
-                                               'counter_goal': counter_goal,
-                                              }
+        response = self.client.post(self._build_addobjective_url(act),
+                                    data={'name':         name,
+                                          'ctype':        ct.id,
+                                          'counter_goal': counter_goal,
+                                         }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
         self.assertEqual(1, ActObjective.objects.count())
 
@@ -251,12 +250,10 @@ class ActTestCase(CommercialBaseTestCase):
         child02 = create_component(name='Child 02', success_rate=10, pattern=pattern, parent=root01, ctype=ct_orga)
 
         url = '/commercial/act/%s/add/objectives_from_pattern' % act.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
-        response = self.client.post(url, data={'pattern': pattern.id})
-        self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(5,   ActObjective.objects.filter(act=act).count())
+        self.assertNoFormError(self.client.post(url, data={'pattern': pattern.id}))
+        self.assertEqual(5, ActObjective.objects.filter(act=act).count())
 
         with self.assertNoException():
             objective01 = act.objectives.get(name='Root01')
@@ -289,7 +286,6 @@ class ActTestCase(CommercialBaseTestCase):
                                     data={'pattern': pattern.id}
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         objectives = ActObjective.objects.filter(act=act)
         self.assertEqual(1, len(objectives))
@@ -301,7 +297,7 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(1, objective.counter_goal)
 
         url = '/commercial/objective/%s/edit' % objective.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         name = 'OBJ_NAME'
         counter_goal = 3
@@ -309,7 +305,6 @@ class ActTestCase(CommercialBaseTestCase):
                                                'counter_goal': counter_goal,
                                               }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         objective = self.refresh(objective)
@@ -331,18 +326,14 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(0, objective.counter)
 
         url = '/commercial/objective/%s/incr' % objective.id
+        self.assertPOST200(url, data={'diff': 1})
+        self.assertEqual(1, self.refresh(objective).counter)
 
-        response = self.client.post(url, data={'diff': 1})
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(1,   self.refresh(objective).counter)
+        self.assertPOST200(url, data={'diff': 2})
+        self.assertEqual(3, self.refresh(objective).counter)
 
-        response = self.client.post(url, data={'diff': 2})
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(3,   self.refresh(objective).counter)
-
-        response = self.client.post(url, data={'diff': -3})
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(0,   self.refresh(objective).counter)
+        self.assertPOST200(url, data={'diff': -3})
+        self.assertEqual(0, self.refresh(objective).counter)
 
     def test_count_relations(self):
         RelationType.objects.get(pk=REL_SUB_COMPLETE_GOAL) #raise exception if error
@@ -416,8 +407,7 @@ class ActTestCase(CommercialBaseTestCase):
         act = self.create_act()
         atype = act.act_type
 
-        response = self.client.post('/creme_config/commercial/act_type/delete', data={'id': atype.pk})
-        self.assertEqual(404, response.status_code)
+        self.assertPOST404('/creme_config/commercial/act_type/delete', data={'id': atype.pk})
         self.assertTrue(ActType.objects.filter(pk=atype.pk).exists())
 
         act = self.get_object_or_fail(Act, pk=act.pk)

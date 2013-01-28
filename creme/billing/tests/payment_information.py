@@ -26,14 +26,13 @@ class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
     def test_createview01(self):
         organisation = Organisation.objects.create(user=self.user, name=u"Nintendo")
         url = '/billing/payment_information/add/%s' % organisation.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         response = self.client.post(url, data={'user': self.user.pk,
                                                'name': "RIB of %s" % organisation,
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         all_pi = PaymentInformation.objects.all()
         self.assertEqual(1, len(all_pi))
@@ -47,7 +46,7 @@ class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
         first_pi = PaymentInformation.objects.create(organisation=organisation, name="RIB 1", is_default=True)
 
         url = '/billing/payment_information/add/%s' % organisation.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         response = self.client.post(url, data={'user':       self.user.pk,
                                                'name':       "RIB of %s" % organisation,
@@ -55,7 +54,6 @@ class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         self.assertEqual(2, PaymentInformation.objects.count())
 
@@ -70,7 +68,7 @@ class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
         pi = PaymentInformation.objects.create(organisation=organisation, name="RIB 1")
 
         url = '/billing/payment_information/edit/%s' % pi.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         rib_key = "00"
         name    = "RIB of %s" % organisation
@@ -82,7 +80,6 @@ class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         pi = self.refresh(pi)
         self.assertIs(True, pi.is_default)
@@ -98,7 +95,7 @@ class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
         pi_2 = create_pi(organisation=organisation, name="RIB 2", is_default=False)
 
         url = '/billing/payment_information/edit/%s' % pi_2.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         rib_key = "00"
         name    = "RIB of %s" % organisation
@@ -111,7 +108,6 @@ class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         pi_1 = self.refresh(pi_1)
         pi_2 = self.refresh(pi_2)
@@ -129,7 +125,7 @@ class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
     def test_set_default_in_invoice01(self):
         invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')
         pi_sony = PaymentInformation.objects.create(organisation=sony_source, name="RIB sony")
-        self.assertEqual(200, self.client.post('/billing/payment_information/set_default/%s/%s' % (pi_sony.id, invoice.id)).status_code)
+        self.assertPOST200('/billing/payment_information/set_default/%s/%s' % (pi_sony.id, invoice.id))
         self.assertEqual(pi_sony, self.refresh(invoice).payment_info)
 
     def test_set_default_in_invoice02(self):
@@ -156,7 +152,7 @@ class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
         invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')
 
         pi_sony = PaymentInformation.objects.create(organisation=sony_source, name="RIB sony")
-        self.assertEqual(200, self.client.post('/billing/payment_information/set_default/%s/%s' % (pi_sony.id, invoice.id)).status_code)
+        self.assertPOST200('/billing/payment_information/set_default/%s/%s' % (pi_sony.id, invoice.id))
 
         currency = Currency.objects.all()[0]
         response = self.client.post('/billing/invoice/edit/%s' % invoice.id, follow=True,
@@ -172,5 +168,4 @@ class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
         self.assertIsNone(self.refresh(invoice).payment_info)

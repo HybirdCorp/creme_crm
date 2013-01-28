@@ -209,7 +209,6 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         invoice = self.get_object_or_fail(Invoice, name=name)
         self.assertEqual(target, invoice.get_target().get_real_entity())
@@ -242,7 +241,7 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
                                          status_id=1, number='INV0001', currency_id=1
                                         )
 
-        self.assertEqual(200, self.client.get('/billing/invoice/edit/%s' % invoice.id).status_code)
+        self.assertGET200('/billing/invoice/edit/%s' % invoice.id)
 
     def test_editview02(self):
         self.login()
@@ -251,7 +250,7 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         invoice, source, target = self.create_invoice_n_orgas(name)
 
         url = '/billing/invoice/edit/%s' % invoice.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         name += '_edited'
 
@@ -273,7 +272,6 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
                                           'target':          self.genericfield_format_entity(target),
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         self.assertEqual(1, len(response.redirect_chain))
@@ -320,7 +318,6 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
                                           'target':          self.genericfield_format_entity(target),
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         invoice = self.refresh(invoice)
@@ -342,8 +339,8 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         self.assertTrue(issuing_date)
 
         url = '/billing/invoice/generate_number/%s' % invoice.id
-        self.assertEqual(404, self.client.get(url, follow=True).status_code)
-        self.assertEqual(200, self.client.post(url, follow=True).status_code)
+        self.assertGET404(url, follow=True)
+        self.assertPOST200(url, follow=True)
 
         invoice = self.refresh(invoice)
         number    = invoice.number
@@ -353,7 +350,7 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(issuing_date, invoice.issuing_date)
 
         #already generated
-        self.assertEqual(404, self.client.post(url, follow=True).status_code)
+        self.assertPOST404(url, follow=True)
         invoice = self.refresh(invoice)
         self.assertEqual(number,    invoice.number)
         self.assertEqual(status_id, invoice.status_id)
@@ -365,7 +362,8 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         invoice.issuing_date = None
         invoice.save()
 
-        self.assertEqual(200, self.client.post('/billing/invoice/generate_number/%s' % invoice.id, follow=True).status_code)
+        self.assertPOST200('/billing/invoice/generate_number/%s' % invoice.id, follow=True)
+
         invoice = self.refresh(invoice)
         self.assertTrue(invoice.issuing_date)
         self.assertEqual(date.today(), invoice.issuing_date) #NB this test can fail if run at midnight...
@@ -548,7 +546,7 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
     def test_delete_paymentterms(self):
         self.login()
 
-        self.assertEqual(200, self.client.get('/creme_config/billing/payment_terms/portal/').status_code)
+        self.assertGET200('/creme_config/billing/payment_terms/portal/')
 
         pterms = PaymentTerms.objects.create(name='3 months')
 
@@ -556,8 +554,7 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         invoice.payment_terms = pterms
         invoice.save()
 
-        response = self.client.post('/creme_config/billing/payment_terms/delete', data={'id': pterms.pk})
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200('/creme_config/billing/payment_terms/delete', data={'id': pterms.pk})
         self.assertFalse(PaymentTerms.objects.filter(pk=pterms.pk).exists())
 
         invoice = self.get_object_or_fail(Invoice, pk=invoice.pk)
@@ -569,8 +566,7 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         currency = Currency.objects.create(name=u'Berry', local_symbol=u'B', international_symbol=u'BRY')
         invoice = self.create_invoice_n_orgas('Nerv', currency=currency)[0]
 
-        response = self.client.post('/creme_config/creme_core/currency/delete', data={'id': currency.pk})
-        self.assertEqual(404, response.status_code)
+        self.assertPOST404('/creme_config/creme_core/currency/delete', data={'id': currency.pk})
         self.assertTrue(Currency.objects.filter(pk=currency.pk).exists())
 
         invoice = self.get_object_or_fail(Invoice, pk=invoice.pk)
@@ -584,8 +580,7 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         invoice.additional_info = info
         invoice.save()
 
-        response = self.client.post('/creme_config/billing/additional_information/delete', data={'id': info.pk})
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200('/creme_config/billing/additional_information/delete', data={'id': info.pk})
         self.assertFalse(AdditionalInformation.objects.filter(pk=info.pk).exists())
 
         invoice = self.get_object_or_fail(Invoice, pk=invoice.pk)

@@ -2,6 +2,7 @@
 
 try:
     from datetime import datetime, timedelta
+    from functools import partial
 
     from creme_core.models import Relation
     from creme_core.tests.base import CremeTestCase
@@ -18,16 +19,15 @@ class CTITestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'activities')
-    #def setUp(self):
-        #self.populate('creme_core', 'creme_config', 'activities')
 
     def login(self):
         super(CTITestCase, self).login()
 
         user = self.user
         other_user = self.other_user
-        self.contact = Contact.objects.create(user=user, is_user=user, first_name='Rally', last_name='Vincent')
-        self.contact_other_user = Contact.objects.create(user=user, is_user=other_user, first_name='Bean', last_name='Bandit')
+        create_contact = partial(Contact.objects.create, user=user)
+        self.contact = create_contact(is_user=user, first_name='Rally', last_name='Vincent')
+        self.contact_other_user = create_contact(is_user=other_user, first_name='Bean', last_name='Bandit')
 
     def test_add_phonecall01(self):
         self.login()
@@ -37,7 +37,7 @@ class CTITestCase(CremeTestCase):
         self.assertTrue(PhoneCallType.objects.exists())
 
         contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit')
-        self.assertEqual(200, self.client.post('/cti/add_phonecall', data={'entity_id': contact.id}).status_code)
+        self.assertPOST200('/cti/add_phonecall', data={'entity_id': contact.id})
 
         pcalls = PhoneCall.objects.all()
         self.assertEqual(1, len(pcalls))
@@ -51,8 +51,8 @@ class CTITestCase(CremeTestCase):
         self.assertLess((datetime.now() - pcall.start).seconds, 10)
         self.assertEqual(timedelta(minutes=5), (pcall.end - pcall.start))
 
-        self.assertEqual(1, Relation.objects.filter(subject_entity=self.contact, type=REL_SUB_PART_2_ACTIVITY, object_entity=pcall).count())
-        self.assertEqual(1, Relation.objects.filter(subject_entity=contact,      type=REL_SUB_PART_2_ACTIVITY, object_entity=pcall).count())
+        self.assertRelationCount(1, self.contact, REL_SUB_PART_2_ACTIVITY, pcall)
+        self.assertRelationCount(1, contact,      REL_SUB_PART_2_ACTIVITY, pcall)
 
         calendar = Calendar.get_user_default_calendar(user)
         self.assertTrue(pcall.calendars.filter(pk=calendar.id).exists())
@@ -60,14 +60,14 @@ class CTITestCase(CremeTestCase):
     def test_add_phonecall02(self): #no contact
         self.login()
 
-        self.assertEqual(404, self.client.post('/cti/add_phonecall', data={'entity_id': '1024'}).status_code)
+        self.assertPOST404('/cti/add_phonecall', data={'entity_id': '1024'})
         self.assertFalse(PhoneCall.objects.exists())
 
     def test_add_phonecall03(self): #organisation
         self.login()
 
         orga = Organisation.objects.create(user=self.user, name='Gunsmith Cats')
-        self.assertEqual(200, self.client.post('/cti/add_phonecall', data={'entity_id': orga.id}).status_code)
+        self.assertPOST200('/cti/add_phonecall', data={'entity_id': orga.id})
 
         pcalls = PhoneCall.objects.all()
         self.assertEqual(1, len(pcalls))
@@ -85,11 +85,8 @@ class CTITestCase(CremeTestCase):
         response = self.client.get('/cti/respond_to_a_call', data={'number': phone})
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             callers = response.context['callers']
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertEqual(1, len(callers))
         self.assertEqual(contact.id, callers[0].id)
@@ -119,11 +116,8 @@ class CTITestCase(CremeTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             form = response.context['form']
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertEqual(phone, form.initial.get('phone'))
 
@@ -135,8 +129,7 @@ class CTITestCase(CremeTestCase):
                                         }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(1,   Contact.objects.filter(phone=phone).count())
+        self.assertEqual(1, Contact.objects.filter(phone=phone).count())
 
     def test_create_orga(self):
         self.login()
@@ -146,11 +139,8 @@ class CTITestCase(CremeTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             form = response.context['form']
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertEqual(phone, form.initial.get('phone'))
 
@@ -161,8 +151,7 @@ class CTITestCase(CremeTestCase):
                                         }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(1,   Organisation.objects.filter(phone=phone).count())
+        self.assertEqual(1, Organisation.objects.filter(phone=phone).count())
 
     def test_create_phonecall01(self):
         self.login()

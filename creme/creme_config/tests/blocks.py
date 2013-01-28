@@ -46,7 +46,6 @@ class BlocksConfigTestCase(CremeTestCase):
 
         response = self.client.post(url, data={'ct_id': ct.id})
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         b_locs = BlockDetailviewLocation.objects.filter(content_type=ct)
         self.assertEqual([('', 1)] * 4, [(bl.block_id, bl.order) for bl in b_locs])
@@ -170,7 +169,6 @@ class BlocksConfigTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         b_locs = BlockDetailviewLocation.objects.filter(content_type=ct)
 
@@ -239,7 +237,6 @@ class BlocksConfigTestCase(CremeTestCase):
                                           'top_order_%s' % block_top_index2: 2,
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         b_locs = BlockDetailviewLocation.objects.filter(content_type=ct)
@@ -267,10 +264,7 @@ class BlocksConfigTestCase(CremeTestCase):
         create_loc(block_id=blocks[3].id_, order=1, zone=BlockDetailviewLocation.BOTTOM)
 
         self.assertGET200(url)
-
-        response = self.client.post(url, data={})
-        self.assertEqual(200, response.status_code)
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(url, data={}))
 
         b_locs = BlockDetailviewLocation.objects.filter(content_type=None)
         self.assertEqual([('', 1)] * 4, [(bl.block_id, bl.order) for bl in b_locs])
@@ -374,9 +368,7 @@ class BlocksConfigTestCase(CremeTestCase):
         app_name = 'persons'
         self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
 
-        response = self.client.post(url, data={'app_name': app_name})
-        self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(self.client.post(url, data={'app_name': app_name}))
 
         b_locs = list(BlockPortalLocation.objects.filter(app_name=app_name))
         self.assertEqual(1, len(b_locs))
@@ -525,9 +517,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
         self.assertEqual([blocks[0].id_, blocks[1].id_], blocks_field.initial)
 
-        response = self.client.post(url, data={})
-        self.assertEqual(200, response.status_code)
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(url, data={}))
 
         b_locs = list(BlockPortalLocation.objects.filter(app_name=app_name))
         self.assertEqual(1, len(b_locs))
@@ -548,9 +538,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
         self.assertGET200(url)
 
-        response = self.client.post(url, data={})
-        self.assertEqual(200, response.status_code)
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(url, data={}))
 
         b_locs = list(BlockPortalLocation.objects.filter(app_name=''))
         self.assertEqual(1, len(b_locs))
@@ -582,10 +570,8 @@ class BlocksConfigTestCase(CremeTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        try:
+        with self.assertNoException():
             blocks_field = response.context['form'].fields['blocks']
-        except KeyError as e:
-            self.fail(str(e))
 
         self._find_field_index(blocks_field, foobar_block.id_)
 
@@ -599,8 +585,7 @@ class BlocksConfigTestCase(CremeTestCase):
         app_name = 'persons'
         self.client.post('/creme_config/blocks/portal/add/', data={'app_name': app_name})
 
-        response = self.client.post('/creme_config/blocks/portal/delete', data={'id': app_name})
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200('/creme_config/blocks/portal/delete', data={'id': app_name})
         self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
 
     def test_delete_home(self): #can not delete home conf
@@ -617,10 +602,8 @@ class BlocksConfigTestCase(CremeTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        try:
+        with self.assertNoException():
             blocks_field = response.context['form'].fields['blocks']
-        except KeyError as e:
-            self.fail(str(e))
 
         choices = blocks_field.choices
         self.assertGreaterEqual(len(choices), 2)
@@ -657,10 +640,8 @@ class BlocksConfigTestCase(CremeTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        try:
+        with self.assertNoException():
             blocks_field = response.context['form'].fields['blocks']
-        except KeyError as e:
-            self.fail(str(e))
 
         choices = blocks_field.choices
         self.assertGreaterEqual(len(choices), 2)
@@ -720,9 +701,7 @@ class BlocksConfigTestCase(CremeTestCase):
         url = '/creme_config/blocks/relation_block/add/'
         self.assertGET200(url)
 
-        response = self.client.post(url, data={'relation_type': rt.id})
-        self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(self.client.post(url, data={'relation_type': rt.id}))
 
         rbi = RelationBlockItem.objects.all()
         self.assertEqual(1,     len(rbi))

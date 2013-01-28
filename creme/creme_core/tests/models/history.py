@@ -34,9 +34,7 @@ class HistoryTestCase(ViewsTestCase):
         if extra_args:
             data.update(extra_args)
 
-        response = self.client.post('/persons/organisation/add', follow=True, data=data)
-        self.assertEqual(200, response.status_code)
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post('/persons/organisation/add', follow=True, data=data))
 
         return self.get_object_or_fail(Organisation, name=name)
 
@@ -47,9 +45,7 @@ class HistoryTestCase(ViewsTestCase):
         if extra_args:
             data.update(extra_args)
 
-        response = self.client.post('/persons/contact/add', follow=True, data=data)
-        self.assertEqual(200, response.status_code)
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post('/persons/contact/add', follow=True, data=data))
 
         return self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
 

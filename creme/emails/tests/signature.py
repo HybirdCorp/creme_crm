@@ -23,9 +23,7 @@ class SignaturesTestCase(_EmailsTestCase):
 
         name = 'Polite signature'
         body = 'I love you'
-        response = self.client.post(url, data={'name': name, 'body': body})
-        self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(self.client.post(url, data={'name': name, 'body': body}))
 
         signature = self.get_object_or_fail(EmailSignature, name=name)
         self.assertEqual(body,      signature.body)
@@ -46,9 +44,7 @@ class SignaturesTestCase(_EmailsTestCase):
 
         name += '_edited'
         body += '_edited'
-        response = self.client.post(url, data={'name': name, 'body': body})
-        self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(self.client.post(url, data={'name': name, 'body': body}))
 
         signature = self.refresh(signature)
         self.assertEqual(name,      signature.name)
@@ -61,27 +57,36 @@ class SignaturesTestCase(_EmailsTestCase):
     def test_edit02(self): #'perm' error
         self.login(is_superuser=False)
 
-        signature = EmailSignature.objects.create(user=self.other_user, name='Funny signature', body='I love you... not')
+        signature = EmailSignature.objects.create(user=self.other_user, name='Funny signature',
+                                                  body='I love you... not',
+                                                 )
         self.assertEqual(403, self.client.get('/emails/signature/edit/%s' % signature.id).status_code)
 
     def test_edit03(self): #superuser can delete all signatures
         self.login()
 
-        signature = EmailSignature.objects.create(user=self.other_user, name='Funny signature', body='I love you... not')
+        signature = EmailSignature.objects.create(user=self.other_user, name='Funny signature',
+                                                  body='I love you... not',
+                                                 )
         self.assertGET200('/emails/signature/edit/%s' % signature.id)
+
+    def _delete(self, signature):
+        return self.client.post('/emails/signature/delete', data={'id': signature.id}, follow=True)
 
     def test_delete01(self):
         self.login()
 
-        signature = EmailSignature.objects.create(user=self.user, name="Spike's one", body='See U space cowboy')
-        self.assertPOST200('/emails/signature/delete', data={'id': signature.id}, follow=True)
+        signature = EmailSignature.objects.create(user=self.user, name="Spike's one",
+                                                  body='See U space cowboy',
+                                                 )
+        self.assertEqual(200, self._delete(signature).status_code)
         self.assertFalse(EmailSignature.objects.filter(pk=signature.id).exists())
 
     def test_delete02(self): #'perm' error
         self.login(is_superuser=False)
 
         signature = EmailSignature.objects.create(user=self.other_user, name="Spike's one", body='See U space cowboy')
-        self.assertEqual(403, self.client.post('/emails/signature/delete', data={'id': signature.id}, follow=True).status_code)
+        self.assertEqual(403, self._delete(signature).status_code)
         self.assertEqual(1, EmailSignature.objects.filter(pk=signature.id).count())
 
     def test_delete03(self): #deps
@@ -92,7 +97,7 @@ class SignaturesTestCase(_EmailsTestCase):
                                                  subject='Hello', body='Do you know the real folk blues ?'
                                                 )
 
-        self.assertPOST200('/emails/signature/delete', data={'id': signature.id}, follow=True)
+        self.assertEqual(200, self._delete(signature).status_code)
         self.assertFalse(EmailSignature.objects.filter(pk=signature.id).exists())
 
         template = self.get_object_or_fail(EmailTemplate, pk=template.id)

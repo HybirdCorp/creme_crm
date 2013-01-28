@@ -33,7 +33,7 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
 
         invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
         url = '/billing/%s/product_line/add_multiple' % invoice.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
         self.assertFalse(invoice.service_lines)
 
         product1 = self.create_product()
@@ -45,9 +45,8 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
                                                'discount_value': Decimal('20'),
                                                'vat':            vat.id,
                                                }
-        )
+                                   )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         invoice = self.refresh(invoice) #refresh lines cache
         self.assertEqual(2, len(invoice.product_lines))
@@ -59,8 +58,8 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(quantity,        line1.quantity)
         self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE,          line0)
         self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE,          line1)
-        self.assertRelationCount(1, line0,    REL_SUB_LINE_RELATED_ITEM, product1)
-        self.assertRelationCount(1, line1,    REL_SUB_LINE_RELATED_ITEM, product2)
+        self.assertRelationCount(1, line0,   REL_SUB_LINE_RELATED_ITEM, product1)
+        self.assertRelationCount(1, line1,   REL_SUB_LINE_RELATED_ITEM, product2)
 
         self.assertEqual(Decimal('3.2'), invoice.total_no_vat) # 2 * 0.8 + 2 * 0.8
         self.assertEqual(Decimal('3.38'), invoice.total_vat) # 3.2 * 1.07 = 3.38
@@ -70,7 +69,7 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
 
         invoice  = self.create_invoice_n_orgas('Invoice001')[0]
         url = '/billing/%s/product_line/add_on_the_fly' % invoice.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         unit_price = Decimal('1.0')
         name = 'Awesomo'
@@ -121,7 +120,6 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         product = self.get_object_or_fail(Product, name=name)
         self.assertEqual(cat,        product.category)
@@ -173,8 +171,7 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
         invoice  = self.create_invoice_n_orgas('Invoice001')[0]
         product_line = ProductLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyyyy')
 
-        response = self.client.post('/creme_core/entity/delete/%s' % product_line.id, data={}, follow=True)
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200('/creme_core/entity/delete/%s' % product_line.id, data={}, follow=True)
         self.assertFalse(self.refresh(invoice).product_lines)
         self.assertFalse(ProductLine.objects.exists())
 
@@ -183,7 +180,7 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
 
         invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
         url = '/billing/%s/service_line/add_multiple' % invoice.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
         self.assertFalse(invoice.service_lines)
 
         service1 = self.create_service()
@@ -197,7 +194,6 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         invoice = self.refresh(invoice) #refresh lines cache
         self.assertEqual(2, len(invoice.service_lines))
@@ -209,8 +205,8 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(quantity,        line1.quantity)
         self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE,          line0)
         self.assertRelationCount(1, invoice, REL_SUB_HAS_LINE,          line1)
-        self.assertRelationCount(1, line0,    REL_SUB_LINE_RELATED_ITEM, service1)
-        self.assertRelationCount(1, line1,    REL_SUB_LINE_RELATED_ITEM, service2)
+        self.assertRelationCount(1, line0,   REL_SUB_LINE_RELATED_ITEM, service1)
+        self.assertRelationCount(1, line1,   REL_SUB_LINE_RELATED_ITEM, service2)
 
         self.assertEqual(Decimal('21.6'), invoice.total_no_vat) # 2 * 5.4 + 2 * 5.4
         self.assertEqual(Decimal('25.84'), invoice.total_vat) # 21.6 * 1.196 = 25.84
@@ -220,7 +216,7 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
 
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
         url = '/billing/%s/service_line/add_on_the_fly' % invoice.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         unit_price = Decimal('1.33')
         name = 'Car wash'
@@ -235,7 +231,6 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         invoice = self.refresh(invoice) #refresh lines cache
         lines = invoice.service_lines
@@ -270,10 +265,8 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         service = self.get_object_or_fail(Service, name=name)
-
         self.assertEqual(cat,        service.category)
         self.assertEqual(subcat,     service.sub_category)
         self.assertEqual(unit_price, service.unit_price)
@@ -425,7 +418,6 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
                                           'vat':              null_vat.id,
                                          }
                                    )
-        self.assertEqual(200, response.status_code, response.content)
         self.assertNoFormError(response)
 
         pl = self.refresh(pl)
@@ -533,7 +525,6 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
                                                'entities_lbl': 'whatever',
                                               }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         url = self._build_bulk_url(ServiceLine, sl1, sl2)
@@ -544,7 +535,6 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
                                                'entities_lbl': 'whatever',
                                               }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         invoice = self.refresh(invoice)
@@ -567,10 +557,10 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
         invoice = self.create_invoice_n_orgas('Nerv')[0]
         line = ProductLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyyyy', vat_value=vat)
 
-        response = self.client.post('/creme_config/billing/vat_value/delete', data={'id': vat.pk})
-        self.assertEqual(404, response.status_code)
+        self.assertPOST404('/creme_config/billing/vat_value/delete', data={'id': vat.pk})
         self.assertTrue(Vat.objects.filter(pk=vat.pk).exists())
 
-        invoice = self.get_object_or_fail(Invoice, pk=invoice.pk)
+        self.get_object_or_fail(Invoice, pk=invoice.pk)
+
         line    = self.get_object_or_fail(ProductLine, pk=line.pk)
         self.assertEqual(vat, line.vat_value)

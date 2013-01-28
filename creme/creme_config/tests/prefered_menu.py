@@ -29,7 +29,6 @@ class PreferedMenuTestCase(CremeTestCase):
             reg_item(item['url'], _(item['label']), 'creme_config.can_admin')
 
     def setUp(self):
-        #self.populate('creme_core', 'creme_config')
         self.login()
 
     def _find_field_index(self, formfield, entry_name):
@@ -72,8 +71,7 @@ class PreferedMenuTestCase(CremeTestCase):
         index1, index2 = self._get_indices(response.context, url1, url2)
 
         response = self.client.post(url, self._build_post_data((index1, url1), (index2, url2)))
-        self.assertNoFormError(response)
-        self.assertEqual(302, response.status_code)
+        self.assertNoFormError(response, status=302)
 
         items = PreferedMenuItem.objects.order_by('order')
         self.assertEqual(2, len(items))
@@ -93,9 +91,11 @@ class PreferedMenuTestCase(CremeTestCase):
         url2 = items_info[1]['url']
         index1, index2 = self._get_indices(response.context, url1, url2)
 
-        response = self.client.post(url, self._build_post_data((index1, url1), (index2, url2)))
-        self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(self.client.post(url, self._build_post_data((index1, url1),
+                                                                           (index2, url2),
+                                                                          )
+                                               )
+                              )
 
         items = PreferedMenuItem.objects.order_by('order')
         self.assertEqual(2, len(items))

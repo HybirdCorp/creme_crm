@@ -18,21 +18,8 @@ except Exception as e:
 __all__ = ('CSVImportViewsTestCase', )
 
 
-#class CSVImportBaseTestCase(ViewsTestCase):
 class CSVImportBaseTestCaseMixin(object):
     doc = None
-
-    #@classmethod
-    #def setUpClass(cls):
-        #cls.populate('creme_core', 'creme_config')
-
-        #Contact.objects.all().delete()
-        #Organisation.objects.all().delete()
-        #Position.objects.all().delete()
-        #Sector.objects.all().delete()
-
-    #def setUp(self):
-        #self.doc = None
 
     def tearDown(self):
         if self.doc:
@@ -64,7 +51,6 @@ class CSVImportBaseTestCaseMixin(object):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         with self.assertNoException():
             self.doc = Document.objects.get(title=title)
@@ -76,7 +62,6 @@ class CSVImportBaseTestCaseMixin(object):
         return '/creme_core/list_view/import_csv/%s?list_url=%s' % (ct.id, Contact.get_lv_absolute_url())
 
 
-#class CSVImportViewsTestCase(CSVImportBaseTestCase):
 class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
     @classmethod
     def setUpClass(cls):
@@ -110,7 +95,6 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                                #csv_has_header
                                               }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         with self.assertNoException():
@@ -163,7 +147,6 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                                 'shipaddr_department_colselect': 0,
                                               }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         with self.assertNoException():
@@ -282,7 +265,6 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                                 'shipaddr_department_colselect': 0,
                                               }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         with self.assertNoException():
@@ -379,7 +361,6 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                             'shipaddr_department_colselect': 0,
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         form = response.context['form']
@@ -457,7 +438,6 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                                 'shipaddr_department_colselect': 0,
                                               }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
         self.assertEqual([], list(response.context['form'].import_errors))
 

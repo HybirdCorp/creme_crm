@@ -18,6 +18,8 @@ __all__ = ('HeaderFilterViewsTestCase', )
 
 
 class HeaderFilterViewsTestCase(ViewsTestCase):
+    DELETE_URL = '/creme_core/header_filter/delete'
+
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_config')
@@ -25,6 +27,15 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         HeaderFilterItem.objects.all().delete()
         HeaderFilter.objects.all().delete()
+
+    def _build_add_url(self, ctype):
+        return '/creme_core/header_filter/add/%s' % ctype.id
+
+    def _build_edit_url(self, hf):
+        return '/creme_core/header_filter/edit/%s' % hf.id
+
+    def _build_get4ctype_url(self, ctype):
+        return '/creme_core/header_filter/get_for_ctype/%s' % ctype.id
 
     def _find_field_index(self, formfield, name):
         for i, (fname, fvname) in enumerate(formfield.choices):
@@ -39,7 +50,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         ct = ContentType.objects.get_for_model(CremeEntity)
         self.assertEqual(0, HeaderFilter.objects.filter(entity_type=ct).count())
 
-        uri = '/creme_core/header_filter/add/%s' % ct.id
+        uri = self._build_add_url(ct)
         response = self.client.get(uri)
         self.assertEqual(200, response.status_code)
 
@@ -56,8 +67,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                           'fields_order_%s' % created_index: 1,
                                          }
                                    )
-        self.assertNoFormError(response)
-        self.assertEqual(302, response.status_code)
+        self.assertNoFormError(response, status=302)
 
         hfilters = HeaderFilter.objects.filter(entity_type=ct)
         self.assertEqual(1, len(hfilters))
@@ -83,7 +93,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         customfield = CustomField.objects.create(name=u'Size (cm)', field_type=CustomField.INT, content_type=self.contact_ct)
         prop_funcfield = Contact.function_fields.get('get_pretty_properties')
 
-        uri = '/creme_core/header_filter/add/%s' % self.contact_ct.id
+        uri = self._build_add_url(self.contact_ct)
         response = self.client.get(uri)
 
         with self.assertNoException():
@@ -99,7 +109,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         loves_index     = self._find_field_index(rtypes_field, loves.id)
         propfunc_index  = self._find_field_index(funfields_field, prop_funcfield.name)
         name = 'DefaultHeaderFilter'
-        response = self.client.post(uri,
+        response = self.client.post(uri, follow=True,
                                     data={'name': name,
                                           'user': self.user.id,
 
@@ -151,13 +161,13 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
     def test_create03(self): #check app credentials
         self.login(is_superuser=False)
 
-        uri = '/creme_core/header_filter/add/%s' % self.contact_ct.id
-        self.assertEqual(404, self.client.get(uri).status_code)
+        uri = self._build_add_url(self.contact_ct)
+        self.assertGET404(uri)
 
         self.role.allowed_apps = ['persons']
         self.role.save()
 
-        self.assertEqual(200, self.client.get(uri).status_code)
+        self.assertGET200(uri)
 
     def test_edit01(self): #not editable
         self.login()
@@ -165,7 +175,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         hf = HeaderFilter.create(pk='tests-hf_entity', name='Entity view', model=CremeEntity, is_custom=False)
         hf.set_items([HeaderFilterItem.build_4_field(model=CremeEntity, name='created')])
 
-        self.assertEqual(404, self.client.get('/creme_core/header_filter/edit/%s' % hf.id).status_code)
+        self.assertGET404(self._build_edit_url(hf))
 
     def test_edit02(self):
         self.login()
@@ -173,7 +183,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view', model=Contact, is_custom=True)
         hf.set_items([HeaderFilterItem.build_4_field(model=Contact, name='first_name')])
 
-        uri = '/creme_core/header_filter/edit/%s' % hf.id
+        uri = self._build_edit_url(hf)
         response = self.client.get(uri)
         self.assertEqual(200, response.status_code)
 
@@ -200,8 +210,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                           'fields_order_%s' % last_name_index:  2,
                                          }
                                    )
-        self.assertNoFormError(response)
-        self.assertEqual(302, response.status_code)
+        self.assertNoFormError(response, status=302)
 
         hf = HeaderFilter.objects.get(pk=hf.id)
         self.assertEqual(name, hf.name)
@@ -215,23 +224,20 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.login(is_superuser=False)
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view', model=Contact, is_custom=True, user=self.other_user)
-        self.assertGET404('/creme_core/header_filter/edit/%s' % hf.id)
+        self.assertGET404(self._build_edit_url(hf))
 
     def test_edit04(self): #user do not have the app credentials
         self.login(is_superuser=False)
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view', model=Contact, is_custom=True, user=self.user)
-        self.assertGET404('/creme_core/header_filter/edit/%s' % hf.id)
+        self.assertGET404(self._build_edit_url(hf))
 
     def test_delete01(self):
         self.login()
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view', model=Contact, is_custom=True)
         hf.set_items([HeaderFilterItem.build_4_field(model=Contact, name='first_name')])
-        self.assertEqual(200, self.client.post('/creme_core/header_filter/delete',
-                                               data={'id': hf.id}, follow=True
-                                              ).status_code
-                        )
+        self.assertPOST200(self.DELETE_URL, follow=True, data={'id': hf.id})
         self.assertEqual(0, HeaderFilter.objects.filter(pk=hf.id).count())
         self.assertEqual(0, HeaderFilterItem.objects.filter(header_filter=hf.id).count())
 
@@ -239,7 +245,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.login()
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view', model=Contact, is_custom=False)
-        self.client.post('/creme_core/header_filter/delete', data={'id': hf.id})
+        self.client.post(self.DELETE_URL, data={'id': hf.id})
         self.assertEqual(1, HeaderFilter.objects.filter(pk=hf.id).count())
 
     def test_delete03(self): #belongs to another user
@@ -248,8 +254,10 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.role.allowed_apps = ['persons']
         self.role.save()
 
-        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view', model=Contact, is_custom=True, user=self.other_user)
-        self.client.post('/creme_core/header_filter/delete', data={'id': hf.id})
+        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
+                                 model=Contact, is_custom=True, user=self.other_user,
+                                )
+        self.client.post(self.DELETE_URL, data={'id': hf.id})
         self.assertEqual(1, HeaderFilter.objects.filter(pk=hf.id).count())
 
     def test_delete04(self): #belongs to my team -> ok
@@ -258,11 +266,10 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         my_team = User.objects.create(username='TeamTitan', is_team=True)
         my_team.teammates = [self.user]
 
-        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view', model=Contact, is_custom=True, user=my_team)
-        self.assertEqual(200, self.client.post('/creme_core/header_filter/delete',
-                                               data={'id': hf.id}, follow=True
-                                              ).status_code
-                        )
+        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
+                                 model=Contact, is_custom=True, user=my_team,
+                                )
+        self.assertPOST200(self.DELETE_URL, data={'id': hf.id}, follow=True)
         self.assertEqual(0, HeaderFilter.objects.filter(pk=hf.id).count())
 
     def test_delete05(self): #belongs to a team (not mine) -> ko
@@ -274,21 +281,25 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         a_team = User.objects.create(username='TeamTitan', is_team=True)
         a_team.teammates = [self.other_user]
 
-        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view', model=Contact, is_custom=True, user=a_team)
-        self.client.post('/creme_core/header_filter/delete', data={'id': hf.id}, follow=True)
+        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
+                                 model=Contact, is_custom=True, user=a_team,
+                                )
+        self.client.post(self.DELETE_URL, data={'id': hf.id}, follow=True)
         self.assertEqual(1, HeaderFilter.objects.filter(pk=hf.id).count())
 
     def test_delete06(self): #logged as super user
         self.login()
 
-        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view', model=Contact, is_custom=True, user=self.other_user)
-        self.client.post('/creme_core/header_filter/delete', data={'id': hf.id})
+        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
+                                 model=Contact, is_custom=True, user=self.other_user,
+                                )
+        self.client.post(self.DELETE_URL, data={'id': hf.id})
         self.assertEqual(0, HeaderFilter.objects.filter(pk=hf.id).count())
 
     def test_hfilters_for_ctype01(self):
         self.login()
 
-        response = self.client.get('/creme_core/header_filter/get_for_ctype/%s' % self.contact_ct.id)
+        response = self.client.get(self._build_get4ctype_url(self.contact_ct))
         self.assertEqual(200, response.status_code)
         self.assertEqual([], simplejson.loads(response.content))
 
@@ -302,12 +313,12 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         hf02 = create_hf(pk='tests-hf_contact02', name=name02,      model=Contact,      is_custom=True)
         hf03 = create_hf(pk='tests-hf_orga01',    name='Orga view', model=Organisation, is_custom=True)
 
-        response = self.client.get('/creme_core/header_filter/get_for_ctype/%s' % self.contact_ct.id)
+        response = self.client.get(self._build_get4ctype_url(self.contact_ct))
         self.assertEqual(200, response.status_code)
         self.assertEqual([[hf01.id, name01], [hf02.id, name02]], simplejson.loads(response.content))
 
     def test_hfilters_for_ctype03(self):
         self.login(is_superuser=False)
 
-        response = self.client.get('/creme_core/header_filter/get_for_ctype/%s' % self.contact_ct.id)
+        response = self.client.get(self._build_get4ctype_url(self.contact_ct))
         self.assertEqual(403, response.status_code)

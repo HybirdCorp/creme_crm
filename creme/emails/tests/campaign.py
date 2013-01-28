@@ -24,7 +24,6 @@ class CampaignTestCase(_EmailsTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
         self.get_object_or_fail(EmailCampaign, name=name)
 
     def test_edit(self):
@@ -41,7 +40,6 @@ class CampaignTestCase(_EmailsTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200,  response.status_code)
         self.assertEqual(name, self.refresh(camp).name)
 
     def test_listview(self):

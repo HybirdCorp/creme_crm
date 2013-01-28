@@ -21,11 +21,10 @@ class RelationTypeTestCase(CremeTestCase):
         cls.populate('creme_core', 'creme_config')
 
     def setUp(self): #in CremeConfigTestCase ??
-        #self.populate('creme_core', 'creme_config')
         self.login()
 
     def test_portal(self):
-        self.assertEqual(200, self.client.get('/creme_config/relation_type/portal/').status_code)
+        self.assertGET200('/creme_config/relation_type/portal/')
 
     def _find_relation_type(self, relation_types, predicate):
         for relation_type in relation_types:
@@ -36,7 +35,7 @@ class RelationTypeTestCase(CremeTestCase):
 
     def test_create01(self):
         url = '/creme_config/relation_type/add/'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         count = RelationType.objects.count()
         subject_pred = 'loves'
@@ -46,7 +45,6 @@ class RelationTypeTestCase(CremeTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         rel_types = RelationType.objects.all()
         self.assertEqual(count + 2, len(rel_types))#2 freshly created
@@ -79,7 +77,6 @@ class RelationTypeTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         rel_type = self._find_relation_type(RelationType.objects.all(), subject_pred)
         self.assertEqual([ct_orga.id],    [ct.id for ct in rel_type.subject_ctypes.all()])
@@ -100,7 +97,7 @@ class RelationTypeTestCase(CremeTestCase):
                                  is_custom=True
                                 )[0]
         url = '/creme_config/relation_type/edit/%s' % rt.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         subject_pred = 'loves'
         object_pred  = 'is loved by'
@@ -109,7 +106,6 @@ class RelationTypeTestCase(CremeTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         rel_type = RelationType.objects.get(pk=rt.id)
         self.assertEqual(subject_pred, rel_type.predicate)
@@ -127,7 +123,7 @@ class RelationTypeTestCase(CremeTestCase):
                                       ('test-subfoo', 'object_predicate'),
                                       is_custom=True
                                      )
-        self.assertEqual(200, self.client.post('/creme_config/relation_type/delete', data={'id': rt.id}).status_code)
+        self.assertPOST200('/creme_config/relation_type/delete', data={'id': rt.id})
         self.assertFalse(RelationType.objects.filter(pk__in=[rt.id, srt.id]))
 
 
@@ -138,8 +134,7 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config')
 
-    def setUp(self): #in CremeConfigTestCase ??
-        #self.populate('creme_core', 'creme_config')
+    def setUp(self):
         self.login()
 
         self.loves = RelationType.create(('test-subject_foobar', 'is loving'),
@@ -161,7 +156,6 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
                                                                    ),
                                               }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         semi_fixed_relations = SemiFixedRelationType.objects.all()
@@ -229,8 +223,7 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
                                                     relation_type=self.loves,
                                                     object_entity=self.iori,
                                                    )
-        self.assertEqual(200, self.client.post('/creme_config/relation_type/semi_fixed/delete',
-                                               data={'id': sfrt.id}
-                                              ).status_code
-                        )
+        self.assertPOST200('/creme_config/relation_type/semi_fixed/delete',
+                           data={'id': sfrt.id}
+                          )
         self.assertFalse(SemiFixedRelationType.objects.filter(pk=sfrt.id))

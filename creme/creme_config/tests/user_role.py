@@ -47,7 +47,7 @@ class UserRoleTestCase(CremeTestCase):
         self.login()
 
         url = '/creme_config/role/add/'
-        self.assertEqual(200,  self.client.get(url).status_code)
+        self.assertGET200(url)
 
         get_ct = ContentType.objects.get_for_model
         name = 'CEO'
@@ -63,7 +63,6 @@ class UserRoleTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         role = self.get_object_or_fail(UserRole, name=name)
         self.assertEqual(set(creatable_ctypes),  set(ctype.id for ctype in role.creatable_ctypes.all()))
@@ -101,7 +100,7 @@ class UserRoleTestCase(CremeTestCase):
         self.assertEqual(0, role.credentials.count())
 
         url = '/creme_config/role/add_credentials/%s' % role.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         set_type = SetCredentials.ESET_ALL
         response = self.client.post(url, data={'can_view':   True,
@@ -114,7 +113,6 @@ class UserRoleTestCase(CremeTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         setcreds = role.credentials.all()
         self.assertEqual(1, len(setcreds))
@@ -147,7 +145,6 @@ class UserRoleTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         setcreds = role.credentials.all()
         self.assertEqual(1, len(setcreds))
@@ -181,14 +178,15 @@ class UserRoleTestCase(CremeTestCase):
 
         role = UserRole.objects.create(name='CEO')
         SetCredentials.objects.create(role=role, value=SetCredentials.CRED_VIEW,
-                                      set_type=SetCredentials.ESET_ALL)
+                                      set_type=SetCredentials.ESET_ALL,
+                                     )
 
         other_user = User.objects.create(username='chloe', role=role)
         contact    = Contact.objects.create(user=self.user, first_name='Yuki', last_name='Kajiura')
         self.assertFalse(contact.can_view(other_user)) #role.allowed_apps does not contain 'persons'
 
         url = '/creme_config/role/edit/%s' % role.id
-        self.assertEqual(200,  self.client.get(url).status_code)
+        self.assertGET200(url)
 
         name   = role.name + '_edited'
         get_ct = ContentType.objects.get_for_model
@@ -207,7 +205,6 @@ class UserRoleTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         role = self.refresh(role)
         self.assertEqual(set(creatable_ctypes),  set(ctype.id for ctype in role.creatable_ctypes.all()))
@@ -253,7 +250,6 @@ class UserRoleTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         role = self.refresh(role)
         self.assertFalse(role.creatable_ctypes.exists())
@@ -292,10 +288,9 @@ class UserRoleTestCase(CremeTestCase):
         self.assertTrue(yuki.can_view(other_user))
         self.assertEqual(1, EntityCredentials.objects.count())
 
-        response = self.client.post('/creme_config/role/delete', follow=True,
-                                    data={'id': role.id}
-                                   )
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200('/creme_config/role/delete', follow=True,
+                           data={'id': role.id}
+                          )
         self.assertFalse(UserRole.objects.exists())
 
         self.assertFalse(EntityCredentials.get_default_creds().can_view())
@@ -321,7 +316,7 @@ class UserRoleTestCase(CremeTestCase):
         self.assertFalse(defcreds.can_unlink())
 
         url = '/creme_config/role/set_default_creds/'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         response = self.client.post(url, follow=True,
                                     data={'can_view':   True,
@@ -331,7 +326,7 @@ class UserRoleTestCase(CremeTestCase):
                                           'can_unlink': True,
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
 
         defcreds = EntityCredentials.get_default_creds()
         self.assertTrue(defcreds.can_view())
@@ -345,11 +340,10 @@ class UserRoleTestCase(CremeTestCase):
 
         url = '/creme_config/role/set_default_creds/'
         self.assertGETRedirectsToLogin(url)
-        self.assertPOSTRedirectsToLogin(url,
-                                        data={'can_view':   True,
-                                              'can_change': True,
-                                              'can_delete': True,
-                                              'can_link':   True,
-                                              'can_unlink': True,
-                                             }
+        self.assertPOSTRedirectsToLogin(url, data={'can_view':   True,
+                                                   'can_change': True,
+                                                   'can_delete': True,
+                                                   'can_link':   True,
+                                                   'can_unlink': True,
+                                                  }
                                        )

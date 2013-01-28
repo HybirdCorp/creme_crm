@@ -33,7 +33,6 @@ class TemplatesTestCase(_EmailsTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         template = self.get_object_or_fail(EmailTemplate, name=name)
         self.assertEqual(subject,   template.subject)
@@ -75,7 +74,6 @@ class TemplatesTestCase(_EmailsTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         template = self.refresh(template)
         self.assertEqual(name,    template.name)

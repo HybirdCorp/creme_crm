@@ -31,13 +31,13 @@ class MediaManagersTestCase(CremeTestCase):
         self.assertEqual(3, MediaCategory.objects.count())
 
     def test_portal(self):
-        self.assertEqual(200, self.client.get('/media_managers/').status_code)
+        self.assertGET200('/media_managers/')
 
     def test_add(self): #TODO: test popup version
         self.assertEqual(0, Image.objects.count())
 
         url = '/media_managers/image/add'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         path = join(settings.CREME_ROOT, 'static', 'chantilly', 'images', 'creme_22.png')
         self.assertTrue(exists(path))
@@ -55,7 +55,6 @@ class MediaManagersTestCase(CremeTestCase):
                                  }
                            )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         with self.assertNoException():
             image = Image.objects.get(name=name)
@@ -82,7 +81,6 @@ class MediaManagersTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         with self.assertNoException():
             image = Image.objects.get(name=name)
@@ -98,7 +96,7 @@ class MediaManagersTestCase(CremeTestCase):
         old_path = image.image.path
 
         url = '/media_managers/image/edit/%s' % image.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         name = name.title()
         description += ' (edited)'
@@ -111,7 +109,6 @@ class MediaManagersTestCase(CremeTestCase):
                                  }
                            )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         #image = Image.objects.get(pk=image.pk) #refresh
         image = self.refresh(image)

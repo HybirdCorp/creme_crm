@@ -34,11 +34,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertFalse(EntityFilter.objects.filter(entity_type=ct).count())
 
         uri = '/creme_core/entity_filter/add/%s' % ct.id
-        self.assertEqual(404, self.client.get(uri).status_code)
+        self.assertGET404(uri)
 
         self.role.allowed_apps = ['persons']
         self.role.save()
-        self.assertEqual(200, self.client.get(uri).status_code)
+        self.assertGET200(uri)
 
         name = 'Filter 01'
         operator = EntityFilterCondition.IEQUALS
@@ -54,7 +54,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         efilters = EntityFilter.objects.filter(entity_type=ct)
         self.assertEqual(1, len(efilters))
@@ -141,7 +140,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                           'subfilters_conditions':       [subfilter.id],
                                          }
                                    )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response, status=302)
 
         efilter = self.get_object_or_fail(EntityFilter, name=name)
         self.assertEqual(self.user.id, efilter.user.id)
@@ -300,7 +299,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         efilter = EntityFilter.objects.get(pk=efilter.id) #refresh
         self.assertEqual(name, efilter.name)
@@ -360,7 +358,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.login()
 
         efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=False)
-        self.assertEqual(404, self.client.get('/creme_core/entity_filter/edit/%s' % efilter.id).status_code)
+        self.assertGET404('/creme_core/entity_filter/edit/%s' % efilter.id)
 
     def test_edit03(self): #can not edit Filter that belongs to another user
         self.login(is_superuser=False)
@@ -369,13 +367,13 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.role.save()
 
         efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, user=self.other_user, is_custom=True)
-        self.assertEqual(404, self.client.get('/creme_core/entity_filter/edit/%s' % efilter.id).status_code)
+        self.assertGET404('/creme_core/entity_filter/edit/%s' % efilter.id)
 
     def test_edit04(self): #user do not have the app credentials
         self.login(is_superuser=False)
 
         efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, user=self.user, is_custom=True)
-        self.assertEqual(404, self.client.get('/creme_core/entity_filter/edit/%s' % efilter.id).status_code)
+        self.assertGET404('/creme_core/entity_filter/edit/%s' % efilter.id)
 
     def test_edit05(self): #cycle error
         self.login()

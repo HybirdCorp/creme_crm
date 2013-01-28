@@ -3,17 +3,16 @@
 try:
     from decimal import Decimal
     from datetime import date
+    from functools import partial
 
     from django.utils.translation import ugettext as _
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
     from creme_core.tests.base import CremeTestCase
-    #from creme_core.tests.views.csv_import import CSVImportBaseTestCase
     from creme_core.tests.views.csv_import import CSVImportBaseTestCaseMixin
-    from creme_core.models import RelationType, Relation, CremeProperty, SetCredentials, Currency
+    from creme_core.models import CremeEntity, RelationType, Relation, CremeProperty, SetCredentials, Currency
     from creme_core.constants import PROP_IS_MANAGED_BY_CREME, DEFAULT_CURRENCY_PK
-    from creme_core.models.entity import CremeEntity
 
     from creme_config.models import SettingKey, SettingValue
 
@@ -25,15 +24,17 @@ try:
     from billing.models import Quote, SalesOrder, Invoice, Vat, ServiceLine
     from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
-    from opportunities.models import *
-    from opportunities.constants import *
+    from opportunities.models import Opportunity, SalesPhase, Origin
+    import opportunities.constants as opp_constants
+    from opportunities.constants import (REL_OBJ_TARGETS, REL_SUB_EMIT_ORGA, REL_SUB_LINKED_INVOICE,
+                                         REL_SUB_LINKED_QUOTE, REL_SUB_CURRENT_DOC)
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
 
-#class OpportunitiesTestCase(CSVImportBaseTestCase):
 class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
-    #doc = None
+    ADD_URL = '/opportunities/opportunity/add'
+    ADDTO_URL = '/opportunities/opportunity/add_to/%s'
 
     @classmethod
     def setUpClass(cls):
@@ -48,11 +49,12 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
     def _genericfield_format_entity(self, entity):
         return '{"ctype":"%s", "entity":"%s"}' % (entity.entity_type_id, entity.id)
 
-    def _create_target_n_emitter(self, managed=True):
+    def _create_target_n_emitter(self, managed=True, contact=False):
         user = self.user
         create_orga = Organisation.objects.create
-        target  = create_orga(user=user, name='Target renegade')
         emitter = create_orga(user=user, name='My society')
+        target  = create_orga(user=user, name='Target renegade') if not contact else \
+                  Contact.objects.create(user=user, first_name='Target', last_name='Renegade')
 
         if managed:
             CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
@@ -72,46 +74,46 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         ct = ContentType.objects.get_for_model(Opportunity)
         relation_types = dict((rtype.id, rtype) for rtype in RelationType.get_compatible_ones(ct))
 
-        self.assertNotIn(REL_SUB_TARGETS, relation_types)
-        self.get_relationtype_or_fail(REL_SUB_TARGETS, [Opportunity], [Contact, Organisation])
+        self.assertNotIn(opp_constants.REL_SUB_TARGETS, relation_types)
+        self.get_relationtype_or_fail(opp_constants.REL_SUB_TARGETS, [Opportunity], [Contact, Organisation])
 
         self.assertNotIn(REL_SUB_EMIT_ORGA, relation_types)
-        self.get_relationtype_or_fail(REL_OBJ_EMIT_ORGA, [Opportunity], [Organisation])
+        self.get_relationtype_or_fail(opp_constants.REL_OBJ_EMIT_ORGA, [Opportunity], [Organisation])
 
-        self.assertIn(REL_OBJ_LINKED_PRODUCT, relation_types)
-        self.assertNotIn(REL_SUB_LINKED_PRODUCT, relation_types)
-        self.get_relationtype_or_fail(REL_OBJ_LINKED_PRODUCT, [Opportunity], [Product])
+        self.assertIn(opp_constants.REL_OBJ_LINKED_PRODUCT, relation_types)
+        self.assertNotIn(opp_constants.REL_SUB_LINKED_PRODUCT, relation_types)
+        self.get_relationtype_or_fail(opp_constants.REL_OBJ_LINKED_PRODUCT, [Opportunity], [Product])
 
-        self.assertIn(REL_OBJ_LINKED_SERVICE, relation_types)
-        self.assertNotIn(REL_SUB_LINKED_SERVICE, relation_types)
-        self.get_relationtype_or_fail(REL_OBJ_LINKED_SERVICE, [Opportunity], [Service])
+        self.assertIn(opp_constants.REL_OBJ_LINKED_SERVICE, relation_types)
+        self.assertNotIn(opp_constants.REL_SUB_LINKED_SERVICE, relation_types)
+        self.get_relationtype_or_fail(opp_constants.REL_OBJ_LINKED_SERVICE, [Opportunity], [Service])
 
-        self.assertIn(REL_OBJ_LINKED_CONTACT, relation_types)
-        self.assertNotIn(REL_SUB_LINKED_CONTACT, relation_types)
-        self.get_relationtype_or_fail(REL_OBJ_LINKED_CONTACT, [Opportunity], [Contact])
+        self.assertIn(opp_constants.REL_OBJ_LINKED_CONTACT, relation_types)
+        self.assertNotIn(opp_constants.REL_SUB_LINKED_CONTACT, relation_types)
+        self.get_relationtype_or_fail(opp_constants.REL_OBJ_LINKED_CONTACT, [Opportunity], [Contact])
 
-        self.assertIn(REL_OBJ_LINKED_SALESORDER, relation_types)
-        self.assertNotIn(REL_SUB_LINKED_SALESORDER, relation_types)
-        self.get_relationtype_or_fail(REL_OBJ_LINKED_SALESORDER, [Opportunity], [SalesOrder])
+        self.assertIn(opp_constants.REL_OBJ_LINKED_SALESORDER, relation_types)
+        self.assertNotIn(opp_constants.REL_SUB_LINKED_SALESORDER, relation_types)
+        self.get_relationtype_or_fail(opp_constants.REL_OBJ_LINKED_SALESORDER, [Opportunity], [SalesOrder])
 
-        self.assertIn(REL_OBJ_LINKED_INVOICE, relation_types)
+        self.assertIn(opp_constants.REL_OBJ_LINKED_INVOICE, relation_types)
         self.assertNotIn(REL_SUB_LINKED_INVOICE, relation_types)
-        self.get_relationtype_or_fail(REL_OBJ_LINKED_INVOICE, [Opportunity], [Invoice])
+        self.get_relationtype_or_fail(opp_constants.REL_OBJ_LINKED_INVOICE, [Opportunity], [Invoice])
 
-        self.assertIn(REL_OBJ_LINKED_QUOTE, relation_types)
+        self.assertIn(opp_constants.REL_OBJ_LINKED_QUOTE, relation_types)
         self.assertNotIn(REL_SUB_LINKED_QUOTE, relation_types)
-        self.get_relationtype_or_fail(REL_OBJ_LINKED_QUOTE, [Opportunity], [Quote])
+        self.get_relationtype_or_fail(opp_constants.REL_OBJ_LINKED_QUOTE, [Opportunity], [Quote])
 
-        self.assertIn(REL_OBJ_RESPONSIBLE, relation_types)
-        self.assertNotIn(REL_SUB_RESPONSIBLE, relation_types)
-        self.get_relationtype_or_fail(REL_OBJ_RESPONSIBLE, [Opportunity], [Contact])
+        self.assertIn(opp_constants.REL_OBJ_RESPONSIBLE, relation_types)
+        self.assertNotIn(opp_constants.REL_SUB_RESPONSIBLE, relation_types)
+        self.get_relationtype_or_fail(opp_constants.REL_OBJ_RESPONSIBLE, [Opportunity], [Contact])
 
-        self.get_relationtype_or_fail(REL_OBJ_CURRENT_DOC, [Opportunity], [Invoice, Quote, SalesOrder])
+        self.get_relationtype_or_fail(opp_constants.REL_OBJ_CURRENT_DOC, [Opportunity], [Invoice, Quote, SalesOrder])
 
         self.assertTrue(SalesPhase.objects.exists())
         self.assertTrue(Origin.objects.exists())
 
-        keys = SettingKey.objects.filter(pk=SETTING_USE_CURRENT_QUOTE)
+        keys = SettingKey.objects.filter(pk=opp_constants.SETTING_USE_CURRENT_QUOTE)
         self.assertEqual(1, len(keys))
         self.assertEqual(1, SettingValue.objects.filter(key=keys[0]).count())
 
@@ -122,8 +124,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
     def test_createview01(self):
         self.login()
 
-        url = '/opportunities/opportunity/add'
-        self.assertEqual(200, self.client.post(url).status_code)
+        url = self.ADD_URL
+        self.assertGET200(url)
 
         target, emitter = self._create_target_n_emitter()
         name  = 'Opportunity01'
@@ -141,7 +143,6 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         opportunity =  self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(phase,              opportunity.sales_phase)
@@ -163,7 +164,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         target, emitter = self._create_target_n_emitter()
         name  = 'Opportunity01'
         phase = SalesPhase.objects.all()[0]
-        response = self.client.post('/opportunities/opportunity/add', follow=True,
+        response = self.client.post(self.ADD_URL, follow=True,
                                     data={'user':                  self.user.pk,
                                           'name':                  name,
                                           'sales_phase':           phase.id,
@@ -176,7 +177,6 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         opportunity =  self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(phase,              opportunity.sales_phase)
@@ -196,17 +196,18 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
             prop_target = opportunity.target
         self.assertEqual(target, prop_target)
 
-    def test_createview03(self):#Only contact & orga models are allowed
+    def test_createview03(self):
+        "Only contact & orga models are allowed as target"
         self.login()
 
-        response = self.client.post('/opportunities/opportunity/add')
-        self.assertEqual(200, response.status_code)
-
-
-        target, emitter = self._create_target_n_emitter()
+        target = emitter = Invoice.objects.create(user=self.user, name='Invoice01',
+                                                  expiration_date=date(year=2012, month=12, day=15),
+                                                  status_id=1, number='INV0001',
+                                                  currency_id=DEFAULT_CURRENCY_PK,
+                                                 )
         name  = 'Opportunity01'
         phase = SalesPhase.objects.all()[0]
-        response = self.client.post('/opportunities/opportunity/add', follow=True,
+        response = self.client.post(self.ADD_URL, follow=True,
                                     data={'user':                  self.user.pk,
                                           'name':                  name,
                                           'sales_phase':           phase.id,
@@ -215,8 +216,13 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                           'target':                self._genericfield_format_entity(target),
                                           'emitter':               emitter.id,
                                           'first_action_date':     '2010-7-13',
+                                          'currency':              DEFAULT_CURRENCY_PK,
                                          }
                                    )
+        self.assertFormError(response, 'form', 'target', [_('This content type is not allowed.')])
+        self.assertFormError(response, 'form', 'emitter',
+                             [_('Select a valid choice. That choice is not one of the available choices.')]
+                            )
         self.assertRaises(Opportunity.DoesNotExist, Opportunity.objects.get, name=name)
 
     def test_createview04(self): #link creds error
@@ -229,28 +235,29 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                      )
 
         target, emitter = self._create_target_n_emitter()
-        response = self.client.post('/opportunities/opportunity/add', follow=True,
+        response = self.client.post(self.ADD_URL, follow=True,
                                     data={'user':         self.user.pk,
                                           'name':         'My opportunity',
                                           'sales_phase':  SalesPhase.objects.all()[0].id,
                                           'closing_date': '2011-03-14',
                                           'target':       self._genericfield_format_entity(target),
                                           'emitter':      emitter.id,
+                                          'currency':     DEFAULT_CURRENCY_PK,
                                          }
                                    )
         self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'target',
-                             [_(u'You are not allowed to link this entity: %s') % (_(u'Entity #%s (not viewable)') % target.id)]
-                            )
-        self.assertFormError(response, 'form', 'emitter',
-                             [_(u'You are not allowed to link this entity: %s') % (_(u'Entity #%s (not viewable)') % emitter.id)]
-                            )
 
-    def test_createview05(self): #emitter not managed by Creme
+        fmt1 = _(u'You are not allowed to link this entity: %s')
+        fmt2 = _(u'Entity #%s (not viewable)')
+        self.assertFormError(response, 'form', 'target',  [fmt1 % (fmt2 % target.id)])
+        self.assertFormError(response, 'form', 'emitter', [fmt1 % (fmt2 % emitter.id)])
+
+    def test_createview05(self):
+        "Emitter not managed by Creme"
         self.login()
 
         target, emitter = self._create_target_n_emitter(managed=False)
-        response = self.client.post('/opportunities/opportunity/add', follow=True,
+        response = self.client.post(self.ADD_URL, follow=True,
                                     data={'user':         self.user.pk,
                                           'name':         'My opportunity',
                                           'sales_phase':  SalesPhase.objects.all()[0].id,
@@ -268,8 +275,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.login()
 
         target, emitter = self._create_target_n_emitter()
-        url = '/opportunities/opportunity/add_to/%s' % target.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        url = self.ADDTO_URL % target.id
+        self.assertGET200(url)
 
         salesphase = SalesPhase.objects.all()[0]
         name = 'Opportunity linked to %s' % target
@@ -282,8 +289,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                                'currency':     DEFAULT_CURRENCY_PK,
                                               }
                                    )
-        self.assertNoFormError(response)
-        self.assertEqual(302, response.status_code)
+        self.assertNoFormError(response, status=302)
 
         opportunity = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(salesphase, opportunity.sales_phase)
@@ -292,18 +298,17 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertRelationCount(1, emitter, REL_SUB_EMIT_ORGA, opportunity)
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
 
-        name = 'Opportunity Two linked to %s' % target
-        response = self.client.post(url, data={'user':         self.user.pk,
-                                               'name':         name,
-                                               'sales_phase':  salesphase.id,
-                                               'closing_date': '2011-03-12',
-                                               'target':       self._genericfield_format_entity(target),
-                                               'emitter':      emitter.id,
-                                               'currency':     DEFAULT_CURRENCY_PK,
-                                              }
+        response = self.client.post(url, follow=True,
+                                    data={'user':         self.user.pk,
+                                          'name':         'Opportunity Two linked to %s' % target,
+                                          'sales_phase':  salesphase.id,
+                                          'closing_date': '2011-03-12',
+                                          'target':       self._genericfield_format_entity(target),
+                                          'emitter':      emitter.id,
+                                          'currency':     DEFAULT_CURRENCY_PK,
+                                         }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(302, response.status_code)
         self.assertRelationCount(1, target, REL_SUB_PROSPECT, emitter)
 
     def test_add_to_orga02(self):
@@ -311,7 +316,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         target, emitter = self._create_target_n_emitter()
         url = '/opportunities/opportunity/add_to/%s/popup' % target.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         salesphase = SalesPhase.objects.all()[0]
         name = 'Opportunity linked to %s' % target
@@ -325,7 +330,6 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         opportunity = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(salesphase, opportunity.sales_phase)
@@ -334,7 +338,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertRelationCount(1, emitter, REL_SUB_EMIT_ORGA, opportunity)
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
 
-    def test_add_to_orga03(self): #with bad creds
+    def test_add_to_orga03(self):
+        "Try to add with wrong credentials (no link credentials)"
         self.login(is_superuser=False, allowed_apps=['opportunities'], creatable_models=[Opportunity])
 
         SetCredentials.objects.create(role=self.role,
@@ -344,14 +349,15 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                      )
 
         target = Organisation.objects.create(user=self.user, name='Target renegade')
-        self.assertEqual(403, self.client.get('/opportunities/opportunity/add_to/%s' % target.id).status_code)
+        self.assertEqual(403, self.client.get(self.ADDTO_URL % target.id).status_code)
 
     def test_add_to_contact01(self):
+        "Target is a Contact"
         self.login()
 
-        target, emitter = self._create_target_n_emitter()
-        url = '/opportunities/opportunity/add_to/%s' % target.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        target, emitter = self._create_target_n_emitter(contact=True)
+        url = self.ADDTO_URL % target.id
+        self.assertGET200(url)
 
         salesphase = SalesPhase.objects.all()[0]
         name = 'Opportunity linked to %s' % target
@@ -364,8 +370,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                                'currency':     DEFAULT_CURRENCY_PK,
                                               }
                                    )
-        self.assertNoFormError(response)
-        self.assertEqual(302, response.status_code)
+        self.assertNoFormError(response, status=302)
 
         opportunity = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(salesphase, opportunity.sales_phase)
@@ -374,26 +379,26 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertRelationCount(1, emitter, REL_SUB_EMIT_ORGA, opportunity)
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
 
-        name = 'Opportunity 2 linked to %s' % target
-        response = self.client.post(url, data={'user':         self.user.pk,
-                                               'name':         name,
-                                               'sales_phase':  salesphase.id,
-                                               'closing_date': '2011-03-12',
-                                               'target':       self._genericfield_format_entity(target),
-                                               'emitter':      emitter.id,
-                                               'currency':     DEFAULT_CURRENCY_PK,
-                                              }
+        response = self.client.post(url, follow=True,
+                                    data={'user':         self.user.pk,
+                                          'name':         'Opportunity 2 linked to %s' % target,
+                                          'sales_phase':  salesphase.id,
+                                          'closing_date': '2011-03-12',
+                                          'target':       self._genericfield_format_entity(target),
+                                          'emitter':      emitter.id,
+                                          'currency':     DEFAULT_CURRENCY_PK,
+                                         }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(302, response.status_code)
         self.assertRelationCount(1, target, REL_SUB_PROSPECT, emitter)
 
     def test_add_to_contact02(self):
+        "Popup version"
         self.login()
 
-        target, emitter = self._create_target_n_emitter()
+        target, emitter = self._create_target_n_emitter(contact=True)
         url = '/opportunities/opportunity/add_to/%s/popup' % target.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         salesphase = SalesPhase.objects.all()[0]
         name = 'Opportunity linked to %s' % target
@@ -407,7 +412,6 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         opportunity = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(salesphase, opportunity.sales_phase)
@@ -416,7 +420,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertRelationCount(1, emitter, REL_SUB_EMIT_ORGA, opportunity)
         self.assertRelationCount(1, target,  REL_SUB_PROSPECT,  emitter)
 
-    def test_add_to_contact03(self): #with bad creds
+    def test_add_to_contact03(self):
+        "User can not link to the Contact target"
         self.login(is_superuser=False, allowed_apps=['opportunities'], creatable_models=[Opportunity])
 
         SetCredentials.objects.create(role=self.role,
@@ -425,10 +430,11 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                       set_type=SetCredentials.ESET_OWN
                                      )
 
-        target = Contact.objects.create(user=self.user, first_name='Target', last_name='renegade')
-        self.assertEqual(403, self.client.get('/opportunities/opportunity/add_to/%s' % target.id).status_code)
+        target = Contact.objects.create(user=self.user, first_name='Target', last_name='Renegade')
+        self.assertEqual(403, self.client.get(self.ADDTO_URL % target.id).status_code)
 
-    def test_add_to_something01(self): #Something different than a Contact or an Organisation
+    def test_add_to_something01(self):
+        "Target is not a Contact/Organisation"
         self.login()
 
         target  = CremeEntity.objects.create(user=self.user)
@@ -437,21 +443,19 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
 
-        url = '/opportunities/opportunity/add_to/%s' % target.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        url = self.ADDTO_URL % target.id
+        self.assertGET200(url) #TODO: is it normal ??
 
-        name = 'Opportunity linked to %s' % target
         response = self.client.post(url, data={'user':         self.user.pk,
-                                               'name':         name,
+                                               'name':         'Opp #1',
                                                'sales_phase':  SalesPhase.objects.all()[0].id,
                                                'closing_date': '2011-03-12',
                                                'target':       self._genericfield_format_entity(target),
                                                'emitter':      emitter.id,
                                               }
                                    )
-
-        self.assertEqual(opportunity_count, Opportunity.objects.count())#No new opportunity was created
         self.assertFormError(response, 'form', 'target', [_(u'This content type is not allowed.')])
+        self.assertEqual(opportunity_count, Opportunity.objects.count())#No new opportunity was created
 
     def test_editview(self):
         self.login()
@@ -459,7 +463,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         name = 'opportunity01'
         opportunity = self._create_opportunity_n_organisations(name)[0]
         url = '/opportunities/opportunity/edit/%s' % opportunity.id
-        self.assertEqual(200, self.client.post(url).status_code)
+        self.assertGET200(url)
 
         name = name.title()
         reference = '1256'
@@ -477,7 +481,6 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         opportunity = self.refresh(opportunity)
         self.assertEqual(name,                             opportunity.name)
@@ -533,7 +536,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         url = self._build_gendoc_url(opportunity, ContentType.objects.get_for_model(Quote))
 
         self.assertGET404(url)
-        self.assertEqual(200, self.client.post(url, follow=True).status_code)
+        self.assertPOST200(url, follow=True)
 
         quotes = Quote.objects.all()
         self.assertEqual(1, len(quotes))
@@ -610,7 +613,6 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.login()
 
         opportunity, target, emitter = self._create_opportunity_n_organisations()
-        ct = ContentType.objects.get_for_model(Quote)
         gendoc_url = self._build_gendoc_url(opportunity, ContentType.objects.get_for_model(Quote))
 
         self.client.post(gendoc_url)
@@ -621,7 +623,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         url = self._build_setcurrentquote_url(opportunity, quote1)
         self.assertGET404(url)
-        self.assertEqual(200, self.client.post(url, follow=True).status_code)
+        self.assertPOST200(url, follow=True)
 
         self.assertRelationCount(1, quote2, REL_SUB_BILL_ISSUED,   emitter)
         self.assertRelationCount(1, quote2, REL_SUB_BILL_RECEIVED, target)
@@ -634,7 +636,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertRelationCount(1, quote1, REL_SUB_CURRENT_DOC,   opportunity)
 
     def _set_quote_config(self, use_current_quote):
-        sv = SettingValue.objects.get(key=SETTING_USE_CURRENT_QUOTE)
+        sv = SettingValue.objects.get(key=opp_constants.SETTING_USE_CURRENT_QUOTE)
         sv.value = use_current_quote
         sv.save()
 
@@ -647,24 +649,24 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         opportunity.estimated_sales = Decimal('1000')
         opportunity.save()
 
+        create_sline = partial(ServiceLine.objects.create, user=self.user)
+
         self.client.post(url)
         quote1 = Quote.objects.all()[0]
-        sl1 = ServiceLine.objects.create(user=self.user, related_document=quote1, on_the_fly_item='Stuff1', unit_price=Decimal("300"))
+        sl1 = create_sline(related_document=quote1, on_the_fly_item='Stuff1', unit_price=Decimal("300"))
 
         self.client.post(url)
         quote2 = Quote.objects.exclude(pk=quote1.id)[0]
-        sl2 = ServiceLine.objects.create(user=self.user, related_document=quote2, on_the_fly_item='Stuff1', unit_price=Decimal("500"))
+        sl2 = create_sline(related_document=quote2, on_the_fly_item='Stuff1', unit_price=Decimal("500"))
 
         self._set_quote_config(True)
         url = self._build_setcurrentquote_url(opportunity, quote1)
-        self.assertEqual(200, self.client.post(url, follow=True).status_code)
+        self.assertPOST200(url, follow=True)
 
         opportunity = self.refresh(opportunity)
         self.assertEqual(opportunity.estimated_sales, quote1.total_no_vat) # 300
 
-        url = self._build_setcurrentquote_url(opportunity, quote2)
-        self.assertEqual(200, self.client.post(url, follow=True).status_code)
-
+        self.assertPOST200(self._build_setcurrentquote_url(opportunity, quote2), follow=True)
         opportunity = self.refresh(opportunity)
         self.assertEqual(opportunity.estimated_sales, quote2.total_no_vat) # 500
 
@@ -684,8 +686,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                          on_the_fly_item='Foobar', unit_price=Decimal("300")
                                         )
 
-        url = self._build_setcurrentquote_url(opportunity, quote1)
-        self.assertEqual(200, self.client.post(url, follow=True).status_code)
+        self.assertPOST200(self._build_setcurrentquote_url(opportunity, quote1), follow=True)
 
         opportunity = self.refresh(opportunity)
         self.assertEqual(opportunity.estimated_sales, opportunity.get_total()) # 69
@@ -700,7 +701,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         quote = Quote.objects.all()[0]
         self.assertEqual(self.refresh(opportunity).estimated_sales, quote.total_no_vat)
-        self.assertEqual(200, self.client.post(self._build_setcurrentquote_url(opportunity, quote), follow=True).status_code)
+        self.assertPOST200(self._build_setcurrentquote_url(opportunity, quote), follow=True)
 
         ServiceLine.objects.create(user=self.user, related_document=quote, on_the_fly_item='Stuff', unit_price=Decimal("300"))
         self.assertEqual(300, self.refresh(quote).total_no_vat)
@@ -728,16 +729,14 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         currency = Currency.objects.create(name=u'Berry', local_symbol=u'B', international_symbol=u'BRY')
 
-        create_orga = Organisation.objects.create
         user = self.user
+        create_orga = partial(Organisation.objects.create, user=user)
         opp = Opportunity.objects.create(user=user, name='Opp', currency=currency,
                                          sales_phase=SalesPhase.objects.all()[0],
-                                         emitter=create_orga(user=user, name='My society'),
-                                         target=create_orga(user=user,  name='Target renegade'),
+                                         emitter=create_orga(name='My society'),
+                                         target=create_orga(name='Target renegade'),
                                         )
-
-        response = self.client.post('/creme_config/creme_core/currency/delete', data={'id': currency.pk})
-        self.assertEqual(404, response.status_code)
+        self.assertPOST404('/creme_config/creme_core/currency/delete', data={'id': currency.pk})
         self.assertTrue(Currency.objects.filter(pk=currency.pk).exists())
 
         opp = self.get_object_or_fail(Opportunity, pk=opp.pk)
@@ -778,7 +777,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         doc = self._build_doc(lines)
         url = self._build_csvimport_url(Opportunity)
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         response = self.client.post(url, data={'csv_step':     1,
                                                'csv_document': doc.id,
@@ -816,7 +815,6 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                                 #'dyn_relations',
                                               }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         with self.assertNoException():
@@ -851,7 +849,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                         )
 
         opp3 = self.get_object_or_fail(Opportunity, name='Opp03')
-        self.assertEqual(target3,  opp3.get_target())
+        self.assertEqual(target3, opp3.get_target())
 
         opp4 = self.get_object_or_fail(Opportunity, name='Opp04')
         self.assertEqual(self.get_object_or_fail(Contact, last_name=target4_last_name),
@@ -867,7 +865,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         count = Opportunity.objects.count()
 
         emitter = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
-        target1  = Organisation.objects.create(user=self.user, name='Acme')
+        target1 = Organisation.objects.create(user=self.user, name='Acme')
 
         sp1_name = 'IAmNotSupposedToAlreadyExist'
         self.assertFalse(SalesPhase.objects.filter(name=sp1_name))
@@ -911,7 +909,6 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                            #'dyn_relations',
                                         }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         with self.assertNoException():
@@ -1022,7 +1019,6 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                           #'dyn_relations',
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         with self.assertNoException():
@@ -1041,6 +1037,10 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
 
 class SalesPhaseTestCase(CremeTestCase):
+    DOWN_URL   = '/creme_config/opportunities/sales_phase/down/%s'
+    UP_URL     = '/creme_config/opportunities/sales_phase/up/%s'
+    DELETE_URL = '/creme_config/opportunities/sales_phase/delete'
+
     @classmethod
     def setUpClass(cls):
         SalesPhase.objects.all().delete()
@@ -1060,16 +1060,16 @@ class SalesPhaseTestCase(CremeTestCase):
         sp1 = create_phase(name='Forthcoming', order=1)
         sp2 = create_phase(name='Abandoned',   order=2)
 
-        self.assertEqual(200, self.client.get('/creme_config/opportunities/portal/').status_code)
+        self.assertGET200('/creme_config/opportunities/portal/')
 
         response = self.client.get('/creme_config/opportunities/sales_phase/portal/')
         self.assertEqual(200, response.status_code)
         self.assertContains(response, sp1.name)
         self.assertContains(response, sp2.name)
 
-        url = '/creme_config/opportunities/sales_phase/down/%s' % sp1.id
+        url = self.DOWN_URL % sp1.id
         self.assertGET404(url)
-        self.assertEqual(200, self.client.post(url).status_code)
+        self.assertPOST200(url)
 
         self.assertEqual(2, self.refresh(sp1).order)
         self.assertEqual(1, self.refresh(sp2).order)
@@ -1083,7 +1083,7 @@ class SalesPhaseTestCase(CremeTestCase):
         sp3 = create_phase(name='Won',         order=3)
         sp4 = create_phase(name='Lost',        order=4)
 
-        self.assertEqual(200, self.client.post('/creme_config/opportunities/sales_phase/down/%s' % sp2.id).status_code)
+        self.assertPOST200(self.DOWN_URL % sp2.id)
 
         self.assertEqual(1, self.refresh(sp1).order)
         self.assertEqual(3, self.refresh(sp2).order)
@@ -1097,7 +1097,7 @@ class SalesPhaseTestCase(CremeTestCase):
         sp1 = create_phase(name='Forthcoming', order=1)
         sp2 = create_phase(name='Abandoned',   order=2)
 
-        url = '/creme_config/opportunities/sales_phase/down/%s'
+        url = self.DOWN_URL
         self.assertPOST404(url % sp2.id)
         self.assertPOST404(url % (sp2.id + sp1.id)) #odd pk
 
@@ -1110,7 +1110,7 @@ class SalesPhaseTestCase(CremeTestCase):
         sp3 = create_phase(name='Won',         order=3)
         sp4 = create_phase(name='Lost',        order=4)
 
-        self.assertEqual(200, self.client.post('/creme_config/opportunities/sales_phase/up/%s' % sp3.id).status_code)
+        self.assertPOST200(self.UP_URL % sp3.id)
 
         self.assertEqual(1, self.refresh(sp1).order)
         self.assertEqual(3, self.refresh(sp2).order)
@@ -1124,14 +1124,13 @@ class SalesPhaseTestCase(CremeTestCase):
         sp1 = create_phase(name='Forthcoming', order=1)
         sp2 = create_phase(name='Abandoned',   order=2)
 
-        self.assertPOST404('/creme_config/opportunities/sales_phase/up/%s' % sp1.id)
+        self.assertPOST404(self.UP_URL % sp1.id)
 
     def test_delete01(self):
         self.login()
 
         sp = SalesPhase.objects.create(name='Forthcoming', order=1)
-        response = self.client.post('/creme_config/opportunities/sales_phase/delete', data={'id': sp.pk})
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200(self.DELETE_URL, data={'id': sp.pk})
         self.assertFalse(SalesPhase.objects.filter(pk=sp.pk).exists())
 
     def test_delete02(self):
@@ -1145,9 +1144,7 @@ class SalesPhaseTestCase(CremeTestCase):
                                          emitter=create_orga(user=user, name='My society'),
                                          target=create_orga(user=user,  name='Target renegade'),
                                         )
-
-        response = self.client.post('/creme_config/opportunities/sales_phase/delete', data={'id': sp.pk})
-        self.assertEqual(404, response.status_code)
+        self.assertPOST404(self.DELETE_URL, data={'id': sp.pk})
         self.assertTrue(SalesPhase.objects.filter(pk=sp.pk).exists())
 
         opp = self.get_object_or_fail(Opportunity, pk=opp.pk)
@@ -1177,16 +1174,15 @@ class OriginTestCase(CremeTestCase):
     def test_delete(self): #set to null
         origin = Origin.objects.create(name='Web site')
 
-        create_orga = Organisation.objects.create
         user = self.user
-        opp = Opportunity.objects.create(user=self.user, name='Opp', origin=origin,
+        create_orga = partial(Organisation.objects.create, user=user)
+        opp = Opportunity.objects.create(user=user, name='Opp', origin=origin,
                                          sales_phase=SalesPhase.objects.create(name='Forthcoming', order=1),
-                                         emitter=create_orga(user=user, name='My society'),
-                                         target=create_orga(user=user,  name='Target renegade'),
+                                         emitter=create_orga(name='My society'),
+                                         target=create_orga(name='Target renegade'),
                                         )
 
-        response = self.client.post('/creme_config/opportunities/origin/delete', data={'id': origin.pk})
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200('/creme_config/opportunities/origin/delete', data={'id': origin.pk})
         self.assertFalse(Origin.objects.filter(pk=origin.pk).exists())
 
         opp = self.get_object_or_fail(Opportunity, pk=opp.pk)

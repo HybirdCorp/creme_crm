@@ -69,7 +69,6 @@ class EntityEmailTestCase(_EmailsTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=recipient)
         self.assertEqual(user,             email.user)
@@ -122,7 +121,6 @@ class EntityEmailTestCase(_EmailsTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=recipient)
         self.assertEqual(signature, email.signature)
@@ -165,7 +163,8 @@ class EntityEmailTestCase(_EmailsTestCase):
                              [_(u"The email address for %s is invalid") % orga01]
                             )
 
-    def test_createview04(self): #related contact has no emails address
+    def test_createview04(self):
+        "Related contact has no emails address"
         self.login()
 
         contact = Contact.objects.create(user=self.user, first_name='Vincent', last_name='Law')
@@ -191,7 +190,8 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertIsNone(o_recipients.initial)
         self.assertEqual(_(u'Beware: the organisation «%s» has no email address!') % orga, o_recipients.help_text)
 
-    def test_createview06(self): #credentials problem
+    def test_createview06(self):
+        "Credentials problem"
         user = self.login(is_superuser=False)
 
         role = user.role
@@ -269,7 +269,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         contact = Contact.objects.create(user=user, first_name=first_name, last_name=last_name, email=recipient)
 
         url = '/emails/mail/add_from_template/%s' % contact.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         response = self.client.post(url, data={'step':     1,
                                                'template': template.id,
@@ -307,8 +307,6 @@ class EntityEmailTestCase(_EmailsTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
-
         self.get_object_or_fail(EntityEmail, recipient=recipient)
 
     def test_create_from_template02(self): #TODO: test better (credentials....)
@@ -371,7 +369,6 @@ class EntityEmailTestCase(_EmailsTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         emails = EntityEmail.objects.all()
         self.assertEqual(4, len(emails))
@@ -396,11 +393,14 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         self.assertEqual([MAIL_STATUS_SENT] * 4, [e.status for e in emails])
 
-        self.assertPOST200('/emails/mail/spam')
-        self.assertPOST200('/emails/mail/spam', data={'ids': [e.id for e in emails]})
+        url = '/emails/mail/spam'
+        self.assertPOST200(url)
+        self.assertPOST200(url, data={'ids': [e.id for e in emails]})
 
         refresh = self.refresh
-        self.assertEqual([MAIL_STATUS_SYNCHRONIZED_SPAM] * 4, [refresh(e).status for e in emails])
+        self.assertEqual([MAIL_STATUS_SYNCHRONIZED_SPAM] * 4,
+                         [refresh(e).status for e in emails]
+                        )
 
     def test_validated(self):
         self.login()
@@ -409,7 +409,9 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertPOST200('/emails/mail/validated', data={'ids': [e.id for e in emails]})
 
         refresh = self.refresh
-        self.assertEqual([MAIL_STATUS_SYNCHRONIZED] * 4, [refresh(e).status for e in emails])
+        self.assertEqual([MAIL_STATUS_SYNCHRONIZED] * 4,
+                         [refresh(e).status for e in emails]
+                        )
 
     def test_waiting(self):
         self.login()
@@ -418,6 +420,8 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertPOST200('/emails/mail/waiting', data={'ids': [e.id for e in emails]})
 
         refresh = self.refresh
-        self.assertEqual([MAIL_STATUS_SYNCHRONIZED_WAITING] * 4, [refresh(e).status for e in emails])
+        self.assertEqual([MAIL_STATUS_SYNCHRONIZED_WAITING] * 4,
+                         [refresh(e).status for e in emails]
+                        )
 
     #TODO: test other views

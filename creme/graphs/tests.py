@@ -24,8 +24,6 @@ class GraphsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config')
-    #def setUp(self):
-        #self.populate('creme_core', 'creme_config', )
 
     def login(self, is_superuser=True):
         super(GraphsTestCase, self).login(is_superuser, allowed_apps=['graphs'])
@@ -34,7 +32,7 @@ class GraphsTestCase(CremeTestCase):
         self.login()
 
         url = '/graphs/graph/add'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         name = 'Graph01'
         response = self.client.post(url, follow=True,
@@ -43,7 +41,6 @@ class GraphsTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         graphs = Graph.objects.all()
         self.assertEqual(1,    len(graphs))
@@ -56,7 +53,7 @@ class GraphsTestCase(CremeTestCase):
         graph = Graph.objects.create(user=self.user, name=name)
 
         url = '/graphs/graph/edit/%s' % graph.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         name += '_edited'
         response = self.client.post(url, follow=True,
@@ -65,7 +62,6 @@ class GraphsTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200,  response.status_code)
         self.assertEqual(name, self.refresh(graph).name)
 
     def test_listview(self):
@@ -74,7 +70,7 @@ class GraphsTestCase(CremeTestCase):
         Graph.objects.create(user=self.user, name='Graph01')
         Graph.objects.create(user=self.user, name='Graph02')
 
-        self.assertEqual(200, self.client.get('/graphs/graphs').status_code)
+        self.assertGET200('/graphs/graphs')
 
     def test_relation_types01(self):
         self.login()
@@ -83,7 +79,7 @@ class GraphsTestCase(CremeTestCase):
         self.assertEqual(0, graph.orbital_relation_types.count())
 
         url = '/graphs/graph/%s/relation_types/add' % graph.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         rtype_create = RelationType.create
         rtype01, srtype01 = rtype_create(('test-subject_love', 'loves'), ('test-object_love', 'is loved to'))
@@ -92,16 +88,14 @@ class GraphsTestCase(CremeTestCase):
 
         response = self.client.post(url, data={'relation_types': rtypes_ids})
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         rtypes = graph.orbital_relation_types.all()
         self.assertEqual(2,               len(rtypes))
         self.assertEqual(set(rtypes_ids), set(rt.id for rt in rtypes))
 
-        response = self.client.post('/graphs/graph/%s/relation_type/delete' % graph.id,
-                                    data={'id': rtype01.id}
-                                   )
-        self.assertEqual(200,          response.status_code)
+        self.assertPOST200('/graphs/graph/%s/relation_type/delete' % graph.id,
+                           data={'id': rtype01.id}
+                          )
         self.assertEqual([rtype02.id], [rt.id for rt in graph.orbital_relation_types.all()])
 
     def test_relation_types02(self):
@@ -122,7 +116,7 @@ class GraphsTestCase(CremeTestCase):
         self.login()
 
         graph = Graph.objects.create(user=self.other_user, name='Graph01')
-        self.assertEqual(200, self.client.get('/graphs/graph/%s/png' % graph.id, follow=True).status_code)
+        self.assertGET200('/graphs/graph/%s/png' % graph.id, follow=True)
 
         #TODO: improve
 

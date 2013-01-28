@@ -16,7 +16,7 @@ try:
     from media_managers.models import Image
 
     from persons.models import Contact, Organisation, Address, Civility
-    from persons.constants import *
+    from persons.constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
 
     from vcfs import vcf_lib
     from vcfs.forms import vcf
@@ -47,8 +47,6 @@ class VcfTestCase(VcfsTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config')
-    #def setUp(self):
-        #self.populate('creme_core', 'creme_config')
 
     def test_add_vcf(self):
         self.login()
@@ -56,33 +54,26 @@ class VcfTestCase(VcfsTestCase):
         url = '/vcfs/vcf'
         self.assertEqual(200, self.client.get(url).status_code)
 
-        content  = """BEGIN:VCARD\nFN:Test\nEND:VCARD"""
+        content  = 'BEGIN:VCARD\nFN:Test\nEND:VCARD'
         filedata = self._build_filedata(content)
         response = self._post_form_step_0(url, filedata.file)
 
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
-        #try:
         with self.assertNoException():
             form = response.context['form']
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertIn('value="1"', unicode(form['vcf_step']))
 
     def test_parsing_vcf00(self):
         self.login()
 
-        content  = """BEGIN:VCARD\nFN:Prénom Nom\nEND:VCARD"""
+        content  = 'BEGIN:VCARD\nFN:Prénom Nom\nEND:VCARD'
         filedata = self._build_filedata(content)
         response = self._post_form_step_0('/vcfs/vcf', filedata.file)
 
-        #try:
         with self.assertNoException():
             form = response.context['form']
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertIn('value="1"', unicode(form['vcf_step']))
 
@@ -93,15 +84,21 @@ class VcfTestCase(VcfsTestCase):
     def test_parsing_vcf01(self):
         self.login()
 
-        content  = """BEGIN:VCARD\nN:Nom;Prénom;;Civilité;\nTITLE:Directeur adjoint\nADR;TYPE=HOME:Numéro de rue;;Nom de rue;Ville;Région;Code postal;Pays\nTEL;TYPE=HOME:00 00 00 00 00\nTEL;TYPE=CELL:11 11 11 11 11\nTEL;TYPE=FAX:22 22 22 22 22\nEMAIL;TYPE=HOME:email@email.com\nURL;TYPE=HOME:www.my-website.com\nEND:VCARD"""
+        content  = """BEGIN:VCARD
+N:Nom;Prénom;;Civilité;
+TITLE:Directeur adjoint
+ADR;TYPE=HOME:Numéro de rue;;Nom de rue;Ville;Région;Code postal;Pays
+TEL;TYPE=HOME:00 00 00 00 00
+TEL;TYPE=CELL:11 11 11 11 11
+TEL;TYPE=FAX:22 22 22 22 22
+EMAIL;TYPE=HOME:email@email.com
+URL;TYPE=HOME:www.my-website.com
+END:VCARD"""
         filedata = self._build_filedata(content)
         response = self._post_form_step_0('/vcfs/vcf', filedata.file)
 
-        #try:
         with self.assertNoException():
             form = response.context['form']
-        #except Exception as e:
-            #self.fail(str(e))
 
         vobj = vcf_lib.readOne(content)
         n_value = vobj.n.value
@@ -130,15 +127,19 @@ class VcfTestCase(VcfsTestCase):
     def test_parsing_vcf02(self):
         self.login()
 
-        content  = """BEGIN:VCARD\nFN:Prénom Nom\nORG:Corporate\nADR;TYPE=WORK:Numéro de rue;;Nom de la rue;Ville;Region;Code Postal;Pays\nTEL;TYPE=WORK:00 00 00 00 00\nEMAIL;TYPE=WORK:corp@corp.com\nURL;TYPE=WORK:www.corp.com\nEND:VCARD"""
+        content  = """BEGIN:VCARD
+FN:Prénom Nom
+ORG:Corporate
+ADR;TYPE=WORK:Numéro de rue;;Nom de la rue;Ville;Region;Code Postal;Pays
+TEL;TYPE=WORK:00 00 00 00 00
+EMAIL;TYPE=WORK:corp@corp.com
+URL;TYPE=WORK:www.corp.com
+END:VCARD"""
         filedata = self._build_filedata(content)
         response = self._post_form_step_0('/vcfs/vcf', filedata.file)
 
-        #try:
         with self.assertNoException():
             form = response.context['form']
-        #except Exception as e:
-            #self.fail(str(e))
 
         vobj = vcf_lib.readOne(content)
         self.assertEqual(form['work_name'].field.initial,     vobj.org.value[0])
@@ -155,15 +156,18 @@ class VcfTestCase(VcfsTestCase):
     def test_parsing_vcf03(self):
         self.login()
 
-        content  = """BEGIN:VCARD\nFN:Prénom Nom\nADR:Numéro de rue;;Nom de la rue;Ville;Région;Code Postal;Pays\nTEL:00 00 00 00 00\nEMAIL:email@email.com\nURL:www.url.com\nEND:VCARD"""
+        content  = """BEGIN:VCARD
+FN:Prénom Nom
+ADR:Numéro de rue;;Nom de la rue;Ville;Région;Code Postal;Pays
+TEL:00 00 00 00 00
+EMAIL:email@email.com
+URL:www.url.com
+END:VCARD"""
         filedata = self._build_filedata(content)
         response = self._post_form_step_0('/vcfs/vcf', filedata.file)
 
-        #try:
         with self.assertNoException():
             form = response.context['form']
-        #except Exception as e:
-            #self.fail(str(e))
 
         vobj = vcf_lib.readOne(content)
         help_prefix = _(u'Read in VCF File without type : ')
@@ -178,15 +182,19 @@ class VcfTestCase(VcfsTestCase):
         self.login()
 
         orga = Organisation.objects.create(user=self.user, name='Corporate')
-        content  = """BEGIN:VCARD\nN:Prénom Nom\nORG:Corporate\nADR;TYPE=WORK:Numéro de rue;;Nom de la rue;Ville;Region;Code Postal;Pays\nTEL;TYPE=WORK:11 11 11 11 11\nEMAIL;TYPE=WORK:email@email.com\nURL;TYPE=WORK:www.web-site.com\nEND:VCARD"""
+        content  = """BEGIN:VCARD
+N:Prénom Nom
+ORG:Corporate
+ADR;TYPE=WORK:Numéro de rue;;Nom de la rue;Ville;Region;Code Postal;Pays
+TEL;TYPE=WORK:11 11 11 11 11
+EMAIL;TYPE=WORK:email@email.com
+URL;TYPE=WORK:www.web-site.com
+END:VCARD"""
         filedata = self._build_filedata(content)
         response = self._post_form_step_0('/vcfs/vcf', filedata.file)
 
-        #try:
         with self.assertNoException():
             form = response.context['form']
-        #except Exception as e:
-            #self.fail(str(e))
 
         self.assertEqual(form['organisation'].field.initial, orga.id)
 
@@ -195,12 +203,9 @@ class ContactTestCase(VcfsTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'persons')
-    #def setUp(self):
-        #self.populate('creme_core', 'creme_config', 'persons')
 
     def _assertFormOK(self, response):
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
         self.assertTrue(response.redirect_chain)
         self.assertEqual(1, len(response.redirect_chain))
 
@@ -211,7 +216,14 @@ class ContactTestCase(VcfsTestCase):
         orga_count    = Organisation.objects.count()
         address_count = Address.objects.count()
 
-        content  = """BEGIN:VCARD\nFN:Jean HUDARD\nTEL;TYPE=HOME:00 00 00 00 00\nTEL;TYPE=CELL:11 11 11 11 11\nTEL;TYPE=FAX:22 22 22 22 22\nEMAIL;TYPE=HOME:email@email.com\nURL;TYPE=HOME:http://www.url.com/\nEND:VCARD"""
+        content  = """BEGIN:VCARD
+FN:Jean HUDARD
+TEL;TYPE=HOME:00 00 00 00 00
+TEL;TYPE=CELL:11 11 11 11 11
+TEL;TYPE=FAX:22 22 22 22 22
+EMAIL;TYPE=HOME:email@email.com
+URL;TYPE=HOME:http://www.url.com/
+END:VCARD"""
         filedata = self._build_filedata(content)
 
         url = '/vcfs/vcf'
@@ -259,7 +271,14 @@ class ContactTestCase(VcfsTestCase):
         contact_count = Contact.objects.count()
         orga_count    = Organisation.objects.count()
 
-        content  = """BEGIN:VCARD\nFN:Jean HUDARD\nTEL;TYPE=HOME:00 00 00 00 00\nTEL;TYPE=CELL:11 11 11 11 11\nTEL;TYPE=FAX:22 22 22 22 22\nEMAIL;TYPE=HOME:email@email.com\nURL;TYPE=HOME:www.url.com\nEND:VCARD"""
+        content  = """BEGIN:VCARD
+FN:Jean HUDARD
+TEL;TYPE=HOME:00 00 00 00 00
+TEL;TYPE=CELL:11 11 11 11 11
+TEL;TYPE=FAX:22 22 22 22 22
+EMAIL;TYPE=HOME:email@email.com
+URL;TYPE=HOME:www.url.com
+END:VCARD"""
         filedata = self._build_filedata(content)
 
         url = '/vcfs/vcf'
@@ -299,7 +318,17 @@ class ContactTestCase(VcfsTestCase):
         contact_count = Contact.objects.count()
         orga_count    = Organisation.objects.count()
 
-        content  = """BEGIN:VCARD\nFN:Jean HUDARD\nTEL;TYPE=HOME:00 00 00 00 00\nTEL;TYPE=CELL:11 11 11 11 11\nTEL;TYPE=FAX:22 22 22 22 22\nTEL;TYPE=WORK:33 33 33 33 33\nEMAIL;TYPE=HOME:email@email.com\nEMAIL;TYPE=WORK:work@work.com\nURL;TYPE=HOME:http://www.url.com/\nURL;TYPE=WORK:www.work.com\nORG:Corporate\nEND:VCARD"""
+        content  = """BEGIN:VCARD
+FN:Jean HUDARD
+TEL;TYPE=HOME:00 00 00 00 00
+TEL;TYPE=CELL:11 11 11 11 11
+TEL;TYPE=FAX:22 22 22 22 22
+TEL;TYPE=WORK:33 33 33 33 33
+EMAIL;TYPE=HOME:email@email.com
+EMAIL;TYPE=WORK:work@work.com
+URL;TYPE=HOME:http://www.url.com/
+URL;TYPE=WORK:www.work.com
+ORG:Corporate\nEND:VCARD"""
         filedata = self._build_filedata(content)
 
         url = '/vcfs/vcf'
@@ -350,7 +379,18 @@ class ContactTestCase(VcfsTestCase):
         contact_count = Contact.objects.count()
         orga_count    = Organisation.objects.count()
 
-        content  = """BEGIN:VCARD\nFN:Jean HUDARD\nTEL;TYPE=HOME:00 00 00 00 00\nTEL;TYPE=CELL:11 11 11 11 11\nTEL;TYPE=FAX:22 22 22 22 22\nTEL;TYPE=WORK:33 33 33 33 33\nEMAIL;TYPE=HOME:email@email.com\nEMAIL;TYPE=WORK:work@work.com\nURL;TYPE=HOME:www.url.com\nURL;TYPE=WORK:http://www.work.com/\nORG:Corporate\nEND:VCARD"""
+        content  = """BEGIN:VCARD
+FN:Jean HUDARD
+TEL;TYPE=HOME:00 00 00 00 00
+TEL;TYPE=CELL:11 11 11 11 11
+TEL;TYPE=FAX:22 22 22 22 22
+TEL;TYPE=WORK:33 33 33 33 33
+EMAIL;TYPE=HOME:email@email.com
+EMAIL;TYPE=WORK:work@work.com
+URL;TYPE=HOME:www.url.com
+URL;TYPE=WORK:http://www.work.com/
+ORG:Corporate
+END:VCARD"""
         filedata = self._build_filedata(content)
 
         url = '/vcfs/vcf'
@@ -406,7 +446,18 @@ class ContactTestCase(VcfsTestCase):
         orga = Organisation.objects.create(user=self.user, name='Corporate', phone='33 33 33 33 33', email='work@work.com', url_site='www.work.com')
         self.assertEqual(orga_count + 1, Organisation.objects.count())
 
-        content  = """BEGIN:VCARD\nFN:Jean HUDARD\nTEL;TYPE=HOME:00 00 00 00 00\nTEL;TYPE=CELL:11 11 11 11 11\nTEL;TYPE=FAX:22 22 22 22 22\nTEL;TYPE=WORK:33 33 33 33 33\nEMAIL;TYPE=HOME:email@email.com\nEMAIL;TYPE=WORK:work@work.com\nURL;TYPE=HOME:www.url.com\nURL;TYPE=WORK:www.work.com\nORG:Corporate\nEND:VCARD"""
+        content  = """BEGIN:VCARD
+FN:Jean HUDARD
+TEL;TYPE=HOME:00 00 00 00 00
+TEL;TYPE=CELL:11 11 11 11 11
+TEL;TYPE=FAX:22 22 22 22 22
+TEL;TYPE=WORK:33 33 33 33 33
+EMAIL;TYPE=HOME:email@email.com
+EMAIL;TYPE=WORK:work@work.com
+URL;TYPE=HOME:www.url.com
+URL;TYPE=WORK:www.work.com
+ORG:Corporate
+END:VCARD"""
         filedata = self._build_filedata(content)
 
         url = '/vcfs/vcf'
@@ -460,7 +511,15 @@ class ContactTestCase(VcfsTestCase):
         contact_count = Contact.objects.count()
         address_count = Address.objects.count()
 
-        content  = """BEGIN:VCARD\nFN:Jean HUDARD\nADR;TYPE=HOME:Numéro de rue;;Nom de rue;Ville;Région;Code postal;Pays\nTEL;TYPE=HOME:00 00 00 00 00\nTEL;TYPE=CELL:11 11 11 11 11\nTEL;TYPE=FAX:22 22 22 22 22\nEMAIL;TYPE=HOME:email@email.com\nURL;TYPE=HOME:www.url.com\nEND:VCARD"""
+        content  = """BEGIN:VCARD
+FN:Jean HUDARD
+ADR;TYPE=HOME:Numéro de rue;;Nom de rue;Ville;Région;Code postal;Pays
+TEL;TYPE=HOME:00 00 00 00 00
+TEL;TYPE=CELL:11 11 11 11 11
+TEL;TYPE=FAX:22 22 22 22 22
+EMAIL;TYPE=HOME:email@email.com
+URL;TYPE=HOME:www.url.com
+END:VCARD"""
         filedata = self._build_filedata(content)
 
         url = '/vcfs/vcf'
@@ -519,7 +578,20 @@ class ContactTestCase(VcfsTestCase):
         address_count = Address.objects.count()
         orga_count    = Organisation.objects.count()
 
-        content  = """BEGIN:VCARD\nFN:Jean HUDARD\nADR;TYPE=HOME:Numéro de rue;;Nom de rue;Ville;Région;Code postal;Pays\nADR;TYPE=WORK:Orga Numéro de rue;;Orga Nom de rue;Orga Ville;Orga Région;Orga Code postal;Orga Pays\nTEL;TYPE=HOME:00 00 00 00 00\nTEL;TYPE=CELL:11 11 11 11 11\nTEL;TYPE=FAX:22 22 22 22 22\nTEL;TYPE=WORK:33 33 33 33 33\nEMAIL;TYPE=HOME:email@email.com\nEMAIL;TYPE=WORK:work@work.com\nURL;TYPE=HOME:www.url.com\nURL;TYPE=WORK:www.work.com\nORG:Corporate\nEND:VCARD"""
+        content  = """BEGIN:VCARD
+FN:Jean HUDARD
+ADR;TYPE=HOME:Numéro de rue;;Nom de rue;Ville;Région;Code postal;Pays
+ADR;TYPE=WORK:Orga Numéro de rue;;Orga Nom de rue;Orga Ville;Orga Région;Orga Code postal;Orga Pays
+TEL;TYPE=HOME:00 00 00 00 00
+TEL;TYPE=CELL:11 11 11 11 11
+TEL;TYPE=FAX:22 22 22 22 22
+TEL;TYPE=WORK:33 33 33 33 33
+EMAIL;TYPE=HOME:email@email.com
+EMAIL;TYPE=WORK:work@work.com
+URL;TYPE=HOME:www.url.com
+URL;TYPE=WORK:www.work.com
+ORG:Corporate
+END:VCARD"""
         filedata = self._build_filedata(content)
 
         url = '/vcfs/vcf'
@@ -597,7 +669,14 @@ class ContactTestCase(VcfsTestCase):
         contact_count = Contact.objects.count()
 
         Organisation.objects.create(user=self.user, name='Corporate', phone='00 00 00 00 00', email='corp@corp.com', url_site='www.corp.com')
-        content  = """BEGIN:VCARD\nFN:Jean HUDARD\nADR;TYPE=WORK:Orga Numéro de rue;;Orga Nom de rue;Orga Ville;Orga Région;Orga Code postal;Orga Pays\nTEL;TYPE=WORK:11 11 11 11 11\nEMAIL;TYPE=WORK:work@work.com\nURL;TYPE=WORK:www.work.com\nORG:Corporate\nEND:VCARD"""
+        content  = """BEGIN:VCARD
+FN:Jean HUDARD
+ADR;TYPE=WORK:Orga Numéro de rue;;Orga Nom de rue;Orga Ville;Orga Région;Orga Code postal;Orga Pays
+TEL;TYPE=WORK:11 11 11 11 11
+EMAIL;TYPE=WORK:work@work.com
+URL;TYPE=WORK:www.work.com
+ORG:Corporate
+END:VCARD"""
         filedata = self._build_filedata(content)
 
         url = '/vcfs/vcf'
@@ -614,12 +693,12 @@ class ContactTestCase(VcfsTestCase):
         work_email    = form['work_email'].field.initial
         work_url_site = form['work_url_site'].field.initial
 
-        work_adr_name  = form['work_adr_name'].field.initial
-        work_address   = form['work_address'].field.initial
-        work_city      = form['work_city'].field.initial
-        work_country   = form['work_country'].field.initial
-        work_code      = form['work_code'].field.initial
-        work_region    = form['work_region'].field.initial
+        work_adr_name = form['work_adr_name'].field.initial
+        work_address  = form['work_address'].field.initial
+        work_city     = form['work_city'].field.initial
+        work_country  = form['work_country'].field.initial
+        work_code     = form['work_code'].field.initial
+        work_region   = form['work_region'].field.initial
 
         response = self.client.post(url,
                                     follow=True,
@@ -662,7 +741,14 @@ class ContactTestCase(VcfsTestCase):
 
         contact_count = Contact.objects.count()
 
-        content  = """BEGIN:VCARD\nFN:Jean HUDARD\nADR;TYPE=WORK:Orga Numéro de rue;;Orga Nom de rue;Orga Ville;Orga Région;Orga Code postal;Orga Pays\nTEL;TYPE=WORK:11 11 11 11 11\nEMAIL;TYPE=WORK:work@work.com\nURL;TYPE=WORK:www.work.com\nORG:Corporate\nEND:VCARD"""
+        content  = """BEGIN:VCARD
+FN:Jean HUDARD
+ADR;TYPE=WORK:Orga Numéro de rue;;Orga Nom de rue;Orga Ville;Orga Région;Orga Code postal;Orga Pays
+TEL;TYPE=WORK:11 11 11 11 11
+EMAIL;TYPE=WORK:work@work.com
+URL;TYPE=WORK:www.work.com
+ORG:Corporate
+END:VCARD"""
         filedata = self._build_filedata(content)
 
         url = '/vcfs/vcf'
@@ -723,9 +809,14 @@ class ContactTestCase(VcfsTestCase):
     def test_add_contact_vcf09(self):
         self.login()
 
-        Organisation.objects.create(user=self.user, name='Corporate', phone='00 00 00 00 00', email='corp@corp.com', url_site='www.corp.com')
+        Organisation.objects.create(user=self.user, name='Corporate', phone='00 00 00 00 00',
+                                    email='corp@corp.com', url_site='www.corp.com',
+                                   )
 
-        content  = """BEGIN:VCARD\nFN:Jean HUDARD\nORG:Corporate\nEND:VCARD"""
+        content  = """BEGIN:VCARD
+FN:Jean HUDARD
+ORG:Corporate
+END:VCARD"""
         filedata = self._build_filedata(content)
 
         url = '/vcfs/vcf'
@@ -763,7 +854,9 @@ class ContactTestCase(VcfsTestCase):
     def test_add_contact_vcf10(self):
         self.login()
 
-        orga = Organisation.objects.create(user=self.user, name='Corporate', phone='00 00 00 00 00', email='corp@corp.com', url_site='www.corp.com')
+        orga = Organisation.objects.create(user=self.user, name='Corporate', phone='00 00 00 00 00',
+                                           email='corp@corp.com', url_site='www.corp.com',
+                                          )
         orga.billing_address = Address.objects.create(name='Org_name',
                                                       address='Org_address',
                                                       city='Org_city',
@@ -779,7 +872,14 @@ class ContactTestCase(VcfsTestCase):
         orga_count    = Organisation.objects.count()
         address_count = Address.objects.count()
 
-        content  = """BEGIN:VCARD\nFN:Jean HUDARD\nADR;TYPE=WORK:Orga Numéro de rue;;Orga Nom de rue;Orga Ville;Orga Région;Orga Code postal;Orga Pays\nTEL;TYPE=WORK:11 11 11 11 11\nEMAIL;TYPE=WORK:work@work.com\nURL;TYPE=WORK:www.work.com\nORG:Corporate\nEND:VCARD"""
+        content  = """BEGIN:VCARD
+FN:Jean HUDARD
+ADR;TYPE=WORK:Orga Numéro de rue;;Orga Nom de rue;Orga Ville;Orga Région;Orga Code postal;Orga Pays
+TEL;TYPE=WORK:11 11 11 11 11
+EMAIL;TYPE=WORK:work@work.com
+URL;TYPE=WORK:www.work.com
+ORG:Corporate
+END:VCARD"""
         filedata = self._build_filedata(content)
 
         url = '/vcfs/vcf'
@@ -854,13 +954,19 @@ class ContactTestCase(VcfsTestCase):
     def test_add_contact_vcf11(self):
         self.login()
 
-        Organisation.objects.create(user=self.user, name='Corporate', phone='00 00 00 00 00', email='corp@corp.com', url_site='www.corp.com')
+        Organisation.objects.create(user=self.user, name='Corporate', phone='00 00 00 00 00',
+                                    email='corp@corp.com', url_site='www.corp.com',
+                                   )
 
         contact_count = Contact.objects.count()
         orga_count    = Organisation.objects.count()
         address_count = Address.objects.count()
 
-        content  = """BEGIN:VCARD\nFN:Jean HUDARD\nADR;TYPE=WORK:Orga Numéro de rue;;Orga Nom de rue;Orga Ville;Orga Région;Orga Code postal;Orga Pays\nORG:Corporate\nEND:VCARD"""
+        content  = """BEGIN:VCARD
+FN:Jean HUDARD
+ADR;TYPE=WORK:Orga Numéro de rue;;Orga Nom de rue;Orga Ville;Orga Région;Orga Code postal;Orga Pays
+ORG:Corporate
+END:VCARD"""
         filedata = self._build_filedata(content)
 
         url = '/vcfs/vcf'
@@ -905,7 +1011,10 @@ class ContactTestCase(VcfsTestCase):
         self.assertEqual(orga_count,        Organisation.objects.count())
         self.assertEqual(address_count + 1, Address.objects.count())
 
-        address = self.get_object_or_fail(Address, name=work_adr_name, address=work_address, city=work_city, zipcode=work_code, country=work_country, department=work_region)
+        address = self.get_object_or_fail(Address, name=work_adr_name, address=work_address,
+                                          city=work_city, zipcode=work_code,
+                                          country=work_country, department=work_region,
+                                         )
         orga    = self.get_object_or_fail(Organisation, id=orga_id)
 
         vobj = vcf_lib.readOne(content)
@@ -928,7 +1037,35 @@ class ContactTestCase(VcfsTestCase):
         image_count   = Image.objects.count()
         address_count = Address.objects.count()
 
-        content  = """BEGIN:VCARD\nFN:Jean HUDARD\nTEL;TYPE=HOME:00 00 00 00 00\nTEL;TYPE=CELL:11 11 11 11 11\nTEL;TYPE=FAX:22 22 22 22 22\nEMAIL;TYPE=HOME:email@email.com\nURL;TYPE=HOME:www.url.com\nPHOTO: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\nEND:VCARD"""
+        content  = """BEGIN:VCARD
+FN:Jean HUDARD
+TEL;TYPE=HOME:00 00 00 00 00
+TEL;TYPE=CELL:11 11 11 11 11
+TEL;TYPE=FAX:22 22 22 22 22
+EMAIL;TYPE=HOME:email@email.com
+URL;TYPE=HOME:www.url.com
+PHOTO:""" \
+'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' \
+'\nEND:VCARD'
         filedata = self._build_filedata(content)
 
         url = '/vcfs/vcf'
@@ -965,7 +1102,9 @@ class ContactTestCase(VcfsTestCase):
         self.assertEqual(address_count,     Address.objects.count())
 
         # url_site='http://www.url.com/' and not url_site=url_site because URLField add 'http://' and '/'
-        self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name, phone=phone, mobile=mobile, fax=fax, email=email, url_site='http://www.url.com/')
+        self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name, phone=phone,
+                                mobile=mobile, fax=fax, email=email, url_site='http://www.url.com/'
+                               )
 
     def test_add_contact_vcf13(self):
         self.login()
@@ -1005,7 +1144,9 @@ class ContactTestCase(VcfsTestCase):
                                     )
         self._assertFormOK(response)
         self.assertEqual(contact_count + 1, Contact.objects.count())
-        self.get_object_or_fail(Contact, civility=civility_id, first_name=first_name, last_name=last_name, position=position_id)
+        self.get_object_or_fail(Contact, civility=civility_id, first_name=first_name,
+                                last_name=last_name, position=position_id,
+                               )
 
     def test_add_contact_vcf14(self):
         self.login()
@@ -1015,7 +1156,30 @@ class ContactTestCase(VcfsTestCase):
         image_count   = Image.objects.count()
         address_count = Address.objects.count()
 
-        content  = """BEGIN:VCARD\nFN:Jean HUDARD\nPHOTO;TYPE=JPEG:/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCABIAEgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD274v3SR6BaWpKk3FyNyHuqqxzj0DbPzFcBpfi3VdKnSC01RnO3cLe4bzVKj2PzAfQirfxYnW78ZTRhgrW1vHCD12kgvn/AMfH5V53ptpcWeoXUrzRuojQSSeUQ0n3jnO4+o/LAxXl16j9o2naxvGOiPWbf4jaodYtHuooItPACXCRrvJ6kuucEH7oxk9Cea9D0nxLo2rMq2OoQPK3SJjskP8AwBsN+lfMkd1cSzWk7SyB5SJViVsLHFjncO5PHXueOlW4dTjvbpoY4d0CoHMrdGyTjaO44PPtxVQxVSHxag4J7H1PRXH/AAqhuI/CMUtzNLJ9oleSNZHLeWg+UAZ6A7d2B/era1fXbfTrhbYI092y7/KQgbVJIDMT0GQfU8HAODXowfMk+5koOUuWOprUVzieJXA3TWJ2+kMoZvyYKP1rZ07ULXUYTLaShwp2spBVkPoynkH61TTW5U6U6fxKxaooopGZm6roWlatzqOn21w+MCR4xvH0bqPwNcH4y8A6Vp2h6hqWnTXVvJbwvIkBfzEdgOF+b5uTgfe716dXEfF2+Nr4WWBAWe5nVdq9Sq5f+aqPxrKrGLi3JXKi3fQ8s8PeCtcu/DkGqW2k2qrc7i9vDKu8bWZcnIAIOMjBPWq3hzwksnjKzs7vTTbvcTqWSW28siJBlxyOhAYZHrX0NolkNN0axsQQfs8CREjuQoBP41HrN7LbokFmqm8nDCNn+5Hjq7eoGRwOSSOgyRksJG6aG6llqUL3WbXSVTTdLtllkt0VPKQ7I4FAGFJwcHGMKAT0zgEGuK1bSZdV1Oa/urx45ZNvFugUDAA/i3HtXU6ZpiWMo2I7sAMTuwJJPLE+rM2ST/8AXrXViHbKhlwWKkDFdcKtPmUY6s0o4qFD3lG773PMbjS9VtkLWl804H8BJRvwOSCfypnhHVLyHxZZEySFpH+zTRvnLKexHsfm/A9ia7m8sHkQy2qpuGSUJwCPb0Nc/BcWmn+JtP1CaJROJPskocfMgfgN9QcfN/dZvWtm1JO2p6X1mGIoy5d7bHptFFFYHjBXmzXei6gI4tb+0nUIcGXz2cNHJwTgA/KMjoBjGO1ek1nXmh6Te3gu7zS7G4uwnliaW3R32+m4jOPasqtP2itewGTa6u4GYtVtLiP/AKeAA4/FcDH/AAH8axtd1p0sdR1cG21CbT08m1jjUxqZnxwSSepMYz2Ga6VvCuiM2RYRoP7sbMij6AEAVzN/Dp2la3faRcWcKaXqEaSbQuE5Gw59/l5PuDWFSNSEbyldCN3RoNUtbKKPX7mzur7AaR7SBooxn+EBmYnHrkZ9BT9R1fTIbyK0uLjZcybQoCMQpY4UMwGFyeBuIyeBmrCABFALMMdWYsT+J5NV2tcmdQwEU8iSyKVySy7cYPb7q/l2rnjNKbktA30ZbtowMovTaep9q43x3bxSaFJKkam8VgsZH3jk8gfgc/hXSatcNa2TzI8SuvTzDgH2rlNKaXXr6aG6kVfkaRFA4VvlAOO+OP8AJropV406ad9bkxcozUo9D0+iqul3f22ximZQkhysiA52upIYZ74IPNFdidyy1RRRQAEgDJ4Fcl4ttItZu4beIjzraF5N47FiAq/Q7W/75FberXLI8dvBEZbhwWAMhRFHqxH6DH5da5bWfM062itbW4I1G+nUPIRyc8FsdlUAcDsPqa5sRUVuRbsTOcs9Yv7FfLimOxeNjjIH51NL4i1OQf68IP8AZUCro8Kodxm1C4ZyfvRKqD64YMf1qfw7Z2tsdSS+jWaa0bPmMvDRldwIHr1B9xXHOjKCuxJ3OYvb2WYGW8nZggyWduAK3fD2lNbPp2o3GYrq4uTEiHhkh8qRiCOxYqpI/wBlehBqHw9pq3942oTxgW0chNvF2Lg/ex6KeB7gnsprptV0+We0RlYwTo4kglI+649R3BBIPsTW9Kh7rb3YrmlprNaavJA3+qux5qE9pFABH4qAQP8AZaiq2kWWr3F9a3OqGxjgt8ui27s5kcqVySQMDDH3+lFdNFSUEpFnS0UUVqBU1GxW8RSsjQzpnZKmMrnGRzwQcDg+x6gVmWuhSHU0vdQuFneNDHGiJtUAkZJ568CiipcIt81tRWNa6j2WkxgijMgQ7QVyM444rBFlBHDOEkJmm5kLnIc4xyOgHHQAe1FFc2K6AzT8PWEdjpNrGI9rLGODyV9vw6VY1G2a4jXYRuU9D3oorqS0sFtB2nxSQwbJcZzwM9BRRRTGf//Z\nEND:VCARD"""
+        content  = """BEGIN:VCARD
+FN:Jean HUDARD
+PHOTO;TYPE=JPEG:""" \
+'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' \
+'\nEND:VCARD'
         filedata = self._build_filedata(content)
 
         url = '/vcfs/vcf'
@@ -1062,7 +1226,10 @@ class ContactTestCase(VcfsTestCase):
         #image_count   = Image.objects.count()
         self.assertEqual(0, Image.objects.count())
 
-        content  = """BEGIN:VCARD\nFN:Jean HUDARD\nPHOTO;VALUE=URL:%s\nEND:VCARD""" % path
+        content  = """BEGIN:VCARD
+FN:Jean HUDARD
+PHOTO;VALUE=URL:%s
+END:VCARD""" % path
         filedata = self._build_filedata(content)
 
         url = '/vcfs/vcf'
@@ -1103,7 +1270,10 @@ class ContactTestCase(VcfsTestCase):
         contact_count = Contact.objects.count()
         image_count   = Image.objects.count()
 
-        content  = """BEGIN:VCARD\nFN:Jean HUDARD\nPHOTO;VALUE=URL:http://wwwwwwwww.wwwwwwwww.wwwwwwww/wwwwwww.jpg\nEND:VCARD"""
+        content  = """BEGIN:VCARD
+FN:Jean HUDARD
+PHOTO;VALUE=URL:http://wwwwwwwww.wwwwwwwww.wwwwwwww/wwwwwww.jpg
+END:VCARD"""
         filedata = self._build_filedata(content)
 
         url = '/vcfs/vcf'
@@ -1140,7 +1310,10 @@ class ContactTestCase(VcfsTestCase):
         contact_count = Contact.objects.count()
         image_count   = Image.objects.count()
 
-        content  = """BEGIN:VCARD\nFN:Jean HUDARD\nPHOTO;VALUE=URL:%s\nEND:VCARD""" % path
+        content  = """BEGIN:VCARD
+FN:Jean HUDARD
+PHOTO;VALUE=URL:%s
+END:VCARD""" % path
         filedata = self._build_filedata(content)
 
         url = '/vcfs/vcf'
@@ -1216,9 +1389,7 @@ class VcfExportTestCase(VcfsTestCase):
         contact = Contact.objects.create(user=self.other_user, last_name='Abitbol')
         self.assertTrue(contact.can_change(user))
         self.assertFalse(contact.can_view(user))
-
-        response = self.client.get('/vcfs/%s/generate_vcf' % contact.id)
-        self.assertEqual(403, response.status_code)
+        self.assertEqual(403, self.client.get('/vcfs/%s/generate_vcf' % contact.id).status_code)
 
     def test_get_vcf_civility(self):
         self.login()
@@ -1229,7 +1400,7 @@ class VcfExportTestCase(VcfsTestCase):
 
         response = self.client.get('/vcfs/%s/generate_vcf' % contact.id)
         self.assertEqual(200, response.status_code)
-        self.assertEqual("""BEGIN:VCARD\r\nVERSION:3.0\r\nFN: Abitbol\r\nN:Abitbol;;;Monsieur;\r\nEND:VCARD\r\n""",
+        self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\nFN: Abitbol\r\nN:Abitbol;;;Monsieur;\r\nEND:VCARD\r\n',
                          response.content
                         )
 
@@ -1247,7 +1418,7 @@ class VcfExportTestCase(VcfsTestCase):
 
         response = self.client.get('/vcfs/%s/generate_vcf' % contact.id)
         self.assertEqual(200, response.status_code)
-        self.assertEqual("""BEGIN:VCARD\r\nVERSION:3.0\r\nFN: Abitbol\r\nN:Abitbol;;;;\r\nORG:ORGNAME\r\nEND:VCARD\r\n""",
+        self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\nFN: Abitbol\r\nN:Abitbol;;;;\r\nORG:ORGNAME\r\nEND:VCARD\r\n',
                          response.content
                         )
 
@@ -1260,7 +1431,7 @@ class VcfExportTestCase(VcfsTestCase):
 
         response = self.client.get('/vcfs/%s/generate_vcf' % contact.id)
         self.assertEqual(200, response.status_code)
-        self.assertEqual("""BEGIN:VCARD\r\nVERSION:3.0\r\nADR:Org_po_box;;Org_address;Org_city;Org_department;Org_zipcode;Org_countr\r\n y\r\nTEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\nTEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\nTEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n""",
+        self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\nADR:Org_po_box;;Org_address;Org_city;Org_department;Org_zipcode;Org_countr\r\n y\r\nTEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\nTEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\nTEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
                          response.content
                         )
 
@@ -1273,7 +1444,7 @@ class VcfExportTestCase(VcfsTestCase):
 
         response = self.client.get('/vcfs/%s/generate_vcf' % contact.id)
         self.assertEqual(200, response.status_code)
-        self.assertEqual("""BEGIN:VCARD\r\nVERSION:3.0\r\nADR:Org_po_box;;Org_address;Org_city;Org_department;Org_zipcode;Org_countr\r\n y\r\nTEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\nTEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\nTEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n""",
+        self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\nADR:Org_po_box;;Org_address;Org_city;Org_department;Org_zipcode;Org_countr\r\n y\r\nTEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\nTEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\nTEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
                          response.content
                         )
 
@@ -1287,8 +1458,9 @@ class VcfExportTestCase(VcfsTestCase):
 
         response = self.client.get('/vcfs/%s/generate_vcf' % contact.id)
         self.assertEqual(200, response.status_code)
-        self.assertEqual("""BEGIN:VCARD\r\nVERSION:3.0\r\nADR:shipping_po_box;;shipping_address;shipping_city;shipping_department;sh\r\n ipping_zipcode;shipping_country\r\nADR:billing_po_box;;billing_address;billing_city;billing_department;billin\r\n g_zipcode;billing_country\r\nTEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\nTEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\nTEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n""",
-                        response.content)
+        self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\nADR:shipping_po_box;;shipping_address;shipping_city;shipping_department;sh\r\n ipping_zipcode;shipping_country\r\nADR:billing_po_box;;billing_address;billing_city;billing_department;billin\r\n g_zipcode;billing_country\r\nTEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\nTEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\nTEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
+                         response.content
+                        )
 
     def test_get_vcf_addr_eq(self):
         self.login()
@@ -1301,9 +1473,9 @@ class VcfExportTestCase(VcfsTestCase):
 
         response = self.client.get('/vcfs/%s/generate_vcf' % contact.id)
         self.assertEqual(200, response.status_code)
-        self.assertEqual("""BEGIN:VCARD\r\nVERSION:3.0\r\nADR:Org_po_box;;Org_address;Org_city;Org_department;Org_zipcode;Org_countr\r\n y\r\nTEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\nTEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\nTEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n""",
-                        response.content
-                       )
+        self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\nADR:Org_po_box;;Org_address;Org_city;Org_department;Org_zipcode;Org_countr\r\n y\r\nTEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\nTEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\nTEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
+                         response.content
+                        )
 
     def test_person(self):
         self.login()
@@ -1316,6 +1488,6 @@ class VcfExportTestCase(VcfsTestCase):
 
         response = self.client.get('/vcfs/%s/generate_vcf' % contact.id)
         self.assertEqual(200, response.status_code)
-        self.assertEqual("""BEGIN:VCARD\r\nVERSION:3.0\r\nADR:shipping_po_box;;shipping_address;shipping_city;shipping_department;sh\r\n ipping_zipcode;shipping_country\r\nADR:billing_po_box;;billing_address;billing_city;billing_department;billin\r\n g_zipcode;billing_country\r\nADR:Org_po_box;;Org_address;Org_city;Org_department;Org_zipcode;Org_countr\r\n y\r\nTEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\nTEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\nTEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n""",
+        self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\nADR:shipping_po_box;;shipping_address;shipping_city;shipping_department;sh\r\n ipping_zipcode;shipping_country\r\nADR:billing_po_box;;billing_address;billing_city;billing_department;billin\r\n g_zipcode;billing_country\r\nADR:Org_po_box;;Org_address;Org_city;Org_department;Org_zipcode;Org_countr\r\n y\r\nTEL;TYPE=CELL:0606060606\r\nEMAIL;TYPE=INTERNET:a@aa.fr\r\nTEL;TYPE=FAX:0505050505\r\nFN:George Abitbol\r\nN:Abitbol;George;;Mr;\r\nTEL;TYPE=WORK:0404040404\r\nURL:www.aaa.fr\r\nEND:VCARD\r\n',
                          response.content
                         )
