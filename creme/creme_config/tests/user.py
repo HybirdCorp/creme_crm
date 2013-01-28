@@ -32,11 +32,14 @@ class UserTestCase(CremeTestCase):
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'persons')
 
+    def _build_delete_url(self, user):
+        return '/creme_config/user/delete/%s' % user.id
+
     def login_not_as_superuser(self):
         apps = ('creme_config',)
         self.login(is_superuser=False, allowed_apps=apps, admin_4_apps=apps)
 
-    def aux_test_portal(self):
+    def _aux_test_portal(self):
         response = self.client.get('/creme_config/user/portal/')
         self.assertEqual(200, response.status_code)
 
@@ -45,17 +48,17 @@ class UserTestCase(CremeTestCase):
 
     def test_portal01(self):
         self.login()
-        self.aux_test_portal()
+        self._aux_test_portal()
 
     def test_portal02(self):
         self.login_not_as_superuser()
-        self.aux_test_portal()
+        self._aux_test_portal()
 
     def test_create01(self):
         self.login()
 
         url = '/creme_config/user/add/'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         orga = Organisation.objects.create(user=self.user, name='Olympus')
         CremeProperty.objects.create(creme_entity=orga, type_id=PROP_IS_MANAGED_BY_CREME)
@@ -78,7 +81,6 @@ class UserTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         users = User.objects.filter(username=username)
         self.assertEqual(1, len(users))
@@ -129,7 +131,6 @@ class UserTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         users = User.objects.filter(username=username)
         self.assertEqual(1, len(users))
@@ -167,7 +168,6 @@ class UserTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         user = self.get_object_or_fail(User, username=username)
         contact = self.refresh(contact)
@@ -218,7 +218,6 @@ class UserTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         self.assertEqual(user, self.refresh(contact).is_user)
 
@@ -243,7 +242,7 @@ class UserTestCase(CremeTestCase):
         self.assertTrue(briareos.can_view(other_user))
 
         url = '/creme_config/user/edit/%s' % other_user.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         first_name = 'Deunan'
         last_name  = u'Knut'
@@ -257,7 +256,6 @@ class UserTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         other_user = self.refresh(other_user)
         self.assertEqual(first_name, other_user.first_name)
@@ -317,7 +315,6 @@ class UserTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
         self.assertTrue(self.refresh(other_user).check_password(password))
 
     def test_change_password02(self):
@@ -337,7 +334,7 @@ class UserTestCase(CremeTestCase):
         self.login()
 
         url = '/creme_config/team/add/'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         create_user = User.objects.create_user
         user01 = create_user('Shogun', 'shogun@century.jp', 'uselesspw')
@@ -350,7 +347,6 @@ class UserTestCase(CremeTestCase):
                                         }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         teams = User.objects.filter(is_team=True)
         self.assertEqual(1, len(teams))
@@ -416,7 +412,7 @@ class UserTestCase(CremeTestCase):
         self.assertFalse(entity.can_view(user03))
 
         url = '/creme_config/team/edit/%s' % team.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         teamname += '_edited'
         response = self.client.post(url, follow=True,
@@ -425,7 +421,6 @@ class UserTestCase(CremeTestCase):
                                         }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         team = self.refresh(team)
         self.assertEqual(teamname, team.username)
@@ -465,9 +460,9 @@ class UserTestCase(CremeTestCase):
         user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
         team = self._create_team('Teamee', [])
 
-        url = '/creme_config/user/delete/%s' % team.id
-        self.assertEqual(200, self.client.get(url).status_code)
-        self.assertEqual(200, self.client.post(url, data={'to_user': user.id}).status_code)
+        url = self._build_delete_url(team)
+        self.assertGET200(url)
+        self.assertPOST200(url, data={'to_user': user.id})
         self.assertFalse(User.objects.filter(pk=team.id))
 
     def test_team_delete02(self):
@@ -479,12 +474,9 @@ class UserTestCase(CremeTestCase):
 
         ce = CremeEntity.objects.create(user=team)
 
-        url = '/creme_config/user/delete/%s' % team.id
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
-
-        response = self.client.post(url, data={'to_user': team2.id})
-        self.assertEqual(200, response.status_code)
+        url = self._build_delete_url(team)
+        self.assertGET200(url)
+        self.assertPOST200(url, data={'to_user': team2.id})
         self.assertFalse(User.objects.filter(pk=team.id))
 
         ce = self.get_object_or_fail(CremeEntity, pk=ce.id)
@@ -496,10 +488,7 @@ class UserTestCase(CremeTestCase):
         team = self._create_team('Teamee', [])
         CremeEntity.objects.create(user=team)
 
-        response = self.client.post('/creme_config/user/delete/%s' % team.id,
-                                    data={'to_user': self.user.id}
-                                   )
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200(self._build_delete_url(team), data={'to_user': self.user.id})
         self.assertFalse(User.objects.filter(pk=team.id))
 
     def test_team_delete04(self):
@@ -508,41 +497,53 @@ class UserTestCase(CremeTestCase):
         user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
         team = self._create_team('Teamee', [])
 
-        url = '/creme_config/user/delete/%s' % team.id
+        url = self._build_delete_url(team)
         self.assertGETRedirectsToLogin(url)
         self.assertPOSTRedirectsToLogin(url, data={'to_user': user.id})
 
-    def test_user_delete01(self): #Delete can not delete the last super user
+    def test_user_delete01(self):
+        "Delete view can delete a superuser if at least one remains"
+        self.login()
+        user = self.user
+        root = User.objects.get(username='root')
+
+        self.assertEqual(2, User.objects.filter(is_superuser=True).count())
+        self.assertEqual(1, User.objects.exclude(id=user.id).filter(is_superuser=True).count())
+
+        url = self._build_delete_url(root)
+        self.assertGET200(url)
+
+        response = self.client.post(url, {'to_user': user.id})
+        self.assertEqual(200, response.status_code)
+
+        self.assertEqual(1, User.objects.filter(is_superuser=True).count())
+        self.assertEqual(0, User.objects.filter(username='root').count())
+
+    def test_user_delete02(self):
+        "Delete view can delete any normal user"
         self.login()
 
-        user = self.user
+        user       = self.user;       self.assertTrue(user.is_superuser)
+        other_user = self.other_user; self.assertFalse(other_user.is_superuser)
+        ce = CremeEntity.objects.create(user=other_user)
 
-        #CremeEntity.objects.all().delete()#In creme_core populate some entities are created, so we avoid an IntegrityError
-        #HistoryLine.objects.all().delete()
-        self.assertTrue(user.is_superuser)
-        User.objects.exclude(pk=user.pk).update(is_superuser=False)
+        url = self._build_delete_url(other_user)
+        self.assertGET200(url)
 
-        count = User.objects.count()
-        self.assertGreater(count, 1)
+        self.assertNoFormError(self.client.post(url, {'to_user': user.id}))
+        self.assertFalse(User.objects.filter(id=other_user.id).exists())
 
-        url = '/creme_config/user/delete/%s' % user.id
-        self.assertEqual(400, self.client.get(url).status_code)
-
-        response = self.client.post(url, {'to_user': self.user.id})
-        self.assertEqual(400, response.status_code)
-        self.assertEqual(count, User.objects.count())
+        ce = self.get_object_or_fail(CremeEntity, pk=ce.id)
+        self.assertEqual(user, ce.user)
 
     def test_user_cannot_delete_last_superuser(self):
         "Delete view can not delete the last superuser"
-
         self.client.login(username='root', password='root')
 
         self.assertEqual(1, User.objects.filter(is_superuser=True).count())
-        user = User.objects.get(is_superuser=True)
+        user = self.get_object_or_fail(User, username='root', is_superuser=True)
 
-        self.assertEqual(0, User.objects.exclude(id=user.id).filter(is_superuser=True).count())
-
-        url = '/creme_config/user/delete/%s' % user.id
+        url = self._build_delete_url(user)
         self.assertEqual(400, self.client.get(url).status_code)
 
         response = self.client.post(url, {'to_user': user.id})
@@ -552,8 +553,7 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(0, User.objects.exclude(id=user.id).filter(is_superuser=True).count())
 
     def test_user_cannot_delete_during_transfert(self):
-        "Delete view can not delete the last superuser"
-
+        "Delete view is protected by a lock"
         self.login()
         user = self.user
         root = User.objects.get(username='root')
@@ -563,138 +563,100 @@ class UserTestCase(CremeTestCase):
 
         Mutex.get_n_lock('creme_config-forms-user-transfer_user')
 
-        url = '/creme_config/user/delete/%s' % root.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        url = self._build_delete_url(root)
+        self.assertGET200(url)
 
         response = self.client.post(url, {'to_user': user.id})
         self.assertEqual(400, response.status_code)
 
         self.assertEqual(2, User.objects.filter(is_superuser=True).count())
-        self.assertEqual(1, User.objects.exclude(id=user.id).filter(is_superuser=True).count())
+        #self.assertEqual(1, User.objects.exclude(id=user.id).filter(is_superuser=True).count())
 
-    def test_user_delete_not_last_superuser(self):
-        "Delete view can delete a superuser if at least one remains"
+    #def test_user_delete_last_basic_user(self):
+        #"Delete view can delete any normal user"
+        #role = UserRole.objects.create(name='Basic')
+        #role.allowed_apps = ('creme_core',)
+        #role.admin_4_apps = ()
+        #role.save()
 
-        self.login()
-        user = self.user
-        root = User.objects.get(username='root')
+        #self.role = role
+        #basic_user = User.objects.create(username='Mireille', role=role)
+        #basic_user.set_password('test')
+        #basic_user.save()
 
-        self.assertEqual(2, User.objects.filter(is_superuser=True).count())
-        self.assertEqual(1, User.objects.exclude(id=user.id).filter(is_superuser=True).count())
+        #self.client.login(username='root', password='root')
 
-        url = '/creme_config/user/delete/%s' % root.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        #self.assertEqual(1, User.objects.filter(is_superuser=True).count())
+        #self.assertEqual(1, User.objects.filter(is_superuser=False).count())
 
-        response = self.client.post(url, {'to_user': user.id})
-        self.assertEqual(200, response.status_code)
+        #root = User.objects.get(is_superuser=True)
 
-        self.assertEqual(1, User.objects.filter(is_superuser=True).count())
-        self.assertEqual(0, User.objects.filter(username='root').count())
+        #url = '/creme_config/user/delete/%s' % basic_user.id
+        #self.assertEqual(200, self.client.get(url).status_code)
 
-    def test_user_delete_last_basic_user(self):
-        "Delete view can delete any normal user"
+        #response = self.client.post(url, {'to_user': root.id})
+        #self.assertEqual(200, response.status_code)
 
-        role = UserRole.objects.create(name='Basic')
-        role.allowed_apps = ('creme_core',)
-        role.admin_4_apps = ()
-        role.save()
+        #self.assertEqual(1, User.objects.filter(is_superuser=True).count())
+        #self.assertEqual(0, User.objects.filter(is_superuser=False).count())
 
-        self.role = role
-        basic_user = User.objects.create(username='Mireille', role=role)
-        basic_user.set_password('test')
-        basic_user.save()
-
-        self.client.login(username='root', password='root')
-
-        self.assertEqual(1, User.objects.filter(is_superuser=True).count())
-        self.assertEqual(1, User.objects.filter(is_superuser=False).count())
-
-        root = User.objects.get(is_superuser=True)
-
-        url = '/creme_config/user/delete/%s' % basic_user.id
-        self.assertEqual(200, self.client.get(url).status_code)
-
-        response = self.client.post(url, {'to_user': root.id})
-        self.assertEqual(200, response.status_code)
-
-        self.assertEqual(1, User.objects.filter(is_superuser=True).count())
-        self.assertEqual(0, User.objects.filter(is_superuser=False).count())
-
-    def test_user_delete02(self): #Validation error
+    def test_user_delete_errors(self):
+        "Validation errors"
         self.login()
         root = User.objects.get(username='root')
 
         count = User.objects.count()
         self.assertGreater(count, 1)
 
-        url = '/creme_config/user/delete/%s' % root.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        url = self._build_delete_url(root)
+        self.assertGET200(url)
 
         response = self.client.post(url) #no data
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'to_user', [_(u'This field is required.')])
         self.assertEqual(count, User.objects.count())
 
-        response = self.client.post(url, {'to_user': root.id})  # cannot move entities to deleted user
+        response = self.client.post(url, {'to_user': root.id}) #cannot move entities to deleted user
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'to_user',
                              [_(u'Select a valid choice. That choice is not one of the available choices.')]
                             )
         self.assertTrue(User.objects.filter(pk=self.user.id).exists())
 
-    def test_user_delete03(self):
-        self.login()
-
-        user       = self.user
-        other_user = self.other_user
-        ce = CremeEntity.objects.create(user=other_user)
-
-        url = '/creme_config/user/delete/%s' % other_user.id
-        self.assertEqual(200, self.client.get(url).status_code)
-
-        response = self.client.post(url, {'to_user': user.id})
-        self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
-        self.assertFalse(User.objects.filter(id=other_user.id).exists())
-
-        ce = self.get_object_or_fail(CremeEntity, pk=ce.id)
-        self.assertEqual(user, ce.user)
-
     #TODO: move to 'activities'
-    def test_user_delete04(self):
+    def test_user_delete_calendar(self):
         self.login()
 
         user       = self.user
         other_user = self.other_user
 
         cal = Calendar.get_user_default_calendar(other_user)
-        url = '/creme_config/user/delete/%s' % other_user.id
+        url = self._build_delete_url(other_user)
 
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
-
-        response = self.client.post(url, {'to_user': user.id})
-        self.assertEqual(200, response.status_code)
-        self.assertNoFormError(response)
+        self.assertGET200(url)
+        self.assertNoFormError(self.client.post(url, {'to_user': user.id}))
         self.assertFalse(User.objects.filter(id=other_user.id).exists())
 
         cal = self.get_object_or_fail(Calendar, pk=cal.id)
         self.assertEqual(user, cal.user)
 
-    def test_user_delete05(self):
+    def test_user_delete_is_user(self):
+        "Manage Contact.is_user field : Contact is no more related to deleted user."
         self.login()
 
         user       = self.user
         other_user = self.other_user
 
-        Contact.objects.create(user=user, is_user=user)
-        Contact.objects.create(user=other_user, is_user=other_user)
-        Contact.objects.create(user=user, is_user=None)
-        Contact.objects.create(user=other_user, is_user=None)
+        create_contact = Contact.objects.create
+        create_contact(user=user,       is_user=user)
+        create_contact(user=other_user, is_user=other_user)
+        create_contact(user=user,       is_user=None)
+        create_contact(user=other_user, is_user=None)
 
-        response = self.client.post('/creme_config/user/delete/%s' % other_user.id, {'to_user': user.id})
-        self.assertEqual(200, response.status_code)
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(self._build_delete_url(other_user),
+                                                {'to_user': user.id}
+                                               )
+                              )
 
         self.assertFalse(User.objects.filter(id=other_user.id).exists())
 
@@ -703,7 +665,8 @@ class UserTestCase(CremeTestCase):
 
         self.assertEqual(1, Contact.objects.filter(is_user=user).count())
 
-    def test_user_delete06(self):
+    def test_user_delete_settingkey(self):
+        "Related SettingValues are deleted."
         self.login()
 
         setting_key = 'unit_test-test_userl_delete06'
@@ -712,17 +675,18 @@ class UserTestCase(CremeTestCase):
                               )
         SettingValue.objects.create(key=sk, user=self.other_user, value=True)
 
-        response = self.client.post('/creme_config/user/delete/%s' % self.other_user.id, {'to_user': self.user.id})
-        self.assertEqual(200, response.status_code)
-        self.assertNoFormError(response)
-
+        self.assertNoFormError(self.client.post(self._build_delete_url(self.other_user),
+                                                {'to_user': self.user.id}
+                                               )
+                              )
         self.assertFalse(User.objects.filter(id=self.other_user.id).exists())
         self.assertFalse(SettingValue.objects.filter(key=setting_key).exists())
 
-    def test_user_delete07(self):
+    def test_user_delete_credentials(self):
+        "Only super user are allowed"
         self.login_not_as_superuser()
 
-        url = '/creme_config/user/delete/%s' % self.other_user.id
+        url = self._build_delete_url(self.other_user)
         self.assertGETRedirectsToLogin(url)
         self.assertPOSTRedirectsToLogin(url, data={'to_user': self.user.id})
 
@@ -746,8 +710,7 @@ class UserSettingsTestCase(CremeTestCase):
         self.assertEqual(0, SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME).count())
 
         def change_theme(theme):
-            response = self.client.post('/creme_config/my_settings/edit_theme/', data={'themes': theme})
-            self.assertEqual(200, response.status_code)
+            self.assertPOST200('/creme_config/my_settings/edit_theme/', data={'themes': theme})
 
             svalues = SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME)
             self.assertEqual(1, len(svalues))

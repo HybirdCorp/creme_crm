@@ -40,8 +40,7 @@ class CreditNoteTestCase(_BillingTestCase, CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(1,   len(response.redirect_chain))
+        self.assertEqual(1, len(response.redirect_chain))
 
         credit_note = self.get_object_or_fail(CreditNote, name=name)
         self.assertTrue(response.redirect_chain[0][0].endswith('/billing/credit_note/%s' % credit_note.id))

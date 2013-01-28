@@ -44,8 +44,7 @@ class _BillingTestCase(object):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(1,   len(response.redirect_chain))
+        self.assertEqual(1, len(response.redirect_chain)) #TODO: assertRedirects ?
 
         invoice = self.get_object_or_fail(Invoice, name=name)
         self.assertTrue(response.redirect_chain[0][0].endswith('/billing/invoice/%s' % invoice.id))
@@ -78,8 +77,7 @@ class _BillingTestCase(object):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(1,   len(response.redirect_chain))
+        self.assertEqual(1, len(response.redirect_chain))
 
         quote = self.get_object_or_fail(Quote, name=name)
         self.assertTrue(response.redirect_chain[0][0].endswith('/billing/quote/%s' % quote.id))

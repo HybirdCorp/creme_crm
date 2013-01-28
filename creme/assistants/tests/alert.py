@@ -17,16 +17,18 @@ __all__ = ('AlertTestCase',)
 
 
 class AlertTestCase(AssistantsTestCase):
+    def _build_add_url(self, entity):
+        return '/assistants/alert/add/%s/' % entity.id
+
     def _create_alert(self, title='TITLE', description='DESCRIPTION', trigger_date='2010-9-29', entity=None):
         entity = entity or self.entity
-        response = self.client.post('/assistants/alert/add/%s/' % entity.id,
+        response = self.client.post(self._build_add_url(entity),
                                     data={'user':         self.user.pk,
                                           'title':        title,
                                           'description':  description,
                                           'trigger_date': trigger_date,
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         return self.get_object_or_fail(Alert, title=title, description=description)
@@ -34,8 +36,8 @@ class AlertTestCase(AssistantsTestCase):
     def test_create01(self):
         self.assertFalse(Alert.objects.exists())
 
-        response = self.client.get('/assistants/alert/add/%s/' % self.entity.id)
-        self.assertEqual(200, response.status_code)
+        entity = self.entity
+        self.assertGET200(self._build_add_url(entity))
 
         alert = self._create_alert('Title', 'Description', '2010-9-29')
         self.assertEqual(1, Alert.objects.count())
@@ -43,13 +45,13 @@ class AlertTestCase(AssistantsTestCase):
         self.assertIs(False,        alert.is_validated)
         self.assertEqual(self.user, alert.user)
 
-        self.assertEqual(self.entity.id,             alert.entity_id)
-        self.assertEqual(self.entity.entity_type_id, alert.entity_content_type_id)
+        self.assertEqual(entity.id,             alert.entity_id)
+        self.assertEqual(entity.entity_type_id, alert.entity_content_type_id)
         self.assertEqual(datetime(year=2010, month=9, day=29), alert.trigger_date)
 
     def test_create02(self): #create with errors
         def _fail_creation(**post_data):
-            response = self.client.post('/assistants/alert/add/%s/' % self.entity.id, data=post_data)
+            response = self.client.post(self._build_add_url(self.entity), data=post_data)
             self.assertEqual(200, response.status_code)
 
             with self.assertNoException():
@@ -78,7 +80,6 @@ class AlertTestCase(AssistantsTestCase):
                                                'trigger_time': '15:12:32',
                                               }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         alert = self.refresh(alert)

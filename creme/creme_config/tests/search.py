@@ -33,17 +33,15 @@ class SearchConfigTestCase(CremeTestCase):
         self.login()
 
     def test_portal(self):
-        self.assertEqual(200, self.client.get('/creme_config/search/portal/').status_code)
+        self.assertGET200('/creme_config/search/portal/')
 
     def test_add01(self):
         ct = self.ct_contact
         self.assertEqual(0, SearchConfigItem.objects.filter(content_type=ct).count())
 
-        self.assertEqual(200, self.client.get(self.ADD_URL).status_code)
-
-        response = self.client.post(self.ADD_URL, data={'ct_id': ct.id})
-        self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
+        url = self.ADD_URL
+        self.assertGET200(url)
+        self.assertNoFormError(self.client.post(url, data={'ct_id': ct.id}))
 
         sc_items = SearchConfigItem.objects.filter(content_type=ct)
         self.assertEqual(1, len(sc_items))
@@ -54,9 +52,7 @@ class SearchConfigTestCase(CremeTestCase):
                                                              'user':  self.other_user.id,
                                                             }
                       )
-        response = post()
-        self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(post())
 
         sc_items = SearchConfigItem.objects.filter(content_type=self.ct_contact)
         self.assertEqual(1, len(sc_items))
@@ -85,10 +81,8 @@ class SearchConfigTestCase(CremeTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        try:
+        with self.assertNoException():
             fields = response.context['form'].fields['fields']
-        except KeyError as e:
-            self.fail(str(e))
 
         index1 = self._find_field_index(fields, 'first_name')
         index2 = self._find_field_index(fields, 'last_name')
@@ -106,7 +100,6 @@ class SearchConfigTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         sf = SearchField.objects.filter(search_config_item=sci).order_by('order')
         self.assertEqual(2, len(sf))
@@ -120,7 +113,6 @@ class SearchConfigTestCase(CremeTestCase):
         sf1 = create_sf(search_config_item=sci, field='first_name', order=1)
         sf2 = create_sf(search_config_item=sci, field='last_name',  order=2)
 
-        response = self.client.post('/creme_config/search/delete', data={'id': sci.id})
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200('/creme_config/search/delete', data={'id': sci.id})
         self.assertFalse(SearchConfigItem.objects.filter(pk=sci.pk))
         self.assertFalse(SearchField.objects.filter(pk__in=[sf1.pk, sf2.pk]))

@@ -21,34 +21,35 @@ __all__ = ('UserMessageTestCase',)
 
 
 class UserMessageTestCase(AssistantsTestCase):
-    def _create_usermessage(self, title, body, priority, users, entity):
-        url = '/assistants/message/add/%s/' % entity.id if entity else \
-              '/assistants/message/add/'
+    def _build_add_url(self, entity=None):
+        return '/assistants/message/add/%s/' % entity.id if entity else \
+               '/assistants/message/add/'
 
+    def _create_usermessage(self, title, body, priority, users, entity):
         if priority is None:
             priority = UserMessagePriority.objects.create(title='Important')
 
-        response = self.client.post(url, data={'user':     self.user.pk,
-                                               'title':    title,
-                                               'body':     body,
-                                               'priority': priority.id,
-                                               'users':    [u.id for u in users],
-                                              }
+        response = self.client.post(self._build_add_url(entity),
+                                    data={'user':     self.user.pk,
+                                          'title':    title,
+                                          'body':     body,
+                                          'priority': priority.id,
+                                          'users':    [u.id for u in users],
+                                         }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
     def test_create01(self):
         self.assertFalse(UserMessage.objects.exists())
 
-        response = self.client.get('/assistants/message/add/%s/' % self.entity.id)
-        self.assertEqual(200, response.status_code)
+        entity = self.entity
+        self.assertGET200(self._build_add_url(entity))
 
         title    = 'TITLE'
         body     = 'BODY'
         priority = UserMessagePriority.objects.create(title='Important')
         user01   = User.objects.create_user('User01', 'user01@foobar.com', 'password')
-        self._create_usermessage(title, body, priority, [user01], self.entity)
+        self._create_usermessage(title, body, priority, [user01], entity)
 
         messages = UserMessage.objects.all()
         self.assertEqual(1, len(messages))
@@ -60,8 +61,8 @@ class UserMessageTestCase(AssistantsTestCase):
 
         self.assertFalse(message.email_sent)
 
-        self.assertEqual(self.entity.id,             message.entity_id)
-        self.assertEqual(self.entity.entity_type_id, message.entity_content_type_id)
+        self.assertEqual(entity.id,             message.entity_id)
+        self.assertEqual(entity.entity_type_id, message.entity_content_type_id)
 
         self.assertEqual(self.user, message.sender)
         self.assertEqual(user01,    message.recipient)
@@ -80,8 +81,7 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertEqual(set([user01, user02]), set(msg.recipient for msg in messages))
 
     def test_create03(self): #without related entity
-        response = self.client.get('/assistants/message/add/')
-        self.assertEqual(200, response.status_code)
+        self.assertGET200(self._build_add_url())
 
         priority = UserMessagePriority.objects.create(title='Important')
         user01  = User.objects.create_user('User01', 'user01@foobar.com', 'password')
@@ -163,7 +163,7 @@ class UserMessageTestCase(AssistantsTestCase):
         akane = create_contact(user=user, first_name='Akane', last_name='Tendo')
 
         url = '/activities/activity/add/meeting'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         title  = 'Meeting dojo'
         field_format = '[{"ctype": "%s", "entity": "%s"}]'
@@ -181,7 +181,6 @@ class UserMessageTestCase(AssistantsTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         meeting = self.get_object_or_fail(Meeting, title=title)
 
@@ -230,8 +229,7 @@ class UserMessageTestCase(AssistantsTestCase):
 
     def test_delete_priority01(self):
         priority = UserMessagePriority.objects.create(title='Important')
-        response = self.client.post('/creme_config/assistants/message_priority/delete', data={'id': priority.pk})
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200('/creme_config/assistants/message_priority/delete', data={'id': priority.pk})
         self.assertFalse(UserMessagePriority.objects.filter(pk=priority.pk).exists())
 
     def test_delete_priority02(self):

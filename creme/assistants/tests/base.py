@@ -52,7 +52,6 @@ class AssistantsTestCase(CremeTestCase):
                                           'last_name_merged': contact01.last_name,
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         self.assertFalse(Contact.objects.filter(pk=contact02).exists())

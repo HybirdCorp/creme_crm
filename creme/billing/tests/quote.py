@@ -24,7 +24,7 @@ class QuoteTestCase(_BillingTestCase, CremeTestCase):
         self.login()
 
     def test_createview01(self):
-        self.assertEqual(200, self.client.get('/billing/quote/add').status_code)
+        self.assertGET200('/billing/quote/add')
 
         quote, source, target = self.create_quote_n_orgas('My Quote')
         self.assertEqual(date(year=2012, month=4, day=22), quote.expiration_date)
@@ -41,7 +41,7 @@ class QuoteTestCase(_BillingTestCase, CremeTestCase):
         quote, source, target = self.create_quote_n_orgas(name)
 
         url = '/billing/quote/edit/%s' % quote.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         name     = name.title()
         currency = Currency.objects.create(name=u'Marsian dollar', local_symbol=u'M$', international_symbol=u'MUSD', is_custom=True)
@@ -58,7 +58,6 @@ class QuoteTestCase(_BillingTestCase, CremeTestCase):
                                           'target':          self.genericfield_format_entity(target),
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         quote = self.refresh(quote)

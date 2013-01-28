@@ -93,7 +93,6 @@ class SendingsTestCase(_EmailsTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         sendings = EmailCampaign.objects.get(pk=camp.id).sendings_set.all()
         self.assertEqual(1, len(sendings))
@@ -141,20 +140,25 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertFalse(LightWeightEmail.objects.exists())
 
     def test_create02(self): #test template
+        user = self.user
         first_name = 'Spike'
         last_name  = 'Spiegel'
 
-        camp    = EmailCampaign.objects.create(user=self.user, name='camp01')
-        mlist   = MailingList.objects.create(user=self.user, name='ml01')
-        contact = Contact.objects.create(user=self.user, first_name=first_name, last_name=last_name, email='spike.spiegel@bebop.com')
+        camp    = EmailCampaign.objects.create(user=user, name='camp01')
+        mlist   = MailingList.objects.create(user=user, name='ml01')
+        contact = Contact.objects.create(user=user, first_name=first_name,
+                                         last_name=last_name, email='spike.spiegel@bebop.com',
+                                        )
 
         camp.mailing_lists.add(mlist)
         mlist.contacts.add(contact)
 
         subject = 'Hello'
         body    = 'Your first name is: {{first_name}} !'
-        body_html    = '<p>Your last name is: {{last_name}} !</p>'
-        template = EmailTemplate.objects.create(user=self.user, name='name', subject=subject, body=body, body_html=body_html)
+        body_html = '<p>Your last name is: {{last_name}} !</p>'
+        template = EmailTemplate.objects.create(user=user, name='name', subject=subject,
+                                                body=body, body_html=body_html,
+                                               )
         response = self.client.post('/emails/campaign/%s/sending/add' % camp.id,
                                     data = {'sender':   'vicious@reddragons.mrs',
                                             'type':     SENDING_TYPE_IMMEDIATE,
@@ -162,7 +166,6 @@ class SendingsTestCase(_EmailsTestCase):
                                            }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         with self.assertNoException():
             sending = self.refresh(camp).sendings_set.all()[0]
@@ -186,8 +189,9 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertFalse(LightWeightEmail.objects.filter(pk=mail.pk).exists())
 
     def test_create03(self): #test deferred
-        camp     = EmailCampaign.objects.create(user=self.user, name='camp01')
-        template = EmailTemplate.objects.create(user=self.user, name='name', subject='subject', body='body')
+        user = self.user
+        camp     = EmailCampaign.objects.create(user=user, name='camp01')
+        template = EmailTemplate.objects.create(user=user, name='name', subject='subject', body='body')
         url = '/emails/campaign/%s/sending/add' % camp.id
 
         now  = datetime.now()
@@ -201,13 +205,12 @@ class SendingsTestCase(_EmailsTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         with self.assertNoException():
             sending = self.refresh(camp).sendings_set.all()[0]
 
-        format = '%d %m %Y %H %M'
-        self.assertEqual(sending_date.strftime(format), sending.sending_date.strftime(format))
+        fmt = '%d %m %Y %H %M'
+        self.assertEqual(sending_date.strftime(fmt), sending.sending_date.strftime(fmt))
 
         response = self.client.post(url, data={'sender':   'vicious@reddragons.mrs',
                                                'type':     SENDING_TYPE_DEFERRED,

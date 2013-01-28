@@ -22,7 +22,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
     def test_create(self):
         url = '/commercial/objective_pattern/add'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         segment = self._create_segment()
         name = 'ObjPattern#1'
@@ -35,7 +35,6 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
         self.assertTrue(response.redirect_chain)
         self.assertEqual(len(response.redirect_chain), 1)
 
@@ -59,7 +58,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         pattern = self._create_pattern(name, average_sales)
 
         url = '/commercial/objective_pattern/edit/%s' % pattern.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         name += '_edited'
         average_sales *= 2
@@ -70,8 +69,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                                'segment':       segment.id,
                                               }
                                    )
-        self.assertNoFormError(response)
-        self.assertEqual(302, response.status_code)
+        self.assertNoFormError(response, status=302)
 
         pattern = self.refresh(pattern)
         self.assertEqual(name,          pattern.name)
@@ -101,7 +99,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         pattern  = self._create_pattern()
 
         url = '/commercial/objective_pattern/%s/add_component' % pattern.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         name = 'Signed opportunities'
         response = self.client.post(url, data={'name':         name,
@@ -109,7 +107,6 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         components = pattern.components.all()
         self.assertEqual(1, len(components))
@@ -130,7 +127,6 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         components = pattern.components.all()
         self.assertEqual(1, len(components))
@@ -146,7 +142,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                                             )
 
         url = '/commercial/objective_pattern/component/%s/add_child' % comp01.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         name = 'Spread Vcards'
         response = self.client.post(url, data={'name':         name,
@@ -154,7 +150,6 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         children = comp01.children.all()
         self.assertEqual(1, len(children))
@@ -172,8 +167,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(2,   comp01.children.count())
+        self.assertEqual(2, comp01.children.count())
 
         with self.assertNoException():
             comp03 = comp01.children.get(name=name)
@@ -188,7 +182,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                                             )
 
         url = '/commercial/objective_pattern/component/%s/add_parent' % comp01.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         name = 'Signed opportunities'
         success_rate = 50
@@ -197,7 +191,6 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         pattern = self.refresh(pattern)
         components = pattern.components.order_by('id')
@@ -228,7 +221,6 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         pattern = ActObjectivePattern.objects.get(pk=pattern.id)
         components = pattern.components.order_by('id')
@@ -310,9 +302,8 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id,
                                     data={'id': comp01.id}
                                    )
-        self.assertNoFormError(response)
-        self.assertEqual(302, response.status_code)
-        self.assertEqual(0,   ActObjectivePatternComponent.objects.filter(pk=comp01.id).count())
+        self.assertNoFormError(response, status=302)
+        self.assertEqual(0, ActObjectivePatternComponent.objects.filter(pk=comp01.id).count())
 
     def test_delete_pattern_component02(self):
         pattern = self._create_pattern()
@@ -327,8 +318,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         ct = ContentType.objects.get_for_model(ActObjectivePatternComponent)
         response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': comp01.id})
-        self.assertNoFormError(response)
-        self.assertEqual(302, response.status_code)
+        self.assertNoFormError(response, status=302)
 
         remaining_ids = pattern.components.values_list('id', flat=True)
         self.assertEqual(3, len(remaining_ids))

@@ -32,7 +32,7 @@ class CommercialApproachTestCase(CremeTestCase):
         self.login()
         entity = CremeEntity.objects.create(user=self.user)
         url = '/commercial/approach/add/%s/' % entity.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         title       = 'TITLE'
         description = 'DESCRIPTION'
@@ -76,7 +76,6 @@ class CommercialApproachTestCase(CremeTestCase):
                                           'name_merged': orga01.name,
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         self.assertFalse(Organisation.objects.filter(pk=orga02).exists())
@@ -95,7 +94,7 @@ class CommercialApproachTestCase(CremeTestCase):
 
         user = self.user
         url = '/activities/activity/add/meeting'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki', is_user=user) #me
 
@@ -113,13 +112,11 @@ class CommercialApproachTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
         self.get_object_or_fail(Activity, type=ACTIVITYTYPE_MEETING, title=title)
         self.assertFalse(CommercialApproach.objects.all())
 
     def test_create_from_activity02(self): #OK
         self.login()
-
         user = self.user
 
         create_contact = partial(Contact.objects.create, user=user)
@@ -149,7 +146,6 @@ class CommercialApproachTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         meeting = self.get_object_or_fail(Activity, type=ACTIVITYTYPE_MEETING, title=title)
 

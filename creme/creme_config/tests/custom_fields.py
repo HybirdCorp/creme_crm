@@ -20,20 +20,18 @@ class CustomFieldsTestCase(CremeTestCase):
         cls.populate('creme_core', 'creme_config')
 
     def setUp(self):
-        #self.populate('creme_core', 'creme_config')
         self.login()
 
     def test_portal(self):
-        self.assertEqual(200, self.client.get('/creme_config/custom_fields/portal/').status_code)
+        self.assertGET200('/creme_config/custom_fields/portal/')
 
     def test_add_ct(self):
-        ct = ContentType.objects.get_for_model(Contact)
-
         self.assertFalse(CustomField.objects.all())
 
         url = '/creme_config/custom_fields/ct/add/'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
+        ct = ContentType.objects.get_for_model(Contact)
         name = 'Size'
         field_type = CustomField.INT
         response = self.client.post(url, data={'content_type': ct.id,
@@ -42,7 +40,6 @@ class CustomFieldsTestCase(CremeTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         cfields = CustomField.objects.all()
         self.assertEqual(1, len(cfields))
@@ -55,29 +52,25 @@ class CustomFieldsTestCase(CremeTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        try:
+        with self.assertNoException():
             choices = response.context['form'].fields['content_type'].choices
-        except KeyError as e:
-            self.fail(str(e))
 
         ct_set = set(ct_id for ct_id, vname in choices)
         self.assertNotIn(ct.id, ct_set)
         self.assertIn(ContentType.objects.get_for_model(Organisation).id, ct_set)
 
-        self.assertEqual(200, self.client.get('/creme_config/custom_fields/ct/%s' % ct.id).status_code)
+        self.assertGET200('/creme_config/custom_fields/ct/%s' % ct.id)
 
     def test_delete_ct(self):
-        ct_contact = ContentType.objects.get_for_model(Contact)
-        ct_orga    = ContentType.objects.get_for_model(Organisation)
+        get_ct = ContentType.objects.get_for_model
+        ct_contact = get_ct(Contact)
+        ct_orga    = get_ct(Organisation)
 
         create_cf = CustomField.objects.create
         cfield1 = create_cf(content_type=ct_contact, name='CF#1', field_type=CustomField.INT)
         cfield2 = create_cf(content_type=ct_contact, name='CF#2', field_type=CustomField.FLOAT)
         cfield3 = create_cf(content_type=ct_orga,    name='CF#3', field_type=CustomField.BOOL)
-
-        response = self.client.post('/creme_config/custom_fields/ct/delete', data={'id': ct_contact.id})
-        self.assertEqual(200, response.status_code)
-
+        self.assertPOST200('/creme_config/custom_fields/ct/delete', data={'id': ct_contact.id})
         self.assertEqual(0, CustomField.objects.filter(pk__in=[cfield1.pk, cfield2.pk]).count())
         self.assertEqual(1, CustomField.objects.filter(pk=cfield3.pk).count())
 
@@ -86,7 +79,7 @@ class CustomFieldsTestCase(CremeTestCase):
         cfield1 = CustomField.objects.create(content_type=ct, name='CF#1', field_type=CustomField.INT)
 
         url = '/creme_config/custom_fields/add/%s' % ct.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         name = 'Eva'
         field_type = CustomField.ENUM
@@ -96,7 +89,6 @@ class CustomFieldsTestCase(CremeTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         cfields = CustomField.objects.filter(content_type=ct).order_by('id')
         self.assertEqual(2, len(cfields))
@@ -114,12 +106,10 @@ class CustomFieldsTestCase(CremeTestCase):
         cfield = CustomField.objects.create(content_type=ct, name=name, field_type=CustomField.STR)
 
         url = '/creme_config/custom_fields/edit/%s' % cfield.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         name = name.title()
-        response = self.client.post(url, data={'name': name})
-        self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(self.client.post(url, data={'name': name}))
         self.assertEqual(name, self.refresh(cfield).name)
 
     def test_edit02(self): #ENUM
@@ -137,12 +127,10 @@ class CustomFieldsTestCase(CremeTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        try:
+        with self.assertNoException():
             fields = response.context['form'].fields
             new_choices = fields['new_choices']
             old_choices = fields['old_choices']
-        except KeyError as e:
-            self.fail(str(e))
 
         self.assertEqual([u'C', u'ABC', u'Java'], old_choices.content)
 
@@ -157,7 +145,6 @@ class CustomFieldsTestCase(CremeTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         self.assertEqual([u'C', u'Python', u'C++', u'Haskell'],
                          [cfev.value for cfev in CustomFieldEnumValue.objects.filter(custom_field=cfield).order_by('id')]
@@ -176,8 +163,7 @@ class CustomFieldsTestCase(CremeTestCase):
         eval3 = create_evalue(custom_field=cfield3, value='Programming')
         eval4 = create_evalue(custom_field=cfield3, value='Reading')
 
-        response = self.client.post('/creme_config/custom_fields/delete', data={'id': cfield2.id})
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200('/creme_config/custom_fields/delete', data={'id': cfield2.id})
 
         self.assertEqual(2, CustomField.objects.filter(pk__in=[cfield1.pk, cfield3.pk]).count())
         self.assertFalse(CustomField.objects.filter(pk=cfield2.pk))

@@ -102,7 +102,6 @@ class ActivitiesTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         with self.assertNoException():
             act  = Activity.objects.get(type=ACTIVITYTYPE_TASK, title=title)
@@ -195,7 +194,6 @@ class ActivitiesTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         act = self.get_object_or_fail(Activity, type=ACTIVITYTYPE_ACTIVITY, title=title)
         self.assertEqual(status, act.status)
@@ -230,7 +228,6 @@ class ActivitiesTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         with self.assertNoException():
             act  = Activity.objects.get(type=ACTIVITYTYPE_MEETING, title=title)
@@ -278,7 +275,6 @@ class ActivitiesTestCase(CremeTestCase):
                                          }
                                     )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
         self.assertTrue(response.redirect_chain)
         self.assertEqual(u"http://testserver%s" % contact01.get_absolute_url(), response.redirect_chain[-1][0])#Redirect to related entity detailview
 
@@ -384,7 +380,6 @@ class ActivitiesTestCase(CremeTestCase):
                                                            }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         activity = self.refresh(activity)
         self.assertEqual(title, activity.title)
@@ -423,7 +418,6 @@ class ActivitiesTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         activity = self.refresh(activity)
         self.assertEqual(title, activity.title)
@@ -630,11 +624,8 @@ class ActivitiesTestCase(CremeTestCase):
         ids = (contact01.id, contact02.id)
 
         uri = '/activities/activity/%s/participant/add' % activity.id
-        self.assertEqual(200, self.client.get(uri).status_code)
-
-        response = self.client.post(uri, data={'participants': '%s,%s' % ids})
-        self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
+        self.assertGET200(uri)
+        self.assertNoFormError(self.client.post(uri, data={'participants': '%s,%s' % ids}))
 
         relations = Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_PART_2_ACTIVITY)
         self.assertEqual(2, len(relations))
@@ -680,11 +671,8 @@ class ActivitiesTestCase(CremeTestCase):
         orga = Organisation.objects.create(user=self.user, name='Ghibli')
 
         uri = '/activities/activity/%s/subject/add' % activity.id
-        self.assertEqual(200, self.client.get(uri).status_code)
-
-        response = self.client.post(uri, data={'subjects': self._build_rel_field(orga)})
-        self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
+        self.assertGET200(uri)
+        self.assertNoFormError(self.client.post(uri, data={'subjects': self._build_rel_field(orga)}))
 
         relations = Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_ACTIVITY_SUBJECT)
         self.assertEqual(1, len(relations))
@@ -766,7 +754,7 @@ class ActivitiesTestCase(CremeTestCase):
         self.login()
         user = self.user
         url = '/activities/calendar/add'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         response = self.client.post(url, data={'name': 'whatever',
                                                #'user': user.id
@@ -786,8 +774,7 @@ class ActivitiesTestCase(CremeTestCase):
         cal_name = "My calendar"
 
         url = '/activities/calendar/%s/edit' % cal.id
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        self.assertGET200(url)
 
         response = self.client.post(url, data={'name': cal_name,
                                                #'user': user.id
@@ -809,7 +796,7 @@ class ActivitiesTestCase(CremeTestCase):
         me = Contact.objects.create(user=user, is_user=user, first_name='Ryoga', last_name='Hibiki')
 
         url = '/activities/indisponibility/add'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         title  = 'away'
         status = Status.objects.all()[0]
@@ -828,7 +815,6 @@ class ActivitiesTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         act = self.get_object_or_fail(Activity, type=ACTIVITYTYPE_INDISPO, title=title)
         self.assertEqual(datetime(year=2010, month=1, day=10, hour=9, minute=8, second=7), act.start)
@@ -858,7 +844,6 @@ class ActivitiesTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         act = self.get_object_or_fail(Activity, type=ACTIVITYTYPE_INDISPO, title=title)
         self.assertTrue(act.is_all_day)

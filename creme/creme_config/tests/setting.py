@@ -15,6 +15,9 @@ class SettingTestCase(CremeTestCase):
     def setUp(self):
         self.populate('creme_core', 'creme_config')
 
+    def _buil_edit_url(self, setting_value):
+        return '/creme_config/settings/edit/%s' % setting_value.id
+
     def test_model01(self):
         sk = SettingKey.objects.create(pk='persons-title', description=u"Page title",
                                        app_label=None, type=SettingKey.STRING,
@@ -42,7 +45,7 @@ class SettingTestCase(CremeTestCase):
                                        type=SettingKey.BOOL
                                       )
         sv = SettingValue.objects.create(key=sk, user=self.user, value=True)
-        self.assert_(SettingValue.objects.get(pk=sv.pk).value is True)
+        self.assertIs(SettingValue.objects.get(pk=sv.pk).value, True)
 
         sv.value = False
         sv.save()
@@ -58,13 +61,11 @@ class SettingTestCase(CremeTestCase):
         title = 'May the source be with you'
         sv = SettingValue.objects.create(key=sk, user=None, value=title)
 
-        url = '/creme_config/settings/edit/%s' % sv.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        url = self._buil_edit_url(sv)
+        self.assertGET200(url)
 
         title = title.upper()
-        response = self.client.post(url, data={'value': title})
-        self.assertNoFormError(response)
-        self.assertEqual(200,   response.status_code)
+        self.assertNoFormError(self.client.post(url, data={'value': title}))
         self.assertEqual(title, self.refresh(sv).value)
 
     def test_edit02(self):
@@ -78,9 +79,7 @@ class SettingTestCase(CremeTestCase):
         sv = SettingValue.objects.create(key=sk, user=None, value=size)
 
         size += 15
-        response = self.client.post('/creme_config/settings/edit/%s' % sv.id, data={'value': size})
-        self.assertNoFormError(response)
-        self.assertEqual(200,  response.status_code)
+        self.assertNoFormError(self.client.post(self._buil_edit_url(sv), data={'value': size}))
         self.assertEqual(size, self.refresh(sv).value)
 
     def test_edit03(self):
@@ -92,9 +91,7 @@ class SettingTestCase(CremeTestCase):
                                       )
         sv = SettingValue.objects.create(key=sk, user=None, value=True)
 
-        response = self.client.post('/creme_config/settings/edit/%s' % sv.id, data={}) #False -> empty POST
-        self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(self.client.post(self._buil_edit_url(sv), data={})) #False -> empty POST
         self.assertFalse(self.refresh(sv).value)
 
     def test_edit04(self): #hidden => not editable
@@ -105,7 +102,7 @@ class SettingTestCase(CremeTestCase):
                                        hidden=True,
                                       )
         sv = SettingValue.objects.create(key=sk, user=None, value=True)
-        self.assertGET404('/creme_config/settings/edit/%s' % sv.id)
+        self.assertGET404(self._buil_edit_url(sv))
 
     def test_edit05(self): #hidden => not editable
         self.login()
@@ -115,4 +112,4 @@ class SettingTestCase(CremeTestCase):
                                        hidden=False,
                                       )
         sv = SettingValue.objects.create(key=sk, user=self.user, value=True)
-        self.assertGET404('/creme_config/settings/edit/%s' % sv.id)
+        self.assertGET404(self._buil_edit_url(sv))

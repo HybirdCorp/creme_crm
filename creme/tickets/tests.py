@@ -7,7 +7,6 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
-    #from creme_core.tests.views.csv_import import CSVImportBaseTestCase
     from creme_core.tests.views.csv_import import CSVImportBaseTestCaseMixin
     from creme_core.models import HeaderFilter
 
@@ -17,7 +16,6 @@ except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
 
-#class TicketTestCase(CSVImportBaseTestCase):
 class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
     @classmethod
     def setUpClass(cls):
@@ -39,7 +37,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
     def test_portal(self):
         self.login()
-        self.assertEqual(200, self.client.get('/tickets/').status_code)
+        self.assertGET200('/tickets/')
 
     def test_detailview01(self):
         self.login()
@@ -48,7 +46,6 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         description = 'Test description'
         priority    = Priority.objects.all()[0]
         criticity   = Criticity.objects.all()[0]
-
         ticket = Ticket.objects.create(user=self.user,
                                        title=title,
                                        description=description,
@@ -71,14 +68,14 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
     def test_detailview02(self):
         self.login()
-        self.assertEqual(404, self.client.get('/tickets/ticket/1024').status_code)
+        self.assertGET404('/tickets/ticket/1024')
 
     def test_createview01(self):
         self.login()
 
         self.assertEqual(0, Ticket.objects.count())
         url = '/tickets/ticket/add'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         title       = 'Test ticket'
         description = 'Test description'
@@ -92,7 +89,6 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                }
         response = self.client.post(url, follow=True, data=data)
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
         self.assertTrue(response.redirect_chain)
         self.assertEqual(1, len(response.redirect_chain))
 
@@ -150,8 +146,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                                'criticity':    criticity.id,
                                               }
                                    )
-        self.assertNoFormError(response)
-        self.assertEqual(302, response.status_code)
+        self.assertNoFormError(response, status=302)
 
         ticket = self.refresh(ticket)
         self.assertEqual(priority,     ticket.priority)
@@ -176,7 +171,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                        criticity=criticity,
                                       )
 
-        response = self.client.post('/tickets/ticket/edit/%s' % ticket.pk,
+        response = self.client.post('/tickets/ticket/edit/%s' % ticket.pk, follow=True,
                                     data={'user':         self.user.pk,
                                           'title':        title,
                                           'description':  description,
@@ -186,7 +181,6 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(302, response.status_code)
 
         ticket = self.refresh(ticket)
         self.assertEqual(CLOSED_PK, ticket.status_id)
@@ -287,8 +281,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                        priority=Priority.objects.all()[0],
                                        criticity=Criticity.objects.all()[0],
                                       )
-        response = self.client.post('/creme_config/tickets/status/delete', data={'id': status.pk})
-        self.assertEqual(404, response.status_code)
+        self.assertPOST404('/creme_config/tickets/status/delete', data={'id': status.pk})
         self.assertTrue(Status.objects.filter(pk=status.pk).exists())
 
         ticket = self.get_object_or_fail(Ticket, pk=ticket.pk)
@@ -305,8 +298,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                        priority=priority,
                                        criticity=Criticity.objects.all()[0],
                                       )
-        response = self.client.post('/creme_config/tickets/priority/delete', data={'id': priority.pk})
-        self.assertEqual(404, response.status_code)
+        self.assertPOST404('/creme_config/tickets/priority/delete', data={'id': priority.pk})
         self.assertTrue(Priority.objects.filter(pk=priority.pk).exists())
 
         ticket = self.get_object_or_fail(Ticket, pk=ticket.pk)
@@ -323,8 +315,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                        priority=Priority.objects.all()[0],
                                        criticity=criticity,
                                       )
-        response = self.client.post('/creme_config/tickets/criticity/delete', data={'id': criticity.pk})
-        self.assertEqual(404, response.status_code)
+        self.assertPOST404('/creme_config/tickets/criticity/delete', data={'id': criticity.pk})
         self.assertTrue(Criticity.objects.filter(pk=criticity.pk).exists())
 
         ticket = self.get_object_or_fail(Ticket, pk=ticket.pk)
@@ -383,7 +374,6 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                                #'dyn_relations',
                                               }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
         self.assertEqual(count + len(lines), Ticket.objects.count())
 
@@ -449,7 +439,7 @@ class TicketTemplateTestCase(CremeTestCase):
         self.login()
 
         template = self.create_template('Title')
-        self.assertEqual(200, self.client.get('/tickets/template/%s' % template.id).status_code)
+        self.assertGET200('/tickets/template/%s' % template.id)
 
     def test_edit(self):
         self.login()
@@ -459,7 +449,7 @@ class TicketTemplateTestCase(CremeTestCase):
         template = self.create_template(title, description)
         url = '/tickets/template/edit/%s' % template.id
 
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         title += '_edited'
         description = '_edited'
@@ -476,7 +466,6 @@ class TicketTemplateTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         template = self.refresh(template)
         self.assertEqual(title,       template.title)
@@ -490,7 +479,7 @@ class TicketTemplateTestCase(CremeTestCase):
 
         self.create_template('Title01')
         self.create_template('Title02')
-        self.assertEqual(200, self.client.get('/tickets/templates').status_code)
+        self.assertGET200('/tickets/templates')
 
     def test_create_entity01(self):
         self.login()
@@ -540,8 +529,7 @@ class TicketTemplateTestCase(CremeTestCase):
 
         template01 = self.create_template('Title01')
         template02 = self.create_template('Title02')
-        self.assertEqual(404, self.client.post('/creme_core/delete_js',
-                                               data={'ids': '%s,%s,' % (template01.id, template02.id)}
-                                              ).status_code
-                        )
+        self.assertPOST404('/creme_core/delete_js',
+                           data={'ids': '%s,%s,' % (template01.id, template02.id)}
+                          )
         self.assertEqual(2, TicketTemplate.objects.filter(pk__in=[template01.id, template02.id]).count())

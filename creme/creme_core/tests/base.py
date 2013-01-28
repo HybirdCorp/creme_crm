@@ -93,7 +93,12 @@ class _CremeTestCase(object):
         except Exception as e:
             raise self.failureException('An exception <%s> occured: %s' % (e.__class__.__name__, e))
 
-    def assertNoFormError(self, response, form='form'):
+    def assertNoFormError(self, response, status=200, form='form'):
+        status_code = response.status_code
+
+        if status_code != status:
+            self.fail('Response status=%s (expected: %s)' % (status_code, status))
+
         try:
             errors = response.context[form].errors
         except Exception:
@@ -103,7 +108,7 @@ class _CremeTestCase(object):
                 self.fail(errors.as_text())
 
     def assertListContainsSubset(self, expected, actual, msg=None):
-        """Checks whether actual is a superset of expected."""
+        "Checks whether actual is a superset of expected."
         old_index = -1
 
         for elt in expected:

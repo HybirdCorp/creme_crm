@@ -35,7 +35,6 @@ class MailingListsTestCase(_EmailsTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
         self.get_object_or_fail(MailingList, name=name)
 
     def test_edit(self):
@@ -51,7 +50,6 @@ class MailingListsTestCase(_EmailsTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200,  response.status_code)
         self.assertEqual(name, self.refresh(mlist).name)
 
     def test_listview(self):
@@ -74,15 +72,13 @@ class MailingListsTestCase(_EmailsTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         with self.assertNoException():
             campaign.mailing_lists.filter(pk=mlist.id)[0]
 
-        response = self.client.post('/emails/campaign/%s/mailing_list/delete' % campaign.id,
-                                    follow=True, data={'id': mlist.id}
-                                   )
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200('/emails/campaign/%s/mailing_list/delete' % campaign.id,
+                           follow=True, data={'id': mlist.id}
+                          )
         self.assertFalse(campaign.mailing_lists.exists())
 
     def test_recipients01(self):
@@ -93,8 +89,7 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertGET200(url)
 
         recipients = ['spike.spiegel@bebop.com', 'jet.black@bebop.com']
-        response = self.client.post(url, follow=True, data={'recipients': '\n'.join(recipients)})
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200(url, follow=True, data={'recipients': '\n'.join(recipients)})
         self.assertEqual(set(recipients), set(r.address for r in mlist.emailrecipient_set.all()))
 
         #################
@@ -121,8 +116,7 @@ class MailingListsTestCase(_EmailsTestCase):
         csvfile = StringIO('\n'.join(recipients))
         csvfile.name = 'recipients.csv' #Django uses this
 
-        response = self.client.post(url, data={'recipients': csvfile})
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(url, data={'recipients': csvfile}))
         self.assertEqual(set(recipients), set(r.address for r in mlist.emailrecipient_set.all()))
 
         csvfile.close()
@@ -144,9 +138,9 @@ class MailingListsTestCase(_EmailsTestCase):
 
         ################
         contact_to_del = recipients[0]
-        response = self.client.post('/emails/mailing_list/%s/contact/delete' % mlist.id,
-                                    data={'id': contact_to_del.id}
-                                   )
+        self.client.post('/emails/mailing_list/%s/contact/delete' % mlist.id,
+                         data={'id': contact_to_del.id}
+                        )
 
         contacts = set(mlist.contacts.all())
         self.assertEqual(len(recipients) - 1, len(contacts))
@@ -161,9 +155,7 @@ class MailingListsTestCase(_EmailsTestCase):
         recipients = [create(first_name='Spike', last_name='Spiegel', email='spike.spiegel@bebop.com'),
                       create(first_name='Jet',   last_name='Black',   email='jet.black@bebop.com'),
                      ]
-        response = self.client.post(url, data={})
-        self.assertEqual(200, response.status_code)
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(url, data={}))
         #self.assertEqual(set(c.id for c in recipients), set(c.id for c in mlist.contacts.all()))
         contacts = set(Contact.objects.all())
         self.assertGreaterEqual(len(contacts), 2)
@@ -197,8 +189,7 @@ class MailingListsTestCase(_EmailsTestCase):
 
         self.assertEqual(['', efilter.id], choices)
 
-        response = self.client.post(url, data={'filters': efilter.id})
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(url, data={'filters': efilter.id}))
         self.assertEqual(expected_ids, set(c.id for c in mlist.contacts.all()))
 
     def test_ml_orgas01(self):
@@ -218,9 +209,9 @@ class MailingListsTestCase(_EmailsTestCase):
 
         ################
         orga_to_del = recipients[0]
-        response = self.client.post('/emails/mailing_list/%s/organisation/delete' % mlist.id,
-                                    data={'id': orga_to_del.id}
-                                   )
+        self.client.post('/emails/mailing_list/%s/organisation/delete' % mlist.id,
+                         data={'id': orga_to_del.id}
+                        )
 
         orgas = set(mlist.organisations.all())
         self.assertEqual(len(recipients) - 1, len(orgas))
@@ -235,9 +226,7 @@ class MailingListsTestCase(_EmailsTestCase):
         recipients = [create(name='NERV',  email='contact@nerv.jp'),
                       create(name='Seele', email='contact@seele.jp')
                      ]
-        response = self.client.post(url, data={})
-        self.assertEqual(200, response.status_code)
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(url, data={}))
         #self.assertEqual(set(c.id for c in recipients), set(c.id for c in mlist.organisations.all()))
         orgas = set(Organisation.objects.all())
         self.assertGreaterEqual(len(orgas), 2)
@@ -277,41 +266,32 @@ class MailingListsTestCase(_EmailsTestCase):
 
         url = '/emails/mailing_list/%s/child/add' % mlist01.id
         self.assertGET200(url)
-
-        self.assertEqual(200, self.client.post(url, data={'child': mlist02.id}).status_code)
+        self.assertPOST200(url, data={'child': mlist02.id})
         self.assertEqual([mlist02.id], [ml.id for ml in mlist01.children.all()])
         self.assertFalse(mlist02.children.exists())
 
         #########################
-        response = self.client.post('/emails/mailing_list/%s/child/delete' % mlist01.id,
-                                    data={'id': mlist02.id}, follow=True
-                                   )
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200('/emails/mailing_list/%s/child/delete' % mlist01.id,
+                           data={'id': mlist02.id}, follow=True
+                          )
         self.assertFalse(mlist01.children.exists())
         self.assertFalse(mlist02.children.exists())
 
     def test_ml_tree02(self):
-        create_ml = MailingList.objects.create
-        mlist01 = create_ml(user=self.user, name='ml01')
-        mlist02 = create_ml(user=self.user, name='ml02')
-        mlist03 = create_ml(user=self.user, name='ml03')
+        create_ml = partial(MailingList.objects.create, user=self.user)
+        mlist01 = create_ml(name='ml01')
+        mlist02 = create_ml(name='ml02')
+        mlist03 = create_ml(name='ml03')
 
         mlist01.children.add(mlist02)
         mlist02.children.add(mlist03)
 
-        url = '/emails/mailing_list/%s/child/add'
+        post = lambda parent, child: self.client.post('/emails/mailing_list/%s/child/add' % parent.id,
+                                                      data={'child': child.id}
+                                                     )
 
-        response = self.client.post(url % mlist01.id, data={'child': mlist02.id})
-        self.assertFormError(response, 'form', 'child', [_(u'List already in the children')])
-
-        response = self.client.post(url % mlist01.id, data={'child': mlist03.id})
-        self.assertFormError(response, 'form', 'child', [_(u'List already in the children')])
-
-        response = self.client.post(url % mlist02.id, data={'child': mlist01.id})
-        self.assertFormError(response, 'form', 'child', [_(u'List already in the parents')])
-
-        response = self.client.post(url % mlist03.id, data={'child': mlist01.id})
-        self.assertFormError(response, 'form', 'child', [_(u'List already in the parents')])
-
-        response = self.client.post(url % mlist01.id, data={'child': mlist01.id})
-        self.assertFormError(response, 'form', 'child', [_(u"A list can't be its own child")])
+        self.assertFormError(post(mlist01, mlist02), 'form', 'child', [_(u'List already in the children')])
+        self.assertFormError(post(mlist01, mlist03), 'form', 'child', [_(u'List already in the children')])
+        self.assertFormError(post(mlist02, mlist01), 'form', 'child', [_(u'List already in the parents')])
+        self.assertFormError(post(mlist03, mlist01), 'form', 'child', [_(u'List already in the parents')])
+        self.assertFormError(post(mlist01, mlist01), 'form', 'child', [_(u"A list can't be its own child")])

@@ -23,7 +23,7 @@ class PropertyTypeTestCase(CremeTestCase):
         self.login()
 
     def test_portal(self):
-        self.assertEqual(200, self.client.get('/creme_config/property_type/portal/').status_code)
+        self.assertGET200('/creme_config/property_type/portal/')
 
     def _find_property_type(self, prop_types, text):
         for prop_type in prop_types:
@@ -39,9 +39,7 @@ class PropertyTypeTestCase(CremeTestCase):
         count = CremePropertyType.objects.count()
 
         text = 'is beautiful'
-        response = self.client.post(url, data={'text': text})
-        self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(self.client.post(url, data={'text': text}))
 
         prop_types = CremePropertyType.objects.all()
         self.assertEqual(count + 1, len(prop_types))
@@ -59,7 +57,6 @@ class PropertyTypeTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         prop_type = self.get_object_or_fail(CremePropertyType, text=text)
         ctypes = prop_type.subject_ctypes.all()
@@ -76,7 +73,7 @@ class PropertyTypeTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         pt = CremePropertyType.create('test-foobar', 'is beautiful', [get_ct(Contact)], is_custom=True)
         uri = '/creme_config/property_type/edit/%s' % pt.id
-        self.assertEqual(200, self.client.get(uri).status_code)
+        self.assertGET200(uri)
 
         ct_orga = get_ct(Organisation)
         text   = 'is very beautiful'
@@ -85,7 +82,6 @@ class PropertyTypeTestCase(CremeTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         pt = self.refresh(pt)
         self.assertEqual(text,         pt.text)
@@ -97,5 +93,5 @@ class PropertyTypeTestCase(CremeTestCase):
 
     def test_delete02(self):
         pt = CremePropertyType.create('test-foobar', 'is beautiful', [], is_custom=True)
-        self.assertEqual(200, self.client.post('/creme_config/property_type/delete', data={'id': pt.id}).status_code)
+        self.assertPOST200('/creme_config/property_type/delete', data={'id': pt.id})
         self.assertFalse(CremePropertyType.objects.filter(pk=pt.id))

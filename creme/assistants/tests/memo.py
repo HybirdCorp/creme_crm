@@ -17,15 +17,17 @@ __all__ = ('MemoTestCase',)
 
 
 class MemoTestCase(AssistantsTestCase):
+    def _build_add_url(self, entity):
+        return '/assistants/memo/add/%s/' % entity.id
+
     def _create_memo(self, content='Content', on_homepage=True, entity=None):
         entity = entity or self.entity
-        response = self.client.post('/assistants/memo/add/%s/' % entity.id,
+        response = self.client.post(self._build_add_url(entity),
                                     data={'user':        self.user.pk,
                                           'content':     content,
                                           'on_homepage': on_homepage,
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         return self.get_object_or_fail(Memo, content=content)
@@ -33,8 +35,8 @@ class MemoTestCase(AssistantsTestCase):
     def test_create(self):
         self.assertFalse(Memo.objects.exists())
 
-        response = self.client.get('/assistants/memo/add/%s/' % self.entity.id)
-        self.assertEqual(200, response.status_code)
+        entity = self.entity
+        self.assertGET200(self._build_add_url(entity))
 
         homepage = True
         memo = self._create_memo('Content', homepage)
@@ -43,7 +45,6 @@ class MemoTestCase(AssistantsTestCase):
         self.assertEqual(homepage,  memo.on_homepage)
         self.assertEqual(self.user, memo.user)
 
-        entity = self.entity
         self.assertEqual(entity.id,             memo.entity_id)
         self.assertEqual(entity.entity_type_id, memo.entity_content_type_id)
 
@@ -54,18 +55,16 @@ class MemoTestCase(AssistantsTestCase):
         homepage = True
         memo = self._create_memo(content, homepage)
 
-        response = self.client.get('/assistants/memo/edit/%s/' % memo.id)
-        self.assertEqual(200, response.status_code)
+        url = '/assistants/memo/edit/%s/' % memo.id
+        self.assertGET200(url)
 
         content += '_edited'
         homepage = not homepage
-        response = self.client.post('/assistants/memo/edit/%s/' % memo.id,
-                                    data={'user':        self.user.pk,
-                                          'content':     content,
-                                          'on_homepage': homepage,
-                                         }
+        response = self.client.post(url, data={'user':        self.user.pk,
+                                               'content':     content,
+                                               'on_homepage': homepage,
+                                              }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         memo = self.refresh(memo)
@@ -107,7 +106,8 @@ class MemoTestCase(AssistantsTestCase):
 
         self.assertEqual(u'<ul><li>Content02</li><li>Content01</li></ul>', result.for_html())
 
-    def test_function_field03(self): #prefetch with 'populate_entities()'
+    def test_function_field03(self):
+        "Prefetch with 'populate_entities()'"
         self._oldify_memo(self._create_memo('Content01'))
         self._create_memo('Content02')
 

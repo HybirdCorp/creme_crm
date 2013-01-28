@@ -32,9 +32,7 @@ class PropertyViewsTestCase(ViewsTestCase):
         url = '/creme_core/property/add/%s' % entity.id
         self.assertEqual(200, self.client.get(url).status_code)
 
-        response = self.client.post(url, data={'types': [ptype01.id, ptype02.id]})
-        self.assertEqual(200, response.status_code)
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(url, data={'types': [ptype01.id, ptype02.id]}))
 
         properties = entity.properties.all()
         self.assertEqual(2, len(properties))
@@ -86,7 +84,7 @@ class PropertyViewsTestCase(ViewsTestCase):
             self.assertEqual(0, entity.properties.count())
 
         url = self._build_bulk_url(self.centity_ct, *entities)
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         response = self.client.post(url, data={'entities':     ','.join(str(e.id) for e in entities),
                                                'types':        [ptype01.id, ptype02.id],
@@ -94,7 +92,6 @@ class PropertyViewsTestCase(ViewsTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         for entity in entities:
             self.assertEqual(2, entity.properties.count())
@@ -141,7 +138,6 @@ class PropertyViewsTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         self.assertEqual(0, entity01.properties.count())
         self.assertEqual(0, entity02.properties.count())
@@ -185,7 +181,7 @@ class PropertyViewsTestCase(ViewsTestCase):
         entity01 = CremeEntity.objects.create(user=self.user)
 
         url = self._build_bulk_url(self.centity_ct, entity01)
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         self._set_all_creds_except_one(excluded=SetCredentials.CRED_CHANGE)
         uneditable = CremeEntity.objects.create(user=self.other_user)

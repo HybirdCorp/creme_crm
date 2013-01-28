@@ -2,8 +2,9 @@
 
 try:
     from datetime import datetime, date
-    from itertools import chain
     from decimal import Decimal
+    from functools import partial
+    from itertools import chain
 
     from django.contrib.contenttypes.models import ContentType
     from django.utils.datastructures import SortedDict as OrderedDict
@@ -11,11 +12,13 @@ try:
     from django.utils.encoding import smart_str
     from django.core.serializers.json import simplejson
 
-    from creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation, Language, InstanceBlockConfigItem
-    from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CALCULATED
+    from creme_core.models import (CremePropertyType, CremeProperty, RelationType,
+                                   Relation, Language, InstanceBlockConfigItem)
+    from creme_core.models.header_filter import (HeaderFilterItem, HeaderFilter,
+                                                 HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CALCULATED)
     from creme_core.constants import REL_SUB_HAS, PROP_IS_MANAGED_BY_CREME
-    from creme_core.tests.base import CremeTestCase
     from creme_core.utils.meta import get_verbose_field_name, get_field_infos
+    from creme_core.tests.base import CremeTestCase
 
     from billing.models import Invoice, InvoiceStatus, ProductLine, Vat
     from billing.constants import REL_OBJ_BILL_ISSUED, REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
@@ -26,13 +29,15 @@ try:
     from persons.models import Contact, Organisation, LegalForm
     from persons.constants import REL_SUB_EMPLOYED_BY, REL_OBJ_CUSTOMER_SUPPLIER, REL_SUB_CUSTOMER_SUPPLIER
 
-    from reports.models import *
+    from reports.models import Field, Report, ReportGraph
     from reports.models.graph import RGT_MONTH
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
 
 class ReportsTestCase(CremeTestCase):
+    SET_FIELD_ORDER_URL = '/reports/report/field/change_order'
+
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'reports', 'persons', 'opportunities', 'billing')
@@ -67,7 +72,7 @@ class ReportsTestCase(CremeTestCase):
                                           'hf':   hf.id,
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
 
         return self.get_object_or_fail(Report, name=name)
 
@@ -125,8 +130,8 @@ class ReportsTestCase(CremeTestCase):
         #TODO: complete this test
 
     def test_report_change_field_order01(self):
-        url = '/reports/report/field/change_order'
-        self.assertEqual(404, self.client.post(url).status_code)
+        url = self.SET_FIELD_ORDER_URL
+        self.assertPOST404(url)
 
         report = self.create_report('trinita')
         field  = self.get_field_or_fail(report, 'user')
@@ -145,7 +150,7 @@ class ReportsTestCase(CremeTestCase):
     def test_report_change_field_order02(self):
         report = self.create_report('trinita')
         field  = self.get_field_or_fail(report, 'user')
-        response = self.client.post('/reports/report/field/change_order',
+        response = self.client.post(self.SET_FIELD_ORDER_URL,
                                     data={'report_id': report.id,
                                           'field_id':  field.id,
                                           'direction': 'down',
@@ -159,8 +164,7 @@ class ReportsTestCase(CremeTestCase):
                         )
 
     def test_report_change_field_order03(self): #move 'up' the first field -> error
-        url = '/reports/report/field/change_order'
-        self.assertEqual(404, self.client.post(url).status_code)
+        url = self.SET_FIELD_ORDER_URL
 
         report = self.create_report('trinita')
         field  = self.get_field_or_fail(report, 'last_name')
@@ -205,11 +209,11 @@ class ReportsTestCase(CremeTestCase):
                         )
 
     def create_contacts(self):
-        create_contact = Contact.objects.create
         user = self.user
-        asuka  = create_contact(user=user, last_name='Langley',   first_name='Asuka',  birthday=datetime(year=1981, month=7, day=25))
-        rei    = create_contact(user=user, last_name='Ayanami',   first_name='Rei',    birthday=datetime(year=1981, month=3, day=26))
-        misato = create_contact(user=user, last_name='Katsuragi', first_name='Misato', birthday=datetime(year=1976, month=8, day=12))
+        create_contact = partial(Contact.objects.create, user=user)
+        asuka  = create_contact(last_name='Langley',   first_name='Asuka',  birthday=datetime(year=1981, month=7, day=25))
+        rei    = create_contact(last_name='Ayanami',   first_name='Rei',    birthday=datetime(year=1981, month=3, day=26))
+        misato = create_contact(last_name='Katsuragi', first_name='Misato', birthday=datetime(year=1976, month=8, day=12))
         nerv   = Organisation.objects.create(user=user, name='Nerv')
 
         ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text='Kawaii')
@@ -278,8 +282,6 @@ class ReportsTestCase(CremeTestCase):
                                                'columns_order_%s' % created_index: 1,
                                               }
                                    )
-
-        self.assertEqual(response.status_code, 200)
         self.assertNoFormError(response)
         self.assertEqual(1, report.columns.count())
 
@@ -311,20 +313,19 @@ class ReportsTestCase(CremeTestCase):
         self.assertIn(relationtype_2_tuple(REL_SUB_HAS), content)
         self.assertNotIn(relationtype_2_tuple(REL_SUB_EMPLOYED_BY), content)
 
-    def _setUp_big_report(self):
+    def _create_reports(self):
         get_ct = ContentType.objects.get_for_model
-        user = self.user
         create_field = Field.objects.create
-        create_report = Report.objects.create
+        create_report = partial(Report.objects.create, user=self.user, filter=None)
 
-        report_opp = self.report_opp = create_report(filter=None, name="Report on opportunities", ct=get_ct(Opportunity), user=user)
+        report_opp = self.report_opp = create_report(name="Report on opportunities", ct=get_ct(Opportunity))
         report_opp.columns = [
             create_field(name="name",         title="Name",         selected=False, report=None, type=HFI_FIELD, order=1),
             create_field(name="reference",    title="Reference",    selected=False, report=None, type=HFI_FIELD, order=2),
             create_field(name="closing_date", title="Closing date", selected=False, report=None, type=HFI_FIELD, order=3),
           ]
 
-        report_invoice = self.report_invoice = create_report(filter=None, name="Report on invoices", ct=get_ct(Invoice), user=user)
+        report_invoice = self.report_invoice = create_report(name="Report on invoices", ct=get_ct(Invoice))
         report_invoice.columns = [
             create_field(name="name",           title="Name",                         selected=False, report=None, type=HFI_FIELD,      order=1),
             create_field(name="issuing_date",   title="Issuing date",                 selected=False, report=None, type=HFI_FIELD,      order=2),
@@ -332,7 +333,7 @@ class ReportsTestCase(CremeTestCase):
             create_field(name="total_vat__sum", title="Sum - Total inclusive of tax", selected=False, report=None, type=HFI_CALCULATED, order=4),
           ]
 
-        report_orga = self.report_orga = create_report(filter=None, name="Organisations report", ct=get_ct(Organisation), user=user)
+        report_orga = self.report_orga = create_report(name="Organisations report", ct=get_ct(Organisation))
         report_orga.columns = [
             create_field(name="name",                    title="Name",                                                        selected=False, report=None,           type=HFI_FIELD,      order=1),
             create_field(name="user__username",          title="User - username",                                             selected=False, report=None,           type=HFI_FIELD,      order=2),
@@ -344,7 +345,7 @@ class ReportsTestCase(CremeTestCase):
             create_field(name="get_pretty_properties",   title="Properties",                                                  selected=False, report=None,           type=HFI_FUNCTION,   order=8),
           ]
 
-        report_contact = self.report_contact = create_report(filter=None, name="Report on contacts", ct=get_ct(Contact), user=user)
+        report_contact = self.report_contact = create_report(name="Report on contacts", ct=get_ct(Contact))
         report_contact.columns = [
             create_field(name="last_name",         title="Last name",          selected=False, report=None,        type=HFI_FIELD,    order=1),
             create_field(name="first_name",        title="First name",         selected=False, report=None,        type=HFI_FIELD,    order=2),
@@ -358,32 +359,35 @@ class ReportsTestCase(CremeTestCase):
         user = self.user
 
         #Organisations
+        create_orga = partial(Organisation.objects.create, user=user)
         self.nintendo_lf = LegalForm.objects.get_or_create(title=u"Nintendo SA")[0]
-        self.nintendo    = Organisation.objects.create(user=user, name=u"Nintendo", legal_form=self.nintendo_lf, capital=100)
+        self.nintendo    = create_orga(name=u"Nintendo", legal_form=self.nintendo_lf, capital=100)
         CremeProperty.objects.create(type=managed_by_creme, creme_entity=self.nintendo)
 
         self.virgin_lf = LegalForm.objects.get_or_create(title=u"Virgin SA")[0]
-        self.virgin    = Organisation.objects.create(user=user, name=u"Virgin", legal_form=self.virgin_lf, capital=200)
+        self.virgin    = create_orga(name=u"Virgin", legal_form=self.virgin_lf, capital=200)
 
         self.sega_lf = LegalForm.objects.get_or_create(title=u"Sega SA")[0]
-        self.sega    = Organisation.objects.create(user=user, name=u"SEGA", legal_form=self.sega_lf, capital=300)
+        self.sega    = create_orga(name=u"SEGA", legal_form=self.sega_lf, capital=300)
 
         self.sony_lf = LegalForm.objects.get_or_create(title=u"Sony SA")[0]
-        self.sony    = Organisation.objects.create(user=user, name=u"Sony", legal_form=self.sony_lf, capital=300)
+        self.sony    = create_orga(name=u"Sony", legal_form=self.sony_lf, capital=300)
 
         #Contacts
-        self.mario = Contact.objects.create(first_name=u"Mario", last_name=u"Bros", user=user)
+        create_contact = partial(Contact.objects.create, user=user)
+        create_rel = partial(Relation.objects.create, type_id=REL_SUB_EMPLOYED_BY, user=user)
+        self.mario = create_contact(first_name='Mario', last_name='Bros')
         self.mario.language = Language.objects.all()
-        Relation.objects.create(subject_entity=self.mario, object_entity=self.nintendo, type_id=REL_SUB_EMPLOYED_BY, user=user)
+        create_rel(subject_entity=self.mario, object_entity=self.nintendo)
 
-        self.luigi = Contact.objects.create(first_name=u"Luigi", last_name=u"Bros", user=user)
-        Relation.objects.create(subject_entity=self.luigi, object_entity=self.nintendo, type_id=REL_SUB_EMPLOYED_BY, user=user)
+        self.luigi = create_contact(first_name='Luigi', last_name='Bros')
+        create_rel(subject_entity=self.luigi, object_entity=self.nintendo)
 
-        self.sonic = Contact.objects.create(first_name=u"Sonic", last_name=u"Hedgehog", user=user)
-        Relation.objects.create(subject_entity=self.sonic, object_entity=self.sega, type_id=REL_SUB_EMPLOYED_BY, user=user)
+        self.sonic = create_contact(first_name='Sonic', last_name='Hedgehog')
+        create_rel(subject_entity=self.sonic, object_entity=self.sega)
 
-        self.crash = Contact.objects.create(first_name=u"Crash", last_name=u"Bandicoot", user=user)
-        Relation.objects.create(subject_entity=self.crash, object_entity=self.sony, type_id=REL_SUB_EMPLOYED_BY, user=user)
+        self.crash = create_contact(first_name='Crash', last_name='Bandicoot')
+        create_rel(subject_entity=self.crash, object_entity=self.sony)
 
         self.issuing_date = now.date()
 
@@ -422,13 +426,12 @@ class ReportsTestCase(CremeTestCase):
         sales_phase = SalesPhase.objects.get_or_create(name="Forthcoming")[0]
         self.closing_date = date(year=2011, month=8, day=31)
 
-        #def _create_opportunity(name="", reference=""):
         def _create_opportunity(name, reference, emitter=None):
             return Opportunity.objects.create(user=user, name=name, reference=reference,
                                               sales_phase=sales_phase,
                                               closing_date=self.closing_date,
-                                              emitter=emitter or Organisation.objects.create(user=user, name='Emitter organisation #%s' %i),
-                                              target=Organisation.objects.create(user=user, name='Target organisation #%s' %i),
+                                              emitter=emitter or create_orga(name='Emitter organisation #%s' %i),
+                                              target=create_orga(name='Target organisation #%s' %i),
                                              )
 
         self.create_opportunity = _create_opportunity
@@ -436,7 +439,7 @@ class ReportsTestCase(CremeTestCase):
 
     def test_big_report_fetch01(self):
         self.populate('creme_core', 'persons', 'opportunities', 'billing') #TODO: remove
-        self._setUp_big_report()
+        self._create_reports()
         self._setUp_data_for_big_report()
         user = self.user
 
@@ -583,7 +586,6 @@ class ReportsTestCase(CremeTestCase):
         self.assertEqual(200, self.client.get(url).status_code)
 
         response = self.client.post(url, data={'graph': rgraph.name})
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         items = InstanceBlockConfigItem.objects.filter(entity=rgraph.id)
@@ -613,7 +615,6 @@ class ReportsTestCase(CremeTestCase):
                                           'volatile_column': '%s|%s' % (rtype_id, HFI_RELATION),
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         items = InstanceBlockConfigItem.objects.filter(entity=rgraph.id)

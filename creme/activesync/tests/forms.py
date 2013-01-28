@@ -7,7 +7,7 @@ try:
 
     from activesync.constants import *
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class UserSettingsTestCase(CremeTestCase):
@@ -18,7 +18,7 @@ class UserSettingsTestCase(CremeTestCase):
         self.login()
 
         url = '/activesync/user_settings'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         as_sk = [USER_MOBILE_SYNC_SERVER_URL, USER_MOBILE_SYNC_SERVER_DOMAIN, USER_MOBILE_SYNC_SERVER_SSL,
                  USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD, USER_MOBILE_SYNC_ACTIVITIES,
@@ -38,7 +38,6 @@ class UserSettingsTestCase(CremeTestCase):
                                                'sync_contacts':  '0',
                                               }
                                    )
-
         self.assertNoFormError(response)
         self.assertEqual(len(as_sk), SettingValue.objects.filter(key__in=as_sk).count())
 

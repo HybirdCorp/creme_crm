@@ -22,22 +22,19 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         cls.populate('creme_core', 'creme_config')
 
     def setUp(self):
-        #self.populate('creme_core', 'creme_config')
         self.login()
 
     def test_portal(self):
-        self.assertEqual(200, self.client.get('/creme_config/button_menu/portal/').status_code)
+        self.assertGET200('/creme_config/button_menu/portal/')
 
     def test_add_detailview(self):
         ct = ContentType.objects.get_for_model(Contact)
         self.assertFalse(ButtonMenuItem.objects.filter(content_type=ct))
 
         url = '/creme_config/button_menu/add/'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
-        response = self.client.post(url, data={'ct_id': ct.id})
-        self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(self.client.post(url, data={'ct_id': ct.id}))
 
         self.assertEqual([('', 1)],
                          [(bmi.button_id, bmi.order) for bmi in ButtonMenuItem.objects.filter(content_type=ct)]
@@ -59,7 +56,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
     def test_edit01(self):
         ct = ContentType.objects.get_for_model(Contact)
-        self.assertEqual(404, self.client.get('/creme_config/button_menu/edit/%s' % ct.id).status_code)
+        self.assertGET404('/creme_config/button_menu/edit/%s' % ct.id)
 
     def test_edit02(self):
         class TestButton(Button):
@@ -74,10 +71,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        try:
+        with self.assertNoException():
             button_ids = response.context['form'].fields['button_ids']
-        except KeyError as e:
-            self.fail(str(e))
 
         button_index = self._find_field_index(button_ids, button.id_)
 
@@ -128,10 +123,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
 
-        try:
+        with self.assertNoException():
             button_ids = response.context['form'].fields['button_ids']
-        except KeyError as e:
-            self.fail(str(e))
 
         button01_index = self._find_field_index(button_ids, button01.id_)
         button02_index = self._find_field_index(button_ids, button02.id_)
@@ -158,9 +151,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
     def test_delete01(self): #can not delete default conf
         url = '/creme_config/button_menu/delete'
         bmi = ButtonMenuItem.objects.create(content_type=None, button_id='', order=1)
-        self.assertEqual(404, self.client.post(url).status_code)
-
-        self.assertEqual(200, self.client.post(url, data={'id': 0}).status_code)
+        self.assertPOST404(url)
+        self.assertPOST200(url, data={'id': 0})
         ButtonMenuItem.objects.get(pk=bmi.pk) #still exists
 
     def test_delete_detailview02(self):
@@ -168,6 +160,5 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.client.post('/creme_config/button_menu/add/', data={'ct_id': ct.id})
         self.assertEqual(1, ButtonMenuItem.objects.filter(content_type=ct).count())
 
-        response = self.client.post('/creme_config/button_menu/delete', data={'id': ct.id})
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200('/creme_config/button_menu/delete', data={'id': ct.id})
         self.assertFalse(ButtonMenuItem.objects.filter(content_type=ct))

@@ -16,7 +16,7 @@ try:
 
     from persons.models import Organisation
 
-    from documents.models import *
+    from documents.models import Folder, FolderCategory, Document
     from documents.constants import *
     from documents.utils import get_csv_folder_or_create
 except Exception as e:
@@ -63,12 +63,14 @@ class _DocumentsTestCase(CremeTestCase):
 
         response = self.client.post(self.ADD_DOC_URL, follow=True, data=data)
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         return response
 
 
 class DocumentTestCase(_DocumentsTestCase):
+    def _buid_addrelated_url(self, entity):
+        return '/documents/document/add_related/%s' % entity.id
+
     def test_populate(self):
         self.assertTrue(RelationType.objects.filter(pk=REL_SUB_RELATED_2_DOC).exists())
 
@@ -80,7 +82,7 @@ class DocumentTestCase(_DocumentsTestCase):
 
     def test_portal(self):
         self.login()
-        self.assertEqual(200, self.client.get('/documents/').status_code)
+        self.assertGET200('/documents/')
 
     def test_createview01(self):
         self.login()
@@ -88,7 +90,7 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertFalse(Document.objects.exists())
 
         url = self.ADD_DOC_URL
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         ALLOWED_EXTENSIONS = settings.ALLOWED_EXTENSIONS
         self.assertTrue(ALLOWED_EXTENSIONS)
@@ -211,7 +213,7 @@ class DocumentTestCase(_DocumentsTestCase):
         doc = self.get_object_or_fail(Document, title=title)
 
         url = '/documents/document/edit/%s' % doc.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         title       = title.upper()
         description = description.upper()
@@ -230,7 +232,6 @@ class DocumentTestCase(_DocumentsTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
         self.assertTrue(response.redirect_chain)
         self.assertEqual(1, len(response.redirect_chain))
 
@@ -250,8 +251,8 @@ class DocumentTestCase(_DocumentsTestCase):
 
         entity = CremeEntity.objects.create(user=self.user)
 
-        url = '/documents/document/add_related/%s' % entity.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        url = self._buid_addrelated_url(entity)
+        self.assertGET200(url)
 
         def post(title):
             response = self.client.post(url, follow=True,
@@ -264,7 +265,6 @@ class DocumentTestCase(_DocumentsTestCase):
                                              }
                                     )
             self.assertNoFormError(response)
-            self.assertEqual(200, response.status_code)
 
             return self.get_object_or_fail(Document, title=title)
 
@@ -292,7 +292,7 @@ class DocumentTestCase(_DocumentsTestCase):
         self.login(is_superuser=False, allowed_apps=['documents', 'persons'])
 
         entity = CremeEntity.objects.create(user=self.user)
-        self.assertEqual(302, self.client.get('/documents/document/add_related/%s' % entity.id).status_code)
+        self.assertEqual(302, self.client.get(self._buid_addrelated_url(entity)).status_code)
 
     def test_add_related_document03(self): #link credentials
         self.login(is_superuser=False, allowed_apps=['documents', 'persons'], creatable_models=[Document])
@@ -309,7 +309,7 @@ class DocumentTestCase(_DocumentsTestCase):
         orga = Organisation.objects.create(user=self.other_user, name='NERV')
         self.assertTrue(orga.can_view(self.user))
         self.assertFalse(orga.can_link(self.user))
-        self.assertEqual(403, self.client.get('/documents/document/add_related/%s' % orga.id).status_code)
+        self.assertEqual(403, self.client.get(self._buid_addrelated_url(orga)).status_code)
 
     def test_add_related_document04(self): #view credentials
         self.login(is_superuser=False, allowed_apps=['documents', 'persons'], creatable_models=[Document])
@@ -326,7 +326,7 @@ class DocumentTestCase(_DocumentsTestCase):
         orga = Organisation.objects.create(user=self.other_user, name='NERV')
         self.assertTrue(orga.can_link(self.user))
         self.assertFalse(orga.can_view(self.user))
-        self.assertEqual(403, self.client.get('/documents/document/add_related/%s' % orga.id).status_code)
+        self.assertEqual(403, self.client.get(self._buid_addrelated_url(orga)).status_code)
 
     def test_add_related_document05(self):
         "The Folder containing all the Documents related to the entity has a too long name."
@@ -341,7 +341,7 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual(100, len(unicode(entity)))
 
         title    = 'Related doc'
-        response = self.client.post('/documents/document/add_related/%s' % entity.id,
+        response = self.client.post(self._buid_addrelated_url(entity),
                                     follow=True,
                                     data={'user':        self.user.pk,
                                           'title':       title,
@@ -352,7 +352,6 @@ class DocumentTestCase(_DocumentsTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         doc = self.get_object_or_fail(Document, title=title)
         entity_folder = doc.folder
@@ -379,7 +378,7 @@ class DocumentTestCase(_DocumentsTestCase):
         doc2 = create_doc('Test doc #2')
 
         response = self.client.get('/documents/documents')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
 
         with self.assertNoException():
             docs_page = response.context['entities']
@@ -391,14 +390,14 @@ class DocumentTestCase(_DocumentsTestCase):
         doc1.filedata.delete(doc1.filedata)
         doc2.filedata.delete(doc2.filedata)
 
-    def test_delete_category(self): #set to null
+    def test_delete_category(self):
+        "Set to null"
         self.login()
 
         cat = FolderCategory.objects.create(name='Manga')
         folder = Folder.objects.create(user=self.user, title='One piece', category=cat)
 
-        response = self.client.post('/creme_config/documents/category/delete', data={'id': cat.pk})
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200('/creme_config/documents/category/delete', data={'id': cat.pk})
         self.assertFalse(FolderCategory.objects.filter(pk=cat.pk).exists())
 
         folder = self.get_object_or_fail(Folder, pk=folder.pk)
@@ -409,18 +408,17 @@ class DocumentTestCase(_DocumentsTestCase):
 
 class DocumentQuickFormTestCase(_DocumentsTestCase):
     def quickform_data(self, count):
-        return {
-                'form-INITIAL_FORMS': '0',
+        return {'form-INITIAL_FORMS': '0',
                 'form-MAX_NUM_FORMS': '',
                 'form-TOTAL_FORMS':   '%s' % count,
                }
 
     def quickform_data_append(self, data, id, user='', filedata='', folder=''):
-        return data.update({
-                 'form-%d-user' % id:        user,
-                 'form-%d-filedata' % id:    filedata,
-                 'form-%d-folder' % id:   folder,
-               })
+        return data.update({'form-%d-user' % id:     user,
+                            'form-%d-filedata' % id: filedata,
+                            'form-%d-folder' % id:   folder,
+                           }
+                          )
 
     def test_add(self):
         self.login()
@@ -429,7 +427,7 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
         self.assertTrue(Folder.objects.exists())
 
         url = '/creme_core/quickforms/%s/%d' % (ContentType.objects.get_for_model(Document).pk, 1)
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         content = 'Yes I am the content (DocumentQuickFormTestCase.test_add)'
         file_obj, file_name = self._build_filedata(content)
@@ -438,9 +436,7 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
         data = self.quickform_data(1)
         self.quickform_data_append(data, 0, user=self.user.pk, filedata=file_obj, folder=folder.pk)
 
-        response = self.client.post(url, follow=True, data=data)
-        self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(self.client.post(url, follow=True, data=data))
 
         docs = Document.objects.all()
         self.assertEqual(1, len(docs))
@@ -465,7 +461,7 @@ class CSVDocumentQuickWidgetTestCase(_DocumentsTestCase):
         self.assertTrue(Folder.objects.exists())
 
         url = '/documents/quickforms/from_widget/document/csv/add/%d' % 1
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         content = 'Content (CSVDocumentQuickWidgetTestCase.test_add_from_widget)'
         file_obj, file_name = self._build_filedata(content)
@@ -475,7 +471,6 @@ class CSVDocumentQuickWidgetTestCase(_DocumentsTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         docs = Document.objects.all()
         self.assertEqual(1, len(docs))
@@ -507,7 +502,7 @@ class FolderTestCase(_DocumentsTestCase):
 
     def test_createview(self):
         url = '/documents/folder/add'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         title = 'Test folder'
         self.assertFalse(Folder.objects.filter(title=title).exists())
@@ -524,7 +519,6 @@ class FolderTestCase(_DocumentsTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         with self.assertNoException():
             folder = Folder.objects.get(title=title)
@@ -545,7 +539,7 @@ class FolderTestCase(_DocumentsTestCase):
                                       )
 
         url = '/documents/folder/edit/%s' % folder.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         title       += u' edited'
         description = description.upper()
@@ -559,7 +553,6 @@ class FolderTestCase(_DocumentsTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         folder = self.refresh(folder)
         self.assertEqual(title,       folder.title)
@@ -582,7 +575,7 @@ class FolderTestCase(_DocumentsTestCase):
                                )
 
         response = self.client.get('/documents/folders')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(200, response.status_code)
 
         with self.assertNoException():
             folders = response.context['entities'].object_list
@@ -602,20 +595,21 @@ class FolderTestCase(_DocumentsTestCase):
             self.assertNotEqual(stack[-1].title, clone.title)
             stack_append(clone)
 
-    def test_deleteview01(self): #no doc inside
+    def test_deleteview01(self):
+        "No doc inside"
         folder = Folder.objects.create(user=self.user, title='PDF',
                                        description='Contains PDF files',
                                        parent_folder=None,
-                                       category=FolderCategory.objects.all()[0]
+                                       category=FolderCategory.objects.all()[0],
                                       )
 
         response = self.client.post('/creme_core/entity/delete/%s' % folder.pk, follow=True)
         self.assertEqual(200, response.status_code)
         self.assertFalse(Folder.objects.filter(pk=folder.pk).exists())
-        self.assertEqual(1, len(response.redirect_chain))
-        self.assertTrue(response.redirect_chain[0][0].endswith('/documents/folders'))
+        self.assertRedirects(response, '/documents/folders')
 
-    def test_deleteview02(self): #a doc inside protect from deletion
+    def test_deleteview02(self):
+        "A doc inside protect from deletion"
         folder = Folder.objects.create(user=self.user, title='PDF',
                                        description='Contains PDF files',
                                        parent_folder=None,
@@ -630,9 +624,7 @@ class FolderTestCase(_DocumentsTestCase):
         doc = self.get_object_or_fail(Document, title=title)
         self.assertEqual(folder, doc.folder)
 
-        self.assertEqual(200, #404
-                         self.client.post('/creme_core/entity/delete/%s' % folder.pk).status_code
-                        )
+        self.assertPOST200('/creme_core/entity/delete/%s' % folder.pk)
         self.get_object_or_fail(Folder, pk=folder.pk)
 
         doc.filedata.delete(doc.filedata) #clean

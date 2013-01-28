@@ -2,6 +2,7 @@
 
 try:
     from datetime import datetime, date, time
+    from functools import partial
 
     from django.utils.translation import ugettext as _
 
@@ -21,12 +22,18 @@ except Exception as e:
 
 
 class ProjectsTestCase(CremeTestCase):
+    ADD_PROJECT_URL = '/projects/project/add'
+    ADD_TASK_PARENT_URL = '/projects/task/%s/parent/add'
+
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'activities', 'projects')
 
     def login(self, is_superuser=True, *args, **kwargs):
         super(ProjectsTestCase, self).login(is_superuser, allowed_apps=['projects'], *args, **kwargs)
+
+    def _build_add_ask_url(self, project):
+        return '/projects/project/%s/task/add' % project.id
 
     def test_populate(self):
         self.get_relationtype_or_fail(REL_SUB_PROJECT_MANAGER, sub_models=[Contact], obj_models=[Project])
@@ -36,12 +43,12 @@ class ProjectsTestCase(CremeTestCase):
 
     def test_portal(self):
         self.login()
-        self.assertEqual(200, self.client.get('/projects/').status_code)
+        self.assertGET200('/projects/')
 
     def create_project(self, name, status=None, start_date='2010-10-11', end_date='2010-12-31'):
         status = status or ProjectStatus.objects.all()[0]
         manager = Contact.objects.create(user=self.user, first_name='Gendo', last_name='Ikari')
-        response = self.client.post('/projects/project/add', follow=True,
+        response = self.client.post(self.ADD_PROJECT_URL, follow=True,
                                     data={'user':         self.user.pk,
                                           'name':         name,
                                           'status':       status.id,
@@ -51,15 +58,13 @@ class ProjectsTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         return self.get_object_or_fail(Project, name=name), manager
 
     def test_project_createview01(self):
         self.login()
 
-        response = self.client.get('/projects/project/add')
-        self.assertEqual(200, response.status_code)
+        self.assertGET200(self.ADD_PROJECT_URL)
 
         name = 'Eva00'
         status = ProjectStatus.objects.all()[0]
@@ -74,14 +79,12 @@ class ProjectsTestCase(CremeTestCase):
     def test_project_createview02(self): #credentials error
         self.login(is_superuser=False, creatable_models=[Project])
 
-        create_sc = SetCredentials.objects.create
-        create_sc(role=self.role,
-                  value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | \
+        create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc(value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | \
                         SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
                   set_type=SetCredentials.ESET_ALL
                  )
-        create_sc(role=self.role,
-                  value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | \
+        create_sc(value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | \
                         SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK | \
                         SetCredentials.CRED_UNLINK,
                   set_type=SetCredentials.ESET_OWN
@@ -90,7 +93,7 @@ class ProjectsTestCase(CremeTestCase):
         manager = Contact.objects.create(user=self.user, first_name='Gendo', last_name='Ikari')
         self.assertFalse(manager.can_link(self.user))
 
-        response = self.client.post('/projects/project/add', follow=True,
+        response = self.client.post(self.ADD_PROJECT_URL, follow=True,
                                     data={'user':         self.user.pk,
                                           'name':         'Eva00',
                                           'status':       ProjectStatus.objects.all()[0].id,
@@ -108,7 +111,7 @@ class ProjectsTestCase(CremeTestCase):
         self.login()
 
         manager = Contact.objects.create(user=self.user, first_name='Gendo', last_name='Ikari')
-        response = self.client.post('/projects/project/add', follow=True,
+        response = self.client.post(self.ADD_PROJECT_URL, follow=True,
                                     data={'user':         self.user.pk,
                                           'name':         'Eva00',
                                           'status':       ProjectStatus.objects.all()[0].id,
@@ -125,7 +128,7 @@ class ProjectsTestCase(CremeTestCase):
 
         self.create_project('Eva00')
         self.create_project('Eva01')
-        self.assertEqual(200, self.client.get('/projects/projects').status_code)
+        self.assertGET200('/projects/projects')
 
     def test_project_inner_edit01(self):
         self.login()
@@ -161,8 +164,8 @@ class ProjectsTestCase(CremeTestCase):
 
         project = self.create_project('Eva01')[0]
 
-        url = '/projects/project/%s/task/add' % project.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        url = self._build_add_ask_url(project)
+        self.assertGET200(url)
 
         response = self.client.post(url, follow=True,
                                     data={'user':               user.id,
@@ -175,7 +178,6 @@ class ProjectsTestCase(CremeTestCase):
                                           'busy':               True
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         tasks = ProjectTask.objects.filter(project=project)
@@ -197,7 +199,6 @@ class ProjectsTestCase(CremeTestCase):
                                           'participating_users':user.id
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         tasks = ProjectTask.objects.filter(project=project)
@@ -221,7 +222,7 @@ class ProjectsTestCase(CremeTestCase):
         project02 = self.create_project('Eva02')[0]
 
         task01 = self.create_task(project01, 'Title')
-        response = self.client.post('/projects/project/%s/task/add' % project02.id, #follow=True,
+        response = self.client.post(self._build_add_ask_url(project02), #follow=True,
                                     data={'user':         self.user.id,
                                           'title':        'head',
                                           'start':        '2010-10-11',
@@ -243,42 +244,41 @@ class ProjectsTestCase(CremeTestCase):
 
         project = self.create_project('Eva01')[0]
 
-        url = '/projects/project/%s/task/add' % project.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        url = self._build_add_ask_url(project)
+        self.assertGET200(url)
 
         response = self.client.post(url, follow=True,
-            data={'user':               user.id,
-                  'title':              'head',
-                  'start':              '2010-10-11 15:00',
-                  'end':                '2010-10-11 17:00',
-                  'duration':           50,
-                  'tstatus':            TaskStatus.objects.all()[0].id,
-                  'participating_users':user.id,
-                  'busy':               True
-            }
-        )
+                                    data={'user':               user.id,
+                                          'title':              'head',
+                                          'start':              '2010-10-11 15:00',
+                                          'end':                '2010-10-11 17:00',
+                                          'duration':           50,
+                                          'tstatus':            TaskStatus.objects.all()[0].id,
+                                          'participating_users':user.id,
+                                          'busy':               True,
+                                         }
+                                    )
         self.assertEqual(200, response.status_code)
 
         task2_start = get_dt_from_str('2010-10-11 16:59')
         task2_end = get_dt_from_str('2010-10-11 17:30')
         response = self.client.post(url, follow=True,
-            data={'user':               user.id,
-                  'title':              'torso',
-                  'start':              task2_start,
-                  'end':                task2_end,
-                  'duration':           180,
-                  'tstatus':            TaskStatus.objects.all()[0].id,
-                  'participating_users':user.id
-            }
-        )
+                                    data={'user':               user.id,
+                                          'title':              'torso',
+                                          'start':              task2_start,
+                                          'end':                task2_end,
+                                          'duration':           180,
+                                          'tstatus':            TaskStatus.objects.all()[0].id,
+                                          'participating_users':user.id
+                                         }
+                                   )
 
         tasks = ProjectTask.objects.filter(project=project)
         self.assertEqual(1, tasks.count())
         task1 = tasks[0]
 
         self.assertFormError(response, 'form', None,
-            [_(u'%(participant)s already participates to the activity «%(activity)s» between %(start)s and %(end)s.') %
-                {
+            [_(u'%(participant)s already participates to the activity «%(activity)s» between %(start)s and %(end)s.') % {
                     'participant': contact,
                     'activity':    task1,
                     'start':       max(task2_start.time(), task1.start.time()),
@@ -293,7 +293,7 @@ class ProjectsTestCase(CremeTestCase):
         project = self.create_project('Eva01')[0]
         task = self.create_task(project, 'Title')
         url = '/projects/task/edit/%s' % task.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         title = 'Head'
         duration = 55
@@ -316,13 +316,14 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(date(year=2011, month=5, day=16), task.start.date())
         self.assertEqual(date(year=2012, month=6, day=17), task.end.date())
 
-    def test_task_editview02(self): #popup
+    def test_task_editview02(self):
+        "Popup version"
         self.login()
 
         project = self.create_project('Eva01')[0]
         task = self.create_task(project, 'Title')
         url = '/projects/task/edit/%s/popup' % task.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         title = 'Head'
         duration = 55
@@ -351,15 +352,13 @@ class ProjectsTestCase(CremeTestCase):
         task02 = self.create_task(project, 'Parent02')
         task03 = self.create_task(project, 'Task')
 
-        url = '/projects/task/%s/parent/add' % task03.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        url = self.ADD_TASK_PARENT_URL % task03.id
+        self.assertGET200(url)
 
-        response = self.client.post(url, data={'parents': '%s,%s' % (task01.id, task02.id)})
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(url, data={'parents': '%s,%s' % (task01.id, task02.id)}))
         self.assertEqual(set([task01, task02]), set(task03.parent_tasks.all()))
 
-        response = self.client.post('/projects/task/parent/delete', data={'id': task03.id, 'parent_id': task01.id})
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200('/projects/task/parent/delete', data={'id': task03.id, 'parent_id': task01.id})
         self.assertEqual([task02], list(task03.parent_tasks.all()))
 
         #Error: already parent
@@ -377,7 +376,7 @@ class ProjectsTestCase(CremeTestCase):
         task01 = self.create_task(project01, 'Task01')
         task02 = self.create_task(project02, 'Task02')
 
-        response = self.client.post('/projects/task/%s/parent/add' % task02.id,
+        response = self.client.post(self.ADD_TASK_PARENT_URL % task02.id,
                                     data={'parents': task01.id}
                                    )
         self.assertFormError(response, 'form', 'parents',
@@ -394,20 +393,24 @@ class ProjectsTestCase(CremeTestCase):
 
         self.assertEqual([task01], list(task01.get_subtasks()))
 
-        self.assertNoFormError(self.client.post('/projects/task/%s/parent/add' % task02.id, data={'parents': task01.id}))
+        url = self.ADD_TASK_PARENT_URL
+        self.assertNoFormError(self.client.post(url % task02.id, data={'parents': task01.id}))
         self.assertEqual(set([task01, task02]), set(task01.get_subtasks()))
 
-        self.assertNoFormError(self.client.post('/projects/task/%s/parent/add' % task03.id, data={'parents': task02.id}))
+        self.assertNoFormError(self.client.post(url % task03.id, data={'parents': task02.id}))
         self.assertEqual(set([task01, task02, task03]), set(task01.get_subtasks()))
 
-        response = self.client.post('/projects/task/%s/parent/add' % task01.id, data={'parents': task03.id})
+        response = self.client.post(url % task01.id, data={'parents': task03.id})
         self.assertFormError(response, 'form', 'parents',
-                             [_(u'Select a valid choice. %(value)s is not an available choice.') % {'value': task03.id}]
+                             [_(u'Select a valid choice. %(value)s is not an available choice.') % {
+                                    'value': task03.id,
+                                 }
+                             ]
                             )
 
     def create_task(self, project, title, status=None):
         status = status or TaskStatus.objects.all()[0]
-        response = self.client.post('/projects/project/%s/task/add' % project.id, follow=True,
+        response = self.client.post(self._build_add_ask_url(project), follow=True,
                                     data={'user':     self.user.id,
                                           'title':    title,
                                           'start':    '2010-10-11',
@@ -416,7 +419,8 @@ class ProjectsTestCase(CremeTestCase):
                                           'tstatus':  status.id,
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
+        #self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
 
         return self.get_object_or_fail(ProjectTask, project=project, title=title)
 
@@ -435,7 +439,6 @@ class ProjectsTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         resources = list(task.resources_set.all())
         self.assertEqual(1, len(resources))
@@ -450,7 +453,6 @@ class ProjectsTestCase(CremeTestCase):
                                           'duration':   8,
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
         self.assertEqual(1, resource.workingperiod_set.count())
 
@@ -485,7 +487,7 @@ class ProjectsTestCase(CremeTestCase):
                                    )
 
         url = '/projects/resource/edit/%s' % resource.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         response = self.client.post(url, follow=True,
                                     data={'user':           self.user.id,
@@ -493,7 +495,6 @@ class ProjectsTestCase(CremeTestCase):
                                           'hourly_cost':    200,
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         resource = self.refresh(resource)
@@ -504,7 +505,7 @@ class ProjectsTestCase(CremeTestCase):
 
         wperiod = wperiods[0]
         url = '/projects/period/edit/%s' % wperiod.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         response = self.client.post(url, follow=True,
                                     data={'resource':   resource.id,
@@ -527,8 +528,8 @@ class ProjectsTestCase(CremeTestCase):
         self.assertIsNone(project.effective_end_date)
 
         url = '/projects/project/%s/close' % project.id
-        self.assertEqual(404, self.client.get(url).status_code)
-        self.assertEqual(200, self.client.post(url, follow=True).status_code)
+        self.assertGET404(url)
+        self.assertPOST200(url, follow=True)
 
         project = self.refresh(project)
         self.assertTrue(project.is_closed)

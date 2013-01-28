@@ -20,17 +20,19 @@ __all__ = ('TodoTestCase',)
 
 
 class TodoTestCase(AssistantsTestCase):
+    def _build_add_url(self, entity):
+        return '/assistants/todo/add/%s/' % entity.id
+
     def _create_todo(self, title='TITLE', description='DESCRIPTION', entity=None, user=None):
         entity = entity or self.entity
         user   = user or self.user
 
-        response = self.client.post('/assistants/todo/add/%s/' % entity.id,
+        response = self.client.post(self._build_add_url(entity),
                                     data={'user':        user.pk,
                                           'title':       title,
                                           'description': description,
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         return self.get_object_or_fail(ToDo, title=title, description=description)
@@ -38,13 +40,13 @@ class TodoTestCase(AssistantsTestCase):
     def test_create(self):
         self.assertFalse(ToDo.objects.exists())
 
-        response = self.client.get('/assistants/todo/add/%s/' % self.entity.id)
-        self.assertEqual(200, response.status_code)
+        entity = self.entity
+        self.assertGET200(self._build_add_url(entity))
 
         todo = self._create_todo('Title', 'Description')
         self.assertEqual(1, ToDo.objects.count())
-        self.assertEqual(self.entity.id,             todo.entity_id)
-        self.assertEqual(self.entity.entity_type_id, todo.entity_content_type_id)
+        self.assertEqual(entity.id,             todo.entity_id)
+        self.assertEqual(entity.entity_type_id, todo.entity_content_type_id)
         self.assertLess((datetime.now() - todo.creation_date).seconds, 10)
 
     def test_edit(self):
@@ -53,7 +55,7 @@ class TodoTestCase(AssistantsTestCase):
         todo = self._create_todo(title, description)
 
         url = '/assistants/todo/edit/%s/' % todo.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         title       += '_edited'
         description += '_edited'
@@ -62,14 +64,14 @@ class TodoTestCase(AssistantsTestCase):
                                                'description': description,
                                               }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         todo = self.refresh(todo)
         self.assertEqual(title,       todo.title)
         self.assertEqual(description, todo.description)
 
-    def test_delete01(self): #delete related entity
+    def test_delete01(self):
+        "Delete related entity"
         self._create_todo()
         self.assertEqual(1, ToDo.objects.count())
 
@@ -85,7 +87,7 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(302, response.status_code)
         self.assertEqual(0,   ToDo.objects.count())
 
-    def test_validate(self): #validate
+    def test_validate(self):
         todo = self._create_todo()
         self.assertFalse(todo.is_ok)
 

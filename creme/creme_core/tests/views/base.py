@@ -150,11 +150,11 @@ class CurrencyTestCase(ViewsTestCase):
         self.login()
 
     def test_portal(self):
-        self.assertEqual(200, self.client.get('/creme_config/creme_core/currency/portal/').status_code)
+        self.assertGET200('/creme_config/creme_core/currency/portal/')
 
     def test_create(self):
         url = '/creme_config/creme_core/currency/add/'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         name = 'Berry'
         local_symbol = 'B'
@@ -165,7 +165,6 @@ class CurrencyTestCase(ViewsTestCase):
                                           'international_symbol': international_symbol,
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         self.get_object_or_fail(Currency, name=name, local_symbol=local_symbol,
@@ -181,7 +180,7 @@ class CurrencyTestCase(ViewsTestCase):
                                           )
 
         url = '/creme_config/creme_core/currency/edit/%s' % currency.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         name = name.title()
         local_symbol = local_symbol.upper()
@@ -192,7 +191,6 @@ class CurrencyTestCase(ViewsTestCase):
                                           'international_symbol': international_symbol,
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         currency = self.refresh(currency)
@@ -205,8 +203,7 @@ class CurrencyTestCase(ViewsTestCase):
                                            international_symbol='BRY'
                                           )
 
-        response = self.client.post('/creme_config/creme_core/currency/delete',
-                                    data={'id': currency.id}
-                                   )
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200('/creme_config/creme_core/currency/delete',
+                           data={'id': currency.id}
+                          )
         self.assertFalse(Currency.objects.filter(pk=currency.pk).exists())
