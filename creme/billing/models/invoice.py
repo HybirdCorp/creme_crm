@@ -34,9 +34,9 @@ class Invoice(Base):
     status       = ForeignKey(InvoiceStatus, verbose_name=_(u'Status of invoice'), on_delete=PROTECT)
     payment_type = ForeignKey(SettlementTerms, verbose_name=_(u'Settlement terms'), blank=True, null=True)
 
-    research_fields = Base.research_fields + ['status__name']
-    excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr']
-    header_filter_exclude_fields = Base.header_filter_exclude_fields + ['base_ptr'] #TODO: use a set() ??
+    #research_fields = Base.research_fields + ['status__name']
+    #excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr']
+    #header_filter_exclude_fields = Base.header_filter_exclude_fields + ['base_ptr'] #todo: use a set() ??
 
     generate_number_in_create = False
 

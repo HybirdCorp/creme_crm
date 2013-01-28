@@ -34,7 +34,7 @@ from creme_core.models import RelationType
 from creme_core.utils.date_range import date_range_registry
 from creme_core.views.generic import (add_entity, edit_entity, view_entity,
                                       list_view, inner_popup, add_to_entity)
-from creme_core.utils.meta import get_model_field_infos, get_flds_with_fk_flds, get_related_field
+from creme_core.utils.meta import get_model_field_infos, ModelFieldEnumerator, get_related_field #get_flds_with_fk_flds
 from creme_core.utils import get_ct_or_404, get_from_POST_or_404, jsonify
 
 from reports.models import Report, Field
@@ -295,6 +295,7 @@ def csv(request, report_id):
     return csv_backend(report, extra_q_filter, user).render_to_response()
 
 #TODO: use @jsonify ?
+#TODO: factorise with forms.report.get_aggregate_fields
 @login_required
 #@permission_required('reports') ??
 def get_aggregate_fields(request):
@@ -308,7 +309,13 @@ def get_aggregate_fields(request):
     if aggregate_name:
         aggregate = field_aggregation_registry.get(aggregate_name)
         aggregate_pattern = aggregate.pattern
-        choices = [(u"%s" % (aggregate_pattern % f.name), unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if f.__class__ in authorized_fields]
+        #choices = [(u"%s" % (aggregate_pattern % f.name), unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if f.__class__ in authorized_fields]
+        choices = [(aggregate_pattern % f_name, f_vname)
+                        for f_name, f_vname in ModelFieldEnumerator(model, deep=0)
+                                                .filter((lambda f: isinstance(f, authorized_fields)), viewable=True)
+                                                .choices()
+                  ]
+
         choices.extend(get_aggregate_custom_fields(model, aggregate_pattern))
 
     return HttpResponse(JSONEncoder().encode(choices), mimetype="text/javascript")

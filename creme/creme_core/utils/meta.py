@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,9 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from functools import partial
+from itertools import chain
 
 from django.db import models
 from django.db.models import ForeignKey, ManyToManyField, Field, FieldDoesNotExist
@@ -106,88 +109,87 @@ def get_related_field(model, related_field_name):
         if related_field.var_name == related_field_name:
             return related_field
 
-#TODO: rename......
-def get_flds_with_fk_flds(model_klass, deep=1):
-    if not isinstance(model_klass, ModelBase):
-        raise NotDjangoModel('%s is not an instance of %s' % (model_klass, ModelBase))
+##todo: rename......
+#def get_flds_with_fk_flds(model_klass, deep=1):
+    #if not isinstance(model_klass, ModelBase):
+        #raise NotDjangoModel('%s is not an instance of %s' % (model_klass, ModelBase))
 
-    flds = []
+    #flds = []
 
-    #TODO: exclude_fields = getattr(model_klass, 'extra_filter_exclude_fields', []) instead....
-    has_attr = hasattr(model_klass, 'extra_filter_exclude_fields')
+    ##todo: exclude_fields = getattr(model_klass, 'extra_filter_exclude_fields', []) instead....
+    #has_attr = hasattr(model_klass, 'extra_filter_exclude_fields')
 
-    for field in model_klass._meta.fields + model_klass._meta.many_to_many:
-        if has_attr and field.name in model_klass.extra_filter_exclude_fields:
-            continue
+    #for field in model_klass._meta.fields + model_klass._meta.many_to_many:
+        #if has_attr and field.name in model_klass.extra_filter_exclude_fields:
+            #continue
 
-        if deep and field.get_internal_type() == 'ForeignKey':
-            if deep == 1:
-                flds += field.rel.to._meta.fields
-            else: #deep > 1
-                flds += get_flds_with_fk_flds(field.rel.to, deep - 1)
-        else:
-            flds.append(field)
+        #if deep and field.get_internal_type() == 'ForeignKey':
+            #if deep == 1:
+                #flds += field.rel.to._meta.fields
+            #else: #deep > 1
+                #flds += get_flds_with_fk_flds(field.rel.to, deep - 1)
+        #else:
+            #flds.append(field)
 
-    #TODO: use a getattr( , , []) + extend() + generator expression == one line :)
-    if hasattr(model_klass, 'extra_filter_fields'):
-        for field in model_klass.extra_filter_fields:
-            flds.append(Field(name=field['name'], verbose_name=field['verbose_name']))
+    ##todo: use a getattr( , , []) + extend() + generator expression == one line :)
+    ##if hasattr(model_klass, 'extra_filter_fields'):
+        ##for field in model_klass.extra_filter_fields:
+            ##flds.append(Field(name=field['name'], verbose_name=field['verbose_name']))
 
-    return flds
+    #return flds
 
+##todo: factorise with get_flds_with_fk_flds ?? (visitor ??)
+##todo: strange usage of unicode() ??? '%s' % unicode(foobar), unicode('%s' % foobar)
+#def get_flds_with_fk_flds_str(model_klass, deep=1, prefix=None, exclude_func=None):
+    #"""
+        #@Return a list of tuple which are ('field_name','field_verbose_name')
+            #or ('field_name__subfield_name','field_verbose_name - subfield_verbose_name') for a ForeignKey
+    #"""
+    #fields = []
 
-#TODO: factorise with get_flds_with_fk_flds ?? (visitor ??)
-#TODO: strange usage of unicode() ??? '%s' % unicode(foobar), unicode('%s' % foobar)
-def get_flds_with_fk_flds_str(model_klass, deep=1, prefix=None, exclude_func=None):
-    """
-        @Return a list of tuple which are ('field_name','field_verbose_name')
-            or ('field_name__subfield_name','field_verbose_name - subfield_verbose_name') for a ForeignKey
-    """
-    fields = []
+    #for field in model_klass._meta.fields + model_klass._meta.many_to_many:
+        #if field.name in model_klass.header_filter_exclude_fields:
+            #continue
 
-    for field in model_klass._meta.fields + model_klass._meta.many_to_many:
-        if field.name in model_klass.header_filter_exclude_fields:
-            continue
+        #if exclude_func is not None and exclude_func(field):
+            #continue
 
-        if exclude_func is not None and exclude_func(field):
-            continue
+        #if deep and field.get_internal_type() in ('ForeignKey', 'ManyToManyField'):
+            #if deep == 1:
+##                fields.extend((
+##                                '%s__%s' % (unicode(field.name), unicode(sub_field.name)),
+##                                '%s - %s' % (unicode(field.verbose_name).capitalize(), unicode(sub_field.verbose_name).capitalize())
+##                              ) for sub_field in field.rel.to._meta.fields if exclude_func is not None and not exclude_func(sub_field) and not (sub_field.get_internal_type() == 'ForeignKey' or sub_field.get_internal_type() == 'ManyToManyField'))
 
-        if deep and field.get_internal_type() in ('ForeignKey', 'ManyToManyField'):
-            if deep == 1:
-#                fields.extend((
-#                                '%s__%s' % (unicode(field.name), unicode(sub_field.name)),
-#                                '%s - %s' % (unicode(field.verbose_name).capitalize(), unicode(sub_field.verbose_name).capitalize())
-#                              ) for sub_field in field.rel.to._meta.fields if exclude_func is not None and not exclude_func(sub_field) and not (sub_field.get_internal_type() == 'ForeignKey' or sub_field.get_internal_type() == 'ManyToManyField'))
+                #fields_append = fields.append
+                #for sub_field in field.rel.to._meta.fields:
+                    #if exclude_func is not None and exclude_func(sub_field):
+                        #continue
 
-                fields_append = fields.append
-                for sub_field in field.rel.to._meta.fields:
-                    if exclude_func is not None and exclude_func(sub_field):
-                        continue
+                    #if  sub_field.get_internal_type() in ('ForeignKey', 'ManyToManyField'):
+                        #continue
 
-                    if  sub_field.get_internal_type() in ('ForeignKey', 'ManyToManyField'):
-                        continue
+                    #if hasattr(field.rel.to, 'header_filter_exclude_fields') and sub_field.name in field.rel.to.header_filter_exclude_fields:
+                        #continue
 
-                    if hasattr(field.rel.to, 'header_filter_exclude_fields') and sub_field.name in field.rel.to.header_filter_exclude_fields:
-                        continue
+                    #fields_append((
+                                    #'%s__%s' % (unicode(field.name), unicode(sub_field.name)),
+                                    #'%s - %s' % (unicode(field.verbose_name).capitalize(), unicode(sub_field.verbose_name).capitalize())
+                                  #))
 
-                    fields_append((
-                                    '%s__%s' % (unicode(field.name), unicode(sub_field.name)),
-                                    '%s - %s' % (unicode(field.verbose_name).capitalize(), unicode(sub_field.verbose_name).capitalize())
-                                  ))
+            #else: #deep > 1:
+                #fields += get_flds_with_fk_flds_str(field.rel.to, deep - 1,
+                                                    #prefix={'name': '%s' % unicode(field.name), 'verbose_name': '%s' % unicode(field.verbose_name).capitalize()},
+                                                    #exclude_func=exclude_func)
+        #elif prefix:
+            #fields.append((
+                            #'%s__%s' % (prefix['name'], unicode(field.name)),
+                            #'%s - %s' % (prefix['verbose_name'], unicode(field.verbose_name).capitalize())
+                         #))
+        #else:
+            #fields.append((unicode(field.name), unicode('%s - %s' % (model_klass._meta.verbose_name.capitalize(), unicode(field.verbose_name).capitalize()))))
 
-            else: #deep > 1:
-                fields += get_flds_with_fk_flds_str(field.rel.to, deep - 1,
-                                                    prefix={'name': '%s' % unicode(field.name), 'verbose_name': '%s' % unicode(field.verbose_name).capitalize()},
-                                                    exclude_func=exclude_func)
-        elif prefix:
-            fields.append((
-                            '%s__%s' % (prefix['name'], unicode(field.name)),
-                            '%s - %s' % (prefix['verbose_name'], unicode(field.verbose_name).capitalize())
-                         ))
-        else:
-            fields.append((unicode(field.name), unicode('%s - %s' % (model_klass._meta.verbose_name.capitalize(), unicode(field.verbose_name).capitalize()))))
-
-    return fields
+    #return fields
 
 
 def _get_entity_column(entity, column_name, field_class):
@@ -282,3 +284,97 @@ def is_date_field(field):
 def get_date_fields(model, exclude_func=lambda f: False):
     return [field for field in model._meta.fields if is_date_field(field) and not exclude_func(field)]
 
+
+
+class _FilterModelFieldQuery(object):
+    _TAGS = ('viewable', 'clonable') #TODO: use a constants in fields_tags ??
+
+    def __init__(self, function=None, **kwargs):
+        self._conditions = conditions = []
+
+        if function:
+            conditions.append(function)
+
+        for attr_name, value in kwargs.iteritems():
+            fun = (lambda field, attr_name, value: field.get_tag(attr_name) == value) if attr_name in self._TAGS else \
+                  (lambda field, attr_name, value: getattr(field, attr_name) == value)
+
+            conditions.append(partial(fun, attr_name=attr_name, value=value))
+
+    def __call__(self, field):
+        return all(cond(field) for cond in self._conditions)
+
+
+class _ExcludeModelFieldQuery(_FilterModelFieldQuery):
+    def __call__(self, field):
+        return not any(cond(field) for cond in self._conditions)
+
+
+class ModelFieldEnumerator(object):
+    def __init__(self, model, deep=0, only_leafs=True):
+        """Constructor.
+        @param model DjangoModel class.
+        @param deep Deep of the returned fields (0=fields of the class, 1=also
+                    the fields of directly related classes, etc...).
+        @param only_leafs If True, FK,M2M fields are not returned (but eventually,
+                          their sub-fields, depending of the 'deep' paramater of course).
+        """
+        self._model = model
+        self._deep = deep
+        self._only_leafs = only_leafs
+        self._fields = None
+        self._ffilters = []
+
+    def __iter__(self):
+        if self._fields is None:
+            self._fields = self._build_fields([], self._model, (), self._deep)
+
+        return iter(self._fields)
+
+    def _build_fields(self, fields_info, model, parents_fields, deep):
+        ffilters = self._ffilters
+        include_fk = not self._only_leafs
+        deeper_fields_args = []
+        meta = model._meta
+
+        for field in chain(meta.fields, meta.many_to_many):
+            if all(ffilter(field) for ffilter in ffilters):
+                field_info = parents_fields + (field,)
+
+                if field.get_internal_type() in ('ForeignKey', 'ManyToManyField'):
+                    if deep:
+                        if include_fk:
+                            fields_info.append(field_info)
+                        deeper_fields_args.append((field.rel.to, field_info))
+                    elif include_fk:
+                        fields_info.append(field_info)
+                else:
+                    fields_info.append(field_info)
+
+        # Fields of related model are displayed at the end
+        for sub_model, field_info in deeper_fields_args:
+            self._build_fields(fields_info, sub_model, field_info, deep - 1)
+
+        return fields_info
+
+    def filter(self, function=None, **kwargs):
+        """@param kwargs Keywords can be a true field attribute name, or a creme tag.
+        Eg: ModelFieldEnumerator(Contact).filter(editable=True, viewable=True)
+        """
+        self._ffilters.append(_FilterModelFieldQuery(function, **kwargs))
+        return self
+
+    def exclude(self, function=None, **kwargs):
+        """See ModelFieldEnumerator.filter()"""
+        self._ffilters.append(_ExcludeModelFieldQuery(function, **kwargs))
+        return self
+
+    def choices(self):
+        """@return A list of tuple (field_name, field_verbose_name)."""
+        return [('__'.join(field.name for field in fields_info),
+                 ' - '.join(chain((u'[%s]' % field.verbose_name for field in fields_info[:-1]),
+                                  [unicode(fields_info[-1].verbose_name)]
+                                 )
+                           )
+                ) for fields_info in self
+               ]

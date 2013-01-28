@@ -40,8 +40,8 @@ class ProjectTask(Activity):
     duration     = PositiveIntegerField(_(u'Estimated duration (in hours)'), blank=False, null=False)
     tstatus      = ForeignKey(TaskStatus, verbose_name=_(u'Status'), on_delete=PROTECT)
 
-    header_filter_exclude_fields = Activity.header_filter_exclude_fields + ['activity_ptr'] #TODO: use a set() ??
-    excluded_fields_in_html_output = Activity.excluded_fields_in_html_output + ['status']
+    #header_filter_exclude_fields = Activity.header_filter_exclude_fields + ['activity_ptr'] #todo: use a set() ??
+    #excluded_fields_in_html_output = Activity.excluded_fields_in_html_output + ['status']
 
     effective_duration = None
     resources          = None

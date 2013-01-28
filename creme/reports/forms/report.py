@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,8 +35,8 @@ from creme_core.forms.fields import AjaxMultipleChoiceField, AjaxModelChoiceFiel
 #from creme_core.models import Filter, RelationType, CustomField
 from creme_core.models import EntityFilter, RelationType, CustomField
 from creme_core.models.header_filter import HeaderFilter, HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION, HFI_CALCULATED, HFI_RELATED
-from creme_core.utils.meta import (get_verbose_field_name, get_function_field_verbose_name, get_flds_with_fk_flds_str, get_flds_with_fk_flds,
-                                   get_date_fields, get_related_field_verbose_name)
+from creme_core.utils.meta import (get_verbose_field_name, get_function_field_verbose_name, ModelFieldEnumerator,
+                                   get_date_fields, get_related_field_verbose_name) #get_flds_with_fk_flds get_flds_with_fk_flds_str
 
 from reports.models import Report, Field
 from reports.report_aggregation_registry import field_aggregation_registry
@@ -133,7 +133,7 @@ def get_hfi_calculated(columns_get, calculated_column, aggregate, model, order):
         f = save_hfi_calculated(calculated_column, title, order)
     return f
 
-def get_aggregate_custom_fields(model, aggregate_pattern):
+def get_aggregate_custom_fields(model, aggregate_pattern): #TODO: generator expression...
     return [(u"cf__%s__%s" % (cf.field_type, aggregate_pattern % cf.id), cf.name)
             for cf in CustomField.objects.filter(content_type=ContentType.objects.get_for_model(model),
                                                  field_type__in=[CustomField.INT, CustomField.FLOAT])
@@ -147,7 +147,12 @@ def get_aggregate_fields(fields, model, initial_data=None):
         aggregate_title = aggregate.title
         aggregate_pattern = aggregate.pattern
 
-        choices = [(u"%s" % (aggregate_pattern % f.name), unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if f.__class__ in authorized_fields]
+        #choices = [(u"%s" % (aggregate_pattern % f.name), unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if f.__class__ in authorized_fields]
+        choices = [(aggregate_pattern % f_name, f_vname)
+                        for f_name, f_vname in ModelFieldEnumerator(model, deep=0)
+                                                .filter((lambda f: isinstance(f, authorized_fields)), viewable=True)
+                                                .choices()
+                  ]
 
 #        cfs = CustomField.objects.filter(content_type=ContentType.objects.get_for_model(model), field_type__in=[CustomField.INT,CustomField.FLOAT])
 #        for cf in cfs:
@@ -343,7 +348,8 @@ class AddFieldToReportForm(CremeForm):
 
         fields = self.fields
 
-        fields['columns'].choices        = get_flds_with_fk_flds_str(model, 1)
+        #fields['columns'].choices        = get_flds_with_fk_flds_str(model, 1)
+        fields['columns'].choices        = ModelFieldEnumerator(model, deep=1).filter(viewable=True).choices()
         fields['related_fields'].choices = Report.get_related_fields_choices(model)
         fields['custom_fields'].choices  = [(cf.name, cf.name) for cf in CustomField.objects.filter(content_type=ct)]
         fields['relations'].choices      = [(r.id, r.predicate) for r in RelationType.objects.filter(Q(subject_ctypes=ct)|Q(subject_ctypes__isnull=True)).order_by('predicate')]

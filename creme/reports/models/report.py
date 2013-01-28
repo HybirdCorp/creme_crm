@@ -512,7 +512,7 @@ class Report(CremeEntity):
 
     @staticmethod
     def get_related_fields_choices(model):
-        allowed_related_fields = model.allowed_related
+        allowed_related_fields = model.allowed_related #TODO: can we just use the regular introspection (+ field tags ?) instead
         related_fields = chain(model._meta.get_all_related_objects(), model._meta.get_all_related_many_to_many_objects())
 
         return [(related_field.var_name, unicode(related_field.model._meta.verbose_name))

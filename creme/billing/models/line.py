@@ -73,10 +73,10 @@ class Line(CremeEntity):
     discount_unit   = PositiveIntegerField(_(u'Discount Unit'), blank=True, null=True, choices=DISCOUNT_UNIT.items(), default=PERCENT_PK)
     total_discount  = BooleanField(_('Total discount ?'))
     vat_value       = ForeignKey(Vat, verbose_name=_(u'VAT'), blank=True, null=True, on_delete=PROTECT) #TODO null=False
-    type            = IntegerField(_(u'Type'), blank=False, null=False, choices=LINE_TYPES.items(), editable=False)
+    type            = IntegerField(_(u'Type'), blank=False, null=False, choices=LINE_TYPES.items(), editable=False).set_tags(viewable=False)
 
-    excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['type']
-    header_filter_exclude_fields   = CremeEntity.header_filter_exclude_fields + ['type']
+    #excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['type']
+    #header_filter_exclude_fields   = CremeEntity.header_filter_exclude_fields + ['type']
     function_fields = CremeEntity.function_fields.new(_LineTypeField())
 
     _related_document = None

@@ -34,7 +34,6 @@ class EntityViewsTestCase(ViewsTestCase):
         self.login()
 
         url = '/creme_core/entity/get_fields'
-
         ct_id = ContentType.objects.get_for_model(CremeEntity).id
         response = self.client.post(url, data={'ct_id': ct_id})
         self.assertEqual(200,               response.status_code)
@@ -43,13 +42,16 @@ class EntityViewsTestCase(ViewsTestCase):
         content = simplejson.loads(response.content)
         self.assertIsInstance(content, list)
         self.assertEqual(7, len(content))
-        self.assertEqual(content[0],    ["created",          "Creme entity - " + _('Creation date')])
-        self.assertEqual(content[1],    ["modified",         "Creme entity - " + _("Last modification")])
-        self.assertEqual(content[2],    ["user__username",   _("User") + " - " + _("Username")])
-        self.assertEqual(content[3],    ["user__first_name", _("User") + " - " + _("First name")])
-        self.assertEqual(content[4],    ["user__last_name",  _("User") + " - " + _("Last name")])
-        self.assertEqual(content[5][0], "user__email")
-        self.assertEqual(content[6][0], "user__is_team")
+
+        fmt = u'[%s] - %s'
+        user_str = _('User')
+        self.assertEqual(content[0],    ['created',          _('Creation date')])
+        self.assertEqual(content[1],    ['modified',         _('Last modification')])
+        self.assertEqual(content[2],    ['user__username',   fmt % (user_str, _('username'))]) #TODO: hook user to set 'Username' ??
+        self.assertEqual(content[3],    ['user__first_name', fmt % (user_str, _('first name'))]) #TODO: idem
+        self.assertEqual(content[4][0], 'user__last_name')
+        self.assertEqual(content[5][0], 'user__email')
+        self.assertEqual(content[6][0], 'user__is_team')
 
         response = self.client.post(url, data={'ct_id': 0})
         self.assertEqual(404,               response.status_code)

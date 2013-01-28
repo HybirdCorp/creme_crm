@@ -30,7 +30,7 @@ from django.contrib.auth.models import User
 
 from creme_core.models import RelationType, CremeEntity, CustomField
 from creme_core.models.fields import CremeUserForeignKey
-from creme_core.utils.meta import get_model_field_infos #get_flds_with_fk_flds_str
+from creme_core.utils.meta import get_model_field_infos
 from creme_core.utils.id_generator import generate_string_id_and_save
 
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,7 @@ from creme_core.models.fields import CreationDateTimeField, ModificationDateTime
 
 
 class CremeModel(Model):
-    header_filter_exclude_fields = ['id', 'pk']
+    #header_filter_exclude_fields = ['id', 'pk']
     _delete_files = True #Delegate the deletion of the file on system when a model has one or more FileField subclasses
 
     class Meta:
@@ -83,25 +83,25 @@ class CremeModel(Model):
 
 
 class CremeAbstractEntity(CremeModel):
-    created  = CreationDateTimeField(_('Creation date'), editable=False)
-    modified = ModificationDateTimeField(_('Last modification'), editable=False)
+    created  = CreationDateTimeField(_('Creation date'), editable=False).set_tags(clonable=False)
+    modified = ModificationDateTimeField(_('Last modification'), editable=False).set_tags(clonable=False)
 
-    entity_type = ForeignKey(ContentType, editable=False)
-    header_filter_search_field = CharField(max_length=200, editable=False)
+    entity_type = ForeignKey(ContentType, editable=False).set_tags(viewable=False)
+    header_filter_search_field = CharField(max_length=200, editable=False).set_tags(viewable=False)
 
-    is_deleted = BooleanField(blank=True, default=False, editable=False)
-    is_actived = BooleanField(blank=True, default=False, editable=False)
+    is_deleted = BooleanField(blank=True, default=False, editable=False).set_tags(viewable=False)
+    is_actived = BooleanField(blank=True, default=False, editable=False).set_tags(viewable=False)
     user       = CremeUserForeignKey(verbose_name=_(u"User"))
 
     _real_entity = None
 
-    research_fields = []
+    #research_fields = []
     function_fields = FunctionFieldsManager()
 
-    excluded_fields_in_html_output = ['id', 'cremeentity_ptr' , 'entity_type', 'header_filter_search_field', 'is_deleted', 'is_actived'] #use a set
-    header_filter_exclude_fields = CremeModel.header_filter_exclude_fields + ['password', 'is_superuser', 'is_active', 'is_staff']
-    extra_filter_fields = [] #=> Usage: [{'name':'', 'verbose_name':''},...]
-    extra_filter_exclude_fields = ['id']
+    #excluded_fields_in_html_output = ['id', 'cremeentity_ptr' , 'entity_type', 'header_filter_search_field', 'is_deleted', 'is_actived'] #use a set
+    #header_filter_exclude_fields = CremeModel.header_filter_exclude_fields + ['password', 'is_superuser', 'is_active', 'is_staff']
+    #extra_filter_fields = [] #=> Usage: [{'name':'', 'verbose_name':''},...]
+    #extra_filter_exclude_fields = ['id']
 
     class Meta:
         app_label = 'creme_core'

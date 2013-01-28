@@ -49,14 +49,14 @@ class Contact(CremeEntity):
     email           = EmailField(_(u'Email address'), max_length=100, blank=True, null=True)
     url_site        = URLField(_(u'Web Site'), max_length=100, blank=True, null=True, verify_exists=False)
     language        = ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'), blank=True, null=True, editable=False) #TODO: remove this field
-    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'), blank=True, null=True, related_name='billing_address_contact_set', editable=False)
+    billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'), blank=True, null=True, related_name='billing_address_contact_set', editable=False) #.set_tags(clonable=False) useless
     shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'), blank=True, null=True, related_name='shipping_address_contact_set', editable=False)
-    is_user         = ForeignKey(User, verbose_name=_(u'Is an user'), blank=True, null=True, related_name='related_contact', on_delete=SET_NULL, editable=False)
+    is_user         = ForeignKey(User, verbose_name=_(u'Is an user'), blank=True, null=True, related_name='related_contact', on_delete=SET_NULL, editable=False).set_tags(clonable=False)
     birthday        = DateField(_(u"Birthday"), blank=True, null=True)
     image           = ForeignKey(Image, verbose_name=_(u'Photograph'), blank=True, null=True, on_delete=SET_NULL)
 
-    research_fields = CremeEntity.research_fields + ['last_name', 'first_name', 'email']
-    _clone_excluded_fields = CremeEntity._clone_excluded_fields | set(['is_user', 'billing_address', 'shipping_address'])
+    #research_fields = CremeEntity.research_fields + ['last_name', 'first_name', 'email']
+    #_clone_excluded_fields = CremeEntity._clone_excluded_fields | set(['is_user', 'billing_address', 'shipping_address'])
 
     class Meta:
         app_label = "persons"

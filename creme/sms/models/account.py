@@ -32,7 +32,7 @@ class SMSAccount(CremeModel):
     credit    = IntegerField(_(u'Credit'), null=True)
     groupname = CharField(_(u'Group'), max_length=200, null=True)
 
-    excluded_fields_in_html_output = ['id']
+    #excluded_fields_in_html_output = ['id']
 
     class Meta:
         app_label = "sms"

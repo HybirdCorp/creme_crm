@@ -34,7 +34,7 @@ class Document(CremeEntity):
     filedata    = FileField(_(u'File'), max_length=500, upload_to='upload/documents')
     folder      = ForeignKey(Folder, verbose_name=_(u'Folder'), on_delete=PROTECT) #TODO: required ??
 
-    research_fields = CremeEntity.research_fields + ['title', 'description', 'folder__title']
+    #research_fields = CremeEntity.research_fields + ['title', 'description', 'folder__title']
 
     class Meta:
         app_label = 'documents'

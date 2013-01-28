@@ -26,11 +26,11 @@ from django.contrib.contenttypes.models import ContentType
 from creme_core.forms import CremeModelForm, CremeForm
 from creme_core.forms.widgets import OrderedMultipleChoiceWidget
 from creme_core.registry import creme_registry
-from creme_core.utils.meta import get_flds_with_fk_flds_str
+#from creme_core.utils.meta import get_flds_with_fk_flds_str
 from creme_core.models import SearchConfigItem, SearchField
 
 
-EXCLUDED_FIELDS_TYPES = frozenset(['AutoField', 'DateTimeField', 'DateField', 'FileField', 'ImageField', 'OneToOneField'])
+#EXCLUDED_FIELDS_TYPES = frozenset(['AutoField', 'DateTimeField', 'DateField', 'FileField', 'ImageField', 'OneToOneField'])
 
 class SearchAddForm(CremeModelForm):
     ct_id  = ChoiceField(label=_(u'Related resource'), choices=(), required=True) #TODO: ContentTypeChoiceField
@@ -69,11 +69,13 @@ class SearchEditForm(CremeForm):
         self.search_cfg_itm = search_cfg_itm = kwargs.pop('instance')
         super(SearchEditForm, self).__init__(*args, **kwargs)
 
-        target_model = search_cfg_itm.content_type.model_class()
+        #target_model = search_cfg_itm.content_type.model_class()
 
         #For the moment the research is only done with icontains so we avoid so field's type
-        model_fields = get_flds_with_fk_flds_str(target_model, 1, exclude_func=lambda f: f.get_internal_type() in EXCLUDED_FIELDS_TYPES)
-        self._model_fields = dict((f_name, f_verbose_name) for f_name, f_verbose_name in model_fields)
+        #model_fields = get_flds_with_fk_flds_str(target_model, 1, exclude_func=lambda f: f.get_internal_type() in EXCLUDED_FIELDS_TYPES)
+        #self._model_fields = dict((f_name, f_verbose_name) for f_name, f_verbose_name in model_fields)
+        model_fields = search_cfg_itm.get_modelfields_choices()
+        self._model_fields = dict(model_fields)
 
         fields_f = self.fields['fields']
         fields_f.choices = model_fields

@@ -32,8 +32,8 @@ from creme_core.buttons import merge_entities_button
 User._meta.ordering = ('username',)
 
 #Those fields haven't to be accessible to users from IHM
-#TODO: currently the restriction is applied only in list_view via header filters, so extend to all the app ?
-User.header_filter_exclude_fields = ['id', 'pk', 'password', 'is_active', 'is_superuser', 'is_staff', 'last_login', 'date_joined']
+#todo: currently the restriction is applied only in list_view via header filters, so extend to all the app ?
+#User.header_filter_exclude_fields = ['id', 'pk', 'password', 'is_active', 'is_superuser', 'is_staff', 'last_login', 'date_joined']
 
 ContentType.__unicode__ = lambda self: ugettext(self.name)
 

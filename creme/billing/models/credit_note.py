@@ -28,9 +28,9 @@ from other_models import CreditNoteStatus
 class CreditNote(Base):
     status = ForeignKey(CreditNoteStatus, verbose_name=_(u"Status of credit note"), on_delete=PROTECT)
 
-    research_fields = Base.research_fields + ['status__name']
-    excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr']
-    header_filter_exclude_fields = Base.header_filter_exclude_fields + ['base_ptr'] #TODO: use a set() ??
+    #research_fields = Base.research_fields + ['status__name']
+    #excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr']
+    #header_filter_exclude_fields = Base.header_filter_exclude_fields + ['base_ptr'] #todo: use a set() ??
 
     def get_absolute_url(self):
         return "/billing/credit_note/%s" % self.id

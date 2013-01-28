@@ -24,9 +24,8 @@ from line import Line, SERVICE_LINE_TYPE
 
 
 class ServiceLine(Line):
-
-    excluded_fields_in_html_output = Line.excluded_fields_in_html_output + ['line_ptr']
-    header_filter_exclude_fields = Line.header_filter_exclude_fields + ['line_ptr'] #TODO: use a set() ??
+    #excluded_fields_in_html_output = Line.excluded_fields_in_html_output + ['line_ptr']
+    #header_filter_exclude_fields = Line.header_filter_exclude_fields + ['line_ptr'] #todo: use a set() ??
 
     def __init__(self, *args, **kwargs):
         super(ServiceLine, self).__init__(*args, **kwargs)

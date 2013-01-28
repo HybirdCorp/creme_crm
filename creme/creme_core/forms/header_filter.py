@@ -33,7 +33,7 @@ from creme_core.models import RelationType, CustomField
 from creme_core.forms import CremeModelForm
 from creme_core.forms.widgets import OrderedMultipleChoiceWidget
 from creme_core.gui.listview import get_field_name_from_pattern
-from creme_core.utils.meta import get_flds_with_fk_flds_str
+from creme_core.utils.meta import ModelFieldEnumerator #get_flds_with_fk_flds_str
 from creme_core.utils.id_generator import generate_string_id_and_save
 
 
@@ -65,8 +65,9 @@ class HeaderFilterForm(CremeModelForm):
         self._relation_types = RelationType.objects.filter(Q(subject_ctypes=ct)|Q(subject_ctypes__isnull=True)).order_by('predicate')
         self._custom_fields  = CustomField.objects.filter(content_type=ct)
 
-        fields_choices = set(chain(get_flds_with_fk_flds_str(model, 1), get_flds_with_fk_flds_str(model, 0)))
-        fields_choices = sorted(fields_choices, key=lambda k: ugettext(k[1]))
+        #fields_choices = set(chain(get_flds_with_fk_flds_str(model, 1), get_flds_with_fk_flds_str(model, 0)))
+        #fields_choices = sorted(fields_choices, key=lambda k: ugettext(k[1]))
+        fields_choices = ModelFieldEnumerator(model, deep=1, only_leafs=False).filter(viewable=True).choices()
 
         fields['fields'].choices = fields_choices
         fields['custom_fields'].choices = [(cf.id, cf.name) for cf in self._custom_fields]
