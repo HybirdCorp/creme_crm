@@ -623,14 +623,14 @@ class BlocksManagerTestCase(CremeTestCase):
             verbose_name  = u'Testing purpose'
 
         class FoobarBlock1(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__test_manage01_1')
+            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage01_1')
 
         class FoobarBlock2(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__test_manage01_2')
+            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage01_2')
             dependencies = (Contact,)
 
         class FoobarBlock3(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__test_manage01_3')
+            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage01_3')
             dependencies = (Organisation,)
 
         class FoobarBlock4(TestBlock):
@@ -664,18 +664,18 @@ class BlocksManagerTestCase(CremeTestCase):
             verbose_name  = u'Testing purpose'
 
         class FoobarBlock1(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__test_manage02_1')
+            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage02_1')
 
         class FoobarBlock2(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__test_manage02_2')
+            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage02_2')
             dependencies = (Contact,)
 
         class FoobarBlock3(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__test_manage02_3')
+            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage02_3')
             dependencies = (Organisation,)
 
         class FoobarBlock4(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__test_manage02_4')
+            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage02_4')
             dependencies = (Contact, Organisation)
 
         block1 = FoobarBlock1()
@@ -700,7 +700,8 @@ class BlocksManagerTestCase(CremeTestCase):
                              mngr.get_dependencies_map()
                             )
 
-    def test_manage03(self): #relation blocks
+    def test_manage03(self):
+        "Relation blocks"
         rtype1_pk = 'test-subject_loves'
         rtype1, srtype1 = RelationType.create((rtype1_pk, 'loves'), ('test-object_loved',  'is loved by'))
 
@@ -711,25 +712,25 @@ class BlocksManagerTestCase(CremeTestCase):
             verbose_name  = u'Testing purpose'
 
         class FoobarBlock1(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__test_manage03_1')
+            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage03_1')
 
         class FoobarBlock2(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__test_manage03_2')
+            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage03_2')
             dependencies = (Contact,)
 
         class FoobarBlock3(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__test_manage03_3')
+            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage03_3')
             dependencies = (Relation,)
 
         self.assertEqual((), FoobarBlock3.relation_type_deps)
 
         class FoobarBlock4(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__test_manage03_4')
+            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage03_4')
             dependencies = (Relation,)
             relation_type_deps = (rtype1_pk,)
 
         class FoobarBlock5(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__test_manage03_5')
+            id_ = TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage03_5')
             dependencies = (Relation,)
             relation_type_deps = (rtype1_pk, rtype2_pk)
 
@@ -740,18 +741,18 @@ class BlocksManagerTestCase(CremeTestCase):
 
         block1 = FoobarBlock1(); block2 = FoobarBlock2()
         block3 = FoobarBlock3(); block4 = FoobarBlock4(); block5 = FoobarBlock5()
-        block6 = FoobarBlock6(id_=TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__test_manage03_6'),
+        block6 = FoobarBlock6(id_=TestBlock.generate_id('creme_core', 'BlocksManagerTestCase__manage03_6'),
                               relation_type_id=rtype2_pk
                              )
 
         mngr = BlocksManager()
         mngr.add_group('gname1', block1, block2, block3)
         mngr.add_group('gname2', block4, block5, block6)
-        self.assertEqual(set([rtype1_pk, rtype2_pk]), mngr.get_used_relationtypes_ids())
+        self.assertEqual(set([rtype1_pk, rtype2_pk]), mngr.used_relationtypes_ids)
 
-        self.assertDictEqual({block1.id_: set([]),
-                              block2.id_: set([]),
-                              block3.id_: set([]),
+        self.assertDictEqual({block1.id_: set(),
+                              block2.id_: set(),
+                              block3.id_: set(),
                               block4.id_: set([block5.id_]),
                               block5.id_: set([block4.id_, block6.id_]),
                               block6.id_: set([block5.id_]),
@@ -760,8 +761,80 @@ class BlocksManagerTestCase(CremeTestCase):
                             )
 
         rtypes_ids = [srtype1.id, srtype2.id]
-        mngr.set_used_relationtypes_ids(rtypes_ids)
-        self.assertEqual(set(rtypes_ids), mngr.get_used_relationtypes_ids())
+        mngr.used_relationtypes_ids = rtypes_ids
+        self.assertEqual(set(rtypes_ids), mngr.used_relationtypes_ids)
+
+    def test_wildcard01(self):
+        "Wilcard dependencies, read-only"
+        class FoobarBlock1(SimpleBlock):
+            id_ = SimpleBlock.generate_id('creme_core', 'BlocksManagerTestCase__wildcard01_1')
+
+        class FoobarBlock2(SimpleBlock):
+            id_ = SimpleBlock.generate_id('creme_core', 'BlocksManagerTestCase__wildcard01_2')
+            dependencies = (Contact,)
+
+        class FoobarBlock3(SimpleBlock):
+            id_ = SimpleBlock.generate_id('creme_core', 'BlocksManagerTestCase__wildcard01_3')
+            dependencies = (Organisation,)
+
+        class FoobarBlock4(SimpleBlock):
+            id_ = SimpleBlock.generate_id('creme_core', 'BlocksManagerTestCase__wildcard01_4')
+            dependencies = '*'
+
+        class FoobarBlock5(SimpleBlock):
+            id_ = SimpleBlock.generate_id('creme_core', 'BlocksManagerTestCase__wildcard01_5')
+            dependencies = '*'
+
+        block1 = FoobarBlock1(); block2 = FoobarBlock2()
+        block3 = FoobarBlock3(); block4 = FoobarBlock4()
+        block5 = FoobarBlock5()
+
+        mngr = BlocksManager()
+        #notice that block4 is before block3, but the dependencies are still OK
+        mngr.add_group('gname', block1, block2, block4, block3, block5)
+
+        self.assertDictEqual({block1.id_: set(),
+                              block2.id_: set([block4.id_, block5.id_]),
+                              block3.id_: set([block4.id_, block5.id_]),
+                              block4.id_: set([block2.id_, block3.id_, block5.id_]),
+                              block5.id_: set([block2.id_, block3.id_, block4.id_]),
+                             },
+                             mngr.get_dependencies_map()
+                            )
+
+    def test_read_only01(self):
+        "Read-only dependencies"
+        class FoobarBlock1(SimpleBlock):
+            id_ = SimpleBlock.generate_id('creme_core', 'BlocksManagerTestCase__read_only01_1')
+
+        class FoobarBlock2(SimpleBlock):
+            id_ = SimpleBlock.generate_id('creme_core', 'BlocksManagerTestCase__read_only01_2')
+            dependencies = (Contact,)
+
+        block1 = FoobarBlock1(); block2 = FoobarBlock2()
+        self.assertIs(block1.read_only, False)
+
+        class FoobarBlock3(SimpleBlock):
+            id_ = SimpleBlock.generate_id('creme_core', 'BlocksManagerTestCase__read_only01_3')
+            dependencies = (Organisation,)
+
+        class FoobarBlock4(SimpleBlock):
+            id_ = SimpleBlock.generate_id('creme_core', 'BlocksManagerTestCase__read_only01_4')
+            dependencies = (Organisation, Contact)
+            read_only = True #<=====
+
+        block3 = FoobarBlock3(); block4 = FoobarBlock4()
+
+        mngr = BlocksManager()
+        mngr.add_group('gname', block1, block2, block3, block4)
+
+        self.assertDictEqual({block1.id_: set(),
+                              block2.id_: set([block4.id_]),
+                              block3.id_: set([block4.id_]),
+                              block4.id_: set(), #<=====
+                             },
+                             mngr.get_dependencies_map()
+                            )
 
     def test_get(self):
         mngr = BlocksManager()

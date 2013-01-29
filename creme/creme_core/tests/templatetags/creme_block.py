@@ -5,7 +5,9 @@ try:
     from django.core.serializers.json import simplejson
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation, InstanceBlockConfigItem
+    from creme_core.models import (BlockDetailviewLocation, BlockPortalLocation,
+                                   BlockMypageLocation, InstanceBlockConfigItem,
+                                   Relation)
     from creme_core.gui.block import block_registry, Block, SimpleBlock, BlocksManager
     from creme_core.tests.base import CremeTestCase
 
@@ -23,9 +25,10 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
     def test_import_n_display_block(self):
         blockstr = '<div>FOOBAR</div>'
+        name = 'CremeBlockTagsTestCase__import_n_display_block'
 
-        class FooBlock(SimpleBlock):
-            id_          = SimpleBlock.generate_id('creme_core', 'test_import_n_display_block')
+        class FooBlock(Block):
+            id_          = Block.generate_id('creme_core', name)
             verbose_name = u'Testing purpose'
 
             def detailview_display(self, context):
@@ -34,9 +37,9 @@ class CremeBlockTagsTestCase(CremeTestCase):
         block_registry.register(FooBlock())
 
         with self.assertNoException():
-            template = Template("{% load creme_block %}"
-                                "{% import_block from_app 'creme_core' named 'test_import_n_display_block' as 'my_block' %}"
-                                "{% display_block_detailview 'my_block' %}"
+            template = Template("{%% load creme_block %%}"
+                                "{%% import_block from_app 'creme_core' named '%(name)s' as 'my_block' %%}"
+                                "{%% display_block_detailview 'my_block' %%}" % {'name': name}
                                )
             render = template.render(RequestContext({}))
 
@@ -44,9 +47,10 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
     def test_import_n_display_block_on_portal(self):
         blockstr = '<div>FOOBAR</div>'
+        name = 'CremeBlockTagsTestCase__import_n_display_block_on_portal'
 
         class FooBlock(SimpleBlock):
-            id_          = SimpleBlock.generate_id('creme_core', 'test_import_n_display_block_on_portal')
+            id_ = SimpleBlock.generate_id('creme_core', name)
             verbose_name = u'Testing purpose'
 
             def portal_display(self, context, ct_ids):
@@ -59,9 +63,9 @@ class CremeBlockTagsTestCase(CremeTestCase):
         ct_ids = [ContentType.objects.get_for_model(Organisation).id]
 
         with self.assertNoException():
-            template = Template("{% load creme_block %}"
-                                "{% import_block from_app 'creme_core' named 'test_import_n_display_block_on_portal' as 'my_block' %}"
-                                "{% display_block_portal 'my_block' ct_ids %}"
+            template = Template("{%% load creme_block %%}"
+                                "{%% import_block from_app 'creme_core' named '%(name)s' as 'my_block' %%}"
+                                "{%% display_block_portal 'my_block' ct_ids %%}" % {'name': name}
                                )
             render = template.render(RequestContext({}, {'ct_ids': ct_ids}))
 
@@ -72,7 +76,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
         self.login()
         orga = Organisation.objects.create(user=self.user, name='Xing')
 
-        class TestBlock(SimpleBlock):
+        class TestBlock(Block):
             verbose_name = u'Testing purpose'
             self.blockstr = None
 
@@ -85,9 +89,12 @@ class CremeBlockTagsTestCase(CremeTestCase):
                       [BlockDetailviewLocation.BOTTOM]
         blocks = []
 
+        gen_id = TestBlock.generate_id
         for i, zone in enumerate(block_zones, start=1):
             block_class = type('TestBlock_%s' % i, (TestBlock,),
-                               {'id_':      TestBlock.generate_id('creme_core', 'test_import_n_display_on_detail_from_conf01_%s' % i),
+                               {'id_': gen_id('creme_core',
+                                              'CremeBlockTagsTestCase__import_n_display_on_detail_from_conf01_%s' % i,
+                                             ),
                                 'blockstr': '<p>BLOCK#%s</p>' % i,
                                }
                               )
@@ -119,7 +126,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
         self.login()
         orga = Organisation.objects.create(user=self.user, name='Xing')
 
-        class TestBlock(SimpleBlock):
+        class TestBlock(Block):
             verbose_name = u'Testing purpose'
             self.blockstr = None
 
@@ -132,9 +139,10 @@ class CremeBlockTagsTestCase(CremeTestCase):
                       [BlockDetailviewLocation.BOTTOM]
         blocks = []
 
+        gen_id = TestBlock.generate_id
         for i, zone in enumerate(block_zones, start=1):
             block_class = type('TestBlock_%s' % i, (TestBlock,),
-                               {'id_':      TestBlock.generate_id('creme_core', 'test_import_n_display_on_detail_from_conf02_%s' % i),
+                               {'id_':      gen_id('creme_core', 'CremeBlockTagsTestCase__import_n_display_on_detail_from_conf02_%s' % i),
                                 'blockstr': '<p>BLOCK#%s</p>' % i,
                                }
                               )
@@ -168,8 +176,8 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         orga = Organisation.objects.create(user=self.user, name='Xing')
 
-        class OrgaInfoBlock(SimpleBlock):
-            id_          = SimpleBlock.generate_id('creme_core', 'test_import_n_display_on_detail_from_conf03')
+        class OrgaInfoBlock(Block):
+            id_          = Block.generate_id('creme_core', 'CremeBlockTagsTestCase__import_n_display_on_detail_from_conf03')
             verbose_name = u'Testing purpose'
             dependencies = (Organisation,)
 
@@ -252,9 +260,12 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         blocks = []
 
+        gen_id = TestBlock.generate_id
         for i in xrange(1, 4):
             block_class = type('TestBlock_%s' % i, (TestBlock,),
-                               {'id_':      TestBlock.generate_id('creme_core', 'test_import_n_display_on_portal_from_conf01_%s' % i),
+                               {'id_': gen_id('creme_core',
+                                              'CremeBlockTagsTestCase__import_n_display_on_portal_from_conf01_%s' % i,
+                                             ),
                                 'blockstr': '<p>BLOCK#%s</p>' % i,
                                }
                               )
@@ -291,9 +302,12 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         blocks = []
 
+        gen_id = TestBlock.generate_id
         for i in xrange(1, 4):
             block_class = type('TestBlock_%s' % i, (TestBlock,),
-                               {'id_':      TestBlock.generate_id('creme_core', 'test_import_n_display_on_portal_from_conf02_%s' % i),
+                               {'id_': gen_id('creme_core',
+                                              'CremeBlockTagsTestCase___import_n_display_on_portal_from_conf02_%s' % i,
+                                             ),
                                 'blockstr': '<p>BLOCK#%s</p>' % i,
                                }
                               )
@@ -331,9 +345,12 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         blocks = []
 
+        gen_id = TestBlock.generate_id
         for i in xrange(1, 4):
             block_class = type('TestBlock_%s' % i, (TestBlock,),
-                               {'id_': TestBlock.generate_id('creme_core', 'test_import_n_display_on_home_from_conf01_%s' % i),
+                               {'id_': gen_id('creme_core',
+                                              'CremeBlockTagsTestCase__import_n_display_on_home_from_conf01_%s' % i,
+                                             ),
                                 'blockstr': '<p>BLOCK#%s</p>' % i,
                                }
                               )
@@ -369,9 +386,12 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
         blocks = []
 
+        gen_id = TestBlock.generate_id
         for i in xrange(1, 4):
             block_class = type('TestBlock_%s' % i, (TestBlock,),
-                               {'id_': TestBlock.generate_id('creme_core', 'test_import_n_display_on_mypage_from_conf01_%s' % i),
+                               {'id_': gen_id('creme_core',
+                                              'CremeBlockTagsTestCase___import_n_display_on_mypage_from_conf01_%s' % i,
+                                             ),
                                 'blockstr': '<p>BLOCK#%s</p>' % i,
                                }
                               )
@@ -397,22 +417,19 @@ class CremeBlockTagsTestCase(CremeTestCase):
                         )
 
     def test_import_n_display_blocks(self):
-        blockstr1 = '<div>FOO</div>'
-        blockstr2 = '<div>BAR</div>'
-
-        class FooBlock1(SimpleBlock):
-            id_          = SimpleBlock.generate_id('creme_core', 'test_import_n_display_blocks_1')
+        class FooBlock1(Block):
+            id_          = Block.generate_id('creme_core', 'CremeBlockTagsTestCase__import_n_display_blocks_1')
             verbose_name = u'Testing purpose'
 
             def detailview_display(self, context):
-                return blockstr1
+                return '<div>FOO</div>'
 
-        class FooBlock2(SimpleBlock):
-            id_          = SimpleBlock.generate_id('creme_core', 'test_import_n_display_blocks_2')
+        class FooBlock2(Block):
+            id_          = Block.generate_id('creme_core', 'CremeBlockTagsTestCase__import_n_display_blocks_2')
             verbose_name = u'Testing purpose'
 
             def detailview_display(self, context):
-                return blockstr2
+                return '<div>BAR</div>'
 
         block1 = FooBlock1()
         block2 = FooBlock2()
@@ -428,24 +445,24 @@ class CremeBlockTagsTestCase(CremeTestCase):
         self.assertEqual('<div>FOO</div><div>BAR</div>', render.strip())
 
     def test_get_blocks_dependencies(self):
-        class TestBlock(SimpleBlock):
-            verbose_name  = u'Testing purpose'
+        class TestBlock(Block):
+            verbose_name = u'Testing purpose'
 
             def detailview_display(self, context): return ''
 
         class FoobarBlock1(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'CremeBlockTagsTestCase__test_get_blocks_dependencies_1')
+            id_ = TestBlock.generate_id('creme_core', 'CremeBlockTagsTestCase__get_blocks_dependencies_1')
 
         class FoobarBlock2(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'CremeBlockTagsTestCase__test_get_blocks_dependencies_2')
+            id_ = TestBlock.generate_id('creme_core', 'CremeBlockTagsTestCase__get_blocks_dependencies_2')
             dependencies = (Contact,)
 
         class FoobarBlock3(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'CremeBlockTagsTestCase__test_get_blocks_dependencies_3')
+            id_ = TestBlock.generate_id('creme_core', 'CremeBlockTagsTestCase__get_blocks_dependencies_3')
             dependencies = (Organisation,)
 
         class FoobarBlock4(TestBlock):
-            id_ = TestBlock.generate_id('creme_core', 'CremeBlockTagsTestCase__test_get_blocks_dependencies_4')
+            id_ = TestBlock.generate_id('creme_core', 'CremeBlockTagsTestCase__get_blocks_dependencies_4')
             dependencies = (Contact, Organisation)
 
         block1 = FoobarBlock1(); block2 = FoobarBlock2(); block3 = FoobarBlock3(); block4 = FoobarBlock4()
@@ -465,3 +482,56 @@ class CremeBlockTagsTestCase(CremeTestCase):
         render = render.strip()
         self.assertIn('creme.utils.blocks_deps', render)
         self.assertIn('creme.utils.getBlocksDeps', render)
+
+    def test_get_block_reload_uri(self):
+        with self.assertNoException():
+            template = Template('{% load creme_block %}{% get_block_reload_uri %}')
+            render = template.render(RequestContext({}, {'block_name': 'test-testblock',
+                                                         'base_url':   '/base/url/',
+                                                         'update_url': '/update/url/',
+                                                        }
+                                                   )
+                                    )
+
+        self.assertEqual("'/update/url/?base_url=/base/url/&test-testblock_deps=' + creme.utils.getBlocksDeps('test-testblock')",
+                         render
+                        )
+
+    def test_get_block_relation_reload_uri(self):
+        class FooBlock1(SimpleBlock):
+            id_ = SimpleBlock.generate_id('creme_core', 'CremeBlockTagsTestCase__get_block_relation_reload_uri_1')
+            dependencies = (Contact,)
+
+        class FooBlock2(SimpleBlock):
+            id_ = SimpleBlock.generate_id('creme_core', 'CremeBlockTagsTestCase__get_block_relation_reload_uri_2')
+            dependencies = (Relation,)
+
+        class FooBlock3(SimpleBlock):
+            id_ = SimpleBlock.generate_id('creme_core', 'CremeBlockTagsTestCase__get_block_relation_reload_uri_3')
+            dependencies = (Relation,)
+
+        class FooBlock4(SimpleBlock):
+            id_ = SimpleBlock.generate_id('creme_core', 'CremeBlockTagsTestCase__get_block_relation_reload_uri_4')
+            dependencies = '*'
+
+        block1 = FooBlock1(); block2 = FooBlock2()
+        block3 = FooBlock3(); block4 = FooBlock4()
+
+        with self.assertNoException():
+            template = Template("{% load creme_block %}"
+                                "{% import_blocks blocks as 'my_blocks' %}"
+                                "{% get_block_relation_reload_uri %}"
+                               )
+            render = template.render(RequestContext({}, {'base_url':   '/base/url/',
+                                                         'update_url': '/update/url/',
+                                                         'blocks':     [block1, block2, block3, block4],
+                                                         'block_name': block2.id_, #we simulate the displaying of 'block2'
+                                                        }
+                                                   )
+                                    )
+
+        self.assertEqual(u"'/update/url/?base_url=/base/url/&%s_deps=%s,%s'" % (
+                                block2.id_, block3.id_, block4.id_
+                            ),
+                         render
+                        )

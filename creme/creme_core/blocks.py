@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from collections import defaultdict
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, Relation, CremeProperty, HistoryLine #EntityCredentials
+from creme_core.models import CremeEntity, Relation, CremeProperty, HistoryLine
 from creme_core.gui.block import SimpleBlock, QuerysetBlock, BlocksManager, list4url
 
 
@@ -53,8 +53,7 @@ class RelationsBlock(QuerysetBlock):
         entity = context['object']
         user   = context['user']
         relations = entity.relations.select_related('type', 'type__symmetric_type', 'object_entity')
-        #relations = EntityCredentials.filter_relations(user, relations)
-        excluded_types = BlocksManager.get(context).get_used_relationtypes_ids()
+        excluded_types = BlocksManager.get(context).used_relationtypes_ids
 
         if excluded_types:
             update_url = '/creme_core/blocks/reload/relations_block/%s/%s/' % (entity.pk, ','.join(excluded_types))
@@ -81,11 +80,12 @@ class CustomFieldsBlock(SimpleBlock):
 
 class HistoryBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_core', 'history')
-    dependencies  = (HistoryLine, CremeProperty) #TODO: model itself (block system must be improved)
+    #dependencies  = (HistoryLine, CremeProperty)
+    dependencies  = '*'
+    read_only     = True
     order_by      = '-date'
     verbose_name  = _(u'History')
     template_name = 'creme_core/templatetags/block_history.html'
-    #configurable  = True
 
     #TODO: factorise (see assistants.block) ??
     @staticmethod
