@@ -31,6 +31,7 @@ def listview(request):
     return list_view(request, Meeting,
                      extra_dict={'extra_bt_templates':
                                       ('activities/frags/ical_list_view_button.html',
-                                       'activities/frags/button_add_meeting.html')
-                     }
-    )
+                                       'activities/frags/button_add_meeting.html',
+                                      )
+                                }
+                    )
