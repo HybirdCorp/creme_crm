@@ -1,4 +1,4 @@
 {% extends "billing/view_billing.html" %}
 {% block extra_menu_buttons %}
-    <li>{% with can_create_invoice as has_perm %}{% include "billing/frags/button_convert2invoice.html" %}{% endwith %}</li>
+    <li>{% include "billing/frags/button_convert2invoice.html" with has_perm=can_create_invoice %}</li>
 {% endblock %}

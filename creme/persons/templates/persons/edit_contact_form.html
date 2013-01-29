@@ -4,7 +4,5 @@
 {% block page_title %} - {% blocktrans %}Modify {{object}}{% endblocktrans  %}{% endblock %}
 
 {% block content %}
-    {% with logo='images/edit_64.png' title=_('Edit') %}
-        {% include "persons/frags/contact_form_content.html"%}
-    {% endwith %}
+    {% include "persons/frags/contact_form_content.html" with logo='images/edit_64.png' title=_('Edit') %}
 {% endblock %}

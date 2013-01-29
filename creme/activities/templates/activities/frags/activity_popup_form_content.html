@@ -4,27 +4,15 @@
         <table>
             <tr>
                 <td width="50%">
-                    {% with blocks.general as form_block %}
-                        {% include "creme_core/generics/blockform/content.html" %}
-                    {% endwith %}
+                    {% include "creme_core/generics/blockform/content.html" with form_block=blocks.general %}
                 </td>
                 <td>
-                    {% with blocks.datetime as form_block %}
-                        {% include "creme_core/generics/blockform/content.html" %}
-                    {% endwith %}
-                    {% with blocks.alert_period as form_block %}
-                        {% include "creme_core/generics/blockform/content.html" %}
-                    {% endwith %}
+                    {% include "creme_core/generics/blockform/content.html" with form_block=blocks.datetime %}
+                    {% include "creme_core/generics/blockform/content.html" with form_block=blocks.alert_period %}
                 </td>
             </tr>
         </table>
-
-        {% with blocks.participants as form_block %}
-            {% include "creme_core/generics/blockform/content.html" %}
-        {% endwith %}
-
-        {% with blocks.informed_users as form_block %}
-            {% include "creme_core/generics/blockform/content.html" %}
-        {% endwith %}
+        {% include "creme_core/generics/blockform/content.html" with form_block=blocks.participants %}
+        {% include "creme_core/generics/blockform/content.html" with form_block=blocks.informed_users %}
     {% endwith %}
 {% endblock %}

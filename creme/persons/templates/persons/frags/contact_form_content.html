@@ -2,19 +2,9 @@
 
 {% block main_content %}
     {% with form.get_blocks as blocks %}
-        {% with blocks.general as form_block %}
-            {% include "creme_core/generics/blockform/content.html" %}
-        {% endwith %}
-        {% with blocks.coordinates as form_block %}
-            {% include "creme_core/generics/blockform/content.html" %}
-        {% endwith %}
-
-        {% with blocks.billing_address as form_block %}
-            {% include "persons/frags/billing_block.html" %}
-        {% endwith %}
-
-        {% with blocks.shipping_address as form_block %}
-            {% include "persons/frags/shipping_block.html" %}
-        {% endwith %}
+        {% include "creme_core/generics/blockform/content.html" with form_block=blocks.general %}
+        {% include "creme_core/generics/blockform/content.html" with form_block=blocks.coordinates %}
+        {% include "persons/frags/billing_block.html" with form_block=blocks.billing_address %}
+        {% include "persons/frags/shipping_block.html" with form_block=blocks.shipping_address %}
     {% endwith %}
 {% endblock %}

@@ -7,9 +7,7 @@
         <th class="actions">
             <div class="buttons">
                 {% get_line_relator to_subject object with_rtype_id predicate_id with_ct_id ct.id with_label _("Link to an existing salesorder") with_perms link_perm %}
-                {% with _("Generate a salesorder") as newdoc_title %}
-                    {% include 'opportunities/templatetags/block_line_newdoc.html' %}
-                {% endwith %}
+                {% include 'opportunities/templatetags/block_line_newdoc.html' with newdoc_title=_("Generate a salesorder") %}
             </div>
         </th>
     {% end_get_block_header %}

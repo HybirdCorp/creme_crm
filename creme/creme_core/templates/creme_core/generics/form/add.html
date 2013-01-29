@@ -4,7 +4,5 @@
 {% block page_title %} - {% trans 'Add' %}{% endblock %}
 
 {% block content %}
-    {% with 'images/add_64.png' as logo %}{% with _('Add') as title %}
-        {% include "creme_core/generics/form/base.html" %}
-     {% endwith %}{% endwith %}
+    {% include "creme_core/generics/form/base.html" with logo='images/add_64.png' title=_('Add') %}
 {% endblock %}

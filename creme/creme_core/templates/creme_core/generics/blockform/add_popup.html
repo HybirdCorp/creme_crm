@@ -24,10 +24,6 @@
     </script>
 </head>
 <body >
-    {% with 'images/add_64.png' as logo %}
-    {% with _('Add') as title %}
-        {% include "creme_core/generics/blockform/base.html" %}
-    {% endwith %}
-    {% endwith %}
+    {% include "creme_core/generics/blockform/base.html" with logo='images/add_64.png' title=_('Add') %}
 </body>
 </html>
