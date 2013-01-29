@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -185,7 +185,7 @@ class GenericEntityField(JSONField):
         clean_value = self.clean_value
 
         ctype_pk  = clean_value(data, 'ctype',  int, self.required, 'ctyperequired')
-        entity_pk  = clean_value(data, 'entity',  int, self.required, 'entityrequired')
+        entity_pk = clean_value(data, 'entity', int, self.required, 'entityrequired')
 
         return self.clean_entity(ctype_pk, entity_pk)
 
@@ -211,7 +211,8 @@ class GenericEntityField(JSONField):
 
     def get_ctypes(self):
         get_ct = ContentType.objects.get_for_model
-        return [get_ct(model) for model in self._allowed_models] if self._allowed_models else list(creme_entity_content_types())
+        return [get_ct(model) for model in self._allowed_models] if self._allowed_models \
+               else list(creme_entity_content_types())
 
 
 #TODO: Add a q_filter, see utilization in EntityEmailForm
@@ -694,25 +695,37 @@ class _EntityField(Field):
         self.o2m       = None
         self.separator = separator
 
-    def _set_model(self, model):
+    @property
+    def model(self):
+        return self._model
+
+    @model.setter
+    def model(self, model):
         self._model = self.widget.model = model
 
-    model = property(lambda self: self._model, _set_model); del _set_model
+    @property
+    def q_filter(self):
+        return self._q_filter
 
-    def _set_q_filter(self, q_filter):
+    @q_filter.setter
+    def q_filter(self, q_filter):
         self._q_filter = self.widget.q_filter = q_filter
 
-    q_filter = property(lambda self: self._q_filter, _set_q_filter); del _set_q_filter
+    @property
+    def o2m(self):
+        return self._o2m
 
-    def _set_o2m(self, o2m):
+    @o2m.setter
+    def o2m(self, o2m):
         self._o2m = self.widget.o2m = o2m
 
-    o2m = property(lambda self: self._o2m, _set_o2m); del _set_o2m
+    @property
+    def separator(self):
+        return self._separator
 
-    def _set_separator(self, separator):
+    @separator.setter
+    def separator(self, separator):
         self._separator = self.widget.separator = separator
-
-    separator = property(lambda self: self._separator, _set_separator); del _set_separator
 
     def clean(self, value):
         value = super(_EntityField, self).clean(value)
@@ -809,17 +822,23 @@ class ListEditionField(Field):
         self.content = content
         self.only_delete = only_delete
 
-    def _set_content(self, content):
+    @property
+    def content(self):
+        return self._content
+
+    @content.setter
+    def content(self, content):
         self._content = content
         self.widget.content = content
 
-    content = property(lambda self: self._content, _set_content); del _set_content
+    @property
+    def only_delete(self):
+        return self._only_delete
 
-    def _set_only_delete(self, only_delete):
+    @only_delete.setter
+    def only_delete(self, only_delete):
         self._only_delete = only_delete
         self.widget.only_delete = only_delete
-
-    only_delete = property(lambda self: self._only_delete, _set_only_delete); del _set_only_delete
 
 
 class AjaxChoiceField(ChoiceField):
