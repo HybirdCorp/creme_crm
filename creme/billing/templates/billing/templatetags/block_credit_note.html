@@ -28,7 +28,7 @@
                 <th class="block_header_line_dark" width="6%">{% trans "Total (inclusive of tax)" %}</th>
                 <th class="block_header_line_dark" width="7%">{% trans "Unlink" %} ?</th>
             </tr>
-            {% for credit_note in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for credit_note in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">{% has_perm_to view credit_note as credit_note_view_perm %}{% has_perm_to change credit_note as credit_note_edit_perm %}{% has_perm_to unlink credit_note as credit_note_unlink_perm %}
                     {% if credit_note_view_perm %}
                         <td class="{{row_color}}" align="center">{{ forloop.counter }}</td>

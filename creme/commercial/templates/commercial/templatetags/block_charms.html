@@ -16,7 +16,7 @@
                 {% get_column_header _('Name') 'name' %}
                 <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
-            {% for charm in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for charm in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{charm.name}}</td>
                     <td class="{{row_color}} action">

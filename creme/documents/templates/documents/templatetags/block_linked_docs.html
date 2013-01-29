@@ -34,7 +34,7 @@
                 <th class="block_header_line_dark action">{% trans "Delete" %}</th>
             </tr>
             {% for relation in page.object_list %}
-                {% with relation.object_entity as doc %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                {% with relation.object_entity as doc %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                     <tr class="content">
                         <td class="{{row_color}}">{% widget_entity_hyperlink doc user %}</td>
                         <td class="{{row_color}} action">

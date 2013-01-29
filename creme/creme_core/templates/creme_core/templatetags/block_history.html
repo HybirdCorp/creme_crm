@@ -17,7 +17,7 @@
                 <th class="block_header_line_dark">{% trans "Modifications" %}</th>
                 <th class="block_header_line_dark">{% trans "By" %}</th>
             </tr>
-            {% for line in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for line in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{% print_field object=line field='date' %}</td>
                     {% if not object %}

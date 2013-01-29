@@ -21,7 +21,7 @@
                 <th class="block_header_line_dark action">{% trans "OK?" %}</th>
                 <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
-            {% for action in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color%}-->
+            {% for action in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">{% has_perm_to change action.creme_entity as has_perm %}
                     <td class="{{row_color}}"><strong>{% print_field object=action field='title' %}</strong></td>
                     {% if not object %}

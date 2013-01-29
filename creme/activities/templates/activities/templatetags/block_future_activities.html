@@ -24,7 +24,7 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            {% for activity in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for activity in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">{% has_perm_to view activity as activity_view_perm %}
                     <td rowspan="{{activity.count_lines_display_block}}" style="width: 25%;" class="{{row_color}}" align="center">
                         {% if activity_view_perm %}

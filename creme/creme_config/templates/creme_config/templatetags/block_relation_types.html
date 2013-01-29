@@ -26,7 +26,7 @@
                 <th class="block_header_line_dark">{% trans "Object(s)" %}</th>
                 {% if custom %}<th class="block_header_line_dark action">{% trans "Actions" %}</th>{% endif %}
             </tr>
-            {% for relation_type in page.object_list %}<!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+            {% for relation_type in page.object_list %}{% cycle "block_line_light" "block_line_dark" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">
                         {% widget_select_or_msg relation_type.subject_ctypes.all _('No type') %}

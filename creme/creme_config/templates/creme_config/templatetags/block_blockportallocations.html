@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load creme_block %}
-<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}"><!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">{% cycle "block_line_light" "block_line_dark" as row_color silent %}
     {% get_block_header colspan=3 %}
         <th class="collapser label">{% get_block_title _('%s Configured portal') _('%s Configured portals') %}</th>
         <th class="actions"></th>
@@ -16,18 +16,18 @@
             <th class="block_header_line_light action">{% trans "Edit" %}</th>
             <th class="block_header_line_light action">{% trans "Delete" %}</th>
         </tr>
-        <tr class="content">{% comment %} ONLY IF PAGE==1 ?? {% endcomment %}<!--{% cycle row_color %}-->
+        <tr class="content">{% comment %} ONLY IF PAGE==1 ?? {% endcomment %}{% cycle row_color silent %}
             <td class="{{row_color}}">{% trans "Home configuration" %}</td>
             <td class="{{row_color}} action">{% get_line_editor at_url '/creme_config/blocks/portal/edit/creme_core' with_perms 1 %}</td>
             <td class="{{row_color}} action"></td>
         </tr>
-        <tr class="content">{% comment %} ONLY IF PAGE==1 ?? {% endcomment %}<!--{% cycle row_color %}-->
+        <tr class="content">{% comment %} ONLY IF PAGE==1 ?? {% endcomment %}{% cycle row_color silent %}
             <td class="{{row_color}}">{% trans "Default configuration" %}</td>
             <td class="{{row_color}} action">{% get_line_editor at_url '/creme_config/blocks/portal/edit/default' with_perms 1 %}</td>
             <td class="{{row_color}} action"></td>
         </tr>
         {% if page.paginator.count %}
-            {% for app in page.object_list %}<!--{% cycle row_color %}-->
+            {% for app in page.object_list %}{% cycle row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{app.verbose_name}}</td>
                     <td class="{{row_color}} action">{% get_line_editor at_url '/creme_config/blocks/portal/edit/{{app.name}}' with_perms 1 %}</td>

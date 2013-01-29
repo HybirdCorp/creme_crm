@@ -19,7 +19,7 @@
                 <th class="block_header_line_light">{% trans "Name" %}</th>
                 <th class="block_header_line_light">{% trans "Order" %}</th>
             </tr>
-            {% for prefered_menu in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for prefered_menu in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}"><a href="{{prefered_menu.url}}">{% trans prefered_menu.label %}</a></td>
                     <td class="{{row_color}}">{{page.number|sub:1|mult:page_size|add:forloop.counter}}</td>

@@ -13,7 +13,7 @@
                 <th class="block_header_line_dark">{% trans "Status" %}</th>
                 <th class="block_header_line_dark action">{% trans "Delete" %}</th>
             </tr>
-            {% for mail in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for mail in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     {% if mail.recipient_entity %}
                         {% has_perm_to view mail.recipient_entity as view_address_perm %}

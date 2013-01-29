@@ -22,7 +22,7 @@
                 <th class="block_header_line_dark">&nbsp;</th>
                 <th class="block_header_line_dark action">{% trans "Selected by default in this document" %}</th>
             </tr>
-            {% for payment_info in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for payment_info in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{payment_info.name}}</td>
                     <td class="{{row_color}}">

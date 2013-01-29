@@ -21,7 +21,7 @@
                 <th class="block_header_line_light action">{% trans "Edit" %}</th>
                 <th class="block_header_line_light action">{% trans "Delete" %}</th>
             </tr>
-            {% for prop_type in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for prop_type in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{prop_type.text}}</td>
                     <td class="{{row_color}}">

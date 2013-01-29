@@ -15,10 +15,10 @@
                         <tr><th colspan="2">{% trans 'Segments'%}</th></tr>
                     </thead>
                     <tbody>
-                        {% for segment_desc in segment_info %}<!--{% cycle "block_header_line_light" "block_header_line_dark" as header_color %}{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+                        {% for segment_desc in segment_info %}
                             <tr>
-                                <th class="{{header_color}}">{{segment_desc}}</th>
-                                <td class="{{row_color}}">{% widget_segment_category segment_desc %}</td>
+                                <th class="{% cycle "block_header_line_light" "block_header_line_dark" %}">{{segment_desc}}</th>
+                                <td class="{% cycle "block_line_light" "block_line_dark" %}">{% widget_segment_category segment_desc %}</td>
                             </tr>
                         {% empty %}
                             <tr><td class="block_line_dark">{% trans "No market segment for the moment" %}</td></tr>

@@ -17,7 +17,7 @@
                 <th class="block_header_line_light">{% trans "Value" %}</th>
                 <th class="block_header_line_light action">{% trans "Edit" %}</th>
             </tr>
-            {% for setting_value in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for setting_value in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{setting_value.key.description}}</td>
                     <td class="{{row_color}}">{{setting_value.value}}</td>{# TODO: A bool value is displayed "as it". => Display 'Yes'/'No' ? #}

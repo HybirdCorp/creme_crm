@@ -16,7 +16,7 @@
                 <th class="block_header_line_light">{% trans "Name" %}</th>
                 <th class="block_header_line_light action">{% trans "Delete" %}</th>
             </tr>
-            {% for loc in page.object_list %}<!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+            {% for loc in page.object_list %}{% cycle "block_line_light" "block_line_dark" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{loc.block_verbose_name}}</td>
                     <td class="{{row_color}} action">{% block deletion %}{% get_line_deletor at_url '/creme_config/blocks/mypage/default/delete' with_args "{'id': '{{loc.id}}'}" with_perms 1 %}{% endblock %}</td>

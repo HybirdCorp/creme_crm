@@ -23,7 +23,7 @@
                 {% get_column_header _('Details') 'description' %}
                 <th class="block_header_line_dark">{% trans "Generate from" %}</th>
             </tr>
-            {% for approach in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for approach in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}"><strong>{{approach.title}}</strong></td>
                     {% if not object %}

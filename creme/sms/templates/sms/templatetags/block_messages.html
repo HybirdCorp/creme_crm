@@ -70,8 +70,7 @@
                 <th class="block_header_line_dark">{% trans "Status message" %}</th>
                 <th class="block_header_line_dark action">{% trans "Delete" %}</th>
             </tr>
-            {% for message in page.object_list %}
-                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for message in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="creme-sms-message content">
                     <td class="{{row_color}}">{{message.phone|formatphone}}</td>
                     <td class="{{row_color}} {{message.status}}">{{message.statusname}}</td>

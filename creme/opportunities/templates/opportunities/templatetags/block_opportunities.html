@@ -19,7 +19,7 @@
                 <th class="block_header_line_dark">{% trans "Sales phase" %}</th>
                 <th class="block_header_line_dark action">{% trans "Delete the opportunity" %}</th>
             </tr>
-            {% for opportunity in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for opportunity in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     {% has_perm_to view opportunity as opp_view_perm %}
                     {% if opp_view_perm %}

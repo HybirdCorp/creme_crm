@@ -24,8 +24,7 @@
                 {% get_column_header _('Type') 'type' %}
                 <th class="block_header_line_dark action">{% trans 'Actions' %}</th>
             </tr>
-            {% for graph in page.object_list %}
-                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for graph in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}} action">
                         <img class="pointer report_graph_{{graph.id}}" src="{% creme_media_url 'images/expandme.gif' %}" alt="{% trans 'Expand' %}" title="{% trans 'Expand' %}"/>

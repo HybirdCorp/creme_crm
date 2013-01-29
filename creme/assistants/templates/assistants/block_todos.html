@@ -27,7 +27,7 @@
                 <th class="block_header_line_dark action">{% trans "Validate" %}</th>
                 <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
-            {% for todo in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for todo in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">{% has_perm_to change todo.creme_entity as has_perm %}
                     {% if not object %}
                         <td class="{{row_color}}">{% widget_entity_hyperlink todo.creme_entity user %}</td>

@@ -1,6 +1,6 @@
 {% load i18n %}
 {% load creme_block %}
-<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}"><!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">{% cycle "block_line_light" "block_line_dark" as row_color silent %}
     {% get_block_header colspan=3 %}
         <th class="collapser label">{% get_block_title  _('%s Configured type of resource') _('%s Configured types of resource') %}</th>
         <th class="actions"></th>
@@ -25,7 +25,7 @@
             <td class="{{row_color}}"></td>
         </tr>
         {% if page.paginator.count %}
-            {% for ct in page.object_list %}<!--{% cycle row_color %}-->
+            {% for ct in page.object_list %}{% cycle row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{ct}}</td>
                     <td class="{{row_color}} action">

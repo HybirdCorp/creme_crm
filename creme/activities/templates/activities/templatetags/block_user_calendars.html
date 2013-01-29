@@ -25,7 +25,7 @@
                 <th class="block_header_line_dark action">{% trans "Edit" %}</th>
                 <th class="block_header_line_dark action">{% trans "Delete" %}</th>
             </tr>
-            {% for calendar in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for calendar in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{calendar.name}}</td>
                     <td class="{{row_color}}">{% print_field object=calendar field='is_default' %}</td>

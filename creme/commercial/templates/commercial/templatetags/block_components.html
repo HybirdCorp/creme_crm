@@ -13,7 +13,7 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if components %}
-            {% for component in components %}<!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+            {% for component in components %}{% cycle "block_line_light" "block_line_dark" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{% for i in component.deep|xrange %}&nbsp;&nbsp;&nbsp;{% endfor %}{{component}}</td>
                     <td class="{{row_color}}">{% comment %}TODO: Add a class for inline action ? {% endcomment %}

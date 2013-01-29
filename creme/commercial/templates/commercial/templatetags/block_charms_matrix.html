@@ -13,10 +13,10 @@
                 <th class="block_header_line_dark">{% trans 'Charms / Segments' %}</th>
                 {% for segment_desc in segment_info %}<th class="block_header_line_dark">{{segment_desc}}</th>{% endfor %}
             </tr>
-            {% for charm in charms %}<!--{% cycle "block_header_line_light" "block_header_line_dark" as header_color %}{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+            {% for charm in charms %}
                 <tr>
-                    <th class="{{header_color}}">{{charm}}</th>
-                    {% for segment_desc in segment_info %}<td class="{{row_color}}">{% widget_charm_score segment_desc charm %}</td>{% endfor %}
+                    <th class="{% cycle "block_header_line_light" "block_header_line_dark" %}">{{charm}}</th>
+                    {% for segment_desc in segment_info %}<td class="{% cycle "block_line_light" "block_line_dark" %}">{% widget_charm_score segment_desc charm %}</td>{% endfor %}
                 </tr>
             {% endfor %}
             <tr>

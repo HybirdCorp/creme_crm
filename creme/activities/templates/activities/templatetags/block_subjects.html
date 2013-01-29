@@ -12,7 +12,7 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         {% if page.paginator.count %}
-            {% for relation in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for relation in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 {% with relation.object_entity.get_real_entity as subject %}
                     <tr class="content">
                         <td class="{{row_color}}">{% widget_entity_hyperlink subject user %}</td>

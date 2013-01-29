@@ -17,7 +17,7 @@
                 <th class="block_header_line_dark">{% trans "Address" %}</th>
                 <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
             </tr>
-            {% for orga in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for orga in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">
                         {% has_perm_to view orga as orga_perm %}

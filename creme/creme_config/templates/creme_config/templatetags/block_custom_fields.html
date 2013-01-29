@@ -18,7 +18,7 @@
                 <th class="block_header_line_light action">{% trans "Edit" %}</th>
                 <th class="block_header_line_light action">{% trans "Delete" %}</th>
             </tr>
-            {% for field in page.object_list %}<!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+            {% for field in page.object_list %}{% cycle "block_line_light" "block_line_dark" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{field.name}}</td>
                     <td class="{{row_color}}">{{field.type_verbose_name}}</td>

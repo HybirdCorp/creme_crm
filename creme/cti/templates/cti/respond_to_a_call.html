@@ -17,7 +17,7 @@
                 <th class="block_header_line_dark">{% trans "Entity" %}</th>
                 <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
-            {% for caller in callers %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for caller in callers %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}"><a href="{{caller.get_absolute_url}}">{{caller}}</a></td>
                     <td class="{{row_color}} action">

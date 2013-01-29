@@ -33,8 +33,8 @@
         <th align="right">
             <div class="buttons">
                 <a class="add" onclick="creme.emails.mass_action('/crudity/waiting_actions/validate', '[name=select_one]:checked', {% get_block_reload_uri %});">
-                            <img src="{% creme_media_url 'images/ok_22.png' %}" border="0" title="{% trans "Validate" %}" alt="{% trans "Validate" %}" />
-                            {% trans "Validate the selection" %}
+                    <img src="{% creme_media_url 'images/ok_22.png' %}" border="0" title="{% trans "Validate" %}" alt="{% trans "Validate" %}" />
+                    {% trans "Validate the selection" %}
                 </a>
                 <a class="negative" onclick="creme.emails.mass_action('/crudity/waiting_actions/delete', '[name=select_one]:checked', {% get_block_reload_uri %});">
                     <img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}" />
@@ -46,14 +46,14 @@
         <tbody class="collapsable">
             {% if page.paginator.count %}
                 <tr class="header">
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %} selectable">
+                    <th class="block_header_line_dark selectable">
                         <input name="select_all" value="all" type="checkbox" title="{% trans "Select all" %}" onclick="creme.utils.toggleCheckallState(this, '#{{block_name}} [name=select_one]');"/>
                     </th>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Data" %}</th>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Type" %}</th>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %} action">{% trans "Actions" %}</th>
+                    <th class="block_header_line_dark">{% trans "Data" %}</th>
+                    <th class="block_header_line_dark">{% trans "Type" %}</th>
+                    <th class="block_header_line_dark action">{% trans "Actions" %}</th>
                 </tr>
-                {% for waiting_action in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                {% for waiting_action in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                     <tr class="content">
                         <td class="{{row_color}} selectable">
                             <input name="select_one" value="{{waiting_action.pk}}" title="{% trans "Select this line" %}" type="checkbox" onclick="creme.utils.autoCheckallState (this, '#{{block_name}} [name=select_all]', '#{{block_name}} [name=select_one]');"/>

@@ -17,7 +17,7 @@
                 <th class="block_header_line_dark">{% trans "Changes" %}</th>
                 {% get_column_header _('Where') 'where' %}
             </tr>
-            {% for history in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for history in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">
                         {% with current_history_type_verbose=history_type_verbose|get_value:history.type %}
