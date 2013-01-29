@@ -161,7 +161,7 @@ def reload_relations_block(request, entity_id, relation_type_ids=''):
     context['object'] = entity
 
     blocks_manager = BlocksManager.get(context)
-    blocks_manager.set_used_relationtypes_ids(rtype_id for rtype_id in relation_type_ids.split(',') if rtype_id)
+    blocks_manager.used_relationtypes_ids = (rtype_id for rtype_id in relation_type_ids.split(',') if rtype_id)
 
     return _build_blocks_render(request, relations_block.id_, blocks_manager,
                                 lambda block: block.detailview_display(context)

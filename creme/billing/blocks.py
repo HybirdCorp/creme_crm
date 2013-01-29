@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,11 +22,11 @@ from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_config.models.setting import SettingValue
-
 from creme_core.gui.block import Block, SimpleBlock, PaginatedBlock, QuerysetBlock
 from creme_core.models import CremeEntity, Relation
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME
+
+from creme_config.models.setting import SettingValue
 
 from persons.models import Contact, Organisation
 from persons.blocks import AddressBlock
@@ -36,7 +36,7 @@ from billing.models.line import PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
 from billing.constants import *
 
 
-class BillingBlock(SimpleBlock):
+class BillingBlock(Block):
     template_name = 'billing/templatetags/block_billing.html'
 
     def detailview_display(self, context):

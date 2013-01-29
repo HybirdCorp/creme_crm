@@ -35,13 +35,11 @@ from creme_core.models import (CremeEntity, Relation, RelationType,
 
 
 def list4url(list_):
-    """Special url list-to-string function"""
+    "Special url list-to-string function"
     return ','.join(str(i) for i in list_)
 
 def str2list(string):
-    """
-    '1,2,3'  -> [1, 2, 3]
-    """
+    "'1,2,3'  -> [1, 2, 3]"
     return [int(i) for i in string.split(',') if i.isdigit()]
 
 
@@ -84,13 +82,20 @@ class Block(object):
     """
     id_           = None               #overload with an unicode object ; use generate_id()
     dependencies  = ()                 #list of the models on which the block depends (ie: generally the block displays these models)
-    relation_type_deps = ()            #list of id of RelationType objects on which the block depends ; only used for Blocks which have 'Relation' in their dependencies
+                                       # it also can be the '*' string, which is a wildcard meaning 'All models used in the page'.
+    relation_type_deps = ()            #list of id of RelationType objects on which the block depends ;
+                                       # only used for Blocks which have 'Relation' in their dependencies
+    read_only     = False              #'True' means : the block never causes a DB change on its dependencies models.
+                                       # ---> so when this is reload (eg: to change the pagination), it does not causes the dependant
+                                       # blocks to be reload (but it is still reload when the dependant blocks are reload of course).
     verbose_name  = 'BLOCK'            #used in the user configuration (see BlockDetailviewLocation/BlockPortalLocation)
     template_name = 'OVERLOAD_ME.html' #used to render the block of course
     context_class = _BlockContext      #store the context in the session.
     configurable  = True               #True: the Block can be add/removed to detailview/portal by configuration (see creme_config)
-    target_ctypes = ()                 #Tuple of CremeEntity classes that can have this type of block. Empty tuple means that all types are ok. eg: (Contact, Organisation)
-    target_apps = ()                   #Tuple of name of the Apps that can have this Block on their portal. Empty tuple means that all Apps are ok. eg: ('persons',)
+    target_ctypes = ()                 #Tuple of CremeEntity classes that can have this type of block. 
+                                       # Empty tuple means that all types are ok. eg: (Contact, Organisation)
+    target_apps = ()                   #Tuple of name of the Apps that can have this Block on their portal.
+                                       # Empty tuple means that all Apps are ok. eg: ('persons',)
 
     @staticmethod
     def generate_id(app_name, name): #### _generate_id ????
@@ -340,14 +345,13 @@ class BlocksManager(object):
 
     def __init__(self):
         self._blocks = []
-        self._dependencies_map = defaultdict(list)
+        self._dependencies_map = None
         self._blocks_groups = defaultdict(list)
-        self._dep_solving_mode = False
         self._used_relationtypes = None
         self._state_cache = None
 
     def add_group(self, group_name, *blocks):
-        if self._dep_solving_mode:
+        if self._dependencies_map is not None:
             raise BlocksManager.Error("Can't add block to manager after dependence resolution is done.")
 
         group = self._blocks_groups[group_name]
@@ -357,61 +361,69 @@ class BlocksManager(object):
         self._blocks.extend(blocks)
         group.extend(blocks)
 
-        dep_map = self._dependencies_map
-        for block in blocks:
-            for dep in block.dependencies:
-                dep_map[dep].append(block)
-
-    def pop_group(self, group_name):
-        return self._blocks_groups.pop(group_name)
-
-    def get_remaining_groups(self):
-        return self._blocks_groups.keys()
-
-    def _get_dependencies_ids(self, block):
-        self._dep_solving_mode = True
-
-        dep_map = self._dependencies_map
-        depblocks_ids = set()
-        id_ = block.id_
-
-        for dep in block.dependencies:
-            for other_block in dep_map[dep]:
-                if other_block.id_ == id_:
-                    continue
-
-                if dep == Relation:
-                    if not set(block.relation_type_deps) & set(other_block.relation_type_deps):
-                        continue
-
-                depblocks_ids.add(other_block.id_)
-
-        return depblocks_ids
-
-    def get_dependencies_map(self):
-        get_dep = self._get_dependencies_ids
-        return dict((block.id_, get_dep(block)) for block in self._blocks)
-
     def block_is_registered(self, block):
         block_id = block.id_
         return any(b.id_ == block_id for b in self._blocks)
 
-    def get_used_relationtypes_ids(self):
-        if self._used_relationtypes is None:
-            self._used_relationtypes = set(rt_id for block in self._dependencies_map[Relation] for rt_id in block.relation_type_deps)
+    def _build_dependencies_map(self):
+        dep_map = self._dependencies_map
 
-        return self._used_relationtypes
+        if dep_map is None:
+            self._dependencies_map = dep_map = defaultdict(list)
+            wilcarded_blocks = []
 
-    def set_used_relationtypes_ids(self, relationtypes_ids):
-        """@param relation_type_deps Sequence of RelationType objects' ids"""
-        self._used_relationtypes = set(relationtypes_ids)
+            for block in self._blocks:
+                dependencies = block.dependencies
+
+                if dependencies == '*':
+                    wilcarded_blocks.append(block)
+                else:
+                    for dep in dependencies:
+                        dep_map[dep].append(block)
+
+            if wilcarded_blocks:
+                for dep_blocks in dep_map.itervalues():
+                    dep_blocks.extend(wilcarded_blocks)
+
+        return dep_map
+
+    def _get_dependencies_ids(self, block):
+        dep_map = self._build_dependencies_map()
+        depblocks_ids = set()
+
+        if not block.read_only:
+            id_ = block.id_
+
+            dependencies = block.dependencies
+            if dependencies == '*':
+                dependencies = dep_map.keys()
+
+            for dep in dependencies:
+                for other_block in dep_map[dep]:
+                    if other_block.id_ == id_:
+                        continue
+
+                    if dep == Relation:
+                        if not set(block.relation_type_deps) & set(other_block.relation_type_deps):
+                            continue
+
+                    depblocks_ids.add(other_block.id_)
+
+        return depblocks_ids
 
     @staticmethod
     def get(context):
         return context[BlocksManager.var_name] #will raise exception if not created: OK
 
+    def get_remaining_groups(self):
+        return self._blocks_groups.keys()
+
+    def get_dependencies_map(self):
+        get_dep = self._get_dependencies_ids
+        return dict((block.id_, get_dep(block)) for block in self._blocks)
+
     def get_state(self, block_id, user):
-        """Get the state for a block and fill a cache to avoid multiple requests"""
+        "Get the state for a block and fill a cache to avoid multiple requests"
         _state_cache = self._state_cache
         if not _state_cache:
             _state_cache = self._state_cache = BlockState.get_for_block_ids([block.id_ for block in self._blocks], user)
@@ -422,6 +434,23 @@ class BlocksManager(object):
             debug("State not set in cache for '%s'" % block_id)
 
         return state
+
+    def pop_group(self, group_name):
+        return self._blocks_groups.pop(group_name)
+
+    @property
+    def used_relationtypes_ids(self):
+        if self._used_relationtypes is None:
+            self._used_relationtypes = set(rt_id for block in self._build_dependencies_map()[Relation]
+                                                    for rt_id in block.relation_type_deps
+                                          )
+
+        return self._used_relationtypes
+
+    @used_relationtypes_ids.setter
+    def used_relationtypes_ids(self, relationtypes_ids):
+        "@param relation_type_deps Sequence of RelationType objects' ids"
+        self._used_relationtypes = set(relationtypes_ids)
 
 
 class _BlockRegistry(object):
@@ -529,7 +558,10 @@ class _BlockRegistry(object):
         return blocks
 
     def get_block_4_object(self, obj_or_ct):
-        """Return the Block that displays fields for a CremeEntity istance."""
+        """Return the Block that displays fields for a CremeEntity instance.
+        @param obj_or_ct Model (class inheriting CremeEntity), or ContentType instance
+                         representing this model, or instance of this model.
+        """
         ct = obj_or_ct if isinstance(obj_or_ct, ContentType) else ContentType.objects.get_for_model(obj_or_ct)
         block = self._object_blocks.get(ct.id)
 

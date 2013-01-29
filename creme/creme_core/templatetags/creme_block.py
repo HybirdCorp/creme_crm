@@ -100,8 +100,15 @@ def get_block_reload_uri(context): #{% include 'creme_core/templatetags/widgets/
 
 @register.inclusion_tag('creme_core/templatetags/widgets/block_relation_reload_uri.html', takes_context=True)
 def get_block_relation_reload_uri(context):
-    """Specific to relation block, it aim to reload all relations blocks on the page at the same time."""
-    context['deps'] = ','.join([block.id_ for block in BlocksManager.get(context)._blocks if Relation in block.dependencies and block.id_ != context['block_name'] ])
+    "Specific to relation block, it aim to reload all relations blocks on the page at the same time."
+    block_id = context['block_name']
+    #TODO: move a part in BlocksManager ?? ('_blocks' is private...)
+    context['deps'] = ','.join(block.id_ for block in BlocksManager.get(context)._blocks
+                                            if (block.dependencies == '*'
+                                                or Relation in block.dependencies
+                                               ) and block.id_ != block_id
+                              )
+
     return context
 
 @register.inclusion_tag('creme_core/templatetags/widgets/block_title.html', takes_context=True)
