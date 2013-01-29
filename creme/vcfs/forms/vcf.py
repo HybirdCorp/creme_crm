@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,13 +20,13 @@
 
 import base64
 import os
-
 from urllib import urlretrieve
 from urllib2 import urlopen
 
 from django.core.files.base import ContentFile
 from django.core.exceptions import ValidationError
-from django.forms import IntegerField,FileField, ModelChoiceField, CharField, EmailField, URLField, BooleanField, HiddenInput
+from django.forms import (IntegerField,FileField, ModelChoiceField, CharField,
+                          EmailField, URLField, BooleanField, HiddenInput)
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -43,6 +43,7 @@ from persons.constants import REL_SUB_EMPLOYED_BY
 
 from vcfs import vcf_lib
 
+
 URL_START = ('http://', 'https://', 'www.')
 IMG_UPLOAD_PATH = Image._meta.get_field('image').upload_to
 
@@ -51,11 +52,11 @@ class VcfForm(CremeForm):
     vcf_file = FileField(label=_(u'VCF file'), max_length=500)
 
     def clean_vcf_file(self):
-        file = self.cleaned_data['vcf_file']
+        file_obj = self.cleaned_data['vcf_file']
         try:
-            vcf_data = vcf_lib.readOne(file)
+            vcf_data = vcf_lib.readOne(file_obj)
         except Exception as e:
-           raise ValidationError(_(u'VCF file is invalid') + ' [%s]' % str(e))
+           raise ValidationError(ugettext(u'VCF file is invalid') + ' [%s]' % str(e))
 
         return vcf_data
 
@@ -369,7 +370,7 @@ class VcfImportForm(CremeModelWithUserForm):
                                            'update_orga_email':    'email',
                                            'update_orga_fax':      'fax',
                                            'update_orga_url_site': 'url_site',
-                                           }
+                                          }
 
                 for key, value in update_coordinates_dict.iteritems():
                     if cleaned_data[key]:
@@ -385,7 +386,7 @@ class VcfImportForm(CremeModelWithUserForm):
                                                'work_country':  'country',
                                                'work_code':     'zipcode',
                                                'work_region':   'department',
-                                               }
+                                              }
 
                         for key, value in update_address_dict.iteritems():
                             if cleaned_data[key]:
