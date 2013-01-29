@@ -88,7 +88,8 @@ def delete_entities(request):
     return HttpResponse(message, mimetype="text/javascript", status=status)
 
 @login_required
-def delete_entity(request, entity_id, callback_url=None):
+#def delete_entity(request, entity_id, callback_url=None):
+def delete_entity(request, entity_id):
     if request.method != 'POST':
         raise Http404('Use POST method for this view')
 
@@ -109,8 +110,8 @@ def delete_entity(request, entity_id, callback_url=None):
     else:
         entity.can_delete_or_die(request.user)
 
-    if callback_url is None: #TODO: useful ??
-        callback_url = entity.get_lv_absolute_url()
+    #if callback_url is None:
+        #callback_url = entity.get_lv_absolute_url()
 
     try:
         entity.delete()
@@ -121,7 +122,8 @@ def delete_entity(request, entity_id, callback_url=None):
 
         return render(request, 'creme_core/forbidden.html', {'error_message': unicode(msg)})
 
-    return HttpResponseRedirect(callback_url)
+    #return HttpResponseRedirect(callback_url)
+    return HttpResponseRedirect(entity.get_lv_absolute_url())
 
 #TODO: doublon with delete_entity() when the object is also a CremeEntity ???
 @login_required
