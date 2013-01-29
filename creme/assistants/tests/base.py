@@ -27,7 +27,8 @@ class AssistantsTestCase(CremeTestCase):
 
     def setUp(self):
         self.login()
-        self.entity = CremeEntity.objects.create(user=self.user)
+        #self.entity = CremeEntity.objects.create(user=self.user)
+        self.entity = Contact.objects.create(user=self.user, first_name='Ranma', last_name='Saotome')
 
     def aux_test_merge(self, creator, assertor):
         user = self.user

@@ -83,17 +83,30 @@ class ActionTestCase(AssistantsTestCase):
         self.assertEqual(reaction, action.expected_reaction)
         self.assertEqual(datetime(year=2011, month=11, day=25, hour=17, minute=37), action.deadline)
 
-    def test_delete01(self): #delete related entity
+    def test_delete_entity01(self):
         action = self._create_action('2010-12-24', 'title', 'descr', 'reaction')
         self.entity.delete()
         self.assertFalse(Action.objects.filter(pk=action.pk).exists())
 
-    def test_delete02(self):
+    def _aux_test_delete(self, ajax=False):
         action = self._create_action('2010-12-24', 'title', 'descr', 'reaction')
         ct = ContentType.objects.get_for_model(Action)
-        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': action.id})
-        self.assertEqual(302, response.status_code)
-        self.assertEqual(0,   Action.objects.count())
+        kwargs = {} if not ajax else {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
+        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id,
+                                    data={'id': action.id}, **kwargs
+                                   )
+        self.assertFalse(Action.objects.filter(pk=action.pk))
+
+        return response
+
+    def test_delete_action01(self):
+        response = self._aux_test_delete()
+        self.assertRedirects(response, self.entity.get_absolute_url())
+
+    def test_delete_action02(self):
+        "Ajax version"
+        response = self._aux_test_delete(ajax=True)
+        self.assertEqual(200, response.status_code)
 
     def test_validate(self):
         action = self._create_action('2010-12-24', 'title', 'descr', 'reaction')

@@ -3,6 +3,7 @@
 try:
     from datetime import date, datetime
     from decimal import Decimal
+    from functools import partial
     from tempfile import NamedTemporaryFile
 
     from django.core.serializers.json import simplejson
@@ -26,9 +27,14 @@ __all__ = ('EntityViewsTestCase', 'BulkEditTestCase', 'InnerEditTestCase')
 
 
 class EntityViewsTestCase(ViewsTestCase):
+    DEL_ENTITIES_URL = '/creme_core/delete_js'
+
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config')
+
+    def _build_delete_url(self, entity):
+        return '/creme_core/entity/delete/%s' % entity.id
 
     def test_get_fields(self):
         self.login()
@@ -91,23 +97,29 @@ class EntityViewsTestCase(ViewsTestCase):
     def test_get_custom_fields(self):
         self.login()
 
+        def get_cf(ct_id):
+            return self.client.post('/creme_core/entity/get_custom_fields',
+                                    data={'ct_id': ct_id}
+                                   )
+
         ct = ContentType.objects.get_for_model(CremeEntity)
-        response = self.client.post('/creme_core/entity/get_custom_fields', data={'ct_id': ct.id})
+        response = get_cf(ct.id)
         self.assertEqual(200,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual([], simplejson.loads(response.content))
 
-        CustomField.objects.create(name='cf01', content_type=ct, field_type=CustomField.INT)
-        CustomField.objects.create(name='cf02', content_type=ct, field_type=CustomField.FLOAT)
+        create_cf = partial(CustomField.objects.create, content_type=ct)
+        create_cf(name='cf01', field_type=CustomField.INT)
+        create_cf(name='cf02', field_type=CustomField.FLOAT)
 
-        response = self.client.post('/creme_core/entity/get_custom_fields', data={'ct_id': ct.id})
+        response = get_cf(ct.id)
         self.assertEqual([['cf01', 'cf01'], ['cf02', 'cf02']], simplejson.loads(response.content))
 
-        response = self.client.post('/creme_core/entity/get_custom_fields', data={'ct_id': 0})
+        response = get_cf(0)
         self.assertEqual(404,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
 
-        response = self.client.post('/creme_core/entity/get_custom_fields', data={'ct_id': 'notint'})
+        response = get_cf('notint')
         self.assertEqual(400,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
 
@@ -198,47 +210,47 @@ class EntityViewsTestCase(ViewsTestCase):
 
         entity = Organisation.objects.create(user=self.user, name='Nerv') #to get a get_lv_absolute_url() method
 
-        response = self.client.post('/creme_core/entity/delete/%s' % entity.id)
-        self.assertEqual(302, response.status_code)
-        self.assertEqual(0,   Organisation.objects.filter(pk=entity.id).count())
+        url = self._build_delete_url(entity)
+        self.assertGET404(url)
+        self.assertRedirects(self.client.post(url), entity.get_lv_absolute_url())
+        self.assertFalse(Organisation.objects.filter(pk=entity.id))
 
     def test_delete_entity02(self):
         self.login(is_superuser=False)
 
         entity = Organisation.objects.create(user=self.other_user, name='Nerv')
 
-        response = self.client.post('/creme_core/entity/delete/%s' % entity.id)
-        self.assertEqual(403, response.status_code)
-        self.assertEqual(1,   Organisation.objects.filter(pk=entity.id).count())
+        self.assertEqual(403, self.client.post(self._build_delete_url(entity)).status_code)
+        self.get_object_or_fail(Organisation, pk=entity.id)
 
     def test_delete_entity03(self):
         self.login()
 
-        entity01 = Organisation.objects.create(user=self.other_user, name='Nerv')
-        entity02 = Organisation.objects.create(user=self.other_user, name='Seele')
+        create_orga = partial(Organisation.objects.create, user=self.other_user)
+        entity01 = create_orga(name='Nerv')
+        entity02 = create_orga(name='Seele')
 
         rtype, srtype = RelationType.create(('test-subject_linked', 'is linked to'),
                                             ('test-object_linked',  'is linked to')
                                            )
         Relation.objects.create(user=self.user, type=rtype, subject_entity=entity01, object_entity=entity02)
 
-        response = self.client.post('/creme_core/entity/delete/%s' % entity01.id)
-        #self.assertEqual(400, response.status_code)
-        self.assertEqual(2,   Organisation.objects.filter(pk__in=[entity01.id, entity02.id]).count())
+        response = self.client.post(self._build_delete_url(entity01))
+        self.assertEqual(200, response.status_code)
+        self.assertTemplateUsed(response, 'creme_core/forbidden.html')
+        self.assertEqual(2, Organisation.objects.filter(pk__in=[entity01.id, entity02.id]).count())
 
     def test_delete_entities01(self):
         self.login()
 
-        entity01 = CremeEntity.objects.create(user=self.user)
-        entity02 = CremeEntity.objects.create(user=self.user)
-        entity03 = CremeEntity.objects.create(user=self.user)
+        create_entity = partial(CremeEntity.objects.create, user=self.user)
+        entity01, entity02, entity03 = (create_entity() for i in xrange(3))
 
-        response = self.client.post('/creme_core/delete_js',
-                                    data={'ids': '%s,%s,' % (entity01.id, entity02.id)}
-                                   )
-        self.assertEqual(200, response.status_code)
-        self.assertEqual(0,   CremeEntity.objects.filter(pk__in=[entity01.id, entity02.id]).count())
-        self.assertEqual(1,   CremeEntity.objects.filter(pk=entity03.id).count())
+        self.assertPOST200(self.DEL_ENTITIES_URL,
+                           data={'ids': '%s,%s,' % (entity01.id, entity02.id)}
+                          )
+        self.assertFalse(CremeEntity.objects.filter(pk__in=[entity01.id, entity02.id]))
+        self.get_object_or_fail(CremeEntity, pk=entity03.id)
 
     def test_delete_entities02(self):
         self.login()
@@ -246,24 +258,23 @@ class EntityViewsTestCase(ViewsTestCase):
         entity01 = CremeEntity.objects.create(user=self.user)
         entity02 = CremeEntity.objects.create(user=self.user)
 
-        response = self.client.post('/creme_core/delete_js',
-                                    data={'ids': '%s,%s,' % (entity01.id, entity02.id + 1)}
-                                   )
-        self.assertEqual(404, response.status_code)
-        self.assertEqual(0,   CremeEntity.objects.filter(pk=entity01.id).count())
-        self.assertEqual(1,   CremeEntity.objects.filter(pk=entity02.id).count())
+        self.assertPOST404(self.DEL_ENTITIES_URL,
+                           data={'ids': '%s,%s,' % (entity01.id, entity02.id + 1)}
+                          )
+        self.assertFalse(CremeEntity.objects.filter(pk=entity01.id))
+        self.get_object_or_fail(CremeEntity, pk=entity02.id)
 
     def test_delete_entities03(self):
         self.login(is_superuser=False)
 
         forbidden = CremeEntity.objects.create(user=self.other_user)
         allowed   = CremeEntity.objects.create(user=self.user)
-        response = self.client.post('/creme_core/delete_js',
+        response = self.client.post(self.DEL_ENTITIES_URL,
                                     data={'ids': '%s,%s,' % (forbidden.id, allowed.id)}
                                    )
         self.assertEqual(403, response.status_code)
-        self.assertEqual(0,   CremeEntity.objects.filter(pk=allowed.id).count())
-        self.assertEqual(1,   CremeEntity.objects.filter(pk=forbidden.id).count())
+        self.assertFalse(CremeEntity.objects.filter(pk=allowed.id))
+        self.get_object_or_fail(CremeEntity, pk=forbidden.id)
 
     def test_delete_entities04(self):
         self.login()
@@ -277,7 +288,7 @@ class EntityViewsTestCase(ViewsTestCase):
                                            )
         Relation.objects.create(user=self.user, type=rtype, subject_entity=entity01, object_entity=entity02)
 
-        response = self.client.post('/creme_core/delete_js',
+        response = self.client.post(self.DEL_ENTITIES_URL,
                                     data={'ids': '%s,%s,%s,' % (entity01.id, entity02.id, entity03.id)}
                                    )
         self.assertEqual(400, response.status_code)

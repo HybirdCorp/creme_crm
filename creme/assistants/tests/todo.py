@@ -9,6 +9,8 @@ try:
 
     from creme_core.models import CremeEntity
 
+    from persons.models import Contact
+
     from assistants.models import ToDo
     from assistants.blocks import todos_block
     from assistants.tests.base import AssistantsTestCase
@@ -123,7 +125,7 @@ class TodoTestCase(AssistantsTestCase):
     def _create_several_todos(self):
         self._create_todo('Todo01', 'Description01')
 
-        entity02 = CremeEntity.objects.create(user=self.user)
+        entity02 = Contact.objects.create(user=self.user, first_name='Akane', last_name='Tendo')
         self._create_todo('Todo02', 'Description02', entity=entity02)
 
         user02 = User.objects.create_user('user02', 'user@creme.org', 'password02')
@@ -154,7 +156,7 @@ class TodoTestCase(AssistantsTestCase):
     def test_block_reload03(self): #portal
         self._create_several_todos()
 
-        ct_id = ContentType.objects.get_for_model(CremeEntity).id
+        ct_id = ContentType.objects.get_for_model(Contact).id
         todos = ToDo.get_todos_for_ctypes([ct_id], self.user)
         self.assertEqual(2, len(todos))
 
