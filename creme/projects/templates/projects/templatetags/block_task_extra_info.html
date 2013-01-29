@@ -12,9 +12,7 @@
         </tr>
         <tr class="content">
             <th class="block_header_line_dark">{% trans "Additional or remaining hours" %}</th>
-            {% with object as task %}
-                {% include 'projects/frag_task_delay_td.html' %}
-            {% endwith %}
+            {% include 'projects/frag_task_delay_td.html' with task=object %}
         </tr>
     </tbody>
 </table>

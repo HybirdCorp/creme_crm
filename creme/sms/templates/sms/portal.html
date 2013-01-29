@@ -7,7 +7,5 @@
 {% block list_msg %}{% trans "List of campaigns" %}{% endblock %}
 {% block before_statistics %}
     {{block.super}}
-    {% with account as object %}
-        {% include "creme_core/templatetags/block_object.html" %}
-    {% endwith %}
+    {% include "creme_core/templatetags/block_object.html" with object=account %}
 {% endblock %}

@@ -41,7 +41,5 @@
         });
     </script>
 
-    {% with 'images/merge_64.png' as logo %}
-        {% include "creme_core/generics/blockform/base.html" %}
-    {% endwith %}
+    {% include "creme_core/generics/blockform/base.html" with logo='images/merge_64.png' %}
 {% endblock %}

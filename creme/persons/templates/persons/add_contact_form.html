@@ -4,7 +4,5 @@
 {% block page_title %} - {% trans 'New contact' %}{% endblock %}
 
 {% block content %}
-    {% with logo='images/add_64.png' title=_('New contact') %}
-        {% include "persons/frags/contact_form_content.html"%}
-    {% endwith %}
+    {% include "persons/frags/contact_form_content.html" with logo='images/add_64.png' title=_('New contact') %}
 {% endblock %}

@@ -1,7 +1,5 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
 {% block content %}
-    {% with logo='images/header_filter_64.png' title=_('View of list') %}
-        {% include "creme_core/generics/blockform/base.html" %}
-    {% endwith %}
+    {% include "creme_core/generics/blockform/base.html" with logo='images/header_filter_64.png' title=_('View of list') %}
 {% endblock %}

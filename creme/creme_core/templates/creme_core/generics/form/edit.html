@@ -10,9 +10,5 @@
 {% endblock %}
 
 {% block content %}
-    {% with 'images/edit_64.png' as logo %}
-    {% with _("Edit") as title %} {# TODO: {% templatize "Edit: {{object}}" as title %} #}
-        {% include "creme_core/generics/form/base.html" %}
-    {% endwith %}
-    {% endwith %}
+    {% include "creme_core/generics/form/base.html" with logo='images/edit_64.png' title=_("Edit") %}{# TODO: {% templatize "Edit: {{object}}" as title %} #}
 {% endblock %}
