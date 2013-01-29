@@ -25,7 +25,7 @@
                 <th class="block_header_line_light">{% trans "Entities credentials" %}</th>
                 <th class="block_header_line_light action">{% trans "Actions" %}</th>
             </tr>
-            {% for role in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for role in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{role.name}}</td>
                     <td class="{{row_color}}">{% widget_select_or_msg role.get_allowed_apps_verbose _('No allowed application') %}</td>

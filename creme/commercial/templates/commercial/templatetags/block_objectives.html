@@ -20,7 +20,7 @@
                 <th class="block_header_line_dark">{% trans "Reached" %}</th>
                 <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
-            {% for objective in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for objective in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{objective}}</td>
                     <td class="{{row_color}}">

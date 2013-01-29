@@ -17,7 +17,7 @@
                 {% get_column_header _('Total with VAT') 'total_vat' %}
                 {% get_column_header _('Type') 'entity_type' %}{# TODO: Sort is not on translated string #}
             </tr>
-            {% for document in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for document in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 {% with document.get_real_entity as billing_document %}
                 <tr class="content">
                     {% has_perm_to view billing_document as invoice_view_perm %}

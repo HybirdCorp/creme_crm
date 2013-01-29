@@ -17,7 +17,7 @@
                 <th class="block_header_line_dark">{% trans "Types of relation" %}</th>
                 <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
-            {% for rnode in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for rnode in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{% widget_entity_hyperlink rnode.entity user %}</td>
                     <td class="{{row_color}}">{% widget_select_or_msg rnode.get_relation_types _('No type of relation') %}</td>

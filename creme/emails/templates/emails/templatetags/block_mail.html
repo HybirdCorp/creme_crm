@@ -13,8 +13,8 @@
         {% endwith %}
     {% end_get_block_header %}
     <tbody class="collapsable">
-        <!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}
-            {% cycle "block_line_dark" "block_line_light" as row_color %} -->
+        {% cycle "block_header_line_dark" "block_header_line_light" as header_color silent %}
+        {% cycle "block_line_dark" "block_line_light" as row_color silent %}
         <tr class="content">
             <th class="th_info {% cycle header_color %}">{% trans "User" %}</th>
             <td class="td_info {% cycle row_color %}">{% print_field object=object field='user' %}</td>

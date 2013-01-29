@@ -16,7 +16,7 @@
                 <th class="block_header_line_dark">{% trans "Name of the list" %}</th>
                 <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
             </tr>
-            {% for ml in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for ml in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{% widget_entity_hyperlink ml user %}</td>
                     <td class="{{row_color}} action">

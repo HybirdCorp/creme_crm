@@ -18,7 +18,7 @@
                 <th class="block_header_line_dark">{% trans "Status" %}</th>
                 <th class="block_header_line_dark">{% trans "Total with VAT" %}</th>
             </tr>
-            {% for invoice in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for invoice in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     {% has_perm_to view invoice as invoice_view_perm %}
                     {% if invoice_view_perm %}

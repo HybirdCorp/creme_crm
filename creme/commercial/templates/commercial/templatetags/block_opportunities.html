@@ -11,13 +11,13 @@
         </th>
     {% end_get_block_header %}
     <tbody class="collapsable">
-        {% if page.paginator.count %}<!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+        {% if page.paginator.count %}{% cycle "block_line_light" "block_line_dark" as row_color silent %}
             <tr class="header">
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
                 <th class="block_header_line_dark">{% trans "Made sales" %}</th>
                 <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
             </tr>
-            {% for opp in page.object_list %}<!--{% cycle row_color %}-->
+            {% for opp in page.object_list %}{% cycle row_color silent %}
                 <tr class="content">{% has_perm_to view opp as opp_view_perm %}{% has_perm_to unlink opp as opp_unlink_perm %}
                     {% if opp_view_perm %}
                         <td class="{{row_color}}"><a href="{{opp.get_absolute_url}}">{{opp}}</a></td>
@@ -31,7 +31,7 @@
                     </td>
                 </tr>
             {% endfor %}
-            <tr><!--{% cycle row_color %}-->
+            <tr>{% cycle row_color silent %}
                 <td class="{{row_color}}"><h3>{% trans "Total" %}</h3></td>
                 <td class="{{row_color}}" colspan="2"><strong>{{object.get_made_sales}}</strong></td>
             </tr>

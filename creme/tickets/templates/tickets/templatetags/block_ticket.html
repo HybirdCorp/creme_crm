@@ -13,9 +13,9 @@
         {% endwith %}
     {% end_get_block_header %}
     <tbody class="collapsable">
-        <!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}
-            {% cycle "block_line_dark" "block_line_light" as row_color %}
-            {% cycle "block_line_dark" "block_line_light" as row_edit_color %}-->
+        {% cycle "block_header_line_dark" "block_header_line_light" as header_color silent %}
+        {% cycle "block_line_dark" "block_line_light" as row_color silent %}
+        {% cycle "block_line_dark" "block_line_light" as row_edit_color silent %}
         {% for field in object|get_meta_value:"fields" %}
             {% comment %}{% if not field.name in object.excluded_fields_in_html_output %}{% endcomment %}
             {% if field|get_tag:'viewable' %}

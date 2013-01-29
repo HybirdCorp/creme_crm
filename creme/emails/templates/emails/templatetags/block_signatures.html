@@ -17,7 +17,7 @@
                 <th class="block_header_line_dark">{% trans "Images" %}</th>
                 <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
-            {% for signature in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for signature in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{signature.name}}</td>
                     <td class="{{row_color}}">{{signature.body}}</td>

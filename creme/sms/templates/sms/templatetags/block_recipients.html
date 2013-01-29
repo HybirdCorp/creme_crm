@@ -28,7 +28,7 @@
                 <th class="block_header_line_dark">{% trans "Number" %}</th>
                 <th class="block_header_line_dark action">{% trans "Delete" %}</th>
             </tr>
-            {% for recipient in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for recipient in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{recipient.phone|formatphone}}</td>
                     <td class="{{row_color}} action">

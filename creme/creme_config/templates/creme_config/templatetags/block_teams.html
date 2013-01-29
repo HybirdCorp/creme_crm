@@ -18,7 +18,7 @@
                 <th class="block_header_line_light">{% trans "Teammates" %}</th>
                 <th class="block_header_line_light action">{% trans "Actions" %}</th>
             </tr>
-            {% for team in page.object_list %}<!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+            {% for team in page.object_list %}{% cycle "block_line_light" "block_line_dark" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{team.username}}</td>
                     <td class="{{row_color}}">

@@ -23,7 +23,7 @@
                 <th class="block_header_line_dark">{% trans "Sending date" %}</th>
                 <th class="block_header_line_dark action">{% trans "Detail" %}</th>
             </tr>
-            {% for mail in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for mail in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{% print_field object=mail field='sender' %}</td>
                     <td class="{{row_color}}">{% print_field object=mail field='recipient' %}</td>

@@ -38,14 +38,14 @@
         <tbody class="collapsable">
             {% if page.paginator.count %}
                 <tr class="header">
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Entity" %}</th>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Created" %}</th>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Action" %}</th>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Source" %}</th>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Description" %}</th>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %} action">{% trans "View entity's file" %}</th>
+                    <th class="block_header_line_dark">{% trans "Entity" %}</th>
+                    <th class="block_header_line_dark">{% trans "Created" %}</th>
+                    <th class="block_header_line_dark">{% trans "Action" %}</th>
+                    <th class="block_header_line_dark">{% trans "Source" %}</th>
+                    <th class="block_header_line_dark">{% trans "Description" %}</th>
+                    <th class="block_header_line_dark action">{% trans "View entity's file" %}</th>
                 </tr>
-                {% for history in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                {% for history in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                     <tr class="content">
                         {% with history.get_entity as history_entity %}
                             <td class="{{row_color}}">{{history_entity|allowed_unicode:user}}</td>

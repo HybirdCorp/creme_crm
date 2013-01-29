@@ -22,7 +22,7 @@
                 <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
             </tr>
             {% with object.get_current_quote_id as current_quote_id %}
-                {% for quote in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                {% for quote in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                     <tr class="content">
                         <td class="{{row_color}}">{{quote.number}}</td>
                         <td class="{{row_color}}">{% widget_entity_hyperlink quote user %}</td>

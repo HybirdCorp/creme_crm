@@ -20,8 +20,7 @@
                 <th class="block_header_line_dark action">{% trans "Details" %}</th>
                 <th class="block_header_line_dark action">{% trans "Delete" %}</th>
             </tr>
-            {% for sending in page.object_list %}
-                <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for sending in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{sending.sending_date}}</td>
                     <td class="{{row_color}}">{{sending.get_type_str}}</td>

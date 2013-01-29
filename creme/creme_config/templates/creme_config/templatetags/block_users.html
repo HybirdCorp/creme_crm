@@ -25,7 +25,7 @@
             <th class="block_header_line_light action">{% trans "Actions" %}</th>
             <th class="block_header_line_light action">{% trans "Password" %}</th>
         </tr>
-        {% for user in page.object_list %}<!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+        {% for user in page.object_list %}{% cycle "block_line_light" "block_line_dark" as row_color silent %}
             <tr class="content">
                 <td class="{{row_color}}">{{user.username}}</td>
                 <td class="{{row_color}}">{{user.last_name}}</td>

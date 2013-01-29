@@ -7,18 +7,17 @@
         <tbody class="collapsable">
             {% if page.paginator.count %}
                 <tr class="header">
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %} selectable">
+                    <th class="block_header_line_dark selectable">
                         <input name="select_all" value="all" type="checkbox" title="{% trans "Select all" %}" onclick="creme.utils.toggleCheckallState(this, '#{{block_name}} [name=select_one]');"/>
                     </th>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Status" %}</th>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Sender(s)" %}</th>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Recipient(s)" %}</th>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Subject" %}</th>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% trans "Received on" %}</th>
-                    <th class="{% cycle "block_header_line_dark" "block_header_line_light" %} action">{% trans "Actions" %}</th>
+                    <th class="block_header_line_dark">{% trans "Status" %}</th>
+                    <th class="block_header_line_dark">{% trans "Sender(s)" %}</th>
+                    <th class="block_header_line_dark">{% trans "Recipient(s)" %}</th>
+                    <th class="block_header_line_dark">{% trans "Subject" %}</th>
+                    <th class="block_header_line_dark">{% trans "Received on" %}</th>
+                    <th class="block_header_line_dark action">{% trans "Actions" %}</th>
                 </tr>
-                {% for mail in page.object_list %}
-                    <!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                {% for mail in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                     <tr class="content">
                         <td class="{{row_color}} selectable">
                             <input name="select_one" value="{{mail.pk}}" title="{% trans "Select this line" %}" type="checkbox" onclick="creme.utils.autoCheckallState (this, '#{{block_name}} [name=select_all]', '#{{block_name}} [name=select_one]');"/>

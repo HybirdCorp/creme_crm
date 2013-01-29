@@ -40,8 +40,7 @@
                 <th class="block_header_line_light action">{% trans "Action(s)" %}</th>
                 <th class="block_header_line_light action">{% trans "Expand ?" %}</th>
             </tr>
-            {% for column in object.columns.all|order_by:"order" %}
-                <!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+            {% for column in object.columns.all|order_by:"order" %}{% cycle "block_line_light" "block_line_dark" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{column.order}}</td>
                     <td class="{{row_color}}">{{column}}</td>

@@ -16,7 +16,7 @@
                 <th class="block_header_line_light">{% trans "Type" %}</th>
                 <th class="block_header_line_light action">{% trans "Delete" %}</th>
             </tr>
-            {% for history_item in page.object_list %}<!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+            {% for history_item in page.object_list %}{% cycle "block_line_light" "block_line_dark" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{history_item.relation_type}}</td>
                     <td class="{{row_color}} action">{% get_line_deletor at_url '/creme_config/history/delete' with_args "{'id': '{{history_item.id}}'}" with_perms 1 %}</td>

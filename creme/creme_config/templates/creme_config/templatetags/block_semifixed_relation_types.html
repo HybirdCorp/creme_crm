@@ -20,7 +20,7 @@
                 <th class="block_header_line_dark">{% trans "Type of relationship" %}</th>
                 <th class="block_header_line_dark action">{% trans "Delete" %}</th>
             </tr>
-            {% for sf_rtype in page.object_list %}<!--{% cycle "block_line_light" "block_line_dark" as row_color %}-->
+            {% for sf_rtype in page.object_list %}{% cycle "block_line_light" "block_line_dark" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{sf_rtype.predicate}}</td>
                     <td class="{{row_color}}">{% widget_entity_hyperlink sf_rtype.object_entity.get_real_entity user %}</td>

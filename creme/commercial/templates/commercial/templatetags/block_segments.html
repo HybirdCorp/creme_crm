@@ -13,9 +13,9 @@
     <tbody class="collapsable">
         {% if page.paginator.count %}
             <tr class="header">{% get_column_header _('Name') 'name' %}</tr>
-            {% for segment in page.object_list %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+            {% for segment in page.object_list %}
                 <tr class="content">
-                    <td class="{{row_color}}">{{segment.name}}</td>
+                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{segment.name}}</td>
                 </tr>
             {% endfor %}
         {% else %}
