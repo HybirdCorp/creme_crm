@@ -21,7 +21,7 @@ from django.template import Library
 from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.utils.meta import get_model_field_infos, get_verbose_field_name
+from creme_core.utils.meta import get_model_field_info, get_verbose_field_name
 from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED
 from creme_core.registry import creme_registry
 
@@ -38,7 +38,7 @@ HFI_TYPE_VERBOSE = {
 
 @register.filter(name="is_field_is_linkable")
 def is_linkable(field, ct):
-    field_infos = get_model_field_infos(ct.model_class(), field.name)
+    field_infos = get_model_field_info(ct.model_class(), field.name)
     registred_models = creme_registry.iter_entity_models()
     for field_dict in field_infos:
         if(isinstance(field_dict.get('field'), (ForeignKey, ManyToManyField)) and field_dict.get('model') in registred_models):

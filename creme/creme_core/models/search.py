@@ -28,7 +28,7 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import CremeModel
-from creme_core.utils.meta import get_model_field_infos, get_verbose_field_name, ModelFieldEnumerator
+from creme_core.utils.meta import get_verbose_field_name, ModelFieldEnumerator
 
 
 class SearchConfigItem(CremeModel):

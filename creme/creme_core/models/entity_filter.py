@@ -33,7 +33,7 @@ from django.contrib.auth.models import User
 
 from creme_core.models import CustomField, RelationType, Relation
 from creme_core.models.fields import CremeUserForeignKey
-from creme_core.utils.meta import is_date_field, get_model_field_infos
+from creme_core.utils.meta import is_date_field, get_model_field_info
 from creme_core.utils.date_range import date_range_registry
 
 
@@ -284,7 +284,7 @@ class _IsEmptyOperator(_ConditionBooleanOperator):
         field_name = efcondition.name
         query = Q(**{'%s__isnull' % field_name: True})
 
-        finfo = get_model_field_infos(efcondition.filter.entity_type.model_class(), field_name)
+        finfo = get_model_field_info(efcondition.filter.entity_type.model_class(), field_name)
         if isinstance(finfo[-1]['field'], (CharField, TextField)):
             query |= Q(**{field_name: ''})
 
@@ -471,7 +471,7 @@ class EntityFilterCondition(Model):
         if not operator_obj:
             raise EntityFilterCondition.ValueError('Unknown operator: %s' % operator)
 
-        finfo = get_model_field_infos(model, name)
+        finfo = get_model_field_info(model, name)
         if not finfo:
             raise EntityFilterCondition.ValueError('%s: no field named: %s', model, name)
 

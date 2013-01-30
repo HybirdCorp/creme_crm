@@ -27,7 +27,7 @@ from django.utils.translation import ugettext as _
 
 from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_VOLATILE
 from creme_core.models import CustomField
-from creme_core.utils.meta import get_model_field_infos
+from creme_core.utils.meta import get_model_field_info
 from creme_core.gui.field_printers import field_printers_registry
 from creme_core.templatetags.creme_widgets import widget_entity_hyperlink
 
@@ -115,7 +115,7 @@ def get_listview_columns_header(context):
                 field_name = item.name
                 if field_name.find('__') > -1:
                     field = None
-                    sub_field_obj = get_model_field_infos(model, field_name)[1]['field']
+                    sub_field_obj = get_model_field_info(model, field_name)[1]['field']
                     if isinstance(sub_field_obj, (models.DateField, models.DateTimeField, models.BooleanField)):
                         field = sub_field_obj
                 else:

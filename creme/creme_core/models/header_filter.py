@@ -30,7 +30,7 @@ from django.contrib.auth.models import User
 
 from creme_core.models import RelationType, CremeEntity, CustomField
 from creme_core.models.fields import CremeUserForeignKey
-from creme_core.utils.meta import get_model_field_infos
+from creme_core.utils.meta import get_model_field_info
 from creme_core.utils.id_generator import generate_string_id_and_save
 
 
@@ -237,7 +237,7 @@ class HeaderFilterItem(Model):  #CremeModel ???
 
     @staticmethod
     def build_4_field(model, name):
-        field_info = get_model_field_infos(model, name)
+        field_info = get_model_field_info(model, name)
         if not field_info:
             #raise HeaderFilterItem.ValueError(u'Invalid field: %s' % name)
             warn('HeaderFilterItem.build_4_field(): invalid field "%s"', name)
