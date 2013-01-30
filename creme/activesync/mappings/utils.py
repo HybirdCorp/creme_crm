@@ -21,7 +21,7 @@ from datetime import datetime
 from xml.sax.saxutils import escape
 from activesync.models.other_models import EntityASData
 from creme_core.utils.dates import get_utc_dt_from_creme_dt, get_dt_to_iso8601_str
-from creme_core.utils.meta import get_field_infos
+from creme_core.utils.meta import get_instance_field_info
 
 from django.db import models
 
@@ -67,7 +67,7 @@ def serialize_entity(entity, mapping):
             if callable(c_field):
                 value = c_field(entity)
             else:
-                f_class, value = get_field_infos(entity, c_field)
+                f_class, value = get_instance_field_info(entity, c_field)
 
             value = _format_value_for_AS(f_class, value)
 

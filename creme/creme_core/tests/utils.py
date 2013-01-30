@@ -112,7 +112,7 @@ class MiscTestCase(CremeTestCase):
 
 
 class MetaTestCase(CremeTestCase):
-    def test_get_field_infos(self):
+    def test_get_instance_field_info(self):
         text = 'TEXT'
 
         user   = User.objects.create(username='name')
@@ -120,22 +120,22 @@ class MetaTestCase(CremeTestCase):
         entity = CremeEntity.objects.create(user=user)
         prop   = CremeProperty(type=ptype, creme_entity=entity)
 
-        self.assertEqual((fields.CharField,    text), meta.get_field_infos(prop, 'type__text'))
-        self.assertEqual((fields.BooleanField, True), meta.get_field_infos(prop, 'type__is_custom'))
+        self.assertEqual((fields.CharField,    text), meta.get_instance_field_info(prop, 'type__text'))
+        self.assertEqual((fields.BooleanField, True), meta.get_instance_field_info(prop, 'type__is_custom'))
 
-        self.assertEqual((None, ''), meta.get_field_infos(prop, 'foobar__is_custom'))
-        self.assertEqual((None, ''), meta.get_field_infos(prop, 'type__foobar'))
+        self.assertEqual((None, ''), meta.get_instance_field_info(prop, 'foobar__is_custom'))
+        self.assertEqual((None, ''), meta.get_instance_field_info(prop, 'type__foobar'))
 
-        self.assertEqual(fields.CharField, meta.get_field_infos(prop, 'creme_entity__entity_type__name')[0])
+        self.assertEqual(fields.CharField, meta.get_instance_field_info(prop, 'creme_entity__entity_type__name')[0])
 
-    def test_get_model_field_infos(self):
-        self.assertEqual([], meta.get_model_field_infos(CremeEntity, 'foobar'))
-        self.assertEqual([], meta.get_model_field_infos(CremeEntity, 'foo__bar'))
+    def test_get_model_field_info(self):
+        self.assertEqual([], meta.get_model_field_info(CremeEntity, 'foobar'))
+        self.assertEqual([], meta.get_model_field_info(CremeEntity, 'foo__bar'))
 
         #[{'field': <django.db.models.fields.related.ForeignKey object at ...>,
         #  'model': <class 'creme_core.models.creme_property.CremePropertyType'>}]
         with self.assertNoException():
-            info = meta.get_model_field_infos(CremeProperty, 'type')
+            info = meta.get_model_field_info(CremeProperty, 'type')
             self.assertEqual(1, len(info))
 
             desc = info[0]
@@ -147,7 +147,7 @@ class MetaTestCase(CremeTestCase):
         # {'field': <django.db.models.fields.CharField object at ...>,
         #   'model': None}]
         with self.assertNoException():
-            info = meta.get_model_field_infos(CremeProperty, 'type__text')
+            info = meta.get_model_field_info(CremeProperty, 'type__text')
             self.assertEqual(2, len(info))
 
             desc = info[0]
@@ -165,7 +165,7 @@ class MetaTestCase(CremeTestCase):
         # {'field': <django.db.models.fields.CharField object at 0x99d302c>,
         #  'model': None}]
         with self.assertNoException():
-            info = meta.get_model_field_infos(CremeProperty, 'creme_entity__entity_type__name')
+            info = meta.get_model_field_info(CremeProperty, 'creme_entity__entity_type__name')
             self.assertEqual(3, len(info))
 
             desc = info[0]

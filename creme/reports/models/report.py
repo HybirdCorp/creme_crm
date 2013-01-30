@@ -29,7 +29,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeModel, CremeEntity, EntityFilter
 from creme_core.models.custom_field import CustomField, _TABLES
-from creme_core.utils.meta import (get_field_infos, get_model_field_infos,
+from creme_core.utils.meta import (get_instance_field_info, get_model_field_info,
                                    filter_entities_on_ct, get_fk_entity, get_m2m_entities, get_related_field, get_verbose_field_name)
 from creme_core.models.header_filter import HFI_FUNCTION, HFI_RELATION, HFI_FIELD, HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED
 
@@ -154,7 +154,7 @@ class Field(CremeModel):
             elif entity is None:
                 return empty_value
 
-            fields_through = [f['field'].__class__ for f in get_model_field_infos(entity.__class__, column_name)]
+            fields_through = [f['field'].__class__ for f in get_model_field_info(entity.__class__, column_name)]
             if ManyToManyField in fields_through:
                 if report and selected:#The sub report generates new lines
                     res = []
@@ -192,7 +192,7 @@ class Field(CremeModel):
 
                 return FkClass(res)
 
-            model_field, value = get_field_infos(entity, column_name)
+            model_field, value = get_instance_field_info(entity, column_name)
 #            return unicode(value or empty_value)#Maybe format map (i.e : datetime...)
 
             if value and check_user:
@@ -252,7 +252,7 @@ class Field(CremeModel):
                 _get_verbose_field_name = partial(get_verbose_field_name, model=sub_model, separator="-")
                 no_value = _(u"N/A")
 
-                return u", ".join([" - ".join(u"%s: %s" % (_get_verbose_field_name(field_name=sub_column.name), get_field_infos(sub_entity, sub_column.name)[1] or no_value)
+                return u", ".join([" - ".join(u"%s: %s" % (_get_verbose_field_name(field_name=sub_column.name), get_instance_field_info(sub_entity, sub_column.name)[1] or no_value)
                                                             for sub_column in sub_columns
                                              )
                                       for sub_entity in scope

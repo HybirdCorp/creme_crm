@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,8 +33,7 @@ from creme_core.models.fields import CreationDateTimeField
 class NotDjangoModel(Exception):
     pass
 
-#TODO: rename to get_object_field_info
-def get_field_infos(obj, field_name):
+def get_instance_field_info(obj, field_name):
     """ For a field_name 'att1__att2__att3', it searchs and returns the tuple
         (obj.att1.att2.att3, obj.att1.att2._meta.att3
         @return : (field_class, field_value)
@@ -53,8 +52,7 @@ def get_field_infos(obj, field_name):
     except (AttributeError, FieldDoesNotExist), e:
         return None, ''
 
-#TODO: rename get_model_field_info()
-def get_model_field_infos(model, field_name):
+def get_model_field_info(model, field_name):
     """ For a field_name 'att1__att2__att3', it returns the list of dicts
         [
          {'field': django.db.models.fields.related.ForeignKey for model.att1, 'model': YourModelClass for model.att1},
@@ -85,7 +83,7 @@ def get_verbose_field_name(model, field_name, separator=" - "):
         att1_verbose_name - att2_verbose_name - att3_verbose_name
         - is the default separator
     """
-    fields = get_model_field_infos(model, field_name)
+    fields = get_model_field_info(model, field_name)
     return separator.join([unicode(f['field'].verbose_name) for f in fields])
 
 def get_function_field_verbose_name(model, function_name):
@@ -193,12 +191,10 @@ def get_related_field(model, related_field_name):
 
 
 def _get_entity_column(entity, column_name, field_class):
-    field_infos = get_model_field_infos(entity.__class__, column_name)
-    fields_names = []
+    fields_names = [] #TODO: slice once at the end instead of several append()...
     cols = column_name.split('__')
 
-    i = 1
-    for i, f_info in enumerate(field_infos):
+    for i, f_info in enumerate(get_model_field_info(entity.__class__, column_name)):
         fields_names.append(cols[i])
 
         if issubclass(f_info['field'].__class__, field_class):
@@ -234,7 +230,6 @@ def get_m2m_entities(entity, column_name, get_value=False, q_filter=None, get_va
             NB: If not get_value, entities are NOT filtered by credentials => TODO/Usefull?
     """
     m2m_column, rest = _get_entity_column(entity, column_name, ManyToManyField)
-
     m2m_field = getattr(entity, m2m_column)
 
     if q_filter is not None:

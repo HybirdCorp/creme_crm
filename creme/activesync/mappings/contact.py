@@ -32,7 +32,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from activesync.utils import get_b64encoded_img_of_max_weight
 from creme_core.models.relation import Relation, RelationType
-from creme_core.utils.meta import get_field_infos, is_date_field
+from creme_core.utils.meta import get_instance_field_info, is_date_field
 from creme_core.views.file_handling import handle_uploaded_file, MAXINT
 from persons.models import Position, Contact, Civility, Address
 from media_managers.models.image import Image
@@ -234,7 +234,7 @@ def create_image_from_b64(contact, d, user):
 ###
 def _format_data(model_or_entity, data):
     for field_name, value in data.iteritems():
-        field_class, field_value = get_field_infos(model_or_entity, field_name)
+        field_class, field_value = get_instance_field_info(model_or_entity, field_name)
         if field_class is not None and issubclass(field_class, (models.DateTimeField, models.DateField)):
             datetime_formatted = False
             for format in formats.get_format('DATETIME_INPUT_FORMATS'):
@@ -353,7 +353,7 @@ def serialize_contact(contact, namespaces):
             if callable(c_field):
                 value = c_field(contact)
             else:
-                f_class, value = get_field_infos(contact, c_field)
+                f_class, value = get_instance_field_info(contact, c_field)
 
             if value:
                 xml_append("<%(prefix)s%(tag)s>%(value)s</%(prefix)s%(tag)s>" %

@@ -34,7 +34,7 @@ from creme_core.models import RelationType
 from creme_core.utils.date_range import date_range_registry
 from creme_core.views.generic import (add_entity, edit_entity, view_entity,
                                       list_view, inner_popup, add_to_entity)
-from creme_core.utils.meta import get_model_field_infos, ModelFieldEnumerator, get_related_field #get_flds_with_fk_flds
+from creme_core.utils.meta import get_model_field_info, ModelFieldEnumerator, get_related_field #get_flds_with_fk_flds
 from creme_core.utils import get_ct_or_404, get_from_POST_or_404, jsonify
 
 from reports.models import Report, Field
@@ -121,7 +121,7 @@ def link_report(request, report_id, field_id):
     field  = get_object_or_404(Field,  pk=field_id)
     report = get_object_or_404(Report, pk=report_id)
 
-    fields = get_model_field_infos(report.ct.model_class(), field.name)
+    fields = get_model_field_info(report.ct.model_class(), field.name)
 
     model = None
     for f in fields:

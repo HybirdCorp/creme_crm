@@ -31,7 +31,7 @@ from creme_core.models import EntityFilter, EntityCredentials
 from creme_core.models.header_filter import HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
 from creme_core.gui.listview import ListViewState
 from creme_core.utils import get_ct_or_404
-from creme_core.utils.meta import get_field_infos
+from creme_core.utils.meta import get_instance_field_info
 from creme_core.utils.chunktools import iter_as_slices
 
 
@@ -95,7 +95,7 @@ def dl_listview_as_csv(request, ct_id):
                     type_ = column.type
 
                     if type_ == HFI_FIELD:
-                        res = smart_str(get_field_infos(entity, column.name)[1])
+                        res = smart_str(get_instance_field_info(entity, column.name)[1])
                     elif type_ == HFI_FUNCTION:
                         res = smart_str(column.get_functionfield()(entity).for_csv())
                     elif type_ == HFI_RELATION:

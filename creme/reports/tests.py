@@ -17,7 +17,7 @@ try:
     from creme_core.models.header_filter import (HeaderFilterItem, HeaderFilter,
                                                  HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CALCULATED)
     from creme_core.constants import REL_SUB_HAS, PROP_IS_MANAGED_BY_CREME
-    from creme_core.utils.meta import get_verbose_field_name, get_field_infos
+    from creme_core.utils.meta import get_verbose_field_name, get_instance_field_info
     from creme_core.tests.base import CremeTestCase
 
     from billing.models import Invoice, InvoiceStatus, ProductLine, Vat
@@ -501,7 +501,7 @@ class ReportsTestCase(CremeTestCase):
                                #)
 
         opp_nintendo_values = " - ".join(u"%s: %s" % (get_verbose_field_name(model=Opportunity, separator="-", field_name=field_name),
-                                                      get_field_infos(opportunity_nintendo_1, field_name)[1]
+                                                      get_instance_field_info(opportunity_nintendo_1, field_name)[1]
                                                      )
                                            for field_name in [u'name', u'reference', u'closing_date']
                                         )

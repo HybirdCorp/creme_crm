@@ -27,7 +27,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ungettext, ugettext_lazy as _
 
 from creme_core.models import CremeEntity, fields
-from creme_core.utils.meta import get_field_infos, get_model_field_infos, get_m2m_entities
+from creme_core.utils.meta import get_instance_field_info, get_model_field_info, get_m2m_entities
 
 #TODO: in settings
 MAX_HEIGHT = 200
@@ -167,10 +167,10 @@ class _FieldPrintersRegistry(object):
         self._printers[field] = printer
 
     def get_html_field_value(self, obj, field_name, user):
-        field_class, field_value = get_field_infos(obj, field_name)
+        field_class, field_value = get_instance_field_info(obj, field_name)
 
         if field_class is None:
-            fields_through = [f['field'].__class__ for f in get_model_field_infos(obj.__class__, field_name)]
+            fields_through = [f['field'].__class__ for f in get_model_field_info(obj.__class__, field_name)]
 
             if models.ManyToManyField in fields_through: #TODO: use any() instead
                 return get_m2m_entities(obj, field_name, get_value=True,
