@@ -99,7 +99,7 @@ def download_file(request, location, mimetype=None):
             ftype = name_parts[-1]
 
     path = settings.MEDIA_ROOT + os.sep + location.replace('../','').replace('..\\','')
-    with open(path, 'rb+') as f:
+    with open(path, 'rb') as f:
         data = f.read()
 
     response = HttpResponse(data, mimetype=ftype)
