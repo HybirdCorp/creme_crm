@@ -160,8 +160,8 @@ INSTALLED_DJANGO_APPS = (
     'django.contrib.auth',
     'django.contrib.sessions',
     #'django.contrib.sites', #remove ??
-    'django.contrib.admin',
-    'django.contrib.admindocs',
+    #'django.contrib.admin',
+    #'django.contrib.admindocs',
 
     #EXTERNAL APPS
     'mediagenerator', #It manages js/css/images

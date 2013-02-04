@@ -2,9 +2,9 @@
 
 from django.conf.urls.defaults import url, patterns, include
 from django.conf import settings
-from django.contrib import admin
+#from django.contrib import admin
 
-admin.autodiscover()
+#admin.autodiscover()
 
 import creme_core
 creme_core.autodiscover()
@@ -20,7 +20,7 @@ urlpatterns = patterns('',
     #NB: in production, configure your web server to statically serve the files in the 'media/static/' dir (and so comment the following line)
     (r'^static_media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.GENERATED_MEDIA_DIR}),
 
-    (r'^admin/(.*)', include(admin.site.urls)),
+    #(r'^admin/(.*)', include(admin.site.urls)),
 )
 
 for app_name in settings.INSTALLED_CREME_APPS:
