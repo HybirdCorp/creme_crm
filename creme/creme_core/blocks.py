@@ -23,7 +23,7 @@ from collections import defaultdict
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, Relation, CremeProperty, HistoryLine
+from creme_core.models import Relation, CremeProperty, HistoryLine #CremeEntity
 from creme_core.gui.block import SimpleBlock, QuerysetBlock, BlocksManager, list4url
 
 
@@ -66,7 +66,7 @@ class RelationsBlock(QuerysetBlock):
         #NB: DB optimisation
         relations = btc['page'].object_list
         Relation.populate_real_object_entities(relations)
-        CremeEntity.populate_credentials([r.object_entity.get_real_entity() for r in relations], user)
+        #CremeEntity.populate_credentials([r.object_entity.get_real_entity() for r in relations], user)
 
         return self._render(btc)
 
@@ -108,7 +108,7 @@ class HistoryBlock(QuerysetBlock):
         for hline in hlines:
             hline.entity = entities_map[hline.entity_id]
 
-        CremeEntity.populate_credentials(entities_map.values(), user) #beware: values() and not itervalues()
+        #CremeEntity.populate_credentials(entities_map.values(), user) #beware: values() and not itervalues()
 
     def detailview_display(self, context):
         pk = context['object'].pk

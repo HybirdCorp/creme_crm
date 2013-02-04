@@ -24,7 +24,7 @@ from itertools import chain
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity, Relation
+from creme_core.models import Relation #CremeEntity
 from creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, list4url
 
 from creme_config.models import SettingValue
@@ -63,7 +63,7 @@ class ApproachesBlock(QuerysetBlock):
         for comapp in comapps:
             comapp.creme_entity = entities_map[comapp.entity_id]
 
-        CremeEntity.populate_credentials(entities_map.values(), user) #beware: values() and not itervalues()
+        #CremeEntity.populate_credentials(entities_map.values(), user) #beware: values() and not itervalues()
 
     def detailview_display(self, context):
         object = context['object']
@@ -179,7 +179,7 @@ class EvaluatedOrgasBlock(QuerysetBlock):
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
                                              )
 
-        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+        #CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
 
         return self._render(btc)
 
@@ -273,7 +273,7 @@ class RelatedOpportunitiesBlock(PaginatedBlock):
                                               opp_ct=self._ct,
                                              )
 
-        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+        #CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
 
         return self._render(btc)
 

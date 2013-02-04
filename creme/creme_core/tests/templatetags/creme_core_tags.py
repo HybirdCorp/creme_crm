@@ -6,6 +6,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.conf import settings
 
+    from creme_core.auth.entity_credentials import EntityCredentials
     from creme_core.gui.bulk_update import bulk_update_registry
     from creme_core.models import SetCredentials, CustomField
     from creme_core.tests.base import CremeTestCase
@@ -97,7 +98,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
     def test_has_perm_to03(self):
         self.login(is_superuser=False, allowed_apps=['persons'], creatable_models=[Organisation])
         SetCredentials.objects.create(role=self.role,
-                                      value=SetCredentials.CRED_VIEW,
+                                      value=EntityCredentials.VIEW,
                                       set_type=SetCredentials.ESET_ALL
                                      )
 

@@ -4,6 +4,7 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
+    from creme_core.auth.entity_credentials import EntityCredentials
     from creme_core.models import CremePropertyType, CremeProperty, CremeEntity, SetCredentials
     from creme_core.tests.views.base import ViewsTestCase
 except Exception as e:
@@ -157,7 +158,7 @@ class PropertyViewsTestCase(ViewsTestCase):
     def test_add_properties_bulk03(self):
         self.login(is_superuser=False)
 
-        self._set_all_creds_except_one(excluded=SetCredentials.CRED_CHANGE)
+        self._set_all_creds_except_one(excluded=EntityCredentials.CHANGE)
         uneditable = CremeEntity.objects.create(user=self.other_user)
 
         self.assertTrue(uneditable.can_view(self.user))
@@ -183,7 +184,7 @@ class PropertyViewsTestCase(ViewsTestCase):
         url = self._build_bulk_url(self.centity_ct, entity01)
         self.assertGET200(url)
 
-        self._set_all_creds_except_one(excluded=SetCredentials.CRED_CHANGE)
+        self._set_all_creds_except_one(excluded=EntityCredentials.CHANGE)
         uneditable = CremeEntity.objects.create(user=self.other_user)
 
         response = self.client.post(url, data={'entities_lbl': 'd:p',

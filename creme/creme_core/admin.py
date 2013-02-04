@@ -16,7 +16,6 @@ register(RelationType)
 register(Relation)
 
 register(UserRole)
-register(EntityCredentials)
 register(SetCredentials)
 
 register(HeaderFilterItem)
@@ -27,7 +26,6 @@ register(EntityFilter)
 register(Language)
 
 register(PreferedMenuItem)
-#register(BlockConfigItem)
 register(BlockDetailviewLocation)
 register(BlockPortalLocation)
 register(ButtonMenuItem)

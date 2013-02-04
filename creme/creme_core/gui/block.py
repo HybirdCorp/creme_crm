@@ -30,8 +30,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.simplejson import JSONEncoder
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import (CremeEntity, Relation, RelationType,
-                               RelationBlockItem, InstanceBlockConfigItem, BlockState)
+from creme_core.models import (Relation, RelationType, RelationBlockItem,
+                               InstanceBlockConfigItem, BlockState) #CremeEntity
 
 
 def list4url(list_):
@@ -328,7 +328,7 @@ class SpecificRelationsBlock(QuerysetBlock):
         #NB: DB optimisation
         relations = btc['page'].object_list
         Relation.populate_real_object_entities(relations)
-        CremeEntity.populate_credentials([r.object_entity.get_real_entity() for r in relations], context['user'])
+        #CremeEntity.populate_credentials([r.object_entity.get_real_entity() for r in relations], context['user'])
 
         return self._render(btc)
 

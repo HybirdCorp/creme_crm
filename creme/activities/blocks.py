@@ -49,7 +49,7 @@ class ParticipantsBlock(QuerysetBlock):
         #TODO: move in Relation.populate_real_objects() (with new arg for fixed model) ???
         contacts = dict((c.id, c) for c in Contact.objects.filter(pk__in=[r.object_entity_id for r in relations]).select_related('user', 'is_user', 'civility'))
 
-        CremeEntity.populate_credentials(contacts.values(), context['user'])
+        #CremeEntity.populate_credentials(contacts.values(), context['user'])
 
         for relation in relations:
             relation.object_entity = contacts[relation.object_entity_id]
@@ -79,7 +79,7 @@ class SubjectsBlock(QuerysetBlock):
 
         relations = btc['page'].object_list
         Relation.populate_real_object_entities(relations)
-        CremeEntity.populate_credentials([r.object_entity.get_real_entity() for r in relations], context['user'])
+        #CremeEntity.populate_credentials([r.object_entity.get_real_entity() for r in relations], context['user'])
 
         return self._render(btc)
 
@@ -108,7 +108,7 @@ class FutureActivitiesBlock(QuerysetBlock):
         activities = template_context['page'].object_list
         user       = template_context['user']
         CremeEntity.populate_relations(activities, self._RTYPES_2_POP, user)
-        CremeEntity.populate_credentials(activities, user)
+        #CremeEntity.populate_credentials(activities, user)
 
         return super(FutureActivitiesBlock, self)._render(template_context)
 

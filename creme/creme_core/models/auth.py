@@ -19,198 +19,20 @@
 ################################################################################
 
 from collections import defaultdict
-from itertools import chain
 from logging import debug
+from operator import or_ as or_op
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import (Model, CharField, TextField, BooleanField,
                               PositiveSmallIntegerField, PositiveIntegerField,
-                              ForeignKey, ManyToManyField, Q)
+                              ForeignKey, ManyToManyField, Q, PROTECT)
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from entity import CremeEntity
+from creme_core.auth.entity_credentials import EntityCredentials
 from creme_core.registry import creme_registry
 from creme_core.utils.contribute_to_model import contribute_to_model
-
-
-class EntityCredentials(Model):
-    entity = ForeignKey(CremeEntity, null=True, related_name='credentials') #NB: null means: default credentials
-    user   = ForeignKey(User, null=True)
-    value  = CharField(max_length='5')
-
-    NO_CRED = ''
-    VIEW    = 'v'
-    CHANGE  = 'c'
-    DELETE  = 'd'
-    LINK    = 'l'
-    UNLINK  = 'u'
-    ALL_CREDS = ''.join((VIEW, CHANGE, DELETE, LINK, UNLINK))
-
-    CRED_MAP = {
-            'creme_core.view_entity':   VIEW,
-            'creme_core.change_entity': CHANGE,
-            'creme_core.delete_entity': DELETE,
-            'creme_core.link_entity':   LINK,
-            'creme_core.unlink_entity': UNLINK,
-        }
-
-    class Meta:
-        app_label = 'creme_core'
-
-    def __unicode__(self):
-        return u'<EntityCredentials: entity="%s", user="%s", value="%s">' % (self.entity, self.user, self.value)
-
-    def can_change(self):
-        return self.has_perm('creme_core.change_entity') #constant ??
-
-    def can_delete(self):
-        return self.has_perm('creme_core.delete_entity') #constant ??
-
-    def can_link(self):
-        return self.has_perm('creme_core.link_entity') #constant ??
-
-    def can_unlink(self):
-        return self.has_perm('creme_core.unlink_entity') #constant ??
-
-    def can_view(self):
-        return self.has_perm('creme_core.view_entity') #constant ??
-
-    def has_perm(self, perm):
-        return self.CRED_MAP.get(perm) in self.value
-
-    @staticmethod
-    def _build_credentials(view=False, change=False, delete=False, link=False, unlink=False):
-        cred = ''
-
-        if view:    cred += EntityCredentials.VIEW
-        if change:  cred += EntityCredentials.CHANGE
-        if delete:  cred += EntityCredentials.DELETE
-        if link:    cred += EntityCredentials.LINK
-        if unlink:  cred += EntityCredentials.UNLINK
-
-        return cred
-
-    @staticmethod
-    def create(entity, created):
-        if created:
-            create_creds = EntityCredentials.objects.create
-        else:
-            existing_creds = dict((creds.user_id, creds) for creds in EntityCredentials.objects.filter(entity=entity.id))
-
-            def create_creds(user, entity, value):
-                creds = existing_creds.get(user.id)
-
-                if creds is None:
-                    #should never happen, but there can be race condition I suppose....
-                    EntityCredentials.objects.create(user=user, entity=entity, value=value)
-                elif value != creds.value:
-                    creds.value = value
-                    creds.save()
-                else:
-                    debug('EntityCredentials.create(): no change for entity=%s & user=%s', entity, user)
-
-        users = User.objects.select_related('role')
-        UserRole.populate_setcreds([user.role for user in users if user.role]) #NB: optimisation time !
-
-        buildc = EntityCredentials._build_credentials
-
-        for user in users:
-            role = user.role
-
-            if role:
-                create_creds(user=user, entity=entity, value=buildc(*role.get_perms(user, entity)))
-
-    @staticmethod
-    def filter(user, queryset, perm=VIEW):
-        """Filter a Queryset of CremeEntities with their 'view' credentials.
-        @param queryset A Queryset on CremeEntity models (better if not yet retrieved).
-        @param perm A value in: VIEW, CHANGE, DELETE, LINK, UNLINK [TODO: allow combination]
-        @return A new Queryset on CremeEntity, more selective (not retrieved).
-        """
-        if not user.is_superuser:
-            query = Q(credentials__user=user, credentials__value__contains=perm)
-
-            default = EntityCredentials.get_default_creds() #TODO: cache
-            if perm in default.value:
-                query |= Q(credentials__isnull=True)
-
-            queryset = queryset.filter(query)
-
-        return queryset
-
-    @staticmethod
-    def filter_relations(user, queryset): #TODO: no more used
-        """Filter a Queryset of Relation with their objects' "view" credentials.
-        @param queryset A Queryset on Relation models (better if not yet retrieved).
-        @return A new Queryset on Relation, more selective (not retrieved).
-        """
-        if not user.is_superuser:
-            query = Q(object_entity__credentials__user=user, object_entity__credentials__value__contains=EntityCredentials.VIEW)
-
-            default = EntityCredentials.get_default_creds() #cache ???
-            if default.has_perm('creme_core.view_entity'):
-                query |= Q(object_entity__credentials__isnull=True)
-
-            queryset = queryset.filter(query)
-
-        return queryset
-
-    @staticmethod
-    def get_creds(user, entity):
-        return EntityCredentials.get_creds_map(user, [entity])[entity.id]
-
-    @staticmethod
-    def get_creds_map(user, entities): #TODO: unit test better...
-        """Return a dictionnary with items: (CremeEntity.id, EntityCredentials instance).
-        Of course it managed default permissions.
-        @param user User concerned by the request.
-        @param entities A sequence of CremeEntity (beware, it's iterated twice --> not an iterator).
-        """
-        if not entities:
-            return {}
-
-        if user.is_superuser:
-            ALL_CREDS = EntityCredentials.ALL_CREDS
-            return dict((e.id, EntityCredentials(entity=e, user=user, value=ALL_CREDS)) for e in entities)
-
-        #NB: "e.id" instead of "e"  => avoid one parasit query by entity (ORM bug ??)
-        creds_map = dict((creds.entity_id, creds) for creds in EntityCredentials.objects.filter(Q(entity__isnull=True) | Q(entity__in=[e.id for e in entities], user=user)))
-
-        default_creds = creds_map.pop(None, None)
-        default_value = default_creds.value if default_creds else EntityCredentials.NO_CRED
-
-        for entity in entities:
-            creds = creds_map.get(entity.id)
-
-            if not creds:
-                creds_map[entity.id] = EntityCredentials(entity=entity, user=user, value=default_value)
-
-        return creds_map
-
-    @staticmethod
-    def get_default_creds():
-        defaults = EntityCredentials.objects.filter(entity__isnull=True)[:1] #get ???
-
-        return defaults[0] if defaults else EntityCredentials(entity=None, value=EntityCredentials.NO_CRED)
-
-    @staticmethod
-    def set_default_perms(view=False, change=False, delete=False, link=False, unlink=False):
-        default = EntityCredentials.get_default_creds()
-        default.value = EntityCredentials._build_credentials(view, change, delete, link, unlink)
-        default.save()
-
-    @staticmethod
-    def set_entity_perms(user, entity, view=False, change=False, delete=False, link=False, unlink=False):
-        try:
-            perms = EntityCredentials.objects.get(user=user, entity=entity.id)
-        except EntityCredentials.DoesNotExist:
-            perms = EntityCredentials(user=user, entity=entity)
-
-        perms.value = EntityCredentials._build_credentials(view, change, delete, link, unlink)
-
-        perms.save()
 
 
 class UserRole(Model):
@@ -234,17 +56,6 @@ class UserRole(Model):
 
     def __unicode__(self):
         return self.name
-
-    def delete(self):
-        users = list(User.objects.filter(role=self))
-
-        for user in users:
-            user.role = None
-            user.save()
-
-        EntityCredentials.objects.filter(user__in=users).delete()
-
-        super(UserRole, self).delete()
 
     @property
     def admin_4_apps(self):
@@ -301,69 +112,66 @@ class UserRole(Model):
 
         return (ct.id in self._exportable_ctypes_set)
 
+    def get_setcredentials(self):
+        setcredentials = self._setcredentials
+
+        if setcredentials is None: #TODO: implement a true getter get_set_credentials() ??
+            debug('UserRole.get_credentials(): Cache MISS for id=%s', self.id)
+            self._setcredentials = setcredentials = list(self.credentials.all())
+        else:
+            debug('UserRole.get_credentials(): Cache HIT for id=%s', self.id)
+
+        return setcredentials
+
     def get_perms(self, user, entity):
-        """@return (can_view, can_change, can_delete) 3 boolean tuple"""
-        raw_perms = SetCredentials.CRED_NONE
+        """@return (can_view, can_change, can_delete, can_link, can_unlink) 5 boolean tuple"""
+        #TODO: move this optimization in CremeEntity
         real_entity_class = ContentType.objects.get_for_id(entity.entity_type_id).model_class()
 
         if self.is_app_allowed_or_administrable(real_entity_class._meta.app_label):
-            setcredentials = self._setcredentials
+            perms = SetCredentials.get_perms(self.get_setcredentials(), user, entity)
+        else:
+            perms = EntityCredentials.NONE
 
-            if setcredentials is None: #TODO: implement a true getter get_set_credentials() ??
-                debug('UserRole.get_perms(): Cache MISS for id=%s', self.id)
-                self._setcredentials = setcredentials = list(self.credentials.all())
-            else:
-                debug('UserRole.get_perms(): Cache HIT for id=%s', self.id)
+        return perms
 
-            for creds in setcredentials:
-                raw_perms |= creds.get_raw_perms(user, entity)
+    #TODO: factorise
+    def filter(self, user, queryset, perm):
+        """@param perm value in (EntityCredentials.VIEW, EntityCredentials.CHANGE etc...)
+        @return A new (filtered) queryset"""
+        if self.is_app_allowed_or_administrable(queryset.model._meta.app_label):
+            queryset = SetCredentials.filter(self.get_setcredentials(), user, queryset, perm)
+        else:
+            queryset = queryset.none()
 
-        return SetCredentials.get_perms(raw_perms)
+        return queryset
 
-    @staticmethod
-    def populate_setcreds(roles):
-        role_ids = set(role.id for role in roles)
-        creds_by_role = defaultdict(list)
+    #@staticmethod
+    #def populate_setcreds(roles):
+        #role_ids = set(role.id for role in roles)
+        #creds_by_role = defaultdict(list)
 
-        for setcreds in SetCredentials.objects.filter(role__in=role_ids):
-            creds_by_role[setcreds.role_id].append(setcreds)
+        #for setcreds in SetCredentials.objects.filter(role__in=role_ids):
+            #creds_by_role[setcreds.role_id].append(setcreds)
 
-        for role in roles:
-            role._setcredentials = creds_by_role[role.id]
+        #for role in roles:
+            #role._setcredentials = creds_by_role[role.id]
 
 
 class SetCredentials(Model):
     role     = ForeignKey(UserRole, related_name='credentials')
-    value    = PositiveSmallIntegerField() #see SetCredentials.CRED_*
+    value    = PositiveSmallIntegerField() #see EntityCredentials.VIEW|CHANGE|DELETE|LINK|UNLINK
     set_type = PositiveIntegerField() #see SetCredentials.ESET_*
     ctype    = ForeignKey(ContentType, null=True, blank=True)
     #entity  = ForeignKey(CremeEntity, null=True) ??
 
-    #For python 2.5 compatibility, we don't use the binary expression
-    CRED_NONE   =  0
-    CRED_ADD    =  1 #0b000001   to be used....(??)
-    CRED_VIEW   =  2 #0b000010
-    CRED_CHANGE =  4 #0b000100
-    CRED_DELETE =  8 #0b001000
-    CRED_LINK   = 16 #0b010000
-    CRED_UNLINK = 32 #0b100000
-
     #ESET means 'Entities SET'
-    ESET_ALL = 1 #0b0001 => all entities
-    ESET_OWN = 2 #0b0010 => his own entities
-    #DROIT_TEF_FICHE_UNIQUE = "fiche_unique"
-    #DROIT_TEF_FICHES_EQUIPE = "les_fiches_de_l_equipe"
-    #DROIT_TEF_SA_FICHE = "sa_fiche"
-    #DROIT_TEF_FICHES_D_UN_ROLE = "fiche_d_un_role"
-    #DROIT_TEF_FICHES_D_UN_ROLE_ET_SUBORDONNES = "fiche_d_un_role_et_subordonnees"
-    #DROIT_TEF_FICHES_DE_SES_SUBORDONNES = "les_fiches_de_ses_subordonnes"
-    #DROIT_TEF_LES_AUTRES_FICHES = "les_autres_fiches"
-    #DROIT_TEF_EN_REL_AVC_SA_FICHE = "fiche_en_rel_avec_sa_fiche"
+    ESET_ALL = 1 # => all entities
+    ESET_OWN = 2 # => his own entities
 
-    ESET_MAP = {
-            ESET_ALL: _(u'all entities'),
-            ESET_OWN: _(u"user's own entities"),
-        }
+    ESETS_MAP = {ESET_ALL: _(u'all entities'),
+                 ESET_OWN: _(u"user's own entities"),
+                }
 
     class Meta:
         app_label = 'creme_core'
@@ -373,16 +181,16 @@ class SetCredentials(Model):
         perms = []
         append = perms.append
 
-        if value & SetCredentials.CRED_VIEW:   append(ugettext('View'))
-        if value & SetCredentials.CRED_CHANGE: append(ugettext('Change'))
-        if value & SetCredentials.CRED_DELETE: append(ugettext('Delete'))
-        if value & SetCredentials.CRED_LINK:   append(ugettext('Link'))
-        if value & SetCredentials.CRED_UNLINK: append(ugettext('Unlink'))
+        if value & EntityCredentials.VIEW:   append(ugettext('View'))
+        if value & EntityCredentials.CHANGE: append(ugettext('Change'))
+        if value & EntityCredentials.DELETE: append(ugettext('Delete'))
+        if value & EntityCredentials.LINK:   append(ugettext('Link'))
+        if value & EntityCredentials.UNLINK: append(ugettext('Unlink'))
 
         if not perms:
             append(ugettext(u'Nothing allowed'))
 
-        args = {'set':   SetCredentials.ESET_MAP[self.set_type],
+        args = {'set':   SetCredentials.ESETS_MAP[self.set_type],
                 'perms': u', '.join(perms),
                }
 
@@ -394,52 +202,68 @@ class SetCredentials(Model):
 
         return format_str % args
 
+    def _get_perms(self, user, entity):
+        """@return an integer with binary flags for permissions"""
+        ctype_id = self.ctype_id
+
+        if not ctype_id or ctype_id == entity.entity_type_id:
+            if self.set_type == SetCredentials.ESET_ALL:
+                return self.value
+            else: #SetCredentials.ESET_OWN
+                user_id = entity.user_id
+                if user.id == user_id or any(user_id == t.id for t in user.teams):
+                    return self.value
+
+        return EntityCredentials.NONE
+
     @staticmethod
-    def get_perms(raw_perms):
-        """Get boolean perms from binary perms.
-        @param raw_perms Binary perms returned by SetCredentials.get_raw_perms().
-        @return (view, change, delete, link, unlink) 5 boolean tuple
+    def get_perms(sc_sequence, user, entity):
+        """@param sc_sequence Sequence of SetCredentials instances."""
+        return reduce(or_op, (sc._get_perms(user, entity) for sc in sc_sequence), EntityCredentials.NONE)
+
+    @staticmethod
+    def filter(sc_sequence, user, queryset, perm):
+        """Filter a queryset of entities with credentials.
+        @param sc_sequence Sequence of SetCredentials instances.
+        @param user from django.contrib.auth.models.User instance.
+        @param queryset Queryset of CremeEntity (or a child class of course).
+        @param perm value in (EntityCredentials.VIEW, EntityCredentials.CHANGE etc...)
+        @return A new queryset.
         """
-        return (bool(raw_perms & SetCredentials.CRED_VIEW),
-                bool(raw_perms & SetCredentials.CRED_CHANGE),
-                bool(raw_perms & SetCredentials.CRED_DELETE),
-                bool(raw_perms & SetCredentials.CRED_LINK),
-                bool(raw_perms & SetCredentials.CRED_UNLINK),
-               )
+        allowed_ctype_ids = (None, ContentType.objects.get_for_model(queryset.model).id)
+        ESET_ALL = SetCredentials.ESET_ALL
 
-    def get_raw_perms(self, user, entity):
-        """@return an integer with binary flags for perms (see get_perms)"""
-        if self.ctype_id and self.ctype_id != entity.entity_type_id:
-            return SetCredentials.CRED_NONE
+        #NB: we sorte to get ESET_ALL creds before ESET_OWN ones (more priority)
+        for sc in sorted(sc_sequence, key=lambda sc: sc.set_type):
+            if sc.ctype_id in allowed_ctype_ids and sc.value & perm:
+                if sc.set_type == ESET_ALL:
+                    return queryset #no additionnal filtering needed
+                else: #SetCredentials.ESET_OWN
+                    teams = user.teams
+                    return queryset.filter(user__in=[user] + teams) if teams else \
+                           queryset.filter(user=user)
 
-        if self.set_type == SetCredentials.ESET_ALL:
-            return self.value
-        else: #SetCredentials.ESET_OWN
-            if entity.user.is_team and user.id in entity.user.teammates:
-                return self.value
-            elif user.id == entity.user_id:
-                return self.value
-
-        return SetCredentials.CRED_NONE
+        return queryset.none()
 
     def set_value(self, can_view, can_change, can_delete, can_link, can_unlink):
-        """Set the 'value' attribute from 3 booleans"""
-        value = SetCredentials.CRED_NONE
+        """Set the 'value' attribute from 5 booleans"""
+        value = EntityCredentials.NONE
 
-        if can_view:   value |= SetCredentials.CRED_VIEW
-        if can_change: value |= SetCredentials.CRED_CHANGE
-        if can_delete: value |= SetCredentials.CRED_DELETE
-        if can_link:   value |= SetCredentials.CRED_LINK
-        if can_unlink: value |= SetCredentials.CRED_UNLINK
+        if can_view:   value |= EntityCredentials.VIEW
+        if can_change: value |= EntityCredentials.CHANGE
+        if can_delete: value |= EntityCredentials.DELETE
+        if can_link:   value |= EntityCredentials.LINK
+        if can_unlink: value |= EntityCredentials.UNLINK
 
         self.value = value
 
 
 class UserProfile(Model):
-    role    = ForeignKey(UserRole, verbose_name=_(u'Role'), null=True)
+    role    = ForeignKey(UserRole, verbose_name=_(u'Role'), null=True, on_delete=PROTECT)
     is_team = BooleanField(verbose_name=_(u'Is a team ?'), default=False)
     #permissions = None #TODO; can we "erase" 'permissions' fields ?? doesn't seem to work
 
+    _teams = None
     _teammates = None
 
     class Meta:
@@ -448,10 +272,21 @@ class UserProfile(Model):
     def __unicode__(self):
         return self.username if not self.is_team else ugettext('%s (team)') % self.username
 
-    @property     #NB notice that cache and credentials are well updated when using this property
+    #TODO: full_clean() ?? (team + role= None etc...)
+
+    @property #NB notice that a cache is built
+    def teams(self):
+        assert not self.is_team
+
+        teams = self._teams
+        if teams is None:
+            self._teams = teams = list(User.objects.filter(team_m2m_teamside__teammate=self))
+
+        return teams
+
+    @property #NB notice that cache and credentials are well updated when using this property
     def teammates(self):
-        if not self.is_team:
-            raise ValueError('User.get_teammates() works only if user.is_team == True ')
+        assert self.is_team
 
         teammates = self._teammates
 
@@ -465,8 +300,7 @@ class UserProfile(Model):
 
     @teammates.setter
     def teammates(self, users):
-        if not self.is_team:
-            raise ValueError('User.add_teammate() works only if user.is_team == True ')
+        assert self.is_team
         assert not any(user.is_team for user in users)
 
         old_teammates = self.teammates
@@ -481,10 +315,6 @@ class UserProfile(Model):
         users2add = [new_teammates[user_id] for user_id in (new_set - old_set)]
         for user in users2add:
             TeamM2M.objects.get_or_create(team=self, teammate=user)
-
-        entities = CremeEntity.objects.filter(user=self) #NB: optimisation
-        for user in chain(users2remove, users2add):
-            user.update_credentials(entities)
 
         self._teammates = None #clear cache (we could rebuild it but ...)
 
@@ -514,31 +344,6 @@ class UserProfile(Model):
     def has_perm_to_export_or_die(self, model_or_entity):
         if not self.has_perm_to_export(model_or_entity):
             raise PermissionDenied(ugettext(u'You are not allowed to export: %s') % model_or_entity._meta.verbose_name)
-
-    def update_credentials(self, entity_qs=None):
-        """Update the credentials (EntityCredentials objects) related to this user.
-        @param entity_qs If not None, update only the credentials related to the
-                         CremeEntities retrieved by this queyset
-                         (if None: all credentials are updated).
-        """
-        role = self.role
-
-        qs2del = EntityCredentials.objects.filter(user=self)
-
-        if entity_qs is not None:
-            qs2del.filter(entity__in=entity_qs)
-
-        qs2del.delete()
-
-        if role is not None: #TODO factorise with EntityCredentials.create() ??
-            build_value  = EntityCredentials._build_credentials
-            create_creds = EntityCredentials.objects.create
-            get_perms    = role.get_perms
-
-            qs2update = entity_qs if entity_qs is not None else CremeEntity.objects.all()
-
-            for entity in qs2update:
-                create_creds(user=self, entity=entity, value=build_value(*get_perms(self, entity)))
 
 
 #TODO: remove this class when we can contribute_to_model with a ManyToManyField

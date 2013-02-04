@@ -7,6 +7,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.conf import settings
 
+    from creme_core.auth.entity_credentials import EntityCredentials
     from creme_core.models import Relation, SetCredentials
     from creme_core.gui.quick_forms import quickforms_registry
 
@@ -196,8 +197,8 @@ class ContactTestCase(_BaseTestCase):
         self.login(is_superuser=False, creatable_models=[Contact])
 
         SetCredentials.objects.create(role=self.role,
-                                      value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
-                                            SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
+                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
+                                            EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
                                       set_type=SetCredentials.ESET_OWN
                                      )
 

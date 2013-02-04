@@ -8,6 +8,7 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
+    from creme_core.auth.entity_credentials import EntityCredentials
     from creme_core.models import (RelationType, Relation, SemiFixedRelationType, CremeEntity,
                                    CremePropertyType, CremeProperty, SetCredentials)
     from creme_core.tests.views.base import ViewsTestCase
@@ -105,7 +106,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations03(self): #creds problems (no link credentials)
         self._aux_test_add_relations(is_superuser=False)
-        self._set_all_creds_except_one(excluded=SetCredentials.CRED_LINK)
+        self._set_all_creds_except_one(excluded=EntityCredentials.LINK)
 
         unlinkable = CremeEntity.objects.create(user=self.other_user)
         self.assertTrue(unlinkable.can_view(self.user))
@@ -270,7 +271,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_add_relations_with_semi_fixed05(self): #filter not linkable entities
         self._aux_test_add_relations(is_superuser=False)
-        self._set_all_creds_except_one(excluded=SetCredentials.CRED_LINK)
+        self._set_all_creds_except_one(excluded=EntityCredentials.LINK)
 
         unlinkable = CremeEntity.objects.create(user=self.other_user)
 
@@ -425,7 +426,7 @@ class RelationViewsTestCase(ViewsTestCase):
     def test_add_relations_bulk03(self):
         self._aux_test_add_relations(is_superuser=False)
 
-        self._set_all_creds_except_one(excluded=SetCredentials.CRED_LINK)
+        self._set_all_creds_except_one(excluded=EntityCredentials.LINK)
         unlinkable = CremeEntity.objects.create(user=self.other_user)
         self.assertTrue(unlinkable.can_view(self.user))
         self.assertFalse(unlinkable.can_link(self.user))
@@ -444,7 +445,7 @@ class RelationViewsTestCase(ViewsTestCase):
         url =  self._build_bulk_add_url(self.ct_id, self.subject01)
         self.assertGET200(url)
 
-        self._set_all_creds_except_one(excluded=SetCredentials.CRED_LINK)
+        self._set_all_creds_except_one(excluded=EntityCredentials.LINK)
         unlinkable = CremeEntity.objects.create(user=self.other_user)
 
         response = self.client.post(url, data={'entities_lbl': 'wtf',
@@ -725,9 +726,10 @@ class RelationViewsTestCase(ViewsTestCase):
                                      }
                           )
 
-    def test_add_relations_with_same_type04(self): #credentials errors
+    def test_add_relations_with_same_type04(self):
+        "Credentials errors"
         self.login(is_superuser=False)
-        self._set_all_creds_except_one(excluded=SetCredentials.CRED_LINK)
+        self._set_all_creds_except_one(excluded=EntityCredentials.LINK)
         user = self.user
 
         forbidden = CremeEntity.objects.create(user=self.other_user)
@@ -884,7 +886,7 @@ class RelationViewsTestCase(ViewsTestCase):
     def test_delete02(self):
         self.login(is_superuser=False)
 
-        self._set_all_creds_except_one(excluded=SetCredentials.CRED_UNLINK)
+        self._set_all_creds_except_one(excluded=EntityCredentials.UNLINK)
 
         allowed   = CremeEntity.objects.create(user=self.user)
         forbidden = CremeEntity.objects.create(user=self.other_user)
@@ -960,7 +962,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_delete_similar02(self):
         self.login(is_superuser=False)
-        self._set_all_creds_except_one(excluded=SetCredentials.CRED_UNLINK)
+        self._set_all_creds_except_one(excluded=EntityCredentials.UNLINK)
 
         allowed   = CremeEntity.objects.create(user=self.user)
         forbidden = CremeEntity.objects.create(user=self.other_user)
@@ -1036,7 +1038,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
     def test_delete_all02(self):
         self.login(is_superuser=False)
-        self._set_all_creds_except_one(excluded=SetCredentials.CRED_UNLINK)
+        self._set_all_creds_except_one(excluded=EntityCredentials.UNLINK)
         self._aux_test_delete_all()
 
         response = self.client.post(self.DELETE_ALL_URL,

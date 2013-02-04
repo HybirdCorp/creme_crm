@@ -230,7 +230,7 @@ def _get_event_n_contact(event_id, contact_id, user):
     event   = get_object_or_404(Event, pk=event_id)
     contact = get_object_or_404(Contact, pk=contact_id)
 
-    CremeEntity.populate_credentials([event, contact], user) #optimisation
+    #CremeEntity.populate_credentials([event, contact], user) #optimisation
     event.can_link_or_die(user)
     contact.can_link_or_die(user)
 

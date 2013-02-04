@@ -1,8 +1,8 @@
 {% load i18n %}
 {% load creme_widgets creme_block creme_core_tags %}
-{% if not request.is_ajax %}
+{% comment %}{% if not request.is_ajax %}
     <div class="help_box">{% trans 'Remember that if you delete a role, all associated users will have the default credentials.' %}</div>
-{% endif %}
+{% endif %}{% endcomment %}
 {% with user.is_superuser as has_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=7 %}
@@ -38,7 +38,14 @@
                     </td>
                     <td class="{{row_color}} action">
                         {% get_line_editor at_url '/creme_config/role/edit/{{role.id}}' with_perms has_perm %}
-                        {% get_line_deletor at_url '/creme_config/role/delete' with_args "{'id': '{{role.pk}}'}" with_perms has_perm %}
+                        {% comment %}{% get_line_deletor at_url '/creme_config/role/delete' with_args "{'id': '{{role.pk}}'}" with_perms has_perm %}{% endcomment %}
+                        {% if has_perm %}
+                            <a onclick="creme.utils.innerPopupNReload('/creme_config/role/delete/{{role.pk}}', {% get_block_reload_uri %});">
+                                <img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}">
+                            </a>
+                        {% else %}
+                            <img class="forbidden" src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{% trans "Can't delete" %}" alt="{% trans "Can't delete" %}">
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}

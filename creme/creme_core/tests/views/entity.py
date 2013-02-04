@@ -11,6 +11,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.conf import settings
 
+    from creme_core.auth.entity_credentials import EntityCredentials
     from creme_core.models import *
     from creme_core.forms.base import _CUSTOM_NAME
     from creme_core.gui.bulk_update import bulk_update_registry
@@ -361,7 +362,7 @@ class EntityViewsTestCase(ViewsTestCase):
 
     def test_clone03(self):
         self.login(is_superuser=False, creatable_models=[ct.model_class() for ct in ContentType.objects.all()])
-        self._set_all_creds_except_one(SetCredentials.CRED_VIEW)
+        self._set_all_creds_except_one(EntityCredentials.VIEW)
 
         mario = Contact.objects.create(user=self.other_user, first_name="Mario", last_name="Bros")
         response = self.client.post('/creme_core/entity/clone', data={'id': mario.id}, follow=True)
@@ -1028,7 +1029,7 @@ class InnerEditTestCase(_BulkEditTestCase):
 
     def test_regular_field_03(self): #no permissons
         self.login(is_superuser=False, creatable_models=[Contact])
-        self._set_all_creds_except_one(SetCredentials.CRED_CHANGE)
+        self._set_all_creds_except_one(EntityCredentials.CHANGE)
 
         mario = self.create_contact()
         self.assertFalse(mario.can_change(self.user))

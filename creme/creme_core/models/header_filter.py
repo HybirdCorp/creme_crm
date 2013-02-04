@@ -150,9 +150,9 @@ class HeaderFilter(Model): #CremeModel ???
         for hfi in self.items:
             hfi_groups[hfi.type].append(hfi)
 
-        group = hfi_groups[HFI_ACTIONS]
-        if group:
-            CremeEntity.populate_credentials(entities, user)
+        #group = hfi_groups[HFI_ACTIONS]
+        #if group:
+            #CremeEntity.populate_credentials(entities, user)
 
         group = hfi_groups[HFI_FIELD]
         if group:

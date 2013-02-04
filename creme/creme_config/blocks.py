@@ -147,7 +147,7 @@ class SemiFixedRelationTypesBlock(_ConfigAdminBlock):
                                              )
         entities = [sfrt.object_entity for sfrt in btc['page'].object_list]
         CremeEntity.populate_real_entities(entities)
-        CremeEntity.populate_credentials([entity.get_real_entity() for entity in entities], context['user'])
+        #CremeEntity.populate_credentials([entity.get_real_entity() for entity in entities], context['user'])
 
         return self._render(btc)
 
@@ -365,21 +365,6 @@ class UserRolesBlock(_ConfigAdminBlock):
                                                            ))
 
 
-class DefaultCredentialsBlock(Block):
-    id_           = Block.generate_id('creme_config', 'default_credentials')
-    dependencies  = (EntityCredentials,)
-    verbose_name  = u'Default credentials'
-    template_name = 'creme_config/templatetags/block_default_credentials.html'
-    configurable  = False
-    permission    = 'creme_config.can_admin' #NB: used by the view creme_core.views.blocks.reload_basic
-
-    def detailview_display(self, context):
-        return self._render(self.get_block_template_context(context,
-                                                            creds=EntityCredentials.get_default_creds(),
-                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
-                                                           ))
-
-
 class UserPreferedMenusBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'user_prefered_menus')
     dependencies  = ()
@@ -424,6 +409,5 @@ blocks_list = (
         SearchConfigBlock(),
         HistoryConfigBlock(),
         UserRolesBlock(),
-        DefaultCredentialsBlock(),
         UserPreferedMenusBlock(),
     )

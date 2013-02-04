@@ -18,33 +18,31 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
+from django.contrib.auth.models import User
 
 from creme_core.models import UserRole
 from creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
 from creme_core.auth.decorators import superuser_required
 from creme_core.utils import get_from_POST_or_404
 
-from creme_config.forms.user_role import UserRoleCreateForm, UserRoleEditForm, AddCredentialsForm, DefaultCredsForm
+from creme_config.forms.user_role import UserRoleCreateForm, UserRoleEditForm, AddCredentialsForm, UserRoleDeleteForm
 
 
 @login_required
-#@permission_required('creme_config.can_admin')
 @superuser_required
 def add(request):
     return add_model_with_popup(request, UserRoleCreateForm, _(u'New role'))
 
 @login_required
-#@permission_required('creme_config.can_admin')
 @superuser_required
 def edit(request, role_id):
     return edit_model_with_popup(request, {'pk': role_id}, UserRole, UserRoleEditForm)
 
 @login_required
-#@permission_required('creme_config.can_admin')
 @superuser_required
 def add_credentials(request, role_id):
     role = get_object_or_404(UserRole, pk=role_id)
@@ -72,30 +70,11 @@ def portal(request):
     return render(request, 'creme_config/user_role_portal.html')
 
 @login_required
-#@permission_required('creme_config.can_admin')
 @superuser_required
-def delete(request):
-    get_object_or_404(UserRole, pk=get_from_POST_or_404(request.POST, 'id')).delete()
+def delete(request, role_id):
+    role = get_object_or_404(UserRole, pk=role_id)
 
-    return HttpResponse()
-
-@login_required
-#@permission_required('creme_config.can_admin')
-@superuser_required
-def set_default_creds(request):
-    if request.method == 'POST':
-        form = DefaultCredsForm(user=request.user, data=request.POST)
-
-        if form.is_valid():
-            form.save()
-    else:
-        form = DefaultCredsForm(user=request.user)
-
-    return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
-                       {'form':  form,
-                        'title': _(u'Edit default credentials'),
-                       },
-                       is_valid=form.is_valid(),
-                       reload=False,
-                       delegate_reload=True,
-                      )
+    return add_model_with_popup(request, UserRoleDeleteForm,
+                                _(u'Delete role <%s>') % role,
+                                initial={'role_to_delete': role},
+                               )

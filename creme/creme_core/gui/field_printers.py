@@ -93,7 +93,7 @@ def print_many2many(entity, fval, user):
 
     if issubclass(fval.model, CremeEntity):
         entities = list(fval.all())
-        CremeEntity.populate_credentials(entities, user)
+        #CremeEntity.populate_credentials(entities, user)
         output.extend('<li>%s</li>' % e.get_entity_m2m_summary(user) if e.can_view(user) else e.allowed_unicode(user) for e in entities)
     else:
         output.extend('<li>%s</li>' % escape(a) for a in fval.all())

@@ -32,6 +32,7 @@ from django.forms.util import flatatt
 from django.template.loader import render_to_string
 from django.contrib.contenttypes.models import ContentType
 
+from creme_core.auth.entity_credentials import EntityCredentials
 from creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
 from base import CremeAbstractEntity
 
@@ -70,9 +71,6 @@ class CremeEntity(CremeAbstractEntity):
         app_label = 'creme_core'
         ordering = ('id',)
 
-#    class CanNotBeDeleted(Exception):
-#        pass
-
     def __init__(self, *args, **kwargs):
         super(CremeEntity, self).__init__(*args, **kwargs)
         self._relations_map = {}
@@ -81,8 +79,6 @@ class CremeEntity(CremeAbstractEntity):
         self._credentials_map = {}
 
     def delete(self):
-        from auth import EntityCredentials
-
         if settings.TRUE_DELETE:
             super(CremeEntity, self).delete()
         else:
@@ -103,70 +99,57 @@ class CremeEntity(CremeAbstractEntity):
     def can_change(self, user):
         get_related_entity = getattr(self, 'get_related_entity', None)
         main_entity = get_related_entity() if get_related_entity else self
-        return main_entity.get_credentials(user).can_change()
+
+        return main_entity._get_credentials(user).can_change()
 
     def can_change_or_die(self, user):
         if not self.can_change(user):
+            #TODO allowed_unicode --> recompute creds -> replace by a forbidden_unicode() method  OR CACHE
             raise PermissionDenied(ugettext(u'You are not allowed to edit this entity: %s') % self.allowed_unicode(user))
 
     def can_delete(self, user):
         get_related_entity = getattr(self, 'get_related_entity', None)
         if get_related_entity:
-            return get_related_entity().get_credentials(user).can_change()
+            return get_related_entity()._get_credentials(user).can_change()
 
-        return self.get_credentials(user).can_delete()
+        return self._get_credentials(user).can_delete()
 
     def can_delete_or_die(self, user):
         if not self.can_delete(user):
             raise PermissionDenied(ugettext(u'You are not allowed to delete this entity: %s') % self.allowed_unicode(user))
 
     def can_link(self, user):
-        return self.get_credentials(user).can_link()
+        return self._get_credentials(user).can_link()
 
     def can_link_or_die(self, user):
         if not self.can_link(user):
             raise PermissionDenied(ugettext(u'You are not allowed to link this entity: %s') % self.allowed_unicode(user))
 
     def can_unlink(self, user):
-        return self.get_credentials(user).can_unlink()
+        return self._get_credentials(user).can_unlink()
 
     def can_unlink_or_die(self, user):
         if not self.can_unlink(user):
             raise PermissionDenied(ugettext(u'You are not allowed to unlink this entity: %s') % self.allowed_unicode(user))
 
     def can_view(self, user):
-        return self.get_credentials(user).can_view()
+        return self._get_credentials(user).can_view()
 
     def can_view_or_die(self, user):
         if not self.can_view(user):
             raise PermissionDenied(ugettext(u'You are not allowed to view this entity: %s') % self.allowed_unicode(user))
 
-    def get_credentials(self, user): #private ??
-        from auth import EntityCredentials
-
+    def _get_credentials(self, user):
         creds_map = self._credentials_map
-
         creds = creds_map.get(user.id)
 
         if creds is None:
-            debug('CremeEntity.get_credentials(): Cache MISS for id=%s user=%s', self.id, user)
-            creds = EntityCredentials.get_creds(user, self)
-            creds_map[user.id] = creds
+            debug('CremeEntity._get_credentials(): Cache MISS for id=%s user=%s', self.id, user)
+            creds_map[user.id] = creds = EntityCredentials(user, self)
         else:
-            debug('CremeEntity.get_credentials(): Cache HIT for id=%s user=%s', self.id, user)
+            debug('CremeEntity._get_credentials(): Cache HIT for id=%s user=%s', self.id, user)
 
         return creds
-
-    @staticmethod
-    def populate_credentials(entities, user): #TODO: unit test...
-        """ @param entities Sequence of CremeEntity (iterated several times -> not an iterator)
-        """
-        from auth import EntityCredentials
-        creds_map = EntityCredentials.get_creds_map(user, entities)
-        user_id   = user.id
-
-        for entity in entities:
-            entity._credentials_map[user_id] = creds_map[entity.id]
 
     @staticmethod
     def get_real_entity_by_id(pk):
@@ -346,15 +329,10 @@ class CremeEntity(CremeAbstractEntity):
                         setattr(entity, fname, attr_values[attr_id])
 
     def save(self, *args, **kwargs):
-        created = bool(self.pk is None)
         self.header_filter_search_field = self._search_field_value()
 
         super(CremeEntity, self).save(*args, **kwargs)
         debug('CremeEntity.save(%s, %s)', args, kwargs)
-
-        #signal instead ??
-        from auth import EntityCredentials
-        EntityCredentials.create(self, created)
 
     def _search_field_value(self):
         """Overload this method if you want to customise the value to search on your CremeEntity type."""

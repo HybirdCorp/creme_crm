@@ -4,6 +4,7 @@ try:
     from django.core.serializers.json import simplejson
     from django.contrib.contenttypes.models import ContentType
 
+    from creme_core.auth.entity_credentials import EntityCredentials
     from creme_core.blocks import RelationsBlock
     from creme_core.models import BlockState, SetCredentials, RelationType, Relation
     from creme_core.gui.block import block_registry, Block
@@ -177,7 +178,7 @@ class BlockViewTestCase(CremeTestCase):
 
     def test_reload_detailview04(self): #not superuser
         self.login(is_superuser=False, allowed_apps=['persons'])
-        SetCredentials.objects.create(role=self.role, value=SetCredentials.CRED_VIEW, set_type=SetCredentials.ESET_ALL)
+        SetCredentials.objects.create(role=self.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
 
         atom = Contact.objects.create(user=self.other_user, first_name='Atom', last_name='Tenma')
         self.assertTrue(atom.can_view(self.user))
@@ -416,7 +417,7 @@ class BlockViewTestCase(CremeTestCase):
 
     def test_reload_relations04(self): #not superuser
         self.login(is_superuser=False, allowed_apps=['persons'])
-        SetCredentials.objects.create(role=self.role, value=SetCredentials.CRED_VIEW, set_type=SetCredentials.ESET_ALL)
+        SetCredentials.objects.create(role=self.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
 
         atom = Contact.objects.create(user=self.other_user, first_name='Atom', last_name='Tenma')
         self.assertTrue(atom.can_view(self.user))

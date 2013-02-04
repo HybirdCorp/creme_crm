@@ -80,7 +80,8 @@ class CSVUploadForm(CremeForm):
         if not self._errors:
             csv_document = cleaned_data['csv_document']
 
-            if not self.user.has_perm('creme_core.view_entity', csv_document):
+            #if not self.user.has_perm('creme_core.view_entity', csv_document):
+            if not csv_document.can_view(self.user):
                 raise ValidationError(ugettext("You have not the credentials to read this document."))
 
             if cleaned_data['csv_has_header']:

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,7 +41,7 @@ class RootNodesBlock(QuerysetBlock):
 
         entities = [node.entity for node in btc['page'].object_list]
         CremeEntity.populate_real_entities(entities)
-        CremeEntity.populate_credentials(entities, context['user'])
+        #CremeEntity.populate_credentials(entities, context['user'])
 
         return self._render(btc)
 

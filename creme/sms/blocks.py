@@ -24,7 +24,7 @@ from django.utils.simplejson import JSONEncoder
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity
+#from creme_core.models import CremeEntity
 from creme_core.gui.block import QuerysetBlock
 #from creme_core.utils import jsonify
 
@@ -33,7 +33,6 @@ from persons.models import Contact
 from sms.models import SMSCampaign, Recipient, Sending, Message, MessagingList
 
 
-#TODO: move populate_credentials() code to a Block class in creme_core ???
 class _RelatedEntitesBlock(QuerysetBlock):
     #id_           = 'SET ME'
     #dependencies  = 'SET ME'
@@ -49,7 +48,7 @@ class _RelatedEntitesBlock(QuerysetBlock):
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
                                              )
 
-        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+        #CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
 
         return self._render(btc)
 
