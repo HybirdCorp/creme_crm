@@ -21,7 +21,7 @@
 from django.http import HttpResponse
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import render
 from django.conf import settings
 
 from creme_core.views.generic import add_model_with_popup, edit_model_with_popup

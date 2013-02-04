@@ -68,9 +68,9 @@ class BlockViewTestCase(CremeTestCase):
     def test_set_state03(self):
         self.login()
         block_id = RelationsBlock.id_
-        response = self.client.post('/creme_core/blocks/reload/set_state/%s/' % block_id,
-                                    data={'is_open': 1, 'show_empty_fields': 1}
-                                   )
+        self.client.post('/creme_core/blocks/reload/set_state/%s/' % block_id,
+                         data={'is_open': 1, 'show_empty_fields': 1}
+                        )
 
         self.client.logout()
         self.client.login(username=self.other_user.username, password="test")
@@ -397,7 +397,7 @@ class BlockViewTestCase(CremeTestCase):
         rtype1 = RelationType.create(('test-subject_son',   'is the son of'),
                                      ('test-object_father', 'is the father of')
                                     )[0]
-        rel1 = Relation.objects.create(subject_entity=atom, type=rtype1, object_entity=tenma, user=user)
+        Relation.objects.create(subject_entity=atom, type=rtype1, object_entity=tenma, user=user)
 
         rtype2 = RelationType.create(('test-subject_brother', 'is the brother of'),
                                      ('test-object_sister',   'is the sister of')

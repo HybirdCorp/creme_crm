@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from os.path import join, exists, split
     from functools import partial
+    from os.path import join
 
     from django.contrib.contenttypes.models import ContentType
     from django.conf import settings
@@ -15,7 +15,7 @@ try:
     from persons.constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
     from persons.tests.base import _BaseTestCase
 
-    from media_managers.models.image import Image
+    from media_managers.models import Image
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

@@ -20,7 +20,7 @@
 
 from functools import partial
 from decimal import Decimal
-from logging import debug, warn
+from logging import warn #debug
 
 from django.core.exceptions import ValidationError
 from django.db.models import (CharField, IntegerField, DecimalField, BooleanField,

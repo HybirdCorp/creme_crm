@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from creme_core.models import CremeEntity
+    #from creme_core.models import CremeEntity
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Contact

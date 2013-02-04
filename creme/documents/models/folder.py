@@ -19,7 +19,7 @@
 ################################################################################
 
 from random import randint
-import re
+#import re
 
 from django.db.models import CharField, TextField, ForeignKey, SET_NULL
 from django.utils.translation import ugettext_lazy as _, ugettext

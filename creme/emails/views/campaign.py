@@ -22,7 +22,6 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.contenttypes.models import ContentType
 
 from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity, list_view
 from creme_core.utils import get_from_POST_or_404

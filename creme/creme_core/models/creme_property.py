@@ -19,7 +19,6 @@
 ################################################################################
 
 from django.db.models import CharField, ForeignKey, ManyToManyField, BooleanField, Q
-from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 

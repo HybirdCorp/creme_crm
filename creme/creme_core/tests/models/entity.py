@@ -15,7 +15,7 @@ try:
     from creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
     from creme_core.core.field_tags import InvalidFieldTag
 
-    from persons.models import Contact, Organisation, Civility, Position, Sector, Address
+    from persons.models import Contact, Organisation, Civility
 
     from media_managers.models import Image, MediaCategory
 
@@ -50,7 +50,7 @@ class EntityTestCase(CremeTestCase):
         with self.assertNoException():
             ptype  = CremePropertyType.create(str_pk='test-prop_foobar', text=text)
             entity = CremeEntity.objects.create(user=self.user)
-            prop   = CremeProperty.objects.create(type=ptype, creme_entity=entity)
+            CremeProperty.objects.create(type=ptype, creme_entity=entity)
 
         self.assertEqual(text, ptype.text)
 
@@ -252,7 +252,7 @@ class EntityTestCase(CremeTestCase):
     def test_clone04(self):
         self._setUpClone()
 
-        ct_activity = ContentType.objects.get_for_model(Activity)
+        #ct_activity = ContentType.objects.get_for_model(Activity)
         act_type = ActivityType.objects.all()[0]
         activity1 = Activity.objects.create(user=self.user, type=act_type)
         activity2 = activity1.clone()
@@ -262,8 +262,7 @@ class EntityTestCase(CremeTestCase):
             self.assertEqual(getattr(activity1, attr), getattr(activity2, attr))
 
     def test_clone05(self):
-        ct_activity = ContentType.objects.get_for_model(Activity)
-
+        #ct_activity = ContentType.objects.get_for_model(Activity)
         act_type = ActivityType.objects.all()[0]
         act_status = Status.objects.all()[0]#Import status as ActivityStatus ?
         rtype_participant = RelationType.objects.get(pk=REL_SUB_PART_2_ACTIVITY)

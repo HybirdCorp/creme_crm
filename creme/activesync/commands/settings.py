@@ -38,5 +38,5 @@ class Settings(Base):
 
         self.smtp_address = None
         if xml is not None:
-            status = xml.find('%sStatus' % ns).text
+            status = xml.find('%sStatus' % ns).text #TODO: not used ??
             self.smtp_address = xml.find('%(ns0)sUserInformation/%(ns0)sGet/%(ns0)sEmailAddresses/%(ns0)sSmtpAddress' % {'ns0': ns}).text

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,11 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+#from logging import debug
 from datetime import datetime
 
 from django.core.management.base import BaseCommand
-from django.conf import settings
+#from django.conf import settings
 
 
 LOCK_NAME = "sending_emails"
@@ -35,11 +35,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         from creme_core.models.lock import Mutex, MutexLockedException
         from emails.models import EmailSending
-        from emails.models.sending import SENDING_TYPE_IMMEDIATE, SENDING_STATE_DONE, SENDING_STATE_INPROGRESS, SENDING_STATE_PLANNED
+        from emails.models.sending import SENDING_TYPE_IMMEDIATE, SENDING_STATE_DONE, SENDING_STATE_INPROGRESS # SENDING_STATE_PLANNED
 
         try:
             lock = Mutex.get_n_lock(LOCK_NAME)
-        except MutexLockedException, e:
+        except MutexLockedException:
             print 'A process is already running'
         else:
             #for sending in EmailSending.objects.filter(state=SENDING_STATE_PLANNED):

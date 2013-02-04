@@ -18,16 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from base64 import encodestring, decodestring
+#from base64 import encodestring, decodestring
 
 from pickle import loads, dumps
 
 from django.db.models.signals import post_save
-from django.db.models import TextField, PositiveIntegerField, CharField, ForeignKey
-from django.contrib.auth.models import User
+from django.db.models import TextField, CharField, ForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.utils.encoding import smart_str
 #from django.utils.simplejson import loads, dumps
 
 from creme_core.models import CremeModel

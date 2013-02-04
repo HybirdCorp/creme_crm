@@ -163,7 +163,7 @@ class MediaManagersTestCase(CremeTestCase):
         self.assertEqual(image_url, content.get('url'))
 
     def test_select_image_tiny_mce(self):
-        image = self._create_image()
+        self._create_image()
         self.assertEqual(200, self.client.get('/media_managers/tiny_mce/image').status_code)
 
         #TODO: improve this test....

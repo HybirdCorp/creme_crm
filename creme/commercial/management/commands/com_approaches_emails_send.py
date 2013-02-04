@@ -26,7 +26,7 @@ from django.core.mail import get_connection
 from django.core.mail.message import EmailMessage
 from django.core.management.base import BaseCommand
 from django.db.models.query_utils import Q
-from django.utils.translation import ugettext_lazy as _, ugettext, activate
+from django.utils.translation import ugettext_lazy as _, activate
 from django.conf import settings
 
 from creme_core.constants import PROP_IS_MANAGED_BY_CREME

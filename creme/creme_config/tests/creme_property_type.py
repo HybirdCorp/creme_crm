@@ -3,7 +3,7 @@
 try:
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import CremeEntity, CremePropertyType
+    from creme_core.models import CremePropertyType
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Contact, Organisation #need CremeEntity

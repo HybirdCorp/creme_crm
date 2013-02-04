@@ -89,11 +89,11 @@ class EntityEmailBackend(CrudityBackend):
                             object_entity=mail, user_id=current_user_id
                            )
 
-        history = History.objects.create(entity=mail,
-                                         action="create",
-                                         source="email - raw",
-                                         description=_(u"Creation of %(entity)s") % {'entity': mail},
-                                         user=current_user,
-                                        )
+        History.objects.create(entity=mail,
+                               action="create",
+                               source="email - raw",
+                               description=_(u"Creation of %(entity)s") % {'entity': mail},
+                               user=current_user,
+                              )
 
 backends = [EntityEmailBackend, ]

@@ -2,7 +2,7 @@
 
 try:
     import string
-    from datetime import datetime, date, timedelta
+    from datetime import datetime, date
     from xml.etree.ElementTree import XML
 
     import pytz
@@ -17,7 +17,8 @@ try:
     from creme_core.utils import meta, chunktools
     from creme_core.utils.date_range import date_range_registry
     from creme_core.utils.dates import(get_dt_from_iso8601_str, get_dt_to_iso8601_str,
-                                       get_naive_dt_from_tzdate, get_creme_dt_from_utc_dt, get_utc_dt_from_creme_dt)
+                                       get_naive_dt_from_tzdate, get_creme_dt_from_utc_dt,
+                                       get_utc_dt_from_creme_dt)
     from creme_core.utils.queries import get_first_or_None
     from creme_core.utils.xml_utils import _element_iterator, xml_diff
     from creme_core.tests.base import CremeTestCase
@@ -795,7 +796,7 @@ class DateRangeTestCase(CremeTestCase):
 
 class QueriesTestCase(CremeTestCase):
     def test_get_first_or_None01(self):
-        ptype = CremePropertyType.objects.create(text='Is cute', is_custom=True)
+        CremePropertyType.objects.create(text='Is cute', is_custom=True)
         self.assertIsInstance(get_first_or_None(CremePropertyType), CremePropertyType)
 
     def test_get_first_or_None02(self):

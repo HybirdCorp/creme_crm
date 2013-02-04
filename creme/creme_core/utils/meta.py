@@ -22,11 +22,11 @@ from functools import partial
 from itertools import chain
 
 from django.db import models
-from django.db.models import ForeignKey, ManyToManyField, Field, FieldDoesNotExist
-from django.db.models.base import ModelBase
+from django.db.models import ForeignKey, ManyToManyField, FieldDoesNotExist #Field
+#from django.db.models.base import ModelBase
 from django.conf import settings
 
-from creme_core.models.entity import CremeEntity
+from creme_core.models import CremeEntity
 from creme_core.models.fields import CreationDateTimeField
 
 
@@ -49,7 +49,7 @@ def get_instance_field_info(obj, field_name):
         if issubclass(field_class, ManyToManyField):
             return (field_class, getattr(obj, subfield_name).all())
         return (field_class, getattr(obj, subfield_name))
-    except (AttributeError, FieldDoesNotExist), e:
+    except (AttributeError, FieldDoesNotExist):
         return None, ''
 
 def get_model_field_info(model, field_name):
@@ -72,7 +72,7 @@ def get_model_field_info(model, field_name):
         field = model._meta.get_field(subfield_names[-1])
         model = None if not field.get_internal_type() == 'ForeignKey' else field.rel.to
         info.append({'field': field, 'model': model})
-    except (AttributeError, FieldDoesNotExist), e:
+    except (AttributeError, FieldDoesNotExist):
         pass
 
     return info

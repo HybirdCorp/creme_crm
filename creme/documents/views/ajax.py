@@ -22,7 +22,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.core.serializers import serialize
 from django.http import HttpResponse
 
-from creme_core.models import CremeEntity, EntityCredentials
+from creme_core.models import EntityCredentials
 
 from documents.models import Folder, Document
 

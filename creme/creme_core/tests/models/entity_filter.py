@@ -5,7 +5,7 @@ try:
     from functools import partial
     from logging import info
 
-    from django.utils.translation import ugettext as _
+    #from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
     from creme_core.models import *
@@ -323,7 +323,7 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_filter_field_isempty03(self): #not charfield
         create = Organisation.objects.create
         user = self.user
-        orga01 = create(user=user, name='Bebop & cie', capital=None)
+        create(user=user,          name='Bebop & cie', capital=None)
         orga02 = create(user=user, name='Nerv',        capital=10000)
 
         efilter = EntityFilter.create('test-filter01', 'is not null', Organisation)
@@ -348,7 +348,7 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_filter_field_range(self):
         create = Organisation.objects.create
         user = self.user
-        orga01 = create(user=user, name='Bebop & cie', capital=1000)
+        create(user=user,          name='Bebop & cie', capital=1000)
         orga02 = create(user=user, name='Nerv',        capital=10000)
         orga03 = create(user=user, name='Seele',       capital=100000)
 
@@ -1055,7 +1055,7 @@ class EntityFiltersTestCase(CremeTestCase):
         custom_field = CustomField.objects.create(name='Eva', content_type=self.contact_ct, field_type=CustomField.ENUM)
         create_evalue = CustomFieldEnumValue.objects.create
         eva00 = create_evalue(custom_field=custom_field, value='Eva-00')
-        eva01 = create_evalue(custom_field=custom_field, value='Eva-01')
+        create_evalue(custom_field=custom_field,         value='Eva-01')
         eva02 = create_evalue(custom_field=custom_field, value='Eva-02')
 
         klass = custom_field.get_value_class()

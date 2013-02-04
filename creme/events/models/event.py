@@ -99,7 +99,6 @@ class Event(CremeEntity):
                                     type__in=(REL_SUB_IS_INVITED_TO, REL_SUB_ACCEPTED_INVITATION, REL_SUB_REFUSED_INVITATION)) \
                             .delete()
         else:
-            create_relations = relations.create
             relations.get_or_create(subject_entity=contact, type=RelationType.objects.get(pk=REL_SUB_IS_INVITED_TO), object_entity=self, user=user)
 
             if status == INV_STATUS_ACCEPTED:

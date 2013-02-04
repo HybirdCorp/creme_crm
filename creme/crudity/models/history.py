@@ -18,8 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import TextField, PositiveIntegerField, CharField, ForeignKey
-from django.contrib.auth.models import User
+from django.db.models import TextField, CharField, ForeignKey
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.models import CremeModel, CremeEntity

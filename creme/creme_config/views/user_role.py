@@ -18,16 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
-from django.contrib.auth.models import User
 
 from creme_core.models import UserRole
 from creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
 from creme_core.auth.decorators import superuser_required
-from creme_core.utils import get_from_POST_or_404
 
 from creme_config.forms.user_role import UserRoleCreateForm, UserRoleEditForm, AddCredentialsForm, UserRoleDeleteForm
 

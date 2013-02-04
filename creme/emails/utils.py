@@ -31,7 +31,7 @@ from django.conf import settings
 
 from media_managers.models import Image
 
-from emails.constants import MAIL_STATUS_SENT, MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
+from emails.constants import MAIL_STATUS_SENT, MAIL_STATUS_SENDINGERROR
 
 
 ALLOWED_CHARS = ascii_letters + digits
@@ -184,7 +184,7 @@ class EMailSender(object):
 
             try:
                 msg.send()
-            except Exception as e: #better exception ??
+            except Exception: #better exception ??
                 error("Sending: error during sending mail.")
                 mail.status = MAIL_STATUS_SENDINGERROR
             else:

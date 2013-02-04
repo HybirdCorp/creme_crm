@@ -18,11 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from struct import unpack
-import os
-import random
 import base64
 from datetime import datetime
+import os
+import random
+from struct import unpack
 
 try:
     from cStringIO import StringIO
@@ -33,7 +33,7 @@ from PIL import Image
 
 from django.core.files.base import File
 
-from creme_config.models.setting import SettingValue
+from creme_config.models import SettingValue
 
 from activesync.constants import USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS
 

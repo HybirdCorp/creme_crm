@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,14 +21,13 @@
 from django.db.models import FieldDoesNotExist, DateField, DateTimeField, ForeignKey
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404
-from django.template.context import RequestContext
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.views.generic import view_entity, add_to_entity, edit_related_to_entity
 from creme_core.models import CremeEntity, InstanceBlockConfigItem, RelationType
 from creme_core.utils import jsonify, get_ct_or_404
 
-from reports.models.report import Report
+#from reports.models.report import Report
 from reports.models.graph import (ReportGraph, verbose_report_graph_types,
                                   RGT_FK, RGT_RANGE, RGT_YEAR, RGT_MONTH, RGT_DAY,
                                   RGT_RELATION, fetch_graph_from_instance_block)
@@ -85,10 +84,11 @@ def get_available_report_graph_types(request, ct_id):
     else:
         #Assume the field is a relation
         try:
-            rt = RelationType.objects.get(pk=abscissa_field)
-            result = [{'id': RGT_RELATION, 'text': unicode(verbose_report_graph_types.get(RGT_RELATION))}]
+            RelationType.objects.get(pk=abscissa_field)
         except RelationType.DoesNotExist:
             pass
+        else:
+            result = [{'id': RGT_RELATION, 'text': unicode(verbose_report_graph_types.get(RGT_RELATION))}]
 
     return {'result': result}
 

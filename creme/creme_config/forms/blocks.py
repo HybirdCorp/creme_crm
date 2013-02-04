@@ -19,16 +19,15 @@
 ################################################################################
 
 from itertools import chain
-from logging import debug
+#from logging import debug
 
-from django.forms import IntegerField, MultipleChoiceField, ChoiceField, ValidationError
-from django.forms.widgets import HiddenInput
+from django.forms import MultipleChoiceField, ChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.registry import creme_registry
 from creme_core.models import (RelationType, BlockDetailviewLocation, BlockPortalLocation,
-                               BlockMypageLocation, RelationBlockItem, InstanceBlockConfigItem)
+                               BlockMypageLocation, RelationBlockItem)
 from creme_core.forms import CremeForm, CremeModelForm
 from creme_core.forms.widgets import OrderedMultipleChoiceWidget
 from creme_core.gui.block import block_registry, SpecificRelationsBlock
@@ -105,7 +104,10 @@ class BlockDetailviewLocationsAddForm(_BlockDetailviewLocationsForm):
         super(BlockDetailviewLocationsAddForm, self).__init__(*args, **kwargs)
 
         entity_ct_ids = set(ct.id for ct in creme_entity_content_types())
-        used_ct_ids   = set(BlockDetailviewLocation.objects.exclude(content_type=None).distinct().values_list('content_type_id', flat=True))
+        used_ct_ids   = set(BlockDetailviewLocation.objects.exclude(content_type=None)
+                                                           .distinct()
+                                                           .values_list('content_type_id', flat=True)
+                           )
         self.fields['ct_id'].choices = [(ct.id, ct) for ct in ContentType.objects.filter(pk__in=entity_ct_ids - used_ct_ids)]
 
     def save(self, *args, **kwargs):

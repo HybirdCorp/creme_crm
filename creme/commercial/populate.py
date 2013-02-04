@@ -33,8 +33,6 @@ from creme_config.models import SettingKey, SettingValue
 
 from persons.models import Contact, Organisation
 
-from opportunities.models import Opportunity
-
 from commercial.models import *
 from commercial.blocks import *
 from commercial.constants import *

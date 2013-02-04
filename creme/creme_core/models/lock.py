@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import Model, CharField, IntegerField
+from django.db.models import Model, CharField
 from django.db.utils import IntegrityError
 
 
@@ -76,7 +76,7 @@ def mutexify(func, lock_name):
     def _aux(*args, **kwargs):
         try:
             lock = Mutex.get_n_lock(lock_name)
-        except MutexLockedException as e:
+        except MutexLockedException:
             print 'A process is already running'
         else:
             func(*args, **kwargs)

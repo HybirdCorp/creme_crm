@@ -25,7 +25,7 @@ from django.forms import ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, EntityFilter, EntityFilterCondition, EntityCredentials
+from creme_core.models import CremeEntity, EntityFilter, EntityCredentials
 from creme_core.forms import CremeForm
 from creme_core.forms.fields import JSONField
 from creme_core.forms.widgets import DynamicInput, SelectorList, ChainedInput, PolymorphicInput

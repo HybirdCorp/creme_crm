@@ -7,7 +7,7 @@ try:
     from django.contrib.auth.models import User
 
     from creme_core.models import (CremeEntity, CremeProperty, Relation, EntityCredentials,
-                                   UserRole, HistoryLine, SetCredentials, Mutex)
+                                   UserRole, SetCredentials, Mutex)
     from creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme_core.tests.base import CremeTestCase
 
@@ -740,7 +740,7 @@ class UserSettingsTestCase(CremeTestCase):
         def get_theme():
             try:
                 theme = FakeRequest().session['usertheme']
-            except Exception as e:
+            except Exception:
                 theme = None
 
             return theme

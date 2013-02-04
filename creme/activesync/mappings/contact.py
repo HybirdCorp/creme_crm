@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,31 +17,36 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 import base64
+import datetime
 import os
 from random import randint
-import datetime
 import time
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.files.base import ContentFile
-from django.utils import formats
 from django.db import models
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils import formats
+from django.utils.translation import ugettext as _
+
+from creme_core.models import Relation, RelationType
+from creme_core.utils.meta import get_instance_field_info
+from creme_core.views.file_handling import handle_uploaded_file, MAXINT
+
+from media_managers.models import Image
+
+from persons.models import Organisation, Position, Contact, Civility, Address
+from persons.constants import REL_SUB_EMPLOYED_BY
 
 from activesync.utils import get_b64encoded_img_of_max_weight
-from creme_core.models.relation import Relation, RelationType
-from creme_core.utils.meta import get_instance_field_info, is_date_field
-from creme_core.views.file_handling import handle_uploaded_file, MAXINT
-from persons.models import Position, Contact, Civility, Address
-from media_managers.models.image import Image
-from persons.models.organisation import Organisation
-from persons.constants import REL_SUB_EMPLOYED_BY
+
 
 def get_encoded_contact_img(contact=None, needs_attr=False, *args, **kwargs):
     if needs_attr:
         return 'image'
+
     encoded_img = None
 #    if contact and contact.image is not None:
     if contact:
@@ -54,6 +59,7 @@ def get_encoded_contact_img(contact=None, needs_attr=False, *args, **kwargs):
                 encoded_img = contact.image.get_encoded(encoding="base64")
         else:
             encoded_img = ""
+
     return encoded_img
 
 def get_repr(contact=None, needs_attr=False, *args, **kwargs):
@@ -66,9 +72,7 @@ def get_organisation(contact=None, needs_attr=False, *args, **kwargs):
         return 'organisation'
 
     organisation = ""
-
-    relations = Relation.objects.filter(subject_entity=contact,
-                                       type=REL_SUB_EMPLOYED_BY)
+    relations = Relation.objects.filter(subject_entity=contact, type=REL_SUB_EMPLOYED_BY)
 
     if relations:
         organisation = unicode(relations[0].object_entity.get_real_entity())
@@ -150,7 +154,6 @@ def create_or_update_address(contact, prefix, data, history=None):
     changes = []
 
     if address is not None:
-
         if city:
             address.city = city
             changes.append(('%s_address__city'    % prefix, city))
@@ -174,10 +177,11 @@ def create_or_update_address(contact, prefix, data, history=None):
         address.save()
     elif any([city, state, country, po_box, address_content]):
         c_address = Address(city=city,
-                    state=state,
-                    country=country,
-                    po_box=po_box,
-                    address=address_content)
+                            state=state,
+                            country=country,
+                            po_box=po_box,
+                            address=address_content,
+                           )
 
         c_address.content_type = ContentType.objects.get_for_model(Contact)
         c_address.object_id = contact.id
@@ -269,7 +273,8 @@ def save_contact(data, user, *args, **kwargs):
                         state=pop_('billing_address__state', None),
                         country=pop_('billing_address__country', None),
                         po_box=pop_('billing_address__po_box', None),
-                        address=pop_('billing_address__address', None))
+                        address=pop_('billing_address__address', None),
+                       )
     c.billing_address  = b_address
 
     #TODO:Use create_or_update_address
@@ -277,7 +282,8 @@ def save_contact(data, user, *args, **kwargs):
                         state=pop_('shipping_address__state', None),
                         country=pop_('shipping_address__country', None),
                         po_box=pop_('shipping_address__po_box', None),
-                        address=pop_('shipping_address__address', None))
+                        address=pop_('shipping_address__address', None),
+                       )
     c.shipping_address = s_address
 
     create_image_from_b64(c, data, user)
@@ -356,11 +362,10 @@ def serialize_contact(contact, namespaces):
                 f_class, value = get_instance_field_info(contact, c_field)
 
             if value:
-                xml_append("<%(prefix)s%(tag)s>%(value)s</%(prefix)s%(tag)s>" %
-                           {
-                            'prefix': '%s:' % prefix if prefix else '',
-                            'tag': xml_field,
-                            'value': value #Problems with unicode
+                xml_append("<%(prefix)s%(tag)s>%(value)s</%(prefix)s%(tag)s>" % {
+                                'prefix': '%s:' % prefix if prefix else '',
+                                'tag':    xml_field,
+                                'value':  value, #Problems with unicode
                             }
                            )
     return "".join(xml)

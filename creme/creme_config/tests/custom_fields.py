@@ -76,7 +76,7 @@ class CustomFieldsTestCase(CremeTestCase):
 
     def test_add(self):
         ct = ContentType.objects.get_for_model(Contact)
-        cfield1 = CustomField.objects.create(content_type=ct, name='CF#1', field_type=CustomField.INT)
+        CustomField.objects.create(content_type=ct, name='CF#1', field_type=CustomField.INT)
 
         url = '/creme_config/custom_fields/add/%s' % ct.id
         self.assertGET200(url)
@@ -132,6 +132,7 @@ class CustomFieldsTestCase(CremeTestCase):
             new_choices = fields['new_choices']
             old_choices = fields['old_choices']
 
+        self.assertFalse(new_choices.initial)
         self.assertEqual([u'C', u'ABC', u'Java'], old_choices.content)
 
         response = self.client.post(url, data={'name': cfield.name,

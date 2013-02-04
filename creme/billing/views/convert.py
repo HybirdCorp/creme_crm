@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+#from logging import debug
 
 from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404

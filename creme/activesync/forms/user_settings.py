@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from itertools import chain
 
 from django.forms.fields import ChoiceField, CharField, URLField
@@ -59,13 +60,13 @@ class UserSettingsConfigForm(CremeForm):
     def __init__(self, user, *args, **kwargs):
         super(UserSettingsConfigForm, self).__init__(user, *args, **kwargs)
         self.user = user
-        user_id   = user.id
+        #user_id   = user.id
 
         fields    = self.fields
         sv_get    = SettingValue.objects.get
         sv_doesnotexist = SettingValue.DoesNotExist
 
-        undefined = _(u"Undefined")
+        undefined = _(u"Undefined") #TODO: use cached_ugettext when it exists :)
 
         try:
             fields['url'].initial = sv_get(key__id=USER_MOBILE_SYNC_SERVER_URL, user=user).value

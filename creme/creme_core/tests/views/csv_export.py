@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.utils.translation import ugettext as _
-    from django.utils.encoding import smart_str, force_unicode
+    #from django.utils.translation import ugettext as _
+    from django.utils.encoding import force_unicode #smart_str
     from django.contrib.contenttypes.models import ContentType
 
     from creme_core.models import RelationType, Relation, CremePropertyType, CremeProperty, HeaderFilter, HeaderFilterItem

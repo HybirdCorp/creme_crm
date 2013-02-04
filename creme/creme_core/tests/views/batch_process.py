@@ -245,12 +245,12 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         first_name = 'Kanako'
         last_name = 'Ouno'
         create_contact = partial(Contact.objects.create, user=self.user)
-        contact01 = create_contact(first_name=first_name,  last_name=last_name)
-        contact02 = create_contact(first_name='Mitsunori', last_name='Kugayama')
+        contact01 = create_contact(first_name=first_name, last_name=last_name)
+        create_contact(first_name='Mitsunori', last_name='Kugayama')
 
         entity_str = unicode(contact01)
 
-        with self.assertRaises(ValidationError) as cm:
+        with self.assertRaises(ValidationError):
             contact01.last_name = ''
             contact01.full_clean()
 

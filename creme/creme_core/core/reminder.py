@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from datetime import datetime
 from logging import warning
 
-from django.core.mail import EmailMessage, SMTPConnection, get_connection
+from django.core.mail import EmailMessage, get_connection
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 
@@ -57,8 +57,8 @@ class Reminder(object):
         return True
 
     def send_mails(self, object):
-        body     = self.generate_email_body(object)
-        subject  = self.generate_email_subject(object)
+        body    = self.generate_email_body(object)
+        subject = self.generate_email_subject(object)
 
         EMAIL_SENDER = settings.EMAIL_SENDER
         messages = [EmailMessage(subject, body, EMAIL_SENDER, [email]) for email in self.get_emails(object)]
@@ -68,8 +68,7 @@ class Reminder(object):
             connection.open()
             connection.send_messages(messages)
             connection.close()
-
-        except Exception, e:
+        except Exception:
             pass
 
     def execute(self):

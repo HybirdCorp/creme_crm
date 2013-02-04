@@ -7,7 +7,7 @@ try:
     from django.core.files.uploadedfile import SimpleUploadedFile
     from django.db.models.query_utils import Q
 
-    from creme_core.models import CremeEntity, Language
+    from creme_core.models import Language
 
     from documents.models import Document, Folder
 
@@ -21,7 +21,7 @@ try:
 
     from persons.models import Contact
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class InputsBaseTestCase(CrudityTestCase):
@@ -114,7 +114,7 @@ class InputsTestCase(InputsBaseTestCase):
                                            )
 
         c_count = Contact.objects.count()
-        q_contact_existing_ids = self._get_existing_q(Contact)
+        #q_contact_existing_ids = self._get_existing_q(Contact)
 
         self.assertEqual(0, WaitingAction.objects.count())
         email_input.create(self._get_pop_email(body_html=u"""<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
@@ -409,8 +409,8 @@ entity
         user = self.user
         other_user = self.other_user
 
-        contact_user = Contact.objects.create(is_user=user, user=user, email="user@cremecrm.com")
-        contact_other_user = Contact.objects.create(is_user=other_user, user=other_user, email="other_user@cremecrm.com")
+        Contact.objects.create(is_user=user, user=user, email="user@cremecrm.com")
+        Contact.objects.create(is_user=other_user, user=other_user, email="other_user@cremecrm.com")
         self._set_sandbox_by_user()
 
         email_input = self._get_email_input(ContactFakeBackend, password=u"creme", subject="create_ce",
@@ -434,8 +434,8 @@ entity
         user = self.user
         other_user = self.other_user
 
-        contact_user = Contact.objects.create(is_user=user, user=user, email="user@cremecrm.com")
-        contact_other_user = Contact.objects.create(is_user=other_user, user=other_user, email="other_user@cremecrm.com")
+        Contact.objects.create(is_user=user, user=user, email="user@cremecrm.com")
+        Contact.objects.create(is_user=other_user, user=other_user, email="other_user@cremecrm.com")
 
         self._set_sandbox_by_user()
 
@@ -464,7 +464,7 @@ entity
 
         try:
             ce = Contact.objects.exclude(pk__in=existing_c)[0]
-        except IndexError, e:
+        except IndexError as e:
             self.fail(e)
 
         self.assertEqual(other_user, History.objects.all()[0].user)
@@ -474,9 +474,10 @@ entity
         """Text mail sandboxed by user and created later"""
         user = self.user
         other_user = self.other_user
-        contact_user = Contact.objects.create(is_user=user, user=user, email="user@cremecrm.com")
-        contact_other_user = Contact.objects.create(is_user=other_user, user=other_user, email="other_user@cremecrm.com")
+        Contact.objects.create(is_user=user, user=user, email="user@cremecrm.com")
+        Contact.objects.create(is_user=other_user, user=other_user, email="other_user@cremecrm.com")
         self._set_sandbox_by_user()
+
         email_input = self._get_email_input(ContactFakeBackend, password=u"creme", subject="create_ce",
                                             body_map={"user_id": user.id,
                                                       "created": "",
@@ -539,7 +540,7 @@ entity
     def test_get_owner01(self):
         """The sandbox is not by user"""
         user = self.user
-        contact_user = Contact.objects.create(is_user=user, user=user, email="user@cremecrm.com")
+        Contact.objects.create(is_user=user, user=user, email="user@cremecrm.com")
         email_input = self._get_email_input(ContactFakeBackend, password=u"creme", subject="create_ce",
                                             body_map={"user_id": user.id}
                                            )
@@ -552,8 +553,8 @@ entity
         other_user = self.other_user
 
         create_contact = Contact.objects.create
-        contact_user       = create_contact(is_user=user,       user=user, email="user@cremecrm.com")
-        contact_other_user = create_contact(is_user=other_user, user=other_user, email="other_user@cremecrm.com")
+        create_contact(is_user=user,       user=user, email="user@cremecrm.com")
+        create_contact(is_user=other_user, user=other_user, email="other_user@cremecrm.com")
 
         email_input = self._get_email_input(ContactFakeBackend, password=u"creme", subject="create_ce",
                                             body_map={"user_id": user.id,
@@ -569,8 +570,8 @@ entity
         other_user = self.other_user
 
         create_contact = Contact.objects.create
-        contact_user       = create_contact(is_user=user,       user=user,       email="user@cremecrm.com")
-        contact_other_user = create_contact(is_user=other_user, user=other_user, email="other_user@cremecrm.com")
+        create_contact(is_user=user,       user=user,       email="user@cremecrm.com")
+        create_contact(is_user=other_user, user=other_user, email="other_user@cremecrm.com")
 
         email_input = self._get_email_input(ContactFakeBackend, password=u"creme", subject="create_ce",
                                             body_map={"user_id": user.id,
@@ -839,7 +840,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         other_user = self.other_user
         self._set_sandbox_by_user()
 
-        contact_other_user = Contact.objects.create(is_user=other_user, user=other_user, email="other_user@cremecrm.com")
+        Contact.objects.create(is_user=other_user, user=other_user, email="other_user@cremecrm.com")
 
         xml_content = """
         <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\Raph\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">
@@ -908,7 +909,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         user = self.user
         other_user = self.other_user
         self._set_sandbox_by_user()
-        contact_other_user = Contact.objects.create(is_user=other_user, user=other_user, email="other_user@cremecrm.com")
+        Contact.objects.create(is_user=other_user, user=other_user, email="other_user@cremecrm.com")
 
         xml_content = """
         <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\Raph\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xml:lang="fr">

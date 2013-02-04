@@ -7,7 +7,7 @@ try:
     from django.core.serializers.json import simplejson
     from django.utils.translation import ugettext as _
     from django.utils.formats import date_format
-    from django.contrib.auth.models import User
+    #from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
     from creme_core.auth.entity_credentials import EntityCredentials
@@ -794,7 +794,7 @@ class ActivitiesTestCase(CremeTestCase):
         self.login()
 
         user = self.user
-        me = Contact.objects.create(user=user, is_user=user, first_name='Ryoga', last_name='Hibiki')
+        Contact.objects.create(user=user, is_user=user, first_name='Ryoga', last_name='Hibiki')
 
         url = '/activities/indisponibility/add'
         self.assertGET200(url)
@@ -825,7 +825,7 @@ class ActivitiesTestCase(CremeTestCase):
         self.login()
 
         user = self.user
-        me = Contact.objects.create(user=user, is_user=user, first_name='Ryoga', last_name='Hibiki')
+        Contact.objects.create(user=user, is_user=user, first_name='Ryoga', last_name='Hibiki')
 
         title  = 'away'
         status = Status.objects.all()[0]

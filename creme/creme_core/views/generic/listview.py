@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+#from logging import debug
 
 from django.db.models import Q
 from django.http import Http404
@@ -65,12 +65,12 @@ def _build_entities_page(request, list_view_state, queryset, size):
     try:
         page = int(request.POST.get('page'))
         list_view_state.page = page
-    except (ValueError, TypeError), error:
+    except (ValueError, TypeError):
         page = list_view_state.page or 1
 
     try:
         entities_page = paginator.page(page)
-    except (EmptyPage, InvalidPage), e:
+    except (EmptyPage, InvalidPage):
         entities_page = paginator.page(paginator.num_pages)
 
     return entities_page
@@ -91,13 +91,13 @@ def list_view_content(request, model, hf_pk='', extra_dict=None, template='creme
     try:
         rows = int(POST_get('rows'))
         current_lvs.rows = rows
-    except (ValueError, TypeError), error:
+    except (ValueError, TypeError):
         rows = current_lvs.rows or 25
 
     try:
         _search = bool(int(POST_get('_search')))
         current_lvs._search = _search
-    except (ValueError, TypeError), error:
+    except (ValueError, TypeError):
         _search = current_lvs._search or False
 
     ct = ContentType.objects.get_for_model(model)

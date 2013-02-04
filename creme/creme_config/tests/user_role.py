@@ -5,7 +5,7 @@ try:
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import UserRole, SetCredentials, CremeEntity
+    from creme_core.models import UserRole, SetCredentials
     from creme_core.auth.entity_credentials import EntityCredentials
     from creme_core.tests.base import CremeTestCase
 
@@ -341,7 +341,7 @@ class UserRoleTestCase(CremeTestCase):
         self.login()
 
         role = UserRole.objects.create(name='CEO')
-        user = User.objects.create(username='chloe', role=role) #<= role is used
+        User.objects.create(username='chloe', role=role) #<= role is used
 
         response = self.client.post('/creme_config/role/delete/%s' % role.id)
         self.assertEqual(200, response.status_code)

@@ -84,15 +84,12 @@ class VcfExportTestCase(CremeTestCase):
 
     def test_get_vcf_org(self):
         self.login()
-        contact = Contact.objects.create(user=self.user, last_name='Abitbol')
-        orga = Organisation.objects.create(user=self.user, name='ORGNAME')
+        user = self.user
+        contact = Contact.objects.create(user=user, last_name='Abitbol')
+        orga = Organisation.objects.create(user=user, name='ORGNAME')
 
         rtype = RelationType.objects.get(pk=REL_OBJ_EMPLOYED_BY)
-        rel = Relation.objects.create(type=rtype,
-                                      subject_entity=orga,
-                                      object_entity=contact,
-                                      user=self.user,
-                                      )
+        Relation.objects.create(type=rtype, subject_entity=orga, object_entity=contact, user=user)
 
         response = self._generate_vcf(contact)
         self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\nFN: Abitbol\r\nN:Abitbol;;;;\r\nORG:ORGNAME\r\nEND:VCARD\r\n',
@@ -155,7 +152,7 @@ class VcfExportTestCase(CremeTestCase):
         contact.shipping_address = self.create_address(contact, 'Org')
         contact.billing_address = self.create_address(contact, 'Org')
         contact.save()
-        other_address = self.create_address(contact, 'Org')
+        self.create_address(contact, 'Org') #other_address
 
         response = self._generate_vcf(contact)
         self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\n'
@@ -173,7 +170,7 @@ class VcfExportTestCase(CremeTestCase):
         contact.shipping_address = self.create_address(contact, 'shipping')
         contact.billing_address = self.create_address(contact, 'billing')
         contact.save()
-        other_address = self.create_address(contact, 'Org')
+        self.create_address(contact, 'Org') #other_address
 
         response = self._generate_vcf(contact)
         self.assertEqual('BEGIN:VCARD\r\nVERSION:3.0\r\n'

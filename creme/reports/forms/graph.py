@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from django.db.models.fields.related import ForeignKey
 from django.db.models.fields import FieldDoesNotExist, DateTimeField, DateField
 from django.forms.util import ValidationError
 from django.forms.fields import ChoiceField, BooleanField, CharField
-from django.forms.widgets import Select, CheckboxInput, HiddenInput
+from django.forms.widgets import Select, CheckboxInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models.relation import RelationType
@@ -90,7 +90,7 @@ class ReportGraphAddForm(CremeEntityForm):
         abscissa_model_fields.sort(key=lambda x: x[1])
 
         abscissa_fields.choices = ((_(u"Fields"), abscissa_model_fields), (_(u"Relations"), abscissa_predicates))
-        abscissa_fields.widget.target_url = target_url='/reports/graph/get_available_types/%s' % str(report_ct.id) #Bof
+        abscissa_fields.widget.target_url = '/reports/graph/get_available_types/%s' % str(report_ct.id) #Bof
 
         data = self.data
 
@@ -135,8 +135,8 @@ class ReportGraphAddForm(CremeEntityForm):
                 raise val_err()
             else:
                 try:
-                    rt = RelationType.objects.get(pk=abscissa_fields)
-                except Exception, e:
+                    RelationType.objects.get(pk=abscissa_fields)
+                except Exception:
                     raise val_err()
 
         is_abscissa_group_by_is_RGT_FK = abscissa_group_by == RGT_FK

@@ -4,7 +4,7 @@ try:
     from decimal import Decimal
 
     from creme_core.tests.base import CremeTestCase
-    from creme_core.models import Relation, Currency, CremePropertyType, CremeProperty
+    from creme_core.models import Currency, CremePropertyType, CremeProperty
     from creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
     from persons.models import Contact, Organisation

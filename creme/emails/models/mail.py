@@ -18,16 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from itertools import chain
-from logging import error, debug
-from os.path import join, basename
+from logging import debug
 
-from django.contrib.auth.models import User
 from django.db.models import (PositiveIntegerField, PositiveSmallIntegerField, CharField,
                               TextField, DateTimeField, ForeignKey, ManyToManyField)
 from django.db import transaction, IntegrityError
-from django.conf import settings
-from django.core.mail import EmailMultiAlternatives
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.template.defaultfilters import removetags

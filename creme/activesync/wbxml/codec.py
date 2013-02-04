@@ -27,6 +27,8 @@
 ################################################################################
 
 from logging import debug
+import StringIO
+from xml.etree.ElementTree import XML, Element, ElementTree, _ElementInterface #SubElement, tostring, fromstring
 
 ################################################################################
 # Low-level WBXML codecs functions
@@ -70,17 +72,13 @@ EN_FLAGS_ATTRIBUTES = 2
 def prettify(elem):
     """Return a pretty-printed XML string for the Element (etree._ElementInterface).
     """
-    from xml.etree import ElementTree
+    #from xml.etree import ElementTree
     from xml.dom import minidom
 
     rough_string = ElementTree.tostring(elem, 'utf-8')
     reparsed = minidom.parseString(rough_string)
     return reparsed.toprettyxml(indent="  ")
 ################################################################################
-
-
-import StringIO
-from xml.etree.ElementTree import fromstring, XML, Element, _ElementInterface, SubElement, ElementTree, _ElementInterface, tostring
 
 #DEBUG = True
 #DEBUG = WBXML_DEBUG

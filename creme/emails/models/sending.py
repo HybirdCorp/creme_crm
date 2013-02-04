@@ -37,7 +37,7 @@ from documents.models import Document
 from emails.models.mail import _Email, ID_LENGTH
 from emails.models import EmailCampaign, EmailSignature
 from emails.utils import generate_id, EMailSender, ImageFromHTMLError
-from emails.constants import MAIL_STATUS_SENT, MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
+from emails.constants import MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
 
 
 #TODO: move to constants ???

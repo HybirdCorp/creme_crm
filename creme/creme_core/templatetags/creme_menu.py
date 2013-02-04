@@ -88,7 +88,7 @@ if settings.USE_STRUCT_MENU:
         return RequestContext(request, {'menu': items})
 
 else:
-    from django.utils.html import escape
+    #from django.utils.html import escape
     from django.utils.safestring import mark_safe
 
 

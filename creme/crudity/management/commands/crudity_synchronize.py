@@ -35,7 +35,7 @@ class Command(BaseCommand):
         from crudity.views.actions import _fetch
         try:
             lock = Mutex.get_n_lock(LOCK_NAME)
-        except MutexLockedException, e:
+        except MutexLockedException:
             print 'A process is already running'
         else:
             try:

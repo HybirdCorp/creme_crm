@@ -33,7 +33,8 @@ class BlocksTestCase(CremeTestCase):
         return neglected_orgas_block._get_neglected(datetime.now())
 
     def test_neglected_block01(self):
-        neglected_orgas_block = NeglectedOrganisationsBlock()
+        #neglected_orgas_block = NeglectedOrganisationsBlock()
+        NeglectedOrganisationsBlock()
 
         orgas = Organisation.objects.all()
         self.assertEqual(1, len(orgas))
@@ -90,7 +91,7 @@ class BlocksTestCase(CremeTestCase):
         mng_orga = Organisation.objects.all()[0]
         user_contact = Contact.objects.create(user=user, is_user=user, first_name='Naruto', last_name='Uzumaki')
 
-        customer01 = self._build_customer_orga(mng_orga, 'Konoha')
+        self._build_customer_orga(mng_orga, 'Konoha')
         customer02 = self._build_customer_orga(mng_orga, 'Suna')
 
         yesterday = datetime.now() - timedelta(days=1) #so in the past

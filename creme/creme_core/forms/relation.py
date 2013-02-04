@@ -21,10 +21,9 @@
 from django.db.models import Q
 from django.forms import CharField, ModelMultipleChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import Relation, RelationType, SemiFixedRelationType #CremeEntity
-from creme_core.forms.base import CremeForm, CremeEntityForm, FieldBlockManager
+from creme_core.forms.base import CremeForm, FieldBlockManager
 from creme_core.forms.fields import MultiRelationEntityField
 from creme_core.forms.widgets import Label, UnorderedMultipleChoiceWidget
 from creme_core.forms.validators import validate_linkable_entities

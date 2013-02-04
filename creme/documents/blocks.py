@@ -63,7 +63,7 @@ class LinkedDocsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         entity = context['object']
-        user   = context['user']
+        #user   = context['user']
         btc = self.get_block_template_context(context,
                                               Document.get_linkeddoc_relations(entity),
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.id),

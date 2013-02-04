@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
 from functools import partial
 from logging import warn, error
 
@@ -30,7 +29,7 @@ from django.contrib.auth.decorators import login_required
 from creme_core.models import CremeEntity
 from creme_core.gui.block import block_registry, str2list, BlocksManager
 from creme_core.models.block import BlockState
-from creme_core.utils import jsonify, get_ct_or_404, get_from_POST_or_404
+from creme_core.utils import jsonify, get_ct_or_404 #, get_from_POST_or_404
 from creme_core.blocks import relations_block
 
 

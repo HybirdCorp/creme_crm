@@ -29,8 +29,6 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.conf import settings
 from django.forms.util import flatatt
-from django.template.loader import render_to_string
-from django.contrib.contenttypes.models import ContentType
 
 from creme_core.auth.entity_credentials import EntityCredentials
 from creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList

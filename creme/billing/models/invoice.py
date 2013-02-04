@@ -26,8 +26,8 @@ from persons.workflow import transform_target_into_customer
 from base import Base
 from templatebase import TemplateBase
 from other_models import InvoiceStatus, SettlementTerms
-from product_line import ProductLine
-from service_line import ServiceLine
+#from product_line import ProductLine
+#from service_line import ServiceLine
 
 
 class Invoice(Base):

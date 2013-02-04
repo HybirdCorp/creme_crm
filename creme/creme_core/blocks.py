@@ -51,7 +51,7 @@ class RelationsBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         entity = context['object']
-        user   = context['user']
+        #user   = context['user']
         relations = entity.relations.select_related('type', 'type__symmetric_type', 'object_entity')
         excluded_types = BlocksManager.get(context).used_relationtypes_ids
 

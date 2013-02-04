@@ -19,21 +19,15 @@
 ################################################################################
 
 from django.core.exceptions import PermissionDenied
-from django.http import Http404, HttpResponse
-from django.forms.formsets import formset_factory
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
-
-from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
 
 from creme_core.views.generic import inner_popup
 from creme_core.views.quick_forms import json_quickform_response
-from creme_core.utils import get_ct_or_404
 
 from documents.forms.quick import CSVDocumentWidgetQuickForm
-from documents.models import Document, Folder
-from documents.utils import get_csv_folder_or_create
+from documents.models import Document
+
 
 @login_required
 def add_csv_from_widget(request, count):

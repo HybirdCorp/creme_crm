@@ -24,7 +24,7 @@ from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from creme_core.models.header_filter import HeaderFilter, HeaderFilterList
+from creme_core.models.header_filter import HeaderFilter
 from creme_core.forms.header_filter import HeaderFilterForm
 from creme_core.views.generic import add_entity
 from creme_core.gui.listview import ListViewState

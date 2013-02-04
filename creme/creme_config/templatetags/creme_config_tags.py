@@ -20,10 +20,10 @@
 
 from django.template import Library, Node as TemplateNode
 
-from creme_core.gui.block import block_registry, BlocksManager
+from creme_core.gui.block import BlocksManager
 
 from creme_config.registry import config_registry
-from creme_config.constants import USER_SETTINGS_BLOCK_PREFIX
+#from creme_config.constants import USER_SETTINGS_BLOCK_PREFIX
 
 register = Library()
 

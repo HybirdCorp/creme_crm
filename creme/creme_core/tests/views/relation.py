@@ -10,7 +10,7 @@ try:
 
     from creme_core.auth.entity_credentials import EntityCredentials
     from creme_core.models import (RelationType, Relation, SemiFixedRelationType, CremeEntity,
-                                   CremePropertyType, CremeProperty, SetCredentials)
+                                   CremePropertyType, CremeProperty)
     from creme_core.tests.views.base import ViewsTestCase
 
     from persons.models import Contact, Organisation
@@ -211,9 +211,9 @@ class RelationViewsTestCase(ViewsTestCase):
         sfrt2 = create_sfrt(predicate='Related to "object02"',
                             relation_type=self.rtype02, object_entity=self.object02,
                            )
-        sfrt3 = create_sfrt(predicate='Related to "subject01"',
-                            relation_type=self.rtype02, object_entity=self.subject01,
-                           ) #should not be proposed
+        create_sfrt(predicate='Related to "subject01"',
+                    relation_type=self.rtype02, object_entity=self.subject01,
+                   ) #should not be proposed
 
         url = self._build_add_url(subject)
         context = self.client.get(url).context
@@ -276,9 +276,9 @@ class RelationViewsTestCase(ViewsTestCase):
         unlinkable = CremeEntity.objects.create(user=self.other_user)
 
         create_sfrt = SemiFixedRelationType.objects.create
-        sfrt1 = create_sfrt(predicate='Related to "unlinkable"',
-                            relation_type=self.rtype01, object_entity=unlinkable, # <===
-                           )
+        create_sfrt(predicate='Related to "unlinkable"',
+                    relation_type=self.rtype01, object_entity=unlinkable, # <===
+                   )
         sfrt2 = create_sfrt(predicate='Related to "object02"',
                             relation_type=self.rtype02, object_entity=self.object02,
                            )
@@ -339,9 +339,9 @@ class RelationViewsTestCase(ViewsTestCase):
         sfrt1 = create_sfrt(predicate='Related to "object01"',
                             relation_type=allowed_rtype, object_entity=self.object01,
                            )
-        sfrt2 = create_sfrt(predicate='Related to "object02"',
-                            relation_type=self.rtype02, object_entity=self.object02,
-                           )
+        create_sfrt(predicate='Related to "object02"',
+                    relation_type=self.rtype02, object_entity=self.object02,
+                   )
 
         url = self._build_narrowed_add_url(subject, allowed_rtype)
 
@@ -969,8 +969,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
         rtype = RelationType.create(('test-subject_love', 'is loving'), ('test-object_love', 'is loved by'))[0]
         create_rel = partial(Relation.objects.create, user=self.user, type=rtype)
-        relation01 = create_rel(subject_entity=allowed,   object_entity=forbidden)
-        relation02 = create_rel(subject_entity=forbidden, object_entity=allowed)
+        create_rel(subject_entity=allowed,   object_entity=forbidden)
+        create_rel(subject_entity=forbidden, object_entity=allowed)
         self.assertEqual(4, Relation.objects.count())
 
         self.assertEqual(403, self._delete_similar(allowed, rtype, forbidden).status_code)

@@ -190,7 +190,7 @@ class HistoryLine(Model):
             vmodifs.append(ugettext(u'Add property “%s”') % ptype_text)
         elif htype in (HistoryLine.TYPE_RELATION, HistoryLine.TYPE_SYM_RELATION):
             rtype_id = self.modifications[0]
-            related_line = self.related_line
+            #related_line = self.related_line
 
             try:
                 predicate = RelationType.objects.get(pk=rtype_id).predicate #TODO: use cache

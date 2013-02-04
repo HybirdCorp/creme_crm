@@ -18,20 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from datetime import datetime
+from functools import partial
+from itertools import chain
 import os
 import sys
 import shutil
-from datetime import datetime
-from functools import partial
 import subprocess
 from tempfile import gettempdir
-from itertools import chain
 from unicodedata import normalize
-
-try:
-    from cStringIO import StringIO
-except ImportError:
-    from StringIO import StringIO
 
 from django.conf import settings
 from django.db import models

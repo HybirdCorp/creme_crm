@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,15 +19,12 @@
 ################################################################################
 
 from collections import defaultdict
-from logging import debug
-#from datetime import date, time, datetime
-from datetime import date, datetime
-import time
+#from logging import debug
+from datetime import datetime
 
 from django.db.models import Q
 from django.db.models.sql.constants import QUERY_TERMS
 from django.utils.encoding import smart_str
-from django.utils import formats
 from django.shortcuts import get_object_or_404
 
 from creme_core.models import Relation, CustomField, CustomFieldEnumValue
@@ -165,7 +162,7 @@ class ListViewState(object):
         if current_lvs is not None:
             try:
                 del session[self.url or request.path] #useful ???????
-            except KeyError, ke:
+            except KeyError:
                 pass
         session[self.url] = self
 

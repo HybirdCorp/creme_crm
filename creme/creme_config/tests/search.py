@@ -9,7 +9,7 @@ try:
     from creme_core.models import SearchConfigItem, SearchField
     from creme_core.tests.base import CremeTestCase
 
-    from persons.models import Contact, Organisation
+    from persons.models import Contact #, Organisation
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

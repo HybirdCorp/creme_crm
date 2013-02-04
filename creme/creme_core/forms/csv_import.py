@@ -40,7 +40,7 @@ from creme_core.utils.unicode_csv import UnicodeReader
 from creme_core.utils.collections import LimitedList
 from creme_core.views.entity import EXCLUDED_FIELDS
 from base import CremeForm, CremeModelForm, FieldBlockManager
-from fields import MultiRelationEntityField, CremeEntityField, CreatorEntityField
+from fields import MultiRelationEntityField, CreatorEntityField #CremeEntityField
 from widgets import UnorderedMultipleChoiceWidget, ChainedInput, SelectorList
 from validators import validate_linkable_entities
 
@@ -477,7 +477,8 @@ class RelationExtractorField(MultiRelationEntityField):
             try:
                 ct = ContentType.objects.get_for_id(ctype_pk)
                 model = ct.model_class()
-                field = model._meta.get_field_by_name(searchfield)
+                #field = model._meta.get_field_by_name(searchfield)
+                model._meta.get_field_by_name(searchfield)
             except ContentType.DoesNotExist:
                 raise ValidationError(self.error_messages['ctypedoesnotexist'], params={'ctype': ctype_pk})
             except FieldDoesNotExist:

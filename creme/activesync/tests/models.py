@@ -13,7 +13,7 @@ try:
 
     from activesync.models import UserSynchronizationHistory, CremeExchangeMapping
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class ActiveSyncModelsTestCase(CremeTestCase):
@@ -130,7 +130,7 @@ class ActiveSyncModelsTestCase(CremeTestCase):
 
         user = self.user
         contact = Contact.objects.create(user=user, first_name='Mario', last_name='Bros')
-        ct_contact = ContentType.objects.get_for_model(contact)
+        #ct_contact = ContentType.objects.get_for_model(contact)
 
         u.entity = contact
         self.assertEqual(contact, u.entity)#Set

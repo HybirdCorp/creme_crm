@@ -23,7 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.registry import creme_registry
 from creme_core.gui import creme_menu, button_registry, block_registry, icon_registry, bulk_update_registry
 
-from billing.models import Invoice, Quote, SalesOrder, CreditNote, Base, TemplateBase, Line, ServiceLine, ProductLine
+from billing.models import Invoice, Quote, SalesOrder, CreditNote, TemplateBase, Line, ServiceLine, ProductLine #Base
 from billing.blocks import block_list, BillingBlock
 from billing.buttons import button_list
 

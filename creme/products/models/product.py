@@ -24,7 +24,7 @@ from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
 from creme_core.models import CremeEntity
-from creme_core.gui.field_printers import image_size, print_many2many
+from creme_core.gui.field_printers import print_many2many
 
 from media_managers.models import Image
 

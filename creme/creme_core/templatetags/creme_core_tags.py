@@ -25,7 +25,7 @@ from logging import debug
 #from django import template
 from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode, Token
 from django.template.defaulttags import TemplateLiteral
-from django.template.defaultfilters import escape
+#from django.template.defaultfilters import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType

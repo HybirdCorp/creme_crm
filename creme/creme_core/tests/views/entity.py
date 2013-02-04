@@ -421,7 +421,7 @@ class EntityViewsTestCase(ViewsTestCase):
 
         create_contact = Contact.objects.create
         onizuka = create_contact(user=self.user, first_name='Eikichi', last_name='Onizuka')
-        ryuji   = create_contact(user=self.user, first_name='Ryuji',   last_name='Danma', phone='987654', mobile=phone)
+        create_contact(user=self.user,           first_name='Ryuji',   last_name='Danma', phone='987654', mobile=phone)
         self.assertEqual(404, self.client.get(url, data=data).status_code)
 
         onizuka.phone = phone
@@ -441,7 +441,7 @@ class EntityViewsTestCase(ViewsTestCase):
 
         create_contact = Contact.objects.create
         onizuka  = create_contact(user=self.user, first_name='Eikichi', last_name='Onizuka', mobile=phone)
-        ryuji    = create_contact(user=self.user, first_name='Ryuji',   last_name='Danma', phone='987654')
+        create_contact(user=self.user,            first_name='Ryuji',   last_name='Danma', phone='987654')
         self._assert_detailview(self.client.get(url, data=data, follow=True), onizuka)
 
     def test_search_and_view03(self):
@@ -457,7 +457,7 @@ class EntityViewsTestCase(ViewsTestCase):
 
         create_contact = Contact.objects.create
         onizuka = create_contact(user=self.user, first_name='Eikichi', last_name='Onizuka', mobile='55555')
-        ryuji   = create_contact(user=self.user, first_name='Ryuji',   last_name='Danma', phone='987654')
+        create_contact(user=self.user,           first_name='Ryuji',   last_name='Danma',   phone='987654')
         onibaku = Organisation.objects.create(user=self.user, name='Onibaku', phone=phone)
         self._assert_detailview(self.client.get(url, data=data, follow=True), onibaku)
 
@@ -474,9 +474,9 @@ class EntityViewsTestCase(ViewsTestCase):
                      'value':  '696969',
                     }
         create_contact = Contact.objects.create
-        onizuka = create_contact(user=self.user, first_name='Eikichi', last_name='Onizuka', mobile='55555')
-        ryuji   = create_contact(user=self.user, first_name='Ryuji',   last_name='Danma', phone='987654')
-        onibaku = Organisation.objects.create(user=self.user, name='Onibaku', phone='54631357')
+        create_contact(user=self.user, first_name='Eikichi', last_name='Onizuka', mobile='55555')
+        create_contact(user=self.user, first_name='Ryuji',   last_name='Danma', phone='987654')
+        Organisation.objects.create(user=self.user, name='Onibaku', phone='54631357')
 
         data = dict(base_data); data['models'] = 'foo-bar'
         self.assertEqual(404, self.client.get(url, data=data).status_code)
@@ -528,7 +528,7 @@ class EntityViewsTestCase(ViewsTestCase):
                 'fields': 'phone',
                 'value':  phone,
                }
-        onizuka = Contact.objects.create(user=self.user, first_name='Eikichi', last_name='Onizuka', phone=phone)#would match if apps was allowed
+        Contact.objects.create(user=self.user, first_name='Eikichi', last_name='Onizuka', phone=phone)#would match if apps was allowed
         self.assertEqual(403, self.client.get('/creme_core/entity/search_n_view', data=data).status_code)
 
 
@@ -883,7 +883,7 @@ class BulkEditTestCase(_BulkEditTestCase):
 
         cf_enum = CustomField.objects.create(name='enum', content_type=self.contact_ct, field_type=CustomField.ENUM)
         enum1 = CustomFieldEnumValue.objects.create(custom_field= cf_enum, value=u"Enum1")
-        enum2 = CustomFieldEnumValue.objects.create(custom_field= cf_enum, value=u"Enum2")
+        CustomFieldEnumValue.objects.create(custom_field= cf_enum,         value=u"Enum2")
 
         #Enum
         response = self.client.post(url, data={'field_name':   _CUSTOM_NAME % cf_enum.id,
@@ -910,9 +910,9 @@ class BulkEditTestCase(_BulkEditTestCase):
         get_cf_values = self.get_cf_values
 
         cf_multi_enum = CustomField.objects.create(name='multi_enum', content_type=self.contact_ct, field_type=CustomField.MULTI_ENUM)
-        m_enum1 = CustomFieldEnumValue.objects.create(custom_field= cf_multi_enum, value=u"MEnum1")
-        m_enum2 = CustomFieldEnumValue.objects.create(custom_field= cf_multi_enum, value=u"MEnum2")
-        m_enum3 = CustomFieldEnumValue.objects.create(custom_field= cf_multi_enum, value=u"MEnum3")
+        m_enum1 = CustomFieldEnumValue.objects.create(custom_field=cf_multi_enum, value=u"MEnum1")
+        CustomFieldEnumValue.objects.create(custom_field=cf_multi_enum,           value=u"MEnum2")
+        m_enum3 = CustomFieldEnumValue.objects.create(custom_field=cf_multi_enum, value=u"MEnum3")
 
         mario, luigi, url = self.create_2_contacts_n_url()
         self.assertEqual(200, self.client.get(url).status_code)
@@ -975,7 +975,7 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.login()
 
         cf_int = CustomField.objects.create(name='int', content_type=self.contact_ct, field_type=CustomField.INT)
-        mario = Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
+        Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
 
         url = '/creme_core/entity/get_widget/%s'
 
