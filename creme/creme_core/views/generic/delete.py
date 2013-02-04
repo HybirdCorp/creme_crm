@@ -60,7 +60,7 @@ def delete_entities(request):
     CremeEntity.populate_real_entities(entities) #TODO: populate related entities if needed ???
     entities = [entity.get_real_entity() for entity in entities]
 
-    CremeEntity.populate_credentials(entities, user)
+    #CremeEntity.populate_credentials(entities, user)
 
     for entity in entities:
         if not entity.can_delete(user):

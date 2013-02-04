@@ -117,7 +117,7 @@ def bulk_update(request, ct_id):#TODO: Factorise with add_properties_bulk and ad
     CremeEntity.populate_real_entities(entities)
     entities = [entity.get_real_entity() for entity in entities]
 
-    CremeEntity.populate_credentials(entities, user)
+    #CremeEntity.populate_credentials(entities, user)
 
     filtered = {True: [], False: []}
     for entity in entities:

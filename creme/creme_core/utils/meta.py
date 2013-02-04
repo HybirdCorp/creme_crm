@@ -245,7 +245,7 @@ def get_m2m_entities(entity, column_name, get_value=False, q_filter=None, get_va
 
         values = []
         if has_to_check_view_perms:
-            m2m_field_model.populate_credentials(m2m_entities, user)
+            #m2m_field_model.populate_credentials(m2m_entities, user)
             HIDDEN_VALUE = settings.HIDDEN_VALUE
 
             for m in m2m_entities:

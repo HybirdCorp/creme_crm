@@ -12,6 +12,7 @@ try:
     from creme_core.tests.base import CremeTestCase
     from creme_core.tests.views.csv_import import CSVImportBaseTestCaseMixin
     from creme_core.models import CremeEntity, RelationType, Relation, CremeProperty, SetCredentials, Currency
+    from creme_core.auth.entity_credentials import EntityCredentials
     from creme_core.constants import PROP_IS_MANAGED_BY_CREME, DEFAULT_CURRENCY_PK
 
     from creme_config.models import SettingKey, SettingValue
@@ -229,8 +230,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.login(is_superuser=False, allowed_apps=['opportunities'], creatable_models=[Opportunity])
 
         SetCredentials.objects.create(role=self.role,
-                                      value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
-                                            SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
+                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
+                                            EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
                                       set_type=SetCredentials.ESET_OWN
                                      )
 
@@ -343,8 +344,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.login(is_superuser=False, allowed_apps=['opportunities'], creatable_models=[Opportunity])
 
         SetCredentials.objects.create(role=self.role,
-                                      value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
-                                            SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
+                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
+                                            EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
                                       set_type=SetCredentials.ESET_OWN
                                      )
 
@@ -425,8 +426,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.login(is_superuser=False, allowed_apps=['opportunities'], creatable_models=[Opportunity])
 
         SetCredentials.objects.create(role=self.role,
-                                      value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
-                                            SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
+                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
+                                            EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
                                       set_type=SetCredentials.ESET_OWN
                                      )
 

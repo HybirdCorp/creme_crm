@@ -4,6 +4,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from creme_core.tests.base import CremeTestCase
+    from creme_core.auth.entity_credentials import EntityCredentials
     from creme_core.models import Relation, RelationType, SetCredentials
 
     from persons.models import Contact, Organisation, Address, Civility
@@ -57,8 +58,10 @@ class VcfExportTestCase(CremeTestCase):
         user = self.user
 
         SetCredentials.objects.create(role=self.role,
-                                      value=SetCredentials.CRED_CHANGE | SetCredentials.CRED_DELETE | \
-                                            SetCredentials.CRED_LINK   | SetCredentials.CRED_UNLINK, #  no CRED_VIEW
+                                      value=EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE | \
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK, # no EntityCredentials.VIEW
                                       set_type=SetCredentials.ESET_ALL
                                      )
 

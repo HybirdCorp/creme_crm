@@ -28,12 +28,11 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, Relation, RelationType, UserRole
+from creme_core.models import CremeEntity, Relation, RelationType, UserRole, Mutex
+from creme_core.models.fields import CremeUserForeignKey
 from creme_core.forms import CremeForm, CremeModelForm
 from creme_core.forms.fields import CremeEntityField
 from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
-from creme_core.models.fields import CremeUserForeignKey
-from creme_core.models.lock import Mutex
 
 from persons.models import Contact, Organisation #TODO: can the 'persons' app hook this form instead of this 'bad' dependence ??
 
@@ -57,10 +56,14 @@ class UserAddForm(CremeModelForm):
         fields = ('username', 'first_name', 'last_name', 'email', 'is_superuser', 'role')
 
     def clean_username(self):
-        username = self.data['username']
+        username = self.cleaned_data['username']
+
         if not re.match("^(\w)[\w-]*$", username):
             raise ValidationError(ugettext(u"The username must only contain alphanumeric (a-z, A-Z, 0-9), "
-                                            "hyphen and underscores are allowed (but not as first character)."))
+                                            "hyphen and underscores are allowed (but not as first character)."
+                                           )
+                                 )
+
         return username
 
     def clean_password_2(self):
@@ -107,8 +110,6 @@ class UserAddForm(CremeModelForm):
         if not Relation.objects.filter(**relation_desc).exists():
             Relation.objects.create(user=user, **relation_desc)
 
-        user.update_credentials()
-
         return user
 
 
@@ -121,10 +122,6 @@ class UserEditForm(CremeModelForm):
         model = User
         fields = ('first_name', 'last_name', 'email', 'is_superuser', 'role')
 
-    def __init__(self, *args, **kwargs):
-        super(UserEditForm, self).__init__(*args, **kwargs)
-        self.old_role_id = self.instance.role_id
-
     def clean_role(self):
         cleaned_data = self.cleaned_data
 
@@ -135,14 +132,6 @@ class UserEditForm(CremeModelForm):
 
         return role
 
-    def save(self, *args, **kwargs):
-        user = super(UserEditForm, self).save(*args, **kwargs)
-
-        if user.role_id != self.old_role_id:
-            debug('Role has changed for user="%s" => update credentials', user)
-            user.update_credentials()
-
-        return user
 
 #TODO: see django.contrib.auth.forms.PasswordChangeForm
 class UserChangePwForm(CremeForm):
@@ -203,9 +192,9 @@ class UserAssignationForm(CremeForm):
 
     def __init__(self, user, *args, **kwargs):
         super(UserAssignationForm, self).__init__(user, *args, **kwargs)
-        self.user_to_delete = self.initial['user_to_delete']
+        self.user_to_delete = user_to_delete= self.initial['user_to_delete']
 
-        users = User.objects.exclude(pk=self.user_to_delete.pk)
+        users = User.objects.exclude(pk=user_to_delete.pk)
         choices = defaultdict(list)
         for user in users:
             choices[user.is_team].append((user.id, unicode(user)))
@@ -217,20 +206,14 @@ class UserAssignationForm(CremeForm):
                            ]
 
     def save(self, *args, **kwargs):
-        target_user = self.cleaned_data['to_user']
         user_2_delete = self.user_to_delete
-        is_team = user_2_delete.is_team
 
-        Contact.objects.filter(is_user=user_2_delete).update(is_user=None)#TODO: Don't know why SET_NULL doesn't wok on Contact.is_user
+        Contact.objects.filter(is_user=user_2_delete).update(is_user=None)#TODO: Don't know why SET_NULL doesn't work on Contact.is_user
 
         mutex = Mutex.get_n_lock('creme_config-forms-user-transfer_user')
-        CremeUserForeignKey._TRANSFER_TO_USER = target_user
+        CremeUserForeignKey._TRANSFER_TO_USER = self.cleaned_data['to_user']
         try:
             user_2_delete.delete()
         finally:
             CremeUserForeignKey._TRANSFER_TO_USER = None
             mutex.release()
-
-        if not is_team:
-            target_user.update_credentials() #TODO: delete 'self.is_team' when fast credentials
-

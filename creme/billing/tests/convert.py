@@ -7,9 +7,10 @@ try:
     from django.db.models.query_utils import Q
     from django.contrib.contenttypes.models import ContentType
 
+    from creme_core.tests.base import CremeTestCase
+    from creme_core.auth.entity_credentials import EntityCredentials
     from creme_core.models import Relation, CremePropertyType, CremeProperty, SetCredentials
     from creme_core.constants import PROP_IS_MANAGED_BY_CREME
-    from creme_core.tests.base import CremeTestCase
 
     from persons.constants import REL_SUB_CUSTOMER_SUPPLIER
 
@@ -60,9 +61,9 @@ class ConvertTestCase(_BillingTestCase, CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         self.role.creatable_ctypes = [get_ct(Quote), get_ct(SalesOrder)]
         SetCredentials.objects.create(role=self.role,
-                                      value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | \
-                                            SetCredentials.CRED_DELETE | \
-                                            SetCredentials.CRED_LINK | SetCredentials.CRED_UNLINK,
+                                      value=EntityCredentials.VIEW | EntityCredentials.CHANGE | \
+                                            EntityCredentials.DELETE | \
+                                            EntityCredentials.LINK | EntityCredentials.UNLINK,
                                       set_type=SetCredentials.ESET_OWN
                                      )
 
@@ -79,9 +80,9 @@ class ConvertTestCase(_BillingTestCase, CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         self.role.creatable_ctypes = [get_ct(Quote)] #not get_ct(Invoice)
         SetCredentials.objects.create(role=self.role,
-                                      value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | \
-                                            SetCredentials.CRED_DELETE | \
-                                            SetCredentials.CRED_LINK | SetCredentials.CRED_UNLINK,
+                                      value=EntityCredentials.VIEW | EntityCredentials.CHANGE | \
+                                            EntityCredentials.DELETE | \
+                                            EntityCredentials.LINK | EntityCredentials.UNLINK,
                                       set_type=SetCredentials.ESET_OWN
                                      )
 
@@ -95,9 +96,9 @@ class ConvertTestCase(_BillingTestCase, CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         self.role.creatable_ctypes = [get_ct(Quote), get_ct(Invoice)]
         SetCredentials.objects.create(role=self.role,
-                                      value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | \
-                                            SetCredentials.CRED_DELETE | \
-                                            SetCredentials.CRED_LINK | SetCredentials.CRED_UNLINK,
+                                      value=EntityCredentials.VIEW | EntityCredentials.CHANGE | \
+                                            EntityCredentials.DELETE | \
+                                            EntityCredentials.LINK | EntityCredentials.UNLINK,
                                       set_type=SetCredentials.ESET_OWN
                                      )
 

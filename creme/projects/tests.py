@@ -6,8 +6,9 @@ try:
 
     from django.utils.translation import ugettext as _
 
-    from creme_core.models import RelationType, Relation, SetCredentials
     from creme_core.tests.base import CremeTestCase
+    from creme_core.models import RelationType, Relation, SetCredentials
+    from creme_core.auth.entity_credentials import EntityCredentials
     from creme_core.utils.dates import get_dt_from_str
 
     from persons.models import Contact
@@ -80,13 +81,13 @@ class ProjectsTestCase(CremeTestCase):
         self.login(is_superuser=False, creatable_models=[Project])
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
-        create_sc(value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | \
-                        SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
+        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
+                        EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
                   set_type=SetCredentials.ESET_ALL
                  )
-        create_sc(value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | \
-                        SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK | \
-                        SetCredentials.CRED_UNLINK,
+        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
+                        EntityCredentials.DELETE | EntityCredentials.LINK | \
+                        EntityCredentials.UNLINK,
                   set_type=SetCredentials.ESET_OWN
                  )
 

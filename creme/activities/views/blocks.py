@@ -59,7 +59,7 @@ def unlink_activity(request):
         raise Http404(_('One entity does not exist any more.'))
 
     user = request.user
-    CremeEntity.populate_credentials(entities, user)
+    #CremeEntity.populate_credentials(entities, user)
 
     for entity in entities:
         entity.can_unlink_or_die(user)

@@ -87,12 +87,11 @@ class UserTestCase(CremeTestCase):
 
         user = users[0]
         self.assertTrue(user.is_superuser)
+        self.assertIsNone(user.role)
         self.assertEqual(first_name, user.first_name)
         self.assertEqual(last_name,  user.last_name)
         self.assertEqual(email,      user.email)
         self.assertTrue(user.check_password(password))
-
-        self.assertFalse(EntityCredentials.objects.filter(user=user))
 
         contact = self.get_object_or_fail(Contact, is_user=user,
                                           first_name=first_name,
@@ -107,7 +106,7 @@ class UserTestCase(CremeTestCase):
         role.allowed_apps = ['persons']
         role.save()
 
-        SetCredentials.objects.create(role=role, value=SetCredentials.CRED_VIEW,
+        SetCredentials.objects.create(role=role, value=EntityCredentials.VIEW,
                                       set_type=SetCredentials.ESET_ALL
                                      )
 
@@ -136,8 +135,8 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(1, len(users))
 
         user = users[0]
+        self.assertEqual(role,     user.role)
         self.assertEqual(ce_count, CremeEntity.objects.count())
-        self.assertEqual(ce_count, EntityCredentials.objects.filter(user=user).count())
 
         self.assertTrue(orga.can_view(user))
 
@@ -233,7 +232,7 @@ class UserTestCase(CremeTestCase):
         role1 = UserRole(name='Master')
         role1.allowed_apps = ['persons']
         role1.save()
-        SetCredentials.objects.create(role=role1, value=SetCredentials.CRED_VIEW,
+        SetCredentials.objects.create(role=role1, value=EntityCredentials.VIEW,
                                       set_type=SetCredentials.ESET_ALL
                                      )
         other_user = User.objects.create(username='deunan', role=role1)
@@ -282,7 +281,7 @@ class UserTestCase(CremeTestCase):
         role1 = UserRole(name='Master')
         role1.allowed_apps = ['persons']
         role1.save()
-        SetCredentials.objects.create(role=role1, value=SetCredentials.CRED_VIEW,
+        SetCredentials.objects.create(role=role1, value=EntityCredentials.VIEW,
                                       set_type=SetCredentials.ESET_ALL
                                      )
         other_user = User.objects.create(username='deunan', role=role1)
@@ -386,7 +385,7 @@ class UserTestCase(CremeTestCase):
         role = UserRole(name='Role')
         role.allowed_apps = ['creme_core']
         role.save()
-        SetCredentials.objects.create(role=role, value=SetCredentials.CRED_VIEW,
+        SetCredentials.objects.create(role=role, value=EntityCredentials.VIEW,
                                       set_type=SetCredentials.ESET_OWN
                                      )
 
@@ -433,9 +432,9 @@ class UserTestCase(CremeTestCase):
 
         #credentials have been updated ?
         entity = CremeEntity.objects.get(pk=entity.id)
-        self.assertFalse(entity.can_view(user01))
-        self.assertTrue(entity.can_view(user02))
-        self.assertTrue(entity.can_view(user03))
+        self.assertFalse(entity.can_view(self.refresh(user01)))
+        self.assertTrue(entity.can_view(self.refresh(user02)))
+        self.assertTrue(entity.can_view(self.refresh(user03)))
 
     def test_team_edit02(self):
         self.login_not_as_superuser()
@@ -450,9 +449,9 @@ class UserTestCase(CremeTestCase):
         url = '/creme_config/team/edit/%s' % team.id
         self.assertGETRedirectsToLogin(url)
         self.assertPOSTRedirectsToLogin(url, data={'username':  teamname,
-                                                  'teammates': [user02.id],
-                                                 }
-                                      )
+                                                   'teammates': [user02.id],
+                                                  }
+                                       )
 
     def test_team_delete01(self):
         self.login()

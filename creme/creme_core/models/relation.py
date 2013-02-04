@@ -270,8 +270,8 @@ class Relation(CremeAbstractEntity):
         entities = [relation.object_entity for relation in relations]
         CremeEntity.populate_real_entities(entities)
 
-        if user:
-            CremeEntity.populate_credentials([e.get_real_entity() for e in entities], user)
+        #if user:
+            #CremeEntity.populate_credentials([e.get_real_entity() for e in entities], user)
 
     @staticmethod
     def filter_in(model, filter_predicate, value_for_filter):

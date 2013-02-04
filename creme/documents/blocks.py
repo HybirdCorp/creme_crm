@@ -22,7 +22,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.utils.simplejson import JSONEncoder
 
-from creme_core.models import CremeEntity, Relation
+from creme_core.models import Relation #CremeEntity
 from creme_core.gui.block import QuerysetBlock
 
 from documents.models import Folder, Document
@@ -48,7 +48,7 @@ class FolderDocsBlock(QuerysetBlock):
                                               ct_id=_CT_DOC.id,
                                               q_filter=JSONEncoder().encode(q_dict),
                                              )
-        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+        ##CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
 
         return self._render(btc)
 
@@ -75,7 +75,7 @@ class LinkedDocsBlock(QuerysetBlock):
                                                        .select_related('folder')
                    )
 
-        CremeEntity.populate_credentials(docs.values(), user)
+        #CremeEntity.populate_credentials(docs.values(), user)
 
         for relation in relations:
             relation.object_entity = docs[relation.object_entity_id]

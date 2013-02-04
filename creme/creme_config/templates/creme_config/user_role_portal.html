@@ -7,9 +7,9 @@
 {% endblock %}
 
 {% block before_statistics %}
-    {% import_block from_app 'creme_config' named 'default_credentials' as 'defcreds_block' %}
+    {% comment %}{% import_block from_app 'creme_config' named 'default_credentials' as 'defcreds_block' %}{% endcomment %}
     {% import_block from_app 'creme_config' named 'user_roles' as 'roles_block' %}
-    {% display_block_detailview 'defcreds_block' %}
-    <br/>
+    {% comment %}{% display_block_detailview 'defcreds_block' %}
+    <br/>{% endcomment %}
     {% display_block_detailview 'roles_block' %}
 {% endblock %}

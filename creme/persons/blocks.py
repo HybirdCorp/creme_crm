@@ -22,7 +22,7 @@ from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, Relation
+from creme_core.models import Relation #CremeEntity
 from creme_core.gui.block import Block, SimpleBlock, PaginatedBlock, QuerysetBlock, list4url
 
 from activities.models import Activity
@@ -80,7 +80,7 @@ class ManagersBlock(QuerysetBlock):
                                               add_title=self._get_add_title(),
                                              )
 
-        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+        ##CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
 
         return self._render(btc)
 
@@ -153,7 +153,7 @@ class NeglectedOrganisationsBlock(PaginatedBlock):
                                               update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
                                              )
 
-        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+        #CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
 
         return self._render(btc)
 

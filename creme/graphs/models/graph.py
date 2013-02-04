@@ -71,7 +71,7 @@ class Graph(CremeEntity):
 
         #TODO: entity cache ? regroups relations by type ? ...
 
-        CremeEntity.populate_credentials([root.entity for root in roots], user)
+        #CremeEntity.populate_credentials([root.entity for root in roots], user)
         CremeEntity.populate_real_entities([root.entity for root in roots if root.entity.can_view(user)]) #small optimisation
 
         for root in roots:
@@ -92,7 +92,7 @@ class Graph(CremeEntity):
                                            .select_related('object_entity', 'type')
 
             Relation.populate_real_object_entities(relations) #small optimisation
-            CremeEntity.populate_credentials([r.object_entity for r in relations], user)
+            #CremeEntity.populate_credentials([r.object_entity for r in relations], user)
 
             for relation in relations:
                 object_ = relation.object_entity

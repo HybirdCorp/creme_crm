@@ -23,7 +23,7 @@ from django.forms import CharField, ModelMultipleChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, Relation, RelationType, SemiFixedRelationType
+from creme_core.models import Relation, RelationType, SemiFixedRelationType #CremeEntity
 from creme_core.forms.base import CremeForm, CremeEntityForm, FieldBlockManager
 from creme_core.forms.fields import MultiRelationEntityField
 from creme_core.forms.widgets import Label, UnorderedMultipleChoiceWidget
@@ -57,7 +57,7 @@ class _RelationsCreateForm(CremeForm):
                                                          .exclude(object_entity__in=subjects_ids)
                                                          .select_related('object_entity')
                    ]
-        CremeEntity.populate_credentials(entities, user)
+        #CremeEntity.populate_credentials(entities, user)
         sfrt_queryset = SemiFixedRelationType.objects.filter(object_entity__in=[e for e in entities if e.can_link(user)])
 
         if not relations_types:

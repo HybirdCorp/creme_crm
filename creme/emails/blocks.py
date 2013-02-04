@@ -24,7 +24,7 @@ from django.template.context import RequestContext #
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import Relation, CremeEntity
+from creme_core.models import Relation #, CremeEntity
 from creme_core.gui.block import SimpleBlock, QuerysetBlock, list4url
 from creme_core.utils import jsonify #
 
@@ -42,7 +42,6 @@ class EntityEmailBlock(SimpleBlock):
     template_name = 'emails/templatetags/block_mail.html'
 
 
-#TODO: move populate_credentials() code to a Block class in creme_core ???
 class _RelatedEntitesBlock(QuerysetBlock):
     #id_           = 'SET ME'
     #dependencies  = 'SET ME'
@@ -58,7 +57,7 @@ class _RelatedEntitesBlock(QuerysetBlock):
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, entity.pk),
                                              )
 
-        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+        #CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
 
         return self._render(btc)
 
@@ -175,9 +174,9 @@ class MailsBlock(QuerysetBlock):
                                               ct_id=ContentType.objects.get_for_model(LightWeightEmail).id,
                                              )
 
-        CremeEntity.populate_credentials([mail.recipient_entity for mail in btc['page'].object_list if mail.recipient_entity],
-                                         context['user']
-                                        )
+        #CremeEntity.populate_credentials([mail.recipient_entity for mail in btc['page'].object_list if mail.recipient_entity],
+                                         #context['user']
+                                        #)
 
         return self._render(btc)
 

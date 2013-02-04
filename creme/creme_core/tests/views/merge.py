@@ -7,6 +7,7 @@ try:
 
     from django.utils.translation import ugettext as _
 
+    from creme_core.auth.entity_credentials import EntityCredentials
     from creme_core.models import (RelationType, Relation, SetCredentials,
                                    CremePropertyType, CremeProperty, Language)
     from creme_core.tests.views.base import ViewsTestCase
@@ -71,7 +72,7 @@ class MergeViewsTestCase(ViewsTestCase):
 
         SetCredentials.objects.create(
                 role=self.role,
-                value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | SetCredentials.CRED_DELETE,
+                value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
                 set_type=SetCredentials.ESET_OWN
             )
         orga = Organisation.objects.create(user=self.other_user, name='Genshiken')
@@ -82,7 +83,7 @@ class MergeViewsTestCase(ViewsTestCase):
         self.login(is_superuser=False, allowed_apps=['persons'])
 
         SetCredentials.objects.create(role=self.role,
-                                      value=SetCredentials.CRED_VIEW,
+                                      value=EntityCredentials.VIEW,
                                       set_type=SetCredentials.ESET_ALL
                                      )
         orga = Organisation.objects.create(user=self.other_user, name='Genshiken')
@@ -342,7 +343,7 @@ class MergeViewsTestCase(ViewsTestCase):
 
         SetCredentials.objects.create(
                 role=self.role,
-                value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | SetCredentials.CRED_DELETE,
+                value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
                 set_type=SetCredentials.ESET_OWN
             )
 

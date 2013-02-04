@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity
+#from creme_core.models import CremeEntity
 from creme_core.gui.block import SimpleBlock, QuerysetBlock
 
 from projects.models import Project, ProjectTask, Resource, WorkingPeriod
@@ -59,7 +59,7 @@ class ParentTasksBlock(QuerysetBlock):
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
                                              )
 
-        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+        #CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
 
         return self._render(btc)
 
@@ -80,7 +80,7 @@ class ProjectTasksBlock(QuerysetBlock):
                                               creation_perm=creation_perm, #TODO: use a tempatetag instead ??
                                              )
 
-        CremeEntity.populate_credentials(btc['page'].object_list, user)
+        #CremeEntity.populate_credentials(btc['page'].object_list, user)
 
         return self._render(btc)
 
@@ -99,9 +99,9 @@ class TaskResourcesBlock(QuerysetBlock):
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, task.pk),
                                              )
 
-        CremeEntity.populate_credentials([r.linked_contact for r in  btc['page'].object_list],
-                                         context['user']
-                                        )
+        #CremeEntity.populate_credentials([r.linked_contact for r in  btc['page'].object_list],
+                                         #context['user']
+                                        #)
 
         return self._render(btc)
 

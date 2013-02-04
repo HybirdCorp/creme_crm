@@ -7,6 +7,7 @@ try:
     from django.conf import settings
 
     from creme_core.models import Relation, SetCredentials
+    from creme_core.auth.entity_credentials import EntityCredentials
 
     from persons.models import Contact, Organisation
 
@@ -196,16 +197,16 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         role = user.role
         SetCredentials.objects.create(role=role,
-                                      value=(SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE |
-                                             SetCredentials.CRED_LINK   |
-                                             SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK
+                                      value=(EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                                             EntityCredentials.LINK   |
+                                             EntityCredentials.DELETE | EntityCredentials.UNLINK
                                             ),
                                       set_type=SetCredentials.ESET_OWN
                                      )
         SetCredentials.objects.create(role=role,
-                                      value=(SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE |
-                                             SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK
-                                            ), #no CRED_LINK
+                                      value=(EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                                             EntityCredentials.DELETE | EntityCredentials.UNLINK
+                                            ), #no LINK
                                       set_type=SetCredentials.ESET_ALL
                                      )
 

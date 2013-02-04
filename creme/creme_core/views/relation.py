@@ -198,7 +198,7 @@ def add_relations_bulk(request, model_ct_id, relations_types=None):#TODO: Factor
     entities = get_list_or_404(model, pk__in=request.REQUEST.getlist('ids'))
 
     CremeEntity.populate_real_entities(entities)
-    CremeEntity.populate_credentials(entities, user)
+    #CremeEntity.populate_credentials(entities, user)
 
     filtered = {True: [], False: []}
     for entity in entities:
@@ -352,7 +352,7 @@ def add_relations_with_same_type(request):
     entity_ids.append(subject_id) #NB: so we can do only one query
     entities = list(CremeEntity.objects.filter(pk__in=entity_ids))
 
-    CremeEntity.populate_credentials(entities, user)
+    #CremeEntity.populate_credentials(entities, user)
 
     subject_properties = frozenset(rtype.subject_properties.values_list('id', flat=True))
     object_properties  = frozenset(rtype.object_properties.values_list('id', flat=True))

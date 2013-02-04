@@ -37,7 +37,7 @@ def add_properties_bulk(request, ct_id):#TODO: Factorise with add_relations_bulk
     entities = get_list_or_404(model, pk__in=request.REQUEST.getlist('ids'))
 
     CremeEntity.populate_real_entities(entities)
-    CremeEntity.populate_credentials(entities, user)
+    #CremeEntity.populate_credentials(entities, user)
 
     filtered = {True: [], False: []}
     for entity in entities:

@@ -21,7 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, Relation
+from creme_core.models import Relation #CremeEntity
 from creme_core.gui.block import QuerysetBlock, SimpleBlock
 
 from persons.models import Contact, Organisation
@@ -65,7 +65,7 @@ class _LinkedStuffBlock(QuerysetBlock):
                                               ct=self._ct,
                                              )
 
-        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+        #CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
 
         return self._render(btc)
 

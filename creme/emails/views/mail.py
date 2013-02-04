@@ -81,7 +81,7 @@ def set_emails_status(request, status):
     user = request.user
     errors = []
     emails = EntityEmail.objects.filter(id__in=request.POST.getlist('ids'))
-    CremeEntity.populate_credentials(emails, user)
+    #CremeEntity.populate_credentials(emails, user)
 
     for email in emails:
         if not email.can_change(user):

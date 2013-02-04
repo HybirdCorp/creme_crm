@@ -22,7 +22,7 @@ from django.db.models.query_utils import Q
 from django.db.models.fields import FieldDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity, RelationType, InstanceBlockConfigItem
+from creme_core.models import RelationType, InstanceBlockConfigItem #CremeEntity
 from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_RELATED
 from creme_core.gui.block import Block, QuerysetBlock, list4url
 
@@ -70,7 +70,7 @@ class ReportGraphsBlock(QuerysetBlock):
                                               user_can_admin_report=user_can_admin
                                              )
 
-        CremeEntity.populate_credentials(btc['page'].object_list, user)
+        #CremeEntity.populate_credentials(btc['page'].object_list, user)
 
         return self._render(btc)
 

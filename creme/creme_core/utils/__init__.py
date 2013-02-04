@@ -137,7 +137,6 @@ def find_first(iterable, function, *default):
 def entities2unicode(entities, user):
     """Return a unicode objects representing a sequence of CremeEntities,
     with care of permissions.
-    Tips: for performance, call "CremeEntity.populate_credentials(entities, user)" before.
     """
     return u', '.join(entity.allowed_unicode(user) for entity in entities)
 

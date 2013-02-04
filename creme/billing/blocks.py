@@ -108,7 +108,7 @@ class CreditNoteBlock(QuerysetBlock):
                                               add_title=_(u'Add a credit note'),
                                              )
 
-        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+        #CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
 
         return self._render(btc)
 
@@ -146,7 +146,7 @@ class ReceivedInvoicesBlock(QuerysetBlock):
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
                                              )
 
-        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+        #CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
 
         return self._render(btc)
 
@@ -173,7 +173,7 @@ class ReceivedBillingDocumentBlock(QuerysetBlock):#TODO: Check out and exclude T
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
                                              )
 
-        CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
+        #CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
 
         return self._render(btc)
 

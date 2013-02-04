@@ -3,8 +3,9 @@
 try:
     from django.conf import settings
 
-    from creme_core.models import SetCredentials, Language, Currency
     from creme_core.tests.base import CremeTestCase
+    from creme_core.auth.entity_credentials import EntityCredentials
+    from creme_core.models import SetCredentials, Language, Currency
 
     from persons.models import Contact
 except Exception as e:
@@ -19,26 +20,26 @@ class ViewsTestCase(CremeTestCase):
         super(ViewsTestCase, self).login(is_superuser, *args, **kwargs)
 
         SetCredentials.objects.create(role=self.role,
-                                      value=SetCredentials.CRED_VIEW   | \
-                                            SetCredentials.CRED_CHANGE | \
-                                            SetCredentials.CRED_DELETE | \
-                                            SetCredentials.CRED_LINK   | \
-                                            SetCredentials.CRED_UNLINK,
+                                      value=EntityCredentials.VIEW   | \
+                                            EntityCredentials.CHANGE | \
+                                            EntityCredentials.DELETE | \
+                                            EntityCredentials.LINK   | \
+                                            EntityCredentials.UNLINK,
                                       set_type=SetCredentials.ESET_OWN
                                      )
 
     def _set_all_creds_except_one(self, excluded): #TODO: in CremeTestCase ?
-        value = SetCredentials.CRED_NONE
+        value = EntityCredentials.NONE
 
-        for cred in (SetCredentials.CRED_VIEW, SetCredentials.CRED_CHANGE,
-                     SetCredentials.CRED_DELETE, SetCredentials.CRED_LINK,
-                     SetCredentials.CRED_UNLINK):
+        for cred in (EntityCredentials.VIEW, EntityCredentials.CHANGE,
+                     EntityCredentials.DELETE, EntityCredentials.LINK,
+                     EntityCredentials.UNLINK):
             if cred != excluded:
                 value |= cred
 
-        SetCredentials.objects.create(role=self.user.role,
-                                      value=value,
-                                      set_type=SetCredentials.ESET_ALL)
+        SetCredentials.objects.create(role=self.user.role, value=value,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
 
 
 class MiscViewsTestCase(ViewsTestCase):

@@ -11,7 +11,9 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.contrib.auth.models import User
 
-    from creme_core.models import CremeEntity, RelationType, Relation, HeaderFilter, HistoryLine, SetCredentials
+    from creme_core.models import (CremeEntity, RelationType, Relation, HeaderFilter,
+                                   HistoryLine, SetCredentials)
+    from creme_core.auth.entity_credentials import EntityCredentials
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Organisation
@@ -295,13 +297,15 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual(302, self.client.get(self._buid_addrelated_url(entity)).status_code)
 
     def test_add_related_document03(self): #link credentials
-        self.login(is_superuser=False, allowed_apps=['documents', 'persons'], creatable_models=[Document])
+        self.login(is_superuser=False, allowed_apps=['documents', 'persons'],
+                   creatable_models=[Document]
+                  )
 
         SetCredentials.objects.create(role=self.role,
-                                      value=SetCredentials.CRED_VIEW   | \
-                                            SetCredentials.CRED_CHANGE | \
-                                            SetCredentials.CRED_DELETE | \
-                                            SetCredentials.CRED_UNLINK, #not CRED_LINK
+                                      value=EntityCredentials.VIEW   | \
+                                            EntityCredentials.CHANGE | \
+                                            EntityCredentials.DELETE | \
+                                            EntityCredentials.UNLINK, #not EntityCredentials.LINK
                                       set_type=SetCredentials.ESET_ALL
                                      )
 
@@ -315,10 +319,10 @@ class DocumentTestCase(_DocumentsTestCase):
         self.login(is_superuser=False, allowed_apps=['documents', 'persons'], creatable_models=[Document])
 
         SetCredentials.objects.create(role=self.role,
-                                      value=SetCredentials.CRED_CHANGE | \
-                                            SetCredentials.CRED_DELETE | \
-                                            SetCredentials.CRED_LINK   | \
-                                            SetCredentials.CRED_UNLINK, #not SetCredentials.CRED_VIEW
+                                      value=EntityCredentials.CHANGE | \
+                                            EntityCredentials.DELETE | \
+                                            EntityCredentials.LINK   | \
+                                            EntityCredentials.UNLINK, #not EntityCredentials.VIEW
                                       set_type=SetCredentials.ESET_ALL
                                      )
 

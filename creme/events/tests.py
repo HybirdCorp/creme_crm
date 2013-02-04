@@ -7,8 +7,9 @@ try:
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import RelationType, Relation, SetCredentials
     from creme_core.tests.base import CremeTestCase
+    from creme_core.auth.entity_credentials import EntityCredentials
+    from creme_core.models import RelationType, Relation, SetCredentials
 
     from persons.models import Contact
 
@@ -281,14 +282,14 @@ class EventsTestCase(CremeTestCase):
 
         create_creds = SetCredentials.objects.create
         create_creds(role=user.role,
-                     value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
-                           SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK | \
-                           SetCredentials.CRED_UNLINK,
+                     value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
+                           EntityCredentials.DELETE | EntityCredentials.LINK | \
+                           EntityCredentials.UNLINK,
                      set_type=SetCredentials.ESET_OWN
                     )
         create_creds(role=user.role,
-                     value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
-                           SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
+                     value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
+                           EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
                      set_type=SetCredentials.ESET_ALL
                     )
 
@@ -382,14 +383,14 @@ class EventsTestCase(CremeTestCase):
 
         create_creds = SetCredentials.objects.create
         create_creds(role=user.role,
-                     value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
-                           SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK | \
-                           SetCredentials.CRED_UNLINK,
+                     value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
+                           EntityCredentials.DELETE | EntityCredentials.LINK | \
+                           EntityCredentials.UNLINK,
                      set_type=SetCredentials.ESET_OWN
                     )
         create_creds(role=user.role,
-                     value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
-                           SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
+                     value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
+                           EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
                      set_type=SetCredentials.ESET_ALL
                     )
 
@@ -541,8 +542,8 @@ class EventsTestCase(CremeTestCase):
         self.login(is_superuser=False, allowed_apps=['persons', 'events'])
 
         SetCredentials.objects.create(role=self.role,
-                                      value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
-                                            SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
+                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
+                                            EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
                                       set_type=SetCredentials.ESET_OWN
                                      )
 

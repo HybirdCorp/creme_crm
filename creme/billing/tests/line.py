@@ -6,8 +6,9 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import Relation, SetCredentials
     from creme_core.tests.base import CremeTestCase
+    from creme_core.auth.entity_credentials import EntityCredentials
+    from creme_core.models import Relation, SetCredentials
 
     from persons.models import Contact, Organisation
 
@@ -139,9 +140,9 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
                   )
 
         SetCredentials.objects.create(role=self.role,
-                                      value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
-                                            SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK   | \
-                                            SetCredentials.CRED_UNLINK,
+                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
+                                            EntityCredentials.DELETE | EntityCredentials.LINK   | \
+                                            EntityCredentials.UNLINK,
                                       set_type=SetCredentials.ESET_OWN
                                      )
 
@@ -285,8 +286,8 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
                   )
 
         SetCredentials.objects.create(role=self.role,
-                                      value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
-                                            SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK | SetCredentials.CRED_UNLINK,
+                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
+                                            EntityCredentials.DELETE | EntityCredentials.LINK | EntityCredentials.UNLINK,
                                       set_type=SetCredentials.ESET_OWN
                                      )
 
@@ -465,8 +466,8 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
                   )
 
         SetCredentials.objects.create(role=self.role,
-                                      value=SetCredentials.CRED_VIEW | SetCredentials.CRED_DELETE | \
-                                            SetCredentials.CRED_LINK | SetCredentials.CRED_UNLINK, #not SetCredentials.CRED_CHANGE |
+                                      value=EntityCredentials.VIEW | EntityCredentials.DELETE | \
+                                            EntityCredentials.LINK | EntityCredentials.UNLINK, #not EntityCredentials.CHANGE |
                                       set_type=SetCredentials.ESET_OWN
                                      )
 

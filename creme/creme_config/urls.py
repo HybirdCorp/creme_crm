@@ -12,8 +12,8 @@ user_patterns = patterns('creme_config.views.user',
 )
 
 team_patterns = patterns('creme_config.views.user',
-    (r'^add/$',                    'add_team'),
-    (r'^edit/(?P<user_id>\d+)$',   'edit_team'),
+    (r'^add/$',                  'add_team'),
+    (r'^edit/(?P<user_id>\d+)$', 'edit_team'),
 )
 
 user_settings_patterns = patterns('creme_config.views.user_settings',
@@ -25,9 +25,8 @@ role_patterns = patterns('creme_config.views.user_role',
     (r'^portal/$',                          'portal'),
     (r'^add/$',                             'add'),
     (r'^edit/(?P<role_id>\d+)$',            'edit'),
+    (r'^delete/(?P<role_id>\d+)$',          'delete'),
     (r'^add_credentials/(?P<role_id>\d+)$', 'add_credentials'),
-    (r'^delete$',                           'delete'),
-    (r'^set_default_creds/$',               'set_default_creds'),
 )
 
 relation_type_patterns = patterns('creme_config.views.relation_type',

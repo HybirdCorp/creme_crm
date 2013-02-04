@@ -8,8 +8,9 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import EntityFilter, EntityFilterCondition, SetCredentials
     from creme_core.tests.views.base import ViewsTestCase
+    from creme_core.auth.entity_credentials import EntityCredentials
+    from creme_core.models import EntityFilter, EntityFilterCondition, SetCredentials
 
     from persons.models import Organisation, Contact
 except Exception as e:
@@ -206,13 +207,13 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         create_sc = SetCredentials.objects.create
         create_sc(role=self.role,
-                  value=SetCredentials.CRED_VIEW | SetCredentials.CRED_DELETE |\
-                        SetCredentials.CRED_LINK | SetCredentials.CRED_UNLINK, #no  CRED_CHANGE
+                  value=EntityCredentials.VIEW | EntityCredentials.DELETE |\
+                        EntityCredentials.LINK | EntityCredentials.UNLINK, #no  CHANGE
                   set_type=SetCredentials.ESET_ALL
                  )
         create_sc(role=self.role,
-                  value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | SetCredentials.CRED_DELETE |\
-                        SetCredentials.CRED_LINK | SetCredentials.CRED_UNLINK,
+                  value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |\
+                        EntityCredentials.LINK | EntityCredentials.UNLINK,
                   set_type=SetCredentials.ESET_OWN
                  )
 

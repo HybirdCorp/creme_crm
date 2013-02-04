@@ -10,6 +10,7 @@ try:
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
+    from creme_core.auth.entity_credentials import EntityCredentials
     from creme_core.models import RelationType, Relation, SetCredentials
     from creme_core.constants import REL_SUB_HAS
     from creme_core.tests.base import CremeTestCase
@@ -41,14 +42,14 @@ class ActivitiesTestCase(CremeTestCase):
     def _aux_build_setcreds(self):
         role = self.role
         SetCredentials.objects.create(role=role,
-                                      value=SetCredentials.CRED_LINK,
+                                      value=EntityCredentials.LINK,
                                       set_type=SetCredentials.ESET_OWN
                                      )
         SetCredentials.objects.create(role=role,
-                                      value=SetCredentials.CRED_VIEW   | \
-                                            SetCredentials.CRED_CHANGE | \
-                                            SetCredentials.CRED_DELETE | \
-                                            SetCredentials.CRED_UNLINK, #not CRED_LINK
+                                      value=EntityCredentials.VIEW   | \
+                                            EntityCredentials.CHANGE | \
+                                            EntityCredentials.DELETE | \
+                                            EntityCredentials.UNLINK, #not LINK
                                       set_type=SetCredentials.ESET_ALL
                                      )
 
@@ -569,10 +570,10 @@ class ActivitiesTestCase(CremeTestCase):
     def test_unlink02(self): #can not unlink the activity
         self.login(is_superuser=False)
         SetCredentials.objects.create(role=self.user.role,
-                                      value=SetCredentials.CRED_VIEW   | \
-                                            SetCredentials.CRED_CHANGE | \
-                                            SetCredentials.CRED_DELETE | \
-                                            SetCredentials.CRED_LINK,
+                                      value=EntityCredentials.VIEW   | \
+                                            EntityCredentials.CHANGE | \
+                                            EntityCredentials.DELETE | \
+                                            EntityCredentials.LINK,
                                       set_type=SetCredentials.ESET_OWN)
 
         activity = self._create_meeting()
@@ -589,14 +590,14 @@ class ActivitiesTestCase(CremeTestCase):
 
         create_creds = SetCredentials.objects.create
         create_creds(role=self.role,
-                     value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
-                           SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK   | \
-                           SetCredentials.CRED_UNLINK,
+                     value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
+                           EntityCredentials.DELETE | EntityCredentials.LINK   | \
+                           EntityCredentials.UNLINK,
                      set_type=SetCredentials.ESET_OWN
                     )
         create_creds(role=self.role,
-                     value=SetCredentials.CRED_VIEW   | SetCredentials.CRED_CHANGE | \
-                           SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK,
+                     value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
+                           EntityCredentials.DELETE | EntityCredentials.LINK,
                      set_type=SetCredentials.ESET_ALL
                     )
 
@@ -634,10 +635,10 @@ class ActivitiesTestCase(CremeTestCase):
     def test_add_participants02(self): #credentials error with the activity
         self.login(is_superuser=False)
         SetCredentials.objects.create(role=self.user.role,
-                                      value=SetCredentials.CRED_VIEW   | \
-                                            SetCredentials.CRED_CHANGE | \
-                                            SetCredentials.CRED_DELETE | \
-                                            SetCredentials.CRED_UNLINK,
+                                      value=EntityCredentials.VIEW   | \
+                                            EntityCredentials.CHANGE | \
+                                            EntityCredentials.DELETE | \
+                                            EntityCredentials.UNLINK,
                                       set_type=SetCredentials.ESET_OWN)
 
         activity = self._create_meeting()
@@ -681,10 +682,10 @@ class ActivitiesTestCase(CremeTestCase):
     def test_add_subjects02(self): #credentials error with the activity
         self.login(is_superuser=False)
         SetCredentials.objects.create(role=self.user.role,
-                                      value=SetCredentials.CRED_VIEW   | \
-                                            SetCredentials.CRED_CHANGE | \
-                                            SetCredentials.CRED_DELETE | \
-                                            SetCredentials.CRED_UNLINK,
+                                      value=EntityCredentials.VIEW   | \
+                                            EntityCredentials.CHANGE | \
+                                            EntityCredentials.DELETE | \
+                                            EntityCredentials.UNLINK,
                                       set_type=SetCredentials.ESET_OWN)
 
         activity = self._create_meeting()

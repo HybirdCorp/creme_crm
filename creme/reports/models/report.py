@@ -396,8 +396,8 @@ class Report(CremeEntity):
             entities = entities.filter(extra_q)
 
         entities_with_limit = entities[:limit_to]
-        if user is not None:
-            model.populate_credentials(entities_with_limit, user)
+        #if user is not None:
+            #model.populate_credentials(entities_with_limit, user)
 
         lines_append = lines.append
 

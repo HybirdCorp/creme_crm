@@ -9,9 +9,10 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
+    from creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
+    from creme_core.auth.entity_credentials import EntityCredentials
     from creme_core.models import CremeEntity, Relation, CremeProperty, SetCredentials, Currency
     from creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_HAS
-    from creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
 
     from persons.models import Organisation, Address
     from persons.constants import REL_SUB_CUSTOMER_SUPPLIER
@@ -128,14 +129,14 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         role = self.user.role
         create_sc = SetCredentials.objects.create
         create_sc(role=role,
-                  value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | \
-                        SetCredentials.CRED_DELETE | SetCredentials.CRED_UNLINK, #no CRED_LINK
+                  value=EntityCredentials.VIEW | EntityCredentials.CHANGE | \
+                        EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
                   set_type=SetCredentials.ESET_ALL
                  )
         create_sc(role=role,
-                  value=SetCredentials.CRED_VIEW | SetCredentials.CRED_CHANGE | \
-                        SetCredentials.CRED_DELETE | SetCredentials.CRED_LINK | \
-                        SetCredentials.CRED_UNLINK,
+                  value=EntityCredentials.VIEW | EntityCredentials.CHANGE | \
+                        EntityCredentials.DELETE | EntityCredentials.LINK | \
+                        EntityCredentials.UNLINK,
                   set_type=SetCredentials.ESET_OWN
                  )
         role.creatable_ctypes = [ContentType.objects.get_for_model(Invoice)]

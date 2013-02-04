@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from collections import defaultdict
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity
+#from creme_core.models import CremeEntity
 from creme_core.gui.block import QuerysetBlock, list4url
 
 from assistants.models import Action, Alert, Memo, ToDo, UserMessage
@@ -49,7 +49,7 @@ class _AssistantsBlock(QuerysetBlock):
         for assistant in assistants:
             assistant.creme_entity = entities_map[assistant.entity_id]
 
-        CremeEntity.populate_credentials(entities_map.values(), user) #beware: values() and not itervalues()
+        #CremeEntity.populate_credentials(entities_map.values(), user) #beware: values() and not itervalues()
 
     def _get_queryset_for_detailview(self, entity, context):
         """OVERLOAD ME"""

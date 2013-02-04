@@ -52,7 +52,6 @@ def _transfer_assignation():
     return CremeUserForeignKey._TRANSFER_TO_USER
 
 class CremeUserForeignKey(ForeignKey):
-
     _TRANSFER_TO_USER = None
 
     def __init__(self, **kwargs):
