@@ -19,16 +19,16 @@
 ################################################################################
 
 import re
-from logging import debug
+#from logging import debug
 from collections import defaultdict
 
-from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField, ValidationError, ChoiceField
+from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField, ValidationError
 from django.forms.widgets import PasswordInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, Relation, RelationType, UserRole, Mutex
+from creme_core.models import Relation, RelationType, UserRole, Mutex
 from creme_core.models.fields import CremeUserForeignKey
 from creme_core.forms import CremeForm, CremeModelForm
 from creme_core.forms.fields import CremeEntityField

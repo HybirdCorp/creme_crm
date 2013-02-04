@@ -3,10 +3,10 @@
 try:
     from os.path import join, dirname, abspath
 
-    from activesync.commands.airsync import AirSync
+    #from activesync.commands.airsync import AirSync
     from activesync.tests.commands.base import BaseASTestCase
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 #TODO: tests!!

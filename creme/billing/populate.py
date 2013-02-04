@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import date
+#from datetime import date
 from decimal import Decimal
 from logging import info
 
@@ -274,8 +274,8 @@ class Populator(BasePopulator):
             invoices_report = Report.objects.create(name=report_name, ct=invoice_ct, filter=current_year_invoice_filter, user=admin)
             invoices_report.columns = create_report_columns()
 
-            rgraph1 = create_graph(name=_(u"Sum of current year invoices total without taxes / month"),           report=invoices_report, abscissa='issuing_date', ordinate='total_no_vat__sum', type=RGT_MONTH, is_count=False, user=admin)
-            rgraph2 = create_graph(name=_(u"Sum of current year invoices total without taxes / invoices status"), report=invoices_report, abscissa='status',       ordinate='total_no_vat__sum', type=RGT_FK,    is_count=False, user=admin)
+            rgraph1 = create_graph(name=_(u"Sum of current year invoices total without taxes / month"), report=invoices_report, abscissa='issuing_date', ordinate='total_no_vat__sum', type=RGT_MONTH, is_count=False, user=admin)
+            create_graph(name=_(u"Sum of current year invoices total without taxes / invoices status"), report=invoices_report, abscissa='status',       ordinate='total_no_vat__sum', type=RGT_FK,    is_count=False, user=admin)
             ibci = rgraph1.create_instance_block_config_item()
 
             BlockPortalLocation.create(app_name='creme_core', block_id=ibci.block_id, order=1)

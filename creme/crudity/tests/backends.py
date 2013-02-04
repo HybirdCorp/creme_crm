@@ -6,12 +6,12 @@ try:
     from crudity.backends.models import CrudityBackend
     from crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
     from crudity.exceptions import ImproperlyConfiguredBackend
-    from crudity.registry import crudity_registry, CRUDityRegistry
+    from crudity.registry import crudity_registry # CRUDityRegistry
     from crudity.tests.base import CrudityTestCase
 
     from persons.models import Contact
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class BackendsTestCase(CrudityTestCase):

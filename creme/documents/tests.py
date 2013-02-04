@@ -6,13 +6,10 @@ try:
     from tempfile import NamedTemporaryFile
 
     from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
-    from django.utils.translation import ugettext
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
-    from django.contrib.auth.models import User
 
-    from creme_core.models import (CremeEntity, RelationType, Relation, HeaderFilter,
-                                   HistoryLine, SetCredentials)
+    from creme_core.models import CremeEntity, RelationType, HeaderFilter, SetCredentials
     from creme_core.auth.entity_credentials import EntityCredentials
     from creme_core.tests.base import CremeTestCase
 

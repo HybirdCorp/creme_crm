@@ -483,7 +483,7 @@ class CustomFieldsConditionsField(_ConditionsField):
                                           value=clean_value(entry, 'value', unicode)
                                          ) for entry in data
                          ]
-        except EntityFilterCondition.ValueError as e:
+        except EntityFilterCondition.ValueError:
             raise ValidationError(self.error_messages['invalidtype'])
 
         return conditions

@@ -4,7 +4,6 @@ try:
     from datetime import datetime, timedelta
     from functools import partial
 
-    from creme_core.models import Relation
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Contact, Organisation
@@ -12,7 +11,7 @@ try:
     from activities.models import PhoneCall, PhoneCallType, Calendar
     from activities.constants import *
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class CTITestCase(CremeTestCase):

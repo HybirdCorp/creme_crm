@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2012  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,19 +17,23 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-from datetime import datetime, timedelta
+
+from datetime import timedelta
+
 from django.conf import settings
 
 from creme_core.models import Relation
+from creme_core.utils.dates import (get_utc_dt_from_creme_dt, get_utc_now,
+                                    get_creme_dt_from_utc_dt, get_dt_to_iso8601_str,
+                                    get_dt_from_iso8601_str, get_naive_dt_from_tzdate)
+
+from activities.models import Meeting, Calendar
+from activities.constants import REL_SUB_PART_2_ACTIVITY
+
 from activesync.models.active_sync import AS_Folder
 from activesync.models.other_models import EntityASData
-
 from activesync.utils import generate_guid, encode_AS_timezone
-from activities.models.activity import Meeting, Calendar
-from activities.constants import REL_SUB_PART_2_ACTIVITY
-from creme_core.utils.dates import get_utc_dt_from_creme_dt, get_utc_now, get_creme_dt_from_utc_dt, get_dt_to_iso8601_str, get_dt_from_iso8601_str, get_naive_dt_from_tzdate
 
-from persons.models import Contact
 
 ALL_DAY_EVENT = 1#An item marked as an all day event is understood to begin on midnight of the current day and to end on midnight of the next day.
 

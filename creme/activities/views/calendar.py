@@ -19,7 +19,7 @@
 ################################################################################
 
 from datetime import datetime, timedelta
-from logging import debug
+#from logging import debug
 
 from django.db.models import Q
 from django.http import HttpResponse

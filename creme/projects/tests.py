@@ -7,7 +7,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme_core.tests.base import CremeTestCase
-    from creme_core.models import RelationType, Relation, SetCredentials
+    from creme_core.models import SetCredentials
     from creme_core.auth.entity_credentials import EntityCredentials
     from creme_core.utils.dates import get_dt_from_str
 
@@ -566,8 +566,6 @@ class ProjectsTestCase(CremeTestCase):
 
     def test_project_clone01(self):
         self.login()
-
-        user = self.user
         project = self.create_project('Project')[0]
 
         create_task = self._create_task
@@ -607,25 +605,24 @@ class ProjectsTestCase(CremeTestCase):
         self.login()
 
         user = self.user
-
         project = self.create_project('Project')[0]
-        contact1 = Contact.objects.create(user=self.user)
-        contact2 = Contact.objects.create(user=self.user)
+        contact1 = Contact.objects.create(user=user)
+        contact2 = Contact.objects.create(user=user)
 
         task1 = self._create_task('1', project)
         resource1 = self._create_resource(contact1, task1)
         resource2 = self._create_resource(contact2, task1)
-        work_period1 = self._create_working_period(task1, resource1)
-        work_period2 = self._create_working_period(task1, resource2)
+        self._create_working_period(task1, resource1)
+        self._create_working_period(task1, resource2)
 
         task2 = self._create_task('2', project)
         resource3 = self._create_resource(contact1, task2)
         resource4 = self._create_resource(contact2, task2)
-        work_period3 = self._create_working_period(task2, resource3)
-        work_period4 = self._create_working_period(task2, resource4)
+        self._create_working_period(task2, resource3)
+        self._create_working_period(task2, resource4)
 
         task3 = self._create_task('3', project, [task1, task2])
-        task4 = self._create_task('4', project, [task3])
+        self._create_task('4', project, [task3])
 
         cloned_project = project.clone()
 

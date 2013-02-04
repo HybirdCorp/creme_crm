@@ -4,10 +4,10 @@ try:
     from os.path import join, dirname, abspath
 
     from activesync.commands.settings import Settings
-    from activesync.connection import Connection
+    #from activesync.connection import Connection
     from activesync.tests.commands.base import BaseASTestCase
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class SettingsASTestCase(BaseASTestCase):

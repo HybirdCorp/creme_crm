@@ -101,7 +101,7 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual(1, Alert.objects.count())
 
         ct = ContentType.objects.get_for_model(Alert)
-        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': alert.id})
+        self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': alert.id})
         self.assertEqual(0, Alert.objects.count())
 
     def test_validate(self): #validate

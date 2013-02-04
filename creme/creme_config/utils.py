@@ -17,10 +17,12 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from django.conf import settings
 
 from creme_config.constants import USER_THEME_NAME
 from creme_config.models import SettingValue, SettingKey
+
 
 def generate_portal_url(app_name):
     return '/creme_config/%s/portal/' % app_name
@@ -37,7 +39,7 @@ def get_user_theme(user, request=None):
     theme_name = None
     try:
         sv = SettingValue.objects.get(user=user, key=USER_THEME_NAME)
-        if sv.value not in [theme_name for theme_name, theme_vb in settings.THEMES]:
+        if sv.value not in [names[0] for names in settings.THEMES]:
             SettingValue.objects.filter(user=user, key=USER_THEME_NAME).delete()
             raise SettingValue.DoesNotExist
         theme_name = sv.value

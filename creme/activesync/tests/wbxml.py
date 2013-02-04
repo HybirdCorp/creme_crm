@@ -4,7 +4,7 @@ try:
     from StringIO import StringIO
     from os.path import join, dirname, abspath
     from xml.etree.ElementTree import XML, tostring
-    from xml.parsers import expat
+    #from xml.parsers import expat
 
     from django.core.files import File
 

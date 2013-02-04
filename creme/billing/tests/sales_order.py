@@ -8,7 +8,6 @@ try:
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Organisation
-    from persons.constants import REL_SUB_PROSPECT
 
     from billing.models import *
     from billing.constants import *

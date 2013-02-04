@@ -50,7 +50,7 @@ def get_listview_entity_filters(context):
 
     context['efilter_id'] = efilter_id
     context['can_edit_or_delete'] = permission
-    context['select_values'] = [{'value': efilter.id, 'text': efilter.name} for efilter in efilters]
+    context['select_values'] = [{'value': ef.id, 'text': ef.name} for ef in efilters]
 
     return context
 
@@ -61,7 +61,7 @@ def get_listview_headerfilters(context):
 
     context['hfilter'] = hfilter
     context['can_edit_or_delete'] = hfilter.can_edit_or_delete(context['request'].user)[0]
-    context['select_values'] = [{'value': hfilter.id, 'text': hfilter.name} for hfilter in hfilters]
+    context['select_values'] = [{'value': hf.id, 'text': hf.name} for hf in hfilters]
 
     return context
 

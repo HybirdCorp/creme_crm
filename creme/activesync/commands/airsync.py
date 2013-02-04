@@ -20,7 +20,7 @@
 
 from itertools import chain
 from logging import debug, error
-from xml.etree.ElementTree import tostring
+#from xml.etree.ElementTree import tostring
 
 from django.db.models import Q
 from django.db.models.deletion import ProtectedError
@@ -28,7 +28,7 @@ from django.db.utils import IntegrityError
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.utils.encoding import smart_unicode
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _ #TODO: ugettext instead ??
 from activesync.utils import is_user_sync_calendars, is_user_sync_contacts
 
 from creme_core.models.entity import CremeEntity
@@ -351,7 +351,7 @@ class AirSync(Base):
                         entity_pk = entity.pk
                         try:
                             entity.delete()
-                        except ProtectedError, err:
+                        except ProtectedError:
                             add_error_message(_(u"%(entity)s. For keeping a consistent state between Creme and the server, this %(model_verbose)s have be added again on the server. If you want to avoid this, delete the %(model_verbose)s in Creme and synchronize again.") % {'entity': entity, 'model_verbose': creme_model_verbose_name})
                         else:
                             self.add_history_delete_in_creme(entity)

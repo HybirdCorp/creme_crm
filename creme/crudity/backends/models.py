@@ -124,7 +124,7 @@ class CrudityBackend(object):
         for field_name, field_value in data.iteritems():
             try:
                 field = model_get_field(field_name)
-            except FieldDoesNotExist, e:
+            except FieldDoesNotExist:
                 continue
 
             if issubclass(field.__class__, ManyToManyField):

@@ -3,8 +3,7 @@
 try:
     from datetime import date
     from os.path import join, dirname, abspath
-    from xml.etree.ElementTree import XML, tostring
-
+    #from xml.etree.ElementTree import XML, tostring
     try:
         from cStringIO import StringIO
     except ImportError:
@@ -20,10 +19,10 @@ try:
     from persons.models import Address, Contact, Organisation, Civility
     from persons.constants import REL_SUB_EMPLOYED_BY
 
-    from activesync.mappings.utils import serialize_entity
-    from activesync.mappings.contact import CREME_CONTACT_MAPPING
+    #from activesync.mappings.utils import serialize_entity
+    #from activesync.mappings.contact import CREME_CONTACT_MAPPING
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 #TODO: where are the asserttions ???
 

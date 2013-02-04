@@ -532,7 +532,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         efilter01 = EntityFilter.create('test-filter01', 'Filter 01', Contact)
         efilter02 = EntityFilter.create('test-filter02', 'Filter 02', Contact)
-        efilter03 = EntityFilter.create('test-filter03', 'Filter 03', Organisation)
+        EntityFilter.create('test-filter03', 'Filter 03', Organisation)
 
         ct = ContentType.objects.get_for_model(Contact)
         response = self.client.get('/creme_core/entity_filter/get_for_ctype/%s' % ct.id)

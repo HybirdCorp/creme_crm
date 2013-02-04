@@ -2,7 +2,7 @@
 
 import BaseHTTPServer
 from StringIO import StringIO
-import sys
+#import sys
 import os
 
 from django.core.files import File

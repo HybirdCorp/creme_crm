@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,19 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.contenttypes.models import ContentType
 from django.forms.util import ValidationError
-
 from django.utils.translation import ugettext_lazy as _
 
 from creme_core.forms import CremeEntityForm
 from creme_core.forms.fields import MultiCremeEntityField, JSONField
-from creme_core.forms.widgets import ChainedInput, DynamicSelect
+from creme_core.forms.widgets import ChainedInput
 
 from media_managers.models import Image
 from media_managers.forms.widgets import ImageM2MWidget
 
 from products.models import Product, Category, SubCategory
+
 
 class ProductCategorySelector(ChainedInput):#TODO Rename to CategorySelector as its used for Service too
     def __init__(self, categories, attrs=None, creation_allowed=True):

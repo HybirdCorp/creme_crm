@@ -20,15 +20,13 @@
 
 import restkit.errors
 
-from activesync.constants import (SYNC_NEED_CURRENT_POLICY,
-                                  SYNC_FOLDER_STATUS_ERROR,
-                                  SYNC_FOLDER_STATUS_INVALID_SYNCKEY,
-                                  SYNC_FOLDER_STATUS_SUCCESS)
+from activesync.constants import (SYNC_NEED_CURRENT_POLICY, SYNC_FOLDER_STATUS_ERROR,
+                                  SYNC_FOLDER_STATUS_SUCCESS) #SYNC_FOLDER_STATUS_INVALID_SYNCKEY
 
 from base import Base
 
-class FolderSync(Base):
 
+class FolderSync(Base):
     template_name = "activesync/commands/xml/foldersync/request_min.xml"
     command       = "FolderSync"
 
@@ -69,7 +67,7 @@ class FolderSync(Base):
 #            if self.status != SYNC_NEED_CURRENT_POLICY:
             if self.status == SYNC_FOLDER_STATUS_SUCCESS:
                 print "[FolderSync] Doesn't need SYNC_NEED_CURRENT_POLICY"
-                
+
                 self.synckey = xml.find('%sSyncKey' % ns).text
 
                 print "[FolderSync] self.synckey :", self.synckey
@@ -86,16 +84,8 @@ class FolderSync(Base):
                             'displayname' : add_node.find("%sDisplayName" % ns).text,
                             'type'        : int(add_node.find("%sType" % ns).text),
                         })
-                    except (ValueError, TypeError), e:
+                    except (ValueError, TypeError):
                         continue
 
         print "[FolderSync] (end) Status :", self.status
 #        self.add_info_message("[FolderSync] (end) Status : %s" % self.status)
-
-        
-
-
-
-
-
-        

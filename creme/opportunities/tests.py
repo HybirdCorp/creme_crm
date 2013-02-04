@@ -6,12 +6,11 @@ try:
     from functools import partial
 
     from django.utils.translation import ugettext as _
-    from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
     from creme_core.tests.base import CremeTestCase
     from creme_core.tests.views.csv_import import CSVImportBaseTestCaseMixin
-    from creme_core.models import CremeEntity, RelationType, Relation, CremeProperty, SetCredentials, Currency
+    from creme_core.models import CremeEntity, RelationType, CremeProperty, SetCredentials, Currency
     from creme_core.auth.entity_credentials import EntityCredentials
     from creme_core.constants import PROP_IS_MANAGED_BY_CREME, DEFAULT_CURRENCY_PK
 
@@ -22,7 +21,7 @@ try:
 
     from products.models import Product, Service
 
-    from billing.models import Quote, SalesOrder, Invoice, Vat, ServiceLine
+    from billing.models import Quote, SalesOrder, Invoice, ServiceLine #Vat
     from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
     from opportunities.models import Opportunity, SalesPhase, Origin
@@ -654,11 +653,11 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         self.client.post(url)
         quote1 = Quote.objects.all()[0]
-        sl1 = create_sline(related_document=quote1, on_the_fly_item='Stuff1', unit_price=Decimal("300"))
+        create_sline(related_document=quote1, on_the_fly_item='Stuff1', unit_price=Decimal("300"))
 
         self.client.post(url)
         quote2 = Quote.objects.exclude(pk=quote1.id)[0]
-        sl2 = create_sline(related_document=quote2, on_the_fly_item='Stuff1', unit_price=Decimal("500"))
+        create_sline(related_document=quote2, on_the_fly_item='Stuff1', unit_price=Decimal("500"))
 
         self._set_quote_config(True)
         url = self._build_setcurrentquote_url(opportunity, quote1)
@@ -683,9 +682,9 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         self.client.post(self._build_gendoc_url(opportunity, ContentType.objects.get_for_model(Quote)))
         quote1 = Quote.objects.all()[0]
-        sl1 = ServiceLine.objects.create(user=self.user, related_document=quote1,
-                                         on_the_fly_item='Foobar', unit_price=Decimal("300")
-                                        )
+        ServiceLine.objects.create(user=self.user, related_document=quote1,
+                                   on_the_fly_item='Foobar', unit_price=Decimal("300")
+                                  )
 
         self.assertPOST200(self._build_setcurrentquote_url(opportunity, quote1), follow=True)
 
@@ -925,8 +924,6 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
     def test_csv_import03(self): #SalesPhase is required
         self.login()
 
-        count = Opportunity.objects.count()
-
         emitter = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
         target  = Organisation.objects.create(user=self.user, name='Acme')
 
@@ -1123,7 +1120,7 @@ class SalesPhaseTestCase(CremeTestCase):
 
         create_phase = SalesPhase.objects.create
         sp1 = create_phase(name='Forthcoming', order=1)
-        sp2 = create_phase(name='Abandoned',   order=2)
+        create_phase(name='Abandoned',   order=2)
 
         self.assertPOST404(self.UP_URL % sp1.id)
 

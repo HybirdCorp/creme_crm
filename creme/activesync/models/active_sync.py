@@ -204,11 +204,11 @@ class UserSynchronizationHistory(CremeModel):
         _entity = self._entity
 
         if _entity is not None:
-            return _entity
+            return _entity  #TODO: refactor (remove this 'return')
 
         try:
             _entity = self._entity = CremeEntity.objects.get(pk=self.entity_pk).get_real_entity()
-        except CremeEntity.DoesNotExist, e:
+        except CremeEntity.DoesNotExist:
             pass
         return _entity
 

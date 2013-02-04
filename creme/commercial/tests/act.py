@@ -244,10 +244,10 @@ class ActTestCase(CommercialBaseTestCase):
         ct_contact = ContentType.objects.get_for_model(Contact)
         ct_orga    = ContentType.objects.get_for_model(Organisation)
         create_component = ActObjectivePatternComponent.objects.create
-        root01  = create_component(name='Root01',   success_rate=20, pattern=pattern, ctype=ct_contact)
-        root02  = create_component(name='Root02',   success_rate=50, pattern=pattern)
-        child01 = create_component(name='Child 01', success_rate=33, pattern=pattern, parent=root01)
-        child02 = create_component(name='Child 02', success_rate=10, pattern=pattern, parent=root01, ctype=ct_orga)
+        root01 = create_component(name='Root01',   success_rate=20, pattern=pattern, ctype=ct_contact)
+        create_component(name='Root02',   success_rate=50, pattern=pattern)
+        create_component(name='Child 01', success_rate=33, pattern=pattern, parent=root01)
+        create_component(name='Child 02', success_rate=10, pattern=pattern, parent=root01, ctype=ct_orga)
 
         url = '/commercial/act/%s/add/objectives_from_pattern' % act.id
         self.assertGET200(url)

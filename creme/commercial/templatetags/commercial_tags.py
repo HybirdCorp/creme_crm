@@ -21,8 +21,6 @@
 from django.template import Library
 from django.utils.html import escape
 
-from commercial.models import CommercialAssetScore
-
 
 register = Library()
 

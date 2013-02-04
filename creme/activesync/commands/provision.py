@@ -20,12 +20,11 @@
 
 from django.conf import settings
 
-from activesync.constants import SYNC_PROVISION_RWSTATUS_NA, SYNC_PROVISION_RWSTATUS_WIPED, SYNC_PROVISION_STATUS_SUCCESS
-
+from activesync.constants import SYNC_PROVISION_STATUS_SUCCESS # SYNC_PROVISION_RWSTATUS_NA SYNC_PROVISION_RWSTATUS_WIPED
 from base import Base
 
-class Provision(Base):
 
+class Provision(Base):
     template_name = "activesync/commands/xml/provision/request_min.xml"
     command       = "Provision"
     ns            = "{Provision:}"
@@ -37,7 +36,7 @@ class Provision(Base):
     def send(self, policy_key=0, remote_wipe=False):
         ns = self.ns
         policy_type = 'MS-EAS-Provisioning-WBXML'
-        
+
         #Seems to be policy_type = 'MS-EAS-Provisioning-WBXML' for AS version >=12.0
         #and 'MS-WAP-Provisioning-XML' for AS version = 2.5
 
@@ -68,18 +67,16 @@ class Provision(Base):
         self.policy_key = self.get_policy_key(xml)
         self.status = self.get_status(xml)
 
-
     def get_policy_key(self, xml):
         ns = self.ns
         policy_node = xml.find('%(ns)sPolicies/%(ns)sPolicy' % {'ns': ns})
-        
+
         policy_key = policy_node.find('%sPolicyKey' % ns)
         if policy_key is not None:
             policy_key = policy_key.text
 
         return policy_key
 
-    
     def get_status(self, xml):
         ns = self.ns
         policy_node = xml.find('%(ns)sPolicies/%(ns)sPolicy' % {'ns': ns})

@@ -21,7 +21,7 @@
 from django.contrib.auth.models import User
 from django.forms import DateTimeField, ValidationError
 from django.forms.models import ModelMultipleChoiceField
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _
 
 from creme_core.forms import CremeForm, CremeEntityForm
 from creme_core.forms.fields import MultiCremeEntityField

@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.db.models import ForeignKey, CharField, DateField, TextField
-from django.db.models.aggregates import Count
+#from django.db.models.aggregates import Count
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme_core.models import CremeModel

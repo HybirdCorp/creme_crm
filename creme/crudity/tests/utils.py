@@ -7,7 +7,7 @@ try:
 
     from crudity.utils import decode_b64binary, get_unicode_decoded_str
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class UtilsTestCase(CremeTestCase):
@@ -30,10 +30,12 @@ class UtilsTestCase(CremeTestCase):
         s = get_unicode_decoded_str(payload, set(['iso-8859-1']))
         self.assertEqual(payload, s)
 
-        try:
-            c = Contact.objects.create(user=self.user, first_name=s)
-        except Exception, e:
-            self.fail(e)
+        #try:
+            #c = Contact.objects.create(user=self.user, first_name=s)
+        #except Exception, e:
+            #self.fail(e)
+        with self.assertNoException():
+            Contact.objects.create(user=self.user, first_name=s)
 
     def test_get_unicode_decoded_str02(self):
         self.login()
@@ -42,9 +44,12 @@ class UtilsTestCase(CremeTestCase):
                 last_name=
                 email="""
         s = get_unicode_decoded_str(payload, set(['iso-8859-1']))
-        self.assertEqual(unicode, type(s))
+        #self.assertEqual(unicode, type(s))
+        self.assertIsInstance(s, unicode)
 
-        try:
-            c = Contact.objects.create(user=self.user, first_name=s)
-        except Exception, e:
-            self.fail(e)
+        #try:
+            #c = Contact.objects.create(user=self.user, first_name=s)
+        #except Exception, e:
+            #self.fail(e)
+        with self.assertNoException():
+            Contact.objects.create(user=self.user, first_name=s)

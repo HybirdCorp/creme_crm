@@ -26,7 +26,7 @@ from django.db.models import Q
 from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode
 from django.template.defaulttags import TemplateLiteral
 from django.template.loader import get_template
-from django.utils.translation import ugettext, ungettext
+from django.utils.translation import ungettext #ugettext
 
 from creme_core.models import BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation
 from creme_core.gui.block import Block, block_registry, BlocksManager

@@ -22,10 +22,10 @@ from logging import warn
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
-from django.db.models.query_utils import Q
+#from django.db.models.query_utils import Q
 from django.http import HttpResponse, Http404
 from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import ugettext
+#from django.utils.translation import ugettext
 
 from creme_core.registry import creme_registry
 

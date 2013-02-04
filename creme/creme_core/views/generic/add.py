@@ -21,7 +21,6 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _
-from django.contrib.auth.decorators import login_required
 
 from creme_core.models import CremeEntity
 from creme_core.views.generic.popup import inner_popup

@@ -168,7 +168,7 @@ def get_fields(request):
         status = 404
     else:
         #msg    = JSONEncoder().encode(get_flds_with_fk_flds_str(model, deep))
-        msg = JSONEncoder().encode(ModelFieldEnumerator(model, deep=1, only_leafs=True)
+        msg = JSONEncoder().encode(ModelFieldEnumerator(model, deep=1, only_leafs=True) #TODO: use deep ??
                                        .filter(viewable=True)
                                        .choices()
                                   )
@@ -306,7 +306,7 @@ def search_and_view(request):
         for field in fields:
             try:
                 model._meta.get_field_by_name(field)
-            except FieldDoesNotExist, e:
+            except FieldDoesNotExist:
                 pass
             else:
                 query |= Q(**{str(field): value})

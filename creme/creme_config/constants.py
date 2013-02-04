@@ -18,5 +18,5 @@
 #    along with this program.  if not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-USER_SETTINGS_BLOCK_PREFIX = 'creme_config-usersettingsblock'
+#USER_SETTINGS_BLOCK_PREFIX = 'creme_config-usersettingsblock'
 USER_THEME_NAME            = 'creme_config-userthemename'

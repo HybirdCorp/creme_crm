@@ -18,14 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import defaultdict
+#from collections import defaultdict
 from logging import debug
 from operator import or_ as or_op
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import (Model, CharField, TextField, BooleanField,
                               PositiveSmallIntegerField, PositiveIntegerField,
-                              ForeignKey, ManyToManyField, Q, PROTECT)
+                              ForeignKey, ManyToManyField, PROTECT)
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType

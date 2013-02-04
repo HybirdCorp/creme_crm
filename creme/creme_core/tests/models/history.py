@@ -1,11 +1,10 @@
  # -*- coding: utf-8 -*-
 
 try:
-    from datetime import datetime, timedelta
+    from datetime import datetime
     from time import sleep
 
     from django.utils.translation import ugettext as _
-    from django.contrib.contenttypes.models import ContentType
 
     from creme_core.models import *
     from creme_core.tests.views.base import ViewsTestCase

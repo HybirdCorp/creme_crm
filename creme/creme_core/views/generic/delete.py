@@ -41,7 +41,7 @@ def delete_entities(request):
     """Delete several CremeEntity, with a Ajax call (POSt method)."""
     try:
         entity_ids = [int(e_id) for e_id in get_from_POST_or_404(request.POST, 'ids').split(',') if e_id]
-    except ValueError, e:
+    except ValueError:
         return HttpResponse("Bad POST argument", mimetype="text/javascript", status=400)
 
     if not entity_ids:

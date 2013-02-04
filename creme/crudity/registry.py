@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from itertools import chain
+#from itertools import chain
 from logging import warning
 from collections import defaultdict
 

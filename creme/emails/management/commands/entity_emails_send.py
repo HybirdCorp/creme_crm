@@ -36,7 +36,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             lock = Mutex.get_n_lock(LOCK_NAME)
-        except MutexLockedException, e:
+        except MutexLockedException:
             print 'A process is already running'
         else:
             for email in EntityEmail.objects.filter(status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR]):

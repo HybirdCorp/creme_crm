@@ -11,7 +11,7 @@ try:
 
     from creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
     from creme_core.auth.entity_credentials import EntityCredentials
-    from creme_core.models import CremeEntity, Relation, CremeProperty, SetCredentials, Currency
+    from creme_core.models import CremeEntity, Relation, SetCredentials, Currency #CremeProperty
     from creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_HAS
 
     from persons.models import Organisation, Address
@@ -396,7 +396,7 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
 
         product_line1 = ProductLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyy product') #TODO: factorise
         product_line2 = ProductLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyy product2')
-        service_line  = ServiceLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyy service')
+        ServiceLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyy service')
         self.assertEqual([product_line1, product_line2], self.refresh(invoice).product_lines)
 
     def test_service_lines_property01(self):
@@ -414,7 +414,7 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         self.login()
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
 
-        product_line  = ProductLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyy product')
+        ProductLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyy product')
         service_line1 = ServiceLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyy service1')
         service_line2 = ServiceLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyy service2')
         self.assertEqual([service_line1, service_line2], self.refresh(invoice).service_lines)
@@ -462,10 +462,10 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         invoice, source, target = self.create_invoice_n_orgas('Invoice001')
         user = self.user
 
-        service_line     = ServiceLine.objects.create(user=user, related_document=invoice, related_item=self.create_service())
-        service_line_otf = ServiceLine.objects.create(user=user, related_document=invoice, on_the_fly_item="otf service")
-        product_line     = ProductLine.objects.create(user=user, related_document=invoice, related_item=self.create_product())
-        product_line_otf = ProductLine.objects.create(user=user, related_document=invoice, on_the_fly_item="otf product")
+        ServiceLine.objects.create(user=user, related_document=invoice, related_item=self.create_service())
+        ServiceLine.objects.create(user=user, related_document=invoice, on_the_fly_item="otf service")
+        ProductLine.objects.create(user=user, related_document=invoice, related_item=self.create_product())
+        ProductLine.objects.create(user=user, related_document=invoice, on_the_fly_item="otf product")
 
         cloned = invoice.clone()
 

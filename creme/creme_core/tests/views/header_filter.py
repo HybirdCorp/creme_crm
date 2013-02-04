@@ -107,7 +107,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         firstname_index = self._find_field_index(fields_field, field_name)
         cfield_index    = self._find_field_index(cfields_field, customfield.id)
         loves_index     = self._find_field_index(rtypes_field, loves.id)
-        propfunc_index  = self._find_field_index(funfields_field, prop_funcfield.name)
+        self._find_field_index(funfields_field, prop_funcfield.name)
         name = 'DefaultHeaderFilter'
         response = self.client.post(uri, follow=True,
                                     data={'name': name,
@@ -311,7 +311,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         name02 = 'Contact view02'
         hf01 = create_hf(pk='tests-hf_contact01', name=name01,      model=Contact,      is_custom=False)
         hf02 = create_hf(pk='tests-hf_contact02', name=name02,      model=Contact,      is_custom=True)
-        hf03 = create_hf(pk='tests-hf_orga01',    name='Orga view', model=Organisation, is_custom=True)
+        create_hf(pk='tests-hf_orga01',           name='Orga view', model=Organisation, is_custom=True)
 
         response = self.client.get(self._build_get4ctype_url(self.contact_ct))
         self.assertEqual(200, response.status_code)

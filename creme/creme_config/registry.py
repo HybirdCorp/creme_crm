@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from itertools import chain
 from logging import debug
 
 from django.db.models import FieldDoesNotExist, Max

@@ -204,13 +204,13 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
     def test_listview02(self):
         self.login()
 
-        ticket = Ticket.objects.create(user=self.user,
-                                       title='title',
-                                       description='description',
-                                       status=Status.objects.get(pk=OPEN_PK),
-                                       priority=Priority.objects.all()[0],
-                                       criticity=Criticity.objects.all()[0],
-                                      )
+        Ticket.objects.create(user=self.user,
+                              title='title',
+                              description='description',
+                              status=Status.objects.get(pk=OPEN_PK),
+                              priority=Priority.objects.all()[0],
+                              criticity=Criticity.objects.all()[0],
+                             )
 
         response = self.client.get('/tickets/tickets')
         self.assertEqual(200, response.status_code)

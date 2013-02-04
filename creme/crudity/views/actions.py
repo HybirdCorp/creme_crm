@@ -84,13 +84,12 @@ def validate(request):
 @jsonify
 @permission_required('crudity')
 def reload(request, ct_id, backend_subject):
-    ct = get_ct_or_404(ct_id)
+    get_ct_or_404(ct_id) #TODO: useless ??
     backend = crudity_registry.get_configured_backend(backend_subject)
     if not backend:
         raise Http404()
 
     block = WaitingActionBlock(backend)
-
     ctx = RequestContext(request)
 
     return [(block.id_, block.detailview_display(ctx))]

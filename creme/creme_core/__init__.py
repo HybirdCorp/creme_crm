@@ -14,7 +14,7 @@ def autodiscover():
     for app in settings.INSTALLED_APPS:
         try:
             find_module("creme_core_register", __import__(app, {}, {}, [app.split(".")[-1]]).__path__)
-        except ImportError, e:
+        except ImportError:
             # there is no app creme_config.py, skip it
             continue
         __import__("%s.creme_core_register" % app)

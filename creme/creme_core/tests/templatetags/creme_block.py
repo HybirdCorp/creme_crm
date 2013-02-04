@@ -249,7 +249,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
     def test_import_n_display_on_portal_from_conf01(self):
         self.login()
-        orga = Organisation.objects.create(user=self.user, name='Xing')
+        Organisation.objects.create(user=self.user, name='Xing')
 
         class TestBlock(SimpleBlock):
             verbose_name = u'Testing purpose'
@@ -291,7 +291,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
     def test_import_n_display_on_portal_from_conf02(self):
         self.login()
-        orga = Organisation.objects.create(user=self.user, name='Xing')
+        Organisation.objects.create(user=self.user, name='Xing')
 
         class TestBlock(SimpleBlock):
             verbose_name = u'Testing purpose'
@@ -334,7 +334,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
 
     def test_import_n_display_on_home_from_conf(self):
         self.login()
-        orga = Organisation.objects.create(user=self.user, name='Xing')
+        Organisation.objects.create(user=self.user, name='Xing')
 
         class TestBlock(SimpleBlock):
             verbose_name = u'Testing purpose'
@@ -375,7 +375,7 @@ class CremeBlockTagsTestCase(CremeTestCase):
     def test_import_n_display_on_mypage_from_conf(self):
         self.login()
         user = self.user
-        orga = Organisation.objects.create(user=self.user, name='Xing')
+        Organisation.objects.create(user=self.user, name='Xing')
 
         class TestBlock(SimpleBlock):
             verbose_name = u'Testing purpose'

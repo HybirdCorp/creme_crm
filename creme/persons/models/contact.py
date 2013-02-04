@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+#from logging import debug
 
 from django.db.models import (ForeignKey, CharField, TextField, ManyToManyField,
                               DateField, EmailField, ProtectedError, URLField, SET_NULL)

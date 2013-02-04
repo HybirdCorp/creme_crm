@@ -359,21 +359,20 @@ class RelatedActivityCreateForm(ActivityCreateForm):
     def __init__(self, entity_for_relation, relation_type, *args, **kwargs):
         super(RelatedActivityCreateForm, self).__init__(*args, **kwargs)
         self.entity_for_relation = entity_for_relation
-        fields = self.fields
         rtype_id = relation_type.id
 
         if rtype_id == REL_SUB_PART_2_ACTIVITY:
             assert isinstance(entity_for_relation, Contact)
 
             if entity_for_relation.is_user:
-                fields['participating_users'].initial = [entity_for_relation.is_user]
+                self.fields['participating_users'].initial = [entity_for_relation.is_user]
             else:
-                fields['other_participants'].initial = [entity_for_relation.id]
+                self.fields['other_participants'].initial = [entity_for_relation.id]
         elif rtype_id == REL_SUB_ACTIVITY_SUBJECT:
-            fields['subjects'].initial = [entity_for_relation]
+            self.fields['subjects'].initial = [entity_for_relation]
         else:
             assert rtype_id == REL_SUB_LINKED_2_ACTIVITY
-            fields['linked_entities'].initial = [entity_for_relation]
+            self.fields['linked_entities'].initial = [entity_for_relation]
 
 
 #TODO: factorise ?? (ex: CreateForm inherits from EditForm....)

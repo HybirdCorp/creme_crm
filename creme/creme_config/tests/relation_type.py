@@ -4,7 +4,7 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import RelationType, CremeEntity, CremePropertyType, SemiFixedRelationType
+    from creme_core.models import RelationType, CremePropertyType, SemiFixedRelationType
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Contact, Organisation #need CremeEntity
@@ -168,10 +168,10 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
 
     def test_create02(self): #predicate is unique
         predicate = 'Is loving Iori'
-        sfrt = SemiFixedRelationType.objects.create(predicate=predicate,
-                                                    relation_type=self.loves,
-                                                    object_entity=self.iori,
-                                                   )
+        SemiFixedRelationType.objects.create(predicate=predicate,
+                                             relation_type=self.loves,
+                                             object_entity=self.iori,
+                                            )
 
         itsuki = Contact.objects.create(user=self.user, first_name='Itsuki', last_name='Akiba')
         response = self.client.post('/creme_config/relation_type/semi_fixed/add/',
@@ -194,10 +194,10 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
 
     def test_create03(self): #('relation_type', 'object_entity') => unique together
         predicate = 'Is loving Iori'
-        sfrt = SemiFixedRelationType.objects.create(predicate=predicate,
-                                                    relation_type=self.loves,
-                                                    object_entity=self.iori,
-                                                   )
+        SemiFixedRelationType.objects.create(predicate=predicate,
+                                             relation_type=self.loves,
+                                             object_entity=self.iori,
+                                            )
 
         url = '/creme_config/relation_type/semi_fixed/add/'
         predicate += ' (other)'

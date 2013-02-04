@@ -26,7 +26,8 @@ from creme_core.models import Relation #CremeEntity
 from creme_core.gui.block import Block, SimpleBlock, PaginatedBlock, QuerysetBlock, list4url
 
 from activities.models import Activity
-from activities.constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY
+from activities.constants import (REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT,
+                                  REL_SUB_LINKED_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY)
 
 from persons.models import Contact, Organisation, Address
 from persons.constants import *

@@ -9,7 +9,7 @@ try:
 
     from creme_core.auth.entity_credentials import EntityCredentials
     from creme_core.models import (RelationType, Relation, SetCredentials,
-                                   CremePropertyType, CremeProperty, Language)
+                                   CremePropertyType, CremeProperty) #Language
     from creme_core.tests.views.base import ViewsTestCase
 
     from media_managers.models import Image
@@ -188,6 +188,7 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertEqual(new_orga01.id, rel3.object_entity_id)
 
         #rel2 should have been deleted (no doublon)
+        self.assertFalse(Relation.objects.filter(pk=rel2.id).exists())
         self.assertRelationCount(1, contact01, rtype.id, orga01)
 
         prop1 = self.refresh(prop1)
@@ -207,7 +208,7 @@ class MergeViewsTestCase(ViewsTestCase):
 
         image1 = self._create_image(ident=1)
         image2 = self._create_image(ident=2)
-        image3 = self._create_image(ident=3) #should not be proposed by the form
+        self._create_image(ident=3) #image3 should not be proposed by the form
 
         user = self.user
         create_contact = partial(Contact.objects.create, user=user)

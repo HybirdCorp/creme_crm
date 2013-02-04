@@ -9,8 +9,7 @@ try:
 
     from creme_core.tests.base import CremeTestCase
     from creme_core.auth.entity_credentials import EntityCredentials
-    from creme_core.models import Relation, CremePropertyType, CremeProperty, SetCredentials
-    from creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    from creme_core.models import CremePropertyType, CremeProperty, SetCredentials
 
     from persons.constants import REL_SUB_CUSTOMER_SUPPLIER
 

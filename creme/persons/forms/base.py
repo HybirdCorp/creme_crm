@@ -25,7 +25,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme_core.models import CremeEntity
 from creme_core.forms import CremeEntityForm
 
-from persons.models import Address
+#from persons.models import Address
 from persons.forms.address import AddressForm
 
 

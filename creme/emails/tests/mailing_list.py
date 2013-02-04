@@ -152,11 +152,10 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertGET200(url)
 
         create = partial(Contact.objects.create, user=self.user)
-        recipients = [create(first_name='Spike', last_name='Spiegel', email='spike.spiegel@bebop.com'),
-                      create(first_name='Jet',   last_name='Black',   email='jet.black@bebop.com'),
-                     ]
+        create(first_name='Spike', last_name='Spiegel', email='spike.spiegel@bebop.com'),
+        create(first_name='Jet',   last_name='Black',   email='jet.black@bebop.com'),
         self.assertNoFormError(self.client.post(url, data={}))
-        #self.assertEqual(set(c.id for c in recipients), set(c.id for c in mlist.contacts.all()))
+
         contacts = set(Contact.objects.all())
         self.assertGreaterEqual(len(contacts), 2)
         self.assertEqual(contacts, set(mlist.contacts.all()))
@@ -223,11 +222,10 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertGET200(url)
 
         create = partial(Organisation.objects.create, user=self.user)
-        recipients = [create(name='NERV',  email='contact@nerv.jp'),
-                      create(name='Seele', email='contact@seele.jp')
-                     ]
+        create(name='NERV',  email='contact@nerv.jp'),
+        create(name='Seele', email='contact@seele.jp')
         self.assertNoFormError(self.client.post(url, data={}))
-        #self.assertEqual(set(c.id for c in recipients), set(c.id for c in mlist.organisations.all()))
+
         orgas = set(Organisation.objects.all())
         self.assertGreaterEqual(len(orgas), 2)
         self.assertEqual(orgas, set(mlist.organisations.all()))

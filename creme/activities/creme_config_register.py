@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from activities.models import ActivityType, PhoneCallType, Calendar
+from activities.models import ActivityType, Calendar #PhoneCallType
 from activities.forms.activity_type import ActivityTypeForm
 from activities.forms.calendar import CalendarConfigForm
 from activities.blocks import user_calendars_block

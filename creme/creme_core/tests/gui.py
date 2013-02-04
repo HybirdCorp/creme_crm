@@ -4,14 +4,14 @@ try:
     from functools import partial
     from time import sleep
 
-    from django.contrib.auth.models import User
     from django.contrib.sessions.models import Session
 
     from creme_core.models import *
     from creme_core.gui.listview import get_field_name_from_pattern
     from creme_core.gui.last_viewed import LastViewedItem
     from creme_core.gui.bulk_update import _BulkUpdateRegistry
-    from creme_core.gui.block import Block, SimpleBlock, SpecificRelationsBlock, _BlockRegistry, BlocksManager
+    from creme_core.gui.block import (Block, SimpleBlock, SpecificRelationsBlock,
+                                      _BlockRegistry, BlocksManager)
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Contact, Organisation
@@ -689,6 +689,7 @@ class BlocksManagerTestCase(CremeTestCase):
         self.assertEqual(['gname1', 'gname2'], mngr.get_remaining_groups())
 
         group = mngr.pop_group('gname1')
+        #TODO: test group
         self.assertEqual(['gname2'], mngr.get_remaining_groups())
         self.assertRaises(KeyError, mngr.pop_group, 'gname1')
 

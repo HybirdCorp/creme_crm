@@ -11,7 +11,7 @@ try:
 
     from activesync.utils import get_b64encoded_img_of_max_weight
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class ActiveSyncImageTestCase(CremeTestCase):
@@ -29,7 +29,7 @@ class ActiveSyncImageTestCase(CremeTestCase):
 
         self.assertLess(len(b64_content), settings.PICTURE_LIMIT_SIZE)
 
-        image = open(self.image_path, 'r')
+        #image = open(self.image_path, 'r')
         image_str = StringIO()
         with open(self.image_path) as f:
             for ch in f.read(1024):

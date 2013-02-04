@@ -58,13 +58,13 @@ class CremeEntityFieldTestCase(FieldTestCase):
     def test_ok02(self):
         self.login()
         field = CremeEntityField(required=False)
-        ce = CremeEntity.objects.create(user=self.user)
+        CremeEntity.objects.create(user=self.user)
         self.assertEqual(None, field.clean([]))
 
     def test_ok03(self):
         self.login()
         field = CremeEntityField(required=False)
-        ce = CremeEntity.objects.create(user=self.user)
+        CremeEntity.objects.create(user=self.user)
         self.assertEqual(None, field.clean(None))
 
     def test_q_filter01(self):

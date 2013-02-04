@@ -24,7 +24,7 @@ from django.shortcuts import render
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity
+#from creme_core.models import CremeEntity
 
 
 #TODO: remove 'models' arg (and use app_name to get the related contenttypes) ??

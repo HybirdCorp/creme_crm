@@ -24,7 +24,7 @@ from django.forms.widgets import HiddenInput
 from django.forms import DateTimeField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity, Relation
+from creme_core.models import Relation
 from creme_core.forms import CremeEntityForm, MultiCremeEntityField
 from creme_core.forms.widgets import DateTimeWidget
 from creme_core.forms.validators import validate_linkable_entities

@@ -18,10 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+#from logging import debug
 
-from django.forms import IntegerField, MultipleChoiceField, ChoiceField
-from django.forms.widgets import HiddenInput
+from django.forms import MultipleChoiceField, ChoiceField
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
@@ -38,13 +37,17 @@ _PREFIX = 'creme_config-userbmi'
 
 class ButtonMenuAddForm(CremeForm):
     ct_id = ChoiceField(label=_(u'Related resource'), choices=(), required=True,
-                        help_text=_(u'The buttons related to this type of resource will be chosen by editing the configuration'))
+                        help_text=_(u'The buttons related to this type of resource will be chosen by editing the configuration'),
+                       )
 
     def __init__(self, *args, **kwargs):
         super(ButtonMenuAddForm, self).__init__(*args, **kwargs)
 
         entity_ct_ids = set(ct.id for ct in creme_entity_content_types())
-        used_ct_ids   = set(ButtonMenuItem.objects.exclude(content_type=None).distinct().values_list('content_type_id', flat=True))
+        used_ct_ids   = set(ButtonMenuItem.objects.exclude(content_type=None)
+                                                  .distinct()
+                                                  .values_list('content_type_id', flat=True)
+                           )
         self.fields['ct_id'].choices = [(ct.id, ct) for ct in ContentType.objects.filter(pk__in=entity_ct_ids - used_ct_ids)]
 
     def save(self):

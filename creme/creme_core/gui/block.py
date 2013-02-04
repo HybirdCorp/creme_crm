@@ -25,9 +25,7 @@ from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.template.loader import get_template
 from django.template import Context
 from django.conf import settings
-from django.http import HttpResponse
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.utils.simplejson import JSONEncoder
 from django.contrib.contenttypes.models import ContentType
 
 from creme_core.models import (Relation, RelationType, RelationBlockItem,
@@ -218,7 +216,7 @@ class PaginatedBlock(Block):
         if page_index is not None:
             try:
                 page_index = int(page_index)
-            except ValueError, e:
+            except ValueError:
                 debug('Invalid page number for block %s: %s', block_name, page_index)
                 page_index = 1
         else:

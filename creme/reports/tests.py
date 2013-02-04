@@ -27,7 +27,7 @@ try:
     from opportunities.constants import REL_SUB_EMIT_ORGA
 
     from persons.models import Contact, Organisation, LegalForm
-    from persons.constants import REL_SUB_EMPLOYED_BY, REL_OBJ_CUSTOMER_SUPPLIER, REL_SUB_CUSTOMER_SUPPLIER
+    from persons.constants import REL_SUB_EMPLOYED_BY, REL_OBJ_CUSTOMER_SUPPLIER
 
     from reports.models import Field, Report, ReportGraph
     from reports.models.graph import RGT_MONTH
@@ -211,7 +211,7 @@ class ReportsTestCase(CremeTestCase):
     def create_contacts(self):
         user = self.user
         create_contact = partial(Contact.objects.create, user=user)
-        asuka  = create_contact(last_name='Langley',   first_name='Asuka',  birthday=datetime(year=1981, month=7, day=25))
+        create_contact(last_name='Langley',   first_name='Asuka',  birthday=datetime(year=1981, month=7, day=25))
         rei    = create_contact(last_name='Ayanami',   first_name='Rei',    birthday=datetime(year=1981, month=3, day=26))
         misato = create_contact(last_name='Katsuragi', first_name='Misato', birthday=datetime(year=1976, month=8, day=12))
         nerv   = Organisation.objects.create(user=user, name='Nerv')

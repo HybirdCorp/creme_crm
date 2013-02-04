@@ -2,10 +2,8 @@
 
 try:
     from django.utils.unittest.case import skipIf
-    from django.contrib.auth.models import User
-    from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import RelationType, UserRole
+    from creme_core.models import RelationType
     from creme_core.tests.base import CremeTestCase
 
     from graphs.models import *

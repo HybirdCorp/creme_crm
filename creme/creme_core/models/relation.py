@@ -27,7 +27,6 @@ from django.utils.encoding import force_unicode, smart_str
 from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.auth.models import User
 
 from creme_core.signals import pre_merge_related
 from creme_property import CremePropertyType

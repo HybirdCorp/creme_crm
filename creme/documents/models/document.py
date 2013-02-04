@@ -20,7 +20,6 @@
 
 from django.db.models import CharField, TextField, FileField, ForeignKey, PROTECT
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User
 
 from creme_core.models import CremeEntity, Relation
 

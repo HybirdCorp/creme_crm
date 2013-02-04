@@ -22,7 +22,7 @@ from unicodedata import normalize
 
 from django.contrib.auth.decorators import login_required, permission_required
 from django.http import Http404, HttpResponse
-from django.shortcuts import render
+#from django.shortcuts import render
 from django.conf import settings
 from django.template.context import RequestContext
 from django.template.loader import render_to_string

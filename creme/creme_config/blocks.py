@@ -22,8 +22,12 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import *
-from creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock
+from creme_core.models import (CremeModel, CremeEntity, CremePropertyType, UserRole,
+                               RelationType, SemiFixedRelationType, CustomField, 
+                               BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
+                               RelationBlockItem, InstanceBlockConfigItem,
+                               ButtonMenuItem, SearchConfigItem, HistoryConfigItem, PreferedMenuItem)
+from creme_core.gui.block import PaginatedBlock, QuerysetBlock
 from creme_core.registry import creme_registry
 
 from creme_config.models import  SettingValue
@@ -49,14 +53,13 @@ class GenericModelsBlock(QuerysetBlock):
             #self.order_by = model._meta.ordering[0] #TODO: uncomment when the block is not a singleton any more.... (beware if a 'order' field exists - see template)
             order_by = model._meta.ordering[0]
         except IndexError:
-            #pass
             order_by = 'id'
 
         meta = model._meta
         fields = meta.fields
         many_to_many = meta.many_to_many
 
-        colspan = len(fields) + len(meta.many_to_many) + 2 # "2" is for 'edit' & 'delete' actions
+        colspan = len(fields) + len(many_to_many) + 2 # "2" is for 'edit' & 'delete' actions
         if any(field.name == 'is_custom' for field in fields):
             colspan -= 1
 
@@ -66,7 +69,7 @@ class GenericModelsBlock(QuerysetBlock):
                                                             model_name=context['model_name'],
                                                             app_name=context['app_name'],
                                                             fields=meta.fields,
-                                                            many_to_many=meta.many_to_many,
+                                                            many_to_many=many_to_many,
                                                             colspan=colspan,
                                                            ))
 
@@ -116,7 +119,10 @@ class RelationTypesBlock(_ConfigAdminBlock):
     template_name = 'creme_config/templatetags/block_relation_types.html'
 
     def detailview_display(self, context):
-        return self._render(self.get_block_template_context(context, RelationType.objects.filter(is_custom=False, pk__contains='-subject_'),
+        return self._render(self.get_block_template_context(context,
+                                                            RelationType.objects.filter(is_custom=False,
+                                                                                        pk__contains='-subject_',
+                                                                                       ),
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                                                             custom=False,
                                                            ))
@@ -129,7 +135,10 @@ class CustomRelationTypesBlock(_ConfigAdminBlock):
     template_name = 'creme_config/templatetags/block_relation_types.html'
 
     def detailview_display(self, context):
-        return self._render(self.get_block_template_context(context, RelationType.objects.filter(is_custom=True, pk__contains='-subject_'),
+        return self._render(self.get_block_template_context(context,
+                                                            RelationType.objects.filter(is_custom=True,
+                                                                                        pk__contains='-subject_',
+                                                                                       ),
                                                             update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
                                                             custom=True,
                                                            ))
@@ -137,7 +146,7 @@ class CustomRelationTypesBlock(_ConfigAdminBlock):
 
 class SemiFixedRelationTypesBlock(_ConfigAdminBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'semifixed_relation_types')
-    dependencies  = (RelationType,)
+    dependencies  = (RelationType, SemiFixedRelationType,)
     verbose_name  = _(u'List of semi-fixed relation types')
     template_name = 'creme_config/templatetags/block_semifixed_relation_types.html'
 
@@ -367,7 +376,7 @@ class UserRolesBlock(_ConfigAdminBlock):
 
 class UserPreferedMenusBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('creme_config', 'user_prefered_menus')
-    dependencies  = ()
+    dependencies  = (PreferedMenuItem,)
     verbose_name  = u'My prefered menus'
     template_name = 'creme_config/templatetags/block_user_prefered_menus.html'
     configurable  = False

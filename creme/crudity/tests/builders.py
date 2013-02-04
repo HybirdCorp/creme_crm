@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import datetime
     from itertools import chain
     import re
     import os
-    from xml.etree.ElementTree import XML, tostring, Element
-    from tempfile import gettempdir
+    from xml.etree.ElementTree import XML, tostring # Element
 
     from django.contrib.auth.models import User
     from django.db.models.fields import FieldDoesNotExist
@@ -125,6 +123,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                 break
         else:
             self.fail('<xsf:property name="lang" type="string" value=""></xsf:property> not found')
+
+        #TODO: use 'property_node'
 
         mail_form_name = backend.subject
         self.assertEqual(mail_form_name, xml_find('%(ns)sextensions/%(ns)sextension/%(ns2)ssolutionDefinition/%(ns2)ssolutionPropertiesExtension/%(ns2)smail' % d_ns).get('formName'))
@@ -314,7 +314,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         d_ns = {'xsl': "{http://www.w3.org/1999/XSL/Transform}"}
         xml  = XML(content)
 
-        fields_names = set("my:%s" % field_name for field_name in body_map.iterkeys())
+        fields_names = set("my:%s" % field_name for field_name in body_map.iterkeys()) #TODO: use it ??
         template_nodes = filter(lambda x: x.get('match') == "my:CremeCRMCrudity", xml.findall("%(xsl)stemplate" % d_ns))
         self.assertTrue(template_nodes)
         when_node = template_nodes[0].find("%(xsl)scopy/%(xsl)schoose/%(xsl)swhen" % d_ns)
@@ -561,9 +561,9 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
     def test_get_create_form_view01(self):
         """Backend not registered"""
         subject="create_contact"
-        backend = self._get_backend(ContactFakeBackend, subject=subject,
-                                    body_map={}, model=Contact
-                                   )
+        self._get_backend(ContactFakeBackend, subject=subject,
+                          body_map={}, model=Contact
+                         )
 
         response = self.client.get('/crudity/infopath/create_form/%s' % subject)
         self.assertEqual(404, response.status_code)

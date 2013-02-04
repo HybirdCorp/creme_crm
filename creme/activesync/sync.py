@@ -21,7 +21,6 @@
 from collections import defaultdict
 from datetime import datetime
 
-from django.db.models import Q
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ValidationError
 from django.core import validators
@@ -176,21 +175,19 @@ class Synchronization(object):
 
     def synchronize(self):
         """Complete synchronization process"""
-        params     = self.params
+        #params     = self.params
         policy_key = self.policy_key
         folder_sync_key = self.folder_sync_key or 0
         sync_key   = self.sync_key or 0
         folders   = []
         folders_append = folders.append
-
         client     = self.client
-        user       = self.user
+        #user       = self.user
 
         self._data['debug']['info'].append("Begin with policy_key :%s" % policy_key)
 
         _fs = self._folder_sync(policy_key, folder_sync_key)#Try to sync server folders
         fs  = self._handle_folder_sync(_fs)
-
 
         as_folder_get_or_create = AS_Folder.objects.get_or_create
         for added_folder in fs.add:

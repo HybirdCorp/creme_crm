@@ -160,7 +160,7 @@ class CredentialsTestCase(CremeTestCase):
         qs1 = self._build_contact_qs()
 
         with self.assertNumQueries(0):
-            qs2 = efilter(user, qs1)
+            efilter(user, qs1)
 
         self.assertIsNone(qs1._result_cache, 'Queryset has been retrieved (should be lazy)')
 
@@ -227,7 +227,6 @@ class CredentialsTestCase(CremeTestCase):
                           set_creds=[(EntityCredentials.CHANGE, SetCredentials.ESET_ALL)]
                          )
 
-        has_perm = user.has_perm
         contact1 = self.contact1
         self.assertFalse(contact1.can_view(user))
         self.assertTrue(contact1.can_change(user))
@@ -239,7 +238,7 @@ class CredentialsTestCase(CremeTestCase):
         efilter = partial(EntityCredentials.filter, user, self._build_contact_qs())
         self.assertFalse(efilter(perm=EntityCredentials.VIEW))
         self.assertEqual([contact1.id, contact2.id], self._ids_list(efilter(perm=EntityCredentials.CHANGE)))
-        
+
     def test_role_esetall_delete(self): # DELETE + ESET_ALL
         user = self.user
         self._create_role('Coder', ['creme_core', 'persons'], users=[user],
@@ -381,7 +380,6 @@ class CredentialsTestCase(CremeTestCase):
                           set_creds=[(EntityCredentials.DELETE, SetCredentials.ESET_OWN)]
                          )
 
-        has_perm = user.has_perm
         contact1 = self.contact1
         self.assertFalse(contact1.can_view(user))
         self.assertFalse(contact1.can_change(user))
@@ -682,7 +680,7 @@ class CredentialsTestCase(CremeTestCase):
             team.teammates = [self.user]
 
         with self.assertRaises(AssertionError):
-            teammates = team.teammates
+            team.teammates
 
     def test_create_team02(self):
         team = User.objects.create(username='Teamee', is_team=True)
@@ -722,9 +720,9 @@ class CredentialsTestCase(CremeTestCase):
     def test_team_credentials01(self):
         user = self.user
         other = self.other_user
-        role = self._create_role('Worker', ['creme_core'], users=[user, other],
-                                 set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_OWN)]
-                                )
+        self._create_role('Worker', ['creme_core'], users=[user, other],
+                          set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_OWN)]
+                         )
 
         team = self._create_team('Teamee', [user])
 
@@ -764,9 +762,9 @@ class CredentialsTestCase(CremeTestCase):
     def test_team_credentials02(self): #user in several teams
         user = self.user
         other = self.other_user
-        role = self._create_role('Worker', ['creme_core'], users=[user, other],
-                                 set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_OWN)]
-                                )
+        self._create_role('Worker', ['creme_core'], users=[user, other],
+                          set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_OWN)]
+                         )
 
         create_team = self._create_team
         team1 = create_team('Teamee 1', [user])

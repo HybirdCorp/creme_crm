@@ -13,7 +13,7 @@ try:
     from crudity.models import WaitingAction
     from crudity.tests.base import CrudityTestCase
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class WaitingActionTestCase(CrudityTestCase):
@@ -54,7 +54,7 @@ class WaitingActionTestCase(CrudityTestCase):
                                              )
         self.assertIsNone(action.user)
 
-        superuser1 = self.user
+        #superuser1 = self.user
 
         superuser2 = User.objects.create(username='Kirika2')
         superuser2.set_password("Kirika2")
