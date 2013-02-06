@@ -28,7 +28,7 @@ from creme_core.forms.fields import MultiCremeEntityField
 from creme_core.forms.validators import validate_linkable_entities
 
 from products.models import Product, Service
-from products.forms.product import ProductCategoryField
+from products.forms.fields import CategoryField
 
 from billing.models import ProductLine, ServiceLine, Line, Vat
 from billing.models.line import default_quantity
@@ -69,8 +69,10 @@ class _LineMultipleAddForm(CremeForm):
 
 
 class _LineOnTheFlyForm(CremeModelForm):
-    sub_category  = ProductCategoryField(label=_(u'Sub-category'), required=False)
-    vat_value     = ModelChoiceField(label=_(u"Vat"), queryset=Vat.objects.all(), initial=Vat.get_default_vat(), required=True)
+    sub_category = CategoryField(label=_(u'Sub-category'), required=False)
+    vat_value    = ModelChoiceField(label=_(u"Vat"), queryset=Vat.objects.all(),
+                                    initial=Vat.get_default_vat(), required=True,
+                                   )
 
     blocks = FieldBlockManager(
         ('general',     _(u'Line information'),    ['on_the_fly_item', 'comment', 'quantity', 'unit_price', 'unit',
