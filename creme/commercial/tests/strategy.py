@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+
     from django.contrib.contenttypes.models import ContentType
 
     from persons.models import Organisation
@@ -15,9 +17,33 @@ __all__ = ('StrategyTestCase',)
 
 
 class StrategyTestCase(CommercialBaseTestCase):
+    def _create_segment_desc(self, strategy, name):
+        self.assertPOST200('/commercial/strategy/%s/add/segment/' % strategy.id,
+                           data={'name': name}
+                          )
+        return strategy.segment_info.get(segment__name=name)
+
+    def _set_asset_score(self, strategy, orga, asset, segment_desc, score):
+        self.assertPOST200('/commercial/strategy/%s/set_asset_score' % strategy.id,
+                           data={'model_id':        asset.id,
+                                 'segment_desc_id': segment_desc.id,
+                                 'orga_id':         orga.id,
+                                 'score':           score,
+                                }
+                          )
+
+    def _set_charm_score(self, strategy, orga, charm, segment_desc, score):
+        self.assertPOST200('/commercial/strategy/%s/set_charm_score' % strategy.id,
+                           data={'model_id':        charm.id,
+                                 'segment_desc_id': segment_desc.id,
+                                 'orga_id':         orga.id,
+                                 'score':           score,
+                                }
+                          )
+
     def test_strategy_create(self):
         url = '/commercial/strategy/add'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         name = 'Strat#1'
         response = self.client.post(url, follow=True,
@@ -26,12 +52,13 @@ class StrategyTestCase(CommercialBaseTestCase):
                                          }
                                    )
         self.assertEqual(200, response.status_code)
-        self.assertTrue(response.redirect_chain)
-        self.assertEqual(1, len(response.redirect_chain))
 
         strategies = Strategy.objects.all()
-        self.assertEqual(1,    len(strategies))
-        self.assertEqual(name, strategies[0].name)
+        self.assertEqual(1, len(strategies))
+
+        strategy = strategies[0]
+        self.assertEqual(name, strategy.name)
+        self.assertRedirects(response, strategy.get_absolute_url())
 
     def test_strategy_edit(self):
         name = 'Strat#1'
@@ -79,18 +106,13 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertEqual(promotion, description.promotion)
         self.assertIn(name, description.segment.property_type.text)
 
-    def _create_segment_desc(self, strategy, name):
-        self.client.post('/commercial/strategy/%s/add/segment/' % strategy.id,
-                         data={'name': name}
-                        )
-        return strategy.segment_info.get(segment__name=name)
-
     def test_segment_link(self):
-        strategy01 = Strategy.objects.create(user=self.user, name='Strat#1')
+        create_strategy = partial(Strategy.objects.create, user=self.user)
+        strategy01 = create_strategy(name='Strat#1')
         industry = self._create_segment_desc(strategy01, 'Industry').segment
         self.assertEqual(1, strategy01.segment_info.count())
 
-        strategy02 = Strategy.objects.create(user=self.user, name='Strat#2')
+        strategy02 = create_strategy(name='Strat#2')
         self.assertEqual(0, strategy02.segment_info.count())
 
         url = '/commercial/strategy/%s/link/segment/' % strategy02.id
@@ -139,7 +161,6 @@ class StrategyTestCase(CommercialBaseTestCase):
                                                'promotion': promotion,
                                               }
                                    )
-        #self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         descriptions = strategy.segment_info.all()
@@ -161,10 +182,7 @@ class StrategyTestCase(CommercialBaseTestCase):
 
         name = 'Size'
         self.assertPOST200(url, data={'name': name})
-
-        assets = strategy.assets.all()
-        self.assertEqual(1,    len(assets))
-        self.assertEqual(name, assets[0].name)
+        self.assertEqual([name], list(strategy.assets.values_list('name', flat=True)))
 
     def test_asset_edit(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
@@ -198,12 +216,8 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertGET200(url)
 
         name = 'Size'
-        response = self.client.post(url, data={'name': name})
-        self.assertEqual(200, response.status_code)
-
-        charms = strategy.charms.all()
-        self.assertEqual(1,    len(charms))
-        self.assertEqual(name, charms[0].name)
+        self.assertPOST200(url, data={'name': name})
+        self.assertEqual([name], list(strategy.charms.values_list('name', flat=True)))
 
     def test_charm_edit(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
@@ -231,34 +245,67 @@ class StrategyTestCase(CommercialBaseTestCase):
                           )
         self.assertEqual(0, strategy.charms.count())
 
-    def test_evaluated_orga(self):
+    def test_add_evaluated_orga(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
         orga     = Organisation.objects.create(user=self.user, name='Nerv')
 
         url = '/commercial/strategy/%s/add/organisation/' % strategy.id
         self.assertGET200(url)
         self.assertPOST200(url, data={'organisations': orga.id})
-
-        orgas = strategy.evaluated_orgas.all()
-        self.assertEqual(1,       len(orgas))
-        self.assertEqual(orga.pk, orgas[0].pk)
+        self.assertEqual([orga], list(strategy.evaluated_orgas.all()))
 
         self.assertGET200('/commercial/strategy/%s/organisation/%s/evaluation' % (strategy.id, orga.id))
         self.assertGET200('/commercial/strategy/%s/organisation/%s/synthesis'  % (strategy.id, orga.id))
 
-        self.assertPOST200('/commercial/strategy/%s/organisation/delete' % strategy.id,
-                           data={'id': orga.id}, follow=True
-                          )
-        self.assertEqual(0, strategy.evaluated_orgas.count())
+    def test_delete_evaluated_orga(self):
+        create_strategy = partial(Strategy.objects.create, user=self.user)
+        strategy1 = create_strategy(name='Strat#1')
+        strategy2 = create_strategy(name='Strat#2')
 
-    def _set_asset_score(self, strategy, orga, asset, segment_desc, score):
-        self.assertPOST200('/commercial/strategy/%s/set_asset_score' % strategy.id,
-                           data={'model_id':        asset.id,
-                                 'segment_desc_id': segment_desc.id,
-                                 'orga_id':         orga.id,
-                                 'score':           score,
-                                }
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        orga1 = create_orga(name='Nerv')
+        orga2 = create_orga(name='Seele')
+
+        strategy1.evaluated_orgas.add(orga1, orga2)
+        strategy2.evaluated_orgas.add(orga1)
+
+        segment_desc1 = self._create_segment_desc(strategy1, 'Industry')
+        asset1 = CommercialAsset.objects.create(name='Capital', strategy=strategy1)
+        charm1 = MarketSegmentCharm.objects.create(name='Celebrity', strategy=strategy1)
+
+        # Scores = strategy1/orga1
+        self._set_asset_score(strategy1, orga1, asset1, segment_desc1, 3)
+        self._set_charm_score(strategy1, orga1, charm1, segment_desc1, 3)
+        asset_score1 = self.get_object_or_fail(CommercialAssetScore,    organisation=orga1, segment_desc=segment_desc1)
+        charm_score1 = self.get_object_or_fail(MarketSegmentCharmScore, organisation=orga1, segment_desc=segment_desc1)
+
+        # Scores = strategy1/orga2
+        self._set_asset_score(strategy1, orga2, asset1, segment_desc1, 3)
+        self._set_charm_score(strategy1, orga2, charm1, segment_desc1, 3)
+        asset_score2 = self.get_object_or_fail(CommercialAssetScore,    organisation=orga2, segment_desc=segment_desc1)
+        charm_score2 = self.get_object_or_fail(MarketSegmentCharmScore, organisation=orga2, segment_desc=segment_desc1)
+
+        # Scores = strategy2
+        segment_desc2 = self._create_segment_desc(strategy2, 'Consumers')
+        asset2 = CommercialAsset.objects.create(name='Capital', strategy=strategy2)
+        charm2 = MarketSegmentCharm.objects.create(name='Celebrity', strategy=strategy2)
+        self._set_asset_score(strategy2, orga1, asset2, segment_desc2, 3)
+        self._set_charm_score(strategy2, orga1, charm2, segment_desc2, 3)
+        asset_score3 = self.get_object_or_fail(CommercialAssetScore,    organisation=orga1, segment_desc=segment_desc2)
+        charm_score3 = self.get_object_or_fail(MarketSegmentCharmScore, organisation=orga1, segment_desc=segment_desc2)
+
+        self.assertPOST200('/commercial/strategy/%s/organisation/delete' % strategy1.id,
+                           data={'id': orga1.id}, follow=True
                           )
+        self.assertEqual([orga2], list(strategy1.evaluated_orgas.all()))
+
+        self.assertFalse(CommercialAssetScore.objects.filter(pk=asset_score1.pk).exists())
+        self.get_object_or_fail(CommercialAssetScore, pk=asset_score2.pk) #no deleted (other orga)
+        self.get_object_or_fail(CommercialAssetScore, pk=asset_score3.pk) #no deleted (other strategy)
+
+        self.assertFalse(MarketSegmentCharmScore.objects.filter(pk=charm_score1.pk).exists())
+        self.get_object_or_fail(MarketSegmentCharmScore, pk=charm_score2.pk) #no deleted (other orga)
+        self.get_object_or_fail(MarketSegmentCharmScore, pk=charm_score3.pk) #no deleted (other strategy)
 
     def test_set_asset_score01(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
@@ -313,16 +360,6 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertEqual([(score11 + score21, 1), (score12 + score22, 3)],
                          strategy.get_assets_totals(orga)
                         )
-
-    def _set_charm_score(self, strategy, orga, charm, segment_desc, score):
-        response = self.client.post('/commercial/strategy/%s/set_charm_score' % strategy.id,
-                                    data={'model_id':        charm.id,
-                                          'segment_desc_id': segment_desc.id,
-                                          'orga_id':         orga.id,
-                                          'score':           score,
-                                         }
-                                   )
-        self.assertEqual(200, response.status_code)
 
     def test_set_charm_score01(self):
         strategy     = Strategy.objects.create(user=self.user, name='Strat#1')
