@@ -27,23 +27,24 @@ from media_managers.models import Image
 from media_managers.forms.widgets import ImageM2MWidget
 
 from products.models import Service
-from products.forms.product import ProductCategoryField
+from products.forms.fields import CategoryField
 
-class ServiceCreateForm(CremeEntityForm):
-    sub_category = ProductCategoryField(label=_(u'Sub-category'))
 
-    images = MultiCremeEntityField(label=_(u'Images'), required=False, model=Image, widget=ImageM2MWidget())
+class ServiceForm(CremeEntityForm): #TODO: factorise with ProductCreateForm
+    sub_category = CategoryField(label=_(u'Sub-category'))
+    images       = MultiCremeEntityField(label=_(u'Images'), required=False,
+                                         model=Image, widget=ImageM2MWidget(),
+                                        )
 
     class Meta(CremeEntityForm.Meta):
         model = Service
         exclude = CremeEntityForm.Meta.exclude + ('category', 'sub_category',)
 
     def __init__(self, *args, **kwargs):
-        super(ServiceCreateForm, self).__init__(*args, **kwargs)
-
+        super(ServiceForm, self).__init__(*args, **kwargs)
         instance = self.instance
 
-        if instance.pk is not None: #TODO: create a ServiceEditForm instead of this test ?????
+        if instance.pk is not None:
             self.fields['sub_category'].initial = instance.sub_category
 
     def save(self, *args, **kwargs):
@@ -53,4 +54,4 @@ class ServiceCreateForm(CremeEntityForm):
         instance.category = sub_category.category
         instance.sub_category = sub_category
 
-        return super(ServiceCreateForm, self).save(*args, **kwargs)
+        return super(ServiceForm, self).save(*args, **kwargs)

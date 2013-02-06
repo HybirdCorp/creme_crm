@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,24 +23,26 @@ from django.contrib.auth.decorators import login_required, permission_required
 from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
 from products.models import Service
-from products.forms.service import ServiceCreateForm
+from products.forms.service import ServiceForm
 
 
 @login_required
 @permission_required('products')
 @permission_required('products.add_service')
 def add(request):
-    return add_entity(request, ServiceCreateForm)
+    return add_entity(request, ServiceForm)
 
 @login_required
 @permission_required('products')
 def edit(request, service_id):
-    return edit_entity(request, service_id, Service, ServiceCreateForm)
+    return edit_entity(request, service_id, Service, ServiceForm)
 
 @login_required
 @permission_required('products')
 def detailview(request, service_id):
-    return view_entity(request, service_id, Service, '/products/service', 'products/view_service.html')
+    return view_entity(request, service_id, Service, '/products/service',
+                       'products/view_service.html',
+                      )
 
 @login_required
 @permission_required('products')
