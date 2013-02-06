@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,9 @@ from creme_core.utils import get_from_POST_or_404, jsonify
 
 from persons.models import Organisation
 
-from commercial.models import Strategy, MarketSegmentDescription, CommercialAsset, MarketSegmentCharm
+from commercial.models import (Strategy, MarketSegmentDescription,
+                               CommercialAsset, CommercialAssetScore,
+                               MarketSegmentCharm, MarketSegmentCharmScore)
 from commercial.forms import strategy as forms
 from commercial.blocks import assets_matrix_block, charms_matrix_block, assets_charms_matrix_block
 
@@ -124,7 +126,10 @@ def delete_evalorga(request, strategy_id):
     strategy = get_object_or_404(Strategy, pk=strategy_id)
     strategy.can_change_or_die(request.user)
 
-    strategy.evaluated_orgas.remove(get_from_POST_or_404(request.POST, 'id'))
+    orga_id = get_from_POST_or_404(request.POST, 'id', int)
+    strategy.evaluated_orgas.remove(orga_id)
+    CommercialAssetScore.objects.filter(asset__strategy=strategy, organisation=orga_id).delete()
+    MarketSegmentCharmScore.objects.filter(charm__strategy=strategy,   organisation=orga_id).delete()
 
     if request.is_ajax():
         return HttpResponse("", mimetype="text/javascript")
@@ -174,7 +179,7 @@ def _set_score(request, strategy_id, method_name):
 
     try:
         getattr(strategy, method_name)(model_id, segment_desc_id, orga_id, score)
-    except Exception, e:
+    except Exception as e:
         raise Http404(str(e))
 
     return HttpResponse('', mimetype='text/javascript')
@@ -198,7 +203,7 @@ def set_segment_category(request, strategy_id):
 
     try:
         strategy.set_segment_category(segment_desc_id, orga_id, category)
-    except Exception, e:
+    except Exception as e:
         raise Http404(str(e))
 
     return HttpResponse('', mimetype='text/javascript')
