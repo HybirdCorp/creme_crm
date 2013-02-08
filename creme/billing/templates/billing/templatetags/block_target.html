@@ -1,6 +1,5 @@
 {% load i18n %}
-{% load creme_core_tags %}
-{% load creme_block %}
+{% load creme_core_tags creme_block %}
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=2 %}
         <th style="width: 80%;" align="left" class="collapser">{% get_basic_block_header _("Target") %}</th>
@@ -8,9 +7,9 @@
     {% end_get_block_header %}
     <tbody class="collapsable">
         <tr>
-             <th class="block_header_line_dark th_info" align="center" valign="center" style="width: 60%;"><h1>{% trans "Target organisation" %}</h1></th>
+             <th class="block_header_line_light th_info" align="center" valign="center" style="width: 60%;"><h1>{% trans "Target organisation" %}</h1></th>
             {% with object.get_target as target %}
-                <td class="block_line_dark td_info" text-align="center" valign="center" style="width: 40%;"><h1>{% if target %}<a href="{{target.get_absolute_url}}">{{target}}</a>{% endif %}</h1></td>
+                <td class="block_line_light td_info" text-align="center" valign="center" style="width: 40%;"><h1>{% if target %}<a href="{{target.get_absolute_url}}">{{target}}</a>{% endif %}</h1></td>
             {% endwith %}
         </tr>
         <tr>
