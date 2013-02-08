@@ -31,21 +31,23 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
     def test_clean_empty_not_required(self):
         field = RegularFieldsConditionsField(required=False)
 
-        #try:
         with self.assertNoException():
-            field.clean(None)
-        #except Exception, e:
-            #self.fail(str(e))
+            value = field.clean(None)
+
+        self.assertEqual([], value)
 
     def test_clean_invalid_data_type(self):
         clean = RegularFieldsConditionsField().clean
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', clean, '"this is a string"')
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', clean, '"{}"')
         self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', clean, '{"foobar":{"operator":"3","name":"first_name","value":"Rei"}}')
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', clean, '1')
 
     def test_clean_invalid_data(self):
         clean = RegularFieldsConditionsField(model=Contact).clean
-        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', clean, '[{"operator": "notanumber", "name": "first_name", "value": "Rei"}]')
+        self.assertFieldValidationError(RegularFieldsConditionsField, 'invalidformat', clean,
+                                        '[{"operator": "notanumber", "name": "first_name", "value": "Rei"}]'
+                                       )
 
     def test_clean_incomplete_data_required(self):
         clean = RegularFieldsConditionsField(model=Contact).clean

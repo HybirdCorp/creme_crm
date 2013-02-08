@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -133,7 +133,6 @@ class RelationsConditionsWidget(SelectorList):
         attrs = {'auto': False}
 
         rtype_name = 'rtype'
-        #ctype_url  = '/creme_core/relation/predicate/${%s}/content_types/json' % rtype_name
         ctype_url  = '/creme_core/entity_filter/rtype/${%s}/content_types' % rtype_name
 
         chained_input.add_dselect('has', options=_HAS_RELATION_OPTIONS.iteritems(), attrs=attrs)
@@ -154,7 +153,7 @@ class RelationSubfiltersConditionsWidget(SelectorList):
         ctype_url  = '/creme_core/relation/predicate/${%s}/content_types/json' % rtype_name
         filter_url = '/creme_core/entity_filter/get_for_ctype/${%s}' % ctype_name
 
-        add_dselect = chained_input.add_dselect
+        add_dselect = chained_input.add_dselect #TODO: functools.partial
         add_dselect('has', options=_HAS_RELATION_OPTIONS.iteritems(), attrs=attrs)
         add_dselect(rtype_name, options=rtypes, attrs=attrs)
         add_dselect(ctype_name, options=ctype_url, attrs=attrs)
@@ -168,8 +167,9 @@ class PropertiesConditionsWidget(SelectorList):
         chained_input = ChainedInput(attrs)
         attrs = {'auto': False}
 
-        chained_input.add_dselect('has', options=_HAS_PROPERTY_OPTIONS.iteritems(), attrs=attrs)
-        chained_input.add_dselect('ptype', options=ptypes, attrs=attrs)
+        add_dselect = chained_input.add_dselect #TODO: functools.partial
+        add_dselect('has', options=_HAS_PROPERTY_OPTIONS.iteritems(), attrs=attrs)
+        add_dselect('ptype', options=ptypes, attrs=attrs)
 
         super(PropertiesConditionsWidget, self).__init__(chained_input)
 
@@ -177,35 +177,11 @@ class PropertiesConditionsWidget(SelectorList):
 #Form Fields--------------------------------------------------------------------
 
 class _ConditionsField(JSONField):
+    value_type = list
+
     def __init__(self, model=None, *args, **kwargs):
         super(_ConditionsField, self).__init__(*args, **kwargs)
         self.model = model or CremeEntity
-
-    def _conditions_to_dicts(self, conditions):
-        raise NotImplementedError
-
-    def _conditions_from_dicts(self, data):
-        raise NotImplementedError
-
-    def from_python(self, value):
-        if not value:
-            return ''
-
-        if isinstance(value, basestring):
-            return value
-
-        return self.format_json(self._conditions_to_dicts(value))
-
-    def clean(self, value):
-        data = self.clean_json(value)
-
-        if not data:
-            if self.required:
-                raise ValidationError(self.error_messages['required'])
-
-            return []
-
-        return self._conditions_from_dicts(data)
 
     def initialize(self, ctype, conditions=None, efilter=None):
         self.model = ctype.model_class()
@@ -266,10 +242,10 @@ class RegularFieldsConditionsField(_ConditionsField):
     def _create_widget(self):
         return RegularFieldsConditionsWidget(self._fields)
 
-    def _conditions_to_dicts(self, conditions):
+    def _value_to_jsonifiable(self, value):
         dicts = []
 
-        for condition in conditions:
+        for condition in value:
             search_info = condition.decoded_value
             operator = search_info['operator']
 
@@ -311,7 +287,7 @@ class RegularFieldsConditionsField(_ConditionsField):
 
         return operator, values
 
-    def _conditions_from_dicts(self, data):
+    def _value_from_unjsonfied(self, data):
         build_4_field = EntityFilterCondition.build_4_field
         clean_fieldname = self._clean_fieldname
         clean_operator_n_values = self._clean_operator_n_values
@@ -354,11 +330,11 @@ class DateFieldsConditionsField(_ConditionsField):
         """@param date_dict dict or None; if not None => {"year": 2011, "month": 7, "day": 25}"""
         return date_format(date(**date_dict), 'DATE_FORMAT') if date_dict else ''
 
-    def _conditions_to_dicts(self, conditions):
+    def _value_to_jsonifiable(self, value):
         dicts = []
         format = self._format_date
 
-        for condition in conditions:
+        for condition in value:
             get = condition.decoded_value.get
 
             dicts.append({'field':  condition.name,
@@ -407,7 +383,7 @@ class DateFieldsConditionsField(_ConditionsField):
 
         return fname
 
-    def _conditions_from_dicts(self, data):
+    def _value_from_unjsonfied(self, data):
         build_condition = EntityFilterCondition.build_4_date
         model = self.model
         clean_field_name = self._clean_field_name
@@ -451,10 +427,10 @@ class CustomFieldsConditionsField(_ConditionsField):
     def _create_widget(self):
         return CustomFieldsConditionsWidget(self._cfields)
 
-    def _conditions_to_dicts(self, conditions):
+    def _value_to_jsonifiable(self, value):
         dicts = []
 
-        for condition in conditions:
+        for condition in value:
             search_info = condition.decoded_value
             dicts.append({'field':    condition.name,
                           'operator': search_info['operator'],
@@ -472,7 +448,7 @@ class CustomFieldsConditionsField(_ConditionsField):
 
         return cf
 
-    def _conditions_from_dicts(self, data):
+    def _value_from_unjsonfied(self, data):
         build_condition = EntityFilterCondition.build_4_customfield
         clean_value = self.clean_value
         clean_cfield = self._clean_custom_field
@@ -510,10 +486,10 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
     def _create_widget(self):
         return DateFieldsConditionsWidget(self._cfields.iteritems())
 
-    def _conditions_to_dicts(self, conditions):
-        return DateFieldsConditionsField._conditions_to_dicts(self, conditions)
+    def _value_to_jsonifiable(self, value):
+        return DateFieldsConditionsField._value_to_jsonifiable(self, value)
 
-    def _conditions_from_dicts(self, data):
+    def _value_from_unjsonfied(self, data):
         build_condition = EntityFilterCondition.build_4_datecustomfield
         clean_cfield = self._clean_custom_field
         clean_date_range = self._clean_date_range
@@ -567,8 +543,8 @@ class RelationsConditionsField(_ConditionsField):
                }
 
     #TODO: test with deleted entity ??
-    def _conditions_to_dicts(self, conditions):
-        return map(self._condition_to_dict, conditions)
+    def _value_to_jsonifiable(self, value):
+        return map(self._condition_to_dict, value)
 
     def _clean_ct(self, entry):
         ct_id = self.clean_value(entry, 'ctype', int)
@@ -599,7 +575,7 @@ class RelationsConditionsField(_ConditionsField):
 
         return rtype
 
-    def _conditions_from_dicts(self, data):
+    def _value_from_unjsonfied(self, data):
         all_kwargs = []
         entity_ids = set() #the queries on CremeEntity are grouped.
 
@@ -661,7 +637,7 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
                 'filter': filter_id,
                }
 
-    def _conditions_from_dicts(self, data):
+    def _value_from_unjsonfied(self, data):
         all_kwargs = []
         filter_ids = set() #the queries on EntityFilter are grouped.
 
@@ -712,10 +688,10 @@ class PropertiesConditionsField(_ConditionsField):
     def _create_widget(self):
         return PropertiesConditionsWidget(self._ptypes.iteritems())
 
-    def _conditions_to_dicts(self, conditions):
+    def _value_to_jsonifiable(self, value):
         return [{'ptype': condition.name,
                  'has':   boolean_str(condition.decoded_value),
-                } for condition in conditions
+                } for condition in value
                ]
 
     def _clean_ptype(self, entry):
@@ -726,7 +702,7 @@ class PropertiesConditionsField(_ConditionsField):
 
         return ptype
 
-    def _conditions_from_dicts(self, data):
+    def _value_from_unjsonfied(self, data):
         build = EntityFilterCondition.build_4_property
         clean_ptype = self._clean_ptype
         clean_value = self.clean_value

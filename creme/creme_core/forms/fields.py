@@ -18,11 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import re
 from collections import defaultdict
 from itertools import chain
+from re import compile as compile_re
 
-from django.forms import Field, CharField, MultipleChoiceField, ChoiceField, ModelChoiceField, DateField, TimeField, DateTimeField, IntegerField
+from django.forms import (Field, CharField, MultipleChoiceField, ChoiceField,
+                          ModelChoiceField, DateField, TimeField, DateTimeField, IntegerField)
 from django.forms.util import ValidationError
 from django.forms.widgets import Textarea
 from django.forms.fields import EMPTY_VALUES, MultiValueField, RegexField
@@ -38,12 +39,13 @@ from creme_core.models import RelationType, CremeEntity
 from creme_core.utils import creme_entity_content_types
 from creme_core.utils.queries import get_q_from_dict
 from creme_core.utils.date_range import date_range_registry
-from creme_core.forms.widgets import (CTEntitySelector, EntitySelector, SelectorList, RelationSelector, ListViewWidget, ListEditionWidget,
-                                      CalendarWidget, TimeWidget, DateRangeWidget, ColorPickerWidget, DurationWidget, ActionButtonList)
+from creme_core.forms.widgets import (CTEntitySelector, EntitySelector, SelectorList, RelationSelector, ActionButtonList,
+                                      ListViewWidget, ListEditionWidget, CalendarWidget, TimeWidget, DateRangeWidget,
+                                      ColorPickerWidget, DurationWidget)
 from creme_core.constants import REL_SUB_HAS
 
 
-__all__ = ('MultiGenericEntityField', 'GenericEntityField',
+__all__ = ('GenericEntityField', 'MultiGenericEntityField',
            'RelationEntityField', 'MultiRelationEntityField',
            'CremeEntityField', 'MultiCremeEntityField',
            'ListEditionField',
@@ -59,6 +61,14 @@ class JSONField(CharField):
         'invalidformat': _(u'Invalid format'),
         'doesnotexist':  _(u"This entity doesn't exist."),
     }
+    value_type = None #Overload this: type of the value returned by the field.
+
+    def _build_empty_value(self):
+        "Value returned by not-required fields, when value is empty."
+        if self.value_type is list:
+            return []
+
+        return None
 
     def _return_none_or_raise(self, required, error_key='required'):
         if required:
@@ -103,23 +113,68 @@ class JSONField(CharField):
             raise ValidationError(self.error_messages['invalidformat'])
 
         if expected_type is not None and data is not None and not isinstance(data, expected_type):
-            raise ValidationError(self.error_messages['invalidformat'])
+            raise ValidationError(self.error_messages['invalidformat']) #TODO: invalid type ??
 
         return data
 
     def format_json(self, value):
         return JSONEncoder().encode(value)
 
+    #TODO: can we remove this hack with the new widget api (since django 1.2) ??
     def from_python(self, value):
-        return self.format_json(value)
+        if not value:
+            return ''
+
+        if isinstance(value, basestring):
+            return value
+
+        return self.format_json(self._value_to_jsonifiable(value))
 
     def clean(self, value):
-        return self.clean_json(value)
+        data = self.clean_json(value, expected_type=self.value_type)
 
-    def clean_entity_from_model(self, model, entity_pk, filter=None):
+        if not data:
+            if self.required:
+                raise ValidationError(self.error_messages['required'])
+
+            return self._build_empty_value()
+
+        return self._value_from_unjsonfied(data)
+
+    def _clean_entity(self, ctype, entity_pk):
+        "@param ctype ContentType instance or PK."
+        if not isinstance(ctype, ContentType):
+            try:
+                ctype = ContentType.objects.get_for_id(ctype)
+            except ContentType.DoesNotExist:
+                raise ValidationError(self.error_messages['doesnotexist'],
+                                      params={'ctype': ctype}
+                                     )
+
+        entity = None
+
+        if not entity_pk:
+            if self.required:
+                ValidationError(self.error_messages['doesnotexist'],
+                                params={'ctype': ctype.pk, 'entity': entity_pk}
+                               )
+
+        else:
+            model = ctype.model_class()
+
+            try:
+                entity = model.objects.get(pk=entity_pk)
+            except model.DoesNotExist:
+                raise ValidationError(self.error_messages['doesnotexist'],
+                                      params={'ctype': ctype.pk, 'entity': entity_pk}
+                                     )
+
+        return entity
+
+    def _clean_entity_from_model(self, model, entity_pk, qfilter=None):
         try:
-            if filter is not None:
-                return model.objects.filter(filter).get(pk=entity_pk)
+            if qfilter is not None:
+                return model.objects.filter(qfilter).get(pk=entity_pk)
 
             return model.objects.get(pk=entity_pk)
         except model.DoesNotExist:
@@ -127,12 +182,21 @@ class JSONField(CharField):
                 raise ValidationError(self.error_messages['doesnotexist'])
 
     def _create_widget(self):
-        pass #TODO: raise NotImplementedError ??
+        #pass
+        raise NotImplementedError
 
     def _build_widget(self):
         self.widget = self._create_widget()
         #TODO : wait for django 1.2 and new widget api to remove this hack
         self.widget.from_python = lambda v: self.from_python(v)
+
+    def _value_from_unjsonfied(self, data):
+        "Build the field value from deserialized data."
+        return data
+
+    def _value_to_jsonifiable(self, value):
+        "Convert the python value to jsonifiable object."
+        return value
 
 
 class GenericEntityField(JSONField):
@@ -142,6 +206,11 @@ class GenericEntityField(JSONField):
         'doesnotexist':    _(u"This entity doesn't exist."),
         'entityrequired':  _(u"The entity is required."),
     }
+    value_type = dict
+
+    def __init__(self, models=None, *args, **kwargs):
+        super(GenericEntityField, self).__init__(models, *args, **kwargs)
+        self.allowed_models = models
 
     @property
     def allowed_models(self):
@@ -152,57 +221,34 @@ class GenericEntityField(JSONField):
         self._allowed_models = allowed if allowed else list()
         self._build_widget()
 
-    def __init__(self, models=None, *args, **kwargs):
-        super(GenericEntityField, self).__init__(models, *args, **kwargs)
-        self.allowed_models = models
-
     def _create_widget(self):
         return CTEntitySelector(self._get_ctypes_options(self.get_ctypes()))
 
-    #TODO : wait for django 1.2 and new widget api to remove this hack
-    def from_python(self, value):
-        if not value:
-            return ''
-
-        if isinstance(value, basestring):
-            return value
-
+    def _value_to_jsonifiable(self, value):
         if isinstance(value, CremeEntity):
             ctype = value.entity_type_id
             pk = value.id
         else:
-            ctype = value['ctype']
-            pk = value['entity']
+            #ctype = value['ctype']
+            #pk = value['entity']
+            return value
 
-        return self.format_json({'ctype': ctype, 'entity': pk})
+        return {'ctype': ctype, 'entity': pk}
 
-    def clean(self, value):
-        data = self.clean_json(value, dict)
-
-        if not data:
-            return self._return_none_or_raise(self.required)
-
+    def _value_from_unjsonfied(self, data):
         clean_value = self.clean_value
+        required = self.required
 
-        ctype_pk  = clean_value(data, 'ctype',  int, self.required, 'ctyperequired')
-        entity_pk = clean_value(data, 'entity', int, self.required, 'entityrequired')
+        ctype_pk  = clean_value(data, 'ctype',  int, required, 'ctyperequired')
+        entity_pk = clean_value(data, 'entity', int, required, 'entityrequired')
 
-        return self.clean_entity(ctype_pk, entity_pk)
+        return self._clean_entity(self._clean_ctype(ctype_pk), entity_pk)
 
-    def clean_entity(self, ctype_pk, entity_pk):
-        ctype = self.clean_ctype(ctype_pk)
-        model = ctype.model_class()
-
-        try:
-            return model.objects.get(pk=entity_pk)
-        except model.DoesNotExist:
-            if self.required:
-                raise ValidationError(self.error_messages['doesnotexist'])
-
-    def clean_ctype(self, ctype_pk):
+    def _clean_ctype(self, ctype_pk):
         #check ctype in allowed ones
-        for ct in (ct for ct in self.get_ctypes() if ct.pk == ctype_pk):
-            return ct
+        for ct in self.get_ctypes():
+            if ct.pk == ctype_pk:
+                return ct
 
         raise ValidationError(self.error_messages['ctypenotallowed'])
 
@@ -217,36 +263,26 @@ class GenericEntityField(JSONField):
 
 #TODO: Add a q_filter, see utilization in EntityEmailForm
 class MultiGenericEntityField(GenericEntityField):
+    value_type = list
+
     def __init__(self, models=None, *args, **kwargs):
         super(MultiGenericEntityField, self).__init__(models, *args, **kwargs)
-        #TODO : wait for django 1.2 and new widget api to remove this hack
 
     def _create_widget(self):
         return SelectorList(CTEntitySelector(self._get_ctypes_options(self.get_ctypes()), multiple=True))
 
-    #TODO : wait for django 1.2 and new widget api to remove this hack
-    def from_python(self, value):
-        if not value:
-            return ''
+    def _value_to_jsonifiable(self, value):
+        #return [entry if not isinstance(entry, CremeEntity) else
+                #{'ctype': entry.entity_type_id, 'entity': entry.id}
+                    #for entry in value
+               #]
+        return map(super(MultiGenericEntityField, self)._value_to_jsonifiable, value)
 
-        if isinstance(value, basestring):
-            return value
-
-        return self.format_json([entry if not isinstance(entry, CremeEntity) else {'ctype': entry.entity_type_id, 'entity': entry.id}
-                                    for entry in value
-                                ]
-                               )
-
-    def clean(self, value):
-        data = self.clean_json(value, list)
-
-        if not data:
-            return self._return_list_or_raise(self.required)
-
+    def _value_from_unjsonfied(self, data):
         entities_map = defaultdict(list)
         clean_value = self.clean_value
 
-        #TODO : the entities order can be lost, see for refactor.
+        #TODO : the entities order can be lost, see for refactor.-
         for entry in data:
             ctype_pk = clean_value(entry, 'ctype', int, required=False)
             if not ctype_pk:
@@ -262,7 +298,7 @@ class MultiGenericEntityField(GenericEntityField):
 
         #build the list of entities (ignore invalid entries)
         for ct_id, entity_pks in entities_map.iteritems():
-            ctype = self.clean_ctype(ct_id)
+            ctype = self._clean_ctype(ct_id)
             ctype_entities = dict((entity.pk, entity) for entity in ctype.model_class().objects.filter(pk__in=entity_pks))
 
             if not all(entity_pk in ctype_entities for entity_pk in entity_pks):
@@ -300,6 +336,7 @@ class RelationEntityField(JSONField):
         'doesnotexist':      _(u"This entity doesn't exist."),
         'nopropertymatch':   _(u"This entity has no property that matches the constraints of the type of relationship."),
     }
+    value_type = dict
 
     @property
     def allowed_rtypes(self):
@@ -308,11 +345,12 @@ class RelationEntityField(JSONField):
     @allowed_rtypes.setter
     def allowed_rtypes(self, allowed=(REL_SUB_HAS, )):
         if allowed:
-            self._allowed_rtypes = allowed if isinstance(allowed, QuerySet) else RelationType.objects.filter(id__in=allowed)
-            self._allowed_rtypes = self._allowed_rtypes.order_by('predicate')
+            rtypes = allowed if isinstance(allowed, QuerySet) else RelationType.objects.filter(id__in=allowed)
+            rtypes = rtypes.order_by('predicate') #TODO: meta.ordering ??
         else:
-            self._allowed_rtypes = RelationType.objects.all().order_by('predicate')
+            rtypes = RelationType.objects.order_by('predicate')
 
+        self._allowed_rtypes = rtypes
         self._build_widget()
 
     def __init__(self, allowed_rtypes=(REL_SUB_HAS, ), *args, **kwargs):
@@ -324,28 +362,13 @@ class RelationEntityField(JSONField):
                                 '/creme_core/relation/predicate/${rtype}/content_types/json',
                                )
 
-    #TODO : wait for django 1.2 and new widget api to remove this hack
-    def from_python(self, value):
-        if not value:
-            return ''
-
-        if isinstance(value, basestring):
-            return value
-
+    def _value_to_jsonifiable(self, value):
         rtype, entity = value
-        if entity:
-            relation = {'rtype': rtype.pk, 'ctype': entity.entity_type, 'entity': entity.pk}
-        else:
-            relation = {'rtype': rtype.pk, 'ctype': None, 'entity': None}
 
-        return self.format_json(relation)
+        return {'rtype': rtype.pk, 'ctype': entity.entity_type_id, 'entity': entity.pk} if entity else \
+               {'rtype': rtype.pk, 'ctype': None,                  'entity': None}
 
-    def clean(self, value):
-        data = self.clean_json(value, dict)
-
-        if not data:
-            return self._return_none_or_raise(self.required)
-
+    def _value_from_unjsonfied(self, data):
         clean_value = self.clean_value
         rtype_pk = clean_value(data, 'rtype',  str)
 
@@ -357,28 +380,28 @@ class RelationEntityField(JSONField):
         if not entity_pk:
             return self._return_none_or_raise(self.required, 'entityrequired')
 
-        rtype = self.clean_rtype(rtype_pk)
-        self.validate_ctype_constraints(rtype, ctype_pk)
+        rtype = self._clean_rtype(rtype_pk)
+        self._validate_ctype_constraints(rtype, ctype_pk)
 
-        entity = self.clean_entity(ctype_pk, entity_pk)
-        self.validate_properties_constraints(rtype, entity)
+        entity = self._clean_entity(ctype_pk, entity_pk)
+        self._validate_properties_constraints(rtype, entity)
 
         return (rtype, entity)
 
-    def validate_ctype_constraints(self, rtype, ctype_pk):
-        rtype_ctypes = rtype.object_ctypes.values_list('pk', flat=True)
+    def _validate_ctype_constraints(self, rtype, ctype_pk):
+        ctype_ids = rtype.object_ctypes.values_list('pk', flat=True)
 
         # is relation type accepts content type
-        if rtype_ctypes and ctype_pk not in rtype_ctypes:
+        if ctype_ids and ctype_pk not in ctype_ids:
             raise ValidationError(self.error_messages['ctypenotallowed'], params={'ctype': ctype_pk})
 
-    def validate_properties_constraints(self, rtype, entity):
-        rtype_properties = frozenset(rtype.object_properties.values_list('id', flat=True))
+    def _validate_properties_constraints(self, rtype, entity):
+        ptype_ids = frozenset(rtype.object_properties.values_list('id', flat=True))
 
-        if rtype_properties and not any(p.type_id in rtype_properties for p in entity.get_properties()):
+        if ptype_ids and not any(p.type_id in ptype_ids for p in entity.get_properties()):
             raise ValidationError(self.error_messages['nopropertymatch'])
 
-    def clean_rtype(self, rtype_pk):
+    def _clean_rtype(self, rtype_pk):
         # is relation type allowed
         if rtype_pk not in self._get_allowed_rtypes_ids():
             raise ValidationError(self.error_messages['rtypenotallowed'], params={'rtype': rtype_pk})
@@ -388,18 +411,6 @@ class RelationEntityField(JSONField):
         except RelationType.DoesNotExist:
             raise ValidationError(self.error_messages['rtypedoesnotexist'], params={'rtype': rtype_pk})
 
-    def clean_entity(self, ctype_pk, entity_pk):
-        ctype = ContentType.objects.get_for_id(ctype_pk)
-        model = ctype.model_class()
-
-        try:
-            entity = model.objects.get(pk=entity_pk)
-        except model.DoesNotExist:
-            if self.required:
-                raise ValidationError(self.error_messages['doesnotexist'], params={'ctype': ctype_pk, 'entity': entity_pk})
-
-        return entity
-
     def _get_options(self):
         return ChoiceModelIterator(self._allowed_rtypes)
 
@@ -407,10 +418,12 @@ class RelationEntityField(JSONField):
         return self._allowed_rtypes.all()
 
     def _get_allowed_rtypes_ids(self):
-        return self._allowed_rtypes.all().values_list('id', flat=True)
+        return self._allowed_rtypes.values_list('id', flat=True)
 
 
 class MultiRelationEntityField(RelationEntityField):
+    value_type = list
+
     def _create_widget(self):
         return SelectorList(RelationSelector(self._get_options,
                                              '/creme_core/relation/predicate/${rtype}/content_types/json',
@@ -418,27 +431,8 @@ class MultiRelationEntityField(RelationEntityField):
                                             )
                            )
 
-    #TODO : wait for django 1.2 and new widget api to remove this hack
-    def from_python(self, value):
-        if not value:
-            return ''
-
-        if isinstance(value, basestring):
-            return value
-
-        #entities = []
-
-        #for rtype, entity in value:
-            #if entity:
-                #entities.append({'rtype': rtype.pk, 'ctype': entity.entity_type_id, 'entity': entity.pk})
-            #else:
-                #entities.append({'rtype': rtype.pk, 'ctype': None, 'entity': None})
-
-        #return self.format_json(entities)
-        return self.format_json([{'rtype': rtype.pk, 'ctype': entity.entity_type_id, 'entity': entity.pk} if entity else
-                                 {'rtype': rtype.pk, 'ctype': None,                  'entity': None}
-                                     for rtype, entity in value
-                                ])
+    def _value_to_jsonifiable(self, value):
+        return map(super(MultiRelationEntityField, self)._value_to_jsonifiable, value)
 
     def _build_rtype_cache(self, rtype_pk):
         try:
@@ -468,12 +462,7 @@ class MultiRelationEntityField(RelationEntityField):
 
         return cache
 
-    def clean(self, value):
-        data = self.clean_json(value, list)
-
-        if not data:
-            return self._return_list_or_raise(self.required)
-
+    def _value_from_unjsonfied(self, data):
         clean_value = self.clean_value
         cleaned_entries = []
 
@@ -550,6 +539,13 @@ class CreatorEntityField(JSONField):
         'doesnotexist':    _(u"This entity doesn't exist."),
         'entityrequired':  _(u"The entity is required."),
     }
+    value_type = int
+
+    def __init__(self, model=None, q_filter=None, create_action_url=None, *args, **kwargs):
+        super(CreatorEntityField, self).__init__(model, *args, **kwargs)
+        self._model = model
+        self._user = None
+        self.qfilter_options(q_filter, create_action_url)
 
     @property
     def model(self):
@@ -570,8 +566,7 @@ class CreatorEntityField(JSONField):
         if self._create_action_url is not None:
             return self._create_action_url
 
-        model_ctype = self.get_ctype()
-        return '/creme_core/quickforms/from_widget/%s/add/1' % model_ctype.pk
+        return '/creme_core/quickforms/from_widget/%s/add/1' % self.get_ctype().pk
 
     @create_action_url.setter
     def create_action_url(self, url):
@@ -586,12 +581,6 @@ class CreatorEntityField(JSONField):
     def user(self, user):
         self._user = user
         self._update_actions()
-
-    def __init__(self, model=None, q_filter=None, create_action_url=None, *args, **kwargs):
-        super(CreatorEntityField, self).__init__(model, *args, **kwargs)
-        self._model = model
-        self._user = None
-        self.qfilter_options(q_filter, create_action_url)
 
     def qfilter_options(self, q_filter, create_action_url):
         try:
@@ -625,36 +614,28 @@ class CreatorEntityField(JSONField):
 
         allowed = user.has_perm_to_create(model)
         self.widget.add_action('create', _(u'Add'), enabled=allowed,
-                                                    title=_(u'Add') if allowed else _(u"Can't add"),
-                                                    url=self.create_action_url)
+                               title=_(u'Add') if allowed else _(u"Can't add"),
+                               url=self.create_action_url,
+                              )
 
     def _create_widget(self):
-        options = {"auto": False, "qfilter": self._q_filter_data}
-        return ActionButtonList(delegate=EntitySelector(unicode(self.get_ctype().pk), options))
+        return ActionButtonList(delegate=EntitySelector(unicode(self.get_ctype().pk),
+                                                        {'auto':    False,
+                                                         'qfilter': self._q_filter_data,
+                                                        },
+                                                       )
+                               )
 
-    #TODO : wait for django 1.2 and new widget api to remove this hack
-    def from_python(self, value):
-        if not value:
-            return ''
+    def _value_to_jsonifiable(self, value):
+        assert isinstance(value, CremeEntity)
+        return value.id
 
-        if isinstance(value, basestring):
-            return value
-
-        if isinstance(value, CremeEntity):
-            pk = value.id
-
-        return self.format_json(pk)
-
-    def clean(self, value):
-        data = self.clean_json(value, int)
-
-        if not data:
-            return self._return_none_or_raise(self.required)
-
-        return self.clean_entity_from_model(self.model, data, self.qfilter)
+    def _value_from_unjsonfied(self, data):
+        return self._clean_entity_from_model(self.model, data, self.qfilter)
 
     def get_ctype(self):
-        return ContentType.objects.get_for_model(self.model) if self.model is not None else None
+        model = self.model
+        return ContentType.objects.get_for_model(model) if model is not None else None
 
 
 class _CommaMultiValueField(CharField): #TODO: Charfield and not Field ??!! #TODO2: Remove ?
@@ -988,7 +969,7 @@ class DateRangeField(MultiValueField):
 
 class ColorField(RegexField):
     """A Field which handle html colors (e.g: #F2FAB3) without '#' """
-    regex  = re.compile(r'^([0-9a-fA-F]){6}$')
+    regex  = compile_re(r'^([0-9a-fA-F]){6}$')
     widget = ColorPickerWidget
 
     def __init__(self, *args, **kwargs):

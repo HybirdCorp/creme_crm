@@ -32,10 +32,13 @@ class BatchActionsFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(BatchActionsField, 'invalidformat', clean, '"this is a string"')
         self.assertFieldValidationError(BatchActionsField, 'invalidformat', clean, '"{}"')
         self.assertFieldValidationError(BatchActionsField, 'invalidformat', clean, '{"foobar":{"operator": "3", "name": "first_name"}}')
+        self.assertFieldValidationError(BatchActionsField, 'invalidformat', clean, '1') #not iterable
 
     def test_clean_invalid_data(self):
         clean = BatchActionsField(model=Contact).clean
-        self.assertFieldValidationError(BatchActionsField, 'invalidformat', clean, '[{"operator": "upper", "name": "first_name", "value": "Rei"}]') #value is not a dict
+        self.assertFieldValidationError(BatchActionsField, 'invalidformat', clean,
+                                        '[{"operator": "upper", "name": "first_name", "value": "Rei"}]'
+                                       ) #value is not a dict
 
     def test_clean_incomplete_data_required(self):
         clean = BatchActionsField(model=Contact).clean

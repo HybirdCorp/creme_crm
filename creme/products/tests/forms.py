@@ -53,10 +53,20 @@ class CategoryFieldTestCase(FieldTestCase):
     def test_clean_empty_required(self):
         clean = CategoryField(required=True).clean
         self.assertFieldValidationError(CategoryField, 'required', clean, None)
-        self.assertFieldValidationError(CategoryField, 'required', clean, "{}")
+        self.assertFieldValidationError(CategoryField, 'required', clean, '{}')
 
     def test_clean_empty_not_required(self):
-        CategoryField(required=False).clean(None)
+        clean = CategoryField(required=False).clean
+
+        with self.assertNoException():
+            value = clean(None)
+
+        self.assertIsNone(value)
+
+        with self.assertNoException():
+            value = clean('{}')
+
+        self.assertIsNone(value)
 
     def test_clean_invalid_json(self):
         clean = CategoryField(required=False).clean
@@ -67,7 +77,7 @@ class CategoryFieldTestCase(FieldTestCase):
     def test_clean_invalid_data_type(self):
         clean = CategoryField(required=False).clean
         self.assertFieldValidationError(CategoryField, 'invalidformat', clean, '"this is a string"')
-        self.assertFieldValidationError(CategoryField, 'invalidformat', clean, "[]")
+        self.assertFieldValidationError(CategoryField, 'invalidformat', clean, "12")
 
     def test_clean_invalid_data(self):
         clean = CategoryField(required=False).clean
