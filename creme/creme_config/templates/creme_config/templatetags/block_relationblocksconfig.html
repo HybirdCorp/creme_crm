@@ -16,7 +16,7 @@
                 <th class="block_header_line_light">{% trans "Related type of relation" %}</th>
                 <th class="block_header_line_light action">{% trans "Delete" %}</th>
             </tr>
-            {% for block_type in page.object_list %}{% cycle row_color silent %}
+            {% for block_type in page.object_list %}{% cycle row_color %}
                 <tr class="content">
                     <td class="{{row_color}}">
                         {{block_type.relation_type}}

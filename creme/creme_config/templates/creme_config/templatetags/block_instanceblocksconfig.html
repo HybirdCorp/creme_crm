@@ -11,7 +11,7 @@
                 <th class="block_header_line_light">{% trans "Related entity" %}</th>
                 <th class="block_header_line_light action">{% trans "Delete" %}</th>
             </tr>
-            {% for block_type in page.object_list %}{% cycle row_color silent %}
+            {% for block_type in page.object_list %}{% cycle row_color %}
                 <tr class="content">
                     <td class="{{row_color}}">
                         <a href="{{block_type.entity.get_absolute_url}}">{{block_type}}</a>

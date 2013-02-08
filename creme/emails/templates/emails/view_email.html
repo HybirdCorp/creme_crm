@@ -17,9 +17,7 @@
             </th>
         </tr>
     </thead>
-    <tbody class="collapsable">
-        {% cycle "block_header_line_dark" "block_header_line_light" as header_color silent %}
-        {% cycle "block_line_dark" "block_line_light" as row_color silent %}
+    <tbody class="collapsable"><!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}{% cycle "block_line_dark" "block_line_light" as row_color %}-->
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Recipient" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=mail field='recipient' %}</td>

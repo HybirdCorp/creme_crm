@@ -16,13 +16,13 @@
             <th class="block_header_line_light action">{% trans "Edit" %}</th>
             <th class="block_header_line_light action">{% trans "Delete" %}</th>
         </tr>
-        <tr class="content">{% comment %} ONLY IF PAGE==1 ?? {% endcomment %}{% cycle row_color silent %}
+        <tr class="content">{% comment %} ONLY IF PAGE==1 ?? {% endcomment %}{% cycle row_color %}
             <td class="{{row_color}}">{% trans "Default configuration" %}</td>
             <td class="{{row_color}} action">{% get_line_editor at_url '/creme_config/blocks/detailview/edit/0' with_perms 1 %}</td>
             <td class="{{row_color}}"></td>
         </tr>
         {% if page.paginator.count %}
-            {% for ct in page.object_list %}{% cycle row_color silent %}
+            {% for ct in page.object_list %}{% cycle row_color %}
                 <tr class="content">
                     <td class="{{row_color}}">{{ct}}</td>
                     <td class="{{row_color}} action">{% get_line_editor at_url '/creme_config/blocks/detailview/edit/{{ct.id}}' with_perms 1 %}</td>

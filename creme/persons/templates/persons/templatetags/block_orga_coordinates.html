@@ -9,29 +9,26 @@
             </div>
         </th>
     {% end_get_block_header %}
-    <tbody class="collapsable">
-        {% cycle "block_header_line_dark" "block_header_line_light" as header_color silent %}
-        {% cycle "block_line_dark" "block_line_light" as row_color silent %}
-        {% cycle "block_line_dark" "block_line_light" as row_edit_color silent %}
+    <tbody class="collapsable"><!--{% cycle "block_header_line_dark" "block_header_line_light" as header_color %}{% cycle "block_line_dark" "block_line_light" as row_color %}-->
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Phone" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='phone' %}</td>
-            <td class="{% cycle row_edit_color %} edit_inner">{% get_field_editor on regular 'phone' for object %}</td>
+            <td class="{{row_color}} edit_inner">{% get_field_editor on regular 'phone' for object %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Fax" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='fax' %}</td>
-            <td class="{% cycle row_edit_color %} edit_inner">{% get_field_editor on regular 'fax' for object %}</td>
+            <td class="{{row_color}} edit_inner">{% get_field_editor on regular 'fax' for object %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Email address" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='email' %}</td>
-            <td class="{% cycle row_edit_color %} edit_inner">{% get_field_editor on regular 'email' for object %}</td>
+            <td class="{{row_color}} edit_inner">{% get_field_editor on regular 'email' for object %}</td>
         </tr>
         <tr class="content">
             <th class="{% cycle header_color %} th_info">{% trans "Web Site" %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='url_site' %}</td>
-            <td class="{% cycle row_edit_color %} edit_inner">{% get_field_editor on regular 'url_site' for object %}</td>
+            <td class="{{row_color}} edit_inner">{% get_field_editor on regular 'url_site' for object %}</td>
         </tr>
     </tbody>
 </table>
