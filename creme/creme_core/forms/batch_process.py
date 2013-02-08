@@ -67,29 +67,11 @@ class BatchActionsField(JSONField):
         'invalidvalue':    _(u"Invalid value => %s"),
     }
 
+    value_type = list
+
     def __init__(self, model=None, *args, **kwargs):
         super(BatchActionsField, self).__init__(*args, **kwargs)
         self.model = model or CremeEntity
-
-    def from_python(self, value):
-        if not value:
-            return ''
-
-        if isinstance(value, basestring):
-            return value
-
-        #return self.format_json(self._actions_to_dicts(value)) #todo: inline
-
-    def clean(self, value):
-        data = self.clean_json(value)
-
-        if not data:
-            if self.required:
-                raise ValidationError(self.error_messages['required'])
-
-            return []
-
-        return self._actions_from_dicts(data) #TODO: inline ??
 
     @property
     def model(self):
@@ -112,16 +94,6 @@ class BatchActionsField(JSONField):
     def _create_widget(self):
         return BatchActionsWidget(self._model, self._fields)
 
-    #def _actions_to_dicts(self, actions):
-        #dicts = []
-
-        #for action in actions:
-            #dicts.append({'name':     action.name,
-                          #'operator': operator,
-                         #})
-
-        #return dicts
-
     def _clean_fieldname(self, entry, used_fields):
         fname = self.clean_value(entry, 'name', str)
         field = self._fields.get(fname)
@@ -143,7 +115,7 @@ class BatchActionsField(JSONField):
 
         return operator_name, value
 
-    def _actions_from_dicts(self, data):
+    def _value_from_unjsonfied(self, data):
         model = self._model
         clean_fieldname = self._clean_fieldname
         clean_operator_n_value = self._clean_operator_name_n_value

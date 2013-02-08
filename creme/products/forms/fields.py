@@ -50,6 +50,7 @@ class CategoryField(JSONField):
         'categorynotallowed':    _(u"This category cause constraint error."),
         'subcategorynotallowed': _(u"This sub-category cause constraint error."),
     }
+    value_type = dict
 
     def __init__(self, categories=None, *args, **kwargs):
         super(CategoryField, self).__init__(*args, **kwargs)
@@ -59,40 +60,6 @@ class CategoryField(JSONField):
         return CategorySelector(self._get_categories_options(self._get_categories_objects()),
                                 attrs={'reset': False, 'direction': ChainedInput.VERTICAL},
                                )
-
-    #TODO : wait for django 1.2 and new widget api to remove this hack
-    def from_python(self, value):
-        if not value:
-            return ''
-
-        if isinstance(value, basestring):
-            return value
-
-        if isinstance(value, SubCategory):
-            category = value.category_id
-            subcategory = value.id
-        else:
-            category, subcategory = value
-
-        return self.format_json({'category': category, 'subcategory': subcategory})
-
-    def clean(self, value):
-        data = self.clean_json(value)
-
-        if data is not None and not isinstance(data, dict):
-            raise ValidationError(self.error_messages['invalidformat'])
-
-        if not data:
-            if self.required:
-                raise ValidationError(self.error_messages['required'])
-
-            return None
-
-        clean_value = self.clean_value
-
-        return self._clean_subcategory(clean_value(data, 'category', int),
-                                       clean_value(data, 'subcategory', int),
-                                      )
 
     def _clean_subcategory(self, category_pk, subcategory_pk):
         self._clean_category(category_pk)
@@ -115,7 +82,7 @@ class CategoryField(JSONField):
 
         raise ValidationError(self.error_messages['categorynotallowed'])
 
-    def _get_categories_options(self, categories):
+    def _get_categories_options(self, categories): #TODO: factorise ??
         return ((category.pk, unicode(category)) for category in categories)
 
     def _get_categories_objects(self):
@@ -130,3 +97,19 @@ class CategoryField(JSONField):
     def categories(self, categories):
         self._categories = categories or []
         self._build_widget()
+
+    def _value_to_jsonifiable(self, value):
+        if isinstance(value, SubCategory):
+            category = value.category_id
+            subcategory = value.id
+        else:
+            category, subcategory = value
+
+        return {'category': category, 'subcategory': subcategory}
+
+    def _value_from_unjsonfied(self, data):
+        clean_value = self.clean_value
+
+        return self._clean_subcategory(clean_value(data, 'category', int),
+                                       clean_value(data, 'subcategory', int),
+                                      )
