@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,14 +29,13 @@ from creme_core.models import RelationType, Relation
 from creme_core.forms import CremeEntityField, CremeDateTimeField
 from creme_core.forms.widgets import Label
 
-from creme_config.forms.fields import CreatorModelChoiceField
+#from creme_config.forms.fields import CreatorModelChoiceField
 
 from media_managers.models import Image
 from media_managers.forms.widgets import ImageM2MWidget
 
 from persons.models import Organisation, Contact
-from persons.models.other_models import Position, Sector, Civility
-
+#from persons.models.other_models import Position, Sector, Civility
 from persons.forms.base import _BasePersonForm
 
 
@@ -49,9 +48,9 @@ class ContactForm(_BasePersonForm):
 #                                widget=ActionButtonList(delegate=DynamicSelect(options=lambda:((position.pk, unicode(position)) for position in Position.objects.all())))
 #                                            .add_action('create', _(u'Add'), url='/creme_config/persons/position/add_widget/'))
 
-    civility = CreatorModelChoiceField(label=_('Civility'), queryset=Civility.objects.all(), required=False, initial=None)
-    position = CreatorModelChoiceField(label=_('Position'), queryset=Position.objects.all(), required=False, initial=None)
-    sector = CreatorModelChoiceField(label=_('Sector'), queryset=Sector.objects.all(), required=False, initial=None)
+    #civility = CreatorModelChoiceField(label=_('Civility'), queryset=Civility.objects.all(), required=False, initial=None)
+    #position = CreatorModelChoiceField(label=_('Position'), queryset=Position.objects.all(), required=False, initial=None)
+    #sector = CreatorModelChoiceField(label=_('Sector'), queryset=Sector.objects.all(), required=False, initial=None)
 
     blocks = _BasePersonForm.blocks.new(('coordinates', _(u'Coordinates'), ['skype', 'phone', 'mobile', 'fax', 'email', 'url_site']))
 
@@ -59,12 +58,12 @@ class ContactForm(_BasePersonForm):
     class Meta(_BasePersonForm.Meta):
         model = Contact
         #exclude = _BasePersonForm.Meta.exclude + ('language',)
-    
-    def __init__(self, *args, **kwargs):
-        super(ContactForm, self).__init__(*args, **kwargs)
-        self.fields['position'].user = self.user
-        self.fields['civility'].user = self.user
-        self.fields['sector'].user = self.user
+
+    #def __init__(self, *args, **kwargs):
+        #super(ContactForm, self).__init__(*args, **kwargs)
+        #self.fields['position'].user = self.user
+        #self.fields['civility'].user = self.user
+        #self.fields['sector'].user = self.user
 
 
 class ContactWithRelationForm(ContactForm):
@@ -91,7 +90,8 @@ class ContactWithRelationForm(ContactForm):
             get_ct = ContentType.objects.get_for_model
             relation_field = ModelChoiceField(label=ugettext(u"Status in the organisation"),
                                               queryset=RelationType.objects.filter(subject_ctypes=get_ct(Contact),
-                                                                                   object_ctypes=get_ct(Organisation))
+                                                                                   object_ctypes=get_ct(Organisation),
+                                                                                  )
                                              )
         self.fields['relation'] = relation_field
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_config.forms.fields import CreatorModelChoiceField
+#from creme_config.forms.fields import CreatorModelChoiceField
 
 from persons.workflow import transform_target_into_customer
 
@@ -30,17 +30,17 @@ from billing.forms.base import BaseCreateForm, BaseEditForm
 
 
 class InvoiceCreateForm(BaseCreateForm):
-    status = CreatorModelChoiceField(label=_(u'Status of invoice'), queryset=InvoiceStatus.objects.all())
-    payment_type = CreatorModelChoiceField(label=_(u'Settlement terms'), queryset=SettlementTerms.objects.all(), required=False)
+    #status = CreatorModelChoiceField(label=_(u'Status of invoice'), queryset=InvoiceStatus.objects.all())
+    #payment_type = CreatorModelChoiceField(label=_(u'Settlement terms'), queryset=SettlementTerms.objects.all(), required=False)
 
     class Meta(BaseCreateForm.Meta):
         model = Invoice
 
-    def __init__(self, *args, **kwargs):
-        super(InvoiceCreateForm, self).__init__(*args, **kwargs)
-        user = self.user
-        self.fields['status'].user = user
-        self.fields['payment_type'].user = user
+    #def __init__(self, *args, **kwargs):
+        #super(InvoiceCreateForm, self).__init__(*args, **kwargs)
+        #user = self.user
+        #self.fields['status'].user = user
+        #self.fields['payment_type'].user = user
 
     def save(self, *args, **kwargs):
         instance = super(InvoiceCreateForm, self).save(*args, **kwargs)
@@ -50,14 +50,14 @@ class InvoiceCreateForm(BaseCreateForm):
 
 
 class InvoiceEditForm(BaseEditForm):
-    status = CreatorModelChoiceField(label=_(u'Status of invoice'), queryset=InvoiceStatus.objects.all())
-    payment_type = CreatorModelChoiceField(label=_(u'Settlement terms'), queryset=SettlementTerms.objects.all(), required=False)
+    #status = CreatorModelChoiceField(label=_(u'Status of invoice'), queryset=InvoiceStatus.objects.all())
+    #payment_type = CreatorModelChoiceField(label=_(u'Settlement terms'), queryset=SettlementTerms.objects.all(), required=False)
 
     class Meta(BaseEditForm.Meta):
         model = Invoice
 
-    def __init__(self, *args, **kwargs):
-        super(InvoiceEditForm, self).__init__(*args, **kwargs)
-        user = self.user
-        self.fields['status'].user = user
-        self.fields['payment_type'].user = user
+    #def __init__(self, *args, **kwargs):
+        #super(InvoiceEditForm, self).__init__(*args, **kwargs)
+        #user = self.user
+        #self.fields['status'].user = user
+        #self.fields['payment_type'].user = user
