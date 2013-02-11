@@ -21,3 +21,20 @@ def autodiscover():
 
 
 _add_tags_to_fields()
+
+
+#ForeignKey's formfield() hooking --------------------------------------------
+#TODO: move to creme_config ??
+from django.db.models import ForeignKey
+
+original_fk_formfield = ForeignKey.formfield
+
+def new_fk_formfield(self, **kwargs):
+    from creme_config.forms.fields import CreatorModelChoiceField
+
+    defaults = {'form_class': CreatorModelChoiceField}
+    defaults.update(kwargs)
+
+    return original_fk_formfield(self, **defaults)
+
+ForeignKey.formfield = new_fk_formfield

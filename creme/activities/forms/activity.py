@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -426,27 +426,34 @@ class ActivityEditForm(CremeEntityForm):
 
         return super(ActivityEditForm, self).save()
 
+
 class CustomActivityCreateForm(ActivityCreateForm):
     type = CreatorModelChoiceField(label=_('Activity type'), 
                                    queryset=ActivityType.objects.filter(is_custom=True),
-                                   required=True, initial=None)
+                                   required=True, initial=None,
+                                  )
 
-    def __init__(self, *args, **kwargs):
-        super(CustomActivityCreateForm, self).__init__(*args, **kwargs)
-        self.fields['type'].user = self.user
+    #def __init__(self, *args, **kwargs):
+        #super(CustomActivityCreateForm, self).__init__(*args, **kwargs)
+        #self.fields['type'].user = self.user
+        ##self.fields['type'].queryset = self.fields['type'].queryset.filter(is_custom=True)
+
+        #if not self.fields['type'].queryset.count():
+            #self.fields['type'].help_text = ugettext(u"No custom activity type, you should create one in configuration in order to create an activity.")
+
+#TODO: factorise (mixin ??)
+class RelatedCustomActivityCreateForm(RelatedActivityCreateForm):
+    type = CreatorModelChoiceField(label=_('Activity type'),
+                                   queryset=ActivityType.objects.filter(is_custom=True),
+                                   required=True, initial=None,
+                                  )
+
+    #def __init__(self, *args, **kwargs):
+        #super(RelatedCustomActivityCreateForm, self).__init__(*args, **kwargs)
         #self.fields['type'].queryset = self.fields['type'].queryset.filter(is_custom=True)
 
-        if self.fields['type'].queryset.count() == 0:
-            self.fields['type'].help_text = _(u"No custom activity type, you should create one in configuration in order to create an activity.")
-
-
-class RelatedCustomActivityCreateForm(RelatedActivityCreateForm):
-    def __init__(self, *args, **kwargs):
-        super(RelatedCustomActivityCreateForm, self).__init__(*args, **kwargs)
-        self.fields['type'].queryset = self.fields['type'].queryset.filter(is_custom=True)
-
-        if self.fields['type'].queryset.count() == 0:
-            self.fields['type'].help_text = _(u"No custom activity type, you should create one in configuration in order to create an activity.")
+        #if not self.fields['type'].queryset.count():
+            #self.fields['type'].help_text = ugettext(u"No custom activity type, you should create one in configuration in order to create an activity.")
 
 
 _ACTIVITY_TYPE_EXCLUDED_FROM_POPUP = [ACTIVITYTYPE_SHOW, ACTIVITYTYPE_TASK, ACTIVITYTYPE_GATHERING,

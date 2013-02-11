@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,6 @@
 
 from django.db.models.fields import FieldDoesNotExist
 from django.forms import Form, ModelForm, ModelChoiceField
-#from django.forms.forms import BoundField
 from django.utils.translation import ugettext_lazy as _
 from django.utils.datastructures import SortedDict as OrderedDict #use python2.7 OrderedDict later.....
 from django.contrib.auth.models import User
@@ -92,7 +91,7 @@ class FieldBlockManager(object):
     def build(self, form): #build in the blocks objects themselves ??
         """
         @return A list of block descriptors. A blocks descriptor is a tuple
-               (block_verbose_name, [list of tuples (BoundField, fiels_is_required)]).
+               (block_verbose_name, [list of tuples (BoundField, field_is_required)]).
         """
         result = OrderedDict()
         wildcard_cat = None
@@ -181,6 +180,10 @@ class CremeModelForm(ModelForm, HookableForm):
         """@param user The user that sends the request (i order to check the permissions)"""
         super(CremeModelForm, self).__init__(*args, **kwargs)
         self.user = user
+
+        for fn, field in self.fields.iteritems():
+            field.user = user #used by CreatorModelChoiceField for example
+
         self._creme_post_init()
 
     def clean(self, *args, **kwargs):

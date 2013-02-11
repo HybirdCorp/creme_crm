@@ -142,10 +142,11 @@ class ActionButtonList(Widget):
                             </ul>""" % context)
 
     def _render_actions(self):
-        output = []
-        output.extend(self._render_action(name, label, enabled, **attrs) for name, label, enabled, attrs in self.actions)
+        #output = []
+        #output.extend(self._render_action(name, label, enabled, **attrs) for name, label, enabled, attrs in self.actions)
 
-        return '\n'.join(output)
+        #return '\n'.join(output)
+        return '\n'.join(self._render_action(name, label, enabled, **attrs) for name, label, enabled, attrs in self.actions)
 
     def _render_action(self, name, label, enabled, **kwargs):
         if enabled is not None:
@@ -153,7 +154,6 @@ class ActionButtonList(Widget):
                 kwargs['disabled'] = u''
 
         title = kwargs.pop('title', label)
-
         context = {'name':  name,
                    'attr':  flatatt(kwargs),
                    'label': label,
@@ -163,6 +163,7 @@ class ActionButtonList(Widget):
         return u"""<li><button class="ui-creme-actionbutton" name="%(name)s" title="%(title)s" alt="%(title)s" %(attr)s>
                        %(label)s
                    </button></li>""" % context
+
 
 class PolymorphicInput(TextInput):
     class Model(object):
@@ -187,8 +188,8 @@ class PolymorphicInput(TextInput):
         context = widget_render_context('ui-creme-polymorphicselect', attrs,
                                         style=attrs.pop('style', ''),
                                         selects=self._render_inputs(attrs),
-                                        url=self.url)
-
+                                        url=self.url,
+                                       )
         context['input'] = widget_render_hidden_input(self, name, value, context)
 
         return mark_safe("""<span class="%(css)s" style="%(style)s" widget="%(typename)s" url="%(url)s">

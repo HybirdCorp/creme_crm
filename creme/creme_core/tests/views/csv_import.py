@@ -394,7 +394,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                                'csv_document': doc.id,
                                               }
                                    )
-        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
         self.assertIn('value="1"', unicode(response.context['form']['csv_step']))
 
         response = self.client.post(url, data={
