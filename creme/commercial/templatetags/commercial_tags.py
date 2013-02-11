@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,6 +39,7 @@ def widget_asset_score(context, segment_desc, asset):
     context['score'] = strategy.get_asset_score(orga, asset, segment_desc)
     context['model_name'] = 'asset'
     context['model'] = asset
+    context['has_perm'] = strategy.can_change(context['user'])
 
     return context
 
@@ -50,6 +51,7 @@ def widget_charm_score(context, segment, charm):
     context['score'] = strategy.get_charm_score(orga, charm, segment)
     context['model_name'] = 'charm'
     context['model'] = charm
+    context['has_perm'] = strategy.can_change(context['user'])
 
     return context
 
@@ -59,5 +61,6 @@ def widget_segment_category(context, segment):
     orga     = context['orga']
 
     context['category'] = strategy.get_segment_category(orga, segment)
+    context['has_perm'] = strategy.can_change(context['user'])
 
     return context
