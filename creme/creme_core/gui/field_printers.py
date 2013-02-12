@@ -148,7 +148,6 @@ class _FieldPrintersRegistry(object):
             models.TextField:                  lambda entity, fval, user: linebreaks(fval) if fval else "",
             models.TimeField:                  simple_print,
             models.URLField:                   print_urlfield,
-            models.XMLField:                   simple_print,
             models.ForeignKey:                 print_foreignkey,
             models.ManyToManyField:            print_many2many,
             models.OneToOneField:              print_foreignkey,

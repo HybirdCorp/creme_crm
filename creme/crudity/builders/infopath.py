@@ -81,7 +81,6 @@ _ELEMENT_TEMPLATE = {
     models.TextField:                  lambda element_type: get_element_template(element_type, "text_field.xml"),
     models.TimeField:                  lambda element_type: get_element_template(element_type, "time_field.xml"),
     models.URLField:                   lambda element_type: get_element_template(element_type, "url_field.xml"),
-    models.XMLField:                   get_none,#Deprecated
     models.ForeignKey:                 lambda element_type: get_element_template(element_type, "foreignkey_field.xml"),
     models.ManyToManyField:            lambda element_type: get_element_template(element_type, "m2m_field.xml"),
     models.OneToOneField:              get_none,
