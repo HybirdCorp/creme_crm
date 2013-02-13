@@ -7,7 +7,7 @@ try:
     from creme_core.tests.base import CremeTestCase
 
     from persons.models import Contact, Organisation
-except Exception, e:
+except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
 
@@ -64,7 +64,8 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertEqual(Organisation, sc_item.content_type.model_class())
         self.assertEqual(user,         sc_item.user)
 
-    def test_create_if_needed03(self): #invalid fields
+    def test_create_if_needed03(self):
+        "Invalid fields"
         sc_item = SearchConfigItem.create_if_needed(Contact, ['invalid_field', 'first_name'])
 
         sfields = SearchField.objects.filter(search_config_item=sc_item)

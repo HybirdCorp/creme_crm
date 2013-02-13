@@ -305,7 +305,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertIn(['lower', _('To lower case')], json_data)
         self.assertNotIn('add_int', (e[0] for e in json_data))
 
-    def test_get_ops03(self): #other CT, other category of operator
+    def test_get_ops03(self):
+        "Organisation CT, other category of operator"
         self.login()
 
         response = self.client.get(self.build_ops_url(self.orga_ct_id, 'capital'))
@@ -323,13 +324,15 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual(200, response.status_code, response.content)
         self.assertEqual([], simplejson.loads(response.content))
 
-    def test_get_ops05(self): #no app credentials
+    def test_get_ops05(self):
+        "No app credentials"
         self.login(is_superuser=False, allowed_apps=['creme_core']) #not 'persons'
 
         response = self.client.get(self.build_ops_url(self.contact_ct_id, 'first_name'))
         self.assertEqual(403, response.status_code, response.content)
 
-    def test_get_ops06(self): #unknown field
+    def test_get_ops06(self):
+        "Unknown field"
         self.login()
 
         response = self.client.get(self.build_ops_url(self.contact_ct_id, 'foobar'))

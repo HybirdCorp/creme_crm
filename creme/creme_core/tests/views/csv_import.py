@@ -291,16 +291,16 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
             self.assertEqual(default_descr, contact.description)
             self.assertEqual(position,      contact.position)
             self.assertEqual(1,             CremeProperty.objects.filter(type=ptype, creme_entity=contact.id).count())
-            self.assertEqual(1,             Relation.objects.filter(subject_entity=contact, type=loves, object_entity=shinji).count())
-            self.assertEqual(1,             Relation.objects.filter(subject_entity=contact, type=employed, object_entity=nerv).count())
-
+            self.assertRelationCount(1, contact, loves.id, shinji)
+            self.assertRelationCount(1, contact, employed.id, nerv)
 
         rei = Contact.objects.get(first_name=lines[1][0])
         self.assertEqual(city, rei.billing_address.city)
 
-        doc.filedata.delete() #clean
+        doc.filedata.delete() #clean TODO: improve (not cleaned if there is a failure...)
 
-    def test_import03(self): #create entities to link with them
+    def test_import03(self):
+        "Create entities to link with them"
         self.login()
         self.assertFalse(Organisation.objects.exists())
 
@@ -444,5 +444,4 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(len(lines) - 1, Contact.objects.count())
 
         for first_name, last_name in lines[1:]:
-            with self.assertNoException():
-                Contact.objects.get(first_name=first_name, last_name=last_name)
+            self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)

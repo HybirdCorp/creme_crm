@@ -48,9 +48,8 @@ class MiscViewsTestCase(ViewsTestCase):
         cls.populate()
 
     def setUp(self):
-        #self.populate('creme_core', 'creme_config')
         self.login()
-        
+
         self.FORCE_JS_TESTVIEW = settings.FORCE_JS_TESTVIEW
         settings.FORCE_JS_TESTVIEW = False
 
@@ -63,28 +62,17 @@ class MiscViewsTestCase(ViewsTestCase):
         settings.FORCE_JS_TESTVIEW = self.FORCE_JS_TESTVIEW
 
     def test_home(self): #TODO: improve test
-        #self.populate('creme_core', 'creme_config')
-        #self.login()
         self.assertEqual(200, self.client.get('/').status_code)
 
     def test_my_page(self):
-        #self.populate('creme_core', 'creme_config')
-        #self.login()
         self.assertEqual(200, self.client.get('/my_page').status_code)
 
     def test_clean(self):
-        #self.populate()
-        #self.login()
-
         with self.assertNoException():
             response = self.client.get('/creme_core/clean/', follow=True)
 
         self.assertEqual(200, response.status_code)
-        self.assertEqual(2,   len(response.redirect_chain))
-
-        last = response.redirect_chain[-1]
-        self.assertTrue(last[0].endswith('/creme_login/'))
-        self.assertEqual(302, last[1])
+        self.assertRedirects(response, '/creme_login/')
 
     def test_js_view(self):
         self.assertFalse(settings.FORCE_JS_TESTVIEW)
@@ -167,7 +155,6 @@ class CurrencyTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-
         self.get_object_or_fail(Currency, name=name, local_symbol=local_symbol,
                                 international_symbol=international_symbol
                                )
@@ -203,7 +190,6 @@ class CurrencyTestCase(ViewsTestCase):
         currency = Currency.objects.create(name='Berry', local_symbol='B',
                                            international_symbol='BRY'
                                           )
-
         self.assertPOST200('/creme_config/creme_core/currency/delete',
                            data={'id': currency.id}
                           )

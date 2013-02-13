@@ -89,11 +89,14 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
     def test_create02(self):
         self.login()
 
-        loves, loved = RelationType.create(('test-subject_love', u'Is loving'), ('test-object_love',  u'Is loved by'))
-        customfield = CustomField.objects.create(name=u'Size (cm)', field_type=CustomField.INT, content_type=self.contact_ct)
+        ct = self.contact_ct
+        loves, loved = RelationType.create(('test-subject_love', u'Is loving'),
+                                           ('test-object_love',  u'Is loved by')
+                                          )
+        customfield = CustomField.objects.create(name=u'Size (cm)', field_type=CustomField.INT, content_type=ct)
         prop_funcfield = Contact.function_fields.get('get_pretty_properties')
 
-        uri = self._build_add_url(self.contact_ct)
+        uri = self._build_add_url(ct)
         response = self.client.get(uri)
 
         with self.assertNoException():
@@ -158,7 +161,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(4,                   hfitem.order)
         self.assertEqual(HFI_FUNCTION,        hfitem.type)
 
-    def test_create03(self): #check app credentials
+    def test_create03(self):
+        "Check app credentials"
         self.login(is_superuser=False)
 
         uri = self._build_add_url(self.contact_ct)
@@ -169,7 +173,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         self.assertGET200(uri)
 
-    def test_edit01(self): #not editable
+    def test_edit01(self):
+        "Not editable"
         self.login()
 
         hf = HeaderFilter.create(pk='tests-hf_entity', name='Entity view', model=CremeEntity, is_custom=False)
@@ -220,13 +225,15 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual('first_name', hfitems[0].name)
         self.assertEqual('last_name',  hfitems[1].name)
 
-    def test_edit03(self): #can not edit HeaderFilter that belongs to another user
+    def test_edit03(self):
+        "Can not edit HeaderFilter that belongs to another user"
         self.login(is_superuser=False)
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view', model=Contact, is_custom=True, user=self.other_user)
         self.assertGET404(self._build_edit_url(hf))
 
-    def test_edit04(self): #user do not have the app credentials
+    def test_edit04(self):
+        "User do not have the app credentials"
         self.login(is_superuser=False)
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view', model=Contact, is_custom=True, user=self.user)
@@ -241,14 +248,16 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(0, HeaderFilter.objects.filter(pk=hf.id).count())
         self.assertEqual(0, HeaderFilterItem.objects.filter(header_filter=hf.id).count())
 
-    def test_delete02(self): #not custom -> undeletable
+    def test_delete02(self):
+        "Not custom -> undeletable"
         self.login()
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view', model=Contact, is_custom=False)
         self.client.post(self.DELETE_URL, data={'id': hf.id})
         self.assertEqual(1, HeaderFilter.objects.filter(pk=hf.id).count())
 
-    def test_delete03(self): #belongs to another user
+    def test_delete03(self):
+        "Belongs to another user"
         self.login(is_superuser=False)
 
         self.role.allowed_apps = ['persons']
@@ -260,7 +269,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.client.post(self.DELETE_URL, data={'id': hf.id})
         self.assertEqual(1, HeaderFilter.objects.filter(pk=hf.id).count())
 
-    def test_delete04(self): #belongs to my team -> ok
+    def test_delete04(self):
+        "Belongs to my team -> ok"
         self.login()
 
         my_team = User.objects.create(username='TeamTitan', is_team=True)
@@ -287,7 +297,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.client.post(self.DELETE_URL, data={'id': hf.id}, follow=True)
         self.assertEqual(1, HeaderFilter.objects.filter(pk=hf.id).count())
 
-    def test_delete06(self): #logged as super user
+    def test_delete06(self):
+        "Logged as super user"
         self.login()
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
@@ -319,6 +330,4 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
     def test_hfilters_for_ctype03(self):
         self.login(is_superuser=False)
-
-        response = self.client.get(self._build_get4ctype_url(self.contact_ct))
-        self.assertEqual(403, response.status_code)
+        self.assertGET403(self._build_get4ctype_url(self.contact_ct))

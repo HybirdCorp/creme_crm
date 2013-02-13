@@ -5,7 +5,6 @@ try:
     from functools import partial
     from logging import info
 
-    #from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
     from creme_core.models import *
@@ -733,11 +732,9 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter = EntityFilter.create(pk='test-filter01', name='Filter 01', model=Contact)
         efilter.set_conditions([EntityFilterCondition.build_4_relation(rtype=loves, has=True, entity=rei)])
 
-        try:
+        with self.assertNoException():
             Relation.objects.filter(object_entity=rei.id).delete()
             rei.delete()
-        except Exception as e:
-            self.fail('Problem with entity deletion:' + str(e))
 
         self.assertExpectedFiltered(efilter, Contact, [])
 
@@ -798,7 +795,8 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter.set_conditions([EntityFilterCondition.build_4_relation_subfilter(rtype=loves, has=False, subfilter=sub_efilter)])
         self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids(*in_love, exclude=True))
 
-    def test_relations_subfilter02(self): #cycle error (lenght = 0)
+    def test_relations_subfilter02(self):
+        "Cycle error (lenght = 0)"
         loves = self._aux_test_relations()
 
         efilter = EntityFilter.create(pk='test-filter01', name='Filter Rei lovers', model=Contact)
@@ -807,7 +805,8 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertRaises(EntityFilter.CycleError, efilter.check_cycle, conds)
         self.assertRaises(EntityFilter.CycleError, efilter.set_conditions, conds)
 
-    def test_relations_subfilter03(self): #cycle error (lenght = 1)
+    def test_relations_subfilter03(self):
+        "Cycle error (lenght = 1)"
         loves = self._aux_test_relations()
 
         efilter01 = EntityFilter.create(pk='test-filter01', name='Filter 01', model=Contact)
@@ -842,7 +841,8 @@ class EntityFiltersTestCase(CremeTestCase):
         loves.delete()
         self.assertEqual([self.hates.id], [cond.name for cond in efilter.conditions.all()])
 
-    def test_relations_subfilter05(self): #several conditions (with OR)
+    def test_relations_subfilter05(self):
+        "Several conditions (with OR)"
         loves = self._aux_test_relations()
 
         build_4_field = EntityFilterCondition.build_4_field
@@ -886,7 +886,8 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertExpectedFiltered(efilter, Contact, [self.contacts['shinji'].id])
 
-    def test_date01(self): # GTE operator
+    def test_date01(self):
+        "GTE operator"
         efilter = EntityFilter.create('test-filter01', 'After 2000-1-1', Contact)
         efilter.set_conditions([EntityFilterCondition.build_4_date(model=Contact, name='birthday',
                                                                    start=date(year=2000, month=1, day=1),
@@ -894,7 +895,8 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('asuka', 'shinji'))
 
-    def test_date02(self): # LTE operator
+    def test_date02(self):
+        "LTE operator"
         efilter = EntityFilter.create('test-filter01', 'Before 1999-12-31', Contact)
         efilter.set_conditions([EntityFilterCondition.build_4_date(model=Contact, name='birthday',
                                                                    end=date(year=1999, month=12, day=31),
@@ -902,7 +904,8 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertExpectedFiltered(efilter, Contact, [self.contacts['misato'].id])
 
-    def test_date03(self): #range
+    def test_date03(self):
+        "Range"
         efilter = EntityFilter.create('test-filter01', name='Between 2001-1-1 & 2001-12-1', model=Contact)
         efilter.set_conditions([EntityFilterCondition.build_4_date(model=Contact, name='birthday',
                                                                    start=date(year=2001, month=1, day=1),
@@ -911,7 +914,8 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertExpectedFiltered(efilter, Contact, [self.contacts['shinji'].id])
 
-    def test_date04(self): #relative to now
+    def test_date04(self):
+        "Relative to now"
         faye = self.contacts['faye']
         future = date.today()
         future = future.replace(year=future.year + 100)
@@ -925,7 +929,8 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertExpectedFiltered(efilter, Contact, [faye.id])
 
-    def test_build_date(self): #errors
+    def test_build_date(self):
+        "Errors"
         self.assertRaises(EntityFilterCondition.ValueError,
                           EntityFilterCondition.build_4_date,
                           model=Contact, name='unknown_field', start=date(year=2001, month=1, day=1)
@@ -943,7 +948,8 @@ class EntityFiltersTestCase(CremeTestCase):
                           model=Contact, name='birthday', date_range='unknown_range',
                          )
 
-    def test_customfield01(self): #INT, only one CustomField, LTE operator
+    def test_customfield01(self):
+        "INT, only one CustomField, LTE operator"
         rei = self.contacts['rei']
 
         custom_field = CustomField.objects.create(name='size (cm)', content_type=self.contact_ct, field_type=CustomField.INT)
@@ -961,7 +967,8 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter.set_conditions([cond])
         self.assertExpectedFiltered(efilter, Contact, [rei.id])
 
-    def test_customfield02(self): #2 INT CustomFields (can interfere), GTE operator
+    def test_customfield02(self):
+        "2 INT CustomFields (can interfere), GTE operator"
         contacts = self.contacts
         asuka = contacts['asuka']
 
@@ -983,7 +990,8 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertExpectedFiltered(efilter, Contact, [asuka.id])
 
-    def test_customfield03(self): #STR, CONTAINS_NOT operator (negate)
+    def test_customfield03(self):
+        "STR, CONTAINS_NOT operator (negate)"
         custom_field = CustomField.objects.create(name='Eva', content_type=self.contact_ct, field_type=CustomField.STR)
         klass = custom_field.get_value_class()
         klass(custom_field=custom_field, entity=self.contacts['rei']).set_value_n_save('Eva-00')
@@ -999,18 +1007,20 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('rei', exclude=True))
 
-    def test_customfield04(self): #2 INT CustomFields with 2 conditions
+    def test_customfield04(self):
+        "2 INT CustomFields with 2 conditions"
         contacts = self.contacts
         asuka = contacts['asuka']
         spike = contacts['spike']
 
-        custom_field01 = CustomField.objects.create(name='size (cm)', content_type=self.contact_ct, field_type=CustomField.INT)
+        create_cf = partial(CustomField.objects.create, content_type=self.contact_ct, field_type=CustomField.INT)
+        custom_field01 = create_cf(name='size (cm)')
         klass = custom_field01.get_value_class()
         klass(custom_field=custom_field01, entity=spike).set_value_n_save(180)
         klass(custom_field=custom_field01, entity=contacts['rei']).set_value_n_save(150)
         klass(custom_field=custom_field01, entity=asuka).set_value_n_save(160)
 
-        custom_field02 = CustomField.objects.create(name='weight (pound)', content_type=self.contact_ct, field_type=CustomField.INT)
+        custom_field02 = create_cf(name='weight (pound)')
         klass = custom_field02.get_value_class()
         klass(custom_field=custom_field02, entity=spike).set_value_n_save(156)
         klass(custom_field=custom_field02, entity=asuka).set_value_n_save(80)
@@ -1028,7 +1038,8 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertExpectedFiltered(efilter, Contact, [asuka.id])
 
-    def test_customfield05(self): #FLOAT
+    def test_customfield05(self):
+        "FLOAT"
         contacts = self.contacts
         ed  = contacts['ed']
         rei = contacts['rei']
@@ -1049,7 +1060,8 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertExpectedFiltered(efilter, Contact, [ed.id, rei.id])
 
-    def test_customfield06(self): #ENUM
+    def test_customfield06(self):
+        "ENUM"
         rei = self.contacts['rei']
 
         custom_field = CustomField.objects.create(name='Eva', content_type=self.contact_ct, field_type=CustomField.ENUM)
@@ -1076,8 +1088,9 @@ class EntityFiltersTestCase(CremeTestCase):
         rei = self.contacts['rei']
 
         custom_field = CustomField.objects.create(name='cute ??', content_type=self.contact_ct, field_type=CustomField.BOOL)
-        custom_field.get_value_class()(custom_field=custom_field, entity=rei).set_value_n_save(True)
-        custom_field.get_value_class()(custom_field=custom_field, entity=self.contacts['jet']).set_value_n_save(False)
+        value_class = custom_field.get_value_class()
+        value_class(custom_field=custom_field, entity=rei).set_value_n_save(True)
+        value_class(custom_field=custom_field, entity=self.contacts['jet']).set_value_n_save(False)
         self.assertEqual(2, CustomFieldBoolean.objects.count())
 
         efilter = EntityFilter.create('test-filter01', name='Cuties', model=Contact)
@@ -1136,7 +1149,8 @@ class EntityFiltersTestCase(CremeTestCase):
 
         return custom_field
 
-    def test_datecustomfield01(self): # GTE operator
+    def test_datecustomfield01(self):
+        "GTE operator"
         custom_field = self._aux_test_datecf()
 
         efilter = EntityFilter.create('test-filter01', 'After April', Contact)
@@ -1148,7 +1162,8 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter.set_conditions([cond])
         self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('asuka', 'shinji'))
 
-    def test_datecustomfield02(self): # LTE operator
+    def test_datecustomfield02(self):
+        "LTE operator"
         custom_field = self._aux_test_datecf()
 
         efilter = EntityFilter.create('test-filter01', 'Before May', Contact)
@@ -1158,7 +1173,8 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertExpectedFiltered(efilter, Contact, self._list_contact_ids('shinji', 'rei'))
 
-    def test_datecustomfield03(self): #range
+    def test_datecustomfield03(self):
+        "Range"
         custom_field = self._aux_test_datecf()
 
         efilter = EntityFilter.create('test-filter01', 'In April', Contact)
@@ -1169,7 +1185,8 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertExpectedFiltered(efilter, Contact, [self.contacts['shinji'].id])
 
-    def test_datecustomfield04(self): #relative to now
+    def test_datecustomfield04(self):
+        "Relative to now"
         custom_field = CustomField.objects.create(name='First flight', content_type=self.contact_ct, field_type=CustomField.DATE)
 
         contacts = self.contacts
@@ -1189,7 +1206,8 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertExpectedFiltered(efilter, Contact, [spike.id, jet.id])
 
-    def test_datecustomfield05(self): #2 DATE CustomFields with 2 conditions
+    def test_datecustomfield05(self):
+        "2 DATE CustomFields with 2 conditions"
         contacts = self.contacts
         shinji = contacts['shinji']
         custom_field01 = self._aux_test_datecf()
@@ -1207,7 +1225,8 @@ class EntityFiltersTestCase(CremeTestCase):
                                ])
         self.assertExpectedFiltered(efilter, Contact, [shinji.id])
 
-    def test_build_datecustomfield(self): #errors
+    def test_build_datecustomfield(self):
+        "Errors"
         create_cf = CustomField.objects.create
         custom_field = create_cf(name='First flight', content_type=self.contact_ct, field_type=CustomField.INT) #not a DATE
         self.assertRaises(EntityFilterCondition.ValueError,

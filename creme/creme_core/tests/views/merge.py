@@ -67,7 +67,8 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertIn(orga03, contacts)
         self.assertNotIn(orga01, contacts)
 
-    def test_select_entity_for_merge02(self): #view credentials
+    def test_select_entity_for_merge02(self):
+        "View credentials"
         self.login(is_superuser=False, allowed_apps=['persons'])
 
         SetCredentials.objects.create(
@@ -77,9 +78,10 @@ class MergeViewsTestCase(ViewsTestCase):
             )
         orga = Organisation.objects.create(user=self.other_user, name='Genshiken')
         self.assertFalse(orga.can_view(self.user))
-        self.assertEqual(403, self.client.get(self._build_select_url(orga)).status_code)
+        self.assertGET403(self._build_select_url(orga))
 
-    def test_select_entity_for_merge03(self): #edit credentials
+    def test_select_entity_for_merge03(self):
+        "Edit credentials"
         self.login(is_superuser=False, allowed_apps=['persons'])
 
         SetCredentials.objects.create(role=self.role,
@@ -89,9 +91,10 @@ class MergeViewsTestCase(ViewsTestCase):
         orga = Organisation.objects.create(user=self.other_user, name='Genshiken')
         self.assertTrue(orga.can_view(self.user))
         self.assertFalse(orga.can_change(self.user))
-        self.assertEqual(403, self.client.get(self._build_select_url(orga)).status_code)
+        self.assertGET403(self._build_select_url(orga))
 
     def test_merge01(self):
+        "2 Organisations"
         self.login()
 
         rtype = RelationType.create(('test-subject_member', 'is a member of'),
@@ -164,11 +167,7 @@ class MergeViewsTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertTrue(response.redirect_chain)
-        self.assertEqual(1, len(response.redirect_chain))
-        self.assertEqual(u"http://testserver%s" % orga01.get_absolute_url(),
-                         response.redirect_chain[0][0]
-                        )
+        self.assertRedirects(response, orga01.get_absolute_url())
 
         self.assertFalse(Organisation.objects.filter(pk=orga02).exists())
 
@@ -203,7 +202,8 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertFalse(CremeProperty.objects.filter(pk=prop3.pk).exists())
 
     #TODO: we need an other Entity with a M2M to test the fusion of M2M fields (language is now uneditable)
-    def test_merge02(self): #other ct, M2M, foreign key to CremeEntities
+    def test_merge02(self):
+        "2 Contacts, M2M, foreign key to CremeEntities"
         self.login()
 
         image1 = self._create_image(ident=1)
@@ -257,9 +257,7 @@ class MergeViewsTestCase(ViewsTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(u"http://testserver%s" % contact01.get_absolute_url(),
-                         response.redirect_chain[0][0]
-                        )
+        self.assertRedirects(response, contact01.get_absolute_url())
 
         self.assertFalse(Contact.objects.filter(pk=contact02).exists())
 
@@ -269,7 +267,8 @@ class MergeViewsTestCase(ViewsTestCase):
         #self.assertEqual([language3],          list(new_contact01.language.all()))
         self.assertEqual(image2,               new_contact01.image)
 
-    def test_merge03(self): #initial values come in priority from the last edited entity
+    def test_merge03(self):
+        "Initial values come in priority from the last edited entity"
         self.login()
 
         create_orga = partial(Organisation.objects.create, user=self.user)
@@ -288,7 +287,8 @@ class MergeViewsTestCase(ViewsTestCase):
 
         self.assertEqual([orga01.name, orga02.name, orga02.name], f_name.initial)
 
-    def test_merge04(self): #nullable foreign key to CremeEntities
+    def test_merge04(self):
+        "Nullable foreign key to CremeEntities"
         self.login()
 
         image = self._create_image()
@@ -308,7 +308,8 @@ class MergeViewsTestCase(ViewsTestCase):
                          set(f_image._original_field.choices)
                         )
 
-    def test_error01(self): #merge 2 entities with different types
+    def test_error01(self):
+        "Try to merge 2 entities with different types"
         self.login()
 
         user = self.user
@@ -356,6 +357,6 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertTrue(orga01.can_view(user));  self.assertTrue(orga01.can_change(user))
         self.assertFalse(orga02.can_view(user)); self.assertFalse(orga02.can_delete(user))
 
-        self.assertEqual(403, self.client.get(self._build_merge_url(orga01, orga02)).status_code)
-        self.assertEqual(403, self.client.get(self._build_merge_url(orga02, orga01)).status_code)
+        self.assertGET403(self._build_merge_url(orga01, orga02))
+        self.assertGET403(self._build_merge_url(orga02, orga01))
 

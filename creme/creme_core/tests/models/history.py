@@ -267,7 +267,9 @@ about this fantastic animation studio."""
         last_name  = 'Miyazaki'
         hayao  = self._build_contact(user=self.user.id, first_name=first_name, last_name=last_name)
 
-        rtype, srtype = RelationType.create(('test-subject_employed', 'is employed'), ('test-object_employed', 'employs'))
+        rtype, srtype = RelationType.create(('test-subject_employed', 'is employed'),
+                                            ('test-object_employed', 'employs')
+                                           )
         Relation.objects.create(user=self.user, subject_entity=hayao, object_entity=ghibli, type=rtype)
 
         old_count = HistoryLine.objects.count()
@@ -296,7 +298,9 @@ about this fantastic animation studio."""
         hayao  = self._build_contact(user=self.user.id, first_name=first_name, last_name=last_name)
         self.assertNotEqual(hayao.modified, ghibli.modified)
 
-        rtype, srtype = RelationType.create(('test-subject_employed', 'is employed'), ('test-object_employed', 'employs'))
+        rtype, srtype = RelationType.create(('test-subject_employed', 'is employed'),
+                                            ('test-object_employed', 'employs')
+                                           )
         Relation.objects.create(user=self.user, subject_entity=hayao, object_entity=ghibli, type=rtype)
 
         HistoryConfigItem.objects.create(relation_type=rtype)

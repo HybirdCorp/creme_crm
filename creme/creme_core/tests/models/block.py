@@ -94,7 +94,10 @@ class BlockTestCase(CremeTestCase):
         BlockDetailviewLocation.create_empty_config()
         locs = BlockDetailviewLocation.objects.all()
         self.assertEqual([('', 1, None)] * 4, [(bl.block_id, bl.order, bl.content_type) for bl in locs])
-        self.assertEqual(set([BlockDetailviewLocation.TOP, BlockDetailviewLocation.LEFT, BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM]),
+        self.assertEqual(set([BlockDetailviewLocation.TOP,   BlockDetailviewLocation.LEFT,
+                              BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
+                             ]
+                            ),
                          set(bl.zone for bl in locs)
                         )
 
@@ -113,7 +116,10 @@ class BlockTestCase(CremeTestCase):
         BlockDetailviewLocation.create_empty_config(model=model)
 
         locs = BlockDetailviewLocation.objects.filter(content_type=ContentType.objects.get_for_model(model))
-        self.assertEqual(set([BlockDetailviewLocation.TOP, BlockDetailviewLocation.LEFT, BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM]),
+        self.assertEqual(set([BlockDetailviewLocation.TOP, BlockDetailviewLocation.LEFT,
+                              BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
+                             ]
+                            ),
                          set(bl.zone for bl in locs)
                         )
         self.assertEqual(4, len(locs))
@@ -202,10 +208,6 @@ class BlockTestCase(CremeTestCase):
         user = User.objects.create(username='Kirika')
         user.set_password('password')
         user.save()
-
-        try:
-            BlockMypageLocation.objects.get(user=user, block_id=block_id, order=order)
-        except BlockMypageLocation.DoesNotExist as e:
-            self.fail('%s (all locations: %s)' % (e, BlockMypageLocation.objects.all()))
+        self.get_object_or_fail(BlockMypageLocation, user=user, block_id=block_id, order=order)
 
 #TODO: test other models

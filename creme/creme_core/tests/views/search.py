@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
@@ -8,7 +10,7 @@ try:
     from creme_core.tests.views.base import ViewsTestCase
 
     from persons.models import Contact, Organisation
-except Exception, e:
+except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
 
@@ -22,8 +24,9 @@ class SearchViewTestCase(ViewsTestCase):
         cls.contact_ct_id = ContentType.objects.get_for_model(Contact).id
 
     def _build_contacts(self):
-        self.linus = Contact.objects.create(user=self.user, first_name='Linus', last_name='Torvalds')
-        self.alan  = Contact.objects.create(user=self.user, first_name='Alan',  last_name='Cox')
+        create_contact = partial(Contact.objects.create, user=self.user)
+        self.linus = create_contact(first_name='Linus', last_name='Torvalds')
+        self.alan  = create_contact(first_name='Alan',  last_name='Cox')
 
     def _setup_contacts(self):
         SearchConfigItem.create_if_needed(Contact, ['first_name', 'last_name'])
@@ -32,8 +35,9 @@ class SearchViewTestCase(ViewsTestCase):
     def _setup_orgas(self):
         SearchConfigItem.create_if_needed(Organisation, ['name'])
 
-        self.linusfo = Organisation.objects.create(user=self.user, name='FoobarLinusFoundation')
-        self.coxco   = Organisation.objects.create(user=self.user, name='StuffCoxCorp')
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        self.linusfo = create_orga(name='FoobarLinusFoundation')
+        self.coxco   = create_orga(name='StuffCoxCorp')
 
     def _search(self, research=None, ct_id=None):
         data = {}
@@ -115,7 +119,8 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertEqual(1, len(entities))
         self.assertEqual(self.coxco.id, entities[0].id)
 
-    def test_search04(self): #error
+    def test_search04(self):
+        "Error"
         self.login()
         self._setup_contacts()
         self._setup_orgas()
@@ -128,7 +133,8 @@ class SearchViewTestCase(ViewsTestCase):
                         )
         self.assertEqual(404, self._search('linus', 1024).status_code) # ct_id=1024 DOES NOT EXIST
 
-    def test_search05(self): #no config for contact
+    def test_search05(self):
+        "No config for contact"
         self.login()
         self._build_contacts()
         self._setup_orgas()
@@ -146,7 +152,8 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertEqual(1, len(entities))
         self.assertEqual(self.linus.id, entities[0].id)
 
-    def test_search06(self): #search only is configured fields if the config exists
+    def test_search06(self):
+        "Search only is configured fields if the config exists"
         self.login()
         self._setup_contacts()
         self._setup_orgas()
