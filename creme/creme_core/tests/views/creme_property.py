@@ -31,7 +31,7 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.assertFalse(entity.properties.all())
 
         url = '/creme_core/property/add/%s' % entity.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         self.assertNoFormError(self.client.post(url, data={'types': [ptype01.id, ptype02.id]}))
 

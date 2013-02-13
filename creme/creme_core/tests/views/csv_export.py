@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 try:
-    #from django.utils.translation import ugettext as _
-    from django.utils.encoding import force_unicode #smart_str
+    from functools import partial
+
+    from django.utils.encoding import force_unicode
     from django.contrib.contenttypes.models import ContentType
 
     from creme_core.models import RelationType, Relation, CremePropertyType, CremeProperty, HeaderFilter, HeaderFilterItem
@@ -20,17 +21,15 @@ class CSVExportViewsTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'persons')
-
-    def setUp(self):
-        self.ct = ct = ContentType.objects.get_for_model(Contact)
+        cls.ct = ct = ContentType.objects.get_for_model(Contact)
         HeaderFilter.objects.filter(entity_type=ct).delete()
 
     def _build_hf_n_contacts(self):
         user = self.user
 
-        create_orga = Organisation.objects.create
-        bebop     = create_orga(user=user, name='Bebop')
-        swordfish = create_orga(user=user, name='Swordfish')
+        create_orga = partial(Organisation.objects.create, user=user)
+        bebop     = create_orga(name='Bebop')
+        swordfish = create_orga(name='Swordfish')
 
         rtype_pilots = RelationType.create(('test-subject_pilots', 'pilots'),
                                            ('test-object_pilots',  'is piloted by')
@@ -40,8 +39,8 @@ class CSVExportViewsTestCase(ViewsTestCase):
         ptype_beautiful = create_ptype(str_pk='test-prop_beautiful', text='is beautiful')
         ptype_girl      = create_ptype(str_pk='test-prop_girl',      text='is a girl')
 
-        create_contact = Contact.objects.create
-        contacts = dict((first_name, create_contact(user=user, first_name=first_name, last_name=last_name))
+        create_contact = partial(Contact.objects.create, user=user)
+        contacts = dict((first_name, create_contact(first_name=first_name, last_name=last_name))
                             for first_name, last_name in [('Spike', 'Spiegel'),
                                                           ('Jet', 'Black'),
                                                           ('Faye', 'Valentine'),
@@ -49,10 +48,10 @@ class CSVExportViewsTestCase(ViewsTestCase):
                                                          ]
                         )
 
-        create_rel = Relation.objects.create
-        create_rel(user=user, subject_entity=contacts['Jet'],   type=rtype_pilots, object_entity=bebop)
-        create_rel(user=user, subject_entity=contacts['Spike'], type=rtype_pilots, object_entity=bebop)
-        create_rel(user=user, subject_entity=contacts['Spike'], type=rtype_pilots, object_entity=swordfish)
+        create_rel = partial(Relation.objects.create, user=user, type=rtype_pilots)
+        create_rel(subject_entity=contacts['Jet'],   object_entity=bebop)
+        create_rel(subject_entity=contacts['Spike'], object_entity=bebop)
+        create_rel(subject_entity=contacts['Spike'], object_entity=swordfish)
 
         create_prop = CremeProperty.objects.create
         create_prop(type=ptype_girl,      creme_entity=contacts['Faye'])
@@ -70,9 +69,12 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         return hf_items
 
+    def _build_url(self, ct):
+        return '/creme_core/list_view/dl_csv/%s' % ct.id
+
     def _set_listview_state(self):
         lv_url = Contact.get_lv_absolute_url()
-        self.assertEqual(200, self.client.get(lv_url).status_code) #set the current list view state...
+        self.assertGET200(lv_url) #set the current list view state...
 
         return lv_url
 
@@ -81,7 +83,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         hf_items = self._build_hf_n_contacts()
         lv_url = self._set_listview_state()
 
-        response = self.client.get('/creme_core/list_view/dl_csv/%s' % self.ct.id, data={'list_url': lv_url})
+        response = self.client.get(self._build_url(self.ct), data={'list_url': lv_url})
         self.assertEqual(200, response.status_code)
 
         #TODO: sort the relations/properties by they verbose_name ??
@@ -98,19 +100,13 @@ class CSVExportViewsTestCase(ViewsTestCase):
                      )
         self.assertEqual(result[5], u'"Wong","Edward","","is a girl"')
 
-    def test_csv_export02(self): #'export' credential
+    def test_csv_export02(self):
+        "'export' credential"
         self.login(is_superuser=False, allowed_apps=['creme_core', 'persons'])
         self._build_hf_n_contacts()
-        lv_url = self._set_listview_state()
+        url = self._build_url(self.ct)
+        data = {'list_url': self._set_listview_state()}
+        self.assertGET403(url, data=data)
 
-        def assertStatusCode(code):
-            self.assertEqual(code,
-                             self.client.get('/creme_core/list_view/dl_csv/%s' % self.ct.id,
-                                             data={'list_url': lv_url},
-                                            ).status_code
-                            )
-
-        assertStatusCode(403)
-
-        self.role.exportable_ctypes = [self.ct] # set the 'export' creddential
-        assertStatusCode(200)
+        self.role.exportable_ctypes = [self.ct] # set the 'export' credentials
+        self.assertGET200(url, data=data)

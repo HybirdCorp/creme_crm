@@ -3,6 +3,7 @@
 try:
     from datetime import datetime
     from decimal import Decimal
+    from functools import partial
     from tempfile import NamedTemporaryFile
 
     from django.contrib.auth.models import User
@@ -112,7 +113,8 @@ class EntityTestCase(CremeTestCase):
         self.assertSameProperties(entity1, entity2)
         self.assertSameRelations(entity1, entity2)
 
-    def assertSameRelations(self, entity1, entity2): #not internal relations
+    def assertSameRelations(self, entity1, entity2):
+        "Not internal relations"
         relations_desc = lambda entity: list((r.type_id, r.object_entity_id) for r in entity.relations.exclude(type__is_internal=True))
         rd1 = relations_desc(entity1)
         rd2 = relations_desc(entity2)
@@ -144,13 +146,15 @@ class EntityTestCase(CremeTestCase):
         entity1 = CremeEntity.objects.create(user=self.user)
         original_ce = CremeEntity.objects.create(created=created, modified=modified, is_deleted=False, is_actived=True, user=self.user)
 
-        create_rel = Relation.objects.create
-        create_rel(user=self.user, type=self.rtype1, subject_entity=original_ce, object_entity=entity1)
-        create_rel(user=self.user, type=self.rtype3, subject_entity=original_ce, object_entity=entity1) #internal
+        create_rel = partial(Relation.objects.create, user=self.user,
+                             subject_entity=original_ce, object_entity=entity1,
+                            )
+        create_rel(type=self.rtype1)
+        create_rel(type=self.rtype3) #internal
 
-        create_prop = CremeProperty.objects.create
-        create_prop(type=self.ptype01, creme_entity=original_ce)
-        create_prop(type=self.ptype02, creme_entity=original_ce)
+        create_prop = partial(CremeProperty.objects.create, creme_entity=original_ce)
+        create_prop(type=self.ptype01)
+        create_prop(type=self.ptype02)
 
         clone_ce = original_ce.clone()
         self.assertIsNotNone(clone_ce.pk)
@@ -168,7 +172,8 @@ class EntityTestCase(CremeTestCase):
         self.assertSameRelationsNProperties(original_ce, clone_ce)
         self.assertFalse(clone_ce.relations.filter(type__is_internal=True))
 
-    def test_clone02(self): #clone regular fields
+    def test_clone02(self):
+        "Clone regular fields"
         self._setUpClone()
 
         civility = Civility.objects.all()[0]
@@ -206,19 +211,21 @@ class EntityTestCase(CremeTestCase):
         self.assertEqual(set(naruto.language.all()), set(kage_bunshin.language.all()))
 
     def test_clone03(self):
-        orga_ct       = ContentType.objects.get_for_model(Organisation)
-        cf_int        = CustomField.objects.create(name='int',        content_type=orga_ct, field_type=CustomField.INT)
-        cf_float      = CustomField.objects.create(name='float',      content_type=orga_ct, field_type=CustomField.FLOAT)
-        cf_bool       = CustomField.objects.create(name='bool',       content_type=orga_ct, field_type=CustomField.BOOL)
-        cf_str        = CustomField.objects.create(name='str',        content_type=orga_ct, field_type=CustomField.STR)
-        cf_date       = CustomField.objects.create(name='date',       content_type=orga_ct, field_type=CustomField.DATE)
-        cf_enum       = CustomField.objects.create(name='enum',       content_type=orga_ct, field_type=CustomField.ENUM)
-        cf_multi_enum = CustomField.objects.create(name='multi_enum', content_type=orga_ct, field_type=CustomField.MULTI_ENUM)
+        create_cf = partial(CustomField.objects.create,
+                            content_type=ContentType.objects.get_for_model(Organisation),
+                           )
+        cf_int        = create_cf(name='int',        field_type=CustomField.INT)
+        cf_float      = create_cf(name='float',      field_type=CustomField.FLOAT)
+        cf_bool       = create_cf(name='bool',       field_type=CustomField.BOOL)
+        cf_str        = create_cf(name='str',        field_type=CustomField.STR)
+        cf_date       = create_cf(name='date',       field_type=CustomField.DATE)
+        cf_enum       = create_cf(name='enum',       field_type=CustomField.ENUM)
+        cf_multi_enum = create_cf(name='multi_enum', field_type=CustomField.MULTI_ENUM)
 
-        enum1 = CustomFieldEnumValue.objects.create(custom_field= cf_enum, value=u"Enum1")
+        enum1 = CustomFieldEnumValue.objects.create(custom_field=cf_enum, value='Enum1')
 
-        m_enum1 = CustomFieldEnumValue.objects.create(custom_field= cf_multi_enum, value=u"MEnum1")
-        m_enum2 = CustomFieldEnumValue.objects.create(custom_field= cf_multi_enum, value=u"MEnum2")
+        m_enum1 = CustomFieldEnumValue.objects.create(custom_field=cf_multi_enum, value='MEnum1')
+        m_enum2 = CustomFieldEnumValue.objects.create(custom_field=cf_multi_enum, value='MEnum2')
 
         orga = Organisation.objects.create(name=u"Konoha", user=self.user)
 
@@ -275,8 +282,9 @@ class EntityTestCase(CremeTestCase):
         contact1 = Contact.objects.create(user=self.user)
         contact2 = contact1.clone()
 
-        Relation.objects.create(user=self.user, type=rtype_participant, subject_entity=contact1, object_entity=activity1)
-        Relation.objects.create(user=self.user, type=rtype_participant, subject_entity=contact2, object_entity=activity1)
+        create_rel = partial(Relation.objects.create, user=self.user, type=rtype_participant, object_entity=activity1)
+        create_rel(subject_entity=contact1)
+        create_rel(subject_entity=contact2)
 
         activity2 = activity1.clone().clone().clone().clone().clone().clone().clone()
         self.assertNotEqual(activity1.pk, activity2.pk)
@@ -302,13 +310,13 @@ class EntityTestCase(CremeTestCase):
                         )
 
     def test_delete01(self):
-        """Simple delete"""
+        "Simple delete"
         ce = CremeEntity.objects.create(user=self.user)
         ce.delete()
         self.assertRaises(CremeEntity.DoesNotExist, CremeEntity.objects.get, id=ce.id)
 
     def test_delete02(self):
-        """Can't delete entities linked by a relation"""
+        "Can't delete entities linked by a relation"
         self._setUpClone()
         ce1 = CremeEntity.objects.create(user=self.user)
         ce2 = CremeEntity.objects.create(user=self.user)
@@ -319,12 +327,9 @@ class EntityTestCase(CremeTestCase):
         self.assertRaises(ProtectedError, ce2.delete)
 
     def test_functionfields(self):
-        #try:
         with self.assertNoException():
             ff_mngr = CremeEntity.function_fields
             all_ff = list(ff_mngr)
-        #except Exception as e:
-            #self.fail(str(e))
 
         for funf in all_ff:
             self.assertIsInstance(funf, FunctionField)

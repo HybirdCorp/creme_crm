@@ -2,6 +2,7 @@
 
 try:
     from datetime import date
+    from functools import partial
 
     from django.core.serializers.json import simplejson
     from django.utils.translation import ugettext as _
@@ -20,6 +21,15 @@ __all__ = ('EntityFilterViewsTestCase', )
 
 
 class EntityFilterViewsTestCase(ViewsTestCase):
+    FIELDS_CONDS_FMT       = '[{"operator": "%(operator)s", "name": "%(name)s",' \
+                             ' "value": {"type": "%(operator)s", "value": "%(value)s"}}]'
+    DATE_FIELDS_CONDS_FMT  = '[{"range": {"type": "%(type)s", "start": "%(start)s", "end": "%(end)s"}, "field": "%(name)s"}]'
+    CFIELDS_CONDS_FMT      = '[{"field": "%(cfield)s", "operator": "%(operator)s", "value": "%(value)s"}]'
+    DATE_CFIELDS_CONDS_FMT = '[{"field": "%(cfield)s", "range": {"type": "%(type)s"}}]'
+    RELATIONS_CONDS_FMT    = '[{"has": true, "rtype": "%s", "ctype": "0", "entity": null}]'
+    RELSUBFILTER_CONDS_FMT = '[{"rtype": "%(rtype)s", "has": false, "ctype": "%(ct)s", "filter": "%(filter)s"}]'
+    PROP_CONDS_FMT         = '[{"has": %(has)s, "ptype": "%(ptype)s"}]'
+
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_config')
@@ -27,13 +37,27 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         EntityFilterCondition.objects.all().delete()
         EntityFilter.objects.all().delete()
 
-    def test_create01(self): #check app credentials
+        get_ct = ContentType.objects.get_for_model
+        cls.ct_contact = get_ct(Contact)
+        cls.ct_orga    = get_ct(Organisation)
+
+    def _build_add_url(self, ct):
+        return '/creme_core/entity_filter/add/%s' % ct.id
+
+    def _build_get_ct_url(self, rtype):
+        return '/creme_core/entity_filter/rtype/%s/content_types' % rtype.id
+
+    def _buid_get_filter(self, ct):
+        return '/creme_core/entity_filter/get_for_ctype/%s' % ct.id
+
+    def test_create01(self):
+        "Check app credentials"
         self.login(is_superuser=False)
 
-        ct = ContentType.objects.get_for_model(Contact)
+        ct = self.ct_contact
         self.assertFalse(EntityFilter.objects.filter(entity_type=ct).count())
 
-        uri = '/creme_core/entity_filter/add/%s' % ct.id
+        uri = self._build_add_url(ct)
         self.assertGET404(uri)
 
         self.role.allowed_apps = ['persons']
@@ -46,7 +70,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         value = 'Ikari'
         response = self.client.post(uri, follow=True,
                                     data={'name':              name,
-                                          'fields_conditions': '[{"operator": "%(operator)s", "name": "%(name)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]' % {
+                                          'fields_conditions': self.FIELDS_CONDS_FMT % {
                                                                       'operator': operator,
                                                                       'name':     field_name,
                                                                       'value':    value,
@@ -74,7 +98,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
     def test_create02(self):
         self.login()
-        ct = ContentType.objects.get_for_model(Organisation)
+        ct = self.ct_orga
 
         #Can not be a simple subfilter (bad content type)
         relsubfilfer = EntityFilter.create('test-filter01', 'Filter 01', Contact, is_custom=True)
@@ -95,7 +119,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         custom_field = create_cf(name='Profits',        field_type=CustomField.INT,  content_type=ct)
         datecfield   = create_cf(name='Last gathering', field_type=CustomField.DATE, content_type=ct)
 
-        url = '/creme_core/entity_filter/add/%s' % ct.id
+        url = self._build_add_url(ct)
         form = self.client.get(url).context['form']
         self.assertEqual([subfilter.id], [f.id for f in form.fields['subfilters_conditions'].queryset])
 
@@ -112,31 +136,36 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                     data={'name':   name,
                                           'user':   self.user.id,
                                           'use_or': True,
-                                          'fields_conditions':           '[{"operator": "%(operator)s", "name": "%(name)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]' % {
+                                          'fields_conditions':           self.FIELDS_CONDS_FMT % {
                                                                                 'operator': field_operator,
                                                                                 'name':     field_name,
                                                                                 'value':    field_value,
                                                                             },
-                                          'datefields_conditions':       '[{"range": {"type": "%(type)s", "start": "", "end": ""}, "field": "%(name)s"}]' % {
+                                          'datefields_conditions':       self.DATE_FIELDS_CONDS_FMT % {
                                                                                 'type': daterange_type,
+                                                                                'start': '',
+                                                                                'end': '',
                                                                                 'name': date_field_name,
                                                                             },
-                                          'customfields_conditions':     '[{"field": "%(cfield)s", "operator": "%(operator)s", "value": "%(value)s"}]' % {
+                                          'customfields_conditions':     self.CFIELDS_CONDS_FMT % {
                                                                                 'cfield':   custom_field.id,
                                                                                 'operator': cfield_operator,
                                                                                 'value':    cfield_value,
                                                                             },
-                                          'datecustomfields_conditions': '[{"field": "%(cfield)s", "range": {"type": "%(type)s"}}]' % {
+                                          'datecustomfields_conditions': self.DATE_CFIELDS_CONDS_FMT % {
                                                                                 'cfield': datecfield.id,
                                                                                 'type':   datecfield_rtype,
                                                                             },
-                                          'relations_conditions':        '[{"has": true, "rtype": "%s", "ctype": "0", "entity": null}]' % (rtype.id),
-                                          'relsubfilfers_conditions':    '[{"rtype": "%(rtype)s", "has": false, "ctype": "%(ct)s", "filter": "%(filter)s"}]' % {
+                                          'relations_conditions':        self.RELATIONS_CONDS_FMT % rtype.id,
+                                          'relsubfilfers_conditions':    self.RELSUBFILTER_CONDS_FMT % {
                                                                                 'rtype':  srtype.id,
-                                                                                'ct':     ContentType.objects.get_for_model(Contact).id,
+                                                                                'ct':     self.ct_contact.id,
                                                                                 'filter': relsubfilfer.id,
                                                                             },
-                                          'properties_conditions':       '[{"has": true, "ptype":"%s"}]' % (ptype.id),
+                                          'properties_conditions':       self.PROP_CONDS_FMT % {
+                                                                                'has':   'true',
+                                                                                'ptype': ptype.id,
+                                                                            },
                                           'subfilters_conditions':       [subfilter.id],
                                          }
                                    )
@@ -193,11 +222,12 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(EntityFilterCondition.EFC_SUBFILTER, condition.type)
         self.assertEqual(subfilter.id,                        condition.name)
 
-    def test_create03(self): #error: no conditions of any type
+    def test_create03(self):
+        "Error: no conditions of any type"
         self.login()
 
-        ct = ContentType.objects.get_for_model(Organisation)
-        response = self.client.post('/creme_core/entity_filter/add/%s' % ct.id,
+        ct = self.ct_orga
+        response = self.client.post(self._build_add_url(ct),
                                     data={'name': 'Filter 01',
                                           'user': self.user.id,
                                          }
@@ -217,10 +247,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                            )
         ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text=u'Kawaii')
 
-        create_cf = CustomField.objects.create
-        contact_ct = ContentType.objects.get_for_model(Contact)
-        custom_field = create_cf(name='Nickname',      field_type=CustomField.STR,  content_type=contact_ct)
-        datecfield   = create_cf(name='First meeting', field_type=CustomField.DATE, content_type=contact_ct)
+        create_cf = partial(CustomField.objects.create, content_type=self.ct_contact)
+        custom_field = create_cf(name='Nickname',      field_type=CustomField.STR)
+        datecfield   = create_cf(name='First meeting', field_type=CustomField.DATE)
 
         name = 'Filter 03'
         efilter = EntityFilter.create('test-filter03', name, Contact, is_custom=True)
@@ -273,28 +302,36 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         datecfield_rtype = 'previous_year'
         response = self.client.post(url, follow=True,
                                     data={'name':                        name,
-                                          'fields_conditions':           '[{"operator": "%(operator)s", "name": "%(name)s", "value": {"type": "%(operator)s", "value": "%(value)s"}}]' % {
+                                          'fields_conditions':           self.FIELDS_CONDS_FMT % {
                                                                                 'operator': field_operator,
                                                                                 'name':     field_name,
                                                                                 'value':    field_value,
                                                                             },
-                                          'datefields_conditions':       '[{"range": {"type": "", "start": "2011-5-23", "end": "2012-6-27"}, "field": "%s"}]' % date_field_name,
-                                          'customfields_conditions':     '[{"field": "%(cfield)s", "operator": "%(operator)s", "value": "%(value)s"}]' % {
+                                          'datefields_conditions':       self.DATE_FIELDS_CONDS_FMT % {
+                                                                                'type':  '',
+                                                                                'start': '2011-5-23',
+                                                                                'end':   '2012-6-27',
+                                                                                'name':   date_field_name,
+                                                                            },
+                                          'customfields_conditions':     self.CFIELDS_CONDS_FMT % {
                                                                                 'cfield':   custom_field.id,
                                                                                 'operator': cfield_operator,
                                                                                 'value':    cfield_value,
                                                                             },
-                                          'datecustomfields_conditions': '[{"field": "%(cfield)s", "range": {"type": "%(type)s"}}]' % {
+                                          'datecustomfields_conditions': self.DATE_CFIELDS_CONDS_FMT % {
                                                                                 'cfield': datecfield.id,
                                                                                 'type':   datecfield_rtype,
                                                                             },
-                                          'relations_conditions':        '[{"has": true, "rtype": "%s", "ctype": "0", "entity": null}]' % rtype.id,
-                                          'relsubfilfers_conditions':    '[{"rtype": "%(rtype)s", "has": false, "ctype": "%(ct)s", "filter": "%(filter)s"}]' % {
+                                          'relations_conditions':        self.RELATIONS_CONDS_FMT % rtype.id,
+                                          'relsubfilfers_conditions':    self.RELSUBFILTER_CONDS_FMT % {
                                                                                 'rtype':  srtype.id,
-                                                                                'ct':     ContentType.objects.get_for_model(Organisation).id,
+                                                                                'ct':     self.ct_orga.id,
                                                                                 'filter': relsubfilfer.id,
                                                                             },
-                                          'properties_conditions':       '[{"has": false, "ptype": "%s"}]' % ptype.id,
+                                          'properties_conditions':       self.PROP_CONDS_FMT % {
+                                                                                'has':   'false',
+                                                                                'ptype': ptype.id,
+                                                                            },
                                           'subfilters_conditions':       [subfilter.id],
                                          }
                                    )
@@ -394,40 +431,45 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         response = self.client.post('/creme_core/entity_filter/edit/%s' % efilter.id, follow=True,
                                     data={'name':                     efilter.name,
-                                          'relsubfilfers_conditions': '[{"rtype": "%(rtype)s", "has": false, "ctype": "%(ct)s", "filter": "%(filter)s"}]' % {
+                                          'relsubfilfers_conditions': self.RELSUBFILTER_CONDS_FMT % {
                                                                             'rtype':  rtype.id,
-                                                                            'ct':     ContentType.objects.get_for_model(Contact).id,
+                                                                            'ct':     self.ct_contact.id,
                                                                             'filter': parent_filter.id, #PROBLEM IS HERE !!!
                                                                         },
                                          }
                                    )
         self.assertFormError(response, 'form', field=None, errors=_(u'There is a cycle with a subfilter.'))
 
+    def _delete(self, efilter, **kwargs):
+        return self.client.post('/creme_core/entity_filter/delete', data={'id': efilter.id}, **kwargs)
+
     def test_delete01(self):
         self.login()
 
         efilter = EntityFilter.create('test-filter01', 'Filter 01', Contact, is_custom=True)
-        response = self.client.post('/creme_core/entity_filter/delete', data={'id': efilter.id}, follow=True)
+        response = self._delete(efilter, follow=True)
         self.assertEqual(200, response.status_code)
-        self.assertTrue(response.redirect_chain)
-        self.assertTrue(response.redirect_chain[-1][0].endswith(Contact.get_lv_absolute_url()))
+        self.assertRedirects(response, Contact.get_lv_absolute_url())
         self.assertEqual(0, EntityFilter.objects.filter(pk=efilter.id).count())
 
-    def test_delete02(self): #not custom -> can not delete
+    def test_delete02(self):
+        "Not custom -> can not delete"
         self.login()
 
         efilter = EntityFilter.create(pk='test-filter01', name='Filter01', model=Contact, is_custom=False)
-        self.client.post('/creme_core/entity_filter/delete', data={'id': efilter.id})
+        self._delete(efilter)
         self.assertEqual(1, EntityFilter.objects.filter(pk=efilter.id).count())
 
-    def test_delete03(self): #belongs to another user
+    def test_delete03(self):
+        "Belongs to another user"
         self.login(is_superuser=False)
 
         efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=True, user=self.other_user)
-        self.client.post('/creme_core/entity_filter/delete', data={'id': efilter.id})
+        self._delete(efilter)
         self.assertEqual(1, EntityFilter.objects.filter(pk=efilter.id).count())
 
-    def test_delete04(self): #belongs to my team -> ok
+    def test_delete04(self):
+        "Belongs to my team -> ok"
         self.login(is_superuser=False)
 
         self.role.allowed_apps = ['persons']
@@ -437,10 +479,11 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         my_team.teammates = [self.user]
 
         efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=True, user=my_team)
-        self.client.post('/creme_core/entity_filter/delete', data={'id': efilter.id})
+        self._delete(efilter)
         self.assertEqual(0, EntityFilter.objects.filter(pk=efilter.id).count())
 
-    def test_delete05(self): #belongs to a team (not mine) -> ko
+    def test_delete05(self):
+        "Belongs to a team (not mine) -> ko"
         self.login(is_superuser=False)
 
         self.role.allowed_apps = ['persons']
@@ -450,27 +493,30 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         a_team.teammates = [self.other_user]
 
         efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=True, user=a_team)
-        self.client.post('/creme_core/entity_filter/delete', data={'id': efilter.id})
+        self._delete(efilter)
         self.assertEqual(1, EntityFilter.objects.filter(pk=efilter.id).count())
 
-    def test_delete06(self): #logged as superuser
+    def test_delete06(self):
+        "Logged as superuser"
         self.login()
 
         efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=True, user=self.other_user)
-        self.client.post('/creme_core/entity_filter/delete', data={'id': efilter.id})
+        self._delete(efilter)
         self.assertFalse(EntityFilter.objects.filter(pk=efilter.id).count())
 
-    def test_delete07(self): #can not delete if used as subfilter
+    def test_delete07(self):
+        "Can not delete if used as subfilter"
         self.login()
 
         efilter01 = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=True)
         efilter02 = EntityFilter.create('test-filter02', 'Filter02', Contact, is_custom=True)
         efilter02.set_conditions([EntityFilterCondition.build_4_subfilter(efilter01)])
 
-        self.client.post('/creme_core/entity_filter/delete', data={'id': efilter01.id})
+        self._delete(efilter01)
         self.assertTrue(EntityFilter.objects.filter(pk=efilter01.id).exists())
 
-    def test_delete08(self): #can not delete if used as subfilter (for relations)
+    def test_delete08(self):
+        "Can not delete if used as subfilter (for relations)"
         self.login()
 
         rtype, srtype = RelationType.create(('test-subject_love', u'Is loving'),
@@ -481,7 +527,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         efilter02 = EntityFilter.create('test-filter02', 'Filter02', Contact, is_custom=True)
         efilter02.set_conditions([EntityFilterCondition.build_4_relation_subfilter(rtype=srtype, has=True, subfilter=efilter01)])
 
-        self.client.post('/creme_core/entity_filter/delete', data={'id': efilter01.id})
+        self._delete(efilter01)
         self.assertTrue(EntityFilter.objects.filter(pk=efilter01.id).exists())
 
     def test_get_content_types01(self):
@@ -491,7 +537,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                             ('test-object_love',  u'Is loved by')
                                            )
 
-        response = self.client.get('/creme_core/entity_filter/rtype/%s/content_types' % rtype.id)
+        response = self.client.get(self._build_get_ct_url(rtype))
         self.assertEqual(200, response.status_code)
 
         content = simplejson.loads(response.content)
@@ -508,10 +554,10 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                             ('test-object_love',  u'Is loved by', (Contact,))
                                            )
 
-        response = self.client.get('/creme_core/entity_filter/rtype/%s/content_types' % rtype.id)
+        response = self.client.get(self._build_get_ct_url(rtype))
         self.assertEqual(200, response.status_code)
 
-        ct = ContentType.objects.get_for_model(Contact)
+        ct = self.ct_contact
         self.assertEqual([[0, _(u'All')], [ct.id, unicode(ct)]],
                          simplejson.loads(response.content)
                         )
@@ -519,8 +565,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
     def test_filters_for_ctype01(self):
         self.login()
 
-        ct = ContentType.objects.get_for_model(Contact)
-        response = self.client.get('/creme_core/entity_filter/get_for_ctype/%s' % ct.id)
+        response = self.client.get(self._buid_get_filter(self.ct_contact))
         self.assertEqual(200, response.status_code)
 
         content = simplejson.loads(response.content)
@@ -534,8 +579,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         efilter02 = EntityFilter.create('test-filter02', 'Filter 02', Contact)
         EntityFilter.create('test-filter03', 'Filter 03', Organisation)
 
-        ct = ContentType.objects.get_for_model(Contact)
-        response = self.client.get('/creme_core/entity_filter/get_for_ctype/%s' % ct.id)
+        response = self.client.get(self._buid_get_filter(self.ct_contact))
         self.assertEqual(200, response.status_code)
         self.assertEqual([[efilter01.id, 'Filter 01'], [efilter02.id, 'Filter 02']],
                          simplejson.loads(response.content)
@@ -543,7 +587,4 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
     def test_filters_for_ctype03(self):
         self.login(is_superuser=False)
-
-        ct = ContentType.objects.get_for_model(Contact)
-        response = self.client.get('/creme_core/entity_filter/get_for_ctype/%s' % ct.id)
-        self.assertEqual(403, response.status_code)
+        self.assertGET403('/creme_core/entity_filter/get_for_ctype/%s' % self.ct_contact.id)

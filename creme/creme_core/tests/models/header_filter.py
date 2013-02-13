@@ -59,23 +59,28 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertIs(hfi.sortable, True)
         self.assertEqual('first_name__icontains', hfi.filter_string)
 
-    def test_build_4_field02(self): #date field
+    def test_build_4_field02(self):
+        "Date field"
         hfi = HeaderFilterItem.build_4_field(model=Contact, name='birthday')
         self.assertEqual('birthday__range', hfi.filter_string)
 
-    def test_build_4_field03(self): #boolean field
+    def test_build_4_field03(self):
+        "Boolean field"
         hfi = HeaderFilterItem.build_4_field(model=Organisation, name='subject_to_vat')
         self.assertEqual('subject_to_vat__creme-boolean', hfi.filter_string)
 
-    def test_build_4_field04(self): #fk
+    def test_build_4_field04(self):
+        "FK"
         hfi = HeaderFilterItem.build_4_field(model=Contact, name='position')
         self.assertEqual('position', hfi.filter_string)
 
-    def test_build_4_field05(self): #basic fk subfield
+    def test_build_4_field05(self):
+        "Basic FK subfield"
         hfi = HeaderFilterItem.build_4_field(model=Contact, name='position__title')
         self.assertEqual('position__title__icontains', hfi.filter_string)
 
-    def test_build_4_field06(self): #date fk subfield
+    def test_build_4_field06(self):
+        "Date FK subfield"
         hfi = HeaderFilterItem.build_4_field(model=Contact, name='image__created')
         self.assertEqual(u'%s - %s' % (_('Photograph'), _('Creation date')), hfi.title)
         self.assertEqual('image__created__range', hfi.filter_string)
@@ -91,7 +96,8 @@ class HeaderFiltersTestCase(CremeTestCase):
         #self.assertRaises(HeaderFilterItem.ValueError, HeaderFilterItem.build_4_field, model=Contact, name='unknown_field')
         self.assertIsNone(HeaderFilterItem.build_4_field(model=Contact, name='unknown_field'))
 
-    def test_build_4_customfield01(self): #INT
+    def test_build_4_customfield01(self):
+        "INT"
         name = u'Size (cm)'
         customfield = CustomField.objects.create(name=name, field_type=CustomField.INT,
                                                  content_type=self.contact_ct
@@ -107,7 +113,8 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertIs(hfi.sortable,     False)
         self.assertEqual('customfieldinteger__value__icontains', hfi.filter_string)
 
-    def test_build_4_customfield02(self): #FLOAT
+    def test_build_4_customfield02(self):
+        "FLOAT"
         customfield = CustomField.objects.create(name=u'Weight', field_type=CustomField.FLOAT,
                                                  content_type=self.contact_ct
                                                 )
@@ -115,7 +122,8 @@ class HeaderFiltersTestCase(CremeTestCase):
         hfi = HeaderFilterItem.build_4_customfield(customfield=customfield)
         self.assertEqual('customfieldfloat__value__icontains', hfi.filter_string)
 
-    def test_build_4_customfield03(self): #DATE
+    def test_build_4_customfield03(self):
+        "DATE"
         customfield = CustomField.objects.create(name=u'Day', field_type=CustomField.DATE,
                                                  content_type=self.contact_ct
                                                 )
@@ -123,7 +131,8 @@ class HeaderFiltersTestCase(CremeTestCase):
         hfi = HeaderFilterItem.build_4_customfield(customfield=customfield)
         self.assertEqual('customfielddatetime__value__range', hfi.filter_string)
 
-    def test_build_4_customfield04(self): #BOOL
+    def test_build_4_customfield04(self):
+        "BOOL"
         customfield = CustomField.objects.create(name=u'Is fun ?', field_type=CustomField.BOOL,
                                                  content_type=self.contact_ct
                                                 )
@@ -131,22 +140,28 @@ class HeaderFiltersTestCase(CremeTestCase):
         hfi = HeaderFilterItem.build_4_customfield(customfield=customfield)
         self.assertEqual('customfieldboolean__value__creme-boolean', hfi.filter_string)
 
-    def test_build_4_customfield05(self): #ENUM
+    def test_build_4_customfield05(self):
+        "ENUM"
         customfield = CustomField.objects.create(name='Eva', field_type=CustomField.ENUM,
                                                  content_type=self.contact_ct
                                                 )
-        CustomFieldEnumValue.objects.create(custom_field=customfield, value='Eva-00')
-        CustomFieldEnumValue.objects.create(custom_field=customfield, value='Eva-01')
+
+        create_enumvalue = partial(CustomFieldEnumValue.objects.create, custom_field=customfield)
+        create_enumvalue(value='Eva-00')
+        create_enumvalue(value='Eva-01')
 
         hfi = HeaderFilterItem.build_4_customfield(customfield=customfield)
         self.assertEqual('customfieldenum__value__exact', hfi.filter_string)
 
-    def test_build_4_customfield06(self): #MULTI_ENUM
+    def test_build_4_customfield06(self):
+        "MULTI_ENUM"
         customfield = CustomField.objects.create(name='Eva', field_type=CustomField.MULTI_ENUM,
                                                  content_type=self.contact_ct
                                                 )
-        CustomFieldEnumValue.objects.create(custom_field=customfield, value='Eva-00')
-        CustomFieldEnumValue.objects.create(custom_field=customfield, value='Eva-01')
+
+        create_enumvalue = partial(CustomFieldEnumValue.objects.create, custom_field=customfield)
+        create_enumvalue(value='Eva-00')
+        create_enumvalue(value='Eva-01')
 
         hfi = HeaderFilterItem.build_4_customfield(customfield=customfield)
         self.assertEqual('customfieldmultienum__value__exact', hfi.filter_string)

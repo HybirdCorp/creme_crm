@@ -54,7 +54,8 @@ class CredentialsTestCase(CremeTestCase):
     def _build_contact_qs(self):
         return Contact.objects.filter(pk__in=(self.contact1.id, self.contact2.id))
 
-    def test_regularperms01(self): #regular perms not used
+    def test_regularperms01(self):
+        "Regular perms not used"
         ct = ContentType.objects.get_for_model(CremeProperty)
 
         try:
@@ -109,8 +110,9 @@ class CredentialsTestCase(CremeTestCase):
                          self._ids_list(qs)
                         )
 
-    #this tests contribute_to_model too
-    def test_role_esetall_view(self): # VIEW + ESET_ALL
+    #TODO: this tests contribute_to_model too
+    def test_role_esetall_view(self):
+        "VIEW + ESET_ALL"
         user = self.user
         self._create_role('Coder', ['creme_core', 'persons'], users=[user],
                           set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_ALL)]
@@ -173,7 +175,8 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(efilter(user, qs1, perm=EntityCredentials.LINK))
         self.assertFalse(efilter(user, qs1, perm=EntityCredentials.UNLINK))
 
-    def test_role_esetall_view__noappcreds(self): #app is not allowed -> no creds
+    def test_role_esetall_view__noappcreds(self):
+        "App is not allowed -> no creds"
         user = self.user
         self._create_role('Coder', users=[user],
                           set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_ALL)]
@@ -196,7 +199,8 @@ class CredentialsTestCase(CremeTestCase):
         #filtering --------------------------------------------------------------
         self.assertFalse(EntityCredentials.filter(user, self._build_contact_qs()))
 
-    def test_role_esetall_change(self): # CHANGE + ESET_ALL
+    def test_role_esetall_change(self):
+        "CHANGE + ESET_ALL"
         user = self.user
         self._create_role('Coder', ['creme_core', 'persons'], users=[user],
                           set_creds=[(EntityCredentials.CHANGE, SetCredentials.ESET_ALL)]
@@ -221,7 +225,8 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(efilter(perm=EntityCredentials.LINK))
         self.assertFalse(efilter(perm=EntityCredentials.UNLINK))
 
-    def test_role_esetall_change__admincreds(self): # CHANGE + ESET_ALL (no app creds, but app admin creds)
+    def test_role_esetall_change__admincreds(self):
+        "CHANGE + ESET_ALL (no app creds, but app admin creds)"
         user = self.user
         self._create_role('Coder', admin_4_apps=['creme_core', 'persons'], users=[user],
                           set_creds=[(EntityCredentials.CHANGE, SetCredentials.ESET_ALL)]
@@ -239,7 +244,8 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(efilter(perm=EntityCredentials.VIEW))
         self.assertEqual([contact1.id, contact2.id], self._ids_list(efilter(perm=EntityCredentials.CHANGE)))
 
-    def test_role_esetall_delete(self): # DELETE + ESET_ALL
+    def test_role_esetall_delete(self):
+        "DELETE + ESET_ALL"
         user = self.user
         self._create_role('Coder', ['creme_core', 'persons'], users=[user],
                           set_creds=[(EntityCredentials.DELETE, SetCredentials.ESET_ALL)]
@@ -264,7 +270,8 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(efilter(perm=EntityCredentials.LINK))
         self.assertFalse(efilter(perm=EntityCredentials.UNLINK))
 
-    def test_role_esetall_link(self): # LINK + ESET_ALL
+    def test_role_esetall_link(self):
+        "LINK + ESET_ALL"
         user = self.user
         self._create_role('Coder', ['creme_core', 'persons'], users=[user],
                           set_creds=[(EntityCredentials.LINK, SetCredentials.ESET_ALL)]
@@ -289,7 +296,8 @@ class CredentialsTestCase(CremeTestCase):
         self.assertEqual([contact1.id, contact2.id], self._ids_list(efilter(perm=EntityCredentials.LINK)))
         self.assertFalse(efilter(perm=EntityCredentials.UNLINK))
 
-    def test_role_esetall_unlink(self): # UNLINK + ESET_ALL
+    def test_role_esetall_unlink(self):
+        "UNLINK + ESET_ALL"
         user = self.user
         self._create_role('Coder', ['creme_core', 'persons'], users=[user],
                           set_creds=[(EntityCredentials.UNLINK, SetCredentials.ESET_ALL)]
@@ -314,7 +322,8 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(efilter(perm=EntityCredentials.LINK))
         self.assertEqual([contact1.id, contact2.id], self._ids_list(efilter(perm=EntityCredentials.UNLINK)))
 
-    def test_role_esetown_view(self): # VIEW + ESET_OWN
+    def test_role_esetown_view(self):
+        "VIEW + ESET_OWN"
         user = self.user
         self._create_role('Coder', ['creme_core', 'persons'], users=[user],
                           set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_OWN)]
@@ -396,7 +405,8 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(efilter(perm=EntityCredentials.LINK))
         self.assertFalse(efilter(perm=EntityCredentials.UNLINK))
 
-    def test_role_esetown_link_n_unlink(self): # ESET_OWN + LINK/UNLINK
+    def test_role_esetown_link_n_unlink(self):
+        "ESET_OWN + LINK/UNLINK"
         user = self.user
         self._create_role('Coder', ['creme_core', 'persons'], users=[user],
                           set_creds=[(EntityCredentials.LINK | EntityCredentials.UNLINK,
@@ -425,7 +435,8 @@ class CredentialsTestCase(CremeTestCase):
         self.assertEqual(ids, self._ids_list(efilter(perm=EntityCredentials.LINK)))
         self.assertEqual(ids, self._ids_list(efilter(perm=EntityCredentials.UNLINK)))
 
-    def test_role_multiset01(self): # ESET_ALL + ESET_OWN
+    def test_role_multiset01(self):
+        "ESET_ALL + ESET_OWN"
         user = self.user
         self._create_role('Coder', ['creme_core', 'persons'], users=[user],
                           set_creds=[(EntityCredentials.VIEW,                              SetCredentials.ESET_ALL),
@@ -453,7 +464,8 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(efilter(perm=EntityCredentials.LINK))
         self.assertFalse(efilter(perm=EntityCredentials.UNLINK))
 
-    def test_role_multiset02(self): # ESET_OWN + ESET_ALL (so ESET_OWN before)
+    def test_role_multiset02(self):
+        "ESET_OWN + ESET_ALL (so ESET_OWN before)"
         user = self.user
         VIEW = EntityCredentials.VIEW
         CHANGE = EntityCredentials.CHANGE
@@ -659,7 +671,8 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(UserRole.objects.filter(pk=role.id))
         self.assertFalse(SetCredentials.objects.filter(role=role))
 
-    def test_delete02(self): #can not delete a role linked to a user
+    def test_delete02(self):
+        "Can not delete a role linked to a user"
         user = self.user
         role = self._create_role('Coder', ['creme_core', 'persons'], users=[user],
                                  set_creds=[(EntityCredentials.CHANGE, SetCredentials.ESET_OWN),
@@ -759,7 +772,8 @@ class CredentialsTestCase(CremeTestCase):
 
         self.assertFalse(efilter(other, qs, perm=EntityCredentials.VIEW))
 
-    def test_team_credentials02(self): #user in several teams
+    def test_team_credentials02(self):
+        "User in several teams"
         user = self.user
         other = self.other_user
         self._create_role('Worker', ['creme_core'], users=[user, other],
