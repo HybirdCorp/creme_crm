@@ -42,7 +42,7 @@ class Reminder(object):
         return u'reminder_%s-%s' % (app_name, name)
 
     def get_emails(self, object):
-        return [getattr(settings, 'DEFAULT_EMAIL_FOR_REMIND', None)]
+        return [getattr(settings, 'DEFAULT_USER_EMAIL', None)]
 
     def generate_email_subject (self, object):
         pass

@@ -118,7 +118,7 @@ class UserMessage(CremeModel):
             connection.send_messages(messages)
             connection.close()
 
-        except Exception, e:
+        except Exception, e: #TODO: wtf ??
             raise e
 
         for msg in usermessages:
