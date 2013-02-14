@@ -6,13 +6,13 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import RelationType, CustomField, CustomFieldEnumValue
+    from creme_core.models import RelationType, Relation, CustomField, CustomFieldEnumValue
     from creme_core.models.header_filter import (HeaderFilter, HeaderFilterItem,
                                                  HFI_FIELD, HFI_CUSTOM, HFI_RELATION, HFI_FUNCTION
                                                 )
     from creme_core.tests.base import CremeTestCase
 
-    from persons.models import Contact, Organisation
+    from persons.models import Contact, Organisation, Position, Sector
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -167,7 +167,9 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual('customfieldmultienum__value__exact', hfi.filter_string)
 
     def test_build_4_relation(self):
-        loves, loved = RelationType.create(('test-subject_love', u'Is loving'), ('test-object_love',  u'Is loved by'))
+        loves, loved = RelationType.create(('test-subject_love', u'Is loving'),
+                                           ('test-object_love',  u'Is loved by')
+                                          )
         hfi = HeaderFilterItem.build_4_relation(rtype=loves)
         self.assertIsInstance(hfi, HeaderFilterItem)
         self.assertEqual(str(loves.id),   hfi.name)
@@ -202,13 +204,21 @@ class HeaderFiltersTestCase(CremeTestCase):
         hf_items = [build_item(name=fn) for fn in ('first_name', 'last_name')]
 
         hfilter.set_items(hf_items)
-        hfilter = self.refresh(hfilter)
+        hfilter = self.refresh(hfilter) #refresh caches
         items = list(hfilter.header_filter_items.all())
         self.assertEqual(hf_items, items)
         self.assertEqual([1, 2],   [hfi.order for hfi in items])
-        self.assertEqual(hf_items, hfilter.items)
 
-    def test_set_items02(self): #None value are ignored
+        with self.assertNumQueries(1):
+            prop_items = hfilter.items
+
+        self.assertEqual(hf_items, prop_items)
+
+        with self.assertNumQueries(0):
+            prop_items = hfilter.items
+
+    def test_set_items02(self):
+        "None value are ignored"
         hfilter = HeaderFilter.create(pk='test-hf01', name=u'Contact view', model=Contact)
 
         build_item = partial(HeaderFilterItem.build_4_field, model=Contact)
@@ -263,3 +273,103 @@ class HeaderFiltersTestCase(CremeTestCase):
 
         custom_field01.delete()
         self.assertEqual([hfi01, hfi03], list(hf.header_filter_items.all()))
+
+    def test_populate_entities_fields01(self):
+        "Regular fields: no FK"
+        self.login()
+        hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=Contact)
+
+        build = partial(HeaderFilterItem.build_4_field, model=Contact)
+        hf.set_items([build(name='last_name'), build(name='first_name')])
+
+        pos = Position.objects.create(title='Pilot')
+        create_contact = partial(Contact.objects.create, user=self.user, position_id=pos.id)
+        contacts = [create_contact(first_name='Nagate',  last_name='Tanikaze'),
+                    create_contact(first_name='Shizuka', last_name='Hoshijiro'),
+                   ]
+
+        hf.items #fill cache TODO: set_items fills the cache ??
+
+        with self.assertNumQueries(0):
+            hf.populate_entities(contacts, user)
+
+        with self.assertNumQueries(1):
+            contacts[0].position
+
+    def test_populate_entities_fields02(self):
+        "Regular fields: FK"
+        self.login()
+        hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=Contact)
+
+        build = partial(HeaderFilterItem.build_4_field, model=Contact)
+        hf.set_items([build(name='last_name'), build(name='first_name'),
+                      build(name='position'),  build(name='sector__title'),
+                     ]
+                    )
+
+        pos = Position.objects.create(title='Pilot')
+        sector = Sector.objects.create(title='Army')
+        create_contact = partial(Contact.objects.create, user=self.user, position_id=pos.id, sector_id=sector.id)
+        contacts = [create_contact(first_name='Nagate',  last_name='Tanikaze'),
+                    create_contact(first_name='Shizuka', last_name='Hoshijiro'),
+                   ]
+
+        hf.items #fill cache
+
+        with self.assertNumQueries(2):
+            hf.populate_entities(contacts, user)
+
+        with self.assertNumQueries(0):
+            contacts[0].position
+            contacts[1].position
+            contacts[0].sector
+            contacts[1].sector
+
+    def test_populate_entities_relations01(self):
+        self.login()
+        user = self.user
+
+        create_rt = RelationType.create
+        loved = create_rt(('test-subject_love', u'Is loving'), ('test-object_love',  u'Is loved by'))[1]
+        hated = create_rt(('test-subject_hate', u'Is hating'), ('test-object_hate',  u'Is hated by'))[1]
+
+        hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=Contact)
+        hf.set_items([HeaderFilterItem.build_4_field(model=Contact, name='last_name'),
+                      HeaderFilterItem.build_4_relation(rtype=loved),
+                      HeaderFilterItem.build_4_relation(rtype=hated),
+                     ])
+
+        create_contact = partial(Contact.objects.create, user=user)
+        nagate  = create_contact(first_name='Nagate',  last_name='Tanikaze')
+        shizuka = create_contact(first_name='Shizuka', last_name='Hoshijiro')
+        izana   = create_contact(first_name='Izana',   last_name='Shinatose')
+        norio   = create_contact(first_name='Norio',   last_name='Kunato')
+
+        create_rel = partial(Relation.objects.create, user=user)
+        create_rel(subject_entity=nagate,  type=loved, object_entity=izana)
+        create_rel(subject_entity=nagate,  type=hated, object_entity=norio)
+        create_rel(subject_entity=shizuka, type=loved, object_entity=norio)
+
+        hf.items #fill cache
+
+        with self.assertNumQueries(2):
+            hf.populate_entities([nagate, shizuka], user)
+
+        with self.assertNumQueries(0):
+            r1 = nagate.get_relations(loved.id,  real_obj_entities=True)
+            r2 = nagate.get_relations(hated.id,  real_obj_entities=True)
+            r3 = shizuka.get_relations(loved.id, real_obj_entities=True)
+            r4 = shizuka.get_relations(hated.id, real_obj_entities=True)
+
+        with self.assertNumQueries(0):
+            objs1 = [r.object_entity.get_real_entity() for r in r1]
+            objs2 = [r.object_entity.get_real_entity() for r in r2]
+            objs3 = [r.object_entity.get_real_entity() for r in r3]
+            objs4 = [r.object_entity.get_real_entity() for r in r4]
+
+        self.assertEqual([izana], objs1)
+        self.assertEqual([norio], objs2)
+        self.assertEqual([norio], objs3)
+        self.assertEqual([],      objs4)
+
+    #TODO: test for other types: HFI_CUSTOM, HFI_FUNCTION
