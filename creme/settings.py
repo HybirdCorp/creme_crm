@@ -229,17 +229,14 @@ ALLOWED_EXTENSIONS = (
                       'ogg', 'ogm',
                       ) + ALLOWED_IMAGES_EXTENSIONS
 
-#EMAILS ########################################################################
+#EMAILS [internal] #############################################################
 
-# For module emailing campaign
-EMAIL_SENDER        = 'sender@domain.org'#This is a creme parameter which specify from_email (sender) when sending email
-EMAIL_HOST          = 'mail_server'
-EMAIL_HOST_USER     = 'mail_user'
-EMAIL_HOST_PASSWORD = 'mail_password'
-EMAIL_USE_TLS       = True
-
-CMP_EMAILS = 40
-REMOTE_DJANGO = False
+# Emails sent to the users of Crem (reminders, assistants.user_message, commercial.commercial_approach...)
+EMAIL_SENDER        = 'sender@domain.org' #This is a creme parameter which specify from_email (sender) when sending email
+EMAIL_HOST          = 'localhost'
+EMAIL_HOST_USER     = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_USE_TLS       = False
 
 #Dev smtp serv
 #=> python -m smtpd -n -c DebuggingServer localhost:1025
@@ -247,14 +244,7 @@ REMOTE_DJANGO = False
 #EMAIL_HOST = 'localhost'
 #EMAIL_PORT = 1025
 
-DEFAULT_USER_EMAIL = ""#Email used in case the user doesn't have filled his email
-
-#Settings used in emails-sending (campaigns)
-CREME_EMAIL           = ""
-CREME_EMAIL_SERVER    = ""
-CREME_EMAIL_USERNAME  = ""
-CREME_EMAIL_PASSWORD  = ""
-CREME_EMAIL_PORT      = 25
+DEFAULT_USER_EMAIL = '' #Email used in case the user doesn't have filled his email
 
 
 #EMAILS [END] ###################################################################
@@ -456,6 +446,18 @@ DEFAULT_TIME_TODO_REMIND = 120
 QUOTE_NUMBER_PREFIX = "DE"
 INVOICE_NUMBER_PREFIX = "FA"
 SALESORDER_NUMBER_PREFIX = "BC"
+
+#EMAILS [external] -------------------------------------------------------------
+#Emails campaigns sent to the customers
+EMAILCAMPAIGN_HOST      = 'localhost'
+EMAILCAMPAIGN_HOST_USER = ''
+EMAILCAMPAIGN_PASSWORD  = ''
+EMAILCAMPAIGN_PORT      = 25
+EMAILCAMPAIGN_USE_TLS   = True
+
+#Emails are sent by chunks, and sleep between 2 chunks.
+EMAILCAMPAIGN_SIZE = 40
+EMAILCAMPAIGN_SLEEP_TIME = 2
 
 #SAMOUSSA ----------------------------------------------------------------------
 CREME_SAMOUSSA_URL = 'http://localhost:8001/'

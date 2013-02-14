@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from datetime import datetime
 from email.mime.image import MIMEImage
-from logging import error
+import logging
 from os.path import basename, exists, join
 from random import choice
 from re import compile as re_compile, findall as re_findall
@@ -34,6 +34,7 @@ from media_managers.models import Image
 from emails.constants import MAIL_STATUS_SENT, MAIL_STATUS_SENDINGERROR
 
 
+logger = logging.getLogger(__name__)
 ALLOWED_CHARS = ascii_letters + digits
 
 def generate_id():
@@ -108,7 +109,7 @@ def get_mime_image(image_entity):
             mime_image.add_header('Content-Disposition', 'inline', filename=basename(image_file.name))
             image_file.close()
         except IOError as e:
-            error('Exception when reading image : %s', e)
+            logger.error('Exception when reading image : %s', e)
             mime_image = None
 
         setattr(image_entity, _MIME_IMG_CACHE, mime_image)
@@ -117,18 +118,19 @@ def get_mime_image(image_entity):
 
 
 class EMailSender(object):
-    def __init__(self, body, body_html, signature=None, attachments=()): #can throws ImageFromHTMLError
+    def __init__(self, body, body_html, signature=None, attachments=()):
+        "@throws ImageFromHTMLError"
         mime_images = []
 
         #Replacing image sources with embbeded images
         for filename, (image_entity, src) in get_images_from_html(body_html).iteritems(): #can throws ImageFromHTMLError
             if image_entity is None:
-                error('Image with filename <%s> do not exist any more.')
+                logger.error('Image with filename <%s> do not exist any more.')
             else:
                 mime_image = get_mime_image(image_entity)
 
                 if mime_image is None:
-                    error('Error during reading attached image: %s', filename)
+                    logger.error('Error during reading attached image: %s', filename)
                 else:
                     mime_images.append(mime_image)
                     body_html = body_html.replace(src, 'cid:img_%s' % image_entity.id)
@@ -143,7 +145,7 @@ class EMailSender(object):
                 mime_image = get_mime_image(image_entity)
 
                 if mime_image is None:
-                    error('Error during reading attached image in signature: %s', image_entity)
+                    logger.error('Error during reading attached image in signature: %s', image_entity)
                 else:
                     mime_images.append(mime_image)
                     body_html += '<img src="cid:img_%s" /><br/>' % image_entity.id
@@ -162,13 +164,13 @@ class EMailSender(object):
 
     def send(self, mail, connection=None):
         """
-        @param mail Object with a class  inherting emails.models.mail._Email
+        @param mail Object with a class inherting emails.models.mail._Email
         @return True means: OK mail was sent
         """
         ok = False
 
         if mail.status == MAIL_STATUS_SENT:
-            error('Mail already sent to the recipient')
+            logger.error('Mail already sent to the recipient')
         else:
             body, body_html = self._process_bodies(mail)
 
@@ -184,8 +186,8 @@ class EMailSender(object):
 
             try:
                 msg.send()
-            except Exception: #better exception ??
-                error("Sending: error during sending mail.")
+            except Exception:
+                logger.exception('Sending: error during sending mail.')
                 mail.status = MAIL_STATUS_SENDINGERROR
             else:
                 mail.status = MAIL_STATUS_SENT

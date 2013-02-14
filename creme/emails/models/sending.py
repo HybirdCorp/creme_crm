@@ -25,7 +25,7 @@ from time import sleep
 from django.db import transaction, IntegrityError
 from django.db.models import (ForeignKey, DateTimeField, PositiveSmallIntegerField,
                               EmailField, CharField, TextField, ManyToManyField)
-from django.core.mail import send_mail, SMTPConnection
+from django.core.mail import send_mail, get_connection
 from django.template import Template, Context
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy, activate
@@ -110,27 +110,40 @@ class EmailSending(CremeModel):
             sender = LightWeightEmailSender(sending=self)
         except ImageFromHTMLError as e:
             activate(settings.LANGUAGE_CODE)
-            err_msg = _("Emails in the sending of the campaign <%(campaign)s> on %(date)s weren't sent because the image <%(image)s> is no longer available in the template.") % {
+            send_mail(ugettext('[CremeCRM] Campaign email sending error.'),
+                      ugettext("Emails in the sending of the campaign <%(campaign)s> on %(date)s weren't sent "
+                               "because the image <%(image)s> is no longer available in the template.") % {
                             'campaign': self.campaign,
                             'date':     self.sending_date,
                             'image':    e.filename,
-                        }
-            send_mail(_('[CremeCRM] Campaign email sending error.'), err_msg, settings.EMAIL_HOST_USER, [self.campaign.user.email or settings.DEFAULT_USER_EMAIL], fail_silently=False)
+                        },
+                      settings.EMAIL_HOST_USER,
+                      [self.campaign.user.email or settings.DEFAULT_USER_EMAIL],
+                      fail_silently=False,
+                     )
 
             return SENDING_STATE_ERROR
 
-        #SMTPConnection is deprecated but with mail.get_connection() we can't specify other settings than django settings
-        #TODO: Write a custom e-mail backend: http://docs.djangoproject.com/en/1.3/topics/email/#topic-custom-email-backend
-        connection = SMTPConnection(host=settings.CREME_EMAIL_SERVER,
-                                    port=settings.CREME_EMAIL_PORT,
-                                    username=settings.CREME_EMAIL_USERNAME,
-                                    password=settings.CREME_EMAIL_PASSWORD,
-                                    use_tls=True
+        ##SMTPConnection is deprecated but with mail.get_connection() we can't specify other settings than django settings
+        ##todo: Write a custom e-mail backend: http://docs.djangoproject.com/en/1.3/topics/email/#topic-custom-email-backend
+        #connection = SMTPConnection(host=settings.CREME_EMAIL_SERVER,
+                                    #port=settings.CREME_EMAIL_PORT,
+                                    #username=settings.CREME_EMAIL_USERNAME,
+                                    #password=settings.CREME_EMAIL_PASSWORD,
+                                    #use_tls=True
+                                   #)
+        connection = get_connection('django.core.mail.backends.smtp.EmailBackend',
+                                    host=settings.EMAILCAMPAIGN_HOST,
+                                    port=settings.EMAILCAMPAIGN_PORT,
+                                    username=settings.EMAILCAMPAIGN_HOST_USER,
+                                    password=settings.EMAILCAMPAIGN_PASSWORD,
+                                    use_tls=settings.EMAILCAMPAIGN_USE_TLS,
                                    )
+
         mails_count   = 0
         one_mail_sent = False
-        SENDING_SIZE  = getattr(settings, 'SENDING_SIZE', 40)
-        SLEEP_TIME    = getattr(settings, 'SENDING_SLEEP_TIME', 2)
+        SENDING_SIZE  = getattr(settings, 'EMAILCAMPAIGN_SIZE', 40)
+        SLEEP_TIME    = getattr(settings, 'EMAILCAMPAIGN_SLEEP_TIME', 2)
 
         for mail in LightWeightEmail.objects.filter(sending=self):
             if sender.send(mail, connection=connection):
