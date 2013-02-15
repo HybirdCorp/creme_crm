@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,9 +19,10 @@
 ################################################################################
 
 from datetime import datetime
-from logging import debug, info
+import logging
 
-from django.db.models import Model, PositiveSmallIntegerField, CharField, TextField, DateTimeField, ForeignKey, SET_NULL
+from django.db.models import (Model, PositiveSmallIntegerField, CharField, TextField,
+                              DateTimeField, ForeignKey, SET_NULL, FieldDoesNotExist)
 from django.db.models.signals import post_save, post_init, pre_delete
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
@@ -32,6 +33,7 @@ from creme_core.models.fields import CremeUserForeignKey
 from creme_core.global_info import get_global_info
 
 
+logger = logging.getLogger(__name__)
 _get_ct = ContentType.objects.get_for_model
 _EXCLUDED_FIELDS = frozenset(('id', 'entity_type', 'is_deleted', 'is_actived',
                               'cremeentity_ptr', 'header_filter_search_field',
@@ -77,7 +79,7 @@ def _fk_printer(field, val):
     try:
         out = model.objects.get(pk=val)
     except model.DoesNotExist as e:
-        info(str(e))
+        logger.info(str(e))
         out = val
 
     return unicode(out)
@@ -141,7 +143,7 @@ class HistoryLine(Model):
         try:
             attrs = jsondumps(value + list(modifs))
         except TypeError as e:
-            debug('HistoryLine: %s', e)
+            logger.debug('HistoryLine: %s', e)
             attrs = jsondumps(value)
 
         return attrs
@@ -202,23 +204,27 @@ class HistoryLine(Model):
             get_field = self.entity_ctype.model_class()._meta.get_field
 
             for modif in self.modifications:
-                field = get_field(modif[0])
-                field_name = field.verbose_name
-
-                if len(modif) == 1:
+                field_name = modif[0]
+                try:
+                    field = get_field(field_name)
+                except FieldDoesNotExist:
                     vmodif = ugettext(u'Set field “%(field)s”') % {'field': field_name}
-                elif len(modif) == 2:
-                    vmodif = ugettext(u'Set field “%(field)s” to “%(value)s”') % {
-                                         'field': field_name,
-                                         'value': _PRINTERS.get(field.get_internal_type(), _basic_printer)(field, modif[1]),
-                                        }
-                else: #len(modif) == 3
-                    printer = _PRINTERS.get(field.get_internal_type(), _basic_printer)
-                    vmodif = ugettext(u'Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”') % {
-                                             'field':    field_name,
-                                             'oldvalue': printer(field, modif[1]), #TODO: improve for fk ???
-                                             'value':    printer(field, modif[2]),
+                else:
+                    field_vname = field.verbose_name
+                    if len(modif) == 1:
+                        vmodif = ugettext(u'Set field “%(field)s”') % {'field': field_vname}
+                    elif len(modif) == 2:
+                        vmodif = ugettext(u'Set field “%(field)s” to “%(value)s”') % {
+                                            'field': field_vname,
+                                            'value': _PRINTERS.get(field.get_internal_type(), _basic_printer)(field, modif[1]),
                                             }
+                    else: #len(modif) == 3
+                        printer = _PRINTERS.get(field.get_internal_type(), _basic_printer)
+                        vmodif = ugettext(u'Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”') % {
+                                                'field':    field_vname,
+                                                'oldvalue': printer(field, modif[1]), #TODO: improve for fk ???
+                                                'value':    printer(field, modif[2]),
+                                                }
 
                 vmodifs.append(vmodif)
 
