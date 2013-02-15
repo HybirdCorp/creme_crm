@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -79,7 +79,7 @@ class SearchEditForm(CremeForm):
 
         fields_f = self.fields['fields']
         fields_f.choices = model_fields
-        fields_f.initial = [f.field for f in search_cfg_itm.get_fields()]
+        fields_f.initial = [f.field for f in search_cfg_itm.searchfields]
 
     def save(self):
         search_cfg_itm = self.search_cfg_itm
@@ -89,7 +89,7 @@ class SearchEditForm(CremeForm):
         if not fields:
             SearchField.objects.filter(search_config_item=search_cfg_itm).delete()
         else:
-            old_ids = set(sci.field for sci in search_cfg_itm.get_fields())
+            old_ids = set(sci.field for sci in search_cfg_itm.searchfields)
             new_ids = set(fields)
             fields_to_del = old_ids - new_ids
             fields_to_add = new_ids - old_ids

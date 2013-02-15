@@ -79,12 +79,12 @@ def get_model_field_info(model, field_name, silent=True):
     return info
 
 #TODO: rename to 'get_field_verbose_name'
-def get_verbose_field_name(model, field_name, separator=" - "):
+def get_verbose_field_name(model, field_name, separator=" - ", silent=True):
     """ For a field_name 'att1__att2__att3' it returns
         att1_verbose_name - att2_verbose_name - att3_verbose_name
         - is the default separator
     """
-    fields = get_model_field_info(model, field_name)
+    fields = get_model_field_info(model, field_name, silent)
     return separator.join([unicode(f['field'].verbose_name) for f in fields])
 
 def get_function_field_verbose_name(model, function_name):
