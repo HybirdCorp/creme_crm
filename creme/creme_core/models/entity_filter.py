@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@
 
 from datetime import datetime, date
 from itertools import ifilter
+import logging
 
 from django.db.models import Model, CharField, TextField, PositiveSmallIntegerField, BooleanField, ForeignKey, Q
 from django.db import models
@@ -35,6 +36,8 @@ from creme_core.models.fields import CremeUserForeignKey
 from creme_core.utils.meta import is_date_field, get_model_field_info
 from creme_core.utils.date_range import date_range_registry
 
+
+logger = logging.getLogger(__name__)
 
 def date_2_dict(d): #move to utils ???
     return {'year': d.year, 'month': d.month, 'day': d.day}
@@ -192,13 +195,29 @@ class EntityFilter(Model): #CremeModel ???
         query = Q()
 
         if self.use_or:
-            for condition in self.conditions.all():
+            for condition in self.get_conditions():
                 query |= condition.get_q()
         else:
-            for condition in self.conditions.all():
+            for condition in self.get_conditions():
                 query &= condition.get_q()
 
         return query
+
+    def get_conditions(self):#TODO: cache ??
+        conditions = []
+        append = conditions.append
+
+        for condition in self.conditions.all():
+            condition.filter = self
+            error = condition.error
+
+            if error:
+                logger.warn('%s => EntityFilterCondition instance removed', error)
+                condition.delete()
+            else:
+                append(condition)
+
+        return conditions
 
     def set_conditions(self, conditions, check_cycles=True):
         if check_cycles:
@@ -470,13 +489,14 @@ class EntityFilterCondition(Model):
         if not operator_obj:
             raise EntityFilterCondition.ValueError('Unknown operator: %s' % operator)
 
-        finfo = get_model_field_info(model, name)
-        if not finfo:
-            raise EntityFilterCondition.ValueError('%s: no field named: %s', model, name)
+        try:
+            finfo = get_model_field_info(model, name, silent=False)
+        except FieldDoesNotExist as e:
+            raise EntityFilterCondition.ValueError(str(e))
 
         try:
             values = operator_obj.validate_field_values(finfo[-1]['field'], values)
-        except Exception, e:
+        except Exception as e:
             raise EntityFilterCondition.ValueError(str(e))
 
         return EntityFilterCondition(type=EntityFilterCondition.EFC_FIELD,
@@ -522,6 +542,14 @@ class EntityFilterCondition(Model):
     @staticmethod
     def encode_value(value):
         return jsondumps(value)
+
+    @property
+    def error(self): #TODO: map of validators
+        if self.type == EntityFilterCondition.EFC_FIELD:
+            try:
+                finfo = get_model_field_info(self.filter.entity_type.model_class(), self.name, silent=False)
+            except FieldDoesNotExist as e:
+                return str(e)
 
     def _get_q_customfield(self):
         #NB: Sadly we retrieve the ids of the entity that match with this condition
