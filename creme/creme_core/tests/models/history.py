@@ -18,6 +18,10 @@ __all__ = ('HistoryTestCase',)
 
 
 class HistoryTestCase(ViewsTestCase):
+    FSTRING_1_VALUE  = _(u'Set field “%(field)s”')
+    FSTRING_2_VALUES = _(u'Set field “%(field)s” to “%(value)s”')
+    FSTRING_3_VALUES = _(u'Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”')
+
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config')
@@ -71,7 +75,8 @@ class HistoryTestCase(ViewsTestCase):
         self.assertEqual([],                        hline.modifications)
         self.assertBetweenDates(hline)
 
-    def test_creation02(self): #double save() beacuse of addresses caused problems
+    def test_creation02(self):
+        "Double save() beacuse of addresses caused problems"
         old_count = HistoryLine.objects.count()
         country = 'Japan'
         gainax = self._build_organisation(user=self.other_user.id, name='Gainax',
@@ -166,41 +171,38 @@ about this fantastic animation studio."""
         vmodifs = hline.verbose_modifications
         self.assertEqual(6, len(vmodifs))
 
-        #TODO: move in HistoryLine code ???
-        FSTRING_1_VALUE  = _(u'Set field “%(field)s”')
-        FSTRING_2_VALUES = _(u'Set field “%(field)s” to “%(value)s”')
-        FSTRING_3_VALUES = _(u'Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”')
-
-        self.assertIn(FSTRING_3_VALUES % {'field':    _(u'Phone number'),
-                                          'oldvalue': old_phone,
-                                          'value':    phone,
-                                         },
+        self.assertIn(self.FSTRING_3_VALUES % {'field':    _(u'Phone number'),
+                                               'oldvalue': old_phone,
+                                               'value':    phone,
+                                              },
                       vmodifs
                      )
-        self.assertIn(FSTRING_2_VALUES % {'field': _(u'Email address'), 'value': email},
+        self.assertIn(self.FSTRING_2_VALUES % {'field': _(u'Email address'),
+                                               'value': email,
+                                              },
                       vmodifs
                      )
-        self.assertIn(FSTRING_1_VALUE % {'field': _(u'Description')}, vmodifs)
-        self.assertIn(FSTRING_3_VALUES % {'field':    _(u'Sector'),
-                                          'oldvalue': sector01,
-                                          'value':    sector02,
-                                         },
+        self.assertIn(self.FSTRING_1_VALUE % {'field': _(u'Description')}, vmodifs)
+        self.assertIn(self.FSTRING_3_VALUES % {'field':    _(u'Sector'),
+                                               'oldvalue': sector01,
+                                               'value':    sector02,
+                                              },
                       vmodifs
                      )
-        self.assertIn(FSTRING_1_VALUE % {'field': _(u'Date of creation of the organisation')},
+        self.assertIn(self.FSTRING_1_VALUE % {'field': _(u'Date of creation of the organisation')},
                       vmodifs
                      )
-        self.assertIn(FSTRING_2_VALUES % {'field': _(u'Subject to VAT'),
-                                          'value': _('True'),
-                                         },
+        self.assertIn(self.FSTRING_2_VALUES % {'field': _(u'Subject to VAT'),
+                                               'value': _('True'),
+                                              },
                       vmodifs
                      )
 
-    def test_edition03(self): #no change
+    def test_edition03(self):
+        "No change"
         name = 'gainax'
         capital = 12000
         gainax = self._build_organisation(user=self.user.id, name=name, capital=capital)
-
         old_count = HistoryLine.objects.count()
 
         response = self.client.post('/persons/organisation/edit/%s' % gainax.id, follow=True,
@@ -212,7 +214,8 @@ about this fantastic animation studio."""
         self.assertNoFormError(response)
         self.assertEqual(old_count, HistoryLine.objects.count())
 
-    def test_edition04(self): #ignore the changes : None -> ""
+    def test_edition04(self):
+        "Ignore the changes : None -> ''."
         name = 'gainax'
         old_capital = 12000
         gainax = Organisation.objects.create(user=self.user, name=name, capital=old_capital)
@@ -241,8 +244,8 @@ about this fantastic animation studio."""
 
         creation_line = HistoryLine.objects.get(entity=gainax)
 
-        self.assertEqual(200, self.client.post('/creme_core/entity/delete/%s' % gainax.id, follow=True).status_code)
-        self.assertFalse(Organisation.objects.filter(pk=gainax.id).count())
+        self.assertPOST200('/creme_core/entity/delete/%s' % gainax.id, follow=True)
+        self.assertFalse(Organisation.objects.filter(pk=gainax.id).exists())
 
         hlines = list(HistoryLine.objects.order_by('id'))
         self.assertEqual(old_count + 2, len(hlines))
@@ -360,14 +363,17 @@ about this fantastic animation studio."""
         self.assertEqual(expected, self.refresh(hline).verbose_modifications)
 
     def test_add_relation(self):
-        nerv = Organisation.objects.create(user=self.user, name='Nerv')
-        rei  = Contact.objects.create(user=self.user, first_name='Rei', last_name='Ayanami')
+        user = self.user
+        nerv = Organisation.objects.create(user=user, name='Nerv')
+        rei  = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         old_count = HistoryLine.objects.count()
 
         sleep(1) #ensure than relation is younger than entities
 
-        rtype, srtype = RelationType.create(('test-subject_employed', 'is employed'), ('test-object_employed', 'employs'))
-        relation = Relation.objects.create(user=self.user, subject_entity=rei, object_entity=nerv, type=rtype)
+        rtype, srtype = RelationType.create(('test-subject_employed', 'is employed'),
+                                            ('test-object_employed', 'employs')
+                                           )
+        relation = Relation.objects.create(user=user, subject_entity=rei, object_entity=nerv, type=rtype)
         relation = self.refresh(relation) #refresh to get the right modified value
 
         hlines = list(HistoryLine.objects.order_by('id'))
@@ -415,7 +421,8 @@ about this fantastic animation studio."""
         self.assertEqual(1, len(hlines))
         self.assertEqual(HistoryLine.TYPE_CREATION, hlines[0].type)
 
-    def test_multi_save02(self): #beware internal backup must be recreated after the save()
+    def test_multi_save02(self):
+        "Beware internal backup must be recreated after the save()"
         old_last_name = 'Ayami'; new_last_name = 'Ayanami'
         old_first_name = 'Rey';  new_first_name = 'Rei'
 
@@ -452,5 +459,33 @@ about this fantastic animation studio."""
         self.assertEqual([['first_name', old_first_name, new_first_name]],
                          edition_hline02.modifications
                         )
+
+    def test_invalid_field(self):
+        nerv = Organisation.objects.create(user=self.user, name='Nerv')
+        nerv = self.refresh(nerv) #force internal backup
+
+        nerv.name = nerv.name.upper()
+        nerv.save()
+        hline = HistoryLine.objects.filter(entity=nerv.id).order_by('-id')[0]
+        self.assertEqual(HistoryLine.TYPE_EDITION, hline.type)
+        self.assertIn('["NERV", ["name", "Nerv", "NERV"]]', hline.value)
+
+        self.assertEqual([self.FSTRING_3_VALUES % {'field':    _('Name'),
+                                                   'oldvalue': 'Nerv',
+                                                   'value':    'NERV',
+                                                  },
+                         ],
+                         hline.verbose_modifications
+                        )
+
+        fname = 'invalid'
+        hline.value = hline.value.replace('name', fname)
+        hline.save()
+        hline = self.refresh(hline) #clean cache
+
+        with self.assertNoException():
+            vmodifs = hline.verbose_modifications
+
+        self.assertEqual([self.FSTRING_1_VALUE % {'field': fname}], vmodifs)
 
     #TODO: test populate related lines + query counter ??
