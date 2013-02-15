@@ -52,7 +52,8 @@ class SearchConfigTestCase(CremeTestCase):
                          list(SearchField.objects.filter(search_config_item=sc_item).values_list('id', 'field'))
                         )
 
-    def test_create_if_needed02(self): #with user
+    def test_create_if_needed02(self):
+        "With user"
         self.login()
         user = self.user
 
@@ -75,18 +76,31 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertEqual('first_name', fn_field.field)
         self.assertEqual(1,            fn_field.order)
 
-    def test_get_fields(self):
+    def test_searchfields01(self):
         sc_item = SearchConfigItem.create_if_needed(Organisation, ['name', 'phone'])
 
         with self.assertNumQueries(1):
-            fields = sc_item.get_fields()
+            sfields = sc_item.searchfields
 
-        self.assertEqual(fields, list(SearchField.objects.filter(search_config_item=sc_item)))
+        self.assertEqual(list(SearchField.objects.filter(search_config_item=sc_item)), sfields)
 
         with self.assertNumQueries(0):
-            fields2 = sc_item.get_fields()
+            sfields2 = sc_item.searchfields
 
-        self.assertIs(fields, fields2)
+        self.assertIs(sfields, sfields2)
+
+    def test_searchfields02(self):
+        "Invalid field are deleted automatically"
+        sc_item = SearchConfigItem.create_if_needed(Organisation, ['name', 'phone'])
+        sfield = SearchField.objects.create(field='invalid', field_verbose_name='Invalid',
+                                            search_config_item=sc_item, order=3,
+                                           )
+
+        sc_item = self.refresh(sc_item) #no cache any more
+
+        sfields = sc_item.searchfields
+        self.assertEqual(['name', 'phone'], [sf.field for sf in sfields])
+        self.assertFalse(SearchField.objects.filter(pk=sfield.pk).exists())
 
     def test_populate_searchfields(self):
         create_if_needed = SearchConfigItem.create_if_needed
@@ -97,8 +111,8 @@ class SearchConfigTestCase(CremeTestCase):
             SearchConfigItem.populate_searchfields([sc_item1, sc_item2])
 
         with self.assertNumQueries(0):
-            fields1 = sc_item1.get_fields()
-            fields2 = sc_item2.get_fields()
+            fields1 = sc_item1.searchfields
+            fields2 = sc_item2.searchfields
 
         sc_filter = SearchField.objects.filter
         self.assertEqual(fields1, list(sc_filter(search_config_item=sc_item1)))

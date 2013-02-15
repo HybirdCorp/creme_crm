@@ -352,7 +352,9 @@ class HeaderFilterItem(Model):  #CremeModel ???
         self._volatile_render = volatile_render
 
 
-_hfi_action = HeaderFilterItem(order=0, name='entity_actions', title=_(u'Actions'), type=HFI_ACTIONS, has_a_filter=False, editable=False, is_hidden=False)
+_hfi_action = HeaderFilterItem(order=0, name='entity_actions', title=_(u'Actions'),
+                               type=HFI_ACTIONS, has_a_filter=False, editable=False, is_hidden=False,
+                              )
 
 @receiver(pre_delete, sender=RelationType)
 def _delete_relationtype_hfi(sender, instance, **kwargs):

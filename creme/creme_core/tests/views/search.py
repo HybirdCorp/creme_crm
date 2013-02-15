@@ -6,7 +6,7 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import *
+    from creme_core.models import SearchConfigItem
     from creme_core.tests.views.base import ViewsTestCase
 
     from persons.models import Contact, Organisation
@@ -46,7 +46,7 @@ class SearchViewTestCase(ViewsTestCase):
             data['research'] = research
 
         if ct_id is not None:
-            data['ct_id'] = ct_id,
+            data['ct_id'] = ct_id
 
         return self.client.post('/creme_core/search', data=data)
 
@@ -113,11 +113,11 @@ class SearchViewTestCase(ViewsTestCase):
 
         entities = contacts_result['entities']
         self.assertEqual(1, len(entities))
-        self.assertEqual(self.alan.id, entities[0].id)
+        self.assertEqual(self.alan, entities[0])
 
         entities = orgas_result['entities']
         self.assertEqual(1, len(entities))
-        self.assertEqual(self.coxco.id, entities[0].id)
+        self.assertEqual(self.coxco, entities[0])
 
     def test_search04(self):
         "Error"
@@ -153,7 +153,7 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertEqual(self.linus.id, entities[0].id)
 
     def test_search06(self):
-        "Search only is configured fields if the config exists"
+        "Search only in configured fields if the config exists"
         self.login()
         self._setup_contacts()
         self._setup_orgas()
