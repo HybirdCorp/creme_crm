@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,11 +19,13 @@
 ################################################################################
 
 from collections import defaultdict
-from logging import debug, warn
+import logging
 
-from django.db.models import (Model, CharField, ForeignKey, BooleanField, PositiveIntegerField,
-                              PositiveSmallIntegerField, DateField, DateTimeField, ManyToManyField)
+from django.db.models import (Model, FieldDoesNotExist, CharField, BooleanField,
+                              PositiveIntegerField, PositiveSmallIntegerField,
+                              DateField, DateTimeField, ForeignKey, ManyToManyField)
 from django.db.models.signals import pre_delete
+from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
@@ -32,6 +34,8 @@ from creme_core.models.fields import CremeUserForeignKey
 from creme_core.utils.meta import get_model_field_info
 from creme_core.utils.id_generator import generate_string_id_and_save
 
+
+logger = logging.getLogger(__name__)
 
 HFI_ACTIONS    = 0
 HFI_FIELD      = 1
@@ -45,7 +49,7 @@ HFI_RELATED    = 7 #Related entities (only allowed by the model) #TODO: Used onl
 
 class HeaderFilterList(list):
     """Contains all the HeaderFilter objects corresponding to a CremeEntity's ContentType.
-    Indeed, it's as a cache.
+    Indeed, it's a cache.
     """
     def __init__(self, content_type):
         super(HeaderFilterList, self).__init__(HeaderFilter.objects.filter(entity_type=content_type).order_by('name'))
@@ -74,7 +78,7 @@ class HeaderFilterList(list):
 
 class HeaderFilter(Model): #CremeModel ???
     id          = CharField(primary_key=True, max_length=100)
-    name        = CharField(max_length=100, verbose_name=_('Name of the view'))
+    name        = CharField(_('Name of the view'), max_length=100)
     user        = CremeUserForeignKey(verbose_name=_(u'Owner'), blank=True, null=True)
     entity_type = ForeignKey(ContentType, editable=False)
     is_custom   = BooleanField(blank=False, default=True)
@@ -88,13 +92,21 @@ class HeaderFilter(Model): #CremeModel ???
         return u'<HeaderFilter: name="%s">' % self.name
 
     def build_items(self, show_actions=False):
-        items = list(self.header_filter_items.order_by('order'))
+        items = []
+        append = items.append
 
         if show_actions:
-            items.insert(0, _hfi_action)
+            append(_hfi_action)
 
-        for item in items:
+        for item in self.header_filter_items.all():
             item.header_filter = self
+            error = item.error
+
+            if error:
+                logger.warn('%s => HeaderFilterItem instance removed', error)
+                item.delete()
+            else:
+                append(item)
 
         self._items = items
 
@@ -236,10 +248,10 @@ class HeaderFilterItem(Model):  #CremeModel ???
 
     @staticmethod
     def build_4_field(model, name):
-        field_info = get_model_field_info(model, name)
-        if not field_info:
-            #raise HeaderFilterItem.ValueError(u'Invalid field: %s' % name)
-            warn('HeaderFilterItem.build_4_field(): invalid field "%s"', name)
+        try:
+            field_info = get_model_field_info(model, name, silent=False)
+        except FieldDoesNotExist as e:
+            logger.warn('HeaderFilterItem.build_4_field(): "%s"', e)
             return None
 
         field = field_info[0]['field']
@@ -277,7 +289,7 @@ class HeaderFilterItem(Model):  #CremeModel ???
                                 has_a_filter=func_field.has_filter,
                                 is_hidden=func_field.is_hidden,
                                 editable=False,
-                                filter_string=""
+                                filter_string='',
                                )
 
     @staticmethod
@@ -295,10 +307,10 @@ class HeaderFilterItem(Model):  #CremeModel ???
         assert self.type == HFI_CUSTOM
 
         if self._customfield is None:
-            debug('HeaderFilterItem.get_customfield(): cache MISS for id=%s', self.id)
+            logger.debug('HeaderFilterItem.get_customfield(): cache MISS for id=%s', self.id)
             self._customfield = CustomField.objects.get(pk=self.name)
         else:
-            debug('HeaderFilterItem.get_customfield(): cache HIT for id=%s', self.id)
+            logger.debug('HeaderFilterItem.get_customfield(): cache HIT for id=%s', self.id)
 
         return self._customfield
 
@@ -306,36 +318,47 @@ class HeaderFilterItem(Model):  #CremeModel ???
         assert self.type == HFI_FUNCTION
 
         if self._functionfield is None:
-            debug('HeaderFilterItem.get_functionfield(): cache MISS for id=%s', self.id)
+            logger.debug('HeaderFilterItem.get_functionfield(): cache MISS for id=%s', self.id)
             #TODO what if function_field is None ?
             self._functionfield = self.header_filter.entity_type.model_class().function_fields.get(self.name)
         else:
-            debug('HeaderFilterItem.get_functionfield(): cache HIT for id=%s', self.id)
+            logger.debug('HeaderFilterItem.get_functionfield(): cache HIT for id=%s', self.id)
 
         return self._functionfield
 
-    def _get_volatile_render(self):
+    @property
+    def error(self): #TODO: map of validators
+        if self.type == HFI_FIELD:
+            model = self.header_filter.entity_type.model_class()
+
+            try:
+                get_model_field_info(model, self.name, silent=False)
+            except FieldDoesNotExist as e:
+                return unicode(e)
+
+    @property
+    def volatile_render(self):
         assert self.type == HFI_VOLATILE
         assert self._volatile_render is not None
         return self._volatile_render
 
-    def _set_volatile_render(self, volatile_render):
+    @volatile_render.setter
+    def volatile_render(self, volatile_render):
+        """@param volatile_render A 'function' that takes one parameter:
+                                  the entity display on the current list line.
+        The instance type must be 'HFI_VOLATILE'.
+        """
         assert self.type == HFI_VOLATILE
         self._volatile_render = volatile_render
 
-    #volatile_render is a 'function' that takes one parameter: the entity display on the current list line
-    #this function must be set on the HeaderFilterItem with type HFI_VOLATILE
-    volatile_render = property(_get_volatile_render, _set_volatile_render); del (_get_volatile_render, _set_volatile_render)
 
 _hfi_action = HeaderFilterItem(order=0, name='entity_actions', title=_(u'Actions'), type=HFI_ACTIONS, has_a_filter=False, editable=False, is_hidden=False)
 
-
+@receiver(pre_delete, sender=RelationType)
 def _delete_relationtype_hfi(sender, instance, **kwargs):
     #NB: None: because with symmetric relation_type FK is cleaned
     HeaderFilterItem.objects.filter(type=HFI_RELATION, relation_predicat=None).delete()
 
+@receiver(pre_delete, sender=CustomField)
 def _delete_customfield_hfi(sender, instance, **kwargs):
     HeaderFilterItem.objects.filter(type=HFI_CUSTOM, name=instance.id).delete()
-
-pre_delete.connect(_delete_relationtype_hfi, sender=RelationType)
-pre_delete.connect(_delete_customfield_hfi,  sender=CustomField)
