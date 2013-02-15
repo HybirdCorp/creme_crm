@@ -70,22 +70,23 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual('subject_to_vat__creme-boolean', hfi.filter_string)
 
     def test_build_4_field04(self):
-        "FK"
+        "ForeignKey"
         hfi = HeaderFilterItem.build_4_field(model=Contact, name='position')
         self.assertEqual('position', hfi.filter_string)
 
     def test_build_4_field05(self):
-        "Basic FK subfield"
+        "Basic ForeignKey subfield"
         hfi = HeaderFilterItem.build_4_field(model=Contact, name='position__title')
         self.assertEqual('position__title__icontains', hfi.filter_string)
 
     def test_build_4_field06(self):
-        "Date FK subfield"
+        "Date ForeignKey subfield"
         hfi = HeaderFilterItem.build_4_field(model=Contact, name='image__created')
         self.assertEqual(u'%s - %s' % (_('Photograph'), _('Creation date')), hfi.title)
         self.assertEqual('image__created__range', hfi.filter_string)
 
-    def test_build_4_field07(self): #m2m
+    def test_build_4_field07(self):
+        "ManyToMany"
         hfi = HeaderFilterItem.build_4_field(model=Contact, name='language')
         self.assertIs(hfi.has_a_filter, True)
 
@@ -94,10 +95,12 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_build_4_field_errors(self):
         #self.assertRaises(HeaderFilterItem.ValueError, HeaderFilterItem.build_4_field, model=Contact, name='unknown_field')
-        self.assertIsNone(HeaderFilterItem.build_4_field(model=Contact, name='unknown_field'))
+        build = partial(HeaderFilterItem.build_4_field, model=Contact)
+        self.assertIsNone(build(name='unknown_field'))
+        self.assertIsNone(build(name='user__unknownfield'))
 
     def test_build_4_customfield01(self):
-        "INT"
+        "INT CustomField"
         name = u'Size (cm)'
         customfield = CustomField.objects.create(name=name, field_type=CustomField.INT,
                                                  content_type=self.contact_ct
@@ -114,7 +117,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual('customfieldinteger__value__icontains', hfi.filter_string)
 
     def test_build_4_customfield02(self):
-        "FLOAT"
+        "FLOAT CustomField"
         customfield = CustomField.objects.create(name=u'Weight', field_type=CustomField.FLOAT,
                                                  content_type=self.contact_ct
                                                 )
@@ -123,7 +126,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual('customfieldfloat__value__icontains', hfi.filter_string)
 
     def test_build_4_customfield03(self):
-        "DATE"
+        "DATE CustomField"
         customfield = CustomField.objects.create(name=u'Day', field_type=CustomField.DATE,
                                                  content_type=self.contact_ct
                                                 )
@@ -132,7 +135,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual('customfielddatetime__value__range', hfi.filter_string)
 
     def test_build_4_customfield04(self):
-        "BOOL"
+        "BOOL CustomField"
         customfield = CustomField.objects.create(name=u'Is fun ?', field_type=CustomField.BOOL,
                                                  content_type=self.contact_ct
                                                 )
@@ -141,7 +144,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual('customfieldboolean__value__creme-boolean', hfi.filter_string)
 
     def test_build_4_customfield05(self):
-        "ENUM"
+        "ENUM CustomField"
         customfield = CustomField.objects.create(name='Eva', field_type=CustomField.ENUM,
                                                  content_type=self.contact_ct
                                                 )
@@ -154,7 +157,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual('customfieldenum__value__exact', hfi.filter_string)
 
     def test_build_4_customfield06(self):
-        "MULTI_ENUM"
+        "MULTI_ENUM CustomField"
         customfield = CustomField.objects.create(name='Eva', field_type=CustomField.MULTI_ENUM,
                                                  content_type=self.contact_ct
                                                 )
@@ -208,6 +211,9 @@ class HeaderFiltersTestCase(CremeTestCase):
         items = list(hfilter.header_filter_items.all())
         self.assertEqual(hf_items, items)
         self.assertEqual([1, 2],   [hfi.order for hfi in items])
+
+        with self.assertNumQueries(1):
+            hfilter.entity_type
 
         with self.assertNumQueries(1):
             prop_items = hfilter.items
@@ -277,13 +283,14 @@ class HeaderFiltersTestCase(CremeTestCase):
     def test_populate_entities_fields01(self):
         "Regular fields: no FK"
         self.login()
+        user = self.user
         hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=Contact)
 
         build = partial(HeaderFilterItem.build_4_field, model=Contact)
         hf.set_items([build(name='last_name'), build(name='first_name')])
 
         pos = Position.objects.create(title='Pilot')
-        create_contact = partial(Contact.objects.create, user=self.user, position_id=pos.id)
+        create_contact = partial(Contact.objects.create, user=user, position_id=pos.id)
         contacts = [create_contact(first_name='Nagate',  last_name='Tanikaze'),
                     create_contact(first_name='Shizuka', last_name='Hoshijiro'),
                    ]
@@ -299,6 +306,7 @@ class HeaderFiltersTestCase(CremeTestCase):
     def test_populate_entities_fields02(self):
         "Regular fields: FK"
         self.login()
+        user = self.user
         hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=Contact)
 
         build = partial(HeaderFilterItem.build_4_field, model=Contact)
@@ -309,7 +317,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 
         pos = Position.objects.create(title='Pilot')
         sector = Sector.objects.create(title='Army')
-        create_contact = partial(Contact.objects.create, user=self.user, position_id=pos.id, sector_id=sector.id)
+        create_contact = partial(Contact.objects.create, user=user, position_id=pos.id, sector_id=sector.id)
         contacts = [create_contact(first_name='Nagate',  last_name='Tanikaze'),
                     create_contact(first_name='Shizuka', last_name='Hoshijiro'),
                    ]
@@ -325,13 +333,60 @@ class HeaderFiltersTestCase(CremeTestCase):
             contacts[0].sector
             contacts[1].sector
 
+    def test_populate_entities_fields03(self):
+        "Regular fields: invalid fields are removed automatically."
+        self.login()
+        user = self.user
+        hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=Contact)
+
+        hfi1 = HeaderFilterItem.build_4_field(model=Contact, name='last_name')
+        hfi2 = HeaderFilterItem(name='invalid', title='Invalid', type=HFI_FIELD,
+                                 has_a_filter=True, editable=True,
+                                 filter_string='__icontains',
+                                )
+        hf.set_items([hfi1, hfi2])
+
+        create_contact = partial(Contact.objects.create, user=user)
+        contacts = [create_contact(first_name='Nagate',  last_name='Tanikaze'),
+                    create_contact(first_name='Shizuka', last_name='Hoshijiro'),
+                   ]
+
+        self.assertEqual([hfi1], hf.items)
+        self.assertFalse(HeaderFilterItem.objects.filter(pk=hfi2.pk).exists())
+
+        with self.assertNoException():
+            with self.assertNumQueries(0):
+                hf.populate_entities(contacts, user)
+
+    def test_populate_entities_fields04(self):
+        "Regular fields: invalid subfields."
+        self.login()
+        user = self.user
+        hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=Contact)
+
+        hfi1 = HeaderFilterItem.build_4_field(model=Contact, name='last_name')
+        hfi2 = HeaderFilterItem(name='user__invalid', title='Invalid user field',
+                                type=HFI_FIELD,
+                                has_a_filter=True, editable=True,
+                                filter_string='__icontains',
+                               )
+        hf.set_items([hfi1, hfi2])
+
+        create_contact = partial(Contact.objects.create, user=user)
+        contacts = [create_contact(first_name='Nagate',  last_name='Tanikaze'),
+                    create_contact(first_name='Shizuka', last_name='Hoshijiro'),
+                   ]
+
+        self.assertEqual([hfi1], hf.items)
+        self.assertFalse(HeaderFilterItem.objects.filter(pk=hfi2.pk).exists())
+
     def test_populate_entities_relations01(self):
         self.login()
         user = self.user
 
         create_rt = RelationType.create
-        loved = create_rt(('test-subject_love', u'Is loving'), ('test-object_love',  u'Is loved by'))[1]
-        hated = create_rt(('test-subject_hate', u'Is hating'), ('test-object_hate',  u'Is hated by'))[1]
+        loved = create_rt(('test-subject_love', u'Is loving'), ('test-object_love', u'Is loved by'))[1]
+        hated = create_rt(('test-subject_hate', u'Is hating'), ('test-object_hate', u'Is hated by'))[1]
 
         hf = HeaderFilter.create(pk='test-hf', name=u'Contact view', model=Contact)
         hf.set_items([HeaderFilterItem.build_4_field(model=Contact, name='last_name'),

@@ -52,7 +52,7 @@ def get_instance_field_info(obj, field_name):
     except (AttributeError, FieldDoesNotExist):
         return None, ''
 
-def get_model_field_info(model, field_name):
+def get_model_field_info(model, field_name, silent=True):
     """ For a field_name 'att1__att2__att3', it returns the list of dicts
         [
          {'field': django.db.models.fields.related.ForeignKey for model.att1, 'model': YourModelClass for model.att1},
@@ -72,8 +72,9 @@ def get_model_field_info(model, field_name):
         field = model._meta.get_field(subfield_names[-1])
         model = None if not field.get_internal_type() == 'ForeignKey' else field.rel.to
         info.append({'field': field, 'model': model})
-    except (AttributeError, FieldDoesNotExist):
-        pass
+    except (AttributeError, FieldDoesNotExist) as e:
+        if not silent:
+            raise FieldDoesNotExist(e)
 
     return info
 
