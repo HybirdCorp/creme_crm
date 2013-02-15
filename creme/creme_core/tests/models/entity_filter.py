@@ -1243,3 +1243,20 @@ class EntityFiltersTestCase(CremeTestCase):
                           EntityFilterCondition.build_4_datecustomfield,
                           custom_field=custom_field, date_range='unknown_range'
                          )
+
+    def test_invalid_field(self):
+        efilter = EntityFilter.create('test-filter01', 'Ikari', Contact)
+        build = partial(EntityFilterCondition.build_4_field, model=Contact,
+                        operator=EntityFilterCondition.EQUALS, values=['Ikari'],
+                       )
+        cond1 = build(name='last_name')
+        cond2 = build(name='first_name')
+        cond2.name = 'invalid'
+
+        efilter.set_conditions([cond1, cond2])
+
+        with self.assertNoException():
+            filtered = list(efilter.filter(Contact.objects.all()))
+
+        self.assertFalse(EntityFilterCondition.objects.filter(pk=cond2.pk).exists())
+        self.assertEqual(set(self._get_ikari_case_sensitive()), set(c.id for c in filtered))
