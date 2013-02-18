@@ -3,6 +3,7 @@
 from django.test import TestCase, TransactionTestCase
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
+from django.forms.formsets import BaseFormSet
 
 from creme_core.models import UserRole, RelationType, Relation, CremePropertyType
 from creme_core.management.commands.creme_populate import Command as PopulateCommand
@@ -110,6 +111,51 @@ class _CremeTestCase(object):
             function(*args, **kwargs)
         except Exception as e:
             raise self.failureException('An exception <%s> occured: %s' % (e.__class__.__name__, e))
+
+    def assertFormSetError(self, response, form, index, fieldname, expected_errors=None):
+        """Warning : this method has not the same behaviour than assertFormError()
+        It checks both error and no error tests.
+        """
+        self.assertIn(form, response.context)
+
+        self.assertIsInstance(response.context[form], BaseFormSet, "context field '%s' is not a FormSet")
+        self.assertGreaterEqual(index, 0)
+
+        all_errors = response.context[form].errors
+
+        if not all_errors:
+            if expected_errors:
+                self.fail("The field '%s' on formset '%s' number %d contains no errors, expected:%s" % (
+                            fieldname, form, index, expected_errors
+                        )
+                     )
+            return
+
+        self.assertLess(index, len(all_errors))
+
+        errors = all_errors[index]
+        has_field_error = fieldname in errors.keys()
+
+        if not has_field_error and not expected_errors:
+            return
+
+        if not has_field_error and expected_errors:
+            self.fail("The field '%s' on formset '%s' number %d contains no errors, expected:%s" % (
+                            fieldname, form, index, expected_errors
+                        )
+                     )
+
+        if has_field_error and not expected_errors:
+            self.fail("The field '%s' on formset '%s' number %d contains errors:%s, expected none" % (
+                            fieldname, form, index, errors[fieldname]
+                        )
+                     )
+
+        self.assertItemsEqual(expected_errors, errors[fieldname],
+                              "The field '%s' on formset '%s' number %d errors are:%s, expected:%s" % (
+                                    fieldname, form, index, errors[fieldname], expected_errors
+                                )
+                             )
 
     def assertNoFormError(self, response, status=200, form='form'):
         status_code = response.status_code

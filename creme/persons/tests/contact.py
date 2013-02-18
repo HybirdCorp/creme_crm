@@ -4,10 +4,12 @@ try:
     from functools import partial
     from os.path import join
 
-    from django.contrib.contenttypes.models import ContentType
     from django.conf import settings
+    from django.contrib.contenttypes.models import ContentType
+    from django.utils.translation import ugettext as _
 
     from creme_core.auth.entity_credentials import EntityCredentials
+    from creme_core.forms.widgets import Label, TextInput
     from creme_core.models import Relation, SetCredentials
     from creme_core.gui.quick_forms import quickforms_registry
 
@@ -283,8 +285,14 @@ class ContactTestCase(_BaseTestCase):
             self.assertIsNotNone(address2, ident)
             self.assertAddressOnlyContentEqual(address, address2)
 
+    def _build_quickform_url(self, count):
+        ct = ContentType.objects.get_for_model(Contact)
+        return '/creme_core/quickforms/%s/%s' % (ct.id, count)
+
     def test_quickform01(self):
         self.login()
+
+        orga_count = Organisation.objects.count()
 
         models = set(quickforms_registry.iter_models())
         self.assertIn(Contact, models)
@@ -292,9 +300,18 @@ class ContactTestCase(_BaseTestCase):
 
         data = [('Faye', 'Valentine'), ('Spike', 'Spiegel')]
 
-        ct = ContentType.objects.get_for_model(Contact)
-        url = '/creme_core/quickforms/%s/%s' % (ct.id, len(data))
-        self.assertGET200(url)
+        url = self._build_quickform_url(len(data))
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            orga_f = response.context['formset'][0].fields['organisation']
+
+        self.assertEqual(_(u'If no organisation is found, a new one will be created.'),
+                         orga_f.help_text
+                        )
+        self.assertIsInstance(orga_f.widget, TextInput)
+        self.assertFalse(isinstance(orga_f.widget, Label))
+        self.assertFalse(orga_f.initial)
 
         response = self.client.post(url, data={'form-TOTAL_FORMS':   len(data),
                                                'form-INITIAL_FORMS': 0,
@@ -310,7 +327,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertNoFormError(response)
 
         self.assertEqual(3, Contact.objects.count())
-        self.assertEqual(1, Organisation.objects.count())
+        self.assertEqual(orga_count, Organisation.objects.count())
 
         for first_name, last_name in data:
             self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
@@ -318,10 +335,9 @@ class ContactTestCase(_BaseTestCase):
     def test_quickform02(self):
         self.login()
 
-        orga_name = 'Organisation'
+        orga_name = 'Bebop'
         data = [('Faye', 'Valentine', orga_name), ('Spike', 'Spiegel', orga_name)]
-        ct = ContentType.objects.get_for_model(Contact)
-        response = self.client.post('/creme_core/quickforms/%s/%s' % (ct.id, len(data)),
+        response = self.client.post(self._build_quickform_url(len(data)),
                                     data={'form-TOTAL_FORMS':      len(data),
                                           'form-INITIAL_FORMS':    0,
                                           'form-MAX_NUM_FORMS':    u'',
@@ -377,6 +393,90 @@ class ContactTestCase(_BaseTestCase):
         for first_name, last_name, orga_name in data:
             contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
             self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga)
+
+    def test_quickform04(self):
+        "No permission to create Organisation"
+        self.login(is_superuser=False, creatable_models=[Contact]) #<== no Organisation
+
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW | EntityCredentials.LINK,
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+        orga_name = 'Bebop'
+        self.assertFalse(Organisation.objects.filter(name=orga_name).exists())
+
+        contact_count = Contact.objects.count()
+        orga_count = Organisation.objects.count()
+
+        url = self._build_quickform_url(1)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            orga_f = response.context['formset'][0].fields['organisation']
+
+        with self.assertNoException():
+            orga_f = response.context['formset'][0].fields['organisation']
+
+        self.assertEqual(_(u'Enter the name of an existing Organisation.'),
+                         unicode(orga_f.help_text)
+                        )
+
+        response = self.client.post(url,
+                                    data={'form-TOTAL_FORMS':      1,
+                                          'form-INITIAL_FORMS':    0,
+                                          'form-MAX_NUM_FORMS':    u'',
+                                          'form-0-user':           self.user.id,
+                                          'form-0-first_name':     'Faye',
+                                          'form-0-last_name':      'Valentine',
+                                          'form-0-organisation':   orga_name,
+                                         }
+                                   )
+        self.assertFormSetError(response, 'formset', 0, 'organisation',
+                                [_(u'You are not allowed to create an Organisation.')]
+                               )
+        self.assertEqual(contact_count, Contact.objects.count())
+        self.assertEqual(orga_count, Organisation.objects.count())
+
+    def test_quickform05(self):
+        "No permission to link"
+        self.login(is_superuser=False, creatable_models=[Contact])
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW, # not EntityCredentials.LINK
+                                      set_type=SetCredentials.ESET_ALL
+                                     )
+
+        orga_count = Organisation.objects.count()
+
+        url = self._build_quickform_url(1)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            orga_f = response.context['formset'][0].fields['organisation']
+
+        self.assertIsInstance(orga_f.widget, Label)
+        self.assertFalse(unicode(orga_f.help_text))
+        self.assertEqual(_(u'You are not allowed to link with an Organisation'),
+                         orga_f.initial
+                        )
+
+        first_name = 'Faye'
+        last_name = 'Valentine'
+        self.client.post(url,
+                         data={'form-TOTAL_FORMS':      1,
+                               'form-INITIAL_FORMS':    0,
+                               'form-MAX_NUM_FORMS':    u'',
+                               'form-0-user':           self.user.id,
+                               'form-0-first_name':     first_name,
+                               'form-0-last_name':      last_name,
+                               'form-0-organisation':   'Bebop',
+                              }
+                        )
+        self.assertFormSetError(response, 'formset', 0, 'organisation', None)
+
+        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+        self.assertEqual(orga_count, Organisation.objects.count())
+        self.assertFalse(Relation.objects.filter(subject_entity=contact))
 
     def test_merge01(self):
         "Merging addresses"
