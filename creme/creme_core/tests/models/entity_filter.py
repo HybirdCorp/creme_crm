@@ -1260,3 +1260,22 @@ class EntityFiltersTestCase(CremeTestCase):
 
         self.assertFalse(EntityFilterCondition.objects.filter(pk=cond2.pk).exists())
         self.assertEqual(set(self._get_ikari_case_sensitive()), set(c.id for c in filtered))
+
+    def test_invalid_datefield(self):
+        efilter = EntityFilter.create('test-filter01', 'Ikari', Contact)
+        cond1 = EntityFilterCondition.build_4_field(model=Contact, name='last_name',
+                                                    operator=EntityFilterCondition.EQUALS,
+                                                    values=['Ikari'],
+                                                   )
+        cond2 = EntityFilterCondition.build_4_date(model=Contact, name='birthday',
+                                                   start=date(year=2000, month=1, day=1),
+                                                  )
+        cond2.name = 'invalid'
+
+        efilter.set_conditions([cond1, cond2])
+
+        with self.assertNoException():
+            filtered = list(efilter.filter(Contact.objects.all()))
+
+        self.assertFalse(EntityFilterCondition.objects.filter(pk=cond2.pk).exists())
+        self.assertEqual(set(self._get_ikari_case_sensitive()), set(c.id for c in filtered))

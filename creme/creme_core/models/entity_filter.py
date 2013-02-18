@@ -452,7 +452,7 @@ class EntityFilterCondition(Model):
     def build_4_date(model, name, date_range=None, start=None, end=None):
         try:
             field = model._meta.get_field(name)
-        except FieldDoesNotExist, e:
+        except FieldDoesNotExist as e:
             raise EntityFilterCondition.ValueError(str(e))
 
         if not is_date_field(field):
@@ -545,9 +545,15 @@ class EntityFilterCondition(Model):
 
     @property
     def error(self): #TODO: map of validators
-        if self.type == EntityFilterCondition.EFC_FIELD:
+        etype = self.type
+        if etype == EntityFilterCondition.EFC_FIELD:
             try:
-                finfo = get_model_field_info(self.filter.entity_type.model_class(), self.name, silent=False)
+                get_model_field_info(self.filter.entity_type.model_class(), self.name, silent=False)
+            except FieldDoesNotExist as e:
+                return str(e)
+        elif etype == EntityFilterCondition.EFC_DATEFIELD:
+            try:
+                self.filter.entity_type.model_class()._meta.get_field(self.name)
             except FieldDoesNotExist as e:
                 return str(e)
 
