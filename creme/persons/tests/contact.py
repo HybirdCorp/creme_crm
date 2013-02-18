@@ -26,6 +26,9 @@ __all__ = ('ContactTestCase',)
 class ContactTestCase(_BaseTestCase):
     ADD_URL = '/persons/contact/add'
 
+    def _build_edit_url(self, contact):
+        return '/persons/contact/edit/%s' % contact.id
+
     def test_createview01(self):
         self.login()
 
@@ -41,7 +44,6 @@ class ContactTestCase(_BaseTestCase):
                                           'last_name':  last_name,
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
         self.assertEqual(count + 1, Contact.objects.count())
 
@@ -50,13 +52,12 @@ class ContactTestCase(_BaseTestCase):
         self.assertIsNone(contact.billing_address)
         self.assertIsNone(contact.shipping_address)
 
-        self.assertTrue(response.redirect_chain)
-        self.assertEqual(len(response.redirect_chain), 1)
-        self.assertTrue(response.redirect_chain[0][0].endswith('/persons/contact/%s' % contact.id))
+        abs_url = contact.get_absolute_url()
+        self.assertEqual('/persons/contact/%s' % contact.id, abs_url)
+        self.assertRedirects(response, abs_url)
 
-        self.assertGET200('/persons/contact/%s' % contact.id)
-
-    def test_createview02(self): # addresses
+    def test_createview02(self):
+        "With addresses"
         self.login()
 
         first_name = 'Spike'
@@ -87,52 +88,52 @@ class ContactTestCase(_BaseTestCase):
         first_name = 'Faye'
         contact = Contact.objects.create(user=self.user, first_name=first_name, last_name='Valentine')
 
-        url = '/persons/contact/edit/%s' % contact.id
+        url = self._build_edit_url(contact)
         self.assertGET200(url)
 
         last_name = 'Spiegel'
-        response = self.client.post(url, follow=True,
-                                    data={'user':       self.user.pk,
-                                          'first_name': first_name,
-                                          'last_name':  last_name,
-                                         }
-                                   )
-        self.assertEqual(200, response.status_code)
-        self.assertTrue(response.redirect_chain[0][0].endswith('/persons/contact/%s' % contact.id))
+        response = self.assertPOST200(url, follow=True,
+                                      data={'user':       self.user.pk,
+                                            'first_name': first_name,
+                                            'last_name':  last_name,
+                                          }
+                                     )
 
         contact = self.refresh(contact)
         self.assertEqual(last_name, contact.last_name)
         self.assertIsNone(contact.billing_address)
         self.assertIsNone(contact.shipping_address)
 
+        self.assertRedirects(response, contact.get_absolute_url())
+
     def test_editview02(self):
         self.login()
+        user = self.user
         first_name = 'Faye'
         last_name  = 'Valentine'
-        response = self.client.post(self.ADD_URL, follow=True,
-                                    data={'user':                     self.user.pk,
-                                          'first_name':               first_name,
-                                          'last_name':                last_name,
-                                          'billing_address-address':  'In the Bebop.',
-                                          'shipping_address-address': 'In the Bebop. (bis)',
-                                         }
-                                   )
+        self.assertPOST200(self.ADD_URL, follow=True,
+                           data={'user':                     user.pk,
+                                 'first_name':               first_name,
+                                 'last_name':                last_name,
+                                 'billing_address-address':  'In the Bebop.',
+                                 'shipping_address-address': 'In the Bebop. (bis)',
+                                }
+                         )
         contact = Contact.objects.get(first_name=first_name)
         billing_address_id  = contact.billing_address_id
         shipping_address_id = contact.shipping_address_id
 
         state   = 'Solar system'
         country = 'Mars'
-        response = self.client.post('/persons/contact/edit/%s' % contact.id, follow=True,
-                                    data={'user':                     self.user.pk,
-                                          'first_name':               first_name,
-                                          'last_name':                last_name,
-                                          'billing_address-state':    state,
-                                          'shipping_address-country': country,
-                                         }
-                                   )
-        self.assertEqual(200, response.status_code)
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(self._build_edit_url(contact), follow=True,
+                                                data={'user':                     user.pk,
+                                                      'first_name':               first_name,
+                                                      'last_name':                last_name,
+                                                      'billing_address-state':    state,
+                                                      'shipping_address-country': country,
+                                                     }
+                                               )
+                              )
 
         contact = self.refresh(contact)
         self.assertEqual(billing_address_id,  contact.billing_address_id)
@@ -306,7 +307,6 @@ class ContactTestCase(_BaseTestCase):
                                                'form-1-last_name':   data[1][1],
                                               }
                                    )
-        #self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         self.assertEqual(3, Contact.objects.count())
@@ -320,73 +320,66 @@ class ContactTestCase(_BaseTestCase):
 
         orga_name = 'Organisation'
         data = [('Faye', 'Valentine', orga_name), ('Spike', 'Spiegel', orga_name)]
-
         ct = ContentType.objects.get_for_model(Contact)
-        url = '/creme_core/quickforms/%s/%s' % (ct.id, len(data))
-
-        response = self.client.post(url, data={'form-TOTAL_FORMS':      len(data),
-                                               'form-INITIAL_FORMS':    0,
-                                               'form-MAX_NUM_FORMS':    u'',
-                                               'form-0-user':           self.user.id,
-                                               'form-0-first_name':     data[0][0],
-                                               'form-0-last_name':      data[0][1],
-                                               'form-0-organisation':   data[0][2],
-                                               'form-1-user':           self.user.id,
-                                               'form-1-first_name':     data[1][0],
-                                               'form-1-last_name':      data[1][1],
-                                               'form-1-organisation':   data[1][2],
-                                               }
+        response = self.client.post('/creme_core/quickforms/%s/%s' % (ct.id, len(data)),
+                                    data={'form-TOTAL_FORMS':      len(data),
+                                          'form-INITIAL_FORMS':    0,
+                                          'form-MAX_NUM_FORMS':    u'',
+                                          'form-0-user':           self.user.id,
+                                          'form-0-first_name':     data[0][0],
+                                          'form-0-last_name':      data[0][1],
+                                          'form-0-organisation':   data[0][2],
+                                          'form-1-user':           self.user.id,
+                                          'form-1-first_name':     data[1][0],
+                                          'form-1-last_name':      data[1][1],
+                                          'form-1-organisation':   data[1][2],
+                                         }
                                    )
-        #self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         self.assertEqual(3, Contact.objects.count())
         self.assertEqual(2, Organisation.objects.count())
 
+        created_orga = self.get_object_or_fail(Organisation, name=orga_name)
+
         for first_name, last_name, orga_name in data:
             contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-            self.assertEqual(1, Organisation.objects.filter(name=orga_name).count())
-
-            created_orga = self.get_object_or_fail(Organisation, name=orga_name)
             self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, created_orga)
 
     def test_quickform03(self):
         self.login()
 
-        orga_name = 'Organisation'
+        orga_name = 'Bebop'
+        self.assertFalse(Organisation.objects.filter(name=orga_name))
         orga = Organisation.objects.create(name=orga_name, user=self.user)
-        self.assertEqual(2, Organisation.objects.count())
 
         data = [('Faye', 'Valentine', orga_name), ('Spike', 'Spiegel', orga_name)]
-
         ct = ContentType.objects.get_for_model(Contact)
-        url = '/creme_core/quickforms/%s/%s' % (ct.id, len(data))
-
-        response = self.client.post(url, data={'form-TOTAL_FORMS':      len(data),
-                                               'form-INITIAL_FORMS':    0,
-                                               'form-MAX_NUM_FORMS':    u'',
-                                               'form-0-user':           self.user.id,
-                                               'form-0-first_name':     data[0][0],
-                                               'form-0-last_name':      data[0][1],
-                                               'form-0-organisation':   data[0][2],
-                                               'form-1-user':           self.user.id,
-                                               'form-1-first_name':     data[1][0],
-                                               'form-1-last_name':      data[1][1],
-                                               'form-1-organisation':   data[1][2],
-                                               }
+        response = self.client.post('/creme_core/quickforms/%s/%s' % (ct.id, len(data)),
+                                    data={'form-TOTAL_FORMS':      len(data),
+                                          'form-INITIAL_FORMS':    0,
+                                          'form-MAX_NUM_FORMS':    u'',
+                                          'form-0-user':           self.user.id,
+                                          'form-0-first_name':     data[0][0],
+                                          'form-0-last_name':      data[0][1],
+                                          'form-0-organisation':   data[0][2],
+                                          'form-1-user':           self.user.id,
+                                          'form-1-first_name':     data[1][0],
+                                          'form-1-last_name':      data[1][1],
+                                          'form-1-organisation':   data[1][2],
+                                         }
                                     )
-        #self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         self.assertEqual(3, Contact.objects.count())
-        self.assertEqual(2, Organisation.objects.count())
+        self.assertEqual(1, Organisation.objects.filter(name=orga_name).count())
 
         for first_name, last_name, orga_name in data:
             contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-            self.assertEqual(1, Organisation.objects.filter(name=orga_name).count())
             self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga)
 
-    def test_merge01(self): #merging addresses
+    def test_merge01(self):
+        "Merging addresses"
         self.login()
         user = self.user
 
@@ -533,7 +526,8 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual('Merged country 2',    shipping_address.country)
         self.assertEqual('Merged department 2', shipping_address.department)
 
-    def test_merge02(self): #merging addresses -> empty addresses
+    def test_merge02(self):
+        "Merging addresses -> empty addresses"
         self.login()
         user = self.user
 
@@ -643,7 +637,8 @@ class ContactTestCase(_BaseTestCase):
         self.assertIsNone(contact01.billing_address)
         self.assertIsNone(contact01.shipping_address)
 
-    def test_merge03(self): #cannot merge Contacts that represent a user
+    def test_merge03(self):
+        "Cannot merge Contacts that represent a user"
         self.login()
         user = self.user
 
@@ -655,7 +650,8 @@ class ContactTestCase(_BaseTestCase):
         self.assertGET404(url % (contact01.id, contact02.id))
         self.assertGET404(url % (contact02.id, contact01.id))
 
-    def test_delete_civility(self): #set to null
+    def test_delete_civility(self):
+        "Set to null"
         self.login()
         captain = Civility.objects.create(title='Captain')
         harlock = Contact.objects.create(user=self.user, first_name='Harlock',
@@ -668,7 +664,8 @@ class ContactTestCase(_BaseTestCase):
         harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
         self.assertIsNone(harlock.civility)
 
-    def test_delete_position(self): #set to null
+    def test_delete_position(self):
+        "Set to null"
         self.login()
         captain = Position.objects.create(title='Captain')
         harlock = Contact.objects.create(user=self.user, first_name='Harlock',
@@ -681,7 +678,8 @@ class ContactTestCase(_BaseTestCase):
         harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
         self.assertIsNone(harlock.position)
 
-    def test_delete_sector(self): #set to null
+    def test_delete_sector(self):
+        "Set to null"
         self.login()
         piracy = Sector.objects.create(title='Piracy')
         harlock = Contact.objects.create(user=self.user, first_name='Harlock',
@@ -694,7 +692,8 @@ class ContactTestCase(_BaseTestCase):
         harlock = self.get_object_or_fail(Contact, pk=harlock.pk)
         self.assertIsNone(harlock.sector)
 
-    def test_delete_image(self): #set to null
+    def test_delete_image(self):
+        "Set to null"
         self.login()
 
         path = join(settings.CREME_ROOT, 'static', 'chantilly', 'images', 'creme_22.png')
