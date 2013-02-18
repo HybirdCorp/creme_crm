@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -112,10 +112,13 @@ class UserRole(Model):
 
         return (ct.id in self._exportable_ctypes_set)
 
-    def get_setcredentials(self):
+    def _can_link(self, model, owned):
+        return SetCredentials._can_link(self._get_setcredentials(), model, owned)
+
+    def _get_setcredentials(self):
         setcredentials = self._setcredentials
 
-        if setcredentials is None: #TODO: implement a true getter get_set_credentials() ??
+        if setcredentials is None:
             debug('UserRole.get_credentials(): Cache MISS for id=%s', self.id)
             self._setcredentials = setcredentials = list(self.credentials.all())
         else:
@@ -129,7 +132,7 @@ class UserRole(Model):
         real_entity_class = ContentType.objects.get_for_id(entity.entity_type_id).model_class()
 
         if self.is_app_allowed_or_administrable(real_entity_class._meta.app_label):
-            perms = SetCredentials.get_perms(self.get_setcredentials(), user, entity)
+            perms = SetCredentials.get_perms(self._get_setcredentials(), user, entity)
         else:
             perms = EntityCredentials.NONE
 
@@ -140,7 +143,7 @@ class UserRole(Model):
         """@param perm value in (EntityCredentials.VIEW, EntityCredentials.CHANGE etc...)
         @return A new (filtered) queryset"""
         if self.is_app_allowed_or_administrable(queryset.model._meta.app_label):
-            queryset = SetCredentials.filter(self.get_setcredentials(), user, queryset, perm)
+            queryset = SetCredentials.filter(self._get_setcredentials(), user, queryset, perm)
         else:
             queryset = queryset.none()
 
@@ -220,6 +223,18 @@ class SetCredentials(Model):
     def get_perms(sc_sequence, user, entity):
         """@param sc_sequence Sequence of SetCredentials instances."""
         return reduce(or_op, (sc._get_perms(user, entity) for sc in sc_sequence), EntityCredentials.NONE)
+
+    @staticmethod
+    def _can_link(sc_sequence, model, owned): #TODO: more generic (VIEW, EDIT...)
+        perm = EntityCredentials.LINK
+        allowed_ctype_ids = (None, ContentType.objects.get_for_model(model).id) #TODO: factorise
+        types = (SetCredentials.ESET_ALL, SetCredentials.ESET_OWN) if owned else (SetCredentials.ESET_ALL,)
+
+        for sc in sc_sequence:
+            if sc.set_type in types and sc.ctype_id in allowed_ctype_ids and sc.value & perm:
+                return True
+
+        return False
 
     @staticmethod
     def filter(sc_sequence, user, queryset, perm):
@@ -334,6 +349,12 @@ class UserProfile(Model):
     def has_perm_to_create_or_die(self, model_or_entity):
         if not self.has_perm_to_create(model_or_entity):
             raise PermissionDenied(ugettext(u'You are not allowed to create: %s') % model_or_entity._meta.verbose_name)
+
+    def has_perm_to_link(self, model, owned=False):
+        """@param owned Boolean; 'False' answsers if the user can link with
+                        its own entities (not enlarged to every entities).
+        """
+        return True if self.is_superuser else self.role._can_link(model, owned)
 
     def has_perm_to_export(self, model_or_entity): #TODO: factorise with has_perm_to_create() ??
         """Helper for has_perm() method.

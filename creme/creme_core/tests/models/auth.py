@@ -8,8 +8,10 @@ try:
     from django.contrib.auth.models import User, Permission
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import *
     from creme_core.tests.base import CremeTestCase
+    from creme_core.auth.entity_credentials import EntityCredentials
+    from creme_core.models import(CremeEntity, CremePropertyType, CremeProperty,
+                                  Relation, UserRole, SetCredentials)
 
     from persons.models import Contact, Organisation
 except Exception as e:
@@ -42,8 +44,15 @@ class CredentialsTestCase(CremeTestCase):
         role.admin_4_apps = admin_4_apps
         role.save()
 
-        for value, set_type in set_creds:
-            SetCredentials.objects.create(role=role, value=value, set_type=set_type)
+        for sc in set_creds:
+            if len(sc) == 2:
+                value, set_type = sc
+                ctype = None
+            else:
+                value, set_type, model = sc
+                ctype = ContentType.objects.get_for_model(model)
+
+            SetCredentials.objects.create(role=role, value=value, set_type=set_type, ctype=ctype)
 
         for user in users:
             user.role = role
@@ -220,7 +229,9 @@ class CredentialsTestCase(CremeTestCase):
 
         efilter = partial(EntityCredentials.filter, user, self._build_contact_qs())
         self.assertFalse(efilter(perm=EntityCredentials.VIEW))
-        self.assertEqual([contact1.id, contact2.id], self._ids_list(efilter(perm=EntityCredentials.CHANGE)))
+        self.assertEqual([contact1.id, contact2.id],
+                         self._ids_list(efilter(perm=EntityCredentials.CHANGE))
+                        )
         self.assertFalse(efilter(perm=EntityCredentials.DELETE))
         self.assertFalse(efilter(perm=EntityCredentials.LINK))
         self.assertFalse(efilter(perm=EntityCredentials.UNLINK))
@@ -242,7 +253,9 @@ class CredentialsTestCase(CremeTestCase):
 
         efilter = partial(EntityCredentials.filter, user, self._build_contact_qs())
         self.assertFalse(efilter(perm=EntityCredentials.VIEW))
-        self.assertEqual([contact1.id, contact2.id], self._ids_list(efilter(perm=EntityCredentials.CHANGE)))
+        self.assertEqual([contact1.id, contact2.id],
+                         self._ids_list(efilter(perm=EntityCredentials.CHANGE))
+                        )
 
     def test_role_esetall_delete(self):
         "DELETE + ESET_ALL"
@@ -266,7 +279,9 @@ class CredentialsTestCase(CremeTestCase):
         efilter = partial(EntityCredentials.filter, user, self._build_contact_qs())
         self.assertFalse(efilter(perm=EntityCredentials.VIEW))
         self.assertFalse(efilter(perm=EntityCredentials.CHANGE))
-        self.assertEqual([contact1.id, contact2.id], self._ids_list(efilter(perm=EntityCredentials.DELETE)))
+        self.assertEqual([contact1.id, contact2.id],
+                         self._ids_list(efilter(perm=EntityCredentials.DELETE))
+                        )
         self.assertFalse(efilter(perm=EntityCredentials.LINK))
         self.assertFalse(efilter(perm=EntityCredentials.UNLINK))
 
@@ -293,7 +308,9 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(efilter(perm=EntityCredentials.VIEW))
         self.assertFalse(efilter(perm=EntityCredentials.CHANGE))
         self.assertFalse(efilter(perm=EntityCredentials.DELETE))
-        self.assertEqual([contact1.id, contact2.id], self._ids_list(efilter(perm=EntityCredentials.LINK)))
+        self.assertEqual([contact1.id, contact2.id],
+                         self._ids_list(efilter(perm=EntityCredentials.LINK))
+                        )
         self.assertFalse(efilter(perm=EntityCredentials.UNLINK))
 
     def test_role_esetall_unlink(self):
@@ -320,7 +337,9 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(efilter(perm=EntityCredentials.CHANGE))
         self.assertFalse(efilter(perm=EntityCredentials.DELETE))
         self.assertFalse(efilter(perm=EntityCredentials.LINK))
-        self.assertEqual([contact1.id, contact2.id], self._ids_list(efilter(perm=EntityCredentials.UNLINK)))
+        self.assertEqual([contact1.id, contact2.id],
+                         self._ids_list(efilter(perm=EntityCredentials.UNLINK))
+                        )
 
     def test_role_esetown_view(self):
         "VIEW + ESET_OWN"
@@ -353,7 +372,8 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(efilter(perm=EntityCredentials.LINK))
         self.assertFalse(efilter(perm=EntityCredentials.UNLINK))
 
-    def test_role_esetown_view_n_change(self): # ESET_OWN + VIEW/CHANGE
+    def test_role_esetown_view_n_change(self):
+        "ESET_OWN + VIEW/CHANGE"
         user = self.user
         self._create_role('Coder', ['creme_core', 'persons'], users=[user],
                           set_creds=[(EntityCredentials.CHANGE | EntityCredentials.DELETE,
@@ -498,11 +518,9 @@ class CredentialsTestCase(CremeTestCase):
 
     def test_ct_credentials(self):
         user = self.user
-        role = self._create_role('Coder', ['creme_core', 'persons'], users=[user])
-        SetCredentials.objects.create(role=role, value=EntityCredentials.VIEW,
-                                      set_type=SetCredentials.ESET_ALL,
-                                      ctype=ContentType.objects.get_for_model(Contact),
-                                     )
+        role = self._create_role('Coder', ['creme_core', 'persons'], users=[user],
+                                 set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_ALL, Contact)]
+                                )
 
         contact1 = self.contact1
         self.assertTrue(contact1.can_view(user)) # <=====
@@ -659,7 +677,8 @@ class CredentialsTestCase(CremeTestCase):
         self.assertTrue(has_perm('creme_core'))
         self.assertTrue(has_perm('creme_core.can_admin'))
 
-    def test_delete01(self): #delete role
+    def test_delete01(self):
+        "Delete role"
         role = self._create_role('Coder', ['creme_core', 'persons'],
                                  set_creds=[(EntityCredentials.CHANGE, SetCredentials.ESET_OWN),
                                             (EntityCredentials.VIEW,   SetCredentials.ESET_ALL)
@@ -813,3 +832,76 @@ class CredentialsTestCase(CremeTestCase):
                          self._ids_list(efilter(user, qs, perm=EntityCredentials.VIEW))
                         ) #belongs to the teams
         self.assertFalse(efilter(user, qs, perm=EntityCredentials.CHANGE))
+
+    def test_has_perm_to_link01(self):
+        "Super user"
+        user = self.user
+        user.is_superuser = True #<====
+
+        has_perm = user.has_perm_to_link
+
+        #self.assertTrue(user.has_perm_to_link()) TODO ??
+        self.assertTrue(user.has_perm_to_link(Organisation))
+
+    def test_has_perm_to_link02(self):
+        user = self.user
+        self._create_role('Worker', ['creme_core'], users=[user],
+                          set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_ALL)]
+                         )
+
+        has_perm_to_link = user.has_perm_to_link
+        #self.assertTrue(user.has_perm_to_link()) TODO ??
+        self.assertFalse(has_perm_to_link(Organisation))
+        self.assertFalse(has_perm_to_link(Organisation, owned=False))
+
+    def test_has_perm_to_link03(self):
+        user = self.user
+        self._create_role('Worker', ['creme_core'], users=[user],
+                          set_creds=[(EntityCredentials.VIEW | EntityCredentials.LINK,
+                                      SetCredentials.ESET_ALL
+                                     )
+                                    ]
+                         )
+
+        has_perm_to_link = user.has_perm_to_link
+        self.assertTrue(user.has_perm_to_link(Organisation))
+
+    def test_has_perm_to_link04(self):
+        "With CT credentials -> has perm"
+        user = self.user
+        self._create_role('Worker', ['creme_core'], users=[user],
+                          set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_ALL),
+                                     (EntityCredentials.LINK, SetCredentials.ESET_ALL, Organisation),
+                                    ]
+                         )
+
+        has_perm_to_link = user.has_perm_to_link
+        self.assertTrue(has_perm_to_link(Organisation))
+        self.assertTrue(has_perm_to_link(Organisation, owned=False))
+        self.assertTrue(has_perm_to_link(Organisation, owned=True))
+
+    def test_has_perm_to_link05(self):
+        "With CT credentials -> has not perm"
+        user = self.user
+        self._create_role('Worker', ['creme_core'], users=[user],
+                          set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_ALL),
+                                     (EntityCredentials.LINK, SetCredentials.ESET_ALL, Contact), #<= not Organisation
+                                    ]
+                         )
+
+        has_perm_to_link = user.has_perm_to_link
+        self.assertFalse(has_perm_to_link(Organisation))
+        self.assertTrue(has_perm_to_link(Contact))
+
+    def test_has_perm_to_link06(self):
+        "eset_all = False"
+        user = self.user
+        self._create_role('Worker', ['creme_core'], users=[user],
+                          set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_ALL),
+                                     (EntityCredentials.LINK, SetCredentials.ESET_OWN),
+                                    ]
+                         )
+
+        has_perm_to_link = user.has_perm_to_link
+        self.assertFalse(has_perm_to_link(Organisation, owned=False))
+        self.assertTrue(has_perm_to_link(Organisation,  owned=True))
