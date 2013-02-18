@@ -42,7 +42,7 @@ class AddressTestCase(CremeTestCase):
 
     def test_createview(self):
         orga = self.login()
-        self.assertEqual(0, Address.objects.filter(object_id=orga.id).count())
+        self.assertFalse(Address.objects.filter(object_id=orga.id).exists())
 
         self.assertGET200(self.ADD_URL % orga.id)
 
@@ -125,7 +125,7 @@ class AddressTestCase(CremeTestCase):
         ct = ContentType.objects.get_for_model(Address)
 
         self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': address.id})
-        self.assertEqual(0, Address.objects.filter(object_id=orga.id).count())
+        self.assertFalse(Address.objects.filter(object_id=orga.id).exists())
 
     def test_bool(self):
         self.assertFalse(Address())

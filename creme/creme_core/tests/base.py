@@ -63,23 +63,35 @@ class _CremeTestCase(object):
         if not list(creme_registry.iter_apps()):
             autodiscover()
 
+    def assertGET(self, expected_status, *args, **kwargs):
+        response = self.client.get(*args, **kwargs)
+        self.assertEqual(expected_status, response.status_code)
+
+        return response
+
     def assertGET200(self, *args, **kwargs):
-        self.assertEqual(200, self.client.get(*args, **kwargs).status_code)
+        return self.assertGET(200, *args, **kwargs)
 
     def assertGET403(self, *args, **kwargs):
-        self.assertEqual(403, self.client.get(*args, **kwargs).status_code)
+        return self.assertGET(403, *args, **kwargs)
 
     def assertGET404(self, *args, **kwargs):
-        self.assertEqual(404, self.client.get(*args, **kwargs).status_code)
+        return self.assertGET(404, *args, **kwargs)
+
+    def assertPOST(self, expected_status, *args, **kwargs):
+        response = self.client.post(*args, **kwargs)
+        self.assertEqual(expected_status, response.status_code)
+
+        return response
 
     def assertPOST200(self, *args, **kwargs):
-        self.assertEqual(200, self.client.post(*args, **kwargs).status_code)
+        return self.assertPOST(200, *args, **kwargs)
 
     def assertPOST403(self, *args, **kwargs):
-        self.assertEqual(403, self.client.post(*args, **kwargs).status_code)
+        return self.assertPOST(403, *args, **kwargs)
 
     def assertPOST404(self, *args, **kwargs):
-        self.assertEqual(404, self.client.post(*args, **kwargs).status_code)
+        return self.assertPOST(404, *args, **kwargs)
 
     def assertRedirectsToLogin(self, response, url):
         self.assertRedirects(response, 'http://testserver/creme_login/?next=%s' % url)
