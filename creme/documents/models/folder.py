@@ -42,6 +42,7 @@ class Folder(CremeEntity):
 
     #research_fields = CremeEntity.research_fields + ['title', 'description', 'parent_folder__title', 'category__name']
     allowed_related = CremeEntity.allowed_related | set(['document'])
+    creation_label = _('Add a folder')
 
     class Meta:
         app_label = 'documents'

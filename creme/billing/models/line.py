@@ -78,6 +78,7 @@ class Line(CremeEntity):
     #excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['type']
     #header_filter_exclude_fields   = CremeEntity.header_filter_exclude_fields + ['type']
     function_fields = CremeEntity.function_fields.new(_LineTypeField())
+    creation_label = _('Add a line')
 
     _related_document = None
     _related_item = None

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,7 +34,7 @@ creme_registry.register_entity_models(Ticket)
 reg_item = creme_menu.register_app('tickets', '/tickets/').register_item
 reg_item('/tickets/',           _(u'Portal of tickets'), 'tickets')
 reg_item('/tickets/tickets',    _(u'All tickets'),       'tickets')
-reg_item('/tickets/ticket/add', _(u'Add a ticket'),      'tickets.add_ticket')
+reg_item('/tickets/ticket/add', Ticket.creation_label,   'tickets.add_ticket')
 
 block_registry.register_4_model(Ticket, TicketBlock())
 

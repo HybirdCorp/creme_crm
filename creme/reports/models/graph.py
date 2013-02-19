@@ -59,6 +59,8 @@ class ReportGraph(CremeEntity):
     days     = PositiveIntegerField(_(u'Days'), blank=True, null=True)
     is_count = BooleanField(_(u'Make a count instead of aggregate ?'))
 
+    creation_label = _("Add a report's graph")
+
     class Meta:
         app_label = 'reports'
         verbose_name = _(u"Report's graph")

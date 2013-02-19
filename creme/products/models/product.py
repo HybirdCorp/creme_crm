@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,6 +46,7 @@ class Product(CremeEntity):
     images            = ManyToManyField(Image, blank=True, null=True, verbose_name=_(u'Images'), related_name='ProductImages_set')
 
     #research_fields = CremeEntity.research_fields + ['name', 'code', 'description', 'sub_category__name', 'category__name', 'images']
+    creation_label = _('Add a product')
 
     def __unicode__(self):
         return self.name

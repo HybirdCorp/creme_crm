@@ -32,6 +32,8 @@ class MailingList(CremeEntity):
     contacts      = ManyToManyField(Contact, verbose_name=_(u'Contacts recipients'))
     organisations = ManyToManyField(Organisation, verbose_name=_(u'Organisations recipients'))
 
+    creation_label = _('Add a mailing list')
+
     class Meta:
         app_label = "emails"
         verbose_name = _(u'Mailing list')

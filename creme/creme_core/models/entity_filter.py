@@ -85,6 +85,7 @@ class EntityFilter(Model): #CremeModel ???
     is_custom   = BooleanField(editable=False, default=True)
     use_or      = BooleanField(verbose_name=_(u'Use "OR"'), default=False)
 
+    creation_label = _('Add a filter')
     _connected_filter_cache = None
 
     class Meta:

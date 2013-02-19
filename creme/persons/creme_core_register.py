@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,9 +40,9 @@ reg_item = creme_menu.register_app('persons', '/persons/').register_item
 reg_item('/persons/',                 _(u'Portal of accounts and contacts'),     'persons')
 reg_item('/persons/contacts',         _(u'All contacts'),                        'persons')
 reg_item('/persons/leads_customers',  _(u'My customers / prospects / suspects'), 'persons')
-reg_item('/persons/contact/add',      _(u'Add a contact'),                       'persons.add_contact')
+reg_item('/persons/contact/add',      Contact.creation_label,                    'persons.add_contact')
 reg_item('/persons/organisations',    _(u'All organisations'),                   'persons')
-reg_item('/persons/organisation/add', _(u'Add an organisation'),                 'persons.add_organisation')
+reg_item('/persons/organisation/add', Organisation.creation_label,               'persons.add_organisation')
 
 button_registry.register(*button_list)
 

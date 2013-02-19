@@ -24,7 +24,7 @@ from functools import partial
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required, permission_required
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme_core.models import RelationType, EntityCredentials, Relation
 from creme_core.views.generic import view_real_entity, add_entity, list_view, inner_popup
@@ -48,7 +48,10 @@ Don't be surprised if you can't add new participant on an indisponibility's deta
 @permission_required('activities.add_activity')
 def add_indisponibility(request):
     return add_entity(request, IndisponibilityCreateForm, '/activities/calendar/user',
-                      extra_template_dict={'help_message' : INDISPONIBILITY_HELP_MESSAGE})
+                      extra_template_dict={'help_message' : INDISPONIBILITY_HELP_MESSAGE,
+                                           'title':         ugettext(u'Add an indisponibility'),
+                                          }
+                     )
 
 def _add_activity(request, class_form, **form_args):
     if request.method == 'POST':

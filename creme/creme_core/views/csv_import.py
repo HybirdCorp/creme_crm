@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.shortcuts import render, get_object_or_404
+from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import login_required
 
@@ -66,4 +67,8 @@ def csv_import(request, ct_id):
     else:
         form = CSVUploadForm(user=user, initial={'csv_step': 0})
 
-    return render(request, 'creme_core/generics/blockform/add.html', {'form': form})
+    return render(request, 'creme_core/generics/blockform/add.html',
+                  {'form': form,
+                   'title': _('Import CSV'),
+                  }
+                 )

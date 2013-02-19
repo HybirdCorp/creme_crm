@@ -1,8 +1,5 @@
-{% extends "creme_core/base.html" %}
-{% load i18n %}
-
-{% block page_title %} - {% trans 'New organisation' %}{% endblock %}
+{% extends "creme_core/generics/blockform/add.html" %}
 
 {% block content %}
-    {% include "persons/frags/organisation_form_content.html" with logo='images/add_64.png' title=_('New organisation') %}
+    {% include "persons/frags/organisation_form_content.html" with logo='images/add_64.png' %}
 {% endblock %}

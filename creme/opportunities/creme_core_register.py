@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,7 +35,7 @@ creme_registry.register_entity_models(Opportunity)
 reg_item = creme_menu.register_app('opportunities', '/opportunities/').register_item
 reg_item('/opportunities/',                _(u'Portal of opportunities'), 'opportunities')
 reg_item('/opportunities/opportunities',   _(u'All opportunities'),       'opportunities')
-reg_item('/opportunities/opportunity/add', _(u'Add an opportunity'),      'opportunities.add_opportunity')
+reg_item('/opportunities/opportunity/add', Opportunity.creation_label,    'opportunities.add_opportunity')
 
 block_registry.register_4_model(Opportunity, OpportunityBlock())
 button_registry.register(linked_opportunity_button)

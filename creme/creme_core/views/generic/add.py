@@ -59,7 +59,10 @@ def add_entity(request, form_class, url_redirect='', template='creme_core/generi
         #entity_form = form_class(user=request.user, initial=initial_dict)
         entity_form = form_class(user=request.user, initial=extra_initial)
 
-    template_dict = {'form': entity_form}
+    template_dict = {'form':  entity_form,
+                     'title': form_class._meta.model.creation_label,
+                    }
+
     if extra_template_dict:
         template_dict.update(extra_template_dict)
 

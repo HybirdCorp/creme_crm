@@ -31,6 +31,8 @@ class EmailCampaign(CremeEntity):
     name          = CharField(_(u'Name of the campaign'), max_length=100, blank=False, null=False)
     mailing_lists = ManyToManyField(MailingList, verbose_name=_(u'Related mailing lists'))
 
+    creation_label = _('Add a campaign')
+
     class Meta:
         app_label = "emails"
         verbose_name = _(u"Emailing campaign")

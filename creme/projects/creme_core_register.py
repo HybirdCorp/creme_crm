@@ -33,7 +33,7 @@ creme_registry.register_entity_models(Project, ProjectTask) #TODO: need to regis
 reg_item = creme_menu.register_app('projects', '/projects/').register_item
 reg_item('/projects/',            _('Portal of projects'), 'projects')
 reg_item('/projects/projects',    _('All projects'),       'projects')
-reg_item('/projects/project/add', _('Add a project'),      'projects.add_project')
+reg_item('/projects/project/add', Project.creation_label,  'projects.add_project')
 
 block_registry.register(*block_list)
 

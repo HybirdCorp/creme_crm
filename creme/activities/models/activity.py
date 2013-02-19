@@ -126,7 +126,7 @@ class Activity(CremeEntity):
     status      = ForeignKey(Status, verbose_name=_(u'Status'), blank=True, null=True)
     busy        = BooleanField(_(u'Busy ?'), default=False)
 
-
+    creation_label = _('Add an activity')
     #research_fields = CremeEntity.research_fields + ['title', 'type__name']
     #excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['activity_ptr', ]
 

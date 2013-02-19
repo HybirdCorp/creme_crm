@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -59,11 +59,10 @@ class _PrettyPropertiesField(FunctionField):
 class CremeEntity(CremeAbstractEntity):
     #header_filter_exclude_fields = CremeAbstractEntity.header_filter_exclude_fields + ['cremeentity_ptr', 'entity_type', 'is_deleted', 'is_actived', 'header_filter_search_field'] #todo: use a set() ??
     #extra_filter_exclude_fields  = CremeAbstractEntity.extra_filter_exclude_fields + ['id', 'cremeentity_ptr', 'header_filter_search_field']
-
     function_fields = CremeAbstractEntity.function_fields.new(_PrettyPropertiesField())
-
     #_clone_excluded_fields = set(['created', 'modified'])
-    allowed_related        = set() #Currently used in reports (can be used elsewhere ?) to allow reporting on those related fields
+    allowed_related = set() #Currently used in reports (can be used elsewhere ?) to allow reporting on those related fields #TODO: use tag instead
+    creation_label = _('Add an entity')
 
     class Meta:
         app_label = 'creme_core'

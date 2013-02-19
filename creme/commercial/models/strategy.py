@@ -46,6 +46,8 @@ class Strategy(CremeEntity):
     name            = CharField(_(u"Name"), max_length=100)
     evaluated_orgas = ManyToManyField(Organisation, null=True, editable=False)
 
+    creation_label = _('Add a strategy')
+
     class Meta:
         app_label = "commercial"
         verbose_name = _(u'Commercial strategy')

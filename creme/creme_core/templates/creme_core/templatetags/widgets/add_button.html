@@ -3,11 +3,11 @@
 {% if can_add %}
     <a class="menu_button" href="{{path}}/add">
         <img src="{% creme_media_url 'images/add_32.png' %}" border="0" title="{% trans "Add" %}" alt="{% trans "Add" %}" />
-        {% trans "New" %}
+        {{object.creation_label}}
     </a>
 {% else %}
     <span class="menu_button" style="opacity:0.5;">
         <img src="{% creme_media_url 'images/add_32.png' %}" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}"/>
-        {% trans "New (forbidden)" %}
+        {{object.creation_label}}
     </span>
 {% endif %}

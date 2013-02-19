@@ -75,6 +75,8 @@ class EntityEmail(_Email, CremeEntity):
     signature   = ForeignKey(EmailSignature, verbose_name=_(u'Signature'), blank=True, null=True) ##merge with body ????
     attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'))
 
+    creation_label = _('Add an email')
+
     class Meta:
         app_label = "emails"
         verbose_name = _(u'Email')

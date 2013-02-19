@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,7 @@ from line import Line, PRODUCT_LINE_TYPE
 class ProductLine(Line):
     #excluded_fields_in_html_output = Line.excluded_fields_in_html_output + ['line_ptr']
     #header_filter_exclude_fields = Line.header_filter_exclude_fields + ['line_ptr'] #u: use a set() ??
+    creation_label = _('Add a product line')
 
     def __init__(self, *args, **kwargs):
         super(ProductLine, self).__init__(*args, **kwargs)
