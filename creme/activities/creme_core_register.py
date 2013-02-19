@@ -40,7 +40,7 @@ reg_item('/activities/indisponibility/add',    _(u'Add an indisponibility'), 'ac
 reg_item('/activities/activity/add/meeting',   _(u'Add a meeting'),          'activities.add_activity')
 reg_item('/activities/activity/add/phonecall', _(u'Add a phone call'),       'activities.add_activity')
 reg_item('/activities/activity/add/task',      _(u'Add a task'),             'activities.add_activity')
-reg_item('/activities/activity/add/activity',  _(u'Add an activity'),        'activities.add_activity')
+reg_item('/activities/activity/add/activity',  Activity.creation_label,      'activities.add_activity')
 reg_item('/activities/activities',             _(u'All activities'),         'activities')
 reg_item('/activities/phone_calls',            _(u'All phone calls'),        'activities')
 reg_item('/activities/meetings',               _(u'All meetings'),           'activities')

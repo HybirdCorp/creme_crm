@@ -35,11 +35,11 @@ reg_item = creme_menu.register_app('commercial', '/commercial/').register_item
 reg_item('/commercial/',                      _(u'Portal of commercial strategy'), 'commercial')
 reg_item('/commercial/market_segments',       _(u'All market segments'),           'commercial')
 reg_item('/commercial/acts',                  _(u'All commercial actions'),        'commercial')
-reg_item('/commercial/act/add',               _(u'Add a commercial action'),       'commercial.add_act')
+reg_item('/commercial/act/add',               Act.creation_label,                  'commercial.add_act')
 reg_item('/commercial/strategies',            _(u'All strategies'),                'commercial')
-reg_item('/commercial/strategy/add',          _(u'Add a strategy'),                'commercial.add_strategy')
+reg_item('/commercial/strategy/add',          Strategy.creation_label,             'commercial.add_strategy')
 reg_item('/commercial/objective_patterns',    _(u'All objective patterns'),        'commercial')
-reg_item('/commercial/objective_pattern/add', _(u'Add an objective pattern'),      'commercial.add_actobjectivepattern')
+reg_item('/commercial/objective_pattern/add', ActObjectivePattern.creation_label,  'commercial.add_actobjectivepattern')
 
 reg_item = creme_menu.get_app_item('persons').register_item
 reg_item('/commercial/salesmen',     _(u'All salesmen'),   'persons')

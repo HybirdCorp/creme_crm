@@ -92,6 +92,7 @@ class Opportunity(CremeEntity):
     first_action_date     = DateField(_(u'Date of the first action'), blank=True, null=True)
 
     function_fields = CremeEntity.function_fields.new(_TurnoverField())
+    creation_label = _('Add an opportunity')
 
     _opp_emitter = None
     _opp_target  = None

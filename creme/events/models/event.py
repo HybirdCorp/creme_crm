@@ -53,6 +53,8 @@ class Event(CremeEntity):
     budget      = DecimalField(_(u'Budget (€)'), max_digits=10, decimal_places=2, blank=True, null=True)
     final_cost  = DecimalField(_(u'Final cost (€)'), max_digits=10, decimal_places=2, blank=True, null=True)
 
+    creation_label = _('Add an event')
+
     class Meta:
         app_label = 'events'
         verbose_name = _(u'Event')

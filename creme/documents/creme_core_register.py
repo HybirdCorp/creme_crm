@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,9 +34,9 @@ creme_registry.register_app('documents', _(u'Documents'), '/documents')
 reg_item = creme_menu.register_app('documents', '/documents/').register_item
 reg_item('/documents/',             _(u'Portal of documents'), 'documents')
 reg_item('/documents/documents',    _(u'All documents'),       'documents')
-reg_item('/documents/document/add', _('Add a document'),       'documents.add_document')
+reg_item('/documents/document/add', Document.creation_label,   'documents.add_document')
 reg_item('/documents/folders',      _(u'All folders'),         'documents')
-reg_item('/documents/folder/add',   _('Add a folder'),         'documents.add_folder')
+reg_item('/documents/folder/add',   Folder.creation_label,     'documents.add_folder')
 
 block_registry.register(folder_docs_block, linked_docs_block)
 
@@ -49,5 +49,4 @@ bulk_update_registry.register(
     (Folder,   ['parent_folder', 'category']),
 )
 
-reg_qform = quickforms_registry.register
-reg_qform(Document,      DocumentQuickForm)
+quickforms_registry.register(Document, DocumentQuickForm)

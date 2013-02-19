@@ -35,6 +35,7 @@ from creme_core.models.fields import CreationDateTimeField, ModificationDateTime
 class CremeModel(Model):
     #header_filter_exclude_fields = ['id', 'pk']
     _delete_files = True #Delegate the deletion of the file on system when a model has one or more FileField subclasses
+    creation_label = _('Add')
 
     class Meta:
         abstract = True

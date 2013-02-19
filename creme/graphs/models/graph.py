@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,6 +29,8 @@ from creme_core.models import CremeModel, CremeEntity, RelationType, Relation
 class Graph(CremeEntity):
     name                   = CharField(_(u'Name of the graph'), max_length=100)
     orbital_relation_types = ManyToManyField(RelationType, verbose_name=_(u'Types of the peripheral relations'))
+
+    creation_label = _('Add a graph')
 
     class GraphException(Exception):
         pass

@@ -35,6 +35,7 @@ class TemplateBase(Base):
     #research_fields = Base.research_fields + ['name']
     #TODO: what about number (now it is viewable) ??
     #excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr', 'ct', 'status_id', 'number']
+    creation_label = pgettext_lazy('billing', 'Add a template')
 
     class Meta:
         app_label = 'billing'

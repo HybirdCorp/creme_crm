@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -63,6 +63,7 @@ class Base(CremeEntity):
 
     #research_fields = CremeEntity.research_fields + ['name']
     #excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['total_vat', 'total_no_vat', 'payment_info']
+    creation_label = _('Add an accounting document')
 
     generate_number_in_create = True #TODO: use settings instead ???
 

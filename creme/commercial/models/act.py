@@ -64,6 +64,7 @@ class Act(CremeEntity):
     act_type       = ForeignKey(ActType, verbose_name=_(u'Type'), on_delete=PROTECT)
     segment        = ForeignKey(MarketSegment, verbose_name=_(u'Related segment'))
 
+    creation_label = _('Add a commercial action')
     _related_opportunities = None
 
     class Meta:
@@ -153,6 +154,7 @@ class ActObjectivePattern(CremeEntity):
     average_sales = PositiveIntegerField(_(u'Average sales'))
     segment       = ForeignKey(MarketSegment, verbose_name=_(u'Related segment'))
 
+    creation_label = _('Add an objective pattern')
     _components_cache = None
 
     class Meta:

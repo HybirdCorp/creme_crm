@@ -33,6 +33,8 @@ class Resource(CremeEntity): #NB: CremeEntity and not CremeModel because we use 
     hourly_cost     = PositiveIntegerField(_(u'Hourly cost (in €)'), blank=True, null=True)
     task            = ForeignKey(ProjectTask, verbose_name=_(u'Task'), related_name='resources_set')
 
+    creation_label = _('Add a resource')
+
     class Meta:
         app_label = 'projects'
         verbose_name = _(u'Resource of project')

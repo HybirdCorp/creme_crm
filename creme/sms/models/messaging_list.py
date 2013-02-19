@@ -31,6 +31,8 @@ class MessagingList(CremeEntity):
     contacts      = ManyToManyField(Contact, verbose_name=_(u'Contacts recipients'))
 #    organisations = ManyToManyField(Organisation, verbose_name=u'Sociétés destinataires')
 
+    creation_label = _('Add a messaging list')
+
     class Meta:
         app_label = "sms"
         verbose_name = _(u'SMS messaging list')

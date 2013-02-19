@@ -37,6 +37,7 @@ class EmailTemplate(CremeEntity):
     attachments = ManyToManyField(Document, verbose_name=_(u'Attachments'))
 
     #excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['use_rte'] #body too ???
+    creation_label = _('Add an email template')
 
     class Meta:
         app_label = "emails"

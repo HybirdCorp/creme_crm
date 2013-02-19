@@ -345,6 +345,8 @@ class Report(CremeEntity):
     columns = ManyToManyField(Field, verbose_name=_(u"Displayed columns"), related_name='report_columns_set') #TODO: use a One2Many instead....
     filter  = ForeignKey(EntityFilter, verbose_name=_(u'Filter'), blank=True, null=True)
 
+    creation_label = _('Add a report')
+
     class Meta:
         app_label = 'reports'
         verbose_name = _(u'Report')

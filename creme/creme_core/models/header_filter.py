@@ -83,6 +83,7 @@ class HeaderFilter(Model): #CremeModel ???
     entity_type = ForeignKey(ContentType, editable=False)
     is_custom   = BooleanField(blank=False, default=True)
 
+    creation_label = _('Add a view')
     _items = None
 
     class Meta:

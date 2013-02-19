@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,6 +40,7 @@ class Project(CremeEntity):
     tasks_list          = None
 
     allowed_related = CremeEntity.allowed_related | set(['projecttask'])
+    creation_label = _('Add a project')
 
     class Meta:
         app_label = 'projects'
@@ -113,6 +114,3 @@ class Project(CremeEntity):
     def _post_save_clone(self, source):
         from projects.models.task import ProjectTask
         ProjectTask.clone_scope(source.get_tasks(), self)
-
-
-

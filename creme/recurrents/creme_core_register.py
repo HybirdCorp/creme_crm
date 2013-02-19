@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,7 @@ creme_registry.register_entity_models(RecurrentGenerator)
 reg_item = creme_menu.register_app('recurrents', '/recurrents/').register_item
 reg_item('/recurrents/',              _(u'Portal of recurrent documents'), 'recurrents')
 reg_item('/recurrents/generators',    _(u'All recurrent generators'),      'recurrents')
-reg_item('/recurrents/generator/add', _(u'Add a generator'),               'recurrents.add_recurrentgenerator')
+reg_item('/recurrents/generator/add', RecurrentGenerator.creation_label,   'recurrents.add_recurrentgenerator')
 
 icon_registry.register(RecurrentGenerator, 'images/recurrent_doc_%(size)s.png')
 

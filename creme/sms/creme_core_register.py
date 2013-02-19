@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,13 +31,13 @@ creme_registry.register_entity_models(SMSCampaign, MessagingList, MessageTemplat
 creme_registry.register_app('sms', _(u'SMS'), '/sms')
 
 reg_item = creme_menu.register_app('sms', '/sms/').register_item
-reg_item('/sms/',                   _(u'Portal of SMS'),          'sms')
-reg_item('/sms/campaigns' ,         _(u'All campaigns'),          'sms')
-reg_item('/sms/campaign/add',       _(u'Add a campaign'),         'sms.add_smscampaign')
-reg_item('/sms/messaging_lists',    _(u'All messaging lists'),    'sms')
-reg_item('/sms/messaging_list/add', _(u'Add a messaging list'),   'sms.add_messaginglist')
-reg_item('/sms/templates',          _(u'All message templates'),  'sms')
-reg_item('/sms/template/add',       _(u'Add a message template'), 'sms.add_messagetemplate')
+reg_item('/sms/',                   _(u'Portal of SMS'),            'sms')
+reg_item('/sms/campaigns' ,         _(u'All campaigns'),            'sms')
+reg_item('/sms/campaign/add',       SMSCampaign.creation_label,     'sms.add_smscampaign')
+reg_item('/sms/messaging_lists',    _(u'All messaging lists'),      'sms')
+reg_item('/sms/messaging_list/add', MessagingList.creation_label,   'sms.add_messaginglist')
+reg_item('/sms/templates',          _(u'All message templates'),    'sms')
+reg_item('/sms/template/add',       MessageTemplate.creation_label, 'sms.add_messagetemplate')
 
 block_registry.register(messaging_lists_block, recipients_block, contacts_block, messages_block, sendings_block)
 

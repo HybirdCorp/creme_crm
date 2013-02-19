@@ -29,6 +29,8 @@ class MessageTemplate(CremeEntity):
     subject = CharField(_(u'Subject'), max_length=100)
     body    = TextField(_(u"Body"))
 
+    creation_label = _('Add a message template')
+
     class Meta:
         app_label = "sms"
         verbose_name = _(u"Message template")
