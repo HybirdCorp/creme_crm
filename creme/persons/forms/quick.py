@@ -41,13 +41,19 @@ class ContactQuickForm(CremeModelWithUserForm): #not CremeEntityForm to ignore c
 
     def __init__(self, *args, **kwargs):
         super(ContactQuickForm, self).__init__(*args, **kwargs)
-        self.has_perm_to_link = link_perm = self.user.has_perm_to_link(model=Organisation, owned=True)
+
+        has_perm = self.user.has_perm_to_link
+        c_link_perm = has_perm(model=Contact, owned=True)
+        o_link_perm = has_perm(model=Organisation, owned=True)
+
+        self.has_perm_to_link = link_perm = (c_link_perm and o_link_perm)
 
         if not link_perm:
             orga_field = self.fields['organisation']
             orga_field.widget = Label()
             orga_field.help_text = ''
-            orga_field.initial = ugettext(u'You are not allowed to link with an Organisation')
+            orga_field.initial = ugettext(u'You are not allowed to link with a Contact') if not c_link_perm else \
+                                 ugettext(u'You are not allowed to link with an Organisation')
         elif not self.can_create():
             self.fields['organisation'].help_text = ugettext(u'Enter the name of an existing Organisation.')
 

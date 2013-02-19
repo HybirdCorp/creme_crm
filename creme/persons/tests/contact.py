@@ -439,12 +439,13 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(orga_count, Organisation.objects.count())
 
     def test_quickform05(self):
-        "No permission to link"
+        "No permission to link Organisation"
         self.login(is_superuser=False, creatable_models=[Contact])
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW, # not EntityCredentials.LINK
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+
+        get_ct = ContentType.objects.get_for_model
+        create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_ALL, ctype=get_ct(Contact))
 
         orga_count = Organisation.objects.count()
 
@@ -477,6 +478,25 @@ class ContactTestCase(_BaseTestCase):
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertEqual(orga_count, Organisation.objects.count())
         self.assertFalse(Relation.objects.filter(subject_entity=contact))
+
+    def test_quickform06(self):
+        "No permission to link Contact"
+        self.login(is_superuser=False, creatable_models=[Contact])
+
+        get_ct = ContentType.objects.get_for_model
+        create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_ALL, ctype=get_ct(Organisation))
+
+        response = self.assertGET200(self._build_quickform_url(1))
+
+        with self.assertNoException():
+            orga_f = response.context['formset'][0].fields['organisation']
+
+        self.assertIsInstance(orga_f.widget, Label)
+        self.assertEqual(_(u'You are not allowed to link with a Contact'),
+                         orga_f.initial
+                        )
 
     def test_merge01(self):
         "Merging addresses"
