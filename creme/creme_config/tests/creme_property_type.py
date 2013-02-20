@@ -34,7 +34,7 @@ class PropertyTypeTestCase(CremeTestCase):
 
     def test_create01(self):
         url = '/creme_config/property_type/add/'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         count = CremePropertyType.objects.count()
 

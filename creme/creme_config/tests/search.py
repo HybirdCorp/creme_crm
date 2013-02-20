@@ -78,8 +78,7 @@ class SearchConfigTestCase(CremeTestCase):
         sci = SearchConfigItem.objects.create(content_type=self.ct_contact, user=None)
         url = '/creme_config/search/edit/%s' % sci.id
 
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             fields = response.context['form'].fields['fields']
@@ -109,9 +108,9 @@ class SearchConfigTestCase(CremeTestCase):
     def test_delete(self):
         sci = SearchConfigItem.objects.create(content_type=self.ct_contact, user=None)
 
-        create_sf = SearchField.objects.create
-        sf1 = create_sf(search_config_item=sci, field='first_name', order=1)
-        sf2 = create_sf(search_config_item=sci, field='last_name',  order=2)
+        create_sf = partial(SearchField.objects.create, search_config_item=sci)
+        sf1 = create_sf(field='first_name', order=1)
+        sf2 = create_sf(field='last_name',  order=2)
 
         self.assertPOST200('/creme_config/search/delete', data={'id': sci.id})
         self.assertFalse(SearchConfigItem.objects.filter(pk=sci.pk))

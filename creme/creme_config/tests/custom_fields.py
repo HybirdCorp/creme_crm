@@ -49,8 +49,7 @@ class CustomFieldsTestCase(CremeTestCase):
         self.assertEqual(name,       cfield.name)
         self.assertEqual(field_type, cfield.field_type)
 
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             choices = response.context['form'].fields['content_type'].choices
@@ -112,7 +111,8 @@ class CustomFieldsTestCase(CremeTestCase):
         self.assertNoFormError(self.client.post(url, data={'name': name}))
         self.assertEqual(name, self.refresh(cfield).name)
 
-    def test_edit02(self): #ENUM
+    def test_edit02(self):
+        "ENUM"
         ct = ContentType.objects.get_for_model(Contact)
         cfield = CustomField.objects.create(content_type=ct,
                                             name='Programming languages',

@@ -6,7 +6,6 @@ try:
 
     from creme_core.models import RelationType
     from creme_core.models.block import *
-    #from creme_core import autodiscover
     from creme_core.gui.block import block_registry, Block, SpecificRelationsBlock
     from creme_core.blocks import history_block
     from creme_core.tests.base import CremeTestCase
@@ -20,6 +19,9 @@ __all__ = ('BlocksConfigTestCase',)
 
 
 class BlocksConfigTestCase(CremeTestCase):
+    ADD_DT_URL     = '/creme_config/blocks/detailview/add/'
+    DEL_DETAIL_URL = '/creme_config/blocks/detailview/delete'
+
     @classmethod
     def setUpClass(cls):
         BlockDetailviewLocation.objects.all().delete()
@@ -28,24 +30,25 @@ class BlocksConfigTestCase(CremeTestCase):
         RelationBlockItem.objects.all().delete()
 
         cls.populate('creme_core', 'creme_config')
-        #autodiscover()
         cls.autodiscover()
 
     def setUp(self):
         self.login()
 
+    def _build_editdetail_url(self, ct=None):
+        return '/creme_config/blocks/detailview/edit/%s' % (ct.id if ct else 0)
+
     def test_portal(self):
         self.assertGET200('/creme_config/blocks/portal/')
 
     def test_add_detailview(self):
-        url = '/creme_config/blocks/detailview/add/'
+        url = self.ADD_DT_URL
         self.assertGET200(url)
 
         ct = ContentType.objects.get_for_model(Contact)
         self.assertFalse(BlockDetailviewLocation.objects.filter(content_type=ct))
 
-        response = self.client.post(url, data={'ct_id': ct.id})
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(url, data={'ct_id': ct.id}))
 
         b_locs = BlockDetailviewLocation.objects.filter(content_type=ct)
         self.assertEqual([('', 1)] * 4, [(bl.block_id, bl.order) for bl in b_locs])
@@ -80,14 +83,13 @@ class BlocksConfigTestCase(CremeTestCase):
         self.fail('No "%s" in locations' % block_id)
 
     def test_edit_detailview01(self):
-        ct = ContentType.objects.get_for_model(Contact)
-        self.assertGET404('/creme_config/blocks/detailview/edit/%s' % ct.id)
+        self.assertGET404(self._build_editdetail_url(ContentType.objects.get_for_model(Contact)))
 
     def test_edit_detailview02(self):
         model = Contact
         ct = ContentType.objects.get_for_model(model)
 
-        self.client.post('/creme_config/blocks/detailview/add/', data={'ct_id': ct.id})
+        self.client.post(self.ADD_DT_URL, data={'ct_id': ct.id})
         self.assertEqual(4, BlockDetailviewLocation.objects.filter(content_type=ct).count())
 
         class FoobarBlock1(Block):
@@ -110,18 +112,15 @@ class BlocksConfigTestCase(CremeTestCase):
         foobar_block2 = FoobarBlock2()
         block_registry.register(foobar_block1, foobar_block2)
 
-        url = '/creme_config/blocks/detailview/edit/%s' % ct.id
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        url = self._build_editdetail_url(ct)
+        response = self.assertGET200(url)
 
-        try:
+        with self.assertNoException():
             fields = response.context['form'].fields
             top_field    = fields['top']
             left_field   = fields['left']
             right_field  = fields['right']
             bottom_field = fields['bottom']
-        except KeyError as e:
-            self.fail(str(e))
 
         blocks = list(block_registry.get_compatible_blocks(model))
         self.assertGreaterEqual(len(blocks), 5)
@@ -172,25 +171,26 @@ class BlocksConfigTestCase(CremeTestCase):
 
         b_locs = BlockDetailviewLocation.objects.filter(content_type=ct)
 
-        locations = [b_loc for b_loc in b_locs if  b_loc.zone == BlockDetailviewLocation.TOP]
+        locations = [b_loc for b_loc in b_locs if b_loc.zone == BlockDetailviewLocation.TOP]
         self.assertEqual(2, len(locations))
         self.assertEqual(1, self._find_location(block_top_id1, locations).order)
         self.assertEqual(2, self._find_location(block_top_id2, locations).order)
 
-        locations = [b_loc for b_loc in b_locs if  b_loc.zone == BlockDetailviewLocation.LEFT]
+        locations = [b_loc for b_loc in b_locs if b_loc.zone == BlockDetailviewLocation.LEFT]
         self.assertEqual(2, len(locations))
         self.assertEqual(1, self._find_location(block_left_id1, locations).order)
         self.assertEqual(2, self._find_location(block_left_id2, locations).order)
 
-        locations = [b_loc for b_loc in b_locs if  b_loc.zone == BlockDetailviewLocation.RIGHT]
+        locations = [b_loc for b_loc in b_locs if b_loc.zone == BlockDetailviewLocation.RIGHT]
         self.assertEqual(1, len(locations))
         self.assertEqual(1, self._find_location(block_right_id, locations).order)
 
-        locations = [b_loc for b_loc in b_locs if  b_loc.zone == BlockDetailviewLocation.BOTTOM]
+        locations = [b_loc for b_loc in b_locs if b_loc.zone == BlockDetailviewLocation.BOTTOM]
         self.assertEqual(1, len(locations))
         self.assertEqual(1, self._find_location(block_bottom_id, locations).order)
 
-    def test_edit_detailview03(self): #when no block -> fake block
+    def test_edit_detailview03(self):
+        "When no block -> fake block"
         model = Contact
         ct = ContentType.objects.get_for_model(model)
 
@@ -203,18 +203,15 @@ class BlocksConfigTestCase(CremeTestCase):
         create_loc(content_type=ct, block_id=blocks[2].id_, order=1, zone=BlockDetailviewLocation.RIGHT)
         create_loc(content_type=ct, block_id=blocks[3].id_, order=1, zone=BlockDetailviewLocation.BOTTOM)
 
-        url = '/creme_config/blocks/detailview/edit/%s' % ct.id
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        url = self._build_editdetail_url(ct)
+        response = self.assertGET200(url)
 
-        try:
+        with self.assertNoException():
             fields = response.context['form'].fields
             top_field    = fields['top']
             left_field   = fields['left']
             right_field  = fields['right']
             bottom_field = fields['bottom']
-        except KeyError as e:
-            self.fail(str(e))
 
         block_top_id1 = blocks[0].id_
         block_top_id2 = blocks[1].id_
@@ -249,9 +246,10 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertEqual([('', 1)], [(bl.block_id, bl.order) for bl in b_locs if bl.zone == BlockDetailviewLocation.RIGHT])
         self.assertEqual([('', 1)], [(bl.block_id, bl.order) for bl in b_locs if bl.zone == BlockDetailviewLocation.BOTTOM])
 
-    def test_edit_detailview04(self): #default conf
+    def test_edit_detailview04(self):
+        "Default conf"
         BlockDetailviewLocation.objects.filter(content_type=None).delete()
-        url = '/creme_config/blocks/detailview/edit/0'
+        url = self._build_editdetail_url()
         self.assertGET404(url)
 
         blocks = list(block_registry.get_compatible_blocks(model=None))
@@ -272,23 +270,21 @@ class BlocksConfigTestCase(CremeTestCase):
                          set(bl.zone for bl in b_locs)
                         )
 
-    def test_edit_detailview05(self): #post one block several times -> validation error
+    def test_edit_detailview05(self):
+        "Post one block several times -> validation error"
         model = Contact
         ct = ContentType.objects.get_for_model(model)
 
-        self.client.post('/creme_config/blocks/detailview/add/', data={'ct_id': ct.id})
+        self.client.post(self.ADD_DT_URL, data={'ct_id': ct.id})
         self.assertEqual(4, BlockDetailviewLocation.objects.filter(content_type=ct).count())
 
-        url = '/creme_config/blocks/detailview/edit/%s' % ct.id
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        url = self._build_editdetail_url(ct)
+        response = self.assertGET200(url)
 
-        try:
+        with self.assertNoException():
             fields = response.context['form'].fields
             left_field  = fields['left']
             right_field = fields['right']
-        except KeyError as e:
-            self.fail(str(e))
 
         blocks = list(block_registry.get_compatible_blocks(model))
         self.assertTrue(blocks)
@@ -313,11 +309,12 @@ class BlocksConfigTestCase(CremeTestCase):
                              errors=[_(u'The following block should be displayed only once: <%s>') % evil_block.verbose_name]
                             )
 
-    def test_edit_detailview06(self): #instance block, relationtype block
+    def test_edit_detailview06(self):
+        "Instance block, relationtype block"
         model = Contact
         ct = ContentType.objects.get_for_model(model)
 
-        self.client.post('/creme_config/blocks/detailview/add/', data={'ct_id': ct.id})
+        self.client.post(self.ADD_DT_URL, data={'ct_id': ct.id})
 
         rtype = RelationType.objects.all()[0]
         rtype_block_id = SpecificRelationsBlock.generate_id('test', 'foobar')
@@ -339,26 +336,24 @@ class BlocksConfigTestCase(CremeTestCase):
 
         block_registry.register_4_instance(FoobarInstanceBlock)
 
-        response = self.client.get('/creme_config/blocks/detailview/edit/%s' % ct.id)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(self._build_editdetail_url(ct))
 
-        try:
+        with self.assertNoException():
             top_field = response.context['form'].fields['top']
-        except KeyError as e:
-            self.fail(str(e))
 
         choices = [block_id for block_id, block_name in top_field.choices]
         self.assertIn(rtype_block_id,    choices)
         self.assertIn(instance_block_id, choices)
 
-    def test_delete_detailview01(self): #can not delete default conf
-        self.assertPOST404('/creme_config/blocks/detailview/delete', data={'id': 0})
+    def test_delete_detailview01(self):
+        "Can not delete default conf"
+        self.assertPOST404(self.DEL_DETAIL_URL, data={'id': 0})
 
     def test_delete_detailview02(self):
         ct = ContentType.objects.get_for_model(Contact)
-        self.client.post('/creme_config/blocks/detailview/add/', data={'ct_id': ct.id})
+        self.client.post(self.ADD_DT_URL, data={'ct_id': ct.id})
 
-        self.assertPOST200('/creme_config/blocks/detailview/delete', data={'id': ct.id})
+        self.assertPOST200(self.DEL_DETAIL_URL, data={'id': ct.id})
         self.assertFalse(BlockDetailviewLocation.objects.filter(content_type=ct))
 
     def test_add_portal(self):
@@ -454,13 +449,10 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertEqual(1, BlockPortalLocation.objects.filter(app_name=app_name).count())
 
         url = '/creme_config/blocks/portal/edit/%s' % app_name
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
-        try:
+        with self.assertNoException():
             blocks_field = response.context['form'].fields['blocks']
-        except KeyError as e:
-            self.fail(str(e))
 
         choices = blocks_field.choices
         self.assertGreaterEqual(len(choices), 2)
@@ -498,7 +490,8 @@ class BlocksConfigTestCase(CremeTestCase):
 
         return blocks
 
-    def test_edit_portal03(self): #set no block -> fake blocks
+    def test_edit_portal03(self):
+        "Set no block -> fake blocks"
         app_name = 'persons'
         blocks = self._get_blocks_4_portal()
 
@@ -507,13 +500,10 @@ class BlocksConfigTestCase(CremeTestCase):
         create_loc(app_name=app_name, block_id=blocks[1].id_, order=2)
 
         url = '/creme_config/blocks/portal/edit/%s' % app_name
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
-        try:
+        with self.assertNoException():
             blocks_field = response.context['form'].fields['blocks']
-        except KeyError as e:
-            self.fail(str(e))
 
         self.assertEqual([blocks[0].id_, blocks[1].id_], blocks_field.initial)
 
@@ -547,7 +537,8 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertEqual(1,  bpl.order)
         self.assertEqual('', bpl.block_id)
 
-    def test_edit_portal05(self): #home -> use 'home_display' method
+    def test_edit_portal05(self):
+        "Home -> use 'home_display' method"
         app_name = 'creme_core'
 
         self.assertTrue(BlockPortalLocation.objects.filter(app_name=app_name).exists())
@@ -566,9 +557,7 @@ class BlocksConfigTestCase(CremeTestCase):
         foobar_block = FoobarBlock()
         block_registry.register(foobar_block)
 
-        url = '/creme_config/blocks/portal/edit/%s' % app_name
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/creme_config/blocks/portal/edit/%s' % app_name)
 
         with self.assertNoException():
             blocks_field = response.context['form'].fields['blocks']
@@ -588,7 +577,8 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertPOST200('/creme_config/blocks/portal/delete', data={'id': app_name})
         self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name))
 
-    def test_delete_home(self): #can not delete home conf
+    def test_delete_home(self):
+        "Can not delete home conf"
         #TODO: use a helper method ??
         app_name = 'creme_core'
         blocks = list(block for block_id, block in  block_registry if hasattr(block, 'home_display'))
@@ -599,8 +589,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def test_edit_default_mypage(self):
         url = '/creme_config/blocks/mypage/edit/default'
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             blocks_field = response.context['form'].fields['blocks']
@@ -637,8 +626,7 @@ class BlocksConfigTestCase(CremeTestCase):
     def test_edit_mypage(self):
         user = self.user
         url = '/creme_config/blocks/mypage/edit'
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             blocks_field = response.context['form'].fields['blocks']
@@ -677,7 +665,8 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertPOST200('/creme_config/blocks/mypage/default/delete', data={'id': loc.id})
         self.assertFalse(BlockMypageLocation.objects.filter(pk=loc.pk))
 
-    def test_delete_default_mypage02(self): #'user' must be 'None'
+    def test_delete_default_mypage02(self):
+        "'user' must be 'None'"
         loc = BlockMypageLocation.objects.create(user=self.user, block_id=history_block.id_, order=1)
         self.assertPOST404('/creme_config/blocks/mypage/default/delete', data={'id': loc.id})
         self.assertEqual(1,   BlockMypageLocation.objects.filter(pk=loc.pk).count())
@@ -687,7 +676,8 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertPOST200('/creme_config/blocks/mypage/delete', data={'id': loc.id})
         self.assertFalse(BlockMypageLocation.objects.filter(pk=loc.pk))
 
-    def test_delete_mypage02(self): #BlockMypageLocation must belong to the user
+    def test_delete_mypage02(self):
+        "BlockMypageLocation must belong to the user"
         loc = BlockMypageLocation.objects.create(user=self.other_user, block_id=history_block.id_, order=1)
         self.assertPOST404('/creme_config/blocks/mypage/delete', data={'id': loc.id})
         self.assertEqual(1,   BlockMypageLocation.objects.filter(pk=loc.pk).count())

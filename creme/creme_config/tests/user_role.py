@@ -31,8 +31,7 @@ class UserRoleTestCase(CremeTestCase):
         self.login(is_superuser=False, allowed_apps=apps, admin_4_apps=apps)
 
     def _aux_test_portal(self):
-        response = self.client.get('/creme_config/role/portal/')
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/creme_config/role/portal/')
         self.assertContains(response, 'id="%s"' % blocks.UserRolesBlock.id_)
 
     def test_portal01(self):
@@ -291,8 +290,7 @@ class UserRoleTestCase(CremeTestCase):
 
         role = UserRole.objects.create(name='CEO')
         url = '/creme_config/role/delete/%s' % role.id
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             fields = response.context['form'].fields
@@ -317,8 +315,7 @@ class UserRoleTestCase(CremeTestCase):
         user = User.objects.create(username='chloe', role=role_2_del) #<= role is used
 
         url = '/creme_config/role/delete/%s' % role_2_del.id
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             fields = response.context['form'].fields
@@ -343,6 +340,5 @@ class UserRoleTestCase(CremeTestCase):
         role = UserRole.objects.create(name='CEO')
         User.objects.create(username='chloe', role=role) #<= role is used
 
-        response = self.client.post('/creme_config/role/delete/%s' % role.id)
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200('/creme_config/role/delete/%s' % role.id)
         self.assertFormError(response, 'form', 'to_role', [_('This field is required.')])
