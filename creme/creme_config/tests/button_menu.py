@@ -68,8 +68,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         button_registry.register(button)
 
         url = '/creme_config/button_menu/edit/0'
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             button_ids = response.context['form'].fields['button_ids']
@@ -120,8 +119,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         self.assertEqual(1, ButtonMenuItem.objects.filter(content_type=ct).count())
 
         url = '/creme_config/button_menu/edit/%s' % ct.id
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             button_ids = response.context['form'].fields['button_ids']
@@ -153,7 +151,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         bmi = ButtonMenuItem.objects.create(content_type=None, button_id='', order=1)
         self.assertPOST404(url)
         self.assertPOST200(url, data={'id': 0})
-        ButtonMenuItem.objects.get(pk=bmi.pk) #still exists
+        self.get_object_or_fail(ButtonMenuItem, pk=bmi.pk) #still exists
 
     def test_delete_detailview02(self):
         ct = ContentType.objects.get_for_model(Contact)

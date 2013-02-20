@@ -28,6 +28,9 @@ __all__ = ('UserTestCase', 'UserSettingsTestCase')
 
 
 class UserTestCase(CremeTestCase):
+    ADD_URL = '/creme_config/user/add/'
+    ADD_TEAM_URL = '/creme_config/team/add/'
+
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'persons')
@@ -40,9 +43,7 @@ class UserTestCase(CremeTestCase):
         self.login(is_superuser=False, allowed_apps=apps, admin_4_apps=apps)
 
     def _aux_test_portal(self):
-        response = self.client.get('/creme_config/user/portal/')
-        self.assertEqual(200, response.status_code)
-
+        response = self.assertGET200('/creme_config/user/portal/')
         self.assertContains(response, 'id="%s"' % blocks.UsersBlock.id_)
         self.assertContains(response, 'id="%s"' % blocks.TeamsBlock.id_)
 
@@ -57,7 +58,7 @@ class UserTestCase(CremeTestCase):
     def test_create01(self):
         self.login()
 
-        url = '/creme_config/user/add/'
+        url = self.ADD_URL
         self.assertGET200(url)
 
         orga = Organisation.objects.create(user=self.user, name='Olympus')
@@ -119,7 +120,7 @@ class UserTestCase(CremeTestCase):
 
         username = 'deunan'
         password = 'password'
-        response = self.client.post('/creme_config/user/add/', follow=True,
+        response = self.client.post(self.ADD_URL, follow=True,
                                     data={'username':     username,
                                           'password_1':   password,
                                           'password_2':   password,
@@ -144,7 +145,8 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(user, contact.is_user)
         self.assertRelationCount(1, contact, REL_SUB_MANAGES, orga)
 
-    def test_create03(self): #relation is not recreate if it already exists
+    def test_create03(self):
+        "Relation is not recreate if it already exists"
         self.login()
 
         contact = Contact.objects.create(user=self.user, first_name='Deunan', last_name=u'Knut')
@@ -156,7 +158,7 @@ class UserTestCase(CremeTestCase):
 
         username = 'deunan'
         password = 'password'
-        response = self.client.post('/creme_config/user/add/', follow=True,
+        response = self.client.post(self.ADD_URL, follow=True,
                                     data={'username':     username,
                                           'password_1':   password,
                                           'password_2':   password,
@@ -176,7 +178,7 @@ class UserTestCase(CremeTestCase):
     def test_create04(self):
         self.login_not_as_superuser()
 
-        url = '/creme_config/user/add/'
+        url = self.ADD_URL
         self.assertGETRedirectsToLogin(url)
 
         orga = Organisation.objects.create(user=self.user, name='Olympus')
@@ -195,7 +197,8 @@ class UserTestCase(CremeTestCase):
                                                   }
                                        )
 
-    def test_create05(self): #linked contact can not be already linked to another user
+    def test_create05(self):
+        "Linked contact can not be already linked to another user"
         self.login()
 
         user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
@@ -206,7 +209,7 @@ class UserTestCase(CremeTestCase):
 
         username = 'deunan'
         password = 'password'
-        response = self.client.post('/creme_config/user/add/', follow=True,
+        response = self.client.post(self.ADD_URL, follow=True,
                                     data={'username':     username,
                                           'password_1':   password,
                                           'password_2':   password,
@@ -217,7 +220,6 @@ class UserTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-
         self.assertEqual(user, self.refresh(contact).is_user)
 
         new_user = self.get_object_or_fail(User, username=username)
@@ -305,7 +307,7 @@ class UserTestCase(CremeTestCase):
 
         other_user = User.objects.create(username='deunan')
         url = '/creme_config/user/edit/password/%s' % other_user.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         password = 'password'
         response = self.client.post(url, follow=True,
@@ -332,7 +334,7 @@ class UserTestCase(CremeTestCase):
     def test_team_create01(self):
         self.login()
 
-        url = '/creme_config/team/add/'
+        url = self.ADD_TEAM_URL
         self.assertGET200(url)
 
         create_user = User.objects.create_user
@@ -364,7 +366,7 @@ class UserTestCase(CremeTestCase):
     def test_team_create02(self):
         self.login_not_as_superuser()
 
-        url = '/creme_config/team/add/'
+        url = self.ADD_TEAM_URL
         self.assertGETRedirectsToLogin(url)
 
         user01 = User.objects.create_user('Shogun', 'shogun@century.jp', 'uselesspw')
@@ -512,9 +514,7 @@ class UserTestCase(CremeTestCase):
         url = self._build_delete_url(root)
         self.assertGET200(url)
 
-        response = self.client.post(url, {'to_user': user.id})
-        self.assertEqual(200, response.status_code)
-
+        self.assertPOST200(url, {'to_user': user.id})
         self.assertEqual(1, User.objects.filter(is_superuser=True).count())
         self.assertEqual(0, User.objects.filter(username='root').count())
 
@@ -543,10 +543,8 @@ class UserTestCase(CremeTestCase):
         user = self.get_object_or_fail(User, username='root', is_superuser=True)
 
         url = self._build_delete_url(user)
-        self.assertEqual(400, self.client.get(url).status_code)
-
-        response = self.client.post(url, {'to_user': user.id})
-        self.assertEqual(400, response.status_code)
+        self.assertGET(400, url)
+        self.assertPOST(400, url, {'to_user': user.id})
 
         self.assertEqual(1, User.objects.filter(is_superuser=True).count())
         self.assertEqual(0, User.objects.exclude(id=user.id).filter(is_superuser=True).count())
@@ -564,9 +562,7 @@ class UserTestCase(CremeTestCase):
 
         url = self._build_delete_url(root)
         self.assertGET200(url)
-
-        response = self.client.post(url, {'to_user': user.id})
-        self.assertEqual(400, response.status_code)
+        self.assertPOST(400, url, {'to_user': user.id})
 
         self.assertEqual(2, User.objects.filter(is_superuser=True).count())
         #self.assertEqual(1, User.objects.exclude(id=user.id).filter(is_superuser=True).count())
@@ -610,13 +606,11 @@ class UserTestCase(CremeTestCase):
         url = self._build_delete_url(root)
         self.assertGET200(url)
 
-        response = self.client.post(url) #no data
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200(url) #no data
         self.assertFormError(response, 'form', 'to_user', [_(u'This field is required.')])
         self.assertEqual(count, User.objects.count())
 
-        response = self.client.post(url, {'to_user': root.id}) #cannot move entities to deleted user
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200(url, {'to_user': root.id}) #cannot move entities to deleted user
         self.assertFormError(response, 'form', 'to_user',
                              [_(u'Select a valid choice. That choice is not one of the available choices.')]
                             )
@@ -699,8 +693,7 @@ class UserSettingsTestCase(CremeTestCase):
         self.login()
 
     def test_user_settings(self):
-        response = self.client.get('/creme_config/my_settings/')
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/creme_config/my_settings/')
         self.assertContains(response, 'id="%s"' % blocks.UserPreferedMenusBlock.id_)
         self.assertContains(response, 'id="%s"' % blocks.BlockMypageLocationsBlock.id_)
 

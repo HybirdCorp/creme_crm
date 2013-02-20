@@ -6,7 +6,6 @@ try:
     from creme_core.models import PreferedMenuItem
     from creme_core.gui.menu import creme_menu
     from creme_core.tests.base import CremeTestCase
-    #from creme_core import autodiscover
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -62,8 +61,7 @@ class PreferedMenuTestCase(CremeTestCase):
         self.assertFalse(PreferedMenuItem.objects.all())
 
         url = '/creme_config/prefered_menu/edit/'
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
         items_info = self.items_info
         url1 = items_info[0]['url']
@@ -83,8 +81,7 @@ class PreferedMenuTestCase(CremeTestCase):
 
     def test_edit_mine(self):
         url = '/creme_config/prefered_menu/mine/edit/'
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
         items_info = self.items_info
         url1 = items_info[0]['url']

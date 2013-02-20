@@ -13,4 +13,4 @@ class PortalTestCase(CremeTestCase):
     def test_portal(self):
         self.populate('creme_core', 'creme_config')
         self.login()
-        self.assertEqual(200, self.client.get('/creme_config/').status_code)
+        self.assertGET200('/creme_config/')

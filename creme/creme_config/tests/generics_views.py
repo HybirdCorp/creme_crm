@@ -116,7 +116,8 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertNoFormError(self.client.post(url, data={'title': title}))
         self.assertEqual(title, self.refresh(civ).title)
 
-    def test_edit02(self): #order not changed
+    def test_edit02(self):
+        "Order not changed"
         count = InvoiceStatus.objects.count()
 
         create_status = InvoiceStatus.objects.create
