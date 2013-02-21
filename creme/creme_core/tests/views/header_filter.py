@@ -51,8 +51,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(0, HeaderFilter.objects.filter(entity_type=ct).count())
 
         uri = self._build_add_url(ct)
-        response = self.client.get(uri)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(uri)
 
         with self.assertNoException():
             form = response.context['form']
@@ -189,8 +188,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         hf.set_items([HeaderFilterItem.build_4_field(model=Contact, name='first_name')])
 
         uri = self._build_edit_url(hf)
-        response = self.client.get(uri)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(uri)
 
         with self.assertNoException():
             fields_field = response.context['form'].fields['fields']
@@ -245,8 +243,8 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view', model=Contact, is_custom=True)
         hf.set_items([HeaderFilterItem.build_4_field(model=Contact, name='first_name')])
         self.assertPOST200(self.DELETE_URL, follow=True, data={'id': hf.id})
-        self.assertEqual(0, HeaderFilter.objects.filter(pk=hf.id).count())
-        self.assertEqual(0, HeaderFilterItem.objects.filter(header_filter=hf.id).count())
+        self.assertFalse(HeaderFilter.objects.filter(pk=hf.id).exists())
+        self.assertFalse(HeaderFilterItem.objects.filter(header_filter=hf.id))
 
     def test_delete02(self):
         "Not custom -> undeletable"
@@ -254,7 +252,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view', model=Contact, is_custom=False)
         self.client.post(self.DELETE_URL, data={'id': hf.id})
-        self.assertEqual(1, HeaderFilter.objects.filter(pk=hf.id).count())
+        self.get_object_or_fail(HeaderFilter, pk=hf.id)
 
     def test_delete03(self):
         "Belongs to another user"
@@ -267,7 +265,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                  model=Contact, is_custom=True, user=self.other_user,
                                 )
         self.client.post(self.DELETE_URL, data={'id': hf.id})
-        self.assertEqual(1, HeaderFilter.objects.filter(pk=hf.id).count())
+        self.get_object_or_fail(HeaderFilter, pk=hf.id)
 
     def test_delete04(self):
         "Belongs to my team -> ok"
@@ -280,7 +278,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                  model=Contact, is_custom=True, user=my_team,
                                 )
         self.assertPOST200(self.DELETE_URL, data={'id': hf.id}, follow=True)
-        self.assertEqual(0, HeaderFilter.objects.filter(pk=hf.id).count())
+        self.assertFalse(HeaderFilter.objects.filter(pk=hf.id).exists())
 
     def test_delete05(self): #belongs to a team (not mine) -> ko
         self.login(is_superuser=False)
@@ -295,7 +293,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                  model=Contact, is_custom=True, user=a_team,
                                 )
         self.client.post(self.DELETE_URL, data={'id': hf.id}, follow=True)
-        self.assertEqual(1, HeaderFilter.objects.filter(pk=hf.id).count())
+        self.get_object_or_fail(HeaderFilter, pk=hf.id)
 
     def test_delete06(self):
         "Logged as super user"
@@ -305,13 +303,12 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                                  model=Contact, is_custom=True, user=self.other_user,
                                 )
         self.client.post(self.DELETE_URL, data={'id': hf.id})
-        self.assertEqual(0, HeaderFilter.objects.filter(pk=hf.id).count())
+        self.assertFalse(HeaderFilter.objects.filter(pk=hf.id).exists())
 
     def test_hfilters_for_ctype01(self):
         self.login()
 
-        response = self.client.get(self._build_get4ctype_url(self.contact_ct))
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(self._build_get4ctype_url(self.contact_ct))
         self.assertEqual([], simplejson.loads(response.content))
 
     def test_hfilters_for_ctype02(self):
@@ -324,8 +321,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         hf02 = create_hf(pk='tests-hf_contact02', name=name02,      model=Contact,      is_custom=True)
         create_hf(pk='tests-hf_orga01',           name='Orga view', model=Organisation, is_custom=True)
 
-        response = self.client.get(self._build_get4ctype_url(self.contact_ct))
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(self._build_get4ctype_url(self.contact_ct))
         self.assertEqual([[hf01.id, name01], [hf02.id, name02]], simplejson.loads(response.content))
 
     def test_hfilters_for_ctype03(self):

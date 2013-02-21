@@ -121,8 +121,7 @@ class BlockViewTestCase(CremeTestCase):
         block1 = FoobarBlock()
         block_registry.register(block1)
 
-        response = self.client.get('/creme_core/blocks/reload/%s/%s/' % (block1.id_, atom.id))
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % (block1.id_, atom.id))
         self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual([[block1.id_, self.TestBlock.string_format_detail % block1.id_]],
                          simplejson.loads(response.content)
@@ -148,10 +147,9 @@ class BlockViewTestCase(CremeTestCase):
         block3 = FoobarBlock3()
         block_registry.register(block1, block2, block3)
 
-        response = self.client.get('/creme_core/blocks/reload/%s/%s/' % (block1.id_, atom.id),
-                                   data={block1.id_ + '_deps': ','.join([block2.id_, block3.id_])}
-                                  )
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % (block1.id_, atom.id),
+                                     data={block1.id_ + '_deps': ','.join([block2.id_, block3.id_])}
+                                    )
         self.assertEqual([[block1.id_, self.TestBlock.string_format_detail % block1.id_],
                           [block2.id_, self.TestBlock.string_format_detail % block2.id_],
                           [block3.id_, self.TestBlock.string_format_detail % block3.id_],
@@ -189,8 +187,7 @@ class BlockViewTestCase(CremeTestCase):
         block1 = FoobarBlock()
         block_registry.register(block1)
 
-        response = self.client.get('/creme_core/blocks/reload/%s/%s/' % (block1.id_, atom.id))
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % (block1.id_, atom.id))
         self.assertEqual([[block1.id_, self.TestBlock.string_format_detail % block1.id_]],
                          simplejson.loads(response.content)
                         )
@@ -200,8 +197,7 @@ class BlockViewTestCase(CremeTestCase):
         self.login()
         atom = Contact.objects.create(user=self.user, first_name='Atom', last_name='Tenma')
 
-        response = self.client.get('/creme_core/blocks/reload/%s/%s/' % ('test_reload_detailview05', atom.id))
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % ('test_reload_detailview05', atom.id))
         self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual([], simplejson.loads(response.content))
 
@@ -218,10 +214,9 @@ class BlockViewTestCase(CremeTestCase):
         block2 = FoobarBlock2()
         block_registry.register(block1, block2)
 
-        response = self.client.get('/creme_core/blocks/reload/home/%s/' % block1.id_,
-                                   data={block1.id_ + '_deps': ','.join([block2.id_, 'silly_id'])}
-                                  )
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/creme_core/blocks/reload/home/%s/' % block1.id_,
+                                     data={block1.id_ + '_deps': ','.join([block2.id_, 'silly_id'])}
+                                    )
         self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual([[block1.id_, self.TestBlock.string_format_home % block1.id_],
                           [block2.id_, self.TestBlock.string_format_home % block2.id_],
@@ -245,12 +240,11 @@ class BlockViewTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         ct_id1 = get_ct(Contact).id
         ct_id2 = get_ct(Organisation).id
-        response = self.client.get('/creme_core/blocks/reload/portal/%s/%s,%s/' % (
+        response = self.assertGET200('/creme_core/blocks/reload/portal/%s/%s,%s/' % (
                                             block1.id_, ct_id1, ct_id2
                                         ),
-                                   data={block1.id_ + '_deps': ','.join([block2.id_, 'silly_id'])}
-                                  )
-        self.assertEqual(200, response.status_code)
+                                     data={block1.id_ + '_deps': ','.join([block2.id_, 'silly_id'])}
+                                    )
         self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual([[block1.id_, self.TestBlock.string_format_portal % block1.id_],
                           [block2.id_, self.TestBlock.string_format_portal % block2.id_],
@@ -288,11 +282,10 @@ class BlockViewTestCase(CremeTestCase):
         block1 = FoobarBlock1()
         block_registry.register(block1)
 
-        response = self.client.get('/creme_core/blocks/reload/portal/%s/%s/' % (
+        response = self.assertGET200('/creme_core/blocks/reload/portal/%s/%s/' % (
                                             block1.id_, ContentType.objects.get_for_model(model).id
                                         ),
-                                  )
-        self.assertEqual(200, response.status_code)
+                                    )
         self.assertEqual([[block1.id_, self.TestBlock.string_format_portal % block1.id_]],
                          simplejson.loads(response.content)
                         )
@@ -312,10 +305,9 @@ class BlockViewTestCase(CremeTestCase):
         block2 = FoobarBlock2()
         block_registry.register(block1, block2)
 
-        response = self.client.get('/creme_core/blocks/reload/basic/%s/' % block1.id_,
-                                   data={block1.id_ + '_deps': '%s,silly_id' % block2.id_}
-                                  )
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/creme_core/blocks/reload/basic/%s/' % block1.id_,
+                                     data={block1.id_ + '_deps': '%s,silly_id' % block2.id_}
+                                    )
         self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual([[block1.id_, self.TestBlock.string_format_detail % block1.id_],
                           [block2.id_, self.TestBlock.string_format_detail % block2.id_],
@@ -346,8 +338,7 @@ class BlockViewTestCase(CremeTestCase):
         block1 = FoobarBlock1()
         block_registry.register(block1)
 
-        response = self.client.get('/creme_core/blocks/reload/basic/%s/' % block1.id_)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/creme_core/blocks/reload/basic/%s/' % block1.id_)
         self.assertEqual([[block1.id_, self.TestBlock.string_format_detail % block1.id_]],
                          simplejson.loads(response.content)
                         )
@@ -371,8 +362,7 @@ class BlockViewTestCase(CremeTestCase):
                                     )[0]
         rel2 = Relation.objects.create(subject_entity=atom, type=rtype2, object_entity=uran, user=user)
 
-        response = self.client.get('/creme_core/blocks/reload/relations_block/%s/' % atom.id)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/creme_core/blocks/reload/relations_block/%s/' % atom.id)
         self.assertEqual('text/javascript', response['Content-Type'])
 
         content = simplejson.loads(response.content)
@@ -407,8 +397,7 @@ class BlockViewTestCase(CremeTestCase):
                                     )[0]
         rel2 = Relation.objects.create(subject_entity=atom, type=rtype2, object_entity=uran, user=user)
 
-        response = self.client.get('/creme_core/blocks/reload/relations_block/%s/%s/' % (atom.id, rtype1.id))
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/creme_core/blocks/reload/relations_block/%s/%s/' % (atom.id, rtype1.id))
         self.assertEqual([rel2], list(response.context['page'].object_list))
 
     def test_reload_relations03(self):

@@ -56,8 +56,7 @@ class MergeViewsTestCase(ViewsTestCase):
         orga02 = create_orga(name='Gen-shi-ken')
         orga03 = create_orga(name='Manga Club')
 
-        response = self.client.get(self._build_select_url(orga01))
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(self._build_select_url(orga01))
 
         with self.assertNoException():
             contacts = response.context['entities'].object_list
@@ -132,8 +131,7 @@ class MergeViewsTestCase(ViewsTestCase):
         assert old_modified > self.refresh(orga01).modified
 
         url = self._build_merge_url(orga01, orga02)
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             fields = response.context['form'].fields
@@ -222,8 +220,7 @@ class MergeViewsTestCase(ViewsTestCase):
         #contact02.language = [language1, language2]
 
         url = self._build_merge_url(contact01, contact02)
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             f_image = response.context['form'].fields['image']
@@ -279,8 +276,7 @@ class MergeViewsTestCase(ViewsTestCase):
         self._oldify(orga02)
         assert old_modified > self.refresh(orga02).modified
 
-        response = self.client.get(self._build_merge_url(orga01, orga02))
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(self._build_merge_url(orga01, orga02))
 
         with self.assertNoException():
             f_name = response.context['form'].fields['name']
@@ -297,8 +293,7 @@ class MergeViewsTestCase(ViewsTestCase):
         contact01 = create_contact(first_name='Makoto', last_name='Kosaka', image=image)
         contact02 = create_contact(first_name='Makoto', last_name='Kousaka')
 
-        response = self.client.get(self._build_merge_url(contact01, contact02))
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(self._build_merge_url(contact01, contact02))
 
         with self.assertNoException():
             f_image = response.context['form'].fields['image']
@@ -326,17 +321,17 @@ class MergeViewsTestCase(ViewsTestCase):
         orga01 = create_orga(name='Genshiken')
         orga02 = create_orga(name='Gen-shi-ken')
 
-        response = self.client.post(self._build_merge_url(orga01, orga02), follow=True,
-                                    data={'user_1':      user.id,
-                                          'user_2':      user.id,
-                                          #'user_merged': user.id, #<============
+        response = self.assertPOST200(self._build_merge_url(orga01, orga02),
+                                      follow=True,
+                                      data={'user_1':      user.id,
+                                            'user_2':      user.id,
+                                            #'user_merged': user.id, #<============
 
-                                          'name_1':      orga01.name,
-                                          'name_2':      orga02.name,
-                                          'name_merged': '', #<======
-                                         }
-                                   )
-        self.assertEqual(200, response.status_code)
+                                            'name_1':      orga01.name,
+                                            'name_2':      orga02.name,
+                                            'name_merged': '', #<======
+                                           }
+                                     )
         self.assertFormError(response, 'form', 'user', [_(u'This field is required.')])
         self.assertFormError(response, 'form', 'name', [_(u'This field is required.')])
 

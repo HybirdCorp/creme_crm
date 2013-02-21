@@ -44,8 +44,7 @@ class EntityViewsTestCase(ViewsTestCase):
 
         url = '/creme_core/entity/get_fields'
         ct_id = ContentType.objects.get_for_model(CremeEntity).id
-        response = self.client.post(url, data={'ct_id': ct_id})
-        self.assertEqual(200,               response.status_code)
+        response = self.assertPOST200(url, data={'ct_id': ct_id})
         self.assertEqual('text/javascript', response['Content-Type'])
 
         content = simplejson.loads(response.content)
@@ -62,16 +61,13 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertEqual(content[5][0], 'user__email')
         self.assertEqual(content[6][0], 'user__is_team')
 
-        response = self.client.post(url, data={'ct_id': 0})
-        self.assertEqual(404,               response.status_code)
+        response = self.assertPOST404(url, data={'ct_id': 0})
         self.assertEqual('text/javascript', response['Content-Type'])
 
-        response = self.client.post(url, data={'ct_id': 'notint'})
-        self.assertEqual(400,               response.status_code)
+        response = self.assertPOST(400, url, data={'ct_id': 'notint'})
         self.assertEqual('text/javascript', response['Content-Type'])
 
-        response = self.client.post(url, data={'ct_id': ct_id, 'deep': 'notint'})
-        self.assertEqual(400,               response.status_code)
+        response = self.assertPOST(400, url, data={'ct_id': ct_id, 'deep': 'notint'})
         self.assertEqual('text/javascript', response['Content-Type'])
 
     def test_get_function_fields(self):
@@ -80,8 +76,7 @@ class EntityViewsTestCase(ViewsTestCase):
         url = '/creme_core/entity/get_function_fields'
 
         ct_id = ContentType.objects.get_for_model(CremeEntity).id
-        response = self.client.post(url, data={'ct_id': ct_id})
-        self.assertEqual(200,               response.status_code)
+        response = self.assertPOST200(url, data={'ct_id': ct_id})
         self.assertEqual('text/javascript', response['Content-Type'])
 
         content = simplejson.loads(response.content)
@@ -89,12 +84,10 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertEqual(len(list(CremeEntity.function_fields)), len(content))
         self.assertIn(['get_pretty_properties', _('Properties')], content)
 
-        response = self.client.post(url, data={'ct_id': 0})
-        self.assertEqual(404,               response.status_code)
+        response = self.assertPOST404(url, data={'ct_id': 0})
         self.assertEqual('text/javascript', response['Content-Type'])
 
-        response = self.client.post(url, data={'ct_id': 'notint'})
-        self.assertEqual(400,               response.status_code)
+        response = self.assertPOST(400, url, data={'ct_id': 'notint'})
         self.assertEqual('text/javascript', response['Content-Type'])
 
     def test_get_custom_fields(self):
@@ -132,8 +125,7 @@ class EntityViewsTestCase(ViewsTestCase):
         with self.assertNoException():
             entity = CremeEntity.objects.create(user=self.user)
 
-        response = self.client.post('/creme_core/entity/json', data={'pk': entity.id})
-        self.assertEqual(200,               response.status_code)
+        response = self.assertPOST200('/creme_core/entity/json', data={'pk': entity.id})
         self.assertEqual('text/javascript', response['Content-Type'])
 
         json_data = simplejson.loads(response.content)
@@ -165,8 +157,11 @@ class EntityViewsTestCase(ViewsTestCase):
         with self.assertNoException():
             entity = CremeEntity.objects.create(user=self.user)
 
-        response = self.client.post('/creme_core/entity/json', data={'pk': entity.id, 'fields': ['user', 'entity_type']})
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200('/creme_core/entity/json',
+                                      data={'pk':     entity.id,
+                                            'fields': ['user', 'entity_type'],
+                                           }
+                                     )
 
         json_data = simplejson.loads(response.content)
         #[{'pk': 1,
@@ -187,8 +182,7 @@ class EntityViewsTestCase(ViewsTestCase):
         with self.assertNoException():
             entity = CremeEntity.objects.create(user=self.user)
 
-        response = self.client.get('/creme_core/entity/get_repr/%s' % entity.id)
-        self.assertEqual(200,               response.status_code)
+        response = self.assertGET200('/creme_core/entity/get_repr/%s' % entity.id)
         self.assertEqual('text/javascript', response['Content-Type'])
         json_data = simplejson.loads(response.content)
         self.assertEqual('Creme entity: %s' % entity.id, json_data[0]['text'])
@@ -223,8 +217,7 @@ class EntityViewsTestCase(ViewsTestCase):
                                            )
         Relation.objects.create(user=self.user, type=rtype, subject_entity=entity01, object_entity=entity02)
 
-        response = self.client.post(self._build_delete_url(entity01))
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200(self._build_delete_url(entity01))
         self.assertTemplateUsed(response, 'creme_core/forbidden.html')
         self.assertEqual(2, Organisation.objects.filter(pk__in=[entity01.id, entity02.id]).count())
 
@@ -274,10 +267,9 @@ class EntityViewsTestCase(ViewsTestCase):
                                            )
         Relation.objects.create(user=self.user, type=rtype, subject_entity=entity01, object_entity=entity02)
 
-        response = self.client.post(self.DEL_ENTITIES_URL,
-                                    data={'ids': '%s,%s,%s,' % (entity01.id, entity02.id, entity03.id)}
-                                   )
-        self.assertEqual(400, response.status_code)
+        self.assertPOST(400, self.DEL_ENTITIES_URL,
+                        data={'ids': '%s,%s,%s,' % (entity01.id, entity02.id, entity03.id)}
+                       )
         self.assertEqual(2,   CremeEntity.objects.filter(pk__in=[entity01.id, entity02.id]).count())
         self.assertEqual(0,   CremeEntity.objects.filter(pk=entity03.id).count())
 
@@ -286,8 +278,7 @@ class EntityViewsTestCase(ViewsTestCase):
 
         furl = '/creme_core/entity/get_info_fields/%s/json'
         ct = ContentType.objects.get_for_model(Contact)
-        response = self.client.get(furl % ct.id)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(furl % ct.id)
 
         json_data = simplejson.loads(response.content)
         #print json_data
@@ -361,8 +352,7 @@ class EntityViewsTestCase(ViewsTestCase):
         mario = Contact.objects.create(user=self.other_user, first_name=first_name, last_name="Bros")
 
         count = Contact.objects.count()
-        response = self.client.post(self.CLONE_URL, data={'id': mario.id}, follow=True)
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200(self.CLONE_URL, data={'id': mario.id}, follow=True)
         self.assertEqual(count + 1, Contact.objects.count())
 
         with self.assertNoException():
@@ -659,7 +649,7 @@ class BulkEditTestCase(_BulkEditTestCase):
                                     'entities_lbl': 'whatever',
                                    }
                        )
-        birthday = date(2000, 01, 31)
+        birthday = date(2000, 1, 31)
         self.assertEqual(birthday, self.refresh(mario).birthday)
         self.assertEqual(birthday, self.refresh(luigi).birthday)
 
@@ -826,7 +816,7 @@ class BulkEditTestCase(_BulkEditTestCase):
                                    )
         self.assertNoFormError(response)
 
-        dt = datetime(2000, 01, 31)
+        dt = datetime(2000, 1, 31)
         self.assertEqual(dt, get_cf_values(cf_date, self.refresh(mario)).value)
         self.assertEqual(dt, get_cf_values(cf_date, self.refresh(luigi)).value)
 
@@ -918,20 +908,18 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.login()
 
         url = self.GET_WIDGET_URL
-        response = self.client.post(url % self.contact_ct.id,
-                                    data={'field_name':       'first_name',
-                                          'field_value_name': 'field_value',
-                                         }
-                                   )
-        self.assertEqual(200,               response.status_code)
+        response = self.assertPOST200(url % self.contact_ct.id,
+                                      data={'field_name':       'first_name',
+                                            'field_value_name': 'field_value',
+                                           }
+                                     )
         self.assertEqual('text/javascript', response['Content-Type'])
         #self.assertTrue(simplejson.loads(response.content)['rendered'])
         self.assertEqual('<input id="id_field_value" type="text" name="field_value" maxlength="100" />',
                          simplejson.loads(response.content)['rendered']
                         )
 
-        response = self.client.post(url % 0)
-        self.assertEqual(404,               response.status_code)
+        response = self.assertPOST404(url % 0)
         self.assertEqual('text/javascript', response['Content-Type'])
 
         self.assertPOST404(url % 'notint')
@@ -945,12 +933,11 @@ class BulkEditTestCase(_BulkEditTestCase):
         cf_int = CustomField.objects.create(name='int', content_type=self.contact_ct, field_type=CustomField.INT)
         Contact.objects.create(user=self.user, first_name="Mario", last_name="Bros")
 
-        response = self.client.post(self.GET_WIDGET_URL % self.contact_ct.id,
-                                    data={'field_name':       _CUSTOM_NAME % cf_int.id, #'first_name',
-                                          'field_value_name': 'field_value', #??
-                                         }
-                                   )
-        self.assertEqual(200,               response.status_code)
+        response = self.assertPOST200(self.GET_WIDGET_URL % self.contact_ct.id,
+                                      data={'field_name':       _CUSTOM_NAME % cf_int.id, #'first_name',
+                                            'field_value_name': 'field_value', #??
+                                           }
+                                     )
         self.assertEqual('text/javascript', response['Content-Type'])
         self.assertEqual('<input type="text" name="field_value" id="id_field_value" />',
                          simplejson.loads(response.content)['rendered']

@@ -83,8 +83,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         hf_items = self._build_hf_n_contacts()
         lv_url = self._set_listview_state()
 
-        response = self.client.get(self._build_url(self.ct), data={'list_url': lv_url})
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(self._build_url(self.ct), data={'list_url': lv_url})
 
         #TODO: sort the relations/properties by they verbose_name ??
         result = map(force_unicode, response.content.splitlines())

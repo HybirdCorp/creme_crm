@@ -282,8 +282,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         parent_filter.set_conditions([EntityFilterCondition.build_4_subfilter(efilter)])
 
         url = '/creme_core/entity_filter/edit/%s' % efilter.id
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
         formfields = response.context['form'].fields
         self.assertEqual(Contact,        formfields['fields_conditions'].model)
@@ -354,14 +353,19 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.EFC_DATEFIELD, condition.type)
         self.assertEqual(date_field_name,                     condition.name)
-        self.assertEqual({'start': {'year': 2011, u'month': 5, 'day': 23}, 'end': {'year': 2012, 'month': 6, 'day': 27}},
+        self.assertEqual({'start': {'year': 2011, 'month': 5, 'day': 23},
+                          'end':   {'year': 2012, 'month': 6, 'day': 27},
+                         },
                          condition.decoded_value
                         )
 
         condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.EFC_CUSTOMFIELD, condition.type)
         self.assertEqual(str(custom_field.id),                  condition.name)
-        self.assertEqual({'operator': cfield_operator, 'rname': 'customfieldstring', 'value': unicode(cfield_value)},
+        self.assertEqual({'operator': cfield_operator,
+                          'rname':    'customfieldstring',
+                          'value':    unicode(cfield_value),
+                         },
                          condition.decoded_value
                         )
 
@@ -385,19 +389,21 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.EFC_PROPERTY, condition.type)
         self.assertEqual(ptype.id,                           condition.name)
-        self.assert_(condition.decoded_value is False)
+        self.assertIs(condition.decoded_value, False)
 
         condition = iter_conds.next()
         self.assertEqual(EntityFilterCondition.EFC_SUBFILTER, condition.type)
         self.assertEqual(subfilter.id,                        condition.name)
 
-    def test_edit02(self): #not custom -> can not edit
+    def test_edit02(self):
+        "Not custom -> can not edit"
         self.login()
 
         efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, is_custom=False)
         self.assertGET404('/creme_core/entity_filter/edit/%s' % efilter.id)
 
-    def test_edit03(self): #can not edit Filter that belongs to another user
+    def test_edit03(self):
+        "Can not edit Filter that belongs to another user"
         self.login(is_superuser=False)
 
         self.role.allowed_apps = ['persons']
@@ -406,13 +412,15 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, user=self.other_user, is_custom=True)
         self.assertGET404('/creme_core/entity_filter/edit/%s' % efilter.id)
 
-    def test_edit04(self): #user do not have the app credentials
+    def test_edit04(self):
+        "User do not have the app credentials"
         self.login(is_superuser=False)
 
         efilter = EntityFilter.create('test-filter01', 'Filter01', Contact, user=self.user, is_custom=True)
         self.assertGET404('/creme_core/entity_filter/edit/%s' % efilter.id)
 
-    def test_edit05(self): #cycle error
+    def test_edit05(self):
+        "Cycle error"
         self.login()
 
         rtype, srtype = RelationType.create(('test-subject_love', u'Is loving'),
@@ -537,8 +545,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                             ('test-object_love',  u'Is loved by')
                                            )
 
-        response = self.client.get(self._build_get_ct_url(rtype))
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(self._build_get_ct_url(rtype))
 
         content = simplejson.loads(response.content)
         self.assertIsInstance(content, list)
@@ -554,8 +561,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                                             ('test-object_love',  u'Is loved by', (Contact,))
                                            )
 
-        response = self.client.get(self._build_get_ct_url(rtype))
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(self._build_get_ct_url(rtype))
 
         ct = self.ct_contact
         self.assertEqual([[0, _(u'All')], [ct.id, unicode(ct)]],
@@ -565,8 +571,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
     def test_filters_for_ctype01(self):
         self.login()
 
-        response = self.client.get(self._buid_get_filter(self.ct_contact))
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(self._buid_get_filter(self.ct_contact))
 
         content = simplejson.loads(response.content)
         self.assertIsInstance(content, list)
@@ -579,8 +584,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         efilter02 = EntityFilter.create('test-filter02', 'Filter 02', Contact)
         EntityFilter.create('test-filter03', 'Filter 03', Organisation)
 
-        response = self.client.get(self._buid_get_filter(self.ct_contact))
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(self._buid_get_filter(self.ct_contact))
         self.assertEqual([[efilter01.id, 'Filter 01'], [efilter02.id, 'Filter 02']],
                          simplejson.loads(response.content)
                         )

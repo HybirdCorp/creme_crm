@@ -83,9 +83,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         doc = self._build_doc(lines)
         url = self._build_csvimport_url(Contact)
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
-
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             response.context['form']
@@ -173,12 +171,12 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         ptype = CremePropertyType.create(str_pk='test-prop_cute', text='Really cure in her suit')
 
-        employed, _srt = RelationType.create(('persons-subject_employed_by', 'is an employee of'),
-                                             ('persons-object_employed_by',  'employs')
-                                            )
-        loves, _srt    = RelationType.create(('test-subject_loving', 'is loving'),
-                                             ('test-object_loving',  'is loved by')
-                                            )
+        employed = RelationType.create(('persons-subject_employed_by', 'is an employee of'),
+                                       ('persons-object_employed_by',  'employs')
+                                      )[0]
+        loves = RelationType.create(('test-subject_loving', 'is loving'),
+                                    ('test-object_loving',  'is loved by')
+                                   )[0]
 
         nerv = Organisation.objects.create(user=self.user, name='Nerv')
         shinji = Contact.objects.create(user=self.user, first_name='Shinji', last_name='Ikari')
@@ -192,12 +190,11 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         doc = self._build_doc(lines)
         url = self._build_csvimport_url(Contact)
-        response = self.client.post(url, data={'csv_step':       0,
-                                               'csv_document':   doc.id,
-                                               'csv_has_header': True,
-                                              }
-                                   )
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200(url, data={'csv_step':       0,
+                                                 'csv_document':   doc.id,
+                                                 'csv_has_header': True,
+                                                }
+                                     )
 
         form = response.context['form']
         self.assertIn('value="1"',    unicode(form['csv_step']))
@@ -304,9 +301,9 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         self.login()
         self.assertFalse(Organisation.objects.exists())
 
-        employed, _srt = RelationType.create(('persons-subject_employed_by', 'is an employee of'),
-                                             ('persons-object_employed_by',  'employs')
-                                            )
+        employed = RelationType.create(('persons-subject_employed_by', 'is an employee of'),
+                                       ('persons-object_employed_by',  'employs')
+                                      )[0]
         orga_name = 'Nerv'
         doc = self._build_doc([('Ayanami', 'Rei', orga_name)])
         response = self.client.post(self._build_csvimport_url(Contact),
