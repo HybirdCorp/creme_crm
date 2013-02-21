@@ -40,8 +40,7 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.assertEqual(set([ptype01, ptype02]), set(p.type for p in properties))
 
         #-----------------------------------------------------------------------
-        response = self.client.post(url, data={'types': [ptype01.id, ptype03.id]}) #one new and one old property
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200(url, data={'types': [ptype01.id, ptype03.id]}) #one new and one old property
         self.assertFormError(response, 'form', 'types',
                              [_(u'Select a valid choice. %s is not one of the available choices.') % ptype01.id]
                             )
@@ -54,8 +53,7 @@ class PropertyViewsTestCase(ViewsTestCase):
         prop   = CremeProperty.objects.create(type=ptype, creme_entity=entity)
         ct     = ContentType.objects.get_for_model(CremeProperty)
 
-        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': prop.id})
-        self.assertEqual(302, response.status_code)
+        self.assertPOST(302, '/creme_core/entity/delete_related/%s' % ct.id, data={'id': prop.id})
         self.assertEqual(0,   CremeProperty.objects.filter(pk=prop.id).count())
 
     def assertEntityHasProperty(self, ptype, entity):
@@ -118,8 +116,7 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.assertTrue(entity03.can_change(self.user))
 
         url = self._build_bulk_url(self.centity_ct, entity01, entity02, entity03, entity04)
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             label = response.context['form'].fields['bad_entities_lbl']
@@ -164,8 +161,7 @@ class PropertyViewsTestCase(ViewsTestCase):
         self.assertTrue(uneditable.can_view(self.user))
         self.assertFalse(uneditable.can_change(self.user))
 
-        response = self.client.get(self._build_bulk_url(self.centity_ct, uneditable))
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(self._build_bulk_url(self.centity_ct, uneditable))
 
         with self.assertNoException():
             label = response.context['form'].fields['bad_entities_lbl']
@@ -187,12 +183,11 @@ class PropertyViewsTestCase(ViewsTestCase):
         self._set_all_creds_except_one(excluded=EntityCredentials.CHANGE)
         uneditable = CremeEntity.objects.create(user=self.other_user)
 
-        response = self.client.post(url, data={'entities_lbl': 'd:p',
-                                               'entities':     '%s' % (uneditable.id,),
-                                               'types':        [ptype01.id, ptype02.id],
-                                              }
-                                   )
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200(url, data={'entities_lbl': 'd:p',
+                                                 'entities':     '%s' % (uneditable.id,),
+                                                 'types':        [ptype01.id, ptype02.id],
+                                                }
+                                     )
         self.assertFormError(response, 'form', None,
                              [_(u"Some entities are not editable: %s") % uneditable]
                             )

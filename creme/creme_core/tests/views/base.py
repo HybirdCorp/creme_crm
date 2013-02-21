@@ -62,10 +62,10 @@ class MiscViewsTestCase(ViewsTestCase):
         settings.FORCE_JS_TESTVIEW = self.FORCE_JS_TESTVIEW
 
     def test_home(self): #TODO: improve test
-        self.assertEqual(200, self.client.get('/').status_code)
+        self.assertGET200('/')
 
     def test_my_page(self):
-        self.assertEqual(200, self.client.get('/my_page').status_code)
+        self.assertGET200('/my_page')
 
     def test_clean(self):
         with self.assertNoException():
@@ -76,7 +76,7 @@ class MiscViewsTestCase(ViewsTestCase):
 
     def test_js_view(self):
         self.assertFalse(settings.FORCE_JS_TESTVIEW)
-        self.assertEqual(200, self.client.get('/test_js').status_code)
+        self.assertGET200('/test_js')
 
 
 class LanguageTestCase(ViewsTestCase):

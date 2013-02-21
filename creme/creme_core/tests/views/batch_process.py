@@ -51,8 +51,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.login()
         url = self.build_url(Organisation)
 
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             orga_fields = set(response.context['form'].fields['actions']._fields.iterkeys())
@@ -119,7 +118,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertIs(Contact, form.entity_type)
         self.assertEqual(Contact.objects.count(), form.modified_objects_count)
 
-    def test_validation_error01(self): # invalid field
+    def test_validation_error01(self):
+        "Invalid field"
         self.login()
 
         response = self.client.post(self.build_url(Contact), follow=True,
@@ -133,7 +133,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'actions', [_(u"This field is invalid with this model.")])
 
-    def test_several_actions(self): # + 'title' operator
+    def test_several_actions(self):
+        "'upper' + 'title' operators"
         self.login()
 
         contact = Contact.objects.create(user=self.user, first_name='kanji', last_name='sasahara')
@@ -154,14 +155,13 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.login()
 
         name = 'first_name'
-        response = self.client.post(self.build_url(Contact), follow=True,
-                                    data={'actions': self.format_str2 % {
+        response = self.assertPOST200(self.build_url(Contact), follow=True,
+                                      data={'actions': self.format_str2 % {
                                                             'name01': name, 'operator01': 'title', 'value01': '',
                                                             'name02': name, 'operator02': 'upper', 'value02': '',
                                                         },
-                                         }
-                                   )
-        self.assertEqual(200, response.status_code)
+                                           }
+                                     )
         self.assertFormError(response, 'form', 'actions',
                              [_(u"The field '%s' can not be used twice.") % _('First name')]
                             )
@@ -205,14 +205,12 @@ class BatchProcessViewsTestCase(ViewsTestCase):
     def test_use_edit_perm(self):
         self.login(is_superuser=False, allowed_apps=['persons'])
 
-        create_sc = SetCredentials.objects.create
-        create_sc(role=self.role,
-                  value=EntityCredentials.VIEW | EntityCredentials.DELETE |\
+        create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc(value=EntityCredentials.VIEW | EntityCredentials.DELETE |\
                         EntityCredentials.LINK | EntityCredentials.UNLINK, #no  CHANGE
                   set_type=SetCredentials.ESET_ALL
                  )
-        create_sc(role=self.role,
-                  value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |\
+        create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |\
                         EntityCredentials.LINK | EntityCredentials.UNLINK,
                   set_type=SetCredentials.ESET_OWN
                  )
@@ -295,8 +293,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
     def test_get_ops02(self):
         self.login()
 
-        response = self.client.get(self.build_ops_url(self.contact_ct_id, 'first_name'))
-        self.assertEqual(200, response.status_code, response.content)
+        response = self.assertGET200(self.build_ops_url(self.contact_ct_id, 'first_name'))
 
         json_data = simplejson.loads(response.content)
         self.assertIsInstance(json_data, list)
@@ -309,33 +306,29 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         "Organisation CT, other category of operator"
         self.login()
 
-        response = self.client.get(self.build_ops_url(self.orga_ct_id, 'capital'))
-        self.assertEqual(200, response.status_code, response.content)
+        response = self.assertGET200(self.build_ops_url(self.orga_ct_id, 'capital'))
 
         json_data = simplejson.loads(response.content)
         self.assertIn(['add_int', _('Add')], json_data)
         self.assertIn(['sub_int', _('Subtract')], json_data)
         self.assertNotIn('prefix', (e[0] for e in json_data))
 
-    def test_get_ops04(self): #empty category
+    def test_get_ops04(self):
+        "Empty category"
         self.login()
 
-        response = self.client.get(self.build_ops_url(self.contact_ct_id, 'image'))
-        self.assertEqual(200, response.status_code, response.content)
+        response = self.assertGET200(self.build_ops_url(self.contact_ct_id, 'image'))
         self.assertEqual([], simplejson.loads(response.content))
 
     def test_get_ops05(self):
         "No app credentials"
         self.login(is_superuser=False, allowed_apps=['creme_core']) #not 'persons'
-
-        response = self.client.get(self.build_ops_url(self.contact_ct_id, 'first_name'))
-        self.assertEqual(403, response.status_code, response.content)
+        self.assertGET403(self.build_ops_url(self.contact_ct_id, 'first_name'))
 
     def test_get_ops06(self):
         "Unknown field"
         self.login()
 
-        response = self.client.get(self.build_ops_url(self.contact_ct_id, 'foobar'))
-        self.assertEqual(400, response.status_code, response.content)
+        self.assertGET(400, self.build_ops_url(self.contact_ct_id, 'foobar'))
 
     #TODO: custom fields ??
