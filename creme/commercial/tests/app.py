@@ -32,7 +32,7 @@ class CommercialTestCase(CremeTestCase):
         self.login()
 
         url = '/commercial/salesman/add'
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         first_name = 'John'
         last_name  = 'Doe'
@@ -42,9 +42,7 @@ class CommercialTestCase(CremeTestCase):
                                           'last_name':  last_name,
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
-        self.assertTrue(response.redirect_chain)
-        self.assertEqual(1, len(response.redirect_chain))
+        self.assertNoFormError(response)
 
         salesmen = Contact.objects.filter(properties__type=PROP_IS_A_SALESMAN)
         self.assertEqual(1, len(salesmen))
@@ -53,13 +51,14 @@ class CommercialTestCase(CremeTestCase):
         self.assertEqual(first_name, salesman.first_name)
         self.assertEqual(last_name,  salesman.last_name)
 
+        self.assertRedirects(response, salesman.get_absolute_url())
+
     def test_salesman_listview01(self):
         self.login()
 
         self.assertFalse(Contact.objects.filter(properties__type=PROP_IS_A_SALESMAN).exists())
 
-        response = self.client.get('/commercial/salesmen')
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/commercial/salesmen')
 
         with self.assertNoException():
             salesmen_page = response.context['entities']
@@ -83,8 +82,7 @@ class CommercialTestCase(CremeTestCase):
         salesmen = Contact.objects.filter(properties__type=PROP_IS_A_SALESMAN)
         self.assertEqual(2, len(salesmen))
 
-        response = self.client.get('/commercial/salesmen')
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/commercial/salesmen')
 
         with self.assertNoException():
             salesmen_page = response.context['entities']
@@ -95,4 +93,4 @@ class CommercialTestCase(CremeTestCase):
 
     def test_portal(self):
         self.login()
-        self.assertEqual(200, self.client.get('/commercial/').status_code)
+        self.assertGET200('/commercial/')

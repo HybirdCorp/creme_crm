@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,13 +38,17 @@ from commercial.models import *
 from commercial.constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW, REL_OBJ_COMPLETE_GOAL
 
 
+get_ct = ContentType.objects.get_for_model
+
+
 class ApproachesBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('commercial', 'approaches')
     dependencies  = (CommercialApproach,)
     order_by      = 'title'
     verbose_name  = _(u'Commercial approaches')
     template_name = 'commercial/templatetags/block_approaches.html'
-    #configurable  = True
+
+    _ORGA_CT_ID = get_ct(Organisation).id
 
     #TODO: factorise with assistants blocks (CremeEntity method ??)
     @staticmethod
@@ -66,20 +70,24 @@ class ApproachesBlock(QuerysetBlock):
         #CremeEntity.populate_credentials(entities_map.values(), user) #beware: values() and not itervalues()
 
     def detailview_display(self, context):
-        object = context['object']
-        pk = object.pk
+        entity = context['object']
+        pk = entity.pk
 
-        if not SettingValue.objects.get(key__id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW).value and object.entity_type == ContentType.objects.get_for_model(Organisation):
-            managers_ids      = object.get_managers().values_list('id',flat=True)
-            employees_ids     = object.get_employees().values_list('id',flat=True)
-            opportunities_ids = Opportunity.objects.filter(relations__type=REL_SUB_TARGETS, relations__object_entity=object).values_list('id',flat=True)
+        if entity.entity_type_id == self._ORGA_CT_ID and \
+           not SettingValue.objects.get(key__id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW).value:
+            managers_ids      = entity.get_managers().values_list('id', flat=True)
+            employees_ids     = entity.get_employees().values_list('id', flat=True)
+            opportunities_ids = Opportunity.objects.filter(relations__type=REL_SUB_TARGETS,
+                                                           relations__object_entity=entity,
+                                                          ) \
+                                                   .values_list('id',flat=True)
 
-            approaches = CommercialApproach.objects.filter(ok_or_in_futur=False, entity_id__in=chain([pk], managers_ids, employees_ids, opportunities_ids)).select_related('creme_entity')
-
+            approaches = CommercialApproach.objects.filter(ok_or_in_futur=False,
+                                                           entity_id__in=chain([pk], managers_ids, employees_ids, opportunities_ids),
+                                                          ) \
+                                                   .select_related('creme_entity')
         else:
             approaches = CommercialApproach.get_approaches(pk)
-
-
 
         return self._render(self.get_block_template_context(context, approaches,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
@@ -126,11 +134,13 @@ class SegmentDescriptionsBlock(PaginatedBlock):
     template_name = 'commercial/templatetags/block_segment_info.html'
     target_ctypes = (Strategy,)
 
+    _SEGMENTDESC_CT_ID = get_ct(MarketSegmentDescription).id
+
     def detailview_display(self, context):
         strategy = context['object']
         return self._render(self.get_block_template_context(context, strategy.get_segment_descriptions_list(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
-                                                            ct_id=ContentType.objects.get_for_model(MarketSegmentDescription).id,
+                                                            ct_id=self._SEGMENTDESC_CT_ID,
                                                            ))
 
 
@@ -142,11 +152,13 @@ class AssetsBlock(QuerysetBlock):
     template_name = 'commercial/templatetags/block_assets.html'
     target_ctypes = (Strategy,)
 
+    _ASSET_CT_ID = get_ct(CommercialAsset).id
+
     def detailview_display(self, context):
         strategy = context['object']
         return self._render(self.get_block_template_context(context, strategy.assets.all(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
-                                                            ct_id=ContentType.objects.get_for_model(CommercialAsset).id,
+                                                            ct_id=self._ASSET_CT_ID,
                                                            ))
 
 class CharmsBlock(QuerysetBlock):
@@ -157,11 +169,13 @@ class CharmsBlock(QuerysetBlock):
     template_name = 'commercial/templatetags/block_charms.html'
     target_ctypes = (Strategy,)
 
+    _CHARM_CT_ID = get_ct(MarketSegmentCharm).id
+
     def detailview_display(self, context):
         strategy = context['object']
         return self._render(self.get_block_template_context(context, strategy.charms.all(),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, strategy.pk),
-                                                            ct_id=ContentType.objects.get_for_model(MarketSegmentCharm).id,
+                                                            ct_id=self._CHARM_CT_ID,
                                                            ))
 
 
@@ -246,12 +260,14 @@ class ActObjectivesBlock(QuerysetBlock):
     template_name = 'commercial/templatetags/block_objectives.html'
     target_ctypes = (Act,)
 
+    _OBJECTIVE_CT_ID = get_ct(ActObjective).id
+
     def detailview_display(self, context):
         act_id = context['object'].id
         return self._render(self.get_block_template_context(context,
                                                             ActObjective.objects.filter(act=act_id), #NB: "act.objectives.all()" causes a strange additional query...
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act_id),
-                                                            ct_id=ContentType.objects.get_for_model(ActObjective).id,
+                                                            ct_id=self._OBJECTIVE_CT_ID,
                                                            ))
 
 
@@ -263,14 +279,14 @@ class RelatedOpportunitiesBlock(PaginatedBlock):
     template_name = 'commercial/templatetags/block_opportunities.html'
     target_ctypes = (Act,)
 
-    _ct = ContentType.objects.get_for_model(Opportunity)
+    _OPPORT_CT = get_ct(Opportunity)
 
     def detailview_display(self, context):
         act = context['object']
         btc = self.get_block_template_context(context, act.get_related_opportunities(),
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act.pk),
                                               predicate_id=REL_OBJ_COMPLETE_GOAL,
-                                              opp_ct=self._ct,
+                                              opp_ct=self._OPPORT_CT,
                                              )
 
         #CremeEntity.populate_credentials(btc['page'].object_list, context['user'])
@@ -284,6 +300,8 @@ class PatternComponentsBlock(Block):
     verbose_name  = _(u'Components of an Objective Pattern')
     template_name = 'commercial/templatetags/block_components.html'
     target_ctypes = (ActObjectivePattern,)
+
+    _PATTERNCOMP_CT_ID = get_ct(ActObjectivePatternComponent).id
 
     def detailview_display(self, context):
         pattern = context['object']
@@ -300,9 +318,10 @@ class PatternComponentsBlock(Block):
         return self._render(self.get_block_template_context(context,
                                                             components=flattened_tree,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pattern.pk),
-                                                            ct_id=ContentType.objects.get_for_model(ActObjectivePatternComponent).id,
+                                                            ct_id=self._PATTERNCOMP_CT_ID,
                                                            ))
 
+del get_ct
 
 approaches_block            = ApproachesBlock()
 segment_descriptions_block  = SegmentDescriptionsBlock()

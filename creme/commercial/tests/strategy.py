@@ -51,7 +51,7 @@ class StrategyTestCase(CommercialBaseTestCase):
                                           'name': name,
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
 
         strategies = Strategy.objects.all()
         self.assertEqual(1, len(strategies))
@@ -113,7 +113,7 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertEqual(1, strategy01.segment_info.count())
 
         strategy02 = create_strategy(name='Strat#2')
-        self.assertEqual(0, strategy02.segment_info.count())
+        self.assertFalse(0, strategy02.segment_info.exists())
 
         url = '/commercial/strategy/%s/link/segment/' % strategy02.id
         self.assertGET200(url)
@@ -207,7 +207,7 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertPOST200('/creme_core/entity/delete_related/%s' % ct.id,
                            data={'id': asset.id}, follow=True
                           )
-        self.assertEqual(0, strategy.assets.count())
+        self.assertFalse(strategy.assets.exists())
 
     def test_charms_add(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
@@ -243,7 +243,7 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertPOST200('/creme_core/entity/delete_related/%s' % ct.id,
                            data={'id': charm.id}, follow=True
                           )
-        self.assertEqual(0, strategy.charms.count())
+        self.assertFalse(strategy.charms.exists())
 
     def test_add_evaluated_orga(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
@@ -331,9 +331,9 @@ class StrategyTestCase(CommercialBaseTestCase):
         segment_desc01 = self._create_segment_desc(strategy, 'Industry')
         segment_desc02 = self._create_segment_desc(strategy, 'People')
 
-        create_asset = CommercialAsset.objects.create
-        asset01 = create_asset(name='Capital', strategy=strategy)
-        asset02 = create_asset(name='Size', strategy=strategy)
+        create_asset = partial(CommercialAsset.objects.create, strategy=strategy)
+        asset01 = create_asset(name='Capital')
+        asset02 = create_asset(name='Size')
 
         orga = Organisation.objects.create(user=self.user, name='Nerv')
         strategy.evaluated_orgas.add(orga)
@@ -384,9 +384,9 @@ class StrategyTestCase(CommercialBaseTestCase):
         segment_desc01 = self._create_segment_desc(strategy, 'Industry')
         segment_desc02 = self._create_segment_desc(strategy, 'People')
 
-        create_charm = MarketSegmentCharm.objects.create
-        charm01 = create_charm(name='Money', strategy=strategy)
-        charm02 = create_charm(name='Celebrity', strategy=strategy)
+        create_charm = partial(MarketSegmentCharm.objects.create, strategy=strategy)
+        charm01 = create_charm(name='Money')
+        charm02 = create_charm(name='Celebrity')
 
         orga = Organisation.objects.create(user=self.user, name='Nerv')
         strategy.evaluated_orgas.add(orga)
@@ -410,7 +410,9 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertEqual(score21, strategy.get_charm_score(orga, charm02, segment_desc01))
         self.assertEqual(score22, strategy.get_charm_score(orga, charm02, segment_desc02))
 
-        self.assertEqual([(score11 + score21, 1), (score12 + score22, 3)], strategy.get_charms_totals(orga))
+        self.assertEqual([(score11 + score21, 1), (score12 + score22, 3)],
+                         strategy.get_charms_totals(orga)
+                        )
 
     def _set_segment_category(self, strategy, segment_desc, orga, category):
         self.assertPOST200('/commercial/strategy/%s/set_segment_cat' % strategy.id,
@@ -428,13 +430,13 @@ class StrategyTestCase(CommercialBaseTestCase):
         community   = self._create_segment_desc(strategy, 'Community')
         association = self._create_segment_desc(strategy, 'Association')
 
-        create_asset = CommercialAsset.objects.create
-        asset01 = create_asset(name='Capital', strategy=strategy)
-        asset02 = create_asset(name='Size', strategy=strategy)
+        create_asset = partial(CommercialAsset.objects.create, strategy=strategy)
+        asset01 = create_asset(name='Capital')
+        asset02 = create_asset(name='Size')
 
-        create_charm = MarketSegmentCharm.objects.create
-        charm01 = create_charm(name='Money', strategy=strategy)
-        charm02 = create_charm(name='Celebrity', strategy=strategy)
+        create_charm = partial(MarketSegmentCharm.objects.create, strategy=strategy)
+        charm01 = create_charm(name='Money')
+        charm02 = create_charm(name='Celebrity')
 
         orga = Organisation.objects.create(user=self.user, name='Nerv')
         strategy.evaluated_orgas.add(orga)
@@ -454,28 +456,31 @@ class StrategyTestCase(CommercialBaseTestCase):
         self._set_charm_score(strategy, orga, charm01, community, 3)
         self._set_charm_score(strategy, orga, charm02, community, 4)
 
-        self.assertEqual([association.id], [segment.id for segment in strategy.get_segments_for_category(orga, 4)])
-        self.assertEqual([individual.id],  [segment.id for segment in strategy.get_segments_for_category(orga, 3)])
-        self.assertEqual([community.id],   [segment.id for segment in strategy.get_segments_for_category(orga, 2)])
-        self.assertEqual([industry.id],    [segment.id for segment in strategy.get_segments_for_category(orga, 1)])
+        def segment_ids(strategy, orga, cat):
+            return (segment.id for segment in strategy.get_segments_for_category(orga, cat))
+
+        self.assertEqual([association.id], list(segment_ids(strategy, orga, 4)))
+        self.assertEqual([individual.id],  list(segment_ids(strategy, orga, 3)))
+        self.assertEqual([community.id],   list(segment_ids(strategy, orga, 2)))
+        self.assertEqual([industry.id],    list(segment_ids(strategy, orga, 1)))
 
         self._set_segment_category(strategy, individual, orga, 4)
 
         strategy = self.refresh(strategy)
-        self.assertEqual([], [segment.id for segment in strategy.get_segments_for_category(orga, 3)])
+        self.assertEqual([], list(segment_ids(strategy, orga, 3)))
         self.assertEqual(set([association.id, individual.id]),
-                         set(segment.id for segment in strategy.get_segments_for_category(orga, 4))
+                         set(segment_ids(strategy, orga, 4))
                         )
         self.assertEqual(1, MarketSegmentCategory.objects.count())
 
         self._set_segment_category(strategy, individual, orga, 2)
 
         strategy = Strategy.objects.get(pk=strategy.pk) #refresh object (cache....)
-        self.assertEqual([association.id], [segment.id for segment in strategy.get_segments_for_category(orga, 4)])
-        self.assertEqual([],               [segment.id for segment in strategy.get_segments_for_category(orga, 3)])
-        self.assertEqual([industry.id],    [segment.id for segment in strategy.get_segments_for_category(orga, 1)])
+        self.assertEqual([association.id], list(segment_ids(strategy, orga, 4)))
+        self.assertEqual([],               list(segment_ids(strategy, orga, 3)))
+        self.assertEqual([industry.id],    list(segment_ids(strategy, orga, 1)))
         self.assertEqual(set([community.id, individual.id]),
-                         set(segment.id for segment in strategy.get_segments_for_category(orga, 2))
+                         set(segment_ids(strategy, orga, 2))
                         )
         self.assertEqual(1, MarketSegmentCategory.objects.count())
 
@@ -489,7 +494,7 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertEqual(1, Strategy.objects.count())
 
         strategy.delete()
-        self.assertEqual(0, Strategy.objects.count())
+        self.assertFalse(Strategy.objects.filter(pk=strategy.pk))
 
     def test_delete02(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')
@@ -543,13 +548,13 @@ class StrategyTestCase(CommercialBaseTestCase):
         industry   = self._create_segment_desc(strategy, 'Industry')
         individual = self._create_segment_desc(strategy, 'Individual')
 
-        create_asset = CommercialAsset.objects.create
-        asset01 = create_asset(name='Capital', strategy=strategy)
-        asset02 = create_asset(name='Size', strategy=strategy)
+        create_asset = partial(CommercialAsset.objects.create, strategy=strategy)
+        asset01 = create_asset(name='Capital')
+        asset02 = create_asset(name='Size')
 
-        create_charm = MarketSegmentCharm.objects.create
-        charm01 = create_charm(name='Money', strategy=strategy)
-        charm02 = create_charm(name='Celebrity', strategy=strategy)
+        create_charm = partial(MarketSegmentCharm.objects.create, strategy=strategy)
+        charm01 = create_charm(name='Money')
+        charm02 = create_charm(name='Celebrity')
 
         orga = Organisation.objects.create(user=self.user, name='Nerv')
         strategy.evaluated_orgas.add(orga)
@@ -580,12 +585,18 @@ class StrategyTestCase(CommercialBaseTestCase):
 
         asset_scores = CommercialAssetScore.objects.all()
         self.assertEqual(2, len(asset_scores))
-        self.assertEqual(set([individual.id]), set(ascore.segment_desc_id for ascore in asset_scores))
+        self.assertEqual(set([individual.id]),
+                         set(ascore.segment_desc_id for ascore in asset_scores)
+                        )
 
         charm_scores = MarketSegmentCharmScore.objects.all()
         self.assertEqual(2, len(charm_scores))
-        self.assertEqual(set([individual.id]), set(cscore.segment_desc_id for cscore in charm_scores))
+        self.assertEqual(set([individual.id]),
+                         set(cscore.segment_desc_id for cscore in charm_scores)
+                        )
 
         cats = MarketSegmentCategory.objects.all()
         self.assertEqual(1, len(cats))
-        self.assertEqual(set([individual.id]), set(cat.segment_desc_id for cat in cats))
+        self.assertEqual(set([individual.id]),
+                         set(cat.segment_desc_id for cat in cats)
+                        )
