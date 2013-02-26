@@ -30,24 +30,24 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
                          segment.property_type.text
                         )
 
-    def test_create02(self): #segment with same name already exists
+    def test_create02(self):
+        "A segment with same name already exists"
         name = 'Industry'
         url = '/commercial/market_segment/add'
         self.assertNoFormError(self.client.post(url, data={'name': name}))
 
-        response = self.client.post(url, data={'name': name})
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200(url, data={'name': name})
         self.assertFormError(response, 'form', 'name',
                              [_(u'A segment with this name already exists')]
                             )
 
-    def test_create03(self): #property with same name already exists
+    def test_create03(self):
+        "A property with same name already exists"
         name = 'Industry'
         pname = _(u'is in the segment "%s"') % name
         CremePropertyType.create('commercial-marketsegmenttestcase01', pname)
 
-        response = self.client.post('/commercial/market_segment/add', data={'name': name})
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200('/commercial/market_segment/add', data={'name': name})
         self.assertFormError(response, 'form', 'name',
                              [_(u'A property with the name <%s> already exists') % pname]
                             )

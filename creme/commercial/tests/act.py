@@ -2,6 +2,7 @@
 
 try:
     from datetime import date, datetime
+    from functools import partial
 
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
@@ -26,13 +27,15 @@ __all__ = ('ActTestCase',)
 
 
 class ActTestCase(CommercialBaseTestCase):
+    ADD_URL = '/commercial/act/add'
+
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'persons', 'activities', 'commercial')
 
     def test_create(self):
-        url = '/commercial/act/add'
-        self.assertEqual(200, self.client.get(url).status_code)
+        url = self.ADD_URL
+        self.assertGET200(url)
 
         name = 'Act#1'
         atype = ActType.objects.create(title='Show')
@@ -47,9 +50,7 @@ class ActTestCase(CommercialBaseTestCase):
                                           'segment':        segment.id,
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
-        self.assertTrue(response.redirect_chain)
-        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertNoFormError(response)
 
         acts = Act.objects.all()
         self.assertEqual(1, len(acts))
@@ -60,23 +61,24 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(date(year=2011, month=11, day=20), act.start)
         self.assertEqual(date(year=2011, month=12, day=25), act.due_date)
 
+        self.assertRedirects(response, act.get_absolute_url())
+
     def test_create02(self):#due date < start
         name = 'Act#1'
         atype = ActType.objects.create(title='Show')
         segment = self._create_segment()
-        response = self.client.post('/commercial/act/add', follow=True,
-                                    data={'user':           self.user.pk,
-                                          'name':           name,
-                                          'expected_sales': 1000,
-                                          'start':          '2011-11-20',
-                                          'due_date':       '2011-09-25',
-                                          'act_type':       atype.id,
-                                          'segment':        segment.id,
-                                         }
-                                   )
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200(self.ADD_URL, follow=True,
+                                      data={'user':           self.user.pk,
+                                            'name':           name,
+                                            'expected_sales': 1000,
+                                            'start':          '2011-11-20',
+                                            'due_date':       '2011-09-25',
+                                            'act_type':       atype.id,
+                                            'segment':        segment.id,
+                                           }
+                                     )
         self.assertFormError(response, 'form', None, [_(u"Due date can't be before start.")])
-        self.assertEqual(0, Act.objects.count())
+        self.assertFalse(Act.objects.all())
 
     def create_act(self, name='NAME', expected_sales=1000):
         return Act.objects.create(user=self.user, name=name,
@@ -90,7 +92,7 @@ class ActTestCase(CommercialBaseTestCase):
     def test_edit(self):
         act = self.create_act()
         url = '/commercial/act/edit/%s' % act.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         name = 'Act#1'
         expected_sales = 2000
@@ -110,9 +112,8 @@ class ActTestCase(CommercialBaseTestCase):
                                           'segment':         segment.id,
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
-        self.assertTrue(response.redirect_chain)
-        self.assertEqual(len(response.redirect_chain), 1)
+        self.assertNoFormError(response)
+        self.assertRedirects(response, act.get_absolute_url())
 
         act = self.refresh(act)
         self.assertEqual(name,           act.name)
@@ -123,7 +124,8 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(date(year=2011, month=11, day=20), act.start)
         self.assertEqual(date(year=2011, month=12, day=25), act.due_date)
 
-    def test_edit02(self):#due_date < start date
+    def test_edit02(self):
+        "Due_date < start date"
         act = self.create_act()
 
         name = 'Act#1'
@@ -132,34 +134,31 @@ class ActTestCase(CommercialBaseTestCase):
         goal = 'Win'
         atype = ActType.objects.create(title='Demo')
         segment = self._create_segment()
-        response = self.client.post('/commercial/act/edit/%s' % act.id, follow=True,
-                                    data={'user':            self.user.pk,
-                                          'name':            name,
-                                          'start':           '2011-11-20',
-                                          'due_date':        '2011-09-25',
-                                          'expected_sales':  expected_sales,
-                                          'cost':            cost,
-                                          'goal':            goal,
-                                          'act_type':        atype.id,
-                                          'segment':         segment.id,
-                                         }
-                                   )
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200('/commercial/act/edit/%s' % act.id, follow=True,
+                                      data={'user':            self.user.pk,
+                                            'name':            name,
+                                            'start':           '2011-11-20',
+                                            'due_date':        '2011-09-25',
+                                            'expected_sales':  expected_sales,
+                                            'cost':            cost,
+                                            'goal':            goal,
+                                            'act_type':        atype.id,
+                                            'segment':         segment.id,
+                                           }
+                                     )
         self.assertFormError(response, 'form', None, [_(u"Due date can't be before start.")])
         self.assertEqual(date(year=2011, month=12, day=26), self.refresh(act).due_date)
 
     def test_listview(self):
-        atype = ActType.objects.create(title='Show')
-        segment = self._create_segment()
-        create_act = Act.objects.create
-        acts = [create_act(user=self.user, name='NAME_%s' % i, expected_sales=1000,
-                           cost=50, goal='GOAL', act_type=atype, segment=segment,
-                           start=date(2010, 11, 25), due_date=date(2011, 12, 26),
-                          ) for i in xrange(1, 3)
-               ]
+        create_act = partial(Act.objects.create, user=self.user, expected_sales=1000,
+                             cost=50, goal='GOAL',
+                             start=date(2010, 11, 25), due_date=date(2011, 12, 26),
+                             act_type=ActType.objects.create(title='Show'),
+                             segment=self._create_segment(),
+                            )
+        acts = [create_act(name='NAME_%s' % i) for i in xrange(1, 3)]
 
-        response = self.client.get('/commercial/acts')
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/commercial/acts')
 
         with self.assertNoException():
             acts_page = response.context['entities']
@@ -170,8 +169,7 @@ class ActTestCase(CommercialBaseTestCase):
 
     def test_detailview(self):
         act = self.create_act()
-        response = self.client.get('/commercial/act/%s' % act.id)
-        self.assertEqual(200, response.status_code)
+        self.assertGET200('/commercial/act/%s' % act.id)
 
     def _build_addobjective_url(self, act):
         return '/commercial/act/%s/add/objective' % act.id
@@ -241,13 +239,15 @@ class ActTestCase(CommercialBaseTestCase):
                                                      segment=act.segment,
                                                     )
 
-        ct_contact = ContentType.objects.get_for_model(Contact)
-        ct_orga    = ContentType.objects.get_for_model(Organisation)
-        create_component = ActObjectivePatternComponent.objects.create
-        root01 = create_component(name='Root01',   success_rate=20, pattern=pattern, ctype=ct_contact)
-        create_component(name='Root02',   success_rate=50, pattern=pattern)
-        create_component(name='Child 01', success_rate=33, pattern=pattern, parent=root01)
-        create_component(name='Child 02', success_rate=10, pattern=pattern, parent=root01, ctype=ct_orga)
+        get_ct = ContentType.objects.get_for_model
+        ct_contact = get_ct(Contact)
+        ct_orga    = get_ct(Organisation)
+
+        create_component = partial(ActObjectivePatternComponent.objects.create, pattern=pattern)
+        root01 = create_component(name='Root01', success_rate=20, ctype=ct_contact)
+        create_component(name='Root02',   success_rate=50)
+        create_component(name='Child 01', success_rate=33, parent=root01)
+        create_component(name='Child 02', success_rate=10, parent=root01, ctype=ct_orga)
 
         url = '/commercial/act/%s/add/objectives_from_pattern' % act.id
         self.assertGET200(url)
@@ -282,10 +282,10 @@ class ActTestCase(CommercialBaseTestCase):
                                                      segment=act.segment,
                                                     )
 
-        response = self.client.post('/commercial/act/%s/add/objectives_from_pattern' % act.id,
-                                    data={'pattern': pattern.id}
-                                   )
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post('/commercial/act/%s/add/objectives_from_pattern' % act.id,
+                                                data={'pattern': pattern.id}
+                                               )
+                              )
 
         objectives = ActObjective.objects.filter(act=act)
         self.assertEqual(1, len(objectives))
@@ -317,8 +317,8 @@ class ActTestCase(CommercialBaseTestCase):
         ct = ContentType.objects.get_for_model(ActObjective)
 
         response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': objective.id})
-        self.assertEqual(302, response.status_code)
-        self.assertEqual(0,   ActObjective.objects.filter(pk=objective.id).count())
+        self.assertRedirects(response, act.get_absolute_url())
+        self.assertFalse(ActObjective.objects.filter(pk=objective.id))
 
     def test_incr_objective_counter(self):
         act = self.create_act()
@@ -345,20 +345,24 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(0, objective.get_count())
         self.assertFalse(objective.reached)
 
+        create_rel = partial(Relation.objects.create, type_id=REL_SUB_COMPLETE_GOAL,
+                             object_entity=act, user=self.user,
+                            )
+
         orga01 = Organisation.objects.create(user=self.user, name='Ferraille corp')
-        Relation.objects.create(subject_entity=orga01, type_id=REL_SUB_COMPLETE_GOAL, object_entity=act, user=self.user)
+        create_rel(subject_entity=orga01)
         objective = self.refresh(objective) #refresh cache
         self.assertEqual(1, objective.get_count())
         self.assertFalse(objective.reached)
 
         orga02 = Organisation.objects.create(user=self.user, name='World company')
-        Relation.objects.create(subject_entity=orga02, type_id=REL_SUB_COMPLETE_GOAL, object_entity=act, user=self.user)
+        create_rel(subject_entity=orga02)
         objective = self.refresh(objective) #refresh cache
         self.assertEqual(2, objective.get_count())
         self.assertTrue(objective.reached)
 
         contact = Contact.objects.create(user=self.user, first_name='Monsieur', last_name='Ferraille')
-        Relation.objects.create(subject_entity=contact, type_id=REL_SUB_COMPLETE_GOAL, object_entity=act, user=self.user)
+        create_rel(subject_entity=contact)
         objective = self.refresh(objective) #refresh cache
         self.assertEqual(2, objective.get_count())
         self.assertTrue(objective.reached)
@@ -418,23 +422,23 @@ class ActTestCase(CommercialBaseTestCase):
         act1 = self.create_act('Act#1')
         act2 = self.create_act('Act#2')
 
-        create_orga = Organisation.objects.create
+        create_orga = partial(Organisation.objects.create, user=user)
         opp = Opportunity.objects.create(user=user, name='Opp01',
                                          sales_phase=SalesPhase.objects.create(name='Foresale'),
                                          closing_date=date.today(),
-                                         emitter=create_orga(user=user, name='Ferraille corp'),
-                                         target=create_orga(user=user, name='World company'),
+                                         emitter=create_orga(name='Ferraille corp'),
+                                         target=create_orga(name='World company'),
                                         )
 
-        create_rel = Relation.objects.create
-        create_rel(subject_entity=opp, type_id=REL_SUB_COMPLETE_GOAL, object_entity=act1, user=user)
-        create_rel(subject_entity=opp, type_id=REL_SUB_COMPLETE_GOAL, object_entity=act2, user=user)
+        create_rel = partial(Relation.objects.create, subject_entity=opp, user=user)
+        create_rel(type_id=REL_SUB_COMPLETE_GOAL, object_entity=act1)
+        create_rel(type_id=REL_SUB_COMPLETE_GOAL, object_entity=act2)
 
         meeting = Meeting.objects.create(user=user, title='Meeting #01',
                                          start=datetime(year=2011, month=5, day=20, hour=14, minute=0),
                                          end=datetime(year=2011,   month=6, day=1,  hour=15, minute=0)
                                         )
 
-        create_rel(subject_entity=opp, type_id=REL_SUB_ACTIVITY_SUBJECT, object_entity=meeting, user=user)
+        create_rel(type_id=REL_SUB_ACTIVITY_SUBJECT, object_entity=meeting)
         self.assertRelationCount(1, meeting, REL_SUB_COMPLETE_GOAL, act1)
         self.assertRelationCount(1, meeting, REL_SUB_COMPLETE_GOAL, act2)

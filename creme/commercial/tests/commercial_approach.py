@@ -40,7 +40,7 @@ class CommercialApproachTestCase(CremeTestCase):
                                                'description': description,
                                               }
                                    )
-        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
 
         commapps = CommercialApproach.objects.all()
         self.assertEqual(1, len(commapps))
@@ -89,7 +89,8 @@ class CommercialApproachTestCase(CremeTestCase):
         for commapp in commapps:
             self.assertEqual(orga01, commapp.creme_entity)
 
-    def test_create_from_activity01(self): #no subjects
+    def test_create_from_activity01(self):
+        "No subjects"
         self.login()
 
         user = self.user

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _
 
@@ -35,8 +37,6 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertTrue(response.redirect_chain)
-        self.assertEqual(len(response.redirect_chain), 1)
 
         patterns = ActObjectivePattern.objects.all()
         self.assertEqual(1, len(patterns))
@@ -45,6 +45,8 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertEqual(name,          pattern.name)
         self.assertEqual(average_sales, pattern.average_sales)
         self.assertEqual(segment,       pattern.segment)
+
+        self.assertRedirects(response, pattern.get_absolute_url())
 
     def _create_pattern(self, name='ObjPattern', average_sales=1000):
         return ActObjectivePattern.objects.create(user=self.user, name=name,
@@ -63,13 +65,14 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         name += '_edited'
         average_sales *= 2
         segment = self._create_segment()
-        response = self.client.post(url, data={'user':          self.user.pk,
-                                               'name':          name,
-                                               'average_sales': average_sales,
-                                               'segment':       segment.id,
-                                              }
+        response = self.client.post(url, follow=True,
+                                    data={'user':          self.user.pk,
+                                          'name':          name,
+                                          'average_sales': average_sales,
+                                          'segment':       segment.id,
+                                         }
                                    )
-        self.assertNoFormError(response, status=302)
+        self.assertNoFormError(response)
 
         pattern = self.refresh(pattern)
         self.assertEqual(name,          pattern.name)
@@ -77,16 +80,14 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertEqual(segment,       pattern.segment)
 
     def test_listview(self):
-        create_patterns = ActObjectivePattern.objects.create
-        patterns = [create_patterns(user=self.user,
-                                    name='ObjPattern#%s' % i,
+        create_patterns = partial(ActObjectivePattern.objects.create, user=self.user)
+        patterns = [create_patterns(name='ObjPattern#%s' % i,
                                     average_sales=1000 * i,
                                     segment=self._create_segment(),
                                    ) for i in xrange(1, 4)
                    ]
 
-        response = self.client.get('/commercial/objective_patterns')
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/commercial/objective_patterns')
 
         with self.assertNoException():
             patterns_page = response.context['entities']
@@ -95,7 +96,8 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertEqual(3, patterns_page.paginator.count)
         self.assertEqual(set(patterns), set(patterns_page.object_list))
 
-    def test_add_root_pattern_component01(self): #no parent component, no counted relation
+    def test_add_root_pattern_component01(self):
+        "No parent component, no counted relation"
         pattern  = self._create_pattern()
 
         url = '/commercial/objective_pattern/%s/add_component' % pattern.id
@@ -116,7 +118,8 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertIsNone(component.parent)
         self.assertIsNone(component.ctype)
 
-    def test_add_root_pattern_component02(self): #counted relation (no parent component)
+    def test_add_root_pattern_component02(self):
+        "Counted relation (no parent component)"
         pattern = self._create_pattern()
         name = 'Called contacts'
         ct = ContentType.objects.get_for_model(Contact)
@@ -145,11 +148,11 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertGET200(url)
 
         name = 'Spread Vcards'
-        response = self.client.post(url, data={'name':         name,
-                                               'success_rate': 20,
-                                              }
-                                   )
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(url, data={'name':         name,
+                                                           'success_rate': 20,
+                                                          }
+                                               )
+                              )
 
         children = comp01.children.all()
         self.assertEqual(1, len(children))
@@ -186,11 +189,11 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         name = 'Signed opportunities'
         success_rate = 50
-        response = self.client.post(url, data={'name':         name,
-                                               'success_rate': success_rate,
-                                              }
-                                   )
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(url, data={'name':         name,
+                                                          'success_rate': success_rate,
+                                                          }
+                                               )
+                              )
 
         pattern = self.refresh(pattern)
         components = pattern.components.order_by('id')
@@ -208,9 +211,9 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
     def test_add_parent_pattern_component02(self):
         pattern = self._create_pattern()
 
-        create_comp = ActObjectivePatternComponent.objects.create
-        comp01 = create_comp(name='Signed opportunities', pattern=pattern, success_rate=50)
-        comp02 = create_comp(name='Spread Vcards',        pattern=pattern, success_rate=1, parent=comp01)
+        create_comp = partial(ActObjectivePatternComponent.objects.create, pattern=pattern)
+        comp01 = create_comp(name='Signed opportunities', success_rate=50)
+        comp02 = create_comp(name='Spread Vcards',        success_rate=1, parent=comp01)
 
         name = 'Called contacts'
         ct   = ContentType.objects.get_for_model(Contact)
@@ -241,37 +244,44 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
     def test_add_pattern_component_errors(self):
         pattern = self._create_pattern()
+        url = '/commercial/objective_pattern/%s/add_component' % pattern.id
 
-        response = self.client.post('/commercial/objective_pattern/%s/add_component' % pattern.id,
-                                    data={'name':         'Signed opportunities',
-                                          'success_rate': 0, #minimunm is 1
-                                         }
+        response = self.client.post(url, data={'name':         'Signed opportunities',
+                                               'success_rate': 0, #minimunm is 1
+                                              }
                                    )
         self.assertFormError(response, 'form', 'success_rate',
-                             [_(u'Ensure this value is greater than or equal to %(limit_value)s.') % {'limit_value': 1}]
+                             [_(u'Ensure this value is greater than or equal to %(limit_value)s.') % {
+                                    'limit_value': 1,
+                                }
+                             ]
                             )
 
-        response = self.client.post('/commercial/objective_pattern/%s/add_component' % pattern.id,
-                                    data={'name':         'Signed opportunities',
-                                          'success_rate': 101, #maximum is 100
-                                         }
+        response = self.client.post(url, data={'name':         'Signed opportunities',
+                                               'success_rate': 101, #maximum is 100
+                                              }
                                    )
         self.assertFormError(response, 'form', 'success_rate',
-                             [_(u'Ensure this value is less than or equal to %(limit_value)s.') % {'limit_value': 100}]
+                             [_(u'Ensure this value is less than or equal to %(limit_value)s.') % {
+                                    'limit_value': 100,
+                                }
+                             ]
                             )
 
     def test_get_component_tree(self):
         pattern = self._create_pattern()
 
-        create_component = ActObjectivePatternComponent.objects.create
-        root01  = create_component(name='Root01',   pattern=pattern,                 success_rate=1)
-        root02  = create_component(name='Root02',   pattern=pattern,                 success_rate=1)
-        child01 = create_component(name='Child 01', pattern=pattern, parent=root01,  success_rate=1)
-        child11 = create_component(name='Child 11', pattern=pattern, parent=child01, success_rate=1)
-        child12 = create_component(name='Child 12', pattern=pattern, parent=child01, success_rate=1)
-        child13 = create_component(name='Child 13', pattern=pattern, parent=child01, success_rate=1)
-        child02 = create_component(name='Child 02', pattern=pattern, parent=root01,  success_rate=1)
-        child21 = create_component(name='Child 21', pattern=pattern, parent=child02, success_rate=1)
+        create_comp = partial(ActObjectivePatternComponent.objects.create,
+                              pattern=pattern, success_rate=1,
+                             )
+        root01  = create_comp(name='Root01')
+        root02  = create_comp(name='Root02')
+        child01 = create_comp(name='Child 01', parent=root01)
+        child11 = create_comp(name='Child 11', parent=child01)
+        child12 = create_comp(name='Child 12', parent=child01)
+        child13 = create_comp(name='Child 13', parent=child01)
+        child02 = create_comp(name='Child 02', parent=root01)
+        child21 = create_comp(name='Child 21', parent=child02)
 
         comptree = pattern.get_components_tree() #TODO: test that no additionnal queries are done ???
         self.assertIsInstance(comptree, list)
@@ -292,33 +302,34 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         self.assertEqual(1, len(children[1].get_children()))
 
+    def _delete_comp(self, comp):
+        ct = ContentType.objects.get_for_model(ActObjectivePatternComponent)
+
+        return self.client.post('/creme_core/entity/delete_related/%s' % ct.id,
+                                data={'id': comp.id}
+                               )
+
     def test_delete_pattern_component01(self):
         pattern = self._create_pattern()
         comp01 = ActObjectivePatternComponent.objects.create(name='Signed opportunities',
                                                              pattern=pattern, success_rate=20
                                                             )
-        ct = ContentType.objects.get_for_model(ActObjectivePatternComponent)
 
-        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id,
-                                    data={'id': comp01.id}
-                                   )
-        self.assertNoFormError(response, status=302)
-        self.assertEqual(0, ActObjectivePatternComponent.objects.filter(pk=comp01.id).count())
+        self.assertNoFormError(self._delete_comp(comp01), status=302)
+        self.assertFalse(ActObjectivePatternComponent.objects.filter(pk=comp01.id))
 
     def test_delete_pattern_component02(self):
         pattern = self._create_pattern()
-        create_comp = ActObjectivePatternComponent.objects.create
-        comp00 = create_comp(name='Signed opportunities', pattern=pattern,                success_rate=1) #NB: should not be removed
-        comp01 = create_comp(name='DELETE ME',            pattern=pattern,                success_rate=1)
-        comp02 = create_comp(name='Will be orphaned01',   pattern=pattern, parent=comp01, success_rate=1)
-        comp03 = create_comp(name='Will be orphaned02',   pattern=pattern, parent=comp01, success_rate=1)
-        comp04 = create_comp(name='Will be orphaned03',   pattern=pattern, parent=comp02, success_rate=1)
-        comp05 = create_comp(name='Smiles done',          pattern=pattern,                success_rate=1) #NB: should not be removed
-        comp06 = create_comp(name='Stand by me',          pattern=pattern, parent=comp05, success_rate=1) #NB: should not be removed
+        create_comp = partial(ActObjectivePatternComponent.objects.create, pattern=pattern, success_rate=1)
+        comp00 = create_comp(name='Signed opportunities') #NB: should not be removed
+        comp01 = create_comp(name='DELETE ME')
+        comp02 = create_comp(name='Will be orphaned01',  parent=comp01)
+        comp03 = create_comp(name='Will be orphaned02',  parent=comp01)
+        comp04 = create_comp(name='Will be orphaned03',  parent=comp02)
+        comp05 = create_comp(name='Smiles done') #NB: should not be removed
+        comp06 = create_comp(name='Stand by me',         parent=comp05) #NB: should not be removed
 
-        ct = ContentType.objects.get_for_model(ActObjectivePatternComponent)
-        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': comp01.id})
-        self.assertNoFormError(response, status=302)
+        self.assertNoFormError(self._delete_comp(comp01), status=302)
 
         remaining_ids = pattern.components.values_list('id', flat=True)
         self.assertEqual(3, len(remaining_ids))
@@ -328,23 +339,25 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         return set(comp_qs.values_list('name', flat=True))
 
     def test_actobjectivepattern_clone01(self):
-        pattern  = self._create_pattern()
-        create_comp = ActObjectivePatternComponent.objects.create
+        pattern = self._create_pattern()
+        create_comp = partial(ActObjectivePatternComponent.objects.create,
+                              pattern=pattern, success_rate=1,
+                             )
 
-        comp1   = create_comp(name='1',     pattern=pattern,                success_rate=1)
-        comp11  = create_comp(name='1.1',   pattern=pattern, parent=comp1,  success_rate=1)
-        comp111 = create_comp(name='1.1.1', pattern=pattern, parent=comp11, success_rate=1)
-        comp112 = create_comp(name='1.1.2', pattern=pattern, parent=comp11, success_rate=1)
-        comp12  = create_comp(name='1.2',   pattern=pattern, parent=comp1,  success_rate=1)
-        comp121 = create_comp(name='1.2.1', pattern=pattern, parent=comp12, success_rate=1)
-        comp122 = create_comp(name='1.2.2', pattern=pattern, parent=comp12, success_rate=1)
-        comp2   = create_comp(name='2',     pattern=pattern,                success_rate=1)
-        comp21  = create_comp(name='2.1',   pattern=pattern, parent=comp2,  success_rate=1)
-        comp211 = create_comp(name='2.1.1', pattern=pattern, parent=comp21, success_rate=1)
-        comp212 = create_comp(name='2.1.2', pattern=pattern, parent=comp21, success_rate=1)
-        comp22  = create_comp(name='2.2',   pattern=pattern, parent=comp2,  success_rate=1)
-        comp221 = create_comp(name='2.2.1', pattern=pattern, parent=comp22, success_rate=1)
-        comp222 = create_comp(name='2.2.2', pattern=pattern, parent=comp22, success_rate=1)
+        comp1   = create_comp(name='1')
+        comp11  = create_comp(name='1.1',   parent=comp1)
+        comp111 = create_comp(name='1.1.1', parent=comp11)
+        comp112 = create_comp(name='1.1.2', parent=comp11)
+        comp12  = create_comp(name='1.2',   parent=comp1)
+        comp121 = create_comp(name='1.2.1', parent=comp12)
+        comp122 = create_comp(name='1.2.2', parent=comp12)
+        comp2   = create_comp(name='2')
+        comp21  = create_comp(name='2.1',   parent=comp2)
+        comp211 = create_comp(name='2.1.1', parent=comp21)
+        comp212 = create_comp(name='2.1.2', parent=comp21)
+        comp22  = create_comp(name='2.2',   parent=comp2)
+        comp221 = create_comp(name='2.2.1', parent=comp22)
+        comp222 = create_comp(name='2.2.2', parent=comp22)
 
         cloned_pattern = pattern.clone()
 
