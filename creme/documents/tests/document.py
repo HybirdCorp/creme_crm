@@ -7,7 +7,6 @@ try:
 
     from creme_core.models import CremeEntity, RelationType, HeaderFilter, SetCredentials
     from creme_core.auth.entity_credentials import EntityCredentials
-    #from creme_core.tests.base import CremeTestCase
 
     from persons.models import Organisation
 
@@ -74,8 +73,7 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual([content], filedata.readlines())
 
         #Download
-        response = self.client.get('/download_file/%s' % doc.filedata)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/download_file/%s' % doc.filedata)
         self.assertEqual(ext, response['Content-Type'])
         self.assertEqual('attachment; filename=%s' % file_name,
                          response['Content-Disposition']
@@ -98,8 +96,7 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual('upload/documents/%s.txt' % file_name, filedata.name)
 
         #Download
-        response = self.client.get('/download_file/%s' % doc.filedata)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/download_file/%s' % doc.filedata)
         self.assertEqual(ext, response['Content-Type'])
         self.assertEqual('attachment; filename=%s' % file_name,
                          response['Content-Disposition']
@@ -122,8 +119,7 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual('upload/documents/%s.txt' % file_name, filedata.name)
 
         #Download
-        response = self.client.get('/download_file/%s' % doc.filedata)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/download_file/%s' % doc.filedata)
         self.assertEqual(ext, response['Content-Type'])
         self.assertEqual('attachment; filename=%s' % file_name,
                          response['Content-Disposition']
@@ -142,8 +138,7 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual('upload/documents/%s.txt' % file_name, filedata.name)
 
         #Download
-        response = self.client.get('/download_file/%s' % doc.filedata)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/download_file/%s' % doc.filedata)
         self.assertEqual('txt', response['Content-Type']) # 'text/plain' ??
         self.assertEqual('attachment; filename=%s.txt' % file_name,
                          response['Content-Disposition']
@@ -178,13 +173,13 @@ class DocumentTestCase(_DocumentsTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertTrue(response.redirect_chain)
-        self.assertEqual(1, len(response.redirect_chain))
 
         doc = self.refresh(doc)
         self.assertEqual(title,       doc.title)
         self.assertEqual(description, doc.description)
         self.assertEqual(folder,      doc.folder)
+
+        self.assertRedirects(response, doc.get_absolute_url())
 
     def test_add_related_document01(self):
         self.login()
@@ -229,13 +224,15 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual(entity_folder, entity_folder2)
         self.assertEqual(ct_folder,     entity_folder2.parent_folder)
 
-    def test_add_related_document02(self): #creation credentials
+    def test_add_related_document02(self):
+        "Creation credentials"
         self.login(is_superuser=False, allowed_apps=['documents', 'persons'])
 
         entity = CremeEntity.objects.create(user=self.user)
-        self.assertEqual(302, self.client.get(self._buid_addrelated_url(entity)).status_code)
+        self.assertGET(302, self._buid_addrelated_url(entity))
 
-    def test_add_related_document03(self): #link credentials
+    def test_add_related_document03(self):
+        "Link credentials"
         self.login(is_superuser=False, allowed_apps=['documents', 'persons'],
                    creatable_models=[Document]
                   )
@@ -252,10 +249,13 @@ class DocumentTestCase(_DocumentsTestCase):
         orga = Organisation.objects.create(user=self.other_user, name='NERV')
         self.assertTrue(orga.can_view(self.user))
         self.assertFalse(orga.can_link(self.user))
-        self.assertEqual(403, self.client.get(self._buid_addrelated_url(orga)).status_code)
+        self.assertGET403(self._buid_addrelated_url(orga))
 
-    def test_add_related_document04(self): #view credentials
-        self.login(is_superuser=False, allowed_apps=['documents', 'persons'], creatable_models=[Document])
+    def test_add_related_document04(self):
+        "View credentials"
+        self.login(is_superuser=False, allowed_apps=['documents', 'persons'],
+                   creatable_models=[Document],
+                  )
 
         SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.CHANGE | \
@@ -269,7 +269,7 @@ class DocumentTestCase(_DocumentsTestCase):
         orga = Organisation.objects.create(user=self.other_user, name='NERV')
         self.assertTrue(orga.can_link(self.user))
         self.assertFalse(orga.can_view(self.user))
-        self.assertEqual(403, self.client.get(self._buid_addrelated_url(orga)).status_code)
+        self.assertGET403(self._buid_addrelated_url(orga))
 
     def test_add_related_document05(self):
         "The Folder containing all the Documents related to the entity has a too long name."
@@ -318,14 +318,13 @@ class DocumentTestCase(_DocumentsTestCase):
         doc1 = create_doc('Test doc #1')
         doc2 = create_doc('Test doc #2')
 
-        response = self.client.get('/documents/documents')
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/documents/documents')
 
         with self.assertNoException():
-            docs_page = response.context['entities']
+            docs = response.context['entities'].object_list
 
-        self.assertIn(doc1, docs_page.object_list)
-        self.assertIn(doc2, docs_page.object_list)
+        self.assertIn(doc1, docs)
+        self.assertIn(doc2, docs)
 
     def test_delete_category(self):
         "Set to null"
