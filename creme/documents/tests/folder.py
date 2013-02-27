@@ -1,8 +1,13 @@
  # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+
+    from django.utils.encoding import smart_str, smart_unicode
+
     from documents.tests.base import _DocumentsTestCase
     from documents.models import Folder, FolderCategory, Document
+    from documents.blocks import folder_docs_block
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -79,18 +84,13 @@ class FolderTestCase(_DocumentsTestCase):
         user = self.user
         category = FolderCategory.objects.all()[0]
 
-        create_folder = Folder.objects.create
-        folder1 = create_folder(user=user, title='PDF',
-                                description='Contains PDF files',
+        create_folder = partial(Folder.objects.create, user=user, 
                                 parent_folder=None, category=category
                                )
-        folder2 = create_folder(user=user, title='SVG',
-                                description='Contains SVG files',
-                                parent_folder=None, category=category
-                               )
+        folder1 = create_folder(title='PDF', description='Contains PDF files')
+        folder2 = create_folder(title='SVG', description='Contains SVG files')
 
-        response = self.client.get('/documents/folders')
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/documents/folders')
 
         with self.assertNoException():
             folders = response.context['entities'].object_list
@@ -118,8 +118,7 @@ class FolderTestCase(_DocumentsTestCase):
                                        category=FolderCategory.objects.all()[0],
                                       )
 
-        response = self.client.post('/creme_core/entity/delete/%s' % folder.pk, follow=True)
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200('/creme_core/entity/delete/%s' % folder.pk, follow=True)
         self.assertFalse(Folder.objects.filter(pk=folder.pk).exists())
         self.assertRedirects(response, '/documents/folders')
 
@@ -141,3 +140,38 @@ class FolderTestCase(_DocumentsTestCase):
 
         self.assertPOST200('/creme_core/entity/delete/%s' % folder.pk)
         self.get_object_or_fail(Folder, pk=folder.pk)
+
+    def test_block(self):
+        "Block which display contained docs"
+        folder = Folder.objects.create(user=self.user, title='PDF',
+                                       description='Contains PDF files',
+                                       parent_folder=None,
+                                       category=FolderCategory.objects.all()[0]
+                                      )
+
+        #TODO: factorise (see documents.test_listview too) ?
+        def create_doc(title, folder=None):
+            self._create_doc(title, folder=folder, description='Test description',
+                             file_obj=self._build_filedata('%s : Content' % title)[0],
+                            )
+
+            return self.get_object_or_fail(Document, title=title)
+
+        doc1 = create_doc('Test doc #1', folder)
+        doc2 = create_doc('Test doc #2', folder)
+        doc3 = create_doc('Test doc #3')
+
+        content = self.assertGET200(folder.get_absolute_url()).content
+        block_start_index = content.find(smart_str('id="%s"' % folder_docs_block.id_))
+        self.assertNotEqual(-1, block_start_index)
+
+        body_start_index = content.find('<tbody class="collapsable">', block_start_index)
+        self.assertNotEqual(-1, body_start_index)
+
+        end_index = content.find('</tbody>', body_start_index)
+        self.assertNotEqual(-1, end_index)
+
+        block_str = smart_unicode(content[body_start_index:end_index])
+        self.assertIn(doc1.title, block_str)
+        self.assertIn(doc2.title, block_str)
+        self.assertNotIn(doc3.title, block_str)
