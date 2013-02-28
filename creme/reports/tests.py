@@ -36,6 +36,7 @@ except Exception as e:
 
 
 class ReportsTestCase(CremeTestCase):
+    ADD_URL = '/reports/report/add'
     SET_FIELD_ORDER_URL = '/reports/report/field/change_order'
 
     @classmethod
@@ -46,16 +47,22 @@ class ReportsTestCase(CremeTestCase):
         self.login()
 
     def test_report_createview01(self):
-        url = '/reports/report/add'
-        self.assertEqual(200, self.client.get(url).status_code)
+        url = self.ADD_URL
+        self.assertGET200(url)
 
         response = self.client.post(url, data={'user': self.user.pk,
                                                'name': 'name',
                                                'ct':   ContentType.objects.get_for_model(Contact).id,
                                               }
                                    )
-        self.assertEqual(200, response.status_code)
-        self.assertTrue(response.context['form'].errors, 'No view or field selected')
+        self.assertFormError(response, 'form', None,
+                             [_(u"You must select an existing view, or at least one field from : %s") % 
+                                ', '.join([_(u'Regular fields'), _(u'Related fields'),
+                                           _(u'Custom fields'), _(u'Relations'), _(u'Functions'),
+                                           _(u'Maximum'), _(u'Sum'), _(u'Average'), _(u'Minimum'),
+                                          ])
+                             ]
+                            )
 
     def create_report(self, name):
         hf = HeaderFilter.create(pk='test_hf', name='name', model=Contact)
@@ -65,7 +72,7 @@ class ReportsTestCase(CremeTestCase):
                       HeaderFilterItem.build_4_functionfield(Contact.function_fields.get('get_pretty_properties')),
                      ])
 
-        response = self.client.post('/reports/report/add', follow=True,
+        response = self.client.post(self.ADD_URL, follow=True,
                                     data={'user': self.user.pk,
                                           'name': name,
                                           'ct':   ContentType.objects.get_for_model(Contact).id,
@@ -123,9 +130,7 @@ class ReportsTestCase(CremeTestCase):
 
     def test_report_editview(self):
         report = self.create_report('trinita')
-
-        response = self.client.get('/reports/report/edit/%s' % report.id)
-        self.assertEqual(200, response.status_code)
+        self.assertGET200('/reports/report/edit/%s' % report.id)
 
         #TODO: complete this test
 
@@ -140,7 +145,7 @@ class ReportsTestCase(CremeTestCase):
                                                'direction': 'up',
                                               }
                                    )
-        self.assertEqual(200, response.status_code)
+        self.assertNoFormError(response)
 
         report = self.refresh(report) #seems useless but...
         self.assertEqual(['user', 'last_name', REL_SUB_HAS, 'get_pretty_properties'],
@@ -150,30 +155,28 @@ class ReportsTestCase(CremeTestCase):
     def test_report_change_field_order02(self):
         report = self.create_report('trinita')
         field  = self.get_field_or_fail(report, 'user')
-        response = self.client.post(self.SET_FIELD_ORDER_URL,
-                                    data={'report_id': report.id,
-                                          'field_id':  field.id,
-                                          'direction': 'down',
-                                         }
-                                   )
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200(self.SET_FIELD_ORDER_URL,
+                           data={'report_id': report.id,
+                                 'field_id':  field.id,
+                                 'direction': 'down',
+                                }
+                          )
 
         report = self.refresh(report) #seems useless but...
         self.assertEqual(['last_name', REL_SUB_HAS, 'user', 'get_pretty_properties'],
                          [f.name for f in report.columns.order_by('order')]
                         )
 
-    def test_report_change_field_order03(self): #move 'up' the first field -> error
-        url = self.SET_FIELD_ORDER_URL
-
+    def test_report_change_field_order03(self):
+        "Move 'up' the first field -> error"
         report = self.create_report('trinita')
         field  = self.get_field_or_fail(report, 'last_name')
-        response = self.client.post(url, data={'report_id': report.id,
-                                               'field_id':  field.id,
-                                               'direction': 'up',
-                                              }
-                                   )
-        self.assertEqual(403, response.status_code)
+        self.assertPOST403(self.SET_FIELD_ORDER_URL,
+                           data={'report_id': report.id,
+                                 'field_id':  field.id,
+                                 'direction': 'up',
+                                }
+                          )
 
     def test_report_csv01(self): #void report
         self.assertFalse(Invoice.objects.all())
@@ -187,19 +190,17 @@ class ReportsTestCase(CremeTestCase):
                      ])
 
         name = 'Report on invoices'
-        response = self.client.post('/reports/report/add', follow=True, #TODO: factorise ??
-                                    data={'user': self.user.pk,
-                                          'name': name,
-                                          'ct':   ContentType.objects.get_for_model(Invoice).id,
-                                          'hf':   hf.id,
-                                         }
-                                   )
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200(self.ADD_URL, follow=True, #TODO: factorise ??
+                           data={'user': self.user.pk,
+                                 'name': name,
+                                 'ct':   ContentType.objects.get_for_model(Invoice).id,
+                                 'hf':   hf.id,
+                                }
+                          )
 
         report = self.get_object_or_fail(Report, name=name)
 
-        response = self.client.get('/reports/report/%s/csv' % report.id)
-        self.assertEqual(200,                        response.status_code)
+        response = self.assertGET200('/reports/report/%s/csv' % report.id)
         self.assertEqual('text/html; charset=utf-8', response.request['CONTENT_TYPE'])
         self.assertEqual(smart_str("%s;%s;%s;%s\r\n" % (
                                       _(u'Name'), _(u'User'), rt.predicate, _(u'Properties')
@@ -228,8 +229,7 @@ class ReportsTestCase(CremeTestCase):
         self.assertEqual(4, Contact.objects.count()) #create_contacts + Fulbert
 
         report   = self.create_report('trinita')
-        response = self.client.get('/reports/report/%s/csv' % report.id)
-        self.assertEqual(response.status_code, 200)
+        response = self.assertGET200('/reports/report/%s/csv' % report.id)
 
         content = [s for s in response.content.split('\r\n') if s]
         self.assertEqual(5, len(content)) #4 contacts + header
@@ -244,16 +244,16 @@ class ReportsTestCase(CremeTestCase):
         self.assertEqual('Katsuragi;Kirika;Nerv;', content[3])
         self.assertEqual('Langley;Kirika;;',       content[4])
 
-    def test_report_csv03(self): #with date filter
+    def test_report_csv03(self):
+        "With date filter"
         self.create_contacts()
         report   = self.create_report('trinita')
-        response = self.client.get('/reports/report/%s/csv' % report.id,
-                                   data={'field': 'birthday',
-                                         'start': datetime(year=1980, month=1, day=1).strftime('%d|%m|%Y|%H|%M|%S'),
-                                         'end':   datetime(year=2000, month=1, day=1).strftime('%d|%m|%Y|%H|%M|%S'),
-                                        }
-                                  )
-        self.assertEqual(response.status_code, 200)
+        response = self.assertGET200('/reports/report/%s/csv' % report.id,
+                                     data={'field': 'birthday',
+                                           'start': datetime(year=1980, month=1, day=1).strftime('%d|%m|%Y|%H|%M|%S'),
+                                           'end':   datetime(year=2000, month=1, day=1).strftime('%d|%m|%Y|%H|%M|%S'),
+                                          }
+                                    )
 
         content = [s for s in response.content.split('\r\n') if s]
         self.assertEqual(3, len(content))
@@ -264,8 +264,7 @@ class ReportsTestCase(CremeTestCase):
         report = self.create_report('trinita')
         url = '/reports/report/%s/field/add' % report.id
 
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             form = response.context['form']
@@ -296,10 +295,9 @@ class ReportsTestCase(CremeTestCase):
                         )
 
     def test_get_predicates_choices_4_ct(self):
-        response = self.client.post('/reports/get_predicates_choices_4_ct',
-                                    data={'ct_id': ContentType.objects.get_for_model(Report).id}
-                                   )
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200('/reports/get_predicates_choices_4_ct',
+                                      data={'ct_id': ContentType.objects.get_for_model(Report).id}
+                                     )
         self.assertEqual('text/javascript', response['Content-Type'])
 
         content = simplejson.loads(response.content)
@@ -462,7 +460,7 @@ class ReportsTestCase(CremeTestCase):
 
         #Test invoices report
         ##Headers
-        invoice_headers = ["name",  "issuing_date", "status__name", "total_vat__sum"]
+        invoice_headers = ["name", "issuing_date", "status__name", "total_vat__sum"]
         self.assertEqual(invoice_headers, list(f.name for f in self.report_invoice.get_children_fields_flat()))
 
         nintendo_invoice_1 = [u"Invoice 1", unicode(self.issuing_date), unicode(self.invoice_status.name), Decimal("12.00")]
@@ -583,10 +581,8 @@ class ReportsTestCase(CremeTestCase):
         self.assertFalse(InstanceBlockConfigItem.objects.filter(entity=rgraph.id).exists())
 
         url = '/reports/graph/%s/block/add' % rgraph.id
-        self.assertEqual(200, self.client.get(url).status_code)
-
-        response = self.client.post(url, data={'graph': rgraph.name})
-        self.assertNoFormError(response)
+        self.assertGET200(url)
+        self.assertNoFormError(self.client.post(url, data={'graph': rgraph.name}))
 
         items = InstanceBlockConfigItem.objects.filter(entity=rgraph.id)
         self.assertEqual(1, len(items))
@@ -597,8 +593,7 @@ class ReportsTestCase(CremeTestCase):
         self.assertEqual('', item.data)
 
         #-----------------------------------------------------------------------
-        response = self.client.post(url, data={'graph': rgraph.name})
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200(url, data={'graph': rgraph.name})
         self.assertFormError(response, 'form', None,
                              [_(u'The instance block for %(graph)s with %(column)s already exists !') % {
                                         'graph':  rgraph.name,
@@ -607,7 +602,8 @@ class ReportsTestCase(CremeTestCase):
                              ]
                             )
 
-    def test_add_graph_instance_block02(self): #volatile relation
+    def test_add_graph_instance_block02(self):
+        "Volatile relation"
         rgraph = self._create_report_n_graph()
         rtype_id = self.rtype.id
         response = self.client.post('/reports/graph/%s/block/add' % rgraph.id,
