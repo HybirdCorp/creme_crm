@@ -49,8 +49,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         contact = Contact.objects.create(user=user, first_name='Vincent', last_name='Law', email=recipient)
         url = '/emails/mail/add/%s' % contact.id
 
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             c_recipients = response.context['form'].fields['c_recipients']
@@ -92,8 +91,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         orga = Organisation.objects.create(user=user, name='Venus gate', email=recipient)
         url = '/emails/mail/add/%s' % orga.id
 
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             o_recipients = response.context['form'].fields['o_recipients']
@@ -129,34 +127,33 @@ class EntityEmailTestCase(_EmailsTestCase):
         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=sender)
         self.assertEqual(signature, email.signature)
 
-    def test_createview03(self): #invalid email adress
+    def test_createview03(self):
+        "Invalid email adress"
         self.login()
         user = self.user
 
-        contact01 = Contact.objects.create(user=user, first_name='Vincent', last_name='Law',
-                                           email='vincent.law@immigrates', #invalid
-                                          )
-        contact02 = Contact.objects.create(user=user, first_name='Pino', last_name='AutoReiv',
-                                           email='pino@autoreivs.rmd', #ok
-                                          )
-        orga01 = Organisation.objects.create(user=user, name='Venus gate',
-                                           email='contact/venusgate.jp', #invalid
-                                          )
-        orga02 = Organisation.objects.create(user=user, name='Nerv',
-                                             email='contact@nerv.jp', #ok
-                                            )
+        create_contact = partial(Contact.objects.create, user=user)
+        contact01 = create_contact(first_name='Vincent', last_name='Law',
+                                   email='vincent.law@immigrates', #invalid
+                                  )
+        contact02 = create_contact(first_name='Pino', last_name='AutoReiv',
+                                   email='pino@autoreivs.rmd', #ok
+                                  )
 
-        response = self.client.post('/emails/mail/add/%s' % contact01.id,
-                                     data={'user':         user.id,
-                                           'sender':       self.user_contact.email,
-                                           'c_recipients': '%s,%s' % (contact01.id, contact02.id),
-                                           'o_recipients': '%s,%s' % (orga01.id, orga02.id),
-                                           'subject':      'Under arrest',
-                                           'body':         'Freeze !',
-                                           'body_html':    '<p>Freeze !</p>',
-                                          }
-                                   )
-        self.assertEqual(200, response.status_code)
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga01 = create_orga(name='Venus gate', email='contact/venusgate.jp') #invalid 
+        orga02 = create_orga(user=user, name='Nerv', email='contact@nerv.jp') #ok
+
+        response = self.assertPOST200('/emails/mail/add/%s' % contact01.id,
+                                      data={'user':         user.id,
+                                            'sender':       self.user_contact.email,
+                                            'c_recipients': '%s,%s' % (contact01.id, contact02.id),
+                                            'o_recipients': '%s,%s' % (orga01.id, orga02.id),
+                                            'subject':      'Under arrest',
+                                            'body':         'Freeze !',
+                                            'body_html':    '<p>Freeze !</p>',
+                                           }
+                                     )
         self.assertFormError(response, 'form', 'c_recipients',
                              [_(u"The email address for %s is invalid") % contact01]
                             )
@@ -169,8 +166,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.login()
 
         contact = Contact.objects.create(user=self.user, first_name='Vincent', last_name='Law')
-        response = self.client.get('/emails/mail/add/%s' % contact.id)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/emails/mail/add/%s' % contact.id)
 
         with self.assertNoException():
             c_recipients = response.context['form'].fields['c_recipients']
@@ -178,12 +174,12 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertIsNone(c_recipients.initial)
         self.assertEqual(_(u'Beware: the contact «%s» has no email address!') % contact, c_recipients.help_text)
 
-    def test_createview05(self): #related organisation has no emails address
+    def test_createview05(self):
+        "Related organisation has no email address"
         self.login()
 
         orga = Organisation.objects.create(user=self.user, name='Venus gate')
-        response = self.client.get('/emails/mail/add/%s' % orga.id)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/emails/mail/add/%s' % orga.id)
 
         with self.assertNoException():
             o_recipients = response.context['form'].fields['o_recipients']
@@ -195,29 +191,30 @@ class EntityEmailTestCase(_EmailsTestCase):
         "Credentials problem"
         user = self.login(is_superuser=False)
 
-        role = user.role
-        SetCredentials.objects.create(role=role,
-                                      value=(EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                                             EntityCredentials.LINK   |
-                                             EntityCredentials.DELETE | EntityCredentials.UNLINK
-                                            ),
-                                      set_type=SetCredentials.ESET_OWN
-                                     )
-        SetCredentials.objects.create(role=role,
-                                      value=(EntityCredentials.VIEW   | EntityCredentials.CHANGE |
-                                             EntityCredentials.DELETE | EntityCredentials.UNLINK
-                                            ), #no LINK
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        create_sc = partial(SetCredentials.objects.create, role=user.role)
+        create_sc(value=(EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                         EntityCredentials.LINK   |
+                         EntityCredentials.DELETE | EntityCredentials.UNLINK
+                        ),
+                  set_type=SetCredentials.ESET_OWN
+                 )
+        create_sc(value=(EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                         EntityCredentials.DELETE | EntityCredentials.UNLINK
+                        ), #no LINK
+                  set_type=SetCredentials.ESET_ALL
+                 )
 
-        contact01 = Contact.objects.create(user=self.other_user, first_name='Vincent', last_name='Law',
-                                           email='vincent.law@immigrates.rmd',
-                                          )
-        contact02 = Contact.objects.create(user=user, first_name='Pino', last_name='AutoReiv',
-                                           email='pino@autoreivs.rmd',
-                                          )
-        orga01 = Organisation.objects.create(user=self.other_user, name='Venus gate', email='contact@venusgate.jp')
-        orga02 = Organisation.objects.create(user=user, name='Nerv', email='contact@nerv.jp')
+        create_contact = Contact.objects.create
+        contact01 = create_contact(user=self.other_user, first_name='Vincent', 
+                                   last_name='Law', email='vincent.law@immigrates.rmd',
+                                  )
+        contact02 = create_contact(user=user, first_name='Pino', last_name='AutoReiv',
+                                   email='pino@autoreivs.rmd',
+                                  )
+
+        create_orga = Organisation.objects.create
+        orga01 = create_orga(user=self.other_user, name='Venus gate', email='contact@venusgate.jp')
+        orga02 = create_orga(user=user, name='Nerv', email='contact@nerv.jp')
 
         self.assertTrue(contact01.can_view(user))
         self.assertFalse(contact01.can_link(user))
@@ -277,7 +274,6 @@ class EntityEmailTestCase(_EmailsTestCase):
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         with self.assertNoException():
             form = response.context['form']
@@ -329,17 +325,16 @@ class EntityEmailTestCase(_EmailsTestCase):
                                          email='vincent.law@city.mosk'
                                         )
 
-        response = self.client.post('/emails/mail/add_from_template/%s' % contact.id,
-                                    data={'step':         2,
-                                          'user':         user.id,
-                                          'sender':       self.user_contact.email,
-                                          'c_recipients': contact.id,
-                                          'subject':      template.subject,
-                                          'body':         template.body,
-                                          'body_html':    template.body_html,
-                                         }
-                                   )
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200('/emails/mail/add_from_template/%s' % contact.id,
+                                      data={'step':         2,
+                                            'user':         user.id,
+                                            'sender':       self.user_contact.email,
+                                            'c_recipients': contact.id,
+                                            'subject':      template.subject,
+                                            'body':         template.body,
+                                            'body_html':    template.body_html,
+                                            }
+                                     )
         self.assertFormError(response, 'form', 'body_html',
                              [_(u"The image «%s» no longer exists or isn't valid.") % image_filename]
                             )
@@ -380,8 +375,7 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.login()
         emails = self._create_emails()
 
-        response = self.client.get('/emails/mails')
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/emails/mails')
 
         with self.assertNoException():
             emails = response.context['entities']

@@ -24,7 +24,7 @@ class MailingListsTestCase(_EmailsTestCase):
     def setUp(self):
         self.login()
 
-    def test_create01(self):
+    def test_create(self):
         url = '/emails/mailing_list/add'
         self.assertGET200(url)
 
@@ -53,8 +53,7 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertEqual(name, self.refresh(mlist).name)
 
     def test_listview(self):
-        response = self.client.get('/emails/mailing_lists')
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/emails/mailing_lists')
 
         with self.assertNoException():
             response.context['entities']
@@ -93,8 +92,7 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertEqual(set(recipients), set(r.address for r in mlist.emailrecipient_set.all()))
 
         #################
-        response = self.client.post(url, data={'recipients': 'faye.valentine#bebop.com'}) #invalid address
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200(url, data={'recipients': 'faye.valentine#bebop.com'}) #invalid address
         self.assertFormError(response, 'form', 'recipients', [_(u"Enter a valid e-mail address.")])
 
         #################
@@ -107,9 +105,10 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertNotIn(recipient.address, addresses)
 
     def test_recipients02(self):
+        "From CSV file"
         mlist = MailingList.objects.create(user=self.user, name='ml01')
         url = '/emails/mailing_list/%s/recipient/add_csv' % mlist.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         recipients = ['spike.spiegel@bebop.com', 'jet.black@bebop.com']
 
@@ -146,7 +145,8 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertEqual(len(recipients) - 1, len(contacts))
         self.assertNotIn(contact_to_del, contacts)
 
-    def test_ml_contacts_filter01(self): #'All' filter
+    def test_ml_contacts_filter01(self):
+        "'All' filter"
         mlist = MailingList.objects.create(user=self.user, name='ml01')
         url = '/emails/mailing_list/%s/contact/add_from_filter' % mlist.id
         self.assertGET200(url)
@@ -160,7 +160,8 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertGreaterEqual(len(contacts), 2)
         self.assertEqual(contacts, set(mlist.contacts.all()))
 
-    def test_ml_contacts_filter02(self): #A true filter
+    def test_ml_contacts_filter02(self):
+        "With a real EntityFilter"
         create = partial(Contact.objects.create, user=self.user)
         recipients = [create(first_name='Ranma', last_name='Saotome'),
                       create(first_name='Genma', last_name='Saotome'),
@@ -201,7 +202,7 @@ class MailingListsTestCase(_EmailsTestCase):
                       create(name='Seele', email='contact@seele.jp'),
                      ]
         response = self.client.post(url, data={'recipients': ','.join(str(c.id) for c in recipients), #see MultiCremeEntityField
-                                         }
+                                              }
                                    )
         self.assertNoFormError(response)
         self.assertEqual(set(c.id for c in recipients), set(c.id for c in mlist.organisations.all()))
@@ -216,21 +217,23 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertEqual(len(recipients) - 1, len(orgas))
         self.assertNotIn(orga_to_del, orgas)
 
-    def test_ml_orgas_filter01(self): # 'All' filter
+    def test_ml_orgas_filter01(self):
+        " 'All' filter"
         mlist = MailingList.objects.create(user=self.user, name='ml01')
         url = '/emails/mailing_list/%s/organisation/add_from_filter' % mlist.id
         self.assertGET200(url)
 
-        create = partial(Organisation.objects.create, user=self.user)
-        create(name='NERV',  email='contact@nerv.jp'),
-        create(name='Seele', email='contact@seele.jp')
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga(name='NERV',  email='contact@nerv.jp'),
+        create_orga(name='Seele', email='contact@seele.jp')
         self.assertNoFormError(self.client.post(url, data={}))
 
         orgas = set(Organisation.objects.all())
         self.assertGreaterEqual(len(orgas), 2)
         self.assertEqual(orgas, set(mlist.organisations.all()))
 
-    def test_ml_orgas_filter02(self): #"true" Filter
+    def test_ml_orgas_filter02(self):
+        "With a real EntityFilter"
         mlist = MailingList.objects.create(user=self.user, name='ml01')
 
         create = partial(Organisation.objects.create, user=self.user)
@@ -288,8 +291,11 @@ class MailingListsTestCase(_EmailsTestCase):
                                                       data={'child': child.id}
                                                      )
 
-        self.assertFormError(post(mlist01, mlist02), 'form', 'child', [_(u'List already in the children')])
-        self.assertFormError(post(mlist01, mlist03), 'form', 'child', [_(u'List already in the children')])
-        self.assertFormError(post(mlist02, mlist01), 'form', 'child', [_(u'List already in the parents')])
-        self.assertFormError(post(mlist03, mlist01), 'form', 'child', [_(u'List already in the parents')])
+        children_error = [_(u'List already in the children')]
+        self.assertFormError(post(mlist01, mlist02), 'form', 'child', children_error)
+        self.assertFormError(post(mlist01, mlist03), 'form', 'child', children_error)
+
+        parents_error = [_(u'List already in the parents')]
+        self.assertFormError(post(mlist02, mlist01), 'form', 'child', parents_error)
+        self.assertFormError(post(mlist03, mlist01), 'form', 'child', parents_error)
         self.assertFormError(post(mlist01, mlist01), 'form', 'child', [_(u"A list can't be its own child")])
