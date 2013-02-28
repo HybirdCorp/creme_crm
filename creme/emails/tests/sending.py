@@ -87,12 +87,12 @@ class SendingsTestCase(_EmailsTestCase):
         url = '/emails/campaign/%s/sending/add' % camp.id
         self.assertGET200(url)
 
-        response = self.client.post(url, data={'sender':   'vicious@reddragons.mrs',
-                                               'type':     SENDING_TYPE_IMMEDIATE,
-                                               'template': template.id,
-                                              }
-                                   )
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(url, data={'sender':   'vicious@reddragons.mrs',
+                                                           'type':     SENDING_TYPE_IMMEDIATE,
+                                                           'template': template.id,
+                                                          }
+                                               )
+                              )
 
         sendings = EmailCampaign.objects.get(pk=camp.id).sendings_set.all()
         self.assertEqual(1, len(sendings))
@@ -120,26 +120,24 @@ class SendingsTestCase(_EmailsTestCase):
         mail = mails[0]
         self.assertGET200('/emails/mails_history/%s' % mail.id)
 
-        response = self.client.get('/emails/mail/get_body/%s' % mail.id)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/emails/mail/get_body/%s' % mail.id)
         self.assertEqual(u'', response.content)
 
         #TODO: use the Django fake email framework to test even better
 
         #popup detail view -----------------------------------------------------
-        response = self.client.post('/emails/campaign/sending/%s' % sending.id)
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200('/emails/campaign/sending/%s' % sending.id)
         self.assertContains(response, contacts[0].email)
         self.assertContains(response, orgas[0].email)
 
         #test delete campaign --------------------------------------------------
-        response = self.client.post('/creme_core/entity/delete/%s' % camp.id)
-        self.assertEqual(302, response.status_code)
+        response = self.assertPOST(302, '/creme_core/entity/delete/%s' % camp.id)
         self.assertFalse(EmailCampaign.objects.exists())
         self.assertFalse(EmailSending.objects.exists())
         self.assertFalse(LightWeightEmail.objects.exists())
 
-    def test_create02(self): #test template
+    def test_create02(self):
+        "Test template"
         user = self.user
         first_name = 'Spike'
         last_name  = 'Spiegel'
@@ -183,28 +181,32 @@ class SendingsTestCase(_EmailsTestCase):
 
         #test delete sending ---------------------------------------------------
         ct = ContentType.objects.get_for_model(EmailSending)
-        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': sending.pk})
-        self.assertEqual(302, response.status_code)
+        self.assertPOST(302, '/creme_core/entity/delete_related/%s' % ct.id, data={'id': sending.pk})
         self.assertFalse(EmailSending.objects.filter(pk=sending.pk).exists())
         self.assertFalse(LightWeightEmail.objects.filter(pk=mail.pk).exists())
 
-    def test_create03(self): #test deferred
+    def test_create03(self):
+        "Test deferred"
         user = self.user
         camp     = EmailCampaign.objects.create(user=user, name='camp01')
         template = EmailTemplate.objects.create(user=user, name='name', subject='subject', body='body')
-        url = '/emails/campaign/%s/sending/add' % camp.id
 
-        now  = datetime.now()
+        now = datetime.now()
         sending_date = now.replace(year=now.year + 1)
-        response = self.client.post(url, data={'sender':       'vicious@reddragons.mrs',
-                                               'type':         SENDING_TYPE_DEFERRED,
-                                               'template':     template.id,
-                                               'sending_date': sending_date.strftime('%Y-%m-%d'), #future: OK
-                                               'hour':         sending_date.hour,
-                                               'minute':       sending_date.minute,
-                                              }
+
+        data = {'sender':   'vicious@reddragons.mrs',
+                'type':     SENDING_TYPE_DEFERRED,
+                'template': template.id,
+               }
+
+        post = partial(self.client.post, '/emails/campaign/%s/sending/add' % camp.id)
+        self.assertNoFormError(post(data=dict(data,
+                                              sending_date=sending_date.strftime('%Y-%m-%d'), #future: OK
+                                              hour=sending_date.hour,
+                                              minute=sending_date.minute,
+                                             )
                                    )
-        self.assertNoFormError(response)
+                              )
 
         with self.assertNoException():
             sending = self.refresh(camp).sendings_set.all()[0]
@@ -212,18 +214,12 @@ class SendingsTestCase(_EmailsTestCase):
         fmt = '%d %m %Y %H %M'
         self.assertEqual(sending_date.strftime(fmt), sending.sending_date.strftime(fmt))
 
-        response = self.client.post(url, data={'sender':   'vicious@reddragons.mrs',
-                                               'type':     SENDING_TYPE_DEFERRED,
-                                               'template': template.id,
-                                              }
-                                   )
-        self.assertFormError(response, 'form', 'sending_date', [_(u"Sending date required for a deferred sending")])
-
-        response = self.client.post(url, data={'sender':       'vicious@reddragons.mrs',
-                                               'type':         SENDING_TYPE_DEFERRED,
-                                               'template':     template.id,
-                                               'sending_date': (now - timedelta(days=1)).strftime('%Y-%m-%d'), #past: KO
-                                              }
-                                   )
-        self.assertFormError(response, 'form', 'sending_date', [_(u"Sending date must be is the future")])
-
+        self.assertFormError(post(data=data), 'form', 'sending_date',
+                             [_(u"Sending date required for a deferred sending")]
+                            )
+        self.assertFormError(post(data=dict(data,
+                                            sending_date=(now - timedelta(days=1)).strftime('%Y-%m-%d')
+                                           )
+                                 ),
+                             'form', 'sending_date', [_(u"Sending date must be is the future")]
+                            )

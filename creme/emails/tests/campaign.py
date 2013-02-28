@@ -43,8 +43,7 @@ class CampaignTestCase(_EmailsTestCase):
         self.assertEqual(name, self.refresh(camp).name)
 
     def test_listview(self):
-        response = self.client.get('/emails/campaigns')
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/emails/campaigns')
 
         with self.assertNoException():
             response.context['entities']

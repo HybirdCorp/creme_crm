@@ -39,16 +39,16 @@ class TemplatesTestCase(_EmailsTestCase):
         self.assertEqual(body,      template.body)
         self.assertEqual(body_html, template.body_html)
 
-    def test_createview02(self): # variable errors
-        response = self.client.post('/emails/template/add', follow=True,
-                                    data={'user':      self.user.pk,
-                                          'name':      'my_template',
-                                          'subject':   'Insert a joke *here*',
-                                          'body':      'blablabla {{unexisting_var}}',
-                                          'body_html': '<p>blablabla</p> {{foobar_var}}',
-                                         }
+    def test_createview02(self):
+        "Validation error"
+        response = self.assertPOST200('/emails/template/add', follow=True,
+                                      data={'user':      self.user.pk,
+                                            'name':      'my_template',
+                                            'subject':   'Insert a joke *here*',
+                                            'body':      'blablabla {{unexisting_var}}',
+                                            'body_html': '<p>blablabla</p> {{foobar_var}}',
+                                           }
                                    )
-        self.assertEqual(200, response.status_code)
 
         error_msg = _(u'The following variables are invalid: %s')
         self.assertFormError(response, 'form', 'body',      [error_msg % [u'unexisting_var']])
@@ -82,8 +82,7 @@ class TemplatesTestCase(_EmailsTestCase):
         self.assertEqual('',      template.body_html)
 
     def test_listview(self):
-        response = self.client.get('/emails/templates')
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/emails/templates')
 
         with self.assertNoException():
             response.context['entities']
