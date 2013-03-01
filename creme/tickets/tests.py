@@ -21,6 +21,9 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'tickets')
 
+    def _build_edit_url(self, ticket):
+        return '/tickets/ticket/edit/%s' % ticket.pk
+
     def test_populate(self):
         for pk, name in BASE_STATUS:
             try:
@@ -32,8 +35,9 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertGreaterEqual(Criticity.objects.count(), 2)
 
         get_ct = ContentType.objects.get_for_model
-        self.assertTrue(HeaderFilter.objects.filter(entity_type=get_ct(Ticket)).exists())
-        self.assertTrue(HeaderFilter.objects.filter(entity_type=get_ct(TicketTemplate)).exists())
+        hf_filter = HeaderFilter.objects.filter
+        self.assertTrue(hf_filter(entity_type=get_ct(Ticket)).exists())
+        self.assertTrue(hf_filter(entity_type=get_ct(TicketTemplate)).exists())
 
     def test_portal(self):
         self.login()
@@ -54,8 +58,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                        criticity=criticity,
                                       )
 
-        response = self.client.get('/tickets/ticket/%s' % ticket.pk)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/tickets/ticket/%s' % ticket.pk)
 
         with self.assertNoException():
             retr_ticket = response.context['object']
@@ -110,8 +113,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertEqual('', funf(ticket).for_html())
 
-        response = self.client.post(url, follow=True, data=data)
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(response, 'form', 'title',
                              [_(u"%(model_name)s with this %(field_label)s already exists.") %  {
                                     'model_name': _(u'Ticket'),
@@ -131,22 +133,23 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                        criticity=Criticity.objects.all()[0],
                                       )
 
-        url = '/tickets/ticket/edit/%s' % ticket.pk
-        self.assertEqual(200, self.client.get(url).status_code)
+        url = self._build_edit_url(ticket)
+        self.assertGET200(url)
 
         title       = 'Test ticket'
         description = 'Test description'
         priority    = Priority.objects.all()[1]
         criticity   = Criticity.objects.all()[1]
-        response = self.client.post(url, data={'user':         self.user.pk,
-                                               'title':        title,
-                                               'description':  description,
-                                               'status':       INVALID_PK,
-                                               'priority':     priority.id,
-                                               'criticity':    criticity.id,
-                                              }
+        response = self.client.post(url, follow=True,
+                                    data={'user':         self.user.pk,
+                                          'title':        title,
+                                          'description':  description,
+                                          'status':       INVALID_PK,
+                                          'priority':     priority.id,
+                                          'criticity':    criticity.id,
+                                         }
                                    )
-        self.assertNoFormError(response, status=302)
+        self.assertNoFormError(response)
 
         ticket = self.refresh(ticket)
         self.assertEqual(priority,     ticket.priority)
@@ -155,6 +158,8 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(description,  ticket.description)
         self.assertEqual(INVALID_PK,   ticket.status.id)
         self.assertFalse(ticket.get_resolving_duration())
+
+        self.assertRedirects(response, ticket.get_absolute_url())
 
     def test_editview02(self):
         self.login()
@@ -171,7 +176,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                        criticity=criticity,
                                       )
 
-        response = self.client.post('/tickets/ticket/edit/%s' % ticket.pk, follow=True,
+        response = self.client.post(self._build_edit_url(ticket), follow=True,
                                     data={'user':         self.user.pk,
                                           'title':        title,
                                           'description':  description,
@@ -181,6 +186,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                          }
                                    )
         self.assertNoFormError(response)
+        self.assertRedirects(response, ticket.get_absolute_url())
 
         ticket = self.refresh(ticket)
         self.assertEqual(CLOSED_PK, ticket.status_id)
@@ -192,8 +198,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
     def test_listview01(self):
         self.login()
 
-        response = self.client.get('/tickets/tickets')
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/tickets/tickets')
 
         with self.assertNoException():
             tickets_page = response.context['entities']
@@ -212,8 +217,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                               criticity=Criticity.objects.all()[0],
                              )
 
-        response = self.client.get('/tickets/tickets')
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/tickets/tickets')
 
         with self.assertNoException():
             tickets_page = response.context['entities']
@@ -231,11 +235,9 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                        criticity=Criticity.objects.all()[0],
                                       )
 
-        response = self.client.post('/creme_core/entity/delete/%s' % ticket.pk, follow=True)
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200('/creme_core/entity/delete/%s' % ticket.pk, follow=True)
         self.assertFalse(Ticket.objects.filter(pk=ticket.pk).exists())
-        self.assertEqual(1, len(response.redirect_chain))
-        self.assertTrue(response.redirect_chain[0][0].endswith('/tickets/tickets'))
+        self.assertRedirects(response, Ticket.get_lv_absolute_url())
 
     def test_clone01(self):
         self.login()
@@ -338,7 +340,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         doc = self._build_doc(lines)
         url = self._build_csvimport_url(Ticket)
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         response = self.client.post(url, data={'csv_step':     1,
                                                'csv_document': doc.id,
