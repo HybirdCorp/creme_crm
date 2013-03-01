@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,19 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import login_required
 
 from creme_core.forms.csv_import import CSVUploadForm, form_factory
+from creme_core.utils import get_ct_or_404
 
 #django wizard doesn't manage to inject its input in the 2nd form
 # + we can't upload file with wizard (even if it is a documents.Document for now)
 
 @login_required
 def csv_import(request, ct_id):
-    ct = get_object_or_404(ContentType, pk=ct_id)
+    ct = get_ct_or_404(ct_id)
     user = request.user
 
     user.has_perm_to_create_or_die(ct.model_class())
