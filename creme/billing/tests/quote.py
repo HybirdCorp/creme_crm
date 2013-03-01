@@ -71,8 +71,7 @@ class QuoteTestCase(_BillingTestCase, CremeTestCase):
         quote1 = self.create_quote_n_orgas('Quote1')[0]
         quote2 = self.create_quote_n_orgas('Quote2')[0]
 
-        response = self.client.get('/billing/quotes')
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/billing/quotes')
 
         with self.assertNoException():
             quotes_page = response.context['entities']

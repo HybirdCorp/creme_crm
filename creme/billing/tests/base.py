@@ -2,6 +2,7 @@
 
 try:
     from decimal import Decimal
+    from functools import partial
 
     from creme_core.tests.base import CremeTestCase
     from creme_core.models import Currency, CremePropertyType, CremeProperty
@@ -44,18 +45,16 @@ class _BillingTestCase(object):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(1, len(response.redirect_chain)) #TODO: assertRedirects ?
-
         invoice = self.get_object_or_fail(Invoice, name=name)
-        self.assertTrue(response.redirect_chain[0][0].endswith('/billing/invoice/%s' % invoice.id))
+        self.assertRedirects(response, invoice.get_absolute_url())
 
         return invoice
 
     def create_invoice_n_orgas(self, name, user=None, discount=Decimal(), currency=None):
         user = user or self.user
-        create = Organisation.objects.create
-        source = create(user=user, name='Source Orga')
-        target = create(user=user, name='Target Orga')
+        create = partial(Organisation.objects.create, user=user)
+        source = create(name='Source Orga')
+        target = create(name='Target Orga')
 
         invoice = self.create_invoice(name, source, target, user=user, discount=discount, currency=currency)
 
@@ -77,17 +76,16 @@ class _BillingTestCase(object):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(1, len(response.redirect_chain))
 
         quote = self.get_object_or_fail(Quote, name=name)
-        self.assertTrue(response.redirect_chain[0][0].endswith('/billing/quote/%s' % quote.id))
+        self.assertRedirects(response, quote.get_absolute_url())
 
         return quote
 
     def create_quote_n_orgas(self, name, currency=None, status=None):
-        create = Organisation.objects.create
-        source = create(user=self.user, name='Source Orga')
-        target = create(user=self.user, name='Target Orga')
+        create = partial(Organisation.objects.create, user=self.user)
+        source = create(name='Source Orga')
+        target = create(name='Target Orga')
 
         quote = self.create_quote(name, source, target, currency, status)
 
@@ -115,13 +113,11 @@ class _BillingTestCase(object):
                                      )
 
     def assertDeleteStatusOK(self, status, short_name):
-        response = self.client.post('/creme_config/billing/%s/delete' % short_name, data={'id': status.pk})
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200('/creme_config/billing/%s/delete' % short_name, data={'id': status.pk})
         self.assertFalse(status.__class__.objects.filter(pk=status.pk).exists())
 
     def assertDeleteStatusKO(self, status, short_name, doc):
-        response = self.client.post('/creme_config/billing/%s/delete' % short_name, data={'id': status.pk})
-        self.assertEqual(404, response.status_code)
+        self.assertPOST404('/creme_config/billing/%s/delete' % short_name, data={'id': status.pk})
         self.assertTrue(status.__class__.objects.filter(pk=status.pk).exists())
 
         doc = self.get_object_or_fail(doc.__class__, pk=doc.pk)
@@ -145,7 +141,7 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
 
     def test_portal(self):
         self.login()
-        self.assertEqual(200, self.client.get('/billing/').status_code)
+        self.assertGET200('/billing/')
 
     def test_algoconfig(self):
         self.login()
@@ -177,14 +173,15 @@ class VatTestCase(CremeTestCase):
         Vat.objects.all().delete()
 
     def test_create01(self):
-        vat01 = Vat.objects.create(value=Decimal('5.0'), is_default=True, is_custom=False)
+        create_vat = Vat.objects.create
+        vat01 = create_vat(value=Decimal('5.0'), is_default=True, is_custom=False)
 
         vat01 = self.refresh(vat01)
         self.assertEqual(Decimal('5.0'), vat01.value)
         self.assertTrue(vat01.is_default)
         self.assertFalse(vat01.is_custom)
 
-        vat02 = Vat.objects.create(value=Decimal('6.0'), is_default=False, is_custom=True)
+        vat02 = create_vat(value=Decimal('6.0'), is_default=False, is_custom=True)
         vat02 = self.refresh(vat02)
         self.assertEqual(Decimal('6.0'), vat02.value)
         self.assertFalse(vat02.is_default)
@@ -197,15 +194,17 @@ class VatTestCase(CremeTestCase):
         self.assertTrue(self.refresh(vat).is_default)
 
     def test_create03(self):
-        vat01 = Vat.objects.create(value=Decimal('5.0'), is_default=True, is_custom=False)
-        vat02 = Vat.objects.create(value=Decimal('7.0'), is_default=True, is_custom=False)
+        create_vat = partial(Vat.objects.create, is_default=True, is_custom=False)
+        vat01 = create_vat(value=Decimal('5.0'))
+        vat02 = create_vat(value=Decimal('7.0'))
         self.assertFalse(self.refresh(vat01).is_default)
         self.assertTrue(self.refresh(vat02).is_default)
         self.assertEqual(vat02, Vat.get_default_vat())
 
     def test_edit01(self):
-        vat01 = Vat.objects.create(value=Decimal('5.0'), is_default=False, is_custom=False)
-        vat02 = Vat.objects.create(value=Decimal('7.0'), is_default=True, is_custom=False)
+        create_vat = partial(Vat.objects.create, is_custom=False)
+        vat01 = create_vat(value=Decimal('5.0'), is_default=False)
+        vat02 = create_vat(value=Decimal('7.0'), is_default=True)
 
         vat01.is_default = True
         vat01.save()
@@ -214,8 +213,9 @@ class VatTestCase(CremeTestCase):
         self.assertFalse(self.refresh(vat02).is_default)
 
     def test_edit02(self):
-        vat01 = Vat.objects.create(value=Decimal('5.0'), is_default=False, is_custom=False)
-        vat02 = Vat.objects.create(value=Decimal('7.0'), is_default=True, is_custom=False)
+        create_vat = partial(Vat.objects.create, is_custom=False)
+        vat01 = create_vat(value=Decimal('5.0'), is_default=False)
+        vat02 = create_vat(value=Decimal('7.0'), is_default=True)
 
         vat02.is_default = False
         vat02.save()
@@ -224,8 +224,9 @@ class VatTestCase(CremeTestCase):
         self.assertTrue(self.refresh(vat02).is_default)
 
     def test_delete(self):
-        vat01 = Vat.objects.create(value=Decimal('5.0'), is_default=False, is_custom=False)
-        vat02 = Vat.objects.create(value=Decimal('7.0'), is_default=True, is_custom=False)
+        create_vat = partial(Vat.objects.create, is_custom=False)
+        vat01 = Vat.objects.create(value=Decimal('5.0'), is_default=False)
+        vat02 = Vat.objects.create(value=Decimal('7.0'), is_default=True)
 
         vat02.delete()
 

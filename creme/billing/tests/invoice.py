@@ -35,12 +35,14 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
     def test_createview01(self):
         self.login()
 
-        self.assertEqual(200, self.client.get('/billing/invoice/add').status_code)
+        self.assertGET200('/billing/invoice/add')
 
         name = 'Invoice001'
         currency = Currency.objects.all()[0]
-        source = Organisation.objects.create(user=self.user, name='Source Orga')
-        target = Organisation.objects.create(user=self.user, name='Target Orga')
+
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        source = create_orga(name='Source Orga')
+        target = create_orga(name='Target Orga')
 
         self.assertFalse(target.billing_address)
         self.assertFalse(target.shipping_address)
@@ -57,14 +59,7 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(source, invoice.get_source().get_real_entity())
         self.assertEqual(target, invoice.get_target().get_real_entity())
 
-        #target = Organisation.objects.get(pk=target.id)
         target = self.refresh(target)
-        #b_addr = target.billing_address
-        #s_addr = target.shipping_address
-        #self.assertTrue(b_addr)
-        #self.assertTrue(s_addr)
-        #self.assertEqual(b_addr, invoice.billing_address)
-        #self.assertEqual(s_addr, invoice.shipping_address)
         self.assertIsNone(target.billing_address)
         self.assertIsNone(target.shipping_address)
 
@@ -121,31 +116,30 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
 
         url = invoice.get_absolute_url()
         self.assertEqual('/billing/invoice/%s' % invoice.id, url)
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
-    def test_createview03(self): #creds errors with Organisation
+    def test_createview03(self):
+        "Credentials errors with Organisation"
         self.login(is_superuser=False)
-
+        user = self.user
         role = self.user.role
-        create_sc = SetCredentials.objects.create
-        create_sc(role=role,
-                  value=EntityCredentials.VIEW | EntityCredentials.CHANGE | \
+        create_sc = partial(SetCredentials.objects.create, role=role)
+        create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
                         EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
                   set_type=SetCredentials.ESET_ALL
                  )
-        create_sc(role=role,
-                  value=EntityCredentials.VIEW | EntityCredentials.CHANGE | \
-                        EntityCredentials.DELETE | EntityCredentials.LINK | \
+        create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                        EntityCredentials.DELETE | EntityCredentials.LINK |
                         EntityCredentials.UNLINK,
                   set_type=SetCredentials.ESET_OWN
                  )
         role.creatable_ctypes = [ContentType.objects.get_for_model(Invoice)]
 
         source = Organisation.objects.create(user=self.other_user, name='Source Orga')
-        self.assertFalse(source.can_link(self.user))
+        self.assertFalse(source.can_link(user))
 
         target = Organisation.objects.create(user=self.other_user, name='Target Orga')
-        self.assertFalse(target.can_link(self.user))
+        self.assertFalse(target.can_link(user))
 
         response = self.client.get('/billing/invoice/add', follow=True)
 
@@ -154,27 +148,24 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
 
         self.assertIn('source', form.fields, 'Bad form ?!')
 
-        response = self.client.post('/billing/invoice/add', follow=True,
-                                    data={'user':            self.user.pk,
-                                          'name':            'Invoice001',
-                                          'issuing_date':    '2011-9-7',
-                                          'expiration_date': '2011-10-13',
-                                          'status':          1,
-                                          'source':          source.id,
-                                          'target':          self.genericfield_format_entity(target),
-                                         }
-                                   )
-        self.assertEqual(200, response.status_code)
-
-        #TODO: use assertFormError()
-        try:
-            errors = response.context['form'].errors
-        except Exception as e:
-            self.fail(str(e))
-
-        self.assertTrue(errors)
-        self.assertIn('source', errors)
-        self.assertIn('target', errors)
+        response = self.assertPOST200('/billing/invoice/add', follow=True,
+                                      data={'user':            user.pk,
+                                            'name':            'Invoice001',
+                                            'issuing_date':    '2011-9-7',
+                                            'expiration_date': '2011-10-13',
+                                            'status':          1,
+                                            'source':          source.id,
+                                            'target':          self.genericfield_format_entity(target),
+                                           }
+                                     )
+        link_error = _(u'You are not allowed to link this entity: %s')
+        not_viewable_error = _(u'Entity #%s (not viewable)')
+        self.assertFormError(response, 'form', 'source', 
+                             [link_error % (not_viewable_error % source.id)]
+                            )
+        self.assertFormError(response, 'form', 'target', 
+                             [link_error % (not_viewable_error % target.id)]
+                            )
 
     def test_create_from_a_detailview01(self):
         self.login()
@@ -186,8 +177,7 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         target = Organisation.objects.create(user=self.user, name='Target Orga')
 
         url = '/billing/invoice/add/%s' % target.id
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             form = response.context['form']
@@ -217,15 +207,14 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
     def test_listview(self):
         self.login()
 
-        create = Organisation.objects.create
-        source = create(user=self.user, name='Source Orga')
-        target = create(user=self.user, name='Target Orga')
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        source = create_orga(name='Source Orga')
+        target = create_orga(name='Target Orga')
 
         invoice1 = self.create_invoice('invoice 01', source, target)
         invoice2 = self.create_invoice('invoice 02', source, target)
 
-        response = self.client.get('/billing/invoices')
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/billing/invoices')
 
         with self.assertNoException():
             invoices_page = response.context['entities']
@@ -274,9 +263,7 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-
-        self.assertEqual(1, len(response.redirect_chain))
-        self.assertTrue(response.redirect_chain[0][0].endswith('/billing/invoice/%s' % invoice.id))
+        self.assertRedirects(response, invoice.get_absolute_url())
 
         invoice = self.refresh(invoice)
         self.assertEqual(name, invoice.name)
@@ -288,7 +275,8 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         self.assertRelationCount(1, source, REL_OBJ_BILL_ISSUED,   invoice)
         self.assertRelationCount(1, target, REL_OBJ_BILL_RECEIVED, invoice)
 
-    def test_editview03(self): #user changes => lines user changes
+    def test_editview03(self):
+        "User changes => lines user changes"
         self.login()
 
         user = self.user
@@ -301,11 +289,12 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         invoice, source, target = self.create_invoice_n_orgas('Invoice001', user=user)
         self.assertEqual(user, invoice.user)
 
-
-        lines = [ProductLine.objects.create(user=user, related_document=invoice, on_the_fly_item="otf1",             unit_price=Decimal("1")),
-                 ProductLine.objects.create(user=user, related_document=invoice, related_item=self.create_product(), unit_price=Decimal("2")),
-                 ServiceLine.objects.create(user=user, related_document=invoice, on_the_fly_item="otf2",             unit_price=Decimal("4")),
-                 ServiceLine.objects.create(user=user, related_document=invoice, related_item=self.create_service(), unit_price=Decimal("5")),
+        create_pline = partial(ProductLine.objects.create, user=user, related_document=invoice)
+        create_sline = partial(ServiceLine.objects.create, user=user, related_document=invoice)
+        lines = [create_pline(on_the_fly_item="otf1",             unit_price=Decimal("1")),
+                 create_pline(related_item=self.create_product(), unit_price=Decimal("2")),
+                 create_sline(on_the_fly_item="otf2",             unit_price=Decimal("4")),
+                 create_sline(related_item=self.create_service(), unit_price=Decimal("5")),
                 ]
 
         response = self.client.post('/billing/invoice/edit/%s' % invoice.id, follow=True,
@@ -325,7 +314,9 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(other_user, invoice.user)
 
         self.assertEqual([other_user.id] * 4,
-                         list(Line.objects.filter(pk__in=[l.pk for l in lines]).values_list('user', flat=True)) #refresh
+                         list(Line.objects.filter(pk__in=[l.pk for l in lines])
+                                          .values_list('user', flat=True)
+                             ) #refresh
                         )
 
     def test_generate_number01(self):
@@ -394,9 +385,11 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         self.login()
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
 
-        product_line1 = ProductLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyy product') #TODO: factorise
-        product_line2 = ProductLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyy product2')
-        ServiceLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyy service')
+        kwargs = {'user': self.user, 'related_document': invoice}
+        create_pline = partial(ProductLine.objects.create, **kwargs)
+        product_line1 = create_pline(on_the_fly_item='Flyyy product')
+        product_line2 = create_pline(on_the_fly_item='Flyyy product2')
+        ServiceLine.objects.create(on_the_fly_item='Flyyy service', **kwargs)
         self.assertEqual([product_line1, product_line2], self.refresh(invoice).product_lines)
 
     def test_service_lines_property01(self):
@@ -404,7 +397,9 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
         self.assertFalse(invoice.service_lines)
 
-        service_line = ServiceLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyyyy')
+        service_line = ServiceLine.objects.create(user=self.user, related_document=invoice,
+                                                  on_the_fly_item='Flyyyyy'
+                                                 )
         self.assertEqual([service_line], self.refresh(invoice).service_lines)
 
         service_line.delete()
@@ -414,9 +409,13 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         self.login()
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
 
-        ProductLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyy product')
-        service_line1 = ServiceLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyy service1')
-        service_line2 = ServiceLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyy service2')
+        kwargs = {'user': self.user, 'related_document': invoice}
+        ProductLine.objects.create(on_the_fly_item='Flyyy product', **kwargs)
+
+        create_sline = partial(ServiceLine.objects.create, **kwargs)
+        service_line1 = create_sline(on_the_fly_item='Flyyy service1')
+        service_line2 = create_sline(on_the_fly_item='Flyyy service2')
+
         self.assertEqual([service_line1, service_line2], self.refresh(invoice).service_lines)
 
     def test_get_lines01(self):
@@ -424,8 +423,9 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
         self.assertFalse(invoice.get_lines(Line))
 
-        product_line = ProductLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyy product')
-        service_line = ServiceLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyy service')
+        kwargs = {'user': self.user, 'related_document': invoice}
+        product_line = ProductLine.objects.create(on_the_fly_item='Flyyy product', **kwargs)
+        service_line = ServiceLine.objects.create(on_the_fly_item='Flyyy service', **kwargs)
 
         self.assertEqual(set([product_line.id, service_line.id]),
                          set(invoice.get_lines(Line).values_list('pk', flat=True))
@@ -440,7 +440,11 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         invoice = self.create_invoice_n_orgas('Invoice001')[0]
         self.assertEqual(0, invoice._get_total_with_tax())
 
-        product_line = ProductLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyy product', quantity=3, unit_price=Decimal("5"))
+        kwargs = {'user': self.user, 'related_document': invoice}
+        product_line = ProductLine.objects.create(on_the_fly_item='Flyyy product',
+                                                  quantity=3, unit_price=Decimal("5"),
+                                                  **kwargs
+                                                 )
         expected = product_line.get_price_inclusive_of_tax()
         self.assertEqual(Decimal('15.00'), expected)
 
@@ -449,7 +453,10 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(expected, invoice._get_total_with_tax())
         self.assertEqual(expected, invoice.total_vat)
 
-        service_line = ServiceLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyy service', quantity=9, unit_price=Decimal("10"))
+        service_line = ServiceLine.objects.create(on_the_fly_item='Flyyy service',
+                                                  quantity=9, unit_price=Decimal("10"),
+                                                  **kwargs
+                                                 )
         expected = product_line.get_price_inclusive_of_tax() + service_line.get_price_inclusive_of_tax()
         invoice.save()
         invoice = self.refresh(invoice)
@@ -462,10 +469,11 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         invoice, source, target = self.create_invoice_n_orgas('Invoice001')
         user = self.user
 
-        ServiceLine.objects.create(user=user, related_document=invoice, related_item=self.create_service())
-        ServiceLine.objects.create(user=user, related_document=invoice, on_the_fly_item="otf service")
-        ProductLine.objects.create(user=user, related_document=invoice, related_item=self.create_product())
-        ProductLine.objects.create(user=user, related_document=invoice, on_the_fly_item="otf product")
+        kwargs = {'user': user, 'related_document': invoice}
+        ServiceLine.objects.create(related_item=self.create_service(), **kwargs)
+        ServiceLine.objects.create(on_the_fly_item="otf service", **kwargs)
+        ProductLine.objects.create(related_item=self.create_product(), **kwargs)
+        ProductLine.objects.create(on_the_fly_item="otf product", **kwargs)
 
         cloned = invoice.clone()
 
@@ -485,7 +493,8 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         self.assertFalse(set(p.pk for p in invoice.service_lines) & set(p.pk for p in cloned.service_lines))
         self.assertFalse(set(p.pk for p in invoice.product_lines) & set(p.pk for p in cloned.product_lines))
 
-    def test_clone_source_n_target(self): #internal relationtypes should not be cloned
+    def test_clone_source_n_target(self):
+        "Internal relationtypes should not be cloned"
         self.login()
 
         invoice, source, target = self.create_invoice_n_orgas('Invoice001')
@@ -502,12 +511,12 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
 
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=10)[0]
 
-        product_line = ProductLine.objects.create(user=self.user,
-                                                  related_document=invoice,
-                                                  on_the_fly_item='Flyyy product',
+        kwargs = {'user': self.user, 'related_document': invoice}
+        product_line = ProductLine.objects.create(on_the_fly_item='Flyyy product',
                                                   unit_price=Decimal('1000.00'), quantity=2,
                                                   discount=Decimal('10.00'), discount_unit=PERCENT_PK, total_discount=False,
                                                   vat_value=Vat.get_default_vat(),
+                                                  **kwargs
                                                  )
         self.assertEqual(1620, product_line.get_price_exclusive_of_tax())
 
@@ -515,12 +524,11 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(1620, invoice._get_total())
         self.assertEqual(1620, invoice.total_no_vat)
 
-        service_line = ServiceLine.objects.create(user=self.user,
-                                                  related_document=invoice,
-                                                  on_the_fly_item='Flyyy service',
+        service_line = ServiceLine.objects.create(on_the_fly_item='Flyyy service',
                                                   unit_price=Decimal('20.00'), quantity=10,
                                                   discount=Decimal('100.00'), discount_unit=AMOUNT_PK, total_discount=True,
                                                   vat_value=Vat.get_default_vat(),
+                                                  **kwargs
                                                  )
         self.assertEqual(90, service_line.get_price_exclusive_of_tax())
 
@@ -568,7 +576,7 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         invoice = self.create_invoice_n_orgas('Nerv', currency=currency)[0]
 
         self.assertPOST404('/creme_config/creme_core/currency/delete', data={'id': currency.pk})
-        self.assertTrue(Currency.objects.filter(pk=currency.pk).exists())
+        self.get_object_or_fail(Currency, pk=currency.pk)
 
         invoice = self.get_object_or_fail(Invoice, pk=invoice.pk)
         self.assertEqual(currency, invoice.currency)
@@ -615,14 +623,16 @@ class BillingDeleteTestCase(_BillingTestCase, CremeTransactionTestCase):
         self.assertFalse(Address.objects.filter(pk=b_addr.id).exists())
         self.assertFalse(Address.objects.filter(pk=s_addr.id).exists())
 
-    def test_delete02(self):#Can't be deleted
+    def test_delete02(self):
+        "Can't be deleted"
+        user = self.user
         invoice, source, target = self.create_invoice_n_orgas('Invoice001')
-        service_line = ServiceLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyyyy')
+        service_line = ServiceLine.objects.create(user=user, related_document=invoice, on_the_fly_item='Flyyyyy')
         rel1 = Relation.objects.get(subject_entity=invoice.id, object_entity=service_line.id)
 
         #This relation prohibits the deletion of the invoice
-        ce = CremeEntity.objects.create(user=self.user)
-        rel2 = Relation.objects.create(subject_entity=invoice, object_entity=ce, type_id=REL_SUB_HAS, user=self.user)
+        ce = CremeEntity.objects.create(user=user)
+        rel2 = Relation.objects.create(subject_entity=invoice, object_entity=ce, type_id=REL_SUB_HAS, user=user)
 
         self.assertRaises(ProtectedError, invoice.delete)
 

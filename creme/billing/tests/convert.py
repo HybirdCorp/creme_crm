@@ -3,6 +3,7 @@
 try:
     from datetime import datetime, timedelta
     from decimal import Decimal
+    from functools import partial
 
     from django.db.models.query_utils import Q
     from django.contrib.contenttypes.models import ContentType
@@ -28,16 +29,18 @@ class ConvertTestCase(_BillingTestCase, CremeTestCase):
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'persons', 'billing')
 
+    def _convert(self, status_code, src, dest_type):
+        self.assertPOST(status_code, '/billing/%s/convert/' % src.id,
+                        data={'type': dest_type}, follow=True
+                       )
+
     def test_convert01(self):
         self.login()
 
         quote, source, target = self.create_quote_n_orgas('My Quote')
         self.assertFalse(Invoice.objects.count())
 
-        response = self.client.post('/billing/%s/convert/' % quote.id,
-                                    data={'type': 'invoice'}, follow=True
-                                   )
-        self.assertEqual(200, response.status_code)
+        self._convert(200, quote, 'invoice')
 
         invoices = Invoice.objects.all()
         self.assertEqual(1, len(invoices))
@@ -54,50 +57,52 @@ class ConvertTestCase(_BillingTestCase, CremeTestCase):
         self.assertRelationCount(1, invoice, REL_SUB_BILL_RECEIVED,     object_entity=target)
         self.assertRelationCount(1, target,  REL_SUB_CUSTOMER_SUPPLIER, object_entity=source)
 
-    def test_convert02(self): #SalesOrder + not superuser
+    def test_convert02(self):
+        "SalesOrder + not superuser"
         self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
 
         get_ct = ContentType.objects.get_for_model
         self.role.creatable_ctypes = [get_ct(Quote), get_ct(SalesOrder)]
         SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW | EntityCredentials.CHANGE | \
-                                            EntityCredentials.DELETE | \
-                                            EntityCredentials.LINK | EntityCredentials.UNLINK,
+                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   | EntityCredentials.UNLINK,
                                       set_type=SetCredentials.ESET_OWN
                                      )
 
         quote = self.create_quote_n_orgas('My Quote')[0]
 
-        response = self.client.post('/billing/%s/convert/' % quote.id, data={'type': 'sales_order'}, follow=True)
-        self.assertEqual(200, response.status_code)
+        self._convert(200, quote, 'sales_order')
         self.assertEqual(0, Invoice.objects.count())
         self.assertEqual(1, SalesOrder.objects.count())
 
-    def test_convert03(self): #creds (creation) errors
+    def test_convert03(self):
+        "Credentials (creation) errors"
         self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
 
         get_ct = ContentType.objects.get_for_model
         self.role.creatable_ctypes = [get_ct(Quote)] #not get_ct(Invoice)
         SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW | EntityCredentials.CHANGE | \
-                                            EntityCredentials.DELETE | \
-                                            EntityCredentials.LINK | EntityCredentials.UNLINK,
+                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   | EntityCredentials.UNLINK,
                                       set_type=SetCredentials.ESET_OWN
                                      )
 
         quote = self.create_quote_n_orgas('My Quote')[0]
-        self.assertEqual(403, self.client.post('/billing/%s/convert/' % quote.id, data={'type': 'invoice'}).status_code)
+        self._convert(403, quote, 'invoice')
         self.assertFalse(Invoice.objects.exists())
 
-    def test_convert04(self): #creds (view) errors
+    def test_convert04(self):
+        "Credentials (view) errors"
         self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
 
         get_ct = ContentType.objects.get_for_model
         self.role.creatable_ctypes = [get_ct(Quote), get_ct(Invoice)]
         SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW | EntityCredentials.CHANGE | \
-                                            EntityCredentials.DELETE | \
-                                            EntityCredentials.LINK | EntityCredentials.UNLINK,
+                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   | EntityCredentials.UNLINK,
                                       set_type=SetCredentials.ESET_OWN
                                      )
 
@@ -108,19 +113,23 @@ class ConvertTestCase(_BillingTestCase, CremeTestCase):
                                      )
         self.assertFalse(quote.can_view(self.user))
 
-        self.assertEqual(403, self.client.post('/billing/%s/convert/' % quote.id, data={'type': 'invoice'}).status_code)
+        self._convert(403, quote, 'invoice')
         self.assertFalse(Invoice.objects.exists())
 
-    def test_convert05(self):#Quote to Invoice with lines
+    def test_convert05(self):
+        "Quote to Invoice with lines"
         self.login()
 
         quote, source, target = self.create_quote_n_orgas('My Quote')
         user = self.user
 
-        product_line_otf = ProductLine.objects.create(user=user, related_document=quote, on_the_fly_item="otf1",             unit_price=Decimal("1"))
-        product_line     = ProductLine.objects.create(user=user, related_document=quote, related_item=self.create_product(), unit_price=Decimal("2"))
-        service_line_otf = ServiceLine.objects.create(user=user, related_document=quote, on_the_fly_item="otf2",             unit_price=Decimal("4"))
-        service_line     = ServiceLine.objects.create(user=user, related_document=quote, related_item=self.create_service(), unit_price=Decimal("5"))
+        create_pline = partial(ProductLine.objects.create, user=user, related_document=quote)
+        product_line_otf = create_pline(on_the_fly_item="otf1",             unit_price=Decimal("1"))
+        product_line     = create_pline(related_item=self.create_product(), unit_price=Decimal("2"))
+
+        create_sline = partial(ServiceLine.objects.create, user=user, related_document=quote)
+        service_line_otf = create_sline(on_the_fly_item="otf2",             unit_price=Decimal("4"))
+        service_line     = create_sline(related_item=self.create_service(), unit_price=Decimal("5"))
 
         #quote.save()#To set total_vat...
         quote = self.refresh(quote)
@@ -132,10 +141,7 @@ class ConvertTestCase(_BillingTestCase, CremeTestCase):
 
         self.assertFalse(Invoice.objects.exists())
 
-        response = self.client.post('/billing/%s/convert/' % quote.id,
-                                    data={'type': 'invoice'}, follow=True
-                                   )
-        self.assertEqual(200, response.status_code)
+        self._convert(200, quote, 'invoice')
 
         invoices = Invoice.objects.all()
         self.assertEqual(1, len(invoices))
@@ -181,8 +187,7 @@ class ConvertTestCase(_BillingTestCase, CremeTestCase):
         quote.status = status
         quote.save()
 
-        response = self.client.post('/billing/%s/convert/' % quote.id, data={'type': 'sales_order'}, follow=True)
-        self.assertEqual(200, response.status_code) #TODO: assertPOST200
+        self._convert(200, quote, 'sales_order')
 
         orders = SalesOrder.objects.all()
         self.assertEqual(1, len(orders))
@@ -202,8 +207,7 @@ class ConvertTestCase(_BillingTestCase, CremeTestCase):
         quote.status = status
         quote.save()
 
-        response = self.client.post('/billing/%s/convert/' % quote.id, data={'type': 'invoice'}, follow=True)
-        self.assertEqual(200, response.status_code) #TODO: assertPOST200
+        self._convert(200, quote, 'invoice')
 
         invoices = Invoice.objects.all()
         self.assertEqual(1, len(invoices))

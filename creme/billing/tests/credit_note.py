@@ -40,29 +40,29 @@ class CreditNoteTestCase(_BillingTestCase, CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(1, len(response.redirect_chain))
 
         credit_note = self.get_object_or_fail(CreditNote, name=name)
-        self.assertTrue(response.redirect_chain[0][0].endswith('/billing/credit_note/%s' % credit_note.id))
+        self.assertRedirects(response, credit_note.get_absolute_url())
 
         return credit_note
 
     def create_credit_note_n_orgas(self, name, user=None, status=None):
         user = user or self.user
-        create = Organisation.objects.create
-        source = create(user=user, name='Source Orga')
-        target = create(user=user, name='Target Orga')
+        create_orga = partial(Organisation.objects.create, user=user)
+        source = create_orga(name='Source Orga')
+        target = create_orga(name='Target Orga')
 
         credit_note = self.create_credit_note(name, source, target, user=user, status=status)
 
         return credit_note, source, target
 
-    def test_createview01(self): # credit note total < billing document total where the credit note is applied
-        self.assertEqual(200, self.client.get('/billing/credit_note/add').status_code)
-        user = self.user
+    def test_createview01(self):
+        "Credit note total < billing document total where the credit note is applied"
+        self.assertGET200('/billing/credit_note/add')
 
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
 
+        user = self.user
         create_line = partial(ProductLine.objects.create, user=user)
         create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
         create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
@@ -72,7 +72,9 @@ class CreditNoteTestCase(_BillingTestCase, CremeTestCase):
 
         # TODO the credit note must be valid : Status OK (not out of date or consumed), Target = Billing document's target and currency = billing document's currency
         # Theses rules must be applied with q filter on list view before selection
-        Relation.objects.create(object_entity=invoice, subject_entity=credit_note, type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user)
+        Relation.objects.create(object_entity=invoice, subject_entity=credit_note,
+                                type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user,
+                               )
 
         invoice = self.refresh(invoice)
         expected_total = Decimal('1')
@@ -90,7 +92,9 @@ class CreditNoteTestCase(_BillingTestCase, CremeTestCase):
         credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
         create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("301"))
 
-        Relation.objects.create(object_entity=invoice, subject_entity=credit_note, type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user)
+        Relation.objects.create(object_entity=invoice, subject_entity=credit_note,
+                                type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user,
+                               )
 
         invoice = self.refresh(invoice)
         expected_total = Decimal('0')
@@ -108,7 +112,9 @@ class CreditNoteTestCase(_BillingTestCase, CremeTestCase):
         credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
         create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("60"))
 
-        r = Relation.objects.create(object_entity=invoice, subject_entity=credit_note, type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user)
+        r = Relation.objects.create(object_entity=invoice, subject_entity=credit_note,
+                                    type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user,
+                                   )
         self.assertEqual(Decimal('40'), self.refresh(invoice).total_no_vat)
 
         r.delete()

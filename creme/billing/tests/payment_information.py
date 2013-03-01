@@ -2,6 +2,7 @@
 
 try:
     from decimal import Decimal
+    from functools import partial
 
     from creme_core.models import Currency
     from creme_core.tests.base import CremeTestCase
@@ -28,11 +29,11 @@ class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
         url = '/billing/payment_information/add/%s' % organisation.id
         self.assertGET200(url)
 
-        response = self.client.post(url, data={'user': self.user.pk,
-                                               'name': "RIB of %s" % organisation,
-                                              }
-                                   )
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(url, data={'user': self.user.pk,
+                                                           'name': "RIB of %s" % organisation,
+                                                          }
+                                               )
+                              )
 
         all_pi = PaymentInformation.objects.all()
         self.assertEqual(1, len(all_pi))
@@ -90,9 +91,9 @@ class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
     def test_editview02(self):
         organisation = Organisation.objects.create(user=self.user, name=u"Nintendo")
 
-        create_pi = PaymentInformation.objects.create
-        pi_1 = create_pi(organisation=organisation, name="RIB 1", is_default=True)
-        pi_2 = create_pi(organisation=organisation, name="RIB 2", is_default=False)
+        create_pi = partial(PaymentInformation.objects.create, organisation=organisation)
+        pi_1 = create_pi(name="RIB 1", is_default=True)
+        pi_2 = create_pi(name="RIB 2", is_default=False)
 
         url = '/billing/payment_information/edit/%s' % pi_2.id
         self.assertGET200(url)
@@ -100,14 +101,14 @@ class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
         rib_key = "00"
         name    = "RIB of %s" % organisation
         bic     = "pen ?"
-        response = self.client.post(url, data={'user':       self.user.pk,
-                                               'name':       name,
-                                               'rib_key':    rib_key,
-                                               'bic':        bic,
-                                               'is_default': True,
-                                              }
-                                   )
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(url, data={'user':       self.user.pk,
+                                                           'name':       name,
+                                                           'rib_key':    rib_key,
+                                                           'bic':        bic,
+                                                           'is_default': True,
+                                                          }
+                                               )
+                              )
 
         pi_1 = self.refresh(pi_1)
         pi_2 = self.refresh(pi_2)
