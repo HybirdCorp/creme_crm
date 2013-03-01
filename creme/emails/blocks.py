@@ -201,8 +201,8 @@ class MailsHistoryBlock(QuerysetBlock):
                                                             sent_status=MAIL_STATUS_SENT,
                                                             sync_statuses=[MAIL_STATUS_SYNCHRONIZED, MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING],
                                                             rtypes=','.join(self.relation_type_deps),
-                                                            entity_email_ct=ContentType.objects.get_for_model(entity),
-                                                            ))
+                                                            creation_perm=context['user'].has_perm_to_create(EntityEmail),
+                                                           ))
 
 class LwMailsHistoryBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'lw_mails_history')

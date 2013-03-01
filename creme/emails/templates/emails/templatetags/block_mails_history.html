@@ -5,11 +5,12 @@
         <th class="collapser label">{% get_block_title _("%s Email in the history") _("%s Emails in the history") 'email_48.png' _('Emails') %}</th>
         <th class="actions">
             <div class="buttons">
-                {% has_perm_to create entity_email_ct as creation_perm %}
                 {% has_perm_to link object as link_perm %}
-                {% get_line_adder at_url '/emails/mail/add/{{object.pk}}' with_label _("Send a new related email") with_perms creation_perm|and_op:link_perm %}
-                {% get_line_adder at_url '/emails/mail/add_from_template/{{object.pk}}' with_label _("Send a email (with a template)") with_perms creation_perm|and_op:link_perm %}
-                {% get_line_linker at_url '/creme_core/relation/add_to_entities/{{entity_email_ct.id}}/{{rtypes}}/?ids={{object.id}}&persist=ids' with_label _("Link to an existing email") with_perms link_perm %}
+                {% with create_linked_perm=creation_perm|and_op:link_perm %}
+                    {% get_line_adder at_url '/emails/mail/add/{{object.pk}}' with_label _("Send a new related email") with_perms create_linked_perm %}
+                    {% get_line_adder at_url '/emails/mail/add_from_template/{{object.pk}}' with_label _("Send a email (with a template)") with_perms create_linked_perm %}
+                {% endwith %}
+                {% get_line_linker at_url '/creme_core/relation/add_to_entities/{{object.entity_type_id}}/{{rtypes}}/?ids={{object.id}}&persist=ids' with_label _("Link to an existing email") with_perms link_perm %}
             </div>
         </th>
     {% end_get_block_header %}
