@@ -100,8 +100,7 @@ class SalesOrderTestCase(_BillingTestCase, CremeTestCase):
         order1 = self.create_salesorder_n_orgas('Order1')[0]
         order2 = self.create_salesorder_n_orgas('Order2')[0]
 
-        response = self.client.get('/billing/sales_orders')
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/billing/sales_orders')
 
         with self.assertNoException():
             orders_page = response.context['entities']
