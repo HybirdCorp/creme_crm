@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,7 +32,7 @@ from creme_core.forms.relation import RelationCreateForm, MultiEntitiesRelationC
 from creme_core.models import Relation, RelationType, CremeEntity, EntityCredentials
 from creme_core.registry import creme_registry
 from creme_core.views.generic import inner_popup, list_view_popup_from_widget
-from creme_core.utils import get_from_POST_or_404
+from creme_core.utils import get_from_POST_or_404, get_ct_or_404
 
 
 class JSONSelectError(Exception):
@@ -194,7 +194,7 @@ def add_relations(request, subject_id, relation_type_id=None):
 @login_required
 def add_relations_bulk(request, model_ct_id, relations_types=None):#TODO: Factorise with add_properties_bulk and bulk_update?
     user = request.user
-    model    = get_object_or_404(ContentType, pk=model_ct_id).model_class()
+    model    = get_ct_or_404(model_ct_id).model_class()
     entities = get_list_or_404(model, pk__in=request.REQUEST.getlist('ids'))
 
     CremeEntity.populate_real_entities(entities)
