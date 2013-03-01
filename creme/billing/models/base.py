@@ -70,6 +70,7 @@ class Base(CremeEntity):
     #caches
     _productlines_cache = None
     _servicelines_cache = None
+    _creditnotes_cache = None
 
     class Meta:
         app_label = 'billing'
@@ -80,7 +81,12 @@ class Base(CremeEntity):
     def _pre_delete(self):
         lines = list(Line.objects.filter(relations__object_entity=self.id))
 
-        for relation in Relation.objects.filter(type__in=[REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED, REL_SUB_HAS_LINE, REL_OBJ_LINE_RELATED_ITEM], subject_entity=self.id):
+        for relation in Relation.objects.filter(type__in=[REL_SUB_BILL_ISSUED,
+                                                          REL_SUB_BILL_RECEIVED,
+                                                          REL_SUB_HAS_LINE,
+                                                          REL_OBJ_LINE_RELATED_ITEM,
+                                                         ],
+                                                subject_entity=self.id):
             relation._delete_without_transaction()
 
         for line in lines:
@@ -89,39 +95,52 @@ class Base(CremeEntity):
     def invalidate_cache(self):
         self._productlines_cache = None
         self._servicelines_cache = None
+        self._creditnotes_cache = None
 
     #TODO: property + cache
     #TODO: factorise with get_target()
     #TODO: return an Organisation instead of a CremeEntity ?? <- If doing this check calls to .get_source().get_real_entity()
     def get_source(self):
         try:
-            return Relation.objects.get(subject_entity=self, type=REL_SUB_BILL_ISSUED).object_entity if self.id else None
+            return Relation.objects.get(subject_entity=self.id, type=REL_SUB_BILL_ISSUED).object_entity if self.id else None
         except Relation.DoesNotExist:
             return None
 
     def get_target(self):
         try:
-            return Relation.objects.get(subject_entity=self, type=REL_SUB_BILL_RECEIVED).object_entity if self.id else None
+            return Relation.objects.get(subject_entity=self.id, type=REL_SUB_BILL_RECEIVED).object_entity if self.id else None
         except Relation.DoesNotExist:
             return None
 
     def get_credit_notes(self):
-        if self.id:
-            relations = Relation.objects.filter(subject_entity=self, type=REL_OBJ_CREDIT_NOTE_APPLIED).select_related('object_entity')
-            Relation.populate_real_object_entities(relations)
-            return [rel.object_entity.get_real_entity() for rel in relations]
-        else:
-            return []
+        credit_notes = self._creditnotes_cache
 
-    #TODO: use get_source/get_target
-    def populate_with_organisation(self):
-        relations_getter = Relation.objects.get
-        try:
-            self.source = relations_getter(subject_entity=self, type=REL_SUB_BILL_ISSUED).object_entity if self.id else None
-            self.target = relations_getter(subject_entity=self, type=REL_SUB_BILL_RECEIVED).object_entity if self.id else None
-        except Relation.DoesNotExist:
-            self.source = None
-            self.target = None
+        if credit_notes is None:
+            self._creditnotes_cache = credit_notes = []
+
+            if self.id:
+                relations = Relation.objects.filter(subject_entity=self.id,
+                                                    type=REL_OBJ_CREDIT_NOTE_APPLIED,
+                                                   ) \
+                                            .select_related('object_entity')
+                Relation.populate_real_object_entities(relations)
+                credit_notes.extend(rel.object_entity.get_real_entity()
+                                        for rel in relations
+                                            if not rel.object_entity.is_deleted
+                                   )
+
+        return credit_notes
+
+    #COMMENTED on 2 March 2013
+    ##todo: use get_source/get_target
+    #def populate_with_organisation(self):
+        #relations_getter = Relation.objects.get
+        #try:
+            #self.source = relations_getter(subject_entity=self.id, type=REL_SUB_BILL_ISSUED).object_entity if self.id else None
+            #self.target = relations_getter(subject_entity=self.id, type=REL_SUB_BILL_RECEIVED).object_entity if self.id else None
+        #except Relation.DoesNotExist:
+            #self.source = None
+            #self.target = None
 
     def generate_number(self, source=None):
         from billing.registry import algo_registry #lazy loading of number generators
@@ -137,7 +156,7 @@ class Base(CremeEntity):
                 name_algo = ConfigBillingAlgo.objects.get(organisation=source, ct=real_content_type).name_algo
                 algo = algo_registry.get_algo(name_algo)
                 self.number = algo().generate_number(source, real_content_type)
-            except Exception, e:
+            except Exception as e:
                 debug('Exception during billing.generate_number(): %s', e)
 
     @property
@@ -178,13 +197,19 @@ class Base(CremeEntity):
 
     def _get_total(self):
         total_credits = sum(credit_note.total_no_vat for credit_note in self.get_credit_notes())
-        total = self.get_service_lines_total_price_exclusive_of_tax() + self.get_product_lines_total_price_exclusive_of_tax() - total_credits
-        return default_decimal if total < default_decimal else total
+        total = self.get_service_lines_total_price_exclusive_of_tax() \
+                + self.get_product_lines_total_price_exclusive_of_tax() \
+                - total_credits
+        #return default_decimal if total < default_decimal else total
+        return max(default_decimal, total)
 
     def _get_total_with_tax(self):
         total_credits = sum(credit_note.total_vat for credit_note in self.get_credit_notes())
-        total_with_tax =  self.get_service_lines_total_price_inclusive_of_tax() + self.get_product_lines_total_price_inclusive_of_tax() - total_credits
-        return default_decimal if total_with_tax < default_decimal else total_with_tax
+        total_with_tax = self.get_service_lines_total_price_inclusive_of_tax() \
+                         + self.get_product_lines_total_price_inclusive_of_tax() \
+                         - total_credits
+        #return default_decimal if total_with_tax < default_decimal else total_with_tax
+        return max(default_decimal, total_with_tax)
 
     def _pre_save_clone(self, source):
         if self.generate_number_in_create:
