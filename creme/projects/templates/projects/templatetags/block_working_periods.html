@@ -28,8 +28,7 @@
                 <th class="block_header_line_dark">{% trans "Concerned resource(s)" %}</th>
                 <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
-            {% for period in page.object_list %}
-                <!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
+            {% for period in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}" align="center">{{period.start_date}}</td>
                     <td class="{{row_color}}" align="center">{{period.end_date}}</td>

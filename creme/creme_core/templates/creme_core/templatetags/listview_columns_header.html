@@ -57,7 +57,7 @@
                         <a onclick="$(this).parents('ul').find('ul').slideToggle('slide')">{% trans "Actions" %}</a>
                         <ul style="float: left; position: absolute; z-index: 10; display: none;" class="ui-widget ui-widget-content ui-corner-all">
                             <li>
-                                <a style="white-space: nowrap;" onclick="creme.utils.multiDeleteFromListView('form[name=list_view_form]', '/creme_core/delete_js');">
+                                <a style="white-space: nowrap;" onclick="creme.utils.multiDeleteFromListView('form[name=list_view_form]', '/creme_core/entity/delete/multi');">
                                     <img border="0" src="{% creme_media_url 'images/delete_22.png' %}" alt="{% trans "Multiple deletion" %}" title="{% trans "Multiple deletion" %}"/>{% trans "Multiple deletion" %}
                                 </a>
                             </li>

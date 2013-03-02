@@ -1,26 +1,18 @@
 {% extends "creme_core/detailview.html" %}
-{% load creme_widgets %}{% comment %}creme_block{% endcomment %}
+{% load creme_widgets %}
 
 {% block add_new_button %}
     {% if path %}
-        <li>{% get_add_button object request.user %}</li>
+        <li>{% get_add_button object user %}</li>
     {% endif %}
-    <li>{% get_clone_button object request.user %}</li>
+    {% if not object.is_deleted %}<li>{% get_clone_button object user %}</li>{% endif %}
 {% endblock %}
 
 {% block entity_buttons %}
     {% if path %}
-        {% get_edit_button object request.user %}
+        {% get_edit_button object user %}
+        {% if object.is_deleted %}&nbsp;{% get_restore_button object user %}</li>{% endif %}
         &nbsp;
-        {% get_delete_button object request.user %}
+        {% block delete_button %}{% get_delete_button object user %}{% endblock %}
     {% endif %}
 {% endblock %}
-
-{% comment %}{% block creme_blocks_import %}
-    {{block.super}}
-{% endblock %}{% endcomment %}
-
-{% comment %}{% block detail_view_left_1 %}
-    {% display_block_detailview 'object_block' %}
-    {% block after_object_as_table_1 %}{% endblock %}
-{% endblock %}{% endcomment %}

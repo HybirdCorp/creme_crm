@@ -905,3 +905,27 @@ class CredentialsTestCase(CremeTestCase):
         has_perm_to_link = user.has_perm_to_link
         self.assertFalse(has_perm_to_link(Organisation, owned=False))
         self.assertTrue(has_perm_to_link(Organisation,  owned=True))
+
+    def test_is_deleted(self):
+        user = self.user
+        self._create_role('Coder', ['creme_core', 'persons'], users=[user],
+                          set_creds=[(EntityCredentials.VIEW | EntityCredentials.CHANGE |
+                                      EntityCredentials.LINK | EntityCredentials.UNLINK,
+                                      SetCredentials.ESET_ALL
+                                     )
+                                    ]
+                         )
+
+        contact = self.contact1
+        self.assertTrue(contact.can_change(user))
+        self.assertTrue(contact.can_link(user))
+        self.assertTrue(contact.can_unlink(user))
+
+        contact.trash()
+
+        with self.assertNoException(): #refresh cache
+            contact = self.refresh(contact)
+
+        self.assertFalse(contact.can_change(user))
+        self.assertFalse(contact.can_link(user))
+        self.assertTrue(contact.can_unlink(user))

@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load creme_core_tags creme_block %}
+{% load creme_core_tags creme_block creme_widgets %}
 {# TODO: Merge with block_received_invoices.html ? #}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=5 %}
@@ -20,15 +20,14 @@
             {% for document in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 {% with document.get_real_entity as billing_document %}
                 <tr class="content">
+                    <td class="{{row_color}}">{% widget_entity_hyperlink billing_document user %}</td>
                     {% has_perm_to view billing_document as invoice_view_perm %}
                     {% if invoice_view_perm %}
-                        <td class="{{row_color}}"><a href="{{billing_document.get_absolute_url}}">{{billing_document}}</a></td>
                         <td class="{{row_color}}">{{billing_document.expiration_date|default:''}}</td>
                         <td class="{{row_color}}">{{billing_document.status}}</td>
                         <td class="{{row_color}}">{{billing_document.total_vat}}</td>
                         <td class="{{row_color}}">{{billing_document.entity_type}}</td>
                     {% else %}
-                        <td class="{{row_color}}">{{billing_document|allowed_unicode:user}}</td>
                         <td class="{{row_color}}">??</td>
                         <td class="{{row_color}}">??</td>
                         <td class="{{row_color}}">??</td>

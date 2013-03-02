@@ -53,6 +53,7 @@ def set_default(request, payment_information_id, billing_id):
 
     organisation = pi.get_related_entity()
     organisation.can_view_or_die(user)
+    organisation.can_link_or_die(user)
 
     billing_doc.can_change_or_die(user)
 

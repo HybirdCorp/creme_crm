@@ -188,21 +188,26 @@ class MailsHistoryBlock(QuerysetBlock):
     template_name = 'emails/templatetags/block_mails_history.html'
     relation_type_deps = (REL_OBJ_MAIL_SENDED, REL_OBJ_MAIL_RECEIVED, REL_OBJ_RELATED_TO)
 
+    _RTYPE_IDS = [REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO]
+    _STATUSES = [MAIL_STATUS_SYNCHRONIZED, MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING]
+
     def detailview_display(self, context):
         entity = context['object']
         pk = entity.pk
-        entityemail_pk = Relation.objects.filter(type__pk__in=[REL_SUB_MAIL_SENDED, REL_SUB_MAIL_RECEIVED, REL_SUB_RELATED_TO], object_entity=pk) \
+        entityemail_pk = Relation.objects.filter(type__pk__in=self._RTYPE_IDS, object_entity=pk) \
                                          .values_list('subject_entity', flat=True) \
                                          .distinct()
 
         return self._render(self.get_block_template_context(context,
-                                                            EntityEmail.objects.filter(pk__in=entityemail_pk),
+                                                            EntityEmail.objects.filter(is_deleted=False, pk__in=entityemail_pk),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
                                                             sent_status=MAIL_STATUS_SENT,
-                                                            sync_statuses=[MAIL_STATUS_SYNCHRONIZED, MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING],
+                                                            sync_statuses=self._STATUSES,
                                                             rtypes=','.join(self.relation_type_deps),
                                                             creation_perm=context['user'].has_perm_to_create(EntityEmail),
-                                                           ))
+                                                           )
+                           )
+
 
 class LwMailsHistoryBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('emails', 'lw_mails_history')
@@ -251,6 +256,8 @@ class WaitingSynchronizationMailsBlock(_SynchronizationMailsBlock):
 
 
 #TODO: factorise with WaitingSynchronizationMailsBlock ??
+#TODO: credentials ?? (see template too)
+#TODO: is_deleted ?? (idem)
 class SpamSynchronizationMailsBlock(_SynchronizationMailsBlock):
     id_           = QuerysetBlock.generate_id('emails', 'synchronised_as_spam')
     verbose_name  = u'Spam emails'

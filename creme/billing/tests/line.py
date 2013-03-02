@@ -2,6 +2,7 @@
 
 try:
     from decimal import Decimal
+    from functools import partial
 
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
@@ -30,7 +31,7 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
         cls.populate('creme_core', 'creme_config', 'products', 'billing')
 
     def test_add_product_lines01(self):
-        "Multiple"
+        "Multiple adding"
         self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
@@ -176,13 +177,15 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
         product_line = ProductLine.objects.create(user=self.user, related_document=invoice,
                                                   on_the_fly_item='Flyyyyy'
                                                  )
-
+        self.assertPOST404('/creme_core/entity/delete_related/%s' % product_line.entity_type_id,
+                           data={'id': product_line.id},
+                          )
         self.assertPOST200('/creme_core/entity/delete/%s' % product_line.id, data={}, follow=True)
         self.assertFalse(self.refresh(invoice).product_lines)
         self.assertFalse(ProductLine.objects.exists())
 
     def test_add_service_lines01(self):
-        "Multiple"
+        "Multiple adding"
         self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
@@ -461,7 +464,9 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(expected_total, invoice.total_no_vat)
         self.assertEqual(expected_total, invoice.total_vat)
 
-        self.assertPOST200('/creme_core/delete_js', follow=True, data={'ids': '%s,%s' % ids})
+        self.assertPOST200('/creme_core/entity/delete/multi', follow=True,
+                           data={'ids': '%s,%s' % ids}
+                          )
         self.assertFalse(ProductLine.objects.filter(pk__in=ids))
 
         invoice = self.refresh(invoice)
@@ -482,18 +487,21 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
                                       set_type=SetCredentials.ESET_OWN
                                      )
 
-        invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
-        self.assertFalse(invoice.can_change(self.user))
-
         user = self.user
-        create_line = ProductLine.objects.create
-        ids = tuple(create_line(user=user, related_document=invoice,
-                                on_the_fly_item='Fly ' + price,
+        invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
+        self.assertFalse(invoice.can_change(user))
+
+        create_line = partial(ProductLine.objects.create, user=user,
+                              related_document=invoice
+                             )
+        ids = tuple(create_line(on_the_fly_item='Fly ' + price,
                                 unit_price=Decimal(price)
                                ).id for price in ('10', '20')
                    )
 
-        self.assertPOST403('/creme_core/delete_js', follow=True, data={'ids': '%s,%s' % ids})
+        self.assertPOST403('/creme_core/entity/delete/multi', follow=True,
+                           data={'ids': '%s,%s' % ids}
+                          )
         self.assertEqual(2, ProductLine.objects.filter(pk__in=ids).count())
 
     def _build_bulk_url(self, line_class, *lines):
@@ -563,7 +571,9 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
 
         vat = Vat.objects.create(value=Decimal('5.0'), is_default=True, is_custom=True)
         invoice = self.create_invoice_n_orgas('Nerv')[0]
-        line = ProductLine.objects.create(user=self.user, related_document=invoice, on_the_fly_item='Flyyyyy', vat_value=vat)
+        line = ProductLine.objects.create(user=self.user, related_document=invoice,
+                                          on_the_fly_item='Flyyyyy', vat_value=vat,
+                                         )
 
         self.assertPOST404('/creme_config/billing/vat_value/delete', data={'id': vat.pk})
         self.assertTrue(Vat.objects.filter(pk=vat.pk).exists())

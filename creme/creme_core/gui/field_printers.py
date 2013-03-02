@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from itertools import chain
 
 from django.db import models
@@ -28,6 +29,8 @@ from django.utils.translation import ungettext, ugettext_lazy as _
 
 from creme_core.models import CremeEntity, fields
 from creme_core.utils.meta import get_instance_field_info, get_model_field_info, get_m2m_entities
+from creme_core.templatetags.creme_widgets import widget_entity_hyperlink
+
 
 #TODO: in settings
 MAX_HEIGHT = 200
@@ -59,7 +62,6 @@ def image_size(image, max_h=MAX_HEIGHT, max_w=MAX_WIDTH):
     return "height=%s width=%s" % (h, w)
 
 def simple_print(entity, fval, user):
-    #return '%s' % escape(fval) if fval is not None else ""
     return unicode(escape(fval)) if fval is not None else ""
 
 def print_image(entity, fval, user):
@@ -83,8 +85,9 @@ def print_date(entity, fval, user):
 
 def print_foreignkey(entity, fval, user):
     if isinstance(fval, CremeEntity):
-        return '<a href="%s"><u>%s</u></a>' % (fval.get_absolute_url(), fval) if fval.can_view(user) else \
-               fval.allowed_unicode(user)
+        #return '<a href="%s"><u>%s</u></a>' % (fval.get_absolute_url(), fval) if fval.can_view(user) else \
+               #fval.allowed_unicode(user)
+        return widget_entity_hyperlink(fval, user)
 
     return unicode(fval) if fval else u''
 
@@ -92,9 +95,12 @@ def print_many2many(entity, fval, user):
     output = []
 
     if issubclass(fval.model, CremeEntity):
-        entities = list(fval.all())
+        entities = list(fval.filter(is_deleted=False))
         #CremeEntity.populate_credentials(entities, user)
-        output.extend('<li>%s</li>' % e.get_entity_m2m_summary(user) if e.can_view(user) else e.allowed_unicode(user) for e in entities)
+        output.extend('<li>%s</li>' % (e.get_entity_m2m_summary(user) if e.can_view(user) else
+                                       e.allowed_unicode(user)
+                                      ) for e in entities
+                     )
     else:
         output.extend('<li>%s</li>' % escape(a) for a in fval.all())
 

@@ -194,6 +194,7 @@ def listview(request):
 @login_required
 @permission_required('activities')
 def download_ical(request, ids):
+    #TODO: is_deleted=False ??
     activities = EntityCredentials.filter(queryset=Activity.objects.filter(pk__in=ids.split(',')),
                                           user=request.user
                                          )

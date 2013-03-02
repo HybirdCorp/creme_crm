@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load creme_core_tags creme_block %}
+{% load creme_core_tags creme_block creme_widgets %}
 {% load sms_tags %}
 {% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
@@ -20,17 +20,10 @@
             </tr>
             {% for contact in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
-                    <td class="{{row_color}}">
-                        {% has_perm_to view contact as contact_perm %}
+                    <td class="{{row_color}}">{% has_perm_to view contact as contact_perm %}
+                        {% widget_entity_hyperlink contact user %}
                         {% if contact_perm %}
-                            <a href="{{contact.get_absolute_url}}">{{contact}}</a>&nbsp;:&nbsp;
-                                {% if contact.mobile %}
-                                    {{contact.mobile|phonenumber|formatphone}}
-                                {% else %}
-                                    {% trans 'no number' %}
-                                {% endif %}
-                        {% else %}
-                            {{contact|allowed_unicode:user}}
+                            &nbsp;:&nbsp;{% if contact.mobile %}{{contact.mobile|phonenumber|formatphone}}{% else %}{% trans 'no number' %}{% endif %}
                         {% endif %}
                     </td>
                     <td class="{{row_color}} action">

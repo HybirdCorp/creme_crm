@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load creme_core_tags creme_block %}
+{% load creme_core_tags creme_block creme_widgets %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=8 %}
         <th class="collapser label">{% get_block_title  _('%s Related Task') _('%s Related Tasks') 'task_48.png' _('Tasks') %}</th>
@@ -21,11 +21,11 @@
                 <th class="block_header_line_dark">{% trans "Cost" %}</th>
                 <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
-            {% for task in page.object_list %}<!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
+            {% for task in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">{% has_perm_to view task as view_perm %}{% has_perm_to change task as change_perm %}
                     <td class="{{row_color}}" align="center">{{task.order}}</td>
+                    <td class="{{row_color}}" align="center">{% widget_entity_hyperlink task user %}</td>
                     {% if view_perm %}
-                        <td class="{{row_color}}" align="center"><a href="{{task.get_absolute_url}}">{{task}}</a></td>
                         <td class="{{row_color}}" align="center">{{task.duration}}h</td>
                         {% include 'projects/frag_task_delay_td.html' %}
                         <td class="{{row_color}}" align="center">{{task.tstatus}}</td>
@@ -39,7 +39,6 @@
                         </td>
                         <td class="{{row_color}}" align="right">{{task.get_task_cost}} €</td>
                     {% else %}
-                        <td class="{{row_color}}" align="center">{{task|allowed_unicode:user}}</td>
                         <td class="{{row_color}}" align="center">?? h</td>
                         <td class="{{row_color}}" align="center">?? h</td>
                         <td class="{{row_color}}" align="center">??</td>

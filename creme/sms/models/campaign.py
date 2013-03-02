@@ -60,14 +60,20 @@ class SMSCampaign(CremeEntity):
         super(SMSCampaign, self).delete()
 
     def all_recipients(self):
-        mlists = self.lists.all()
+        mlists = self.lists.filter(is_deleted=False)
 
+        #TODO: remove doublons
         #manual recipients
-        #TODO: remove '__id'
         #recipients = list(number for number in Recipient.objects.filter(messaging_list__id__in=(mlist.id for mlist in lists)).values_list('phone', flat=True))
-        recipients = list(number for number in Recipient.objects.filter(messaging_list__in=mlists).values_list('phone', flat=True))
+        recipients = [number for number in Recipient.objects.filter(messaging_list__in=mlists)
+                                                            .values_list('phone', flat=True)
+                     ]
 
         #contacts recipients
-        recipients += list(contact.mobile for mlist in mlists for contact in mlist.contacts.all() if contact.mobile)
+        recipients.extend(contact.mobile 
+                            for mlist in mlists 
+                                for contact in mlist.contacts.filter(is_deleted=False)
+                                    if contact.mobile
+                         )
 
         return recipients

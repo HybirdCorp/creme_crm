@@ -82,7 +82,9 @@ class Event(CremeEntity):
         return "/events/events"
 
     def get_stats(self):
-        types_count = dict(RelationType.objects.filter(relation__subject_entity=self.id, id__in=_STATS_TYPES) \
+        types_count = dict(RelationType.objects.filter(id__in=_STATS_TYPES,
+                                                       relation__subject_entity=self.id,
+                                                      ) \
                                                .annotate(relations_count=Count('relation')) \
                                                .values_list('id', 'relations_count'))
         get_count = types_count.get

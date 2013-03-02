@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -60,7 +60,9 @@ class EmailCampaign(CremeEntity):
 
     def all_recipients(self):
         #merge all the mailing_lists and their children
-        lists = dict(pk_ml for ml in self.mailing_lists.all() for pk_ml in ml.get_family().iteritems()).values()
+        lists = dict(pk_ml for ml in self.mailing_lists.filter(is_deleted=False)
+                        for pk_ml in ml.get_family().iteritems()
+                    ).values()
 
         #manual recipients
         recipients = dict((addr, None) for addr in EmailRecipient.objects.filter(ml__in=[ml.id for ml in lists]) \
@@ -68,7 +70,14 @@ class EmailCampaign(CremeEntity):
                          )
 
         #contacts & organisations recipients
-        recipients.update((contact.email, contact) for ml in lists for contact in ml.contacts.all()      if contact.email)
-        recipients.update((orga.email,    orga)    for ml in lists for orga    in ml.organisations.all() if orga.email)
+        def update(get_persons):
+            recipients.update((p.email, p)
+                                for ml in lists
+                                    for p in get_persons(ml).filter(is_deleted=False)
+                                        if p.email
+                             )
+
+        update(lambda ml: ml.contacts)
+        update(lambda ml: ml.organisations)
 
         return recipients.iteritems()

@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load creme_core_tags creme_block %}
+{% load creme_core_tags creme_block creme_widgets %}
 {% has_perm_to change object as edit_perm %}
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=2 %}
@@ -19,18 +19,9 @@
             </tr>
             {% for orga in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
-                    <td class="{{row_color}}">
-                        {% has_perm_to view orga as orga_perm %}
-                        {% if orga_perm %}
-                            <a href="{{orga.get_absolute_url}}">{{orga}}</a>&nbsp;:&nbsp;
-                                {% if orga.email %}
-                                    {{orga.email}}
-                                {% else %}
-                                    {% trans 'no email address' %}
-                                {% endif %}
-                        {% else %}
-                            {{orga|allowed_unicode:user}}
-                        {% endif %}
+                    <td class="{{row_color}}">{% has_perm_to view orga as orga_perm %}
+                        {% widget_entity_hyperlink orga user %}
+                        {% if orga_perm %}&nbsp;:&nbsp;{{orga.email|default:_('no email address')}}{% endif %}
                     </td>
                     <td class="{{row_color}} action">
                         {% get_line_unlinker at_url '/emails/mailing_list/{{object.pk}}/organisation/delete' with_args "{'id':{{orga.pk}} }" with_perms edit_perm %}

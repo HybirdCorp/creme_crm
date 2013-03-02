@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -49,9 +49,8 @@ class LastViewedItem(object):
     def __add(self, request):
         debug('LastViewedItem.add: %s', self)
         session = request.session
-        #TODO: in python 2.6 ->
-        #      last_viewed_items = session.get('last_viewed_items', deque(maxlen=MAX_LAST_ITEMS))
-        last_viewed_items = session.get('last_viewed_items', deque())
+        last_viewed_items = session.get('last_viewed_items', deque(maxlen=MAX_LAST_ITEMS))
+        #last_viewed_items = session.get('last_viewed_items', deque())
 
         if last_viewed_items and last_viewed_items[0] == self:
             return
@@ -62,13 +61,12 @@ class LastViewedItem(object):
             debug('%s not in last_viewed', self)
 
         last_viewed_items.appendleft(self)
-        #TODO: comment these 2 lines with python 2.6
-        while len(last_viewed_items) > MAX_LAST_ITEMS:
-            last_viewed_items.pop()
+        #while len(last_viewed_items) > MAX_LAST_ITEMS:
+            #last_viewed_items.pop()
 
         session['last_viewed_items'] = last_viewed_items
 
-    #TODO: use the future entitiy representation table
+    #TODO: use the future entity representation table
     @staticmethod
     def get_all(request):
         session = request.session
@@ -77,7 +75,10 @@ class LastViewedItem(object):
         if not old_items:
             return ()
 
-        entities = dict((e.id, e) for e in CremeEntity.objects.filter(pk__in=[item.pk for item in old_items]))
+        entities = dict((e.id, e) for e in CremeEntity.objects.filter(is_deleted=False, 
+                                                                      pk__in=[item.pk for item in old_items],
+                                                                     )
+                       )
         items = []
         updated = (len(old_items) != len(entities)) #if any entitiy has been deleted -> must update
 

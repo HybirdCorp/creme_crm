@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -50,13 +50,14 @@ def get_users_calendar(request, usernames, calendars_ids):
     return render(request, 'activities/calendar.html',
                   {'events_url':        "/activities/calendar/users_activities/%s/%s" % (",".join(usernames), ",".join(cal_ids)),
                    'users':             User.objects.order_by('username'),
-                   'current_users':     User.objects.filter(username__in=usernames),
+                   'current_users':     User.objects.filter(username__in=usernames), #TODO: avoid this query by filter in python...
                    'my_calendars' :     Calendar.objects.filter(user=user),
                    'current_calendars': cal_ids,
                    'creation_perm':     user.has_perm('activities.add_activity'),
                   }
                  )
 
+#TODO: rename
 def getFormattedDictFromAnActivity(activity, user):
     start = activity.start
     end   = activity.end
@@ -65,7 +66,7 @@ def getFormattedDictFromAnActivity(activity, user):
     if start == end and not is_all_day:
         end += timedelta(seconds=1)
 
-    is_editable = activity.can_change(user)
+    is_editable = activity.can_change(user) #TODO: inline
 
     return {"id" :          int(activity.pk),
             "title":        activity.get_title_for_calendar(),
@@ -93,7 +94,7 @@ def user_calendar(request):
         calendars_ids = [Calendar.get_user_default_calendar(user).pk]
 
     return get_users_calendar(request,
-                              getlist('user_selected') or [request.user.username],#usernames,
+                              getlist('user_selected') or [user.username],#usernames,
                               getlist('calendar_selected') or calendars_ids#[Calendar.get_user_default_calendar(user).pk])
                              )
 
@@ -101,7 +102,7 @@ def my_calendar(request):
     user = request.user
     return get_users_calendar(request, user.username, [Calendar.get_user_default_calendar(user).pk])
 
-#TODO: need refactoring (and certinly unit tests...)
+#TODO: need refactoring (and certainly unit tests...)
 @login_required
 @permission_required('activities')
 def get_users_activities(request, usernames, calendars_ids):
@@ -117,7 +118,9 @@ def get_users_activities(request, usernames, calendars_ids):
             except ValueError:
                 continue
 
+    #TODO: user = request.user
     #TODO: use exclude() ...
+    #TODO: exclude request.user from seque,ce in python, to avoid a query
     users_cal_ids  = set(Calendar.objects.filter(is_public=True, user__in=users.filter(~Q(pk=request.user.pk))).values_list('id', flat=True))
     users_cal_ids |= set(cals_ids)
 
@@ -137,27 +140,18 @@ def get_users_activities(request, usernames, calendars_ids):
     else:
         end = get_last_day_of_a_month(start)
 
-    #TODO: variables not reused
-    current_activities  = Q(start__range=(start, end))
-    overlap_activities  = Q(end__gt=start)
-    overlap_activities2 = Q(start__lt=end)
-    time_range = current_activities | overlap_activities & overlap_activities2
+    activities = EntityCredentials.filter(
+                        request.user,
+                        Activity.objects.filter(is_deleted=False)
+                                        .filter(Q(start__range=(start, end)) |
+                                                Q(end__gt=start, start__lt=end)
+                                               )
+                                        .filter(Q(calendars__pk__in=users_cal_ids) |
+                                                Q(type=ACTIVITYTYPE_INDISPO, user__in=users)
+                                               )
+                    )
 
-#    user_activities = Q(user__in=users)
-
-    #TODO: why not use the possibility of chaining queryset directly ???
-    list_activities = Activity.objects.filter(calendars__pk__in=users_cal_ids)
-#    list_activities = list_activities.filter(current_activities | overlap_activities & overlap_activities2)
-    list_activities = list_activities.filter(time_range)
-    list_activities = list_activities.filter(Q(is_deleted=False)) #TODO: why Q() ?
-    list_activities |= Activity.objects.filter(type__id=ACTIVITYTYPE_INDISPO).filter(time_range & Q(user__in=users))
-
-#    list_activities = Activity.objects.filter(user__in=users).filter(current_activities | overlap_activities & overlap_activities2)
-#    list_activities = list_activities.filter(user_activities & Q(is_deleted=False))
-#    #list_activities = filter_can_read_objects(request, list_activities)
-    list_activities = EntityCredentials.filter(request.user, list_activities)
-
-    return HttpResponse(JSONEncoder().encode([getFormattedDictFromAnActivity(activity, request.user) for activity in list_activities]),
+    return HttpResponse(JSONEncoder().encode([getFormattedDictFromAnActivity(activity, request.user) for activity in activities]),
                         mimetype="text/javascript"
                        )
 
@@ -182,6 +176,7 @@ def update_activity_date(request):
             return HttpResponse("forbidden", mimetype="text/javascript", status=403)
 
         try:
+            #TODO:factorise (_time_from_JS() function ??)
             activity.start = datetime.fromtimestamp(float(start_timestamp) / 1000)#Js gives us miliseconds
             activity.end   = datetime.fromtimestamp(float(end_timestamp) / 1000)
             if is_all_day is not None:
@@ -222,6 +217,8 @@ def delete_user_calendar(request):
     status, msg = 200, ""
     user = request.user
 
+    #TODO: simply raise PermissionDenied ?
+    #TODO: factorise calendar credentials functions ?
     if (user.is_superuser or calendar.user == user) and calendar.is_custom:
         calendar.delete()
     else:

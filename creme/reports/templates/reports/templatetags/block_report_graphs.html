@@ -44,7 +44,7 @@
                         {% else %}
                             <img class="forbidden" src="{% creme_media_url 'images/edit_22.png' %}" border="0" title="{% trans "Can't edit" %}" alt="{% trans "Can't edit" %}" />
                         {% endif %}
-                        {% get_line_deletor at_url '/creme_core/delete_js' with_args "{'ids' : '{{graph.id}}' }" with_perms graph_delete_perm %}
+                        {% get_line_deletor at_url '/creme_core/entity/delete/multi' with_args "{'ids' : '{{graph.id}}' }" with_perms graph_delete_perm %}
                     </td>
                 </tr>
                 <tr>

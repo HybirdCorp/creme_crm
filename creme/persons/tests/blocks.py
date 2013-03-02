@@ -29,6 +29,15 @@ class BlocksTestCase(CremeTestCase):
     def setUp(self):
         self.login()
 
+    def _build_customer_orga(self, mng_orga, name, **kwargs):
+        customer = Organisation.objects.create(user=self.user, name=name, **kwargs)
+        Relation.objects.create(user=self.user, subject_entity=customer,
+                                object_entity=mng_orga,
+                                type_id=REL_SUB_CUSTOMER_SUPPLIER,
+                               )
+
+        return customer
+
     def _get_neglected_orgas(self):
         neglected_orgas_block = NeglectedOrganisationsBlock()
         return neglected_orgas_block._get_neglected(datetime.now())
@@ -62,15 +71,6 @@ class BlocksTestCase(CremeTestCase):
 
         create_rel(subject_entity=customer02, object_entity=mng_orga, type=rtype_customer)
         self.assertEqual(2, len(self._get_neglected_orgas()))
-
-    def _build_customer_orga(self, mng_orga, name):
-        customer = Organisation.objects.create(user=self.user, name=name)
-        Relation.objects.create(user=self.user, subject_entity=customer,
-                                object_entity=mng_orga,
-                                type_id=REL_SUB_CUSTOMER_SUPPLIER
-                               )
-
-        return customer
 
     def test_neglected_block02(self):
         user = self.user
@@ -109,9 +109,9 @@ class BlocksTestCase(CremeTestCase):
                                           end=yesterday + timedelta(hours=2)
                                          )
 
-        create_rel = partial(Relation.objects.create, user=user)
-        create_rel(subject_entity=customer02,   object_entity=meeting, type_id=REL_SUB_ACTIVITY_SUBJECT)
-        create_rel(subject_entity=user_contact, object_entity=meeting, type_id=REL_SUB_PART_2_ACTIVITY)
+        create_rel = partial(Relation.objects.create, user=user, object_entity=meeting)
+        create_rel(subject_entity=customer02,   type_id=REL_SUB_ACTIVITY_SUBJECT)
+        create_rel(subject_entity=user_contact, type_id=REL_SUB_PART_2_ACTIVITY)
         self.assertEqual(2, len(self._get_neglected_orgas())) #and not 1
 
     def test_neglected_block04(self):
@@ -126,19 +126,22 @@ class BlocksTestCase(CremeTestCase):
         meeting = Meeting.objects.create(user=user, title='meet01', start=tomorrow,
                                          end=tomorrow + timedelta(hours=2),
                                         )
-        Relation.objects.create(user=user, subject_entity=user_contact, object_entity=meeting, type_id=REL_SUB_PART_2_ACTIVITY)
+        create_rel = partial(Relation.objects.create, user=user)
+        create_rel(subject_entity=user_contact, object_entity=meeting,
+                   type_id=REL_SUB_PART_2_ACTIVITY,
+                  )
 
         employee = Contact.objects.create(user=user, first_name='Kankuro', last_name='???')
 
         get_rtype = RelationType.objects.get
-        Relation.objects.create(user=user, subject_entity=employee, object_entity=customer,
-                                type=get_rtype(pk=REL_SUB_EMPLOYED_BY),
-                               )
+        create_rel(subject_entity=employee, object_entity=customer,
+                   type=get_rtype(pk=REL_SUB_EMPLOYED_BY),
+                  )
         self.assertEqual(1, len(self._get_neglected_orgas()))
 
-        Relation.objects.create(user=user, subject_entity=employee, object_entity=meeting,
-                                type=get_rtype(pk=REL_SUB_LINKED_2_ACTIVITY),
-                               )
+        create_rel(subject_entity=employee, object_entity=meeting,
+                   type=get_rtype(pk=REL_SUB_LINKED_2_ACTIVITY),
+                  )
         self.assertFalse(self._get_neglected_orgas())
 
     def test_neglected_block05(self):
@@ -196,11 +199,18 @@ class BlocksTestCase(CremeTestCase):
         self.assertEqual(1, len(self._get_neglected_orgas()))
 
     def test_neglected_block07(self):
-        "Inactive client are not counted"
+        "Inactive customers are not counted"
         mng_orga   = Organisation.objects.all()[0]
         customer01 = self._build_customer_orga(mng_orga, 'Konoha')
         customer02 = self._build_customer_orga(mng_orga, 'Suna')
         Relation.objects.create(user=self.user, subject_entity=customer02,
                                 object_entity=mng_orga, type_id=REL_SUB_INACTIVE
                                )
-        self.assertEqual([customer01.id], [orga.id for orga in self._get_neglected_orgas()])
+        self.assertEqual([customer01], list(self._get_neglected_orgas()))
+
+    def test_neglected_block08(self):
+        "Deleted customers are not counted"
+        mng_orga = Organisation.objects.all()[0]
+        customer = self._build_customer_orga(mng_orga, 'Konoha')
+        self._build_customer_orga(mng_orga, 'Suna', is_deleted=True)
+        self.assertEqual([customer], list(self._get_neglected_orgas()))

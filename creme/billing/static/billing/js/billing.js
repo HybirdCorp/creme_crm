@@ -84,7 +84,7 @@ creme.billing.multipleLineDelete = function(reload_url) {
         }
     };
 
-    creme.utils.ajaxDelete('/creme_core/delete_js', {'ids' : selected_lines_ids.toString()}, ajax_opts, gettext("Are you sure ?"));
+    creme.utils.ajaxDelete('/creme_core/entity/delete/multi', {'ids' : selected_lines_ids.toString()}, ajax_opts, gettext("Are you sure ?"));
 }
 
 creme.billing.bulkLineUpdate = function(reload_url, ct_id) {

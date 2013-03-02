@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load creme_core_tags creme_block %}
+{% load creme_core_tags creme_block creme_widgets %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=12 %}
         <th class="collapser label">{% block header %}HEADER{% endblock %}</th>
@@ -38,8 +38,7 @@
                 <th class="block_header_line_dark" width="6%">{% trans "Total (without tax)<br>discounted" %}</th>
                 <th class="block_header_line_dark" width="6%">{% trans "Total (inclusive of tax)" %}</th>
             </tr>
-            {% for line in page.object_list %}
-                <!-- {% cycle "block_line_dark" "block_line_light" as row_color %} -->
+            {% for line in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content" name="tr_line_{{line.id}}" id="tr_line_{{line.id}}" method="POST" action="/billing/line/{{line.id}}/edit_inner">
                     {% csrf_token %}
                     <td class="{{row_color}}" align="center">
@@ -50,7 +49,7 @@
                     </td>
                     <td class="{{row_color}}" align="center">
                         {% if line.related_item %}
-                            <a href="{{line.related_item.get_absolute_url}}">{{line.related_item}}</a>
+                            {% widget_entity_hyperlink line.related_item user %}
                         {% else %}
                             <input class="line-on_the_fly" type="textbox" name="on_the_fly" id="on_the_fly{{line.pk}}" value="{{line.on_the_fly_item}}" onchange="creme.billing.submitLine($(this), {% get_block_reload_uri %}, creme.billing.checkValue);">
                         {% endif %}

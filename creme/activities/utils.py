@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from datetime import timedelta
 
 from django.db.models.query_utils import Q
-from django.utils.translation import ugettext
+from django.utils.translation import ugettext as _
 
 from creme_core.models.relation import Relation
 
@@ -66,14 +66,19 @@ def check_activity_collisions(activity_start, activity_end, participants, busy=T
         #activity_collisions = Activity.objects.exclude(busy=False).filter(pk__in=activity_ids).filter(collision_test)[:1]
         #activity_collisions = Activity.objects.filter(pk__in=activity_ids).filter(collision_test)[:1]
         busy_args = {} if busy else {'busy': True}
-        activity_collisions = Activity.objects.filter(collision_test, **busy_args).filter(pk__in=activity_ids)[:1]
+        #TODO: test is_deleted=True
+        activity_collisions = Activity.objects.filter(collision_test,
+                                                      is_deleted=False,
+                                                      pk__in=activity_ids,
+                                                      **busy_args
+                                                     )[:1]
 
         if activity_collisions:
             collision = activity_collisions[0]
             collision_start = max(activity_start.time(), collision.start.time())
             collision_end   = min(activity_end.time(),   collision.end.time())
 
-            collisions.append(ugettext(u"%(participant)s already participates to the activity «%(activity)s» between %(start)s and %(end)s.") % {
+            collisions.append(_(u"%(participant)s already participates to the activity «%(activity)s» between %(start)s and %(end)s.") % {
                         'participant': participant,
                         'activity':    collision,
                         'start':       collision_start,

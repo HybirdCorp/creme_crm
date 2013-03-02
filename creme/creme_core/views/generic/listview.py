@@ -41,20 +41,20 @@ class NoHeaderFilterAvailable(Exception):
 
 
 def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filter):
-    queryset = model.objects.filter(Q(is_deleted=False) | Q(is_deleted=None))
+    queryset = model.objects.filter(is_deleted=False)
 
     if entity_filter:
         queryset = entity_filter.filter(queryset)
 
     if extra_q:
         queryset = queryset.filter(extra_q)
+
     list_view_state.extra_q = extra_q
-
     queryset = queryset.filter(list_view_state.get_q_with_research(model))
-    queryset = EntityCredentials.filter(request.user, queryset)
-    queryset = queryset.distinct().order_by("%s%s" % (list_view_state.sort_order, list_view_state.sort_field))
 
-    return queryset
+    return EntityCredentials.filter(request.user, queryset) \
+                            .distinct() \
+                            .order_by("%s%s" % (list_view_state.sort_order, list_view_state.sort_field))
 
 def _build_entities_page(request, list_view_state, queryset, size):
     paginator = Paginator(queryset, size)

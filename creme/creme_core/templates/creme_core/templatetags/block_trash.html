@@ -1,0 +1,57 @@
+{% load i18n %}
+{% load creme_core_tags creme_widgets creme_block %}
+{% with colspan=5 %}
+    <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
+        {% get_block_header colspan=colspan %}
+            <th class="collapser label">{% get_block_title _('%s Deleted entity') _('%s Deleted entities') %}</th>
+            <th class="actions"></th>
+        {% end_get_block_header %}
+        <tbody class="collapsable">
+            {% if page.paginator.count %}
+                <tr class="header toolbar">
+                    <th colspan="{{colspan}}" class="block_header_line_dark" align="left">{% comment %}TODO: factorise {% endcomment %}
+                        <a class="pointer" onclick="creme.utils.ajaxDelete('/creme_core/entity/trash/empty', {}, {complete:function(req, st){if(st!='error'){creme.utils.loadBlock({% get_block_reload_uri %});}creme.utils.loading('loading', true);}});">
+                        <img src="{% creme_media_url 'images/cancel_22.png' %}" border="0" title="{% trans "Empty the trash" %}" alt="{% trans "Empty the trash" %}">
+                            {% trans "Empty the trash" %}
+                        </a>
+                    </th>
+                </tr>
+                <tr class="header">
+                    {% get_column_header _('Deletion date') 'modified' %}
+                    <th class="block_header_line_light">{% trans "Type" %}</th>
+                    <th class="block_header_line_light">{% trans "Name" %}</th>
+                    <th class="block_header_line_light action">{% trans "Restore" %}</th>
+                    <th class="block_header_line_light action">{% trans "Permanently delete" %}</th>
+                </tr>
+                {% for entity in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
+                    <tr class="content">
+                        <td class="{{row_color}}">{{entity.modified}}</td>
+                        <td class="{{row_color}}">
+                            {% with ctype=entity.entity_type %}
+                                {% get_image_for_ctype ctype 'small' %}{{ctype}}
+                            {% endwith %}
+                        </td>
+                        <td class="{{row_color}}">{% widget_entity_hyperlink entity.get_real_entity user 1 %}{% comment %}TODO: ignore_deleted=1{% endcomment %}</td>
+                        <td class="{{row_color}} action">{% has_perm_to delete entity as has_perm %}
+                            {% if has_perm %}
+                                <a class="pointer" onclick="creme.utils.ajaxDelete('/creme_core/entity/restore/{{entity.id}}', {}, {complete:function(req, st){if(st!='error'){creme.utils.loadBlock({% get_block_reload_uri %});}creme.utils.loading('loading', true);}});">
+                                    <img src="{% creme_media_url 'images/restore_22.png' %}" border="0" title="{% trans "Restore" %}" alt="{% trans "Restore" %}">
+                                </a>
+                            {% else %}
+                                <img class="forbidden" src="{% creme_media_url 'images/restore_22.png' %}" border="0" title="{% trans "Can't restore" %}" alt="{% trans "Can't restore" %}">
+                            {% endif %}
+                        </td>
+                        <td class="{{row_color}} action">
+                            {% get_line_deletor at_url '/creme_core/entity/delete/{{entity.pk}}' with_args "{}" with_perms 1 %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr class="content empty">
+                    <td colspan="4" class="block_line_dark">{% trans "The trash is empty" %}</td>
+                </tr>
+            {% endif %}
+        </tbody>
+        {% get_block_footer colspan %}
+    </table>
+{% endwith %}

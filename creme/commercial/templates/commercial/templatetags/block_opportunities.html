@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load creme_core_tags creme_block %}
+{% load creme_core_tags creme_block creme_widgets %}
 {% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=3 %}
@@ -19,13 +19,8 @@
             </tr>
             {% for opp in page.object_list %}{% cycle row_color silent %}
                 <tr class="content">{% has_perm_to view opp as opp_view_perm %}{% has_perm_to unlink opp as opp_unlink_perm %}
-                    {% if opp_view_perm %}
-                        <td class="{{row_color}}"><a href="{{opp.get_absolute_url}}">{{opp}}</a></td>
-                        <td class="{{row_color}}">{{opp.made_sales|default:''}}</td>
-                    {% else %}
-                        <td class="{{row_color}}">{{opp|allowed_unicode:user}}</td>
-                        <td class="{{row_color}}">??</td>
-                    {% endif %}
+                    <td class="{{row_color}}">{% widget_entity_hyperlink opp user %}</td>
+                    <td class="{{row_color}}">{% if opp_view_perm %}{{opp.made_sales|default:''}}{% else %}??{% endif %}</td>
                     <td class="{{row_color}} action">
                         {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{ 'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{opp.pk}} }" with_perms unlink_perm|and_op:opp_unlink_perm %}
                     </td>

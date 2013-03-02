@@ -48,11 +48,11 @@ from creme_core.constants import REL_SUB_HAS
 __all__ = ('GenericEntityField', 'MultiGenericEntityField',
            'RelationEntityField', 'MultiRelationEntityField',
            'CremeEntityField', 'MultiCremeEntityField',
+           'CreatorEntityField',
            'ListEditionField',
            'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
            'CremeTimeField', 'CremeDateField', 'CremeDateTimeField',
            'DateRangeField', 'ColorField', 'DurationField',
-           'CreatorEntityField'
           )
 
 
@@ -161,9 +161,10 @@ class JSONField(CharField):
 
         else:
             model = ctype.model_class()
+            assert issubclass(model, CremeEntity)
 
             try:
-                entity = model.objects.get(pk=entity_pk)
+                entity = model.objects.get(is_deleted=False, pk=entity_pk)
             except model.DoesNotExist:
                 raise ValidationError(self.error_messages['doesnotexist'],
                                       params={'ctype': ctype.pk, 'entity': entity_pk}
@@ -172,11 +173,13 @@ class JSONField(CharField):
         return entity
 
     def _clean_entity_from_model(self, model, entity_pk, qfilter=None):
-        try:
-            if qfilter is not None:
-                return model.objects.filter(qfilter).get(pk=entity_pk)
+        qs = model.objects.filter(is_deleted=False)
 
-            return model.objects.get(pk=entity_pk)
+        if qfilter is not None:
+            qs = qs.filter(qfilter)
+
+        try:
+            return qs.get(pk=entity_pk)
         except model.DoesNotExist:
             if self.required:
                 raise ValidationError(self.error_messages['doesnotexist'])
@@ -299,7 +302,11 @@ class MultiGenericEntityField(GenericEntityField):
         #build the list of entities (ignore invalid entries)
         for ct_id, entity_pks in entities_map.iteritems():
             ctype = self._clean_ctype(ct_id)
-            ctype_entities = dict((entity.pk, entity) for entity in ctype.model_class().objects.filter(pk__in=entity_pks))
+            ctype_entities = dict((entity.pk, entity)
+                                    for entity in ctype.model_class()
+                                                       .objects
+                                                       .filter(is_deleted=False, pk__in=entity_pks)
+                                 )
 
             if not all(entity_pk in ctype_entities for entity_pk in entity_pks):
                 raise ValidationError(self.error_messages['doesnotexist'])
@@ -506,7 +513,11 @@ class MultiRelationEntityField(RelationEntityField):
 
         #build real entity cache and check both entity id exists and in correct content type
         for ctype, entity_pks in ctypes_cache.values():
-            ctype_entities = dict((entity.pk, entity) for entity in ctype.model_class().objects.filter(pk__in=entity_pks))
+            ctype_entities = dict((entity.pk, entity)
+                                    for entity in ctype.model_class()
+                                                       .objects
+                                                       .filter(is_deleted=False, pk__in=entity_pks)
+                                 )
 
             if not all(entity_pk in ctype_entities for entity_pk in entity_pks):
                 raise ValidationError(self.error_messages['doesnotexist'])
@@ -749,11 +760,13 @@ class CremeEntityField(_EntityField):
         if len(clean_id) > 1:
             raise ValidationError(self.error_messages['invalid_choice'] % {'value': value})
 
+        qs = self.model.objects.filter(is_deleted=False)
+
+        if self.q_filter is not None:
+            qs = qs.filter(get_q_from_dict(self.q_filter))
+
         try:
-            if self.q_filter is not None:
-                return self.model.objects.filter(get_q_from_dict(self.q_filter)).get(pk=clean_id[0])
-            else:
-                return self.model.objects.get(pk=clean_id[0])
+            return qs.get(pk=clean_id[0])
         except self.model.DoesNotExist:
             if self.required:
                 raise ValidationError(self.error_messages['doesnotexist'])
@@ -774,13 +787,18 @@ class MultiCremeEntityField(_EntityField):
         if not cleaned_ids:
             return []
 
-        if self.q_filter is not None:
-            entities = self.model.objects.filter(get_q_from_dict(self.q_filter)).filter(pk__in=cleaned_ids)
-        else:
-            entities = self.model.objects.filter(pk__in=cleaned_ids)
+        qs = self.model.objects.filter(is_deleted=False, pk__in=cleaned_ids)
 
-        if len(entities) != len(cleaned_ids):#entities.count() better ?
-            raise ValidationError(self.error_messages['invalid_choice'] % {'value': ', '.join(str(val) for val in value)})
+        if self.q_filter is not None:
+            qs = qs.filter(get_q_from_dict(self.q_filter))
+
+        entities = list(qs)
+
+        if len(entities) != len(cleaned_ids):
+            raise ValidationError(self.error_messages['invalid_choice'] % {
+                                        'value': ', '.join(str(val) for val in value),
+                                   }
+                                 )
 
         return entities
 

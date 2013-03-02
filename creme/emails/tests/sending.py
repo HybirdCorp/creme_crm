@@ -41,9 +41,12 @@ class SendingsTestCase(_EmailsTestCase):
         mlist01 = create_ml(name='ml01')
         mlist02 = create_ml(name='ml02')
         mlist03 = create_ml(name='ml03')
+        mlist04 = create_ml(name='ml04', is_deleted=True)
+        mlist05 = create_ml(name='ml05')
+        mlist06 = create_ml(name='ml06', is_deleted=True)
 
-        mlist01.children.add(mlist02, mlist03)
-        camp.mailing_lists.add(mlist01)
+        mlist01.children.add(mlist02, mlist03, mlist04)
+        camp.mailing_lists.add(mlist01, mlist05, mlist06)
 
         addresses = ['spike.spiegel@bebop.com',  #0
                      'jet.black@bebop.com',      #1
@@ -52,6 +55,7 @@ class SendingsTestCase(_EmailsTestCase):
                      'ein@bebop.com',            #4
                      'contact@nerv.jp',          #5
                      'contact@seele.jp',         #6
+                     'shin@reddragons.mrs',      #7
                     ]
 
         create_recipient = EmailRecipient.objects.create
@@ -61,15 +65,22 @@ class SendingsTestCase(_EmailsTestCase):
         create_recipient(ml=mlist03, address=addresses[3])
         create_recipient(ml=mlist03, address=addresses[4])
         create_recipient(ml=mlist03, address=addresses[6])
+        create_recipient(ml=mlist04, address='vicious@reddragons.mrs')
+        create_recipient(ml=mlist05, address=addresses[7])
+        create_recipient(ml=mlist06, address='jin@reddragons.mrs')
 
         create_contact = partial(Contact.objects.create, user=self.user)
         contacts = [create_contact(first_name='Spike', last_name='Spiegel', email=addresses[0]),
                     create_contact(first_name='Jet',   last_name='Black',   email=addresses[1]),
                    ]
+        deleted_contact = create_contact(first_name='Ed', last_name='Wong',
+                                         email='ew@bebop.com', is_deleted=True,
+                                        )
 
         mlist01.contacts.add(contacts[0])
         mlist02.contacts.add(contacts[0])
         mlist02.contacts.add(contacts[1])
+        mlist02.contacts.add(deleted_contact)
 
         create_orga = partial(Organisation.objects.create, user=self.user)
         orgas = [create_orga(name='NERV',  email=addresses[5]),
@@ -131,6 +142,7 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertContains(response, orgas[0].email)
 
         #test delete campaign --------------------------------------------------
+        camp.trash()
         response = self.assertPOST(302, '/creme_core/entity/delete/%s' % camp.id)
         self.assertFalse(EmailCampaign.objects.exists())
         self.assertFalse(EmailSending.objects.exists())

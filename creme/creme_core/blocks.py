@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from collections import defaultdict
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import Relation, CremeProperty, HistoryLine #CremeEntity
+from creme_core.models import CremeEntity, Relation, CremeProperty, HistoryLine
 from creme_core.gui.block import SimpleBlock, QuerysetBlock, BlocksManager, list4url
 
 
@@ -135,7 +135,27 @@ class HistoryBlock(QuerysetBlock):
         return self._render(btc)
 
 
+class TrashBlock(QuerysetBlock):
+    id_           = QuerysetBlock.generate_id('creme_core', 'trash')
+    dependencies  = (CremeEntity,)
+    order_by      = '-modified'
+    verbose_name  = _(u'Trash')
+    template_name = 'creme_core/templatetags/block_trash.html'
+    page_size     = 25
+
+    def detailview_display(self, context):
+        btc = self.get_block_template_context(context,
+                                              #CremeEntity.objects.only_deleted(),
+                                              CremeEntity.objects.filter(is_deleted=True),
+                                              update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                             )
+        CremeEntity.populate_real_entities(btc['page'].object_list)
+
+        return self._render(btc)
+
+
 properties_block   = PropertiesBlock()
 relations_block    = RelationsBlock()
 customfields_block = CustomFieldsBlock()
 history_block      = HistoryBlock()
+trash_block        = TrashBlock()

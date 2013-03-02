@@ -210,7 +210,7 @@ TEMPLATE_CONTEXT_PROCESSORS += (
      'creme_core.context_processors.get_blocks_manager',
 )
 
-TRUE_DELETE = True
+#TRUE_DELETE = True
 
 AUTHENTICATION_BACKENDS = ('creme_core.auth.backend.EntityBackend',)
 

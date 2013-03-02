@@ -98,7 +98,7 @@ class ContactTestCase(_BaseTestCase):
                                       data={'user':       self.user.pk,
                                             'first_name': first_name,
                                             'last_name':  last_name,
-                                          }
+                                           }
                                      )
 
         contact = self.refresh(contact)
@@ -120,7 +120,7 @@ class ContactTestCase(_BaseTestCase):
                                  'billing_address-address':  'In the Bebop.',
                                  'shipping_address-address': 'In the Bebop. (bis)',
                                 }
-                         )
+                          )
         contact = Contact.objects.get(first_name=first_name)
         billing_address_id  = contact.billing_address_id
         shipping_address_id = contact.shipping_address_id
@@ -148,11 +148,11 @@ class ContactTestCase(_BaseTestCase):
         self.login()
 
         create_contact = partial(Contact.objects.create, user=self.user)
-        faye  = create_contact(first_name='Faye',  last_name='Valentine')
-        spike = create_contact(first_name='Spike', last_name='Spiegel')
+        faye    = create_contact(first_name='Faye',    last_name='Valentine')
+        spike   = create_contact(first_name='Spike',   last_name='Spiegel')
+        vicious = create_contact(first_name='Vicious', last_name='Badguy', is_deleted=True)
 
-        response = self.client.get('/persons/contacts')
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/persons/contacts')
 
         with self.assertNoException():
             contacts_page = response.context['entities']
@@ -162,6 +162,7 @@ class ContactTestCase(_BaseTestCase):
         contacts_set = set(contacts_page.object_list)
         self.assertIn(faye,  contacts_set)
         self.assertIn(spike, contacts_set)
+        self.assertNotIn(vicious, contacts_set)
 
     def test_create_linked_contact01(self):
         self.login()
@@ -186,13 +187,10 @@ class ContactTestCase(_BaseTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertTrue(response.redirect_chain)
-        self.assertTrue(response.redirect_chain[-1][0].endswith(redir))
+        self.assertRedirects(response, redir)
 
-        with self.assertNoException():
-            contact = Contact.objects.get(first_name=first_name)
-            Relation.objects.get(subject_entity=orga.id, type=REL_OBJ_EMPLOYED_BY, object_entity=contact.id)
-
+        contact = self.get_object_or_fail(Contact, first_name=first_name)
+        self.assertRelationCount(1, orga, REL_OBJ_EMPLOYED_BY, contact)
         self.assertEqual(last_name, contact.last_name)
 
     def test_create_linked_contact02(self):
@@ -237,7 +235,8 @@ class ContactTestCase(_BaseTestCase):
     #TODO: test relation's object creds
     #TODO: test bad rtype (doesn't exist, constraints) => fixed list of types ??
 
-    def test_clone(self): #addresses & is_user are problematic
+    def test_clone(self):
+        "Addresses & is_user are problematic"
         self.login()
 
         user = self.user
@@ -284,6 +283,42 @@ class ContactTestCase(_BaseTestCase):
             address2 = c_addresses_map.get(ident)
             self.assertIsNotNone(address2, ident)
             self.assertAddressOnlyContentEqual(address, address2)
+
+    #TODO: factorise ??
+    def _build_delete_url(self, entity):
+        return '/creme_core/entity/delete/%s' % entity.id
+
+    def test_delete01(self):
+        self.login()
+        naruto = Contact.objects.create(user=self.user, first_name='Naruto', last_name='Uzumaki')
+        url = self._build_delete_url(naruto)
+        self.assertPOST200(url, follow=True)
+
+        with self.assertNoException():
+            naruto = self.refresh(naruto)
+
+        self.assertIs(naruto.is_deleted, True)
+
+        self.assertPOST200(url, follow=True)
+        self.assertFalse(Contact.objects.filter(pk=naruto.pk))
+
+    def test_delete02(self):
+        "Can not delete if the Contact corresponds to an user"
+        self.login()
+        user = self.user
+        naruto = Contact.objects.create(user=user, is_user=user, is_deleted=True,
+                                        first_name='Naruto', last_name='Uzumaki'
+                                       )
+        self.assertPOST403(self._build_delete_url(naruto), follow=True)
+
+    def test_delete03(self):
+        "Can not trash if the Contact corresponds to an user"
+        self.login()
+        user = self.user
+        naruto = Contact.objects.create(user=user, is_user=user,
+                                        first_name='Naruto', last_name='Uzumaki'
+                                       )
+        self.assertPOST403(self._build_delete_url(naruto), follow=True)
 
     def _build_quickform_url(self, count):
         ct = ContentType.objects.get_for_model(Contact)
@@ -411,9 +446,6 @@ class ContactTestCase(_BaseTestCase):
 
         url = self._build_quickform_url(1)
         response = self.assertGET200(url)
-
-        with self.assertNoException():
-            orga_f = response.context['formset'][0].fields['organisation']
 
         with self.assertNoException():
             orga_f = response.context['formset'][0].fields['organisation']

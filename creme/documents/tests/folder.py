@@ -3,6 +3,7 @@
 try:
     from functools import partial
 
+    from django.conf import settings
     from django.utils.encoding import smart_str, smart_unicode
 
     from documents.tests.base import _DocumentsTestCase
@@ -110,25 +111,24 @@ class FolderTestCase(_DocumentsTestCase):
             self.assertNotEqual(stack[-1].title, clone.title)
             stack_append(clone)
 
+    def _create_folder_2_delete(self):
+        return Folder.objects.create(user=self.user, title='PDF',
+                                     description='Contains PDF files',
+                                     parent_folder=None,
+                                     category=FolderCategory.objects.all()[0],
+                                     is_deleted=True,
+                                    )
+
     def test_deleteview01(self):
         "No doc inside"
-        folder = Folder.objects.create(user=self.user, title='PDF',
-                                       description='Contains PDF files',
-                                       parent_folder=None,
-                                       category=FolderCategory.objects.all()[0],
-                                      )
-
+        folder = self._create_folder_2_delete()
         response = self.assertPOST200('/creme_core/entity/delete/%s' % folder.pk, follow=True)
         self.assertFalse(Folder.objects.filter(pk=folder.pk).exists())
         self.assertRedirects(response, '/documents/folders')
 
     def test_deleteview02(self):
         "A doc inside protect from deletion"
-        folder = Folder.objects.create(user=self.user, title='PDF',
-                                       description='Contains PDF files',
-                                       parent_folder=None,
-                                       category=FolderCategory.objects.all()[0]
-                                      )
+        folder = self._create_folder_2_delete()
 
         title = 'Boring title'
         self._create_doc(title, folder=folder, description='Boring description too',
@@ -138,7 +138,7 @@ class FolderTestCase(_DocumentsTestCase):
         doc = self.get_object_or_fail(Document, title=title)
         self.assertEqual(folder, doc.folder)
 
-        self.assertPOST200('/creme_core/entity/delete/%s' % folder.pk)
+        self.assertPOST403('/creme_core/entity/delete/%s' % folder.pk)
         self.get_object_or_fail(Folder, pk=folder.pk)
 
     def test_block(self):
@@ -160,6 +160,12 @@ class FolderTestCase(_DocumentsTestCase):
         doc1 = create_doc('Test doc #1', folder)
         doc2 = create_doc('Test doc #2', folder)
         doc3 = create_doc('Test doc #3')
+        doc4 = create_doc('Test doc #4', folder)
+
+        doc4.trash()
+
+        if settings.BLOCK_SIZE < 4:
+            settings.BLOCK_SIZE = 4
 
         content = self.assertGET200(folder.get_absolute_url()).content
         block_start_index = content.find(smart_str('id="%s"' % folder_docs_block.id_))
@@ -175,3 +181,4 @@ class FolderTestCase(_DocumentsTestCase):
         self.assertIn(doc1.title, block_str)
         self.assertIn(doc2.title, block_str)
         self.assertNotIn(doc3.title, block_str)
+        #self.assertNotIn(doc4.title, block_str) TODO (see blocks.py)

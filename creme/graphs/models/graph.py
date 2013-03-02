@@ -66,7 +66,10 @@ class Graph(CremeEntity):
         graph = pgv.AGraph(directed=True)
 
         #NB: "self.roots.all()" causes a strange additional query (retrieving of the base CremeEntity !)....
-        roots = RootNode.objects.filter(graph=self.id).select_related('entity')
+        #roots = RootNode.objects.filter(graph=self.id).select_related('entity')
+        roots = [root for root in RootNode.objects.filter(graph=self.id).select_related('entity')
+                    if not root.entity.is_deleted and root.entity.can_view(user)
+                ]
 
         add_node = graph.add_node
         add_edge = graph.add_edge
@@ -74,20 +77,22 @@ class Graph(CremeEntity):
         #TODO: entity cache ? regroups relations by type ? ...
 
         #CremeEntity.populate_credentials([root.entity for root in roots], user)
-        CremeEntity.populate_real_entities([root.entity for root in roots if root.entity.can_view(user)]) #small optimisation
+        #CremeEntity.populate_real_entities([root.entity for root in roots if root.entity.can_view(user)]) #small optimisation
+        CremeEntity.populate_real_entities([root.entity for root in roots]) #small optimisation
 
         for root in roots:
-            if root.entity.can_view(user):
-                add_node(unicode(root.entity), shape='box')
-                #add_node('filled box',    shape='box', style='filled', color='#FF00FF')
-                #add_node('filled box v2', shape='box', style='filled', fillcolor='#FF0000', color='#0000FF', penwidth='2.0') #default pensize="1.0"
+            #if root.entity.can_view(user):
+                #add_node(unicode(root.entity), shape='box')
+            add_node(unicode(root.entity), shape='box')
+            #add_node('filled box',    shape='box', style='filled', color='#FF00FF')
+            #add_node('filled box v2', shape='box', style='filled', fillcolor='#FF0000', color='#0000FF', penwidth='2.0') #default pensize="1.0"
 
         orbital_nodes = {} #cache
 
         for root in roots:
             subject = root.entity
-            if not subject.can_view(user):
-                continue
+            #if not subject.can_view(user):
+                #continue
 
             str_subject = unicode(subject).encode('utf-8')
             relations   = subject.relations.filter(type__in=root.relation_types.all())\
@@ -139,7 +144,7 @@ class Graph(CremeEntity):
         #TODO: delete old files ???
         try:
             graph.draw(join(dir_path, filename), format='png') #format: pdf svg
-        except IOError, e:
+        except IOError as e:
             raise Graph.GraphException(str(e))
 
         return HttpResponseRedirect('/download_file/upload/graphs/' + filename)
@@ -148,6 +153,7 @@ class Graph(CremeEntity):
         for node in RootNode.objects.filter(graph=source):
             rn = RootNode.objects.create(graph=self, entity=node.entity)
             rn.relation_types = node.relation_types.all()
+
 
 class RootNode(CremeModel):
     graph          = ForeignKey(Graph, related_name='roots')

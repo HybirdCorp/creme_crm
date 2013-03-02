@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -47,7 +47,9 @@ class LastImagesBlock(Block):
     target_apps   = ('media_managers',)
 
     def portal_display(self, context, ct_ids):
-        images = EntityCredentials.filter(context['user'], Image.objects.order_by('created'))[:5] #TODO: make '5' configurable
+        images = EntityCredentials.filter(context['user'],
+                                          Image.objects.filter(is_deleted=False).order_by('created'),
+                                         )[:5] #TODO: make '5' configurable
         return self._render(self.get_block_template_context(context,
                                                             update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
                                                             objects_list=images,

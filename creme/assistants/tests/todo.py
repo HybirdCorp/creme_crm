@@ -51,7 +51,7 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(entity.entity_type_id, todo.entity_content_type_id)
         self.assertLess((datetime.now() - todo.creation_date).seconds, 10)
 
-    def test_edit(self):
+    def test_edit01(self):
         title       = 'Title'
         description = 'Description'
         todo = self._create_todo(title, description)
@@ -71,6 +71,20 @@ class TodoTestCase(AssistantsTestCase):
         todo = self.refresh(todo)
         self.assertEqual(title,       todo.title)
         self.assertEqual(description, todo.description)
+
+    def test_edit02(self):
+        "Entity is deleted"
+        todo = self._create_todo()
+
+        entity = self.entity
+        entity.trash()
+
+        with self.assertNoException():
+            todo = self.refresh(todo)
+            entity2 = todo.creme_entity
+
+        self.assertEqual(entity, entity2)
+        self.assertGET403('/assistants/todo/edit/%s/' % todo.id)
 
     def test_delete01(self):
         "Delete related entity"

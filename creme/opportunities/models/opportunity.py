@@ -177,46 +177,75 @@ class Opportunity(CremeEntity):
     def get_source(self):
         return Organisation.objects.get(relations__object_entity=self.id, relations__type=REL_SUB_EMIT_ORGA)
 
+    #TODO: test
     def get_products(self):
-        return Product.objects.filter(relations__object_entity=self.id, relations__type=REL_SUB_LINKED_PRODUCT)
+        return Product.objects.filter(is_deleted=False,
+                                      relations__object_entity=self.id,
+                                      relations__type=REL_SUB_LINKED_PRODUCT,
+                                     )
 
+    #TODO: test
     def get_services(self):
-        return Service.objects.filter(relations__object_entity=self.id, relations__type=REL_SUB_LINKED_SERVICE)
+        return Service.objects.filter(is_deleted=False,
+                                      relations__object_entity=self.id,
+                                      relations__type=REL_SUB_LINKED_SERVICE,
+                                     )
 
+    #TODO: test
     def get_contacts(self):
-        return Contact.objects.filter(relations__object_entity=self.id, relations__type=REL_SUB_LINKED_CONTACT)
+        return Contact.objects.filter(is_deleted=False,
+                                      relations__object_entity=self.id,
+                                      relations__type=REL_SUB_LINKED_CONTACT,
+                                     )
 
+    #TODO: test
     def get_responsibles(self):
-        return Contact.objects.filter(relations__object_entity=self.id, relations__type=REL_SUB_RESPONSIBLE)
+        return Contact.objects.filter(is_deleted=False,
+                                      relations__object_entity=self.id,
+                                      relations__type=REL_SUB_RESPONSIBLE,
+                                     )
 
+    #TODO: test
     def get_quotes(self):
-            return Quote.objects.filter(relations__object_entity=self.id, relations__type=REL_SUB_LINKED_QUOTE)
+        #TODO: filter deleted ?? what about current quote behaviour ??
+        return Quote.objects.filter(relations__object_entity=self.id,
+                                    relations__type=REL_SUB_LINKED_QUOTE,
+                                   )
 
     def get_current_quote_id(self):
         ct        = ContentType.objects.get_for_model(Quote)
         quote_ids = Relation.objects.filter(object_entity=self.id,
                                             type=REL_SUB_CURRENT_DOC,
-                                            subject_entity__entity_type=ct)\
+                                            subject_entity__entity_type=ct,
+                                           ) \
                                     .values_list('subject_entity_id', flat=True)
 
         if len(quote_ids) > 1:
             error('Several current quotes for opportunity: %s', self)
 
         if quote_ids:
-            current_quote = quote_ids[0]
-        else:
-            return None
+            quote_id = quote_ids[0]
 
-        # TODO When unlink a quote in opp, the current quote relation should be unlink too
-        is_current_quote_linked_to_opp = Relation.objects.filter(object_entity=self.id, type=REL_SUB_LINKED_QUOTE, subject_entity=current_quote).exists()
+            # TODO When unlink a quote in opp, the current quote relation should be unlink too
+            if Relation.objects.filter(object_entity=self.id, type=REL_SUB_LINKED_QUOTE,
+                                       subject_entity=quote_id,
+                                      ) \
+                               .exists():
+                return quote_id
 
-        return current_quote if is_current_quote_linked_to_opp else None
-
+    #TODO: test
     def get_salesorder(self):
-        return SalesOrder.objects.filter(relations__object_entity=self.id, relations__type=REL_SUB_LINKED_SALESORDER)
+        return SalesOrder.objects.filter(is_deleted=False,
+                                         relations__object_entity=self.id,
+                                         relations__type=REL_SUB_LINKED_SALESORDER,
+                                        )
 
+    #TODO: test
     def get_invoices(self):
-        return Invoice.objects.filter(relations__object_entity=self.id, relations__type=REL_SUB_LINKED_INVOICE)
+        return Invoice.objects.filter(is_deleted=False,
+                                      relations__object_entity=self.id,
+                                      relations__type=REL_SUB_LINKED_INVOICE,
+                                     )
 
     @property
     def emitter(self):

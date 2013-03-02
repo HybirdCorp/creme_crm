@@ -320,7 +320,7 @@ class AS_Folder(CremeModel):
         verbose_name_plural = u""
 
     def get_parent(self):
-        if self.parent_id is not None:
+        if self.parent_id is not None: #TODO: WTF ??!
             return None
 
         try:

@@ -81,7 +81,8 @@ class CreditNoteTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(expected_total, invoice.total_no_vat)
         self.assertEqual(expected_total, invoice.total_vat)
 
-    def test_createview02(self): # credit note total > document billing total where the credit note is applied
+    def test_createview02(self):
+        "Credit note total > document billing total where the credit note is applied"
         user = self.user
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
 
@@ -104,6 +105,28 @@ class CreditNoteTestCase(_BillingTestCase, CremeTestCase):
     def test_unlink_from_invoice(self):
         user = self.user
         invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        self.assertEqual([], invoice.get_credit_notes())
+
+        create_line = partial(ProductLine.objects.create, user=user)
+        create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
+        self.assertEqual(Decimal('100'), self.refresh(invoice).total_no_vat)
+
+        credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
+        create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("60"))
+
+        r = Relation.objects.create(object_entity=invoice, subject_entity=credit_note,
+                                    type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user,
+                                   )
+        self.assertEqual(Decimal('40'), self.refresh(invoice).total_no_vat)
+        self.assertEqual([credit_note], self.refresh(invoice).get_credit_notes())
+
+        r.delete()
+        self.assertEqual(Decimal('100'), self.refresh(invoice).total_no_vat)
+        self.assertEqual([], self.refresh(invoice).get_credit_notes())
+
+    def test_trash_linked_to_invoice(self):
+        user = self.user
+        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
 
         create_line = partial(ProductLine.objects.create, user=user)
         create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
@@ -117,8 +140,15 @@ class CreditNoteTestCase(_BillingTestCase, CremeTestCase):
                                    )
         self.assertEqual(Decimal('40'), self.refresh(invoice).total_no_vat)
 
-        r.delete()
+        credit_note.trash()
+        self.assertTrue(self.refresh(credit_note).is_deleted)
+        self.assertEqual([], self.refresh(invoice).get_credit_notes())
         self.assertEqual(Decimal('100'), self.refresh(invoice).total_no_vat)
+
+        credit_note.restore()
+        self.assertFalse(self.refresh(credit_note).is_deleted)
+        self.assertEqual([credit_note], self.refresh(invoice).get_credit_notes())
+        self.assertEqual(Decimal('40'), self.refresh(invoice).total_no_vat)
 
     def test_delete_status01(self):
         status = CreditNoteStatus.objects.create(name='OK')

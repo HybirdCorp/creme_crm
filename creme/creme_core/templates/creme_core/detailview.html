@@ -12,6 +12,8 @@
     </script>
 {% endblock %}
 
+{% block bodyclass %}{% if object.is_deleted %}class="is_deleted"{% endif %}{% endblock %}
+
 {% block before_content_1 %}<div class="detailview">
     <div class="zone_spacer_5px model_buttons">
         <ul class="button_list hbox">
@@ -24,7 +26,8 @@
                 </li>
             {% endif %}
             {% block add_new_button %}
-                {% if path %}{% comment %}REMOVE ?? (see view_entity.html) {% endcomment %}
+                {% comment %} COMMENTED on 22-02-2013
+                {% if path %}
                     <li>
                         <a class="menu_button" href="{{path}}/add">
                             <img src="{% creme_media_url 'images/add_32.png' %}" border="0" title="{% trans "Add" %}" alt="{% trans "Add" %}" />
@@ -32,6 +35,7 @@
                         </a>
                     </li>
                 {% endif %}
+                {% endcomment %}
             {% endblock %}
         </ul>
     </div>
@@ -45,7 +49,7 @@
                 <td width="70%">
                     <h1>
                         {% block title %}
-                            {{object|get_meta_value:"verbose_name"|title}} : {{object|title}}
+                            {{object|get_meta_value:"verbose_name"|title}} : {{object|title}}{% if object.is_deleted %} [{% trans "deleted" %}]{% endif %}
                         {% endblock %}
                     </h1>
                 </td>

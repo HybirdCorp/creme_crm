@@ -2,22 +2,26 @@
 
 from django.conf.urls.defaults import patterns, include
 
-entity_patterns = patterns('creme_core.views', #TODO: move delete* to entity.py
-    (r'^delete/(?P<entity_id>\d+)$',                                    'generic.delete.delete_entity'),
-    (r'^delete_related/(?P<ct_id>\d+)$',                                'generic.delete.delete_related_to_entity'),
-    (r'^get_repr/(?P<entities_ids>([\d]+[,]*)+)$',                      'entity.get_creme_entities_repr'),
-    (r'^json$',                                                         'entity.get_creme_entity_as_json'),
-    (r'^search_n_view$',                                                'entity.search_and_view'),
-    (r'^get_info_fields/(?P<ct_id>\d+)/json$',                          'entity.get_info_fields'),
-    (r'^bulk_update/(?P<ct_id>\d+)/$',                                  'entity.bulk_update'),
-    (r'^edit/(?P<ct_id>\d+)/(?P<id>\d+)/field/(?P<field_str>[\w-]+)$',  'entity.edit_field'),
-    (r'^get_fields$',                                                   'entity.get_fields'),
-    (r'^get_custom_fields$',                                            'entity.get_custom_fields'),
-    (r'^get_function_fields$',                                          'entity.get_function_fields'),
-    (r'^get_widget/(?P<ct_id>\d+)',                                     'entity.get_widget'),
-    (r'^clone',                                                         'entity.clone'),
-    (r'^merge/select_other/(?P<entity1_id>\d+)$',                       'entity.select_entity_for_merge'),
-    (r'^merge/(?P<entity1_id>\d+),(?P<entity2_id>\d+)$',                'entity.merge'),
+entity_patterns = patterns('creme_core.views.entity',
+    (r'^delete/multi$',                                                 'delete_entities'),
+    (r'^delete/(?P<entity_id>\d+)$',                                    'delete_entity'),
+    (r'^delete_related/(?P<ct_id>\d+)$',                                'delete_related_to_entity'),
+    (r'^restore/(?P<entity_id>\d+)$',                                   'restore_entity'),
+    (r'^trash$',                                                        'trash'),
+    (r'^trash/empty$',                                                  'empty_trash'),
+    (r'^get_repr/(?P<entities_ids>([\d]+[,]*)+)$',                      'get_creme_entities_repr'),
+    (r'^json$',                                                         'get_creme_entity_as_json'),
+    (r'^search_n_view$',                                                'search_and_view'),
+    (r'^get_info_fields/(?P<ct_id>\d+)/json$',                          'get_info_fields'),
+    (r'^bulk_update/(?P<ct_id>\d+)/$',                                  'bulk_update'),
+    (r'^edit/(?P<ct_id>\d+)/(?P<id>\d+)/field/(?P<field_str>[\w-]+)$',  'edit_field'),
+    (r'^get_fields$',                                                   'get_fields'),
+    (r'^get_custom_fields$',                                            'get_custom_fields'),
+    (r'^get_function_fields$',                                          'get_function_fields'),
+    (r'^get_widget/(?P<ct_id>\d+)',                                     'get_widget'),
+    (r'^clone',                                                         'clone'),
+    (r'^merge/select_other/(?P<entity1_id>\d+)$',                       'select_entity_for_merge'),
+    (r'^merge/(?P<entity1_id>\d+),(?P<entity2_id>\d+)$',                'merge'),
 )
 
 relation_patterns = patterns('creme_core.views.relation',
@@ -91,8 +95,7 @@ creme_core_patterns = patterns('creme_core.views',
 )
 
 creme_core_patterns += patterns('creme_core.views.generic',
-    (r'^lv_popup/(?P<ct_id>\d+)/(?P<o2m>0|1)$', 'listview.list_view_popup_from_widget'),
-    (r'^delete_js$',                            'delete.delete_entities'), #TODO: change url (entity/delete_multi) ??
+    (r'^lv_popup/(?P<ct_id>\d+)/(?P<o2m>0|1)$', 'listview.list_view_popup_from_widget'), #TODO: change url (list_view/...)
 )
 
 urlpatterns = patterns('creme_core.views',

@@ -137,6 +137,7 @@ class EventsTestCase(CremeTestCase):
         judo     = create_contact(first_name='Judo',     last_name='Miura')
         griffith = create_contact(first_name='Griffith', last_name='Miura')
         rickert  = create_contact(first_name='Rickert',  last_name='Miura')
+        #carcus   = create_contact(first_name='Carcus',   last_name='Miura', is_deleted=True) TODO ??
 
         def create_relation(subject, type_id):
             Relation.objects.create(subject_entity=subject,
@@ -158,6 +159,7 @@ class EventsTestCase(CremeTestCase):
         create_relation(casca,    REL_SUB_CAME_EVENT)
         create_relation(judo,     REL_SUB_CAME_EVENT)
         create_relation(griffith, REL_SUB_CAME_EVENT)
+        #create_relation(carcus,   REL_SUB_CAME_EVENT)
 
         stats = event.get_stats()
         self.assertEqual(4, stats['invations_count'])

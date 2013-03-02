@@ -1,0 +1,12 @@
+{% load i18n %}
+{% load creme_core_tags %}
+{% if object.get_delete_absolute_url %}
+    {% if can_delete %}
+        <a onclick="creme.utils.confirmSubmit(this);">
+            <img src="{% creme_media_url 'images/restore_64.png' %}" title="{% blocktrans %}Restore '{{object}}'{% endblocktrans %}" alt="{% trans "Delete" %}" />
+            <form method="POST" action="/creme_core/entity/restore/{{object.id}}" style="display:none;">{% csrf_token %}</form>
+        </a>
+    {% else %}
+        <img class="forbidden" src="{% creme_media_url 'images/restore_64.png' %}" title="{% blocktrans %}You can't restore '{{object}}'{% endblocktrans %}" alt="{% trans "Can't restore" %}"/>
+    {% endif %}
+{% endif %}

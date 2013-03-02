@@ -154,9 +154,10 @@ class MailingListsTestCase(_EmailsTestCase):
         create = partial(Contact.objects.create, user=self.user)
         create(first_name='Spike', last_name='Spiegel', email='spike.spiegel@bebop.com'),
         create(first_name='Jet',   last_name='Black',   email='jet.black@bebop.com'),
+        create(first_name='Ed',    last_name='Wong',    email='ed.wong@bebop.com', is_deleted=True),
         self.assertNoFormError(self.client.post(url, data={}))
 
-        contacts = set(Contact.objects.all())
+        contacts = set(Contact.objects.filter(is_deleted=False))
         self.assertGreaterEqual(len(contacts), 2)
         self.assertEqual(contacts, set(mlist.contacts.all()))
 
