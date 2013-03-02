@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,18 +24,12 @@ from creme_core.models import CremeEntity
 from creme_core.gui.last_viewed import LastViewedItem
 
 
-#COMNENTED on 19 December
-#def view_entity(request, entity_id, model):
-    #entity = get_object_or_404(model, pk=entity_id)
-    #entity.can_view_or_die(request.user)
-
-    #LastViewedItem(request, entity)
-
-    #return entity
-
 #TODO: remove 'path' arg (use get_edit_absolute_url() etc...) ??
-def view_entity(request, object_id, model, path, template='creme_core/generics/view_entity.html', extra_template_dict=None):
+def view_entity(request, object_id, model, path,
+                template='creme_core/generics/view_entity.html',
+                extra_template_dict=None):
     entity = get_object_or_404(model, pk=object_id)
+    #entity = get_object_or_404(model.objects.even_deleted(), pk=object_id)
     entity.can_view_or_die(request.user)
 
     LastViewedItem(request, entity)
@@ -46,17 +40,9 @@ def view_entity(request, object_id, model, path, template='creme_core/generics/v
 
     return render(request, template, template_dict)
 
-#COMNENTED on 19 December
-#def view_real_entity(request, object_id):
-    #entity = get_object_or_404(CremeEntity, pk=object_id).get_real_entity()
-    #entity.can_view_or_die(request.user)
-
-    #LastViewedItem(request, entity)
-
-    #return entity
-
 def view_real_entity(request, object_id, path, template='creme_core/generics/view_entity.html'):
     entity = get_object_or_404(CremeEntity, pk=object_id).get_real_entity()
+    #entity = get_object_or_404(CremeEntity.objects.even_deleted(), pk=object_id).get_real_entity()
     entity.can_view_or_die(request.user)
 
     LastViewedItem(request, entity)

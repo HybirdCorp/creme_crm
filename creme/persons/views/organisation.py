@@ -29,6 +29,7 @@ from persons.models import Organisation
 from persons.forms.organisation import OrganisationForm
 from persons.constants import REL_SUB_SUSPECT, REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
 
+
 @login_required
 @permission_required('persons')
 @permission_required('persons.add_organisation')
@@ -58,4 +59,6 @@ def list_my_leads_my_customers(request):
     return list_view(request, Organisation, hf_pk='persons-hf_leadcustomer',
                      extra_dict={'list_title': _(u'List of my suspects / prospects / customers')},
                      extra_q=Q(relations__type__in=[REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT, REL_SUB_SUSPECT],
-                               relations__object_entity__properties__type=PROP_IS_MANAGED_BY_CREME))
+                               relations__object_entity__properties__type=PROP_IS_MANAGED_BY_CREME,
+                              )
+                    )

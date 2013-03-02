@@ -148,6 +148,16 @@ class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
         assertPostStatus(404, pi_sega)
         assertPostStatus(200, pi_sony)
 
+    def test_set_default_in_invoice03(self):
+        "Trashed organisation"
+        invoice, sony_source = self.create_invoice_n_orgas('Playstations')[:2]
+        pi_sony = PaymentInformation.objects.create(organisation=sony_source, name='RIB sony')
+
+        sony_source.trash()
+
+        self.assertPOST403('/billing/payment_information/set_default/%s/%s' % (pi_sony.id, invoice.id))
+        self.assertNotEqual(pi_sony, self.refresh(invoice).payment_info)
+
     def test_set_null_in_invoice01(self):
         sega = Organisation.objects.create(user=self.user, name=u"Sega")
         invoice, sony_source, nintendo_target = self.create_invoice_n_orgas('Playstations')

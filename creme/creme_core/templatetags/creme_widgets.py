@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,6 +41,13 @@ def get_delete_button(context, entity, user):
            })
     return context
 
+@register.inclusion_tag('creme_core/templatetags/widgets/restore_button.html', takes_context=True)
+def get_restore_button(context, entity, user): #TODO: factorise
+    context.update({
+            'can_delete': entity.can_delete(user),
+           })
+    return context
+
 @register.inclusion_tag('creme_core/templatetags/widgets/edit_button.html', takes_context=True)
 def get_edit_button(context, entity, user):
     context.update({
@@ -66,10 +73,14 @@ def get_entity_actions(context, entity):
     return context
 
 @register.simple_tag
-def widget_entity_hyperlink(entity, user): #TODO: takes_context for user ???
-    """{% widget_entity_hyperlink my_entity user %}"""
+def widget_entity_hyperlink(entity, user, ignore_deleted=False): #TODO: takes_context for user ???
+    "{% widget_entity_hyperlink my_entity user %}"
     if entity.can_view(user):
-        return u'<a href="%s">%s</a>' % (entity.get_absolute_url(), escape(entity))
+        return u'<a href="%s"%s>%s</a>' % (
+                        entity.get_absolute_url(),
+                        ' class="is_deleted"' if entity.is_deleted and not ignore_deleted else '',
+                        escape(entity)
+                    )
 
     return entity.allowed_unicode(user)
 

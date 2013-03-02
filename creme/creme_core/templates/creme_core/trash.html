@@ -1,0 +1,22 @@
+{% extends "creme_core/base.html" %}
+{% load i18n %}
+{% load creme_block creme_core_tags %}
+
+{% block page_title %} - {% trans "Trash" %}{% endblock %}{% comment %}TODO trans as ... django 1.4 {% endcomment %}
+
+{% block content %}
+    {% block view_title %}
+        <table class="table_header" cellpadding="0" cellspacing="0">
+            <tr>
+                <td width="5%"><img src="{% creme_media_url 'images/delete_64.png' %}" border="0" title="{% trans "Trash" %}" alt="{% trans "Trash" %}" /></td>
+                <td width="95%"><h1>{% trans "Trash" %}</h1></td>
+            </tr>
+        </table>
+    {% endblock %}
+
+    <div class=zone_spacer_5px></div>
+
+    {% import_block from_app 'creme_core' named 'trash' as 'trash_block' %}
+    {% display_block_detailview 'trash_block' %}
+    {% get_blocks_dependencies %}
+{% endblock %}

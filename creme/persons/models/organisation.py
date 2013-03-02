@@ -97,14 +97,22 @@ class Organisation(CremeEntity):
         return "/persons/organisations"
 
     def get_managers(self):
-        return Contact.objects.filter(relations__type=REL_SUB_MANAGES, relations__object_entity=self.id)
+        return Contact.objects.filter(is_deleted=False,
+                                      relations__type=REL_SUB_MANAGES,
+                                      relations__object_entity=self.id,
+                                     )
 
     def get_employees(self):
-        return Contact.objects.filter(relations__type=REL_SUB_EMPLOYED_BY, relations__object_entity=self.id)
+        return Contact.objects.filter(is_deleted=False,
+                                      relations__type=REL_SUB_EMPLOYED_BY,
+                                      relations__object_entity=self.id,
+                                     )
 
     @staticmethod
     def get_all_managed_by_creme():
-        return Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)
+        return Organisation.objects.filter(is_deleted=False,
+                                           properties__type=PROP_IS_MANAGED_BY_CREME,
+                                          )
 
     #TODO: factorise with Contact (move in a base abstract class ?)
     def _post_save_clone(self, source):

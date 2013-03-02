@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -107,15 +107,23 @@ class NeglectedOrganisationsBlock(PaginatedBlock):
     template_name = 'persons/templatetags/block_neglected_orgas.html'
     target_apps   = ('persons',)
 
+    _RTYPE_IDS_CUSTOMERS = (REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT)
+    _RTYPE_IDS_ORGA_N_ACT = (REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
+    _RTYPE_IDS_EMPLOYEES = (REL_SUB_MANAGES, REL_SUB_EMPLOYED_BY)
+    _RTYPE_IDS_CONTACT_N_ACT = (REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
+
     def _get_neglected(self, now):
         user_contacts     = Contact.objects.filter(is_user__isnull=False).values_list('id', flat=True)
         future_activities = list(Activity.objects.filter(start__gte=now,
                                                          relations__type=REL_OBJ_PART_2_ACTIVITY,
-                                                         relations__object_entity__in=user_contacts) \
+                                                         relations__object_entity__in=user_contacts,
+                                                        )
                                                  .values_list('id', flat=True)
                                 )
-        neglected_orgas_qs = Organisation.objects.filter(relations__type__in=(REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT),
-                                                         relations__object_entity__in=Organisation.get_all_managed_by_creme()) \
+        neglected_orgas_qs = Organisation.objects.filter(is_deleted=False,
+                                                         relations__type__in=self._RTYPE_IDS_CUSTOMERS,
+                                                         relations__object_entity__in=Organisation.get_all_managed_by_creme(),
+                                                        ) \
                                                  .exclude(relations__type=REL_SUB_INACTIVE) \
                                                  .distinct()
 
@@ -123,16 +131,17 @@ class NeglectedOrganisationsBlock(PaginatedBlock):
             return neglected_orgas_qs #no need to rerieve it & transform into a list (good idea ??)
 
         neglected_orgas = list(neglected_orgas_qs.exclude(relations__object_entity__in=future_activities,
-                                                          relations__type__in=(REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
+                                                          relations__type__in=self._RTYPE_IDS_ORGA_N_ACT,
                                                          )
                               )
 
         if neglected_orgas:
-            linked_people_map = dict(Relation.objects.filter(type__in=(REL_SUB_MANAGES, REL_SUB_EMPLOYED_BY),
-                                                             object_entity__in=[o.id for o in neglected_orgas]) \
+            linked_people_map = dict(Relation.objects.filter(type__in=self._RTYPE_IDS_EMPLOYEES,
+                                                             object_entity__in=[o.id for o in neglected_orgas],
+                                                            )
                                                      .values_list('subject_entity_id', 'object_entity_id')
                                     )
-            activity_links = Relation.objects.filter(type__in=(REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY),
+            activity_links = Relation.objects.filter(type__in=self._RTYPE_IDS_CONTACT_N_ACT,
                                                      subject_entity__in=linked_people_map.keys(),
                                                      object_entity__in=future_activities,
                                                     )
@@ -178,7 +187,8 @@ class AddressBlock(Block):
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, context['object'].pk),
                                                             field_names=_ADDRESS_FIELD_NAMES,
                                                             address_model=Address, #for fields' verbose name
-                                                           ))
+                                                           )
+                           )
 
 
 class OtherAddressBlock(QuerysetBlock):
@@ -189,16 +199,20 @@ class OtherAddressBlock(QuerysetBlock):
     target_ctypes = (Contact, Organisation)
     page_size     = 1
 
+    _ADDRESS_CT_ID = ContentType.objects.get_for_model(Address).id
+
     def detailview_display(self, context):
         person = context['object']
         excluded_addresses_pk = filter(None, [person.billing_address_id, person.shipping_address_id])
 
         return self._render(self.get_block_template_context(context,
-                                                            Address.objects.filter(object_id=person.id).exclude(pk__in=excluded_addresses_pk),
+                                                            Address.objects.filter(object_id=person.id)
+                                                                           .exclude(pk__in=excluded_addresses_pk),
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, person.pk),
                                                             field_names=_ADDRESS_FIELD_NAMES,
-                                                            ct_id=ContentType.objects.get_for_model(Address).id,
-                                                           ))
+                                                            ct_id=self._ADDRESS_CT_ID,
+                                                           )
+                           )
 
 
 contact_coord_block   = ContactCoordinatesBlock()

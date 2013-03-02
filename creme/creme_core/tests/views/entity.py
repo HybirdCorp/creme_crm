@@ -11,11 +11,12 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.conf import settings
 
+    from creme_core.tests.views.base import ViewsTestCase
     from creme_core.auth.entity_credentials import EntityCredentials
     from creme_core.models import *
     from creme_core.forms.base import _CUSTOM_NAME
     from creme_core.gui.bulk_update import bulk_update_registry
-    from creme_core.tests.views.base import ViewsTestCase
+    from creme_core.blocks import trash_block
 
     from media_managers.models.image import Image
 
@@ -29,7 +30,8 @@ __all__ = ('EntityViewsTestCase', 'BulkEditTestCase', 'InnerEditTestCase')
 
 class EntityViewsTestCase(ViewsTestCase):
     CLONE_URL        = '/creme_core/entity/clone'
-    DEL_ENTITIES_URL = '/creme_core/delete_js'
+    DEL_ENTITIES_URL = '/creme_core/entity/delete/multi'
+    EMPTY_TRASH_URL  = '/creme_core/entity/trash/empty'
     SEARCHNVIEW_URL  = '/creme_core/entity/search_n_view'
 
     @classmethod
@@ -38,6 +40,9 @@ class EntityViewsTestCase(ViewsTestCase):
 
     def _build_delete_url(self, entity):
         return '/creme_core/entity/delete/%s' % entity.id
+
+    def _build_restore_url(self, entity):
+        return '/creme_core/entity/restore/%s' % entity.id
 
     def test_get_fields(self):
         self.login()
@@ -188,16 +193,50 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertEqual('Creme entity: %s' % entity.id, json_data[0]['text'])
 
     def test_delete_entity01(self):
+        "is_deleted=False -> trash"
         self.login()
 
-        entity = Organisation.objects.create(user=self.user, name='Nerv') #to get a get_lv_absolute_url() method
+        entity = Organisation.objects.create(user=self.user, name='Nerv')
+        self.assertTrue(hasattr(entity, 'is_deleted'))
+        self.assertIs(entity.is_deleted, False)
+        self.assertGET200(entity.get_edit_absolute_url())
+
+        absolute_url = entity.get_absolute_url()
+        edit_url = entity.get_edit_absolute_url()
+
+        response = self.assertGET200(absolute_url)
+        self.assertContains(response, unicode(entity))
+        self.assertContains(response, edit_url)
+
+        url = self._build_delete_url(entity)
+        self.assertGET404(url)
+        self.assertRedirects(self.client.post(url), entity.get_lv_absolute_url())
+
+        with self.assertNoException():
+            entity = self.refresh(entity)
+
+        self.assertIs(entity.is_deleted, True)
+
+        self.assertGET403(edit_url)
+
+        response = self.assertGET200(absolute_url)
+        self.assertContains(response, unicode(entity))
+        self.assertNotContains(response, edit_url)
+
+    def test_delete_entity02(self):
+        "is_deleted=True -> real deletion"
+        self.login()
+
+        #to get a get_lv_absolute_url() method
+        entity = Organisation.objects.create(user=self.user, name='Nerv', is_deleted=True)
 
         url = self._build_delete_url(entity)
         self.assertGET404(url)
         self.assertRedirects(self.client.post(url), entity.get_lv_absolute_url())
         self.assertFalse(Organisation.objects.filter(pk=entity.id))
 
-    def test_delete_entity02(self):
+    def test_delete_entity03(self):
+        "No DELETE credentials"
         self.login(is_superuser=False)
 
         entity = Organisation.objects.create(user=self.other_user, name='Nerv')
@@ -205,10 +244,11 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertPOST403(self._build_delete_url(entity))
         self.get_object_or_fail(Organisation, pk=entity.id)
 
-    def test_delete_entity03(self):
+    def test_delete_entity04(self):#TODO: detect dependencies when trashing ??
+        "Dependencies problem"
         self.login()
 
-        create_orga = partial(Organisation.objects.create, user=self.other_user)
+        create_orga = partial(Organisation.objects.create, user=self.other_user, is_deleted=True)
         entity01 = create_orga(name='Nerv')
         entity02 = create_orga(name='Seele')
 
@@ -217,32 +257,55 @@ class EntityViewsTestCase(ViewsTestCase):
                                            )
         Relation.objects.create(user=self.user, type=rtype, subject_entity=entity01, object_entity=entity02)
 
-        response = self.assertPOST200(self._build_delete_url(entity01))
+        response = self.assertPOST403(self._build_delete_url(entity01))
         self.assertTemplateUsed(response, 'creme_core/forbidden.html')
         self.assertEqual(2, Organisation.objects.filter(pk__in=[entity01.id, entity02.id]).count())
 
+    def test_delete_entity05(self):
+        "is_deleted=False -> trash"
+        self.login()
+
+        entity = Organisation.objects.create(user=self.user, name='Nerv')
+        self.assertPOST200(self._build_delete_url(entity), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        with self.assertNoException():
+            entity = self.refresh(entity)
+
+        self.assertIs(entity.is_deleted, True)
+
     def test_delete_entities01(self):
+        "NB: for the deletion of auxiliary entities => see billing app"
         self.login()
 
         create_entity = partial(CremeEntity.objects.create, user=self.user)
-        entity01, entity02, entity03 = (create_entity() for i in xrange(3))
+        entity01, entity02 = (create_entity() for i in xrange(2))
+        entity03, entity04 = (create_entity(is_deleted=True) for i in xrange(2))
 
         self.assertPOST200(self.DEL_ENTITIES_URL,
-                           data={'ids': '%s,%s,' % (entity01.id, entity02.id)}
+                           data={'ids': '%s,%s,%s' % (entity01.id, entity02.id, entity03.id)}
                           )
-        self.assertFalse(CremeEntity.objects.filter(pk__in=[entity01.id, entity02.id]))
-        self.get_object_or_fail(CremeEntity, pk=entity03.id)
+        entity01 = self.get_object_or_fail(CremeEntity, pk=entity01.id)
+        self.assertTrue(entity01.is_deleted)
+
+        entity02 = self.get_object_or_fail(CremeEntity, pk=entity02.id)
+        self.assertTrue(entity02.is_deleted)
+
+        self.assertFalse(CremeEntity.objects.filter(pk=entity03.id).exists())
+        self.assertTrue(CremeEntity.objects.filter(pk=entity04.id).exists())
 
     def test_delete_entities02(self):
         self.login()
 
-        entity01 = CremeEntity.objects.create(user=self.user)
-        entity02 = CremeEntity.objects.create(user=self.user)
+        create_entity = partial(CremeEntity.objects.create, user=self.user)
+        entity01, entity02 = (create_entity() for i in xrange(2))
 
         self.assertPOST404(self.DEL_ENTITIES_URL,
                            data={'ids': '%s,%s,' % (entity01.id, entity02.id + 1)}
                           )
-        self.assertFalse(CremeEntity.objects.filter(pk=entity01.id))
+        #self.assertFalse(CremeEntity.objects.filter(pk=entity01.id))
+        entity01 = self.get_object_or_fail(CremeEntity, pk=entity01.id)
+        self.assertTrue(entity01.is_deleted)
+
         self.get_object_or_fail(CremeEntity, pk=entity02.id)
 
     def test_delete_entities03(self):
@@ -252,26 +315,113 @@ class EntityViewsTestCase(ViewsTestCase):
         allowed   = CremeEntity.objects.create(user=self.user)
 
         self.assertPOST403(self.DEL_ENTITIES_URL, data={'ids': '%s,%s,' % (forbidden.id, allowed.id)})
-        self.assertFalse(CremeEntity.objects.filter(pk=allowed.id))
+        #self.assertFalse(CremeEntity.objects.filter(pk=allowed.id))
+        allowed = self.get_object_or_fail(CremeEntity, pk=allowed.id)
+        self.assertTrue(allowed.is_deleted)
+
         self.get_object_or_fail(CremeEntity, pk=forbidden.id)
 
-    def test_delete_entities04(self):
+    #TODO ??
+    #def test_delete_entities04(self):
+        #self.login()
+
+        #create_entity = partial(CremeEntity.objects.create, user=self.user)
+        #entity01 = create_entity()
+        #entity02 = create_entity()
+        #entity03 = create_entity() #not linked => can be deleted
+
+        #rtype, srtype = RelationType.create(('test-subject_linked', 'is linked to'),
+                                            #('test-object_linked',  'is linked to')
+                                           #)
+        #Relation.objects.create(user=self.user, type=rtype, subject_entity=entity01, object_entity=entity02)
+
+        #self.assertPOST(400, self.DEL_ENTITIES_URL,
+                        #data={'ids': '%s,%s,%s,' % (entity01.id, entity02.id, entity03.id)}
+                       #)
+        #self.assertEqual(2, CremeEntity.objects.filter(pk__in=[entity01.id, entity02.id]).count())
+        #self.assertFalse(CremeEntity.objects.filter(pk=entity03.id))
+
+    def test_trash_view(self):
         self.login()
 
-        entity01 = CremeEntity.objects.create(user=self.user)
-        entity02 = CremeEntity.objects.create(user=self.user)
-        entity03 = CremeEntity.objects.create(user=self.user) #not linked => can be deleted
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        entity1 = create_orga(name='Nerv', is_deleted=True)
+        entity2 = create_orga(name='Seele')
+
+        response = self.assertGET200('/creme_core/entity/trash')
+        self.assertTemplateUsed(response, 'creme_core/trash.html')
+        self.assertContains(response, 'id="%s"' % trash_block.id_)
+        self.assertContains(response, unicode(entity1))
+        self.assertNotContains(response, unicode(entity2))
+
+    def test_restore_entity01(self):
+        "No trashed"
+        self.login()
+
+        entity = Organisation.objects.create(user=self.user, name='Nerv')
+        url = self._build_restore_url(entity)
+        self.assertGET404(url)
+        self.assertPOST404(url)
+
+    def test_restore_entity02(self):
+        self.login()
+
+        entity = Organisation.objects.create(user=self.user, name='Nerv', is_deleted=True)
+        url = self._build_restore_url(entity)
+
+        self.assertGET404(url)
+        self.assertRedirects(self.client.post(url), entity.get_absolute_url())
+
+        entity = self.get_object_or_fail(Organisation, pk=entity.pk)
+        self.assertFalse(entity.is_deleted)
+
+    def test_restore_entity03(self):
+        self.login()
+
+        entity = Organisation.objects.create(user=self.user, name='Nerv', is_deleted=True)
+        self.assertPOST200(self._build_restore_url(entity), HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+
+        entity = self.get_object_or_fail(Organisation, pk=entity.pk)
+        self.assertFalse(entity.is_deleted)
+
+    def test_empty_trash01(self):
+        self.login(is_superuser=False, allowed_apps=('creme_core', 'persons'))
+
+        user = self.user
+        create_contact = partial(Contact.objects.create, user=user, is_deleted=True)
+        contact1 = create_contact(first_name='Lawrence', last_name='Kraft')
+        contact2 = create_contact(first_name='Holo',     last_name='Wolf')
+        contact3 = create_contact(first_name='Nora',     last_name='Alend', user=self.other_user)
+
+        self.assertTrue(contact1.can_delete(user))
+        self.assertFalse(contact3.can_delete(user))
+
+        url = self.EMPTY_TRASH_URL
+        self.assertGET404(url)
+        self.assertPOST200(url)
+        #self.assertFalse(Contact.objects.filter(id__in=[contact1.id, contact2.id, contact3.id]))
+        #self.assertEqual([contact3], list(Contact.objects.only_deleted()))
+        #self.assertEqual([contact3], list(Contact.objects.even_deleted()))
+        #self.assertEqual([contact3], list(Contact.objects.all()))
+        self.assertFalse(Contact.objects.filter(id__in=[contact1.id, contact2.id]))
+        self.get_object_or_fail(Contact, pk=contact3.pk)
+
+    def test_empty_trash02(self):
+        self.login()
+
+        create_entity = partial(CremeEntity.objects.create, user=self.user, is_deleted=True)
+        entity01 = create_entity()
+        entity02 = create_entity()
+        entity03 = create_entity() #not linked => can be deleted
 
         rtype, srtype = RelationType.create(('test-subject_linked', 'is linked to'),
                                             ('test-object_linked',  'is linked to')
                                            )
         Relation.objects.create(user=self.user, type=rtype, subject_entity=entity01, object_entity=entity02)
 
-        self.assertPOST(400, self.DEL_ENTITIES_URL,
-                        data={'ids': '%s,%s,%s,' % (entity01.id, entity02.id, entity03.id)}
-                       )
-        self.assertEqual(2,   CremeEntity.objects.filter(pk__in=[entity01.id, entity02.id]).count())
-        self.assertEqual(0,   CremeEntity.objects.filter(pk=entity03.id).count())
+        self.assertPOST(400, self.EMPTY_TRASH_URL)
+        self.assertEqual(2, CremeEntity.objects.filter(pk__in=[entity01.id, entity02.id]).count())
+        self.assertFalse(CremeEntity.objects.filter(pk=entity03.id))
 
     def test_get_info_fields01(self):
         self.login()
@@ -584,17 +734,21 @@ class BulkEditTestCase(_BulkEditTestCase):
     def test_regular_field05(self):
         self.login()
 
-        bulk_update_registry.register((Contact, ['position', ]))
+        fname = 'position'
+        bulk_update_registry.register((Contact, [fname, ]))
 
         unemployed = Position.objects.create(title='unemployed')
         mario, luigi, url = self.create_2_contacts_n_url()
-        response = self.client.post(url, data={'field_name':   'position',
+        response = self.client.post(url, data={'field_name':   fname,
                                                'field_value':  unemployed.id,
                                                'entities_lbl': 'whatever',
                                               }
                                    )
         self.assertFormError(response, 'form', 'field_name',
-                            [_(u'Select a valid choice. %s is not one of the available choices.') % 'position']
+                            [_(u'Select a valid choice. %(value)s is not one of the available choices.') % {
+                                        'value': fname,
+                                    }
+                            ]
                            )
 
     def test_regular_field06(self):

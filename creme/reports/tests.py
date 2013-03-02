@@ -90,9 +90,6 @@ class ReportsTestCase(CremeTestCase):
 
         return report
 
-    def create_simple_contact(self):
-        return Contact.objects.create(user=self.user)
-
     def get_field_or_fail(self, report, field_name):
         try:
             return report.columns.get(name=field_name)
@@ -285,12 +282,17 @@ class ReportsTestCase(CremeTestCase):
         self.assertEqual(1, report.columns.count())
 
     def test_report_fetch01(self):
-        for i in xrange(10):
-            self.create_simple_contact()
+        create_contact = partial(Contact.objects.create, user=self.user)
+        for i in xrange(5):
+            create_contact(last_name='Mister %s' % i)
+
+        create_contact(last_name='Mister X', is_deleted=True)
 
         report = self.create_simple_report("Contacts report")
 
-        self.assertEqual(set(str(cid) for cid in Contact.objects.values_list('id', flat=True)),
+        self.assertEqual(set(str(cid) for cid in Contact.objects.filter(is_deleted=False)
+                                                                .values_list('id', flat=True)
+                            ),
                          set(chain.from_iterable(report.fetch()))
                         )
 

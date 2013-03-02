@@ -16,6 +16,7 @@ __all__ = ('CremeWidgetsTagsTestCase',)
 
 class CremeWidgetsTagsTestCase(CremeTestCase):
     def test_widget_entity_hyperlink01(self):
+        "Escaping"
         self.login()
 
         user = self.user
@@ -26,9 +27,14 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             tpl = Template(r'{% load creme_widgets %}{% widget_entity_hyperlink my_entity user %}')
             render = tpl.render(Context({'user': user, 'my_entity': orga}))
 
-        self.assertEqual(render, u'<a href="/persons/organisation/%s">%s</a>' % (orga.id, name + '&lt;br/&gt;'))
+        self.assertEqual(render,
+                         u'<a href="/persons/organisation/%s">%s</a>' % (
+                                orga.id, name + '&lt;br/&gt;'
+                            )
+                        )
 
-    def test_widget_entity_hyperlink02(self): #credentials
+    def test_widget_entity_hyperlink02(self):
+        "Credentials"
         self.login(is_superuser=False)
 
         user = self.user
@@ -40,5 +46,22 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render = tpl.render(Context({'user': user, 'orga': orga}))
 
         self.assertEqual(render, _(u'Entity #%s (not viewable)') % orga.id)
+
+    def test_widget_entity_hyperlink03(self):
+        "Is deleted"
+        self.login()
+
+        user = self.user
+        orga = Organisation.objects.create(user=user, name='Seele', is_deleted=True)
+
+        with self.assertNoException():
+            tpl = Template(r'{% load creme_widgets %}{% widget_entity_hyperlink my_entity user %}')
+            render = tpl.render(Context({'user': user, 'my_entity': orga}))
+
+        self.assertEqual(render, 
+                         u'<a href="/persons/organisation/%s" class="is_deleted">%s</a>' % (
+                                orga.id, unicode(orga)
+                            )
+                        )
 
     #TODO: complete

@@ -21,6 +21,9 @@
 from django.db.models import ForeignKey, PROTECT
 from django.utils.translation import ugettext_lazy as _
 
+from creme_core.models import Relation
+
+from billing.constants import REL_SUB_CREDIT_NOTE_APPLIED
 from base import Base
 from other_models import CreditNoteStatus
 
@@ -32,6 +35,11 @@ class CreditNote(Base):
     #excluded_fields_in_html_output = Base.excluded_fields_in_html_output + ['base_ptr']
     #header_filter_exclude_fields = Base.header_filter_exclude_fields + ['base_ptr'] #todo: use a set() ??
     creation_label = _('Add a credit note')
+
+    class Meta:
+        app_label = 'billing'
+        verbose_name = _(u'Credit note')
+        verbose_name_plural = _(u'Credit notes')
 
     def get_absolute_url(self):
         return "/billing/credit_note/%s" % self.id
@@ -49,7 +57,21 @@ class CreditNote(Base):
         self.status = CreditNoteStatus.objects.get(pk = template.status_id)
         return super(CreditNote, self).build(template)
 
-    class Meta:
-        app_label = 'billing'
-        verbose_name = _(u'Credit note')
-        verbose_name_plural = _(u'Credit notes')
+    def _update_linked_docs(self):
+        #TODO: factorise (Relation.get_real_objects() ??)
+        relations = Relation.objects.filter(subject_entity=self.id,
+                                            type=REL_SUB_CREDIT_NOTE_APPLIED,
+                                           ) \
+                                    .select_related('object_entity')
+        Relation.populate_real_object_entities(relations)
+
+        for rel in relations:
+            rel.object_entity.get_real_entity().save()
+
+    def restore(self):
+        super(CreditNote, self).restore()
+        self._update_linked_docs()
+
+    def trash(self):
+        super(CreditNote, self).trash()
+        self._update_linked_docs()

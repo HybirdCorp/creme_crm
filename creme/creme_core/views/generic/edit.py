@@ -61,7 +61,7 @@ def edit_related_to_entity(request, pk, model, form_class, title_format):
 
         if edit_form.is_valid():
             edit_form.save()
-    else: # return page on GET request
+    else: #return page on GET request
         edit_form = form_class(entity=entity, user=user, instance=auxiliary)
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
@@ -92,7 +92,7 @@ def edit_model_with_popup(request, query_dict, model, form_class,
 
         if edit_form.is_valid():
             edit_form.save()
-    else: # return page on GET request
+    else: #return page on GET request
         edit_form = form_class(user=request.user, instance=instance)
 
     title_format = title_format or _(u'Edit <%s>')

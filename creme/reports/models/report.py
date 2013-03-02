@@ -67,7 +67,7 @@ class Field(CremeModel):
     class Meta:
         app_label = 'reports'
         verbose_name = _(u'Column of report')
-        verbose_name_plural  = _(u'Columns of report')
+        verbose_name_plural = _(u'Columns of report')
         ordering = ['order']
 
     def __unicode__(self):
@@ -350,7 +350,7 @@ class Report(CremeEntity):
     class Meta:
         app_label = 'reports'
         verbose_name = _(u'Report')
-        verbose_name_plural  = _(u'Reports')
+        verbose_name_plural = _(u'Reports')
         ordering = ['name']
 
     def __unicode__(self):
@@ -380,16 +380,16 @@ class Report(CremeEntity):
 
     def fetch(self, limit_to=None, extra_q=None, user=None):
         lines   = []
-        ct    = self.ct
-        model = ct.model_class()
-        model_manager = model.objects
+        model = self.ct.model_class() #TODO: used once
+        #model_manager = model.objects
         columns = self.get_children_fields_with_hierarchy()
 
-        #if self.filter is not None:
-            #entities = model_manager.filter(self.filter.get_q())
-        #else:
-            #entities = model_manager.all()
-        entities = model_manager.all()
+        ##if self.filter is not None:
+            ##entities = model_manager.filter(self.filter.get_q())
+        ##else:
+            ##entities = model_manager.all()
+        #entities = model_manager.all()
+        entities = model.objects.filter(is_deleted=False)
 
         if self.filter is not None:
             entities = self.filter.filter(entities)

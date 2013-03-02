@@ -96,8 +96,10 @@ class Act(CremeEntity):
         relopps = self._related_opportunities
 
         if relopps is None:
-            relopps = list(Opportunity.objects.filter(relations__type=REL_SUB_COMPLETE_GOAL,
-                                                      relations__object_entity=self.id)
+            relopps = list(Opportunity.objects.filter(is_deleted=False,
+                                                      relations__type=REL_SUB_COMPLETE_GOAL,
+                                                      relations__object_entity=self.id,
+                                                     )
                           )
             self._related_opportunities = relopps
 
@@ -139,7 +141,9 @@ class ActObjective(CremeModel):
             self._count_cache =  self.counter if not self.ctype else \
                                  Relation.objects.filter(type=REL_SUB_COMPLETE_GOAL,
                                                          object_entity=self.act_id,
-                                                         subject_entity__entity_type=self.ctype_id) \
+                                                         subject_entity__is_deleted=False,
+                                                         subject_entity__entity_type=self.ctype_id,
+                                                        ) \
                                                  .count()
 
         return self._count_cache

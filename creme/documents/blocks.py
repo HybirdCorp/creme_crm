@@ -44,6 +44,7 @@ class FolderDocsBlock(QuerysetBlock):
         q_dict = {'folder':  folder.id}
         btc = self.get_block_template_context(context,
                                               Document.objects.filter(**q_dict),
+                                              #Document.objects.filter(is_deleted=False, **q_dict), TODO: problem deleted docs avoid folder deletion...
                                               update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, folder.id),
                                               ct_id=_CT_DOC.id,
                                               q_filter=JSONEncoder().encode(q_dict),

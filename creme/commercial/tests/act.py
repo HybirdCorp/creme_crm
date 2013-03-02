@@ -367,6 +367,9 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(2, objective.get_count())
         self.assertTrue(objective.reached)
 
+        orga02.trash()
+        self.assertEqual(1, self.refresh(objective).get_count())
+
     def test_related_opportunities(self):
         RelationType.objects.get(pk=REL_SUB_COMPLETE_GOAL) #raise exception if error
 
@@ -406,6 +409,9 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(2, len(opps))
         self.assertEqual(set([opp01, opp02]), set(opps))
         self.assertEqual(2000, self.refresh(act).get_made_sales())
+
+        opp01.trash()
+        self.assertEqual([opp02], self.refresh(act).get_related_opportunities())
 
     def test_delete_type(self):
         act = self.create_act()

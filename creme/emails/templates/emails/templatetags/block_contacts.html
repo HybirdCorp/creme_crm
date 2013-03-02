@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load creme_core_tags creme_block %}
+{% load creme_core_tags creme_block creme_widgets %}
 {% has_perm_to change object as edit_perm %}
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=2 %}
@@ -19,18 +19,9 @@
             </tr>
             {% for contact in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
-                    <td class="{{row_color}}">
-                        {% has_perm_to view contact as contact_perm %}
-                        {% if contact_perm %}
-                            <a href="{{contact.get_absolute_url}}">{{contact}}</a>&nbsp;:&nbsp;
-                                {% if contact.email %}
-                                    {{contact.email}}
-                                {% else %}
-                                    {% trans 'no email address' %}
-                                {% endif %}
-                        {% else %}
-                            {{contact|allowed_unicode:user}}
-                        {% endif %}
+                    <td class="{{row_color}}">{% has_perm_to view contact as contact_perm %}
+                        {% widget_entity_hyperlink contact user %}
+                        {% if contact_perm %}&nbsp;:&nbsp;{{contact.email|default:_('no email address')}}{% endif %}
                     </td>
                     <td class="{{row_color}} action">
                         {% get_line_unlinker at_url '/emails/mailing_list/{{object.pk}}/contact/delete' with_args "{'id':{{contact.pk}} }" with_perms edit_perm %}

@@ -18,12 +18,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+from collections import defaultdict
+
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q, FieldDoesNotExist, ForeignKey
+from django.db.models import Q, FieldDoesNotExist, ForeignKey, ProtectedError
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, get_list_or_404, render
 from django.core import serializers
 from django.forms.models import modelform_factory, model_to_dict
+from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext as _
 from django.utils.simplejson import JSONEncoder
 from django.contrib.contenttypes.models import ContentType
@@ -38,6 +42,8 @@ from creme_core.views.generic import inner_popup, list_view_popup_from_widget
 from creme_core.utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify
 from creme_core.utils.meta import ModelFieldEnumerator #get_flds_with_fk_flds_str
 
+
+logger = logging.getLogger(__name__)
 
 @login_required
 @jsonify
@@ -418,3 +424,182 @@ def merge(request, entity1_id, entity2_id):
                                      ),
                   }
                  )
+
+@login_required
+def trash(request):
+    return render(request, 'creme_core/trash.html')
+
+@login_required
+def empty_trash(request):
+    if request.method != 'POST':
+        raise Http404('Use POST method for this view')
+
+    user = request.user
+    errors = []
+
+    #NB: we do not use delete() method of queryset in order to send signals
+    for entity in EntityCredentials.filter(user,
+                                           #CremeEntity.objects.only_deleted(),
+                                           CremeEntity.objects.filter(is_deleted=True),
+                                           EntityCredentials.DELETE
+                                          ):
+        #TODO:
+        #if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
+            #errors[404].append(_('%s does not use the generic deletion view.') % entity.allowed_unicode(user))
+
+        try:
+            entity.delete()
+        except ProtectedError:
+            errors.append(_(u'"%s" can not be deleted because of its dependencies.') %
+                            entity.allowed_unicode(user)
+                         )
+
+    #TODO: factorise ??
+    if not errors:
+        status = 200
+        message = _('Operation successfully completed')
+    else:
+        status = 400
+        message = ",".join(msg for msg in errors)
+
+    return HttpResponse(message, mimetype='text/javascript', status=status)
+
+@login_required
+def restore_entity(request, entity_id):
+    if request.method != 'POST':
+        raise Http404('Use POST method for this view')
+
+    entity = get_object_or_404(CremeEntity.objects.filter(is_deleted=True), pk=entity_id) \
+                                                  .get_real_entity()
+
+    if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
+        raise Http404(_(u'This model does not use the generic deletion view.'))
+
+    if hasattr(entity, 'get_related_entity'):
+        raise Http404('Can not restore an auxiliary entity') #see trash_entity()
+
+    entity.can_delete_or_die(request.user)
+    entity.restore()
+
+    if request.is_ajax():
+        return HttpResponse(mimetype='text/javascript')
+
+    return HttpResponseRedirect(entity.get_absolute_url())
+
+
+def _delete_entity(user, entity):
+    if entity.get_delete_absolute_url() != CremeEntity.get_delete_absolute_url(entity):
+        return 404, _('%s does not use the generic deletion view.') % entity.allowed_unicode(user)
+
+    if hasattr(entity, 'get_related_entity'):
+        related = entity.get_related_entity()
+
+        if related is None:
+            logger.critical('delete_entity(): an auxiliary entity seems orphan (id=%s)', entity_id)
+            return 403, _(u'You are not allowed to delete this entity: %s') % entity.allowed_unicode(user)
+
+        if not related.can_change(user):
+            return 403, _(u'%s : <b>Permission denied</b>,') % entity.allowed_unicode(user)
+
+        entity.relations.exclude(type__is_internal=True).delete()
+        #entity.properties.all().delete()
+        trash = False
+    else:
+        if not entity.can_delete(user):
+            return 403, _(u'%s : <b>Permission denied</b>,') % entity.allowed_unicode(user)
+
+        trash = not entity.is_deleted
+
+    try:
+        if trash:
+            entity.trash()
+        else:
+            entity.delete()
+    except ProtectedError as e:
+        return 400, _(u'"%(entity)s" can not be deleted because of its dependencies. [%(error)s]') % {
+                            'entity': entity.allowed_unicode(user),
+                            'error':  smart_unicode(e),
+                        }
+
+@login_required
+def delete_entities(request):
+    "Delete several CremeEntity, with a Ajax call (POSt method)."
+    try:
+        entity_ids = [int(e_id) for e_id in get_from_POST_or_404(request.POST, 'ids').split(',') if e_id]
+    except ValueError:
+        return HttpResponse('Bad POST argument', mimetype='text/javascript', status=400)
+
+    if not entity_ids:
+        return HttpResponse(_('No selected entities'), mimetype='text/javascript', status=400)
+
+    logger.debug('delete_entities() -> ids: %s ', entity_ids)
+
+    user     = request.user
+    entities = list(CremeEntity.objects.filter(pk__in=entity_ids))
+    errors   = defaultdict(list)
+
+    len_diff = len(entity_ids) - len(entities)
+    if len_diff:
+        errors[404].append(_(u"%s entities doesn't exist / doesn't exist any more") % len_diff)
+
+    CremeEntity.populate_real_entities(entities)
+
+    for entity in entities:
+        error = _delete_entity(user, entity.get_real_entity())
+        if error:
+            errors[error[0]].append(error[1])
+
+    if not errors:
+        status = 200
+        message = _('Operation successfully completed')
+    else:
+        status = min(errors.iterkeys())
+        message = ",".join(msg for error_messages in errors.itervalues() for msg in error_messages)
+
+    return HttpResponse(message, mimetype='text/javascript', status=status)
+
+@login_required
+#TODO: @redirect_if_not_ajax
+def delete_entity(request, entity_id):
+    if request.method != 'POST':
+        raise Http404('Use POST method for this view')
+
+    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
+    error = _delete_entity(request.user, entity)
+
+    if error:
+        code, msg = error
+
+        if code == 404: raise Http404(msg)
+        #if code == 403: raise PermissionDenied(msg)
+
+        #if request.is_ajax():
+            #return HttpResponse(smart_unicode(msg), mimetype='text/javascript', status=code)
+
+        raise PermissionDenied(msg)
+
+    if request.is_ajax():
+        return HttpResponse(mimetype='text/javascript')
+
+    return HttpResponseRedirect(entity.get_lv_absolute_url())
+
+@login_required
+def delete_related_to_entity(request, ct_id):
+    """Delete a model related to a CremeEntity.
+    @param request Request with POST method ; POST data should contain an 'id'(=pk) value.
+    @param model A django model class that implements the method get_related_entity().
+    """
+    model = get_ct_or_404(ct_id).model_class()
+    if issubclass(model, CremeEntity):
+        raise Http404('This view can not delete CremeEntities.')
+
+    auxiliary = get_object_or_404(model, pk=get_from_POST_or_404(request.POST, 'id'))
+    entity = auxiliary.get_related_entity()
+
+    entity.can_change_or_die(request.user)
+    auxiliary.delete()
+
+    if request.is_ajax():
+        return HttpResponse(mimetype='text/javascript')
+
+    return HttpResponseRedirect(entity.get_absolute_url())

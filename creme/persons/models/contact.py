@@ -25,7 +25,7 @@ from django.db.models import (ForeignKey, CharField, TextField, ManyToManyField,
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 
-from creme_core.models import CremeEntity, Language
+from creme_core.models import CremeEntity, Language #, CremeEntityManager
 from creme_core.models.fields import PhoneField
 
 from media_managers.models import Image
@@ -55,6 +55,8 @@ class Contact(CremeEntity):
     birthday        = DateField(_(u"Birthday"), blank=True, null=True)
     image           = ForeignKey(Image, verbose_name=_(u'Photograph'), blank=True, null=True, on_delete=SET_NULL)
 
+    #objects = CremeEntityManager()
+
     #research_fields = CremeEntity.research_fields + ['last_name', 'first_name', 'email']
     #_clone_excluded_fields = CremeEntity._clone_excluded_fields | set(['is_user', 'billing_address', 'shipping_address'])
     creation_label = _('Add a contact')
@@ -70,6 +72,10 @@ class Contact(CremeEntity):
             return u'%s %s %s' % (self.civility, self.first_name, self.last_name)
 
         return u'%s %s' % (self.first_name, self.last_name)
+
+    def _check_deletion(self):
+        if self.is_user is not None:
+            raise ProtectedError(ugettext(u'A user is associated with this contact.'), [self])
 
     def get_employers(self):
         from organisation import Organisation
@@ -87,8 +93,7 @@ class Contact(CremeEntity):
         return "/persons/contacts"
 
     def delete(self):
-        if self.is_user is not None:
-            raise ProtectedError(ugettext(u"A user is associated with this contact."), [self])
+        self._check_deletion() #should not be useful (trashing should be blocked too)
         super(Contact, self).delete()
 
     #TODO: factorise with Contact (move in a base abstract class ?)
@@ -109,3 +114,7 @@ class Contact(CremeEntity):
         excl_source_addr_ids = filter(None, [source.billing_address_id, source.shipping_address_id])
         for address in Address.objects.filter(object_id=source.id).exclude(pk__in=excl_source_addr_ids):
             address.clone(self)
+
+    def trash(self):
+        self._check_deletion()
+        super(Contact, self).trash()

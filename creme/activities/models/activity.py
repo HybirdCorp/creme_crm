@@ -186,23 +186,38 @@ END:VEVENT
     def get_linkedto_relations(self):
         return self.get_relations(REL_OBJ_LINKED_2_ACTIVITY, real_obj_entities=True)
 
+    #TODO: test
     @staticmethod
     def _get_linked_aux(entity):
         types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
-        return Activity.objects.filter(relations__object_entity=entity, relations__type__in=types).distinct()
+        return Activity.objects.filter(is_deleted=False,
+                                       relations__object_entity=entity,
+                                       relations__type__in=types,
+                                      ) \
+                               .distinct()
 
+    #TODO: test
     @staticmethod
     def _get_linked_for_ctypes_aux(ct_ids):
         types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
-        return Activity.objects.filter(relations__object_entity__entity_type__in=ct_ids, relations__type__in=types).distinct()
+        return Activity.objects.filter(is_deleted=False,
+                                       relations__object_entity__entity_type__in=ct_ids,
+                                       relations__type__in=types,
+                                      ) \
+                               .distinct()
 
+    #TODO: test
     @staticmethod
     def _get_linked_for_orga(orga):
         types = (REL_OBJ_PART_2_ACTIVITY, REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_LINKED_2_ACTIVITY)
         entities = [orga]
         entities.extend(orga.get_managers().values_list('id', flat=True))
         entities.extend(orga.get_employees().values_list('id', flat=True))
-        return Activity.objects.filter(relations__object_entity__in=entities, relations__type__in=types).distinct()
+        return Activity.objects.filter(is_deleted=False,
+                                       relations__object_entity__in=entities,
+                                       relations__type__in=types,
+                                      ) \
+                               .distinct()
 
     @staticmethod
     def get_future_linked(entity, today):

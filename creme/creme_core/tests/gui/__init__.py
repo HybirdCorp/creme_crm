@@ -35,10 +35,11 @@ class GuiTestCase(CremeTestCase):
 
         self.assertEqual(0, len(LastViewedItem.get_all(FakeRequest())))
 
-        create_user = partial(Contact.objects.create, user=self.user)
-        contact01 = create_user(first_name='Casca', last_name='Mylove')
-        contact02 = create_user(first_name='Puck',  last_name='Elfman')
-        contact03 = create_user(first_name='Judo',  last_name='Doe')
+        create_contact = partial(Contact.objects.create, user=self.user)
+        contact01 = create_contact(first_name='Casca',    last_name='Mylove')
+        contact02 = create_contact(first_name='Puck',     last_name='Elfman')
+        contact03 = create_contact(first_name='Judo',     last_name='Doe')
+        contact04 = create_contact(first_name='Griffith', last_name='Femto')
 
         self.assertGET200(contact01.get_absolute_url())
         items = get_items()
@@ -47,25 +48,38 @@ class GuiTestCase(CremeTestCase):
 
         self.assertGET200(contact02.get_absolute_url())
         self.assertGET200(contact03.get_absolute_url())
+        self.assertGET200(contact04.get_absolute_url())
         items = get_items()
-        self.assertEqual(3, len(items))
-        self.assertEqual([contact03.pk, contact02.pk, contact01.pk], [i.pk for i in items])
+        self.assertEqual(4, len(items))
+        self.assertEqual([contact04.pk, contact03.pk, contact02.pk, contact01.pk],
+                         [i.pk for i in items]
+                        )
 
         sleep(1)
         contact01.last_name = 'ILoveYou'
         contact01.save()
         self.assertGET200(Contact.get_lv_absolute_url())
-        old_item = get_items()[2]
+        old_item = get_items()[-1]
         self.assertEqual(contact01.pk,       old_item.pk)
         self.assertEqual(unicode(contact01), old_item.name)
 
         self.assertGET200(contact02.get_absolute_url())
-        self.assertEqual([contact02.pk, contact03.pk, contact01.pk], [i.pk for i in get_items()])
+        self.assertEqual([contact02.pk, contact04.pk, contact03.pk, contact01.pk],
+                         [i.pk for i in get_items()]
+                        )
 
         contact03.delete()
         self.assertFalse(CremeEntity.objects.filter(pk=contact03.id))
         self.assertGET200(Contact.get_lv_absolute_url())
-        self.assertEqual([contact02.pk, contact01.pk], [i.pk for i in get_items()])
+        self.assertEqual([contact02.pk, contact04.pk, contact01.pk],
+                         [i.pk for i in get_items()]
+                        )
+
+        contact04.trash()
+        self.assertGET200(Contact.get_lv_absolute_url())
+        self.assertEqual([contact02.pk, contact01.pk],
+                         [i.pk for i in get_items()]
+                        )
 
 
 class ListViewStateTestCase(CremeTestCase):

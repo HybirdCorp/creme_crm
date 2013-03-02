@@ -21,7 +21,7 @@
 from collections import defaultdict
 from logging import debug
 
-from django.db import models
+#from django.db import models
 from django.db.models import ForeignKey, Q
 from django.core.exceptions import PermissionDenied
 from django.utils.html import escape
@@ -75,12 +75,12 @@ class CremeEntity(CremeAbstractEntity):
         self._cvalues_map = {}
         self._credentials_map = {}
 
-    def delete(self):
-        if settings.TRUE_DELETE:
-            super(CremeEntity, self).delete()
-        else:
-            self.is_deleted = True
-            self.save()
+    #def delete(self):
+        #if settings.TRUE_DELETE:
+            #super(CremeEntity, self).delete()
+        #else:
+            #self.is_deleted = True
+            #self.save()
 
     def __unicode__(self):
         real_entity = self.get_real_entity()
@@ -94,6 +94,9 @@ class CremeEntity(CremeAbstractEntity):
         return unicode(self) if self.can_view(user) else ugettext(u'Entity #%s (not viewable)') % self.id
 
     def can_change(self, user):
+        if self.is_deleted:
+            return False
+
         get_related_entity = getattr(self, 'get_related_entity', None)
         main_entity = get_related_entity() if get_related_entity else self
 
@@ -116,6 +119,9 @@ class CremeEntity(CremeAbstractEntity):
             raise PermissionDenied(ugettext(u'You are not allowed to delete this entity: %s') % self.allowed_unicode(user))
 
     def can_link(self, user):
+        if self.is_deleted:
+            return False
+
         return self._get_credentials(user).can_link()
 
     def can_link_or_die(self, user):
@@ -248,22 +254,23 @@ class CremeEntity(CremeAbstractEntity):
 
         edit_url = self.get_edit_absolute_url()
         if edit_url:
-            actions.append(EntityAction(edit_url, ugettext(u"Edit"),
-                                self.can_change(user), icon="images/edit_16.png"
+            actions.append(EntityAction(edit_url, ugettext('Edit'),
+                                self.can_change(user), icon='images/edit_16.png'
                                )
                            )
 
         delete_url = self.get_delete_absolute_url()
         if delete_url:
-            actions.append(EntityAction(delete_url, ugettext(u"Delete"),
+            actions.append(EntityAction(delete_url, ugettext('Delete'),
                                         self.can_delete(user),
-                                        icon="images/delete_16.png",
+                                        icon='images/delete_16.png',
                                         attrs={'class': 'confirm post ajax lv_reload'}
                                        )
-                                )
+                          )
 
-        return {
-                'default': EntityAction(self.get_absolute_url(), ugettext(u"See"), True, icon="images/view_16.png"),
+        return {'default': EntityAction(self.get_absolute_url(), ugettext('See'),
+                                        is_allowed=True, icon='images/view_16.png',
+                                       ),
                 'others':  actions,
                }
 
@@ -428,6 +435,14 @@ class CremeEntity(CremeAbstractEntity):
 
         new_entity._post_clone(self)
         return new_entity
+
+    def restore(self):
+        self.is_deleted = False
+        self.save()
+
+    def trash(self):
+        self.is_deleted = True
+        self.save()
 
 
 from relation import Relation

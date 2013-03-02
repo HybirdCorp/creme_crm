@@ -230,7 +230,11 @@
                 {% trans 'Welcome,' %} <strong>{% if user.first_name %}{{ user.first_name|escape }}{% else %}{{ user.username }}{% endif %}</strong> -
                 {% block userlinks %}
                     <a href="/creme_config/my_settings/">{% trans 'My settings' %}</a> -
-                    <a href="/creme_core/clean/">{% trans 'Log out' %}</a>
+                    <a href="/creme_core/clean/">{% trans 'Log out' %}</a> -
+                    <a href="/creme_core/entity/trash">
+                        <img src="{% creme_media_url 'images/delete_16.png' %}" alt="{% trans 'Trash' %}" />
+                        {% trans 'Trash' %}
+                    </a>
                 {% endblock %}
             </div>
             <div class="widget major">

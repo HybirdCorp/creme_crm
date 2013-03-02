@@ -244,6 +244,9 @@ about this fantastic animation studio."""
 
         creation_line = HistoryLine.objects.get(entity=gainax)
 
+        #TODO: log trashing ??
+        gainax.trash()
+
         self.assertPOST200('/creme_core/entity/delete/%s' % gainax.id, follow=True)
         self.assertFalse(Organisation.objects.filter(pk=gainax.id).exists())
 

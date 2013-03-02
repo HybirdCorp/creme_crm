@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from base import CremeModel, CremeAbstractEntity
+from base import CremeModel, CremeAbstractEntity#, CremeEntityManager
 from entity import CremeEntity
 
 from relation import RelationType, Relation, SemiFixedRelationType

@@ -27,6 +27,7 @@ class SearchViewTestCase(ViewsTestCase):
         create_contact = partial(Contact.objects.create, user=self.user)
         self.linus = create_contact(first_name='Linus', last_name='Torvalds')
         self.alan  = create_contact(first_name='Alan',  last_name='Cox')
+        create_contact(first_name='Linus', last_name='Impostor', is_deleted=True)
 
     def _setup_contacts(self):
         SearchConfigItem.create_if_needed(Contact, ['first_name', 'last_name'])

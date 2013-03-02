@@ -235,7 +235,16 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                        criticity=Criticity.objects.all()[0],
                                       )
 
-        response = self.assertPOST200('/creme_core/entity/delete/%s' % ticket.pk, follow=True)
+        url = '/creme_core/entity/delete/%s' % ticket.pk
+        response = self.assertPOST200(url, follow=True)
+
+        with self.assertNoException():
+            ticket = self.refresh(ticket)
+
+        self.assertTrue(ticket.is_deleted)
+        self.assertRedirects(response, Ticket.get_lv_absolute_url())
+
+        response = self.assertPOST200(url, follow=True)
         self.assertFalse(Ticket.objects.filter(pk=ticket.pk).exists())
         self.assertRedirects(response, Ticket.get_lv_absolute_url())
 
@@ -531,7 +540,7 @@ class TicketTemplateTestCase(CremeTestCase):
 
         template01 = self.create_template('Title01')
         template02 = self.create_template('Title02')
-        self.assertPOST404('/creme_core/delete_js',
+        self.assertPOST404('/creme_core/entity/delete/multi',
                            data={'ids': '%s,%s,' % (template01.id, template02.id)}
                           )
         self.assertEqual(2, TicketTemplate.objects.filter(pk__in=[template01.id, template02.id]).count())

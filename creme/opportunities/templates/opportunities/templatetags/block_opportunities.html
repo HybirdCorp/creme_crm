@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load creme_core_tags creme_block %}
+{% load creme_core_tags creme_block creme_widgets %}
 {% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}{% has_perm_to create ct as creation_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=5 %}
@@ -20,22 +20,20 @@
                 <th class="block_header_line_dark action">{% trans "Delete the opportunity" %}</th>
             </tr>
             {% for opportunity in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
-                <tr class="content">
-                    {% has_perm_to view opportunity as opp_view_perm %}
+                <tr class="content">{% has_perm_to view opportunity as opp_view_perm %}
+                    <td class="{{row_color}}">{% widget_entity_hyperlink opportunity user %}</td>
                     {% if opp_view_perm %}
-                        <td class="{{row_color}}"><a href="{{opportunity.get_absolute_url}}">{{opportunity}}</a></td>
                         <td class="{{row_color}}">{{opportunity.estimated_sales|default:''}}</td>
                         <td class="{{row_color}}">{{opportunity.made_sales|default:''}}</td>
                         <td class="{{row_color}}">{{opportunity.sales_phase}}</td>
                     {% else %}
-                        <td class="{{row_color}}">{{opportunity|allowed_unicode:user}}</td>
                         <td class="{{row_color}}">??</td>
                         <td class="{{row_color}}">??</td>
                         <td class="{{row_color}}">??</td>
                     {% endif %}
                     <td class="{{row_color}} action">
                         {% has_perm_to unlink opportunity as opp_unlink_perm %}
-                        {% get_line_deletor at_url '/creme_core/delete_js' with_args "{'ids': [{{opportunity.pk}}] }" with_perms unlink_perm|and_op:opp_unlink_perm %}
+                        {% get_line_deletor at_url '/creme_core/entity/delete/multi' with_args "{'ids': [{{opportunity.pk}}] }" with_perms unlink_perm|and_op:opp_unlink_perm %}
                     </td>
                 </tr>
             {% endfor %}

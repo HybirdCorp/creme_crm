@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from itertools import chain
 from collections import defaultdict
 
 from django.db import transaction
-from django.db.models import Model, ForeignKey, CharField, BooleanField, FileField
+from django.db.models import Model, Manager, ForeignKey, CharField, BooleanField, FileField
 from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
@@ -61,7 +61,7 @@ class CremeModel(Model):
         file_fields = []
         _delete_files = self._delete_files
 
-        with transaction.commit_manually():
+        with transaction.commit_manually(): #TODO: commit_on_success
             try:
                 if _delete_files:
                     file_fields = [(field.name, getattr(self, field.name).path, unicode(getattr(self, field.name))) \
@@ -70,7 +70,7 @@ class CremeModel(Model):
 
                 self._delete_without_transaction()
                 transaction.commit()
-            except Exception, e:
+            except Exception as e:
                 transaction.rollback()
                 raise e
 
@@ -83,6 +83,17 @@ class CremeModel(Model):
                     os_remove(full_path)#TODO: Catch OSError ?
 
 
+#class CremeEntityManager(Manager):
+    #def get_query_set(self):
+        #return self.even_deleted().filter(is_deleted=False)
+
+    #def only_deleted(self):
+        #return self.even_deleted().filter(is_deleted=True)
+
+    #def even_deleted(self):
+        #return super(CremeEntityManager, self).get_query_set()
+
+
 class CremeAbstractEntity(CremeModel):
     created  = CreationDateTimeField(_('Creation date'), editable=False).set_tags(clonable=False)
     modified = ModificationDateTimeField(_('Last modification'), editable=False).set_tags(clonable=False)
@@ -90,9 +101,11 @@ class CremeAbstractEntity(CremeModel):
     entity_type = ForeignKey(ContentType, editable=False).set_tags(viewable=False)
     header_filter_search_field = CharField(max_length=200, editable=False).set_tags(viewable=False)
 
-    is_deleted = BooleanField(blank=True, default=False, editable=False).set_tags(viewable=False)
-    is_actived = BooleanField(blank=True, default=False, editable=False).set_tags(viewable=False)
-    user       = CremeUserForeignKey(verbose_name=_(u"User"))
+    is_deleted = BooleanField(default=False, editable=False).set_tags(viewable=False)
+    is_actived = BooleanField(default=False, editable=False).set_tags(viewable=False)
+    user       = CremeUserForeignKey(verbose_name=_('User'))
+
+    #objects = CremeEntityManager()
 
     _real_entity = None
 
@@ -134,6 +147,7 @@ class CremeAbstractEntity(CremeModel):
                 entity = self
             else:
                 entity = self._real_entity = ct.get_object_for_this_type(id=self.id)
+                #entity = self._real_entity = ct.model_class().objects.even_deleted().get(id=self.id)
 
         return entity
 
@@ -156,8 +170,9 @@ class CremeAbstractEntity(CremeModel):
         entities_map = {}
         get_ct = ContentType.objects.get_for_id
 
-        for ct_id in entities_by_ct.iterkeys(): #TODO: use iteritems (entities_by_ct[ct_id]) ??
-            entities_map.update(get_ct(ct_id).model_class().objects.in_bulk(entities_by_ct[ct_id]))
+        for ct_id, entity_ids in entities_by_ct.iteritems():
+            entities_map.update(get_ct(ct_id).model_class().objects.in_bulk(entity_ids))
+            #entities_map.update(get_ct(ct_id).model_class().objects.even_deleted().in_bulk(entity_ids))
 
         for entity in entities:
             entity._real_entity = entities_map[entity.id]

@@ -163,13 +163,15 @@ class TargettingOpportunitiesBlock(_LinkedStuffBlock):
     relation_type_deps = (REL_OBJ_TARGETS, )
     verbose_name  = _(u"Opportunities which target the organisation / contact")
     template_name = 'opportunities/templatetags/block_opportunities.html'
-    #configurable  = True
     target_ctypes = (Organisation, Contact)
 
     _ct = _get_ct(Opportunity)
 
     def _get_queryset(self, entity):
-        return Opportunity.objects.filter(relations__object_entity=entity.id, relations__type=REL_SUB_TARGETS)
+        #TODO: filter deleted ??
+        return Opportunity.objects.filter(relations__object_entity=entity.id,
+                                          relations__type=REL_SUB_TARGETS,
+                                         )
 
 
 class OppTotalBlock(TotalBlock):

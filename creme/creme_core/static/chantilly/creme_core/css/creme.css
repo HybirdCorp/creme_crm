@@ -108,6 +108,10 @@ a:hover {
     text-shadow:1px 1px 3px #cccccc;
 }
 
+a.is_deleted {
+    text-decoration: line-through;
+}
+
 body {
     color: black;
     background-color: #f6fcff;
@@ -117,6 +121,10 @@ body {
     font-family:  Verdana, Tahoma, Arial, Helvetica, sans-serif;
     /*font-size: 14px;*/
     font-size: 0.8em;
+}
+
+body.is_deleted {
+    background-color: #cc3333;
 }
 
 #div {
