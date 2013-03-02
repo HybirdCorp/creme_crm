@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'OPPORTUNITIES' APP
-# Copyright (C) 2012 Hybird
+# Copyright (C) 2013 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -e html -i tests.py
@@ -100,7 +100,7 @@ msgstr "met en scène"
 
 #: populate.py:61
 msgid "is associate with the opportunity"
-msgstr "est associé a l'opportunité"
+msgstr "est associé à l'opportunité"
 
 #: populate.py:62
 msgid "has generated the salesorder"
