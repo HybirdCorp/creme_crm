@@ -23,9 +23,9 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.gui import creme_menu, block_registry, button_registry, icon_registry
 
-from creme.tickets.models import Ticket, TicketTemplate
-from creme.tickets.blocks import TicketBlock
-from creme.tickets.buttons import linked_2_ticket_button
+from .models import Ticket, TicketTemplate
+from .blocks import TicketBlock
+from .buttons import linked_2_ticket_button
 
 
 creme_registry.register_app('tickets', _(u'Tickets'), '/tickets')

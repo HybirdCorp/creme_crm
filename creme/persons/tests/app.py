@@ -4,8 +4,8 @@ try:
     from creme.creme_core.models import EntityFilter, EntityFilterCondition
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.persons.models import Contact, Organisation
-    from creme.persons.constants import *
+    from ..models import Contact, Organisation
+    from ..constants import *
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

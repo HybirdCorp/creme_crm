@@ -23,8 +23,8 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.gui import creme_menu, block_registry, icon_registry, bulk_update_registry
 
-from creme.reports.models import Report, ReportGraph
-from creme.reports.blocks import report_fields_block, report_graphs_block, ReportGraphBlock
+from .models import Report, ReportGraph
+from .blocks import report_fields_block, report_graphs_block, ReportGraphBlock
 
 
 creme_registry.register_app('reports', _(u'Reports'), '/reports')

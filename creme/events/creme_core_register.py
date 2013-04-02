@@ -23,8 +23,8 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.gui import creme_menu, block_registry, icon_registry
 
-from creme.events.models import Event
-from creme.events.blocks import resuts_block
+from .models import Event
+from .blocks import resuts_block
 
 
 creme_registry.register_entity_models(Event)

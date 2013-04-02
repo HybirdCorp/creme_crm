@@ -4,7 +4,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.forms.batch_process import BatchActionsField
-    from creme.creme_core.tests.forms.base import FieldTestCase
+    from .base import FieldTestCase
 
     from creme.persons.models import Contact
 except Exception as e:

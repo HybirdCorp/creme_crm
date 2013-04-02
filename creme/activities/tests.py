@@ -20,9 +20,9 @@ try:
 
     from creme.assistants.models import Alert
 
-    from creme.activities.models import *
-    from creme.activities.constants import *
-    from creme.activities.forms.activity import _check_activity_collisions
+    from .models import *
+    from .constants import *
+    from .forms.activity import _check_activity_collisions
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

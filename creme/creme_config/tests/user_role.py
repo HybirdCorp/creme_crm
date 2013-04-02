@@ -13,7 +13,7 @@ try:
 
     from creme.persons.models import Contact, Organisation #need CremeEntity
 
-    from creme.creme_config import blocks
+    from ..blocks import UserRolesBlock
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -32,7 +32,7 @@ class UserRoleTestCase(CremeTestCase):
 
     def _aux_test_portal(self):
         response = self.assertGET200('/creme_config/role/portal/')
-        self.assertContains(response, 'id="%s"' % blocks.UserRolesBlock.id_)
+        self.assertContains(response, 'id="%s"' % UserRolesBlock.id_)
 
     def test_portal01(self):
         self.login()

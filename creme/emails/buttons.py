@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,10 +23,12 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.gui.button_menu import Button
 
-from creme.emails.constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED, REL_SUB_RELATED_TO
-from creme.emails.models.mail import EntityEmail
+from .constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED, REL_SUB_RELATED_TO
+from .models import EntityEmail
+
 
 entity_email_ct = ContentType.objects.get_for_model(EntityEmail)
+
 
 class EntityEmailLinkButton(Button):
     id_           = Button.generate_id('emails', 'entity_email_link')

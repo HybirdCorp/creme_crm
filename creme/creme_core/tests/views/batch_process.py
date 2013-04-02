@@ -8,7 +8,7 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.tests.views.base import ViewsTestCase
+    from .base import ViewsTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import EntityFilter, EntityFilterCondition, SetCredentials
 

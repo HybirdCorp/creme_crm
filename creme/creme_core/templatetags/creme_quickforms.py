@@ -20,7 +20,7 @@
 from django.template import Library
 from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.gui.quick_forms import quickforms_registry
+from ..gui.quick_forms import quickforms_registry
 
 
 #TODO: regroup with some others templatetags files (eg search_panel, menu) ?????

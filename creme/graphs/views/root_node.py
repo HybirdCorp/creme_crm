@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,15 +26,15 @@ from django.contrib.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
 from creme.creme_core.utils import get_from_POST_or_404
 
-from creme.graphs.models import Graph, RootNode
-from creme.graphs.forms.root_node import AddRootNodesForm, EditRootNodeForm
+from ..models import Graph, RootNode
+from ..forms.root_node import AddRootNodesForm, EditRootNodeForm
 
 
 @login_required
 @permission_required('graphs')
 def add(request, graph_id):
     return add_to_entity(request, graph_id, AddRootNodesForm,
-                         _(u'Add root nodes to <%s>'), entity_class=Graph
+                         _(u'Add root nodes to <%s>'), entity_class=Graph,
                         )
 
 @login_required

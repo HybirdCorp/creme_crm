@@ -26,8 +26,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.datastructures import SortedDict as OrderedDict #use python2.7 OrderedDict later.....
 from django.contrib.auth.models import User
 
-from creme.creme_core.models import CremeEntity
-from creme.creme_core.models.custom_field import CustomFieldValue
+from ..models import CremeEntity, CustomFieldValue
 
 
 __all__ = ('FieldBlockManager', 'CremeForm', 'CremeModelForm', 'CremeModelWithUserForm', 'CremeEntityForm')

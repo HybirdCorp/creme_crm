@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,27 +29,27 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext_lazy as _ #TODO: ugettext instead ??
-from creme.activesync.utils import is_user_sync_calendars, is_user_sync_contacts
 
 from creme.creme_core.models.entity import CremeEntity
 
-from base import Base
-
-from creme.activesync.constants import (CONFLICT_SERVER_MASTER, SYNC_AIRSYNC_STATUS_SUCCESS, SYNC_AIRSYNC_STATUS_INVALID_SYNCKEY,\
-                                  SYNC_AIRSYNC_STATUS_CLIENT_SERV_CONV_ERR, SYNC_FOLDER_TYPE_CONTACT, SYNC_FOLDER_TYPE_APPOINTMENT)
-from creme.activesync.models import (CremeExchangeMapping, CremeClient, SyncKeyHistory)
-from creme.activesync.mappings import CREME_AS_MAPPING, FOLDERS_TYPES_CREME_TYPES_MAPPING
-from creme.activesync.messages import MessageSucceedContactAdd, MessageSucceedContactUpdate, MessageInfoContactAdd
-from creme.activesync.errors import (SYNC_ERR_VERBOSE, SYNC_ERR_CREME_PERMISSION_DENIED_CREATE,
-                               SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE_SPECIFIC, SYNC_ERR_CREME_PERMISSION_DENIED_DELETE_SPECIFIC)
+from ..constants import (CONFLICT_SERVER_MASTER, SYNC_AIRSYNC_STATUS_SUCCESS, 
+                         SYNC_AIRSYNC_STATUS_INVALID_SYNCKEY,
+                         SYNC_AIRSYNC_STATUS_CLIENT_SERV_CONV_ERR,
+                         SYNC_FOLDER_TYPE_CONTACT, SYNC_FOLDER_TYPE_APPOINTMENT)
+from ..models import (CremeExchangeMapping, CremeClient, SyncKeyHistory)
+from ..mappings import CREME_AS_MAPPING, FOLDERS_TYPES_CREME_TYPES_MAPPING
+from ..messages import MessageSucceedContactAdd, MessageSucceedContactUpdate, MessageInfoContactAdd
+from ..errors import (SYNC_ERR_VERBOSE, SYNC_ERR_CREME_PERMISSION_DENIED_CREATE,
+                      SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE_SPECIFIC,
+                      SYNC_ERR_CREME_PERMISSION_DENIED_DELETE_SPECIFIC)
+from ..utils import is_user_sync_calendars, is_user_sync_contacts
+from .base import Base
 
 
 class AirSync(Base):
-
     template_name = "activesync/commands/xml/airsync/request_min.xml"
     command       = "Sync"
     CONFLICT_MODE = settings.CONFLICT_MODE
-
 
     def __init__(self, *args, **kwargs):
         super(AirSync, self).__init__(*args, **kwargs)
@@ -494,8 +494,6 @@ class AirSync(Base):
             CremeExchangeMapping.objects.filter(was_deleted=True, user=user, creme_entity_ct=ct_creme_model).delete()
 
 
-
-
 def add_object(o, serializer):
     return "<Add><ClientId>%s</ClientId><ApplicationData>%s</ApplicationData></Add>" % (o.id, serializer(o))
 
@@ -518,8 +516,6 @@ def get_add_objects(reverse_ns, user, airsync_cmd, creme_model, serializer, mapp
             add_info_message(_(u"The entity <%s> was not added on the server because you haven't the right to view it") % entity.allowed_unicode(user))
 
     return objects
-
-
 
 def change_object(server_id, o, serializer):
     return "<Change><ServerId>%s</ServerId><ApplicationData>%s</ApplicationData></Change>" % (server_id, serializer(o))
@@ -572,11 +568,3 @@ def get_deleted_objects(user, airsync_cmd, creme_model):
         objects_append(delete_object(server_id))
 
     return objects
-
-
-
-
-
-
-
-

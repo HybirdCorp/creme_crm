@@ -24,10 +24,8 @@ try:
     from creme.billing.models import Quote, SalesOrder, Invoice, ServiceLine #Vat
     from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
-    from creme.opportunities.models import Opportunity, SalesPhase, Origin
-    import creme.opportunities.constants as opp_constants
-    from creme.opportunities.constants import (REL_OBJ_TARGETS, REL_SUB_EMIT_ORGA, REL_SUB_LINKED_INVOICE,
-                                         REL_SUB_LINKED_QUOTE, REL_SUB_CURRENT_DOC)
+    from .models import Opportunity, SalesPhase, Origin
+    from .constants import *
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -75,46 +73,46 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         ct = ContentType.objects.get_for_model(Opportunity)
         relation_types = dict((rtype.id, rtype) for rtype in RelationType.get_compatible_ones(ct))
 
-        self.assertNotIn(opp_constants.REL_SUB_TARGETS, relation_types)
-        self.get_relationtype_or_fail(opp_constants.REL_SUB_TARGETS, [Opportunity], [Contact, Organisation])
+        self.assertNotIn(REL_SUB_TARGETS, relation_types)
+        self.get_relationtype_or_fail(REL_SUB_TARGETS, [Opportunity], [Contact, Organisation])
 
         self.assertNotIn(REL_SUB_EMIT_ORGA, relation_types)
-        self.get_relationtype_or_fail(opp_constants.REL_OBJ_EMIT_ORGA, [Opportunity], [Organisation])
+        self.get_relationtype_or_fail(REL_OBJ_EMIT_ORGA, [Opportunity], [Organisation])
 
-        self.assertIn(opp_constants.REL_OBJ_LINKED_PRODUCT, relation_types)
-        self.assertNotIn(opp_constants.REL_SUB_LINKED_PRODUCT, relation_types)
-        self.get_relationtype_or_fail(opp_constants.REL_OBJ_LINKED_PRODUCT, [Opportunity], [Product])
+        self.assertIn(REL_OBJ_LINKED_PRODUCT, relation_types)
+        self.assertNotIn(REL_SUB_LINKED_PRODUCT, relation_types)
+        self.get_relationtype_or_fail(REL_OBJ_LINKED_PRODUCT, [Opportunity], [Product])
 
-        self.assertIn(opp_constants.REL_OBJ_LINKED_SERVICE, relation_types)
-        self.assertNotIn(opp_constants.REL_SUB_LINKED_SERVICE, relation_types)
-        self.get_relationtype_or_fail(opp_constants.REL_OBJ_LINKED_SERVICE, [Opportunity], [Service])
+        self.assertIn(REL_OBJ_LINKED_SERVICE, relation_types)
+        self.assertNotIn(REL_SUB_LINKED_SERVICE, relation_types)
+        self.get_relationtype_or_fail(REL_OBJ_LINKED_SERVICE, [Opportunity], [Service])
 
-        self.assertIn(opp_constants.REL_OBJ_LINKED_CONTACT, relation_types)
-        self.assertNotIn(opp_constants.REL_SUB_LINKED_CONTACT, relation_types)
-        self.get_relationtype_or_fail(opp_constants.REL_OBJ_LINKED_CONTACT, [Opportunity], [Contact])
+        self.assertIn(REL_OBJ_LINKED_CONTACT, relation_types)
+        self.assertNotIn(REL_SUB_LINKED_CONTACT, relation_types)
+        self.get_relationtype_or_fail(REL_OBJ_LINKED_CONTACT, [Opportunity], [Contact])
 
-        self.assertIn(opp_constants.REL_OBJ_LINKED_SALESORDER, relation_types)
-        self.assertNotIn(opp_constants.REL_SUB_LINKED_SALESORDER, relation_types)
-        self.get_relationtype_or_fail(opp_constants.REL_OBJ_LINKED_SALESORDER, [Opportunity], [SalesOrder])
+        self.assertIn(REL_OBJ_LINKED_SALESORDER, relation_types)
+        self.assertNotIn(REL_SUB_LINKED_SALESORDER, relation_types)
+        self.get_relationtype_or_fail(REL_OBJ_LINKED_SALESORDER, [Opportunity], [SalesOrder])
 
-        self.assertIn(opp_constants.REL_OBJ_LINKED_INVOICE, relation_types)
+        self.assertIn(REL_OBJ_LINKED_INVOICE, relation_types)
         self.assertNotIn(REL_SUB_LINKED_INVOICE, relation_types)
-        self.get_relationtype_or_fail(opp_constants.REL_OBJ_LINKED_INVOICE, [Opportunity], [Invoice])
+        self.get_relationtype_or_fail(REL_OBJ_LINKED_INVOICE, [Opportunity], [Invoice])
 
-        self.assertIn(opp_constants.REL_OBJ_LINKED_QUOTE, relation_types)
+        self.assertIn(REL_OBJ_LINKED_QUOTE, relation_types)
         self.assertNotIn(REL_SUB_LINKED_QUOTE, relation_types)
-        self.get_relationtype_or_fail(opp_constants.REL_OBJ_LINKED_QUOTE, [Opportunity], [Quote])
+        self.get_relationtype_or_fail(REL_OBJ_LINKED_QUOTE, [Opportunity], [Quote])
 
-        self.assertIn(opp_constants.REL_OBJ_RESPONSIBLE, relation_types)
-        self.assertNotIn(opp_constants.REL_SUB_RESPONSIBLE, relation_types)
-        self.get_relationtype_or_fail(opp_constants.REL_OBJ_RESPONSIBLE, [Opportunity], [Contact])
+        self.assertIn(REL_OBJ_RESPONSIBLE, relation_types)
+        self.assertNotIn(REL_SUB_RESPONSIBLE, relation_types)
+        self.get_relationtype_or_fail(REL_OBJ_RESPONSIBLE, [Opportunity], [Contact])
 
-        self.get_relationtype_or_fail(opp_constants.REL_OBJ_CURRENT_DOC, [Opportunity], [Invoice, Quote, SalesOrder])
+        self.get_relationtype_or_fail(REL_OBJ_CURRENT_DOC, [Opportunity], [Invoice, Quote, SalesOrder])
 
         self.assertTrue(SalesPhase.objects.exists())
         self.assertTrue(Origin.objects.exists())
 
-        keys = SettingKey.objects.filter(pk=opp_constants.SETTING_USE_CURRENT_QUOTE)
+        keys = SettingKey.objects.filter(pk=SETTING_USE_CURRENT_QUOTE)
         self.assertEqual(1, len(keys))
         self.assertEqual(1, SettingValue.objects.filter(key=keys[0]).count())
 
@@ -635,7 +633,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertRelationCount(1, quote1, REL_SUB_CURRENT_DOC,   opportunity)
 
     def _set_quote_config(self, use_current_quote):
-        sv = SettingValue.objects.get(key=opp_constants.SETTING_USE_CURRENT_QUOTE)
+        sv = SettingValue.objects.get(key=SETTING_USE_CURRENT_QUOTE)
         sv.value = use_current_quote
         sv.save()
 

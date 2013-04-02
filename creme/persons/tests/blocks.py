@@ -11,9 +11,9 @@ try:
     from creme.activities.models import Meeting, PhoneCall, PhoneCallType
     from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY
 
-    from creme.persons.models import *
-    from creme.persons.constants import *
-    from creme.persons.blocks import NeglectedOrganisationsBlock
+    from ..models import *
+    from ..constants import *
+    from ..blocks import NeglectedOrganisationsBlock
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

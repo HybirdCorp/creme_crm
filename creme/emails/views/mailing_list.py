@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,10 +26,10 @@ from django.contrib.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity, list_view
 from creme.creme_core.utils import get_from_POST_or_404
 
-from creme.emails.models import MailingList
-from creme.emails.forms.mailing_list import (MailingListForm,
-                                       AddContactsForm, AddOrganisationsForm, AddChildForm,
-                                       AddContactsFromFilterForm, AddOrganisationsFromFilterForm)
+from ..models import MailingList
+from ..forms.mailing_list import (MailingListForm, AddChildForm,
+                                  AddContactsForm, AddOrganisationsForm,
+                                  AddContactsFromFilterForm, AddOrganisationsFromFilterForm)
 
 
 @login_required
@@ -57,31 +57,36 @@ def listview(request):
 @permission_required('emails')
 def add_contacts(request, ml_id):
     return add_to_entity(request, ml_id, AddContactsForm,
-                         _('New contacts for <%s>'), entity_class=MailingList)
+                         _('New contacts for <%s>'), entity_class=MailingList,
+                        )
 
 @login_required
 @permission_required('emails')
 def add_contacts_from_filter(request, ml_id):
     return add_to_entity(request, ml_id, AddContactsFromFilterForm,
-                         _('New contacts for <%s>'), entity_class=MailingList)
+                         _('New contacts for <%s>'), entity_class=MailingList,
+                        )
 
 @login_required
 @permission_required('emails')
 def add_organisations(request, ml_id):
     return add_to_entity(request, ml_id, AddOrganisationsForm,
-                         _('New organisations for <%s>'), entity_class=MailingList)
+                         _('New organisations for <%s>'), entity_class=MailingList,
+                        )
 
 @login_required
 @permission_required('emails')
 def add_organisations_from_filter(request, ml_id):
     return add_to_entity(request, ml_id, AddOrganisationsFromFilterForm,
-                         _('New organisations for <%s>'), entity_class=MailingList)
+                         _('New organisations for <%s>'), entity_class=MailingList,
+                        )
 
 @login_required
 @permission_required('emails')
 def add_children(request, ml_id):
     return add_to_entity(request, ml_id, AddChildForm,
-                         _('New child lists for <%s>'), entity_class=MailingList)
+                         _('New child lists for <%s>'), entity_class=MailingList,
+                        )
 
 @login_required
 @permission_required('emails')

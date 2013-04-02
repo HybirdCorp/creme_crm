@@ -33,8 +33,8 @@ from creme.creme_core.utils import find_first
 
 from creme.persons.models import Organisation, Address, Contact
 
-from creme.billing.models import Line, AdditionalInformation, PaymentTerms
-from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+from ..models import Line, AdditionalInformation, PaymentTerms
+from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
 
 class BaseEditForm(CremeEntityForm):

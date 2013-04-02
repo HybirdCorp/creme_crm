@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,11 +31,11 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 
 from creme.persons.models import Organisation, Contact
 
-from creme.emails.models import MailingList, EmailCampaign, EmailTemplate, EntityEmail
-from creme.emails.blocks import *
-from creme.emails.buttons import entityemail_link_button
-from creme.emails.constants import (REL_SUB_MAIL_RECEIVED, REL_OBJ_MAIL_RECEIVED,
-                              REL_SUB_MAIL_SENDED, REL_OBJ_MAIL_SENDED, REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO)
+from .models import MailingList, EmailCampaign, EmailTemplate, EntityEmail
+from .blocks import *
+from .buttons import entityemail_link_button
+from .constants import (REL_SUB_MAIL_RECEIVED, REL_OBJ_MAIL_RECEIVED,
+                        REL_SUB_MAIL_SENDED, REL_OBJ_MAIL_SENDED, REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO)
 
 
 class Populator(BasePopulator):

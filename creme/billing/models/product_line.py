@@ -20,7 +20,7 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from line import Line, PRODUCT_LINE_TYPE
+from .line import Line, PRODUCT_LINE_TYPE
 
 
 class ProductLine(Line):

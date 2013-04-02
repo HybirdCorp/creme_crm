@@ -32,8 +32,8 @@ from creme.creme_core.forms.widgets import DependentSelect, Label
 from creme.creme_core.forms.fields import AjaxChoiceField
 from creme.creme_core.utils.meta import ModelFieldEnumerator #get_flds_with_fk_flds
 
-from creme.reports.report_aggregation_registry import field_aggregation_registry
-from creme.reports.models.graph import ReportGraph, RGT_FK, RGT_RANGE, RGT_RELATION
+from ..report_aggregation_registry import field_aggregation_registry
+from ..models.graph import ReportGraph, RGT_FK, RGT_RANGE, RGT_RELATION
 
 
 AUTHORIZED_AGGREGATE_FIELDS = field_aggregation_registry.authorized_fields

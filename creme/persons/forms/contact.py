@@ -34,9 +34,8 @@ from creme.creme_core.forms.widgets import Label
 from creme.media_managers.models import Image
 from creme.media_managers.forms.widgets import ImageM2MWidget
 
-from creme.persons.models import Organisation, Contact
-#from creme.persons.models.other_models import Position, Sector, Civility
-from creme.persons.forms.base import _BasePersonForm
+from ..models import Organisation, Contact #Position, Sector, Civility
+from .base import _BasePersonForm
 
 
 class ContactForm(_BasePersonForm):

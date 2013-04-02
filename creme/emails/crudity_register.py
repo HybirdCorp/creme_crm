@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,16 +26,16 @@ from django.utils.translation import ugettext as _
 from creme.creme_core.models import Relation
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
+from creme.documents.constants import REL_OBJ_RELATED_2_DOC, DOCUMENTS_FROM_EMAILS
+from creme.documents.models import Document, Folder, FolderCategory
+
 from creme.crudity.backends.models import CrudityBackend
 from creme.crudity.inputs.base import CrudityInput
 from creme.crudity.models import History
 
-from creme.documents.constants import REL_OBJ_RELATED_2_DOC, DOCUMENTS_FROM_EMAILS
-from creme.documents.models import Document, Folder, FolderCategory
-
-from creme.emails.blocks import WaitingSynchronizationMailsBlock, SpamSynchronizationMailsBlock
-from creme.emails.models import EntityEmail
-from creme.emails.constants import MAIL_STATUS_SYNCHRONIZED_WAITING
+from .blocks import WaitingSynchronizationMailsBlock, SpamSynchronizationMailsBlock
+from .models import EntityEmail
+from .constants import MAIL_STATUS_SYNCHRONIZED_WAITING
 
 
 class EntityEmailBackend(CrudityBackend):

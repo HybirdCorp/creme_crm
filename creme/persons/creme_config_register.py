@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from creme.persons.models import Civility, StaffSize, LegalForm, Sector, Position
+from .models import Civility, StaffSize, LegalForm, Sector, Position
 
 
 to_register = ((Position,  'position'),

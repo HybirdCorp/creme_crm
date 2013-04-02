@@ -1,2 +1,2 @@
-from document import *
-from folder import *
+from .document import *
+from .folder import *

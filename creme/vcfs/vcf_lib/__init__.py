@@ -76,8 +76,8 @@ VObject Overview
     
 """
 
-import base, utils, vcard
-from base import readComponents, readOne, newFromBehavior
+#import base, utils, vcard
+from .base import readComponents, readOne, newFromBehavior
 
 def vCard():
     return newFromBehavior('vcard', '3.0')

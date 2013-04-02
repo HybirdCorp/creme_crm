@@ -8,8 +8,8 @@ try:
 
     from creme.persons.models import Contact
 
-    from creme.commercial.models import *
-    from creme.commercial.tests.base import CommercialBaseTestCase
+    from ..models import ActObjectivePattern, ActObjectivePatternComponent
+    from .base import CommercialBaseTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

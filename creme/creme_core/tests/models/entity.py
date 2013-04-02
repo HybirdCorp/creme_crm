@@ -11,7 +11,7 @@ try:
     from django.db.models.deletion import ProtectedError
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.tests.base import CremeTestCase
+    from ..base import CremeTestCase
     from creme.creme_core.models import *
     from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
     from creme.creme_core.core.field_tags import InvalidFieldTag

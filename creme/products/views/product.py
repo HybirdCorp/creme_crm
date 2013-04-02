@@ -24,8 +24,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 from creme.creme_core.utils import jsonify
 
-from creme.products.models import Product, Category, SubCategory
-from creme.products.forms.product import ProductForm
+from ..models import Product, Category, SubCategory
+from ..forms.product import ProductForm
 
 
 @login_required
@@ -43,7 +43,7 @@ def edit(request, product_id):
 @permission_required('products')
 def detailview(request, product_id):
     return view_entity(request, product_id, Product, '/products/product',
-                       'products/view_product.html'
+                       'products/view_product.html',
                       )
 
 @login_required

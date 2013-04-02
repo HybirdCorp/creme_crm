@@ -25,8 +25,8 @@ from django.contrib.auth.decorators import login_required
 
 from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
 
-from creme.assistants.models import ToDo
-from creme.assistants.forms.todo import ToDoCreateForm, ToDoEditForm
+from ..models import ToDo
+from ..forms.todo import ToDoCreateForm, ToDoEditForm
 
 
 @login_required

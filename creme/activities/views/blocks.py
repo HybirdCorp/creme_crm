@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,9 +26,9 @@ from creme.creme_core.models import Relation, CremeEntity
 from creme.creme_core.views.generic import add_to_entity
 from creme.creme_core.utils import get_from_POST_or_404
 
-from creme.activities.models import Activity
-from creme.activities.forms import ParticipantCreateForm, SubjectCreateForm
-from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY
+from ..models import Activity
+from ..forms import ParticipantCreateForm, SubjectCreateForm
+from ..constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY
 
 
 @login_required
@@ -36,7 +36,7 @@ from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY
 def add_participant(request, activity_id):
     return add_to_entity(request, activity_id, ParticipantCreateForm,
                          _(u'Adding participants to activity <%s>'),
-                         entity_class=Activity, link_perm=True
+                         entity_class=Activity, link_perm=True,
                         )
 
 @login_required
@@ -44,7 +44,7 @@ def add_participant(request, activity_id):
 def add_subject(request, activity_id):
     return add_to_entity(request, activity_id, SubjectCreateForm,
                          _(u'Adding subjects to activity <%s>'),
-                         entity_class=Activity, link_perm=True
+                         entity_class=Activity, link_perm=True,
                         )
 
 @login_required
@@ -65,7 +65,9 @@ def unlink_activity(request):
         entity.can_unlink_or_die(user)
 
     types = (REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
-    for relation in Relation.objects.filter(subject_entity=entity_id, type__in=types, object_entity=activity_id):
+    for relation in Relation.objects.filter(subject_entity=entity_id, 
+                                            type__in=types,
+                                            object_entity=activity_id):
         relation.delete()
 
     return HttpResponse('')

@@ -16,8 +16,8 @@ try:
     from creme.activities.models import Calendar
     from creme.activities.constants import REL_SUB_PART_2_ACTIVITY
 
-    from creme.projects.models import *
-    from creme.projects.constants import *
+    from .models import *
+    from .constants import *
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

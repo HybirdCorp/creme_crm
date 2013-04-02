@@ -10,9 +10,9 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
-    from creme.persons.tests.base import _BaseTestCase
-    from creme.persons.models import *
-    from creme.persons.constants import *
+    from .base import _BaseTestCase
+    from ..models import *
+    from ..constants import *
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

@@ -10,8 +10,8 @@ try:
     from creme.creme_core.tests.views.csv_import import CSVImportBaseTestCaseMixin
     from creme.creme_core.models import HeaderFilter
 
-    from creme.tickets.models import *
-    from creme.tickets.models.status import BASE_STATUS, OPEN_PK, CLOSED_PK, INVALID_PK
+    from .models import *
+    from .models.status import BASE_STATUS, OPEN_PK, CLOSED_PK, INVALID_PK
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

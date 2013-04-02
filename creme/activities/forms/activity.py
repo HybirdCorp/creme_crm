@@ -39,11 +39,11 @@ from creme.creme_config.forms.fields import CreatorModelChoiceField
 
 from creme.persons.models import Contact
 
-from creme.assistants.models.alert import Alert
+from creme.assistants.models import Alert
 
-from creme.activities.models import ActivityType, Activity, PhoneCall, Meeting, Calendar
-from creme.activities.constants import *
-from creme.activities.utils import check_activity_collisions
+from ..models import ActivityType, Activity, PhoneCall, Meeting, Calendar
+from ..constants import *
+from ..utils import check_activity_collisions
 
 
 MINUTE  = '1'

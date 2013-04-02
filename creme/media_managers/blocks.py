@@ -23,7 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.models import EntityCredentials
 from creme.creme_core.gui.block import Block, SimpleBlock, list4url
 
-from creme.media_managers.models import Image
+from .models import Image
 
 
 class ImageBlock(SimpleBlock):

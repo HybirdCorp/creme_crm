@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,9 +30,8 @@ from creme.creme_core.utils.dates import (get_utc_dt_from_creme_dt, get_utc_now,
 from creme.activities.models import Meeting, Calendar
 from creme.activities.constants import REL_SUB_PART_2_ACTIVITY
 
-from creme.activesync.models.active_sync import AS_Folder
-from creme.activesync.models.other_models import EntityASData
-from creme.activesync.utils import generate_guid, encode_AS_timezone
+from ..models import AS_Folder, EntityASData
+from ..utils import generate_guid, encode_AS_timezone
 
 
 ALL_DAY_EVENT = 1#An item marked as an all day event is understood to begin on midnight of the current day and to end on midnight of the next day.

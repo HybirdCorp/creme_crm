@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,13 +17,17 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from datetime import datetime
 from xml.sax.saxutils import escape
-from creme.activesync.models.other_models import EntityASData
+
+from django.db import models
+
 from creme.creme_core.utils.dates import get_utc_dt_from_creme_dt, get_dt_to_iso8601_str
 from creme.creme_core.utils.meta import get_instance_field_info
 
-from django.db import models
+from ..models import EntityASData
+
 
 def _format_value_for_AS(field_class, field_value):
     if field_class is not None:

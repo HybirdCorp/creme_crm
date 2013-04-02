@@ -8,7 +8,7 @@ from django.conf import settings
 
 from creme.creme_core.tests.base import CremeTestCase
 
-from creme.documents.models import Folder
+from ..models import Folder
 
 
 class _DocumentsTestCase(CremeTestCase):

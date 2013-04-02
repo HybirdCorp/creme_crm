@@ -25,8 +25,8 @@ from creme.creme_core.forms import CremeEntityField, CremeDateTimeField
 from creme.media_managers.models import Image
 from creme.media_managers.forms.widgets import ImageM2MWidget
 
-from creme.persons.models import Organisation
-from creme.persons.forms.base import _BasePersonForm
+from ..models import Organisation
+from .base import _BasePersonForm
 
 
 class OrganisationForm(_BasePersonForm):

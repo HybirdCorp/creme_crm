@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,11 +26,11 @@ from creme.creme_config.models.setting import SettingValue
 
 from creme.persons.models.contact import Contact
 
-from creme.activesync.models.active_sync import UserSynchronizationHistory, USER_HISTORY_TYPE_VERBOSE, USER_HISTORY_WHERE_VERBOSE
-from creme.activesync.constants import (USER_MOBILE_SYNC_SERVER_URL, MAPI_SERVER_URL, USER_MOBILE_SYNC_SERVER_DOMAIN,
-                                  MAPI_DOMAIN, USER_MOBILE_SYNC_SERVER_SSL, MAPI_SERVER_SSL,
-                                  USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD,
-                                  USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS)
+from .models.active_sync import UserSynchronizationHistory, USER_HISTORY_TYPE_VERBOSE, USER_HISTORY_WHERE_VERBOSE
+from .constants import (USER_MOBILE_SYNC_SERVER_URL, MAPI_SERVER_URL, USER_MOBILE_SYNC_SERVER_DOMAIN,
+                        MAPI_DOMAIN, USER_MOBILE_SYNC_SERVER_SSL, MAPI_SERVER_SSL,
+                        USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD,
+                        USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS)
 
 
 class UserMobileSyncConfigBlock(Block):
@@ -115,7 +115,10 @@ class UserMobileSyncConfigBlock(Block):
                                                             password=password,
                                                             sync_cal=sync_cal,
                                                             sync_con=sync_con,
-                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,))
+                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                                           )
+                           )
+
 
 class MobileSyncConfigBlock(Block):
     id_           = Block.generate_id('activesync', 'mobile_sync_config')
@@ -137,7 +140,9 @@ class MobileSyncConfigBlock(Block):
                                                             url=server_url,
                                                             domain=server_domain,
                                                             ssl=server_ssl,
-                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,))
+                                                            update_url='/creme_core/blocks/reload/basic/%s/' % self.id_,
+                                                           )
+                           )
 
 
 class UserSynchronizationHistoryBlock(QuerysetBlock):
@@ -156,12 +161,13 @@ class UserSynchronizationHistoryBlock(QuerysetBlock):
                                               history_type_verbose=USER_HISTORY_TYPE_VERBOSE,
                                               history_where_verbose=USER_HISTORY_WHERE_VERBOSE,
                                               contact_klass=Contact,
-                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, user.pk))
+                                              update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, user.pk),
+                                             )
 
         history = btc['page'].object_list
         UserSynchronizationHistory.populate_entities(history)
-        return self._render(btc)
 
+        return self._render(btc)
 
 
 user_mobile_sync_config_block      = UserMobileSyncConfigBlock()

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,18 +24,18 @@ from django.forms import ModelMultipleChoiceField, CharField, ValidationError
 from django.forms.widgets import HiddenInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.models import CremePropertyType, CremeProperty
-from creme.creme_core.forms import CremeForm
-from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget, Label
-from creme.creme_core.forms.fields import MultiCremeEntityField
-from creme.creme_core.forms.validators import validate_editable_entities
-from creme.creme_core.utils import entities2unicode
+from ..models import CremePropertyType, CremeProperty
+from ..utils import entities2unicode
+from .base import CremeForm
+from .fields import MultiCremeEntityField
+from .validators import validate_editable_entities
+from .widgets import UnorderedMultipleChoiceWidget, Label
 
 
 class _AddPropertiesForm(CremeForm):
     types = ModelMultipleChoiceField(label=_(u'Type of property'),
                                      queryset=CremePropertyType.objects.none(),
-                                     widget=UnorderedMultipleChoiceWidget
+                                     widget=UnorderedMultipleChoiceWidget,
                                     )
 
     def _create_properties(self, entities, ptypes):
@@ -80,7 +80,7 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
         if forbidden_entities:
             fields['bad_entities_lbl'] = CharField(label=ugettext(u"Uneditable entities"),
                                                    widget=Label,
-                                                   initial=entities2unicode(forbidden_entities, self.user)
+                                                   initial=entities2unicode(forbidden_entities, self.user),
                                                   )
 
     def clean(self):

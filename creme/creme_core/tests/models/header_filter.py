@@ -10,7 +10,7 @@ try:
     from creme.creme_core.models.header_filter import (HeaderFilter, HeaderFilterItem,
                                                        HFI_FIELD, HFI_CUSTOM, HFI_RELATION, HFI_FUNCTION
                                                       )
-    from creme.creme_core.tests.base import CremeTestCase
+    from ..base import CremeTestCase
 
     from creme.persons.models import Contact, Organisation, Position, Sector
 except Exception as e:

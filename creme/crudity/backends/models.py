@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,9 +38,9 @@ from creme.creme_config.models import SettingValue
 
 from creme.media_managers.models.image import Image
 
-from creme.crudity.models import History
-from creme.crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
-from creme.crudity.exceptions import ImproperlyConfiguredBackend
+from ..models import History
+from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER
+from ..exceptions import ImproperlyConfiguredBackend
 
 
 class CrudityBackend(object):

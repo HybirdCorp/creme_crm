@@ -31,10 +31,11 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
 from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.models import CustomField, RelationType, Relation
-from creme.creme_core.models.fields import CremeUserForeignKey
-from creme.creme_core.utils.meta import is_date_field, get_model_field_info
-from creme.creme_core.utils.date_range import date_range_registry
+from ..utils.meta import is_date_field, get_model_field_info
+from ..utils.date_range import date_range_registry
+from .relation import RelationType, Relation
+from .custom_field import CustomField
+from .fields import CremeUserForeignKey
 
 
 logger = logging.getLogger(__name__)

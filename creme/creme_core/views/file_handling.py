@@ -27,7 +27,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.conf import settings
 
-from creme.creme_core.utils.secure_filename import secure_filename
+from ..utils.secure_filename import secure_filename
 
 MAXINT = 100000
 

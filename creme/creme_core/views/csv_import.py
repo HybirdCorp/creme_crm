@@ -22,8 +22,8 @@ from django.shortcuts import render
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from creme.creme_core.forms.csv_import import CSVUploadForm, form_factory
-from creme.creme_core.utils import get_ct_or_404
+from ..forms.csv_import import CSVUploadForm, form_factory
+from ..utils import get_ct_or_404
 
 #django wizard doesn't manage to inject its input in the 2nd form
 # + we can't upload file with wizard (even if it is a documents.Document for now)

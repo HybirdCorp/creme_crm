@@ -7,9 +7,9 @@ try:
     from creme.creme_core.tests.forms.base import CremeTestCase
     from creme.creme_core.models import UserRole
 
-    from creme.creme_config.forms.fields import CreatorModelChoiceField
-
     from creme.persons.models import Position
+
+    from ..forms.fields import CreatorModelChoiceField
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

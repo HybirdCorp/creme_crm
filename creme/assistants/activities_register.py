@@ -25,14 +25,14 @@ from django.contrib.auth.models import User
 
 from creme.activities.forms.activity import ActivityCreateForm
 
-from creme.assistants.constants import PRIO_NOT_IMP_PK
-from creme.assistants.models import UserMessage
+from .constants import PRIO_NOT_IMP_PK
+from .models import UserMessage
 
 
 def add_users_field(form):
     form.fields['informed_users'] = ModelMultipleChoiceField(queryset=User.objects.all(),
                                                              widget=CheckboxSelectMultiple(),
-                                                             required=False, label=_(u"Users")
+                                                             required=False, label=_(u"Users"),
                                                             )
 
     form.blocks = form.blocks.new(('informed_users', _(u'Users to keep informed'), ['informed_users']))

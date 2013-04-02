@@ -10,9 +10,9 @@ try:
     from creme.activities.models import Meeting, Calendar
     from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT
 
-    from creme.assistants.models import UserMessage, UserMessagePriority
-    from creme.assistants.constants import PRIO_NOT_IMP_PK
-    from creme.assistants.tests.base import AssistantsTestCase
+    from ..models import UserMessage, UserMessagePriority
+    from ..constants import PRIO_NOT_IMP_PK
+    from .base import AssistantsTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

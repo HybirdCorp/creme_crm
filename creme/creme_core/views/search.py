@@ -26,10 +26,10 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from creme.creme_core.models import EntityCredentials
-from creme.creme_core.core.search import Searcher
-from creme.creme_core.registry import creme_registry
-from creme.creme_core.utils import get_ct_or_404
+from ..models import EntityCredentials
+from ..core.search import Searcher
+from ..registry import creme_registry
+from ..utils import get_ct_or_404
 
 
 @login_required

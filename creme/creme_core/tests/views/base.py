@@ -3,7 +3,7 @@
 try:
     from django.conf import settings
 
-    from creme.creme_core.tests.base import CremeTestCase
+    from ..base import CremeTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import SetCredentials, Language, Currency
 

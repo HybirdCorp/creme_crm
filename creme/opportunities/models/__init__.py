@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 
-from opportunity import Opportunity, SalesPhase, Origin
+from .opportunity import Opportunity, SalesPhase, Origin

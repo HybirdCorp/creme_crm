@@ -11,7 +11,7 @@ try:
 
     from creme.persons.models import Contact, Organisation
 
-    from creme.emails.tests.base import _EmailsTestCase
+    from .base import _EmailsTestCase
     from creme.emails.models import MailingList, EmailCampaign, EmailRecipient
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)

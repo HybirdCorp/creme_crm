@@ -24,9 +24,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.persons.workflow import transform_target_into_customer
 
-from creme.billing.models import Invoice
-from creme.billing.models.other_models import InvoiceStatus, SettlementTerms
-from creme.billing.forms.base import BaseCreateForm, BaseEditForm
+from ..models import Invoice, InvoiceStatus, SettlementTerms
+from .base import BaseCreateForm, BaseEditForm
 
 
 class InvoiceCreateForm(BaseCreateForm):

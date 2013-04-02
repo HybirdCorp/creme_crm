@@ -23,8 +23,8 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity
 
-from mailing_list import MailingList
-from recipient import EmailRecipient
+from .mailing_list import MailingList
+from .recipient import EmailRecipient
 
 
 class EmailCampaign(CremeEntity):

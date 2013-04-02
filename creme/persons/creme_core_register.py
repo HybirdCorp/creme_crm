@@ -25,12 +25,12 @@ from creme.creme_core.gui import (creme_menu, button_registry, block_registry, i
                             quickforms_registry, csv_form_registry, bulk_update_registry,
                             merge_form_registry)
 
-from creme.persons.models import Contact, Organisation
-from creme.persons.buttons import button_list
-from creme.persons.blocks import block_list, ContactBlock, OrganisationBlock
-from creme.persons.forms.quick import ContactQuickForm, OrganisationQuickForm
-from creme.persons.forms.csv_import import get_csv_form_builder
-from creme.persons.forms.merge import get_merge_form_builder
+from .models import Contact, Organisation
+from .buttons import button_list
+from .blocks import block_list, ContactBlock, OrganisationBlock
+from .forms.quick import ContactQuickForm, OrganisationQuickForm
+from .forms.csv_import import get_csv_form_builder
+from .forms.merge import get_merge_form_builder
 
 
 creme_registry.register_entity_models(Contact, Organisation)

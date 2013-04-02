@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,10 +30,10 @@ from creme.creme_core.models import RelationType, EntityCredentials, Relation
 from creme.creme_core.views.generic import view_real_entity, add_entity, list_view, inner_popup
 from creme.creme_core.utils import get_ct_or_404, get_from_GET_or_404, get_from_POST_or_404
 
-from creme.activities.models import Activity
-from creme.activities.forms import *
-from creme.activities.utils import get_ical
-from creme.activities.constants import ACTIVITYTYPE_INDISPO
+from ..models import Activity
+from ..forms import *
+from ..utils import get_ical
+from ..constants import ACTIVITYTYPE_INDISPO
 
 
 INDISPONIBILITY_HELP_MESSAGE = _("""*** How indisponibility works ***
@@ -50,7 +50,7 @@ def add_indisponibility(request):
     return add_entity(request, IndisponibilityCreateForm, '/activities/calendar/user',
                       extra_template_dict={'help_message' : INDISPONIBILITY_HELP_MESSAGE,
                                            'title':         ugettext(u'Add an indisponibility'),
-                                          }
+                                          },
                      )
 
 def _add_activity(request, class_form, **form_args):

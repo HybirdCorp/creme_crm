@@ -11,15 +11,15 @@ try:
 
     from creme.documents.models import Document, Folder
 
-    from creme.crudity.backends.models import CrudityBackend
-    from creme.crudity.fetchers.pop import PopEmail
-    from creme.crudity.inputs.email import CreateEmailInput, CreateInfopathInput
-    from creme.crudity.models.actions import WaitingAction
-    from creme.crudity.models.history import History
-    from creme.crudity.tests.base import CrudityTestCase, ContactFakeBackend, DocumentFakeBackend
-    from creme.crudity.utils import decode_b64binary
-
     from creme.persons.models import Contact
+
+    from ..backends.models import CrudityBackend
+    from ..fetchers.pop import PopEmail
+    from ..inputs.email import CreateEmailInput, CreateInfopathInput
+    from ..models.actions import WaitingAction
+    from ..models.history import History
+    from ..utils import decode_b64binary
+    from .base import CrudityTestCase, ContactFakeBackend, DocumentFakeBackend
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

@@ -25,8 +25,8 @@ from django.contrib.auth.decorators import login_required
 
 from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
 
-from creme.assistants.models import Alert
-from creme.assistants.forms.alert import AlertForm
+from ..models import Alert
+from ..forms.alert import AlertForm
 
 
 @login_required

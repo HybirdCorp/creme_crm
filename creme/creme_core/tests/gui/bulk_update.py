@@ -3,7 +3,7 @@
 try:
     from functools import partial
 
-    from creme.creme_core.tests.base import CremeTestCase
+    from ..base import CremeTestCase
     from creme.creme_core.gui.bulk_update import _BulkUpdateRegistry
 
     from creme.persons.models import Contact, Organisation

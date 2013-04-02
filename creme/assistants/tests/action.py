@@ -5,8 +5,8 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.assistants.models import Action
-    from creme.assistants.tests.base import AssistantsTestCase
+    from ..models import Action
+    from .base import AssistantsTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

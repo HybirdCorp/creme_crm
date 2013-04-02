@@ -26,7 +26,7 @@ from creme.creme_core.models import CremeEntity
 from creme.creme_core.forms import CremeEntityForm
 
 #from creme.persons.models import Address
-from creme.persons.forms.address import AddressForm
+from .address import AddressForm
 
 
 _BILLING_ADDRESS_FIELD  = 'billing_address'

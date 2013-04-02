@@ -7,7 +7,7 @@ try:
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import *
-    from creme.creme_core.tests.views.base import ViewsTestCase
+    from ..base import CremeTestCase
 
     from creme.persons.models import Contact, Organisation, Sector
 except Exception as e:
@@ -17,7 +17,7 @@ except Exception as e:
 __all__ = ('HistoryTestCase',)
 
 
-class HistoryTestCase(ViewsTestCase):
+class HistoryTestCase(CremeTestCase):
     FSTRING_1_VALUE  = _(u'Set field “%(field)s”')
     FSTRING_2_VALUES = _(u'Set field “%(field)s” to “%(value)s”')
     FSTRING_3_VALUES = _(u'Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”')

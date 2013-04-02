@@ -32,15 +32,15 @@ from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 
 from creme.persons.models import Address
 
-from line import Line
-from product_line import ProductLine
-from service_line import ServiceLine
-from algo import ConfigBillingAlgo
-from creme.billing.constants import (REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED,
-                               REL_SUB_HAS_LINE, REL_OBJ_LINE_RELATED_ITEM,
-                               REL_OBJ_CREDIT_NOTE_APPLIED, REL_SUB_CREDIT_NOTE_APPLIED)
-from creme.billing.models.other_models import AdditionalInformation, PaymentTerms, PaymentInformation
-from creme.billing.utils import round_to_2
+from ..constants import (REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED,
+                         REL_SUB_HAS_LINE, REL_OBJ_LINE_RELATED_ITEM,
+                         REL_OBJ_CREDIT_NOTE_APPLIED, REL_SUB_CREDIT_NOTE_APPLIED)
+from ..utils import round_to_2
+from .line import Line
+from .product_line import ProductLine
+from .service_line import ServiceLine
+from .algo import ConfigBillingAlgo
+from .other_models import AdditionalInformation, PaymentTerms, PaymentInformation
 
 
 default_decimal = Decimal()

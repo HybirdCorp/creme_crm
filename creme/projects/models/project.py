@@ -26,7 +26,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import CremeEntity
 
-from creme.projects.models import ProjectStatus
+from .projectstatus import ProjectStatus
 
 
 class Project(CremeEntity):

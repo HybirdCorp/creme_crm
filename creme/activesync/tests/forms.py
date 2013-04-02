@@ -5,7 +5,7 @@ try:
 
     from creme.creme_config.models import SettingValue, SettingKey
 
-    from creme.activesync.constants import *
+    from ..constants import *
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

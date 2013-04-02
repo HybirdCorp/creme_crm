@@ -23,6 +23,7 @@ from Crypto.Cipher import AES
 
 from django.conf import settings
 
+
 class Cipher(object):
     @staticmethod
     def get_cipher():

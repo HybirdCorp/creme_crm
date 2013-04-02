@@ -23,8 +23,8 @@ from collections import defaultdict
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.models import CremeEntity, Relation, CremeProperty, HistoryLine
-from creme.creme_core.gui.block import SimpleBlock, QuerysetBlock, BlocksManager, list4url
+from .models import CremeEntity, Relation, CremeProperty, HistoryLine
+from .gui.block import SimpleBlock, QuerysetBlock, BlocksManager, list4url
 
 
 class PropertiesBlock(QuerysetBlock):

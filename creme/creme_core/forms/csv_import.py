@@ -25,7 +25,8 @@ from logging import info
 from django.db.models import Q, ManyToManyField
 from django.db.models.fields import FieldDoesNotExist
 from django.forms.models import modelform_factory
-from django.forms import Field, BooleanField, ModelChoiceField, ModelMultipleChoiceField, ValidationError, IntegerField
+from django.forms import (Field, BooleanField, ModelChoiceField,
+                          ModelMultipleChoiceField, ValidationError, IntegerField)
 from django.forms.widgets import SelectMultiple, HiddenInput
 from django.forms.util import flatatt
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -34,15 +35,15 @@ from django.utils.html import escape
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
-from creme.creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation, CremeEntity, EntityCredentials
-from creme.creme_core.gui.csv_import import csv_form_registry
-from creme.creme_core.utils.unicode_csv import UnicodeReader
-from creme.creme_core.utils.collections import LimitedList
-from creme.creme_core.views.entity import EXCLUDED_FIELDS
-from base import CremeForm, CremeModelForm, FieldBlockManager
-from fields import MultiRelationEntityField, CreatorEntityField #CremeEntityField
-from widgets import UnorderedMultipleChoiceWidget, ChainedInput, SelectorList
-from validators import validate_linkable_entities
+from ..models import CremePropertyType, CremeProperty, RelationType, Relation, CremeEntity, EntityCredentials
+from ..gui.csv_import import csv_form_registry
+from ..utils.unicode_csv import UnicodeReader
+from ..utils.collections import LimitedList
+from ..views.entity import EXCLUDED_FIELDS
+from .base import CremeForm, CremeModelForm, FieldBlockManager
+from .fields import MultiRelationEntityField, CreatorEntityField #CremeEntityField
+from .validators import validate_linkable_entities
+from .widgets import UnorderedMultipleChoiceWidget, ChainedInput, SelectorList
 
 from creme.documents.models import Document
 

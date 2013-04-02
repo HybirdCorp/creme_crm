@@ -5,7 +5,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.models import *
-    from creme.creme_core.tests.base import CremeTestCase
+    from ..base import CremeTestCase
 
     from creme.persons.models import Contact, Organisation
 except Exception as e:

@@ -30,9 +30,9 @@ from creme.creme_core.models.fields import PhoneField
 
 from creme.media_managers.models import Image
 
-from creme.persons.constants import REL_OBJ_EMPLOYED_BY
-from address import Address
-from other_models import Civility, Position, Sector
+from ..constants import REL_OBJ_EMPLOYED_BY
+from .address import Address
+from .other_models import Civility, Position, Sector
 
 
 class Contact(CremeEntity):

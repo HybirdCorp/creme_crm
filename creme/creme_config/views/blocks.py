@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,9 +30,9 @@ from creme.creme_core.models.block import (BlockDetailviewLocation, BlockPortalL
 from creme.creme_core.views.generic import add_model_with_popup, inner_popup
 from creme.creme_core.utils import get_from_POST_or_404
 
-from creme.creme_config.forms.blocks import (BlockDetailviewLocationsAddForm, BlockDetailviewLocationsEditForm,
-                                       BlockPortalLocationsAddForm, BlockPortalLocationsEditForm,
-                                       BlockMypageLocationsForm, RelationBlockAddForm)
+from ..forms.blocks import (BlockDetailviewLocationsAddForm, BlockDetailviewLocationsEditForm,
+                            BlockPortalLocationsAddForm, BlockPortalLocationsEditForm,
+                            BlockMypageLocationsForm, RelationBlockAddForm)
 
 
 @login_required

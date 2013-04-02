@@ -35,7 +35,7 @@ from django.core.files.base import File
 
 from creme.creme_config.models import SettingValue
 
-from creme.activesync.constants import USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS
+from .constants import USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS
 
 
 DEFAULT_CHUNK_SIZE = File.DEFAULT_CHUNK_SIZE
@@ -56,7 +56,6 @@ def generate_guid():
 
     return guid
 
-
 def b64_encode_file(file_path):
     """Get a file path
     Returns (len(b64encoded file), file in b64)
@@ -73,7 +72,6 @@ def b64_encode_file(file_path):
 
     return (len_encoded, value)
 
-
 def b64_from_pil_image(im, quality=75, reduce_by=1, out_format='JPEG'):
     """Get a PIL Image
     Returns (image content in base64), image content in base64)
@@ -88,7 +86,6 @@ def b64_from_pil_image(im, quality=75, reduce_by=1, out_format='JPEG'):
     content_size = len(content)
     img_content.close()
     return (content_size, content)
-
 
 def get_b64encoded_img_of_max_weight(image_file_path, max_weight):
     """

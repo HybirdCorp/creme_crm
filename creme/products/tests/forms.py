@@ -5,8 +5,8 @@ try:
 
     from creme.creme_core.tests.forms import FieldTestCase
 
-    from creme.products.models import Category, SubCategory
-    from creme.products.forms.product import CategoryField
+    from ..models import Category, SubCategory
+    from ..forms.product import CategoryField
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

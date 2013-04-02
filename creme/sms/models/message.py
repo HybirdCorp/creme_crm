@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,16 +25,12 @@ from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 from creme.creme_core.models import CremeModel
 from creme.creme_core.utils import chunktools
 
-from creme.sms.models.campaign import SMSCampaign
-from creme.sms.models.template import MessageTemplate
-
-from creme.sms.webservice.samoussa import (SamoussaBackEnd,
-                                     SAMOUSSA_STATUS_ACCEPT,
-                                     SAMOUSSA_STATUS_WAITING,
-                                     SAMOUSSA_STATUS_SENT,
-                                     SAMOUSSA_STATUS_ERROR,)
-from creme.sms.webservice.backend import WSException
-
+from ..webservice.samoussa import (SamoussaBackEnd, SAMOUSSA_STATUS_ACCEPT,
+                                   SAMOUSSA_STATUS_WAITING, SAMOUSSA_STATUS_SENT,
+                                   SAMOUSSA_STATUS_ERROR)
+from ..webservice.backend import WSException
+from .campaign import SMSCampaign
+from .template import MessageTemplate
 
 
 MESSAGE_STATUS_NOTSENT = 'notsent'

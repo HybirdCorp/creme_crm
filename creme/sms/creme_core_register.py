@@ -23,8 +23,8 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.gui import creme_menu, block_registry, icon_registry
 
-from creme.sms.models import SMSCampaign, MessagingList, MessageTemplate
-from creme.sms.blocks import messaging_lists_block, recipients_block, contacts_block, messages_block, sendings_block
+from .models import SMSCampaign, MessagingList, MessageTemplate
+from .blocks import messaging_lists_block, recipients_block, contacts_block, messages_block, sendings_block
 
 
 creme_registry.register_entity_models(SMSCampaign, MessagingList, MessageTemplate)

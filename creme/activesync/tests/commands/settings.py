@@ -5,7 +5,7 @@ try:
 
     from creme.activesync.commands.settings import Settings
     #from creme.activesync.connection import Connection
-    from creme.activesync.tests.commands.base import BaseASTestCase
+    from .base import BaseASTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

@@ -5,8 +5,8 @@ try:
 
     from creme.persons.models import Contact, Organisation
 
-    from creme.emails.models import EntityEmail
-    from creme.emails.constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED, REL_SUB_RELATED_TO
+    from ..models import EntityEmail
+    from ..constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED, REL_SUB_RELATED_TO
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

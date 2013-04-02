@@ -26,13 +26,13 @@ from creme.creme_core.forms import CremeModelWithUserForm
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import Relation
 
-from creme.persons.constants import REL_SUB_EMPLOYED_BY
-from creme.persons.models import Contact, Organisation
+from ..constants import REL_SUB_EMPLOYED_BY
+from ..models import Contact, Organisation
 
 
 class ContactQuickForm(CremeModelWithUserForm): #not CremeEntityForm to ignore custom fields
     organisation = CharField(label=_(u"Organisation"), required=False,
-                             help_text=_(u'If no organisation is found, a new one will be created.')
+                             help_text=_(u'If no organisation is found, a new one will be created.'),
                             )
 
     class Meta:

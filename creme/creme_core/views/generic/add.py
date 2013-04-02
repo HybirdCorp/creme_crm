@@ -23,7 +23,7 @@ from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.models import CremeEntity
-from creme.creme_core.views.generic.popup import inner_popup
+from .popup import inner_popup
 
 
 #TODO: rename 'extra_initial' ??

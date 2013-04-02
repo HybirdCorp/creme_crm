@@ -5,8 +5,8 @@ try:
 
     from creme.creme_core.models import CremePropertyType
 
-    from creme.commercial.models import MarketSegment
-    from creme.commercial.tests.base import CommercialBaseTestCase
+    from ..models import MarketSegment
+    from .base import CommercialBaseTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

@@ -3,7 +3,7 @@
 try:
     from creme.creme_core.models import ButtonMenuItem
     from creme.creme_core.gui.button_menu import Button
-    from creme.creme_core.tests.base import CremeTestCase
+    from ..base import CremeTestCase
 
     from creme.persons.models import Contact
 except Exception as e:

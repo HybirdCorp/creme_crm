@@ -27,7 +27,7 @@ from creme.creme_core.models import CremeEntity, CremeModel
 
 from creme.persons.models import Organisation
 
-from market_segment import MarketSegment
+from .market_segment import MarketSegment
 
 
 __all__ = ('Strategy', 'MarketSegmentDescription', 'MarketSegmentCategory',

@@ -28,7 +28,7 @@ from creme.creme_core.forms.fields import MultiCremeEntityField
 
 from creme.persons.models import Contact
 
-from creme.sms.models import MessagingList
+from ..models import MessagingList
 
 
 class MessagingListForm(CremeEntityForm):

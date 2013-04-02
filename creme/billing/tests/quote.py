@@ -2,15 +2,16 @@
 
 try:
     from datetime import date
+    from decimal import Decimal
 
     from creme.creme_core.models import Currency
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons.constants import REL_SUB_PROSPECT
 
-    from creme.billing.models import *
-    from creme.billing.constants import *
-    from creme.billing.tests.base import _BillingTestCase
+    from ..models import QuoteStatus
+    from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+    from .base import _BillingTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

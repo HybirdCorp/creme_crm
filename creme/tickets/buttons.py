@@ -23,8 +23,8 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.gui.button_menu import Button
 
-from creme.tickets.models import Ticket
-from creme.tickets.constants import REL_SUB_LINKED_2_TICKET
+from .models import Ticket
+from .constants import REL_SUB_LINKED_2_TICKET
 
 
 class Linked2TicketButton(Button):

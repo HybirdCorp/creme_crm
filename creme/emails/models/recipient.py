@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,11 +23,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeModel
 
-from mailing_list import MailingList
+from .mailing_list import MailingList
 
 
 class EmailRecipient(CremeModel):
-    """ A model that stores an e-mail address not linked to a Contact/Organisation"""
+    """A model that stores an e-mail address not linked to a Contact/Organisation"""
     ml      = ForeignKey(MailingList, verbose_name=_(u'Related mailing list'))
     address = CharField(_(u'Email address'), max_length=100, blank=True, null=True)
 

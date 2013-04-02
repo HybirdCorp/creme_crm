@@ -21,7 +21,7 @@
 from django.db.models.query import Q
 from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.models import SearchConfigItem, SearchField
+from ..models import SearchConfigItem, SearchField
 
 
 class Searcher(object):

@@ -4,7 +4,7 @@ try:
     from django.core.exceptions import ValidationError
 
     from creme.creme_core.forms.fields import DateRangeField, ColorField, DurationField
-    from creme.creme_core.tests.forms.base import FieldTestCase
+    from .base import FieldTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

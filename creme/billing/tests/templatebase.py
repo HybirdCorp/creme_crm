@@ -4,15 +4,16 @@ try:
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
+
     from creme.creme_core.models import Relation
     from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons.models import Organisation
 
-    from creme.billing.tests.base import _BillingTestCase
-    from creme.billing.models import (TemplateBase, Invoice, InvoiceStatus,
-                                Quote, QuoteStatus, SalesOrder, SalesOrderStatus)
-    from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+    from ..models import (TemplateBase, Invoice, InvoiceStatus,
+                          Quote, QuoteStatus, SalesOrder, SalesOrderStatus)
+    from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+    from .base import _BillingTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

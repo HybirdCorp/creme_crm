@@ -30,9 +30,9 @@ from creme.creme_core.models import CremeEntity
 from creme.creme_core.templatetags.creme_date import timedelta_pprint
 from creme.creme_core.utils import truncate_str
 
-from status import Status, OPEN_PK, CLOSED_PK
-from priority import Priority
-from criticity import Criticity
+from .status import Status, OPEN_PK, CLOSED_PK
+from .priority import Priority
+from .criticity import Criticity
 
 
 MAXINT = 100000

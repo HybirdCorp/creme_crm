@@ -23,9 +23,11 @@ from django.contrib.auth.decorators import login_required
 
 def js_testview_or_404(request, message, error):
     from logging import warn
+
     from django.http import Http404
     from django.conf import settings
-    from creme.creme_core.utils import is_testenvironment
+
+    from ..utils import is_testenvironment
 
     if not is_testenvironment(request) and not settings.FORCE_JS_TESTVIEW:
         raise Http404(error)

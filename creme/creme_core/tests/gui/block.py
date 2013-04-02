@@ -1,5 +1,5 @@
 try:
-    from creme.creme_core.tests.base import CremeTestCase
+    from ..base import CremeTestCase
     from creme.creme_core.models import Relation, RelationType, InstanceBlockConfigItem, RelationBlockItem
     from creme.creme_core.gui.block import (Block, SimpleBlock, SpecificRelationsBlock,
                                       _BlockRegistry, BlocksManager)

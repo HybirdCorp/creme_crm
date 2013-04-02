@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,8 +23,10 @@ from django.db.models.fields.related import ForeignKey, ManyToManyField
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.utils.meta import get_model_field_info
-from creme.creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED
+from creme.creme_core.models.header_filter import (HFI_FIELD, HFI_RELATION, HFI_FUNCTION,
+                                                   HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED)
 from creme.creme_core.registry import creme_registry
+
 
 register = Library()
 
@@ -41,9 +43,12 @@ HFI_TYPE_VERBOSE = {
 def is_linkable(field, ct):
     field_infos = get_model_field_info(ct.model_class(), field.name)
     registred_models = creme_registry.iter_entity_models()
+
     for field_dict in field_infos:
-        if(isinstance(field_dict.get('field'), (ForeignKey, ManyToManyField)) and field_dict.get('model') in registred_models):
+        if isinstance(field_dict.get('field'), (ForeignKey, ManyToManyField)) and \
+           field_dict.get('model') in registred_models:
             return True
+
     return False
 
 @register.filter(name="get_verbose_type")

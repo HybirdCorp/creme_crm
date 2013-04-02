@@ -9,7 +9,7 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.activesync.utils import get_b64encoded_img_of_max_weight
+    from ..utils import get_b64encoded_img_of_max_weight
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,9 +28,9 @@ from creme.creme_core.models.relation import Relation
 from creme.activities.models import Activity
 from creme.activities.constants import ACTIVITYTYPE_TASK, REL_SUB_PART_2_ACTIVITY
 
-from creme.projects import constants
-from project import Project
-from taskstatus import TaskStatus
+from ..constants import COMPLETED_PK, CANCELED_PK
+from .project import Project
+from .taskstatus import TaskStatus
 
 
 class ProjectTask(Activity):
@@ -124,7 +124,7 @@ class ProjectTask(Activity):
         return self.get_effective_duration() - self.duration
 
     def is_alive(self):
-        return self.tstatus_id not in (constants.COMPLETED_PK, constants.CANCELED_PK)
+        return self.tstatus_id not in (COMPLETED_PK, CANCELED_PK)
 
     def _clone_m2m(self, source):#Handled manually in clone_scope
         pass

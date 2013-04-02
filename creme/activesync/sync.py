@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,26 +28,20 @@ from django.conf import settings
 
 from creme.creme_config.models import SettingValue
 
-from creme.activesync.cipher import Cipher
-from creme.activesync.constants import (MAPI_DOMAIN, MAPI_SERVER_SSL, MAPI_SERVER_URL,
-                                    USER_MOBILE_SYNC_SERVER_DOMAIN,
-                                    USER_MOBILE_SYNC_SERVER_LOGIN,
-                                    USER_MOBILE_SYNC_SERVER_PWD,
-                                    USER_MOBILE_SYNC_SERVER_SSL,
-                                    USER_MOBILE_SYNC_SERVER_URL)#TODO: * ?
-
-from creme.activesync.errors import (CremeActiveSyncError,
-                               SYNC_ERR_WRONG_CFG_NO_SERVER_URL,
-                               SYNC_ERR_WRONG_CFG_NO_LOGIN,
-                               SYNC_ERR_WRONG_CFG_NO_PWD,
-                               SYNC_ERR_ABORTED,
-                               SYNC_ERR_WRONG_CFG_INVALID_SERVER_URL)#TODO: * ?
-from creme.activesync.messages import MessageInfo, MessageSucceed, MessageError, _INFO, _ERROR, _SUCCESS
-from creme.activesync.models.active_sync import CremeClient, AS_Folder
-from creme.activesync.commands import FolderSync, Provision, AirSync
 from creme.activesync import constants as as_constants
-from creme.activesync.utils import is_user_sync_calendars, is_user_sync_contacts
-from creme.activesync.mappings import FOLDERS_TYPES_CREME_TYPES_MAPPING, CREME_AS_MAPPING
+from .constants import (MAPI_DOMAIN, MAPI_SERVER_SSL, MAPI_SERVER_URL,
+                        USER_MOBILE_SYNC_SERVER_DOMAIN, USER_MOBILE_SYNC_SERVER_LOGIN,
+                        USER_MOBILE_SYNC_SERVER_PWD, USER_MOBILE_SYNC_SERVER_SSL,
+                        USER_MOBILE_SYNC_SERVER_URL)
+from .cipher import Cipher
+from .errors import (CremeActiveSyncError, SYNC_ERR_WRONG_CFG_NO_SERVER_URL,
+                     SYNC_ERR_WRONG_CFG_NO_LOGIN, SYNC_ERR_WRONG_CFG_NO_PWD,
+                     SYNC_ERR_ABORTED, SYNC_ERR_WRONG_CFG_INVALID_SERVER_URL)
+from .messages import MessageInfo, MessageSucceed, MessageError, _INFO, _ERROR, _SUCCESS
+from .models import CremeClient, AS_Folder
+from .commands import FolderSync, Provision, AirSync
+from .utils import is_user_sync_calendars, is_user_sync_contacts
+from .mappings import FOLDERS_TYPES_CREME_TYPES_MAPPING, CREME_AS_MAPPING
 
 
 INFO    = 'info'

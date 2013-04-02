@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,11 +26,11 @@ from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from creme.creme_core.models import EntityFilter, RelationType
-from creme.creme_core.gui.listview import ListViewState
-from creme.creme_core.forms.entity_filter import EntityFilterCreateForm, EntityFilterEditForm
-from creme.creme_core.views.generic import add_entity
-from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404, jsonify, creme_entity_content_types
+from ..models import EntityFilter, RelationType
+from ..gui.listview import ListViewState
+from ..forms.entity_filter import EntityFilterCreateForm, EntityFilterEditForm
+from ..utils import get_ct_or_404, get_from_POST_or_404, jsonify, creme_entity_content_types
+from .generic import add_entity
 
 #TODO: factorise with HeaderFilter ??
 

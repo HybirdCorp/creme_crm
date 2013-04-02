@@ -19,8 +19,8 @@ try:
     from creme.persons.models import Address, Contact, Organisation, Civility
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
-    #from creme.activesync.mappings.utils import serialize_entity
-    #from creme.activesync.mappings.contact import CREME_CONTACT_MAPPING
+    #from ..mappings.utils import serialize_entity
+    #from ..mappings.contact import CREME_CONTACT_MAPPING
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

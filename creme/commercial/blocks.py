@@ -34,8 +34,8 @@ from creme.opportunities.constants import REL_SUB_TARGETS
 
 from creme.persons.models import Organisation
 
-from creme.commercial.models import *
-from creme.commercial.constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW, REL_OBJ_COMPLETE_GOAL
+from .models import *
+from .constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW, REL_OBJ_COMPLETE_GOAL
 
 
 get_ct = ContentType.objects.get_for_model

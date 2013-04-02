@@ -6,7 +6,7 @@ try:
 
     from creme.persons.models import Contact
 
-    from creme.assistants.models import UserMessagePriority
+    from ..models import UserMessagePriority
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
