@@ -30,8 +30,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.conf import settings
 from django.forms.util import flatatt
 
-from creme_core.auth.entity_credentials import EntityCredentials
-from creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
 from base import CremeAbstractEntity
 
 

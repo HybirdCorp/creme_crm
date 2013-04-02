@@ -21,11 +21,11 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import ugettext as _
 
-from creme_core.views.generic import add_entity, edit_entity, list_view, view_entity
+from creme.creme_core.views.generic import add_entity, edit_entity, list_view, view_entity
 
-from billing.models import Quote
-from billing.views.workflow import _add_with_relations
-from billing.forms.quote import QuoteCreateForm, QuoteEditForm
+from creme.billing.models import Quote
+from creme.billing.views.workflow import _add_with_relations
+from creme.billing.forms.quote import QuoteCreateForm, QuoteEditForm
 
 
 @login_required

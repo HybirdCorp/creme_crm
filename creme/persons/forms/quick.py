@@ -22,12 +22,12 @@ from django.core.exceptions import ValidationError
 from django.forms.fields import CharField
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.forms import CremeModelWithUserForm
-from creme_core.forms.widgets import Label
-from creme_core.models import Relation
+from creme.creme_core.forms import CremeModelWithUserForm
+from creme.creme_core.forms.widgets import Label
+from creme.creme_core.models import Relation
 
-from persons.constants import REL_SUB_EMPLOYED_BY
-from persons.models import Contact, Organisation
+from creme.persons.constants import REL_SUB_EMPLOYED_BY
+from creme.persons.models import Contact, Organisation
 
 
 class ContactQuickForm(CremeModelWithUserForm): #not CremeEntityForm to ignore custom fields

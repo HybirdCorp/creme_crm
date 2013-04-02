@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from emails.tests.base import _EmailsTestCase
-    from emails.models import EmailCampaign
+    from creme.emails.tests.base import _EmailsTestCase
+    from creme.emails.models import EmailCampaign
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

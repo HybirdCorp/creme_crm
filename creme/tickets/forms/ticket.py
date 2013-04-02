@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.forms import CremeEntityForm
+from creme.creme_core.forms import CremeEntityForm
 
-from tickets.models import Ticket
+from creme.tickets.models import Ticket
 
 
 class TicketEditForm(CremeEntityForm):

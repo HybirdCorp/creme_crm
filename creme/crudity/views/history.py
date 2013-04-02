@@ -23,10 +23,10 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.utils import get_ct_or_404, jsonify
+from creme.creme_core.utils import get_ct_or_404, jsonify
 
-from crudity.registry import crudity_registry
-from crudity.blocks import HistoryBlock
+from creme.crudity.registry import crudity_registry
+from creme.crudity.blocks import HistoryBlock
 
 
 @login_required

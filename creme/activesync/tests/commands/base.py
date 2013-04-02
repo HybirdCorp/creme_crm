@@ -5,7 +5,7 @@ from threading import Thread
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from activesync.tests.commands.fake_server import SimpleASHTTPServer
+from creme.activesync.tests.commands.fake_server import SimpleASHTTPServer
 
 
 def start_server(port, testcase):

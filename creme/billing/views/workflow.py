@@ -20,8 +20,8 @@
 
 from django.shortcuts import get_object_or_404
 
-from creme_core.models.entity import CremeEntity
-from creme_core.views.generic import add_model_with_popup
+from creme.creme_core.models.entity import CremeEntity
+from creme.creme_core.views.generic import add_model_with_popup
 
 
 def _add_with_relations(request, target_id, source_id, form, title, status_id=None):

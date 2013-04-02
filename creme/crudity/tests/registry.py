@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from persons.models import Contact, Organisation
+    from creme.persons.models import Contact, Organisation
 
-    from documents.models import Document
+    from creme.documents.models import Document
 
-    from crudity.registry import CRUDityRegistry
-    from crudity.tests.base import (CrudityTestCase, FakeFetcher, ContactFakeBackend,
+    from creme.crudity.registry import CRUDityRegistry
+    from creme.crudity.tests.base import (CrudityTestCase, FakeFetcher, ContactFakeBackend,
                                     OrganisationFakeBackend, DocumentFakeBackend, FakeInput)
 except Exception as e:
     print 'Error:', e

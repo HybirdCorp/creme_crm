@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls.defaults import patterns
+from django.conf.urls import patterns
 
 
-urlpatterns = patterns('documents.views',
+urlpatterns = patterns('creme.documents.views',
     (r'^$', 'portal.portal'),
 
     (r'^folders$',                        'folder.listview'),

@@ -22,12 +22,12 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.views.generic.add import add_model_with_popup
+from creme.creme_core.views.generic.add import add_model_with_popup
 
-from creme_config.models.setting import SettingValue
-from activesync.forms.mobile_sync import MobileSyncForm
+from creme.creme_config.models.setting import SettingValue
+from creme.activesync.forms.mobile_sync import MobileSyncForm
 
-from activesync.constants import MAPI_SERVER_URL, MAPI_DOMAIN, MAPI_SERVER_SSL
+from creme.activesync.constants import MAPI_SERVER_URL, MAPI_DOMAIN, MAPI_SERVER_SSL
 
 @login_required
 @permission_required('creme_config.can_admin')

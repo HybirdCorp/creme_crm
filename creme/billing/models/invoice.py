@@ -21,7 +21,7 @@
 from django.db.models import ForeignKey, PROTECT
 from django.utils.translation import ugettext_lazy as _
 
-from persons.workflow import transform_target_into_customer
+from creme.persons.workflow import transform_target_into_customer
 
 from base import Base
 from templatebase import TemplateBase

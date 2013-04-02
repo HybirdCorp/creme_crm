@@ -21,18 +21,18 @@
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import Relation #CremeEntity
-from creme_core.gui.block import QuerysetBlock, SimpleBlock
+from creme.creme_core.models import Relation #CremeEntity
+from creme.creme_core.gui.block import QuerysetBlock, SimpleBlock
 
-from persons.models import Contact, Organisation
+from creme.persons.models import Contact, Organisation
 
-from products.models import Product, Service
+from creme.products.models import Product, Service
 
-from billing.models import Quote, Invoice, SalesOrder
-from billing.blocks import TotalBlock, TargetBlock
+from creme.billing.models import Quote, Invoice, SalesOrder
+from creme.billing.blocks import TotalBlock, TargetBlock
 
-from opportunities.constants import *
-from opportunities.models import Opportunity
+from creme.opportunities.constants import *
+from creme.opportunities.models import Opportunity
 
 
 _get_ct = ContentType.objects.get_for_model

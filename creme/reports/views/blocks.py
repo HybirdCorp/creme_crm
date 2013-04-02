@@ -22,9 +22,9 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.views.generic.popup import inner_popup
-from reports.forms.blocks import GraphInstanceBlockForm
-from reports.models.graph import ReportGraph
+from creme.creme_core.views.generic.popup import inner_popup
+from creme.reports.forms.blocks import GraphInstanceBlockForm
+from creme.reports.models.graph import ReportGraph
 
 
 #TODO: use add_to_entity() generic view => Post TODO: Doesn't fit to the needs (credential admin instead of change/link)

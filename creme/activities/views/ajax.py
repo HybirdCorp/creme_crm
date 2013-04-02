@@ -23,12 +23,12 @@ from django.utils.simplejson.encoder import JSONEncoder
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType
-from creme_core.utils import get_from_POST_or_404
+from creme.creme_core.models import RelationType
+from creme.creme_core.utils import get_from_POST_or_404
 
-from persons.models.contact import Contact
+from creme.persons.models.contact import Contact
 
-from activities.constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY
+from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY
 
 
 #TODO: use the more generic system existing in creme_core for relations (that filter relation type with contenttype) ?????

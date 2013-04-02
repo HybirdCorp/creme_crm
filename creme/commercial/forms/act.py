@@ -23,10 +23,10 @@ from math import ceil
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.forms import ModelChoiceField, IntegerField
 
-from creme_core.forms import CremeForm, CremeEntityForm, CremeModelForm, CremeDateTimeField
-from creme_core.utils import Q_creme_entity_content_types
+from creme.creme_core.forms import CremeForm, CremeEntityForm, CremeModelForm, CremeDateTimeField
+from creme.creme_core.utils import Q_creme_entity_content_types
 
-from commercial.models import Act, ActObjective, ActObjectivePattern, ActObjectivePatternComponent
+from creme.commercial.models import Act, ActObjective, ActObjectivePattern, ActObjectivePatternComponent
 
 
 class ActForm(CremeEntityForm):

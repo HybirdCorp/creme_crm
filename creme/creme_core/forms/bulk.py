@@ -28,14 +28,14 @@ from django.core.exceptions import ValidationError
 from django.forms.fields import CharField, ChoiceField
 from django.utils.translation import ugettext, ugettext_lazy as _
 
-from creme_core.models import fields, EntityCredentials, CremeEntity
-from creme_core.models.custom_field import CustomField, CustomFieldEnumValue, CustomFieldValue, CustomFieldMultiEnum, CustomFieldEnum
-from creme_core.forms.widgets import DateTimeWidget, CalendarWidget, UnorderedMultipleChoiceWidget, Label, AdaptiveWidget
-from creme_core.forms.base import CremeForm, _CUSTOM_NAME
-from creme_core.forms.fields import AjaxMultipleChoiceField
-from creme_core.utils import entities2unicode, related2unicode
-from creme_core.utils.meta import get_verbose_field_name
-from creme_core.gui.bulk_update import bulk_update_registry
+from creme.creme_core.models import fields, EntityCredentials, CremeEntity
+from creme.creme_core.models.custom_field import CustomField, CustomFieldEnumValue, CustomFieldValue, CustomFieldMultiEnum, CustomFieldEnum
+from creme.creme_core.forms.widgets import DateTimeWidget, CalendarWidget, UnorderedMultipleChoiceWidget, Label, AdaptiveWidget
+from creme.creme_core.forms.base import CremeForm, _CUSTOM_NAME
+from creme.creme_core.forms.fields import AjaxMultipleChoiceField
+from creme.creme_core.utils import entities2unicode, related2unicode
+from creme.creme_core.utils.meta import get_verbose_field_name
+from creme.creme_core.gui.bulk_update import bulk_update_registry
 
 
 _FIELDS_WIDGETS = {

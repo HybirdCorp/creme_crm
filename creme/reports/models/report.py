@@ -27,13 +27,13 @@ from django.db.models.fields.related import ManyToManyField, ForeignKey
 from django.db.models.fields import CharField, PositiveIntegerField, PositiveSmallIntegerField, BooleanField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeModel, CremeEntity, EntityFilter
-from creme_core.models.custom_field import CustomField, _TABLES
-from creme_core.utils.meta import (get_instance_field_info, get_model_field_info,
+from creme.creme_core.models import CremeModel, CremeEntity, EntityFilter
+from creme.creme_core.models.custom_field import CustomField, _TABLES
+from creme.creme_core.utils.meta import (get_instance_field_info, get_model_field_info,
                                    filter_entities_on_ct, get_fk_entity, get_m2m_entities, get_related_field, get_verbose_field_name)
-from creme_core.models.header_filter import HFI_FUNCTION, HFI_RELATION, HFI_FIELD, HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED
+from creme.creme_core.models.header_filter import HFI_FUNCTION, HFI_RELATION, HFI_FIELD, HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED
 
-from reports.report_aggregation_registry import field_aggregation_registry
+from creme.reports.report_aggregation_registry import field_aggregation_registry
 
 
 class DropLine(Exception):

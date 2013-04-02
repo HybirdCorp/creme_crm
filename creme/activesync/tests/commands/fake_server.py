@@ -7,8 +7,8 @@ import os
 
 from django.core.files import File
 
-from activesync.wbxml import WBXMLEncoder
-from activesync.wbxml.dtd import AirsyncDTD_Reverse
+from creme.activesync.wbxml import WBXMLEncoder
+from creme.activesync.wbxml.dtd import AirsyncDTD_Reverse
 
 
 DEFAULT_CHUNK_SIZE = File.DEFAULT_CHUNK_SIZE

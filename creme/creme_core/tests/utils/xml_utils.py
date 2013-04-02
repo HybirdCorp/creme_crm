@@ -3,8 +3,8 @@
 try:
     from xml.etree.ElementTree import XML
 
-    from creme_core.tests.base import CremeTestCase
-    from creme_core.utils.xml_utils import _element_iterator, xml_diff
+    from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.utils.xml_utils import _element_iterator, xml_diff
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

@@ -22,17 +22,17 @@ from datetime import timedelta
 
 from django.conf import settings
 
-from creme_core.models import Relation
-from creme_core.utils.dates import (get_utc_dt_from_creme_dt, get_utc_now,
+from creme.creme_core.models import Relation
+from creme.creme_core.utils.dates import (get_utc_dt_from_creme_dt, get_utc_now,
                                     get_creme_dt_from_utc_dt, get_dt_to_iso8601_str,
                                     get_dt_from_iso8601_str, get_naive_dt_from_tzdate)
 
-from activities.models import Meeting, Calendar
-from activities.constants import REL_SUB_PART_2_ACTIVITY
+from creme.activities.models import Meeting, Calendar
+from creme.activities.constants import REL_SUB_PART_2_ACTIVITY
 
-from activesync.models.active_sync import AS_Folder
-from activesync.models.other_models import EntityASData
-from activesync.utils import generate_guid, encode_AS_timezone
+from creme.activesync.models.active_sync import AS_Folder
+from creme.activesync.models.other_models import EntityASData
+from creme.activesync.utils import generate_guid, encode_AS_timezone
 
 
 ALL_DAY_EVENT = 1#An item marked as an all day event is understood to begin on midnight of the current day and to end on midnight of the next day.

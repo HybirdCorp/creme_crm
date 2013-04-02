@@ -20,9 +20,9 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.gui.button_menu import Button
+from creme.creme_core.gui.button_menu import Button
 
-from persons.models import Contact
+from creme.persons.models import Contact
 
 
 class GenerateVcfButton(Button):

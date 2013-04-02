@@ -24,12 +24,12 @@ from django.db.models import PositiveIntegerField, CharField, BooleanField, Fore
 from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.models import CremeEntity, RelationType, Relation, InstanceBlockConfigItem
-from creme_core.models.header_filter import HFI_RELATION, HFI_FIELD
-from creme_core.utils.meta import get_verbose_field_name
+from creme.creme_core.models import CremeEntity, RelationType, Relation, InstanceBlockConfigItem
+from creme.creme_core.models.header_filter import HFI_RELATION, HFI_FIELD
+from creme.creme_core.utils.meta import get_verbose_field_name
 
-from reports.models.report import Report
-from reports.report_aggregation_registry import field_aggregation_registry
+from creme.reports.models.report import Report
+from creme.reports.report_aggregation_registry import field_aggregation_registry
 
 
 #ReportGraph types
@@ -215,7 +215,7 @@ class ReportGraph(CremeEntity):
     class InstanceBlockConfigItemError(Exception): pass
 
     def create_instance_block_config_item(self, volatile_field=None, volatile_rtype=None, save=True):
-        from reports.blocks import ReportGraphBlock
+        from creme.reports.blocks import ReportGraphBlock
 
         if volatile_field:
             assert volatile_rtype is None

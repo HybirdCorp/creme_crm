@@ -20,10 +20,10 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import EntityCredentials
-from creme_core.gui.block import Block, SimpleBlock, list4url
+from creme.creme_core.models import EntityCredentials
+from creme.creme_core.gui.block import Block, SimpleBlock, list4url
 
-from media_managers.models import Image
+from creme.media_managers.models import Image
 
 
 class ImageBlock(SimpleBlock):

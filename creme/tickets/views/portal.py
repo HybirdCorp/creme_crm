@@ -20,12 +20,12 @@
 
 from django.utils.translation import ugettext as _
 
-from creme_core.views.generic import app_portal
+from creme.creme_core.views.generic import app_portal
 
-from creme_config.utils import generate_portal_url
+from creme.creme_config.utils import generate_portal_url
 
-from tickets.models import Ticket
-from tickets.models.status import OPEN_PK, CLOSED_PK
+from creme.tickets.models import Ticket
+from creme.tickets.models.status import OPEN_PK, CLOSED_PK
 
 
 def portal(request):

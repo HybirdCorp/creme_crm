@@ -23,11 +23,11 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404, render
 
-from creme_core.models import HistoryConfigItem
-from creme_core.views.generic import add_model_with_popup
-from creme_core.utils import get_from_POST_or_404
+from creme.creme_core.models import HistoryConfigItem
+from creme.creme_core.views.generic import add_model_with_popup
+from creme.creme_core.utils import get_from_POST_or_404
 
-from creme_config.forms.history import HistoryConfigForm
+from creme.creme_config.forms.history import HistoryConfigForm
 
 
 @login_required

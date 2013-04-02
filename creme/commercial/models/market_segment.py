@@ -22,7 +22,7 @@
 from django.db.models import CharField, ForeignKey
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.models import CremeModel, CremePropertyType
+from creme.creme_core.models import CremeModel, CremePropertyType
 
 
 class MarketSegment(CremeModel):

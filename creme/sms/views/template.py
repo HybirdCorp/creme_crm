@@ -20,10 +20,10 @@
 
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
+from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
-from sms.models import MessageTemplate
-from sms.forms.template import TemplateCreateForm, TemplateEditForm
+from creme.sms.models import MessageTemplate
+from creme.sms.forms.template import TemplateCreateForm, TemplateEditForm
 
 
 @login_required

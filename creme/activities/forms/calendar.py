@@ -22,9 +22,9 @@ from django.forms import ModelChoiceField
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 
-from creme_core.forms.base import CremeModelForm
+from creme.creme_core.forms.base import CremeModelForm
 
-from activities.models.activity import Calendar
+from creme.activities.models.activity import Calendar
 
 
 class CalendarForm(CremeModelForm):

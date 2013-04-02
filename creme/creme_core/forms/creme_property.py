@@ -24,12 +24,12 @@ from django.forms import ModelMultipleChoiceField, CharField, ValidationError
 from django.forms.widgets import HiddenInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.models import CremePropertyType, CremeProperty
-from creme_core.forms import CremeForm
-from creme_core.forms.widgets import UnorderedMultipleChoiceWidget, Label
-from creme_core.forms.fields import MultiCremeEntityField
-from creme_core.forms.validators import validate_editable_entities
-from creme_core.utils import entities2unicode
+from creme.creme_core.models import CremePropertyType, CremeProperty
+from creme.creme_core.forms import CremeForm
+from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget, Label
+from creme.creme_core.forms.fields import MultiCremeEntityField
+from creme.creme_core.forms.validators import validate_editable_entities
+from creme.creme_core.utils import entities2unicode
 
 
 class _AddPropertiesForm(CremeForm):

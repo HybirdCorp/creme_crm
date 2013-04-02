@@ -28,13 +28,13 @@ from django.forms import MultipleChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
-from creme_core.models import RelationType, CustomField
-from creme_core.forms import CremeModelForm
-from creme_core.forms.widgets import OrderedMultipleChoiceWidget
-from creme_core.gui.listview import get_field_name_from_pattern
-from creme_core.utils.meta import ModelFieldEnumerator #get_flds_with_fk_flds_str
-from creme_core.utils.id_generator import generate_string_id_and_save
+from creme.creme_core.models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
+from creme.creme_core.models import RelationType, CustomField
+from creme.creme_core.forms import CremeModelForm
+from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
+from creme.creme_core.gui.listview import get_field_name_from_pattern
+from creme.creme_core.utils.meta import ModelFieldEnumerator #get_flds_with_fk_flds_str
+from creme.creme_core.utils.id_generator import generate_string_id_and_save
 
 
 #TODO: create and edit form ????

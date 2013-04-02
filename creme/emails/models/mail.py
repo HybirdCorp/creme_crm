@@ -27,14 +27,14 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.template.defaultfilters import removetags
 
-from creme_core.models import CremeModel, CremeEntity
+from creme.creme_core.models import CremeModel, CremeEntity
 
-from documents.models import Document
+from creme.documents.models import Document
 
-from emails.utils import generate_id
-from emails.models import EmailSignature
-from emails.constants import MAIL_STATUS_NOTSENT, MAIL_STATUS
-from emails.utils import EMailSender
+from creme.emails.utils import generate_id
+from creme.emails.models import EmailSignature
+from creme.emails.constants import MAIL_STATUS_NOTSENT, MAIL_STATUS
+from creme.emails.utils import EMailSender
 
 
 ID_LENGTH = 32

@@ -22,10 +22,10 @@ from django.forms import ModelMultipleChoiceField
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 
-from creme_core.forms import CremeModelForm
-from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+from creme.creme_core.forms import CremeModelForm
+from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
-from assistants.models import UserMessage
+from creme.assistants.models import UserMessage
 
 
 class UserMessageForm(CremeModelForm):

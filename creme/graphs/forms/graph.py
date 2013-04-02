@@ -21,11 +21,11 @@
 from django.forms import ModelMultipleChoiceField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import RelationType
-from creme_core.forms import CremeForm, CremeEntityForm
-from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+from creme.creme_core.models import RelationType
+from creme.creme_core.forms import CremeForm, CremeEntityForm
+from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
-from graphs.models import Graph
+from creme.graphs.models import Graph
 
 
 class GraphForm(CremeEntityForm):

@@ -6,16 +6,16 @@ try:
     from django.utils.translation import ugettext as _
     from django.conf import settings
 
-    from creme_core.models import Relation, SetCredentials
-    from creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import Relation, SetCredentials
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
 
-    from persons.models import Contact, Organisation
+    from creme.persons.models import Contact, Organisation
 
-    #from documents.models import Document, Folder, FolderCategory
+    #from creme.documents.models import Document, Folder, FolderCategory
 
-    from emails.tests.base import _EmailsTestCase
-    from emails.models import EntityEmail, EmailSignature, EmailTemplate
-    from emails.constants import (MAIL_STATUS_SENT, MAIL_STATUS_SYNCHRONIZED,
+    from creme.emails.tests.base import _EmailsTestCase
+    from creme.emails.models import EntityEmail, EmailSignature, EmailTemplate
+    from creme.emails.constants import (MAIL_STATUS_SENT, MAIL_STATUS_SYNCHRONIZED,
                                   MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING,
                                   REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED)
 except Exception as e:

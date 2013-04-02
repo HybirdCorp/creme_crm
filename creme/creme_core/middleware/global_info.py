@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.global_info import set_global_info, clear_global_info
+from creme.creme_core.global_info import set_global_info, clear_global_info
 
-from creme_config.utils import get_user_theme
+from creme.creme_config.utils import get_user_theme
 
 
 class GlobalInfoMiddleware(object):

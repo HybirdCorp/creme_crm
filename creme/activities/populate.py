@@ -24,20 +24,20 @@ from django.conf import settings
 from django.utils.translation import ugettext as _, pgettext
 from django.contrib.auth.models import User
 
-from creme_core.models import (RelationType, BlockDetailviewLocation, BlockPortalLocation,
+from creme.creme_core.models import (RelationType, BlockDetailviewLocation, BlockPortalLocation,
                                ButtonMenuItem, SearchConfigItem, HeaderFilterItem, HeaderFilter)
-from creme_core.utils import create_if_needed
-from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
-from creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.utils import create_if_needed
+from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
+from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from creme_config.models import SettingKey, SettingValue
+from creme.creme_config.models import SettingKey, SettingValue
 
-from persons.models import Contact, Organisation
+from creme.persons.models import Contact, Organisation
 
-from activities.models import *
-from activities.blocks import participants_block, subjects_block, future_activities_block, past_activities_block
-from activities.buttons import add_meeting_button, add_phonecall_button, add_task_button
-from activities.constants import *
+from creme.activities.models import *
+from creme.activities.blocks import participants_block, subjects_block, future_activities_block, past_activities_block
+from creme.activities.buttons import add_meeting_button, add_phonecall_button, add_task_button
+from creme.activities.constants import *
 
 
 class Populator(BasePopulator):
@@ -107,10 +107,10 @@ class Populator(BasePopulator):
             BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT,  model=model)
             BlockDetailviewLocation.create(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=model)
 
-        if 'assistants' in settings.INSTALLED_APPS:
+        if 'creme.assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the activities blocks on detail views')
 
-            from assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+            from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
             for model in models:
                 BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)

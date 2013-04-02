@@ -1,12 +1,12 @@
 try:
-    from creme_core.tests.base import CremeTestCase
-    from creme_core.models import Relation, RelationType, InstanceBlockConfigItem, RelationBlockItem
-    from creme_core.gui.block import (Block, SimpleBlock, SpecificRelationsBlock,
+    from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models import Relation, RelationType, InstanceBlockConfigItem, RelationBlockItem
+    from creme.creme_core.gui.block import (Block, SimpleBlock, SpecificRelationsBlock,
                                       _BlockRegistry, BlocksManager)
 
-    from persons.models import Contact, Organisation
+    from creme.persons.models import Contact, Organisation
 
-    from activities.models import Meeting
+    from creme.activities.models import Meeting
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

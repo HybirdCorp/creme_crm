@@ -21,9 +21,9 @@
 from django.forms import ValidationError
 from django.utils.translation import ugettext as _
 
-from creme_core.forms import CremeEntityForm
+from creme.creme_core.forms import CremeEntityForm
 
-from documents.models.folder import Folder
+from creme.documents.models.folder import Folder
 
 
 class FolderForm(CremeEntityForm):

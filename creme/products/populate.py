@@ -20,10 +20,10 @@
 
 from django.utils.translation import ugettext as _
 
-from creme_core.models import SearchConfigItem, HeaderFilterItem, HeaderFilter
-from creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.models import SearchConfigItem, HeaderFilterItem, HeaderFilter
+from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from products.models import Product, Service, Category, SubCategory
+from creme.products.models import Product, Service, Category, SubCategory
 
 
 class Populator(BasePopulator):

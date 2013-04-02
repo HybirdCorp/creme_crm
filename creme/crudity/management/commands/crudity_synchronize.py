@@ -31,8 +31,8 @@ class Command(BaseCommand):
     help = "Synchronize all externals source sent to Creme into Creme."
 
     def handle(self, *args, **options):
-        from creme_core.models.lock import Mutex, MutexLockedException
-        from crudity.views.actions import _fetch
+        from creme.creme_core.models.lock import Mutex, MutexLockedException
+        from creme.crudity.views.actions import _fetch
         try:
             lock = Mutex.get_n_lock(LOCK_NAME)
         except MutexLockedException:

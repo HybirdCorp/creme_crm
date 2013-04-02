@@ -28,8 +28,8 @@ from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.core.function_field import FunctionFieldsManager
-from creme_core.models.fields import CreationDateTimeField, ModificationDateTimeField, CremeUserForeignKey
+from creme.creme_core.core.function_field import FunctionFieldsManager
+from creme.creme_core.models.fields import CreationDateTimeField, ModificationDateTimeField, CremeUserForeignKey
 
 
 class CremeModel(Model):

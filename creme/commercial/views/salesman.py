@@ -24,12 +24,12 @@ from django.db.models import Q
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, list_view
+from creme.creme_core.views.generic import add_entity, list_view
 
-from persons.models import Contact
+from creme.persons.models import Contact
 
-from commercial.forms.salesman import SalesManCreateForm
-from commercial.constants import PROP_IS_A_SALESMAN
+from creme.commercial.forms.salesman import SalesManCreateForm
+from creme.commercial.constants import PROP_IS_A_SALESMAN
 
 
 @login_required

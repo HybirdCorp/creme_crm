@@ -21,7 +21,7 @@
 from django.db.models import CharField, ManyToManyField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity
+from creme.creme_core.models import CremeEntity
 
 from mailing_list import MailingList
 from recipient import EmailRecipient

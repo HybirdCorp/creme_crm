@@ -21,10 +21,10 @@
 from django.forms import CharField, ModelMultipleChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.models import CremePropertyType
-from creme_core.forms import CremeForm
-from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
-from creme_core.utils import Q_creme_entity_content_types
+from creme.creme_core.models import CremePropertyType
+from creme.creme_core.forms import CremeForm
+from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+from creme.creme_core.utils import Q_creme_entity_content_types
 
 
 class _CremePropertyTypeBaseForm(CremeForm):

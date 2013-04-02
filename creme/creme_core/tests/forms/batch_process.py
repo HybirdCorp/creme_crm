@@ -3,10 +3,10 @@
 try:
     from django.utils.translation import ugettext as _
 
-    from creme_core.forms.batch_process import BatchActionsField
-    from creme_core.tests.forms.base import FieldTestCase
+    from creme.creme_core.forms.batch_process import BatchActionsField
+    from creme.creme_core.tests.forms.base import FieldTestCase
 
-    from persons.models import Contact
+    from creme.persons.models import Contact
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

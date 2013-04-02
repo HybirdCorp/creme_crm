@@ -25,11 +25,11 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.utils import jsonify
-from creme_core.views.generic import add_to_entity, list_view, edit_model_with_popup
+from creme.creme_core.utils import jsonify
+from creme.creme_core.views.generic import add_to_entity, list_view, edit_model_with_popup
 
-from billing.models import Line, ProductLine, ServiceLine
-from billing.forms.line import (ProductLineOnTheFlyForm, ServiceLineOnTheFlyForm, LineEditForm,
+from creme.billing.models import Line, ProductLine, ServiceLine
+from creme.billing.forms.line import (ProductLineOnTheFlyForm, ServiceLineOnTheFlyForm, LineEditForm,
                                 ProductLineMultipleAddForm, ServiceLineMultipleAddForm)
 
 

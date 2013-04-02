@@ -7,9 +7,9 @@ try:
     from django.core.serializers.json import simplejson
     from django.conf import settings
 
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from media_managers.models import *
+    from creme.media_managers.models import *
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

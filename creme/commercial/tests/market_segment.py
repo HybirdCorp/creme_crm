@@ -3,10 +3,10 @@
 try:
     from django.utils.translation import ugettext as _
 
-    from creme_core.models import CremePropertyType
+    from creme.creme_core.models import CremePropertyType
 
-    from commercial.models import MarketSegment
-    from commercial.tests.base import CommercialBaseTestCase
+    from creme.commercial.models import MarketSegment
+    from creme.commercial.tests.base import CommercialBaseTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

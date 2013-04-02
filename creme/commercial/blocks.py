@@ -24,18 +24,18 @@ from itertools import chain
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import Relation #CremeEntity
-from creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, list4url
+from creme.creme_core.models import Relation #CremeEntity
+from creme.creme_core.gui.block import Block, PaginatedBlock, QuerysetBlock, list4url
 
-from creme_config.models import SettingValue
+from creme.creme_config.models import SettingValue
 
-from opportunities.models import Opportunity
-from opportunities.constants import REL_SUB_TARGETS
+from creme.opportunities.models import Opportunity
+from creme.opportunities.constants import REL_SUB_TARGETS
 
-from persons.models import Organisation
+from creme.persons.models import Organisation
 
-from commercial.models import *
-from commercial.constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW, REL_OBJ_COMPLETE_GOAL
+from creme.commercial.models import *
+from creme.commercial.constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW, REL_OBJ_COMPLETE_GOAL
 
 
 get_ct = ContentType.objects.get_for_model

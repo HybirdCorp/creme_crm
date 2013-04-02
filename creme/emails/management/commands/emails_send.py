@@ -33,9 +33,9 @@ class Command(BaseCommand):
     help = "Send all unsended mails that have to be."
 
     def handle(self, *args, **options):
-        from creme_core.models.lock import Mutex, MutexLockedException
-        from emails.models import EmailSending
-        from emails.models.sending import SENDING_TYPE_IMMEDIATE, SENDING_STATE_DONE, SENDING_STATE_INPROGRESS # SENDING_STATE_PLANNED
+        from creme.creme_core.models.lock import Mutex, MutexLockedException
+        from creme.emails.models import EmailSending
+        from creme.emails.models.sending import SENDING_TYPE_IMMEDIATE, SENDING_STATE_DONE, SENDING_STATE_INPROGRESS # SENDING_STATE_PLANNED
 
         try:
             lock = Mutex.get_n_lock(LOCK_NAME)
@@ -49,7 +49,7 @@ class Command(BaseCommand):
                     sending.save()
 
 #                        if getattr(settings, 'REMOTE_STATS', False):
-#                            from emails.utils.remoteutils import populate_minicreme #broken
+#                            from creme.emails.utils.remoteutils import populate_minicreme #broken
 #                            populate_minicreme(sending)
 
                     status = sending.send_mails()

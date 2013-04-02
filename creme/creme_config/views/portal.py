@@ -21,7 +21,7 @@
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render
 
-from creme_config.registry import config_registry
+from creme.creme_config.registry import config_registry
 
 
 @login_required

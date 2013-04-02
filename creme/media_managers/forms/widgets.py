@@ -21,7 +21,7 @@
 from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
 
-from creme_core.forms.widgets import ListViewWidget
+from creme.creme_core.forms.widgets import ListViewWidget
 
 
 class ImageM2MWidget(ListViewWidget):

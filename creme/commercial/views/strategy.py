@@ -24,16 +24,16 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views import generic
-from creme_core.utils import get_from_POST_or_404, jsonify
+from creme.creme_core.views import generic
+from creme.creme_core.utils import get_from_POST_or_404, jsonify
 
-from persons.models import Organisation
+from creme.persons.models import Organisation
 
-from commercial.models import (Strategy, MarketSegmentDescription,
+from creme.commercial.models import (Strategy, MarketSegmentDescription,
                                CommercialAsset, CommercialAssetScore,
                                MarketSegmentCharm, MarketSegmentCharmScore)
-from commercial.forms import strategy as forms
-from commercial.blocks import assets_matrix_block, charms_matrix_block, assets_charms_matrix_block
+from creme.commercial.forms import strategy as forms
+from creme.commercial.blocks import assets_matrix_block, charms_matrix_block, assets_charms_matrix_block
 
 
 @login_required

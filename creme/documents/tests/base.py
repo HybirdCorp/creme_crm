@@ -6,9 +6,9 @@ from tempfile import NamedTemporaryFile
 
 from django.conf import settings
 
-from creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.base import CremeTestCase
 
-from documents.models import Folder
+from creme.documents.models import Folder
 
 
 class _DocumentsTestCase(CremeTestCase):

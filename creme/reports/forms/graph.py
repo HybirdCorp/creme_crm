@@ -26,14 +26,14 @@ from django.forms.fields import ChoiceField, BooleanField, CharField
 from django.forms.widgets import Select, CheckboxInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.models.relation import RelationType
-from creme_core.forms.base import CremeEntityForm
-from creme_core.forms.widgets import DependentSelect, Label
-from creme_core.forms.fields import AjaxChoiceField
-from creme_core.utils.meta import ModelFieldEnumerator #get_flds_with_fk_flds
+from creme.creme_core.models.relation import RelationType
+from creme.creme_core.forms.base import CremeEntityForm
+from creme.creme_core.forms.widgets import DependentSelect, Label
+from creme.creme_core.forms.fields import AjaxChoiceField
+from creme.creme_core.utils.meta import ModelFieldEnumerator #get_flds_with_fk_flds
 
-from reports.report_aggregation_registry import field_aggregation_registry
-from reports.models.graph import ReportGraph, RGT_FK, RGT_RANGE, RGT_RELATION
+from creme.reports.report_aggregation_registry import field_aggregation_registry
+from creme.reports.models.graph import ReportGraph, RGT_FK, RGT_RANGE, RGT_RELATION
 
 
 AUTHORIZED_AGGREGATE_FIELDS = field_aggregation_registry.authorized_fields

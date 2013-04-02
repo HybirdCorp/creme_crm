@@ -24,12 +24,12 @@ from django.db.models import FieldDoesNotExist, Max
 from django.forms.models import modelform_factory
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.registry import creme_registry
-from creme_core.forms import CremeModelForm
-from creme_core.utils.imports import find_n_import
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.forms import CremeModelForm
+from creme.creme_core.utils.imports import find_n_import
 
-from creme_config.utils import generate_portal_url
-from creme_config.models.setting import SettingKey
+from creme.creme_config.utils import generate_portal_url
+from creme.creme_config.models.setting import SettingKey
 
 
 class NotRegisteredInConfig(Exception):

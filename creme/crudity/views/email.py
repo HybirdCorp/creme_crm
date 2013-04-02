@@ -27,10 +27,10 @@ from django.conf import settings
 from django.template.context import RequestContext
 from django.template.loader import render_to_string
 
-from persons.models.contact import Contact
+from creme.persons.models.contact import Contact
 
-from crudity.backends.models import CrudityBackend
-from crudity.registry import crudity_registry
+from creme.crudity.backends.models import CrudityBackend
+from creme.crudity.registry import crudity_registry
 
 
 @login_required

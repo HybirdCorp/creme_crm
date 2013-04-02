@@ -20,7 +20,7 @@
 
 import restkit.errors
 
-from activesync.constants import (SYNC_NEED_CURRENT_POLICY, SYNC_FOLDER_STATUS_ERROR,
+from creme.activesync.constants import (SYNC_NEED_CURRENT_POLICY, SYNC_FOLDER_STATUS_ERROR,
                                   SYNC_FOLDER_STATUS_SUCCESS) #SYNC_FOLDER_STATUS_INVALID_SYNCKEY
 
 from base import Base

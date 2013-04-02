@@ -26,16 +26,16 @@ from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.models import CremeEntity, RelationType, Relation, EntityCredentials
-from creme_core.views.generic import add_entity
-from creme_core.utils import jsonify, get_from_POST_or_404, get_from_GET_or_404
+from creme.creme_core.models import CremeEntity, RelationType, Relation, EntityCredentials
+from creme.creme_core.views.generic import add_entity
+from creme.creme_core.utils import jsonify, get_from_POST_or_404, get_from_GET_or_404
 
-from persons.models import Contact, Organisation
-from persons.forms.contact import ContactForm
-from persons.forms.organisation import OrganisationForm
+from creme.persons.models import Contact, Organisation
+from creme.persons.forms.contact import ContactForm
+from creme.persons.forms.organisation import OrganisationForm
 
-from activities.models import Activity, Status, PhoneCall, PhoneCallType, Calendar
-from activities import constants
+from creme.activities.models import Activity, Status, PhoneCall, PhoneCallType, Calendar
+from creme.activities import constants
 
 
 def _build_phonecall(user, entity_id, calltype_id, title_format):

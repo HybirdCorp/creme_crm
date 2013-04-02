@@ -23,12 +23,12 @@ from logging import info
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme_core.models import SearchConfigItem, HeaderFilterItem, HeaderFilter, BlockDetailviewLocation
-from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
-from creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.models import SearchConfigItem, HeaderFilterItem, HeaderFilter, BlockDetailviewLocation
+from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
+from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from sms.models import MessagingList, SMSCampaign, MessageTemplate
-from sms.blocks import messaging_lists_block, recipients_block, contacts_block, sendings_block
+from creme.sms.models import MessagingList, SMSCampaign, MessageTemplate
+from creme.sms.blocks import messaging_lists_block, recipients_block, contacts_block, sendings_block
 
 
 class Populator(BasePopulator):
@@ -60,10 +60,10 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=relations_block.id_,       order=500, zone=BlockDetailviewLocation.LEFT,  model=MessagingList)
         BlockDetailviewLocation.create(block_id=history_block.id_,         order=20,  zone=BlockDetailviewLocation.RIGHT, model=MessagingList)
 
-        if 'assistants' in settings.INSTALLED_APPS:
+        if 'creme.assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail views')
 
-            from assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+            from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
             for model in (SMSCampaign, MessagingList):
                 BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)

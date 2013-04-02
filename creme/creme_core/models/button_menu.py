@@ -22,7 +22,7 @@ from django.db.models import CharField, ForeignKey, PositiveIntegerField
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeModel
+from creme.creme_core.models import CremeModel
 
 
 class ButtonMenuItem(CremeModel):

@@ -21,12 +21,12 @@
 from django.utils.translation import ugettext_lazy as _
 from django.forms import CharField
 
-from creme_core.models import CremePropertyType
-from creme_core.forms import CremeForm, CremeModelForm, CremeEntityForm, FieldBlockManager, MultiCremeEntityField
+from creme.creme_core.models import CremePropertyType
+from creme.creme_core.forms import CremeForm, CremeModelForm, CremeEntityForm, FieldBlockManager, MultiCremeEntityField
 
-from persons.models import Organisation
+from creme.persons.models import Organisation
 
-from commercial.models import Strategy, MarketSegment, MarketSegmentDescription, CommercialAsset, MarketSegmentCharm
+from creme.commercial.models import Strategy, MarketSegment, MarketSegmentDescription, CommercialAsset, MarketSegmentCharm
 
 
 class StrategyForm(CremeEntityForm):

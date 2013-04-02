@@ -22,9 +22,9 @@ from django.shortcuts import render
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_model_with_popup
+from creme.creme_core.views.generic import add_model_with_popup
 
-from commercial.forms.market_segment import MarketSegmentForm
+from creme.commercial.forms.market_segment import MarketSegmentForm
 
 
 @login_required

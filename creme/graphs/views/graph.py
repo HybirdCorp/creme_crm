@@ -24,11 +24,11 @@ from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, add_to_entity, view_entity, edit_entity, list_view
-from creme_core.utils import get_from_POST_or_404
+from creme.creme_core.views.generic import add_entity, add_to_entity, view_entity, edit_entity, list_view
+from creme.creme_core.utils import get_from_POST_or_404
 
-from graphs.models import Graph
-from graphs.forms.graph import GraphForm, AddRelationTypesForm
+from creme.graphs.models import Graph
+from creme.graphs.forms.graph import GraphForm, AddRelationTypesForm
 
 
 @login_required

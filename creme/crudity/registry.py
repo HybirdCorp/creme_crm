@@ -27,10 +27,10 @@ from django.core.exceptions import ImproperlyConfigured
 from django.core.serializers.base import DeserializationError
 from django.core.serializers.python import _get_model
 
-from creme_core.registry import NotRegistered
-from creme_core.utils.imports import find_n_import
+from creme.creme_core.registry import NotRegistered
+from creme.creme_core.utils.imports import find_n_import
 
-from crudity.backends.models import CrudityBackend
+from creme.crudity.backends.models import CrudityBackend
 
 
 class FetcherInterface(object):

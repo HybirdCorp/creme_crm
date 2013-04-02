@@ -21,7 +21,7 @@
 from django.db.models import ForeignKey, CharField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeModel
+from creme.creme_core.models import CremeModel
 
 from mailing_list import MailingList
 

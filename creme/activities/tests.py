@@ -10,21 +10,19 @@ try:
     #from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.auth.entity_credentials import EntityCredentials
-    from creme_core.models import RelationType, Relation, SetCredentials
-    from creme_core.constants import REL_SUB_HAS
-    from creme_core.tests.base import CremeTestCase
-    from creme_core.utils import create_or_update
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import RelationType, Relation, SetCredentials
+    from creme.creme_core.constants import REL_SUB_HAS
+    from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.utils import create_or_update
 
-    #from creme_core import autodiscover
+    from creme.persons.models import Contact, Organisation
 
-    from persons.models import Contact, Organisation
+    from creme.assistants.models import Alert
 
-    from assistants.models import Alert
-
-    from activities.models import *
-    from activities.constants import *
-    from activities.forms.activity import _check_activity_collisions
+    from creme.activities.models import *
+    from creme.activities.constants import *
+    from creme.activities.forms.activity import _check_activity_collisions
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -32,7 +30,6 @@ except Exception as e:
 class ActivitiesTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        #autodiscover()
         cls.autodiscover() #TODO: useful ?
         cls.populate('creme_core', 'creme_config', 'activities') #'persons'
 
@@ -693,7 +690,8 @@ class ActivitiesTestCase(CremeTestCase):
         self.assertFalse(activity.can_link(self.user))
         self.assertEqual(403, self.client.get('/activities/activity/%s/subject/add' % activity.id).status_code)
 
-    def test_add_subjects03(self): #credentials error with selected subjects
+    def test_add_subjects03(self): 
+        "Credentials error with selected subjects"
         self.login(is_superuser=False)
         self._aux_build_setcreds()
 
@@ -702,7 +700,7 @@ class ActivitiesTestCase(CremeTestCase):
 
         orga = Organisation.objects.create(user=self.other_user, name='Ghibli')
         self.assertTrue(orga.can_change(self.user))
-        self.failIf(orga.can_link(self.user))
+        self.assertFalse(orga.can_link(self.user))
 
         uri = '/activities/activity/%s/subject/add' % activity.id
         self.assertEqual(200, self.client.get(uri).status_code)

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls.defaults import patterns
+from django.conf.urls import patterns
 
 
-urlpatterns = patterns('commercial.views',
+urlpatterns = patterns('creme.commercial.views',
     (r'^$', 'portal.portal'),
 
     (r'^salesmen$',     'salesman.listview'), #TODO: list_contacts + property

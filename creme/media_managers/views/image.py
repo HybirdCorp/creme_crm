@@ -25,11 +25,11 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.views.generic import add_entity, edit_entity, list_view, view_entity, list_view_popup_from_widget
-from creme_core.utils import jsonify
+from creme.creme_core.views.generic import add_entity, edit_entity, list_view, view_entity, list_view_popup_from_widget
+from creme.creme_core.utils import jsonify
 
-from media_managers.models import Image
-from media_managers.forms.image import ImageCreateForm, ImageEditForm
+from creme.media_managers.models import Image
+from creme.media_managers.forms.image import ImageCreateForm, ImageEditForm
 
 
 @login_required

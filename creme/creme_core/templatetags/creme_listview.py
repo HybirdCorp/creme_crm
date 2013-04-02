@@ -25,11 +25,11 @@ from django.db import models
 from django.utils.html import escape
 from django.utils.translation import ugettext as _
 
-from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_VOLATILE
-from creme_core.models import CustomField
-from creme_core.utils.meta import get_model_field_info
-from creme_core.gui.field_printers import field_printers_registry
-from creme_core.templatetags.creme_widgets import widget_entity_hyperlink
+from creme.creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_VOLATILE
+from creme.creme_core.models import CustomField
+from creme.creme_core.utils.meta import get_model_field_info
+from creme.creme_core.gui.field_printers import field_printers_registry
+from creme.creme_core.templatetags.creme_widgets import widget_entity_hyperlink
 
 register = Library()
 

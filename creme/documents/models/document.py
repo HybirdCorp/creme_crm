@@ -21,10 +21,10 @@
 from django.db.models import CharField, TextField, FileField, ForeignKey, PROTECT
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity, Relation
+from creme.creme_core.models import CremeEntity, Relation
 
 from folder import Folder
-from documents.constants import REL_SUB_RELATED_2_DOC
+from creme.documents.constants import REL_SUB_RELATED_2_DOC
 
 
 class Document(CremeEntity):

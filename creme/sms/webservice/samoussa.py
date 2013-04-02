@@ -19,7 +19,7 @@
 ################################################################################
 from django.conf import settings
 from django.utils.simplejson import loads
-from sms.webservice.backend import WSBackEnd
+from creme.sms.webservice.backend import WSBackEnd
 
 SAMOUSSA_STATUS_WAITING = 'wait'
 SAMOUSSA_STATUS_ACCEPT = 'accept'

@@ -20,12 +20,12 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.registry import creme_registry
-from creme_core.gui import creme_menu, block_registry, button_registry, icon_registry
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.gui import creme_menu, block_registry, button_registry, icon_registry
 
-from commercial.models import Act, ActObjectivePattern, Strategy
-from commercial.blocks import blocks_list
-from commercial.buttons import complete_goal_button
+from creme.commercial.models import Act, ActObjectivePattern, Strategy
+from creme.commercial.blocks import blocks_list
+from creme.commercial.buttons import complete_goal_button
 
 
 creme_registry.register_app('commercial', _(u'Commercial strategy'), '/commercial')

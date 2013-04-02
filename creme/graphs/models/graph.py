@@ -23,7 +23,7 @@ from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
-from creme_core.models import CremeModel, CremeEntity, RelationType, Relation
+from creme.creme_core.models import CremeModel, CremeEntity, RelationType, Relation
 
 
 class Graph(CremeEntity):

@@ -22,15 +22,15 @@ from functools import partial
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms.fields import MultiCremeEntityField
-from creme_core.forms.validators import validate_linkable_entities
-from creme_core.forms.base import CremeModelForm, CremeForm
-from creme_core.models.relation import Relation
+from creme.creme_core.forms.fields import MultiCremeEntityField
+from creme.creme_core.forms.validators import validate_linkable_entities
+from creme.creme_core.forms.base import CremeModelForm, CremeForm
+from creme.creme_core.models.relation import Relation
 
 from base import BaseCreateForm, BaseEditForm
 
-from billing.constants import REL_SUB_BILL_RECEIVED, REL_OBJ_CREDIT_NOTE_APPLIED
-from billing.models import CreditNote
+from creme.billing.constants import REL_SUB_BILL_RECEIVED, REL_OBJ_CREDIT_NOTE_APPLIED
+from creme.billing.models import CreditNote
 
 
 class CreditNoteCreateForm(BaseCreateForm):

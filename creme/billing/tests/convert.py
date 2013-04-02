@@ -8,15 +8,15 @@ try:
     from django.db.models.query_utils import Q
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.tests.base import CremeTestCase
-    from creme_core.auth.entity_credentials import EntityCredentials
-    from creme_core.models import CremePropertyType, CremeProperty, SetCredentials
+    from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import CremePropertyType, CremeProperty, SetCredentials
 
-    from persons.constants import REL_SUB_CUSTOMER_SUPPLIER
+    from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
 
-    from billing.models import *
-    from billing.constants import *
-    from billing.tests.base import _BillingTestCase
+    from creme.billing.models import *
+    from creme.billing.constants import *
+    from creme.billing.tests.base import _BillingTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

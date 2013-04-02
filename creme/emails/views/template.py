@@ -23,11 +23,11 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity, list_view
-from creme_core.utils import get_from_POST_or_404
+from creme.creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity, list_view
+from creme.creme_core.utils import get_from_POST_or_404
 
-from emails.models import EmailTemplate
-from emails.forms.template import EmailTemplateForm, EmailTemplateAddAttachment
+from creme.emails.models import EmailTemplate
+from creme.emails.forms.template import EmailTemplateForm, EmailTemplateAddAttachment
 
 
 @login_required

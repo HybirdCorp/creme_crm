@@ -3,14 +3,14 @@
 try:
     from functools import partial
 
-    from creme_core.tests.base import CremeTestCase
-    from creme_core.gui.bulk_update import _BulkUpdateRegistry
+    from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.gui.bulk_update import _BulkUpdateRegistry
 
-    from persons.models import Contact, Organisation
+    from creme.persons.models import Contact, Organisation
 
-    from activities.models import Meeting, Activity
+    from creme.activities.models import Meeting, Activity
 
-    from tickets.models import Ticket
+    from creme.tickets.models import Ticket
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

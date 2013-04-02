@@ -27,11 +27,11 @@ from django.forms.util import ErrorList
 from django.template import Template, VariableNode
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.forms import CremeModelForm, CremeEntityField, CremeDateTimeField
+from creme.creme_core.forms import CremeModelForm, CremeEntityField, CremeDateTimeField
 
-from emails.models import EmailTemplate
-from emails.models.sending import EmailSending, LightWeightEmail, SENDING_TYPES, SENDING_TYPE_DEFERRED, SENDING_STATE_PLANNED
-from emails.constants import MAIL_STATUS_NOTSENT
+from creme.emails.models import EmailTemplate
+from creme.emails.models.sending import EmailSending, LightWeightEmail, SENDING_TYPES, SENDING_TYPE_DEFERRED, SENDING_STATE_PLANNED
+from creme.emails.constants import MAIL_STATUS_NOTSENT
 
 
 class SendingCreateForm(CremeModelForm):

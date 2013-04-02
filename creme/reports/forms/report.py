@@ -28,18 +28,18 @@ from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.registry import creme_registry
-from creme_core.forms import CremeEntityForm, CremeForm
-from creme_core.forms.widgets import OrderedMultipleChoiceWidget, ListViewWidget
-from creme_core.forms.fields import AjaxMultipleChoiceField, AjaxModelChoiceField, CremeEntityField, DateRangeField
-#from creme_core.models import Filter, RelationType, CustomField
-from creme_core.models import EntityFilter, RelationType, CustomField
-from creme_core.models.header_filter import HeaderFilter, HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION, HFI_CALCULATED, HFI_RELATED
-from creme_core.utils.meta import (get_verbose_field_name, get_function_field_verbose_name, ModelFieldEnumerator,
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.forms import CremeEntityForm, CremeForm
+from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget, ListViewWidget
+from creme.creme_core.forms.fields import AjaxMultipleChoiceField, AjaxModelChoiceField, CremeEntityField, DateRangeField
+#from creme.creme_core.models import Filter, RelationType, CustomField
+from creme.creme_core.models import EntityFilter, RelationType, CustomField
+from creme.creme_core.models.header_filter import HeaderFilter, HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION, HFI_CALCULATED, HFI_RELATED
+from creme.creme_core.utils.meta import (get_verbose_field_name, get_function_field_verbose_name, ModelFieldEnumerator,
                                    get_date_fields, get_related_field_verbose_name) #get_flds_with_fk_flds get_flds_with_fk_flds_str
 
-from reports.models import Report, Field
-from reports.report_aggregation_registry import field_aggregation_registry
+from creme.reports.models import Report, Field
+from creme.reports.report_aggregation_registry import field_aggregation_registry
 
 
 def _save_field(name, title, order, type):

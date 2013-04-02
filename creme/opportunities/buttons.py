@@ -20,7 +20,7 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.gui.button_menu import Button
+from creme.creme_core.gui.button_menu import Button
 
 
 class LinkedOpportunityButton(Button):
@@ -30,7 +30,7 @@ class LinkedOpportunityButton(Button):
     permission    = 'opportunities.add_opportunity'
 
     def get_ctypes(self):
-        from persons.models import Organisation, Contact
+        from creme.persons.models import Organisation, Contact
         return (Organisation, Contact)
 
 

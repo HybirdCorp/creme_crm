@@ -4,9 +4,9 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.auth.entity_credentials import EntityCredentials
-    from creme_core.models import CremePropertyType, CremeProperty, CremeEntity
-    from creme_core.tests.views.base import ViewsTestCase
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import CremePropertyType, CremeProperty, CremeEntity
+    from creme.creme_core.tests.views.base import ViewsTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

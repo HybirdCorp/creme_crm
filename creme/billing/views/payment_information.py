@@ -23,11 +23,11 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.views.generic import add_to_entity, edit_related_to_entity
-from creme_core.utils import jsonify
+from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
+from creme.creme_core.utils import jsonify
 
-from billing.models import Base, PaymentInformation
-from billing.forms.payment_information import PaymentInformationCreateForm, PaymentInformationEditForm
+from creme.billing.models import Base, PaymentInformation
+from creme.billing.forms.payment_information import PaymentInformationCreateForm, PaymentInformationEditForm
 
 
 @login_required

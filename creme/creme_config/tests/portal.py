@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.base import CremeTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

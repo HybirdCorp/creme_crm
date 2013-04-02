@@ -21,13 +21,13 @@
 #from django.forms import CharField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeModelForm
-from creme_core.forms.fields import MultiCremeEntityField
+from creme.creme_core.forms import CremeModelForm
+from creme.creme_core.forms.fields import MultiCremeEntityField
 
-from media_managers.models.image import Image
-from media_managers.forms.widgets import ImageM2MWidget
+from creme.media_managers.models.image import Image
+from creme.media_managers.forms.widgets import ImageM2MWidget
 
-from emails.models import EmailSignature
+from creme.emails.models import EmailSignature
 
 
 class SignatureForm(CremeModelForm):

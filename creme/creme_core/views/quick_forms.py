@@ -26,9 +26,9 @@ from django.contrib.auth.decorators import login_required
 
 from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
 
-from creme_core.views.generic import inner_popup
-from creme_core.gui.quick_forms import quickforms_registry
-from creme_core.utils import get_ct_or_404
+from creme.creme_core.views.generic import inner_popup
+from creme.creme_core.gui.quick_forms import quickforms_registry
+from creme.creme_core.utils import get_ct_or_404
 
 
 #TODO: it seems there is a problem with formsets : if the 'user' field is empty

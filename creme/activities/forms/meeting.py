@@ -19,7 +19,7 @@
 ################################################################################
 
 
-from activities.models import Meeting
+from creme.activities.models import Meeting
 from activity import ActivityCreateForm, RelatedActivityCreateForm
 
 

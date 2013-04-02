@@ -21,11 +21,11 @@
 
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
-from creme_core.utils.queries import get_first_or_None
+from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
+from creme.creme_core.utils.queries import get_first_or_None
 
-from tickets.models import Ticket, Priority, Criticity
-from tickets.forms.ticket import TicketCreateForm, TicketEditForm
+from creme.tickets.models import Ticket, Priority, Criticity
+from creme.tickets.forms.ticket import TicketCreateForm, TicketEditForm
 
 
 @login_required

@@ -22,11 +22,11 @@ from datetime import datetime
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms.base import CremeModelForm
-from creme_core.forms.fields import CremeEntityField
+from creme.creme_core.forms.base import CremeModelForm
+from creme.creme_core.forms.fields import CremeEntityField
 
-from sms.models.message import Sending, Message, MESSAGE_STATUS_NOTSENT
-from sms.models.template import MessageTemplate
+from creme.sms.models.message import Sending, Message, MESSAGE_STATUS_NOTSENT
+from creme.sms.models.template import MessageTemplate
 
 
 class SendingCreateForm(CremeModelForm):

@@ -29,10 +29,10 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType, CremeEntity, CustomField
-from creme_core.models.fields import CremeUserForeignKey
-from creme_core.utils.meta import get_model_field_info
-from creme_core.utils.id_generator import generate_string_id_and_save
+from creme.creme_core.models import RelationType, CremeEntity, CustomField
+from creme.creme_core.models.fields import CremeUserForeignKey
+from creme.creme_core.utils.meta import get_model_field_info
+from creme.creme_core.utils.id_generator import generate_string_id_and_save
 
 
 logger = logging.getLogger(__name__)
@@ -138,7 +138,7 @@ class HeaderFilter(Model): #CremeModel ???
         """Creation helper ; useful for populate.py scripts.
         It clean old HeaderFilterItems.
         """
-        from creme_core.utils import create_or_update
+        from creme.creme_core.utils import create_or_update
         hf = create_or_update(HeaderFilter, pk=pk,
                               name=name, is_custom=is_custom, user=user,
                               entity_type=ContentType.objects.get_for_model(model)

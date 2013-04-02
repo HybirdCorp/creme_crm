@@ -20,9 +20,9 @@
 
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import list_view
+from creme.creme_core.views.generic import list_view
 
-from activities.models import Meeting
+from creme.activities.models import Meeting
 
 
 @login_required

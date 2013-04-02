@@ -21,7 +21,7 @@
 from django.db.models import Model, CharField, TextField, PositiveSmallIntegerField, BooleanField, ForeignKey
 from django.contrib.auth.models import User
 
-from creme_core.utils import bool_from_str
+from creme.creme_core.utils import bool_from_str
 
 
 class SettingKey(Model):
@@ -49,7 +49,7 @@ class SettingKey(Model):
 
     @staticmethod
     def create(pk, description, app_label, type, hidden=False):
-        from creme_core.utils import create_or_update
+        from creme.creme_core.utils import create_or_update
 
         sk = create_or_update(SettingKey, pk=pk, description=description, app_label=app_label, type=type, hidden=hidden)
         #sk.settingvalue_set.all().delete()

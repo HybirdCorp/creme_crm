@@ -26,13 +26,13 @@ from django.utils.simplejson import JSONDecoder
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, EntityCredentials
-from creme_core.models.header_filter import HeaderFilterList
-from creme_core.models.entity_filter import EntityFilterList
-from creme_core.gui.listview import ListViewState
-from creme_core.views.header_filter import add as add_header_filter
-from creme_core.utils import get_ct_or_404
-from creme_core.utils.queries import get_q_from_dict
+from creme.creme_core.models import CremeEntity, EntityCredentials
+from creme.creme_core.models.header_filter import HeaderFilterList
+from creme.creme_core.models.entity_filter import EntityFilterList
+from creme.creme_core.gui.listview import ListViewState
+from creme.creme_core.views.header_filter import add as add_header_filter
+from creme.creme_core.utils import get_ct_or_404
+from creme.creme_core.utils.queries import get_q_from_dict
 from popup import inner_popup
 
 

@@ -26,11 +26,11 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.utils import get_ct_or_404, jsonify
+from creme.creme_core.utils import get_ct_or_404, jsonify
 
-from crudity.models import WaitingAction
-from crudity.registry import crudity_registry
-from crudity.blocks import WaitingActionBlock
+from creme.crudity.models import WaitingAction
+from creme.crudity.registry import crudity_registry
+from creme.crudity.blocks import WaitingActionBlock
 
 
 def _retrieve_actions_ids(request):

@@ -22,12 +22,12 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import ugettext as _
 
-from creme_core.models import CremeEntity
-from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view, add_model_with_popup
-from creme_core.utils.queries import get_first_or_None
+from creme.creme_core.models import CremeEntity
+from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view, add_model_with_popup
+from creme.creme_core.utils.queries import get_first_or_None
 
-from documents.models import Document, Folder
-from documents.forms.document import DocumentCreateForm, DocumentCreateViewForm, DocumentEditForm
+from creme.documents.models import Document, Folder
+from creme.documents.forms.document import DocumentCreateForm, DocumentCreateViewForm, DocumentEditForm
 
 
 @login_required

@@ -11,16 +11,16 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.conf import settings
 
-    from creme_core.tests.views.base import ViewsTestCase
-    from creme_core.auth.entity_credentials import EntityCredentials
-    from creme_core.models import *
-    from creme_core.forms.base import _CUSTOM_NAME
-    from creme_core.gui.bulk_update import bulk_update_registry
-    from creme_core.blocks import trash_block
+    from creme.creme_core.tests.views.base import ViewsTestCase
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import *
+    from creme.creme_core.forms.base import _CUSTOM_NAME
+    from creme.creme_core.gui.bulk_update import bulk_update_registry
+    from creme.creme_core.blocks import trash_block
 
-    from media_managers.models.image import Image
+    from creme.media_managers.models.image import Image
 
-    from persons.models import Contact, Organisation, Position, Sector, Address
+    from creme.persons.models import Contact, Organisation, Position, Sector, Address
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

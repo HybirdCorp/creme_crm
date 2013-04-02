@@ -23,12 +23,12 @@ from django.forms.widgets import Textarea
 from django.utils.translation import ugettext_lazy as _
 #from django.utils.encoding import smart_unicode
 
-from creme_core.utils import chunktools
-from creme_core.forms import CremeForm, FieldBlockManager
-#from creme_core.forms.fields import AjaxFileField
+from creme.creme_core.utils import chunktools
+from creme.creme_core.forms import CremeForm, FieldBlockManager
+#from creme.creme_core.forms.fields import AjaxFileField
 
-from sms.models.recipient import Recipient
-from sms.forms.fields import PhoneListField, PhoneField
+from creme.sms.models.recipient import Recipient
+from creme.sms.forms.fields import PhoneListField, PhoneField
 
 
 class MessagingListAddRecipientsForm(CremeForm):

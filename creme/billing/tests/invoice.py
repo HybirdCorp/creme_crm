@@ -9,17 +9,17 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
-    from creme_core.auth.entity_credentials import EntityCredentials
-    from creme_core.models import CremeEntity, Relation, SetCredentials, Currency #CremeProperty
-    from creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_HAS
+    from creme.creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import CremeEntity, Relation, SetCredentials, Currency #CremeProperty
+    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_HAS
 
-    from persons.models import Organisation, Address
-    from persons.constants import REL_SUB_CUSTOMER_SUPPLIER
+    from creme.persons.models import Organisation, Address
+    from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
 
-    from billing.models import *
-    from billing.constants import *
-    from billing.tests.base import _BillingTestCase
+    from creme.billing.models import *
+    from creme.billing.constants import *
+    from creme.billing.tests.base import _BillingTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

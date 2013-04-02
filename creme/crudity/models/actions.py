@@ -28,12 +28,12 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _, ugettext
 #from django.utils.simplejson import loads, dumps
 
-from creme_core.models import CremeModel
-from creme_core.models.fields import CremeUserForeignKey
+from creme.creme_core.models import CremeModel
+from creme.creme_core.models.fields import CremeUserForeignKey
 
-from creme_config.models import SettingValue
+from creme.creme_config.models import SettingValue
 
-from crudity.signals import post_save_setting_value
+from creme.crudity.signals import post_save_setting_value
 
 
 __all__ = ("WaitingAction",)

@@ -20,11 +20,11 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.registry import creme_registry
-from creme_core.gui import creme_menu, block_registry, icon_registry
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.gui import creme_menu, block_registry, icon_registry
 
-from graphs.models import Graph
-from graphs.blocks import root_nodes_block, orbital_rtypes_block
+from creme.graphs.models import Graph
+from creme.graphs.blocks import root_nodes_block, orbital_rtypes_block
 
 
 creme_registry.register_app('graphs', _(u'Graphs'), '/graphs')

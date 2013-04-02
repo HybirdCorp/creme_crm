@@ -19,9 +19,9 @@
 ################################################################################
 from django.db.models.signals import post_delete
 
-from creme_core.models.relation import Relation
+from creme.creme_core.models.relation import Relation
 
-from activities.models.activity import Calendar
+from creme.activities.models.activity import Calendar
 
 from constants import REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY
 

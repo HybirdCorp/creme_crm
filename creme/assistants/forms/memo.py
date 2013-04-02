@@ -20,9 +20,9 @@
 
 from datetime import datetime
 
-from creme_core.forms import CremeModelWithUserForm
+from creme.creme_core.forms import CremeModelWithUserForm
 
-from assistants.models import Memo
+from creme.assistants.models import Memo
 
 
 class MemoEditForm(CremeModelWithUserForm):

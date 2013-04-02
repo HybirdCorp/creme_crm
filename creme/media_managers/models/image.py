@@ -27,17 +27,18 @@ try:
 except ImportError:
     import ImageFile as PILImageFile #TODO: Verify on other distributions
 
+from django.conf import settings
 from django.db.models import CharField, TextField, ImageField, ManyToManyField
 from django.utils.translation import ugettext_lazy as _
 from django.utils.safestring import mark_safe
 from django.utils.html import escape
 
-from creme_core.models.entity import CremeEntity
-from creme_core.gui.field_printers import image_size
+from creme.creme_core.models.entity import CremeEntity
+from creme.creme_core.gui.field_printers import image_size
 
 from other_models import MediaCategory
 
-from settings import MEDIA_URL
+#from settings import MEDIA_URL
 
 
 class Image(CremeEntity):
@@ -76,7 +77,8 @@ class Image(CremeEntity):
         return self.get_image_name()
 
     def get_image_url(self):
-        return MEDIA_URL + unicode(self.image).replace(os.sep,'/') #TODO credentials static/dynamic image
+        #return MEDIA_URL + unicode(self.image).replace(os.sep,'/')
+        return settings.MEDIA_URL + unicode(self.image).replace(os.sep, '/') #TODO credentials static/dynamic image
 
     def get_entity_summary(self, user):
         if not self.can_view(user):

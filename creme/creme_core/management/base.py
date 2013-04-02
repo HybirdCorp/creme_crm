@@ -20,7 +20,7 @@
 
 from django.core.management.base import BaseCommand
 
-from creme_core.utils.unicode_csv import UnicodeReader
+from creme.creme_core.utils.unicode_csv import UnicodeReader
 
 
 class CSVImportCommand(BaseCommand):
@@ -66,11 +66,11 @@ class CSVImportCommand(BaseCommand):
 
 #from django.contrib.auth.models import User
 #
-#from creme_core.models import Relation, RelationType
-#from creme_core.management.base import CSVImportCommand
+#from creme.creme_core.models import Relation, RelationType
+#from creme.creme_core.management.base import CSVImportCommand
 #
-#from persons.models import Contact, Organisation, Address
-#from persons.constants import REL_SUB_MANAGES
+#from creme.persons.models import Contact, Organisation, Address
+#from creme.persons.constants import REL_SUB_MANAGES
 #
 #
 #class Command(CSVImportCommand):

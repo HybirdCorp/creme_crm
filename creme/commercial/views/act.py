@@ -23,11 +23,11 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views import generic
-from creme_core.utils import get_from_POST_or_404
+from creme.creme_core.views import generic
+from creme.creme_core.utils import get_from_POST_or_404
 
-from commercial.models import Act, ActObjective, ActObjectivePattern, ActObjectivePatternComponent
-from commercial.forms import act as forms
+from creme.commercial.models import Act, ActObjective, ActObjectivePattern, ActObjectivePatternComponent
+from creme.commercial.forms import act as forms
 
 
 @login_required

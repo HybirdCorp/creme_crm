@@ -20,11 +20,11 @@
 
 from django.utils.translation import ugettext as _
 
-from creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from creme_config.models import SettingKey, SettingValue
+from creme.creme_config.models import SettingKey, SettingValue
 
-from crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
+from creme.crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
 
 
 class Populator(BasePopulator):

@@ -27,7 +27,7 @@ from django.http import HttpResponse, Http404
 from django.contrib.contenttypes.models import ContentType
 #from django.utils.translation import ugettext
 
-from creme_core.registry import creme_registry
+from creme.creme_core.registry import creme_registry
 
 
 def creme_entity_content_types():

@@ -28,11 +28,11 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.forms.relation import RelationCreateForm, MultiEntitiesRelationCreateForm
-from creme_core.models import Relation, RelationType, CremeEntity, EntityCredentials
-from creme_core.registry import creme_registry
-from creme_core.views.generic import inner_popup, list_view_popup_from_widget
-from creme_core.utils import get_from_POST_or_404, get_ct_or_404
+from creme.creme_core.forms.relation import RelationCreateForm, MultiEntitiesRelationCreateForm
+from creme.creme_core.models import Relation, RelationType, CremeEntity, EntityCredentials
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.views.generic import inner_popup, list_view_popup_from_widget
+from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404
 
 
 class JSONSelectError(Exception):

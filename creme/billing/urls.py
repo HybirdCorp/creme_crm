@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls.defaults import patterns
+from django.conf.urls import patterns
 
 
-urlpatterns = patterns('billing.views',
+urlpatterns = patterns('creme.billing.views',
     (r'^$', 'portal.portal'),
 
     (r'^generate_pdf/(?P<base_id>\d+)$', 'export.export_as_pdf'),

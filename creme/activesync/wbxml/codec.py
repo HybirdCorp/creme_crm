@@ -102,7 +102,7 @@ class WBXMLEncoder(object):
         import activesync.wbxml.codec2
         doctest.testmod(activesync.wbxml.codec2)
 
-        >>> from activesync.wbxml.dtd import AirsyncDTD_Reverse
+        >>> from creme.activesync.wbxml.dtd import AirsyncDTD_Reverse
         >>> from xml.etree.ElementTree import XML
         >>> xml_str = '<?xml version="1.0" encoding="UTF-8"?><FolderSync xmlns="FolderHierarchy:"><SyncKey>0</SyncKey></FolderSync>'
         >>> xml = XML(xml_str)
@@ -349,7 +349,7 @@ class WBXMLDecoder(object):
         import activesync.wbxml.codec2
         doctest.testmod(activesync.wbxml.codec2)
 
-        >>> from activesync.wbxml.dtd import AirsyncDTD_Forward
+        >>> from creme.activesync.wbxml.dtd import AirsyncDTD_Forward
         >>> from xml.etree.ElementTree import tostring, XML
         >>> xml_str = '<?xml version="1.0" encoding="UTF-8"?><FolderSync xmlns="FolderHierarchy:"><SyncKey>0</SyncKey></FolderSync>'
         >>> wbxml   = '\x03\x01j\x00\x00\x07VR\x030\x00\x01\x01'

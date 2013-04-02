@@ -28,11 +28,11 @@ from django.template.defaulttags import TemplateLiteral
 from django.template.loader import get_template
 from django.utils.translation import ungettext #ugettext
 
-from creme_core.models import BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation
-from creme_core.gui.block import Block, block_registry, BlocksManager
-from creme_core.gui.bulk_update import bulk_update_registry
-from creme_core.models.header_filter import HFI_FIELD, HFI_CUSTOM
-from creme_core.models.relation import Relation
+from creme.creme_core.models import BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation
+from creme.creme_core.gui.block import Block, block_registry, BlocksManager
+from creme.creme_core.gui.bulk_update import bulk_update_registry
+from creme.creme_core.models.header_filter import HFI_FIELD, HFI_CUSTOM
+from creme.creme_core.models.relation import Relation
 
 register = Library()
 

@@ -4,12 +4,12 @@ try:
     from datetime import datetime, timedelta
     from functools import partial
 
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from persons.models import Contact, Organisation
+    from creme.persons.models import Contact, Organisation
 
-    from activities.models import PhoneCall, PhoneCallType, Calendar
-    from activities.constants import *
+    from creme.activities.models import PhoneCall, PhoneCallType, Calendar
+    from creme.activities.constants import *
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

@@ -30,14 +30,14 @@ from django.template import Template, Context
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy, activate
 
-from creme_core.models import CremeModel, CremeEntity
+from creme.creme_core.models import CremeModel, CremeEntity
 
-from documents.models import Document
+from creme.documents.models import Document
 
-from emails.models.mail import _Email, ID_LENGTH
-from emails.models import EmailCampaign, EmailSignature
-from emails.utils import generate_id, EMailSender, ImageFromHTMLError
-from emails.constants import MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
+from creme.emails.models.mail import _Email, ID_LENGTH
+from creme.emails.models import EmailCampaign, EmailSignature
+from creme.emails.utils import generate_id, EMailSender, ImageFromHTMLError
+from creme.emails.constants import MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
 
 
 #TODO: move to constants ???

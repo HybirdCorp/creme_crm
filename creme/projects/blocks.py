@@ -20,10 +20,10 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-#from creme_core.models import CremeEntity
-from creme_core.gui.block import SimpleBlock, QuerysetBlock
+#from creme.creme_core.models import CremeEntity
+from creme.creme_core.gui.block import SimpleBlock, QuerysetBlock
 
-from projects.models import Project, ProjectTask, Resource, WorkingPeriod
+from creme.projects.models import Project, ProjectTask, Resource, WorkingPeriod
 
 
 class ProjectExtraInfo(SimpleBlock):

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls.defaults import patterns
+from django.conf.urls import patterns
 
-from creme_core.utils.imports import find_n_import
+from creme.creme_core.utils.imports import find_n_import
 
 
-urlpatterns = patterns('activities.views',
+urlpatterns = patterns('creme.activities.views',
     (r'^$', 'portal.portal'),
 
     (r'^activities$',                               'activity.listview'),

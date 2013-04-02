@@ -23,19 +23,19 @@ from collections import defaultdict
 from django.forms import DateTimeField, ModelChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
 
-from creme_core.models import Relation
-from creme_core.forms import CremeEntityForm, CremeForm, MultiRelationEntityField
-from creme_core.forms.widgets import DateTimeWidget
-from creme_core.forms.validators import validate_linkable_entities
-from creme_core.utils import find_first
+from creme.creme_core.models import Relation
+from creme.creme_core.forms import CremeEntityForm, CremeForm, MultiRelationEntityField
+from creme.creme_core.forms.widgets import DateTimeWidget
+from creme.creme_core.forms.validators import validate_linkable_entities
+from creme.creme_core.utils import find_first
 
-from persons.models import Organisation
-from persons.constants import REL_OBJ_EMPLOYED_BY, REL_OBJ_MANAGES
+from creme.persons.models import Organisation
+from creme.persons.constants import REL_OBJ_EMPLOYED_BY, REL_OBJ_MANAGES
 
-from opportunities.forms.opportunity import OpportunityCreateForm
+from creme.opportunities.forms.opportunity import OpportunityCreateForm
 
-from events.models import Event
-from events.constants import *
+from creme.events.models import Event
+from creme.events.constants import *
 
 
 class EventForm(CremeEntityForm):

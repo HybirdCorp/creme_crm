@@ -23,12 +23,12 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import Relation
+from creme.creme_core.models import Relation
 
-from billing.models import Quote
+from creme.billing.models import Quote
 
-from opportunities.models import Opportunity
-from opportunities.constants import REL_SUB_CURRENT_DOC
+from creme.opportunities.models import Opportunity
+from creme.opportunities.constants import REL_SUB_CURRENT_DOC
 
 
 @login_required

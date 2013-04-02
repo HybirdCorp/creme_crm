@@ -7,12 +7,12 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import EntityFilter, EntityFilterCondition
+    from creme.creme_core.models import EntityFilter, EntityFilterCondition
 
-    from persons.models import Contact, Organisation
+    from creme.persons.models import Contact, Organisation
 
-    from emails.tests.base import _EmailsTestCase
-    from emails.models import MailingList, EmailCampaign, EmailRecipient
+    from creme.emails.tests.base import _EmailsTestCase
+    from creme.emails.models import MailingList, EmailCampaign, EmailRecipient
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

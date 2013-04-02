@@ -27,14 +27,14 @@ from django.template import Template, VariableNode
 from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
-from creme_core.forms.fields import MultiCremeEntityField
-from creme_core.forms.widgets import TinyMCEEditor
+from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
+from creme.creme_core.forms.fields import MultiCremeEntityField
+from creme.creme_core.forms.widgets import TinyMCEEditor
 
-from documents.models import Document
+from creme.documents.models import Document
 
-from emails.models import EmailTemplate
-from emails.forms.utils import validate_images_in_html
+from creme.emails.models import EmailTemplate
+from creme.emails.forms.utils import validate_images_in_html
 
 
 TEMPLATES_VARS = set(['last_name', 'first_name', 'civility', 'name'])

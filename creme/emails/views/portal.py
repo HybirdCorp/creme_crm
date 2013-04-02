@@ -20,9 +20,9 @@
 
 from django.utils.translation import ugettext as _
 
-from creme_core.views.generic import app_portal
+from creme.creme_core.views.generic import app_portal
 
-from emails.models import EmailCampaign, MailingList #, Sending
+from creme.emails.models import EmailCampaign, MailingList #, Sending
 
 
 def portal(request):

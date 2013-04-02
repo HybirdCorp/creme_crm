@@ -25,11 +25,11 @@ from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.models import RelationType, SemiFixedRelationType
-from creme_core.views.generic import add_model_with_popup, inner_popup
-from creme_core.utils import get_from_POST_or_404
+from creme.creme_core.models import RelationType, SemiFixedRelationType
+from creme.creme_core.views.generic import add_model_with_popup, inner_popup
+from creme.creme_core.utils import get_from_POST_or_404
 
-from creme_config.forms.relation_type import RelationTypeCreateForm, RelationTypeEditForm, SemiFixedRelationTypeCreateForm
+from creme.creme_config.forms.relation_type import RelationTypeCreateForm, RelationTypeEditForm, SemiFixedRelationTypeCreateForm
 
 
 @login_required

@@ -23,10 +23,10 @@ from django.forms import ModelMultipleChoiceField
 from django.forms.widgets import CheckboxSelectMultiple
 from django.contrib.auth.models import User
 
-from activities.forms.activity import ActivityCreateForm
+from creme.activities.forms.activity import ActivityCreateForm
 
-from assistants.constants import PRIO_NOT_IMP_PK
-from assistants.models import UserMessage
+from creme.assistants.constants import PRIO_NOT_IMP_PK
+from creme.assistants.models import UserMessage
 
 
 def add_users_field(form):

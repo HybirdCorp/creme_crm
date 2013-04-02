@@ -20,12 +20,12 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.registry import creme_registry
-from creme_core.gui import creme_menu, button_registry, block_registry, icon_registry, bulk_update_registry
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.gui import creme_menu, button_registry, block_registry, icon_registry, bulk_update_registry
 
-from emails.models import EmailCampaign, MailingList, EmailTemplate, EntityEmail, _Email
-from emails.blocks import blocks_list, EntityEmailBlock
-from emails.buttons import *
+from creme.emails.models import EmailCampaign, MailingList, EmailTemplate, EntityEmail, _Email
+from creme.emails.blocks import blocks_list, EntityEmailBlock
+from creme.emails.buttons import *
 
 
 creme_registry.register_entity_models(EmailCampaign, MailingList, EmailTemplate, EntityEmail)

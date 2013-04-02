@@ -21,7 +21,7 @@
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.utils.translation import ugettext as _
 
-from emails.utils import get_images_from_html, ImageFromHTMLError
+from creme.emails.utils import get_images_from_html, ImageFromHTMLError
 
 
 def create_image_validation_error(filename):

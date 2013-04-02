@@ -6,12 +6,12 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
-    from creme_core.tests.views.csv_import import CSVImportBaseTestCaseMixin
-    from creme_core.models import HeaderFilter
+    from creme.creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
+    from creme.creme_core.tests.views.csv_import import CSVImportBaseTestCaseMixin
+    from creme.creme_core.models import HeaderFilter
 
-    from tickets.models import *
-    from tickets.models.status import BASE_STATUS, OPEN_PK, CLOSED_PK, INVALID_PK
+    from creme.tickets.models import *
+    from creme.tickets.models.status import BASE_STATUS, OPEN_PK, CLOSED_PK, INVALID_PK
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -433,7 +433,7 @@ class TicketTestUniqueCase(CremeTransactionTestCase):
 class TicketTemplateTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'tickets')
+        cls.populate('creme_core', 'creme_config', 'tickets') #TODO: factorise
 
     def create_template(self, title, description='description', status=None):
         status = status or Status.objects.get(pk=OPEN_PK)

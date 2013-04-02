@@ -5,10 +5,10 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import CremeEntity
+    from creme.creme_core.models import CremeEntity
 
-    from assistants.models import Memo
-    from assistants.tests.base import AssistantsTestCase
+    from creme.assistants.models import Memo
+    from creme.assistants.tests.base import AssistantsTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

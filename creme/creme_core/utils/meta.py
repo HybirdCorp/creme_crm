@@ -26,8 +26,8 @@ from django.db.models import ForeignKey, ManyToManyField, FieldDoesNotExist #Fie
 #from django.db.models.base import ModelBase
 from django.conf import settings
 
-from creme_core.models import CremeEntity
-from creme_core.models.fields import CreationDateTimeField
+from creme.creme_core.models import CremeEntity
+from creme.creme_core.models.fields import CreationDateTimeField
 
 
 class NotDjangoModel(Exception):

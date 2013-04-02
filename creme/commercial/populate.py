@@ -23,20 +23,20 @@ from logging import info
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme_core.models import (RelationType, CremePropertyType, BlockDetailviewLocation,
+from creme.creme_core.models import (RelationType, CremePropertyType, BlockDetailviewLocation,
                                SearchConfigItem, ButtonMenuItem, HeaderFilterItem, HeaderFilter)
-from creme_core.utils import create_if_needed
-from creme_core.blocks import relations_block, properties_block, customfields_block, history_block
-from creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.utils import create_if_needed
+from creme.creme_core.blocks import relations_block, properties_block, customfields_block, history_block
+from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from creme_config.models import SettingKey, SettingValue
+from creme.creme_config.models import SettingKey, SettingValue
 
-from persons.models import Contact, Organisation
+from creme.persons.models import Contact, Organisation
 
-from commercial.models import *
-from commercial.blocks import *
-from commercial.constants import *
-from commercial.buttons import complete_goal_button
+from creme.commercial.models import *
+from creme.commercial.blocks import *
+from creme.commercial.constants import *
+from creme.commercial.buttons import complete_goal_button
 
 
 class Populator(BasePopulator):
@@ -82,10 +82,10 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=relations_block.id_,            order=500, zone=BlockDetailviewLocation.LEFT,  model=Strategy)
         BlockDetailviewLocation.create(block_id=history_block.id_,              order=20,  zone=BlockDetailviewLocation.RIGHT, model=Strategy)
 
-        if 'assistants' in settings.INSTALLED_APPS:
+        if 'creme.assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail views')
 
-            from assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+            from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
             for model in (Act, ActObjectivePattern, Strategy):
                 BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)

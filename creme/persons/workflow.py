@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.models import Relation
+from creme.creme_core.models import Relation
 
 from constants import REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
 

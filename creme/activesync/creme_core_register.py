@@ -20,10 +20,10 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.registry import creme_registry
-from creme_core.gui import creme_menu, block_registry
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.gui import creme_menu, block_registry
 
-from activesync.blocks import user_mobile_sync_config_block, mobile_sync_config_block, user_synchronization_history_block
+from creme.activesync.blocks import user_mobile_sync_config_block, mobile_sync_config_block, user_synchronization_history_block
 
 
 block_registry.register(user_mobile_sync_config_block, mobile_sync_config_block, user_synchronization_history_block)

@@ -20,11 +20,11 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.registry import creme_registry
-from creme_core.gui import creme_menu, block_registry, icon_registry, bulk_update_registry
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.gui import creme_menu, block_registry, icon_registry, bulk_update_registry
 
-from media_managers.models import Image
-from media_managers.blocks import ImageBlock, last_images_block, image_view_block
+from creme.media_managers.models import Image
+from creme.media_managers.blocks import ImageBlock, last_images_block, image_view_block
 
 
 creme_registry.register_app('media_managers', _(u'Media managers'), '/media')

@@ -23,8 +23,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 from django.forms.widgets import HiddenInput
 
-from billing.forms.base import BaseEditForm
-from billing.models import TemplateBase
+from creme.billing.forms.base import BaseEditForm
+from creme.billing.models import TemplateBase
 
 
 class _TemplateBaseForm(BaseEditForm):

@@ -25,13 +25,13 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.forms import ChoiceField, CharField, ValidationError
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType
-from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION
-from creme_core.forms.base import CremeForm
-from creme_core.forms.widgets import Label
-from creme_core.utils import creme_entity_content_types
+from creme.creme_core.models import RelationType
+from creme.creme_core.models.header_filter import HFI_FIELD, HFI_RELATION
+from creme.creme_core.forms.base import CremeForm
+from creme.creme_core.forms.widgets import Label
+from creme.creme_core.utils import creme_entity_content_types
 
-from reports.models import  ReportGraph
+from creme.reports.models import  ReportGraph
 
 
 class GraphInstanceBlockForm(CremeForm):

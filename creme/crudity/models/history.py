@@ -21,8 +21,8 @@
 from django.db.models import TextField, CharField, ForeignKey
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeModel, CremeEntity
-from creme_core.models.fields import CreationDateTimeField, CremeUserForeignKey
+from creme.creme_core.models import CremeModel, CremeEntity
+from creme.creme_core.models.fields import CreationDateTimeField, CremeUserForeignKey
 
 
 __all__ = ("History", )

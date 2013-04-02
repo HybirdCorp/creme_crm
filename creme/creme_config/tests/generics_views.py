@@ -3,11 +3,11 @@
 try:
     from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
 
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from persons.models import Civility
+    from creme.persons.models import Civility
 
-    from billing.models import InvoiceStatus
+    from creme.billing.models import InvoiceStatus
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

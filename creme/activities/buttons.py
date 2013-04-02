@@ -20,7 +20,7 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.gui.button_menu import Button
+from creme.creme_core.gui.button_menu import Button
 
 
 _PERMISSION = 'activities.add_activity'

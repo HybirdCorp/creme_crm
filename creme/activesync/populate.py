@@ -18,11 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from creme_config.models.setting import SettingKey, SettingValue
+from creme.creme_config.models.setting import SettingKey, SettingValue
 
-from activesync.constants import (MAPI_DOMAIN, MAPI_SERVER_SSL, MAPI_SERVER_URL, USER_MOBILE_SYNC_SERVER_URL,
+from creme.activesync.constants import (MAPI_DOMAIN, MAPI_SERVER_SSL, MAPI_SERVER_URL, USER_MOBILE_SYNC_SERVER_URL,
                                   USER_MOBILE_SYNC_SERVER_DOMAIN, USER_MOBILE_SYNC_SERVER_SSL,
                                   USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD,
                                   USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS)

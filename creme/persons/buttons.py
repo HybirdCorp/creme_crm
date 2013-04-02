@@ -20,11 +20,11 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import Relation
-from creme_core.gui.button_menu import Button
+from creme.creme_core.models import Relation
+from creme.creme_core.gui.button_menu import Button
 
-from persons.models import Organisation, Contact
-from persons.constants import REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT, REL_SUB_SUSPECT, REL_SUB_INACTIVE, REL_OBJ_CUSTOMER_SUPPLIER
+from creme.persons.models import Organisation, Contact
+from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT, REL_SUB_SUSPECT, REL_SUB_INACTIVE, REL_OBJ_CUSTOMER_SUPPLIER
 
 
 class CrmButton(Button):

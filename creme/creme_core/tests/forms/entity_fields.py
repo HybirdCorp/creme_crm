@@ -5,11 +5,11 @@ try:
 
     from django.db.models import Max
 
-    from creme_core.tests.forms.base import FieldTestCase
-    from creme_core.forms.fields import _EntityField, CremeEntityField, MultiCremeEntityField
-    from creme_core.models import CremeEntity
+    from creme.creme_core.tests.forms.base import FieldTestCase
+    from creme.creme_core.forms.fields import _EntityField, CremeEntityField, MultiCremeEntityField
+    from creme.creme_core.models import CremeEntity
 
-    from persons.models import Contact
+    from creme.persons.models import Contact
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

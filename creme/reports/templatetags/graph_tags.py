@@ -21,11 +21,11 @@
 from django.template import Library
 from django.utils.translation import ugettext_lazy as _ #TODO: ugettext instead ?
 
-from creme_core.utils.meta import get_verbose_field_name
-from creme_core.models.relation import RelationType
+from creme.creme_core.utils.meta import get_verbose_field_name
+from creme.creme_core.models.relation import RelationType
 
-from reports.models.graph import RGT_RELATION
-from reports.report_aggregation_registry import field_aggregation_registry
+from creme.reports.models.graph import RGT_RELATION
+from creme.reports.report_aggregation_registry import field_aggregation_registry
 
 
 register = Library()

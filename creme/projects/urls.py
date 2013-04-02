@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls.defaults import patterns
+from django.conf.urls import patterns
 
-urlpatterns = patterns('projects.views',
+urlpatterns = patterns('creme.projects.views',
     (r'^$', 'portal.portal'),
 
     # TODO : Define what user could do or not if projet is 'close' (with the use of the buttom that sets an effective end date)

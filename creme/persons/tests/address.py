@@ -3,10 +3,10 @@
 try:
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from persons.models import Address, Organisation, Contact
-    from persons.blocks import other_address_block
+    from creme.persons.models import Address, Organisation, Contact
+    from creme.persons.blocks import other_address_block
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

@@ -20,13 +20,13 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeEntityField, CremeDateTimeField
+from creme.creme_core.forms import CremeEntityField, CremeDateTimeField
 
-from media_managers.models import Image
-from media_managers.forms.widgets import ImageM2MWidget
+from creme.media_managers.models import Image
+from creme.media_managers.forms.widgets import ImageM2MWidget
 
-from persons.models import Organisation
-from persons.forms.base import _BasePersonForm
+from creme.persons.models import Organisation
+from creme.persons.forms.base import _BasePersonForm
 
 
 class OrganisationForm(_BasePersonForm):

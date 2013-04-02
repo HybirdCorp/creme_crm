@@ -18,9 +18,9 @@
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #################################################################################
 
-from documents.models.document import Document
+from creme.documents.models.document import Document
 
-from crudity.backends.models import CrudityBackend
+from creme.crudity.backends.models import CrudityBackend
 
 
 class DocumentBackend(CrudityBackend):

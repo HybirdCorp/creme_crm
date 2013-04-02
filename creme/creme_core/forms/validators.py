@@ -22,8 +22,8 @@ from django.core.exceptions import PermissionDenied
 from django.forms.util import ValidationError
 from django.utils.translation import ugettext as _
 
-#from creme_core.models import CremeEntity
-from creme_core.utils import entities2unicode
+#from creme.creme_core.models import CremeEntity
+from creme.creme_core.utils import entities2unicode
 
 
 def validate_editable_entities(entities, user):

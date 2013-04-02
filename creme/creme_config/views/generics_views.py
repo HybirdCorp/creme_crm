@@ -27,11 +27,11 @@ from django.contrib.auth.decorators import login_required#, permission_required
 
 from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
 
-from creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
-from creme_core.utils import get_from_POST_or_404, get_ct_or_404, jsonify
+from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
+from creme.creme_core.utils import get_from_POST_or_404, get_ct_or_404, jsonify
 
-from creme_config.registry import config_registry
-from creme_config.blocks import generic_models_block
+from creme.creme_config.registry import config_registry
+from creme.creme_config.blocks import generic_models_block
 
 
 def _get_appconf(user, app_name):

@@ -17,9 +17,9 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-from creme_core.forms.base import CremeModelWithUserForm
+from creme.creme_core.forms.base import CremeModelWithUserForm
 
-from billing.models import   PaymentInformation
+from creme.billing.models import   PaymentInformation
 
 
 class PaymentInformationEditForm(CremeModelWithUserForm):

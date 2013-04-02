@@ -25,10 +25,10 @@ from django.db.models import ForeignKey, CharField, TextField, DateTimeField, PR
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.formats import date_format
 
-from creme_core.core.function_field import FunctionField
-from creme_core.models import CremeEntity
-from creme_core.templatetags.creme_date import timedelta_pprint
-from creme_core.utils import truncate_str
+from creme.creme_core.core.function_field import FunctionField
+from creme.creme_core.models import CremeEntity
+from creme.creme_core.templatetags.creme_date import timedelta_pprint
+from creme.creme_core.utils import truncate_str
 
 from status import Status, OPEN_PK, CLOSED_PK
 from priority import Priority

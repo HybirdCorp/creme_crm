@@ -26,10 +26,10 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity
-from creme_core.utils import get_from_POST_or_404
+from creme.creme_core.models import CremeEntity
+from creme.creme_core.utils import get_from_POST_or_404
 
-from billing.models import SalesOrder, Invoice, TemplateBase
+from creme.billing.models import SalesOrder, Invoice, TemplateBase
 
 
 _CLASS_MAP = {'sales_order': SalesOrder, 'invoice': Invoice}

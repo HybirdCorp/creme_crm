@@ -7,14 +7,14 @@ try:
 
     from django.utils.translation import ugettext as _
 
-    from creme_core.auth.entity_credentials import EntityCredentials
-    from creme_core.models import (RelationType, Relation, SetCredentials,
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import (RelationType, Relation, SetCredentials,
                                    CremePropertyType, CremeProperty) #Language
-    from creme_core.tests.views.base import ViewsTestCase
+    from creme.creme_core.tests.views.base import ViewsTestCase
 
-    from media_managers.models import Image
+    from creme.media_managers.models import Image
 
-    from persons.models import Organisation, Contact
+    from creme.persons.models import Organisation, Contact
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

@@ -23,10 +23,10 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity, list_view
+from creme.creme_core.views.generic import add_entity, add_to_entity, edit_entity, view_entity, list_view
 
-from sms.models import SMSCampaign
-from sms.forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAddListForm
+from creme.sms.models import SMSCampaign
+from creme.sms.forms.campaign import CampaignCreateForm, CampaignEditForm, CampaignAddListForm
 
 
 @login_required

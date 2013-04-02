@@ -22,13 +22,13 @@ from django.http import HttpResponse, Http404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.models import Relation, CremeEntity
-from creme_core.views.generic import add_to_entity
-from creme_core.utils import get_from_POST_or_404
+from creme.creme_core.models import Relation, CremeEntity
+from creme.creme_core.views.generic import add_to_entity
+from creme.creme_core.utils import get_from_POST_or_404
 
-from activities.models import Activity
-from activities.forms import ParticipantCreateForm, SubjectCreateForm
-from activities.constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY
+from creme.activities.models import Activity
+from creme.activities.forms import ParticipantCreateForm, SubjectCreateForm
+from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY
 
 
 @login_required

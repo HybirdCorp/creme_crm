@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls.defaults import patterns
+from django.conf.urls import patterns
 
 
-urlpatterns = patterns('activesync.views',
+urlpatterns = patterns('creme.activesync.views',
 #    (r'^$', 'portal.portal'),
 
     (r'^user_settings$', 'user_settings.edit_own_mobile_settings'),

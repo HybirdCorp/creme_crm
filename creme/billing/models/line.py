@@ -30,12 +30,12 @@ from django.db.models.signals import post_delete
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.models import CremeEntity, Relation
-from creme_core.core.function_field import FunctionField
+from creme.creme_core.models import CremeEntity, Relation
+from creme.creme_core.core.function_field import FunctionField
 
-from billing.constants import REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM, PERCENT_PK, DISCOUNT_UNIT
-from billing.models.other_models import Vat
-from billing.utils import round_to_2
+from creme.billing.constants import REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM, PERCENT_PK, DISCOUNT_UNIT
+from creme.billing.models.other_models import Vat
+from creme.billing.utils import round_to_2
 
 
 default_decimal = Decimal()

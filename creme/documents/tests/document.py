@@ -5,15 +5,15 @@ try:
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import CremeEntity, RelationType, HeaderFilter, SetCredentials
-    from creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import CremeEntity, RelationType, HeaderFilter, SetCredentials
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
 
-    from persons.models import Organisation
+    from creme.persons.models import Organisation
 
-    from documents.tests.base import _DocumentsTestCase
-    from documents.models import Folder, FolderCategory, Document
-    from documents.constants import REL_SUB_RELATED_2_DOC
-    from documents.utils import get_csv_folder_or_create
+    from creme.documents.tests.base import _DocumentsTestCase
+    from creme.documents.models import Folder, FolderCategory, Document
+    from creme.documents.constants import REL_SUB_RELATED_2_DOC
+    from creme.documents.utils import get_csv_folder_or_create
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

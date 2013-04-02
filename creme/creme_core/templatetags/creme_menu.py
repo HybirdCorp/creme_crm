@@ -26,10 +26,10 @@ from django.template import Library
 from django.db.models import Q
 #from django.utils.encoding import smart_unicode
 
-from creme_core.models import PreferedMenuItem, ButtonMenuItem
-from creme_core.gui.menu import creme_menu, new_creme_menu
-from creme_core.gui.last_viewed import LastViewedItem
-from creme_core.gui.button_menu import button_registry
+from creme.creme_core.models import PreferedMenuItem, ButtonMenuItem
+from creme.creme_core.gui.menu import creme_menu, new_creme_menu
+from creme.creme_core.gui.last_viewed import LastViewedItem
+from creme.creme_core.gui.button_menu import button_registry
 
 
 register = Library()

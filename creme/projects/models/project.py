@@ -24,9 +24,9 @@ from django.core.exceptions import ValidationError
 from django.db.models import CharField, TextField, ForeignKey, DateTimeField, Max, PROTECT
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.models import CremeEntity
+from creme.creme_core.models import CremeEntity
 
-from projects.models import ProjectStatus
+from creme.projects.models import ProjectStatus
 
 
 class Project(CremeEntity):
@@ -112,5 +112,5 @@ class Project(CremeEntity):
         return bool(self.effective_end_date)
 
     def _post_save_clone(self, source):
-        from projects.models.task import ProjectTask
+        from creme.projects.models.task import ProjectTask
         ProjectTask.clone_scope(source.get_tasks(), self)

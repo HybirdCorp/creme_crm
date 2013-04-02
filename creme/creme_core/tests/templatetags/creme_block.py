@@ -5,13 +5,13 @@ try:
     from django.core.serializers.json import simplejson
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import (BlockDetailviewLocation, BlockPortalLocation,
+    from creme.creme_core.models import (BlockDetailviewLocation, BlockPortalLocation,
                                    BlockMypageLocation, InstanceBlockConfigItem,
                                    Relation)
-    from creme_core.gui.block import block_registry, Block, SimpleBlock, BlocksManager
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.gui.block import block_registry, Block, SimpleBlock, BlocksManager
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from persons.models import Contact, Organisation
+    from creme.persons.models import Contact, Organisation
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

@@ -5,11 +5,11 @@ try:
     from django.utils.simplejson import loads as jsonloads
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.forms.entity_filter import *
-    from creme_core.models import CremePropertyType, RelationType
-    from creme_core.tests.forms.base import FieldTestCase
+    from creme.creme_core.forms.entity_filter import *
+    from creme.creme_core.models import CremePropertyType, RelationType
+    from creme.creme_core.tests.forms.base import FieldTestCase
 
-    from persons.models import Organisation, Contact
+    from creme.persons.models import Organisation, Contact
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

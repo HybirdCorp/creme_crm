@@ -18,10 +18,10 @@
 ##    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #################################################################################
 
-from persons.models.contact import Contact
-from persons.models.organisation import Organisation
+from creme.persons.models.contact import Contact
+from creme.persons.models.organisation import Organisation
 
-from crudity.backends.models import CrudityBackend
+from creme.crudity.backends.models import CrudityBackend
 
 
 class ContactBackend(CrudityBackend):

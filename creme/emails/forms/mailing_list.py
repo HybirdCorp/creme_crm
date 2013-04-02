@@ -22,13 +22,13 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.forms import ModelChoiceField, ValidationError
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import EntityFilter
-from creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
-from creme_core.forms.fields import MultiCremeEntityField, CremeEntityField
+from creme.creme_core.models import EntityFilter
+from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
+from creme.creme_core.forms.fields import MultiCremeEntityField, CremeEntityField
 
-from persons.models import Contact, Organisation
+from creme.persons.models import Contact, Organisation
 
-from emails.models import MailingList
+from creme.emails.models import MailingList
 
 
 class MailingListForm(CremeEntityForm):

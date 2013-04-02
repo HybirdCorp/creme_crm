@@ -30,8 +30,8 @@ class Command(BaseCommand):
     help = "Generate all recurrent documents that have to be."
 
     def handle(self, *args, **options):
-        from creme_core.models.lock import Mutex, MutexLockedException
-        from recurrents.models import RecurrentGenerator
+        from creme.creme_core.models.lock import Mutex, MutexLockedException
+        from creme.recurrents.models import RecurrentGenerator
 
         try:
             lock = Mutex.get_n_lock(LOCK_NAME)

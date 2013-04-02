@@ -4,16 +4,16 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.db.models.query import Q, QuerySet
 
-    from creme_core.tests.forms.base import FieldTestCase
-    from creme_core.forms.fields import (JSONField, GenericEntityField, MultiGenericEntityField,
-                                         RelationEntityField, MultiRelationEntityField, CreatorEntityField)
-    from creme_core.utils import creme_entity_content_types
-    from creme_core.models import CremeProperty, CremePropertyType, RelationType
-    from creme_core.constants import REL_SUB_HAS
+    from creme.creme_core.tests.forms.base import FieldTestCase
+    from creme.creme_core.forms.fields import (JSONField, GenericEntityField, MultiGenericEntityField,
+                                               RelationEntityField, MultiRelationEntityField, CreatorEntityField)
+    from creme.creme_core.utils import creme_entity_content_types
+    from creme.creme_core.models import CremeProperty, CremePropertyType, RelationType
+    from creme.creme_core.constants import REL_SUB_HAS
 
-    from persons.models import Organisation, Contact
+    from creme.persons.models import Organisation, Contact
 
-    from documents.models import Document
+    from creme.documents.models import Document
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

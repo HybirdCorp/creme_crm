@@ -24,9 +24,9 @@ from django.template import TemplateSyntaxError, Node as TemplateNode
 from django.template.defaulttags import TemplateLiteral
 from django.template import Library
 
-from activesync.messages import MESSAGE_TYPES_VERBOSE
-from activesync.models.active_sync import USER_HISTORY_TYPE_IMG, USER_HISTORY_WHERE_IMG
-from creme_core.utils.media import creme_media_themed_url
+from creme.activesync.messages import MESSAGE_TYPES_VERBOSE
+from creme.activesync.models.active_sync import USER_HISTORY_TYPE_IMG, USER_HISTORY_WHERE_IMG
+from creme.creme_core.utils.media import creme_media_themed_url
 
 register = Library()
 

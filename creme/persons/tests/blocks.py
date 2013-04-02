@@ -4,16 +4,16 @@ try:
     from datetime import datetime, timedelta
     from functools import partial
 
-    from creme_core.models import RelationType, Relation, CremeProperty
-    from creme_core.constants import PROP_IS_MANAGED_BY_CREME
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models import RelationType, Relation, CremeProperty
+    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from activities.models import Meeting, PhoneCall, PhoneCallType
-    from activities.constants import REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY
+    from creme.activities.models import Meeting, PhoneCall, PhoneCallType
+    from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY
 
-    from persons.models import *
-    from persons.constants import *
-    from persons.blocks import NeglectedOrganisationsBlock
+    from creme.persons.models import *
+    from creme.persons.constants import *
+    from creme.persons.blocks import NeglectedOrganisationsBlock
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

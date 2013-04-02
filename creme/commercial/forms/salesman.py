@@ -18,11 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.models import CremeProperty
+from creme.creme_core.models import CremeProperty
 
-from persons.forms.contact import ContactForm
+from creme.persons.forms.contact import ContactForm
 
-from commercial.constants import PROP_IS_A_SALESMAN
+from creme.commercial.constants import PROP_IS_A_SALESMAN
 
 
 class SalesManCreateForm(ContactForm):

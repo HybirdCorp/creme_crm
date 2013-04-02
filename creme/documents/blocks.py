@@ -22,11 +22,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 from django.utils.simplejson import JSONEncoder
 
-from creme_core.models import Relation #CremeEntity
-from creme_core.gui.block import QuerysetBlock
+from creme.creme_core.models import Relation #CremeEntity
+from creme.creme_core.gui.block import QuerysetBlock
 
-from documents.models import Folder, Document
-from documents.constants import REL_SUB_RELATED_2_DOC
+from creme.documents.models import Folder, Document
+from creme.documents.constants import REL_SUB_RELATED_2_DOC
 
 
 _CT_DOC = ContentType.objects.get_for_model(Document)

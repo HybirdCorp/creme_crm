@@ -21,7 +21,7 @@
 from django.db.models import CharField, BooleanField
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
-from creme_core.models import CremeModel
+from creme.creme_core.models import CremeModel
 
 
 OPEN_PK       = 1

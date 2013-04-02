@@ -23,18 +23,18 @@ from logging import info
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme_core.models import (RelationType, SearchConfigItem,
+from creme.creme_core.models import (RelationType, SearchConfigItem,
                                BlockDetailviewLocation, BlockPortalLocation,
                                ButtonMenuItem, HeaderFilterItem, HeaderFilter)
-from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
-from creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
+from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from persons.models import Organisation, Contact
+from creme.persons.models import Organisation, Contact
 
-from emails.models import MailingList, EmailCampaign, EmailTemplate, EntityEmail
-from emails.blocks import *
-from emails.buttons import entityemail_link_button
-from emails.constants import (REL_SUB_MAIL_RECEIVED, REL_OBJ_MAIL_RECEIVED,
+from creme.emails.models import MailingList, EmailCampaign, EmailTemplate, EntityEmail
+from creme.emails.blocks import *
+from creme.emails.buttons import entityemail_link_button
+from creme.emails.constants import (REL_SUB_MAIL_RECEIVED, REL_OBJ_MAIL_RECEIVED,
                               REL_SUB_MAIL_SENDED, REL_OBJ_MAIL_SENDED, REL_SUB_RELATED_TO, REL_OBJ_RELATED_TO)
 
 
@@ -99,10 +99,10 @@ class Populator(BasePopulator):
         BlockPortalLocation.create(app_name='emails', block_id=signatures_block.id_, order=10)
         BlockPortalLocation.create(app_name='emails', block_id=history_block.id_,    order=30)
 
-        if 'assistants' in settings.INSTALLED_APPS:
+        if 'creme.assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail views')
 
-            from assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+            from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
             for model in (MailingList, EmailCampaign, EmailTemplate):
                 BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)

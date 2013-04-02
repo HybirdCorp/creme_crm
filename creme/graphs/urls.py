@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls.defaults import patterns
+from django.conf.urls import patterns
 
-urlpatterns = patterns('graphs.views',
+urlpatterns = patterns('creme.graphs.views',
     (r'^$', 'portal.portal'),
 
     (r'^graphs$',                       'graph.listview'),

@@ -21,7 +21,7 @@
 from django.db.models import CharField, TextField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity
+from creme.creme_core.models import CremeEntity
 
 
 class MessageTemplate(CremeEntity):

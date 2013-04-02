@@ -24,14 +24,14 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 from django.conf import settings
 
-from creme_core.models import RelationType, BlockDetailviewLocation, SearchConfigItem, HeaderFilterItem, HeaderFilter
-from creme_core.utils import create_if_needed
-from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
-from creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.models import RelationType, BlockDetailviewLocation, SearchConfigItem, HeaderFilterItem, HeaderFilter
+from creme.creme_core.utils import create_if_needed
+from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
+from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from documents.models import Document, FolderCategory, Folder
-from documents.blocks import folder_docs_block #linked_docs_block
-from documents.constants import *
+from creme.documents.models import Document, FolderCategory, Folder
+from creme.documents.blocks import folder_docs_block #linked_docs_block
+from creme.documents.constants import *
 
 
 class Populator(BasePopulator):
@@ -70,10 +70,10 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT,  model=Folder)
         BlockDetailviewLocation.create(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Folder)
 
-        if 'assistants' in settings.INSTALLED_APPS:
+        if 'creme.assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail view')
 
-            from assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+            from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
             BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=Folder)
             BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=Folder)

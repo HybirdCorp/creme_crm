@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from creme_config.models import SettingKey, SettingValue
+    from creme.creme_config.models import SettingKey, SettingValue
 
-    from activesync.utils import decode_AS_timezone, is_user_sync_calendars, is_user_sync_contacts
-    from activesync.constants import USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS
+    from creme.activesync.utils import decode_AS_timezone, is_user_sync_calendars, is_user_sync_contacts
+    from creme.activesync.constants import USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS
 except Exception as e:
     print 'Error:', e
 
@@ -82,8 +82,6 @@ class UserSettingsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_config', 'activesync')
-    #def setUp(self):
-        #self.populate('creme_config', 'activesync')
 
     def test_is_user_sync_calendars01(self):
         self.login()

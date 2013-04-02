@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from activities.models.activity import Meeting
+from creme.activities.models.activity import Meeting
 
-from crudity.backends.models import CrudityBackend
+from creme.crudity.backends.models import CrudityBackend
 
 class MeetingBackend(CrudityBackend):
     model = Meeting

@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls.defaults import patterns
+from django.conf.urls import patterns
 
 
-urlpatterns = patterns('crudity.views',
+urlpatterns = patterns('creme.crudity.views',
     (r'^waiting_actions$', 'actions.fetch'),
 
     (r'^waiting_actions/delete$',   'actions.delete'),

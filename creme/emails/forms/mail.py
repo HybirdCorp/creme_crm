@@ -28,19 +28,19 @@ from django.forms.widgets import HiddenInput
 from django.forms.util import ErrorList
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
-from creme_core.models.relation import Relation
-from creme_core.forms.base import CremeForm, CremeEntityForm, FieldBlockManager
-from creme_core.forms.fields import MultiCremeEntityField, CremeEntityField
-#from creme_core.forms.widgets import TinyMCEEditor
-from creme_core.forms.validators import validate_linkable_entities
+from creme.creme_core.models.relation import Relation
+from creme.creme_core.forms.base import CremeForm, CremeEntityForm, FieldBlockManager
+from creme.creme_core.forms.fields import MultiCremeEntityField, CremeEntityField
+#from creme.creme_core.forms.widgets import TinyMCEEditor
+from creme.creme_core.forms.validators import validate_linkable_entities
 
-from documents.models import Document
+from creme.documents.models import Document
 
-from persons.models import Contact, Organisation
+from creme.persons.models import Contact, Organisation
 
-from emails.models import EntityEmail, EmailTemplate
-from emails.constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED
-from emails.forms.utils import validate_images_in_html
+from creme.emails.models import EntityEmail, EmailTemplate
+from creme.emails.constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED
+from creme.emails.forms.utils import validate_images_in_html
 
 
 class EntityEmailForm(CremeEntityForm):

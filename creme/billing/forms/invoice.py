@@ -20,13 +20,13 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-#from creme_config.forms.fields import CreatorModelChoiceField
+#from creme.creme_config.forms.fields import CreatorModelChoiceField
 
-from persons.workflow import transform_target_into_customer
+from creme.persons.workflow import transform_target_into_customer
 
-from billing.models import Invoice
-from billing.models.other_models import InvoiceStatus, SettlementTerms
-from billing.forms.base import BaseCreateForm, BaseEditForm
+from creme.billing.models import Invoice
+from creme.billing.models.other_models import InvoiceStatus, SettlementTerms
+from creme.billing.forms.base import BaseCreateForm, BaseEditForm
 
 
 class InvoiceCreateForm(BaseCreateForm):

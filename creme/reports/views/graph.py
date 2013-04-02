@@ -23,15 +23,15 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.views.generic import view_entity, add_to_entity, edit_related_to_entity
-from creme_core.models import CremeEntity, InstanceBlockConfigItem, RelationType
-from creme_core.utils import jsonify, get_ct_or_404
+from creme.creme_core.views.generic import view_entity, add_to_entity, edit_related_to_entity
+from creme.creme_core.models import CremeEntity, InstanceBlockConfigItem, RelationType
+from creme.creme_core.utils import jsonify, get_ct_or_404
 
-#from reports.models.report import Report
-from reports.models.graph import (ReportGraph, verbose_report_graph_types,
+#from creme.reports.models.report import Report
+from creme.reports.models.graph import (ReportGraph, verbose_report_graph_types,
                                   RGT_FK, RGT_RANGE, RGT_YEAR, RGT_MONTH, RGT_DAY,
                                   RGT_RELATION, fetch_graph_from_instance_block)
-from reports.forms.graph import ReportGraphAddForm
+from creme.reports.forms.graph import ReportGraphAddForm
 
 
 @login_required

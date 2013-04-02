@@ -23,14 +23,14 @@ from django.db.models import (ForeignKey, CharField, TextField, PositiveIntegerF
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.core.exceptions import ValidationError
 
-from creme_core.models import CremeEntity
-from creme_core.models.fields import PhoneField
-from creme_core.constants import PROP_IS_MANAGED_BY_CREME
+from creme.creme_core.models import CremeEntity
+from creme.creme_core.models.fields import PhoneField
+from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
-from media_managers.models import Image
+from creme.media_managers.models import Image
 
-from persons.models import Contact, Address, StaffSize, LegalForm, Sector
-from persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
+from creme.persons.models import Contact, Address, StaffSize, LegalForm, Sector
+from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 
 
 class Organisation(CremeEntity):

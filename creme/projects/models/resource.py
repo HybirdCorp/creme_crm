@@ -21,9 +21,9 @@
 from django.db.models import ForeignKey, PositiveIntegerField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity
+from creme.creme_core.models import CremeEntity
 
-from persons.models import Contact
+from creme.persons.models import Contact
 
 from task import ProjectTask
 

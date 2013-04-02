@@ -21,9 +21,9 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
-from creme_core.utils import jsonify
+from creme.creme_core.utils import jsonify
 
-from creme_config.forms.user_settings import UserThemeForm
+from creme.creme_config.forms.user_settings import UserThemeForm
 
 #NB: no special permissions needed (user can only view/change its settings)
 

@@ -19,9 +19,9 @@
 ################################################################################
 from datetime import datetime
 from xml.sax.saxutils import escape
-from activesync.models.other_models import EntityASData
-from creme_core.utils.dates import get_utc_dt_from_creme_dt, get_dt_to_iso8601_str
-from creme_core.utils.meta import get_instance_field_info
+from creme.activesync.models.other_models import EntityASData
+from creme.creme_core.utils.dates import get_utc_dt_from_creme_dt, get_dt_to_iso8601_str
+from creme.creme_core.utils.meta import get_instance_field_info
 
 from django.db import models
 
@@ -49,7 +49,7 @@ def serialize_entity(entity, mapping):
        TODO/NB: Need to send an empty value when the entity hasn't a value ?
        TODO: Add the possibility to subset entity fields ?
     """
-    from activesync.mappings import CREME_AS_MAPPING#TODO: Remove the cyclic import
+    from creme.activesync.mappings import CREME_AS_MAPPING#TODO: Remove the cyclic import
     xml = []
     xml_append = xml.append
 

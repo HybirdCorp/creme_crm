@@ -21,10 +21,10 @@
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, Relation
-from creme_core.gui.block import QuerysetBlock, list4url
+from creme.creme_core.models import CremeEntity, Relation
+from creme.creme_core.gui.block import QuerysetBlock, list4url
 
-from persons.models import Contact, Organisation
+from creme.persons.models import Contact, Organisation
 
 from models import Activity, Meeting, PhoneCall, Task, Calendar
 from constants import *

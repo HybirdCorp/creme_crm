@@ -21,9 +21,9 @@
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from creme_core.views.generic import add_to_entity
+from creme.creme_core.views.generic import add_to_entity
 
-from commercial.forms.commercial_approach import ComAppCreateForm
+from creme.commercial.forms.commercial_approach import ComAppCreateForm
 
 
 @login_required

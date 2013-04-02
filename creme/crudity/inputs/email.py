@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,16 +29,16 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import FieldDoesNotExist, FileField, ForeignKey
 from django.utils.translation import ugettext_lazy as _
 
-from persons.models.contact import Contact
+from creme.persons.models.contact import Contact
 
-from media_managers.models import Image
+from creme.media_managers.models import Image
 
-from crudity.backends.models import CrudityBackend
-from crudity.models import WaitingAction
-from crudity.utils import strip_html, strip_html_, decode_b64binary
-from crudity.inputs.base import CrudityInput
-from crudity.constants import LEFT_MULTILINE_SEP, RIGHT_MULTILINE_SEP
-from crudity.buttons import infopath_create_form_button, email_template_create_button
+from creme.crudity.backends.models import CrudityBackend
+from creme.crudity.models import WaitingAction
+from creme.crudity.utils import strip_html, strip_html_, decode_b64binary
+from creme.crudity.inputs.base import CrudityInput
+from creme.crudity.constants import LEFT_MULTILINE_SEP, RIGHT_MULTILINE_SEP
+from creme.crudity.buttons import infopath_create_form_button, email_template_create_button
 
 
 passwd_pattern = re.compile(r'password=(?P<password>\w+)', flags=re.IGNORECASE)
@@ -229,13 +229,13 @@ class CreateInfopathInput(CreateEmailInput):
         data = backend.body_map.copy()
         for node in xml:
             try:
-                tag = re.search('[{].*[}](?P<tag>[-_\d\s\w]+)', node.tag).groupdict()['tag']
+                tag = re.search('[{].*[}](?P<tag>[-_\d\s\w]+)', node.tag).groupdict()['tag'] #TODO: compile
             except AttributeError:
                 continue
 
             if data.has_key(tag):
-                children = node.getchildren()
-                if children:#Multi-line
+                children = node.getchildren() #TODO: Deprecated since version 2.7 [Use list(elem) or iteration].
+                if children: #Multi-line
                     data[tag] = "\n".join(child.text or '' for child in children)
                 else:
                     data[tag] = node.text

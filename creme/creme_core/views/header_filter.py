@@ -24,11 +24,11 @@ from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from creme_core.models.header_filter import HeaderFilter
-from creme_core.forms.header_filter import HeaderFilterForm
-from creme_core.views.generic import add_entity
-from creme_core.gui.listview import ListViewState
-from creme_core.utils import get_ct_or_404, get_from_POST_or_404, jsonify
+from creme.creme_core.models.header_filter import HeaderFilter
+from creme.creme_core.forms.header_filter import HeaderFilterForm
+from creme.creme_core.views.generic import add_entity
+from creme.creme_core.gui.listview import ListViewState
+from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404, jsonify
 
 
 def _set_current_hf(request, path, hf_instance):

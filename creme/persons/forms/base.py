@@ -22,11 +22,11 @@ from logging import debug
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity
-from creme_core.forms import CremeEntityForm
+from creme.creme_core.models import CremeEntity
+from creme.creme_core.forms import CremeEntityForm
 
-#from persons.models import Address
-from persons.forms.address import AddressForm
+#from creme.persons.models import Address
+from creme.persons.forms.address import AddressForm
 
 
 _BILLING_ADDRESS_FIELD  = 'billing_address'

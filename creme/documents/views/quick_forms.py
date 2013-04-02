@@ -22,11 +22,11 @@ from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from creme_core.views.generic import inner_popup
-from creme_core.views.quick_forms import json_quickform_response
+from creme.creme_core.views.generic import inner_popup
+from creme.creme_core.views.quick_forms import json_quickform_response
 
-from documents.forms.quick import CSVDocumentWidgetQuickForm
-from documents.models import Document
+from creme.documents.forms.quick import CSVDocumentWidgetQuickForm
+from creme.documents.models import Document
 
 
 @login_required

@@ -30,17 +30,17 @@ from django.utils.simplejson import JSONEncoder
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType
-from creme_core.utils.date_range import date_range_registry
-from creme_core.views.generic import (add_entity, edit_entity, view_entity,
+from creme.creme_core.models import RelationType
+from creme.creme_core.utils.date_range import date_range_registry
+from creme.creme_core.views.generic import (add_entity, edit_entity, view_entity,
                                       list_view, inner_popup, add_to_entity)
-from creme_core.utils.meta import get_model_field_info, ModelFieldEnumerator, get_related_field #get_flds_with_fk_flds
-from creme_core.utils import get_ct_or_404, get_from_POST_or_404, jsonify
+from creme.creme_core.utils.meta import get_model_field_info, ModelFieldEnumerator, get_related_field #get_flds_with_fk_flds
+from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404, jsonify
 
-from reports.models import Report, Field
-from reports.forms.report import CreateForm, EditForm, LinkFieldToReportForm, AddFieldToReportForm, get_aggregate_custom_fields, DateReportFilterForm
-from reports.registry import report_backend_registry
-from reports.report_aggregation_registry import field_aggregation_registry
+from creme.reports.models import Report, Field
+from creme.reports.forms.report import CreateForm, EditForm, LinkFieldToReportForm, AddFieldToReportForm, get_aggregate_custom_fields, DateReportFilterForm
+from creme.reports.registry import report_backend_registry
+from creme.reports.report_aggregation_registry import field_aggregation_registry
 
 
 @login_required

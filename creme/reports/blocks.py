@@ -21,12 +21,12 @@
 #from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import InstanceBlockConfigItem #CremeEntity
-from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_RELATED
-from creme_core.gui.block import Block, QuerysetBlock
+from creme.creme_core.models import InstanceBlockConfigItem #CremeEntity
+from creme.creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_RELATED
+from creme.creme_core.gui.block import Block, QuerysetBlock
 
-from reports.models import Report, Field
-from reports.models.graph import ReportGraph, verbose_report_graph_types, fetch_graph_from_instance_block
+from creme.reports.models import Report, Field
+from creme.reports.models.graph import ReportGraph, verbose_report_graph_types, fetch_graph_from_instance_block
 
 
 class ReportFieldsBlock(Block):

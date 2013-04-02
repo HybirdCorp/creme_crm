@@ -23,10 +23,10 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from creme_core.views.generic import add_to_entity, edit_related_to_entity
+from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
 
-from assistants.models import Alert
-from assistants.forms.alert import AlertForm
+from creme.assistants.models import Alert
+from creme.assistants.forms.alert import AlertForm
 
 
 @login_required

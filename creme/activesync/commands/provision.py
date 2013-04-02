@@ -20,7 +20,7 @@
 
 from django.conf import settings
 
-from activesync.constants import SYNC_PROVISION_STATUS_SUCCESS # SYNC_PROVISION_RWSTATUS_NA SYNC_PROVISION_RWSTATUS_WIPED
+from creme.activesync.constants import SYNC_PROVISION_STATUS_SUCCESS # SYNC_PROVISION_RWSTATUS_NA SYNC_PROVISION_RWSTATUS_WIPED
 from base import Base
 
 

@@ -4,8 +4,8 @@ try:
     from decimal import Decimal
     from functools import partial
 
-    from products.tests.base import _ProductsTestCase
-    from products.models import Category, SubCategory, Service
+    from creme.products.tests.base import _ProductsTestCase
+    from creme.products.models import Category, SubCategory, Service
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

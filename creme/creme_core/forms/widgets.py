@@ -34,8 +34,8 @@ from django.core.validators import EMPTY_VALUES
 from django.conf import settings
 #from django.db.models.query import QuerySet
 
-from creme_core.utils.media import creme_media_themed_url as media_url
-from creme_core.utils.date_range import date_range_registry
+from creme.creme_core.utils.media import creme_media_themed_url as media_url
+from creme.creme_core.utils.date_range import date_range_registry
 
 
 def widget_render_input(renderer, widget, name, value, context, **kwargs):

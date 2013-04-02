@@ -4,14 +4,14 @@ try:
     from datetime import date
     from decimal import Decimal
 
-    from creme_core.models import Currency
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models import Currency
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from persons.models import Organisation
+    from creme.persons.models import Organisation
 
-    from billing.models import *
-    from billing.constants import *
-    from billing.tests.base import _BillingTestCase
+    from creme.billing.models import *
+    from creme.billing.constants import *
+    from creme.billing.tests.base import _BillingTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

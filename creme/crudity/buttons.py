@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.gui.button_menu import Button
+from creme.creme_core.gui.button_menu import Button
 
 class InfopathCreateFormButton(Button):
     id_           = Button.generate_id('crudity', 'infopath_create_form')

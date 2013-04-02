@@ -21,9 +21,9 @@
 from django.forms import ModelMultipleChoiceField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import HistoryConfigItem, RelationType
-from creme_core.forms import CremeForm
-from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+from creme.creme_core.models import HistoryConfigItem, RelationType
+from creme.creme_core.forms import CremeForm
+from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
 
 _HELP_TEXT = _(u"""If an entity is linked to other entities by a relationship of this type,

@@ -22,15 +22,15 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.gui.block import QuerysetBlock
+from creme.creme_core.gui.block import QuerysetBlock
 
-from creme_config.models import SettingValue
+from creme.creme_config.models import SettingValue
 
-from emails.models import EntityEmail
+from creme.emails.models import EntityEmail
 
-from crudity.backends.models import CrudityBackend
-from crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
-from crudity.models import WaitingAction, History
+from creme.crudity.backends.models import CrudityBackend
+from creme.crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
+from creme.crudity.models import WaitingAction, History
 
 
 class CrudityQuerysetBlock(QuerysetBlock):

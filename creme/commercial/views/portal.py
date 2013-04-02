@@ -20,11 +20,11 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.views.generic import app_portal
+from creme.creme_core.views.generic import app_portal
 
-from creme_config.utils import generate_portal_url
+from creme.creme_config.utils import generate_portal_url
 
-from commercial.models import Act
+from creme.commercial.models import Act
 
 
 def portal(request):

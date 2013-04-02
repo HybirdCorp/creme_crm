@@ -22,11 +22,11 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-#from creme_core.models import CremeEntity
-from creme_core.registry import creme_registry
-from creme_core.gui import creme_menu, block_registry, button_registry # bulk_update_registry
-from creme_core.blocks import relations_block, properties_block, customfields_block, history_block, trash_block
-from creme_core.buttons import merge_entities_button
+#from creme.creme_core.models import CremeEntity
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.gui import creme_menu, block_registry, button_registry # bulk_update_registry
+from creme.creme_core.blocks import relations_block, properties_block, customfields_block, history_block, trash_block
+from creme.creme_core.buttons import merge_entities_button
 
 
 User._meta.ordering = ('username',)

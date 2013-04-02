@@ -25,10 +25,10 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from creme_core.views.generic import add_to_entity, edit_related_to_entity
+from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
 
-from assistants.models import Action
-from assistants.forms.action import ActionCreateForm, ActionEditForm
+from creme.assistants.models import Action
+from creme.assistants.forms.action import ActionCreateForm, ActionEditForm
 
 
 @login_required

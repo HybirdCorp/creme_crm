@@ -7,9 +7,9 @@ try:
 
     from django.conf import settings
 
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from activesync.utils import get_b64encoded_img_of_max_weight
+    from creme.activesync.utils import get_b64encoded_img_of_max_weight
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

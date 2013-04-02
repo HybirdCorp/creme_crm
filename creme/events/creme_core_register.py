@@ -20,11 +20,11 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.registry import creme_registry
-from creme_core.gui import creme_menu, block_registry, icon_registry
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.gui import creme_menu, block_registry, icon_registry
 
-from events.models import Event
-from events.blocks import resuts_block
+from creme.events.models import Event
+from creme.events.blocks import resuts_block
 
 
 creme_registry.register_entity_models(Event)

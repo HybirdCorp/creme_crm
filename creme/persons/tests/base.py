@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.base import CremeTestCase
 
 
 class _BaseTestCase(CremeTestCase):

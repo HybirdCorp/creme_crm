@@ -21,7 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 
-from creme_core.models import CremeModel
+from creme.creme_core.models import CremeModel
 
 
 __all__ = (

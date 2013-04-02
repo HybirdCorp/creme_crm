@@ -30,10 +30,10 @@ from django.http import HttpResponseRedirect
 from django.conf import settings
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.models import CremeEntity
+from creme.creme_core.models import CremeEntity
 
-#from billing.constants import CURRENCY #TODO: use it ?
-from billing.models import Invoice
+#from creme.billing.constants import CURRENCY #TODO: use it ?
+from creme.billing.models import Invoice
 
 
 @login_required

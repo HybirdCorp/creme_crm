@@ -22,8 +22,8 @@ from logging import debug
 
 from django.db import transaction, IntegrityError
 
-from billing.models import SimpleBillingAlgo
-from billing.registry import Algo
+from creme.billing.models import SimpleBillingAlgo
+from creme.billing.registry import Algo
 
 
 class SimpleAlgo(Algo):

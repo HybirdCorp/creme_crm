@@ -23,9 +23,9 @@ from django.shortcuts import render
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import inner_popup
+from creme.creme_core.views.generic import inner_popup
 
-from creme_config.forms.prefered_menu import PreferedMenuForm
+from creme.creme_config.forms.prefered_menu import PreferedMenuForm
 
 
 @login_required

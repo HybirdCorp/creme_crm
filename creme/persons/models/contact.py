@@ -25,14 +25,14 @@ from django.db.models import (ForeignKey, CharField, TextField, ManyToManyField,
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 
-from creme_core.models import CremeEntity, Language #, CremeEntityManager
-from creme_core.models.fields import PhoneField
+from creme.creme_core.models import CremeEntity, Language #, CremeEntityManager
+from creme.creme_core.models.fields import PhoneField
 
-from media_managers.models import Image
+from creme.media_managers.models import Image
 
+from creme.persons.constants import REL_OBJ_EMPLOYED_BY
 from address import Address
 from other_models import Civility, Position, Sector
-from persons.constants import REL_OBJ_EMPLOYED_BY
 
 
 class Contact(CremeEntity):

@@ -6,11 +6,11 @@ try:
 
     from django.contrib.sessions.models import Session
 
-    from creme_core.tests.base import CremeTestCase
-    from creme_core.models import CremeEntity
-    from creme_core.gui.listview import get_field_name_from_pattern
-    from creme_core.gui.last_viewed import LastViewedItem
-    from persons.models import Contact
+    from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models import CremeEntity
+    from creme.creme_core.gui.listview import get_field_name_from_pattern
+    from creme.creme_core.gui.last_viewed import LastViewedItem
+    from creme.persons.models import Contact
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

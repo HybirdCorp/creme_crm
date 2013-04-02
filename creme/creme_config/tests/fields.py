@@ -4,12 +4,12 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.auth.models import User
 
-    from creme_core.tests.forms.base import CremeTestCase
-    from creme_core.models import UserRole
+    from creme.creme_core.tests.forms.base import CremeTestCase
+    from creme.creme_core.models import UserRole
 
-    from creme_config.forms.fields import CreatorModelChoiceField
+    from creme.creme_config.forms.fields import CreatorModelChoiceField
 
-    from persons.models import Position
+    from creme.persons.models import Position
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

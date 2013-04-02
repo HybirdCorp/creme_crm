@@ -24,12 +24,12 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from creme_core.views.generic import inner_popup
+from creme.creme_core.views.generic import inner_popup
 
-from creme_config.models import SettingValue
-from creme_config.forms.setting import SettingForm
-from creme_config.blocks import settings_block
-from creme_core.utils import jsonify
+from creme.creme_config.models import SettingValue
+from creme.creme_config.forms.setting import SettingForm
+from creme.creme_config.blocks import settings_block
+from creme.creme_core.utils import jsonify
 
 
 @login_required

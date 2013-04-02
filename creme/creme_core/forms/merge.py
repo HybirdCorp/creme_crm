@@ -28,10 +28,10 @@ from django.utils.safestring import mark_safe
 from django.utils.html import escape
 from django.utils.translation import ugettext as _
 
-from creme_core.models import CremeEntity
-from creme_core.forms import CremeForm
-from creme_core.signals import pre_merge_related
-from creme_core.gui.merge import merge_form_registry
+from creme.creme_core.models import CremeEntity
+from creme.creme_core.forms import CremeForm
+from creme.creme_core.signals import pre_merge_related
+from creme.creme_core.gui.merge import merge_form_registry
 
 
 class EntitiesHeaderWidget(Widget):

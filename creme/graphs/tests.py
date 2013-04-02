@@ -3,10 +3,10 @@
 try:
     from django.utils.unittest.case import skipIf
 
-    from creme_core.models import RelationType
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models import RelationType
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from graphs.models import *
+    from creme.graphs.models import *
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

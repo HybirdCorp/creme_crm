@@ -22,18 +22,18 @@ from django.db.models import ForeignKey, CharField, DateField, TextField
 #from django.db.models.aggregates import Count
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
-from creme_core.models import CremeModel
-from creme_core.utils import chunktools
+from creme.creme_core.models import CremeModel
+from creme.creme_core.utils import chunktools
 
-from sms.models.campaign import SMSCampaign
-from sms.models.template import MessageTemplate
+from creme.sms.models.campaign import SMSCampaign
+from creme.sms.models.template import MessageTemplate
 
-from sms.webservice.samoussa import (SamoussaBackEnd,
+from creme.sms.webservice.samoussa import (SamoussaBackEnd,
                                      SAMOUSSA_STATUS_ACCEPT,
                                      SAMOUSSA_STATUS_WAITING,
                                      SAMOUSSA_STATUS_SENT,
                                      SAMOUSSA_STATUS_ERROR,)
-from sms.webservice.backend import WSException
+from creme.sms.webservice.backend import WSException
 
 
 

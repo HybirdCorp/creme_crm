@@ -20,8 +20,8 @@
 
 from django.core.management.base import BaseCommand
 
-from creme_core import autodiscover
-from creme_core.core.reminder import reminder_registry
+from creme.creme_core import autodiscover
+from creme.creme_core.core.reminder import reminder_registry
 
 #TODO: Unit test me!
 class Command(BaseCommand):

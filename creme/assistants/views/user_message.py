@@ -24,11 +24,11 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from creme_core.views.generic import inner_popup, add_to_entity as generic_add_to_entity
-from creme_core.utils import get_from_POST_or_404
+from creme.creme_core.views.generic import inner_popup, add_to_entity as generic_add_to_entity
+from creme.creme_core.utils import get_from_POST_or_404
 
-from assistants.models import UserMessage
-from assistants.forms.user_message import UserMessageForm
+from creme.assistants.models import UserMessage
+from creme.assistants.forms.user_message import UserMessageForm
 
 
 @login_required

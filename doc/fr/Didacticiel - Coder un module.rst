@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 04-04-2012 pour la version 1.2 de Creme
+:Version: 06-03-2013 pour la version 1.3 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -29,8 +29,8 @@ Creme est développé en utilisant un cadriciel (framework) Python spécialisé 
 la création de sites et applications Web : Django_.
 Si vous comptez réellement développer des modules pour Creme, la connaissance de
 Django sera sûrement nécessaire. Heureusement la documentation de celui-ci est vraiment
-complète et bien faite ; vous la trouverez ici : http://docs.djangoproject.com/en/1.3/.
-Dans un premier temps, avoir lu le `didacticiel <http://docs.djangoproject.com/en/1.3/intro/tutorial01/>`_
+complète et bien faite ; vous la trouverez ici : http://docs.djangoproject.com/en/1.4/.
+Dans un premier temps, avoir lu le `didacticiel <http://docs.djangoproject.com/en/1.4/intro/tutorial01/>`_
 devrait suffire.
 
 Creme utilise aussi la bibliothèque Javascript JQuery_ ; il se peut que pour
@@ -126,12 +126,14 @@ Puis créons dedans un fichier nommé ``beaver.py`` (notez le singulier) à l'ai
     from django.db.models import CharField, DateField
     from django.utils.translation import ugettext_lazy as _
 
-    from creme_core.models import CremeEntity
+    from creme.creme_core.models import CremeEntity
 
 
     class Beaver(CremeEntity):
         name     = CharField(_(u'Name'), max_length=100)
-        birthday = DateField(_(u"Birthday"))
+        birthday = DateField(_(u'Birthday'))
+
+        creation_label = _('Add a beaver')
 
         class Meta:
             app_label = "beavers"
@@ -166,6 +168,8 @@ En plus des champs contenus en base (fields), nous déclarons :
 - 3 méthodes renvoyant des URL, ``get_absolute_url()`` pour l'url de la vue détaillée,
   ``get_edit_absolute_url()``, pour la vue d'édition, et enfin ``get_lv_absolute_url()``
   pour la vue en liste.
+- le champ ``creation_label`` qui permet de nommer correctement les éléments d'interface
+  (bouton, menu etc...) qui permettent de créer un castor, plutôt qu'un simple "New".
 
 
 Là encore, pour que le répertoire ``models/`` soit un module, nous devons y mettre
@@ -193,31 +197,31 @@ configuration générale ``creme/settings.py`` le tuple INSTALLED_CREME_APPS. ::
 
     INSTALLED_CREME_APPS = (
         #CREME CORE APPS
-        'creme_core',
-        'creme_config',
-        'media_managers',
-        'documents',
-        'assistants',
-        'activities',
-        'persons',
+        'creme.creme_core',
+        'creme.creme_config',
+        'creme.media_managers',
+        'creme.documents',
+        'creme.assistants',
+        'creme.activities',
+        'creme.persons',
 
         #CREME OPTIONNAL APPS (can be safely commented)
-        'graphs',
-        'reports',
-        'products',
-        'recurrents',
-        'billing',
-        'opportunities',
-        'commercial',
-        'events',
-        'crudity',
-        'emails',
-        'projects',
-        'tickets',
-        'activesync',
-        'vcfs',
+        'creme.graphs',
+        'creme.reports',
+        'creme.products',
+        'creme.recurrents',
+        'creme.billing',
+        'creme.opportunities',
+        'creme.commercial',
+        'creme.events',
+        'creme.crudity',
+        'creme.emails',
+        'creme.projects',
+        'creme.tickets',
+        'creme.activesync',
+        'creme.vcfs',
 
-        'beavers', # <-- NEW
+        'creme.beavers', # <-- NEW
     )
 
 Notez que par rapport à la configuration de base, nous avons ajouté à la fin du
@@ -254,17 +258,17 @@ d'inquiétude, nous allons y remédier. Tout d'abord, créons un nouveau fichier
 
     from django.utils.translation import ugettext_lazy as _
 
-    from creme_core.registry import creme_registry
-    from creme_core.gui.menu import creme_menu
+    from creme.creme_core.registry import creme_registry
+    from creme.creme_core.gui.menu import creme_menu
 
-    from beavers.models import Beaver
+    from creme.beavers.models import Beaver
 
     creme_registry.register_entity_models(Beaver)
     creme_registry.register_app('beavers', _(u'Beavers management'), '/beavers')
 
     reg_item = creme_menu.register_app('beavers', '/beavers/').register_item
-    reg_item('/beavers/beavers',    _(u'All beavers'),  'beavers')
-    reg_item('/beavers/beaver/add', _(u'Add a beaver'), 'beavers.add_beaver')
+    reg_item('/beavers/beavers',    _(u'All beavers'),     'beavers')
+    reg_item('/beavers/beaver/add', Beaver.creation_label, 'beavers.add_beaver')
 
 Explications :
 
@@ -306,7 +310,7 @@ Créons donc ce fichiers ``urls.py`` contenu dans ``beaver/`` : ::
     from django.conf.urls.defaults import patterns
 
 
-    urlpatterns = patterns('beavers.views',
+    urlpatterns = patterns('creme.beavers.views',
         (r'^beavers$',    'beaver.listview'),
         (r'^beaver/add$', 'beaver.add'),
     )
@@ -329,9 +333,9 @@ Dans ``views/``, nous créons alors le fichier ``beaver.py`` : ::
 
     from django.contrib.auth.decorators import login_required, permission_required
 
-    from creme_core.views import generic
+    from creme.creme_core.views import generic
 
-    from beavers.models import Beaver
+    from creme.beavers.models import Beaver
 
 
     @login_required
@@ -365,13 +369,13 @@ Dans ``forms/``, nous créons alors le fichier ``beaver.py`` : ::
 
     from django.utils.translation import ugettext_lazy as _
 
-    from creme_core.forms import CremeEntityForm, CremeDateField
+    from creme.creme_core.forms import CremeEntityForm, CremeDateField
 
-    from beavers.models import Beaver
+    from creme.beavers.models import Beaver
 
 
     class BeaverForm(CremeEntityForm):
-        birthday = CremeDateField(label=_(u"Birthday"))
+        birthday = CremeDateField(label=_(u'Birthday'))
 
         class Meta(CremeEntityForm.Meta):
             model = Beaver
@@ -383,7 +387,7 @@ remplir la date en cliquant.
 Puis nous modifions ``views/beaver.py``, en ajoutant ceci à la fin (vous pouvez
 ramener le ``import`` au début, avec les autres directives ``import`` bien sûr) : ::
 
-    from beavers.forms.beaver import BeaverForm
+    from creme.beavers.forms.beaver import BeaverForm
 
     @login_required
     @permission_required('beavers')
@@ -412,7 +416,7 @@ Ajoutons cette fonction de vue (dans ``views/beaver.py`` donc, si vous suivez) :
 
 Il faut aussi éditer ``beavers/urls.py`` pour ajouter cette url : ::
 
-    urlpatterns = patterns('beavers.views',
+    urlpatterns = patterns('creme.beavers.views',
         (r'^beavers$',                   'beaver.listview'),
         (r'^beaver/add$',                'beaver.add'),
         (r'^beaver/(?P<beaver_id>\d+)$', 'beaver.detailview'), # < -- NEW
@@ -436,7 +440,7 @@ nous avons encore une erreur 404. Ajoutons cete vue dans ``views/beaver.py`` : :
 
 et rajoutons l'url associée : ::
 
-    urlpatterns = patterns('beavers.views',
+    urlpatterns = patterns('creme.beavers.views',
         (r'^beavers$',                        'beaver.listview'),
         (r'^beaver/add$',                     'beaver.add'),
         (r'^beaver/edit/(?P<beaver_id>\d+)$', 'beaver.edit'),  # < -- NEW
@@ -457,11 +461,11 @@ statistiques. Ajouter le fichier ``views/portal.py`` suivant : ::
 
     from django.utils.translation import ugettext as _
 
-    from creme_core.views.generic import app_portal
+    from creme.creme_core.views.generic import app_portal
 
-    from creme_config.utils import generate_portal_url
+    from creme.creme_config.utils import generate_portal_url
 
-    from beavers.models import Beaver
+    from creme.beavers.models import Beaver
 
 
     def portal(request):
@@ -477,7 +481,7 @@ Il faut mettre à jour le fichier ``beavers/urls.py`` : ::
 
     [...]
 
-    urlpatterns = patterns('beavers.views',
+    urlpatterns = patterns('creme.beavers.views',
         (r'^$', 'portal.portal'), # <- NEW
 
         (r'^beavers$',                        'beaver.listview'),
@@ -493,9 +497,9 @@ donc une entrée supplémentaire dans le menu de gauche en éditant
     [...]
 
     reg_item = creme_menu.register_app('beavers', '/beavers/').register_item
-    reg_item('/beavers/',           _(u'Portal'),       'beavers') # <- NEW
-    reg_item('/beavers/beavers',    _(u'All beavers'),  'beavers')
-    reg_item('/beavers/beaver/add', _(u'Add a beaver'), 'beavers.add_beaver')
+    reg_item('/beavers/',           _(u'Portal'),          'beavers') # <- NEW
+    reg_item('/beavers/beavers',    _(u'All beavers'),     'beavers')
+    reg_item('/beavers/beaver/add', Beaver.creation_label, 'beavers.add_beaver')
 
 
 Si vous tentez d'accéder au portail, vous déclenchez une erreur. En effet, il
@@ -537,11 +541,11 @@ la vue de liste. Créons un nouveau fichier : ``beavers/populate.py``. ::
 
     from django.utils.translation import ugettext as _
 
-    from creme_core.models import HeaderFilterItem, HeaderFilter, SearchConfigItem
-    from creme_core.utils import create_or_update as create
-    from creme_core.management.commands.creme_populate import BasePopulator
+    from creme.creme_core.models import HeaderFilterItem, HeaderFilter, SearchConfigItem
+    from creme.creme_core.utils import create_or_update as create
+    from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-    from beavers.models import *
+    from creme.beavers.models import *
 
 
     class Populator(BasePopulator):
@@ -560,7 +564,7 @@ Explications :
 - Nous créons une vue de liste (``HeaderFilter``) avec 2 colonnes, correspondant
   tout simplement au nom et la date de naissance de nos castors. Pour les
   ``HeaderFilterItem``, la methode ``build_4_field`` correspond à des champs
-  normaux de nos castors (il y a d'autres methodes, comme ``build_4_relation``
+  normaux de nos castors (il y a d'autres méthodes, comme ``build_4_relation``
   par exemple).
 - La ligne avec ``SearchConfigItem`` sert à configurer la recherche globale :
   elle se fera sur le champ 'name' pour les castors.
@@ -735,7 +739,7 @@ Ensuite créez un fichier ``models/status.py`` : ::
     from django.db.models import CharField, BooleanField
     from django.utils.translation import ugettext_lazy as _
 
-    from creme_core.models import CremeModel
+    from creme.creme_core.models import CremeModel
 
 
     class Status(CremeModel):
@@ -768,14 +772,14 @@ Puis ajoutons un champ 'status' dans notre modèle ``Beaver`` : ::
     from django.db.models import CharField, DateField, ForeignKey # <- NEW
     from django.utils.translation import ugettext_lazy as _
 
-    from creme_core.models import CremeEntity
+    from creme.creme_core.models import CremeEntity
 
     from status import Status # <- NEW
 
 
     class Beaver(CremeEntity):
         name     = CharField(_(u'Name'), max_length=100)
-        birthday = DateField(_(u"Birthday"))
+        birthday = DateField(_(u'Birthday'))
         status   = ForeignKey(Status, verbose_name=_(u'Status')) # <- NEW
 
         [....]
@@ -807,7 +811,7 @@ des constantes : ::
 Utilisons tout de suite ces constantes ; modifiez ``populate.py`` : ::
 
     [...]
-    from beavers.constants import STATUS_HEALTHY, STATUS_SICK
+    from creme.beavers.constants import STATUS_HEALTHY, STATUS_SICK
 
     [...]
 
@@ -868,10 +872,10 @@ une convention) : ::
 
     from django.utils.translation import ugettext_lazy as _
 
-    from creme_core.gui.button_menu import Button
+    from creme.creme_core.gui.button_menu import Button
 
-    from beavers.models import Beaver
-    from beavers.constants import STATUS_HEALTHY, STATUS_SICK
+    from creme.beavers.models import Beaver
+    from creme.beavers.constants import STATUS_HEALTHY, STATUS_SICK
 
 
     class CreateTicketButton(Button):
@@ -934,9 +938,9 @@ Il faut enregistrer notre bouton avec les autres boutons de Creme, afin que
 *creme_config* puisse proposer notre bouton. Pour ça, nous rajoutons à la fin
 de ``beavers/creme_core_register.py`` : ::
 
-    from creme_core.gui.button_menu import button_registry
+    from creme.creme_core.gui.button_menu import button_registry
 
-    from beavers.buttons import create_ticket_button
+    from creme.beavers.buttons import create_ticket_button
 
     button_registry.register(create_ticket_button)
 
@@ -965,11 +969,11 @@ Dans un nouveau fichier de vue ``beavers/views/ticket.py`` : ::
     from django.utils.translation import ugettext as _
     from django.contrib.auth.decorators import login_required, permission_required
 
-    from creme_core.views.generic import add_entity
+    from creme.creme_core.views.generic import add_entity
 
-    from tickets.forms.ticket import TicketCreateForm
+    from creme.tickets.forms.ticket import TicketCreateForm
 
-    from beavers.models import Beaver
+    from creme.beavers.models import Beaver
 
 
     @login_required

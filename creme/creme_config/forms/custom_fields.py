@@ -25,10 +25,10 @@ from django.forms.widgets import Textarea
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models.custom_field import CustomField, CustomFieldEnumValue, _TABLES
-from creme_core.forms import CremeModelForm
-from creme_core.forms.fields import ListEditionField
-from creme_core.utils import creme_entity_content_types
+from creme.creme_core.models.custom_field import CustomField, CustomFieldEnumValue, _TABLES
+from creme.creme_core.forms import CremeModelForm
+from creme.creme_core.forms.fields import ListEditionField
+from creme.creme_core.utils import creme_entity_content_types
 
 #TODO: User friendly order in choices fields
 

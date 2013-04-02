@@ -22,11 +22,11 @@ from logging import debug
 from os.path import join, split
 import shutil
 
-from creme_core.forms import CremeEntityForm
-#from creme_core.forms.widgets import UploadedFileWidget #TODO: still useful ??
-from creme_core.views.file_handling import handle_uploaded_file
+from creme.creme_core.forms import CremeEntityForm
+#from creme.creme_core.forms.widgets import UploadedFileWidget #TODO: still useful ??
+from creme.creme_core.views.file_handling import handle_uploaded_file
 
-from media_managers.models import Image
+from creme.media_managers.models import Image
 
 
 class _ImageForm(CremeEntityForm):

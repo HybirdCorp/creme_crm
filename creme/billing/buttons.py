@@ -20,9 +20,9 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.gui.button_menu import Button
+from creme.creme_core.gui.button_menu import Button
 
-from persons.models import Contact, Organisation
+from creme.persons.models import Contact, Organisation
 
 
 class GenerateInvoiceNumberButton(Button):
@@ -31,7 +31,7 @@ class GenerateInvoiceNumberButton(Button):
     template_name = 'billing/templatetags/button_generate_invoice_number.html'
 
     def get_ctypes(self):
-        from billing.models import Invoice
+        from creme.billing.models import Invoice
         return (Invoice,)
 
     def has_perm(self, context):

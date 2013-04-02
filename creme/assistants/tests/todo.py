@@ -7,13 +7,13 @@ try:
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import CremeEntity
+    from creme.creme_core.models import CremeEntity
 
-    from persons.models import Contact
+    from creme.persons.models import Contact
 
-    from assistants.models import ToDo
-    from assistants.blocks import todos_block
-    from assistants.tests.base import AssistantsTestCase
+    from creme.assistants.models import ToDo
+    from creme.assistants.blocks import todos_block
+    from creme.assistants.tests.base import AssistantsTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

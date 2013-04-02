@@ -21,9 +21,9 @@
 from django.utils.translation import ugettext as _
 from django.shortcuts import get_object_or_404
 
-from creme_core.views.generic import inner_popup
+from creme.creme_core.views.generic import inner_popup
 
-from projects.models import ProjectTask
+from creme.projects.models import ProjectTask
 
 
 def error_popup(request, message):

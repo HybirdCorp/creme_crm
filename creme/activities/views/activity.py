@@ -26,14 +26,14 @@ from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.models import RelationType, EntityCredentials, Relation
-from creme_core.views.generic import view_real_entity, add_entity, list_view, inner_popup
-from creme_core.utils import get_ct_or_404, get_from_GET_or_404, get_from_POST_or_404
+from creme.creme_core.models import RelationType, EntityCredentials, Relation
+from creme.creme_core.views.generic import view_real_entity, add_entity, list_view, inner_popup
+from creme.creme_core.utils import get_ct_or_404, get_from_GET_or_404, get_from_POST_or_404
 
-from activities.models import Activity
-from activities.forms import *
-from activities.utils import get_ical
-from activities.constants import ACTIVITYTYPE_INDISPO
+from creme.activities.models import Activity
+from creme.activities.forms import *
+from creme.activities.utils import get_ical
+from creme.activities.constants import ACTIVITYTYPE_INDISPO
 
 
 INDISPONIBILITY_HELP_MESSAGE = _("""*** How indisponibility works ***

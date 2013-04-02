@@ -28,10 +28,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeModel, RelationType, CremeEntity
-from creme_core.constants import SETTING_BLOCK_DEFAULT_STATE_IS_OPEN, SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS, MODELBLOCK_ID
+from creme.creme_core.models import CremeModel, RelationType, CremeEntity
+from creme.creme_core.constants import SETTING_BLOCK_DEFAULT_STATE_IS_OPEN, SETTING_BLOCK_DEFAULT_STATE_SHOW_EMPTY_FIELDS, MODELBLOCK_ID
 
-from creme_config.models.setting import SettingValue
+from creme.creme_config.models.setting import SettingValue
 
 
 __all__ = ('BlockDetailviewLocation', 'BlockPortalLocation', 'BlockMypageLocation',
@@ -160,7 +160,7 @@ class BlockMypageLocation(CremeModel):
 
     @property
     def block_verbose_name(self):
-        from creme_core.gui.block import block_registry
+        from creme.creme_core.gui.block import block_registry
         try:
             return block_registry[self.block_id].verbose_name
         except:
@@ -191,7 +191,7 @@ class RelationBlockItem(CremeModel):
         try:
             rbi = RelationBlockItem.objects.get(relation_type=relation_type_id)
         except RelationBlockItem.DoesNotExist:
-            from creme_core.gui.block import SpecificRelationsBlock
+            from creme.creme_core.gui.block import SpecificRelationsBlock
             rbi = RelationBlockItem.objects.create(block_id=SpecificRelationsBlock.generate_id('creme_config', relation_type_id),
                                                    relation_type_id=relation_type_id
                                                   )

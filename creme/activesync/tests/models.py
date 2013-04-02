@@ -3,15 +3,15 @@
 try:
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models.relation import Relation
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models.relation import Relation
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from persons.models import Contact, Organisation
-    from persons.constants import REL_SUB_EMPLOYED_BY
+    from creme.persons.models import Contact, Organisation
+    from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
-    from activities.models import Meeting
+    from creme.activities.models import Meeting
 
-    from activesync.models import UserSynchronizationHistory, CremeExchangeMapping
+    from creme.activesync.models import UserSynchronizationHistory, CremeExchangeMapping
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -22,7 +22,6 @@ class ActiveSyncModelsTestCase(CremeTestCase):
         cls.populate('creme_core', 'persons', 'activities')
 
     def setUp(self):
-        #self.populate('creme_core', 'persons', 'activities')
         self.login()
 
     def test_mapping_update_contact01(self):

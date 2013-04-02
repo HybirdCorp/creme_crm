@@ -6,10 +6,10 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _
 
-    from persons.models import Contact
+    from creme.persons.models import Contact
 
-    from commercial.models import *
-    from commercial.tests.base import CommercialBaseTestCase
+    from creme.commercial.models import *
+    from creme.commercial.tests.base import CommercialBaseTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

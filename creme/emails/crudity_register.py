@@ -23,19 +23,19 @@ from itertools import chain
 
 from django.utils.translation import ugettext as _
 
-from creme_core.models import Relation
-from creme_core.views.file_handling import handle_uploaded_file
+from creme.creme_core.models import Relation
+from creme.creme_core.views.file_handling import handle_uploaded_file
 
-from crudity.backends.models import CrudityBackend
-from crudity.inputs.base import CrudityInput
-from crudity.models import History
+from creme.crudity.backends.models import CrudityBackend
+from creme.crudity.inputs.base import CrudityInput
+from creme.crudity.models import History
 
-from documents.constants import REL_OBJ_RELATED_2_DOC, DOCUMENTS_FROM_EMAILS
-from documents.models import Document, Folder, FolderCategory
+from creme.documents.constants import REL_OBJ_RELATED_2_DOC, DOCUMENTS_FROM_EMAILS
+from creme.documents.models import Document, Folder, FolderCategory
 
-from emails.blocks import WaitingSynchronizationMailsBlock, SpamSynchronizationMailsBlock
-from emails.models import EntityEmail
-from emails.constants import MAIL_STATUS_SYNCHRONIZED_WAITING
+from creme.emails.blocks import WaitingSynchronizationMailsBlock, SpamSynchronizationMailsBlock
+from creme.emails.models import EntityEmail
+from creme.emails.constants import MAIL_STATUS_SYNCHRONIZED_WAITING
 
 
 class EntityEmailBackend(CrudityBackend):

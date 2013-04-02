@@ -22,11 +22,11 @@ from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.models import CremeEntity, Relation, RelationType
-from creme_core.utils import get_from_POST_or_404
+from creme.creme_core.models import CremeEntity, Relation, RelationType
+from creme.creme_core.utils import get_from_POST_or_404
 
-from persons.constants import REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT, REL_SUB_SUSPECT, REL_SUB_INACTIVE, REL_OBJ_CUSTOMER_SUPPLIER
-from persons.models import Organisation
+from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT, REL_SUB_SUSPECT, REL_SUB_INACTIVE, REL_OBJ_CUSTOMER_SUPPLIER
+from creme.persons.models import Organisation
 
 
 #TODO: generalise and move to creme_core ??

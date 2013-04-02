@@ -11,17 +11,17 @@ try:
     from django.db.models.deletion import ProtectedError
     from django.utils.translation import ugettext as _
 
-    from creme_core.tests.base import CremeTestCase
-    from creme_core.models import *
-    from creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
-    from creme_core.core.field_tags import InvalidFieldTag
+    from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models import *
+    from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
+    from creme.creme_core.core.field_tags import InvalidFieldTag
 
-    from persons.models import Contact, Organisation, Civility
+    from creme.persons.models import Contact, Organisation, Civility
 
-    from media_managers.models import Image, MediaCategory
+    from creme.media_managers.models import Image, MediaCategory
 
-    from activities.models import Activity, ActivityType, Status, Meeting
-    from activities.constants import REL_SUB_PART_2_ACTIVITY
+    from creme.activities.models import Activity, ActivityType, Status, Meeting
+    from creme.activities.constants import REL_SUB_PART_2_ACTIVITY
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

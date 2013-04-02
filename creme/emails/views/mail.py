@@ -26,17 +26,17 @@ from django.utils.translation import ugettext as _, ugettext
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity
-from creme_core.views import generic
-from creme_core.utils import jsonify, get_from_POST_or_404
+from creme.creme_core.models import CremeEntity
+from creme.creme_core.views import generic
+from creme.creme_core.utils import jsonify, get_from_POST_or_404
 
-from crudity.views.actions import fetch
+from creme.crudity.views.actions import fetch
 
-from emails.models import LightWeightEmail, EntityEmail
-from emails.constants import MAIL_STATUS_SENT, MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED, MAIL_STATUS_SYNCHRONIZED_WAITING
-from emails.blocks import mail_waiting_sync_block, mail_spam_sync_block
-from emails.forms.mail import EntityEmailForm, TemplateSelectionForm, EntityEmailFromTemplateForm
-from emails.forms.template import TEMPLATES_VARS
+from creme.emails.models import LightWeightEmail, EntityEmail
+from creme.emails.constants import MAIL_STATUS_SENT, MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED, MAIL_STATUS_SYNCHRONIZED_WAITING
+from creme.emails.blocks import mail_waiting_sync_block, mail_spam_sync_block
+from creme.emails.forms.mail import EntityEmailForm, TemplateSelectionForm, EntityEmailFromTemplateForm
+from creme.emails.forms.template import TEMPLATES_VARS
 
 @login_required
 @permission_required('emails')

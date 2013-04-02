@@ -5,7 +5,7 @@ from traceback import format_exception
 
 from django.core.exceptions import ValidationError
 
-from creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.base import CremeTestCase
 
 
 def _format_stack(): #TODO: in utils ??

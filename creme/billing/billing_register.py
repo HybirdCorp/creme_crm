@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from billing.models import SimpleBillingAlgo
-from billing.algos import SimpleAlgo
+from creme.billing.models import SimpleBillingAlgo
+from creme.billing.algos import SimpleAlgo
 
 
 to_register = ((SimpleBillingAlgo.ALGO_NAME, SimpleAlgo),)

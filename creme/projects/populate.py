@@ -23,16 +23,16 @@ from logging import info
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme_core.models import RelationType, SearchConfigItem, HeaderFilterItem, HeaderFilter, BlockDetailviewLocation
-from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
-from creme_core.utils import create_if_needed
-from creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.models import RelationType, SearchConfigItem, HeaderFilterItem, HeaderFilter, BlockDetailviewLocation
+from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
+from creme.creme_core.utils import create_if_needed
+from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from persons.models import Contact
+from creme.persons.models import Contact
 
-from projects.models import ProjectStatus, TaskStatus, Project, ProjectTask, Resource
-from projects.blocks import *
-from projects.constants import REL_OBJ_PROJECT_MANAGER, REL_SUB_PROJECT_MANAGER, TASK_STATUS
+from creme.projects.models import ProjectStatus, TaskStatus, Project, ProjectTask, Resource
+from creme.projects.blocks import *
+from creme.projects.constants import REL_OBJ_PROJECT_MANAGER, REL_SUB_PROJECT_MANAGER, TASK_STATUS
 
 
 class Populator(BasePopulator):
@@ -88,10 +88,10 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=relations_block.id_,           order=500, zone=BlockDetailviewLocation.LEFT,  model=ProjectTask)
         BlockDetailviewLocation.create(block_id=history_block.id_,             order=20,  zone=BlockDetailviewLocation.RIGHT, model=ProjectTask)
 
-        if 'assistants' in settings.INSTALLED_APPS:
+        if 'creme.assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail views')
 
-            from assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+            from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
             for model in (Project, ProjectTask):
                 BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)

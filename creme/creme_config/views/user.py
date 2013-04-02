@@ -24,10 +24,10 @@ from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 
-from creme_core.views.generic import add_model_with_popup, edit_model_with_popup
-from creme_core.auth.decorators import superuser_required
+from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
+from creme.creme_core.auth.decorators import superuser_required
 
-from creme_config.forms.user import (UserAddForm, UserChangePwForm, UserEditForm,
+from creme.creme_config.forms.user import (UserAddForm, UserChangePwForm, UserEditForm,
                                      TeamCreateForm, TeamEditForm, UserAssignationForm)
 
 

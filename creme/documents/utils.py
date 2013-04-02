@@ -20,7 +20,7 @@
 
 from django.utils.translation import ugettext as _
 
-from documents.models import Folder
+from creme.documents.models import Folder
 
 def get_csv_folder_or_create(user):
     title=_(u'CSV Documents')

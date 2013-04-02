@@ -22,9 +22,9 @@ from django.forms import IntegerField, BooleanField, CharField
 from django.forms.widgets import Textarea
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.forms import CremeModelForm
+from creme.creme_core.forms import CremeModelForm
 
-from creme_config.models import SettingKey, SettingValue
+from creme.creme_config.models import SettingKey, SettingValue
 
 
 _FIELDS = {

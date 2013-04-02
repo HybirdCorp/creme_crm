@@ -25,21 +25,21 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.models import Relation, CremeEntity
-from creme_core.utils.queries import get_first_or_None
-from creme_core.views.generic import add_entity, add_model_with_popup, edit_entity, view_entity, list_view
-from creme_core.utils import get_ct_or_404
+from creme.creme_core.models import Relation, CremeEntity
+from creme.creme_core.utils.queries import get_first_or_None
+from creme.creme_core.views.generic import add_entity, add_model_with_popup, edit_entity, view_entity, list_view
+from creme.creme_core.utils import get_ct_or_404
 
-from persons.workflow import transform_target_into_customer, transform_target_into_prospect
+from creme.persons.workflow import transform_target_into_customer, transform_target_into_prospect
 
-from products.models import Product
+from creme.products.models import Product
 
-from billing.models import Quote, Invoice, SalesOrder, ProductLine, ServiceLine, Vat
-from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+from creme.billing.models import Quote, Invoice, SalesOrder, ProductLine, ServiceLine, Vat
+from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
-from opportunities.models import Opportunity, SalesPhase
-from opportunities.forms.opportunity import OpportunityCreateForm, OpportunityEditForm
-from opportunities.constants import *
+from creme.opportunities.models import Opportunity, SalesPhase
+from creme.opportunities.forms.opportunity import OpportunityCreateForm, OpportunityEditForm
+from creme.opportunities.constants import *
 
 
 @login_required

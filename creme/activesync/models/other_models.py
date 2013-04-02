@@ -20,7 +20,7 @@
 
 from django.db import models
 
-from creme_core.models import CremeModel, CremeEntity
+from creme.creme_core.models import CremeModel, CremeEntity
 
 class EntityASData(CremeModel):
     """

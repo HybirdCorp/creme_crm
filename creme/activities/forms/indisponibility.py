@@ -23,11 +23,11 @@ import datetime
 from django.forms.util import ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.forms import CremeEntityForm
-from creme_core.forms.fields import CremeTimeField, CremeDateField
+from creme.creme_core.forms import CremeEntityForm
+from creme.creme_core.forms.fields import CremeTimeField, CremeDateField
 
-from activities.models import Activity
-from activities.constants import ACTIVITYTYPE_INDISPO
+from creme.activities.models import Activity
+from creme.activities.constants import ACTIVITYTYPE_INDISPO
 
 
 class IndisponibilityCreateForm(CremeEntityForm):
