@@ -137,11 +137,11 @@
                             {% if column|is_field_is_linkable:object.ct and column.report %}
                                 <input {% if not has_perm %}disabled="true"{% endif %} type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %} checked {% endif %}/>
                             {% endif %}
-                        {% else %}{% if HFI_RELATION == column.type or HFI_RELATED == column.type %}
+                        {% elif HFI_RELATION == column.type or HFI_RELATED == column.type %}
                             {# if column.report #}
                                 <input {% if not has_perm %}disabled="true"{% endif %} type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %} checked {% endif %}/>
                             {# endif #}
-                        {% endif %}{% endif %}
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}

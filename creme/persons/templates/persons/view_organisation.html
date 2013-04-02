@@ -4,9 +4,9 @@
 {% block logo %}
     {% if object.url_site %}
         <a href="http://{{object.url_site}}" target="_blank" ><img src="{{object.image.get_image_url}}" alt="" style="max-height:64px;max-width:200px;"/></a>
-    {% else %}{% if object.image.get_image_url %}
+    {% elif object.image.get_image_url %}
         <img src="{{object.image.get_image_url}}" alt="" title="{% trans "Please enter the web site address" %}" style="max-height:64px;max-width:200px;"/>
     {% else %}
         {{block.super}}
-    {% endif %}{% endif %}
+    {% endif %}
 {% endblock %}
