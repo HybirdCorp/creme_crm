@@ -26,11 +26,11 @@ from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from creme_core.models import EntityFilter, RelationType
-from creme_core.gui.listview import ListViewState
-from creme_core.forms.entity_filter import EntityFilterCreateForm, EntityFilterEditForm
-from creme_core.views.generic import add_entity
-from creme_core.utils import get_ct_or_404, get_from_POST_or_404, jsonify, creme_entity_content_types
+from creme.creme_core.models import EntityFilter, RelationType
+from creme.creme_core.gui.listview import ListViewState
+from creme.creme_core.forms.entity_filter import EntityFilterCreateForm, EntityFilterEditForm
+from creme.creme_core.views.generic import add_entity
+from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404, jsonify, creme_entity_content_types
 
 #TODO: factorise with HeaderFilter ??
 

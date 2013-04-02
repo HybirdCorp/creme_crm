@@ -21,11 +21,11 @@
 from django.db.models import CharField, BooleanField, TextField, DecimalField, PositiveIntegerField, ForeignKey
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeModel
+from creme.creme_core.models import CremeModel
 
-from persons.models import Organisation
+from creme.persons.models import Organisation
 
-from billing.constants import DEFAULT_VAT
+from creme.billing.constants import DEFAULT_VAT
 
 
 class SettlementTerms(CremeModel):

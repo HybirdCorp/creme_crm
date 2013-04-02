@@ -21,9 +21,9 @@
 from django.contrib.auth.decorators import permission_required, login_required
 from django.http import Http404
 
-from crudity.backends.models import CrudityBackend
-from crudity.registry import crudity_registry
-from crudity.builders.infopath import InfopathFormBuilder
+from creme.crudity.backends.models import CrudityBackend
+from creme.crudity.registry import crudity_registry
+from creme.crudity.builders.infopath import InfopathFormBuilder
 
 
 @login_required

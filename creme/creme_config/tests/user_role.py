@@ -5,15 +5,15 @@ try:
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import UserRole, SetCredentials
-    from creme_core.auth.entity_credentials import EntityCredentials
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models import UserRole, SetCredentials
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from activities.models import Meeting
+    from creme.activities.models import Meeting
 
-    from persons.models import Contact, Organisation #need CremeEntity
+    from creme.persons.models import Contact, Organisation #need CremeEntity
 
-    from creme_config import blocks
+    from creme.creme_config import blocks
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

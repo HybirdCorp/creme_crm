@@ -22,15 +22,15 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import (CremeModel, CremeEntity, CremePropertyType, UserRole,
+from creme.creme_core.models import (CremeModel, CremeEntity, CremePropertyType, UserRole,
                                RelationType, SemiFixedRelationType, CustomField, 
                                BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation,
                                RelationBlockItem, InstanceBlockConfigItem,
                                ButtonMenuItem, SearchConfigItem, HistoryConfigItem, PreferedMenuItem)
-from creme_core.gui.block import PaginatedBlock, QuerysetBlock
-from creme_core.registry import creme_registry
+from creme.creme_core.gui.block import PaginatedBlock, QuerysetBlock
+from creme.creme_core.registry import creme_registry
 
-from creme_config.models import  SettingValue
+from creme.creme_config.models import  SettingValue
 
 _PAGE_SIZE = 12
 

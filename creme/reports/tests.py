@@ -12,25 +12,25 @@ try:
     from django.utils.encoding import smart_str
     from django.core.serializers.json import simplejson
 
-    from creme_core.models import (CremePropertyType, CremeProperty, RelationType,
+    from creme.creme_core.models import (CremePropertyType, CremeProperty, RelationType,
                                    Relation, Language, InstanceBlockConfigItem)
-    from creme_core.models.header_filter import (HeaderFilterItem, HeaderFilter,
+    from creme.creme_core.models.header_filter import (HeaderFilterItem, HeaderFilter,
                                                  HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CALCULATED)
-    from creme_core.constants import REL_SUB_HAS, PROP_IS_MANAGED_BY_CREME
-    from creme_core.utils.meta import get_verbose_field_name, get_instance_field_info
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.constants import REL_SUB_HAS, PROP_IS_MANAGED_BY_CREME
+    from creme.creme_core.utils.meta import get_verbose_field_name, get_instance_field_info
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from billing.models import Invoice, InvoiceStatus, ProductLine, Vat
-    from billing.constants import REL_OBJ_BILL_ISSUED, REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+    from creme.billing.models import Invoice, InvoiceStatus, ProductLine, Vat
+    from creme.billing.constants import REL_OBJ_BILL_ISSUED, REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
-    from opportunities.models import Opportunity, SalesPhase
-    from opportunities.constants import REL_SUB_EMIT_ORGA
+    from creme.opportunities.models import Opportunity, SalesPhase
+    from creme.opportunities.constants import REL_SUB_EMIT_ORGA
 
-    from persons.models import Contact, Organisation, LegalForm
-    from persons.constants import REL_SUB_EMPLOYED_BY, REL_OBJ_CUSTOMER_SUPPLIER
+    from creme.persons.models import Contact, Organisation, LegalForm
+    from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_OBJ_CUSTOMER_SUPPLIER
 
-    from reports.models import Field, Report, ReportGraph
-    from reports.models.graph import RGT_MONTH
+    from creme.reports.models import Field, Report, ReportGraph
+    from creme.reports.models.graph import RGT_MONTH
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -41,7 +41,9 @@ class ReportsTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'reports', 'persons', 'opportunities', 'billing')
+        cls.populate('creme_core', 'creme_config', 'reports',
+                     'persons', 'opportunities', 'billing',
+                    )
 
     def setUp(self):
         self.login()
@@ -438,7 +440,7 @@ class ReportsTestCase(CremeTestCase):
         self.opportunities = [_create_opportunity(name="Opportunity %s" % i, reference=str(i)) for i in xrange(1, 11)]
 
     def test_big_report_fetch01(self):
-        self.populate('creme_core', 'persons', 'opportunities', 'billing') #TODO: remove
+        #self.populate('creme_core', 'persons', 'opportunities', 'billing')
         self._create_reports()
         self._setUp_data_for_big_report()
         user = self.user
@@ -552,7 +554,7 @@ class ReportsTestCase(CremeTestCase):
         #TODO: test HFI_RELATED, HFI_CUSTOM
 
     def _create_report_n_graph(self):
-        self.populate('billing')
+        #self.populate('billing')
 
         report = Report.objects.create(user=self.user,
                                        name=u"All invoices of the current year",

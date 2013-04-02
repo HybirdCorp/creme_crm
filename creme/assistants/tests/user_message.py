@@ -5,14 +5,14 @@ try:
 
     from django.contrib.auth.models import User
 
-    from persons.models import Contact
+    from creme.persons.models import Contact
 
-    from activities.models import Meeting, Calendar
-    from activities.constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT
+    from creme.activities.models import Meeting, Calendar
+    from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT
 
-    from assistants.models import UserMessage, UserMessagePriority
-    from assistants.constants import PRIO_NOT_IMP_PK
-    from assistants.tests.base import AssistantsTestCase
+    from creme.assistants.models import UserMessage, UserMessagePriority
+    from creme.assistants.constants import PRIO_NOT_IMP_PK
+    from creme.assistants.tests.base import AssistantsTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

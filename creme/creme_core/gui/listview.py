@@ -27,11 +27,11 @@ from django.db.models.sql.constants import QUERY_TERMS
 from django.utils.encoding import smart_str
 from django.shortcuts import get_object_or_404
 
-from creme_core.models import Relation, CustomField, CustomFieldEnumValue
-from creme_core.models.header_filter import HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION
-from creme_core.utils.date_range import CustomRange
-from creme_core.utils.dates import get_dt_from_str
-from creme_core.utils.meta import get_date_fields
+from creme.creme_core.models import Relation, CustomField, CustomFieldEnumValue
+from creme.creme_core.models.header_filter import HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION
+from creme.creme_core.utils.date_range import CustomRange
+from creme.creme_core.utils.dates import get_dt_from_str
+from creme.creme_core.utils.meta import get_date_fields
 
 
 def simple_value(value):

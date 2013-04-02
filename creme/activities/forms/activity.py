@@ -28,22 +28,22 @@ from django.forms.util import ValidationError, ErrorList
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 
-from creme_core.models import Relation
-from creme_core.forms import CremeForm, CremeEntityForm
-from creme_core.forms.base import FieldBlockManager
-from creme_core.forms.fields import CremeDateTimeField, CremeTimeField, MultiCremeEntityField, MultiGenericEntityField
-from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
-from creme_core.forms.validators import validate_linkable_entities, validate_linkable_entity
+from creme.creme_core.models import Relation
+from creme.creme_core.forms import CremeForm, CremeEntityForm
+from creme.creme_core.forms.base import FieldBlockManager
+from creme.creme_core.forms.fields import CremeDateTimeField, CremeTimeField, MultiCremeEntityField, MultiGenericEntityField
+from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+from creme.creme_core.forms.validators import validate_linkable_entities, validate_linkable_entity
 
-from creme_config.forms.fields import CreatorModelChoiceField
+from creme.creme_config.forms.fields import CreatorModelChoiceField
 
-from persons.models import Contact
+from creme.persons.models import Contact
 
-from assistants.models.alert import Alert
+from creme.assistants.models.alert import Alert
 
-from activities.models import ActivityType, Activity, PhoneCall, Meeting, Calendar
-from activities.constants import *
-from activities.utils import check_activity_collisions
+from creme.activities.models import ActivityType, Activity, PhoneCall, Meeting, Calendar
+from creme.activities.constants import *
+from creme.activities.utils import check_activity_collisions
 
 
 MINUTE  = '1'

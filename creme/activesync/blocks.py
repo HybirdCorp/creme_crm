@@ -20,14 +20,14 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.gui.block import Block, QuerysetBlock
+from creme.creme_core.gui.block import Block, QuerysetBlock
 
-from creme_config.models.setting import SettingValue
+from creme.creme_config.models.setting import SettingValue
 
-from persons.models.contact import Contact
+from creme.persons.models.contact import Contact
 
-from activesync.models.active_sync import UserSynchronizationHistory, USER_HISTORY_TYPE_VERBOSE, USER_HISTORY_WHERE_VERBOSE
-from activesync.constants import (USER_MOBILE_SYNC_SERVER_URL, MAPI_SERVER_URL, USER_MOBILE_SYNC_SERVER_DOMAIN,
+from creme.activesync.models.active_sync import UserSynchronizationHistory, USER_HISTORY_TYPE_VERBOSE, USER_HISTORY_WHERE_VERBOSE
+from creme.activesync.constants import (USER_MOBILE_SYNC_SERVER_URL, MAPI_SERVER_URL, USER_MOBILE_SYNC_SERVER_DOMAIN,
                                   MAPI_DOMAIN, USER_MOBILE_SYNC_SERVER_SSL, MAPI_SERVER_SSL,
                                   USER_MOBILE_SYNC_SERVER_LOGIN, USER_MOBILE_SYNC_SERVER_PWD,
                                   USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS)

@@ -29,9 +29,9 @@ from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _, activate
 from django.conf import settings
 
-from creme_core.constants import PROP_IS_MANAGED_BY_CREME
+from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
-from persons.constants import REL_SUB_CUSTOMER_SUPPLIER
+from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
 
 
 LOCK_NAME = "com_approaches_sending_emails"
@@ -53,16 +53,16 @@ class Command(BaseCommand):
 
 
     def handle(self, *args, **options):
-        from creme_config.models.setting import SettingValue
-        from creme_core.models.lock import Mutex, MutexLockedException
+        from creme.creme_config.models.setting import SettingValue
+        from creme.creme_core.models.lock import Mutex, MutexLockedException
 
-        from commercial.constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW
-        from commercial.models import CommercialApproach
+        from creme.commercial.constants import DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW
+        from creme.commercial.models import CommercialApproach
 
-        from opportunities.constants import REL_SUB_TARGETS
-        from opportunities.models import Opportunity
+        from creme.opportunities.constants import REL_SUB_TARGETS
+        from creme.opportunities.models import Opportunity
 
-        from persons.models    import Organisation, Contact
+        from creme.persons.models    import Organisation, Contact
 
         try:
             lock = Mutex.get_n_lock(LOCK_NAME)

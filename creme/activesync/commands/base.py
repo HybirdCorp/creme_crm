@@ -26,12 +26,12 @@ import restkit.errors
 from django.conf import settings
 from django.template.loader import render_to_string
 
-from activesync.errors import SYNC_ERR_FORBIDDEN, CremeActiveSyncError, SYNC_ERR_CONNECTION, SYNC_ERR_NOT_FOUND
-from activesync.models.active_sync import UserSynchronizationHistory, CREATE, UPDATE, DELETE, IN_CREME, ON_SERVER
-from activesync.wbxml.dtd import AirsyncDTD_Reverse, AirsyncDTD_Forward
-from activesync.wbxml.codec import WBXMLEncoder, WBXMLDecoder, prettify
-from activesync.connection import Connection
-from activesync.messages import _INFO, _ERROR, _SUCCESS, MessageInfo, MessageSucceed, MessageError
+from creme.activesync.errors import SYNC_ERR_FORBIDDEN, CremeActiveSyncError, SYNC_ERR_CONNECTION, SYNC_ERR_NOT_FOUND
+from creme.activesync.models.active_sync import UserSynchronizationHistory, CREATE, UPDATE, DELETE, IN_CREME, ON_SERVER
+from creme.activesync.wbxml.dtd import AirsyncDTD_Reverse, AirsyncDTD_Forward
+from creme.activesync.wbxml.codec import WBXMLEncoder, WBXMLDecoder, prettify
+from creme.activesync.connection import Connection
+from creme.activesync.messages import _INFO, _ERROR, _SUCCESS, MessageInfo, MessageSucceed, MessageError
 
 
 ACTIVE_SYNC_DEBUG = settings.ACTIVE_SYNC_DEBUG

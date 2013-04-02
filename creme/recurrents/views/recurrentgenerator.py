@@ -20,10 +20,10 @@
 
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import view_entity, list_view, edit_entity
+from creme.creme_core.views.generic import view_entity, list_view, edit_entity
 
-from recurrents.models import RecurrentGenerator
-from recurrents.forms.recurrentgenerator import RecurrentGeneratorWizard, RecurrentGeneratorEditForm
+from creme.recurrents.models import RecurrentGenerator
+from creme.recurrents.forms.recurrentgenerator import RecurrentGeneratorWizard, RecurrentGeneratorEditForm
 
 
 _wizard = RecurrentGeneratorWizard()

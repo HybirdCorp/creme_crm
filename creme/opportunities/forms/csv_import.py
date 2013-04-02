@@ -26,11 +26,11 @@ from django.forms.util import flatatt
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
-from creme_core.forms.csv_import import CSVImportForm4CremeEntity, CSVExtractorWidget, CSVExtractor
+from creme.creme_core.forms.csv_import import CSVImportForm4CremeEntity, CSVExtractorWidget, CSVExtractor
 
-from persons.models import Organisation, Contact
+from creme.persons.models import Organisation, Contact
 
-from opportunities.models import Opportunity, SalesPhase
+from creme.opportunities.models import Opportunity, SalesPhase
 
 
 # Sales phase management -------------------------------------------------------

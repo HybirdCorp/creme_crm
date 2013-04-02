@@ -22,9 +22,9 @@ from django.contrib.auth.decorators import login_required
 #from django.template.context import RequestContext
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.views.generic.popup import inner_popup
+from creme.creme_core.views.generic.popup import inner_popup
 
-from activesync.forms.user_settings import UserSettingsConfigForm
+from creme.activesync.forms.user_settings import UserSettingsConfigForm
 
 
 #TODO: to be tested

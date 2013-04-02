@@ -8,25 +8,25 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.tests.base import CremeTestCase
-    from creme_core.tests.views.csv_import import CSVImportBaseTestCaseMixin
-    from creme_core.models import CremeEntity, RelationType, CremeProperty, SetCredentials, Currency
-    from creme_core.auth.entity_credentials import EntityCredentials
-    from creme_core.constants import PROP_IS_MANAGED_BY_CREME, DEFAULT_CURRENCY_PK
+    from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.views.csv_import import CSVImportBaseTestCaseMixin
+    from creme.creme_core.models import CremeEntity, RelationType, CremeProperty, SetCredentials, Currency
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, DEFAULT_CURRENCY_PK
 
-    from creme_config.models import SettingKey, SettingValue
+    from creme.creme_config.models import SettingKey, SettingValue
 
-    from persons.models import Organisation, Contact
-    from persons.constants import REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
+    from creme.persons.models import Organisation, Contact
+    from creme.persons.constants import REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
 
-    from products.models import Product, Service
+    from creme.products.models import Product, Service
 
-    from billing.models import Quote, SalesOrder, Invoice, ServiceLine #Vat
-    from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+    from creme.billing.models import Quote, SalesOrder, Invoice, ServiceLine #Vat
+    from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
-    from opportunities.models import Opportunity, SalesPhase, Origin
-    import opportunities.constants as opp_constants
-    from opportunities.constants import (REL_OBJ_TARGETS, REL_SUB_EMIT_ORGA, REL_SUB_LINKED_INVOICE,
+    from creme.opportunities.models import Opportunity, SalesPhase, Origin
+    import creme.opportunities.constants as opp_constants
+    from creme.opportunities.constants import (REL_OBJ_TARGETS, REL_SUB_EMIT_ORGA, REL_SUB_LINKED_INVOICE,
                                          REL_SUB_LINKED_QUOTE, REL_SUB_CURRENT_DOC)
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
@@ -38,8 +38,9 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'documents', 'persons',
-                     'commercial', 'billing', 'activities', 'opportunities'
+        cls.populate('creme_core', 'creme_config', 'documents',
+                     'persons', 'commercial', 'billing',
+                     'activities', 'opportunities',
                     )
 
     def tearDown(self):

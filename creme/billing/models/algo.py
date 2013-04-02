@@ -26,10 +26,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeModel, CremeProperty
-from creme_core.constants import PROP_IS_MANAGED_BY_CREME
+from creme.creme_core.models import CremeModel, CremeProperty
+from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
-from persons.models import Organisation
+from creme.persons.models import Organisation
 
 
 class ConfigBillingAlgo(CremeModel):

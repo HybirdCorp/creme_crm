@@ -20,12 +20,12 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.registry import creme_registry
-from creme_core.gui import creme_menu, block_registry, icon_registry, bulk_update_registry, quickforms_registry
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.gui import creme_menu, block_registry, icon_registry, bulk_update_registry, quickforms_registry
 
-from documents.models import Document, Folder
-from documents.blocks import folder_docs_block, linked_docs_block
-from documents.forms.quick import DocumentQuickForm
+from creme.documents.models import Document, Folder
+from creme.documents.blocks import folder_docs_block, linked_docs_block
+from creme.documents.forms.quick import DocumentQuickForm
 
 
 creme_registry.register_entity_models(Document, Folder)

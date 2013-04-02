@@ -23,18 +23,18 @@ from logging import info
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme_core.models import SearchConfigItem, RelationType, HeaderFilterItem, HeaderFilter, BlockDetailviewLocation
-from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
-from creme_core.utils import create_if_needed
-from creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.models import SearchConfigItem, RelationType, HeaderFilterItem, HeaderFilter, BlockDetailviewLocation
+from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
+from creme.creme_core.utils import create_if_needed
+from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from persons.models import Contact
+from creme.persons.models import Contact
 
-from opportunities.models import Opportunity
+from creme.opportunities.models import Opportunity
 
-from events.models import EventType, Event
-from events.blocks import resuts_block
-from events.constants import *
+from creme.events.models import EventType, Event
+from creme.events.blocks import resuts_block
+from creme.events.constants import *
 
 
 class Populator(BasePopulator):
@@ -84,10 +84,10 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=resuts_block.id_,       order=2,   zone=BlockDetailviewLocation.RIGHT, model=Event)
         BlockDetailviewLocation.create(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Event)
 
-        if 'assistants' in settings.INSTALLED_APPS:
+        if 'creme.assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail view')
 
-            from assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+            from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
             BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=Event)
             BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=Event)

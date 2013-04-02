@@ -26,11 +26,11 @@ from django.template import RequestContext
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required
 
-from creme_core.models import CremeEntity
-from creme_core.gui.block import block_registry, str2list, BlocksManager
-from creme_core.models.block import BlockState
-from creme_core.utils import jsonify, get_ct_or_404 #, get_from_POST_or_404
-from creme_core.blocks import relations_block
+from creme.creme_core.models import CremeEntity
+from creme.creme_core.gui.block import block_registry, str2list, BlocksManager
+from creme.creme_core.models.block import BlockState
+from creme.creme_core.utils import jsonify, get_ct_or_404 #, get_from_POST_or_404
+from creme.creme_core.blocks import relations_block
 
 
 def _get_depblock_ids(request, block_id):

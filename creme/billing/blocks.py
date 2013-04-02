@@ -22,18 +22,18 @@ from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.gui.block import Block, SimpleBlock, PaginatedBlock, QuerysetBlock
-from creme_core.models import CremeEntity, Relation
-from creme_core.constants import PROP_IS_MANAGED_BY_CREME
+from creme.creme_core.gui.block import Block, SimpleBlock, PaginatedBlock, QuerysetBlock
+from creme.creme_core.models import CremeEntity, Relation
+from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
-from creme_config.models.setting import SettingValue
+from creme.creme_config.models.setting import SettingValue
 
-from persons.models import Contact, Organisation
-from persons.blocks import AddressBlock
+from creme.persons.models import Contact, Organisation
+from creme.persons.blocks import AddressBlock
 
-from billing.models import *
-from billing.models.line import PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
-from billing.constants import *
+from creme.billing.models import *
+from creme.billing.models.line import PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
+from creme.billing.constants import *
 
 
 class BillingBlock(Block):

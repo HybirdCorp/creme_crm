@@ -25,14 +25,14 @@ from django.forms import MultipleChoiceField, ChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.registry import creme_registry
-from creme_core.models import (RelationType, BlockDetailviewLocation, BlockPortalLocation,
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.models import (RelationType, BlockDetailviewLocation, BlockPortalLocation,
                                BlockMypageLocation, RelationBlockItem)
-from creme_core.forms import CremeForm, CremeModelForm
-from creme_core.forms.widgets import OrderedMultipleChoiceWidget
-from creme_core.gui.block import block_registry, SpecificRelationsBlock
-from creme_core.utils import creme_entity_content_types
-from creme_core.constants import MODELBLOCK_ID
+from creme.creme_core.forms import CremeForm, CremeModelForm
+from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
+from creme.creme_core.gui.block import block_registry, SpecificRelationsBlock
+from creme.creme_core.utils import creme_entity_content_types
+from creme.creme_core.constants import MODELBLOCK_ID
 
 
 __all__ = ('BlockDetailviewLocationsAddForm', 'BlockDetailviewLocationsEditForm',

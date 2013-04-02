@@ -25,18 +25,18 @@ from django.forms.widgets import TextInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType, Relation
-from creme_core.forms import CremeEntityField, CremeDateTimeField
-from creme_core.forms.widgets import Label
+from creme.creme_core.models import RelationType, Relation
+from creme.creme_core.forms import CremeEntityField, CremeDateTimeField
+from creme.creme_core.forms.widgets import Label
 
-#from creme_config.forms.fields import CreatorModelChoiceField
+#from creme.creme_config.forms.fields import CreatorModelChoiceField
 
-from media_managers.models import Image
-from media_managers.forms.widgets import ImageM2MWidget
+from creme.media_managers.models import Image
+from creme.media_managers.forms.widgets import ImageM2MWidget
 
-from persons.models import Organisation, Contact
-#from persons.models.other_models import Position, Sector, Civility
-from persons.forms.base import _BasePersonForm
+from creme.persons.models import Organisation, Contact
+#from creme.persons.models.other_models import Position, Sector, Civility
+from creme.persons.forms.base import _BasePersonForm
 
 
 class ContactForm(_BasePersonForm):

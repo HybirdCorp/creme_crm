@@ -23,12 +23,12 @@ from itertools import chain
 from django.db.models import ForeignKey, ManyToManyField, PositiveIntegerField, PROTECT
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models.relation import Relation
+from creme.creme_core.models.relation import Relation
 
-from activities.models import Activity
-from activities.constants import ACTIVITYTYPE_TASK, REL_SUB_PART_2_ACTIVITY
+from creme.activities.models import Activity
+from creme.activities.constants import ACTIVITYTYPE_TASK, REL_SUB_PART_2_ACTIVITY
 
-from projects import constants
+from creme.projects import constants
 from project import Project
 from taskstatus import TaskStatus
 

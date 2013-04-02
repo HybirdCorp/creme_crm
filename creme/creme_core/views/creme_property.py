@@ -24,10 +24,10 @@ from django.shortcuts import get_list_or_404 #get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from creme_core.models import CremeEntity #CremePropertyType
-from creme_core.views.generic import inner_popup, add_to_entity as generic_add_to_entity
-from creme_core.forms.creme_property import AddPropertiesForm, AddPropertiesBulkForm
-from creme_core.utils import get_ct_or_404 #, get_from_POST_or_404
+from creme.creme_core.models import CremeEntity #CremePropertyType
+from creme.creme_core.views.generic import inner_popup, add_to_entity as generic_add_to_entity
+from creme.creme_core.forms.creme_property import AddPropertiesForm, AddPropertiesBulkForm
+from creme.creme_core.utils import get_ct_or_404 #, get_from_POST_or_404
 
 
 @login_required

@@ -24,18 +24,18 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.decorators import login_required, permission_required
 
-#from creme_core.models import CremeEntity
-from creme_core.models.entity import EntityAction
-from creme_core.models.header_filter import HeaderFilterItem, HFI_RELATION, HFI_VOLATILE
-from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
-from creme_core.utils import get_from_POST_or_404
-from creme_core.utils.queries import get_first_or_None
+#from creme.creme_core.models import CremeEntity
+from creme.creme_core.models.entity import EntityAction
+from creme.creme_core.models.header_filter import HeaderFilterItem, HFI_RELATION, HFI_VOLATILE
+from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
+from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.utils.queries import get_first_or_None
 
-from persons.models import Contact
+from creme.persons.models import Contact
 
-from events.models import Event, EventType
-from events.forms.event import EventForm, AddContactsToEventForm, RelatedOpportunityCreateForm
-from events.constants import *
+from creme.events.models import Event, EventType
+from creme.events.forms.event import EventForm, AddContactsToEventForm, RelatedOpportunityCreateForm
+from creme.events.constants import *
 
 
 @login_required

@@ -21,7 +21,7 @@
 from django.db.models.fields import BooleanField, CharField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models.base import CremeModel
+from creme.creme_core.models.base import CremeModel
 
 # TODO add the possibility to choose a default currency which will be used everywhere in the CRM
 class Currency(CremeModel):

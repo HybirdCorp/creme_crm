@@ -22,9 +22,9 @@ from itertools import chain
 
 from django.utils.translation import ugettext as _
 
-from creme_core.forms.merge import MergeEntitiesBaseForm, mergefield_factory
+from creme.creme_core.forms.merge import MergeEntitiesBaseForm, mergefield_factory
 
-from persons.models import Address #Contact
+from creme.persons.models import Address #Contact
 
 
 _FIELD_NAMES = Address._INFO_FIELD_NAMES #TODO: use introspection to get editable fields ??

@@ -20,8 +20,8 @@
 
 from django.conf import settings
 
-from creme_config.constants import USER_THEME_NAME
-from creme_config.models import SettingValue, SettingKey
+from creme.creme_config.constants import USER_THEME_NAME
+from creme.creme_config.models import SettingValue, SettingKey
 
 
 def generate_portal_url(app_name):

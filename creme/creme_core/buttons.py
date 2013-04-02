@@ -20,8 +20,8 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.gui.button_menu import Button
-from creme_core.gui.merge import merge_form_registry
+from creme.creme_core.gui.button_menu import Button
+from creme.creme_core.gui.merge import merge_form_registry
 
 
 class MergeEntitiesButton(Button):

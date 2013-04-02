@@ -21,10 +21,10 @@
 from django.db.models import CharField, IntegerField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeModel
+from creme.creme_core.models import CremeModel
 
-from sms.webservice.samoussa import SamoussaBackEnd
-from sms.webservice.backend import WSException
+from creme.sms.webservice.samoussa import SamoussaBackEnd
+from creme.sms.webservice.backend import WSException
 
 
 class SMSAccount(CremeModel):

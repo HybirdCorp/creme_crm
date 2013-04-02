@@ -21,12 +21,12 @@
 from django.forms import IntegerField , DateTimeField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeModelForm
-from creme_core.forms.fields import CremeEntityField
-from creme_core.forms.widgets import DateTimeWidget
+from creme.creme_core.forms import CremeModelForm
+from creme.creme_core.forms.fields import CremeEntityField
+from creme.creme_core.forms.widgets import DateTimeWidget
 
-from projects.models import WorkingPeriod, Resource
-from projects import constants
+from creme.projects.models import WorkingPeriod, Resource
+from creme.projects import constants
 
 
 class WorkingPeriodForm(CremeModelForm):

@@ -23,11 +23,11 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.forms import CremeModelForm, CremeForm
-from creme_core.forms.widgets import OrderedMultipleChoiceWidget
-from creme_core.registry import creme_registry
-#from creme_core.utils.meta import get_flds_with_fk_flds_str
-from creme_core.models import SearchConfigItem, SearchField
+from creme.creme_core.forms import CremeModelForm, CremeForm
+from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
+from creme.creme_core.registry import creme_registry
+#from creme.creme_core.utils.meta import get_flds_with_fk_flds_str
+from creme.creme_core.models import SearchConfigItem, SearchField
 
 
 #EXCLUDED_FIELDS_TYPES = frozenset(['AutoField', 'DateTimeField', 'DateField', 'FileField', 'ImageField', 'OneToOneField'])

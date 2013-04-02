@@ -21,7 +21,7 @@
 from decimal import Decimal, InvalidOperation
 from logging import debug
 
-from billing.constants import ROUND_POLICY
+from creme.billing.constants import ROUND_POLICY
 
 
 def round_to_2(decimal_instance):

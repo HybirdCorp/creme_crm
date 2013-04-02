@@ -22,9 +22,9 @@ from datetime import datetime, timedelta #, time
 
 #from django.utils.translation import ugettext_lazy as _, ugettext
 
-#from creme_core.forms import CremeDateTimeField, CremeTimeField
+#from creme.creme_core.forms import CremeDateTimeField, CremeTimeField
 
-from activities.models import PhoneCall #PhoneCallType
+from creme.activities.models import PhoneCall #PhoneCallType
 from activity import RelatedActivityCreateForm, ActivityCreateForm
 
 

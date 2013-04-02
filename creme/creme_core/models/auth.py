@@ -30,9 +30,9 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.auth.entity_credentials import EntityCredentials
-from creme_core.registry import creme_registry
-from creme_core.utils.contribute_to_model import contribute_to_model
+from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.utils.contribute_to_model import contribute_to_model
 
 
 class UserRole(Model):

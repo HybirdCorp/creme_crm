@@ -21,8 +21,8 @@
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme_core.gui.field_printers import simple_print
-from creme_core.utils.media import creme_media_themed_url
+from creme.creme_core.gui.field_printers import simple_print
+from creme.creme_core.utils.media import creme_media_themed_url
 
 
 def print_phone(entity, fval, user):

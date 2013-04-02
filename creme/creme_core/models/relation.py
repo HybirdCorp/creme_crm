@@ -28,7 +28,7 @@ from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.signals import pre_merge_related
+from creme.creme_core.signals import pre_merge_related
 from creme_property import CremePropertyType
 from base import CremeModel, CremeAbstractEntity
 from entity import CremeEntity
@@ -93,7 +93,7 @@ class RelationType(CremeModel):
         @param object_desc See subject_desc
         @param generate_pk If True, 'string_pk' args are used as prefix to generate pks.
         """
-        from creme_core.utils import create_or_update
+        from creme.creme_core.utils import create_or_update
 
         padding       = ((), ()) #in case sequence_of_cremeEntityClasses or sequence_of_propertyType not given
         subject_desc += padding
@@ -108,7 +108,7 @@ class RelationType(CremeModel):
             sub_relation_type = create_or_update(RelationType, pk_subject, predicate=pred_subject, is_custom=is_custom, is_internal=is_internal)
             obj_relation_type = create_or_update(RelationType, pk_object,  predicate=pred_object,  is_custom=is_custom, is_internal=is_internal)
         else:
-            from creme_core.utils.id_generator import generate_string_id_and_save
+            from creme.creme_core.utils.id_generator import generate_string_id_and_save
 
             sub_relation_type = RelationType(predicate=pred_subject, is_custom=is_custom, is_internal=is_internal)
             obj_relation_type = RelationType(predicate=pred_object,  is_custom=is_custom, is_internal=is_internal)

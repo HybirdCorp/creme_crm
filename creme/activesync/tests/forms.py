@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from creme_config.models import SettingValue, SettingKey
+    from creme.creme_config.models import SettingValue, SettingKey
 
-    from activesync.constants import *
+    from creme.activesync.constants import *
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

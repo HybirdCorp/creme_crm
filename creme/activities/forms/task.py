@@ -22,7 +22,7 @@ from django.utils.translation import ugettext as _
 from django.forms import TimeField
 from django.forms.widgets import HiddenInput
 
-from activities.models import Task
+from creme.activities.models import Task
 from activity import RelatedActivityCreateForm, ActivityCreateForm
 
 

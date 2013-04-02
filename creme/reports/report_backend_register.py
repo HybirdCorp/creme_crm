@@ -18,6 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from reports.backends import HtmlReportBackend, CsvReportBackend
+from creme.reports.backends import HtmlReportBackend, CsvReportBackend
 
 to_register = (('HTML', HtmlReportBackend), ('CSV', CsvReportBackend),)

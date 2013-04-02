@@ -20,10 +20,10 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.registry import creme_registry
-from creme_core.gui import creme_menu, icon_registry, bulk_update_registry
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.gui import creme_menu, icon_registry, bulk_update_registry
 
-from products.models import Product, Service
+from creme.products.models import Product, Service
 
 
 creme_registry.register_app('products', _(u'Products and services'), '/products')

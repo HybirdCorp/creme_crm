@@ -4,10 +4,10 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import RelationType, CremePropertyType, SemiFixedRelationType
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models import RelationType, CremePropertyType, SemiFixedRelationType
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from persons.models import Contact, Organisation #need CremeEntity
+    from creme.persons.models import Contact, Organisation #need CremeEntity
 except Exception, e:
     print 'Error in <%s>: %s' % (__name__, e)
 

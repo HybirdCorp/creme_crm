@@ -23,18 +23,18 @@ from django.template.context import RequestContext #
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import Relation #, CremeEntity
-from creme_core.gui.block import SimpleBlock, QuerysetBlock, list4url
-from creme_core.utils import jsonify #
+from creme.creme_core.models import Relation #, CremeEntity
+from creme.creme_core.gui.block import SimpleBlock, QuerysetBlock, list4url
+from creme.creme_core.utils import jsonify #
 
-from persons.models import Contact, Organisation
+from creme.persons.models import Contact, Organisation
 
-from documents.models import Document
+from creme.documents.models import Document
 
-from emails.constants import *
-from emails.models import *
+from creme.emails.constants import *
+from creme.emails.models import *
 
-from crudity.blocks import CrudityQuerysetBlock
+from creme.crudity.blocks import CrudityQuerysetBlock
 
 
 class EntityEmailBlock(SimpleBlock):

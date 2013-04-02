@@ -23,19 +23,19 @@ from django.forms import DateTimeField, ValidationError
 from django.forms.models import ModelMultipleChoiceField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeForm, CremeEntityForm
-from creme_core.forms.fields import MultiCremeEntityField
-from creme_core.forms.validators import validate_linkable_entities
-from creme_core.forms.widgets import DateTimeWidget, UnorderedMultipleChoiceWidget
-from creme_core.models.relation import Relation
+from creme.creme_core.forms import CremeForm, CremeEntityForm
+from creme.creme_core.forms.fields import MultiCremeEntityField
+from creme.creme_core.forms.validators import validate_linkable_entities
+from creme.creme_core.forms.widgets import DateTimeWidget, UnorderedMultipleChoiceWidget
+from creme.creme_core.models.relation import Relation
 
-from persons.models.contact import Contact
+from creme.persons.models.contact import Contact
 
-from activities.constants import REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY
-from activities.models.activity import Calendar
-from activities.utils import check_activity_collisions
+from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY
+from creme.activities.models.activity import Calendar
+from creme.activities.utils import check_activity_collisions
 
-from projects.models import ProjectTask
+from creme.projects.models import ProjectTask
 
 
 class _TaskForm(CremeEntityForm):

@@ -20,14 +20,14 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeEntityForm
-from creme_core.forms.fields import MultiCremeEntityField
+from creme.creme_core.forms import CremeEntityForm
+from creme.creme_core.forms.fields import MultiCremeEntityField
 
-from media_managers.models import Image
-from media_managers.forms.widgets import ImageM2MWidget
+from creme.media_managers.models import Image
+from creme.media_managers.forms.widgets import ImageM2MWidget
 
-from products.models import Service
-from products.forms.fields import CategoryField
+from creme.products.models import Service
+from creme.products.forms.fields import CategoryField
 
 
 class ServiceForm(CremeEntityForm): #TODO: factorise with ProductCreateForm

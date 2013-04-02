@@ -23,11 +23,11 @@ from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import force_unicode
 
-from creme_core.registry import creme_registry
-from creme_core.models import PreferedMenuItem
-from creme_core.forms import CremeForm
-from creme_core.forms.widgets import OrderedMultipleChoiceWidget
-from creme_core.gui.menu import creme_menu
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.models import PreferedMenuItem
+from creme.creme_core.forms import CremeForm
+from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
+from creme.creme_core.gui.menu import creme_menu
 
 
 class PreferedMenuForm(CremeForm):

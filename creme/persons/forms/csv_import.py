@@ -20,9 +20,9 @@
 
 from django.utils.translation import ugettext as _
 
-from creme_core.forms.csv_import import CSVImportForm4CremeEntity, extractorfield_factory
+from creme.creme_core.forms.csv_import import CSVImportForm4CremeEntity, extractorfield_factory
 
-from persons.models import Address
+from creme.persons.models import Address
 
 
 _FIELD_NAMES = list(Address._INFO_FIELD_NAMES) #TODO: use introspection to get editable fields ??

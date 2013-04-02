@@ -20,11 +20,11 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.registry import creme_registry
-from creme_core.gui import creme_menu, block_registry, icon_registry
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.gui import creme_menu, block_registry, icon_registry
 
-from projects.models import Project, ProjectTask
-from projects.blocks import block_list
+from creme.projects.models import Project, ProjectTask
+from creme.projects.blocks import block_list
 
 
 creme_registry.register_app('projects', _(u'Projects'), '/projects')

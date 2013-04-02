@@ -18,14 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from activities.models import Meeting, Task
+from creme.activities.models import Meeting, Task
 
-from persons.models import Contact
+from creme.persons.models import Contact
 
-from activesync.constants import SYNC_FOLDER_TYPE_CONTACT, SYNC_FOLDER_TYPE_APPOINTMENT, SYNC_FOLDER_TYPE_TASK
-from activesync.mappings.contact import CREME_CONTACT_MAPPING, save_contact, update_contact, serialize_contact, pre_serialize_contact
-from activesync.mappings.activity import CREME_MEETING_MAPPING, save_meeting, update_meeting, pre_serialize_meeting
-from activesync.mappings.utils import serialize_entity
+from creme.activesync.constants import SYNC_FOLDER_TYPE_CONTACT, SYNC_FOLDER_TYPE_APPOINTMENT, SYNC_FOLDER_TYPE_TASK
+from creme.activesync.mappings.contact import CREME_CONTACT_MAPPING, save_contact, update_contact, serialize_contact, pre_serialize_contact
+from creme.activesync.mappings.activity import CREME_MEETING_MAPPING, save_meeting, update_meeting, pre_serialize_meeting
+from creme.activesync.mappings.utils import serialize_entity
 #Mapping between AS folder types and creme types
 FOLDERS_TYPES_CREME_TYPES_MAPPING = {
     SYNC_FOLDER_TYPE_CONTACT: Contact,

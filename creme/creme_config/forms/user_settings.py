@@ -23,11 +23,11 @@ from django.forms.fields import ChoiceField
 from django.forms.widgets import Select
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms.base import CremeForm
-from creme_core.utils.media import get_current_theme
+from creme.creme_core.forms.base import CremeForm
+from creme.creme_core.utils.media import get_current_theme
 
-from creme_config.constants import USER_THEME_NAME
-from creme_config.models import SettingValue, SettingKey
+from creme.creme_config.constants import USER_THEME_NAME
+from creme.creme_config.models import SettingValue, SettingKey
 
 
 class UserThemeForm(CremeForm):

@@ -32,10 +32,10 @@ from django.contrib.contenttypes.models import ContentType
 
 from mediagenerator.templatetags.media import include_media
 
-from creme_core.gui.field_printers import field_printers_registry
-from creme_core.utils.currency_format import currency
-from creme_core.utils.media import get_creme_media_url, get_current_theme
-from creme_core.utils.meta import get_verbose_field_name
+from creme.creme_core.gui.field_printers import field_printers_registry
+from creme.creme_core.utils.currency_format import currency
+from creme.creme_core.utils.media import get_creme_media_url, get_current_theme
+from creme.creme_core.utils.meta import get_verbose_field_name
 
 
 register = Library()

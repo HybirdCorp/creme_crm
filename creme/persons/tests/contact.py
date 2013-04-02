@@ -8,16 +8,16 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _
 
-    from creme_core.auth.entity_credentials import EntityCredentials
-    from creme_core.forms.widgets import Label, TextInput
-    from creme_core.models import Relation, SetCredentials
-    from creme_core.gui.quick_forms import quickforms_registry
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.forms.widgets import Label, TextInput
+    from creme.creme_core.models import Relation, SetCredentials
+    from creme.creme_core.gui.quick_forms import quickforms_registry
 
-    from persons.models import Contact, Organisation, Address, Position, Civility, Sector
-    from persons.constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
-    from persons.tests.base import _BaseTestCase
+    from creme.persons.models import Contact, Organisation, Address, Position, Civility, Sector
+    from creme.persons.constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
+    from creme.persons.tests.base import _BaseTestCase
 
-    from media_managers.models import Image
+    from creme.media_managers.models import Image
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

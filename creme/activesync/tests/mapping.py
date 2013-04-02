@@ -13,14 +13,14 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.core.files import File
 
-    from creme_core.models import Relation, RelationType
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models import Relation, RelationType
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from persons.models import Address, Contact, Organisation, Civility
-    from persons.constants import REL_SUB_EMPLOYED_BY
+    from creme.persons.models import Address, Contact, Organisation, Civility
+    from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
-    #from activesync.mappings.utils import serialize_entity
-    #from activesync.mappings.contact import CREME_CONTACT_MAPPING
+    #from creme.activesync.mappings.utils import serialize_entity
+    #from creme.activesync.mappings.contact import CREME_CONTACT_MAPPING
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

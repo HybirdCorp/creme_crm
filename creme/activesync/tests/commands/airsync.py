@@ -3,8 +3,8 @@
 try:
     from os.path import join, dirname, abspath
 
-    #from activesync.commands.airsync import AirSync
-    from activesync.tests.commands.base import BaseASTestCase
+    #from creme.activesync.commands.airsync import AirSync
+    from creme.activesync.tests.commands.base import BaseASTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

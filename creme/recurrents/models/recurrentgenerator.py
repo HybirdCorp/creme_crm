@@ -22,9 +22,9 @@ from django.db.models import CharField, TextField, ForeignKey, DateTimeField, Bo
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity
+from creme.creme_core.models import CremeEntity
 
-from recurrents.models import Periodicity
+from creme.recurrents.models import Periodicity
 
 
 class RecurrentGenerator(CremeEntity):

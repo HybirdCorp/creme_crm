@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.forms import CremeModelForm
+from creme.creme_core.forms import CremeModelForm
 
-from persons.models import Address
+from creme.persons.models import Address
 
 
 class AddressForm(CremeModelForm):

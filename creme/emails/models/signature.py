@@ -22,9 +22,9 @@ from django.db.models import CharField, TextField, ManyToManyField, ForeignKey
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import User
 
-from creme_core.models import CremeModel
+from creme.creme_core.models import CremeModel
 
-from media_managers.models import Image
+from creme.media_managers.models import Image
 
 
 class EmailSignature(CremeModel):

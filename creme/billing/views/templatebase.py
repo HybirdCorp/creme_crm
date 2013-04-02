@@ -22,10 +22,10 @@
 from django.contrib.auth.decorators import login_required, permission_required
 #from django.http import HttpResponseRedirect
 
-from creme_core.views.generic import edit_entity, list_view, view_entity
+from creme.creme_core.views.generic import edit_entity, list_view, view_entity
 
-from billing.models import TemplateBase
-from billing.forms.templatebase import TemplateBaseEditForm
+from creme.billing.models import TemplateBase
+from creme.billing.forms.templatebase import TemplateBaseEditForm
 
 
 @login_required

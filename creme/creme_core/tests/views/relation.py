@@ -8,13 +8,13 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.tests.views.base import ViewsTestCase
-    from creme_core.auth.entity_credentials import EntityCredentials
-    from creme_core.models import (RelationType, Relation, SemiFixedRelationType, CremeEntity,
-                                   CremePropertyType, CremeProperty)
+    from creme.creme_core.tests.views.base import ViewsTestCase
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import (RelationType, Relation, SemiFixedRelationType, CremeEntity,
+                                         CremePropertyType, CremeProperty)
 
-    from persons.models import Contact, Organisation
-    from persons.constants import REL_OBJ_CUSTOMER_SUPPLIER
+    from creme.persons.models import Contact, Organisation
+    from creme.persons.constants import REL_OBJ_CUSTOMER_SUPPLIER
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

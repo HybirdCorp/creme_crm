@@ -24,14 +24,14 @@ from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_to_entity
-from creme_core.utils import get_from_POST_or_404, jsonify
+from creme.creme_core.views.generic import add_to_entity
+from creme.creme_core.utils import get_from_POST_or_404, jsonify
 
-from sms.models import SMSCampaign, Sending, Message
-from sms.forms.message import SendingCreateForm
-from sms.blocks import messages_block
-#from sms.webservice.samoussa import SamoussaBackEnd
-#from sms.webservice.backend import WSException
+from creme.sms.models import SMSCampaign, Sending, Message
+from creme.sms.forms.message import SendingCreateForm
+from creme.sms.blocks import messages_block
+#from creme.sms.webservice.samoussa import SamoussaBackEnd
+#from creme.sms.webservice.backend import WSException
 
 
 @login_required

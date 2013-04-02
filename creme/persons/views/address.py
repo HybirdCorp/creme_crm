@@ -23,10 +23,10 @@
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_to_entity, edit_related_to_entity
+from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
 
-from persons.models import Address
-from persons.forms.address import AddressForm
+from creme.persons.models import Address
+from creme.persons.forms.address import AddressForm
 
 
 @login_required

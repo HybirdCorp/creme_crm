@@ -28,9 +28,9 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, RelationType, Relation, CremePropertyType, CremeProperty
-from creme_core.models.fields import CremeUserForeignKey
-from creme_core.global_info import get_global_info
+from creme.creme_core.models import CremeEntity, RelationType, Relation, CremePropertyType, CremeProperty
+from creme.creme_core.models.fields import CremeUserForeignKey
+from creme.creme_core.global_info import get_global_info
 
 
 logger = logging.getLogger(__name__)

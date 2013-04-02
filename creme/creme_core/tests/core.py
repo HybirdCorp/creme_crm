@@ -4,11 +4,11 @@ try:
     from django.db import models
     from django.utils.translation import ugettext as _
 
-    from creme_core.core.function_field import FunctionField, FunctionFieldsManager
-    from creme_core.core.batch_process import batch_operator_manager, BatchAction
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.core.function_field import FunctionField, FunctionFieldsManager
+    from creme.creme_core.core.batch_process import batch_operator_manager, BatchAction
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from persons.models import Contact, Organisation
+    from creme.persons.models import Contact, Organisation
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

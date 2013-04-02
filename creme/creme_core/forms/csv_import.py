@@ -34,17 +34,17 @@ from django.utils.html import escape
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
-from creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation, CremeEntity, EntityCredentials
-from creme_core.gui.csv_import import csv_form_registry
-from creme_core.utils.unicode_csv import UnicodeReader
-from creme_core.utils.collections import LimitedList
-from creme_core.views.entity import EXCLUDED_FIELDS
+from creme.creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation, CremeEntity, EntityCredentials
+from creme.creme_core.gui.csv_import import csv_form_registry
+from creme.creme_core.utils.unicode_csv import UnicodeReader
+from creme.creme_core.utils.collections import LimitedList
+from creme.creme_core.views.entity import EXCLUDED_FIELDS
 from base import CremeForm, CremeModelForm, FieldBlockManager
 from fields import MultiRelationEntityField, CreatorEntityField #CremeEntityField
 from widgets import UnorderedMultipleChoiceWidget, ChainedInput, SelectorList
 from validators import validate_linkable_entities
 
-from documents.models import Document
+from creme.documents.models import Document
 
 
 class CSVUploadForm(CremeForm):

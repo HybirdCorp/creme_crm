@@ -24,12 +24,12 @@ from django.forms import MultipleChoiceField, ChoiceField
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeForm
-from creme_core.forms.widgets import OrderedMultipleChoiceWidget
-from creme_core.gui.button_menu import button_registry
-from creme_core.models import ButtonMenuItem
-from creme_core.utils import creme_entity_content_types
-from creme_core.utils.id_generator import generate_string_id_and_save
+from creme.creme_core.forms import CremeForm
+from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
+from creme.creme_core.gui.button_menu import button_registry
+from creme.creme_core.models import ButtonMenuItem
+from creme.creme_core.utils import creme_entity_content_types
+from creme.creme_core.utils.id_generator import generate_string_id_and_save
 
 
 _PREFIX = 'creme_config-userbmi'

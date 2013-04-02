@@ -5,11 +5,11 @@ try:
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import HeaderFilter, HeaderFilterItem, CremeEntity, RelationType, CustomField
-    from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION
-    from creme_core.tests.views.base import ViewsTestCase
+    from creme.creme_core.models import HeaderFilter, HeaderFilterItem, CremeEntity, RelationType, CustomField
+    from creme.creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION
+    from creme.creme_core.tests.views.base import ViewsTestCase
 
-    from persons.models import Contact, Organisation
+    from creme.persons.models import Contact, Organisation
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

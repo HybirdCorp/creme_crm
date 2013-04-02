@@ -20,12 +20,12 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeEntityForm
-from creme_core.forms.fields import CremeEntityField
+from creme.creme_core.forms import CremeEntityForm
+from creme.creme_core.forms.fields import CremeEntityField
 
-from persons.models import Contact
+from creme.persons.models import Contact
 
-from projects.models import Resource
+from creme.projects.models import Resource
 
 
 class ResourceEditForm(CremeEntityForm):

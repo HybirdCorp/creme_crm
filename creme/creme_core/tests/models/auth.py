@@ -8,12 +8,12 @@ try:
     from django.contrib.auth.models import User, Permission
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.tests.base import CremeTestCase
-    from creme_core.auth.entity_credentials import EntityCredentials
-    from creme_core.models import(CremeEntity, CremePropertyType, CremeProperty,
-                                  Relation, UserRole, SetCredentials)
+    from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.models import(CremeEntity, CremePropertyType, CremeProperty,
+                                        Relation, UserRole, SetCredentials)
 
-    from persons.models import Contact, Organisation
+    from creme.persons.models import Contact, Organisation
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

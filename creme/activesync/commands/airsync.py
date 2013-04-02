@@ -29,18 +29,18 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext_lazy as _ #TODO: ugettext instead ??
-from activesync.utils import is_user_sync_calendars, is_user_sync_contacts
+from creme.activesync.utils import is_user_sync_calendars, is_user_sync_contacts
 
-from creme_core.models.entity import CremeEntity
+from creme.creme_core.models.entity import CremeEntity
 
 from base import Base
 
-from activesync.constants import (CONFLICT_SERVER_MASTER, SYNC_AIRSYNC_STATUS_SUCCESS, SYNC_AIRSYNC_STATUS_INVALID_SYNCKEY,\
+from creme.activesync.constants import (CONFLICT_SERVER_MASTER, SYNC_AIRSYNC_STATUS_SUCCESS, SYNC_AIRSYNC_STATUS_INVALID_SYNCKEY,\
                                   SYNC_AIRSYNC_STATUS_CLIENT_SERV_CONV_ERR, SYNC_FOLDER_TYPE_CONTACT, SYNC_FOLDER_TYPE_APPOINTMENT)
-from activesync.models import (CremeExchangeMapping, CremeClient, SyncKeyHistory)
-from activesync.mappings import CREME_AS_MAPPING, FOLDERS_TYPES_CREME_TYPES_MAPPING
-from activesync.messages import MessageSucceedContactAdd, MessageSucceedContactUpdate, MessageInfoContactAdd
-from activesync.errors import (SYNC_ERR_VERBOSE, SYNC_ERR_CREME_PERMISSION_DENIED_CREATE,
+from creme.activesync.models import (CremeExchangeMapping, CremeClient, SyncKeyHistory)
+from creme.activesync.mappings import CREME_AS_MAPPING, FOLDERS_TYPES_CREME_TYPES_MAPPING
+from creme.activesync.messages import MessageSucceedContactAdd, MessageSucceedContactUpdate, MessageInfoContactAdd
+from creme.activesync.errors import (SYNC_ERR_VERBOSE, SYNC_ERR_CREME_PERMISSION_DENIED_CREATE,
                                SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE_SPECIFIC, SYNC_ERR_CREME_PERMISSION_DENIED_DELETE_SPECIFIC)
 
 
@@ -237,7 +237,7 @@ class AirSync(Base):
                                 data[c_field] = u""
 
                     uid_google = data['UID']
-                    from activesync.models import EntityASData
+                    from creme.activesync.models import EntityASData
                     uids = EntityASData.objects.filter(field_value=uid_google).order_by('-id')
                     if uids.count() > 0:
                         entity= uids[0].entity

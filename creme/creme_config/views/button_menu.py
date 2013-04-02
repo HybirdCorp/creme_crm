@@ -24,11 +24,11 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import ButtonMenuItem
-from creme_core.views.generic import add_model_with_popup, inner_popup
-from creme_core.utils import get_from_POST_or_404
+from creme.creme_core.models import ButtonMenuItem
+from creme.creme_core.views.generic import add_model_with_popup, inner_popup
+from creme.creme_core.utils import get_from_POST_or_404
 
-from creme_config.forms.button_menu import ButtonMenuAddForm, ButtonMenuEditForm
+from creme.creme_config.forms.button_menu import ButtonMenuAddForm, ButtonMenuEditForm
 
 
 @login_required

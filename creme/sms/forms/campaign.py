@@ -21,10 +21,10 @@
 from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
-from creme_core.forms.fields import MultiCremeEntityField
+from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
+from creme.creme_core.forms.fields import MultiCremeEntityField
 
-from sms.models import SMSCampaign, MessagingList
+from creme.sms.models import SMSCampaign, MessagingList
 
 
 class CampaignCreateForm(CremeEntityForm):

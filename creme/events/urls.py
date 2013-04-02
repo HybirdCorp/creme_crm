@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls.defaults import patterns
+from django.conf.urls import patterns
 
 
-urlpatterns = patterns('events.views',
+urlpatterns = patterns('creme.events.views',
     (r'^$', 'portal.portal'),
 
     (r'^events$',                                'event.listview'),

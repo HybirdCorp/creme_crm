@@ -8,15 +8,15 @@ try:
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from media_managers.models import Image
+    from creme.media_managers.models import Image
 
-    from persons.models import Contact, Organisation, Address
-    from persons.constants import REL_SUB_EMPLOYED_BY
+    from creme.persons.models import Contact, Organisation, Address
+    from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
-    from vcfs import vcf_lib
-    from vcfs.forms import vcf as vcf_forms
+    from creme.vcfs import vcf_lib
+    from creme.vcfs.forms import vcf as vcf_forms
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

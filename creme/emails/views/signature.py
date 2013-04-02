@@ -24,11 +24,11 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_model_with_popup, edit_model_with_popup
-from creme_core.utils import get_from_POST_or_404
+from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
+from creme.creme_core.utils import get_from_POST_or_404
 
-from emails.models import EmailSignature
-from emails.forms.signature import SignatureForm
+from creme.emails.models import EmailSignature
+from creme.emails.forms.signature import SignatureForm
 
 
 @login_required

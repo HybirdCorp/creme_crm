@@ -28,7 +28,7 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import (Relation, RelationType, RelationBlockItem,
+from creme.creme_core.models import (Relation, RelationType, RelationBlockItem,
                                InstanceBlockConfigItem, BlockState) #CremeEntity
 
 

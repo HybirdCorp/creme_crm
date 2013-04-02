@@ -18,10 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from billing.models import Quote
+from creme.billing.models import Quote
 from base import BaseCreateForm, BaseEditForm
 
-from persons.workflow import transform_target_into_prospect
+from creme.persons.workflow import transform_target_into_prospect
 
 
 class QuoteCreateForm(BaseCreateForm):

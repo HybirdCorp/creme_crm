@@ -7,19 +7,19 @@ try:
     from django.core.files.uploadedfile import SimpleUploadedFile
     from django.db.models.query_utils import Q
 
-    from creme_core.models import Language
+    from creme.creme_core.models import Language
 
-    from documents.models import Document, Folder
+    from creme.documents.models import Document, Folder
 
-    from crudity.backends.models import CrudityBackend
-    from crudity.fetchers.pop import PopEmail
-    from crudity.inputs.email import CreateEmailInput, CreateInfopathInput
-    from crudity.models.actions import WaitingAction
-    from crudity.models.history import History
-    from crudity.tests.base import CrudityTestCase, ContactFakeBackend, DocumentFakeBackend
-    from crudity.utils import decode_b64binary
+    from creme.crudity.backends.models import CrudityBackend
+    from creme.crudity.fetchers.pop import PopEmail
+    from creme.crudity.inputs.email import CreateEmailInput, CreateInfopathInput
+    from creme.crudity.models.actions import WaitingAction
+    from creme.crudity.models.history import History
+    from creme.crudity.tests.base import CrudityTestCase, ContactFakeBackend, DocumentFakeBackend
+    from creme.crudity.utils import decode_b64binary
 
-    from persons.models import Contact
+    from creme.persons.models import Contact
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

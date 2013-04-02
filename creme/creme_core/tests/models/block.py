@@ -4,11 +4,11 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.contrib.auth.models import User
 
-    from creme_core.models import BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation
-    from creme_core.blocks import relations_block, properties_block, customfields_block, history_block
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models import BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation
+    from creme.creme_core.blocks import relations_block, properties_block, customfields_block, history_block
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from persons.models import Contact, Organisation
+    from creme.persons.models import Contact, Organisation
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

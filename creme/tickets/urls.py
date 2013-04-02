@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls.defaults import patterns
+from django.conf.urls import patterns
 
-urlpatterns = patterns('tickets.views',
+urlpatterns = patterns('creme.tickets.views',
     (r'^$', 'portal.portal'),
 
     (r'^tickets$',                        'ticket.listview'),

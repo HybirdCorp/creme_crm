@@ -20,13 +20,13 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.registry import creme_registry
-from creme_core.gui import creme_menu, button_registry, block_registry, icon_registry, csv_form_registry
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.gui import creme_menu, button_registry, block_registry, icon_registry, csv_form_registry
 
-from opportunities.models import Opportunity
-from opportunities.buttons import linked_opportunity_button
-from opportunities.blocks import blocks_list, OpportunityBlock
-from opportunities.forms.csv_import import get_csv_form_builder
+from creme.opportunities.models import Opportunity
+from creme.opportunities.buttons import linked_opportunity_button
+from creme.opportunities.blocks import blocks_list, OpportunityBlock
+from creme.opportunities.forms.csv_import import get_csv_form_builder
 
 
 creme_registry.register_app('opportunities', _(u'Opportunities'), '/opportunities')

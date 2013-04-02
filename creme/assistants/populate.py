@@ -18,13 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.models import BlockDetailviewLocation, BlockPortalLocation
-from creme_core.utils import create_if_needed
-from creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.models import BlockDetailviewLocation, BlockPortalLocation
+from creme.creme_core.utils import create_if_needed
+from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from assistants.constants import USERMESSAGE_PRIORITIES
-from assistants.models import UserMessagePriority
-from assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+from creme.assistants.constants import USERMESSAGE_PRIORITIES
+from creme.assistants.models import UserMessagePriority
+from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
 
 class Populator(BasePopulator):

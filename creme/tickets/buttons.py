@@ -21,10 +21,10 @@
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.gui.button_menu import Button
+from creme.creme_core.gui.button_menu import Button
 
-from tickets.models import Ticket
-from tickets.constants import REL_SUB_LINKED_2_TICKET
+from creme.tickets.models import Ticket
+from creme.tickets.constants import REL_SUB_LINKED_2_TICKET
 
 
 class Linked2TicketButton(Button):

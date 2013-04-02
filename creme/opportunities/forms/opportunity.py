@@ -21,13 +21,13 @@
 from django.forms import ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeEntityForm, CremeDateTimeField, GenericEntityField
-from creme_core.forms.validators import validate_linkable_entity
-from creme_core.signals import form_post_save
+from creme.creme_core.forms import CremeEntityForm, CremeDateTimeField, GenericEntityField
+from creme.creme_core.forms.validators import validate_linkable_entity
+from creme.creme_core.signals import form_post_save
 
-from persons.models import Organisation, Contact
+from creme.persons.models import Organisation, Contact
 
-from opportunities.models import Opportunity
+from creme.opportunities.models import Opportunity
 
 
 class OpportunityEditForm(CremeEntityForm):

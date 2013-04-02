@@ -22,13 +22,13 @@
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-#from creme_core.models import CremeEntity
-from creme_core.gui.block import QuerysetBlock
-#from creme_core.utils import jsonify
+#from creme.creme_core.models import CremeEntity
+from creme.creme_core.gui.block import QuerysetBlock
+#from creme.creme_core.utils import jsonify
 
-from persons.models import Contact
+from creme.persons.models import Contact
 
-from sms.models import SMSCampaign, Recipient, Sending, Message, MessagingList
+from creme.sms.models import SMSCampaign, Recipient, Sending, Message, MessagingList
 
 
 class _RelatedEntitesBlock(QuerysetBlock):

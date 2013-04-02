@@ -22,11 +22,11 @@ from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.models import UserRole
-from creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
-from creme_core.auth.decorators import superuser_required
+from creme.creme_core.models import UserRole
+from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup, inner_popup
+from creme.creme_core.auth.decorators import superuser_required
 
-from creme_config.forms.user_role import UserRoleCreateForm, UserRoleEditForm, AddCredentialsForm, UserRoleDeleteForm
+from creme.creme_config.forms.user_role import UserRoleCreateForm, UserRoleEditForm, AddCredentialsForm, UserRoleDeleteForm
 
 
 @login_required

@@ -4,13 +4,13 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import RelationType
-    from creme_core.models.block import *
-    from creme_core.gui.block import block_registry, Block, SpecificRelationsBlock
-    from creme_core.blocks import history_block
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models import RelationType
+    from creme.creme_core.models.block import *
+    from creme.creme_core.gui.block import block_registry, Block, SpecificRelationsBlock
+    from creme.creme_core.blocks import history_block
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from persons.models import Contact  #need CremeEntity
+    from creme.persons.models import Contact  #need CremeEntity
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

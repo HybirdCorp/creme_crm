@@ -24,21 +24,21 @@ from django.utils.translation import ugettext as _
 from django.conf import settings
 from django.contrib.auth.models import User
 
-from creme_core.models import (RelationType, CremeProperty, CremePropertyType,
+from creme.creme_core.models import (RelationType, CremeProperty, CremePropertyType,
                                HeaderFilter, HeaderFilterItem,
                                EntityFilter, EntityFilterCondition,
                                ButtonMenuItem, SearchConfigItem, RelationBlockItem,
                                BlockDetailviewLocation, BlockPortalLocation)
-from creme_core.constants import PROP_IS_MANAGED_BY_CREME
-from creme_core.utils import create_if_needed
-from creme_core.blocks import relations_block, properties_block, customfields_block, history_block
-from creme_core.buttons import merge_entities_button
-from creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+from creme.creme_core.utils import create_if_needed
+from creme.creme_core.blocks import relations_block, properties_block, customfields_block, history_block
+from creme.creme_core.buttons import merge_entities_button
+from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from persons.models import *
-from persons.constants import *
-from persons.blocks import *
-from persons.buttons import *
+from creme.persons.models import *
+from creme.persons.constants import *
+from creme.persons.blocks import *
+from creme.persons.buttons import *
 
 
 class Populator(BasePopulator):
@@ -195,10 +195,10 @@ class Populator(BasePopulator):
         BlockPortalLocation.create(app_name='persons', block_id=neglected_orgas_block.id_, order=10)
         BlockPortalLocation.create(app_name='persons', block_id=history_block.id_,         order=30)
 
-        if 'assistants' in settings.INSTALLED_APPS:
+        if 'creme.assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail views and portal')
 
-            from assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+            from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
             BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=Contact)
             BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=Contact)

@@ -22,15 +22,15 @@ from django.core.exceptions import PermissionDenied
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import Relation #CremeEntity
-from creme_core.gui.block import Block, SimpleBlock, PaginatedBlock, QuerysetBlock, list4url
+from creme.creme_core.models import Relation #CremeEntity
+from creme.creme_core.gui.block import Block, SimpleBlock, PaginatedBlock, QuerysetBlock, list4url
 
-from activities.models import Activity
-from activities.constants import (REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT,
+from creme.activities.models import Activity
+from creme.activities.constants import (REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT,
                                   REL_SUB_LINKED_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY)
 
-from persons.models import Contact, Organisation, Address
-from persons.constants import *
+from creme.persons.models import Contact, Organisation, Address
+from creme.persons.constants import *
 
 
 class ContactBlock(SimpleBlock):

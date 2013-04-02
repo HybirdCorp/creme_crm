@@ -26,10 +26,10 @@ from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from creme_core.models import EntityCredentials #, SearchConfigItem
-from creme_core.core.search import Searcher
-from creme_core.registry import creme_registry
-from creme_core.utils import get_ct_or_404
+from creme.creme_core.models import EntityCredentials
+from creme.creme_core.core.search import Searcher
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.utils import get_ct_or_404
 
 
 @login_required
@@ -56,7 +56,6 @@ def search(request):
 
         user = request.user
         filter_viewable = partial(EntityCredentials.filter, user=user)
-        #searcher = SearchConfigItem.build_searcher(models, user)
         searcher = Searcher(models, user)
 
         for model in models:

@@ -6,10 +6,10 @@ try:
 
     from django.utils.translation import ugettext as _
 
-    from creme_core.models import *
-    from creme_core.tests.views.base import ViewsTestCase
+    from creme.creme_core.models import *
+    from creme.creme_core.tests.views.base import ViewsTestCase
 
-    from persons.models import Contact, Organisation, Sector
+    from creme.persons.models import Contact, Organisation, Sector
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

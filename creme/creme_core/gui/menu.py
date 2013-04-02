@@ -22,7 +22,7 @@ from logging import warn
 
 from django.utils.encoding import smart_str, smart_unicode
 
-from creme_core.registry import creme_registry
+from creme.creme_core.registry import creme_registry
 
 #TODO: merge the 2 menu api (idea: use tags ?)
 #TODO: refactor code.....

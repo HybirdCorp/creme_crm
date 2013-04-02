@@ -4,9 +4,9 @@ try:
     from django.template import Template, Context
     from django.utils.translation import ugettext as _
 
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from persons.models import Organisation
+    from creme.persons.models import Organisation
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

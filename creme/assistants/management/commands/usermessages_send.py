@@ -31,8 +31,8 @@ class Command(BaseCommand):
     help = "Send all unsended mails related to user messages that have to be."
 
     def handle(self, *args, **options):
-        from creme_core.models.lock import Mutex, MutexLockedException
-        from assistants.models import UserMessage
+        from creme.creme_core.models.lock import Mutex, MutexLockedException
+        from creme.assistants.models import UserMessage
 
         try:
             lock = Mutex.get_n_lock(LOCK_NAME)

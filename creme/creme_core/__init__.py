@@ -4,7 +4,7 @@ from imp import find_module
 
 from django.conf import settings
 
-from creme_core.core.field_tags import _add_tags_to_fields
+from creme.creme_core.core.field_tags import _add_tags_to_fields
 
 
 #TODO: move to core ?
@@ -30,7 +30,7 @@ from django.db.models import ForeignKey
 original_fk_formfield = ForeignKey.formfield
 
 def new_fk_formfield(self, **kwargs):
-    from creme_config.forms.fields import CreatorModelChoiceField
+    from creme.creme_config.forms.fields import CreatorModelChoiceField
 
     defaults = {'form_class': CreatorModelChoiceField}
     defaults.update(kwargs)

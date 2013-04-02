@@ -6,12 +6,12 @@ try:
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import CremeEntity
+    from creme.creme_core.models import CremeEntity
 
-    from persons.models import Contact
+    from creme.persons.models import Contact
 
-    from crudity.models import WaitingAction
-    from crudity.tests.base import CrudityTestCase
+    from creme.crudity.models import WaitingAction
+    from creme.crudity.tests.base import CrudityTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

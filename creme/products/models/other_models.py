@@ -21,7 +21,7 @@
 from django.db.models import CharField, ForeignKey
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeModel
+from creme.creme_core.models import CremeModel
 
 
 class Category(CremeModel):

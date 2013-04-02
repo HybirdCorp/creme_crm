@@ -20,10 +20,10 @@
 
 from django.core.management.base import BaseCommand
 
-from creme_core.models.lock import Mutex, MutexLockedException
+from creme.creme_core.models.lock import Mutex, MutexLockedException
 
-from emails.models import EntityEmail
-from emails.constants import MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
+from creme.emails.models import EntityEmail
+from creme.emails.constants import MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
 
 
 LOCK_NAME = "entity_emails_send"

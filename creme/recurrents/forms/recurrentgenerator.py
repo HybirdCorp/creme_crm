@@ -23,11 +23,11 @@ from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseRedirect
 from django.contrib.formtools.wizard import FormWizard
 
-from creme_core.forms import CremeEntityForm
-from creme_core.forms.widgets import DateTimeWidget
+from creme.creme_core.forms import CremeEntityForm
+from creme.creme_core.forms.widgets import DateTimeWidget
 
-from recurrents.models import RecurrentGenerator
-from recurrents.registry import recurrent_registry
+from creme.recurrents.models import RecurrentGenerator
+from creme.recurrents.registry import recurrent_registry
 
 
 #TODO: need rework (other wizard app ??)

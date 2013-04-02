@@ -26,10 +26,10 @@ from django.shortcuts import render
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from creme_core.forms.batch_process import BatchProcessForm
-from creme_core.core.batch_process import batch_operator_manager
-#from creme_core.views.generic import add_entity
-from creme_core.utils import get_ct_or_404, jsonify
+from creme.creme_core.forms.batch_process import BatchProcessForm
+from creme.creme_core.core.batch_process import batch_operator_manager
+#from creme.creme_core.views.generic import add_entity
+from creme.creme_core.utils import get_ct_or_404, jsonify
 
 
 @login_required

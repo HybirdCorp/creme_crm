@@ -20,9 +20,9 @@
 
 from datetime import datetime
 
-from creme_core.forms import CremeModelForm
+from creme.creme_core.forms import CremeModelForm
 
-from commercial.models import CommercialApproach
+from creme.commercial.models import CommercialApproach
 
 
 class ComAppCreateForm(CremeModelForm):

@@ -23,11 +23,11 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 
-from creme_core.utils import get_from_POST_or_404
+from creme.creme_core.utils import get_from_POST_or_404
 
-from projects.forms.resource import ResourceCreateForm, ResourceEditForm
-from projects.views.utils import _add_generic, _edit_generic
-from projects.models import Resource
+from creme.projects.forms.resource import ResourceCreateForm, ResourceEditForm
+from creme.projects.views.utils import _add_generic, _edit_generic
+from creme.projects.models import Resource
 
 
 @login_required

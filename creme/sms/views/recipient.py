@@ -21,10 +21,10 @@
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_to_entity
+from creme.creme_core.views.generic import add_to_entity
 
-from sms.models import MessagingList
-from sms.forms.recipient import MessagingListAddRecipientsForm, MessagingListAddCSVForm
+from creme.sms.models import MessagingList
+from creme.sms.forms.recipient import MessagingListAddRecipientsForm, MessagingListAddCSVForm
 
 
 @login_required

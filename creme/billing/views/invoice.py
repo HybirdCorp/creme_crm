@@ -25,13 +25,13 @@ from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import ugettext as _
 
-from creme_core.models import CremeEntity
-from creme_core.views.generic import add_entity, edit_entity, list_view, view_entity, add_model_with_popup
+from creme.creme_core.models import CremeEntity
+from creme.creme_core.views.generic import add_entity, edit_entity, list_view, view_entity, add_model_with_popup
 
-from billing.models import Invoice, InvoiceStatus
-from billing.views.workflow import _add_with_relations
-from billing.forms.invoice import InvoiceCreateForm, InvoiceEditForm
-from billing.constants import DEFAULT_INVOICE_STATUS, DEFAULT_DRAFT_INVOICE_STATUS
+from creme.billing.models import Invoice, InvoiceStatus
+from creme.billing.views.workflow import _add_with_relations
+from creme.billing.forms.invoice import InvoiceCreateForm, InvoiceEditForm
+from creme.billing.constants import DEFAULT_INVOICE_STATUS, DEFAULT_DRAFT_INVOICE_STATUS
 
 
 @login_required

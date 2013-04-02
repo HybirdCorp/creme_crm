@@ -6,8 +6,8 @@ try:
 
     from django.core.serializers.json import simplejson
 
-    from products.tests.base import _ProductsTestCase
-    from products.models import Category, SubCategory, Product
+    from creme.products.tests.base import _ProductsTestCase
+    from creme.products.models import Category, SubCategory, Product
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

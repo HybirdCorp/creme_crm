@@ -20,7 +20,7 @@
 
 from django.contrib.auth.backends import ModelBackend
 
-from creme_core.models import EntityCredentials
+from creme.creme_core.models import EntityCredentials
 
 
 _ADD_PREFIX = 'add_'

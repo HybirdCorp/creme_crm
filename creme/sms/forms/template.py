@@ -23,10 +23,10 @@ from django.forms.util import ValidationError
 from django.forms.widgets import Textarea
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.forms import CremeEntityForm
+from creme.creme_core.forms import CremeEntityForm
 
-from sms.encoding import gsm_encoded_content, SMS_MAX_LENGTH
-from sms.models import MessageTemplate
+from creme.sms.encoding import gsm_encoded_content, SMS_MAX_LENGTH
+from creme.sms.models import MessageTemplate
 
 
 _FORBIDEN = u"^ { } \\ [ ~ ] | €" #TODO: given by the backend ??

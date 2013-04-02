@@ -20,8 +20,8 @@
 
 from django.shortcuts import get_object_or_404, render
 
-from creme_core.models import CremeEntity
-from creme_core.gui.last_viewed import LastViewedItem
+from creme.creme_core.models import CremeEntity
+from creme.creme_core.gui.last_viewed import LastViewedItem
 
 
 #TODO: remove 'path' arg (use get_edit_absolute_url() etc...) ??

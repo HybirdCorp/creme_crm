@@ -21,7 +21,7 @@
 from django import template
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.registry import creme_registry
+from creme.creme_core.registry import creme_registry
 
 
 register = template.Library()

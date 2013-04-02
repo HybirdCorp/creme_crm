@@ -25,7 +25,7 @@ from django.utils.translation import pgettext_lazy
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 
-from billing.models import Base
+from creme.billing.models import Base
 
 
 class TemplateBase(Base):
@@ -56,7 +56,7 @@ class TemplateBase(Base):
         return "/billing/templates"
 
     def get_generator(self):
-        from recurrents.models import RecurrentGenerator
+        from creme.recurrents.models import RecurrentGenerator
         try:
             return RecurrentGenerator.objects.get(template=self)
         except ObjectDoesNotExist:

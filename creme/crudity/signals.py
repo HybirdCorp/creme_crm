@@ -19,12 +19,12 @@
 ################################################################################
 from django.contrib.auth.models import User
 
-from crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
+from creme.crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
 
 def post_save_setting_value(sender, instance, **kwargs):
     """Set is_sandbox_by_user value on CreateFromEmailBackend subclasses because they are singletons"""
-    from crudity.registry import crudity_registry
-    from crudity.models import WaitingAction
+    from creme.crudity.registry import crudity_registry
+    from creme.crudity.models import WaitingAction
 
     if instance.key_id == SETTING_CRUDITY_SANDBOX_BY_USER:
         fetchers = crudity_registry.get_fetchers()

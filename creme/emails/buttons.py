@@ -21,10 +21,10 @@
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.gui.button_menu import Button
+from creme.creme_core.gui.button_menu import Button
 
-from emails.constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED, REL_SUB_RELATED_TO
-from emails.models.mail import EntityEmail
+from creme.emails.constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED, REL_SUB_RELATED_TO
+from creme.emails.models.mail import EntityEmail
 
 entity_email_ct = ContentType.objects.get_for_model(EntityEmail)
 

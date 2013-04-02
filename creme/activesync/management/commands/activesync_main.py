@@ -24,8 +24,8 @@ from optparse import make_option, OptionParser
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 
-from activesync.sync import Synchronization
-from activesync.errors import CremeActiveSyncError
+from creme.activesync.sync import Synchronization
+from creme.activesync.errors import CremeActiveSyncError
 
 
 USER_ID = 'user_id'

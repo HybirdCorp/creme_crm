@@ -25,13 +25,13 @@ from django.forms import ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, EntityFilter, EntityCredentials
-from creme_core.forms import CremeForm
-from creme_core.forms.fields import JSONField
-from creme_core.forms.widgets import DynamicInput, SelectorList, ChainedInput, PolymorphicInput
-from creme_core.core.batch_process import batch_operator_manager, BatchAction
-from creme_core.utils.chunktools import iter_as_slices
-from creme_core.utils.collections import LimitedList
+from creme.creme_core.models import CremeEntity, EntityFilter, EntityCredentials
+from creme.creme_core.forms import CremeForm
+from creme.creme_core.forms.fields import JSONField
+from creme.creme_core.forms.widgets import DynamicInput, SelectorList, ChainedInput, PolymorphicInput
+from creme.creme_core.core.batch_process import batch_operator_manager, BatchAction
+from creme.creme_core.utils.chunktools import iter_as_slices
+from creme.creme_core.utils.collections import LimitedList
 
 
 class BatchActionsWidget(SelectorList):

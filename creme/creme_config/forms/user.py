@@ -28,13 +28,13 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import Relation, RelationType, UserRole, Mutex
-from creme_core.models.fields import CremeUserForeignKey
-from creme_core.forms import CremeForm, CremeModelForm
-from creme_core.forms.fields import CremeEntityField
-from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+from creme.creme_core.models import Relation, RelationType, UserRole, Mutex
+from creme.creme_core.models.fields import CremeUserForeignKey
+from creme.creme_core.forms import CremeForm, CremeModelForm
+from creme.creme_core.forms.fields import CremeEntityField
+from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 
-from persons.models import Contact, Organisation #TODO: can the 'persons' app hook this form instead of this 'bad' dependence ??
+from creme.persons.models import Contact, Organisation #TODO: can the 'persons' app hook this form instead of this 'bad' dependence ??
 
 
 _get_ct = ContentType.objects.get_for_model

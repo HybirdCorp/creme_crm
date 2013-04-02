@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from billing.models import SalesOrder
+from creme.billing.models import SalesOrder
 from base import BaseCreateForm, BaseEditForm
 
 

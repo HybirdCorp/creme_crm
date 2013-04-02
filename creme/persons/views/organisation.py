@@ -22,12 +22,12 @@ from django.db.models.query_utils import Q
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.constants import PROP_IS_MANAGED_BY_CREME
-from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
+from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
-from persons.models import Organisation
-from persons.forms.organisation import OrganisationForm
-from persons.constants import REL_SUB_SUSPECT, REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
+from creme.persons.models import Organisation
+from creme.persons.forms.organisation import OrganisationForm
+from creme.persons.constants import REL_SUB_SUSPECT, REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
 
 
 @login_required

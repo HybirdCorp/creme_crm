@@ -38,13 +38,13 @@ from django.http import HttpResponse
 from django.template import TemplateDoesNotExist
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import fields
-from creme_core.utils.meta import is_date_field
+from creme.creme_core.models import fields
+from creme.creme_core.utils.meta import is_date_field
 
-from media_managers.models import Image
+from creme.media_managers.models import Image
 
-from crudity.utils import generate_guid_for_field
-from crudity.backends.models import CrudityBackend
+from creme.crudity.utils import generate_guid_for_field
+from creme.crudity.backends.models import CrudityBackend
 
 #Don't forget to include xml templates when generating locales !! (django-admin.py makemessages -l fr -e html,xml)
 

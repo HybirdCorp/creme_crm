@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls.defaults import patterns
+from django.conf.urls import patterns
 
-urlpatterns = patterns('assistants.views',
+urlpatterns = patterns('creme.assistants.views',
     (r'^memo/add/(?P<entity_id>\d+)/$', 'memo.add'),
     (r'^memo/edit/(?P<memo_id>\d+)/$',  'memo.edit'),
 

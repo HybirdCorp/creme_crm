@@ -2,13 +2,13 @@
 
 from imp import find_module
 
-from django.conf.urls.defaults import patterns
+from django.conf.urls import patterns
 from django.conf import settings
 
-from recurrents.registry import recurrent_registry
+from creme.recurrents.registry import recurrent_registry
 
 
-urlpatterns = patterns('recurrents.views',
+urlpatterns = patterns('creme.recurrents.views',
     (r'^$', 'portal.portal'),
 
     (r'^generators$',                             'recurrentgenerator.listview'),

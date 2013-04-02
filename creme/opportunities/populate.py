@@ -23,24 +23,24 @@ from logging import info
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme_core.models import (RelationType, BlockDetailviewLocation, BlockPortalLocation,
+from creme.creme_core.models import (RelationType, BlockDetailviewLocation, BlockPortalLocation,
                                ButtonMenuItem, SearchConfigItem, HeaderFilterItem, HeaderFilter,
                                EntityFilterCondition, EntityFilter)
-from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
-from creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
+from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from creme_config.models import SettingKey, SettingValue
+from creme.creme_config.models import SettingKey, SettingValue
 
-from persons.models import Contact, Organisation
+from creme.persons.models import Contact, Organisation
 
-from products.models import Product, Service
+from creme.products.models import Product, Service
 
-from billing.models import SalesOrder, Invoice, Quote
+from creme.billing.models import SalesOrder, Invoice, Quote
 
-from opportunities.models import SalesPhase, Origin, Opportunity
-from opportunities.blocks import *
-from opportunities.buttons import linked_opportunity_button
-from opportunities.constants import *
+from creme.opportunities.models import SalesPhase, Origin, Opportunity
+from creme.opportunities.blocks import *
+from creme.opportunities.buttons import linked_opportunity_button
+from creme.opportunities.constants import *
 
 
 class Populator(BasePopulator):
@@ -143,10 +143,10 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=total_block.id_,           order=2,   zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
         BlockDetailviewLocation.create(block_id=history_block.id_,         order=20,  zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
 
-        if 'activities' in settings.INSTALLED_APPS:
+        if 'creme.activities' in settings.INSTALLED_APPS:
             info('Activities app is installed => we use the "Future activities" & "Past activities" blocks')
 
-            from activities.blocks import future_activities_block, past_activities_block
+            from creme.activities.blocks import future_activities_block, past_activities_block
 
             BlockDetailviewLocation.create(block_id=future_activities_block.id_, order=20, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
             BlockDetailviewLocation.create(block_id=past_activities_block.id_,   order=21, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
@@ -154,10 +154,10 @@ class Populator(BasePopulator):
             BlockPortalLocation.create(app_name='opportunities', block_id=past_activities_block.id_,   order=21)
 
 
-        if 'assistants' in settings.INSTALLED_APPS:
+        if 'creme.assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail views and portal')
 
-            from assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+            from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
             BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
             BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
@@ -168,16 +168,16 @@ class Populator(BasePopulator):
             BlockPortalLocation.create(app_name='opportunities', block_id=alerts_block.id_,   order=200)
             BlockPortalLocation.create(app_name='opportunities', block_id=messages_block.id_, order=400)
 
-        if 'emails' in settings.INSTALLED_APPS:
+        if 'creme.emails' in settings.INSTALLED_APPS:
             info('Emails app is installed => we use the emails blocks on detail view')
 
-            from emails.blocks import mails_history_block
+            from creme.emails.blocks import mails_history_block
 
             BlockDetailviewLocation.create(block_id=mails_history_block.id_, order=600, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
 
         BlockDetailviewLocation.create(block_id=targetting_opps_block.id_, order=16, zone=BlockDetailviewLocation.RIGHT, model=Organisation)
 
-        if 'reports' in settings.INSTALLED_APPS:
+        if 'creme.reports' in settings.INSTALLED_APPS:
             info('Reports app is installed => we create an Opportunity report, with 2 graphs, and related blocks')
             self.create_reports(rt_obj_emit_orga)
 
@@ -186,14 +186,14 @@ class Populator(BasePopulator):
         from django.contrib.contenttypes.models import ContentType
         from django.contrib.auth.models import User
 
-        from creme_core.models import EntityFilter, EntityFilterCondition
-        from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION
-        from creme_core.utils.meta import get_verbose_field_name
+        from creme.creme_core.models import EntityFilter, EntityFilterCondition
+        from creme.creme_core.models.header_filter import HFI_FIELD, HFI_RELATION
+        from creme.creme_core.utils.meta import get_verbose_field_name
 
-        from persons.constants import FILTER_MANAGED_ORGA
+        from creme.persons.constants import FILTER_MANAGED_ORGA
 
-        from reports.models import Report, Field, ReportGraph
-        from reports.models.graph import RGT_FK, RGT_RANGE
+        from creme.reports.models import Report, Field, ReportGraph
+        from creme.reports.models.graph import RGT_FK, RGT_RANGE
 
         report_name = _(u"Opportunities generated by a Creme managed organisation")
         opp_ct = ContentType.objects.get_for_model(Opportunity)

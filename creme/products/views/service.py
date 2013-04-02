@@ -20,10 +20,10 @@
 
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
+from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
-from products.models import Service
-from products.forms.service import ServiceForm
+from creme.products.models import Service
+from creme.products.forms.service import ServiceForm
 
 
 @login_required

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from activesync.blocks import mobile_sync_config_block, user_mobile_sync_config_block
+from creme.activesync.blocks import mobile_sync_config_block, user_mobile_sync_config_block
 
 to_register = ()
 

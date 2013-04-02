@@ -23,15 +23,15 @@ from decimal import Decimal
 from django.forms import ModelChoiceField, DecimalField, BooleanField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.forms import CremeForm, CremeModelForm, FieldBlockManager
-from creme_core.forms.fields import MultiCremeEntityField
-from creme_core.forms.validators import validate_linkable_entities
+from creme.creme_core.forms import CremeForm, CremeModelForm, FieldBlockManager
+from creme.creme_core.forms.fields import MultiCremeEntityField
+from creme.creme_core.forms.validators import validate_linkable_entities
 
-from products.models import Product, Service
-from products.forms.fields import CategoryField
+from creme.products.models import Product, Service
+from creme.products.forms.fields import CategoryField
 
-from billing.models import ProductLine, ServiceLine, Line, Vat
-from billing.models.line import default_quantity
+from creme.billing.models import ProductLine, ServiceLine, Line, Vat
+from creme.billing.models.line import default_quantity
 
 
 default_decimal = Decimal()

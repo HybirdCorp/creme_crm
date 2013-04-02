@@ -21,10 +21,10 @@
 from django.forms.util import ValidationError
 from django.utils.translation import ugettext as _
 
-from creme_core.models import CremePropertyType
-from creme_core.forms import CremeModelForm
+from creme.creme_core.models import CremePropertyType
+from creme.creme_core.forms import CremeModelForm
 
-from commercial.models import MarketSegment
+from creme.commercial.models import MarketSegment
 
 
 class MarketSegmentForm(CremeModelForm):

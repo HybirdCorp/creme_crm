@@ -6,13 +6,13 @@ try:
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.tests.base import CremeTestCase
-    from creme_core.models import CremePropertyType, CremeProperty, CremeEntity #, PreferedMenuItem
-    from creme_core.utils import meta
+    from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models import CremePropertyType, CremeProperty, CremeEntity #, PreferedMenuItem
+    from creme.creme_core.utils import meta
 
-    from persons.models import Contact
+    from creme.persons.models import Contact
 
-    from tickets.models import Ticket
+    from creme.tickets.models import Ticket
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

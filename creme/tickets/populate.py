@@ -23,15 +23,15 @@ from logging import info
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme_core.models import (RelationType, SearchConfigItem, HeaderFilterItem, HeaderFilter,
+from creme.creme_core.models import (RelationType, SearchConfigItem, HeaderFilterItem, HeaderFilter,
                                BlockDetailviewLocation, RelationBlockItem, ButtonMenuItem)
-from creme_core.utils import create_if_needed
-from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
-from creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.utils import create_if_needed
+from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
+from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from tickets.models import *
-from tickets.models.status import BASE_STATUS
-from tickets.constants import REL_SUB_LINKED_2_TICKET, REL_OBJ_LINKED_2_TICKET
+from creme.tickets.models import *
+from creme.tickets.models.status import BASE_STATUS
+from creme.tickets.constants import REL_SUB_LINKED_2_TICKET, REL_OBJ_LINKED_2_TICKET
 
 
 class Populator(BasePopulator):
@@ -76,23 +76,23 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=rbi.block_id,           order=1,   zone=BlockDetailviewLocation.RIGHT, model=Ticket)
         BlockDetailviewLocation.create(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Ticket)
 
-        if 'assistants' in settings.INSTALLED_APPS:
+        if 'creme.assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail view')
 
-            from assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+            from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
             BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
             BlockDetailviewLocation.create(block_id=memos_block.id_,    order=200, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
             BlockDetailviewLocation.create(block_id=alerts_block.id_,   order=300, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
             BlockDetailviewLocation.create(block_id=messages_block.id_, order=400, zone=BlockDetailviewLocation.RIGHT, model=Ticket)
 
-        if 'persons' in settings.INSTALLED_APPS:
+        if 'creme.persons' in settings.INSTALLED_APPS:
             try:
-                from persons.models import Contact, Organisation
+                from creme.persons.models import Contact, Organisation
             except ImportError, e:
                 info(str(e))
             else:
-                from tickets.buttons import linked_2_ticket_button
+                from creme.tickets.buttons import linked_2_ticket_button
 
                 ButtonMenuItem.create_if_needed(pk='tickets-linked_contact_button', model=Contact,      button=linked_2_ticket_button, order=50)
                 ButtonMenuItem.create_if_needed(pk='tickets-linked_orga_button',    model=Organisation, button=linked_2_ticket_button, order=50)

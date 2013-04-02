@@ -26,12 +26,12 @@ from django.http import HttpResponse
 from django.utils.encoding import smart_str
 from django.contrib.auth.decorators import login_required
 
-from creme_core.models import EntityFilter, EntityCredentials
-from creme_core.models.header_filter import HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
-from creme_core.gui.listview import ListViewState
-from creme_core.utils import get_ct_or_404
-from creme_core.utils.meta import get_instance_field_info
-from creme_core.utils.chunktools import iter_as_slices
+from creme.creme_core.models import EntityFilter, EntityCredentials
+from creme.creme_core.models.header_filter import HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
+from creme.creme_core.gui.listview import ListViewState
+from creme.creme_core.utils import get_ct_or_404
+from creme.creme_core.utils.meta import get_instance_field_info
+from creme.creme_core.utils.chunktools import iter_as_slices
 
 
 @login_required

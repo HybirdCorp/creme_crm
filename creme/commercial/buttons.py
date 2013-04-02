@@ -21,10 +21,10 @@
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.gui.button_menu import Button
+from creme.creme_core.gui.button_menu import Button
 
-from commercial.models import Act
-from commercial.constants import REL_SUB_COMPLETE_GOAL
+from creme.commercial.models import Act
+from creme.commercial.constants import REL_SUB_COMPLETE_GOAL
 
 
 class CompleteGoalButton(Button):

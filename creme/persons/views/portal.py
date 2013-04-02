@@ -21,13 +21,13 @@
 from django.db.models import Count
 from django.utils.translation import ugettext as _
 
-from creme_core.views.generic import app_portal
-#from creme_core.models import Relation
+from creme.creme_core.views.generic import app_portal
+#from creme.creme_core.models import Relation
 
-from creme_config.utils import generate_portal_url
+from creme.creme_config.utils import generate_portal_url
 
-from persons.models import Contact, Organisation
-from persons.constants import REL_OBJ_CUSTOMER_SUPPLIER #REL_SUB_CUSTOMER_OF
+from creme.persons.models import Contact, Organisation
+from creme.persons.constants import REL_OBJ_CUSTOMER_SUPPLIER #REL_SUB_CUSTOMER_OF
 
 
 def portal(request):

@@ -23,10 +23,10 @@ from collections import defaultdict
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-#from creme_core.models import CremeEntity
-from creme_core.gui.block import QuerysetBlock, list4url
+#from creme.creme_core.models import CremeEntity
+from creme.creme_core.gui.block import QuerysetBlock, list4url
 
-from assistants.models import Action, Alert, Memo, ToDo, UserMessage
+from creme.assistants.models import Action, Alert, Memo, ToDo, UserMessage
 
 
 class _AssistantsBlock(QuerysetBlock):

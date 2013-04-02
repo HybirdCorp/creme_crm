@@ -3,10 +3,10 @@
 try:
     from functools import partial
 
-    from creme_core.tests.forms import FieldTestCase
+    from creme.creme_core.tests.forms import FieldTestCase
 
-    from products.models import Category, SubCategory
-    from products.forms.product import CategoryField
+    from creme.products.models import Category, SubCategory
+    from creme.products.forms.product import CategoryField
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

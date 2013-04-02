@@ -8,16 +8,16 @@ try:
 
     import pytz
 
-    from creme_core.tests.base import CremeTestCase
-    from creme_core.models import CremePropertyType, PreferedMenuItem
-    from creme_core.utils import (find_first, truncate_str, create_if_needed, 
+    from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models import CremePropertyType, PreferedMenuItem
+    from creme.creme_core.utils import (find_first, truncate_str, create_if_needed, 
                                   get_from_GET_or_404, get_from_POST_or_404)
-    from creme_core.utils.dates import(get_dt_from_iso8601_str, get_dt_to_iso8601_str,
+    from creme.creme_core.utils.dates import(get_dt_from_iso8601_str, get_dt_to_iso8601_str,
                                        get_naive_dt_from_tzdate, get_creme_dt_from_utc_dt,
                                        get_utc_dt_from_creme_dt)
-    from creme_core.utils.queries import get_first_or_None
+    from creme.creme_core.utils.queries import get_first_or_None
 
-    from persons.models import Civility
+    from creme.persons.models import Civility
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

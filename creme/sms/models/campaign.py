@@ -21,10 +21,10 @@
 from django.db.models import CharField, ManyToManyField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity
+from creme.creme_core.models import CremeEntity
 
-from sms.models.messaging_list import MessagingList
-from sms.models.recipient import Recipient
+from creme.sms.models.messaging_list import MessagingList
+from creme.sms.models.recipient import Recipient
 
 
 class SMSCampaign(CremeEntity):

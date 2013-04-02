@@ -30,17 +30,17 @@ from django.db import transaction, IntegrityError
 from django.template.context import Context
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.utils.dates import get_dt_from_str
-from creme_core.utils.meta import is_date_field
-from creme_core.views.file_handling import handle_uploaded_file
+from creme.creme_core.utils.dates import get_dt_from_str
+from creme.creme_core.utils.meta import is_date_field
+from creme.creme_core.views.file_handling import handle_uploaded_file
 
-from creme_config.models import SettingValue
+from creme.creme_config.models import SettingValue
 
-from media_managers.models.image import Image
+from creme.media_managers.models.image import Image
 
-from crudity.models import History
-from crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
-from crudity.exceptions import ImproperlyConfiguredBackend
+from creme.crudity.models import History
+from creme.crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
+from creme.crudity.exceptions import ImproperlyConfiguredBackend
 
 
 class CrudityBackend(object):

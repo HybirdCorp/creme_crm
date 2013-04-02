@@ -6,13 +6,13 @@ try:
     from django.core.serializers.json import simplejson
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.tests.base import CremeTestCase
-    from creme_core.auth.entity_credentials import EntityCredentials
-    from creme_core.blocks import RelationsBlock
-    from creme_core.models import BlockState, SetCredentials, RelationType, Relation
-    from creme_core.gui.block import block_registry, Block
+    from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.blocks import RelationsBlock
+    from creme.creme_core.models import BlockState, SetCredentials, RelationType, Relation
+    from creme.creme_core.gui.block import block_registry, Block
 
-    from persons.models import Contact, Organisation
+    from creme.persons.models import Contact, Organisation
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

@@ -20,8 +20,8 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.registry import creme_registry
-from creme_core.gui.menu import creme_menu
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.gui.menu import creme_menu
 
 
 creme_registry.register_app("crudity", _(u'External data management'), '/crudity')

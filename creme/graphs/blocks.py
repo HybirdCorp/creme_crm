@@ -20,10 +20,10 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity
-from creme_core.gui.block import QuerysetBlock
+from creme.creme_core.models import CremeEntity
+from creme.creme_core.gui.block import QuerysetBlock
 
-from graphs.models import Graph, RootNode
+from creme.graphs.models import Graph, RootNode
 
 
 class RootNodesBlock(QuerysetBlock):

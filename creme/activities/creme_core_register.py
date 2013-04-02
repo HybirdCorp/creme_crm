@@ -20,13 +20,13 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.registry import creme_registry
-from creme_core.gui import creme_menu, block_registry, button_registry, icon_registry, bulk_update_registry
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.gui import creme_menu, block_registry, button_registry, icon_registry, bulk_update_registry
 
-from activities.models import Activity, PhoneCall, Meeting, Task
-from activities.blocks import block_list
-from activities.buttons import add_meeting_button, add_phonecall_button, add_task_button
-from activities.signals import connect_to_signals
+from creme.activities.models import Activity, PhoneCall, Meeting, Task
+from creme.activities.blocks import block_list
+from creme.activities.buttons import add_meeting_button, add_phonecall_button, add_task_button
+from creme.activities.signals import connect_to_signals
 
 connect_to_signals()
 

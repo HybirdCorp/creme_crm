@@ -23,9 +23,9 @@ from itertools import izip as zip
 from django.db.models import CharField, TextField, PositiveSmallIntegerField, ForeignKey, ManyToManyField
 from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
-from creme_core.models import CremeEntity, CremeModel
+from creme.creme_core.models import CremeEntity, CremeModel
 
-from persons.models import Organisation
+from creme.persons.models import Organisation
 
 from market_segment import MarketSegment
 

@@ -23,10 +23,10 @@ from django.shortcuts import render, get_object_or_404
 from django.utils.encoding import smart_str
 from django.contrib.auth.decorators import permission_required, login_required
 
-from persons.models import Contact
+from creme.persons.models import Contact
 
-from vcfs.forms.vcf import VcfForm, VcfImportForm
-from vcfs.vcfgenerator import VcfGenerator
+from creme.vcfs.forms.vcf import VcfForm, VcfImportForm
+from creme.vcfs.vcfgenerator import VcfGenerator
 
 
 @login_required

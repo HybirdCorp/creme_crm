@@ -24,11 +24,11 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render
 from django.conf import settings
 
-from creme_core.views.generic import add_model_with_popup, edit_model_with_popup
-from creme_core.models import SearchConfigItem, SearchField
-from creme_core.utils import get_from_POST_or_404
+from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
+from creme.creme_core.models import SearchConfigItem, SearchField
+from creme.creme_core.utils import get_from_POST_or_404
 
-from creme_config.forms.search import SearchEditForm, SearchAddForm
+from creme.creme_config.forms.search import SearchEditForm, SearchAddForm
 
 
 @login_required

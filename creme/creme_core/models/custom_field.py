@@ -248,7 +248,7 @@ class CustomFieldDateTime(CustomFieldValue):
     def _get_formfield(**kwargs):
         # TODO don't know why but this widget does not allow datetime, only date (spaces, ':' are forbidden characters)
         # So it's not really a CustomFieldDateTime for the moment but a CustomFieldDate until this problem is fixed
-        from creme_core.forms.fields import CremeDateTimeField #avoid cyclic import
+        from creme.creme_core.forms.fields import CremeDateTimeField #avoid cyclic import
         return CremeDateTimeField(**kwargs)
 
 
@@ -339,7 +339,7 @@ class CustomFieldMultiEnum(CustomFieldValue):
 
     @staticmethod
     def _get_formfield(**kwargs):
-        from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+        from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
         return forms.MultipleChoiceField(widget=UnorderedMultipleChoiceWidget, **kwargs)
 
     @classmethod

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,7 @@ from django.utils import translation
 from django.conf import settings
 
 
-#PROJECT_PREFIX = 'creme.'
+PROJECT_PREFIX = 'creme.'
 
 
 class BasePopulator(object):
@@ -59,15 +59,15 @@ class Command(BaseCommand):
     )
 
     def create_parser(self, prog_name, subcommand):
-        """
-        Create and return the ``OptionParser`` which will be used to
-        parse the arguments to this command.
+        """ Create and return the ``OptionParser`` which will be used to parse
+        the arguments to this command.
         """
         return OptionParser(prog=prog_name,
                             usage=self.usage(subcommand),
                             version=self.get_version(),
                             option_list=self.option_list,
-                            conflict_handler="resolve")
+                            conflict_handler="resolve",
+                           )
 
     def handle(self, *args, **options):
         action = options.get('action') or 'populate'
@@ -92,31 +92,37 @@ class Command(BaseCommand):
 
     def _do_populate_action(self, name, is_verbose, applications, *args, **options):
         if not applications:
-            #applications = [app for app in settings.INSTALLED_APPS if app.startswith(PROJECT_PREFIX)]
-            applications = settings.INSTALLED_CREME_APPS
+            apps_2_populate = settings.INSTALLED_CREME_APPS
         else:
-            #applications = [PROJECT_PREFIX + app if not app.startswith(PROJECT_PREFIX) else app for app in applications]
-            not_creme_apps = [app for app in applications if app not in settings.INSTALLED_CREME_APPS]
-            if not_creme_apps:
-                print not_creme_apps, 'seem(s) not to be a Creme app (see settings.INSTALLED_CREME_APPS): aborting'
+            apps_2_populate = []
+            all_apps = frozenset(settings.INSTALLED_CREME_APPS)
+
+            for app in applications:
+                if app in all_apps:
+                    apps_2_populate.append(app)
+                    continue
+
+                project_app = PROJECT_PREFIX + app
+                if project_app in all_apps:
+                    apps_2_populate.append(project_app)
+                    continue
+
+                print app, 'seems not to be a Creme app (see settings.INSTALLED_CREME_APPS): aborting'
                 return
 
         #-----------------------------------------------------------------------
         populates = []
 
-        for app in applications:
+        for app in apps_2_populate:
             try:
                 populate_mod = self._get_populate_module(app)
                 populate = populate_mod.populate.Populator(is_verbose, app)
 
                 if hasattr(populate, name):
                     populates.append(populate)
-            except ImportError, err:
+            except (ImportError, AttributeError) as e:
                 if is_verbose:
-                    print 'disable populate for "' + app + '" :', err
-            except AttributeError, err:
-                if is_verbose:
-                    print 'disable populate for "' + app + '" :', err
+                    print 'disable populate for "%s": %s' % (app, e)
 
         populates.sort(cmp=lambda a, b: self._depencies_sort(a, b))
 
@@ -153,7 +159,7 @@ class Command(BaseCommand):
         for line in connection.ops.sequence_reset_sql(no_style(), self.models):
             cursor.execute(line)
 
-        #connection.close() #seem useless (& do not work with mysql)
+        #connection.close() #seems useless (& does not work with mysql)
 
         if is_verbose:
             print 'update sequences done.'

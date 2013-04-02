@@ -30,8 +30,8 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 
 from django.conf import settings
 
-from crudity.utils import get_unicode_decoded_str
-from crudity.fetchers.base import CrudityFetcher
+from creme.crudity.utils import get_unicode_decoded_str
+from creme.crudity.fetchers.base import CrudityFetcher
 
 CREME_GET_EMAIL_SERVER       = settings.CREME_GET_EMAIL_SERVER
 CREME_GET_EMAIL_USERNAME     = settings.CREME_GET_EMAIL_USERNAME

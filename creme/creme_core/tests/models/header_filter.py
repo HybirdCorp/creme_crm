@@ -6,13 +6,13 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import RelationType, Relation, CustomField, CustomFieldEnumValue
-    from creme_core.models.header_filter import (HeaderFilter, HeaderFilterItem,
-                                                 HFI_FIELD, HFI_CUSTOM, HFI_RELATION, HFI_FUNCTION
-                                                )
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models import RelationType, Relation, CustomField, CustomFieldEnumValue
+    from creme.creme_core.models.header_filter import (HeaderFilter, HeaderFilterItem,
+                                                       HFI_FIELD, HFI_CUSTOM, HFI_RELATION, HFI_FUNCTION
+                                                      )
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from persons.models import Contact, Organisation, Position, Sector
+    from creme.persons.models import Contact, Organisation, Position, Sector
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

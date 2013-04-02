@@ -24,9 +24,9 @@ from functools import partial
 from django.utils.translation import ugettext as _
 from django.forms import BooleanField
 
-from activities.forms.activity import ActivityCreateForm #, ActivityEditForm
+from creme.activities.forms.activity import ActivityCreateForm #, ActivityEditForm
 
-from commercial.models import CommercialApproach
+from creme.commercial.models import CommercialApproach
 
 
 def add_commapp_field(form):

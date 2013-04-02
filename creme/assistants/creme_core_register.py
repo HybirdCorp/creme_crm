@@ -20,10 +20,10 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.registry import creme_registry
-from creme_core.gui.block import block_registry
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.gui.block import block_registry
 
-from assistants.blocks import alerts_block, actions_it_block, actions_nit_block, memos_block, todos_block, messages_block
+from creme.assistants.blocks import alerts_block, actions_it_block, actions_nit_block, memos_block, todos_block, messages_block
 
 
 creme_registry.register_app('assistants', _(u'Assistants (Todos, Memo, ...)'), '/')

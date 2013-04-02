@@ -23,13 +23,13 @@ from logging import info
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 
-from creme_config.models import SettingKey, SettingValue
+from creme.creme_config.models import SettingKey, SettingValue
 
-from creme_core.models import *
-from creme_core.utils import create_if_needed
-from creme_core.constants import *
-from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
-from creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.models import *
+from creme.creme_core.utils import create_if_needed
+from creme.creme_core.constants import *
+from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
+from creme.creme_core.management.commands.creme_populate import BasePopulator
 
 
 class Populator(BasePopulator):

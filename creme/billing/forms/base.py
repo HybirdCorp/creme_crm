@@ -23,18 +23,18 @@ from logging import debug
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.models import Relation, Currency
-from creme_core.forms import CremeEntityForm, CremeDateField, GenericEntityField, CreatorEntityField
-from creme_core.forms.validators import validate_linkable_entity
-from creme_core.utils import find_first
-#from creme_core.constants import DEFAULT_CURRENCY_PK
+from creme.creme_core.models import Relation, Currency
+from creme.creme_core.forms import CremeEntityForm, CremeDateField, GenericEntityField, CreatorEntityField
+from creme.creme_core.forms.validators import validate_linkable_entity
+from creme.creme_core.utils import find_first
+#from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 
-#from creme_config.forms.fields import CreatorModelChoiceField
+#from creme.creme_config.forms.fields import CreatorModelChoiceField
 
-from persons.models import Organisation, Address, Contact
+from creme.persons.models import Organisation, Address, Contact
 
-from billing.models import Line, AdditionalInformation, PaymentTerms
-from billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+from creme.billing.models import Line, AdditionalInformation, PaymentTerms
+from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
 
 class BaseEditForm(CremeEntityForm):

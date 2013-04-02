@@ -6,20 +6,20 @@ try:
     from django.contrib.sessions.models import Session
     from django.contrib.auth.models import User
 
-    from creme_core.models import (CremeEntity, CremeProperty, Relation, EntityCredentials,
+    from creme.creme_core.models import (CremeEntity, CremeProperty, Relation, EntityCredentials,
                                    UserRole, SetCredentials, Mutex)
-    from creme_core.constants import PROP_IS_MANAGED_BY_CREME
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from activities.models import Calendar
+    from creme.activities.models import Calendar
 
-    from persons.models import Contact, Organisation #need CremeEntity
-    from persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
+    from creme.persons.models import Contact, Organisation #need CremeEntity
+    from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 
-    from creme_config.constants import USER_THEME_NAME
-    from creme_config.models import SettingKey, SettingValue
-    from creme_config.utils import get_user_theme
-    from creme_config import blocks
+    from creme.creme_config.constants import USER_THEME_NAME
+    from creme.creme_config.models import SettingKey, SettingValue
+    from creme.creme_config.utils import get_user_theme
+    from creme.creme_config import blocks
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

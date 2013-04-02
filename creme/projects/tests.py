@@ -6,18 +6,18 @@ try:
 
     from django.utils.translation import ugettext as _
 
-    from creme_core.tests.base import CremeTestCase
-    from creme_core.models import SetCredentials
-    from creme_core.auth.entity_credentials import EntityCredentials
-    from creme_core.utils.dates import get_dt_from_str
+    from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models import SetCredentials
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.utils.dates import get_dt_from_str
 
-    from persons.models import Contact
+    from creme.persons.models import Contact
 
-    from activities.models import Calendar
-    from activities.constants import REL_SUB_PART_2_ACTIVITY
+    from creme.activities.models import Calendar
+    from creme.activities.constants import REL_SUB_PART_2_ACTIVITY
 
-    from projects.models import *
-    from projects.constants import *
+    from creme.projects.models import *
+    from creme.projects.constants import *
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

@@ -22,9 +22,9 @@ from datetime import datetime, time
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeModelWithUserForm, CremeDateTimeField, CremeTimeField
+from creme.creme_core.forms import CremeModelWithUserForm, CremeDateTimeField, CremeTimeField
 
-from assistants.models import Action
+from creme.assistants.models import Action
 
 
 class ActionEditForm(CremeModelWithUserForm):

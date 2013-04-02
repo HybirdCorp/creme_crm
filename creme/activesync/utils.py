@@ -33,9 +33,9 @@ from PIL import Image
 
 from django.core.files.base import File
 
-from creme_config.models import SettingValue
+from creme.creme_config.models import SettingValue
 
-from activesync.constants import USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS
+from creme.activesync.constants import USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS
 
 
 DEFAULT_CHUNK_SIZE = File.DEFAULT_CHUNK_SIZE

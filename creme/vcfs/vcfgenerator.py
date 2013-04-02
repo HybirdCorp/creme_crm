@@ -21,10 +21,10 @@
 
 """Generate a vCard from Contact object"""
 
-from persons.models import Address
+from creme.persons.models import Address
 
-from vcfs.vcf_lib import vCard
-from vcfs.vcf_lib.vcard import Address as VcfAddress, Name as VcfName
+from creme.vcfs.vcf_lib import vCard
+from creme.vcfs.vcf_lib.vcard import Address as VcfAddress, Name as VcfName
 
 
 class VcfGenerator(object):

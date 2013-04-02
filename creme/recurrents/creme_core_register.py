@@ -19,12 +19,12 @@
 ################################################################################
 
 from django.utils.translation import ugettext_lazy as _
-from creme_core.gui.bulk_update import bulk_update_registry
+from creme.creme_core.gui.bulk_update import bulk_update_registry
 
-from creme_core.registry import creme_registry
-from creme_core.gui import creme_menu, icon_registry
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.gui import creme_menu, icon_registry
 
-from recurrents.models import RecurrentGenerator
+from creme.recurrents.models import RecurrentGenerator
 
 
 creme_registry.register_app('recurrents', _(u'Recurrent documents'), '/recurrents')

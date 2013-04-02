@@ -27,9 +27,9 @@ from django.utils.formats import date_format
 from django.utils.safestring import mark_safe
 from django.utils.translation import ungettext, ugettext_lazy as _
 
-from creme_core.models import CremeEntity, fields
-from creme_core.utils.meta import get_instance_field_info, get_model_field_info, get_m2m_entities
-from creme_core.templatetags.creme_widgets import widget_entity_hyperlink
+from creme.creme_core.models import CremeEntity, fields
+from creme.creme_core.utils.meta import get_instance_field_info, get_model_field_info, get_m2m_entities
+from creme.creme_core.templatetags.creme_widgets import widget_entity_hyperlink
 
 
 #TODO: in settings

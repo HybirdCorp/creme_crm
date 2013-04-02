@@ -20,11 +20,11 @@
 from logging import error
 from django.contrib.contenttypes.models import ContentType
 
-from persons.constants import REL_SUB_EMPLOYED_BY
-from persons.models.contact import Contact
+from creme.persons.constants import REL_SUB_EMPLOYED_BY
+from creme.persons.models.contact import Contact
 
 def _get_mapping_from_creme_entity_id(id_):
-    from activesync.models.active_sync import CremeExchangeMapping
+    from creme.activesync.models.active_sync import CremeExchangeMapping
     try:
         return CremeExchangeMapping.objects.get(creme_entity_id=id_)
     except CremeExchangeMapping.DoesNotExist, e:

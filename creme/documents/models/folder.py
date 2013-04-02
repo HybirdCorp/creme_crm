@@ -24,9 +24,9 @@ from random import randint
 from django.db.models import CharField, TextField, ForeignKey, SET_NULL
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_core.models import CremeEntity
-from creme_core.models.entity import EntityAction
-from creme_core.utils import truncate_str
+from creme.creme_core.models import CremeEntity
+from creme.creme_core.models.entity import EntityAction
+from creme.creme_core.utils import truncate_str
 
 from other_models import FolderCategory
 

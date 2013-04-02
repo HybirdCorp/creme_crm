@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from crudity.fetchers.pop import pop_fetcher
-from crudity.inputs.email import create_email_input, create_infopath_input
+from creme.crudity.fetchers.pop import pop_fetcher
+from creme.crudity.inputs.email import create_email_input, create_infopath_input
 
 
 fetchers = {"email": [pop_fetcher]}

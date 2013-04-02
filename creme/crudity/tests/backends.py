@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from creme_config.models import SettingValue
+    from creme.creme_config.models import SettingValue
 
-    from crudity.backends.models import CrudityBackend
-    from crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
-    from crudity.exceptions import ImproperlyConfiguredBackend
-    from crudity.registry import crudity_registry # CRUDityRegistry
-    from crudity.tests.base import CrudityTestCase
+    from creme.crudity.backends.models import CrudityBackend
+    from creme.crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
+    from creme.crudity.exceptions import ImproperlyConfiguredBackend
+    from creme.crudity.registry import crudity_registry # CRUDityRegistry
+    from creme.crudity.tests.base import CrudityTestCase
 
-    from persons.models import Contact
+    from creme.persons.models import Contact
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

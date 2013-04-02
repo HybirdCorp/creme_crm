@@ -20,9 +20,9 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.gui.block import SimpleBlock
+from creme.creme_core.gui.block import SimpleBlock
 
-from events.models import Event
+from creme.events.models import Event
 
 
 class ResutsBlock(SimpleBlock):

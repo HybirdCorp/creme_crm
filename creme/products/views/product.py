@@ -21,11 +21,11 @@
 from django.shortcuts import get_object_or_404
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
-from creme_core.utils import jsonify
+from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
+from creme.creme_core.utils import jsonify
 
-from products.models import Product, Category, SubCategory
-from products.forms.product import ProductForm
+from creme.products.models import Product, Category, SubCategory
+from creme.products.forms.product import ProductForm
 
 
 @login_required

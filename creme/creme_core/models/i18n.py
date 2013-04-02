@@ -21,7 +21,7 @@
 from django.db.models import CharField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models.base import CremeModel
+from creme.creme_core.models.base import CremeModel
 
 class Language(CremeModel):
     name = CharField(_('Name'), max_length=100)

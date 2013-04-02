@@ -7,18 +7,18 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import RelationType, Relation
+    from creme.creme_core.models import RelationType, Relation
 
-    from persons.models import Contact, Organisation
+    from creme.persons.models import Contact, Organisation
 
-    from opportunities.models import Opportunity, SalesPhase
+    from creme.opportunities.models import Opportunity, SalesPhase
 
-    from activities.models import Meeting
-    from activities.constants import REL_SUB_ACTIVITY_SUBJECT
+    from creme.activities.models import Meeting
+    from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
 
-    from commercial.models import *
-    from commercial.constants import REL_SUB_COMPLETE_GOAL
-    from commercial.tests.base import CommercialBaseTestCase
+    from creme.commercial.models import *
+    from creme.commercial.constants import REL_SUB_COMPLETE_GOAL
+    from creme.commercial.tests.base import CommercialBaseTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

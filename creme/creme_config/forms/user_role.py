@@ -26,11 +26,11 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
-from creme_core.models import UserRole, SetCredentials, Mutex
-from creme_core.registry import creme_registry
-from creme_core.forms import CremeForm, CremeModelForm, ListEditionField
-from creme_core.forms.widgets import UnorderedMultipleChoiceWidget, Label
-from creme_core.utils import creme_entity_content_types
+from creme.creme_core.models import UserRole, SetCredentials, Mutex
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.forms import CremeForm, CremeModelForm, ListEditionField
+from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget, Label
+from creme.creme_core.utils import creme_entity_content_types
 
 
 _ALL_ENTITIES = list(creme_entity_content_types())

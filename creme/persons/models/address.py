@@ -24,8 +24,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity, CremeModel
-from creme_core.signals import pre_merge_related
+from creme.creme_core.models import CremeEntity, CremeModel
+from creme.creme_core.signals import pre_merge_related
 
 
 class Address(CremeModel):

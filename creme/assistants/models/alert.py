@@ -26,10 +26,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
 
-from creme_core.models import CremeModel, CremeEntity
-from creme_core.models.fields import CremeUserForeignKey
-from creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
-from creme_core.signals import pre_merge_related
+from creme.creme_core.models import CremeModel, CremeEntity
+from creme.creme_core.models.fields import CremeUserForeignKey
+from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
+from creme.creme_core.signals import pre_merge_related
 
 
 class Alert(CremeModel):

@@ -6,12 +6,12 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.conf import settings
 
-    from creme_core.auth.entity_credentials import EntityCredentials
-    from creme_core.gui.bulk_update import bulk_update_registry
-    from creme_core.models import SetCredentials, CustomField
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.gui.bulk_update import bulk_update_registry
+    from creme.creme_core.models import SetCredentials, CustomField
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from persons.models import Organisation
+    from creme.persons.models import Organisation
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

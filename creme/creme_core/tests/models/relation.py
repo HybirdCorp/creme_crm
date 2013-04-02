@@ -4,10 +4,10 @@ try:
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import *
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models import *
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from persons.models import Contact, Organisation
+    from creme.persons.models import Contact, Organisation
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -25,7 +25,6 @@ class RelationsTestCase(CremeTestCase):
         RelationType.objects.all().delete()
 
     def setUp(self):
-        #self.populate('creme_config')
         self.user = User.objects.create(username='name')
 
     def test_relation01(self):

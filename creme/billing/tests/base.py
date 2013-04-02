@@ -4,16 +4,16 @@ try:
     from decimal import Decimal
     from functools import partial
 
-    from creme_core.tests.base import CremeTestCase
-    from creme_core.models import Currency, CremePropertyType, CremeProperty
-    from creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    from creme.creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models import Currency, CremePropertyType, CremeProperty
+    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
-    from persons.models import Contact, Organisation
+    from creme.persons.models import Contact, Organisation
 
-    from products.models import Product, Service, Category, SubCategory
+    from creme.products.models import Product, Service, Category, SubCategory
 
-    from billing.models import *
-    from billing.constants import *
+    from creme.billing.models import *
+    from creme.billing.constants import *
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

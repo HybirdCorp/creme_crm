@@ -37,6 +37,8 @@ DATABASES = {
 
 #I18N / L10N ###################################################################
 
+USE_TZ = False #TODO: temporary...
+
 LANGUAGES = (
   ('en', 'English'), #_('English')
   ('fr', 'French'),  #_('French')
@@ -97,7 +99,7 @@ SITE_DOMAIN = 'http://mydomain' #No end slash!
 
 APPEND_SLASH = False
 
-ROOT_URLCONF = 'urls' # means urls.py
+ROOT_URLCONF = 'creme.urls' # means urls.py
 
 LOGIN_REDIRECT_URL = '/'
 LOGIN_URL = '/creme_login/'
@@ -112,10 +114,11 @@ MEDIA_ROOT = join(CREME_ROOT, "media")
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
 MEDIA_URL = 'http://127.0.0.1:8000/site_media/'
 
-# URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
-# trailing slash.
-# Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/media/'
+## URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
+## trailing slash.
+## Examples: "http://foo.com/media/", "/media/".
+#ADMIN_MEDIA_PREFIX = '/media/'
+#TODO STATIC_URL ??
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = '1&7rbnl7u#+j-2#@5=7@Z0^9v@y_Q!*y^krWS)r)39^M)9(+6('
@@ -142,10 +145,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.locale.LocaleMiddleware',
 
-    'creme_core.middleware.global_info.GlobalInfoMiddleware', #after AuthenticationMiddleware
-    'creme_core.middleware.exceptions.Beautiful403Middleware',
-    #'creme_core.middleware.sql_logger.SQLLogToConsoleMiddleware',       #debuging purpose
-    #'creme_core.middleware.module_logger.LogImportedModulesMiddleware', #debuging purpose
+    'creme.creme_core.middleware.global_info.GlobalInfoMiddleware', #after AuthenticationMiddleware
+    'creme.creme_core.middleware.exceptions.Beautiful403Middleware',
+    #'creme.creme_core.middleware.module_logger.LogImportedModulesMiddleware', #debuging purpose
 )
 
 TEMPLATE_DIRS = (
@@ -170,31 +172,31 @@ INSTALLED_DJANGO_APPS = (
 
 INSTALLED_CREME_APPS = (
     #CREME CORE APPS
-    'creme_core',
-    'creme_config',
-    'media_managers',
-    'documents',
-    'assistants',
-    'activities',
-    'persons',
+    'creme.creme_core',
+    'creme.creme_config',
+    'creme.media_managers',
+    'creme.documents',
+    'creme.assistants',
+    'creme.activities',
+    'creme.persons',
 
     #CREME OPTIONNAL APPS (can be safely commented)
-    'graphs',
-    'reports',
-    'products',
-    'recurrents',
-    'billing',       #need 'products'
-    'opportunities', #need 'billing'
-    'commercial',    #need 'opportunities'
-    'events',
-    'crudity',
-    'emails', #need 'crudity'
-    #'sms', #Work In Progress
-    'projects',
-    'tickets',
-    #'cti',
-    'activesync',
-    'vcfs',
+    'creme.graphs',
+    'creme.reports',
+    'creme.products',
+    'creme.recurrents',
+    'creme.billing',       #need 'products'
+    'creme.opportunities', #need 'billing'
+    'creme.commercial',    #need 'opportunities'
+    'creme.events',
+    'creme.crudity',
+    'creme.emails', #need 'crudity'
+    #creme.'sms', #Work In Progress
+    'creme.projects',
+    'creme.tickets',
+    #creme.'cti',
+    'creme.activesync',
+    'creme.vcfs',
 )
 
 
@@ -202,17 +204,17 @@ from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS
 TEMPLATE_CONTEXT_PROCESSORS += (
      'django.core.context_processors.request',
 
-     'creme_core.context_processors.get_logo_url',
-     'creme_core.context_processors.get_version',
-     'creme_core.context_processors.get_django_version',
-     'creme_core.context_processors.get_today',
-     'creme_core.context_processors.get_css_theme',
-     'creme_core.context_processors.get_blocks_manager',
+     'creme.creme_core.context_processors.get_logo_url',
+     'creme.creme_core.context_processors.get_version',
+     'creme.creme_core.context_processors.get_django_version',
+     'creme.creme_core.context_processors.get_today',
+     'creme.creme_core.context_processors.get_css_theme',
+     'creme.creme_core.context_processors.get_blocks_manager',
 )
 
 #TRUE_DELETE = True
 
-AUTHENTICATION_BACKENDS = ('creme_core.auth.backend.EntityBackend',)
+AUTHENTICATION_BACKENDS = ('creme.creme_core.auth.backend.EntityBackend',)
 
 ALLOWED_IMAGES_EXTENSIONS = (
     'gif', 'png', 'jpeg', 'jpg', 'jpe', 'bmp', 'psd', 'tif', 'tiff', 'tga', 'svg',
@@ -284,6 +286,7 @@ MEDIA_DEV_MODE = False #DEBUG
 DEV_MEDIA_URL = '/devmedia/'
 PRODUCTION_MEDIA_URL = '/static_media/'
 
+#GENERATED_MEDIA_NAMES_MODULE = 'creme._generated_media_names'
 GENERATED_MEDIA_DIR = join(MEDIA_ROOT, 'static')
 GLOBAL_MEDIA_DIRS = (join(dirname(__file__), 'static'),)
 

@@ -21,11 +21,11 @@
 from django.http import HttpResponseRedirect, Http404
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import view_entity, add_entity, list_view, edit_entity
-from creme_core.utils.queries import get_first_or_None
+from creme.creme_core.views.generic import view_entity, add_entity, list_view, edit_entity
+from creme.creme_core.utils.queries import get_first_or_None
 
-from projects.models import Project, ProjectStatus
-from projects.forms.project import ProjectCreateForm, ProjectEditForm
+from creme.projects.models import Project, ProjectStatus
+from creme.projects.forms.project import ProjectCreateForm, ProjectEditForm
 
 
 @login_required

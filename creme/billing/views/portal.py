@@ -20,11 +20,11 @@
 
 from django.utils.translation import ugettext as _
 
-from creme_core.views.generic import app_portal
+from creme.creme_core.views.generic import app_portal
 
-from creme_config.utils import generate_portal_url
+from creme.creme_config.utils import generate_portal_url
 
-from billing.models import Base, Invoice, Quote, SalesOrder
+from creme.billing.models import Base, Invoice, Quote, SalesOrder
 
 
 def portal(request):

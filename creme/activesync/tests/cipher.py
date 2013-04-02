@@ -3,11 +3,11 @@
 try:
     import random
 
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from creme_config.models import SettingValue, SettingKey
+    from creme.creme_config.models import SettingValue, SettingKey
 
-    from activesync.cipher import Cipher
+    from creme.activesync.cipher import Cipher
 except Exception as e:
     print 'Error:', e
 

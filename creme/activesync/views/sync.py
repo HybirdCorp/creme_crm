@@ -24,9 +24,9 @@ from django.template.loader import render_to_string
 from django.shortcuts import render_to_response
 from django.conf import settings
 
-from activesync.messages import MessageError, _ERROR
-from activesync.sync import Synchronization
-from activesync.errors import CremeActiveSyncError
+from creme.activesync.messages import MessageError, _ERROR
+from creme.activesync.sync import Synchronization
+from creme.activesync.errors import CremeActiveSyncError
 
 @login_required
 @permission_required('activesync')

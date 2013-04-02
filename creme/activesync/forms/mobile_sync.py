@@ -22,11 +22,11 @@ from itertools import chain
 from django.forms.fields import URLField, CharField, BooleanField, ChoiceField
 from django.forms.widgets import Select
 from django.utils.translation import ugettext_lazy as _
-from creme_config.models.setting import SettingValue
+from creme.creme_config.models.setting import SettingValue
 
-from creme_core.forms.base import CremeForm
+from creme.creme_core.forms.base import CremeForm
 
-from activesync.constants import MAPI_SERVER_URL, MAPI_DOMAIN, MAPI_SERVER_SSL, COMMONS_SERVER_URL_CFG
+from creme.activesync.constants import MAPI_SERVER_URL, MAPI_DOMAIN, MAPI_SERVER_SSL, COMMONS_SERVER_URL_CFG
 
 class MobileSyncForm(CremeForm):
 

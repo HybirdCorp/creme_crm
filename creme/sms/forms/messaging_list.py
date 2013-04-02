@@ -22,13 +22,13 @@ from django.utils.translation import ugettext_lazy as _
 from django.forms import ModelChoiceField
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import EntityFilter
-from creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
-from creme_core.forms.fields import MultiCremeEntityField
+from creme.creme_core.models import EntityFilter
+from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
+from creme.creme_core.forms.fields import MultiCremeEntityField
 
-from persons.models import Contact
+from creme.persons.models import Contact
 
-from sms.models import MessagingList
+from creme.sms.models import MessagingList
 
 
 class MessagingListForm(CremeEntityForm):

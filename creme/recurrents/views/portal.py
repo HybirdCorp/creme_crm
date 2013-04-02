@@ -20,9 +20,9 @@
 
 from django.utils.translation import ugettext as _
 
-from creme_core.views.generic import app_portal
+from creme.creme_core.views.generic import app_portal
 
-from recurrents.models import RecurrentGenerator
+from creme.recurrents.models import RecurrentGenerator
 
 
 def portal(request):

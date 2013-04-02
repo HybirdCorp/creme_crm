@@ -22,13 +22,13 @@ from logging import debug
 
 from django.forms import CharField
 
-from creme_core.models import Relation
-from creme_core.forms import CremeEntityForm
-from creme_core.forms.widgets import UploadedFileWidget
-from creme_core.views.file_handling import handle_uploaded_file
+from creme.creme_core.models import Relation
+from creme.creme_core.forms import CremeEntityForm
+from creme.creme_core.forms.widgets import UploadedFileWidget
+from creme.creme_core.views.file_handling import handle_uploaded_file
 
-from documents.models import FolderCategory, Folder, Document
-from documents.constants import REL_SUB_RELATED_2_DOC, DOCUMENTS_FROM_ENTITIES
+from creme.documents.models import FolderCategory, Folder, Document
+from creme.documents.constants import REL_SUB_RELATED_2_DOC, DOCUMENTS_FROM_ENTITIES
 
 
 class DocumentCreateForm(CremeEntityForm):

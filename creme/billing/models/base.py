@@ -27,20 +27,20 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity, Relation, Currency
-from creme_core.constants import DEFAULT_CURRENCY_PK
+from creme.creme_core.models import CremeEntity, Relation, Currency
+from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 
-from persons.models import Address
+from creme.persons.models import Address
 
 from line import Line
 from product_line import ProductLine
 from service_line import ServiceLine
 from algo import ConfigBillingAlgo
-from billing.constants import (REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED,
+from creme.billing.constants import (REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED,
                                REL_SUB_HAS_LINE, REL_OBJ_LINE_RELATED_ITEM,
                                REL_OBJ_CREDIT_NOTE_APPLIED, REL_SUB_CREDIT_NOTE_APPLIED)
-from billing.models.other_models import AdditionalInformation, PaymentTerms, PaymentInformation
-from billing.utils import round_to_2
+from creme.billing.models.other_models import AdditionalInformation, PaymentTerms, PaymentInformation
+from creme.billing.utils import round_to_2
 
 
 default_decimal = Decimal()
@@ -143,7 +143,7 @@ class Base(CremeEntity):
             #self.target = None
 
     def generate_number(self, source=None):
-        from billing.registry import algo_registry #lazy loading of number generators
+        from creme.billing.registry import algo_registry #lazy loading of number generators
 
         if source is None:
             source = self.get_source()

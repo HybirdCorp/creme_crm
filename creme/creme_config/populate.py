@@ -18,10 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from creme_config.constants import USER_THEME_NAME
-from creme_config.models import SettingKey
+from creme.creme_config.constants import USER_THEME_NAME
+from creme.creme_config.models import SettingKey
 
 
 class Populator(BasePopulator):

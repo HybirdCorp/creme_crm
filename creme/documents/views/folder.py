@@ -23,11 +23,11 @@ from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _
 from django.shortcuts import get_object_or_404
 
-from creme_core.views.generic import add_entity, edit_entity, view_entity
-from creme_core.views.generic.listview import list_view
+from creme.creme_core.views.generic import add_entity, edit_entity, view_entity
+from creme.creme_core.views.generic.listview import list_view
 
-from documents.models import Folder
-from documents.forms.folder import FolderForm
+from creme.documents.models import Folder
+from creme.documents.forms.folder import FolderForm
 
 
 @login_required

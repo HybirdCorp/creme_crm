@@ -21,9 +21,9 @@
 from django.db.models import ForeignKey, CharField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeModel
+from creme.creme_core.models import CremeModel
 
-from sms.models.messaging_list import MessagingList
+from creme.sms.models.messaging_list import MessagingList
 
 
 class Recipient(CremeModel):

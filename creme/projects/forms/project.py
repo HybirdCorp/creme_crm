@@ -24,15 +24,15 @@ from django.forms.widgets import HiddenInput
 from django.forms import DateTimeField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import Relation
-from creme_core.forms import CremeEntityForm, MultiCremeEntityField
-from creme_core.forms.widgets import DateTimeWidget
-from creme_core.forms.validators import validate_linkable_entities
+from creme.creme_core.models import Relation
+from creme.creme_core.forms import CremeEntityForm, MultiCremeEntityField
+from creme.creme_core.forms.widgets import DateTimeWidget
+from creme.creme_core.forms.validators import validate_linkable_entities
 
-from persons.models import Contact
+from creme.persons.models import Contact
 
-from projects.models import Project
-from projects.constants import REL_OBJ_PROJECT_MANAGER
+from creme.projects.models import Project
+from creme.projects.constants import REL_OBJ_PROJECT_MANAGER
 
 
 class ProjectEditForm(CremeEntityForm):

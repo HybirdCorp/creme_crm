@@ -23,11 +23,11 @@ from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.utils import get_from_POST_or_404
+from creme.creme_core.utils import get_from_POST_or_404
 
-from projects.models import WorkingPeriod
-from projects.forms.workingperiod import WorkingPeriodForm
-from projects.views.utils import _add_generic, _edit_generic
+from creme.projects.models import WorkingPeriod
+from creme.projects.forms.workingperiod import WorkingPeriodForm
+from creme.projects.views.utils import _add_generic, _edit_generic
 
 
 @login_required

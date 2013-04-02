@@ -28,14 +28,14 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeEntity, CremeModel, Relation
+from creme.creme_core.models import CremeEntity, CremeModel, Relation
 
-from opportunities.models import Opportunity
+from creme.opportunities.models import Opportunity
 
-from activities.constants import REL_OBJ_ACTIVITY_SUBJECT
+from creme.activities.constants import REL_OBJ_ACTIVITY_SUBJECT
 
-from commercial.models import MarketSegment
-from commercial.constants import REL_SUB_COMPLETE_GOAL
+from creme.commercial.models import MarketSegment
+from creme.commercial.constants import REL_SUB_COMPLETE_GOAL
 
 
 _NAME_LENGTH = 100

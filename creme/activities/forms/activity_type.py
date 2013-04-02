@@ -20,11 +20,11 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.forms import CremeModelForm
-from creme_core.forms.fields import ColorField, DurationField
-from creme_core.utils.id_generator import generate_string_id_and_save
+from creme.creme_core.forms import CremeModelForm
+from creme.creme_core.forms.fields import ColorField, DurationField
+from creme.creme_core.utils.id_generator import generate_string_id_and_save
 
-from activities.models import ActivityType
+from creme.activities.models import ActivityType
 
 
 class ActivityTypeForm(CremeModelForm):

@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme_core.gui.block import SimpleBlock
+from creme.creme_core.gui.block import SimpleBlock
 
 class TicketBlock(SimpleBlock):
     template_name = 'tickets/templatetags/block_ticket.html'

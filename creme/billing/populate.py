@@ -24,23 +24,23 @@ from logging import info
 
 from django.utils.translation import ugettext as _, pgettext
 
-from creme_core.models import (RelationType, SearchConfigItem, BlockDetailviewLocation,
+from creme.creme_core.models import (RelationType, SearchConfigItem, BlockDetailviewLocation,
                                ButtonMenuItem, HeaderFilterItem, HeaderFilter,
                                BlockPortalLocation, EntityFilterCondition, EntityFilter)
-from creme_core.blocks import properties_block, relations_block, customfields_block, history_block
-from creme_core.utils import create_if_needed
-from creme_core.management.commands.creme_populate import BasePopulator
+from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
+from creme.creme_core.utils import create_if_needed
+from creme.creme_core.management.commands.creme_populate import BasePopulator
 
-from creme_config.models import SettingKey, SettingValue
+from creme.creme_config.models import SettingKey, SettingValue
 
-from persons.models import Organisation, Contact
+from creme.persons.models import Organisation, Contact
 
-from products.models import Product, Service
+from creme.products.models import Product, Service
 
-from billing.models import *
-from billing.constants import *
-from billing.blocks import *
-from billing.buttons import *
+from creme.billing.models import *
+from creme.billing.constants import *
+from creme.billing.blocks import *
+from creme.billing.buttons import *
 
 
 class Populator(BasePopulator):
@@ -200,10 +200,10 @@ class Populator(BasePopulator):
             BlockDetailviewLocation.create(block_id=total_block.id_,           order=3,   zone=BlockDetailviewLocation.RIGHT, model=model)
             BlockDetailviewLocation.create(block_id=history_block.id_,         order=20,  zone=BlockDetailviewLocation.RIGHT, model=model)
 
-        if 'assistants' in settings.INSTALLED_APPS:
+        if 'creme.assistants' in settings.INSTALLED_APPS:
             info('Assistants app is installed => we use the assistants blocks on detail views')
 
-            from assistants.blocks import alerts_block, memos_block, todos_block, messages_block
+            from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
             for model in models:
                 BlockDetailviewLocation.create(block_id=todos_block.id_,    order=100, zone=BlockDetailviewLocation.RIGHT, model=model)
@@ -224,7 +224,7 @@ class Populator(BasePopulator):
                               )
         SettingValue.create_if_needed(key=sk, user=None, value=True)
 
-        if 'reports' in settings.INSTALLED_APPS:
+        if 'creme.reports' in settings.INSTALLED_APPS:
             info('Reports app is installed => we create 2 billing reports, with 3 graphs, and related blocks in home')
             self.create_reports(rt_sub_bill_received, resulted, resulted_collection)
 
@@ -232,11 +232,11 @@ class Populator(BasePopulator):
         from django.contrib.contenttypes.models import ContentType
         from django.contrib.auth.models import User
 
-        from creme_core.models.header_filter import HFI_FIELD, HFI_RELATION
-        from creme_core.utils.meta import get_verbose_field_name
+        from creme.creme_core.models.header_filter import HFI_FIELD, HFI_RELATION
+        from creme.creme_core.utils.meta import get_verbose_field_name
 
-        from reports.models import Report, Field, ReportGraph
-        from reports.models.graph import RGT_FK, RGT_MONTH
+        from creme.reports.models import Report, Field, ReportGraph
+        from creme.reports.models.graph import RGT_FK, RGT_MONTH
 
         if not (resulted and resulted_collection):
             print "Invoice status 'Resulted' and/or 'Resulted collection' have change => do not create reports 'All invoices of the current year' and 'Invoices unpaid of the current year'"

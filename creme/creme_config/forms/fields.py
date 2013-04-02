@@ -22,7 +22,7 @@ from django.utils.translation import ugettext as _
 from django.forms.models import ModelChoiceField
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.forms.widgets import ActionButtonList, DynamicSelect
+from creme.creme_core.forms.widgets import ActionButtonList, DynamicSelect
 
 
 class CreatorModelChoiceField(ModelChoiceField):
@@ -84,7 +84,7 @@ class CreatorModelChoiceField(ModelChoiceField):
         # config_registry import here, in order to avoid  initialisation issues :
         # creme_config's registration could be done before the creme_core's one is over,
         # and so fails because not all apps are registered.
-        from creme_config.registry import config_registry, NotRegisteredInConfig
+        from creme.creme_config.registry import config_registry, NotRegisteredInConfig
 
         model = self.queryset.model
         app_name = model._meta.app_label

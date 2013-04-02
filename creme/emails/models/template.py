@@ -21,9 +21,9 @@
 from django.db.models import CharField, TextField, ForeignKey, ManyToManyField, SET_NULL
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity
+from creme.creme_core.models import CremeEntity
 
-from documents.models import Document
+from creme.documents.models import Document
 
 from signature import EmailSignature
 

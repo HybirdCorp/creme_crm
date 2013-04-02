@@ -22,9 +22,9 @@ from django.db.models import (CharField, ForeignKey, BooleanField, IntegerField,
                               DecimalField, ManyToManyField, PROTECT)
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity
+from creme.creme_core.models import CremeEntity
 
-from media_managers.models import Image
+from creme.media_managers.models import Image
 
 from other_models import Category, SubCategory
 

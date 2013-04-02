@@ -1,8 +1,8 @@
  # -*- coding: utf-8 -*-
 
 try:
-    from creme_core.models.lock import Mutex, MutexLockedException, MutexNotLockedException
-    from creme_core.tests.views.base import ViewsTestCase
+    from creme.creme_core.models.lock import Mutex, MutexLockedException, MutexNotLockedException
+    from creme.creme_core.tests.views.base import ViewsTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

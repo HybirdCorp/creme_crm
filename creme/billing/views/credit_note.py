@@ -23,12 +23,12 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.models import Relation
-from creme_core.views.generic import add_entity, edit_entity, list_view, view_entity, add_to_entity, edit_model_with_popup
+from creme.creme_core.models import Relation
+from creme.creme_core.views.generic import add_entity, edit_entity, list_view, view_entity, add_to_entity, edit_model_with_popup
 
-from billing.models import CreditNote
-from billing.forms.credit_note import CreditNoteCreateForm, CreditNoteEditForm, CreditNotePopupEditForm, CreditNoteRelatedForm
-from billing.constants import REL_OBJ_CREDIT_NOTE_APPLIED
+from creme.billing.models import CreditNote
+from creme.billing.forms.credit_note import CreditNoteCreateForm, CreditNoteEditForm, CreditNotePopupEditForm, CreditNoteRelatedForm
+from creme.billing.constants import REL_OBJ_CREDIT_NOTE_APPLIED
 
 
 @login_required

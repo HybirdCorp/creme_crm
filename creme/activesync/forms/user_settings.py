@@ -24,13 +24,13 @@ from django.forms.fields import ChoiceField, CharField, URLField
 from django.forms.widgets import PasswordInput, Select
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme_config.models.setting import SettingValue, SettingKey
-from creme_core.forms.base import FieldBlockManager, CremeForm
-from creme_core.forms.widgets import Label
+from creme.creme_config.models.setting import SettingValue, SettingKey
+from creme.creme_core.forms.base import FieldBlockManager, CremeForm
+from creme.creme_core.forms.widgets import Label
 
-from activesync.models.active_sync import CremeClient
-from activesync.cipher import Cipher
-from activesync.constants import (USER_MOBILE_SYNC_SERVER_URL,
+from creme.activesync.models.active_sync import CremeClient
+from creme.activesync.cipher import Cipher
+from creme.activesync.constants import (USER_MOBILE_SYNC_SERVER_URL,
                                     USER_MOBILE_SYNC_SERVER_DOMAIN,
                                     USER_MOBILE_SYNC_SERVER_SSL,
                                     USER_MOBILE_SYNC_SERVER_LOGIN ,

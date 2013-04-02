@@ -22,11 +22,11 @@ from django.forms import CharField, ModelMultipleChoiceField
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremePropertyType, RelationType, SemiFixedRelationType
-from creme_core.forms import CremeForm, CremeModelForm, FieldBlockManager
-from creme_core.forms.fields import RelationEntityField
-from creme_core.forms.widgets import UnorderedMultipleChoiceWidget
-from creme_core.utils import Q_creme_entity_content_types
+from creme.creme_core.models import CremePropertyType, RelationType, SemiFixedRelationType
+from creme.creme_core.forms import CremeForm, CremeModelForm, FieldBlockManager
+from creme.creme_core.forms.fields import RelationEntityField
+from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
+from creme.creme_core.utils import Q_creme_entity_content_types
 
 
 _entities_ct = Q_creme_entity_content_types()

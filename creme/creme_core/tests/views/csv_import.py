@@ -5,12 +5,12 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation
-    from creme_core.tests.views.base import ViewsTestCase
+    from creme.creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation
+    from creme.creme_core.tests.views.base import ViewsTestCase
 
-    from persons.models import Contact, Organisation, Position, Sector
+    from creme.persons.models import Contact, Organisation, Position, Sector
 
-    from documents.models import Document, Folder, FolderCategory
+    from creme.documents.models import Document, Folder, FolderCategory
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

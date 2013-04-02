@@ -20,10 +20,10 @@
 
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.views.generic import edit_entity, view_entity, list_view
+from creme.creme_core.views.generic import edit_entity, view_entity, list_view
 
-from tickets.models import TicketTemplate
-from tickets.forms.template import TicketTemplateForm
+from creme.tickets.models import TicketTemplate
+from creme.tickets.forms.template import TicketTemplateForm
 
 
 @login_required

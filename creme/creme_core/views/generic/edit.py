@@ -23,7 +23,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext as _
 
-from creme_core.views.generic.popup import inner_popup
+from creme.creme_core.views.generic.popup import inner_popup
 
 
 def edit_entity(request, object_id, model, edit_form, template='creme_core/generics/blockform/edit.html'):

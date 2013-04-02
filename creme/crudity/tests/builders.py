@@ -12,16 +12,16 @@ try:
     from django.utils.translation import ugettext as _
     from django.test.client import RequestFactory
 
-    from creme_core.models import CremeEntity, Language
+    from creme.creme_core.models import CremeEntity, Language
 
-    from crudity.backends.models import CrudityBackend
-    from crudity.builders.infopath import InfopathFormBuilder, InfopathFormField
-    from crudity.registry import crudity_registry #CRUDityRegistry
-    from crudity.tests.base import CrudityTestCase, ContactFakeBackend, DocumentFakeBackend, FakeFetcher, FakeInput
+    from creme.crudity.backends.models import CrudityBackend
+    from creme.crudity.builders.infopath import InfopathFormBuilder, InfopathFormField
+    from creme.crudity.registry import crudity_registry #CRUDityRegistry
+    from creme.crudity.tests.base import CrudityTestCase, ContactFakeBackend, DocumentFakeBackend, FakeFetcher, FakeInput
 
-    from documents.models import Document
+    from creme.documents.models import Document
 
-    from persons.models import Contact
+    from creme.persons.models import Contact
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

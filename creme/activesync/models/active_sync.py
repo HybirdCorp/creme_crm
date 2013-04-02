@@ -29,14 +29,14 @@ from django.db.models.signals import post_save, post_delete
 from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 
-from creme_core.models import CremeModel, CremeEntity, Relation
-from creme_core.models.fields import CreationDateTimeField
+from creme.creme_core.models import CremeModel, CremeEntity, Relation
+from creme.creme_core.models.fields import CreationDateTimeField
 
-from activities.models import Meeting, Activity
+from creme.activities.models import Meeting, Activity
 
-from persons.models.contact import Contact
+from creme.persons.models.contact import Contact
 
-from activesync.utils import generate_guid
+from creme.activesync.utils import generate_guid
 
 LIMIT_SYNC_KEY_HISTORY = settings.LIMIT_SYNC_KEY_HISTORY
 
@@ -331,7 +331,7 @@ class AS_Folder(CremeModel):
 
 
 
-from activesync.signals import post_save_activesync_handler, post_delete_activesync_handler, post_save_relation_employed_by, post_delete_relation_employed_by
+from creme.activesync.signals import post_save_activesync_handler, post_delete_activesync_handler, post_save_relation_employed_by, post_delete_relation_employed_by
 post_save.connect(post_save_activesync_handler,     sender=Contact)
 post_save.connect(post_save_activesync_handler,     sender=Meeting)
 post_delete.connect(post_delete_activesync_handler, sender=Contact)

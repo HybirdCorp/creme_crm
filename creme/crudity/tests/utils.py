@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from persons.models import Contact
+    from creme.persons.models import Contact
 
-    from crudity.utils import decode_b64binary, get_unicode_decoded_str
+    from creme.crudity.utils import decode_b64binary, get_unicode_decoded_str
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

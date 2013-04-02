@@ -31,16 +31,16 @@ from django.conf import settings
 from django.utils import formats
 from django.utils.translation import ugettext as _
 
-from creme_core.models import Relation, RelationType
-from creme_core.utils.meta import get_instance_field_info
-from creme_core.views.file_handling import handle_uploaded_file, MAXINT
+from creme.creme_core.models import Relation, RelationType
+from creme.creme_core.utils.meta import get_instance_field_info
+from creme.creme_core.views.file_handling import handle_uploaded_file, MAXINT
 
-from media_managers.models import Image
+from creme.media_managers.models import Image
 
-from persons.models import Organisation, Position, Contact, Civility, Address
-from persons.constants import REL_SUB_EMPLOYED_BY
+from creme.persons.models import Organisation, Position, Contact, Civility, Address
+from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
-from activesync.utils import get_b64encoded_img_of_max_weight
+from creme.activesync.utils import get_b64encoded_img_of_max_weight
 
 
 def get_encoded_contact_img(contact=None, needs_attr=False, *args, **kwargs):

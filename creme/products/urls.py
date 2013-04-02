@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls.defaults import patterns
+from django.conf.urls import patterns
 
-urlpatterns = patterns('products.views',
+urlpatterns = patterns('creme.products.views',
     (r'^$', 'portal.portal'),
 
     (r'^products$',                         'product.listview'),

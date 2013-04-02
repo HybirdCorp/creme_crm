@@ -8,10 +8,10 @@ try:
 
     from django.core.files import File
 
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from activesync.wbxml.dtd import AirsyncDTD_Reverse, AirsyncDTD_Forward
-    from activesync.wbxml.codec import WBXMLEncoder, WBXMLDecoder, WrongXMLType
+    from creme.activesync.wbxml.dtd import AirsyncDTD_Reverse, AirsyncDTD_Forward
+    from creme.activesync.wbxml.codec import WBXMLEncoder, WBXMLDecoder, WrongXMLType
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

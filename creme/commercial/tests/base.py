@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from creme_core.models import CremePropertyType
-from creme_core.tests.base import CremeTestCase
+from creme.creme_core.models import CremePropertyType
+from creme.creme_core.tests.base import CremeTestCase
 
-from commercial.models import MarketSegment
+from creme.commercial.models import MarketSegment
 
 
 class CommercialBaseTestCase(CremeTestCase):

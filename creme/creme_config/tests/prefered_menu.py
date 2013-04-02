@@ -3,9 +3,9 @@
 try:
     from django.utils.translation import ugettext as _
 
-    from creme_core.models import PreferedMenuItem
-    from creme_core.gui.menu import creme_menu
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models import PreferedMenuItem
+    from creme.creme_core.gui.menu import creme_menu
+    from creme.creme_core.tests.base import CremeTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

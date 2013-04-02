@@ -35,14 +35,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.validators import validate_email
 from django.db.models.query import QuerySet
 
-from creme_core.models import RelationType, CremeEntity
-from creme_core.utils import creme_entity_content_types
-from creme_core.utils.queries import get_q_from_dict
-from creme_core.utils.date_range import date_range_registry
-from creme_core.forms.widgets import (CTEntitySelector, EntitySelector, SelectorList, RelationSelector, ActionButtonList,
+from creme.creme_core.models import RelationType, CremeEntity
+from creme.creme_core.utils import creme_entity_content_types
+from creme.creme_core.utils.queries import get_q_from_dict
+from creme.creme_core.utils.date_range import date_range_registry
+from creme.creme_core.forms.widgets import (CTEntitySelector, EntitySelector, SelectorList, RelationSelector, ActionButtonList,
                                       ListViewWidget, ListEditionWidget, CalendarWidget, TimeWidget, DateRangeWidget,
                                       ColorPickerWidget, DurationWidget)
-from creme_core.constants import REL_SUB_HAS
+from creme.creme_core.constants import REL_SUB_HAS
 
 
 __all__ = ('GenericEntityField', 'MultiGenericEntityField',
@@ -618,7 +618,7 @@ class CreatorEntityField(JSONField):
 
         model = self.model
 
-        from creme_core.gui import quickforms_registry
+        from creme.creme_core.gui import quickforms_registry
 
         if quickforms_registry.get_form(model) is None:
             return

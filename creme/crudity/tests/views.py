@@ -3,12 +3,12 @@
 try:
     from django.contrib.contenttypes.models import ContentType
 
-    from crudity.models.actions import WaitingAction
-    from crudity.models.history import History
-    from crudity.registry import FetcherInterface, crudity_registry
-    from crudity.tests.base import CrudityTestCase, ContactFakeBackend, FakeFetcher, FakeInput
+    from creme.crudity.models.actions import WaitingAction
+    from creme.crudity.models.history import History
+    from creme.crudity.registry import FetcherInterface, crudity_registry
+    from creme.crudity.tests.base import CrudityTestCase, ContactFakeBackend, FakeFetcher, FakeInput
 
-    from persons.models import Contact
+    from creme.persons.models import Contact
 except Exception as e:
     print 'Error:', e
 

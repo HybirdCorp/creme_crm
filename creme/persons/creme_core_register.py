@@ -20,17 +20,17 @@
 
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.registry import creme_registry
-from creme_core.gui import (creme_menu, button_registry, block_registry, icon_registry,
+from creme.creme_core.registry import creme_registry
+from creme.creme_core.gui import (creme_menu, button_registry, block_registry, icon_registry,
                             quickforms_registry, csv_form_registry, bulk_update_registry,
                             merge_form_registry)
 
-from persons.models import Contact, Organisation
-from persons.buttons import button_list
-from persons.blocks import block_list, ContactBlock, OrganisationBlock
-from persons.forms.quick import ContactQuickForm, OrganisationQuickForm
-from persons.forms.csv_import import get_csv_form_builder
-from persons.forms.merge import get_merge_form_builder
+from creme.persons.models import Contact, Organisation
+from creme.persons.buttons import button_list
+from creme.persons.blocks import block_list, ContactBlock, OrganisationBlock
+from creme.persons.forms.quick import ContactQuickForm, OrganisationQuickForm
+from creme.persons.forms.csv_import import get_csv_form_builder
+from creme.persons.forms.merge import get_merge_form_builder
 
 
 creme_registry.register_entity_models(Contact, Organisation)

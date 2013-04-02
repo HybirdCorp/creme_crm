@@ -7,11 +7,11 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.models import *
-    from creme_core.models.header_filter import *
-    from creme_core.tests.base import CremeTestCase
+    from creme.creme_core.models import *
+    from creme.creme_core.models.header_filter import *
+    from creme.creme_core.tests.base import CremeTestCase
 
-    from persons.models import Contact, Organisation, Civility
+    from creme.persons.models import Contact, Organisation, Civility
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

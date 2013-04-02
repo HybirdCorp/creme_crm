@@ -5,14 +5,14 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
 
-    from creme_core.tests.views.csv_import import CSVImportBaseTestCaseMixin
-    from creme_core.models import Relation, CremeProperty, SetCredentials
-    from creme_core.auth.entity_credentials import EntityCredentials
-    from creme_core.constants import PROP_IS_MANAGED_BY_CREME
+    from creme.creme_core.tests.views.csv_import import CSVImportBaseTestCaseMixin
+    from creme.creme_core.models import Relation, CremeProperty, SetCredentials
+    from creme.creme_core.auth.entity_credentials import EntityCredentials
+    from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
-    from persons.tests.base import _BaseTestCase
-    from persons.models import *
-    from persons.constants import *
+    from creme.persons.tests.base import _BaseTestCase
+    from creme.persons.models import *
+    from creme.persons.constants import *
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

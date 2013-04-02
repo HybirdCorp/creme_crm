@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from django.conf.urls.defaults import patterns
+from django.conf.urls import patterns
 
-urlpatterns = patterns('cti.views',
+urlpatterns = patterns('creme.cti.views',
     (r'^add_phonecall$',                    'create_phonecall_as_caller'),
     (r'^respond_to_a_call$',                'respond_to_a_call'),
 

@@ -3,8 +3,8 @@
 try:
     from os.path import join, dirname, abspath
 
-    from activesync.commands.foldersync import FolderSync
-    from activesync.tests.commands.base import BaseASTestCase
+    from creme.activesync.commands.foldersync import FolderSync
+    from creme.activesync.tests.commands.base import BaseASTestCase
 except Exception as e:
     print 'Error:', e
 

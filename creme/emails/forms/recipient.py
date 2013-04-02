@@ -23,11 +23,11 @@ from django.forms import ValidationError, FileField
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_unicode
 
-from creme_core.forms import CremeForm, FieldBlockManager
-from creme_core.forms.fields import MultiEmailField
-from creme_core.utils import chunktools
+from creme.creme_core.forms import CremeForm, FieldBlockManager
+from creme.creme_core.forms.fields import MultiEmailField
+from creme.creme_core.utils import chunktools
 
-from emails.models import EmailRecipient
+from creme.emails.models import EmailRecipient
 
 
 class MailingListAddRecipientsForm(CremeForm):

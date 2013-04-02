@@ -25,13 +25,13 @@ from django.db.models import (CharField, IntegerField, DateTimeField, TextField,
 from django.db.models.fields.related import ManyToManyField
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import CremeEntity, CremeModel
-from creme_core.models.fields import DurationField, CremeUserForeignKey
+from creme.creme_core.models import CremeEntity, CremeModel
+from creme.creme_core.models.fields import DurationField, CremeUserForeignKey
 
-from creme_config.models.setting import SettingValue
+from creme.creme_config.models.setting import SettingValue
 
-from activities.constants import *
-from activities.utils import get_ical_date
+from creme.activities.constants import *
+from creme.activities.utils import get_ical_date
 
 
 class Calendar(CremeModel):

@@ -23,12 +23,12 @@ from django.shortcuts import render
 from django.template.context import RequestContext
 from django.contrib.auth.decorators import login_required, permission_required
 
-from creme_core.models import CustomField
-from creme_core.views.generic import add_model_with_popup, edit_model_with_popup
-from creme_core.utils import get_ct_or_404, get_from_POST_or_404, jsonify
+from creme.creme_core.models import CustomField
+from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
+from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404, jsonify
 
-from creme_config.forms.custom_fields import CustomFieldsCTAddForm, CustomFieldsAddForm, CustomFieldsEditForm
-from creme_config.blocks import custom_fields_block
+from creme.creme_config.forms.custom_fields import CustomFieldsCTAddForm, CustomFieldsAddForm, CustomFieldsEditForm
+from creme.creme_config.blocks import custom_fields_block
 
 
 @login_required

@@ -27,8 +27,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeModel
-from creme_core.utils.meta import get_verbose_field_name, ModelFieldEnumerator, get_model_field_info
+from creme.creme_core.models import CremeModel
+from creme.creme_core.utils.meta import get_verbose_field_name, ModelFieldEnumerator, get_model_field_info
 
 
 logger = logging.getLogger(__name__)

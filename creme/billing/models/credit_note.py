@@ -21,9 +21,9 @@
 from django.db.models import ForeignKey, PROTECT
 from django.utils.translation import ugettext_lazy as _
 
-from creme_core.models import Relation
+from creme.creme_core.models import Relation
 
-from billing.constants import REL_SUB_CREDIT_NOTE_APPLIED
+from creme.billing.constants import REL_SUB_CREDIT_NOTE_APPLIED
 from base import Base
 from other_models import CreditNoteStatus
 

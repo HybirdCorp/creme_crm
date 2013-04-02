@@ -20,7 +20,7 @@
 
 from logging import warning
 
-from creme_core.utils.imports import find_n_import
+from creme.creme_core.utils.imports import find_n_import
 
 class ReportBackendRegistry(object):
     def __init__(self):

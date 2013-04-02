@@ -27,10 +27,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import CremeModel, CremeEntity
-from creme_core.signals import pre_merge_related
+from creme.creme_core.models import CremeModel, CremeEntity
+from creme.creme_core.signals import pre_merge_related
 
-from activities.models import Activity
+from creme.activities.models import Activity
 
 
 class CommercialApproach(CremeModel):

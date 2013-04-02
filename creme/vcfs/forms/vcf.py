@@ -19,6 +19,7 @@
 ################################################################################
 
 import base64
+import logging
 import os
 from urllib import urlretrieve
 from urllib2 import urlopen
@@ -31,19 +32,20 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 
-from creme_core.models import RelationType, Relation
-from creme_core.forms import CremeForm, CremeEntityForm, CremeEntityField, CremeModelWithUserForm
-from creme_core.utils.secure_filename import secure_filename
-from creme_core.views.file_handling import handle_uploaded_file
+from creme.creme_core.models import RelationType, Relation
+from creme.creme_core.forms import CremeForm, CremeEntityForm, CremeEntityField, CremeModelWithUserForm
+from creme.creme_core.utils.secure_filename import secure_filename
+from creme.creme_core.views.file_handling import handle_uploaded_file
 
-from media_managers.models import Image
+from creme.media_managers.models import Image
 
-from persons.models import Contact, Civility, Position, Organisation, Address
-from persons.constants import REL_SUB_EMPLOYED_BY
+from creme.persons.models import Contact, Civility, Position, Organisation, Address
+from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
-from vcfs import vcf_lib
+from creme.vcfs import vcf_lib
 
 
+logger = logging.getLogger(__name__)
 URL_START = ('http://', 'https://', 'www.')
 IMG_UPLOAD_PATH = Image._meta.get_field('image').upload_to
 
@@ -341,7 +343,8 @@ class VcfImportForm(CremeModelWithUserForm):
                     #TODO: factorise with activesync ??
                     image_format = Image.get_image_format(image_encoded)
                     img_path     = handle_uploaded_file(ContentFile(base64.decodestring(image_encoded)), path=[IMG_UPLOAD_PATH], name='.'.join([img_name, image_format]))
-                except:
+                except Exception as e:
+                    logger.exception('VcfImportForm.save()')
                     img_path = ''
 
             if img_path:
