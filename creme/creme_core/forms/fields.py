@@ -155,10 +155,7 @@ class JSONField(CharField):
 
         if not entity_pk:
             if self.required:
-                ValidationError(self.error_messages['doesnotexist'],
-                                params={'ctype': ctype.pk, 'entity': entity_pk}
-                               )
-
+                raise ValidationError(self.error_messages['required'])
         else:
             model = ctype.model_class()
             assert issubclass(model, CremeEntity)
