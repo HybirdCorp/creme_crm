@@ -7,7 +7,7 @@ try:
 
     from creme.creme_core.models import HeaderFilter, HeaderFilterItem, CremeEntity, RelationType, CustomField
     from creme.creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION
-    from creme.creme_core.tests.views.base import ViewsTestCase
+    from .base import ViewsTestCase
 
     from creme.persons.models import Contact, Organisation
 except Exception as e:

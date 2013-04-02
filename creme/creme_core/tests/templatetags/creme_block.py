@@ -6,10 +6,10 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.models import (BlockDetailviewLocation, BlockPortalLocation,
-                                   BlockMypageLocation, InstanceBlockConfigItem,
-                                   Relation)
+                                         BlockMypageLocation, InstanceBlockConfigItem,
+                                         Relation)
     from creme.creme_core.gui.block import block_registry, Block, SimpleBlock, BlocksManager
-    from creme.creme_core.tests.base import CremeTestCase
+    from ..base import CremeTestCase
 
     from creme.persons.models import Contact, Organisation
 except Exception as e:

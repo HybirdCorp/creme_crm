@@ -23,9 +23,9 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.gui import creme_menu, button_registry, block_registry, icon_registry, bulk_update_registry
 
-from creme.billing.models import Invoice, Quote, SalesOrder, CreditNote, TemplateBase, Line, ServiceLine, ProductLine #Base
-from creme.billing.blocks import block_list, BillingBlock
-from creme.billing.buttons import button_list
+from .models import Invoice, Quote, SalesOrder, CreditNote, TemplateBase, Line, ServiceLine, ProductLine #Base
+from .blocks import block_list, BillingBlock
+from .buttons import button_list
 
 
 creme_registry.register_app('billing', _(u'Billing'), '/billing')

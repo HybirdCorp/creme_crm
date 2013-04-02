@@ -24,13 +24,13 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 
 from creme.creme_config.models import SettingKey, SettingValue
 
-from creme.crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
+from .constants import SETTING_CRUDITY_SANDBOX_BY_USER
 
 
 class Populator(BasePopulator):
     def populate(self, *args, **kwargs):
         sk = SettingKey.create(pk=SETTING_CRUDITY_SANDBOX_BY_USER,
                                description=_(u"Are waiting actions are by user?"),
-                               app_label='crudity', type=SettingKey.BOOL
+                               app_label='crudity', type=SettingKey.BOOL,
                               )
         SettingValue.create_if_needed(key=sk, user=None, value=False)

@@ -23,9 +23,10 @@ from datetime import timedelta
 from django.db.models.query_utils import Q
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.models.relation import Relation
+from creme.creme_core.models import Relation
 
-from creme.activities.constants import REL_SUB_PART_2_ACTIVITY
+from .constants import REL_SUB_PART_2_ACTIVITY
+from .models import Activity
 
 
 def get_last_day_of_a_month(date):
@@ -44,8 +45,6 @@ def get_last_day_of_a_month(date):
 
 
 def check_activity_collisions(activity_start, activity_end, participants, busy=True, exclude_activity_id=None):
-    from creme.activities.models.activity import Activity
-
     collision_test = ~(Q(end__lte=activity_start) | Q(start__gte=activity_end))
     collisions     = []
 

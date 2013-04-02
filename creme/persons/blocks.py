@@ -29,8 +29,8 @@ from creme.activities.models import Activity
 from creme.activities.constants import (REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT,
                                   REL_SUB_LINKED_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY)
 
-from creme.persons.models import Contact, Organisation, Address
-from creme.persons.constants import *
+from .models import Contact, Organisation, Address
+from .constants import *
 
 
 class ContactBlock(SimpleBlock):

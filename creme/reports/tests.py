@@ -29,8 +29,8 @@ try:
     from creme.persons.models import Contact, Organisation, LegalForm
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_OBJ_CUSTOMER_SUPPLIER
 
-    from creme.reports.models import Field, Report, ReportGraph
-    from creme.reports.models.graph import RGT_MONTH
+    from .models import Field, Report, ReportGraph
+    from .models.graph import RGT_MONTH
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

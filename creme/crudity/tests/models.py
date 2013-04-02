@@ -10,8 +10,8 @@ try:
 
     from creme.persons.models import Contact
 
-    from creme.crudity.models import WaitingAction
-    from creme.crudity.tests.base import CrudityTestCase
+    from ..models import WaitingAction
+    from .base import CrudityTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

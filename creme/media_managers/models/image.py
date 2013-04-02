@@ -36,7 +36,7 @@ from django.utils.html import escape
 from creme.creme_core.models.entity import CremeEntity
 from creme.creme_core.gui.field_printers import image_size
 
-from other_models import MediaCategory
+from .other_models import MediaCategory
 
 #from settings import MEDIA_URL
 

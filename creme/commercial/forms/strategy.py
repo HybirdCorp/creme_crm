@@ -26,7 +26,7 @@ from creme.creme_core.forms import CremeForm, CremeModelForm, CremeEntityForm, F
 
 from creme.persons.models import Organisation
 
-from creme.commercial.models import Strategy, MarketSegment, MarketSegmentDescription, CommercialAsset, MarketSegmentCharm
+from ..models import Strategy, MarketSegment, MarketSegmentDescription, CommercialAsset, MarketSegmentCharm
 
 
 class StrategyForm(CremeEntityForm):

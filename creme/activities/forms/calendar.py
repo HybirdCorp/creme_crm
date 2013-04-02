@@ -24,7 +24,7 @@ from django.contrib.auth.models import User
 
 from creme.creme_core.forms.base import CremeModelForm
 
-from creme.activities.models.activity import Calendar
+from ..models import Calendar
 
 
 class CalendarForm(CremeModelForm):

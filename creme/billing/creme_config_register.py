@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from models import InvoiceStatus, QuoteStatus, SalesOrderStatus, CreditNoteStatus, PaymentTerms, AdditionalInformation, Vat, SettlementTerms
+from .models import (InvoiceStatus, QuoteStatus, SalesOrderStatus, CreditNoteStatus,
+                     PaymentTerms, AdditionalInformation, Vat, SettlementTerms)
 
 
 to_register = ((InvoiceStatus,         'invoice_status'),

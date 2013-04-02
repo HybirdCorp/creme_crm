@@ -4,7 +4,7 @@ try:
     from django.template import Template, Context
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.tests.base import CremeTestCase
+    from ..base import CremeTestCase
 
     from creme.persons.models import Organisation
 except Exception as e:

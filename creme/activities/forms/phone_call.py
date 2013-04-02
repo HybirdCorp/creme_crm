@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,8 @@ from datetime import datetime, timedelta #, time
 #from creme.creme_core.forms import CremeDateTimeField, CremeTimeField
 
 from creme.activities.models import PhoneCall #PhoneCallType
-from activity import RelatedActivityCreateForm, ActivityCreateForm
+
+from .activity import RelatedActivityCreateForm, ActivityCreateForm
 
 
 def _init_fields(fields):
@@ -46,7 +47,6 @@ class RelatedPhoneCallCreateForm(RelatedActivityCreateForm):
 
         if not self.instance.id: #TODO: useful (create -> instance not created ??!!)
             _init_fields(self.fields)
-
 
 
 class PhoneCallCreateForm(ActivityCreateForm):

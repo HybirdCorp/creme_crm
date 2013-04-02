@@ -3,8 +3,8 @@
 try:
     from django.utils.translation import ugettext as _
 
-    from creme.emails.tests.base import _EmailsTestCase
-    from creme.emails.models import EmailTemplate
+    from .base import _EmailsTestCase
+    from ..models import EmailTemplate
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

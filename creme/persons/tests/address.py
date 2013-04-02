@@ -5,8 +5,8 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.persons.models import Address, Organisation, Contact
-    from creme.persons.blocks import other_address_block
+    from ..models import Address, Organisation, Contact
+    from ..blocks import other_address_block
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

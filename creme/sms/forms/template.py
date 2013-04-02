@@ -25,8 +25,8 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeEntityForm
 
-from creme.sms.encoding import gsm_encoded_content, SMS_MAX_LENGTH
-from creme.sms.models import MessageTemplate
+from ..encoding import gsm_encoded_content, SMS_MAX_LENGTH
+from ..models import MessageTemplate
 
 
 _FORBIDEN = u"^ { } \\ [ ~ ] | €" #TODO: given by the backend ??

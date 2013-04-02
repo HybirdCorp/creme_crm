@@ -33,14 +33,14 @@ from django.utils.simplejson import JSONEncoder
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.decorators import login_required
 
-from creme.creme_core.models import CremeEntity, CustomField, EntityCredentials
-from creme.creme_core.gui.bulk_update import bulk_update_registry
-from creme.creme_core.forms import CremeEntityForm
-from creme.creme_core.forms.bulk import _get_choices, EntitiesBulkUpdateForm, _FIELDS_WIDGETS, EntityInnerEditForm
-from creme.creme_core.forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseForm
-from creme.creme_core.views.generic import inner_popup, list_view_popup_from_widget
-from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify
-from creme.creme_core.utils.meta import ModelFieldEnumerator #get_flds_with_fk_flds_str
+from ..models import CremeEntity, CustomField, EntityCredentials
+from ..gui.bulk_update import bulk_update_registry
+from ..forms import CremeEntityForm
+from ..forms.bulk import _get_choices, EntitiesBulkUpdateForm, _FIELDS_WIDGETS, EntityInnerEditForm
+from ..forms.merge import form_factory as merge_form_factory, MergeEntitiesBaseForm
+from ..views.generic import inner_popup, list_view_popup_from_widget
+from ..utils import get_ct_or_404, get_from_POST_or_404, get_from_GET_or_404, jsonify
+from ..utils.meta import ModelFieldEnumerator #get_flds_with_fk_flds_str
 
 
 logger = logging.getLogger(__name__)

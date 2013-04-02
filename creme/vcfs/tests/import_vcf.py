@@ -15,8 +15,8 @@ try:
     from creme.persons.models import Contact, Organisation, Address
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
-    from creme.vcfs import vcf_lib
-    from creme.vcfs.forms import vcf as vcf_forms
+    from ..vcf_lib import readOne as read_vcf
+    from ..forms import vcf as vcf_forms
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -76,7 +76,7 @@ class VcfImportTestCase(CremeTestCase):
 
         self.assertIn('value="1"', unicode(form['vcf_step']))
 
-        firt_name, sep, last_name = vcf_lib.readOne(content).fn.value.partition(' ')
+        firt_name, sep, last_name = read_vcf(content).fn.value.partition(' ')
         self.assertEqual(form['first_name'].field.initial, firt_name)
         self.assertEqual(form['last_name'].field.initial,  last_name)
 
@@ -98,7 +98,7 @@ END:VCARD"""
         with self.assertNoException():
             fields = response.context['form'].fields
 
-        vobj = vcf_lib.readOne(content)
+        vobj = read_vcf(content)
         n_value = vobj.n.value
 
         self.assertEqual(fields['civility'].help_text, _(u'Read in VCF File : ') + n_value.prefix)
@@ -138,7 +138,7 @@ END:VCARD"""
         with self.assertNoException():
             fields = response.context['form'].fields
 
-        vobj = vcf_lib.readOne(content)
+        vobj = read_vcf(content)
         self.assertEqual(fields['work_name'].initial,     vobj.org.value[0])
         self.assertEqual(fields['work_phone'].initial,    vobj.tel.value)
         self.assertEqual(fields['work_email'].initial,    vobj.email.value)
@@ -167,7 +167,7 @@ END:VCARD"""
         with self.assertNoException():
             fields = response.context['form'].fields
 
-        vobj = vcf_lib.readOne(content)
+        vobj = read_vcf(content)
         help_prefix = _(u'Read in VCF File without type : ')
         adr_value = vobj.adr.value
         adr = ', '.join([adr_value.box, adr_value.street, adr_value.city, adr_value.region, adr_value.code, adr_value.country])
@@ -763,7 +763,7 @@ END:VCARD"""
         orga = self.refresh(orga)
         billing_address = orga.billing_address
 
-        vobj = vcf_lib.readOne(content)
+        vobj = read_vcf(content)
         adr = vobj.adr.value
         org = vobj.org.value[0]
         self.assertEqual(orga.name,                  org)
@@ -827,7 +827,7 @@ END:VCARD"""
                                          )
         orga    = self.get_object_or_fail(Organisation, id=orga_id)
 
-        vobj = vcf_lib.readOne(content)
+        vobj = read_vcf(content)
         adr = vobj.adr.value
 
         self.assertEqual(address.name,       vobj.org.value[0])

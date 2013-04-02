@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ from logging import warn
 
 from django.utils.encoding import smart_str, smart_unicode
 
-from creme.creme_core.registry import creme_registry
+from ..registry import creme_registry
 
 #TODO: merge the 2 menu api (idea: use tags ?)
 #TODO: refactor code.....

@@ -3,7 +3,7 @@
 from creme.creme_core.models import CremePropertyType
 from creme.creme_core.tests.base import CremeTestCase
 
-from creme.commercial.models import MarketSegment
+from ..models import MarketSegment
 
 
 class CommercialBaseTestCase(CremeTestCase):

@@ -33,10 +33,10 @@ from creme.creme_core.models import EntityCredentials
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
 from creme.creme_core.utils import get_from_POST_or_404
 
-from creme.activities.models import Activity, Calendar
-from creme.activities.utils import get_last_day_of_a_month, check_activity_collisions
-from creme.activities.forms.calendar import CalendarForm
-from creme.activities.constants import ACTIVITYTYPE_INDISPO
+from ..models import Activity, Calendar
+from ..utils import get_last_day_of_a_month, check_activity_collisions
+from ..forms.calendar import CalendarForm
+from ..constants import ACTIVITYTYPE_INDISPO
 
 
 @login_required

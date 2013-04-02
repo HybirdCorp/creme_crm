@@ -24,7 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.models import CremeEntity
 
-from creme.recurrents.models import Periodicity
+from .periodicity import Periodicity
 
 
 class RecurrentGenerator(CremeEntity):

@@ -4,7 +4,7 @@ try:
     from os.path import join, dirname, abspath
 
     #from creme.activesync.commands.airsync import AirSync
-    from creme.activesync.tests.commands.base import BaseASTestCase
+    from .base import BaseASTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

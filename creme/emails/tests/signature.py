@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from creme.emails.tests.base import _EmailsTestCase
-    from creme.emails.models import EmailSignature, EmailTemplate
+    from .base import _EmailsTestCase
+    from ..models import EmailSignature, EmailTemplate
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

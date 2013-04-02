@@ -7,7 +7,7 @@ try:
 
     from creme.creme_core.forms.entity_filter import *
     from creme.creme_core.models import CremePropertyType, RelationType
-    from creme.creme_core.tests.forms.base import FieldTestCase
+    from .base import FieldTestCase
 
     from creme.persons.models import Organisation, Contact
 except Exception as e:

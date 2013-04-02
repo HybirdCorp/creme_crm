@@ -5,7 +5,7 @@ try:
 
     from django.db.models import Max
 
-    from creme.creme_core.tests.forms.base import FieldTestCase
+    from .base import FieldTestCase
     from creme.creme_core.forms.fields import _EntityField, CremeEntityField, MultiCremeEntityField
     from creme.creme_core.models import CremeEntity
 

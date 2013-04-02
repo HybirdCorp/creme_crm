@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,10 +28,10 @@ from creme.creme_core.models import CremeEntity, InstanceBlockConfigItem, Relati
 from creme.creme_core.utils import jsonify, get_ct_or_404
 
 #from creme.reports.models.report import Report
-from creme.reports.models.graph import (ReportGraph, verbose_report_graph_types,
-                                  RGT_FK, RGT_RANGE, RGT_YEAR, RGT_MONTH, RGT_DAY,
-                                  RGT_RELATION, fetch_graph_from_instance_block)
-from creme.reports.forms.graph import ReportGraphAddForm
+from ..models.graph import (ReportGraph, verbose_report_graph_types,
+                            RGT_FK, RGT_RANGE, RGT_YEAR, RGT_MONTH, RGT_DAY,
+                            RGT_RELATION, fetch_graph_from_instance_block)
+from ..forms.graph import ReportGraphAddForm
 
 
 @login_required
@@ -45,7 +45,7 @@ def add(request, report_id):
 @permission_required('reports')
 def edit(request, graph_id):
     return edit_related_to_entity(request, graph_id, ReportGraph,
-                                  ReportGraphAddForm, _(u'Edit a graph for <%s>')
+                                  ReportGraphAddForm, _(u'Edit a graph for <%s>'),
                                  )
 
 @login_required

@@ -9,7 +9,7 @@ try:
 
     from creme.creme_core.models import *
     from creme.creme_core.models.header_filter import *
-    from creme.creme_core.tests.base import CremeTestCase
+    from ..base import CremeTestCase
 
     from creme.persons.models import Contact, Organisation, Civility
 except Exception as e:

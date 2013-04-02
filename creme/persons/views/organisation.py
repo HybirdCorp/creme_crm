@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,9 +25,9 @@ from django.contrib.auth.decorators import login_required, permission_required
 from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
-from creme.persons.models import Organisation
-from creme.persons.forms.organisation import OrganisationForm
-from creme.persons.constants import REL_SUB_SUSPECT, REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
+from ..models import Organisation
+from ..forms.organisation import OrganisationForm
+from ..constants import REL_SUB_SUSPECT, REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
 
 
 @login_required
@@ -39,12 +39,16 @@ def add(request):
 @login_required
 @permission_required('persons')
 def edit(request, organisation_id):
-    return edit_entity(request, organisation_id, Organisation, OrganisationForm, template='persons/edit_organisation_form.html')
+    return edit_entity(request, organisation_id, Organisation, OrganisationForm,
+                       template='persons/edit_organisation_form.html',
+                      )
 
 @login_required
 @permission_required('persons')
 def detailview(request, organisation_id):
-    return view_entity(request, organisation_id, Organisation, '/persons/organisation', 'persons/view_organisation.html')
+    return view_entity(request, organisation_id, Organisation,
+                       '/persons/organisation', 'persons/view_organisation.html',
+                      )
 
 @login_required
 @permission_required('persons')

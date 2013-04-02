@@ -1,3 +1,3 @@
 # -*- coding: utf-8 -*-
 
-from graph import Graph, RootNode
+from .graph import Graph, RootNode

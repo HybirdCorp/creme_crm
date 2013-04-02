@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from base import ParseError
+from .base import ParseError
 
 escapableCharList = '\\;,Nn"'
 
 
 def stringToTextValues(s, listSeparator=',', charList=None, strict=False):
     """Returns list of strings."""
-
     if charList is None:
         charList = escapableCharList
 

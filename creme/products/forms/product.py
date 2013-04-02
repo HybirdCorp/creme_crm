@@ -26,8 +26,8 @@ from creme.creme_core.forms.fields import MultiCremeEntityField
 from creme.media_managers.models import Image
 from creme.media_managers.forms.widgets import ImageM2MWidget
 
-from creme.products.models import Product
-from creme.products.forms.fields import CategoryField
+from ..models import Product
+from .fields import CategoryField
 
 
 class ProductForm(CremeEntityForm):

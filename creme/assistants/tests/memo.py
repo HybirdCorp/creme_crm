@@ -7,8 +7,8 @@ try:
 
     from creme.creme_core.models import CremeEntity
 
-    from creme.assistants.models import Memo
-    from creme.assistants.tests.base import AssistantsTestCase
+    from ..models import Memo
+    from .base import AssistantsTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

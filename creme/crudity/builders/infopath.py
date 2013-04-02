@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,8 +43,8 @@ from creme.creme_core.utils.meta import is_date_field
 
 from creme.media_managers.models import Image
 
-from creme.crudity.utils import generate_guid_for_field
-from creme.crudity.backends.models import CrudityBackend
+from ..utils import generate_guid_for_field
+from ..backends.models import CrudityBackend
 
 #Don't forget to include xml templates when generating locales !! (django-admin.py makemessages -l fr -e html,xml)
 

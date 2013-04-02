@@ -28,7 +28,7 @@ from creme.creme_core.gui.field_printers import print_many2many
 
 from creme.media_managers.models import Image
 
-from other_models import Category, SubCategory
+from .other_models import Category, SubCategory
 
 
 class Product(CremeEntity):

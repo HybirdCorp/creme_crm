@@ -10,10 +10,10 @@ try:
 
     from creme.persons.models import Contact, Organisation
 
-    from creme.emails.tests.base import _EmailsTestCase
-    from creme.emails.models import (EmailSending, EmailCampaign, EmailRecipient,
-                               EmailTemplate, MailingList, LightWeightEmail)
-    from creme.emails.models.sending import SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED
+    from .base import _EmailsTestCase
+    from ..models import (EmailSending, EmailCampaign, EmailRecipient,
+                          EmailTemplate, MailingList, LightWeightEmail)
+    from ..models.sending import SENDING_TYPE_IMMEDIATE, SENDING_TYPE_DEFERRED
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

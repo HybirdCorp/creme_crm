@@ -11,7 +11,7 @@ try:
 
     from creme.activities.models import Meeting
 
-    from creme.activesync.models import UserSynchronizationHistory, CremeExchangeMapping
+    from ..models import UserSynchronizationHistory, CremeExchangeMapping
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

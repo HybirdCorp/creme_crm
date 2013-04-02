@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-class ReportBackend(object):
 
+class ReportBackend(object):
     def __init__(self, report):
         self.report   = report
 

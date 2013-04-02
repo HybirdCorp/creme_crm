@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,17 +21,16 @@
 from datetime import datetime
 
 from django.db.models import (CharField, IntegerField, DateTimeField, TextField,
-                              ForeignKey, BooleanField, PositiveIntegerField, PROTECT)
-from django.db.models.fields.related import ManyToManyField
+                              BooleanField, PositiveIntegerField, ManyToManyField,
+                              ForeignKey, PROTECT)
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, CremeModel
 from creme.creme_core.models.fields import DurationField, CremeUserForeignKey
 
-from creme.creme_config.models.setting import SettingValue
+from creme.creme_config.models import SettingValue
 
-from creme.activities.constants import *
-from creme.activities.utils import get_ical_date
+from ..constants import *
 
 
 class Calendar(CremeModel):
@@ -80,7 +79,6 @@ class Calendar(CremeModel):
             c.is_default = True
             c.save()
             return c
-
 
 
 class ActivityType(CremeModel):
@@ -140,6 +138,7 @@ class Activity(CremeEntity):
         """Return a normalized iCalendar event string
             /!\ Each parameter has to be separated by \n ONLY no spaces allowed!
             Example : BEGIN:VEVENT\nUID:http://cremecrm.com"""
+        from ..utils import get_ical_date
         return u"""BEGIN:VEVENT
 UID:http://cremecrm.com
 DTSTAMP:%(dtstamp)s

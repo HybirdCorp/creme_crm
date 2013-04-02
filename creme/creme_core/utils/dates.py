@@ -26,6 +26,7 @@ import pytz
 from django.conf import settings
 from django.utils import formats
 
+
 creme_tz = pytz.timezone(settings.TIME_ZONE)
 utc_tz   = pytz.utc
 

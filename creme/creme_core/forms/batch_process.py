@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,13 +25,13 @@ from django.forms import ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.models import CremeEntity, EntityFilter, EntityCredentials
-from creme.creme_core.forms import CremeForm
-from creme.creme_core.forms.fields import JSONField
-from creme.creme_core.forms.widgets import DynamicInput, SelectorList, ChainedInput, PolymorphicInput
-from creme.creme_core.core.batch_process import batch_operator_manager, BatchAction
-from creme.creme_core.utils.chunktools import iter_as_slices
-from creme.creme_core.utils.collections import LimitedList
+from ..core.batch_process import batch_operator_manager, BatchAction
+from ..models import CremeEntity, EntityFilter, EntityCredentials
+from ..utils.chunktools import iter_as_slices
+from ..utils.collections import LimitedList
+from .base import CremeForm
+from .fields import JSONField
+from .widgets import DynamicInput, SelectorList, ChainedInput, PolymorphicInput
 
 
 class BatchActionsWidget(SelectorList):

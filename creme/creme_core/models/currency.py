@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,8 @@
 from django.db.models.fields import BooleanField, CharField
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models.base import CremeModel
+from .base import CremeModel
+
 
 # TODO add the possibility to choose a default currency which will be used everywhere in the CRM
 class Currency(CremeModel):

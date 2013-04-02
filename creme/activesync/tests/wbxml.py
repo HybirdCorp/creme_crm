@@ -10,8 +10,8 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.activesync.wbxml.dtd import AirsyncDTD_Reverse, AirsyncDTD_Forward
-    from creme.activesync.wbxml.codec import WBXMLEncoder, WBXMLDecoder, WrongXMLType
+    from ..wbxml.dtd import AirsyncDTD_Reverse, AirsyncDTD_Forward
+    from ..wbxml.codec import WBXMLEncoder, WBXMLDecoder, WrongXMLType
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

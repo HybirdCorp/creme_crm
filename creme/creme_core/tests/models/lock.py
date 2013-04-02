@@ -2,7 +2,7 @@
 
 try:
     from creme.creme_core.models.lock import Mutex, MutexLockedException, MutexNotLockedException
-    from creme.creme_core.tests.views.base import ViewsTestCase
+    from ..base import CremeTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -10,7 +10,7 @@ except Exception as e:
 __all__ = ('MutexTestCase',)
 
 
-class MutexTestCase(ViewsTestCase):
+class MutexTestCase(CremeTestCase):
     def _get_ids(self):
         return list(Mutex.objects.order_by('id').values_list('id', flat=True))
 

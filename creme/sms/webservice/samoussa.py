@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,14 +17,18 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from django.conf import settings
 from django.utils.simplejson import loads
-from creme.sms.webservice.backend import WSBackEnd
+
+from .backend import WSBackEnd
+
 
 SAMOUSSA_STATUS_WAITING = 'wait'
 SAMOUSSA_STATUS_ACCEPT = 'accept'
 SAMOUSSA_STATUS_SENT = 'sent'
 SAMOUSSA_STATUS_ERROR = 'error'
+
 
 class SamoussaBackEnd(WSBackEnd):
     def connect(self):
@@ -45,12 +49,12 @@ class SamoussaBackEnd(WSBackEnd):
     # curl -u compte21:compte21 --basic --url "http://127.0.0.1:8001/sms/api/piston/message/json?state=accept"
     def list_messages(self, **kwargs):
         return loads(self.get('/sms/api/message/json', **kwargs).read())
-    
+
     # curl -u compte21:compte21 --basic --url "http://127.0.0.1:8001/sms/api/piston/message" -F "content=test" -F "phone=0899653355;4577896652;4785556664" -F "user_data=41" -F "accept=True" -X POST
     def send_messages(self, content, numbers, user_data=None):
         if isinstance(numbers, list):
             numbers = ';'.join(numbers)
-        
+
         return loads(self.post('/sms/api/message', content=content, phone=numbers, user_data=user_data).read())
 
     def get_account(self):

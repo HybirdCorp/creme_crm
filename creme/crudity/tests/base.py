@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 
-from creme.creme_config.models.setting import SettingValue
-
 from creme.creme_core.tests.base import CremeTestCase
+
+from creme.creme_config.models import SettingValue
 
 from creme.persons.models import Contact, Organisation
 
 from creme.documents.models import Document
 
-from creme.crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
-from creme.crudity.backends.models import CrudityBackend
-from creme.crudity.fetchers.base import CrudityFetcher
-from creme.crudity.inputs.base import CrudityInput
+from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER
+from ..backends.models import CrudityBackend
+from ..fetchers.base import CrudityFetcher
+from ..inputs.base import CrudityInput
 
 
 class FakeFetcher(CrudityFetcher):

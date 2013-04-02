@@ -29,8 +29,10 @@ from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
 from creme.media_managers.models import Image
 
-from creme.persons.models import Contact, Address, StaffSize, LegalForm, Sector
-from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
+from ..constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
+from .contact import Contact
+from .address import Address
+from .other_models import StaffSize, LegalForm, Sector
 
 
 class Organisation(CremeEntity):

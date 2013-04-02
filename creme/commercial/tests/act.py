@@ -16,9 +16,9 @@ try:
     from creme.activities.models import Meeting
     from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
 
-    from creme.commercial.models import *
-    from creme.commercial.constants import REL_SUB_COMPLETE_GOAL
-    from creme.commercial.tests.base import CommercialBaseTestCase
+    from ..models import *
+    from ..constants import REL_SUB_COMPLETE_GOAL
+    from .base import CommercialBaseTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,14 +28,14 @@ from django.core.exceptions import ValidationError
 from django.forms.fields import CharField, ChoiceField
 from django.utils.translation import ugettext, ugettext_lazy as _
 
-from creme.creme_core.models import fields, EntityCredentials, CremeEntity
-from creme.creme_core.models.custom_field import CustomField, CustomFieldEnumValue, CustomFieldValue, CustomFieldMultiEnum, CustomFieldEnum
-from creme.creme_core.forms.widgets import DateTimeWidget, CalendarWidget, UnorderedMultipleChoiceWidget, Label, AdaptiveWidget
-from creme.creme_core.forms.base import CremeForm, _CUSTOM_NAME
-from creme.creme_core.forms.fields import AjaxMultipleChoiceField
-from creme.creme_core.utils import entities2unicode, related2unicode
-from creme.creme_core.utils.meta import get_verbose_field_name
-from creme.creme_core.gui.bulk_update import bulk_update_registry
+from ..models import fields, EntityCredentials, CremeEntity
+from ..models.custom_field import CustomField, CustomFieldEnumValue, CustomFieldValue, CustomFieldMultiEnum, CustomFieldEnum
+from ..gui.bulk_update import bulk_update_registry
+from ..utils import entities2unicode, related2unicode
+from ..utils.meta import get_verbose_field_name
+from .base import CremeForm, _CUSTOM_NAME
+from .fields import AjaxMultipleChoiceField
+from .widgets import DateTimeWidget, CalendarWidget, UnorderedMultipleChoiceWidget, Label, AdaptiveWidget
 
 
 _FIELDS_WIDGETS = {

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from django.forms.util import ValidationError
 from django.utils.translation import ugettext as _
 
 #from creme.creme_core.models import CremeEntity
-from creme.creme_core.utils import entities2unicode
+from ..utils import entities2unicode
 
 
 def validate_editable_entities(entities, user):
@@ -50,7 +50,7 @@ def validate_linkable_entities(entities, user):
 def validate_linkable_entity(entity, user):
     try:
         entity.can_link_or_die(user)
-    except PermissionDenied, e:
+    except PermissionDenied as e:
         raise ValidationError(unicode(e))
 
     return entity

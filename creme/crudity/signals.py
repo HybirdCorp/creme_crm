@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,14 +17,16 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from django.contrib.auth.models import User
 
-from creme.crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
+from .constants import SETTING_CRUDITY_SANDBOX_BY_USER
+
 
 def post_save_setting_value(sender, instance, **kwargs):
     """Set is_sandbox_by_user value on CreateFromEmailBackend subclasses because they are singletons"""
-    from creme.crudity.registry import crudity_registry
-    from creme.crudity.models import WaitingAction
+    from .registry import crudity_registry
+    from .models import WaitingAction
 
     if instance.key_id == SETTING_CRUDITY_SANDBOX_BY_USER:
         fetchers = crudity_registry.get_fetchers()

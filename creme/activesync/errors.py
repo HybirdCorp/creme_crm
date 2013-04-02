@@ -58,6 +58,7 @@ SYNC_ERR_VERBOSE = {
     SYNC_ERR_CREME_PERMISSION_DENIED_DELETE_SPECIFIC: _(u"You haven't the right to delete the contact <%s> in Creme"),
 }
 
+
 class CremeActiveSyncError(Exception):
     def __init__(self, msg):
         super(CremeActiveSyncError, self).__init__(SYNC_ERR_VERBOSE.get(msg, msg))

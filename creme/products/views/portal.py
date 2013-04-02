@@ -24,18 +24,18 @@ from creme.creme_core.views.generic import app_portal
 
 from creme.creme_config.utils import generate_portal_url
 
-from creme.products.models import Product, Service
+from ..models import Product, Service
 
 
 def portal(request):
     """
         @Permissions : Acces or Admin to produits app
     """
-    stats = (
-                (_('Number of products'), Product.objects.all().count()),
-                (_('Number of services'), Service.objects.all().count()),
+    stats = ((_('Number of products'), Product.objects.count()),
+             (_('Number of services'), Service.objects.count()),
             )
 
     return app_portal(request, 'products', 'products/portal.html',
                       (Product, Service), stats,
-                      config_url=generate_portal_url('products'))
+                      config_url=generate_portal_url('products'),
+                     )

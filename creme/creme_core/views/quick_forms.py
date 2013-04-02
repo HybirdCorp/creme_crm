@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,9 +26,9 @@ from django.contrib.auth.decorators import login_required
 
 from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
 
-from creme.creme_core.views.generic import inner_popup
-from creme.creme_core.gui.quick_forms import quickforms_registry
-from creme.creme_core.utils import get_ct_or_404
+from ..gui.quick_forms import quickforms_registry
+from ..utils import get_ct_or_404
+from .generic import inner_popup
 
 
 #TODO: it seems there is a problem with formsets : if the 'user' field is empty

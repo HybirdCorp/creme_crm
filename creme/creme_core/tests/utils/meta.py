@@ -6,7 +6,7 @@ try:
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.tests.base import CremeTestCase
+    from ..base import CremeTestCase
     from creme.creme_core.models import CremePropertyType, CremeProperty, CremeEntity #, PreferedMenuItem
     from creme.creme_core.utils import meta
 

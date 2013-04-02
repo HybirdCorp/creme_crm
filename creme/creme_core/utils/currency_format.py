@@ -19,9 +19,11 @@ from django.conf import settings
 from django.utils import translation
 
 # Windows list locale code : http://msdn.microsoft.com/en-us/library/39cwe7zf%28vs.71%29.aspx
-from creme.creme_config.models.setting import SettingKey, SettingValue
-from creme.creme_core.constants import DISPLAY_CURRENCY_LOCAL_SYMBOL
-from creme.creme_core.models.currency import Currency
+from creme.creme_config.models import SettingKey, SettingValue
+
+from ..constants import DISPLAY_CURRENCY_LOCAL_SYMBOL
+from ..models import Currency
+
 
 WINDOWS = 'nt'
 

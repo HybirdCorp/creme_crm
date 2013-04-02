@@ -24,8 +24,8 @@ from django.conf import settings
 
 from creme import __version__
 
-from creme.creme_core.gui.block import BlocksManager
-from creme.creme_core.utils.media import get_current_theme, get_current_theme_vb
+from .gui.block import BlocksManager
+from .utils.media import get_current_theme, get_current_theme_vb
 
 
 def get_logo_url(request):

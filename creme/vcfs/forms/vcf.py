@@ -42,7 +42,7 @@ from creme.media_managers.models import Image
 from creme.persons.models import Contact, Civility, Position, Organisation, Address
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
-from creme.vcfs import vcf_lib
+from ..vcf_lib import readOne as read_vcf
 
 
 logger = logging.getLogger(__name__)
@@ -56,7 +56,7 @@ class VcfForm(CremeForm):
     def clean_vcf_file(self):
         file_obj = self.cleaned_data['vcf_file']
         try:
-            vcf_data = vcf_lib.readOne(file_obj)
+            vcf_data = read_vcf(file_obj)
         except Exception as e:
            raise ValidationError(ugettext(u'VCF file is invalid') + ' [%s]' % str(e))
 
@@ -361,7 +361,7 @@ class VcfImportForm(CremeModelWithUserForm):
                                                              country=cleaned_data['country'],
                                                              zipcode=cleaned_data['code'],
                                                              department=cleaned_data['region'],
-                                                             content_type_id=ContentType.objects.get_for_model(Contact).id,
+                                                             content_type_id=_get_ct(Contact).id,
                                                              object_id=contact.id,
                                                             )
             save_contact = True
@@ -403,7 +403,7 @@ class VcfImportForm(CremeModelWithUserForm):
                                                                               country=cleaned_data['work_country'],
                                                                               zipcode=cleaned_data['work_code'],
                                                                               department=cleaned_data['work_region'],
-                                                                              content_type_id=ContentType.objects.get_for_model(Organisation).id,
+                                                                              content_type_id=_get_ct(Organisation).id,
                                                                               object_id=organisation.id,
                                                                              )
                 save_org = True
@@ -422,7 +422,7 @@ class VcfImportForm(CremeModelWithUserForm):
                                                                           country=cleaned_data['work_country'],
                                                                           zipcode=cleaned_data['work_code'],
                                                                           department=cleaned_data['work_region'],
-                                                                          content_type_id=ContentType.objects.get_for_model(Organisation).id,
+                                                                          content_type_id=_get_ct(Organisation).id,
                                                                           object_id=organisation.id,
                                                                          )
                     save_org = True
@@ -433,7 +433,7 @@ class VcfImportForm(CremeModelWithUserForm):
             Relation.objects.create(user=user,
                                     subject_entity=contact,
                                     type=cleaned_data['relation'],
-                                    object_entity=organisation
+                                    object_entity=organisation,
                                    )
 
         if save_contact:

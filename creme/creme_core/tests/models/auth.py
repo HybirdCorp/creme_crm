@@ -8,7 +8,7 @@ try:
     from django.contrib.auth.models import User, Permission
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.tests.base import CremeTestCase
+    from ..base import CremeTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import(CremeEntity, CremePropertyType, CremeProperty,
                                         Relation, UserRole, SetCredentials)

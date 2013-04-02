@@ -14,14 +14,14 @@ try:
 
     from creme.creme_core.models import CremeEntity, Language
 
-    from creme.crudity.backends.models import CrudityBackend
-    from creme.crudity.builders.infopath import InfopathFormBuilder, InfopathFormField
-    from creme.crudity.registry import crudity_registry #CRUDityRegistry
-    from creme.crudity.tests.base import CrudityTestCase, ContactFakeBackend, DocumentFakeBackend, FakeFetcher, FakeInput
-
     from creme.documents.models import Document
 
     from creme.persons.models import Contact
+
+    from ..backends.models import CrudityBackend
+    from ..builders.infopath import InfopathFormBuilder, InfopathFormField
+    from ..registry import crudity_registry #CRUDityRegistry
+    from .base import CrudityTestCase, ContactFakeBackend, DocumentFakeBackend, FakeFetcher, FakeInput
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

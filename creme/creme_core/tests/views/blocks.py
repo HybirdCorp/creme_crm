@@ -6,7 +6,7 @@ try:
     from django.core.serializers.json import simplejson
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.tests.base import CremeTestCase
+    from ..base import CremeTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.blocks import RelationsBlock
     from creme.creme_core.models import BlockState, SetCredentials, RelationType, Relation

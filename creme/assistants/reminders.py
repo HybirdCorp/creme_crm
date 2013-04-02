@@ -26,7 +26,7 @@ from django.conf import settings
 
 from creme.creme_core.core.reminder import Reminder
 
-from models import Alert, ToDo
+from .models import Alert, ToDo
 
 
 class ReminderAlert(Reminder):

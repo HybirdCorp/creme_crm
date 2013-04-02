@@ -33,7 +33,7 @@ from creme.creme_core.gui.listview import ListViewState
 from creme.creme_core.views.header_filter import add as add_header_filter
 from creme.creme_core.utils import get_ct_or_404
 from creme.creme_core.utils.queries import get_q_from_dict
-from popup import inner_popup
+from .popup import inner_popup
 
 
 class NoHeaderFilterAvailable(Exception):

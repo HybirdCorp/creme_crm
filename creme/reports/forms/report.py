@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,12 +34,14 @@ from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget, ListView
 from creme.creme_core.forms.fields import AjaxMultipleChoiceField, AjaxModelChoiceField, CremeEntityField, DateRangeField
 #from creme.creme_core.models import Filter, RelationType, CustomField
 from creme.creme_core.models import EntityFilter, RelationType, CustomField
-from creme.creme_core.models.header_filter import HeaderFilter, HeaderFilterItem, HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION, HFI_CALCULATED, HFI_RELATED
-from creme.creme_core.utils.meta import (get_verbose_field_name, get_function_field_verbose_name, ModelFieldEnumerator,
-                                   get_date_fields, get_related_field_verbose_name) #get_flds_with_fk_flds get_flds_with_fk_flds_str
+from creme.creme_core.models.header_filter import (HeaderFilter, HeaderFilterItem, HFI_FIELD, HFI_RELATION,
+                                                   HFI_CUSTOM, HFI_FUNCTION, HFI_CALCULATED, HFI_RELATED)
+from creme.creme_core.utils.meta import (get_verbose_field_name, get_function_field_verbose_name,
+                                         get_date_fields, get_related_field_verbose_name,
+                                         ModelFieldEnumerator) #get_flds_with_fk_flds get_flds_with_fk_flds_str
 
-from creme.reports.models import Report, Field
-from creme.reports.report_aggregation_registry import field_aggregation_registry
+from ..models import Report, Field
+from ..report_aggregation_registry import field_aggregation_registry
 
 
 def _save_field(name, title, order, type):

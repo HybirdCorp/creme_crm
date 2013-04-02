@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,17 +17,20 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 from logging import error
+
 from django.contrib.contenttypes.models import ContentType
 
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
-from creme.persons.models.contact import Contact
+from creme.persons.models import Contact
+
 
 def _get_mapping_from_creme_entity_id(id_):
-    from creme.activesync.models.active_sync import CremeExchangeMapping
+    from .models import CremeExchangeMapping
     try:
         return CremeExchangeMapping.objects.get(creme_entity_id=id_)
-    except CremeExchangeMapping.DoesNotExist, e:
+    except CremeExchangeMapping.DoesNotExist as e:
         error(u"Mapping problem detected with creme_entity_id=%s. Error is %s", id_, e)
 
 

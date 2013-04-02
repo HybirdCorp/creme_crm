@@ -21,9 +21,9 @@
 from django.db.models import ForeignKey, PROTECT
 from django.utils.translation import ugettext_lazy as _
 
-from base import Base
-from templatebase import TemplateBase
-from other_models import SalesOrderStatus
+from .base import Base
+from .templatebase import TemplateBase
+from .other_models import SalesOrderStatus
 
 
 class SalesOrder(Base):

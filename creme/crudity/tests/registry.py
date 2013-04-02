@@ -5,11 +5,11 @@ try:
 
     from creme.documents.models import Document
 
-    from creme.crudity.registry import CRUDityRegistry
-    from creme.crudity.tests.base import (CrudityTestCase, FakeFetcher, ContactFakeBackend,
-                                    OrganisationFakeBackend, DocumentFakeBackend, FakeInput)
+    from ..registry import CRUDityRegistry
+    from .base import (CrudityTestCase, FakeFetcher, ContactFakeBackend,
+                       OrganisationFakeBackend, DocumentFakeBackend, FakeInput)
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class CrudityRegistryTestCase(CrudityTestCase):

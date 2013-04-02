@@ -24,7 +24,7 @@ from creme.creme_core.views.generic import app_portal
 
 from creme.creme_config.utils import generate_portal_url
 
-from creme.commercial.models import Act
+from ..models import Act
 
 
 def portal(request):

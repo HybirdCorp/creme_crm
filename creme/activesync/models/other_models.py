@@ -2,7 +2,7 @@
 
 #################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,21 +18,23 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #################################################################################
 
-from django.db import models
+from django.db.models import ForeignKey, CharField
 
 from creme.creme_core.models import CremeModel, CremeEntity
 
+
 class EntityASData(CremeModel):
+    """Additional values for an entity, present in Active sync but not in Creme
+    For example: a Meeting hasn't an UID but on server side it has.
     """
-        Additional values for an entity, present in Active sync but not in Creme
-        For example: a Meeting hasn't an UID but on server side it has.
-    """
-    entity      = models.ForeignKey(CremeEntity,    verbose_name=u'Target entity')
-    field_name  = models.CharField(u'Field name',   max_length=100)#Exchange field name
-    field_value = models.CharField(u'Field value',  max_length=300)#Exchange field value
+    entity      = ForeignKey(CremeEntity, verbose_name=u'Target entity')
+    field_name  = CharField(u'Field name', max_length=100) #Exchange field name
+    field_value = CharField(u'Field value', max_length=300) #Exchange field value
 
     def __unicode__(self):
-        return u"<EntityASData entity<%s>, field_name<%s>, field_value<%s> >" % (self.entity, self.field_name, self.field_value)
+        return u"<EntityASData entity<%s>, field_name<%s>, field_value<%s> >" % (
+                        self.entity, self.field_name, self.field_value
+                    )
 
     class Meta:
         app_label = 'activesync'

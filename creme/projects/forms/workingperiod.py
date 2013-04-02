@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,8 +25,8 @@ from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms.fields import CremeEntityField
 from creme.creme_core.forms.widgets import DateTimeWidget
 
-from creme.projects.models import WorkingPeriod, Resource
-from creme.projects import constants
+from ..models import WorkingPeriod, Resource
+from ..constants import NOT_STARTED_PK, IN_PROGRESS_PK
 
 
 class WorkingPeriodForm(CremeModelForm):
@@ -49,8 +49,8 @@ class WorkingPeriodForm(CremeModelForm):
         task = self.task
         self.instance.task = task
 
-        if task.tstatus_id == constants.NOT_STARTED_PK:
-            task.tstatus_id = constants.IN_PROGRESS_PK
+        if task.tstatus_id == NOT_STARTED_PK:
+            task.tstatus_id = IN_PROGRESS_PK
             task.save()
 
         return super(WorkingPeriodForm, self).save(*args, **kwargs)

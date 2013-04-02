@@ -13,11 +13,11 @@ try:
 
     #from creme.documents.models import Document, Folder, FolderCategory
 
-    from creme.emails.tests.base import _EmailsTestCase
-    from creme.emails.models import EntityEmail, EmailSignature, EmailTemplate
-    from creme.emails.constants import (MAIL_STATUS_SENT, MAIL_STATUS_SYNCHRONIZED,
-                                  MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING,
-                                  REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED)
+    from .base import _EmailsTestCase
+    from ..models import EntityEmail, EmailSignature, EmailTemplate
+    from ..constants import (MAIL_STATUS_SENT, MAIL_STATUS_SYNCHRONIZED,
+                             MAIL_STATUS_SYNCHRONIZED_SPAM, MAIL_STATUS_SYNCHRONIZED_WAITING,
+                             REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED)
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

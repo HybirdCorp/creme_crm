@@ -6,8 +6,10 @@ try:
     from django.utils.encoding import force_unicode
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.models import RelationType, Relation, CremePropertyType, CremeProperty, HeaderFilter, HeaderFilterItem
-    from creme.creme_core.tests.views.base import ViewsTestCase
+    from creme.creme_core.models import (RelationType, Relation,
+                                         CremePropertyType, CremeProperty,
+                                         HeaderFilter, HeaderFilterItem)
+    from .base import ViewsTestCase
 
     from creme.persons.models import Contact, Organisation
 except Exception as e:

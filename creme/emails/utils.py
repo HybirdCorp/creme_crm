@@ -31,14 +31,14 @@ from django.conf import settings
 
 from creme.media_managers.models import Image
 
-from creme.emails.constants import MAIL_STATUS_SENT, MAIL_STATUS_SENDINGERROR
+from .constants import MAIL_STATUS_SENT, MAIL_STATUS_SENDINGERROR
 
 
 logger = logging.getLogger(__name__)
 ALLOWED_CHARS = ascii_letters + digits
 
 def generate_id():
-    from creme.emails.models.mail import ID_LENGTH
+    from .models.mail import ID_LENGTH
     return ''.join(choice(ALLOWED_CHARS) for i in xrange(ID_LENGTH))
 
 

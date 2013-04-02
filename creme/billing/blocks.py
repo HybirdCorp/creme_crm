@@ -31,9 +31,9 @@ from creme.creme_config.models.setting import SettingValue
 from creme.persons.models import Contact, Organisation
 from creme.persons.blocks import AddressBlock
 
-from creme.billing.models import *
-from creme.billing.models.line import PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
-from creme.billing.constants import *
+from .models import *
+from .models.line import PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
+from .constants import *
 
 
 class BillingBlock(Block):

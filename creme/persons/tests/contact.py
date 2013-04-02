@@ -13,11 +13,11 @@ try:
     from creme.creme_core.models import Relation, SetCredentials
     from creme.creme_core.gui.quick_forms import quickforms_registry
 
-    from creme.persons.models import Contact, Organisation, Address, Position, Civility, Sector
-    from creme.persons.constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
-    from creme.persons.tests.base import _BaseTestCase
-
     from creme.media_managers.models import Image
+
+    from ..models import Contact, Organisation, Address, Position, Civility, Sector
+    from ..constants import REL_OBJ_EMPLOYED_BY, REL_SUB_EMPLOYED_BY
+    from .base import _BaseTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

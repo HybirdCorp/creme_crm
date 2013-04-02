@@ -10,10 +10,10 @@ try:
 
     from creme.persons.models import Organisation
 
-    from creme.documents.tests.base import _DocumentsTestCase
-    from creme.documents.models import Folder, FolderCategory, Document
-    from creme.documents.constants import REL_SUB_RELATED_2_DOC
-    from creme.documents.utils import get_csv_folder_or_create
+    from .base import _DocumentsTestCase
+    from ..models import Folder, FolderCategory, Document
+    from ..constants import REL_SUB_RELATED_2_DOC
+    from ..utils import get_csv_folder_or_create
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

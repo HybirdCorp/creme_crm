@@ -21,8 +21,8 @@
 from django.template import Library
 from django.utils.html import escape
 
-from creme.creme_core.gui.icon_registry import icon_registry
-from creme.creme_core.utils.media import get_creme_media_url
+from ..gui.icon_registry import icon_registry
+from ..utils.media import get_creme_media_url
 
 
 register = Library()

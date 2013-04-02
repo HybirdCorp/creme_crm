@@ -26,8 +26,8 @@ from django.db.models import ForeignKey, ManyToManyField, FieldDoesNotExist #Fie
 #from django.db.models.base import ModelBase
 from django.conf import settings
 
-from creme.creme_core.models import CremeEntity
-from creme.creme_core.models.fields import CreationDateTimeField
+from ..models import CremeEntity
+from ..models.fields import CreationDateTimeField
 
 
 class NotDjangoModel(Exception):
@@ -275,7 +275,7 @@ def filter_entities_on_ct(entities, ct):
     return [entity for entity in entities if isinstance(entity, ct_model_class)]
 
 def is_date_field(field):
-    return isinstance(field, (models.DateTimeField, models.DateField, CreationDateTimeField))
+    return isinstance(field, (models.DateTimeField, models.DateField, CreationDateTimeField)) #TODO: CreationDateTimeField useful ??
 
 def get_date_fields(model, exclude_func=lambda f: False):
     return [field for field in model._meta.fields if is_date_field(field) and not exclude_func(field)]

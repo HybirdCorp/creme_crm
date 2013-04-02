@@ -17,9 +17,9 @@ try:
     from creme.persons.models import Organisation, Address
     from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
 
-    from creme.billing.models import *
-    from creme.billing.constants import *
-    from creme.billing.tests.base import _BillingTestCase
+    from ..models import *
+    from ..constants import *
+    from .base import _BillingTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

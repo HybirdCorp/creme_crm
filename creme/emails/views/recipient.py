@@ -23,8 +23,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 from creme.creme_core.views.generic import add_to_entity # edit_entity
 
-from creme.emails.models import MailingList
-from creme.emails.forms.recipient import MailingListAddRecipientsForm, MailingListAddCSVForm
+from ..forms.recipient import MailingListAddRecipientsForm, MailingListAddCSVForm
+from ..models import MailingList
 
 
 @login_required
@@ -37,5 +37,7 @@ def add(request, ml_id):
 @permission_required('emails')
 def add_from_csv(request, ml_id):
     #TODO: fix the problem with inner popup + file input
-    return add_to_entity(request, ml_id, MailingListAddCSVForm, _(u'New recipients for <%s>'), entity_class=MailingList)
+    return add_to_entity(request, ml_id, MailingListAddCSVForm,
+                         _(u'New recipients for <%s>'), entity_class=MailingList,
+                        )
 #    return edit_entity(request, ml_id, MailingList, MailingListAddCSVForm)

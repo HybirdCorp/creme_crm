@@ -5,10 +5,10 @@ try:
 
     from creme.creme_config.models import SettingKey, SettingValue
 
-    from creme.activesync.utils import decode_AS_timezone, is_user_sync_calendars, is_user_sync_contacts
-    from creme.activesync.constants import USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS
+    from ..utils import decode_AS_timezone, is_user_sync_calendars, is_user_sync_contacts
+    from ..constants import USER_MOBILE_SYNC_ACTIVITIES, USER_MOBILE_SYNC_CONTACTS
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class MiscTestCase(CremeTestCase):

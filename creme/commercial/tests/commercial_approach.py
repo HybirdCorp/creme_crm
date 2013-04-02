@@ -12,7 +12,7 @@ try:
     from creme.activities.models import Activity, Meeting, Status, Calendar
     from creme.activities.constants import ACTIVITYTYPE_MEETING, REL_SUB_PART_2_ACTIVITY
 
-    from creme.commercial.models import CommercialApproach
+    from ..models import CommercialApproach
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

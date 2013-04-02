@@ -16,10 +16,10 @@ try:
     from creme.persons.models import Contact, Organisation #need CremeEntity
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 
-    from creme.creme_config.constants import USER_THEME_NAME
-    from creme.creme_config.models import SettingKey, SettingValue
-    from creme.creme_config.utils import get_user_theme
-    from creme.creme_config import blocks
+    from ..constants import USER_THEME_NAME
+    from ..models import SettingKey, SettingValue
+    from ..utils import get_user_theme
+    from ..blocks import UsersBlock, TeamsBlock, UserPreferedMenusBlock, BlockMypageLocationsBlock
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -44,8 +44,8 @@ class UserTestCase(CremeTestCase):
 
     def _aux_test_portal(self):
         response = self.assertGET200('/creme_config/user/portal/')
-        self.assertContains(response, 'id="%s"' % blocks.UsersBlock.id_)
-        self.assertContains(response, 'id="%s"' % blocks.TeamsBlock.id_)
+        self.assertContains(response, 'id="%s"' % UsersBlock.id_)
+        self.assertContains(response, 'id="%s"' % TeamsBlock.id_)
 
     def test_portal01(self):
         self.login()
@@ -694,8 +694,8 @@ class UserSettingsTestCase(CremeTestCase):
 
     def test_user_settings(self):
         response = self.assertGET200('/creme_config/my_settings/')
-        self.assertContains(response, 'id="%s"' % blocks.UserPreferedMenusBlock.id_)
-        self.assertContains(response, 'id="%s"' % blocks.BlockMypageLocationsBlock.id_)
+        self.assertContains(response, 'id="%s"' % UserPreferedMenusBlock.id_)
+        self.assertContains(response, 'id="%s"' % BlockMypageLocationsBlock.id_)
 
     def test_change_theme01(self):
         self.assertEqual(1, SettingKey.objects.filter(pk=USER_THEME_NAME).count())

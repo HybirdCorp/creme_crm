@@ -6,7 +6,7 @@ try:
     from django.template import Template, Context
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.tests.base import CremeTestCase
+    from ..base import CremeTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

@@ -11,9 +11,9 @@ try:
 
     from creme.persons.models import Contact
 
-    from creme.assistants.models import ToDo
-    from creme.assistants.blocks import todos_block
-    from creme.assistants.tests.base import AssistantsTestCase
+    from ..models import ToDo
+    from ..blocks import todos_block
+    from .base import AssistantsTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

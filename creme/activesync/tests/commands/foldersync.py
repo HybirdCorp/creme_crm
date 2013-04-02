@@ -4,9 +4,9 @@ try:
     from os.path import join, dirname, abspath
 
     from creme.activesync.commands.foldersync import FolderSync
-    from creme.activesync.tests.commands.base import BaseASTestCase
+    from .base import BaseASTestCase
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class FolderSyncASTestCase(BaseASTestCase):

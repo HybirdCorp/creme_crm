@@ -29,11 +29,11 @@ from creme.creme_core.utils import get_from_POST_or_404, jsonify
 
 from creme.persons.models import Organisation
 
-from creme.commercial.models import (Strategy, MarketSegmentDescription,
+from ..models import (Strategy, MarketSegmentDescription,
                                CommercialAsset, CommercialAssetScore,
                                MarketSegmentCharm, MarketSegmentCharmScore)
-from creme.commercial.forms import strategy as forms
-from creme.commercial.blocks import assets_matrix_block, charms_matrix_block, assets_charms_matrix_block
+from ..forms import strategy as forms
+from ..blocks import assets_matrix_block, charms_matrix_block, assets_charms_matrix_block
 
 
 @login_required

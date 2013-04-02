@@ -7,9 +7,9 @@ try:
 
     from creme.creme_config.models import SettingValue, SettingKey
 
-    from creme.activesync.cipher import Cipher
+    from ..cipher import Cipher
 except Exception as e:
-    print 'Error:', e
+    print 'Error in <%s>: %s' % (__name__, e)
 
 
 class CipherTestCase(CremeTestCase):

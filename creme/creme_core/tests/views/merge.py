@@ -10,7 +10,7 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
                                    CremePropertyType, CremeProperty) #Language
-    from creme.creme_core.tests.views.base import ViewsTestCase
+    from .base import ViewsTestCase
 
     from creme.media_managers.models import Image
 

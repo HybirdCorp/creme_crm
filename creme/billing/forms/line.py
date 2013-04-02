@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,8 +30,8 @@ from creme.creme_core.forms.validators import validate_linkable_entities
 from creme.products.models import Product, Service
 from creme.products.forms.fields import CategoryField
 
-from creme.billing.models import ProductLine, ServiceLine, Line, Vat
-from creme.billing.models.line import default_quantity
+from ..models import ProductLine, ServiceLine, Line, Vat
+from ..models.line import default_quantity
 
 
 default_decimal = Decimal()

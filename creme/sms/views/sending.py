@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,9 +27,9 @@ from django.contrib.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_to_entity
 from creme.creme_core.utils import get_from_POST_or_404, jsonify
 
-from creme.sms.models import SMSCampaign, Sending, Message
-from creme.sms.forms.message import SendingCreateForm
-from creme.sms.blocks import messages_block
+from ..models import SMSCampaign, Sending, Message
+from ..forms.message import SendingCreateForm
+from ..blocks import messages_block
 #from creme.sms.webservice.samoussa import SamoussaBackEnd
 #from creme.sms.webservice.backend import WSException
 
@@ -38,7 +38,8 @@ from creme.sms.blocks import messages_block
 @permission_required('sms')
 def add(request,campaign_id):
     return add_to_entity(request, campaign_id, SendingCreateForm,
-                         _('New sending for <%s>'), entity_class=SMSCampaign)
+                         _('New sending for <%s>'), entity_class=SMSCampaign,
+                        )
 
 @login_required
 @permission_required('sms')

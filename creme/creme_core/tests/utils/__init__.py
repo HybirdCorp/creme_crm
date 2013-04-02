@@ -4,17 +4,17 @@ try:
     import string
     from datetime import datetime
 
-    from django.http import Http404
-
     import pytz
 
-    from creme.creme_core.tests.base import CremeTestCase
+    from django.http import Http404
+
+    from ..base import CremeTestCase
     from creme.creme_core.models import CremePropertyType, PreferedMenuItem
     from creme.creme_core.utils import (find_first, truncate_str, create_if_needed, 
-                                  get_from_GET_or_404, get_from_POST_or_404)
+                                        get_from_GET_or_404, get_from_POST_or_404)
     from creme.creme_core.utils.dates import(get_dt_from_iso8601_str, get_dt_to_iso8601_str,
-                                       get_naive_dt_from_tzdate, get_creme_dt_from_utc_dt,
-                                       get_utc_dt_from_creme_dt)
+                                             get_naive_dt_from_tzdate, get_creme_dt_from_utc_dt,
+                                             get_utc_dt_from_creme_dt)
     from creme.creme_core.utils.queries import get_first_or_None
 
     from creme.persons.models import Civility
@@ -136,8 +136,8 @@ class QueriesTestCase(CremeTestCase):
     #TODO: test get_q_from_dict()
 
 
-from meta import *
-from chunktools import *
-from date_range import *
-from xml_utils import *
+from .meta import *
+from .chunktools import *
+from .date_range import *
+from .xml_utils import *
 

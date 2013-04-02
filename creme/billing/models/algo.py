@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,7 +17,6 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-
 
 from django.db.models import Model, CharField, ForeignKey, IntegerField
 from django.db.models.signals import post_save
@@ -59,9 +58,9 @@ def _simple_conf_billing_for_org_managed_by_creme(sender, instance, created, **k
     if not created:
         return
 
-    from quote import Quote
-    from sales_order import SalesOrder
-    from invoice import Invoice
+    from .quote import Quote
+    from .sales_order import SalesOrder
+    from .invoice import Invoice
 
     get_ct = ContentType.objects.get_for_model
 

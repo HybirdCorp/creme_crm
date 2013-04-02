@@ -11,7 +11,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.conf import settings
 
-    from creme.creme_core.tests.views.base import ViewsTestCase
+    from .base import ViewsTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import *
     from creme.creme_core.forms.base import _CUSTOM_NAME

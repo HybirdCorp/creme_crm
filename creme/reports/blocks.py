@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,8 +25,8 @@ from creme.creme_core.models import InstanceBlockConfigItem #CremeEntity
 from creme.creme_core.models.header_filter import HFI_FIELD, HFI_RELATION, HFI_RELATED
 from creme.creme_core.gui.block import Block, QuerysetBlock
 
-from creme.reports.models import Report, Field
-from creme.reports.models.graph import ReportGraph, verbose_report_graph_types, fetch_graph_from_instance_block
+from .models import Report, Field
+from .models.graph import ReportGraph, verbose_report_graph_types, fetch_graph_from_instance_block
 
 
 class ReportFieldsBlock(Block):

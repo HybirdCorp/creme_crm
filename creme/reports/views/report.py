@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,10 +37,11 @@ from creme.creme_core.views.generic import (add_entity, edit_entity, view_entity
 from creme.creme_core.utils.meta import get_model_field_info, ModelFieldEnumerator, get_related_field #get_flds_with_fk_flds
 from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404, jsonify
 
-from creme.reports.models import Report, Field
-from creme.reports.forms.report import CreateForm, EditForm, LinkFieldToReportForm, AddFieldToReportForm, get_aggregate_custom_fields, DateReportFilterForm
-from creme.reports.registry import report_backend_registry
-from creme.reports.report_aggregation_registry import field_aggregation_registry
+from ..models import Report, Field
+from ..forms.report import (CreateForm, EditForm, LinkFieldToReportForm, AddFieldToReportForm,
+                            get_aggregate_custom_fields, DateReportFilterForm)
+from ..registry import report_backend_registry
+from ..report_aggregation_registry import field_aggregation_registry
 
 
 @login_required
@@ -48,9 +49,8 @@ from creme.reports.report_aggregation_registry import field_aggregation_registry
 @permission_required('reports.add_report')
 def add(request):
     return add_entity(request, CreateForm, template="reports/add_report.html",
-                      extra_template_dict={
-                                            'help_messages': [],
-                                            'ct_posted':     request.POST.get('ct'),
+                      extra_template_dict={'help_messages': [],
+                                           'ct_posted':     request.POST.get('ct'),
                                           }
                      )
 

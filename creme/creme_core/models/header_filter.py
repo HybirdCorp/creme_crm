@@ -29,10 +29,12 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.models import RelationType, CremeEntity, CustomField
-from creme.creme_core.models.fields import CremeUserForeignKey
-from creme.creme_core.utils.meta import get_model_field_info
-from creme.creme_core.utils.id_generator import generate_string_id_and_save
+from ..utils.meta import get_model_field_info
+from ..utils.id_generator import generate_string_id_and_save
+from .entity import CremeEntity
+from .relation import RelationType
+from .custom_field import CustomField
+from .fields import CremeUserForeignKey
 
 
 logger = logging.getLogger(__name__)

@@ -33,12 +33,12 @@ from creme.persons.models.contact import Contact
 
 from creme.media_managers.models import Image
 
-from creme.crudity.backends.models import CrudityBackend
-from creme.crudity.models import WaitingAction
-from creme.crudity.utils import strip_html, strip_html_, decode_b64binary
-from creme.crudity.inputs.base import CrudityInput
-from creme.crudity.constants import LEFT_MULTILINE_SEP, RIGHT_MULTILINE_SEP
-from creme.crudity.buttons import infopath_create_form_button, email_template_create_button
+from ..backends.models import CrudityBackend
+from ..models import WaitingAction
+from ..utils import strip_html, strip_html_, decode_b64binary
+from ..constants import LEFT_MULTILINE_SEP, RIGHT_MULTILINE_SEP
+from ..buttons import infopath_create_form_button, email_template_create_button
+from .base import CrudityInput
 
 
 passwd_pattern = re.compile(r'password=(?P<password>\w+)', flags=re.IGNORECASE)

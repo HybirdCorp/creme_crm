@@ -28,7 +28,7 @@ from creme.creme_core.forms.widgets import ChainedInput
 from creme.media_managers.models import Image
 from creme.media_managers.forms.widgets import ImageM2MWidget
 
-from creme.products.models import Product, Category, SubCategory
+from ..models import Product, Category, SubCategory
 
 
 class CategorySelector(ChainedInput):

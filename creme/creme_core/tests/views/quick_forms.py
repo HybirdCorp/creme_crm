@@ -5,9 +5,9 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _
 
-    from creme.creme_core.tests.base import CremeTestCase
-
     from creme.persons.models import Contact, Civility, Organisation
+
+    from .base import CremeTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

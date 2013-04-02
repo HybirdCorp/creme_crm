@@ -23,8 +23,8 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
 
-from creme.assistants.models import Memo
-from creme.assistants.forms.memo import MemoCreateForm, MemoEditForm
+from ..models import Memo
+from ..forms.memo import MemoCreateForm, MemoEditForm
 
 
 @login_required

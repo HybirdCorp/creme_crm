@@ -3,13 +3,13 @@
 try:
     from creme.creme_config.models import SettingValue
 
-    from creme.crudity.backends.models import CrudityBackend
-    from creme.crudity.constants import SETTING_CRUDITY_SANDBOX_BY_USER
-    from creme.crudity.exceptions import ImproperlyConfiguredBackend
-    from creme.crudity.registry import crudity_registry # CRUDityRegistry
-    from creme.crudity.tests.base import CrudityTestCase
-
     from creme.persons.models import Contact
+
+    from ..backends.models import CrudityBackend
+    from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER
+    from ..exceptions import ImproperlyConfiguredBackend
+    from ..registry import crudity_registry # CRUDityRegistry
+    from .base import CrudityTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

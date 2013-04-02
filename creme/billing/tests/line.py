@@ -15,9 +15,9 @@ try:
 
     from creme.products.models import Product, Service, Category, SubCategory
 
-    from creme.billing.models import *
-    from creme.billing.constants import *
-    from creme.billing.tests.base import _BillingTestCase
+    from ..models import *
+    from ..constants import *
+    from .base import _BillingTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 

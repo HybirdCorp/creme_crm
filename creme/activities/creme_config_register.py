@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from creme.activities.models import ActivityType, Calendar #PhoneCallType
-from creme.activities.forms.activity_type import ActivityTypeForm
-from creme.activities.forms.calendar import CalendarConfigForm
-from creme.activities.blocks import user_calendars_block
+from .models import ActivityType, Calendar #PhoneCallType
+from .forms.activity_type import ActivityTypeForm
+from .forms.calendar import CalendarConfigForm
+from .blocks import user_calendars_block
 
 
 #TODO: add Status and PhoneCallType (add 'is_custom' attr)

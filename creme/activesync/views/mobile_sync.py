@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,10 +24,11 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.views.generic.add import add_model_with_popup
 
-from creme.creme_config.models.setting import SettingValue
-from creme.activesync.forms.mobile_sync import MobileSyncForm
+from creme.creme_config.models import SettingValue
 
-from creme.activesync.constants import MAPI_SERVER_URL, MAPI_DOMAIN, MAPI_SERVER_SSL
+from ..forms.mobile_sync import MobileSyncForm
+from ..constants import MAPI_SERVER_URL, MAPI_DOMAIN, MAPI_SERVER_SSL
+
 
 @login_required
 @permission_required('creme_config.can_admin')
@@ -37,9 +38,11 @@ def edit(request):
     server_domain = get_object_or_404(SettingValue, key__id=MAPI_DOMAIN)
     server_ssl    = get_object_or_404(SettingValue, key__id=MAPI_SERVER_SSL)
 
-    initial = {'url': server_url.value, 'domain': server_domain.value, 'ssl': server_ssl.value}
-
     return add_model_with_popup(request, MobileSyncForm,
                                 title=_(u'Edit default mobile synchronization configuration'),
-                                initial=initial)
+                                initial={'url':    server_url.value,
+                                         'domain': server_domain.value,
+                                         'ssl':    server_ssl.value,
+                                        },
+                               )
 

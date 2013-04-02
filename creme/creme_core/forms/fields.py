@@ -35,14 +35,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.validators import validate_email
 from django.db.models.query import QuerySet
 
-from creme.creme_core.models import RelationType, CremeEntity
-from creme.creme_core.utils import creme_entity_content_types
-from creme.creme_core.utils.queries import get_q_from_dict
-from creme.creme_core.utils.date_range import date_range_registry
-from creme.creme_core.forms.widgets import (CTEntitySelector, EntitySelector, SelectorList, RelationSelector, ActionButtonList,
-                                      ListViewWidget, ListEditionWidget, CalendarWidget, TimeWidget, DateRangeWidget,
-                                      ColorPickerWidget, DurationWidget)
-from creme.creme_core.constants import REL_SUB_HAS
+from ..models import RelationType, CremeEntity
+from ..constants import REL_SUB_HAS
+from ..utils import creme_entity_content_types
+from ..utils.queries import get_q_from_dict
+from ..utils.date_range import date_range_registry
+from .widgets import (CTEntitySelector, EntitySelector, SelectorList, RelationSelector, ActionButtonList,
+                      ListViewWidget, ListEditionWidget, CalendarWidget, TimeWidget, DateRangeWidget,
+                      ColorPickerWidget, DurationWidget)
 
 
 __all__ = ('GenericEntityField', 'MultiGenericEntityField',

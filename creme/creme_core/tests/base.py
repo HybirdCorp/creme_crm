@@ -5,11 +5,11 @@ from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.forms.formsets import BaseFormSet
 
-from creme.creme_core.models import UserRole, RelationType, Relation, CremePropertyType
-from creme.creme_core.management.commands.creme_populate import Command as PopulateCommand
-from creme.creme_core.utils.xml_utils import xml_diff, XMLDiffError
-from creme.creme_core import autodiscover
-from creme.creme_core.registry import creme_registry
+from ..models import UserRole, RelationType, Relation, CremePropertyType
+from ..management.commands.creme_populate import Command as PopulateCommand
+from ..utils.xml_utils import xml_diff, XMLDiffError
+from ..registry import creme_registry
+from .. import autodiscover
 
 
 class _AssertNoExceptionContext(object):

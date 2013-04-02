@@ -34,6 +34,7 @@ MESSAGE_TYPES_VERBOSE = {
     _SUCCESS: lambda count: ungettext(u"Success", u"Successes", count),
 }
 
+
 class Message(object):
     template = "activesync/messages/message_base.html"
     type     = _BASE
@@ -51,9 +52,11 @@ class MessageSucceed(Message):
     template = "activesync/messages/message_succeed.html"
     type     = _SUCCESS
 
+
 class MessageInfo(Message):
     template = "activesync/messages/message_info.html"
     type     = _INFO
+
 
 class MessageError(Message):
     template = "activesync/messages/message_error.html"
@@ -65,12 +68,15 @@ class MessageContact(MessageSucceed):
     def __init__(self, contact, message=u"", **kwargs):
         super(MessageContact, self).__init__(contact=contact, message=message, **kwargs)
 
+
 class MessageInfoContactAdd(MessageContact):
     template = "activesync/messages/message_info_contact_add.html"
     type     = _INFO
 
+
 class MessageSucceedContactAdd(MessageContact):
     template = "activesync/messages/message_succeed_contact_add.html"
+
 
 class MessageSucceedContactUpdate(MessageContact):
     template = "activesync/messages/message_succeed_contact_update.html"

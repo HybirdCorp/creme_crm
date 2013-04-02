@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 from creme.creme_core.views.generic import edit_entity, view_entity, list_view
 
-from creme.tickets.models import TicketTemplate
-from creme.tickets.forms.template import TicketTemplateForm
+from ..models import TicketTemplate
+from ..forms.template import TicketTemplateForm
 
 
 @login_required
@@ -34,7 +34,9 @@ def edit(request, template_id):
 @login_required
 @permission_required('tickets')
 def detailview(request, template_id):
-    return view_entity(request, template_id, TicketTemplate, '/tickets/template', 'tickets/view_template.html')
+    return view_entity(request, template_id, TicketTemplate, '/tickets/template',
+                       'tickets/view_template.html',
+                      )
 
 @login_required
 @permission_required('tickets')

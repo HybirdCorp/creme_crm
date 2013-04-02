@@ -6,7 +6,7 @@ try:
 
     from creme.creme_core.models import BlockDetailviewLocation, BlockPortalLocation, BlockMypageLocation
     from creme.creme_core.blocks import relations_block, properties_block, customfields_block, history_block
-    from creme.creme_core.tests.base import CremeTestCase
+    from ..base import CremeTestCase
 
     from creme.persons.models import Contact, Organisation
 except Exception as e:

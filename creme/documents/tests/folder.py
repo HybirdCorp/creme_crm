@@ -6,7 +6,7 @@ try:
     from django.conf import settings
     from django.utils.encoding import smart_str, smart_unicode
 
-    from creme.documents.tests.base import _DocumentsTestCase
+    from .base import _DocumentsTestCase
     from creme.documents.models import Folder, FolderCategory, Document
     from creme.documents.blocks import folder_docs_block
 except Exception as e:

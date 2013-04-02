@@ -21,7 +21,7 @@
 from collections import deque
 from logging import debug
 
-from creme.creme_core.models import CremeEntity
+from ..models import CremeEntity
 
 
 #TODO: in settings ???
