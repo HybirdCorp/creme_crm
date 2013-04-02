@@ -25,7 +25,7 @@
             <td class="{{row_color}}"></td>
         </tr>
         {% if page.paginator.count %}
-            {% for ct in page.object_list %}{% cycle row_color silent %}
+            {% for ct in page.object_list %}<!--{% cycle row_color silent %}-->
                 <tr class="content">
                     <td class="{{row_color}}">{{ct}}</td>
                     <td class="{{row_color}} action">
