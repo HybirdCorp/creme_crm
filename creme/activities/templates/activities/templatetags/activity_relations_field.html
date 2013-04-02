@@ -3,15 +3,13 @@
 {% with relations|length as count %}
     {% if not count %}
         {% trans "No one" %}
-    {% else %}{% if count == 1 %}
+    {% elif count == 1 %}
         {% widget_entity_hyperlink relations.0.object_entity.get_real_entity user %}
-    {% else %}{% if count <= 3 %}
+    {% elif count <= 3 %}
         <ul class="compact_list">
-            {% for relation in relations %}
-                <li>{% widget_entity_hyperlink relation.object_entity.get_real_entity user %}</li>
-            {% endfor %}
+            {% for relation in relations %}<li>{% widget_entity_hyperlink relation.object_entity.get_real_entity user %}</li>{% endfor %}
         </ul>
     {% else %}
         ({{count}})
-    {% endif %}{% endif %}{% endif %}
+    {% endif %}
 {% endwith %}

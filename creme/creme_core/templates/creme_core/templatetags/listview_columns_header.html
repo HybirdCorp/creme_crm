@@ -16,7 +16,7 @@
                                     </option>
                                 {% endfor %}
                             </select>
-                        {% else %}{% if widget_type == "checkbox" %}
+                        {% elif widget_type == "checkbox" %}
                             <select name="{{column.name}}" title="{{column.title}}" onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});">
                                 <option value="">{% trans "Select" %}</option>
                                 {% for options in widget_ctx.values %}
@@ -25,7 +25,7 @@
                                     </option>
                                 {% endfor %}
                             </select>
-                        {% else %}{% if widget_type == "datefield" %}
+                        {% elif widget_type == "datefield" %}
                             <span>
                                 <label for="id_{{column.name}}{{whoami}}">{% trans "Between" %}</label>
                                 <input name="{{column.name}}" id="id_{{column.name}}{{whoami}}" title="{{column.title}}" type="{{widget_type}}"
@@ -40,9 +40,9 @@
                                 $("#id_{{column.name}}{{ whoami }}").datepicker({dateFormat:   "yy-mm-dd", showOn: "button", buttonImage: "{% creme_media_url 'images/icon_calendar.gif' %}", buttonImageOnly: true, onSelect: function(dateText, inst){$('#id_{{column.name}}{{ whoami }}_2').val(dateText);}});
                                 $("#id_{{column.name}}{{ whoami }}_2").datepicker({dateFormat: "yy-mm-dd", showOn: "button", buttonImage: "{% creme_media_url 'images/icon_calendar.gif' %}", buttonImageOnly: true });
                             </script>
-                        {% else %}{% if widget_type == "text" %}
+                        {% elif widget_type == "text" %}
                             <input name="{{column.name}}" title="{{column.title}}" type="text" value="{% if search %}{{widget_ctx.value}}{% endif %}" onkeydown="$(this.form).list_view('getKdSubmit')(event, this, {'_search': 1});"/>
-                        {% endif %}{% endif %}{% endif %}{% endif %}
+                        {% endif %}
                     {% endwith %}
                 {% endwith %}
             {% endif %}

@@ -46,7 +46,7 @@
                     <td class="{{row_color}} action">
                         {% if todo.is_ok %}
                             {% trans "The Todo is validated." %}
-                        {% else %}{% if has_perm %}
+                        {% elif has_perm %}
                             <form method="post" action="/assistants/todo/validate/{{todo.id}}/">{% csrf_token %}
                                 <input type="checkbox" name="checked_todo{{todo.id}}" id="checked_todo{{todo.id}}" />
                                 <button type="button" onclick="creme.utils.validateEntity(this.form, 'checked_todo{{todo.id}}', {% get_block_reload_uri %});" style="background:transparent; cursor:pointer;border:0px;">
@@ -55,7 +55,7 @@
                             </form>
                         {% else %}
                             <input type="checkbox" disabled="true" />
-                        {% endif %}{% endif %}
+                        {% endif %}
                     </td>
                     <td class="{{row_color}} action">
                         {% get_line_editor at_url '/assistants/todo/edit/{{todo.id}}/' with_perms has_perm %}

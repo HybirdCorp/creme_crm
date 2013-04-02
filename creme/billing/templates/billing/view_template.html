@@ -1,13 +1,11 @@
 {% extends "billing/view_billing.html" %}
-
 {% load i18n %}
 {% load creme_block %}
-
 {% block extra_menu_buttons %}
     {% if object.ct.model == 'quote' %}
         <li>{% include "billing/frags/button_convert2order.html" with has_perm=can_create_order %}</li>
         <li>{% include "billing/frags/button_convert2invoice.html" with has_perm=can_create_invoice %}</li>
-    {% else %}{% if object.ct.model == 'salesorder' %}
+    {% elif object.ct.model == 'salesorder' %}
         <li>{% include "billing/frags/button_convert2invoice.html" with has_perm=can_create_invoice %}</li>
-    {% endif %}{% endif %}
+    {% endif %}
 {% endblock %}
