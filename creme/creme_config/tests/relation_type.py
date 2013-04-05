@@ -16,6 +16,9 @@ __all__ = ('RelationTypeTestCase', 'SemiFixedRelationTypeTestCase')
 
 
 class RelationTypeTestCase(CremeTestCase):
+    ADD_URL = '/creme_config/relation_type/add/'
+    DEL_URL = '/creme_config/relation_type/delete'
+
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config')
@@ -23,18 +26,21 @@ class RelationTypeTestCase(CremeTestCase):
     def setUp(self): #in CremeConfigTestCase ??
         self.login()
 
+    def _build_edit_url(self, rtype):
+        return '/creme_config/relation_type/edit/%s' % rtype.id
+
     def test_portal(self):
         self.assertGET200('/creme_config/relation_type/portal/')
 
-    def _find_relation_type(self, relation_types, predicate):
-        for relation_type in relation_types:
-            if relation_type.predicate == predicate:
-                return relation_type
+    #def _find_relation_type(self, relation_types, predicate):
+        #for relation_type in relation_types:
+            #if relation_type.predicate == predicate:
+                #return relation_type
 
-        self.fail('No relation type <%s>' % predicate)
+        #self.fail('No relation type <%s>' % predicate)
 
     def test_create01(self):
-        url = '/creme_config/relation_type/add/'
+        url = self.ADD_URL
         self.assertGET200(url)
 
         count = RelationType.objects.count()
@@ -46,10 +52,12 @@ class RelationTypeTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
 
-        rel_types = RelationType.objects.all()
-        self.assertEqual(count + 2, len(rel_types))#2 freshly created
+        #rel_types = RelationType.objects.all()
+        #self.assertEqual(count + 2, len(rel_types))#2 freshly created
+        self.assertEqual(count + 2, RelationType.objects.count()) #2 freshly created
 
-        rel_type = self._find_relation_type(rel_types, subject_pred)
+        #rel_type = self._find_relation_type(rel_types, subject_pred)
+        rel_type = self.get_object_or_fail(RelationType, predicate=subject_pred)
         self.assertTrue(rel_type.is_custom)
         self.assertEqual(object_pred, rel_type.symmetric_type.predicate)
         self.assertFalse(rel_type.subject_ctypes.all())
@@ -66,10 +74,12 @@ class RelationTypeTestCase(CremeTestCase):
         ct_orga    = get_ct(Organisation)
         ct_contact = get_ct(Contact)
 
-        subject_pred = 'employs'
-        response = self.client.post('/creme_config/relation_type/add/',
+        subject_pred = 'employs (test version)'
+        self.assertFalse(RelationType.objects.filter(predicate=subject_pred))
+
+        response = self.client.post(self.ADD_URL,
                                     data={'subject_predicate':  subject_pred,
-                                          'object_predicate':   'is employed by',
+                                          'object_predicate':   'is employed by (test version)',
                                           'subject_ctypes':     [ct_orga.id],
                                           'subject_properties': [pt_sub.id],
                                           'object_ctypes':      [ct_contact.id],
@@ -78,7 +88,8 @@ class RelationTypeTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
 
-        rel_type = self._find_relation_type(RelationType.objects.all(), subject_pred)
+        #rel_type = self._find_relation_type(RelationType.objects.all(), subject_pred)
+        rel_type = self.get_object_or_fail(RelationType, predicate=subject_pred)
         self.assertEqual([ct_orga.id],    [ct.id for ct in rel_type.subject_ctypes.all()])
         self.assertEqual([ct_contact.id], [ct.id for ct in rel_type.object_ctypes.all()])
         self.assertEqual([pt_sub.id],     [pt.id for pt in rel_type.subject_properties.all()])
@@ -89,14 +100,14 @@ class RelationTypeTestCase(CremeTestCase):
                                  ('test-objfoo', 'object_predicate'),
                                  is_custom=False
                                 )[0]
-        self.assertGET404('/creme_config/relation_type/edit/%s' % rt.id)
+        self.assertGET404(self._build_edit_url(rt))
 
     def test_edit02(self):
         rt = RelationType.create(('test-subfoo', 'subject_predicate'),
                                  ('test-objfoo', 'object_predicate'),
                                  is_custom=True
                                 )[0]
-        url = '/creme_config/relation_type/edit/%s' % rt.id
+        url = self._build_edit_url(rt)
         self.assertGET200(url)
 
         subject_pred = 'loves'
@@ -116,14 +127,14 @@ class RelationTypeTestCase(CremeTestCase):
                                  ('test-subfoo', 'object_predicate'),
                                  is_custom=False
                                 )[0]
-        self.assertGET404('/creme_config/relation_type/delete', data={'id': rt.id})
+        self.assertGET404(self.DEL_URL, data={'id': rt.id})
 
     def test_delete02(self):
         rt, srt = RelationType.create(('test-subfoo', 'subject_predicate'),
                                       ('test-subfoo', 'object_predicate'),
                                       is_custom=True
                                      )
-        self.assertPOST200('/creme_config/relation_type/delete', data={'id': rt.id})
+        self.assertPOST200(self.DEL_URL, data={'id': rt.id})
         self.assertFalse(RelationType.objects.filter(pk__in=[rt.id, srt.id]))
 
 
