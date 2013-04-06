@@ -208,19 +208,21 @@ class HeaderFilterItem(Model):  #CremeModel ???
     type                  = PositiveSmallIntegerField() #==> {HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM}
     header_filter         = ForeignKey(HeaderFilter, related_name='header_filter_items')
     has_a_filter          = BooleanField(blank=True, default=False)  #TODO: useful ?? retrievable with type ??
-    editable              = BooleanField(blank=True, default=True)   #TODO: useful ?? retrievable with type ??
-    sortable              = BooleanField(blank=True, default=False)  #TODO: useful ?? retrievable with type ??
-    is_hidden             = BooleanField(blank=True, default=False)  #TODO: useful ?? retrievable with type ??
-    filter_string         = CharField(max_length=100, blank=True, null=True)
+    editable              = BooleanField(blank=True, default=True)   #TODO: idem
+    sortable              = BooleanField(blank=True, default=False)  #TODO: idem
+    is_hidden             = BooleanField(blank=True, default=False)  #TODO: [idem]
+    filter_string         = CharField(max_length=100, blank=True, null=True) #TODO: idem (see ListViewState too)
     relation_predicat     = ForeignKey(RelationType, blank=True, null=True) #TODO: rename to 'relation_type' ???  use 'name' to store pk instead ????
-    relation_content_type = ForeignKey(ContentType, blank=True, null=True) #TODO: useful ??
+    relation_content_type = ForeignKey(ContentType, blank=True, null=True) #TODO: useful ?? (no relation inheritage)
 
     _customfield = None
     _functionfield = None
     _volatile_render = None
 
     def __unicode__(self):
-        return u"<HeaderFilterItem: order: %i, name: %s, title: %s>" % (self.order, self.name, self.title)
+        return u"<HeaderFilterItem: order: %i, name: %s, title: %s>" % (
+                    self.order, self.name, self.title
+                )
 
     class Meta:
         app_label = 'creme_core'

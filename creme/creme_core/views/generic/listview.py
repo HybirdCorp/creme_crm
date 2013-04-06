@@ -40,7 +40,7 @@ class NoHeaderFilterAvailable(Exception):
     pass
 
 
-def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filter):
+def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filter, header_filter):
     queryset = model.objects.filter(is_deleted=False)
 
     if entity_filter:
@@ -50,7 +50,8 @@ def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filt
         queryset = queryset.filter(extra_q)
 
     list_view_state.extra_q = extra_q
-    queryset = queryset.filter(list_view_state.get_q_with_research(model))
+    #TODO: method in ListViewState that returns the improved queryset
+    queryset = queryset.filter(list_view_state.get_q_with_research(model, header_filter.items))
 
     return EntityCredentials.filter(request.user, queryset) \
                             .distinct() \
@@ -72,7 +73,8 @@ def _build_entities_page(request, list_view_state, queryset, size):
 
     return entities_page
 
-def list_view_content(request, model, hf_pk='', extra_dict=None, template='creme_core/generics/list_entities.html',
+def list_view_content(request, model, hf_pk='', extra_dict=None,
+                      template='creme_core/generics/list_entities.html',
                       show_actions=True, extra_q=None, o2m=False, post_process=None,
                      ):
     """ Generic list_view wrapper / generator
@@ -88,16 +90,15 @@ def list_view_content(request, model, hf_pk='', extra_dict=None, template='creme
         current_lvs = ListViewState.build_from_request(request) #TODO: move to ListViewState.get_state() ???
 
     try:
-        rows = int(POST_get('rows'))
-        current_lvs.rows = rows
+        current_lvs.rows = rows = int(POST_get('rows'))
     except (ValueError, TypeError):
         rows = current_lvs.rows or 25
 
     try:
-        _search = bool(int(POST_get('_search')))
-        current_lvs._search = _search
+        #TODO: rename '_search' attribute & POST param
+        current_lvs._search = search = bool(int(POST_get('_search')))
     except (ValueError, TypeError):
-        _search = current_lvs._search or False
+        search = current_lvs._search or False
 
     ct = ContentType.objects.get_for_model(model)
     header_filters = HeaderFilterList(ct)
@@ -112,21 +113,16 @@ def list_view_content(request, model, hf_pk='', extra_dict=None, template='creme
 
     hf.build_items(show_actions)
     current_lvs.handle_research(request, hf.items)
-
-    #TODO: in a method ListViewState.init_sort_n_field() ???
-    try:
-        default_model_ordering = model._meta.ordering[0]
-    except IndexError:
-        default_model_ordering = 'id'
-
-    current_lvs.sort_field = POST_get('sort_field', current_lvs.sort_field or default_model_ordering)
-    current_lvs.sort_order = POST_get('sort_order', current_lvs.sort_order or '')
+    current_lvs.set_sort(model,
+                         POST_get('sort_field', current_lvs.sort_field),
+                         POST_get('sort_order', current_lvs.sort_order),
+                        )
 
     entity_filters = EntityFilterList(ct)
     efilter = entity_filters.select_by_id(POST_get('filter', current_lvs.entity_filter_id))
     current_lvs.entity_filter_id = efilter.id if efilter else None
 
-    entities = _build_entity_queryset(request, model, current_lvs, extra_q, efilter)
+    entities = _build_entity_queryset(request, model, current_lvs, extra_q, efilter, hf)
     entities = _build_entities_page(request, current_lvs, entities, rows)
 
     current_lvs.register_in_session(request)
@@ -140,7 +136,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None, template='creme
         'entities':           entities,
         'list_view_state':    current_lvs,
         'content_type_id':    ct.id,
-        'search':             _search,
+        'search':             search,
         'list_view_template': 'creme_core/frags/list_view.html',
         'o2m':                o2m,
         'add_url':            None,
@@ -152,7 +148,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None, template='creme
     if extra_dict:
         template_dict.update(extra_dict)
 
-    if request.GET.get('ajax', False):
+    if request.GET.get('ajax', False): #TODO: request.is_ajax() ?
         template = 'creme_core/frags/list_view_content.html'
 
     if post_process:

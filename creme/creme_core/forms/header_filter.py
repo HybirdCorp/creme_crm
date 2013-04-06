@@ -30,7 +30,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from ..models.header_filter import HeaderFilterItem, HeaderFilter, HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM
 from ..models import RelationType, CustomField
-from ..gui.listview import get_field_name_from_pattern
+#from ..gui.listview import get_field_name_from_pattern
 from ..utils.meta import ModelFieldEnumerator #get_flds_with_fk_flds_str
 from ..utils.id_generator import generate_string_id_and_save
 from .base import CremeModelForm
@@ -80,7 +80,8 @@ class HeaderFilterForm(CremeModelForm):
             for hfi in HeaderFilterItem.objects.filter(header_filter__id=instance.id).order_by('order'):
                 initial_data[hfi.type].append(hfi)
 
-            fields['fields'].initial = [get_field_name_from_pattern(hfi.filter_string) for hfi in initial_data[HFI_FIELD]]
+            #fields['fields'].initial = [get_field_name_from_pattern(hfi.filter_string) for hfi in initial_data[HFI_FIELD]]
+            fields['fields'].initial = [hfi.name for hfi in initial_data[HFI_FIELD]]
             fields['custom_fields'].initial = [int(hfi.name) for hfi in initial_data[HFI_CUSTOM]]
             fields['relations'].initial = [hfi.relation_predicat_id for hfi in initial_data[HFI_RELATION]]
             fields['functions'].initial = [hfi.name for hfi in initial_data[HFI_FUNCTION]]

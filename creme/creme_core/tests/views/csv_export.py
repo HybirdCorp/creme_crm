@@ -46,7 +46,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
                             for first_name, last_name in [('Spike', 'Spiegel'),
                                                           ('Jet', 'Black'),
                                                           ('Faye', 'Valentine'),
-                                                          ('Edward', 'Wong')
+                                                          ('Edward', 'Wong'),
                                                          ]
                         )
 
