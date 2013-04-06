@@ -8,7 +8,7 @@ try:
 
     from ..base import CremeTestCase
     from creme.creme_core.models import CremeEntity
-    from creme.creme_core.gui.listview import get_field_name_from_pattern
+    #from creme.creme_core.gui.listview import get_field_name_from_pattern
     from creme.creme_core.gui.last_viewed import LastViewedItem
 
     from creme.persons.models import Contact
@@ -83,16 +83,16 @@ class GuiTestCase(CremeTestCase):
                         )
 
 
-class ListViewStateTestCase(CremeTestCase):
-    def test_get_field_name_from_pattern(self):
-        self.assertEqual('foo__bar__plop', get_field_name_from_pattern('foo__bar__plop__icontains'))
-        self.assertEqual('foo__bar',       get_field_name_from_pattern('foo__bar__icontains'))
-        self.assertEqual('foo__bar',       get_field_name_from_pattern('foo__bar__exact'))
-        self.assertEqual('foo__bar',       get_field_name_from_pattern('foo__bar__creme-boolean'))
-        self.assertEqual('foo__bar',       get_field_name_from_pattern('foo__bar__exact'))
-        self.assertEqual('foo__bar',       get_field_name_from_pattern('foo__bar'))
-        self.assertEqual('foo',            get_field_name_from_pattern('foo'))
-        self.assertEqual('foo',            get_field_name_from_pattern('foo__isnull'))
+#class ListViewStateTestCase(CremeTestCase):
+    #def test_get_field_name_from_pattern(self):
+        #self.assertEqual('foo__bar__plop', get_field_name_from_pattern('foo__bar__plop__icontains'))
+        #self.assertEqual('foo__bar',       get_field_name_from_pattern('foo__bar__icontains'))
+        #self.assertEqual('foo__bar',       get_field_name_from_pattern('foo__bar__exact'))
+        #self.assertEqual('foo__bar',       get_field_name_from_pattern('foo__bar__creme-boolean'))
+        #self.assertEqual('foo__bar',       get_field_name_from_pattern('foo__bar__exact'))
+        #self.assertEqual('foo__bar',       get_field_name_from_pattern('foo__bar'))
+        #self.assertEqual('foo',            get_field_name_from_pattern('foo'))
+        #self.assertEqual('foo',            get_field_name_from_pattern('foo__isnull'))
 
 
 from bulk_update import *

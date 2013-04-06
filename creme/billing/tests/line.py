@@ -67,7 +67,8 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(Decimal('3.2'), invoice.total_no_vat) # 2 * 0.8 + 2 * 0.8
         self.assertEqual(Decimal('3.38'), invoice.total_vat) # 3.2 * 1.07 = 3.38
 
-    def test_add_product_lines02(self): #on-the-fly
+    def test_add_product_lines02(self):
+        "On-the-fly"
         self.login()
 
         invoice  = self.create_invoice_n_orgas('Invoice001')[0]

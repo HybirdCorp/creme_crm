@@ -72,7 +72,7 @@ def dl_listview_as_csv(request, ct_id):
     if current_lvs.extra_q:
         entities = entities.filter(current_lvs.extra_q)
 
-    entities = entities.filter(current_lvs.get_q_with_research(model))
+    entities = entities.filter(current_lvs.get_q_with_research(model, columns))
     entities = EntityCredentials.filter(request.user, entities)
     entities = entities.distinct().order_by("%s%s" % (sort_order, sort_field)) #distinct ???
 
