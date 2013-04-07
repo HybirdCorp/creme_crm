@@ -18,7 +18,6 @@ except Exception as e:
 
 __all__ = ('CremeCoreTagsTestCase',)
 
-settings.TEMPLATE_DEBUG = False #TODO: remove this in django 1.4 (Exception are not wrapped in TemplateSyntaxError any more)
 
 class CremeCoreTagsTestCase(CremeTestCase):
     def test_templatize(self):
