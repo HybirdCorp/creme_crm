@@ -70,7 +70,7 @@ function assertEntitySelect(select, value, dependencies, url)
 
 module("creme.widgets.chainedselect.js", {
   setup: function() {
-      this.backend = new MockAjaxBackend({sync:true});
+      this.backend = new creme.ajax.MockAjaxBackend({sync:true});
       $.extend(this.backend.GET, {'mock/entity/label/123': this.backend.response(200, [['John Doe']]),
                                   'mock/entity/label/456': this.backend.response(200, [['Bean Bandit']]),
                                   'mock/popup': this.backend.response(200, MOCK_FRAME_CONTENT),

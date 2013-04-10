@@ -29,7 +29,7 @@ var MOCK_FRAME_CONTENT_SUBMIT_JSON_INVALID = '<json>' + '{"value":1, added:[1, "
 
 module("creme.widget.frame.js", {
     setup: function() {
-        this.backend = new MockAjaxBackend({delay:150, sync:true});
+        this.backend = new creme.ajax.MockAjaxBackend({delay:150, sync:true});
         $.extend(this.backend.GET, {'mock/html': this.backend.response(200, MOCK_FRAME_CONTENT),
                                     'mock/html2': this.backend.response(200, MOCK_FRAME_CONTENT_LIST),
                                     'mock/submit': this.backend.response(200, MOCK_FRAME_CONTENT_FORM),

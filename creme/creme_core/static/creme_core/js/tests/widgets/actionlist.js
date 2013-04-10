@@ -33,7 +33,7 @@ function assertAction(action, name, label, type, url, enabled)
 
 module("creme.widgets.actionlist.js", {
   setup: function() {
-      this.backend = new MockAjaxBackend({sync:true});
+      this.backend = new creme.ajax.MockAjaxBackend({sync:true});
       $.extend(this.backend.GET, {'mock/options': this.backend.response(200, [[15, 'a'], [5, 'b'], [3, 'c'], [14, 't'], [42, 'y']]),
                                   'mock/rtype/1/options': this.backend.response(200, [['rtype.1', 'a'], ['rtype.12', 'b'], ['rtype.3', 'c']]),
                                   'mock/rtype/5/options': this.backend.response(200, [['rtype.7', 'x'], ['rtype.22', 'y'], ['rtype.3', 'c']]),
