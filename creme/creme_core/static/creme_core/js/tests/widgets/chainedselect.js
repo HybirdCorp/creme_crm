@@ -20,6 +20,15 @@ function mock_chainedselect_add(element, name, selector)
     return selector;
 }
 
+function mock_chainedselect_add_div(element, name, selector)
+{
+    $('ul', element).append($('<div/>').attr('chained-name', name)
+                                       .addClass('ui-creme-chainedselect-item')
+                                       .append(selector));
+
+    return selector;
+}
+
 function mock_chainedselect_add_entityselector(element, name, options)
 {
    var selector = mock_entityselector_create(options, true);
@@ -105,6 +114,28 @@ test('creme.widgets.chainedselect.create (empty, single selector, static)', func
     mock_dselect_add_choice(ctype, 'c', 3);
 
     mock_chainedselect_add(element, 'ctype', ctype);
+
+    var widget = creme.widget.create(element);
+
+    equal(element.hasClass('widget-active'), true);
+    equal(element.hasClass('widget-ready'), true);
+
+    equal(widget.val(), $.toJSON({ctype: '15'}));
+    equal(widget.selectors().length, 1);
+
+    assertDSelectAt(widget, 'ctype', '15', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c']]);
+
+    equal(widget.selector('unknown').length, 0);
+});
+
+test('creme.widgets.chainedselect.create (empty, single selector, static, <div>)', function() {
+    var element = mock_chainedselect_create();
+    var ctype = mock_dselect_create();
+    mock_dselect_add_choice(ctype, 'a', 15);
+    mock_dselect_add_choice(ctype, 'b', 5);
+    mock_dselect_add_choice(ctype, 'c', 3);
+
+    mock_chainedselect_add_div(element, 'ctype', ctype);
 
     var widget = creme.widget.create(element);
 
@@ -738,4 +769,112 @@ test('creme.widgets.chainedselect.change (multi selector, multiple dependencies)
     assertDSelectAt(widget, 'ctype', '5', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c'], ['1', 'd']]);
     assertDSelectAt(widget, 'rtype', 'rtype.22', ['ctype'], 'mock/rtype/5/options', [['rtype.7', 'x'], ['rtype.22', 'y'], ['rtype.3', 'c']]);
     assertDSelectAt(widget, 'entity', '789', ['rtype', 'ctype'], 'mock/entity/rtype.22/5/options', [['456', 'Bean Bandit'], ['789', 'Mini May']]);
+});
+
+
+test('creme.widgets.chainedselect.reset (single selector)', function() {
+    var element = mock_chainedselect_create($.toJSON({ctype:'5'}));
+    var ctype = mock_dselect_create();
+    mock_dselect_add_choice(ctype, 'a', 15);
+    mock_dselect_add_choice(ctype, 'b', 5);
+    mock_dselect_add_choice(ctype, 'c', 3);
+
+    mock_chainedselect_add(element, 'ctype', ctype);
+
+    var widget = creme.widget.create(element);
+
+    equal(widget.val(), $.toJSON({ctype: '5'}), 'initial value');
+    equal(5, ctype.creme().widget().val());
+
+    widget.reset();
+
+    equal(widget.val(), $.toJSON({ctype: '15'}), 'reset value');
+    assertDSelectAt(widget, 'ctype', '15', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c']]);
+});
+
+test('creme.widgets.chainedselect.reset (multi selector, static)', function() {
+    var element = mock_chainedselect_create($.toJSON({ctype: '3', rtype: '42'}));
+
+    var ctype = mock_dselect_create();
+    mock_dselect_add_choice(ctype, 'a', 15);
+    mock_dselect_add_choice(ctype, 'b', 5);
+    mock_dselect_add_choice(ctype, 'c', 3);
+
+    var rtype = mock_dselect_create();
+    mock_dselect_add_choice(rtype, 'd', 1);
+    mock_dselect_add_choice(rtype, 'e', 6);
+    mock_dselect_add_choice(rtype, 'f', 42);
+
+    mock_chainedselect_add(element, 'ctype', ctype);
+    mock_chainedselect_add(element, 'rtype', rtype);
+
+    var widget = creme.widget.create(element);
+
+    equal(widget.val(), $.toJSON({ctype: '3', rtype: '42'}));
+    assertDSelectAt(widget, 'ctype', '3', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c']]);
+    assertDSelectAt(widget, 'rtype', '42', [], '', [['1', 'd'], ['6', 'e'], ['42', 'f']]);
+
+    widget.reset();
+
+    equal(widget.val(), $.toJSON({ctype: '15', rtype: '1'}), 'reset value');
+    assertDSelectAt(widget, 'ctype', '15', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c']]);
+    assertDSelectAt(widget, 'rtype', '1', [], '', [['1', 'd'], ['6', 'e'], ['42', 'f']]);
+});
+
+test('creme.widgets.chainedselect.reset (multi selector, single dependency)', function() {
+    var element = mock_chainedselect_create($.toJSON({ctype: '5', rtype: 'rtype.22'}));
+
+    var ctype = mock_dselect_create();
+    mock_dselect_add_choice(ctype, 'a', 15);
+    mock_dselect_add_choice(ctype, 'b', 5);
+    mock_dselect_add_choice(ctype, 'c', 3);
+    mock_dselect_add_choice(ctype, 'd', 1);
+
+    var rtype = mock_dselect_create('mock/rtype/${ctype}/options');
+
+    mock_chainedselect_add(element, 'ctype', ctype);
+    mock_chainedselect_add(element, 'rtype', rtype);
+
+    var widget = creme.widget.create(element);
+
+    equal(widget.val(), $.toJSON({ctype: '5', rtype: 'rtype.22'}), 'updated ctype and rtype');
+    assertDSelectAt(widget, 'ctype', '5', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c'], ['1', 'd']]);
+    assertDSelectAt(widget, 'rtype', 'rtype.22', ['ctype'], 'mock/rtype/5/options', [['rtype.7', 'x'], ['rtype.22', 'y'], ['rtype.3', 'c']]);
+
+    widget.reset();
+
+    equal(widget.val(), $.toJSON({ctype: '15', rtype: 'rtype.12'}), 'initial value');
+    assertDSelectAt(widget, 'ctype', '15', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c'], ['1', 'd']]);
+    assertDSelectAt(widget, 'rtype', 'rtype.12', ['ctype'], 'mock/rtype/15/options', [['rtype.12', 'b'], ['rtype.2', 'e']]);
+});
+
+test('creme.widgets.chainedselect.reset (multi selector, multiple dependencies)', function() {
+    var element = mock_chainedselect_create($.toJSON({ctype: '5', rtype: 'rtype.22', entity: '789'}));
+
+    var ctype = mock_dselect_create();
+    mock_dselect_add_choice(ctype, 'a', 15);
+    mock_dselect_add_choice(ctype, 'b', 5);
+    mock_dselect_add_choice(ctype, 'c', 3);
+    mock_dselect_add_choice(ctype, 'd', 1);
+
+    var rtype = mock_dselect_create('mock/rtype/${ctype}/options');
+    var entity = mock_dselect_create('mock/entity/${rtype}/${ctype}/options');
+
+    mock_chainedselect_add(element, 'ctype', ctype);
+    mock_chainedselect_add(element, 'rtype', rtype);
+    mock_chainedselect_add(element, 'entity', entity);
+
+    var widget = creme.widget.create(element);
+
+    equal(widget.val(), $.toJSON({ctype: '5', rtype: 'rtype.22', entity: '789'}), 'updated ctype');
+    assertDSelectAt(widget, 'ctype', '5', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c'], ['1', 'd']]);
+    assertDSelectAt(widget, 'rtype', 'rtype.22', ['ctype'], 'mock/rtype/5/options', [['rtype.7', 'x'], ['rtype.22', 'y'], ['rtype.3', 'c']]);
+    assertDSelectAt(widget, 'entity', '789', ['rtype', 'ctype'], 'mock/entity/rtype.22/5/options', [['456', 'Bean Bandit'], ['789', 'Mini May']]);
+
+    widget.reset();
+
+    equal(widget.val(), $.toJSON({ctype: '15', rtype: 'rtype.12', entity: '123'}), 'initial value');
+    assertDSelectAt(widget, 'ctype', '15', [], '', [['15', 'a'], ['5', 'b'], ['3', 'c'], ['1', 'd']]);
+    assertDSelectAt(widget, 'rtype', 'rtype.12', ['ctype'], 'mock/rtype/15/options', [['rtype.12', 'b'], ['rtype.2', 'e']]);
+    assertDSelectAt(widget, 'entity', '123', ['rtype', 'ctype'], 'mock/entity/rtype.12/15/options', [['123', 'John Doe'], ['456', 'Bean Bandit']]);
 });

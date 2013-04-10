@@ -177,6 +177,10 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
         return this._popupURL.render();
     },
 
+    reset: function(element) {
+        this.val(element, null);
+    },
+
     val: function(element, value)
     {
         if (value === undefined)

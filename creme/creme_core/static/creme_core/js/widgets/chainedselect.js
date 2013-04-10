@@ -18,6 +18,7 @@
 
 creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
     options : {
+        backend: undefined,
         json: true
     },
 
@@ -26,7 +27,7 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
         var self = this;
 
         this.selectors(element).each(function() {
-            $(this).creme().create({}, undefined, true);
+            $(this).creme().create({backend: self.options.backend}, undefined, true);
         });
 
         this._dependency_change = function() {
@@ -35,7 +36,7 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
             self._update(element);
         };
 
-        $('img.reset', element).bind('click', function() {
+        $('img.reset', element).click(function() {
             self.reset(element);
         });
 
@@ -125,15 +126,22 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
     },
 
     selector: function(element, name) {
-        return $('li[chained-name="' + name + '"].ui-creme-chainedselect-item:last > .ui-creme-widget', element);
+        return $('[chained-name="' + name + '"].ui-creme-chainedselect-item:last > .ui-creme-widget', element).filter(function() {
+            return $(this).parents('.ui-creme-chainedselect:first').is(element);
+        });
     },
 
     selectors: function(element) {
-        return $('li.ui-creme-chainedselect-item > .ui-creme-widget', element);
+        return $('.ui-creme-chainedselect-item > .ui-creme-widget', element).filter(function() {
+            return $(this).parents('.ui-creme-chainedselect:first').is(element);
+        });
     },
 
-    reset: function(element) {
-        this.val(element, {});
+    reset: function(element)
+    {
+        this.selectors(element).each(function() {
+            $(this).creme().widget().reset();
+        });
     },
 
     val: function(element, value)

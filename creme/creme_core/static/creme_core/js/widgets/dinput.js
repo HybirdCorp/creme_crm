@@ -33,6 +33,10 @@ creme.widget.DynamicInput = creme.widget.declare('ui-creme-dinput', {
         if (cb != undefined) cb(element);
     },
 
+    reset: function(element) {
+        this.val(element, null);
+    },
+
     val: function(element, value) {
         //console.log(element, value, element.val());
 

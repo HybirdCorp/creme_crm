@@ -179,8 +179,12 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         return creme.widget.cleanval(value, value);
     },
 
+    reset: function(element) {
+        this.selectfirst(element);
+    },
+
     selectfirst: function(element) {
-        element.val(this.firstchoice(element));
+        this.val(element, this.firstchoice(element));
     },
 
     firstchoice: function(element)

@@ -287,3 +287,18 @@ test('creme.widgets.pselect.reload (type, value, multiple selector)', function()
     widget.reload({operator:'boolean'});
     assertSelector(widget, 'boolean', true, '.ui-creme-dselect');
 });
+
+test('creme.widgets.pselect.reset (type, value, multiple selector)', function() {
+    var element = mock_pselect_create('text');
+    var text = mock_pselect_add_selector(element, 'text', $('<input type="text"/>'), 'ui-creme-dinput', {});
+    var password = mock_pselect_add_selector(element, 'password', $('<input type="password"/>'), 'ui-creme-dinput', {});
+    var bool = mock_pselect_add_selector(element, 'boolean', $('<select><option value="true">True</option><option value="false">False</option></select>'), 'ui-creme-dselect', {});
+
+    var widget = creme.widget.create(element);
+
+    widget.val({type:'password', value:'toor'});
+    assertSelector(widget, 'password', 'toor', '.ui-creme-dinput[type="password"]');
+
+    widget.reset()
+    assertSelector(widget, 'text', null, '.ui-creme-dinput[type="text"]');
+});
