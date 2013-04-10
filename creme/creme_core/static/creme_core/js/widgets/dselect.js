@@ -57,18 +57,16 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
           return;
 
        var selected = data['value'];
-       var added_items = data['added'] !== undefined ? data['added'] : [];
-       var removed_items = data['removed'] !== undefined ? data['removed'] : [];
+       var added_items = data['added'] || [];
+       var removed_items = data['removed'] || [];
 
-       for (var i = 0; i < removed_items.length; ++i) {
-           var removed = removed_items[i];
-           $('option[value="' + removed + '"]', element).detach();
-       }
+       removed_items.forEach(function(item) {
+           $('option[value="' + item + '"]', element).detach();
+       })
 
-       for (var i = 0; i < added_items.length; ++i) {
-           var added = added_items[i];
-           element.append($('<option/>').val(added[0]).text(added[1]));
-       }
+       added_items.forEach(function(item) {
+           element.append($('<option/>').val(item[0]).text(item[1]));
+       });
 
        self.val(element, selected);
        self._update_disabled_state(element);
@@ -162,7 +160,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         if (typeof value !== 'string')
             value = $.toJSON(value);
 
-        if ($('> option[value="' + value + '"]', element).length === 0) {
+        if (this.choice(element, value) === undefined) {
             this.selectfirst(element);
         } else {
             element.val(value);
@@ -182,24 +180,51 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     },
 
     selectfirst: function(element) {
-        element.val($('> option:first', element).attr('value'));
+        element.val(this.firstchoice(element));
+    },
+
+    firstchoice: function(element)
+    {
+        return $('option:first', element).filter(function() {
+            return $(this).parents('select:first').is(element);
+        }).attr('value');
     },
 
     choice: function(element, key)
     {
-        if (creme.object.isempty(key) === false)
-            return [key, $('> option[value="' + key + '"]', element).text()];
+        if (creme.object.isempty(key) === true)
+            return;
+
+        return [key,
+                $('option[value="' + key + '"]', element).filter(function() {
+                    return $(this).parents('select:first').is(element);
+                }).text()];
     },
 
     choices: function(element)
     {
         var choices = [];
 
-        $('> option', element).each(function() {
+        $('option', element).filter(function() {
+            return $(this).parents('select:first').is(element);
+        }).each(function() {
             choices.push([$(this).attr('value'), $(this).text()]);
         });
 
         return choices;
+    },
+
+    groups: function(element)
+    {
+        var groups = [];
+
+        $('optgroup', element).filter(function() {
+            return $(this).parents('select:first').is(element);
+        }).each(function() {
+            return groups.push($(this).attr('label'));
+        });
+
+        return groups;
     },
 
     selected: function(element) {

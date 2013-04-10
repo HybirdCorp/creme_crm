@@ -38,7 +38,7 @@ ul.ui-layout.vbox li { position:relative; display:block; }
 .ui-creme-selectorlist > div.add ul { margin-top:0.2em; margin-bottom:0.2em; }
 .ui-creme-selectorlist > div.add ul:hover { cursor:pointer; }
 .ui-creme-selectorlist > div.add ul li { height:1em; vertical-align:middle; }
-.ui-creme-selectorlist > div.add ul li img { position:relative; top:0.2em; }
+.ui-creme-selectorlist > div.add ul li img { position:relative; vertical-align:middle; }
 
 .ui-creme-selectorlist img.delete { border:0; vertical-align:middle; }
 .ui-creme-selectorlist img.delete:hover { cursor:pointer; }
@@ -58,7 +58,7 @@ ul.ui-layout.vbox li { position:relative; display:block; }
 .ui-creme-chainedselect li[chained-name="searchfield"] .ui-creme-dselect { width:14em; }
 
 /*----------------------------------*/
-.ui-creme-entityselector > button[type="button"] { min-width:10em; padding: 0px 6px; }
+.ui-creme-entityselector > button[type="button"] { min-width:10em; padding: 0px 6px; margin-left: 0px;}
 
 /*----------------------------------*/
 .ui-creme-overlay {
