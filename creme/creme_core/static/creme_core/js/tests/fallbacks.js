@@ -35,6 +35,38 @@ test('fallbacks.Array.slice', function() {
     deepEqual([1, 2, 1, 4, 5, 4].slice(1, 4), [2, 1, 4]);
 });
 
+test('fallbacks.Array.map', function() {
+    equal(typeof Array.prototype.map, 'function');
+    equal(typeof [].map, 'function');
+
+    deepEqual(["my", "Name", "is", "HARRY"].map(function(element, index, array) {
+                                                   return element.toUpperCase();
+                                                }), ["MY", "NAME", "IS", "HARRY"]);
+});
+
+test('fallbacks.Array.forEach', function() {
+    equal(typeof Array.prototype.forEach, 'function');
+    equal(typeof [].forEach, 'function');
+
+    var value = "";
+    ["This", "is", "a", "forEach", "test"].forEach(function(element, index, array) {value += element;});
+
+    equal(value, 'ThisisaforEachtest');
+});
+
+test('fallbacks.Array.isArray', function() {
+    equal(typeof Array.isArray, 'function');
+    equal(Array.isArray([]), true);
+    equal(Array.isArray([12, 5, 5]), true);
+    equal(Array.isArray(new Array()), true);
+
+    equal(Array.isArray(undefined), false);
+    equal(Array.isArray(null), false);
+
+    equal(Array.isArray({}), false);
+    equal(Array.isArray({'test': 1}), false);
+});
+
 if (jQuery === undefined)
 {
     test('fallbacks.Array.contains', function() {
@@ -76,17 +108,7 @@ if (jQuery === undefined)
                                                return element >= 10;
                                            }), [12, 44]);
     });
-    
-    test('fallbacks.Array.forEach', function() {
-        equal(typeof Array.prototype.forEach, 'function');
-        equal(typeof [].forEach, 'function');
-    
-        var value = "";
-        ["This", "is", "a", "forEach", "test"].forEach(function(element, index, array) {value += element;});
-    
-        equal(value, 'ThisisaforEachtest');
-    });
-    
+
     test('fallbacks.Array.getRange', function() {
         equal(typeof Array.prototype.getRange, 'function');
         equal(typeof [].getRange, 'function');
@@ -108,15 +130,6 @@ if (jQuery === undefined)
         equal(typeof [].insertAt, 'function');
     
         deepEqual(['dog', 'cat', 'horse'].insertAt(2, 'mouse'), ['dog', 'cat', 'mouse', 'horse']);
-    });
-    
-    test('fallbacks.Array.map', function() {
-        equal(typeof Array.prototype.map, 'function');
-        equal(typeof [].map, 'function');
-    
-        deepEqual(["my", "Name", "is", "HARRY"].map(function(element, index, array) {
-                                                       return element.toUpperCase();
-                                                    }), ["MY", "NAME", "IS", "HARRY"]);
     });
     
     test('fallbacks.Array.removeAt', function() {
