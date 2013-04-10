@@ -350,6 +350,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/jquery/extensions/jquery.tinymce.js',
 
                     'creme_core/js/lib/fallbacks/array-0.9.js',
+                    'creme_core/js/lib/fallbacks/string-0.1.js',
                     'creme_core/js/lib/fallbacks/event-0.1.js',
                     'creme_core/js/lib/fallbacks/htmldocument-0.1.js',
 

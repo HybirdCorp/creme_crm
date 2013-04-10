@@ -179,3 +179,86 @@ test('fallbacks.Event', function() {
 test('fallbacks.Event.preventDefault', function() {
     equal(typeof Event.prototype.preventDefault, 'function');
 });
+
+test('fallbacks.String.trim', function() {
+    equal('', ''.trim());
+    equal('', '   '.trim());
+    equal('', '\t\t'.trim());
+    equal('abc', 'abc'.trim());
+    equal('abc', '  abc'.trim());
+    equal('abc', 'abc  '.trim());
+    equal('abc', '  abc  '.trim());
+    equal('abc', '\tabc'.trim());
+    equal('abc', 'abc\t'.trim());
+    equal('abc', '\tabc\t'.trim());
+});
+
+test('fallbacks.String.ltrim', function() {
+    equal('', ''.ltrim());
+    equal('', '   '.ltrim());
+    equal('', '\t\t'.ltrim());
+    equal('abc', 'abc'.ltrim());
+    equal('abc', 'abc'.ltrim());
+    equal('abc  ', 'abc  '.ltrim());
+    equal('abc  ', '  abc  '.ltrim());
+    equal('abc', '\tabc'.ltrim());
+    equal('abc\t', 'abc\t'.ltrim());
+    equal('abc\t', '\tabc\t'.ltrim());
+});
+
+test('fallbacks.String.rtrim', function() {
+    equal('', ''.rtrim());
+    equal('', '   '.rtrim());
+    equal('', '\t\t'.rtrim());
+    equal('abc', 'abc'.rtrim());
+    equal('  abc', '  abc'.rtrim());
+    equal('abc', 'abc  '.rtrim());
+    equal('  abc', '  abc  '.rtrim());
+    equal('\tabc', '\tabc'.rtrim());
+    equal('abc', 'abc\t'.rtrim());
+    equal('\tabc', '\tabc\t'.rtrim());
+});
+
+test('fallbacks.String.startsWith', function() {
+    equal(''.startsWith(''), true);
+    equal(''.startsWith('a'), false);
+
+    equal('a'.startsWith('a'), true);
+    equal('abcd'.startsWith('a'), true);
+    equal('abcd'.startsWith('abcd'), true);
+
+    equal('d'.startsWith('a'), false);
+    equal('dcba'.startsWith('a'), false);
+    equal('dcba'.startsWith('abcd'), false);
+});
+
+test('fallbacks.String.endsWith', function() {
+    equal(''.endsWith(''), true);
+    equal(''.endsWith('a'), false);
+
+    equal('d'.endsWith('d'), true);
+    equal('abcd'.endsWith('d'), true);
+    equal('abcd'.endsWith('abcd'), true);
+
+    equal('a'.endsWith('d'), false);
+    equal('dcba'.endsWith('d'), false);
+    equal('dcba'.startsWith('abcd'), false);
+});
+
+test('fallbacks.String.format', function() {
+    equal('12',    '%d'.format(12))
+    equal('00012', '%05d'.format(12))
+    equal('   12', '%5d'.format(12))
+    equal('12   ', '%-5d'.format(12))
+    
+    equal('12.457000', '%f'.format(12.457))
+    equal('12.457000', '%09f'.format(12.457))
+    equal('12.457000', '%9f'.format(12.457))
+    equal('12.457000', '%-9f'.format(12.457))
+    equal('12.457',    '%05.3f'.format(12.457))
+    equal('12.457',    '%5.3f'.format(12.457))
+    equal('12.457',    '%-5.3f'.format(12.457))
+    equal('12.46',     '%.2f'.format(12.457))
+    equal('12.46',     '%.2f'.format(12.457))
+    equal('12.46',     '%-.2f'.format(12.457))
+});
