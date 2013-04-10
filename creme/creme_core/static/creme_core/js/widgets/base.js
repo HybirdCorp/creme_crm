@@ -67,6 +67,22 @@ creme.object = {
         return cb.apply(delegate, args);
     },
 
+    build_callback: function(script, parameters)
+    {
+        if (arguments.length < 1)
+            return;
+
+        if (typeof script === 'function')
+            return script;
+
+        try {
+            var script = script ? 'cb = function(' + parameters.join(',') + ') {' + script + '};' : undefined;
+            return script ? eval(script) : undefined;
+        } catch(e) {
+            throw e;
+        }
+    },
+
     deferred_start: function(element, name, func, delay)
     {
         var key = 'deferred__' + name;

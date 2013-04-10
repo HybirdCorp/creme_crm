@@ -175,6 +175,27 @@ td.td_info > ul.ui-creme-actionbuttonlist li.delegate { width: 45%; }
 td.td_info > ul.ui-creme-actionbuttonlist li.delegate > * { width: 100%; }
 
 /*----------------------------------*/
+.ui-creme-toggle .toggle-target.toggle-collapsed {
+    display: none;
+}
+
+.ui-creme-toggle .toggle-trigger {
+    cursor: pointer;
+}
+
+.toggle-icon {
+    background-image: url("icecream/images/expanded.gif");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.toggle-icon.toggle-collapsed, .toggle-collapsed .toggle-icon {
+    background-image: url("icecream/images/expandme.gif");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/*----------------------------------*/
 .ui-creme-autosave .autosave-status {
     background-image: none;
     width:16px;

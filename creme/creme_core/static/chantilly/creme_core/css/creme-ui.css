@@ -180,6 +180,15 @@ span.ui-creme-datepicker-trigger {
 }
 
 /*----------------------------------*/
+.ui-creme-toggle .toggle-target.toggle-collapsed {
+    display: none;
+}
+
+.ui-creme-toggle .toggle-trigger {
+    cursor: pointer;
+}
+
+/*----------------------------------*/
 .ui-creme-autosave .autosave-status {
     background-image: none;
 }
