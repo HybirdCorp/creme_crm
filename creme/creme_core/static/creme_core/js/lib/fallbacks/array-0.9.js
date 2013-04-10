@@ -51,6 +51,63 @@
         return -1;
     });
 
+    // ES5 15.4.3.2
+    // http://es5.github.com/#x15.4.3.2
+    // https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/isArray
+    if (!Array.isArray) {
+        Array.isArray = function isArray(obj) {
+            return (obj !== undefined && obj !== null && obj.toString() === "[object Array]") || obj instanceof Array;
+        };
+    }
+
+    /**
+    * Creates a new array with the results of calling a provided function on every element in this array.
+    *
+    * Natively supported in Gecko since version 1.8.
+    * http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Objects:Array:map
+    * 
+    * @example ["my", "Name", "is", "HARRY"].map(function(element, index, array) {
+    *   return element.toUpperCase();
+    * });
+    * @result ["MY", "NAME", "IS", "HARRY"];
+    *
+    * @example [1, 4, 9].map(Math.sqrt);
+    * @result [1, 2, 3];
+    *
+    * @name map
+    * @param Function fn The function to be called for each element.
+    * @param Object scope (optional) The scope of the function (defaults to this).
+    * @return Array
+    */
+    append("map", function(fn, scope){
+        scope = scope || window;
+        var r = [];
+        for(var i = 0; i < this.length; i++)
+            r[r.length] = fn.call(scope, this[i], i, this);
+        return r;
+    });
+
+    /**
+    * Executes a provided function once per array element.
+    *
+    * Natively supported in Gecko since version 1.8.
+    * http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Objects:Array:forEach
+    * 
+    * @example var stuff = "";
+    * ["Java", "Script"].forEach(function(element, index, array) {
+    *   stuff += element;
+    * });
+    * @result "JavaScript";
+    *
+    * @name forEach
+    * @param Function fn The function to be called for each element.
+    * @param Object scope (optional) The scope of the function (defaults to this).
+    * @return void
+    */  
+    append("forEach", function(fn, scope){
+        for(var i = 0; i < this.length; i++)
+            fn.call(scope || window, this[i], i, this);
+    });
 
     if ($ !== undefined)
         return;
@@ -138,29 +195,6 @@
 
 
 	/**
-	* Executes a provided function once per array element.
-	*
-	* Natively supported in Gecko since version 1.8.
-	* http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Objects:Array:forEach
-	* 
-	* @example var stuff = "";
-	* ["Java", "Script"].forEach(function(element, index, array) {
-	*   stuff += element;
-	* });
-	* @result "JavaScript";
-	*
-	* @name forEach
-	* @param Function fn The function to be called for each element.
-	* @param Object scope (optional) The scope of the function (defaults to this).
-	* @return void
-	*/	
-	append("forEach", function(fn, scope){
-		for(var i = 0; i < this.length; i++)
-			fn.call(scope || window, this[i], i, this);
-	});
-
-
-	/**
 	* Returns a range of items in this collection
 	*
 	* @example [1, 2, 1, 4, 5, 4].getRange(2, 4);
@@ -207,33 +241,6 @@
 			if(subject == this[i])
 				return true;
 		return false;
-	});
-
-	/**
-	* Creates a new array with the results of calling a provided function on every element in this array.
-	*
-	* Natively supported in Gecko since version 1.8.
-	* http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Objects:Array:map
-	* 
-	* @example ["my", "Name", "is", "HARRY"].map(function(element, index, array) {
-	*   return element.toUpperCase();
-	* });
-	* @result ["MY", "NAME", "IS", "HARRY"];
-	*
-	* @example [1, 4, 9].map(Math.sqrt);
-	* @result [1, 2, 3];
-	*
-	* @name map
-	* @param Function fn The function to be called for each element.
-	* @param Object scope (optional) The scope of the function (defaults to this).
-	* @return Array
-	*/
-	append("map", function(fn, scope){
-		scope = scope || window;
-		var r = [];
-		for(var i = 0; i < this.length; i++)
-			r[r.length] = fn.call(scope, this[i], i, this);
-		return r;
 	});
 
     /**
