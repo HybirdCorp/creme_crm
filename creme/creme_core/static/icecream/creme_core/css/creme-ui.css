@@ -71,12 +71,53 @@ ul.ui-layout.vbox li { position:relative; display:block; }
     background-position: 50% 50%;
     background-color: white;
     display: none;
-    opacity: .50;
-    filter: Alpha(Opacity=50);
+    opacity: .70;
+    filter: Alpha(Opacity=70);
 }
 
 .ui-creme-overlay.overlay-active { display: block; }
-.ui-creme-overlay.overlay-waiting { background-image: url("icecream/images/wait.gif"); }
+
+.ui-creme-overlay.overlay-active[status] {
+    opacity: 1;
+    filter: none;
+    cursor: pointer;
+}
+
+.ui-creme-overlay.overlay-active[status="wait"] { background-image: url("icecream/images/wait.gif"); }
+.ui-creme-overlay.overlay-active[status="404"] { background-image: url("icecream/images/404_256.png"); }
+.ui-creme-overlay.overlay-active[status="500"] { background-image: url("icecream/images/500_256.png"); }
+.ui-creme-overlay.overlay-active[status="403"] { background-image: url("icecream/images/404_256.png"); }
+
+/*----------------------------------*/
+.ui-creme-jqueryplot[widget="ui-creme-jqueryplot"] {
+    background-image: url("icecream/images/image_64.png");
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    background-color: white;
+}
+
+.ui-creme-jqueryplot.widget-active[widget="ui-creme-jqueryplot"][status="wait"] {
+    background-image: url("icecream/images/wait.gif");
+}
+
+.ui-creme-jqueryplot.widget-active[widget="ui-creme-jqueryplot"][status="valid"] {
+    background-image: none;
+}
+
+.ui-creme-jqueryplot .jqplot-highlighter-tooltip {
+    border: 0px;
+    border-radius: 5px;
+    background: black;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 3px;
+    z-index: 1;
+}
+
+.ui-creme-jqueryplot .jqplot-table-legend .jqplot-table-legend-label {
+    padding-right: 10px;
+}
 
 /*----------------------------------*/
 ul.ui-creme-actionbuttonlist { display: inline; }
@@ -132,3 +173,21 @@ ul.ui-creme-actionbuttonlist button.ui-creme-actionbutton[name=edit] {
 td.td_info > ul.ui-creme-actionbuttonlist { width: 100%; }
 td.td_info > ul.ui-creme-actionbuttonlist li.delegate { width: 45%; }
 td.td_info > ul.ui-creme-actionbuttonlist li.delegate > * { width: 100%; }
+
+/*----------------------------------*/
+.ui-creme-autosave .autosave-status {
+    background-image: none;
+    width:16px;
+    height:16px;
+    display:none;
+}
+
+.ui-creme-autosave.autosave-wait .autosave-status {
+    background-image: url("chantilly/images/wait.gif");
+    display:block;
+}
+
+.ui-creme-autosave.autosave-modified .autosave-status {
+    background-image: url("chantilly/images/edit_16.png");
+    display:block;
+}

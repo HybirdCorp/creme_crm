@@ -266,7 +266,7 @@ creme.string.Template = function(pattern, parameters, renderer) {
                 if (entries === null)
                     return template;
 
-                var result = new String(template);
+                var result = '' + template;
                 var getter = this._getter(values);
 
                 for(var i = 0; i < entries.length; i++)
@@ -310,6 +310,19 @@ creme.string.Template = function(pattern, parameters, renderer) {
 
         tags: function() {
             return this.renderer.tags(this.pattern);
+        },
+
+        iscomplete: function()
+        {
+            var tags = this.tags();
+
+            for(var i = 0; i < tags.length; ++i) {
+                if (this.parameters[tags[i]] === undefined) {
+                    return false;
+                }
+            }
+
+            return true;
         },
 
         update: function(data)

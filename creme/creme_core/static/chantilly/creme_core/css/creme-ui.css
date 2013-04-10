@@ -89,6 +89,37 @@ ul.ui-layout.vbox li { position:relative; display:block; }
 .ui-creme-overlay.overlay-active[status="403"] { background-image: url("chantilly/images/404_256.png"); }
 
 /*----------------------------------*/
+.ui-creme-jqueryplot[widget="ui-creme-jqueryplot"] {
+    background-image: url("chantilly/images/image_64.png");
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    background-color: white;
+}
+
+.ui-creme-jqueryplot.widget-active[widget="ui-creme-jqueryplot"] {
+    background-image: url("chantilly/images/wait.gif");
+}
+
+.ui-creme-jqueryplot.widget-active.widget-ready[widget="ui-creme-jqueryplot"] {
+    background-image: none;
+}
+
+.ui-creme-jqueryplot .jqplot-highlighter-tooltip {
+    border: 0px;
+    border-radius: 5px;
+    background: black;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 3px;
+    z-index: 1;
+}
+
+.ui-creme-jqueryplot .jqplot-table-legend .jqplot-table-legend-label {
+    padding-right: 10px;
+}
+
+/*----------------------------------*/
 ul.ui-creme-actionbuttonlist { display: inline; }
 
 ul.ui-creme-actionbuttonlist button.ui-creme-actionbutton { 
@@ -146,4 +177,17 @@ td.td_info > ul.ui-creme-actionbuttonlist li.delegate > * { width: 100%; }
 /*-------------------------*/
 span.ui-creme-datepicker-trigger {
 	vertical-align:middle;
+}
+
+/*----------------------------------*/
+.ui-creme-autosave .autosave-status {
+    background-image: none;
+}
+
+.ui-creme-autosave.autosave-wait .autosave-status {
+    background-image: url("chantilly/images/wait.gif");
+}
+
+.ui-creme-autosave.autosave-modified .autosave-status {
+    background-image: url("chantilly/images/edit_16.png");
 }
