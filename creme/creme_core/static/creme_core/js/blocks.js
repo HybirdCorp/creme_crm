@@ -153,6 +153,7 @@ creme.blocks.initialize = function(block)
     });
 
     creme.blocks.initEmptyFields(block);
+    creme.widget.ready(block);
 };
 
 creme.blocks.bindEvents = function(block) {
