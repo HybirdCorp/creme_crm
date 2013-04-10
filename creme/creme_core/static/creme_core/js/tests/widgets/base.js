@@ -494,3 +494,41 @@ test('creme.string.Template (render, object getters)', function() {
     template.pattern = 'Mr ${firstname} ${lastname} (${fullname}), living at ${address}';
     equal('Mr John Doe (JohnDoe), living at 13 rue des plantes en pot', template.render());
 });
+
+test('creme.object.JSON.encode (null)', function() {
+    var codec = new creme.object.JSON();
+
+    equal("null", codec.encode(null));
+});
+
+test('creme.object.JSON.encode', function() {
+    var codec = new creme.object.JSON();
+
+    equal(codec.encode('test'), '"test"');
+    equal(codec.encode(12), '12');
+    equal(codec.encode(['a', 12, 'c', null, undefined]), '["a",12,"c",null,null]');
+    equal(codec.encode({'a': ['a', 'b', 150],
+                        'b': 'test',
+                        'c': 12
+                       }), '{"a":["a","b",150],"b":"test","c":12}');
+});
+
+test('creme.object.JSON.decode (null)', function() {
+    var codec = new creme.object.JSON();
+
+    raises(function() {codec.decode(null);});
+});
+
+test('creme.object.JSON.decode (invalid)', function() {
+    var codec = new creme.object.JSON();
+
+    raises(function() {codec.decode('{"a\':1}');});
+    raises(function() {codec.decode('{"a":1,}');});
+    raises(function() {codec.decode('{a:1}');});
+});
+
+test('creme.object.JSON.decode (valid)', function() {
+    var codec = new creme.object.JSON();
+
+    deepEqual(codec.decode('{"a":1, "b":true, "c":[1, 2, 3]}'), {a: 1, b: true, c: [1, 2, 3]});
+});

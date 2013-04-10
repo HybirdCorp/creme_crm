@@ -104,8 +104,58 @@ creme.object = {
         }
 
         return previous;
+    },
+
+    uuid: function() {
+        return $.uidGen({prefix: 'jqplot_target_', mode:'random'})
     }
 }
+
+creme.object.JSON = function() {}
+
+creme.object.JSON.prototype = {
+    encode: function(data)
+    {
+        if (typeof jQuery.toJSON !== 'function') {
+            throw 'not implemented !';
+        }
+
+        return jQuery.toJSON(data);
+    },
+
+    decode: function(data)
+    {
+        if ( typeof data !== "string" || !data) {
+            throw 'Invalid data type or empty string';
+        }
+
+        // Make sure leading/trailing whitespace is removed (IE can't handle it)
+        data = jQuery.trim(data);
+
+        try {
+            if (window.JSON && window.JSON.parse)
+                return window.JSON.parse(data);
+        } catch(err) {
+            throw 'JSON parse error: ' + err;
+        }
+
+        // Make sure the incoming data is actual JSON
+        // Logic borrowed from http://json.org/json2.js
+        var isvalid = (/^[\],:{}\s]*$/.test(data.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, "@")
+                                      .replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]")
+                                      .replace(/(?:^|:|,)(?:\s*\[)+/g, "")));
+
+        if (!isvalid)
+            throw 'JSON parse error (fallback)';
+
+        try {
+            // Try to use the native JSON parser first
+            return (new Function("return " + data))();
+        } catch(err) {
+            throw 'JSON parse error (fallback): ' + err;
+        }
+    }
+};
 
 creme.ajax.Backend = function(options) {
     var defaults = {
@@ -278,6 +328,7 @@ creme.string.Template = function(pattern, parameters, renderer) {
 }
 
 creme.widget = {};
+creme.widget.component = {};
 
 creme.widget.Widget = function() {
     return {
