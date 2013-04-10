@@ -66,6 +66,12 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
         return creme.object.delegate(delegate, 'val', value) || '';
     },
 
+    reset: function(element, value)
+    {
+        var delegate = this.delegate(element).creme().widget();
+        return creme.object.delegate(delegate, 'reset');
+    },
+
     cleanedval: function(element)
     {
         var delegate = this.delegate(element).creme().widget();

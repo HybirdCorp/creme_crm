@@ -172,6 +172,10 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
         //console.log("pselect.reload > value >", this.val(element));
     },
 
+    reset: function(element) {
+        this.val(element, {type: this.options.type, value: ''});
+    },
+
     val: function(element, value)
     {
         if (value === undefined)

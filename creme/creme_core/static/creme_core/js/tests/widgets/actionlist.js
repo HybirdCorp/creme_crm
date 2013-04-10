@@ -155,6 +155,28 @@ test('creme.widgets.actionlist.value', function()
     equal(widget.val(), 1);
 });
 
+test('creme.widgets.actionlist.reset', function()
+{
+    var delegate = mock_dselect_create(undefined, true);
+    mock_dselect_add_choice(delegate, 'a', 12);
+    mock_dselect_add_choice(delegate, 'b', 5);
+    mock_dselect_add_choice(delegate, 'c', 3);
+
+    var element = mock_actionlist_create();
+    mock_actionlist_delegate(element, delegate);
+    mock_actionlist_add(element, {name: 'create', label: 'create', url: 'mock/create/popup'});
+
+    var widget = creme.widget.create(element);
+    widget.val(5);
+    equal(delegate.val(), 5);
+    equal(widget.val(), 5);
+
+    widget.reset();
+
+    equal(delegate.val(), 12);
+    equal(widget.val(), 12);
+});
+
 test('creme.widgets.actionlist.reload', function() {
     var delegate = mock_dselect_create(undefined, true);
     mock_dselect_add_choice(delegate, 'a', 1);

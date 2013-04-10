@@ -207,3 +207,20 @@ test('creme.widget.EntitySelector.reload (template url, multiple, qfilter)', fun
     deepEqual(['ctype', 'selection', 'qfilter'], element.creme().widget().dependencies());
     equal("mock/popup/${ctype}/0?q_filter=" + $.toJSON({"~pk__in":[1, 2]}), element.creme().widget().popupURL());
 });
+
+test('creme.widget.EntitySelector.reset', function() {
+    var element = mock_entityselector_create();
+    var widget = creme.widget.create(element);
+    deepEqual([], element.creme().widget().dependencies());
+
+    widget.val('2');
+    equal("Bean Bandit", $('button', element).text());
+    equal("2", widget.val());
+    equal("", widget.popupURL());
+
+    widget.reset();
+
+    equal("select a mock", $('button', element).text());
+    equal("", widget.val());
+    equal("", widget.popupURL());
+});

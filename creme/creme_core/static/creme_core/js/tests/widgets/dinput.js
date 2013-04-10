@@ -55,3 +55,14 @@ test('creme.widget.DynamicInput.placeholder', function() {
     equal('this is a test', element.val());
     equal('this is a test', element.creme().widget().val());
 });
+
+test('creme.widget.DynamicInput.reset', function() {
+    var element = mock_dinput_create('this is a test');
+    var widget = creme.widget.create(element);
+
+    equal('this is a test', widget.val());
+
+    widget.reset();
+    equal('', widget.val());
+});
+

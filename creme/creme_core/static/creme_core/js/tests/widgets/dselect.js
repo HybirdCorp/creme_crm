@@ -460,3 +460,18 @@ test('creme.widget.DynamicSelect.val (reload)', function() {
     equal('5', $('option:nth(2)', element).attr('value'));
     equal('12.5', $('option:nth(3)', element).attr('value'));
 });
+
+test('creme.widget.DynamicSelect.reset', function() {
+    var element = mock_dselect_create();
+    mock_dselect_add_choice(element, 'a', 1);
+    mock_dselect_add_choice(element, 'b', 5);
+    mock_dselect_add_choice(element, 'c', 3);
+
+    var widget = creme.widget.create(element);
+
+    widget.val(5);
+    deepEqual(widget.selected(), ['5', 'b']);
+
+    widget.reset();
+    deepEqual(widget.selected(), ['1', 'a']);
+});
