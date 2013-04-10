@@ -34,7 +34,7 @@ function mock_dselect_add_group(element, label) {
 
 module("creme.widgets.dselect.js", {
   setup: function() {
-      this.backend = new MockAjaxBackend({sync:true});
+      this.backend = new creme.ajax.MockAjaxBackend({sync:true});
       $.extend(this.backend.GET, {'mock/options': this.backend.response(200, [[1, 'a'], [15, 'b'], [12.5, 'c']]),
                                   'mock/options/empty': this.backend.response(200, []),
                                   'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),

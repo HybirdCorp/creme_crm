@@ -18,7 +18,7 @@ var MOCK_FRAME_CONTENT = '<div class="mock-content"><h1>This a frame test</h1></
 
 module("creme.widgets.entityselector.js", {
   setup: function() {
-      this.backend = new MockAjaxBackend({sync:true});
+      this.backend = new creme.ajax.MockAjaxBackend({sync:true});
       $.extend(this.backend.GET, {'mock/label/1': this.backend.response(200, [['John Doe']]),
                                   'mock/label/2': this.backend.response(200, [['Bean Bandit']]),
                                   'mock/popup': this.backend.response(200, MOCK_FRAME_CONTENT),

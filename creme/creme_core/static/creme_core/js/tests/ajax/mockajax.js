@@ -1,98 +1,39 @@
-MockAjaxBackend = function(options) {
-	var options = $.extend({
-		delay: 500,
-		sync: false,
-		debug: false
-	}, options);
-
-    return {
-    	options: options,
-
-        GET: {},
-        POST: {},
-
-        send: function(url, data, method, on_success, on_error, options)
-        {
-            var self = this;
-            var options = $.extend({}, this.options, options);
-
-            if (options.sync !== true)
-            {
-                 options.sync = true;
-                 var delay = options.delay !== undefined ? options.delay : 500;
-
-                 window.setTimeout(function() {self.send(url, data, method, on_success, on_error, options);}, delay);
-                 return;
-            }
-
-            var response = method !== undefined ? method[url] : undefined;
-
-            if (response === undefined)
-                response = this.response(404, '');
-
-            if (options.debug)
-                console.log('mockajax > send > url:', url, 'options:', options, 'response:', response);
-
-            if (response.status !== 200)
-                return creme.object.invoke(on_error, response.responseText, new creme.ajax.AjaxResponse(response.status,
-                                                                                                        response.responseText,
-                                                                                                        response.xhr));
-
-            return creme.object.invoke(on_success, response.responseText);
-        },
-
-        get:function(url, data, on_success, on_error, options) {
-            return this.send(url, data, this.GET, on_success, on_error, options);
-        },
-
-        post:function(url, data, on_success, on_error, options) {
-            return this.send(url, data, this.POST, on_success, on_error, options);
-        },
-
-        submit:function(form, on_success, on_error, options) {
-            var options = options || {};
-            var action = options.action || form.attr('action');
-            return this.send(action, undefined, this.POST, on_success, on_error, options);
-        },
-
-        // mock object (thanks to jquery.form author)
-        response: function(status, data) {
-            return {
-                aborted: 0,
-                responseText: data,
-                responseXML: null,
-                status: status,
-                statusText: 'n/a',
-                getAllResponseHeaders: function() {},
-                getResponseHeader: function() {},
-                setRequestHeader: function() {},
-                abort: function(status) {}
-            };
-        }
-    };
-}
-
-
 var MOCK_AJAX_FORM_CONTENT = '<form action="mock/add"><input id="name" type="text"/></form>';
 
 module("creme.mockajax.js", {
     setup: function() {
-        this.backend = new MockAjaxBackend();
+        var self = this;
+
+        this.backend = new creme.ajax.MockAjaxBackend();
         $.extend(this.backend.GET, {'mock/html': this.backend.response(200, 'this is a test'),
                                     'mock/add': this.backend.response(200, MOCK_AJAX_FORM_CONTENT),
                                     'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
-                                    'mock/error': this.backend.response(500, 'HTTP - Error 500')});
+                                    'mock/error': this.backend.response(500, 'HTTP - Error 500'),
+                                    'mock/custom': function(url, data, options) {
+                                        return self._custom_GET(url, data, options);
+                                    }});
 
         $.extend(this.backend.POST, {'mock/add/widget': this.backend.response(200, '<json>' + $.toJSON({value:'', added:[1, 'newitem']}) + '</json>'),
                                      'mock/add': this.backend.response(200, MOCK_AJAX_FORM_CONTENT),
                                      'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
-                                     'mock/error': this.backend.response(500, 'HTTP - Error 500')});
+                                     'mock/error': this.backend.response(500, 'HTTP - Error 500'),
+                                     'mock/custom': function(url, data, options) {
+                                         return self._custom_POST(url, data, options);
+                                     }});
 
         creme.widget.unregister('ui-creme-frame');
         creme.widget.declare('ui-creme-frame', new MockFrame(this.backend));
     },
 
     teardown: function() {
+    },
+
+    _custom_GET: function(url, data, options) {
+        return this.backend.response(200, $.toJSON({url: url, method: 'GET', data: data}));
+    },
+
+    _custom_POST: function(url, data, options) {
+        return this.backend.response(200, $.toJSON({url: url, method: 'POST', data: data}));
     }
 });
 
@@ -181,6 +122,20 @@ asyncTest('MockAjaxBackend.get (404, async)', function() {
 });
 
 
+test('MockAjaxBackend.get (custom)', function() {
+    var response = {}
+    this.backend.get('mock/custom', {}, function(responseText) {$.extend(response, {responseText:responseText});},
+                                        function(responseText, xhr) {$.extend(response, xhr);}, {sync: true});
+
+    equal(response.responseText, $.toJSON({url: 'mock/custom', method: 'GET', data: {}}));
+
+    this.backend.get('mock/custom', {a: 1, b: 'test'},
+                                        function(responseText) {$.extend(response, {responseText:responseText});},
+                                        function(responseText, xhr) {$.extend(response, xhr);}, {sync: true});
+
+    equal(response.responseText, $.toJSON({url: 'mock/custom', method: 'GET', data: {a: 1, b: 'test'}}));
+});
+
 test('MockAjaxBackend.post', function() {
     var response = {}
     this.backend.post('mock/add', {}, function(responseText) {$.extend(response, {responseText:responseText});},
@@ -234,3 +189,19 @@ test('MockAjaxBackend.submit', function() {
     equal(response.message, 'HTTP - Error 500');
     equal(response.status, 500);
 });
+
+
+test('MockAjaxBackend.post (custom)', function() {
+    var response = {}
+    this.backend.post('mock/custom', {}, function(responseText) {$.extend(response, {responseText:responseText});},
+                                        function(responseText, xhr) {$.extend(response, xhr);}, {sync: true});
+
+    equal(response.responseText, $.toJSON({url: 'mock/custom', method: 'POST', data: {}}));
+
+    this.backend.post('mock/custom', {a: 1, b: 'test'},
+                                        function(responseText) {$.extend(response, {responseText:responseText});},
+                                        function(responseText, xhr) {$.extend(response, xhr);}, {sync: true});
+
+    equal(response.responseText, $.toJSON({url: 'mock/custom', method: 'POST', data: {a: 1, b: 'test'}}));
+});
+
