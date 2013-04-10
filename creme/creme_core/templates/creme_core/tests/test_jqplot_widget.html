@@ -1,0 +1,508 @@
+{% load i18n %}
+{% load media %}
+{% load creme_block %}
+{% load creme_menu creme_core_tags creme_search creme_quickforms %}
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7" />
+    <title>Creme CRM{% block page_title %}{% endblock %}</title>
+    <script type='text/javascript'>
+        var THEME_NAME = "{{ THEME_NAME }}";
+    </script>
+    <!--
+        Firebug for browsers without plugin/extension :
+            - uncomment the following script
+            - add debug="true" to <html> tag
+    -->
+    <!--script type="text/javascript" src="https://getfirebug.com/firebug-lite.js"></script-->
+    {% include_creme_media "main.css" %}
+    {% include "creme_core/frags/js_header.html" %}
+    
+    <style type="text/css">
+        .ui-creme-jqueryplot .jqplot-highlighter-tooltip {
+            border: 0px;
+            border-radius: 5px;
+            background: black;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 3px;
+        }
+    </style>
+    
+    <script type="text/javascript">
+        var random_bargraph = function()
+        {
+            var reference = [1000, 1000, 2000, 2500, 5000, 5000, 6000, 6000, 6000, 10000, 10000, 10000]
+            var real = [];
+
+            for(index in reference) {
+                real.push((1 + Math.random()) * reference[index]);
+            }
+
+            return [reference, real];
+        };
+
+        var update_plot_options = function(plot, data)
+        {
+            var widget = plot.creme().widget();
+            widget.plotOptions(data);
+            widget.redraw();
+        };
+
+        $.converters.register('jqplotData', 'percentData', function(series) {
+            var result = [];
+
+            for(var s_index = 0; s_index < series.length; ++s_index)
+            {
+                var serie = series[s_index];
+                var serie_total = 0.0;
+
+                serie.forEach(function(element) {serie_total += element[0];});
+
+                var serie_result = serie.map(function(element) {
+                    var percent = (element[0]*100.0) / serie_total;
+                    return [percent].concat(element.slice(1));
+                });
+
+                result.push(serie_result);
+            }
+
+            return result;
+        });
+
+        $(document).ready(function() {
+            $('button#redraw-bargraph').click(function() {
+                if ($('div#barplot').creme().isActive() == false) {
+                    $('div#barplot').creme().create();
+                } else {
+                    $('div#barplot').creme().widget().draw(random_bargraph());
+                }
+            });
+
+            $('div#barplot').resizable();
+
+            $('button#redraw-plot').click(function() {
+                $('div#plot').creme().widget().draw($('textarea#plot-content').val());
+            });
+
+            $('div#plot').bind('plotError', function(e, err, data) {
+                $('div#plot-status').html('')
+                                    .append($('<h5>').html(err.message || err))
+                                    .append($('<div>').css('color', 'red').html(err.stats || ''));
+            });
+
+            $('div#plot').bind('plotSuccess', function(e, err, data) {
+                $('div#plot-status').html('<h5>done.</h5>');
+            });
+
+            $('textarea#plot-content').val($('div#plot script[type="text/json"]').html());
+
+            $('#plot-options-selector').change();
+        });
+    </script>
+</head>
+<body>
+    <h1>Creme JQ Plot Widget Test Page</h1>
+    <h4>Plot</h4>
+    <button id="redraw-plot">Draw</button>
+    <div id="plot-status"></div>
+    <ul class="ui-layout hbox">
+        <li style="vertical-align:top;">
+            <div id="plot" class="ui-widget-content ui-creme-widget ui-creme-jqueryplot widget-auto" widget="ui-creme-jqueryplot" style="width:500px;height:350px;padding:2px;">
+                <script type="text/json">
+{
+    "options": {
+        "seriesDefaults": {
+            "renderer": "jqplot.PieRenderer", 
+            "rendererOptions": {
+                "showDataLabels": true
+            }
+        },
+        "legend": {"show":true, "location": "e"},
+        "title": "This is a Pie"
+    },
+    "data": [[["a", 12], ["b", 15], ["c", 5], ["d", 20], ["e", 8], ["f", 2], ["g", 18], ["h", 32], ["i", 14], ["j", 11]]]
+}
+                </script>
+            </div>
+        </li>
+        <li>
+            <textarea cols="110" rows="24" id="plot-content" style="font-size:12px;"></textarea>
+        </li>
+    </ul>
+    <h4>Plot - Tube of Silence</h4>
+    <table>
+        <tbody>
+            <tr>
+                <td style="vertical-align:top;width:1024px;height:250px;">
+                <div id="plot" class="ui-widget-content ui-creme-widget ui-creme-jqueryplot widget-auto" widget="ui-creme-jqueryplot" 
+                     style="width:1024px;height:250px;padding:2px;">
+                    <script type="text/json">
+{
+    "options": {
+        "seriesColors": ["#8888ff", "#ccccff", "#8888ff", "#ccccff", "#8888ff", "#ccccff", "#8888ff", "#ccccff"],
+        "stackSeries": true,
+        "seriesDefaults": {
+            "renderer": "jqplot.BarRenderer",
+            "shadowAngle": 135,
+            "rendererOptions": {
+                "barDirection": "horizontal",
+                "barWidth": 100
+            }
+        },
+        "legend": {
+            "show": true,
+            "renderer": "jqplot.EnhancedLegendRenderer",
+            "rendererOptions": {
+                "numberRows": 1
+            },
+            "placement": "outsideGrid",
+            "location": "s"
+        },
+        "series": [
+            {"label": "Brouillon"},
+            {"label": "À envoyer"},
+            {"label": "Envoyée"},
+            {"label": "Partiellement soldée"},
+            {"label": "Soldée"},
+            {"label": "Recouvrement soldé"},
+            {"label": "Recouvrement"},
+            {"label": "Annulée"}
+        ],
+        "axes": {
+            "xaxis": {
+                "tickOptions": {
+                    "formatString": "%.2f €"
+                },
+                "min": 0.0,
+                "autoscale": true,
+                "tickInterval": 10000.0
+            },
+            "yaxis": {
+                "renderer": "jqplot.CategoryAxisRenderer",
+                "tickOptions": {
+                    "show": false
+                },
+                "ticks": [""],
+                "label": "Total HT - Somme",
+                "labelRenderer": "jqplot.CanvasAxisLabelRenderer",
+                "labelOptions": {
+                    "fontSize": "10pt"
+                }
+            }
+        },
+        "highlighter": {
+            "show": true,
+            "showMarker": false,
+            "tooltipAxes": "x",
+            "formatString": "%s",
+            "tooltipLocation": "n"
+        },
+        "title": "Somme des totaux HT des factures de l'année en cours / statut"
+    },
+    "data": [ [[1000.0,  1, "Brouillon"]],
+              [[1200.0,  1, "À envoyer"]],
+              [[10200.0, 1, "Envoyée"]],
+              [[5020.0,  1, "Partiellement soldée"]],
+              [[4300.0,  1, "Soldée"]],
+              [[15200.0, 1, "Recouvrement soldé"]],
+              [[5000.0,  1, "Recouvrement"]],
+              [[2000.0,  1, "Annulée"]]
+            ]
+}
+                        </script>
+                    </div>
+                </td>
+                <td style="vertical-align:top;width:300px;height:560px;" rowspan="2">
+                    <div id="plot" class="ui-widget-content ui-creme-widget ui-creme-jqueryplot widget-auto" widget="ui-creme-jqueryplot" 
+                         style="width:300px;height:560px;padding:2px;">
+                        <script type="text/json">
+{
+    "options": {
+        "seriesColors": ["#8888ff", "#ccccff", "#8888ff", "#ccccff", "#8888ff", "#ccccff", "#8888ff", "#ccccff"],
+        "stackSeries": true,
+        "seriesDefaults": {
+            "renderer": "jqplot.BarRenderer",
+            "shadowAngle": 135,
+            "pointLabels": {
+                "show":true,
+                "labelsFromSeries": true,
+                "seriesLabelIndex": 2,
+                "formatter": "jqplot.DefaultTickFormatter",
+                "formatString": "%s"
+            },
+            "rendererOptions": {
+                "barWidth": 100
+            }
+        },
+        "series": [
+            {"label": "Brouillon"},
+            {"label": "À envoyer"},
+            {"label": "Envoyée"},
+            {"label": "Partiellement soldée"},
+            {"label": "Soldée"},
+            {"label": "Recouvrement soldé"},
+            {"label": "Recouvrement"},
+            {"label": "Annulée"}
+        ],
+        "axes": {
+            "xaxis": {
+                "renderer": "jqplot.CategoryAxisRenderer",
+                "tickOptions": {
+                    "show": false
+                },
+                "ticks": [""],
+                "label": "Total HT - Somme",
+                "labelRenderer": "jqplot.CanvasAxisLabelRenderer",
+                "labelOptions": {
+                    "fontSize": "10pt"
+                }
+            },
+            "yaxis": {
+                "tickOptions": {
+                    "formatString": "%.2f €"
+                },
+                "min": 0.0,
+                "autoscale": true,
+                "tickInterval": 10000.0
+            }
+        },
+        "highlighter": {
+            "show": true,
+            "showMarker": false,
+            "tooltipAxes": "y",
+            "formatString": "%s",
+            "tooltipLocation": "e"
+        },
+        "title": "Somme des totaux HT des factures de l'année en cours / statut"
+    },
+    "data": [[[1, 1000.0,  "Brouillon"]],
+             [[1, 1200.0,  "À envoyer"]],
+             [[1, 10200.0, "Envoyée"]],
+             [[1, 5020.0,  "Partiellement soldée"]],
+             [[1, 4300.0,  "Soldée"]],
+             [[1, 15200.0, "Recouvrement soldé"]],
+             [[1, 5000.0,  "Recouvrement"]],
+             [[1, 2000.0,  "Annulée"]]
+            ]
+}
+                        </script>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td style="vertical-align:top;width:1024px;height:250px;">
+                <div id="plot" class="ui-widget-content ui-creme-widget ui-creme-jqueryplot widget-auto" widget="ui-creme-jqueryplot" 
+                     style="padding:2px;">
+                    <script type="text/json">
+{
+    "options": {
+        "seriesColors": "preprocess.seriesColor",
+        "seriesColorOptions": {
+            "colorIndex": -1
+        },
+        "stackSeries": true,
+        "seriesDefaults": {
+            "renderer": "jqplot.BarRenderer",
+            "shadow": false,
+            "shadowAngle": 135,
+            "rendererOptions": {
+                "barDirection": "horizontal",
+                "barWidth": 100
+            }
+        },
+        "legend": {
+            "show": true,
+            "renderer": "jqplot.EnhancedLegendRenderer",
+            "rendererOptions": {
+                "numberRows": 1,
+                "disableIEFading": false
+            },
+            "placement": "outsideGrid",
+            "location": "s"
+        },
+        "series": "preprocess.seriesLabel",
+        "seriesLabelOptions": {
+            "labelIndex": -2
+        },
+        "axes": {
+            "xaxis": {
+                "tickRenderer": "jqplot.CanvasAxisTickRenderer",
+                "tickOptions": {
+                    "fontSize": "10pt",
+                    "formatString": "%d%%"
+                },
+                "min": 0.0,
+                "max": 100.0,
+                "autoscale": true,
+                "tickInterval": 10.0
+            },
+            "yaxis": {
+                "renderer": "jqplot.CategoryAxisRenderer",
+                "tickOptions": {
+                    "show": false
+                },
+                "ticks": [""],
+                "label": "Total HT - Somme",
+                "labelRenderer": "jqplot.CanvasAxisLabelRenderer",
+                "labelOptions": {
+                    "fontSize": "10pt"
+                }
+            }
+        },
+        "highlighter": {
+            "show": true,
+            "showMarker": false,
+            "yvalues": 4,
+            "tooltipAxes": "yx",
+            "formatString": "<center>%4$s</center><center>%2$.2f €</center><center>%3$s</center>",
+            "tooltipLocation": "w"
+        },
+        "title": "Somme des totaux HT des factures de l'année en cours / statut",
+        "dataPreprocessors": ["tee", 
+                              {
+                                  "preprocessor": "percentEntry", 
+                                  "options": {
+                                      "valueIndex": 1,
+                                      "targetIndex": 0
+                                  }
+                              },
+                              {
+                                  "preprocessor": "format", 
+                                  "options": {
+                                      "format": "%0$.2f%% du CA",
+                                      "targetIndex": 3
+                                  }
+                              }
+                             ]
+    },
+    "data": [ [[1,  1000.0, "Brouillon",            "#4444ff"],
+               [1,  1200.0, "À envoyer",            "#8888ff"],
+               [1, 10200.0, "Envoyée",              "#aaaaff"],
+               [1,  5020.0, "Partiellement soldée", "#ffff44"],
+               [1,  4300.0, "Soldée",               "#ffff88"],
+               [1, 15200.0, "Recouvrement soldé",   "#ff4444"],
+               [1,  5000.0, "Recouvrement",         "#ff8888"],
+               [1,  2000.0, "Annulée",              "#ffaaaa"]]
+            ]
+}
+                        </script>
+                    </div>
+                </td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+    <h4>Plot - toggle options</h4>
+    <ul class="ui-layout hbox">
+        <li style="vertical-align:top;">
+            <div id="plot-options" class="ui-widget-content ui-creme-widget ui-creme-jqueryplot widget-auto" widget="ui-creme-jqueryplot" style="width:800px;height:350px;padding:2px;">
+                <script type="text/json">
+                [[["a", 12], ["b", 15], ["c", 5], ["d", 20], ["e", 8], ["f", 2], ["g", 18], ["h", 32], ["i", 14], ["j", 11]]]
+                </script>
+            </div>
+        </li>
+        <li>
+            <select id="plot-options-selector" onchange='update_plot_options($("#plot-options"), $(this).val());'>
+                <option value='{
+                    "seriesDefaults": {
+                        "renderer": "jqplot.PieRenderer", 
+                        "rendererOptions": {
+                            "showDataLabels": true
+                        }
+                    },
+                    "legend": {"show":true, "location": "e"},
+                    "title": "This is a Pie"
+                }'>pie</option>
+                <option value='{
+                    "seriesDefaults": {
+                        "renderer": "jqplot.BarRenderer",
+                        "rendererOptions": {
+                            "showDataLabels": true,
+                            "fillToZero": true
+                        }
+                    },
+                    "series": [
+                        {"label": ""}
+                    ],
+                    "axes": {
+                        "xaxis": {
+                            "renderer": "jqplot.CategoryAxisRenderer",
+                            "tickOptions": {
+                                "formatString": "%s"
+                            }
+                        },
+                        "yaxis": {
+                            "tickOptions": {
+                                "formatString": "%.2f %"
+                            }
+                        }
+                    },
+                    "title": "This is a bargraph"
+                }'>bargraph</option>
+            </select>
+        </li>
+    </ul>
+    <h4>Bargraph</h4>
+    <button id="redraw-bargraph">Redraw</button>
+    <div id="barplot" class="ui-widget-content ui-creme-widget ui-creme-jqueryplot" widget="ui-creme-jqueryplot" style="width:800px; height:350px; padding:2px;"
+         savable="true" resizable="true">
+        <script type="text/json">
+        {
+            "options": {
+                "seriesDefaults": {
+                    "renderer": "jqplot.BarRenderer",
+                    "rendererOptions": {
+                        "showDataLabels": true,
+                        "fillToZero": true
+                    }
+                },
+                "series": [
+                    {"label": "CA Attendu"},
+                    {"label": "CA Effectué"}
+                ],
+                "legend": {
+                    "show": true, 
+                    "placement": "outsideGrid"
+                },
+                "axes": {
+                    "xaxis": {
+                        "renderer": "jqplot.CategoryAxisRenderer",
+                        "ticks": ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+                        "label": "Mois"
+                    },
+                    "yaxis": {
+                        "tickOptions": {
+                            "formatString": "%.2f €"
+                        },
+                        "label": "Chiffre d'affaire",
+                        "labelRenderer": "jqplot.CanvasAxisLabelRenderer",
+                        "labelOptions": {
+                            "fontFamily": "Georgia, Serif",
+                            "fontSize": "12pt"
+                        }
+                    }
+                },
+                "cursor": {
+                    "show": true,
+                    "zoom": true
+                },
+                "highlighter": {
+                    "show": true,
+                    "showMarker": false,
+                    "tooltipAxes": "y",
+                    "formatString": "%s",
+                    "tooltipLocation": "n"
+                },
+                "title": "This is a bargraph"
+            },
+            "data": [[1000, 1000, 2000, 2500, 5000, 5000, 6000, 6000, 6000, 10000, 10000, 10000],
+                     [ 800, 1200, 2200, 1800, 5020, 3800, 7505, 8200, 7200, 15530,  8050, 11020]]
+        }
+        </script>
+    </div>
+</body>
+</html>
