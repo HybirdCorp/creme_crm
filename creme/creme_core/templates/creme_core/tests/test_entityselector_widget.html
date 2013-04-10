@@ -1,0 +1,279 @@
+{% load i18n %}
+{% load media %}
+{% load creme_core_tags creme_widgets %}
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7" />
+    <title>Creme CRM{% block page_title %}{% endblock %}</title>
+    <script type='text/javascript'>
+        var THEME_NAME = "{{ THEME_NAME }}";
+    </script>
+    <!--
+        Firebug for browsers without plugin/extension :
+            - uncomment the following script
+            - add debug="true" to <html> tag
+    -->
+    <!--script type="text/javascript" src="https://getfirebug.com/firebug-lite.js"></script-->
+    {% include_creme_media "main.css" %}
+    {% include "creme_core/frags/js_header.html" %}
+    <script type='text/javascript'>
+         $(document).ready(function() {
+         });
+    </script>
+</head>
+<body>
+    <h1>Entity Widget Test Page</h1>
+    <ul>
+        <li>
+            <h4>Entity selector</h4>
+            <ul>
+                <li>
+                    <div>entity</div>
+                    <div class="ui-creme-widget ui-creme-entityselector widget-auto" widget="ui-creme-entityselector"
+                          labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
+                          popupURL="/creme_core/lv_popup/94/${selection}?q_filter=${qfilter}" popupSelection="0" qfilter="">
+                        <input multiple="True" name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
+                        <button type="button">Sélectionner...</button>
+                    </div>
+                </li>
+                <li>
+                    <div>content type > entity</div>
+                    <div class="ui-creme-widget ui-creme-chainedselect widget-auto" widget="ui-creme-chainedselect">
+                        <input type="hidden" name="" class="ui-creme-input ui-creme-chainedselect"></input>
+                        <ul class="ui-layout hbox">
+                            <li chained-name="ctype" class="ui-creme-chainedselect-item">
+                                <select class="ui-creme-input ui-creme-widget ui-creme-dselect" widget="ui-creme-dselect"
+                                        url="/creme_core/relation/predicate/persons-object_suspect/content_types/json"
+                                        auto="False" name="" >
+                                </select>
+                            </li>
+                            <li chained-name="entity" class="ui-creme-chainedselect-item">
+                                <span class="ui-creme-widget ui-creme-entityselector" widget="ui-creme-entityselector"
+                                      labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
+                                      popupURL="/creme_core/lv_popup/${ctype}/${selection}?q_filter=${qfilter}" popupSelection="0" qfilter="">
+                                    <input multiple="True" name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
+                                    <button type="button">Sélectionner...</button>
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <li>
+                    <div>content type > entity + reset</div>
+                    <div class="ui-creme-widget ui-creme-chainedselect widget-auto" widget="ui-creme-chainedselect">
+                        <input type="hidden" name="" class="ui-creme-input ui-creme-chainedselect"></input>
+                        <ul class="ui-layout hbox">
+                            <li chained-name="ctype" class="ui-creme-chainedselect-item">
+                                <select class="ui-creme-input ui-creme-widget ui-creme-dselect" widget="ui-creme-dselect"
+                                        url="/creme_core/relation/predicate/persons-object_suspect/content_types/json"
+                                        auto="False" name="" >
+                                </select>
+                            </li>
+                            <li chained-name="entity" class="ui-creme-chainedselect-item">
+                                <span class="ui-creme-widget ui-creme-entityselector" widget="ui-creme-entityselector"
+                                      labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
+                                      popupURL="/creme_core/lv_popup/${ctype}/${selection}?q_filter=${qfilter}" popupSelection="0" qfilter="">
+                                    <input multiple="True" name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
+                                    <button type="button">Sélectionner...</button>
+                                </span>
+                            </li>
+                            <li>
+                                <img class="reset" src="{% creme_media_url 'images/delete_22.png' %}" alt="Vider" title="Vider">
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <h4>List : relation > content type > entity </h4>
+            <ul><li>
+                <div class="ui-creme-widget widget-auto ui-creme-selectorlist" widget="ui-creme-selectorlist">
+                    <input type="hidden" name="relations" class="ui-creme-input ui-creme-selectorlist" value="[]"></input>
+                    <div class="inner-selector-model" style="display:none;">
+                        <div class="ui-creme-widget ui-creme-chainedselect" style="" widget="ui-creme-chainedselect">
+                            <input type="hidden" name="" class="ui-creme-input ui-creme-chainedselect"></input>
+                            <ul class="ui-layout hbox">
+                                <li chained-name="rtype" class="ui-creme-chainedselect-item">
+                                    <select url="" auto="False" widget="ui-creme-dselect" name="" class="ui-creme-input ui-creme-widget ui-creme-dselect">
+                                        <option value="email-object_mail_sended">a envoyé le e-mail — (e-mail) a été envoyé</option>
+                                        <option value="commercial-object_sold_by">a été vendu par — a vendu</option>
+                                        <option value="persons-object_inactive_customer">a pour client inactif — est un client inactif de</option>
+                                        <option value="persons-object_suspect">a pour suspect — est suspect de</option>
+                                        <option value="email-object_mail_received">a reçu le e-mail — (e-mail) a été reçu par</option>
+                                        <option value="commercial-subject_sold_by">a vendu — a été vendu par</option>
+                                        <option value="creme_core-object_has">appartient à — possède</option>
+                                        <option value="documents-subject_related_2_doc">concerne le document — document concerné par</option>
+                                        <option value="persons-subject_employed_by">est salarié de — emploie</option>
+                                        <option value="activities-subject_activity_subject">est sujet de l&#39;activité — (activité) a pour sujet</option>
+                                        <option value="persons-subject_suspect">est suspect de — a pour suspect</option>
+                                        <option value="persons-subject_inactive_customer">est un client inactif de — a pour client inactif</option>
+                                        <option value="opportunities-subject_linked_contact">intervient dans l&#39;opportunité — met en scène</option>
+                                        <option value="creme_core-subject_has">possède — appartient à</option>
+                                    </select>
+                                </li>
+                                <li chained-name="ctype" class="ui-creme-chainedselect-item">
+                                    <select url="/creme_core/relation/predicate/${rtype}/content_types/json" auto="False" widget="ui-creme-dselect" name="" class="ui-creme-input ui-creme-widget ui-creme-dselect">
+                                    </select>
+                                </li>
+                                <li chained-name="entity" class="ui-creme-chainedselect-item">
+                                    <span class="ui-creme-widget ui-creme-entityselector" style="" widget="ui-creme-entityselector"
+                                          labelURL="/creme_core/relation/entity/${id}/json" label="Sélectionner..."
+                                          popupURL="/creme_core/lv_popup/${ctype}/${selection}?q_filter=${qfilter}" popupSelection="0" qfilter="">
+                                        <input multiple="True" name="" auto="False" type="hidden" class="ui-creme-input ui-creme-entityselector" />
+                                        <button type="button">Sélectionner...</button>
+                                    </span>
+                                </li>
+                            </ul>
+                       </div>
+                   </div>
+                   <ul class="selectors ui-layout"></ul>
+                   <div class="add">
+                       <ul class="ui-layout hbox">
+                            <li><img src="{% creme_media_url 'images/add_16.png' %}" alt="Ajouter" title="Ajouter"/></li>
+                            <li><span>Ajouter</span></li>
+                       </ul>
+                   </div>
+               </div>
+           </li></ul>
+       </li>
+       <li>
+           <h4>Filter List</h4>
+           <ul><li>
+           <div class="ui-creme-widget widget-auto ui-creme-selectorlist widget-active widget-ready" style="" widget="ui-creme-selectorlist">
+                <input type="hidden" value="[]" class="ui-creme-input ui-creme-selectorlist">
+                <div class="inner-selector-model" style="display:none;">
+                    <div class="ui-creme-widget ui-creme-chainedselect" style="" widget="ui-creme-chainedselect">
+                        <input type="hidden" name="" class="ui-creme-input ui-creme-chainedselect"></input>
+                        <ul class="ui-layout hbox">
+                            <li chained-name="name" class="ui-creme-chainedselect-item">
+                                <select url="" auto="False" widget="ui-creme-dselect" name="" class="ui-creme-input ui-creme-widget ui-creme-dselect">
+                                    <optgroup label="">
+                                        <option value="email">Adresse e-mail</option>
+                                        <option value="description">Description</option>
+                                        <option value="fax">Fax</option>
+                                        <option value="mobile">Mobile</option>
+                                        <option value="last_name">Nom</option>
+                                        <option value="phone">Numéro de téléphone</option>
+                                        <option value="first_name">Prénom</option>
+                                        <option value="url_site">Site Web</option>
+                                        <option value="skype">Skype</option>
+                                    </optgroup>
+                                    <optgroup label="Adresse de facturation">
+                                        <option value="billing_address__address">[Adresse de facturation] - Adresse</option>
+                                        <option value="billing_address__po_box">[Adresse de facturation] - Boite postale</option>
+                                        <option value="billing_address__zipcode">[Adresse de facturation] - Code postal</option>
+                                        <option value="billing_address__department">[Adresse de facturation] - Département</option>
+                                        <option value="billing_address__name">[Adresse de facturation] - Nom</option>
+                                        <option value="billing_address__country">[Adresse de facturation] - Pays</option>
+                                        <option value="billing_address__city">[Adresse de facturation] - Ville</option>
+                                        <option value="billing_address__state">[Adresse de facturation] - État</option>
+                                    </optgroup>
+                                    <optgroup label="Adresse de livraison">
+                                        <option value="shipping_address__address">[Adresse de livraison] - Adresse</option>
+                                        <option value="shipping_address__po_box">[Adresse de livraison] - Boite postale</option>
+                                        <option value="shipping_address__zipcode">[Adresse de livraison] - Code postal</option>
+                                        <option value="shipping_address__department">[Adresse de livraison] - Département</option>
+                                        <option value="shipping_address__name">[Adresse de livraison] - Nom</option>
+                                        <option value="shipping_address__country">[Adresse de livraison] - Pays</option>
+                                        <option value="shipping_address__city">[Adresse de livraison] - Ville</option>
+                                        <option value="shipping_address__state">[Adresse de livraison] - État</option>
+                                    </optgroup>
+                                    <optgroup label="Civilité">
+                                        <option value="civility__title">[Civilité] - Intitulé</option>
+                                    </optgroup>
+                                    <optgroup label="Est un utilisateur">
+                                        <option value="is_user__is_team">[Est un utilisateur] - Est une équipe ?</option>
+                                        <option value="is_user__role">[Est un utilisateur] - Rôle</option>
+                                        <option value="is_user__email">[Est un utilisateur] - adresse électronique</option>
+                                        <option value="is_user__last_name">[Est un utilisateur] - nom</option>
+                                        <option value="is_user__username">[Est un utilisateur] - nom d'utilisateur</option>
+                                        <option value="is_user__first_name">[Est un utilisateur] - prénom</option>
+                                    </optgroup>
+                                    <optgroup label="Fonction">
+                                        <option value="position__title">[Fonction] - Intitulé</option>
+                                    </optgroup>
+                                    <optgroup label="Langue(s) parlée(s)">
+                                        <option value="language__code">[Langue(s) parlée(s)] - Code</option>
+                                        <option value="language__name">[Langue(s) parlée(s)] - Nom</option>
+                                    </optgroup>
+                                    <optgroup label="Photo du contact">
+                                        <option value="image__description">[Photo du contact] - Description</option>
+                                        <option value="image__height">[Photo du contact] - Hauteur</option>
+                                        <option value="image__image">[Photo du contact] - Image</option>
+                                        <option value="image__width">[Photo du contact] - Largueur</option>
+                                        <option value="image__name">[Photo du contact] - Nom</option>
+                                        <option value="image__user">[Photo du contact] - Utilisateur</option>
+                                    </optgroup>
+                                    <optgroup label="Secteur d'activités">
+                                        <option value="sector__title">[Secteur d'activités] - Intitulé</option>
+                                    </optgroup>
+                                    <optgroup label="Utilisateur">
+                                        <option value="user__is_team">[Utilisateur] - Est une équipe ?</option>
+                                        <option value="user__role">[Utilisateur] - Rôle</option>
+                                        <option value="user__email">[Utilisateur] - adresse électronique</option>
+                                        <option value="user__last_name">[Utilisateur] - nom</option>
+                                        <option value="user__username">[Utilisateur] - nom d'utilisateur</option>
+                                        <option value="user__first_name">[Utilisateur] - prénom</option>
+                                    </optgroup>
+                                </select>
+                            </li>
+                            <li chained-name="operator" class="ui-creme-chainedselect-item">
+                                <select url="" auto="False" widget="ui-creme-dselect" name="" class="ui-creme-input ui-creme-widget ui-creme-dselect">
+                                    <option value="1">Est égal à</option>
+                                    <option value="2">Est égal à (Ne respecte pas la casse)</option>
+                                    <option value="3">N'est pas égal à</option>
+                                    <option value="4">N'est pas égal à (Ne respecte pas la casse)</option>
+                                    <option value="5">Contient</option>
+                                    <option value="6">Contient (Ne respecte pas la casse)</option>
+                                    <option value="7">Ne contient pas</option>
+                                    <option value="8">Ne contient pas (Ne respecte pas la casse)</option>
+                                    <option value="9">&gt;</option>
+                                    <option value="10">&gt;=</option>
+                                    <option value="11">&lt;</option>
+                                    <option value="12">&lt;=</option>
+                                    <option value="13">Commence par</option>
+                                    <option value="14">Commence par (Ne respecte pas la casse)</option>
+                                    <option value="15">Ne commence pas par</option>
+                                    <option value="16">Ne commence pas par (Ne respecte pas la casse)</option>
+                                    <option value="17">Se termine par</option>
+                                    <option value="18">Se termine par (Ne respecte pas la casse)</option>
+                                    <option value="19">Ne se termine pas par</option>
+                                    <option value="20">Ne se termine pas par (Ne respecte pas la casse)</option>
+                                    <option value="21">Est vide</option>
+                                    <option value="22">Intervalle</option>
+                                </select>
+                            </li>
+                            <li chained-name="value" class="ui-creme-chainedselect-item">
+                                <span class="ui-creme-widget ui-creme-polymorphicselect" style="" widget="ui-creme-polymorphicselect" url="${operator}">
+                                    <input auto="False" type="hidden" name="" class="ui-creme-input ui-creme-polymorphicselect"></input>
+                                    <ul style="display:none;" class="selector-model">
+                                        <li input-type="21">
+                                            <select url="" auto="False" widget="ui-creme-dselect" name="" class="ui-creme-input ui-creme-widget ui-creme-dselect">
+                                                <option value="true">Vrai</option>
+                                                <option value="false">Faux</option>
+                                            </select>
+                                        </li>
+                                        <li class="default">
+                                            <input auto="False" widget="ui-creme-dinput" type="text" name="" class="ui-creme-input ui-creme-widget ui-creme-dinput"></input>
+                                        </li>
+                                    </ul>
+                               </span>
+                           </li>
+                       </ul>
+                   </div>
+               </div>
+               <ul class="selectors ui-layout"></ul>
+               <div class="add">
+                    <ul class="ui-layout hbox">
+                        <li><img src="{% creme_media_url 'images/add_16.png' %}" alt="Ajouter" title="Ajouter"></li>
+                        <li><span>Ajouter</span></li>
+                    </ul>
+               </div>
+           </div>
+           </li></ul>
+       </li>
+   </ul>
+</body>

@@ -21,7 +21,15 @@ function mock_dselect_create(url, noauto) {
 }
 
 function mock_dselect_add_choice(element, label, value) {
-    $(element).append('<option value="' + value + '">' + label + '</option>');
+    var choice = $('<option value="' + value + '">' + label + '</option>');
+    $(element).append(choice);
+    return choice;
+}
+
+function mock_dselect_add_group(element, label) {
+    var group = $('<optgroup label="' + label + '"></optgroup>');
+    $(element).append(group);
+    return group;
 }
 
 module("creme.widgets.dselect.js", {
@@ -166,6 +174,26 @@ test('creme.widget.DynamicSelect.choices', function()
     deepEqual(element.creme().widget().choice('1'), ['1', 'a']);
     deepEqual(element.creme().widget().choice('5'), ['5', 'b']);
     deepEqual(element.creme().widget().choice('3'), ['3', 'c']);
+});
+
+test('creme.widget.DynamicSelect.groups', function() {
+    var element = mock_dselect_create();
+
+    var group1 = mock_dselect_add_group(element, 'group1');
+    mock_dselect_add_choice(group1, 'a', 1);
+    mock_dselect_add_choice(group1, 'b', 5);
+
+    var group2 = mock_dselect_add_group(element, 'group2');
+    mock_dselect_add_choice(element, 'c', 3);
+
+    var widget = creme.widget.create(element);
+
+    deepEqual(element.creme().widget().choices(), [['1', 'a'], ['5', 'b'], ['3', 'c']]);
+    deepEqual(element.creme().widget().choice('1'), ['1', 'a']);
+    deepEqual(element.creme().widget().choice('5'), ['5', 'b']);
+    deepEqual(element.creme().widget().choice('3'), ['3', 'c']);
+
+    deepEqual(element.creme().widget().groups(), ['group1', 'group2']);
 });
 
 test('creme.widget.DynamicSelect.reload (static, unknown url)', function() {
