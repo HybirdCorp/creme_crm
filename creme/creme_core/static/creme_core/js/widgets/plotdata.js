@@ -84,8 +84,8 @@ $.extend(creme.widget.PlotProcessors, {
 
     preprocess: function(plot_info)
     {
-        var data = plot_info.data;
-        var options = plot_info.options;
+        var options = plot_info.options || {};
+        var data = creme.object.isempty(plot_info.data) ? (options.dataDefaults || []) : plot_info.data;
 
         var built_options = $.extend(true, {}, options);
         var built_data = this.preprocessData(options.dataPreprocessors || [], data);

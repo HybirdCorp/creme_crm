@@ -341,9 +341,11 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/jquery/extensions/jqplot-1.0.4/plugins/jqplot.enhancedLegendRenderer.js',
                     'creme_core/js/jquery/extensions/jqplot-1.0.4/plugins/jqplot.canvasTextRenderer.js',
                     'creme_core/js/jquery/extensions/jqplot-1.0.4/plugins/jqplot.categoryAxisRenderer.js',
+                    'creme_core/js/jquery/extensions/jqplot-1.0.4/plugins/jqplot.canvasTextRenderer.js',
                     'creme_core/js/jquery/extensions/jqplot-1.0.4/plugins/jqplot.canvasAxisLabelRenderer.js',
                     'creme_core/js/jquery/extensions/jqplot-1.0.4/plugins/jqplot.canvasAxisTickRenderer.js',
                     'creme_core/js/jquery/extensions/jqplot-1.0.4/plugins/jqplot.pieRenderer.js',
+                    'creme_core/js/jquery/extensions/jqplot-1.0.4/plugins/jqplot.donutRenderer.js',
                     'creme_core/js/jquery/extensions/jqplot-1.0.4/plugins/jqplot.barRenderer.js',
                     'creme_core/js/jquery/extensions/jqplot-1.0.4/plugins/jqplot.pointLabels.js',
                     'creme_core/js/jquery/extensions/jqplot-1.0.4/plugins/jqplot.highlighter.js',
@@ -410,6 +412,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/widgets/actionlist.js',
                     'creme_core/js/widgets/plotdata.js',
                     'creme_core/js/widgets/plot.js',
+                    'creme_core/js/widgets/plotselector.js',
 
                     'creme_core/js/properties.js',
                     'creme_core/js/relations.js',
@@ -451,6 +454,7 @@ TEST_CREME_CORE_JS = (#js Unit test files
     'creme_core/js/tests/widgets/chainedselect.js',
     'creme_core/js/tests/widgets/selectorlist.js',
     'creme_core/js/tests/widgets/actionlist.js',
+    'creme_core/js/tests/widgets/plotselector.js',
 )
 
 ROOT_MEDIA_FILTERS = {

@@ -1,5 +1,5 @@
 var MOCK_PLOT_CONTENT_JSON_INVALID = '{"options": {, "data":[]}';
-var MOCK_PLOT_CONTENT_JSON_EMPTY_DATA = '{"options": {}, "data":[]}' 
+var MOCK_PLOT_CONTENT_JSON_EMPTY_DATA = '{"options": {}, "data":[]}';
 var MOCK_PLOT_CONTENT_JSON_DEFAULT = '{"options": {}, "data":[[[1, 2],[3, 4],[5, 12]]]}';
 var MOCK_PLOT_CONTENT_DEFAULT = {options: {}, data: [[[1, 2],[3, 4],[5, 12]]]};
 
@@ -162,6 +162,20 @@ function assertPlot(context, element)
     equal(context.plotError, null, 'no error');
 }
 
+function assertInvalidPlot(context, element, error)
+{
+    equal(typeof element.creme().widget().plot(), 'object');
+    equal($('.jqplot-target', element).length, 0);
+
+    equal(context.plotSuccess, null, 'no success');
+
+    if (error) {
+        equal(context.plotError, error);
+    } else {
+        equal(context.plotError !== null, true, 'has error');
+    }
+}
+
 test('creme.widget.Plot.create (empty)', function() {
     var element = this.createMockPlot('');
 
@@ -273,6 +287,32 @@ test('creme.widget.Plot.redraw (valid, data)', function() {
 
     assertPlot(this, element);
 });
+
+
+test('creme.widget.Plot.redraw (empty, valid default)', function() {
+    var element = this.createMockPlot('');
+    var widget = creme.widget.create(element);
+    assertReady(element);
+
+    deepEqual(widget.plotData(), []);
+    deepEqual(widget.plotOptions(), {});
+
+    widget.plotOptions({dataDefaults: [[[5, 2],[4, 4]]]});
+
+    this.resetMockEvents();
+    stop(1);
+
+    widget.redraw(function() {
+        start();
+    },
+    function() {
+        start();
+    });
+
+    assertPlot(this, element);
+    deepEqual(widget.plotData(), []);
+});
+
 
 test('creme.widget.Plot.redraw (valid, options)', function() {
     var element = this.createMockPlot('');

@@ -147,7 +147,7 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
     },
 
     _convertData: function(data, options) {
-        return $.converters.convert(options.dataFormat || 'jqplotData', 'jqplotData', data);
+        return $.converters.convert(options.dataFormat || 'jqplotData', 'jqplotData', data, []);
     },
 
     _preprocess: function()
@@ -202,9 +202,9 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
         }, delay);
     },
 
-    clear: function(element) {
+    clear: function(element, status) {
         $('> .jqplot-target', element).remove();
-        element.attr("status", "valid");
+        element.attr("status", status || "valid");
     },
 
     draw: function(element, data, cb, error_cb)
@@ -256,7 +256,7 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
             return this._plot_info.data;
 
         var data = (typeof data === 'string') ? new creme.object.JSON().decode(data) : data;
-        this._plot_info.data = this._convertData(data, this._plot_info.options) || [];
+        this._plot_info.data = this._convertData(data, this._plot_info.options);
         this._plot_info.built = undefined;
     },
 

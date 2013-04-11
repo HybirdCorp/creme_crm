@@ -1,0 +1,50 @@
+{% load creme_core_tags %}
+{% load report_tags graph_tags %}
+{
+    "seriesDefaults": {
+        "renderer": "jqplot.BarRenderer", 
+        "rendererOptions": {
+            "varyBarColor": true
+        }
+    },
+    "axes": {
+        "xaxis": {
+            "renderer": "jqplot.CategoryAxisRenderer",
+            "tickRenderer": "jqplot.CanvasAxisTickRenderer",
+            "tickOptions": {
+                "angle": -30,
+                "fontSize": "9pt",
+                "textColor":  "black"
+            },
+            "label": "{{report|verbose_abscissa:report.abscissa}}{% if report.type %} - {{verbose_report_graph_types|get_value:report.type}}{% endif %}",
+            "labelOptions": {
+                "fontWeight": "bold",
+                "fontSize":   "10pt",
+                "textColor":  "black"
+            },
+            "labelRenderer": "jqplot.CanvasAxisLabelRenderer"
+        },
+        "yaxis": {
+            "tickOptions": {
+                "formatString": "%.2f €"
+            },
+            "label": "{{report|verbose_ordinate:report.ordinate}}",
+            "labelOptions": {
+                "fontWeight": "bold",
+                "fontSize": "10pt",
+                "textColor": "black"
+            },
+            "labelRenderer": "jqplot.CanvasAxisLabelRenderer"
+        }
+    },
+    "highlighter": {
+        "show": true,
+        "showMarker": false,
+        "tooltipAxes": "y",
+        "formatString": "%s",
+        "tooltipLocation": "n"
+    },
+    "title": "{{report}}",
+    "dataFormat": "creme.graphael.BargraphData",
+    "dataDefaults": [[[" ", 0.0]]]
+}
