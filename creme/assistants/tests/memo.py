@@ -71,18 +71,17 @@ class MemoTestCase(AssistantsTestCase):
         self.assertEqual(content,  memo.content)
         self.assertEqual(homepage, memo.on_homepage)
 
-    def test_delete01(self): #delete related entity
+    def test_delete_related01(self):
         self._create_memo()
         self.assertEqual(1, Memo.objects.count())
 
         self.entity.delete()
         self.assertEqual(0, Memo.objects.count())
 
-    def test_delete02(self):
+    def test_delete01(self):
         memo = self._create_memo()
         ct = ContentType.objects.get_for_model(Memo)
-        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': memo.id})
-        self.assertEqual(302, response.status_code)
+        self.assertPOST(302, '/creme_core/entity/delete_related/%s' % ct.id, data={'id': memo.id})
         self.assertEqual(0,   Memo.objects.count())
 
     def test_function_field01(self):

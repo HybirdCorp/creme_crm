@@ -25,6 +25,9 @@ class TodoTestCase(AssistantsTestCase):
     def _build_add_url(self, entity):
         return '/assistants/todo/add/%s/' % entity.id
 
+    def _build_edit_url(self, todo):
+        return '/assistants/todo/edit/%s/' % todo.id
+
     def _create_todo(self, title='TITLE', description='DESCRIPTION', entity=None, user=None):
         entity = entity or self.entity
         user   = user or self.user
@@ -56,7 +59,7 @@ class TodoTestCase(AssistantsTestCase):
         description = 'Description'
         todo = self._create_todo(title, description)
 
-        url = '/assistants/todo/edit/%s/' % todo.id
+        url = self._build_edit_url(todo)
         self.assertGET200(url)
 
         title       += '_edited'
@@ -84,10 +87,9 @@ class TodoTestCase(AssistantsTestCase):
             entity2 = todo.creme_entity
 
         self.assertEqual(entity, entity2)
-        self.assertGET403('/assistants/todo/edit/%s/' % todo.id)
+        self.assertGET403(self._build_edit_url(todo))
 
-    def test_delete01(self):
-        "Delete related entity"
+    def test_delete_related01(self):
         self._create_todo()
         self.assertEqual(1, ToDo.objects.count())
 
@@ -99,16 +101,15 @@ class TodoTestCase(AssistantsTestCase):
         self.assertEqual(1, ToDo.objects.count())
 
         ct   = ContentType.objects.get_for_model(ToDo)
-        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': todo.id})
-        self.assertEqual(302, response.status_code)
-        self.assertEqual(0,   ToDo.objects.count())
+        self.assertPOST(302, '/creme_core/entity/delete_related/%s' % ct.id, data={'id': todo.id})
+        self.assertFalse(ToDo.objects.all())
 
     def test_validate(self):
         todo = self._create_todo()
         self.assertFalse(todo.is_ok)
 
-        response = self.client.post('/assistants/todo/validate/%s/' % todo.id)
-        self.assertEqual(302, response.status_code)
+        response = self.assertPOST200('/assistants/todo/validate/%s/' % todo.id, follow=True)
+        self.assertRedirects(response, self.entity.get_absolute_url())
         self.assertIs(True, self.refresh(todo).is_ok)
 
     def test_block_reload01(self): #detailview
@@ -121,8 +122,7 @@ class TodoTestCase(AssistantsTestCase):
 
         self.assertGreaterEqual(todos_block.page_size, 2)
 
-        response = self.client.get('/creme_core/blocks/reload/%s/%s/' % (todos_block.id_, self.entity.id))
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/creme_core/blocks/reload/%s/%s/' % (todos_block.id_, self.entity.id))
         self.assertEqual('text/javascript', response['Content-Type'])
 
         content = simplejson.loads(response.content)
@@ -152,8 +152,7 @@ class TodoTestCase(AssistantsTestCase):
         todos = ToDo.get_todos_for_home(self.user)
         self.assertEqual(2, len(todos))
 
-        response = self.client.get('/creme_core/blocks/reload/home/%s/' % todos_block.id_)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/creme_core/blocks/reload/home/%s/' % todos_block.id_)
         self.assertEqual('text/javascript', response['Content-Type'])
 
         content = simplejson.loads(response.content)
@@ -174,8 +173,7 @@ class TodoTestCase(AssistantsTestCase):
         todos = ToDo.get_todos_for_ctypes([ct_id], self.user)
         self.assertEqual(2, len(todos))
 
-        response = self.client.get('/creme_core/blocks/reload/portal/%s/%s/' % (todos_block.id_, str(ct_id)))
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/creme_core/blocks/reload/portal/%s/%s/' % (todos_block.id_, str(ct_id)))
         self.assertEqual('text/javascript', response['Content-Type'])
 
         content = simplejson.loads(response.content)
@@ -218,7 +216,8 @@ class TodoTestCase(AssistantsTestCase):
         #self._create_todo('Todo04', 'Description04')
         #self.assertEqual(u'<ul><li>Todo04</li><li>Todo03</li><li>Todo02</li></ul>', funf(self.entity))
 
-    def test_function_field03(self): #prefetch with 'populate_entities()'
+    def test_function_field03(self):
+        "Prefetch with 'populate_entities()'"
         self._oldify_todo(self._create_todo('Todo01', 'Description01'))
         self._create_todo('Todo02', 'Description02')
 

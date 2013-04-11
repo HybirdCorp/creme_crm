@@ -2,6 +2,7 @@
 
 try:
     from datetime import datetime
+    from functools import partial
 
     from django.contrib.auth.models import User
 
@@ -21,6 +22,8 @@ __all__ = ('UserMessageTestCase',)
 
 
 class UserMessageTestCase(AssistantsTestCase):
+    DEL_PRIORITY_URL = '/creme_config/assistants/message_priority/delete'
+
     def _build_add_url(self, entity=None):
         return '/assistants/message/add/%s/' % entity.id if entity else \
                '/assistants/message/add/'
@@ -80,7 +83,8 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertEqual(2, len(messages))
         self.assertEqual(set([user01, user02]), set(msg.recipient for msg in messages))
 
-    def test_create03(self): #without related entity
+    def test_create03(self):
+        "Without related entity"
         self.assertGET200(self._build_add_url())
 
         priority = UserMessagePriority.objects.create(title='Important')
@@ -98,7 +102,9 @@ class UserMessageTestCase(AssistantsTestCase):
 
     def test_create04(self): #one team
         create_user = User.objects.create_user
-        users       = [create_user('User%s' % i, 'user%s@foobar.com' % i, 'uselesspassword') for i in xrange(1, 3)]
+        users       = [create_user('User%s' % i, 'user%s@foobar.com' % i, 'uselesspassword')
+                            for i in xrange(1, 3)
+                      ]
 
         team = User.objects.create(username='Team', is_team=True, role=None)
         team.teammates = users
@@ -109,9 +115,12 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertEqual(2, len(messages))
         self.assertEqual(set(users), set(msg.recipient for msg in messages))
 
-    def test_create05(self): #teams and isolated usres with non void intersections
+    def test_create05(self):
+        "Teams and isolated usres with non void intersections"
         create_user = User.objects.create_user
-        users = [create_user('User%s' % i, 'user%s@foobar.com' % i, 'uselesspassword') for i in xrange(1, 5)]
+        users = [create_user('User%s' % i, 'user%s@foobar.com' % i, 'uselesspassword')
+                    for i in xrange(1, 5)
+                ]
 
         team01 = User.objects.create(username='Team01', is_team=True, role=None)
         team01.teammates = users[:2]
@@ -125,7 +134,7 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertEqual(4, len(messages))
         self.assertEqual(set(users), set(msg.recipient for msg in messages))
 
-    def test_delete01(self): #delete related entity
+    def test_delete_related01(self):
         priority = UserMessagePriority.objects.create(title='Important')
         user01   = User.objects.create_user('User01', 'user01@foobar.com', 'password')
         self._create_usermessage('TITLE', 'BODY', priority, [user01], self.entity)
@@ -133,9 +142,9 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertEqual(1, UserMessage.objects.count())
 
         self.entity.delete()
-        self.assertEqual(0, UserMessage.objects.count())
+        self.assertFalse(UserMessage.objects.all())
 
-    def test_delete02(self):
+    def test_delete01(self):
         priority = UserMessagePriority.objects.create(title='Important')
         self._create_usermessage('TITLE', 'BODY', priority, [self.user], None)
 
@@ -145,22 +154,22 @@ class UserMessageTestCase(AssistantsTestCase):
         message = messages[0]
         self.assertEqual(self.user, message.recipient)
 
-        response = self.client.post('/assistants/message/delete', data={'id': message.id})
-        self.assertEqual(302, response.status_code)
-        self.assertEqual(0,   UserMessage.objects.count())
+        response = self.assertPOST(302, '/assistants/message/delete', data={'id': message.id})
+        self.assertFalse(UserMessage.objects.all())
 
-    def test_activity_createview01(self): #test activity form hooking
+    def test_activity_createview01(self):
+        "Test activity form hooking"
         self.populate('activities', 'assistants')
 
         user       = self.user
         other_user = self.other_user
         self.assertEqual(0, UserMessage.objects.count())
 
-        create_contact = Contact.objects.create
-        me    = create_contact(user=user, is_user=user,       first_name='Ryoga', last_name='Hibiki')
-        ranma = create_contact(user=user, is_user=other_user, first_name='Ranma', last_name='Saotome')
-        genma = create_contact(user=user, first_name='Genma', last_name='Saotome')
-        akane = create_contact(user=user, first_name='Akane', last_name='Tendo')
+        create_contact = partial(Contact.objects.create, user=user)
+        me    = create_contact(is_user=user,       first_name='Ryoga', last_name='Hibiki')
+        ranma = create_contact(is_user=other_user, first_name='Ranma', last_name='Saotome')
+        genma = create_contact(first_name='Genma', last_name='Saotome')
+        akane = create_contact(first_name='Akane', last_name='Tendo')
 
         url = '/activities/activity/add/meeting'
         self.assertGET200(url)
@@ -229,7 +238,7 @@ class UserMessageTestCase(AssistantsTestCase):
 
     def test_delete_priority01(self):
         priority = UserMessagePriority.objects.create(title='Important')
-        self.assertPOST200('/creme_config/assistants/message_priority/delete', data={'id': priority.pk})
+        self.assertPOST200(self.DEL_PRIORITY_URL, data={'id': priority.pk})
         self.assertFalse(UserMessagePriority.objects.filter(pk=priority.pk).exists())
 
     def test_delete_priority02(self):
@@ -241,8 +250,7 @@ class UserMessageTestCase(AssistantsTestCase):
 
         message = messages[0]
 
-        response = self.client.post('/creme_config/assistants/message_priority/delete', data={'id': priority.pk})
-        self.assertEqual(404, response.status_code)
+        self.assertPOST404(self.DEL_PRIORITY_URL, data={'id': priority.pk})
         self.assertTrue(UserMessagePriority.objects.filter(pk=priority.pk).exists())
 
         message = self.get_object_or_fail(UserMessage, pk=message.pk)

@@ -15,10 +15,15 @@ __all__ = ('ActionTestCase',)
 
 
 class ActionTestCase(AssistantsTestCase):
-    def _create_action(self, deadline, title='TITLE', descr='DESCRIPTION', reaction='REACTION', entity=None, user=None):
+    def _build_add_url(self, entity):
+        return '/assistants/action/add/%s/' % entity.id
+
+    def _create_action(self, deadline, title='TITLE', descr='DESCRIPTION',
+                       reaction='REACTION', entity=None, user=None,
+                      ):
         entity = entity or self.entity
         user   = user or self.user
-        response = self.client.post('/assistants/action/add/%s/' % entity.id,
+        response = self.client.post(self._build_add_url(entity),
                                     data={'user':              user.pk,
                                           'title':             title,
                                           'description':       descr,
@@ -33,8 +38,8 @@ class ActionTestCase(AssistantsTestCase):
     def test_create(self):
         self.assertFalse(Action.objects.exists())
 
-        response = self.client.get('/assistants/action/add/%s/' % self.entity.id)
-        self.assertEqual(200, response.status_code)
+        entity = self.entity
+        self.assertGET200(self._build_add_url(entity))
 
         title    = 'TITLE'
         descr    = 'DESCRIPTION'
@@ -47,9 +52,9 @@ class ActionTestCase(AssistantsTestCase):
         self.assertEqual(reaction,  action.expected_reaction)
         self.assertEqual(self.user, action.user)
 
-        self.assertEqual(self.entity.entity_type_id, action.entity_content_type_id)
-        self.assertEqual(self.entity.id,             action.entity_id)
-        self.assertEqual(self.entity.id,             action.creme_entity.id)
+        self.assertEqual(entity.entity_type_id, action.entity_content_type_id)
+        self.assertEqual(entity.id,             action.entity_id)
+        self.assertEqual(entity.id,             action.creme_entity.id)
 
         self.assertLess((datetime.now() - action.creation_date).seconds, 10)
         self.assertEqual(datetime(year=2010, month=12, day=24), action.deadline)
@@ -61,7 +66,7 @@ class ActionTestCase(AssistantsTestCase):
         action = self._create_action('2010-12-24', title, descr, reaction)
 
         url = '/assistants/action/edit/%s/' % action.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         title    += '_edited'
         descr    += '_edited'
@@ -113,7 +118,8 @@ class ActionTestCase(AssistantsTestCase):
         self.assertFalse(action.is_ok)
         self.assertIsNone(action.validation_date)
 
-        self.assertEqual(302, self.client.post('/assistants/action/validate/%s/' % action.id).status_code)
+        response = self.assertPOST200('/assistants/action/validate/%s/' % action.id, follow=True)
+        self.assertRedirects(response, self.entity.get_absolute_url())
 
         action = self.refresh(action)
         self.assertTrue(action.is_ok)
