@@ -13,6 +13,8 @@
             </tr>
         </table>
         {% include "creme_core/generics/blockform/content.html" with form_block=blocks.participants %}
-        {% include "creme_core/generics/blockform/content.html" with form_block=blocks.informed_users %}
+        {% for form_block in blocks %}
+            {% include "creme_core/generics/blockform/content.html" %}
+        {% endfor %}
     {% endwith %}
 {% endblock %}
