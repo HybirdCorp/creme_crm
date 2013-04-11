@@ -1,0 +1,26 @@
+{% load i18n %}
+{% load creme_core_tags %}
+<li chained-name="graph" class="ui-creme-chainedselect-item">
+    {% trans 'Graph' %}:
+    <select auto="False" widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect"
+            style="width:10em;">
+        <option value='histogram'>{% trans 'Histogram' %}</option>
+        <option value='pie'>{% trans 'Pie' %}</option>
+        <option value='tube'>{% trans 'Tube' %}</option>
+    </select>
+</li>
+<li chained-name="sort" class="ui-creme-chainedselect-item">
+    {% trans 'Sorting' %}:
+    <select auto="False" widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect"
+            style="width:10em;">
+        <option value="ASC">{% trans 'Ascending' %}</option>
+        <option value="DESC">{% trans 'Descending' %}</option>
+    </select>
+</li>
+<li class="ui-creme-chainedselect-item">
+    <button onclick="$(this).parents('.ui-creme-chainedselect').creme().widget().selector('plot').creme().widget().reload();"
+            style="padding: 1px 1px;vertical-align:middle;">
+        <img src="{% creme_media_url 'images/refresh_16.png' %}" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}"
+             style="border:0; vertical-align:middle;"/>
+    </button>
+</li>

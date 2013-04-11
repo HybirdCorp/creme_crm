@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
+{% load report_tags %}
 {% load graph_tags %}
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=2 %}
@@ -21,46 +22,31 @@
         {% if x and y %}
             <tr class="content">
                 <td class="{{row_color}} graph_global_container_{{instance_block_id}}" colspan="2">
-                    <div>
-                        <table width="100%">
-                            <tbody>
-                                <tr>
-                                    <td>{% trans 'Generation date' %} : <span id="graph_gen_date_{{instance_block_id}}"></span></td>
-                                    <td>
-                                        {% if object %}
-                                            <select id="graph_type_{{instance_block_id}}" onchange="creme.graphael.simple_refetch('/reports/graph/fetch_from_instance_block/{{instance_block_id}}/{{object.id}}/'+$('#graph_ordering_{{instance_block_id}}').val(), $(this).val(), '.graph_container_{{instance_block_id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{instance_block_id}}');">
-                                        {% else %}
-                                            <select id="graph_type_{{instance_block_id}}" onchange="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$('#graph_ordering_{{instance_block_id}}').val(), $(this).val(), '.graph_container_{{instance_block_id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{instance_block_id}}');">
-                                        {% endif %}
-                                            <option value="histogram">{% trans 'Histogram' %}</option>
-                                            <option value="pie">{% trans 'Pie' %}</option>
-                                        </select>
-                                    </td>
-                                    <td nowrap>
-                                        {% trans 'Sorting' %}:
-                                        {% if object %}
-                                            <select id="graph_ordering_{{instance_block_id}}" onchange="creme.graphael.simple_refetch('/reports/graph/fetch_from_instance_block/{{instance_block_id}}/{{object.id}}/'+$(this).val(), $('#graph_type_{{instance_block_id}}').val(),'.graph_container_{{instance_block_id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{instance_block_id}}');">
-                                        {% else %}
-                                            <select id="graph_ordering_{{instance_block_id}}" onchange="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$(this).val(), $('#graph_type_{{instance_block_id}}').val(),'.graph_container_{{instance_block_id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{instance_block_id}}');">
-                                        {% endif %}
-                                            <option value="ASC">{% trans 'Ascending' %}</option>
-                                            <option value="DESC">{% trans 'Descending' %}</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        {% if object %}
-                                            <a onclick="creme.graphael.simple_refetch('/reports/graph/fetch_from_instance_block/{{instance_block_id}}/{{object.id}}/'+$('#graph_ordering_{{instance_block_id}}').val(), $('#graph_type_{{instance_block_id}}').val(), '.graph_container_{{instance_block_id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{instance_block_id}}');">
-                                        {% else %}
-                                            <a onclick="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$('#graph_ordering_{{instance_block_id}}').val(), $('#graph_type_{{instance_block_id}}').val(), '.graph_container_{{instance_block_id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{instance_block_id}}');">
-                                        {% endif %}
-                                            <img src="{% creme_media_url 'images/refresh_22.png' %}" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" />
-                                        </a>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    {% comment %} NEW VERSION OF GRAPH ! {% endcomment %}
+                    <div class="ui-creme-widget ui-creme-chainedselect widget-auto" widget="ui-creme-chainedselect"
+                         style="margin:0px;padding:0px;border:0px;">
+                        <input type="hidden" name="" class="ui-creme-input ui-creme-chainedselect"></input>
+                        <ul class="ui-layout hbox" style="padding:2px;">
+                            {% get_report_chart_selectors %}
+                        </ul>
+                        <div chained-name="plot" class="ui-creme-chainedselect-item">
+                            <div class="ui-widget-content ui-creme-widget ui-creme-plotselector" widget="ui-creme-plotselector"
+                                 {% if object %}
+                                 plot-data-url="/reports/graph/fetch_from_instance_block/{{instance_block_id}}/{{object.id}}/${sort}"
+                                 {% else %}
+                                 plot-data-url="/reports/graph/fetch_graph/{{graph.id}}/${sort}"
+                                 {% endif %}
+                                 plot-name="${graph}"
+                                 style="width:100%;margin:0px;padding:0px;border:0px;">
+                                        <script name="histogram" type="text/json">{% report_small_barchart_json graph %}</script>
+                                        <script name="pie" type="text/json">{% report_piechart_json graph %}</script>
+                                        <script name="tube" type="text/json">{% report_tubechart_json graph 2 %}</script>
+                                <div class="ui-widget-content ui-creme-widget ui-creme-jqueryplot" widget="ui-creme-jqueryplot" 
+                                     savable="false" style="height:300px;margin:5px;border:0px;" format="creme.graphael.BargraphData">
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="graph_container_{{instance_block_id}}" style="overflow-x:scroll;"></div>
                 </td>
             </tr>
         {% else %}
@@ -74,35 +60,6 @@
 </table>
 
 {% if x and y %}
-    <script type="text/javascript">
-        $(document).ready(function(){//Test with ajax
-            var x_{{instance_block_id}} = [];
-            var y_{{instance_block_id}} = [];
-
-            {% for v in x %}
-                x_{{instance_block_id}}.push("{{v|default:""}}");
-            {% endfor %}
-            {% for v in y %}
-                y_{{instance_block_id}}.push("{{v|default:0}}");
-            {% endfor %}
-
-            var now = +new Date;
-            var loading_id = 'loading_{{instance_block_id}}';
-            var node = creme.graphael.init('.graph_container_{{instance_block_id}}');
-            var date_node = $('#graph_gen_date_{{instance_block_id}}');
-            creme.utils.loading(loading_id, false, {});
-            creme.graphael.simple_barchart({
-                   'instance': node.data('graphael'),
-                   'container':node,
-                   'x': x_{{instance_block_id}},
-                   'y': y_{{instance_block_id}},
-                   'gen_date_selector': '#graph_gen_date_{{instance_block_id}}',
-                   'ordinate_lbl': "{{graph|verbose_ordinate:graph.ordinate}}",
-                   'abscissa_lbl': "{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}"
-            });
-            creme.utils.loading(loading_id, true, {});
-        });
-    </script>
     {% if block_name %}
         <script type="text/javascript">
             creme.blocks.register('#{{ block_name }}');

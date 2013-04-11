@@ -1,0 +1,289 @@
+{% load i18n %}
+{% load media %}
+{% load creme_block %}
+{% load creme_menu creme_core_tags creme_search creme_quickforms %}
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7" />
+    <title>Creme CRM{% block page_title %}{% endblock %}</title>
+    <script type='text/javascript'>
+        var THEME_NAME = "{{ THEME_NAME }}";
+    </script>
+    <!--
+        Firebug for browsers without plugin/extension :
+            - uncomment the following script
+            - add debug="true" to <html> tag
+    -->
+    <!--script type="text/javascript" src="https://getfirebug.com/firebug-lite.js"></script-->
+    {% include_creme_media "main.css" %}
+    {% include "creme_core/frags/js_header.html" %}
+    <style type="text/css">
+        .ui-creme-jqueryplot .jqplot-highlighter-tooltip {
+            border: 0px;
+            border-radius: 5px;
+            background: black;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+            padding: 3px;
+        }
+    </style>
+    
+    <script type="text/javascript">
+        random_bargraph = function(start, end)
+        {
+            var start = Math.max(1, Math.min(start || 1, 12));
+            var end = Math.max(1, Math.min(end || 12, 12));
+
+            var reference = [1000, 1000, 2000, 2500, 5000, 5000, 6000, 6000, 6000, 10000, 10000, 10000];
+            var real = [];
+
+            for(var index = 0; index < reference.length; ++index) {
+                real.push((1 + Math.random()) * reference[index]);
+            }
+
+            var data = [[], []];
+
+            for(var month = 0; month < end; ++month) {
+                data[0].push((month < start - 1) ? 0 : reference[month]);
+                data[1].push((month < start - 1) ? 0 : real[month]);
+            }
+
+            return data;
+        }
+
+        $.converters.register("horizontalBargraphData", "jqplotData", function(data) {
+            var reference = data[0];
+            var real = data[1];
+            var h_reference = []
+            var h_real = []
+
+            for(var index = 0; index < 12; ++index) {
+                h_reference.push([(index < reference.length) ? reference[index] : 0.0, index + 1]);
+                h_real.push([(index < real.length) ? real[index] : 0.0, index + 1]);
+            }
+
+            return [h_reference, h_real];
+        });
+
+        $(document).ready(function() {
+            var mockbackend = new creme.ajax.MockAjaxBackend({sync:true});
+
+            urls = {'mock/notfound':     mockbackend.response(404, 'HTTP - Not Found'),
+                    'mock/forbidden':    mockbackend.response(403, 'HTTP - Forbidden'),
+                    'mock/error':        mockbackend.response(500, 'HTTP - Internal Error')};
+            
+            for(var month = 1; month <= 12; ++month) {
+                urls['mock/content/' + month + '/1'] =  mockbackend.response(200, $.toJSON(random_bargraph(month, month)));
+                urls['mock/content/' + month + '/3'] =  mockbackend.response(200, $.toJSON(random_bargraph(month, month + 2)));
+                urls['mock/content/' + month + '/6'] =  mockbackend.response(200, $.toJSON(random_bargraph(month, month + 5)));
+                urls['mock/content/' + month + '/12'] = mockbackend.response(200, $.toJSON(random_bargraph(month, month + 12)));
+            }
+
+            urls['mock/content/1/12'] = function() {return mockbackend.response(200, $.toJSON(random_bargraph(1, 12)));};
+
+            $.extend(mockbackend.GET, urls);
+
+            $('#barplot.ui-creme-plotselector').creme().create({backend: mockbackend, initial: {/*start:4, duration:6*/}});
+
+            $('.ui-creme-widget.ui-creme-chainedselect').creme().create({backend: mockbackend}, function() {
+                $('.ui-creme-widget.ui-creme-chainedselect').creme().widget().val({start: 1, duration: 12, graphtype: 'donut'});
+            });
+
+            $('button#redraw-plot').click(function() {
+                $('#barplot.widget-ready').creme().widget().reload({start:1, duration:12}, undefined, undefined, true);
+            });
+            
+            $('button#reset-plot').click(function() {
+                $('#barplot.widget-ready').creme().widget().reset();
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Creme Plot Selector Widget Test Page</h1>
+    <h4>Plot Selector</h4>
+    <button id="redraw-plot">Reload</button>
+    <button id="reset-plot">Reset</button>
+    <div id="barplot" class="ui-widget-content ui-creme-widget ui-creme-plotselector" widget="ui-creme-plotselector" 
+         plot-data-url="mock/content/${start}/${duration}" style="width:800px;margin-left: 2px;">
+        <div style="height:320px; padding:2px; border:0px;" class="ui-widget-content ui-creme-widget ui-creme-jqueryplot" widget="ui-creme-jqueryplot" savable="true">
+            <script type="text/json">
+            {
+                "options": {
+                    "seriesDefaults": {
+                        "renderer": "jqplot.BarRenderer", 
+                        "rendererOptions": {
+                            "showDataLabels": true,
+                            "fillToZero": true
+                        }
+                    },
+                    "series": [
+                        {"label": "CA Attendu"},
+                        {"label": "CA Effectué"}
+                    ],
+                    "legend": {
+                        "show": true, 
+                        "placement": "outsideGrid"
+                    },
+                    "axes": {
+                        "xaxis": {
+                            "renderer": "jqplot.CategoryAxisRenderer",
+                            "ticks": ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"]
+                        },
+                        "yaxis": {
+                            "tickOptions": {
+                                "formatString": "%.2f €"
+                            }
+                        }
+                    },
+                    "highlighter": {
+                        "show": true,
+                        "showMarker": false,
+                        "tooltipAxes": "y",
+                        "formatString": "%s",
+                        "tooltipLocation": "n"
+                    },
+                    "title": "This is a bargraph"
+                }
+            }
+            </script>
+        </div>
+    </div>
+    <h4>Start month > End month > Plot Selector</h4>
+    <div class="ui-creme-widget ui-creme-chainedselect" widget="ui-creme-chainedselect">
+        <input type="hidden" name="" class="ui-creme-input ui-creme-chainedselect"></input>
+        <ul class="ui-layout hbox">
+            <li chained-name="start" class="ui-creme-chainedselect-item">
+                <select auto="False" widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect">
+                    <option value="1">Janvier</option>
+                    <option value="2">Février</option>
+                    <option value="3">Mars</option>
+                    <option value="4">Avril</option>
+                    <option value="5">Mai</option>
+                    <option value="6">Juin</option>
+                    <option value="7">Juillet</option>
+                    <option value="8">Août</option>
+                    <option value="9">Septembre</option>
+                    <option value="10">Octobre</option>
+                    <option value="11">Novembre</option>
+                    <option value="12">Décembre</option>
+                </select>
+            </li>
+            <li chained-name="duration" class="ui-creme-chainedselect-item">
+                <select auto="False" widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect">
+                    <option value="1">1 Mois</option>
+                    <option value="3">3 Mois</option>
+                    <option value="6">6 Mois</option>
+                    <option value="12">12 Mois</option>
+                </select>
+            </li>
+            <li chained-name="graphtype" class="ui-creme-chainedselect-item">
+                <select auto="False" widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect">
+                    <option value='bargraph'>bargraph</option>
+                    <option value='donut'>donut</option>
+                    <option value='horizontal'>horizontal</option>
+                </select>
+            </li>
+        </ul>
+        <div chained-name="plot" class="ui-creme-chainedselect-item">
+            <div class="ui-widget-content ui-creme-widget ui-creme-plotselector" widget="ui-creme-plotselector" 
+                 plot-data-url="mock/content/${start}/${duration}"
+                 plot-name="${graphtype}"
+                 style="width:800px;margin-left: 2px;">
+                    <script name="bargraph" type="text/json">
+                        {
+                            "seriesDefaults": {
+                                "renderer": "jqplot.BarRenderer", 
+                                "rendererOptions": {
+                                    "showDataLabels": true,
+                                    "fillToZero": true
+                                }
+                            },
+                            "series": [
+                                {"label": "CA Attendu"},
+                                {"label": "CA Effectué"}
+                            ],
+                            "legend": {
+                                "show": true, 
+                                "placement": "outsideGrid"
+                            },
+                            "axes": {
+                                "xaxis": {
+                                    "renderer": "jqplot.CategoryAxisRenderer",
+                                    "ticks": ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"]
+                                },
+                                "yaxis": {
+                                    "tickOptions": {
+                                        "formatString": "%.2f €"
+                                    }
+                                }
+                            },
+                            "highlighter": {
+                                "show": true,
+                                "showMarker": false,
+                                "tooltipAxes": "y",
+                                "formatString": "%s",
+                                "tooltipLocation": "n"
+                            },
+                            "title": "Chiffre d&#39;affaire"
+                        }
+                    </script>
+                    <script name="donut" type="text/json">
+                        {
+                            "seriesDefaults": {
+                                "renderer": "jqplot.DonutRenderer", 
+                                "rendererOptions": {
+                                    "showDataLabels": true,
+                                    "sliceMargin": 3
+                                }
+                            },
+                            "legend": {"show":true, "location": "e"},
+                            "title": "Chiffre d&#39;affaire"
+                        }
+                    </script>
+                    <script name="horizontal" type="text/json">
+                        {
+                            "stackSeries": true,
+                            "seriesDefaults": {
+                                "renderer": "jqplot.BarRenderer",
+                                "shadowAngle": 135, 
+                                "rendererOptions": {
+                                    "showDataLabels": true,
+                                    "barDirection": "horizontal"
+                                }
+                            },
+                            "series": [
+                                {"label": "CA Attendu"},
+                                {"label": "CA Effectué"}
+                            ],
+                            "axes": {
+                                "xaxis": {
+                                    "tickOptions": {
+                                        "formatString": "%.0f"
+                                    }
+                                },
+                                "yaxis": {
+                                    "renderer": "jqplot.CategoryAxisRenderer",
+                                    "ticks": ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"]
+                                }
+                            },
+                            "highlighter": {
+                                "show": true,
+                                "showMarker": false,
+                                "tooltipAxes": "x",
+                                "formatString": "%s €",
+                                "tooltipLocation": "nw"
+                            },
+                            "title": "Chiffre d&#39;affaire",
+                            "dataFormat": "horizontalBargraphData"
+                        }
+                    </script>
+                <div style="height:320px; padding:2px; border:0px;" class="ui-widget-content ui-creme-widget ui-creme-jqueryplot" widget="ui-creme-jqueryplot" savable="true">
+                </div>
+            </div>
+        </div>
+    </div>
+</body>

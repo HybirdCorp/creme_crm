@@ -1,0 +1,28 @@
+{
+    "seriesDefaults": {
+        "renderer": "jqplot.PieRenderer", 
+        "rendererOptions": {
+            "showDataLabels": true
+        }
+    },
+    "legend": {
+        "show": true,
+        "renderer": "jqplot.EnhancedLegendRenderer",
+        "rendererOptions": {
+            {% if reportLegendRows %}"numberRows": {{reportLegendRows}},{% endif %}
+            "disableIEFading": false
+        },
+        "placement": "outsideGrid",
+        "location": "e"
+    },
+    "highlighter": {
+        "show": true,
+        "showMarker": false,
+        "useAxesFormatters": false,
+        "tooltipAxes": "xy",
+        "formatString": "<center>%s</center><center>%.2f €</center>",
+        "tooltipLocation": "se"
+    },
+    "title": "{{report}}",
+    "dataFormat": "creme.graphael.BargraphData"
+}
