@@ -303,6 +303,15 @@ creme.reports.setSelected = function(checkbox, report_id, field_id, block_url) {
     creme.ajax.json.post('/reports/report/field/set_selected', data, success_cb, success_cb, false, this.loading_options);
 };
 
+creme.reports.toggleDisableOthers = function(me, others)
+{
+    var is_checked = me.checked;//More generic with all node types ?
+    $.each(others, function(i, n){
+        $(n).attr('disabled', is_checked)
+    });
+};
+
+/*
 if(!creme.reports.graphs) creme.reports.graphs = {};
 
 creme.reports.graphs.bind_toggle_graph = function(selectors, show_cb) {
@@ -338,11 +347,4 @@ creme.reports.graphs.bind_toggle_graph = function(selectors, show_cb) {
         });
     });
 };
-
-creme.reports.graphs.toggleDisableOthers = function(me, others)
-{
-    var is_checked = me.checked;//More generic with all node types ?
-    $.each(others, function(i, n){
-        $(n).attr('disabled', is_checked)
-    });
-};
+*/

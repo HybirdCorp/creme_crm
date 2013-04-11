@@ -1,5 +1,6 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
+{% load report_tags %}
 {% load graph_tags %}
 {% has_perm_to change object.report as has_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
@@ -25,10 +26,12 @@
                 <th class="block_header_line_dark action">{% trans 'Actions' %}</th>
             </tr>
             {% for graph in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
-                <tr class="content">
+                <tr class="content ui-creme-widget ui-creme-toggle toggle-collapsed widget-auto" widget="ui-creme-toggle"
+                    ontoggle="$('.ui-creme-toggle.widget-ready#graph-{{graph.id}}').creme().widget().toggle(!collapsed);">
                     <td class="{{row_color}} action">
-                        <img class="pointer report_graph_{{graph.id}}" src="{% creme_media_url 'images/expandme.gif' %}" alt="{% trans 'Expand' %}" title="{% trans 'Expand' %}"/>
-                        <img class="pointer report_graph_{{graph.id}}_expanded" src="{% creme_media_url 'images/expanded.gif' %}" alt="{% trans 'Reduce' %}" title="{% trans 'Reduce' %}" style="display:none;"/>
+                        <div class="toggle-icon toggle-trigger" style="width:16px;height:16px;"
+                             toggle-close-alt="{% trans 'Expand' %}" toggle-close-title="{% trans 'Expand' %}"
+                             toggle-open-alt="{% trans 'Reduce' %}" toggle-open-title="{% trans 'Reduce' %}"/>
                     </td>
                     <td class="{{row_color}}"><a href="{{graph.get_absolute_url}}">{{graph.name}}</a></td>
                     <td class="{{row_color}}">{{graph|verbose_abscissa:graph.abscissa}}</td>
@@ -47,46 +50,39 @@
                         {% get_line_deletor at_url '/creme_core/entity/delete/multi' with_args "{'ids' : '{{graph.id}}' }" with_perms graph_delete_perm %}
                     </td>
                 </tr>
-                <tr>
-                    <td class="{{row_color}} graph_global_container_{{graph.id}}" colspan="6" style="display: none;">
-                        <div>
-                            <table width="100%">
-                                <tbody>
-                                    <tr>
-                                        <td>{% trans 'Generation date' %} : <span id="graph_gen_date_{{graph.id}}"></span></td>
-                                        <td>
-                                            <select id="graph_type_{{graph.id}}" onchange="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$('#graph_ordering_{{graph.id}}').val(), $(this).val(), '.graph_container_{{graph.id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{graph.id}}');">
-                                                <option value="histogram">{% trans 'Histogram' %}</option>
-                                                <option value="pie">{% trans 'Pie' %}</option>
-                                            </select>
-                                        </td>
-                                        <td nowrap>
-                                            {% trans 'Sorting' %}:
-                                            <select id="graph_ordering_{{graph.id}}" onchange="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$(this).val(), $('#graph_type_{{graph.id}}').val(),'.graph_container_{{graph.id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{graph.id}}');">
-                                                <option value="ASC">{% trans 'Ascending' %}</option>
-                                                <option value="DESC">{% trans 'Descending' %}</option>
-                                            </select>
-                                        </td>
-                                        <td>
-                                            <a onclick="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{graph.id}}/'+$('#graph_ordering_{{graph.id}}').val(), $('#graph_type_{{graph.id}}').val(), '.graph_container_{{graph.id}}', '{{graph|verbose_ordinate:graph.ordinate}}', '{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}', '#graph_gen_date_{{graph.id}}');">
-                                                <img src="{% creme_media_url 'images/refresh_22.png' %}" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" />
-                                            </a>
-                                        </td>
-                                        <td>
-                                            {% if user_can_admin_report %}
-                                                <a onclick="creme.utils.innerPopupNReload('/reports/graph/{{graph.id}}/block/add', {% get_block_reload_uri %});">
-                                                    <img src="{% creme_media_url 'images/add_22.png' %}" alt="{% trans 'Create a block' %}" title="{% trans 'Create a block with this graph' %}" />
-                                                </a>
-                                            {% else %}
-                                                <img class="forbidden" src="{% creme_media_url 'images/add_22.png' %}" alt="{% trans "Can't add" %}" title="{% trans "Can't add" %}" />
-                                            {% endif %}
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                <tr class="ui-creme-widget ui-creme-toggle toggle-collapsed widget-auto" widget="ui-creme-toggle" id="graph-{{graph.id}}">
+                    <td class="{{row_color}} toggle-target" colspan="6" toggle-close-colspan="6">
+                        <div class="ui-creme-widget ui-creme-chainedselect widget-auto" widget="ui-creme-chainedselect"
+                             style="margin:0px;padding:0px;border:0px;">
+                            <input type="hidden" name="" class="ui-creme-input ui-creme-chainedselect"></input>
+                            <ul class="ui-layout hbox" style="padding:2px;">
+                                {% get_report_chart_selectors %}
+                                <li class="ui-creme-chainedselect-item" style="float:right;">
+                                {% if user_can_admin_report %}
+                                    <button onclick="creme.utils.innerPopupNReload('/reports/graph/{{graph.id}}/block/add', {% get_block_reload_uri %});"
+                                            style="padding: 1px 1px;vertical-align:middle;">
+                                        <img src="{% creme_media_url 'images/add_16.png' %}" alt="{% trans 'Create a block' %}" title="{% trans 'Create a block with this graph' %}"
+                                             style="border:0; vertical-align:middle;"/>
+                                    </button>
+                                {% else %}
+                                    <img class="forbidden" src="{% creme_media_url 'images/add_16.png' %}" alt="{% trans "Can't add" %}" title="{% trans "Can't add" %}" />
+                                {% endif %}
+                                </li>
+                            </ul>
+                            <div chained-name="plot" class="ui-creme-chainedselect-item">
+                                <div class="ui-widget-content ui-creme-widget ui-creme-plotselector" widget="ui-creme-plotselector" 
+                                     plot-data-url="/reports/graph/fetch_graph/{{graph.id}}/${sort}"
+                                     plot-name="${graph}"
+                                     style="width:100%;margin:0px;padding:0px;border:0px;">
+                                            <script name="histogram" type="text/json">{% report_small_barchart_json graph %}</script>
+                                            <script name="pie" type="text/json">{% report_piechart_json graph %}</script>
+                                            <script name="tube" type="text/json">{% report_tubechart_json graph 2 %}</script>
+                                    <div class="ui-widget-content ui-creme-widget ui-creme-jqueryplot ui-creme-resizable" widget="ui-creme-jqueryplot" 
+                                         savable="false" style="height:300px;margin:5px;border:0px;" format="creme.graphael.BargraphData">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        {% comment %}<div class="graph_container_{{graph.id}}" style="overflow-x:scroll;"></div>{% endcomment %}
-                        <div class="graph_container_{{graph.id}}" style="overflow-x:scroll;postion:relative;"></div>
                     </td>
                 </tr>
             {% endfor %}
@@ -98,59 +94,3 @@
     </tbody>
     {% get_block_footer 6 %}
 </table>
-
-<script type="text/javascript">
-    {% with today|to_timestamp as now %}
-        var selector_{{now}} = [];
-
-        {% for graph in page.object_list %}
-            var x = [];
-            var y = [];
-
-            {% with graph.fetch as graph_fetch %}
-                {% with graph_fetch.0 as x %}
-                    {% for v in x %}
-                        x.push("{{v|default:""}}");
-                    {% endfor %}
-                {% endwith %}
-
-                {% with graph_fetch.1 as y %}
-                    {% for v in y %}
-                        y.push("{{v|default:0}}");
-                    {% endfor %}
-                {% endwith %}
-            {% endwith %}
-
-            selector_{{now}}.push({
-                'shower':   '.report_graph_{{graph.id}}',
-                'hider':    '.report_graph_{{graph.id}}_expanded',
-                'wrapper':  '.graph_global_container_{{graph.id}}',
-                'container':'.graph_container_{{graph.id}}',
-                'x': x,
-                'y': y,
-                'graph_id': '{{graph.id}}',
-                'gen_date_selector': '#graph_gen_date_{{graph.id}}',
-                'ordinate_lbl': "{{graph|verbose_ordinate:graph.ordinate}}",
-                'abscissa_lbl': "{{graph|verbose_abscissa:graph.abscissa}}  - {{verbose_report_graph_types|get_value:graph.type}}"
-            });
-        {% endfor %}
-
-        creme.reports.graphs.bind_toggle_graph(selector_{{now}}, function(obj){
-            var now = +new Date;
-            var loading_id = 'loading_'+now;
-            creme.utils.loading(loading_id, false);
-            var node = creme.graphael.init(obj.container);
-            var date_node = $('#graph_gen_date_'+obj.graph_id);
-            creme.graphael.simple_barchart({
-               'instance': node.data('graphael'),
-               'container':node,
-               'x': obj.x,
-               'y': obj.y,
-               'gen_date_selector': obj.gen_date_selector,
-               'abscissa_lbl':obj.abscissa_lbl,
-               'ordinate_lbl':obj.ordinate_lbl
-            });
-            creme.utils.loading(loading_id, true);
-        });
-    {% endwith %}
-</script>

@@ -286,8 +286,8 @@ test('creme.widget.Toggle.toggle (callback)', function() {
     var element = mock_toggle_create().addClass('toggle-collapsed');
     var widget = creme.widget.create(element, {'ontoggle': function(collapsed, options) {self.mock_collapsed=collapsed, self.mock_options=options;}});
 
-    equal(self.mock_collapsed, true);
-    deepEqual(self.mock_options, {});
+    equal(self.mock_collapsed, undefined);
+    equal(self.mock_options, undefined);
 
     widget.expand();
     equal(self.mock_collapsed, false);
@@ -304,7 +304,7 @@ test('creme.widget.Toggle.toggle (callback script)', function() {
     var element = mock_toggle_create({'ontoggle': 'window.LAST_CREME_WIDGET_TOGGLE_STATE = !collapsed;'}).addClass('toggle-collapsed');
     var widget = creme.widget.create(element);
 
-    equal(window.LAST_CREME_WIDGET_TOGGLE_STATE, false);
+    equal(window.LAST_CREME_WIDGET_TOGGLE_STATE, undefined);
 
     widget.expand();
     equal(window.LAST_CREME_WIDGET_TOGGLE_STATE, true);
