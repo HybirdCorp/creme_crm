@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from logging import debug
-
 from django.db.models.fields import FieldDoesNotExist
 from django.forms import Form, ModelForm, ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
@@ -50,11 +48,55 @@ class _FieldBlock(object):
         return u'<_FieldBlock: %s %s>' % (self.name, self.field_names)
 
 
+class FieldBlocksGroup(object):
+    """You should not build them directly ; use FieldBlockManager.build() instead.
+    It contains a list of block descriptors. A blocks descriptor is a tuple
+    (block_verbose_name, [list of tuples (BoundField, field_is_required)]).
+    """
+    def __init__(self, form, blocks_items):
+        self._blocks_data = blocks_data = OrderedDict()
+        wildcard_cat = None
+        field_set = set()
+
+        for cat, block in blocks_items:
+            field_names = block.field_names
+
+            if field_names == '*': #wildcard
+                blocks_data[cat] = block.name
+                assert wildcard_cat is None, 'Only one wildcard is allowed: %s' % str(form)
+                wildcard_cat = cat
+            else:
+                field_set |= set(field_names)
+                blocks_data[cat] = (block.name, [(form[fn], form.fields[fn].required) for fn in field_names])
+
+        if wildcard_cat is not None:
+            block_name = blocks_data[wildcard_cat]
+            blocks_data[wildcard_cat] = (block_name,
+                                         [(form[name], field.required)
+                                              for name, field in form.fields.iteritems()
+                                                  if name not in field_set
+                                         ],
+                                        )
+
+    def __getitem__(self, category):
+        """Beware: it pops the retreieved value (__getitem__ is more confortable
+        to be used in templates than a classical method with an argument).
+        @return A block descriptor (see FieldBlocksGroup doc string).
+        """
+        return self._blocks_data.pop(category)
+
+    def __iter__(self):
+        """Iterates on the non used blocks (see __getitem__).
+        @return A sequence of block descriptors (see FieldBlocksGroup doc string).
+        """
+        return self._blocks_data.itervalues()
+
+
 class FieldBlockManager(object):
     __slots__ = ('__blocks',)
 
     def __init__(self, *blocks):
-        """
+        """Constructor.
         @param blocks tuples with 3 elements : category(string), verbose_name(i18n string), sequence of field names
                       3rd element can be instead a wildcard (the string '*') which mean 'all remaining fields'.
                       Only zero or one wildcard is allowed.
@@ -63,8 +105,7 @@ class FieldBlockManager(object):
         self.__blocks = OrderedDict([(cat, _FieldBlock(name, field_names)) for cat, name, field_names in blocks])
 
     def new(self, *blocks):
-        """
-        Create a clone of self, updated with new blocks.
+        """Create a clone of self, updated with new blocks.
         @param blocks see __init__(). New blocks are merged with self's blocks.
         """
         merged_blocks = OrderedDict([(cat, _FieldBlock(block.name, block.field_names)) for cat, block in self.__blocks.iteritems()])
@@ -87,31 +128,13 @@ class FieldBlockManager(object):
 
         return fdm
 
-    def build(self, form): #build in the blocks objects themselves ??
+    def build(self, form):
+        """You should not call this directly ; see CremeForm/CremeModelForm
+        get_blocks() method.
+        @param form An instance of django.forms.Form.
+        @return An instance of FieldBlocksGroup.
         """
-        @return A list of block descriptors. A blocks descriptor is a tuple
-               (block_verbose_name, [list of tuples (BoundField, field_is_required)]).
-        """
-        result = OrderedDict()
-        wildcard_cat = None
-        field_set = set()
-
-        for cat, block in self.__blocks.iteritems():
-            field_names = block.field_names
-
-            if field_names == '*': #wildcard
-                result[cat] = block.name
-                assert wildcard_cat is None, 'Only one wildcard is allowed: %s' % str(form)
-                wildcard_cat = cat
-            else:
-                field_set |= set(field_names)
-                result[cat] = (block.name, [(form[fn], form.fields[fn].required) for fn in field_names])
-
-        if wildcard_cat is not None:
-            block_name = result[wildcard_cat]
-            result[wildcard_cat] = (block_name, [(form[name], field.required) for name, field in form.fields.iteritems() if name not in field_set])
-
-        return result
+        return FieldBlocksGroup(form, self.__blocks.iteritems())
 
 
 class HookableForm(object):

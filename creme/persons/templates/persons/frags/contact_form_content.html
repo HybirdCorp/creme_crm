@@ -6,5 +6,8 @@
         {% include "creme_core/generics/blockform/content.html" with form_block=blocks.coordinates %}
         {% include "persons/frags/billing_block.html" with form_block=blocks.billing_address %}
         {% include "persons/frags/shipping_block.html" with form_block=blocks.shipping_address %}
+        {% for form_block in blocks %}
+            {% include "creme_core/generics/blockform/content.html" %}
+        {% endfor %}
     {% endwith %}
 {% endblock %}
