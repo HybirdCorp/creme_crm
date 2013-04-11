@@ -26,6 +26,7 @@
 {% endblock %}
 
 {% block content %}
+    {% comment %}  TODO : REMOVE IT !
     {% with 5 as colspan %}
         <div style="position:relative; width:100%;">
             <table class="table_detail_view ui-corner-all" >
@@ -104,4 +105,7 @@
                'abscissa_lbl': "{{object|verbose_abscissa:object.abscissa}}  - {{verbose_report_graph_types|get_value:object.type}}"
         });
     </script>
+    {% endcomment %}
+    {% comment %} NEW VERSION OF GRAPH ! {% endcomment %}
+    {% get_report_chart object %}
 {% endblock %}

@@ -55,9 +55,9 @@ def is_linkable(field, ct):
 def get_verbose_type(type_id):
     return HFI_TYPE_VERBOSE.get(type_id)
 
-@register.inclusion_tag('reports/templatetags/column_header.html')
-def get_column_header(column):
-    return {'data' : column.get_children_fields_with_hierarchy()}
+#@register.inclusion_tag('reports/templatetags/column_header.html')
+#def get_column_header(column):
+#    return {'data' : column.get_children_fields_with_hierarchy()}
 
 @register.inclusion_tag('reports/backends/html_column_value.html')
 def get_html_column_value(column, line, index, add_index=0):
@@ -70,3 +70,29 @@ def get_value_at(iterable, index):
         return iterable[index]
     except IndexError:
         return u''
+
+@register.inclusion_tag('reports/plot/barchart.json')
+def report_barchart_json(report):
+    return {'report': report}
+
+@register.inclusion_tag('reports/plot/small_barchart.json')
+def report_small_barchart_json(report):
+    return {'report': report}
+
+@register.inclusion_tag('reports/plot/piechart.json')
+def report_piechart_json(report, legendRows=None):
+    return {'report': report,
+            'reportLegendRows': legendRows}
+
+@register.inclusion_tag('reports/plot/tubechart.json')
+def report_tubechart_json(report, legendRows=1):
+    return {'report': report,
+            'reportLegendRows': legendRows}
+
+@register.inclusion_tag('reports/templatetags/report_chart.html')
+def get_report_chart(report):
+    return {'report': report}
+
+@register.inclusion_tag('reports/templatetags/report_chart_selectors.html', takes_context=True)
+def get_report_chart_selectors(context):
+    return context

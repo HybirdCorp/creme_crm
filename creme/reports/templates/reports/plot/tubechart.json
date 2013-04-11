@@ -1,0 +1,95 @@
+{% load creme_core_tags %}
+{% load report_tags graph_tags %}
+{
+    "stackSeries": true,
+    "seriesDefaults": {
+        "renderer": "jqplot.BarRenderer",
+        "shadowAngle": 135, 
+        "rendererOptions": {
+            "showDataLabels": true,
+            "fillToZero": true,
+            "barDirection": "horizontal",
+            "barWidth": 100
+        }
+    },
+    "series": "preprocess.seriesLabel",
+    "seriesLabelOptions": {
+        "labelIndex": -3
+    },
+    "legend": {
+        "show": true,
+        "renderer": "jqplot.EnhancedLegendRenderer",
+        "rendererOptions": {
+            {% if reportLegendRows %}"numberRows": {{reportLegendRows}},{% endif %}
+            "disableIEFading": false
+        },
+        "placement": "outsideGrid",
+        "location": "s"
+    },
+    "axes": {
+        "xaxis": {
+            "tickRenderer": "jqplot.CanvasAxisTickRenderer",
+            "tickOptions": {
+                "fontSize": "10pt",
+                "formatString": "%d%%"
+            },
+            "label": "{{report|verbose_ordinate:report.ordinate}}",
+            "labelOptions": {
+                "fontWeight": "bold",
+                "fontSize": "10pt",
+                "textColor": "black"
+            },
+            "labelRenderer": "jqplot.CanvasAxisLabelRenderer",
+            "min": 0.0,
+            "max": 100.0,
+            "autoscale": true,
+            "tickInterval": 10.0
+        },
+        "yaxis": {
+            "renderer": "jqplot.CategoryAxisRenderer",
+            "tickOptions": {
+                "show": false
+            },
+            "ticks": [""],
+            "label": "{{report|verbose_abscissa:report.abscissa}}{% if report.type %} - {{verbose_report_graph_types|get_value:report.type}}{% endif %}",
+            "labelOptions": {
+                "fontWeight": "bold",
+                "fontSize": "10pt",
+                "textColor": "black"
+            },
+            "labelRenderer": "jqplot.CanvasAxisLabelRenderer"
+        }
+    },
+    "highlighter": {
+        "show": true,
+        "showMarker": false,
+        "yvalues": 4,
+        "tooltipAxes": "yx",
+        "formatString": "<center>%2$s</center><center>%4$.2f €</center><center>%3$s</center>",
+        "tooltipLocation": "w"
+    },
+    "title": "{{report}}",
+    "dataFormat": "creme.graphael.BargraphData",
+    "dataPreprocessors": ["tee",
+                          {
+                              "preprocessor": "fill", 
+                              "options": {
+                                  "value": 1
+                              }
+                          },
+                          {
+                              "preprocessor": "percentEntry",
+                              "options": {
+                                  "valueIndex": 2,
+                                  "targetIndex": 0
+                              }
+                          },
+                          {
+                              "preprocessor": "format", 
+                              "options": {
+                                  "format": "%0$.2f%%",
+                                  "targetIndex": 3
+                              }
+                          }
+                         ]
+}
