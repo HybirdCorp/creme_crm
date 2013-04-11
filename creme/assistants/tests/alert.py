@@ -49,10 +49,10 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual(entity.entity_type_id, alert.entity_content_type_id)
         self.assertEqual(datetime(year=2010, month=9, day=29), alert.trigger_date)
 
-    def test_create02(self): #create with errors
+    def test_create02(self):
+        "Errors"
         def _fail_creation(**post_data):
-            response = self.client.post(self._build_add_url(self.entity), data=post_data)
-            self.assertEqual(200, response.status_code)
+            response = self.assertPOST200(self._build_add_url(self.entity), data=post_data)
 
             with self.assertNoException():
                 form = response.context['form']
@@ -69,7 +69,7 @@ class AlertTestCase(AssistantsTestCase):
         alert = self._create_alert(title, description, '2010-9-29')
 
         url = '/assistants/alert/edit/%s/' % alert.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         title       += '_edited'
         description += '_edited'
@@ -89,14 +89,14 @@ class AlertTestCase(AssistantsTestCase):
         #don't care about seconds
         self.assertEqual(datetime(year=2011, month=10, day=30, hour=15, minute=12), alert.trigger_date)
 
-    def test_delete01(self): #delete related entity
+    def test_delete_related01(self):
         self._create_alert()
         self.assertEqual(1, Alert.objects.count())
 
         self.entity.delete()
         self.assertEqual(0, Alert.objects.count())
 
-    def test_delete02(self): #delete
+    def test_delete01(self):
         alert = self._create_alert()
         self.assertEqual(1, Alert.objects.count())
 
@@ -104,12 +104,12 @@ class AlertTestCase(AssistantsTestCase):
         self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': alert.id})
         self.assertEqual(0, Alert.objects.count())
 
-    def test_validate(self): #validate
+    def test_validate(self):
         alert = self._create_alert()
         self.assertFalse(alert.is_validated)
 
-        response = self.client.post('/assistants/alert/validate/%s/' % alert.id)
-        self.assertEqual(302, response.status_code)
+        response = self.assertPOST200('/assistants/alert/validate/%s/' % alert.id, follow=True)
+        self.assertRedirects(response, self.entity.get_absolute_url())
 
         self.assertTrue(self.refresh(alert).is_validated)
 
@@ -133,7 +133,8 @@ class AlertTestCase(AssistantsTestCase):
 
         self.assertEqual(u'<ul><li>Alert02</li><li>Alert01</li></ul>', result.for_html())
 
-    def test_function_field03(self): #prefetch with 'populate_entities()'
+    def test_function_field03(self):
+        "Prefetch with 'populate_entities()'"
         self._create_alert('Alert01', 'Description01', trigger_date='2011-10-21')
         self._create_alert('Alert02', 'Description02', trigger_date='2010-10-20')
 

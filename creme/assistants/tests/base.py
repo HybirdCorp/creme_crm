@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+
     #from creme.creme_core.models import CremeEntity
     from creme.creme_core.tests.base import CremeTestCase
 
@@ -32,9 +34,9 @@ class AssistantsTestCase(CremeTestCase):
 
     def aux_test_merge(self, creator, assertor):
         user = self.user
-        create_contact = Contact.objects.create
-        contact01 = create_contact(user=user, first_name='Ryoga', last_name='Hibiki')
-        contact02 = create_contact(user=user, first_name='Ryoag', last_name='Hibiik')
+        create_contact = partial(Contact.objects.create, user=user)
+        contact01 = create_contact(first_name='Ryoga', last_name='Hibiki')
+        contact02 = create_contact(first_name='Ryoag', last_name='Hibiik')
 
         creator(contact01, contact02)
 
