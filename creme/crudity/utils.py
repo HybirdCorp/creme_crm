@@ -26,14 +26,14 @@ import uuid
 
 html_mark = re.compile(r"""(?P<html>(</|<!|<|&lt;)[-="' ;/.#:@\w]*(>|/>|&gt;))""")
 
-def get_unicode_decoded_str(content, encodings):
-    for encoding in encodings:
-        try:
-            return unicode(content, encoding) if not isinstance(content, unicode) else content
-        except:
-            continue
-
-    return u"".join(i if ord(i) < 128 else '?' for i in content)
+#def get_unicode_decoded_str(content, encodings):
+#    for encoding in encodings:
+#        try:
+#            return unicode(content, encoding) if not isinstance(content, unicode) else content
+#        except:
+#            continue
+#
+#    return u"".join(i if ord(i) < 128 else '?' for i in content)
 
 def strip_html_(html_content):
     is_html = True

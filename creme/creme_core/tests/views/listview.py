@@ -11,6 +11,7 @@ try:
                                          RelationType, Relation,
                                          CremePropertyType, CremeProperty,
                                          CustomField, CustomFieldEnumValue)
+    from creme.creme_core.utils import safe_unicode
     from .base import ViewsTestCase
 
     from creme.persons.models import Organisation, Contact
@@ -108,6 +109,8 @@ class ListViewTestCase(ViewsTestCase):
         bebop_idx = self.assertFound(bebop.name, content)
         swordfish_idx = self.assertFound(swordfish.name, content)
         self.assertGreater(swordfish_idx, bebop_idx) #order
+
+        content = safe_unicode(content)
 
         self.assertIn(rtype.predicate, content)
         self.assertIn(unicode(spike), content)

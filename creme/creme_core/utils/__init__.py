@@ -177,3 +177,42 @@ def truncate_str(str, max_length, suffix=""):
 
 def is_testenvironment(request):
     return request.META.get('SERVER_NAME') == 'testserver'
+
+def safe_unicode(value, encodings=None):
+    if isinstance(value, unicode):
+        return value
+
+    if not isinstance(value, basestring):
+        value = value.__unicode__() if hasattr(value, '__unicode__') else repr(value)
+        return safe_unicode(value, encodings)
+
+    encodings = encodings or ('utf-8', 'cp1252', 'iso-8859-1',)
+
+    for encoding in encodings:
+        try:
+            return unicode(value, encoding=encoding)
+        except Exception:
+            continue
+
+    return unicode(value, encoding='utf-8', errors='replace')
+
+def safe_unicode_error(err, encodings=None):
+    #return safe_unicode(err.message) #this method is deprecated for python 3.* but str/unicode conversions won't be useful at all
+
+    #Is this method deprecated for python 3.* (but str/unicode conversions won't be useful at all) ??
+    try:
+        return unicode(err)
+    except:
+        pass
+
+    msg = err.message
+
+    #if isinstance(msg, basestring):
+    return safe_unicode(msg, encodings)
+
+    #try:
+        #return unicode(msg)
+    #except:
+        #pass
+
+    #return unicode(err.__class__.__name__)
