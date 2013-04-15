@@ -25,7 +25,7 @@ creme.widget.PluginLauncher = creme.widget.declare('ui-creme-jqueryplugin', {
     _create: function(element, options, cb, sync, arguments)
     {
         var plugin_name = options['plugin'];
-        var plugin_options = creme.widget.cleanval(options['plugin_options'], {}, creme.ajax.json.parse);
+        var plugin_options = creme.widget.cleanval(options['plugin_options'], {});
         var plugin = plugin_name !== '' ? element[plugin_name] : undefined;
 
         //console.log('plugin-name:', plugin_name, 'options:', options, 'plugin-options:', plugin_options, 'is_valid:', (typeof plugin === 'function'));

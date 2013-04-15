@@ -379,6 +379,41 @@ test('creme.object.deferred (restarted)', function() {
     }, 700);
 });
 
+test('creme.object.build_callback (invalid script)', function() {
+    raises(function() {creme.object.build_callback('...');});
+    raises(function() {creme.object.build_callback('{', ['arg1', 'arg2']);});
+});
+
+test('creme.object.build_callback (function)', function() {
+    var cb = function() {return 12};
+    equal(cb, creme.object.build_callback(cb))
+    equal(cb, creme.object.build_callback(cb, ['arg1', 'arg2']));
+});
+
+test('creme.object.build_callback (valid script, no parameter)', function() {
+    var cb = creme.object.build_callback('12');
+    equal(typeof cb, 'function');
+    equal(cb(), 12);
+
+    cb = creme.object.build_callback('return 15');
+    equal(typeof cb, 'function');
+    equal(cb(), 15);
+});
+
+test('creme.object.build_callback (valid script, parameters)', function() {
+    var cb = creme.object.build_callback('arg1 * arg2', ['arg1', 'arg2']);
+    equal(typeof cb, 'function');
+    equal(cb(0, 0), 0);
+    equal(cb(5, 2), 5*2);
+    equal(cb(4.56, 2), 4.56*2);
+
+    var cb = creme.object.build_callback('if (arg1 > arg2) {return arg1;} else {return arg2;}', ['arg1', 'arg2']);
+    equal(typeof cb, 'function');
+    equal(cb(0, 0), 0);
+    equal(cb(5, 2), 5);
+    equal(cb(4.56, 445), 445);
+});
+
 test('creme.string.Template (constructor)', function() {
     var template = new creme.string.Template();
     equal('', template.pattern);
@@ -526,6 +561,17 @@ test('creme.object.JSON.decode (invalid)', function() {
     raises(function() {codec.decode('{"a":1,}');});
     raises(function() {codec.decode('{a:1}');});
 });
+
+
+test('creme.object.JSON.decode (invalid or null, default)', function() {
+    var codec = new creme.object.JSON();
+
+    equal(codec.decode('{"a\':1}', 'fail'), 'fail');
+    equal(codec.decode('{"a":1,}', 'fail'), 'fail');
+    equal(codec.decode('{a:1}', 'fail'), 'fail');
+    equal(codec.decode(null, 'fail'), 'fail');
+});
+
 
 test('creme.object.JSON.decode (valid)', function() {
     var codec = new creme.object.JSON();

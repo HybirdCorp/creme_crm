@@ -90,12 +90,12 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
     _appendSelector: function(element, value)
     {
         var self = this;
-        var selector = self._buildSelector(element);
+        var selector_model = this.selectorModel(element).clone();
 
-        if (creme.object.isempty(selector))
-            return selector;
+        if (creme.object.isempty(selector_model))
+            return;
 
-        selector.element.attr('style', 'display:inline;');
+        selector_model.css('display', 'hidden');
 
         var selector_item = $('<li>').addClass('selector');
         var selector_layout = $('<ul>').addClass('ui-layout hbox').css('display', 'block').appendTo(selector_item);
@@ -111,14 +111,23 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
                                             self._update(element);
                                         });
 
-        selector_layout.append($('<li>').append(selector.element));
+        selector_layout.append($('<li>').append(selector_model));
         selector_layout.append($('<li>').append(delete_button));
 
         $('ul.selectors', element).append(selector_item);
 
-        selector.element.bind('change', function() {
+        selector_model.bind('change', function() {
             self._update(element);
         });
+
+        var selector = creme.widget.create(selector_model, {}, function() {
+            selector_model.css('display', 'inline');
+        }, true);
+
+        if (creme.object.isempty(selector)) {
+            selector_item.removeFromParent();
+            return;
+        }
 
         selector.val(value);
         return selector;

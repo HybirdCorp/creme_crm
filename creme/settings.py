@@ -299,6 +299,7 @@ CREME_CORE_CSS = ('main.css',
                     'creme_core/css/fg-menu-3.0/fg.menu.css',
                     'creme_core/css/jqplot-1.0.4/jquery.jqplot.css',
                     'creme_core/css/jquery.gccolor.1.0.3/gccolor.css',
+                    'creme_core/css/chosen/chosen.css',
 
                     'creme_core/css/creme.css',
                     'creme_core/css/creme-ui.css',
@@ -364,6 +365,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/jquery/extensions/bootstrap-twipsy.js',
                     'creme_core/js/jquery/extensions/jquery.form.js',
                     'creme_core/js/jquery/extensions/jquery.tinymce.js',
+                    'creme_core/js/jquery/extensions/chosen.jquery.js',
                     'creme_core/js/jquery/extensions/converters.js',
 
                     'creme_core/js/lib/fallbacks/array-0.9.js',
@@ -396,8 +398,11 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/widgets/ajax/mockbackend.js',
 
                     'creme_core/js/widgets/frame.js',
-                    'creme_core/js/widgets/toggle.js',
+
                     'creme_core/js/widgets/component/dialog.js',
+                    'creme_core/js/widgets/component/chosen.js',
+
+                    'creme_core/js/widgets/toggle.js',
                     'creme_core/js/widgets/pluginlauncher.js',
                     'creme_core/js/widgets/dinput.js',
                     'creme_core/js/widgets/dselect.js',
