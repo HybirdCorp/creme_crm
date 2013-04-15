@@ -69,17 +69,16 @@ creme.object = {
 
     build_callback: function(script, parameters)
     {
-        if (arguments.length < 1)
-            return;
-
         if (typeof script === 'function')
             return script;
 
+        var parameters = parameters || [];
+
         try {
-            var script = script ? 'cb = function(' + parameters.join(',') + ') {' + script + '};' : undefined;
+            var script = script ? 'cb = function(' + parameters.join(',') + ') {' + (script.indexOf('return') === -1 ? 'return ' : '') + script + '};' : undefined;
             return script ? eval(script) : undefined;
         } catch(e) {
-            throw e;
+            throw Error('Invalid callback script : ' + e);
         }
     },
 
@@ -139,8 +138,16 @@ creme.object.JSON.prototype = {
         return jQuery.toJSON(data);
     },
 
-    decode: function(data)
+    decode: function(data, defaults)
     {
+        if (defaults !== undefined) {
+            try {
+                this.decode(data);
+            } catch(e) {
+                return defaults;
+            }
+        }
+
         if ( typeof data !== "string" || !data) {
             throw 'Invalid data type or empty string';
         }

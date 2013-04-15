@@ -28,7 +28,7 @@
 ul.ui-layout { margin:0; padding:0; list-style:none; }
 ul.ui-layout li { margin:0; padding:0; list-style:none; }
 
-ul.ui-layout.hbox li { position:relative; display:inline-block; }
+ul.ui-layout.hbox li { position:relative; display:inline-block; vertical-align:middle; }
 ul.ui-layout.hbox li button[type="button"] { padding-top: 0px; padding-bottom: 0px; }
 ul.ui-layout.hbox li input { margin: 0px 2px; }
 

@@ -1,0 +1,209 @@
+{% load i18n %}
+{% load media %}
+{% load creme_block %}
+{% load creme_menu creme_core_tags creme_search creme_quickforms %}
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7" />
+    <title>Creme CRM{% block page_title %}{% endblock %}</title>
+    <script type='text/javascript'>
+        var THEME_NAME = "{{ THEME_NAME }}";
+    </script>
+    <!--
+        Firebug for browsers without plugin/extension :
+            - uncomment the following script
+            - add debug="true" to <html> tag
+    -->
+    <!--script type="text/javascript" src="https://getfirebug.com/firebug-lite.js"></script-->
+    {% include_creme_media "main.css" %}
+    {% include "creme_core/frags/js_header.html" %}
+
+    <style type="text/css">
+        ul.vbox li.chosen-test-item {
+            padding-top: 2px;
+        }
+
+        li.chosen-test-item > select {
+            width:350px;
+        }
+
+        li.chosen-test-item > span {
+            top: 0.5em;
+            vertical-align: top;
+            position: relative;
+        }
+
+        .chzn-container.chzn-container-multi .chzn-choices input {
+            min-height: 2em;
+        }
+    </style>
+    
+    <script type="text/javascript">
+        CHOSEN_TEST_OPTIONS = [
+           ["email",       "Adresse e-mail"],
+           ["description", "Description"],
+           ["fax",         "Fax"],
+           ["mobile",      "Mobile"],
+           ["last_name",   "Nom"],
+           ["phone",       "Numéro de téléphone"],
+           ["first_name",  "Prénom"],
+           ["url_site",    "Site Web"],
+           ["skype",       "Skype"]
+        ];
+
+        random_options = function(threshold)
+        {
+            var options = [];
+
+            CHOSEN_TEST_OPTIONS.forEach(function(value) {
+                if (Math.random() > threshold) {options.push(value);}
+            });
+
+            return options;
+        }
+        
+        $(document).ready(function() {
+            var mockbackend = new creme.ajax.MockAjaxBackend({sync:true});
+
+            urls = {'mock/options': function() {return mockbackend.response(200, random_options(Math.random()))}};
+
+            $.extend(mockbackend.GET, urls);
+
+            $('.ui-creme-dselect').each(function() {
+                $(this).creme().create({backend: mockbackend});
+            });
+
+            $('button#test-reload-button').click(function() {
+                $('#reloadable-select').creme().widget().reload({});
+            })
+        });
+    </script>
+</head>
+<body>
+    <h1>JQuery Chosen Test Page - {{ THEME_NAME }}</h1>
+    <ul>
+        <li>
+            <h4>Static single select</h4>
+            <ul class="ui-layout vbox">
+                <li class="chosen-test-item">
+                    <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect"
+                            autocomplete
+                            autocomplete-options="{allow_single_deselect:false}"
+                            data-placeholder="Choisissez un champ...">
+                        <option value="email">Adresse e-mail</option>
+                        <option value="description">Description</option>
+                        <option value="fax">Fax</option>
+                        <option value="mobile">Mobile</option>
+                        <option value="last_name">Nom</option>
+                        <option value="phone">Numéro de téléphone</option>
+                        <option value="first_name">Prénom</option>
+                        <option value="url_site">Site Web</option>
+                        <option value="skype">Skype</option>
+                    </select>
+                </li>
+                <li class="chosen-test-item">
+                    <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect"
+                            autocomplete
+                            autocomplete-options="{allow_single_deselect:false, no_results_text: 'Aucun résultat..'}"
+                            data-placeholder="Choisissez un champ...">
+                        <option></option>
+                        <option value="email">Adresse e-mail</option>
+                        <option value="description">Description</option>
+                        <option value="fax">Fax</option>
+                        <option value="mobile">Mobile</option>
+                        <option value="last_name">Nom</option>
+                        <option value="phone">Numéro de téléphone</option>
+                        <option value="first_name">Prénom</option>
+                        <option value="url_site">Site Web</option>
+                        <option value="skype">Skype</option>
+                    </select>
+                    <span>Empty choice</span>
+                </li>
+                <li class="chosen-test-item">
+                    <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect"
+                            autocomplete
+                            autocomplete-options="{allow_single_deselect:true, no_results_text: 'Aucun résultat..'}"
+                            data-placeholder="Choisissez un champ...">
+                        <option></option>
+                        <option value="email">Adresse e-mail</option>
+                        <option value="description">Description</option>
+                        <option value="fax">Fax</option>
+                        <option value="mobile">Mobile</option>
+                        <option value="last_name">Nom</option>
+                        <option value="phone">Numéro de téléphone</option>
+                        <option value="first_name">Prénom</option>
+                        <option value="url_site">Site Web</option>
+                        <option value="skype">Skype</option>
+                    </select>
+                    <span>Allow reset choice</span>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <h4>Static multiple select</h4>
+            <ul class="ui-layout vbox">
+                <li class="chosen-test-item">
+                    <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect"
+                            autocomplete
+                            autocomplete-options="{no_results_text: 'Aucun résultat..'}"
+                            multiple
+                            data-placeholder="Choisissez un champ...">
+                        <option value="email">Adresse e-mail</option>
+                        <option value="description">Description</option>
+                        <option value="fax">Fax</option>
+                        <option value="mobile">Mobile</option>
+                        <option value="last_name">Nom</option>
+                        <option value="phone">Numéro de téléphone</option>
+                        <option value="first_name">Prénom</option>
+                        <option value="url_site">Site Web</option>
+                        <option value="skype">Skype</option>
+                    </select>
+                </li>
+                <li class="chosen-test-item">
+                    <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect"
+                            autocomplete
+                            autocomplete-options="{no_results_text: 'Aucun résultat..'}"
+                            multiple sortable
+                            data-placeholder="Choisissez un champ...">
+                        <option value="email">Adresse e-mail</option>
+                        <option value="description">Description</option>
+                        <option value="fax">Fax</option>
+                        <option value="mobile">Mobile</option>
+                        <option value="last_name">Nom</option>
+                        <option value="phone">Numéro de téléphone</option>
+                        <option value="first_name">Prénom</option>
+                        <option value="url_site">Site Web</option>
+                        <option value="skype">Skype</option>
+                    </select>
+                    <span>Sortable</span>
+                </li>
+            </ul>
+        </li>
+        <li>
+            <h4>Dynamic single select</h4>
+            <ul class="ui-layout vbox">
+                <li class="chosen-test-item">
+                    <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect"
+                            autocomplete
+                            autocomplete-options="{no_results_text: 'Aucun résultat..'}"
+                            id="reloadable-select"
+                            url="mock/options"
+                            data-placeholder="Choisissez un champ...">
+                        <option value="email">Adresse e-mail</option>
+                        <option value="description">Description</option>
+                        <option value="fax">Fax</option>
+                        <option value="mobile">Mobile</option>
+                        <option value="last_name">Nom</option>
+                        <option value="phone">Numéro de téléphone</option>
+                        <option value="first_name">Prénom</option>
+                        <option value="url_site">Site Web</option>
+                        <option value="skype">Skype</option>
+                    </select>
+                    <button id="test-reload-button">Reload</button>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</body>
