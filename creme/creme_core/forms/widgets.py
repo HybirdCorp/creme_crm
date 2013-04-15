@@ -398,8 +398,8 @@ class RelationSelector(ChainedInput):
     def __init__(self, relation_types, content_types, attrs=None, multiple=False):
         super(RelationSelector, self).__init__(attrs)
 
-        self.add_dselect("rtype", options=relation_types, attrs={'auto': False})
-        self.add_dselect("ctype", options=content_types, attrs={'auto': False})
+        self.add_dselect("rtype", options=relation_types, attrs={'auto': False, 'autocomplete': True})
+        self.add_dselect("ctype", options=content_types, attrs={'auto': False, 'autocomplete': True})
         self.add_input("entity", widget=EntitySelector, attrs={'auto': False, 'multiple': multiple})
 
 
