@@ -11,7 +11,8 @@ try:
     from ..base import CremeTestCase
     from creme.creme_core.models import CremePropertyType, PreferedMenuItem
     from creme.creme_core.utils import (find_first, truncate_str, create_if_needed, 
-                                        get_from_GET_or_404, get_from_POST_or_404)
+                                        get_from_GET_or_404, get_from_POST_or_404,
+                                        safe_unicode, safe_unicode_error)
     from creme.creme_core.utils.dates import(get_dt_from_iso8601_str, get_dt_to_iso8601_str,
                                              get_naive_dt_from_tzdate, get_creme_dt_from_utc_dt,
                                              get_utc_dt_from_creme_dt)
@@ -102,6 +103,68 @@ class MiscTestCase(CremeTestCase):
         self.assertEqual('36', get_from_POST_or_404(request, 'age'))
         self.assertEqual(36, get_from_POST_or_404(request, 'age', int))
         self.assertEqual(1,  get_from_POST_or_404(request, 'name_', int, default=1))
+
+    def test_safe_unicode(self):
+        self.assertEqual(u"kjøÔ€ôþâ", safe_unicode(u"kjøÔ€ôþâ"))
+        self.assertEqual(u"aé‡ae15", safe_unicode("a\xe9\x87ae15"))
+        self.assertEqual(u"aé‡ae15", safe_unicode("aé‡ae15"))
+
+        # custom encoding list
+        self.assertEqual(u"a\ufffdae15", safe_unicode("a\xe9\x87ae15", ('utf-8',)))
+        self.assertEqual(u"aé‡ae15", safe_unicode("a\xe9\x87ae15", ('cp1252',)))
+
+    def test_safe_unicode_object(self):
+        class no_unicode_object(object):
+            pass
+
+        class unicode_object(object):
+            def __unicode__(self):
+                return u"aé‡ae15"
+
+        class false_unicode_object(object):
+            def __init__(self, text):
+                self.text = text;
+            
+            def __unicode__(self):
+                return self.text
+
+        self.assertEqual(u"<class 'creme.creme_core.tests.utils.no_unicode_object'>", safe_unicode(no_unicode_object))
+        self.assertEqual(u"aé‡ae15", safe_unicode(unicode_object()))
+        self.assertEqual(u"aé‡ae15", safe_unicode(false_unicode_object(u"aé‡ae15")))
+        self.assertEqual(u"aé‡ae15", safe_unicode(false_unicode_object("a\xe9\x87ae15")))
+
+    def test_safe_unicode_error1(self):
+        "Encoding errors"
+        self.assertEqual(u"kjøÔ€ôþâ", safe_unicode_error(OSError(u"kjøÔ€ôþâ")))
+        self.assertEqual(u"kjøÔ€ôþâ", safe_unicode_error(Exception(u"kjøÔ€ôþâ")))
+
+        self.assertEqual(u"aé‡ae15", safe_unicode_error(OSError("a\xe9\x87ae15")))
+        self.assertEqual(u"aé‡ae15", safe_unicode_error(Exception("a\xe9\x87ae15")))
+
+        self.assertEqual(u"aé‡ae15", safe_unicode_error(OSError("aé‡ae15")))
+        self.assertEqual(u"aé‡ae15", safe_unicode_error(Exception("aé‡ae15")))
+
+        # custom encoding list
+        self.assertEqual(u"a\ufffdae15", safe_unicode_error(OSError("a\xe9\x87ae15"), ('utf-8',)))
+        self.assertEqual(u"a\ufffdae15", safe_unicode_error(Exception("a\xe9\x87ae15"), ('utf-8',)))
+
+        self.assertEqual(u"aé‡ae15", safe_unicode_error(OSError("a\xe9\x87ae15"), ('cp1252',)))
+        self.assertEqual(u"aé‡ae15", safe_unicode_error(Exception("a\xe9\x87ae15"), ('cp1252',)))
+
+    def test_safe_unicode_error2(self):
+        "'message' attribute is not a string/unicode (like ExpatError)"
+        class MyAnnoyingException(Exception):
+            class MyAnnoyingExceptionMsg:
+                def __unicode__(self):
+                    return u'My message'
+
+            def __init__(self):
+                self.message = self.MyAnnoyingExceptionMsg()
+
+            def __unicode__(self):
+                return unicode(self.message)
+
+        self.assertEqual(u'My message', safe_unicode_error(MyAnnoyingException()))
 
 
 class DatesTestCase(CremeTestCase):

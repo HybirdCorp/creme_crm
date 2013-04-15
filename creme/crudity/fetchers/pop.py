@@ -28,7 +28,8 @@ from logging import debug
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
 
-from ..utils import get_unicode_decoded_str
+#from ..utils import get_unicode_decoded_str
+from creme.creme_core.utils import safe_unicode
 from .base import CrudityFetcher
 
 CREME_GET_EMAIL_SERVER       = settings.CREME_GET_EMAIL_SERVER
@@ -141,7 +142,7 @@ class PopFetcher(CrudityFetcher):
                         attachments.append((filename, SimpleUploadedFile(filename, payload, content_type=part.get_content_type())))
 
                     else:
-                        content = get_unicode_decoded_str(payload, encodings)
+                        content = safe_unicode(payload, encodings)
                         if cst == 'html':
                             body_html = content
                         elif cst == 'plain':
@@ -150,7 +151,7 @@ class PopFetcher(CrudityFetcher):
                 encodings = set(email_message.get_charsets()) - set([None])
 
                 cst = email_message.get_content_subtype()
-                content = get_unicode_decoded_str(email_message.get_payload(decode=True), encodings)
+                content = safe_unicode(email_message.get_payload(decode=True), encodings)
                 if cst == 'plain':
                     body = content
                 elif cst == 'html':
