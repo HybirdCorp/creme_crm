@@ -243,18 +243,18 @@
   margin: -1px 0 0;
   padding: 0;
 }
-.chzn-container .chzn-results li {
+div.chzn-container ul.chzn-results li {
   display: none;
   line-height: 15px;
   padding: 5px 6px;
   margin: 0;
   list-style: none;
 }
-.chzn-container .chzn-results .active-result {
+div.chzn-container ul.chzn-results li.active-result {
   cursor: pointer;
   display: list-item;
 }
-.chzn-container .chzn-results .highlighted {
+div.chzn-container ul.chzn-results li.highlighted {
   background-color: #3875d7;
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3875d7', endColorstr='#2a62bc', GradientType=0 );  
   background-image: -webkit-gradient(linear, 0 0, 0 100%, color-stop(20%, #3875d7), color-stop(90%, #2a62bc));
