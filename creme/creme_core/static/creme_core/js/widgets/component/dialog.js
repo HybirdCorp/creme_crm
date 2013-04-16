@@ -188,5 +188,14 @@ creme.widget.component.Dialogs = {
                   .height(image.height)
                   .append(image)
                   .dialog(options);
+    },
+
+    openUrl: function(url, options, close_cb) {
+        var dialog = new creme.widget.component.Dialog();
+
+        return dialog.open($.extend({
+            url: url,
+            close: close_cb
+        }, options || {}));
     }
 };
