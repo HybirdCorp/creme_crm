@@ -147,7 +147,7 @@ function assertNoPlot(context, element, error)
     equal(context.plotSuccess, null, 'no success');
 
     if (error) {
-        equal(context.plotError, error);
+        equal('' + context.plotError, error);
     } else {
         equal(context.plotError !== null, true, 'has error');
     }
@@ -390,8 +390,17 @@ test('creme.widget.Plot.preprocess (preprocess data)', function() {
     widget.plotData([[[1, 150.5, "a"],[2, 3.45, "b"],[3, 12.80, "c"]]]);
     widget.preprocess();
 
+    var built_plot_options = {
+        seriesDefaults: {
+            renderer: $.jqplot.PieRenderer, 
+            rendererOptions: {showDataLabels: true}
+        },
+        handlers: [],
+        dataPreprocessors: ["swap"]
+    };
+
     deepEqual(widget.plotInfo().built.data, [[[150.5, 1, "a"],[3.45, 2, "b"],[12.80, 3, "c"]]]);
-    deepEqual(widget.plotInfo().built.options, plot_options);
+    deepEqual(widget.plotInfo().built.options, built_plot_options);
 });
 
 test('creme.widget.Plot.preprocess (preprocess data chained)', function() {
@@ -417,8 +426,17 @@ test('creme.widget.Plot.preprocess (preprocess data chained)', function() {
     widget.plotData([[[1, 150.5, "a"],[2, 3.45, "b"],[3, 12.80, "c"]]]);
     widget.preprocess();
 
+    var built_plot_options = {
+        seriesDefaults: {
+            renderer: $.jqplot.PieRenderer, 
+            rendererOptions: {showDataLabels: true}
+        },
+        handlers: [],
+        dataPreprocessors: ["swap", "tee"]
+    };
+
     deepEqual(widget.plotInfo().built.data, [[[150.5, 1, "a"]],[[3.45, 2, "b"]],[[12.80, 3, "c"]]]);
-    deepEqual(widget.plotInfo().built.options, plot_options);
+    deepEqual(widget.plotInfo().built.options, built_plot_options);
 });
 
 test('creme.widget.Plot.preprocess (convert + preprocess data)', function() {
@@ -442,8 +460,18 @@ test('creme.widget.Plot.preprocess (convert + preprocess data)', function() {
     widget.plotData([[[150.5, "a"],[3.45, "b"],[12.80, "c"]]]);
     widget.preprocess();
 
+    var built_plot_options = {
+        seriesDefaults: {
+            renderer: $.jqplot.PieRenderer, 
+            rendererOptions: {showDataLabels: true}
+        },
+        handlers: [],
+        dataFormat: "mockPlotData",
+        dataPreprocessors: ["swap"]
+    };
+
     deepEqual(widget.plotInfo().built.data, [[[150.5, 1, "a"],[3.45, 2, "b"],[12.80, 3, "c"]]]);
-    deepEqual(widget.plotInfo().built.options, plot_options);
+    deepEqual(widget.plotInfo().built.options, built_plot_options);
 });
 
 test('creme.widget.Plot.preprocess (preprocess options)', function() {
@@ -501,6 +529,7 @@ test('creme.widget.Plot.preprocess (preprocess options)', function() {
                 label: 'serie2'
             }
         ],
+        handlers: [],
         axes: {
             xaxis: {
                 ticks: ["a", "b", "c"]
@@ -514,3 +543,73 @@ test('creme.widget.Plot.preprocess (preprocess options)', function() {
     deepEqual(widget.plotOptions(), plot_options);
 });
 
+test('creme.widget.Plot.preprocess (preprocess handlers)', function() {
+    var element = this.createMockPlot('');
+    var widget = creme.widget.create(element);
+    assertActive(element);
+
+    deepEqual(widget.plotData(), []);
+    deepEqual(widget.plotOptions(), {});
+
+    var plot_options = {
+        seriesDefaults: {
+            renderer: 'jqplot.PieRenderer', 
+            rendererOptions: {showDataLabels: true}
+        },
+        handlers: [
+            {action: 'popup', event: 'click', url: '/mock/action/%d'},
+            {action: 'redirect', event: 'dblclick', url: '/mock/action/%d'}
+        ]
+    };
+
+    widget.plotOptions(plot_options);
+    widget.plotData([[[1, 2.58],[3, 40.5],[5, 121.78]]]);
+
+    deepEqual(widget.plotData(), [[[1, 2.58],[3, 40.5],[5, 121.78]]]);
+    deepEqual(widget.plotOptions(), plot_options);
+
+    widget.preprocess();
+
+    var plot_built_options = {
+        seriesDefaults: {
+            renderer: $.jqplot.PieRenderer,
+            rendererOptions: {showDataLabels: true}
+        },
+        handlers: [
+            {action: creme.widget.PlotEventHandlers.get('popup'),    event: 'jqplotDataClick',    url: '/mock/action/%d'},
+            {action: creme.widget.PlotEventHandlers.get('redirect'), event: 'jqplotDataDblclick', url: '/mock/action/%d'}
+        ]
+    };
+
+    deepEqual(widget.plotInfo().built.options, plot_built_options);
+});
+
+test('creme.widget.Plot.preprocess (preprocess invalid handler)', function() {
+    var element = this.createMockPlot('');
+    var widget = creme.widget.create(element);
+    assertActive(element);
+
+    deepEqual(widget.plotData(), []);
+    deepEqual(widget.plotOptions(), {});
+
+    var plot_options = {
+        seriesDefaults: {
+            renderer: 'jqplot.PieRenderer', 
+            rendererOptions: {showDataLabels: true}
+        },
+        handlers: [
+            {action: 'popup', event: 'click', url: '/mock/action/%d'},
+            {action: 'unknown', event: 'dblclick', url: '/mock/action/%d'}
+        ]
+    };
+
+    widget.plotOptions(plot_options);
+    widget.plotData([[[1, 2.58],[3, 40.5],[5, 121.78]]]);
+
+    deepEqual(widget.plotData(), [[[1, 2.58],[3, 40.5],[5, 121.78]]]);
+    deepEqual(widget.plotOptions(), plot_options);
+
+    widget.redraw();
+
+    assertNoPlot(this, element, 'Error: no such plot event handler "unknown"');
+});

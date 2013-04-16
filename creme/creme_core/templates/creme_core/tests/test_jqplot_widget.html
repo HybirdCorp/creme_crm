@@ -122,7 +122,10 @@
             }
         },
         "legend": {"show":true, "location": "e"},
-        "title": "This is a Pie"
+        "title": "This is a Pie",
+        "handlers": [
+            {"action": "redirect", "event": "click", "url": "/persons/contact/%1$d"}
+        ]
     },
     "data": [[["a", 12], ["b", 15], ["c", 5], ["d", 20], ["e", 8], ["f", 2], ["g", 18], ["h", 32], ["i", 14], ["j", 11]]]
 }

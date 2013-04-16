@@ -16,6 +16,54 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+creme.widget.PlotEventHandlerRegistry = function() {
+    this._handlers = {}
+}
+
+creme.widget.PlotEventHandlerRegistry.prototype = {
+    register: function(name, handler)
+    {
+        if ($.isFunction(this.get(name, null)))
+            throw new Error('handler "' + name + '" is already registered');
+
+        this._handlers[name] = handler;
+    },
+
+    unregister: function(name)
+    {
+        if (this.get(name) === undefined)
+            throw new Error('no such handler "' + name + '"');
+
+        delete this._handlers[name];
+    },
+
+    get: function(name, defaults)
+    {
+        var handler = this._handlers[name];
+
+        if ($.isFunction(handler) === false)
+        {
+            if (defaults === undefined)
+                throw new Error('no such plot event handler "' + name + '"');
+            
+            return defaults;
+        }
+
+        return this._handlers[name];
+    }
+};
+
+
+creme.widget.PlotEventHandlers = new creme.widget.PlotEventHandlerRegistry();
+
+creme.widget.PlotEventHandlers.register('redirect', function(event, seriesIndex, pointIndex, value, options) {
+    window.location = options.url.format(value);
+});
+
+creme.widget.PlotEventHandlers.register('popup', function(event, seriesIndex, pointIndex, value, options) {
+    creme.widget.component.Dialogs.openUrl(options.url.format(value), {'title': options.url.format(value)});
+});
+
 
 creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
     options: {
@@ -33,6 +81,7 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
         this._israster = options.plotmode == 'raster' && can_raster;
         this._issavable = options.savable == 'true' && can_raster;
         this._plot_info = {options: {}, data: []}
+        this._plot_handlers = [];
 
         element.bind('resize', function() {self._onResize(element);});
 
@@ -117,7 +166,21 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
             target.append(button);
         }
 
+        self._bindPlotHandlers(self._plot, options);
+
         creme.object.invoke(cb, element);
+    },
+
+    _bindPlotHandlers: function(plot, options)
+    {
+        var self = this;
+
+        options.handlers.forEach(function(handler) {
+            plot.bind(handler.event,
+                      function(event, seriesIndex, pointIndex, data) {
+                          handler.action.apply(self, [event, seriesIndex, pointIndex, data, handler]);
+                      })
+        });
     },
 
     _jqplotRenderer: function(name)
@@ -134,16 +197,37 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
     {
         for(key in data)
         {
-            var element = data[key];
+            var value = data[key];
 
-            if (typeof element === 'object') {
-                this._parseJQPlotOptions(element);
-            } else if (typeof element === 'string' && /^jqplot\.[\w\d]+$/.test(element)) {
-                data[key] = this._jqplotRenderer(element.substr('jqplot.'.length));
+            if (typeof value === 'object') {
+                this._parseJQPlotOptions(value);
+            } else if (typeof value === 'string' && /^jqplot\.[\w\d]+$/.test(value)) {
+                data[key] = this._jqplotRenderer(value.substr('jqplot.'.length));
             }
         }
 
         return data;
+    },
+
+    _preprocessPlotHandlers: function(handlers)
+    {
+        var handlers = handlers || [];
+        var built = [];
+
+        handlers.forEach(function(options) {
+            var options = options || {};
+            var name = options.action || 'redirect';
+
+            var eventname = options.event || 'click';
+            var eventname = eventname.length > 1 ? eventname.substr(0, 1).toUpperCase() + eventname.substr(1).toLowerCase() : eventname;
+
+            built.push($.extend({}, options, {
+                event: 'jqplotData' + eventname,
+                action: creme.widget.PlotEventHandlers.get(name)
+            }));
+        });
+
+        return built;
     },
 
     _convertData: function(data, options) {
@@ -158,6 +242,7 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
             return plot_info.built;
 
         plot_info.built = creme.widget.PlotProcessors.preprocess(plot_info);
+        plot_info.built.options['handlers'] = this._preprocessPlotHandlers(plot_info.built.options.handlers);
 
         if (this._issavable) {
             plot_info.built.options['title'] = plot_info.built.options.title || '&nbsp;';
