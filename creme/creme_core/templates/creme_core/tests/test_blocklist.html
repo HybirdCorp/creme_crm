@@ -1,0 +1,24 @@
+{% extends "creme_core/tests/testbase.html" %}
+{% load i18n %}
+{% load media %}
+{% load creme_core_tags creme_block creme_widgets %}
+
+{% block test_title %}Creme Block List{% endblock %}
+{% block test_header %}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('button#test-blocklist-refresh').click(function() {
+                window.location = TEST_VIEW_NAME + '?refresh=1';
+            });
+        });
+    </script>
+{% endblock %}
+{% block test_content %}
+
+<div><button id="test-blocklist-refresh">Refresh</button></div>
+{% import_block from_app 'creme_core' named 'test_dummy_list' as 'test_dummy_list_block' %}
+{% display_block_detailview 'test_dummy_list_block' %}
+
+{% get_blocks_dependencies %}
+
+{% endblock %}

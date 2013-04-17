@@ -1,0 +1,153 @@
+{% load i18n %}
+{% load media %}
+{% load creme_core_tags %}
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+    <head>
+        <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7" />
+        <title>Creme CRM{% block page_title %}{% endblock %}</title>
+        <script type='text/javascript'>
+            var THEME_NAME = "{{THEME_NAME}}";
+        </script>
+        <!--
+            Firebug for browsers without plugin/extension :
+                - uncomment the following script
+                - add debug="true" to <html> tag
+        -->
+        <!--script type="text/javascript" src="https://getfirebug.com/firebug-lite.js"></script-->
+        {% include_creme_media "main.css" %}
+        {% include "creme_core/frags/js_header.html" %}
+
+        <style type="text/css">
+            h1.creme-test-header {
+                clear: both;
+                display: block;
+                background: #3875d7;
+                background-image: -webkit-gradient(linear, 0 0, 0 100%, color-stop(20%, #3875d7), color-stop(90%, #2a62bc));
+                background-image: -webkit-linear-gradient(top, #3875d7 20%, #2a62bc 90%);
+                background-image: -moz-linear-gradient(top, #3875d7 20%, #2a62bc 90%);
+                background-image: -o-linear-gradient(top, #3875d7 20%, #2a62bc 90%);
+                background-image: linear-gradient(#3875d7 20%, #2a62bc 90%);
+                color: #fff;
+            }
+
+            h1.creme-test-header .item {
+                float: right;
+                display: inline;
+                font-size: 14px;
+                vertical-align: middle;
+            }
+            
+            h1.creme-test-header .item select {
+                margin: 5px;
+            }
+
+            h1.creme-test-header .title {
+                display: inline;
+            }
+            
+            div.creme-test-body.resized {
+                margin-left: auto;
+                margin-right: auto;
+                -webkit-box-shadow: 0 0 5px rgba(0,0,0,.3);
+                -moz-box-shadow: 0 0 5px rgba(0,0,0,.3);
+                box-shadow: 0 0 5px rgba(0,0,0,.3);
+                border: 1px solid #888;
+                overflow: auto;
+            }
+            
+            table {
+                font-size: 13px;
+            }
+        </style>
+
+        <script type="text/javascript">
+            creme.tests = {}
+
+            creme.tests.Context = function(options) {
+                this.view = "{{TEST_VIEW}}";
+                this.theme = THEME_NAME;
+                this.screen = "{{TEST_SCREEN}}";
+
+                $.extend(this, options || {});
+            }
+
+            creme.tests.Context.prototype = {
+                redirect: function(options) {
+                    var options = $.extend({}, this, options || {});
+                    window.location = options.view + '?theme=' + options.theme + '&screen=' + options.screen.join('x');
+                },
+
+                resize: function(screen)
+                {
+                    var screen = screen || this.screen;
+                    screen = $.isArray(screen) ? screen : screen.split('x');
+
+                    if (screen.length == 2) {
+                        $('.creme-test-body').addClass('resized').css('width', screen[0]).css('height', screen[1]);
+                    } else {
+                        $('.creme-test-body').removeClass('resized').css('width', 'auto').css('height', '');
+                    }
+
+                    this.screen = screen;
+                }
+            }
+
+            $(document).ready(function() {
+                var context = new creme.tests.Context();
+
+                $('select#test-view-selector').bind('change', function() {
+                    context.redirect({view: $(this).val()});
+                });
+
+                $('select#test-theme-selector').bind('change', function() {
+                    context.redirect({theme: $(this).val()});
+                });
+
+                $('select#test-size-selector').bind('change', function() {
+                    context.resize($(this).val());
+                }).val(context.screen).change();
+            });
+        </script>
+
+        {% block test_header %}{% endblock %}
+    </head>
+    <body>
+        <h1 class="creme-test-header">
+            <div class="title">
+                {% block test_title %}{% endblock %}
+            </div>
+            <div class="item">
+                <span>Screen</span>
+                <select id="test-size-selector">
+                    <option value="">---</option>
+                    <option value="640x480">640 x 480</option>
+                    <option value="800x600">800 x 600</option>
+                    <option value="1024x768">1024 x 768</option>
+                    <option value="1200x1024">1200 x 1024</option>
+                    <option value="1378x768">1378 x 768</option>
+                    <option value="1378x1024">1378 x 1024</option>
+                    <option value="1600x1200">1600 x 1200</option>
+                    <option value="1980x1080">1980 x 1080</option>
+                </select>
+            </div>
+            <div class="item">
+                <span>Theme</span>
+                <select id="test-theme-selector">
+                    {% for name, label in THEME_LIST %}<option value="{{name}}" {% if THEME_NAME == name %}selected{% endif %}>{{label}}</option>{% endfor %}
+                </select>
+            </div>
+            <div class="item">
+                <span>Test</span>
+                <select id="test-view-selector">
+                    {% for name, label in TEST_VIEW_LIST %}<option value="{{name}}" {% if TEST_VIEW == name %}selected{% endif %}>{{label}}</option>{% endfor %}
+                </select>
+            </div>
+        </h1>
+        <div class="creme-test-body">
+        {% block test_content %}
+        {% endblock %}
+        </div>
+    </body>
+</html>

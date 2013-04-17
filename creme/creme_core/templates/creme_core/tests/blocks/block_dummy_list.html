@@ -1,0 +1,36 @@
+{% load i18n %}
+{% load creme_core_tags creme_block %}
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
+    {% get_block_header colspan=8 %}
+        <th class="collapser label">{% get_block_title _('%s Dummy') _('%s Dummies') 'commercial_48.png' _('Dummy') %}</th>
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+        {% if page.paginator.count %}
+            <tr class="header">
+                <th class="block_header_line_dark">{% trans "Name" %}</th>
+                <th class="block_header_line_dark">{% trans "Image" %}</th>
+                <th class="block_header_line_dark">{% trans "URL" %}</th>
+                <th class="block_header_line_dark">{% trans "Hour" %}</th>
+                <th class="block_header_line_dark">{% trans "Date" %}</th>
+                <th class="block_header_line_dark">{% trans "Duration" %}</th>
+                <th class="block_header_line_dark">{% trans "ForeignKey" %}</th>
+                <th class="block_header_line_dark">{% trans "ManyToMany" %}</th>
+            </tr>
+            {% for object in page.object_list %}
+                <tr class="content">
+                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object.name}}</td>
+                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object.image}}</td>
+                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object.url}}</td>
+                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object.datetime}}</td>
+                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object.date}}</td>
+                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object.duration}}</td>
+                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object.foreignkey}}</td>
+                    <td class="{% cycle "block_line_dark" "block_line_light" %}">{{object.manytomany}}</td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            <tr class="content empty"><td class="block_line_dark">{% trans "No dummy for the moment" %}</td></tr>
+        {% endif %}
+    </tbody>
+    {% get_block_footer 8 %}
+</table>
