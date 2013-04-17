@@ -1,36 +1,10 @@
+{% extends "creme_core/tests/testbase.html" %}
 {% load i18n %}
 {% load media %}
-{% load creme_block %}
-{% load creme_menu creme_core_tags creme_search creme_quickforms %}
+{% load creme_core_tags %}
 
-<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
-<head>
-    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7" />
-    <title>Creme CRM{% block page_title %}{% endblock %}</title>
-    <script type='text/javascript'>
-        var THEME_NAME = "{{ THEME_NAME }}";
-    </script>
-    <!--
-        Firebug for browsers without plugin/extension :
-            - uncomment the following script
-            - add debug="true" to <html> tag
-    -->
-    <!--script type="text/javascript" src="https://getfirebug.com/firebug-lite.js"></script-->
-    {% include_creme_media "main.css" %}
-    {% include "creme_core/frags/js_header.html" %}
-    <style type="text/css">
-        .ui-creme-jqueryplot .jqplot-highlighter-tooltip {
-            border: 0px;
-            border-radius: 5px;
-            background: black;
-            color: white;
-            font-size: 12px;
-            font-weight: bold;
-            padding: 3px;
-        }
-    </style>
-    
+{% block test_title %}Creme Plot Selector Widget{% endblock %}
+{% block test_header %}
     <script type="text/javascript">
         random_bargraph = function(start, end)
         {
@@ -101,9 +75,8 @@
             });
         });
     </script>
-</head>
-<body>
-    <h1>Creme Plot Selector Widget Test Page</h1>
+{% endblock %}
+{% block test_content %}
     <h4>Plot Selector</h4>
     <button id="redraw-plot">Reload</button>
     <button id="reset-plot">Reset</button>
@@ -286,4 +259,4 @@
             </div>
         </div>
     </div>
-</body>
+{% endblock %}
