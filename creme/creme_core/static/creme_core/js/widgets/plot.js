@@ -57,11 +57,19 @@ creme.widget.PlotEventHandlerRegistry.prototype = {
 creme.widget.PlotEventHandlers = new creme.widget.PlotEventHandlerRegistry();
 
 creme.widget.PlotEventHandlers.register('redirect', function(event, seriesIndex, pointIndex, value, options) {
-    window.location = options.url.format(value);
+    var url = options.url.format(value);
+
+    if (options.url !== url && !creme.object.isempty(url)) {
+        window.location = url;
+    }
 });
 
 creme.widget.PlotEventHandlers.register('popup', function(event, seriesIndex, pointIndex, value, options) {
-    creme.widget.component.Dialogs.openUrl(options.url.format(value), {'title': options.url.format(value)});
+    var url = options.url.format(value);
+
+    if (options.url !== url && !creme.object.isempty(url)) {
+        creme.widget.component.Dialogs.openUrl(options.url.format(value), {'title': options.url.format(value)});
+    }
 });
 
 
@@ -231,7 +239,7 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
     },
 
     _convertData: function(data, options) {
-        return $.converters.convert(options.dataFormat || 'jqplotData', 'jqplotData', data, []);
+        return $.converters.convert(options.dataFormat || 'jqplotData', 'jqplotData', data);
     },
 
     _preprocess: function()

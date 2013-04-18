@@ -39,6 +39,14 @@ from .popup import inner_popup
 class NoHeaderFilterAvailable(Exception):
     pass
 
+def _clean_value(value, converter, default=None):
+    try:
+        return converter(value)
+    except Exception as e:
+        if default is not None:
+            return default
+
+        raise e
 
 def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filter, header_filter):
     queryset = model.objects.filter(is_deleted=False)
@@ -72,6 +80,21 @@ def _build_entities_page(request, list_view_state, queryset, size):
         entities_page = paginator.page(paginator.num_pages)
 
     return entities_page
+
+def _build_extrafilter(request, extra_filter=None):
+    json_q_filter = request.GET.get('q_filter')
+    q_filter = _clean_value(json_q_filter, JSONDecoder().decode, {})
+
+    if not q_filter:
+        json_q_filter = request.POST.get('q_filter', '{}')
+        q_filter = _clean_value(json_q_filter, JSONDecoder().decode, {})
+
+    filter = get_q_from_dict(q_filter)
+
+    if extra_filter is not None:
+        filter &= extra_filter
+
+    return json_q_filter, filter
 
 def list_view_content(request, model, hf_pk='', extra_dict=None,
                       template='creme_core/generics/list_entities.html',
@@ -122,7 +145,9 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
     efilter = entity_filters.select_by_id(POST_get('filter', current_lvs.entity_filter_id))
     current_lvs.entity_filter_id = efilter.id if efilter else None
 
-    entities = _build_entity_queryset(request, model, current_lvs, extra_q, efilter, hf)
+    json_q_filter, extra_filter = _build_extrafilter(request, extra_q)
+
+    entities = _build_entity_queryset(request, model, current_lvs, extra_filter, efilter, hf)
     entities = _build_entities_page(request, current_lvs, entities, rows)
 
     current_lvs.register_in_session(request)
@@ -142,6 +167,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
         'add_url':            None,
         'extra_bt_templates': None, # () instead ???,
         'show_actions':       show_actions,
+        'q_filter':           json_q_filter,
         'current_research_fields': [str(name_attribut) for (name_attribut, pk, type, pattern, value) in current_lvs.research],
     }
 
@@ -180,24 +206,25 @@ def list_view_popup_from_widget(request, ct_id, o2m, **kwargs):
     req_get = request.REQUEST.get
     o2m = bool(int(o2m))
 
-    json_str_q_filter = str(req_get('q_filter', {}))
+    #json_str_q_filter = str(req_get('q_filter', {}))
     kwargs['show_actions'] = bool(int(req_get('sa', False)))
 
     extra_dict = {'list_view_template': 'creme_core/frags/list_view_popup.html',
                   'js_handler':         req_get('js_handler'),
                   'js_arguments':       req_get('js_arguments'),
                   'whoami':             req_get('whoami'),
-                  'q_filter':           json_str_q_filter,
+#                  'q_filter':           json_str_q_filter,
                   'is_popup_view':      True,
                  }
 
     extra_dict.update(kwargs.pop('extra_dict', None) or {})
 
-    extra_q = get_q_from_dict(JSONDecoder().decode(json_str_q_filter) or {})
+    extra_q = kwargs.pop('extra_q', None)
+#   extra_q = get_q_from_dict(JSONDecoder().decode(json_str_q_filter) or {})
 
-    supplied_extra_q = kwargs.pop('extra_q', None)
-    if supplied_extra_q:
-        extra_q &= supplied_extra_q
+#    supplied_extra_q = kwargs.pop('extra_q', None)
+#    if supplied_extra_q:
+#        extra_q &= supplied_extra_q
 
     try:
         template_name, template_dict = list_view_content(request, ct.model_class(), extra_dict=extra_dict,

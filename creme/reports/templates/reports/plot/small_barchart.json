@@ -44,6 +44,9 @@
         "formatString": "%s",
         "tooltipLocation": "n"
     },
+    "handlers": [
+        {"action": "redirect", "event": "click", "url": "%2$s"}
+    ],
     "title": "{{report}}",
     "dataFormat": "creme.graphael.BargraphData",
     "dataDefaults": [[[" ", 0.0]]]

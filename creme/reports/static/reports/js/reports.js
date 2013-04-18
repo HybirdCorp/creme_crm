@@ -311,6 +311,34 @@ creme.reports.toggleDisableOthers = function(me, others)
     });
 };
 
+$.converters.register('creme.graphael.BargraphData', 'jqplotData', function(data) {
+    var ticks = data['x'] || [];
+    var values = data['y'] || [];
+    var jqplotData = []
+
+    var clean_float = function(value) {
+        var res = parseFloat(value);
+        return isNaN(res) ? 0.0 : res;
+    }
+
+    for(var index = 0; index < Math.min(ticks.length, values.length); ++index)
+    {
+        var tick = ticks[index];
+        var value = values[index];
+        var item;
+
+        if (typeof value === 'string') {
+            item = [tick, clean_float(value), undefined];
+        } else if ($.isArray(value)) {
+            item = [tick, clean_float(value[0]), value[1]];
+        }
+
+        jqplotData.push(item);
+    }
+
+    return jqplotData.length ? [jqplotData] : [];
+});
+
 /*
 if(!creme.reports.graphs) creme.reports.graphs = {};
 

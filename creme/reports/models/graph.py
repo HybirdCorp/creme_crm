@@ -23,6 +23,7 @@ from datetime import timedelta
 from django.db.models import PositiveIntegerField, CharField, BooleanField, ForeignKey, FieldDoesNotExist, Min, Max
 from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.simplejson import JSONEncoder
 
 from creme.creme_core.models import CremeEntity, RelationType, Relation, InstanceBlockConfigItem
 from creme.creme_core.models.header_filter import HFI_RELATION, HFI_FIELD
@@ -108,25 +109,33 @@ class ReportGraph(CremeEntity):
         x_append = x.append
         y_append = y.append
 
+        json_encoder = JSONEncoder()
+
+        def listview_url(model, q_filter):
+            return model.get_lv_absolute_url() + '?q_filter=' + json_encoder.encode(q_filter)
+
         #TODO: map of function ???
         if gtype == RGT_DAY:
             x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col,
                                      aggregate_func, entities_filter, 'day',
                                      q_func=lambda date: Q(**{str('%s__year' % abscissa): date.year}) & Q(**{str('%s__month' % abscissa): date.month}) & Q(**{str('%s__day' % abscissa): date.day}),
-                                     date_format="%d/%m/%Y", order=order, is_count=is_count
+                                     date_format="%d/%m/%Y", order=order, is_count=is_count,
+                                     url_func=lambda date: listview_url(model, {'%s__year' % abscissa: date.year, '%s__month' % abscissa: date.month, '%s__day' % abscissa: date.day})
                                     )
 
         elif gtype == RGT_MONTH:
             x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col,
                                      aggregate_func, entities_filter, 'month',
                                      q_func=lambda date: Q(**{str('%s__year' % abscissa): date.year}) & Q(**{str('%s__month' % abscissa): date.month}),
-                                     date_format="%m/%Y", order=order, is_count=is_count
+                                     date_format="%m/%Y", order=order, is_count=is_count,
+                                     url_func=lambda date: listview_url(model, {'%s__year' % abscissa: date.year, '%s__month' % abscissa: date.month})
                                     )
         elif gtype == RGT_YEAR:
             x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col,
                                      aggregate_func, entities_filter, 'year',
                                      q_func=lambda date: Q(**{str('%s__year' % abscissa): date.year}),
-                                     date_format="%Y", order=order, is_count=is_count
+                                     date_format="%Y", order=order, is_count=is_count,
+                                     url_func=lambda date: listview_url(model, {'%s__year' % abscissa: date.year})
                                     )
 
         elif gtype == RGT_RANGE:
@@ -143,10 +152,12 @@ class ReportGraph(CremeEntity):
                         x_append("%s-%s" % (begin.strftime("%d/%m/%Y"), end.strftime("%d/%m/%Y")))
 
                         sub_entities = entities_filter(Q(**{str('%s__range' % abscissa): (begin, end)}))
+                        url = listview_url(model, {'%s__range' % abscissa: [begin.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")]})
+
                         if is_count:
-                            y_append(sub_entities.count())
+                            y_append([sub_entities.count(), url])
                         else:
-                            y_append(sub_entities.aggregate(aggregate_col).get(ordinate))
+                            y_append([sub_entities.aggregate(aggregate_col).get(ordinate), url])
                         min_date = end
                 else:
                     while max_date >= min_date:
@@ -155,31 +166,38 @@ class ReportGraph(CremeEntity):
                         x_append("%s-%s" % (begin.strftime("%d/%m/%Y"), end.strftime("%d/%m/%Y")))
 
                         sub_entities = entities_filter(Q(**{str('%s__range' % abscissa): (end, begin)}))
+                        url = listview_url(model, {'%s__range' % abscissa: [end.strftime("%Y-%m-%d"), begin.strftime("%Y-%m-%d")]})
+
+                        print url
+
                         if is_count:
-                            y_append(sub_entities.count())
+                            y_append([sub_entities.count(), url])
                         else:
-                            y_append(sub_entities.aggregate(aggregate_col).get(ordinate))
+                            y_append([sub_entities.aggregate(aggregate_col).get(ordinate), url])
                         max_date = end
 
         elif gtype == RGT_FK:
-            _fks = entities.model._meta.get_field(abscissa).rel.to.objects.all() #TODO: rename
+            _fks_model = entities.model._meta.get_field(abscissa).rel.to
+            _fks = _fks_model.objects.all() #TODO: rename
 
             if order == 'DESC':
                 #_fks.reverse()#Seems useless on models which haven't ordering
                 _fks = _fks.reverse()
 
-
             for fk in _fks:
                 x_append(unicode(fk))
                 sub_entities = entities_filter(Q(**{str('%s' % abscissa): fk.id})) #TODO: Q useless ??
+                url = listview_url(model, {'%s' % abscissa: fk.id})
 
                 if is_count:
-                    y_append(sub_entities.count())
+                    y_append([sub_entities.count(), url])
                 else:
-                    y_append(sub_entities.aggregate(aggregate_col).get(ordinate))
+                    y_append([sub_entities.aggregate(aggregate_col).get(ordinate), url])
 
         elif gtype == RGT_RELATION:
             #TODO: Optimize !
+            #TODO: make listview url for this case
+            #      the q_filter {"pk__in": ub_relations.values_list('subject_entity__id')} may create too long urls
             try:
                 rt = RelationType.objects.get(pk=abscissa)
             except RelationType.DoesNotExist:
@@ -248,18 +266,19 @@ class ReportGraph(CremeEntity):
         return ibci
 
 
-def _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func, qfilter, range, q_func=None, date_format=None, order='ASC', is_count=False):
+def _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func, qfilter, range, q_func=None, url_func=None, date_format=None, order='ASC', is_count=False):
     distinct_dates = entities.dates(abscissa, range, order)
     x, y = [], []
 
     for date in distinct_dates:
         sub_entities = qfilter(q_func(date))
+        url = url_func(date)
         x.append(date.strftime(date_format))
 
         if is_count:
-            y.append(sub_entities.count())
+            y.append([sub_entities.count(), url])
         else:
-            y.append(sub_entities.aggregate(aggregate_func(ordinate_col)).get(ordinate))
+            y.append([sub_entities.aggregate(aggregate_func(ordinate_col)).get(ordinate), url])
 
     return x, y
 
