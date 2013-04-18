@@ -179,24 +179,3 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
         return null;
     }
 });
-
-
-$.converters.register('creme.graphael.BargraphData', 'jqplotData', function(data) {
-    var ticks = data['x'] || [];
-    var values = data['y'] || [];
-    var jqplotData = []
-
-    for(var index = 0; index < Math.min(ticks.length, values.length); ++index)
-    {
-        var tick = ticks[index];
-        var value = values[index];
-
-        if (typeof value === 'string')
-            value = parseFloat(value);
-
-        jqplotData.push([tick, isNaN(value) ? 0.0 : value]);
-    }
-
-    return jqplotData.length ? [jqplotData] : [];
-});
-

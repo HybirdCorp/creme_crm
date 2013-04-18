@@ -68,6 +68,9 @@
         "formatString": "<center>%2$s</center><center>%4$.2f €</center><center>%3$s</center>",
         "tooltipLocation": "w"
     },
+    "handlers": [
+        {"action": "redirect", "event": "click", "url": "%5$s"}
+    ],
     "title": "{{report}}",
     "dataFormat": "creme.graphael.BargraphData",
     "dataPreprocessors": ["tee",

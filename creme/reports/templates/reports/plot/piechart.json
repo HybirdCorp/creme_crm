@@ -23,6 +23,9 @@
         "formatString": "<center>%s</center><center>%.2f €</center>",
         "tooltipLocation": "se"
     },
+    "handlers": [
+        {"action": "redirect", "event": "click", "url": "%2$s"}
+    ],
     "title": "{{report}}",
     "dataFormat": "creme.graphael.BargraphData"
 }
