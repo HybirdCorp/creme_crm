@@ -323,9 +323,9 @@ CREME_CORE_CSS = ('main.css',
                  )
 
 CREME_OPT_CSS = ( #OPTIONNAL APPS
-                 ('billing',    'billing/css/billing.css'),
-                 ('commercial', 'commercial/css/commercial.css'),
-                 ('crudity',    'crudity/css/crudity.css'),
+                 ('creme.billing',    'billing/css/billing.css'),
+                 ('creme.commercial', 'commercial/css/commercial.css'),
+                 ('creme.crudity',    'crudity/css/crudity.css'),
                 )
 
 CREME_I18N_JS = ('l10n.js',
@@ -433,10 +433,10 @@ CREME_CORE_JS = ('main.js',
                 )
 
 CREME_OPT_JS = ( #OPTIONNAL APPS
-                ('billing', 'billing/js/billing.js'),
-                ('reports', 'reports/js/reports.js'),
-                ('emails',  'emails/js/emails.js'),
-                ('cti',     'cti/js/cti.js'),
+                ('creme.billing', 'billing/js/billing.js'),
+                ('creme.reports', 'reports/js/reports.js'),
+                ('creme.emails',  'emails/js/emails.js'),
+                ('creme.cti',     'cti/js/cti.js'),
                )
 
 TEST_CREME_CORE_JS = (#js Unit test files
