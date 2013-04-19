@@ -24,7 +24,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         multiple: undefined,
         sortable: undefined,
         autocomplete: undefined,
-        'autocomplete-options': '',
+        'autocomplete-options': ''
     },
 
     _create: function(element, options, cb, sync)
@@ -49,7 +49,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
         chosen_options = $.extend({
             multiple: options.multiple !== undefined,
-            sortable: options.sortable !== undefined,
+            sortable: options.sortable !== undefined
         }, chosen_options)
 
         var component = new creme.widget.component.Chosen(chosen_options);
@@ -243,7 +243,11 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         if (creme.object.isempty(key) === true)
             return;
 
-        return [key, this._querychoices(element, key).text()];
+        var choices = this._querychoices(element, key);
+
+        // IE8 strange behaviour (jquery bug ?) that returns key instead of undefined when choice doesn't exist.
+        // Fix it with jquery result length check.
+        return choices.length ? [key, choices.text()] : undefined;
     },
 
     choices: function(element)

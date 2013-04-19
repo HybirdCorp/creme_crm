@@ -153,7 +153,7 @@ module("creme.widgets.plotselector.js", {
         var self = this;
         plot.bind('plotSuccess', function(e, plot) {self.plotSuccess = plot; self.plotError = null;});
         plot.bind('plotError', function(e, err) {self.plotError = err; self.plotSuccess = null;});
-    },
+    }
 });
 
 
@@ -185,10 +185,12 @@ test('creme.widget.PlotSelector.create (graphs, no data)', function() {
     assertReady($('.ui-creme-jqueryplot', element));
     assertNoPlot(this, $('.ui-creme-jqueryplot', element), 'No Data');
 
-    deepEqual(widget.plotOptions(), [['bar', $.toJSON(PLOTSELECTOR_BARGRAPH_SCRIPT)], 
-                                     ['pie', $.toJSON(PLOTSELECTOR_PIEGRAPH_SCRIPT)]]);
-    equal(widget.plotOption('bar'), $.toJSON(PLOTSELECTOR_BARGRAPH_SCRIPT));
-    equal(widget.plotOption('pie'), $.toJSON(PLOTSELECTOR_PIEGRAPH_SCRIPT));
+    deepEqual(widget.plotOptions().map(function(item) {return [item[0], item[1].replace(/\r\n/g, '')]}),
+              [['bar', $.toJSON(PLOTSELECTOR_BARGRAPH_SCRIPT)],
+               ['pie', $.toJSON(PLOTSELECTOR_PIEGRAPH_SCRIPT)]], 'test 1');
+
+    equal(widget.plotOption('bar').replace(/\r\n/g, ''), $.toJSON(PLOTSELECTOR_BARGRAPH_SCRIPT), 'test 2');
+    equal(widget.plotOption('pie').replace(/\r\n/g, ''), $.toJSON(PLOTSELECTOR_PIEGRAPH_SCRIPT), 'test 3');
     equal(widget.plotOption('unknown'), undefined);
 
     deepEqual(plot_widget.plotOptions(), {});

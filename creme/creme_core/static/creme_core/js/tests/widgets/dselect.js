@@ -174,6 +174,7 @@ test('creme.widget.DynamicSelect.choices', function()
     deepEqual(element.creme().widget().choice('1'), ['1', 'a']);
     deepEqual(element.creme().widget().choice('5'), ['5', 'b']);
     deepEqual(element.creme().widget().choice('3'), ['3', 'c']);
+    equal(element.creme().widget().choice('15'), undefined);
 });
 
 test('creme.widget.DynamicSelect.groups', function() {
@@ -192,6 +193,7 @@ test('creme.widget.DynamicSelect.groups', function() {
     deepEqual(element.creme().widget().choice('1'), ['1', 'a']);
     deepEqual(element.creme().widget().choice('5'), ['5', 'b']);
     deepEqual(element.creme().widget().choice('3'), ['3', 'c']);
+    equal(element.creme().widget().choice('15'), undefined);
 
     deepEqual(element.creme().widget().groups(), ['group1', 'group2']);
 });
