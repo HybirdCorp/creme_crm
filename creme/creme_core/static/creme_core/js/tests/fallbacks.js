@@ -6,6 +6,301 @@ module("creme.fallbacks.js", {
     }
 });
 
+MockObjectA = function(b) {
+    this.b = b;
+}
+
+MockObjectA.prototype = {
+    'add': function(a) {return a + this.b;},
+    'mult': function(a) {return a * this.b;}
+}
+MockObjectA.prototype.constructor = MockObjectA;
+
+MockObjectB = function(b, c) {
+    this.b = b;
+    this.c = c;
+}
+
+MockObjectB.prototype = new MockObjectA();
+MockObjectB.prototype.constructor = MockObjectB;
+
+$.extend(MockObjectB.prototype, {
+    'add': function(a) {return (a + this.b) * this.c;}
+});
+
+test('fallbacks.Object.isNone', function() {
+    equal(typeof Object.isNone, 'function');
+
+    equal(Object.isNone(undefined), true);
+    equal(Object.isNone(null), true);
+    equal(Object.isNone({}), false);
+    equal(Object.isNone([]), false);
+    equal(Object.isNone(0), false);
+    equal(Object.isNone(''), false);
+});
+
+test('fallbacks.Object.isEmpty', function() {
+    equal(typeof Object.isEmpty, 'function');
+
+    equal(Object.isEmpty(undefined), true);
+    equal(Object.isEmpty(null), true);
+    equal(Object.isEmpty({}), true);
+    equal(Object.isEmpty([]), true);
+    equal(Object.isEmpty(''), true);
+
+    equal(Object.isEmpty(0), false);
+    equal(Object.isEmpty({a:12}), false);
+    equal(Object.isEmpty([12]), false);
+    equal(Object.isEmpty('a'), false);
+});
+
+test('fallbacks.Object.isType (undefined)', function() {
+    equal(typeof Object.isType, 'function');
+
+    equal(Object.isType(undefined, 'undefined'), true);
+    equal(Object.isType(undefined, 'null'),      false);
+    equal(Object.isType(undefined, 'function'),  false);
+    equal(Object.isType(undefined, 'number'),    false);
+    equal(Object.isType(undefined, 'object'),    false);
+    equal(Object.isType(undefined, 'boolean'),   false);
+    equal(Object.isType(undefined, 'string'),    false);
+});
+
+test('fallbacks.Object.isType (null)', function() {
+    equal(Object.isType(null, 'undefined'), false);
+    equal(Object.isType(null, 'null'),      false);
+    equal(Object.isType(null, 'function'),  false);
+    equal(Object.isType(null, 'number'),    false);
+    equal(Object.isType(null, 'object'),    true);
+    equal(Object.isType(null, 'boolean'),   false);
+    equal(Object.isType(null, 'string'),    false);
+});
+
+test('fallbacks.Object.isType (string)', function() {
+    equal(Object.isType('a', 'undefined'), false);
+    equal(Object.isType('a', 'null'),      false);
+    equal(Object.isType('a', 'function'),  false);
+    equal(Object.isType('a', 'number'),    false);
+    equal(Object.isType('a', 'object'),    false);
+    equal(Object.isType('a', 'boolean'),   false);
+    equal(Object.isType('a', 'string'),    true);
+});
+
+test('fallbacks.Object.isType (numeric)', function() {
+    equal(Object.isType(12, 'undefined'), false);
+    equal(Object.isType(12, 'null'),      false);
+    equal(Object.isType(12, 'function'),  false);
+    equal(Object.isType(12, 'number'),    true);
+    equal(Object.isType(12, 'object'),    false);
+    equal(Object.isType(12, 'boolean'),   false);
+    equal(Object.isType(12, 'string'),    false);
+    
+    equal(Object.isType(12.55, 'undefined'), false);
+    equal(Object.isType(12.55, 'null'),      false);
+    equal(Object.isType(12.55, 'function'),  false);
+    equal(Object.isType(12.55, 'number'),    true);
+    equal(Object.isType(12.55, 'object'),    false);
+    equal(Object.isType(12.55, 'boolean'),   false);
+    equal(Object.isType(12.55, 'string'),    false);
+});
+
+test('fallbacks.Object.isType (boolean)', function() {
+    equal(Object.isType(true, 'undefined'), false);
+    equal(Object.isType(true, 'null'),      false);
+    equal(Object.isType(true, 'function'),  false);
+    equal(Object.isType(true, 'number'),    false);
+    equal(Object.isType(true, 'object'),    false);
+    equal(Object.isType(true, 'boolean'),   true);
+    equal(Object.isType(true, 'string'),    false);
+});
+
+test('fallbacks.Object.isType (function)', function() {
+    equal(Object.isType(function() {}, 'undefined'), false);
+    equal(Object.isType(function() {}, 'null'),      false);
+    equal(Object.isType(function() {}, 'function'),  true);
+    equal(Object.isType(function() {}, 'number'),    false);
+    equal(Object.isType(function() {}, 'object'),    false);
+    equal(Object.isType(function() {}, 'boolean'),   false);
+    equal(Object.isType(function() {}, 'string'),    false);
+
+    equal(Object.isFunc(undefined),       false);
+    equal(Object.isFunc(null, 'null'),    false);
+    equal(Object.isFunc(function() {}),   true);
+    equal(Object.isFunc(10, 'number'),    false);
+    equal(Object.isFunc({}, 'object'),    false);
+    equal(Object.isFunc(true, 'boolean'), false);
+    equal(Object.isFunc('a', 'string'),   false);
+});
+
+test('fallbacks.Object.proxy (no context)', function() {
+    equal(typeof Object.proxy, 'function');
+
+    var a = new MockObjectA(5);
+    var proxy = Object.proxy(a);
+
+    equal(a == proxy, false);
+    equal(a.b, 5);
+    equal(proxy.b, undefined);
+
+    equal(a.add(2), 2 + 5);
+    equal(proxy.add(2), 2 + 5);
+
+    equal(a.mult(2), 2 * 5);
+    equal(proxy.mult(2), 2 * 5);
+});
+
+test('fallbacks.Object.proxy (context)', function() {
+    equal(typeof Object.proxy, 'function');
+
+    var a = new MockObjectA(5);
+    var proxy = Object.proxy(a, {b: 12});
+
+    equal(a == proxy, false);
+    equal(a.b, 5);
+    equal(proxy.b, 12);
+
+    equal(a.add(2), 2 + 5);
+    equal(proxy.add(2), 2 + 12);
+
+    equal(a.mult(2), 2 * 5);
+    equal(proxy.mult(2), 2 * 12);
+});
+
+test('fallbacks.Object.proxy (filter)', function() {
+    equal(typeof Object.proxy, 'function');
+
+    var a = new MockObjectA(5);
+    var proxy = Object.proxy(a, undefined, {filter: function(key) {return key !== 'mult';}});
+
+    equal(a == proxy, false);
+
+    equal(a.add(2), 2 + 5);
+    equal(proxy.add(2), 2 + 5);
+
+    equal(a.mult(2), 2 * 5);
+    equal(proxy.mult, undefined);
+});
+
+test('fallbacks.Object.proxy (filter, context)', function() {
+    equal(typeof Object.proxy, 'function');
+
+    var a = new MockObjectA(5);
+    var proxy = Object.proxy(a, {b: 12}, {filter: function(key) {return key !== 'mult';}});
+
+    equal(a == proxy, false);
+
+    equal(a.add(2), 2 + 5);
+    equal(proxy.add(2), 2 + 12);
+
+    equal(a.mult(2), 2 * 5);
+    equal(proxy.mult, undefined);
+});
+
+test('fallbacks.Object.proxy (arguments)', function() {
+    equal(typeof Object.proxy, 'function');
+
+    var a = new MockObjectA(5);
+    var proxy = Object.proxy(a, undefined, {arguments: function(args) {return [args[0] * 0.8];}});
+
+    equal(a == proxy, false);
+
+    equal(a.add(2), 2 + 5);
+    equal(proxy.add(2), (2 * 0.8) + 5);
+
+    equal(a.mult(2), 2 * 5);
+    equal(proxy.mult(2), (2 * 0.8) * 5);
+});
+
+test('fallbacks.Object.proxy (arguments, context)', function() {
+    equal(typeof Object.proxy, 'function');
+
+    var a = new MockObjectA(5);
+    var proxy = Object.proxy(a, {b: 12}, {arguments: function(args) {return [args[0] * 0.8];}});
+
+    equal(a == proxy, false);
+
+    equal(a.add(2), 2 + 5);
+    equal(proxy.add(2), (2 * 0.8) + 12);
+
+    equal(a.mult(2), 2 * 5);
+    equal(proxy.mult(2), (2 * 0.8) * 12);
+});
+
+
+test('fallbacks.Object.proxy (arguments, filter)', function() {
+    equal(typeof Object.proxy, 'function');
+
+    var a = new MockObjectA(5);
+    var proxy = Object.proxy(a, undefined, {
+        arguments: function(args) {return [args[0] * 0.8];},
+        filter: function(key) {return key !== 'mult';}
+    });
+
+    equal(a == proxy, false);
+
+    equal(a.add(2), 2 + 5);
+    equal(proxy.add(2), (2 * 0.8) + 5);
+
+    equal(a.mult(2), 2 * 5);
+    equal(proxy.mult, undefined);
+});
+
+test('fallbacks.Object.proxy (arguments, filter, context)', function() {
+    equal(typeof Object.proxy, 'function');
+
+    var a = new MockObjectA(5);
+    var proxy = Object.proxy(a, {b: 12}, {
+        arguments: function(args) {return [args[0] * 0.8];},
+        filter: function(key) {return key !== 'mult';}
+    });
+
+    equal(a == proxy, false);
+
+    equal(a.add(2), 2 + 5);
+    equal(proxy.add(2), (2 * 0.8) + 12);
+
+    equal(a.mult(2), 2 * 5);
+    equal(proxy.mult, undefined);
+});
+
+test('fallbacks.Object.getPrototypeOf (object)', function() {
+    equal(typeof Object.getPrototypeOf, 'function');
+
+    var a = new MockObjectA(5);
+    var b = new MockObjectB(8, 3);
+
+    equal(Object.getPrototypeOf(a), MockObjectA.prototype, 'a.prototype');
+    equal(Object.getPrototypeOf(a).constructor, MockObjectA, 'a.constructor');
+
+    equal(Object.getPrototypeOf(b), MockObjectB.prototype, 'b.prototype');
+    equal(Object.getPrototypeOf(b).constructor, MockObjectB, 'b.constructor');
+});
+
+test('fallbacks.Object._super (object)', function() {
+    equal(typeof Object._super, 'function');
+
+    var a = new MockObjectA(5);
+    var b = new MockObjectB(8, 3);
+
+    equal(b.add(2), (2 + 8)*3);
+    equal(b.mult(2), 2 * 8);
+
+    equal(Object._super(MockObjectB, b).add(2), 2 + 8);
+    equal(Object._super(MockObjectB, b).mult(2), 2 * 8);
+});
+
+test('fallbacks.Object._super (method)', function() {
+    equal(typeof Object._super, 'function');
+
+    var a = new MockObjectA(5);
+    var b = new MockObjectB(8, 3);
+
+    equal(b.add(2), (2 + 8)*3);
+    equal(b.mult(2), 2 * 8);
+
+    equal(Object._super(MockObjectB, b, 'add', 2), 2 + 8);
+    equal(Object._super(MockObjectB, b, 'mult', 2), 2 * 8);
+});
 
 test('fallbacks.Array.indexOf', function() {
     equal(typeof Array.prototype.indexOf, 'function');
@@ -261,4 +556,39 @@ test('fallbacks.String.format', function() {
     equal('12.46',     '%.2f'.format(12.457))
     equal('12.46',     '%.2f'.format(12.457))
     equal('12.46',     '%-.2f'.format(12.457))
+});
+
+test('fallbacks.String.capitalize', function() {
+    equal('', ''.capitalize());
+    equal('A', 'A'.capitalize());
+    equal('A', 'a'.capitalize());
+    equal('Abcd', 'abcd'.capitalize());
+});
+
+test('fallbacks.String.isDigit', function() {
+    equal(''.isDigit(), false);
+    equal('abcd'.isDigit(), false);
+    equal('0'.isDigit(), true);
+    equal('01124'.isDigit(), true);
+    equal('52400'.isDigit(), true);
+    equal('-52400'.isDigit(), true);
+    equal('+52400'.isDigit(), true);
+});
+
+test('fallbacks.String.isAlpha', function() {
+    equal(''.isAlpha(), false);
+    equal('0'.isAlpha(), false);
+    equal('01124'.isAlpha(), false);
+    equal('abcd'.isAlpha(), true);
+    equal('éõô'.isAlpha(), false);
+});
+
+test('fallbacks.String.isSpace', function() {
+    equal(''.isSpace(), false);
+    equal('0'.isSpace(), false);
+    equal('abcd'.isSpace(), false);
+    equal(' '.isSpace(), true);
+    equal('   '.isSpace(), true);
+    equal('\t'.isSpace(), true);
+    equal('\t   \t'.isSpace(), true);
 });

@@ -125,14 +125,17 @@ String.prototype.format = function() {
 
         // parse flags
         var leftJustify = false, positivePrefix = '', zeroPad = false, prefixBaseX = false, htmlSpace = false, thousandSeparation = false;
-        for (var j = 0; flags && j < flags.length; j++) switch (flags.charAt(j)) {
-            case ' ': positivePrefix = ' '; break;
-            case '+': positivePrefix = '+'; break;
-            case '-': leftJustify = true; break;
-            case '0': zeroPad = true; break;
-            case '#': prefixBaseX = true; break;
-            case '&': htmlSpace = true; break;
-            case '\'': thousandSeparation = true; break;
+        
+        for (var j = 0; flags && j < flags.length; j++) {
+            switch (flags.charAt(j)) {
+                case ' ': positivePrefix = ' '; break;
+                case '+': positivePrefix = '+'; break;
+                case '-': leftJustify = true; break;
+                case '0': zeroPad = true; break;
+                case '#': prefixBaseX = true; break;
+                case '&': htmlSpace = true; break;
+                case '\'': thousandSeparation = true; break;
+            }
         }
 
         // parameters may be null, undefined, empty-string or real valued
@@ -291,14 +294,30 @@ String.prototype.format = function() {
     });
 
     append('trim', function() {
-        return this.replace (/^\s+|\s+$/g, '');
+        return this.replace(/^\s+|\s+$/g, '');
     });
 
     append('ltrim', function() {
-        return this.replace (/^\s+/,'');
+        return this.replace(/^\s+/,'');
     });
-    
+
     append('rtrim', function() {
         return this.replace(/\s+$/,'');
+    });
+
+    append('capitalize', function() {
+        return this.length > 0 ? this.slice(0, 1).toUpperCase().concat(this.slice(1, this.length)) : this;
+    });
+
+    append('isDigit', function() {
+        return this.match(/^(\+|\-)?[\.0-9]+/) !== null;
+    })
+
+    append('isAlpha', function() {
+        return this.match(/^[a-zA-z]+$/) !== null;
+    });
+
+    append('isSpace', function() {
+        return this.match(/^[\s]+$/) !== null;
     });
 })();
