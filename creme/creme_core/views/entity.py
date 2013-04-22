@@ -516,10 +516,12 @@ def _delete_entity(user, entity):
         else:
             entity.delete()
     except ProtectedError as e:
-        return 400, _(u'"%(entity)s" can not be deleted because of its dependencies. [%(error)s]') % {
-                            'entity': entity.allowed_unicode(user),
-                            'error':  smart_unicode(e),
-                        }
+        return (400,
+                _(u'"%s" can not be deleted because of its dependencies.') %
+                    entity.allowed_unicode(user),
+                {'protected_objects': e.args[1]},
+               )
+
 
 @login_required
 def delete_entities(request):
@@ -547,7 +549,7 @@ def delete_entities(request):
     for entity in entities:
         error = _delete_entity(user, entity.get_real_entity())
         if error:
-            errors[error[0]].append(error[1])
+            errors[error[0]].append(error[1]) #TODO: use error[2] if exists ??
 
     if not errors:
         status = 200
@@ -568,7 +570,8 @@ def delete_entity(request, entity_id):
     error = _delete_entity(request.user, entity)
 
     if error:
-        code, msg = error
+        #code, msg = error #TODO: Python3 => code, msg, *args = error
+        code, msg, args = error if len(error) == 3 else error + ({},)
 
         if code == 404: raise Http404(msg)
         #if code == 403: raise PermissionDenied(msg)
@@ -576,7 +579,7 @@ def delete_entity(request, entity_id):
         #if request.is_ajax():
             #return HttpResponse(smart_unicode(msg), mimetype='text/javascript', status=code)
 
-        raise PermissionDenied(msg)
+        raise PermissionDenied(msg, args)
 
     if request.is_ajax():
         return HttpResponse(mimetype='text/javascript')
