@@ -94,8 +94,10 @@
                 }
             }
 
+            creme.tests.context = new creme.tests.Context();
+
             $(document).ready(function() {
-                var context = new creme.tests.Context();
+                var context = creme.tests.context;
 
                 $('select#test-view-selector').bind('change', function() {
                     context.redirect({view: $(this).val()});

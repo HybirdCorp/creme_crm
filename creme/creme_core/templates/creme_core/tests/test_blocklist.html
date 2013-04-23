@@ -8,7 +8,8 @@
     <script type="text/javascript">
         $(document).ready(function() {
             $('button#test-blocklist-refresh').click(function() {
-                window.location = TEST_VIEW_NAME + '?refresh=1';
+                options = creme.tests.context;
+                window.location = options.view + '?theme=' + options.theme + '&screen=' + options.screen.join('x') + '&refresh=1';
             });
         });
     </script>
