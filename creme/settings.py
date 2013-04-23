@@ -379,18 +379,18 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/datejs/date-fr-FR.js',
 
                      #TODO: an other bundle only for graphael ??
-                    'creme_core/js/lib/graphael/raphael-1.5.2.js',
-                    'creme_core/js/lib/graphael/g.raphael.js',
-                    'creme_core/js/lib/graphael/g.bar.js',
-                    'creme_core/js/lib/graphael/g.line.js',
-                    'creme_core/js/lib/graphael/g.pie.js',
+#                     'creme_core/js/lib/graphael/raphael-1.5.2.js',
+#                     'creme_core/js/lib/graphael/g.raphael.js',
+#                     'creme_core/js/lib/graphael/g.bar.js',
+#                     'creme_core/js/lib/graphael/g.line.js',
+#                     'creme_core/js/lib/graphael/g.pie.js',
 
                     'creme_core/js/lib/jquery.navIt.0.0.6.js',
 
                     'creme_core/js/utils.js',
                     'creme_core/js/forms.js',
                     'creme_core/js/ajax.js',
-                    'creme_core/js/creme.graphael.js',
+#                    'creme_core/js/creme.graphael.js',
                     'creme_core/js/menu.js',
                     'creme_core/js/blocks.js',
 
@@ -599,7 +599,7 @@ MEDIA_BUNDLES = (
                  CREME_I18N_JS,
                  CREME_CORE_JS + tuple(js for app, js in CREME_OPT_JS if app in INSTALLED_CREME_APPS)
                 )
-if DEBUG:
+if FORCE_JS_TESTVIEW:
     MEDIA_BUNDLES += (TEST_CREME_CORE_JS,)
 
 CREME_CSS = CREME_CORE_CSS + tuple(css for app, css in CREME_OPT_CSS if app in INSTALLED_CREME_APPS)

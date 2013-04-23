@@ -78,7 +78,6 @@ class MiscViewsTestCase(ViewsTestCase):
         self.assertFalse(settings.FORCE_JS_TESTVIEW)
         self.assertGET200('/test_js')
 
-
 class LanguageTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
