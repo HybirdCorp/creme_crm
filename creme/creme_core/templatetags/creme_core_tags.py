@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from time import mktime
+#from time import mktime
 from re import compile as compile_re
 from logging import debug
 
@@ -33,6 +33,7 @@ from django.contrib.contenttypes.models import ContentType
 from mediagenerator.templatetags.media import include_media
 
 from ..gui.field_printers import field_printers_registry
+from ..models import CremeEntity, Relation
 from ..utils.currency_format import currency
 from ..utils.media import get_creme_media_url, get_current_theme
 from ..utils.meta import get_verbose_field_name
@@ -52,7 +53,7 @@ def print_boolean(x):
 
     return x
 
-@register.filter(name="get_value")
+@register.filter
 def get_value(dic, key, default=''):
   """
   Usage:
@@ -71,20 +72,20 @@ def get_value(dic, key, default=''):
     debug('Exception in get_value(): %s', e)
     return default
 
-@register.filter(name="get_meta_value")
+@register.filter
 def get_meta_value(obj, key, default=''):
     try:
         return getattr(obj._meta, key)
     except:
         return default
 
-@register.filter(name="get_list_object_of_specific_relations") #TODO: rename tag ?
-def get_related_entities(entity, relation_type_id):
-    return entity.get_related_entities(relation_type_id)
+#@register.filter(name="get_list_object_of_specific_relations")
+#def get_related_entities(entity, relation_type_id):
+    #return entity.get_related_entities(relation_type_id)
 
-@register.filter(name="get_extra_field_value")
-def get_extra_field_value(object, field_name):
-    return object.__getattribute__(field_name)() #TODO: use getattr() ??
+#@register.filter
+#def get_extra_field_value(object, field_name):
+    #return object.__getattribute__(field_name)() #todo: use getattr() ??
 
 @register.filter(name="get_tag")
 def get_fieldtag(field, tag):
@@ -95,23 +96,31 @@ def get_fieldtag(field, tag):
 def get_field_verbose_name(model_or_entity, field_name):
     return get_verbose_field_name(model_or_entity, field_name) or field_name
 
-@register.filter(name="is_date_gte")
-def is_date_gte(date1, date2):
-    return date1.replace(hour=0, minute=0, second=0, microsecond=0) >= date2.replace(hour=0, minute=0, second=0, microsecond=0)
+#@register.filter
+#def is_date_gte(date1, date2):
+    #return date1.replace(hour=0, minute=0, second=0, microsecond=0) >= date2.replace(hour=0, minute=0, second=0, microsecond=0)
 
-@register.filter(name="is_date_lte")
-def is_date_lte(date1, date2):
-    return date1.replace(hour=0, minute=0, second=0, microsecond=0) <= date2.replace(hour=0, minute=0, second=0, microsecond=0)
+#@register.filter
+#def is_date_lte(date1, date2):
+    #return date1.replace(hour=0, minute=0, second=0, microsecond=0) <= date2.replace(hour=0, minute=0, second=0, microsecond=0)
 
-@register.filter(name="in_day")
-def in_day(date1, day_in):
-    beg = day_in.replace(hour=0, minute=0, second=0, microsecond=0)
-    end = day_in.replace(hour=23, minute=59, second=59, microsecond=999999)
-    return is_date_gte(date1, beg) and is_date_lte(date1, end)
+@register.filter
+def is_entity(obj):
+    return isinstance(obj, CremeEntity)
 
-@register.filter(name="range_timestamp")
-def range_timestamp(date1, date2):
-    return abs(mktime(date2.timetuple()) - mktime(date1.timetuple()))
+@register.filter
+def is_relation(obj):
+    return isinstance(obj, Relation)
+
+#@register.filter
+#def in_day(date1, day_in):
+    #beg = day_in.replace(hour=0, minute=0, second=0, microsecond=0)
+    #end = day_in.replace(hour=23, minute=59, second=59, microsecond=999999)
+    #return is_date_gte(date1, beg) and is_date_lte(date1, end)
+
+#@register.filter
+#def range_timestamp(date1, date2):
+    #return abs(mktime(date2.timetuple()) - mktime(date1.timetuple()))
 
 #@register.filter(name="lt")
 #def lt(object1, object2):
@@ -133,11 +142,11 @@ def range_timestamp(date1, date2):
 #def eq(object1, object2):
     #return object1 == object2
 
-@register.filter(name="sub")
+@register.filter
 def sub(object1, object2):
     return object1 - object2
 
-@register.filter(name="and_op")
+@register.filter
 def and_op(object1, object2):
     return bool(object1 and object2)
 
@@ -145,8 +154,8 @@ def and_op(object1, object2):
 def _str(object1):
     return str(object1)
 
-# TODO : abs name gives a template syntax error
-@register.filter(name="absolute")
+#NB: 'abs' name gives a template syntax error
+@register.filter
 def absolute(integer):
     return abs(integer)
 
@@ -154,16 +163,16 @@ def absolute(integer):
 #def in_list(obj, list):
    #return obj in list
 
-@register.filter(name="idiv")
+@register.filter
 def idiv(integer, integer2):
     return integer / integer2
 
-@register.filter(name="mult")
+@register.filter
 def mult(integer, integer2):
     return integer * integer2
 
 #TODO: divisibleby in builtins....
-@register.filter(name="mod")
+@register.filter
 def mod(integer, integer2):
     return integer % integer2
 
@@ -171,27 +180,27 @@ def mod(integer, integer2):
 def x_range(integer, start=0):
     return xrange(start, start + integer)
 
-@register.filter(name="isiterable")
+@register.filter
 def isiterable(iterable):
     return hasattr(iterable, '__iter__')
 
 @register.filter(name="format")
-def format(ustring, format_str):
+def format_string(ustring, format_str):
     return format_str % ustring
 
-@register.filter(name="enumerate") #TODO: why not use forloopforloop.counter/counter0
+@register.filter(name="enumerate") #TODO: why not use forloop.counter/counter0
 def enumerate_iterable(iterable):
     return enumerate(iterable)
 
-@register.filter(name="to_timestamp")
+@register.filter
 def to_timestamp(date):
     return date.strftime('%s')
 
-@register.filter(name="allowed_unicode")
+@register.filter
 def allowed_unicode(entity, user):
     return entity.allowed_unicode(user)
 
-@register.filter(name="format_amount")
+@register.filter
 def format_amount(amount, currency_id):
     return currency(amount, currency_id)
 
