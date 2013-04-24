@@ -22,17 +22,32 @@ from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseForbidden
 from django.template import RequestContext
 from django.template.loader import render_to_string
-#from django.utils.encoding import smart_unicode
+from django.utils.encoding import smart_unicode
 
 
 class Beautiful403Middleware(object):
     def process_exception(self, request, exception):
         if isinstance(exception, PermissionDenied):
-            if request.is_ajax():
-                #return HttpResponse(smart_unicode(msg), mimetype='text/javascript', status=403)
-                return HttpResponse(unicode(exception), mimetype='text/javascript', status=403)
+            protected_objects = None
+            args = exception.args
+
+            if len(args) > 1:
+                msg = smart_unicode(args[0])
+                arg = args[1]
+
+                if isinstance(arg, dict):
+                    protected_objects = arg.get('protected_objects')
+            else:
+                msg = smart_unicode(exception)
+
+            if request.is_ajax(): #TODO: use protected_objects ??
+                return HttpResponse(msg, mimetype='text/javascript', status=403)
 
             return HttpResponseForbidden(render_to_string('creme_core/forbidden.html',
-                                                          RequestContext(request, {'error_message': unicode(exception)})
+                                                          RequestContext(request,
+                                                                         {'error_message':     msg,
+                                                                          'protected_objects': protected_objects,
+                                                                         },
+                                                                        )
                                                          )
                                         )

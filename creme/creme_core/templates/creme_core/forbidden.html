@@ -1,9 +1,58 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
+{% load creme_core_tags creme_widgets %}
+
+{% block page_title %} - {% trans 'Error !' %}{% endblock %}
+
+{% block extrahead %}
+    <style type="text/css">
+        #container-icon {
+            background-image: url({% creme_media_url 'images/403_256.png' %});
+            background-repeat: no-repeat;
+            float: left;
+            margin-top: -100px;
+            width: 256px;
+            height: 256px;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
-    {% if error_message %}
-        {{error_message}}
-    {% else %}
-        {% trans "You do not have access to this page, please contact your administrator." %}
-    {% endif %}
+    <div class="central_panel" >
+        <div id="container">
+            <div id="container-icon">&nbsp;</div>
+            <div id="content-main">
+                <div id="branding">
+                    <h1>{% trans 'Creme 403 Error' %}</h1>
+                </div>
+
+                <div>
+                    <p>
+                        {% if error_message %}
+                            {{error_message}}
+                            {% if protected_objects %}
+                                <ul>
+                                    {% for object in protected_objects%}
+                                        <li>{{object|get_meta_value:'verbose_name'}} :
+                                            {% if object|is_entity %}
+                                                {% widget_entity_hyperlink object.get_real_entity user %}
+                                            {% elif object|is_relation %}
+                                                {% widget_entity_hyperlink object.subject_entity.get_real_entity user %}
+                                                {{object.type.predicate}}
+                                                {% widget_entity_hyperlink object.object_entity.get_real_entity user %}
+                                            {% else %}
+                                                {{object}}
+                                            {% endif %}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        {% else %}
+                            {% trans "You do not have access to this page, please contact your administrator." %}
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
