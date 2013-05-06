@@ -22,14 +22,14 @@ from django.shortcuts import render
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
-from ..forms.csv_import import CSVUploadForm, form_factory
-from ..utils import get_ct_or_404
+from creme.creme_core.forms.list_view_import import UploadForm, form_factory
+from creme.creme_core.utils import get_ct_or_404
 
 #django wizard doesn't manage to inject its input in the 2nd form
 # + we can't upload file with wizard (even if it is a documents.Document for now)
 
 @login_required
-def csv_import(request, ct_id):
+def import_listview(request, ct_id):
     ct = get_ct_or_404(ct_id)
     user = request.user
 
@@ -37,38 +37,38 @@ def csv_import(request, ct_id):
 
     if request.method == 'POST':
         POST = request.POST
-        step = int(POST.get('csv_step', 0))
-        form = CSVUploadForm(user=user, data=POST)
+        step = int(POST.get('step', 0))
+        form = UploadForm(user=user, data=POST)
 
         if step == 0:
             if form.is_valid():
                 cleaned_data = form.cleaned_data
-                CSVImportForm = form_factory(ct, form.csv_header)
-                form = CSVImportForm(user=user,
-                                     initial={'csv_step':       1,
-                                              'csv_document':   cleaned_data['csv_document'].id,
-                                              'csv_has_header': cleaned_data['csv_has_header'],
-                                             }
-                                    )
+                ImportForm = form_factory(ct, form.header)
+                form = ImportForm(user=user,
+                                  initial={'step':       1,
+                                           'document':   cleaned_data['document'].id,
+                                           'has_header': cleaned_data['has_header'],
+                                          }
+                                 )
         else:
             assert step == 1
             form.is_valid() #clean fields
 
-            CSVImportForm = form_factory(ct, form.csv_header)
-            form = CSVImportForm(user=user, data=POST)
+            ImportForm = form_factory(ct, form.header)
+            form = ImportForm(user=user, data=POST)
 
             if form.is_valid():
                 form.save()
-                return render(request, 'creme_core/csv_importing_report.html',
+                return render(request, 'creme_core/importing_report.html',
                               {'form':     form,
                                'back_url': request.GET['list_url'],
                               }
                              )
     else:
-        form = CSVUploadForm(user=user, initial={'csv_step': 0})
+        form = UploadForm(user=user, initial={'step': 0})
 
     return render(request, 'creme_core/generics/blockform/add.html',
                   {'form': form,
-                   'title': _('Import CSV'),
+                   'title': _('Import data file'),
                   }
                  )

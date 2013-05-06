@@ -20,7 +20,7 @@
 
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.forms.csv_import import CSVImportForm4CremeEntity, extractorfield_factory
+from creme.creme_core.forms.list_view_import import ImportForm4CremeEntity, extractorfield_factory
 
 from ..models import Address
 
@@ -37,7 +37,7 @@ _BILL_PREFIX = 'billaddr_'
 _SHIP_PREFIX = 'shipaddr_'
 
 
-class _PersonCSVImportForm(CSVImportForm4CremeEntity):
+class _PersonCSVImportForm(ImportForm4CremeEntity):
     class Meta:
         exclude = ('image',)
 
@@ -83,7 +83,7 @@ def get_csv_form_builder(header_dict, choices):
         attrs[form_fieldname] = extractorfield_factory(field, header_dict, choices)
         shipping_address_fnames.append(form_fieldname)
 
-    attrs['blocks'] = CSVImportForm4CremeEntity.blocks.new(
+    attrs['blocks'] = ImportForm4CremeEntity.blocks.new(
                             ('billing_address',  _(u'Billing address'),  billing_address_fnames),
                             ('shipping_address', _(u'Shipping address'), shipping_address_fnames)
                         )

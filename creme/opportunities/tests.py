@@ -9,7 +9,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.tests.views.csv_import import CSVImportBaseTestCaseMixin
+    from creme.creme_core.tests.views.list_view_import import CSVImportBaseTestCaseMixin
     from creme.creme_core.models import CremeEntity, RelationType, CremeProperty, SetCredentials, Currency
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, DEFAULT_CURRENCY_PK
@@ -776,13 +776,13 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                  #TODO emitter by name
                 ]
 
-        doc = self._build_doc(lines)
-        url = self._build_csvimport_url(Opportunity)
+        doc = self._build_csv_doc(lines)
+        url = self._build_import_url(Opportunity)
         self.assertGET200(url)
 
-        response = self.client.post(url, data={'csv_step':     1,
-                                               'csv_document': doc.id,
-                                               #csv_has_header
+        response = self.client.post(url, data={'step':     1,
+                                               'document': doc.id,
+                                               #has_header
 
                                                'user':    user.id,
                                                'emitter': emitter1.id,
@@ -873,11 +873,11 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertFalse(SalesPhase.objects.filter(name=sp1_name))
 
         lines = [('Opp01', sp1_name, '1000', '2000', target1.name, '')]
-        doc = self._build_doc(lines)
-        response = self.client.post(self._build_csvimport_url(Opportunity),
-                                    data={'csv_step':     1,
-                                          'csv_document': doc.id,
-                                          #csv_has_header
+        doc = self._build_csv_doc(lines)
+        response = self.client.post(self._build_import_url(Opportunity),
+                                    data={'step':     1,
+                                          'document': doc.id,
+                                          #has_header
 
                                           'user':    self.user.id,
                                           'emitter': emitter.id,
@@ -931,11 +931,11 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         target  = Organisation.objects.create(user=self.user, name='Acme')
 
         lines = [('Opp01', '1000', '2000', target.name)]
-        doc = self._build_doc(lines)
-        response = self.client.post(self._build_csvimport_url(Opportunity),
-                                    data={'csv_step':     1,
-                                          'csv_document': doc.id,
-                                          #csv_has_header
+        doc = self._build_csv_doc(lines)
+        response = self.client.post(self._build_import_url(Opportunity),
+                                    data={'step':     1,
+                                          'document': doc.id,
+                                          #has_header
 
                                           'user':    self.user.id,
                                           'emitter': emitter.id,
@@ -983,11 +983,11 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         lines = [('Opp01', 'SP name', '1000', '2000', orga_name, ''),
                  ('Opp02', 'SP name', '1000', '2000', '',        contact_name),
                 ]
-        doc = self._build_doc(lines)
-        response = self.client.post(self._build_csvimport_url(Opportunity),
-                                    data={'csv_step':     1,
-                                          'csv_document': doc.id,
-                                          #csv_has_header
+        doc = self._build_csv_doc(lines)
+        response = self.client.post(self._build_import_url(Opportunity),
+                                    data={'step':     1,
+                                          'document': doc.id,
+                                          #has_header
 
                                           'user':    self.user.id,
                                           'emitter': emitter.id,

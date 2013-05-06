@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,18 +18,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.contrib.contenttypes.models import ContentType
+import csv
+
+from django.utils.translation import ugettext_lazy as _
+from django.http import HttpResponse
+
+from .base import ExportBackend
 
 
-class CSVFormRegistry(object):
+class CSVExportBackend(ExportBackend):
+    id = 'csv'
+    verbose_name = _(u'CSV File')
+    help_text = ''
+
     def __init__(self):
-        self._form_factories = {}
+        self.response = HttpResponse(mimetype='text/csv')
+        self.writer = csv.writer(self.response, quoting=csv.QUOTE_ALL)
 
-    def register(self, model, factory):
-        self._form_factories[ContentType.objects.get_for_model(model).id] = factory
+    def writerow(self, row):
+        return self.writer.writerow(row)
 
-    def get(self, ct):
-        return self._form_factories.get(ct.id)
-
-
-csv_form_registry = CSVFormRegistry()
+    def save(self, filename):
+        self.response['Content-Disposition'] = 'attachment; filename="%s.%s"' % (filename, self.id)

@@ -3,18 +3,25 @@
 try:
     from functools import partial
 
+    from django.utils.unittest.case import skipIf
     from django.utils.encoding import force_unicode
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.models import (RelationType, Relation,
-                                         CremePropertyType, CremeProperty,
-                                         HeaderFilter, HeaderFilterItem)
-    from .base import ViewsTestCase
+    from creme.creme_core.models import RelationType, Relation, CremePropertyType, CremeProperty, HeaderFilter, HeaderFilterItem
+
+    from creme.creme_core.tests.views.base import ViewsTestCase
 
     from creme.persons.models import Contact, Organisation
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
+
+try:
+    from creme.creme_core.utils.xlrd_utils import XlrdReader
+    from creme.creme_core.registry import export_backend_registry
+    XlsImport = not 'xls' in export_backend_registry.iterkeys()
+except Exception as e:
+    XlsImport = True
 
 __all__ = ('CSVExportViewsTestCase',)
 
@@ -46,7 +53,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
                             for first_name, last_name in [('Spike', 'Spiegel'),
                                                           ('Jet', 'Black'),
                                                           ('Faye', 'Valentine'),
-                                                          ('Edward', 'Wong'),
+                                                          ('Edward', 'Wong')
                                                          ]
                         )
 
@@ -61,7 +68,8 @@ class CSVExportViewsTestCase(ViewsTestCase):
         create_prop(type=ptype_beautiful, creme_entity=contacts['Faye'])
 
         hf = HeaderFilter.create(pk='test-hf_contact', name='Contact view', model=Contact)
-        hf_items =[HeaderFilterItem.build_4_field(model=Contact, name='last_name'),
+        hf_items =[HeaderFilterItem.build_4_field(model=Contact, name='civility'),
+                   HeaderFilterItem.build_4_field(model=Contact, name='last_name'),
                    HeaderFilterItem.build_4_field(model=Contact, name='first_name'),
                    HeaderFilterItem.build_4_relation(rtype=rtype_pilots),
                    #TODO: build_4_customfield
@@ -71,8 +79,8 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         return hf_items
 
-    def _build_url(self, ct):
-        return '/creme_core/list_view/dl_csv/%s' % ct.id
+    def _build_url(self, ct, method='download', doc_type='csv'):
+        return '/creme_core/list_view/%s/%s/%s' % (method, ct.id, doc_type)
 
     def _set_listview_state(self):
         lv_url = Contact.get_lv_absolute_url()
@@ -80,7 +88,38 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         return lv_url
 
-    def test_csv_export01(self):
+    def test_export_error01(self):  # Assert doc_type in ('xls', 'csv')
+        self.login()
+        lv_url = self._set_listview_state()
+
+        self.assertGET404(self._build_url(self.ct, doc_type='exe'), data={'list_url': lv_url})
+
+    def test_list_view_export_header(self):
+        self.login()
+        hf_items = self._build_hf_n_contacts()
+        lv_url = self._set_listview_state()
+        url = self._build_url(self.ct, method='download_header')
+        response = self.assertGET200(url, data={'list_url': lv_url})
+
+        #TODO: sort the relations/properties by they verbose_name ??
+        result = map(force_unicode, response.content.splitlines())
+        self.assertEqual(1, len(result))
+        self.assertEqual(result[0], u','.join(u'"%s"' % hfi.title for hfi in hf_items))
+
+    @skipIf(XlsImport, "Skip tests, couldn't find xlwt or xlrd libs")
+    def test_xls_export_header(self):
+        self.login()
+        hf_items = self._build_hf_n_contacts()
+        lv_url = self._set_listview_state()
+
+        response = self.assertGET200(self._build_url(self.ct, method='download_header', doc_type='xls'), data={'list_url': lv_url}, follow=True)
+
+        result = list(XlrdReader(None, file_contents=response.content))
+
+        self.assertEqual(1, len(result))
+        self.assertEqual(result[0], [hfi.title for hfi in hf_items])
+
+    def test_list_view_export01(self):
         self.login()
         hf_items = self._build_hf_n_contacts()
         lv_url = self._set_listview_state()
@@ -91,17 +130,17 @@ class CSVExportViewsTestCase(ViewsTestCase):
         result = map(force_unicode, response.content.splitlines())
         self.assertEqual(6, len(result))
         self.assertEqual(result[0], u','.join(u'"%s"' % hfi.title for hfi in hf_items))
-        self.assertEqual(result[1], u'"Black","Jet","Bebop",""')
-        self.assertEqual(result[2], u'"Creme","Fulbert","",""')
-        self.assertIn(result[3], (u'"Spiegel","Spike","Bebop/Swordfish",""',
-                                  u'"Spiegel","Spike","Swordfish/Bebop",""')
+        self.assertEqual(result[1], u'"","Black","Jet","Bebop",""')
+        self.assertEqual(result[2], u'"Monsieur","Creme","Fulbert","",""')
+        self.assertIn(result[3], (u'"","Spiegel","Spike","Bebop/Swordfish",""',
+                                  u'"","Spiegel","Spike","Swordfish/Bebop",""')
                      )
-        self.assertIn(result[4], (u'"Valentine","Faye","","is a girl/is beautiful"',
-                                  u'"Valentine","Faye","","is beautiful/is a girl"')
+        self.assertIn(result[4], (u'"","Valentine","Faye","","is a girl/is beautiful"',
+                                  u'"","Valentine","Faye","","is beautiful/is a girl"')
                      )
-        self.assertEqual(result[5], u'"Wong","Edward","","is a girl"')
+        self.assertEqual(result[5], u'"","Wong","Edward","","is a girl"')
 
-    def test_csv_export02(self):
+    def test_list_view_export02(self):
         "'export' credential"
         self.login(is_superuser=False, allowed_apps=['creme_core', 'persons'])
         self._build_hf_n_contacts()
@@ -111,3 +150,22 @@ class CSVExportViewsTestCase(ViewsTestCase):
 
         self.role.exportable_ctypes = [self.ct] # set the 'export' credentials
         self.assertGET200(url, data=data)
+
+    @skipIf(XlsImport, "Skip tests, couldn't find xlwt or xlrd libs")
+    def test_xls_export01(self):
+        self.login()
+        hf_items = self._build_hf_n_contacts()
+        lv_url = self._set_listview_state()
+
+        response = self.assertGET200(self._build_url(self.ct, doc_type='xls'), data={'list_url': lv_url}, follow=True)
+
+        result = list(XlrdReader(None, file_contents=response.content))
+        self.assertEqual(6, len(result))
+        self.assertEqual(result[0], [hfi.title for hfi in hf_items])
+        self.assertEqual(result[1], ["", "Black", "Jet", "Bebop", ""])
+        self.assertEqual(result[2], ["Monsieur", "Creme", "Fulbert", "", ""])
+        self.assertIn(result[3], (["", "Spiegel", "Spike", "Bebop/Swordfish", ""],
+                                  ["", "Spiegel", "Spike", "Swordfish/Bebop", ""]))
+        self.assertIn(result[4], (["", "Valentine", "Faye", "", "is a girl/is beautiful"],
+                                  ["", "Valentine", "Faye", "", "is beautiful/is a girl"]))
+        self.assertEqual(result[5], ["", "Wong", "Edward", "", "is a girl"])

@@ -67,11 +67,14 @@
                             <img border="0" src="{% creme_media_url 'images/add_22.png' %}" alt="{% trans "New" %}" title="{% trans "New" %}"/>{{model.creation_label}}
                         </a>&nbsp;
                     {% endif %}
-                    <a {% if export_perm %}href="/creme_core/list_view/dl_csv/{{content_type_id}}?list_url={{request.path}}"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
-                        <img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{% trans "Download CSV" %}" title="{% trans "Download CSV" %}"/>{% trans "Download CSV" %}
+                    <a {% if export_perm %}href="/creme_core/list_view/download/{{content_type_id}}/%s?list_url={{request.path}}" onclick="creme._export.selectBackend(event, {% filter force_escape %}{% get_backends %}{% endfilter %}, this);"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
+                        <img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{% trans "Download" %}" title="{% trans "Download" %}"/>{% trans "Download" %}
                     </a>&nbsp;
-                    <a {% if creation_perm %}href="/creme_core/list_view/import_csv/{{content_type_id}}?list_url={{request.path}}"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
-                        <img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{% trans "Import CSV" %}" title="{% trans "Import CSV" %}"/>{% trans "Import CSV" %}
+                    <a {% if export_perm %}href="/creme_core/list_view/download_header/{{content_type_id}}/%s?list_url={{request.path}}" onclick="creme._export.selectBackend(event, {% filter force_escape %}{% get_backends %}{% endfilter %}, this);"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
+                        <img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{% trans "Download header" %}" title="{% trans "Download header" %}"/>{% trans "Download header" %}
+                    </a>&nbsp;
+                    <a {% if creation_perm %}href="/creme_core/list_view/import/{{content_type_id}}?list_url={{request.path}}"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
+                        <img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{% trans "Import" %}" title="{% trans "Import" %}"/>{% trans "Import" %}
                     </a>&nbsp;
                     <a href="/creme_core/list_view/batch_process/{{content_type_id}}?list_url={{request.path}}">
                         <img border="0" src="{% creme_media_url 'images/batch_process_22.png' %}" alt="{% trans "Batch process" %}" title="{% trans "Batch process" %}"/>{% trans "Batch process" %}

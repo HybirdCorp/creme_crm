@@ -28,6 +28,7 @@ from django.template.defaulttags import TemplateLiteral
 #from django.template.defaultfilters import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+from django.utils.simplejson import dumps
 from django.contrib.contenttypes.models import ContentType
 
 from mediagenerator.templatetags.media import include_media
@@ -37,6 +38,7 @@ from ..models import CremeEntity, Relation
 from ..utils.currency_format import currency
 from ..utils.media import get_creme_media_url, get_current_theme
 from ..utils.meta import get_verbose_field_name
+from ..registry import export_backend_registry
 
 
 register = Library()
@@ -355,3 +357,7 @@ def include_creme_media(parser, token):
     contents[1] = u'"%s%s"' % (get_current_theme(), contents[1][1:-1])
     return include_media(parser, Token(token.token_type, ' '.join(contents)))
 
+@register.simple_tag
+def get_backends():
+    return dumps([[backend.id, unicode(backend.verbose_name)]
+                 for backend in export_backend_registry.iterbackends()])

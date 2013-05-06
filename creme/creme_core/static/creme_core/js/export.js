@@ -47,3 +47,23 @@ creme._export.select_one = function(evt, a) {
 
     creme.utils.showDialog($select, {title: '', modal: true, buttons: buttons});
 }
+
+creme._export.selectBackend = function(evt, data, a) {
+    evt.preventDefault();
+
+    var current_href = $(a).attr('href');
+    var me = this;
+
+    this.okDialogHandler = function(ui) {
+        current_href = current_href.replace('%s', $(ui).find('select').val());
+        $(ui).dialog("destroy");
+        $(ui).remove();
+        window.location.href = current_href;
+    }
+
+    var $select = creme.forms.Select.fill($('<select/>'), data, data[0][0]);
+    var buttons = {};
+    buttons[gettext("Ok")] = function() {me.okDialogHandler($(this))}
+
+    creme.utils.showDialog($select, {title: '', modal: true, buttons: buttons});
+}

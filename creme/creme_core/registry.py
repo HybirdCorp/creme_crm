@@ -18,6 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
+
+from .utils.imports import safe_import_object
+
+
 class NotRegistered(Exception):
     pass
 
@@ -73,3 +78,41 @@ class CremeRegistry(object):
         return value
 
 creme_registry = CremeRegistry()
+
+
+class _BackendRegistry(object):
+    def __init__(self, settings):
+        self._backends = None
+        self._settings = settings
+
+    def _get_backends(self):
+        if self._backends is None:
+            backends = {}
+            for backend in self._settings:
+                BackendClass = safe_import_object(backend)
+                if BackendClass is None:  # safe_import_object logged and Exception
+                    continue
+
+                backend_id = getattr(BackendClass, 'id', None)
+                if backend_id is None:
+                    raise Exception('Backend: %s has invalid id.' % BackendClass)
+
+                if backend_id in backends:
+                    raise Exception('Id: %s already used for %s. Please specify another id for %s' %
+                                    (backend_id, backends[backend_id], BackendClass))
+
+                backends[backend_id] = BackendClass
+            self._backends = backends
+        return self._backends
+
+    def iterbackends(self):
+        return self._get_backends().itervalues()
+
+    def iterkeys(self):
+        return self._get_backends().iterkeys()
+
+    def get_backend(self, backend_id):
+        return self._get_backends().get(backend_id)
+
+import_backend_registry = _BackendRegistry(settings.IMPORT_BACKENDS)
+export_backend_registry = _BackendRegistry(settings.EXPORT_BACKENDS)
