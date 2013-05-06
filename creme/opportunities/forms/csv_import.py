@@ -26,7 +26,7 @@ from django.forms.util import flatatt
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.forms.csv_import import CSVImportForm4CremeEntity, CSVExtractorWidget, CSVExtractor
+from creme.creme_core.forms.list_view_import import ImportForm4CremeEntity, ExtractorWidget, Extractor
 
 from creme.persons.models import Organisation, Contact
 
@@ -35,7 +35,7 @@ from ..models import Opportunity, SalesPhase
 
 # Sales phase management -------------------------------------------------------
 #TODO: move 'order' management in SalesPhase.save() ??
-class CSVSalesPhaseExtractor(CSVExtractor):
+class SalesPhaseExtractor(Extractor):
     def __init__(self, column_index, default_value, create_if_unfound):
         self._column_index  = column_index
         self._default_value = default_value
@@ -83,9 +83,9 @@ class CSVSalesPhaseExtractor(CSVExtractor):
         return extracted
 
 
-class CSVSalesPhaseExtractorWidget(CSVExtractorWidget):
+class SalesPhaseExtractorWidget(ExtractorWidget):
     def __init__(self, *args, **kwargs):
-        super(CSVExtractorWidget, self).__init__(*args, **kwargs)
+        super(ExtractorWidget, self).__init__(*args, **kwargs)
         self.default_value_widget = None
         #self.propose_creation = False #TODO: use (credentials)
 
@@ -129,9 +129,9 @@ class CSVSalesPhaseExtractorWidget(CSVExtractorWidget):
                }
 
 
-class CSVSalesPhaseExtractorField(Field):
+class SalesPhaseExtractorField(Field):
     def __init__(self, choices, modelform_field, *args, **kwargs):
-        super(CSVSalesPhaseExtractorField, self).__init__(self, widget=CSVSalesPhaseExtractorWidget, *args, **kwargs)
+        super(SalesPhaseExtractorField, self).__init__(self, widget=SalesPhaseExtractorWidget, *args, **kwargs)
         #self._can_create = False  #TODO: creds
 
         widget = self.widget
@@ -158,11 +158,11 @@ class CSVSalesPhaseExtractorField(Field):
             if not def_value:
                 raise ValidationError(self.error_messages['required'])
 
-        return CSVSalesPhaseExtractor(col_index, def_value, create_if_unfound=value['create'])
+        return SalesPhaseExtractor(col_index, def_value, create_if_unfound=value['create'])
 
 
 # Target management ------------------------------------------------------------
-class CSVTargetExtractor(object):
+class TargetExtractor(object):
     def __init__(self, orga_column_index, create_orga, contact_column_index, create_contact):
         self._orga_column_index    = orga_column_index
         self._contact_column_index = contact_column_index
@@ -222,9 +222,9 @@ class CSVTargetExtractor(object):
 
 
 #TODO: use ul/li instead of table...
-class CSVTargetExtractorWidget(CSVExtractorWidget):
+class TargetExtractorWidget(ExtractorWidget):
     def __init__(self, *args, **kwargs):
-        super(CSVTargetExtractorWidget, self).__init__(*args, **kwargs)
+        super(TargetExtractorWidget, self).__init__(*args, **kwargs)
         #self.propose_orga_creation = False #TODO
         #self.propose_contact_creation = False #TODO
 
@@ -273,9 +273,9 @@ class CSVTargetExtractorWidget(CSVExtractorWidget):
                }
 
 
-class CSVTargetExtractorField(Field):
+class TargetExtractorField(Field):
     def __init__(self, choices, *args, **kwargs):
-        super(CSVTargetExtractorField, self).__init__(self, widget=CSVTargetExtractorWidget, *args, **kwargs)
+        super(TargetExtractorField, self).__init__(self, widget=TargetExtractorWidget, *args, **kwargs)
         widget = self.widget
         #widget.propose_orga_creation    = self._can_create_orga    = True #TODO user.can_create(...)
         #widget.propose_contact_creation = self._can_create_contact = True #TODO user.can_create(...)
@@ -306,19 +306,19 @@ class CSVTargetExtractorField(Field):
         #if not self._can_create_orga and orga_create: #TODO
             #raise ValidationError("You can not create any Organisation.")
 
-        return CSVTargetExtractor(orga_col_index, create_orga, contact_col_index, create_contact)
+        return TargetExtractor(orga_col_index, create_orga, contact_col_index, create_contact)
 
 
 # Main -------------------------------------------------------------------------
 def get_csv_form_builder(header_dict, choices):
-    class OpportunityCSVImportForm(CSVImportForm4CremeEntity):
-        #TODO: can we improve CSVExtractorField to use form registered in creme_config when it is possible ?
-        sales_phase = CSVSalesPhaseExtractorField(choices, #modelfield
+    class OpportunityCSVImportForm(ImportForm4CremeEntity):
+        #TODO: can we improve ExtractorField to use form registered in creme_config when it is possible ?
+        sales_phase = SalesPhaseExtractorField(choices, #modelfield
                                                   Opportunity._meta.get_field_by_name('sales_phase')[0].formfield(),
                                                   label=_('Sales phase'),
                                                   #initial={'selected_column': selected_column} #TODO ??
                                                  )
-        target      = CSVTargetExtractorField(choices, label=_('Target'))
+        target      = TargetExtractorField(choices, label=_('Target'))
 
         #TODO: filter linkable
         emitter = ModelChoiceField(label=_(u"Concerned organisation"), queryset=Organisation.get_all_managed_by_creme(), empty_label=None)

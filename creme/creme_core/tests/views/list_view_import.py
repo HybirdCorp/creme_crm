@@ -3,10 +3,13 @@
 try:
     from tempfile import NamedTemporaryFile
 
+    from django.utils.translation import ugettext as _
+    from django.utils.unittest.case import skipIf
     from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation
-    from .base import ViewsTestCase
+    from creme.creme_core.tests.views.base import ViewsTestCase
+
 
     from creme.persons.models import Contact, Organisation, Position, Sector
 
@@ -14,6 +17,13 @@ try:
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
+
+try:
+    from creme.creme_core.utils.xlwt_utils import XlwtWriter
+    from creme.creme_core.registry import import_backend_registry
+    XlsImport = not 'xls' in import_backend_registry.iterkeys()
+except:
+    XlsImport = True
 
 __all__ = ('CSVImportViewsTestCase', )
 
@@ -25,16 +35,15 @@ class CSVImportBaseTestCaseMixin(object):
         if self.doc:
             self.doc.filedata.delete() #clean
 
-    def _build_doc(self, lines, separator=','):
-        content = u'\n'.join(separator.join(u'"%s"' % item for item in line) for line in lines)
-        content = str(content.encode('utf8'))
-
-        tmpfile = NamedTemporaryFile()
+    def _build_file(self, content, extension=None):
+        tmpfile = NamedTemporaryFile(suffix=".%s" % extension if extension else '')
         tmpfile.write(content)
         tmpfile.flush()
 
-        tmpfile.file.seek(0)
+        return tmpfile
 
+    def _build_doc(self, tmpfile):
+        tmpfile.file.seek(0)
         category = FolderCategory.objects.create(id=10, name=u'Test category')
         folder = Folder.objects.create(user=self.user, title=u'Test folder',
                                        parent_folder=None,
@@ -46,7 +55,7 @@ class CSVImportBaseTestCaseMixin(object):
                                     data={'user':        self.user.id,
                                           'title':       title,
                                           'description': 'CSV file for contacts',
-                                          'filedata':    tmpfile.file,
+                                          'filedata':    tmpfile,
                                           'folder':      folder.id,
                                          }
                                    )
@@ -57,9 +66,26 @@ class CSVImportBaseTestCaseMixin(object):
 
         return self.doc
 
-    def _build_csvimport_url(self, model):
+    def _build_csv_doc(self, lines, separator=',', extension='csv'):
+        content = u'\n'.join(separator.join(u'"%s"' % item for item in line) for line in lines)
+        content = str(content.encode('utf8'))
+
+        tmpfile = self._build_file(content, extension)
+
+        return self._build_doc(tmpfile)
+
+    def _build_xls_doc(self, lines, extension='xls'):
+        tmpfile = self._build_file('', extension)
+        wb = XlwtWriter()
+        for line in lines:
+            wb.writerow(line)
+        wb.save(tmpfile.name)
+
+        return self._build_doc(tmpfile)
+
+    def _build_import_url(self, model):
         ct = ContentType.objects.get_for_model(model)
-        return '/creme_core/list_view/import_csv/%s?list_url=%s' % (ct.id, Contact.get_lv_absolute_url())
+        return '/creme_core/list_view/import/%s?list_url=%s' % (ct.id, Contact.get_lv_absolute_url())
 
 
 class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
@@ -72,7 +98,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         Position.objects.all().delete()
         Sector.objects.all().delete()
 
-    def test_import01(self):
+    def _test_import01(self, builder):
         self.login()
 
         self.assertFalse(Contact.objects.exists())
@@ -81,16 +107,16 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                  ("Asuka",   "Langley"),
                 ]
 
-        doc = self._build_doc(lines)
-        url = self._build_csvimport_url(Contact)
+        doc = builder(lines)
+        url = self._build_import_url(Contact)
         response = self.assertGET200(url)
 
         with self.assertNoException():
             response.context['form']
 
-        response = self.client.post(url, data={'csv_step':     0,
-                                               'csv_document': doc.id,
-                                               #csv_has_header
+        response = self.client.post(url, data={'step':     0,
+                                               'document': doc.id,
+                                               #has_header
                                               }
                                    )
         self.assertNoFormError(response)
@@ -98,12 +124,12 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         with self.assertNoException():
             form = response.context['form']
 
-        self.assertIn('value="1"', unicode(form['csv_step']))
+        self.assertIn('value="1"', unicode(form['step']))
 
         response = self.client.post(url, data={
-                                                'csv_step':     1,
-                                                'csv_document': doc.id,
-                                                #csv_has_header
+                                                'step':     1,
+                                                'document': doc.id,
+                                                #has_header
 
                                                 'user': self.user.id,
 
@@ -163,7 +189,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
             self.assertEqual(self.user, contact.user)
             #self.assert_(contact.billing_address is None) #TODO: fail ?!
 
-    def test_import02(self): #use header, default value, model search and create, properties, fixed and dynamic relations
+    def _test_import02(self, builder): #use header, default value, model search and create, properties, fixed and dynamic relations
         self.login()
 
         self.assertFalse(Position.objects.exists())
@@ -188,23 +214,23 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                  ('Asuka',      'Langley',   pos_title,  'Army',   '',     nerv.name),
                 ]
 
-        doc = self._build_doc(lines)
-        url = self._build_csvimport_url(Contact)
-        response = self.assertPOST200(url, data={'csv_step':       0,
-                                                 'csv_document':   doc.id,
-                                                 'csv_has_header': True,
+        doc = builder(lines)
+        url = self._build_import_url(Contact)
+        response = self.assertPOST200(url, data={'step':       0,
+                                                 'document':   doc.id,
+                                                 'has_header': True,
                                                 }
                                      )
 
         form = response.context['form']
-        self.assertIn('value="1"',    unicode(form['csv_step']))
-        self.assertIn('value="True"', unicode(form['csv_has_header']))
+        self.assertIn('value="1"',    unicode(form['step']))
+        self.assertIn('value="True"', unicode(form['has_header']))
 
         default_descr = 'A cute pilot'
         response = self.client.post(url, data={
-                                                'csv_step':       1,
-                                                'csv_document':   doc.id,
-                                                'csv_has_header': True,
+                                                'step':       1,
+                                                'document':   doc.id,
+                                                'has_header': True,
 
                                                 'user': self.user.id,
 
@@ -296,7 +322,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         doc.filedata.delete() #clean TODO: improve (not cleaned if there is a failure...)
 
-    def test_import03(self):
+    def _test_import03(self, builder):
         "Create entities to link with them"
         self.login()
         self.assertFalse(Organisation.objects.exists())
@@ -305,12 +331,12 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                        ('persons-object_employed_by',  'employs')
                                       )[0]
         orga_name = 'Nerv'
-        doc = self._build_doc([('Ayanami', 'Rei', orga_name)])
-        response = self.client.post(self._build_csvimport_url(Contact),
+        doc = builder([('Ayanami', 'Rei', orga_name)])
+        response = self.client.post(self._build_import_url(Contact),
                                     data={
-                                            'csv_step':       1,
-                                            'csv_document':   doc.id,
-                                            #'csv_has_header': True,
+                                            'step':       1,
+                                            'document':   doc.id,
+                                            #'has_header': True,
 
                                             'user': self.user.id,
 
@@ -375,7 +401,28 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         self.assertIsInstance(employer, Organisation)
         self.assertEqual(orga_name, employer.name)
 
-    def test_import04(self): #other separator
+    def test_csv_import01(self):
+        return self._test_import01(self._build_csv_doc)
+
+    def test_csv_import02(self):
+        return self._test_import02(self._build_csv_doc)
+
+    def test_csv_import03(self):
+        return self._test_import03(self._build_csv_doc)
+
+    @skipIf(XlsImport, "Skip tests, couldn't find xlwt or xlrd libs")
+    def test_xls_import01(self):
+        return self._test_import01(self._build_xls_doc)
+
+    @skipIf(XlsImport, "Skip tests, couldn't find xlwt or xlrd libs")
+    def test_xls_import02(self):
+        return self._test_import02(self._build_xls_doc)
+
+    @skipIf(XlsImport, "Skip tests, couldn't find xlwt or xlrd libs")
+    def test_xls_import03(self):
+        return self._test_import03(self._build_xls_doc)
+
+    def test_csv_import04(self): #other separator
         self.login()
 
         self.assertFalse(Contact.objects.exists())
@@ -385,19 +432,19 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                  (u'Gentoku',    u'Ryûbi'),
                 ]
 
-        doc = self._build_doc(lines, separator=';')
-        url = self._build_csvimport_url(Contact)
-        response = self.client.post(url, data={'csv_step':     0,
-                                               'csv_document': doc.id,
+        doc = self._build_csv_doc(lines, separator=';')
+        url = self._build_import_url(Contact)
+        response = self.client.post(url, data={'step':     0,
+                                               'document': doc.id,
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertIn('value="1"', unicode(response.context['form']['csv_step']))
+        self.assertIn('value="1"', unicode(response.context['form']['step']))
 
         response = self.client.post(url, data={
-                                                'csv_step':       1,
-                                                'csv_document':   doc.id,
-                                                'csv_has_header': True,
+                                                'step':       1,
+                                                'document':   doc.id,
+                                                'has_header': True,
 
                                                 'user': self.user.id,
 
@@ -442,3 +489,22 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         for first_name, last_name in lines[1:]:
             self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+
+    def test_import_error01(self): #Form error: unknown extension
+        self.login()
+
+        self.assertFalse(Contact.objects.exists())
+
+        lines = [(u'First name', u'Last name'),
+                 (u'Unchô',      u'Kan-u'),
+                 (u'Gentoku',    u'Ryûbi'),
+                ]
+        extension = 'doc'
+        doc = self._build_doc(self._build_file('Non Empty File...', extension))
+        url = self._build_import_url(Contact)
+        response = self.assertPOST200(url, data={'step':     0,
+                                               'document': doc.id,
+                                                }
+                                     )
+        self.assertFormError(response, 'form', None,
+                             [_(u"Error reading document, unsupported file type: %s.") % doc.filedata.name])

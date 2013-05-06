@@ -231,6 +231,16 @@ ALLOWED_EXTENSIONS = (
                       'ogg', 'ogm',
                       ) + ALLOWED_IMAGES_EXTENSIONS
 
+IMPORT_BACKENDS = (
+                   'creme.creme_core.backends.csv_import.CSVImportBackend',
+                   'creme.creme_core.backends.xls_import.XLSImportBackend',  # You need to install xlwt and xlrd
+                   'creme.creme_core.backends.xls_import.XLSXImportBackend',  # You need to install xlwt and xlrd
+)
+EXPORT_BACKENDS = (
+                   'creme.creme_core.backends.csv_export.CSVExportBackend',
+                   'creme.creme_core.backends.xls_export.XLSExportBackend',  # You need to install xlwt and xlrd
+)
+
 #EMAILS [internal] #############################################################
 
 # Emails sent to the users of Crem (reminders, assistants.user_message, commercial.commercial_approach...)

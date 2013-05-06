@@ -8,7 +8,7 @@
             <td width="5%"><img src="{% creme_media_url 'images/document_csv_64.png' %}" title="CSV" alt="CSV"/></td>
             <td width="95%">
                 <h1>
-                    {% trans "CSV importing : results" %}
+                    {% trans "Importing : results" %}
                 </h1>
             </td>
         </tr>
@@ -18,7 +18,7 @@
         {% with form|get_meta_value:'model'|get_meta_value:'verbose_name' as verbose_name %}
             {% blocktrans count form.imported_objects_count as counter %}{{counter}} entity with type "{{verbose_name}}" has been sucessfully imported.{% plural %}{{counter}} entities with type "{{verbose_name}}" have been sucessfully imported.{% endblocktrans %}
         {% endwith %}
-        <br/>{% blocktrans count form.lines_count as counter %}({{counter}} line in the CSV file.){% plural %}({{counter}} lines in the CSV file.){% endblocktrans %}
+        <br/>{% blocktrans count form.lines_count as counter %}({{counter}} line in the file.){% plural %}({{counter}} lines in the file.){% endblocktrans %}
     </p>
 
     {% with form.import_errors as errors %}
@@ -31,7 +31,7 @@
                     {% end_get_block_header %}
                     <tbody class="collapsable">
                         <tr class="header">
-                            <th class="block_header_line_dark">{% trans "Line of the CSV file" %}</th>
+                            <th class="block_header_line_dark">{% trans "Line of the file" %}</th>
                             <th class="block_header_line_dark">{% trans "Induced error" %}</th>
                         </tr>
                         {% for error in errors %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}

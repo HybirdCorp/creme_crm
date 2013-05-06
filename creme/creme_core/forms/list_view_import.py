@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import os
 from functools import partial
 from itertools import chain, ifilter
 from logging import info
@@ -25,8 +26,7 @@ from logging import info
 from django.db.models import Q, ManyToManyField
 from django.db.models.fields import FieldDoesNotExist
 from django.forms.models import modelform_factory
-from django.forms import (Field, BooleanField, ModelChoiceField,
-                          ModelMultipleChoiceField, ValidationError, IntegerField)
+from django.forms import Field, BooleanField, ModelChoiceField, ModelMultipleChoiceField, ValidationError, IntegerField
 from django.forms.widgets import SelectMultiple, HiddenInput
 from django.forms.util import flatatt
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -34,63 +34,70 @@ from django.utils.safestring import mark_safe
 from django.utils.html import escape
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
+from django.template.defaultfilters import slugify
 
-from ..models import CremePropertyType, CremeProperty, RelationType, Relation, CremeEntity, EntityCredentials
-from ..gui.csv_import import csv_form_registry
-from ..utils.unicode_csv import UnicodeReader
-from ..utils.collections import LimitedList
-from ..views.entity import EXCLUDED_FIELDS
-from .base import CremeForm, CremeModelForm, FieldBlockManager
-from .fields import MultiRelationEntityField, CreatorEntityField #CremeEntityField
-from .validators import validate_linkable_entities
-from .widgets import UnorderedMultipleChoiceWidget, ChainedInput, SelectorList
+from creme.creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation, CremeEntity, EntityCredentials
+from creme.creme_core.gui.list_view_import import import_form_registry
+from creme.creme_core.utils.collections import LimitedList
+from creme.creme_core.views.entity import EXCLUDED_FIELDS
+from creme.creme_core.registry import import_backend_registry
 
 from creme.documents.models import Document
 
+from .base import CremeForm, CremeModelForm, FieldBlockManager
+from .fields import MultiRelationEntityField, CreatorEntityField #CremeEntityField
+from .widgets import UnorderedMultipleChoiceWidget, ChainedInput, SelectorList
+from .validators import validate_linkable_entities
 
-class CSVUploadForm(CremeForm):
-    csv_step       = IntegerField(widget=HiddenInput)
-    csv_document   = CreatorEntityField(label=_(u'CSV file'), model=Document,
-                                        create_action_url='/documents/quickforms/from_widget/document/csv/add/1',
-                                        help_text=_(u'A file that contains the fields values of an entity on each line, '
-                                                   'separated by commas or semicolons and each one can be surrounded by quotation marks " '
-                                                   '(to protect a value containing a comma for example).'
-                                                 ))
+
+class UploadForm(CremeForm):
+    step   = IntegerField(widget=HiddenInput)
+    document   = CreatorEntityField(label=_(u'File to import'), model=Document,
+                                    create_action_url='/documents/quickforms/from_widget/document/csv/add/1',
+                                    help_text=mark_safe("<ul>%s</ul>" %
+                                                        u''.join(("<li>%s: %s</li>" % (unicode(be.verbose_name), unicode(be.help_text))
+                                                                 for be in import_backend_registry.iterbackends()))))
 #    csv_document   = CremeEntityField(label=_(u'CSV file'), model=Document,
 #                                      help_text=_(u'A file that contains the fields values of an entity on each line, '
 #                                                   'separated by commas or semicolons and each one can be surrounded by quotation marks " '
 #                                                   '(to protect a value containing a comma for example).'
 #                                                 )
 #                                     )
-    csv_has_header = BooleanField(label=_(u'Header present ?'), required=False,
+    has_header = BooleanField(label=_(u'Header present ?'), required=False,
                                   help_text=_(u'Does the first line of the line contain the header of the columns (eg: "Last name","First name") ?')
                                  )
 
     def __init__(self, *args, **kwargs):
-        super(CSVUploadForm, self).__init__(*args, **kwargs)
-        self._csv_header = None
-        self.fields['csv_document'].user = self.user
+        super(UploadForm, self).__init__(*args, **kwargs)
+        self._header = None
+        self.fields['document'].user = self.user
 
     @property
-    def csv_header(self):
-        return self._csv_header
+    def header(self):
+        return self._header
 
     def clean(self):
         cleaned_data = self.cleaned_data
 
         if not self._errors:
-            csv_document = cleaned_data['csv_document']
+            document = cleaned_data['document']
+            filedata = document.filedata
+            filename = filedata.name
 
             #if not self.user.has_perm('creme_core.view_entity', csv_document):
-            if not csv_document.can_view(self.user):
+            if not document.can_view(self.user):
                 raise ValidationError(ugettext("You have not the credentials to read this document."))
 
-            if cleaned_data['csv_has_header']:
-                filedata = csv_document.filedata
+            pathname, extension = os.path.splitext(filename)
+            backend = import_backend_registry.get_backend(extension.replace('.', ''))
+            if backend is None:
+                raise ValidationError(ugettext("Error reading document, unsupported file type: %s.") % filename)
+
+            if cleaned_data['has_header']:
 
                 try:
                     filedata.open()
-                    self._csv_header = UnicodeReader(filedata).next()
+                    self._header = backend(filedata).next()
                 except Exception as e:
                     raise ValidationError(ugettext("Error reading document: %s.") % e)
                 finally:
@@ -101,7 +108,7 @@ class CSVUploadForm(CremeForm):
 
 #Extractors (and related field/widget) for regular model's fields---------------
 
-class CSVExtractor(object):
+class Extractor(object):
     def __init__(self, column_index, default_value, value_castor):
         self._column_index  = column_index
         self._default_value = default_value
@@ -128,7 +135,7 @@ class CSVExtractor(object):
 
                 try:
                     retriever = self._fk_model.objects.filter if self._m2m else self._fk_model.objects.get
-                    return retriever(**data) #TODO: improve self._value_castor avoid te direct 'return' ?
+                    return retriever(**data) #TODO: improve self._value_castor avoid the direct 'return' ?
                 except Exception as e:
                     fk_form = self._fk_form
 
@@ -137,17 +144,19 @@ class CSVExtractor(object):
 
                         if creator.is_valid():
                             creator.save()
-                            return creator.instance #TODO: improve self._value_castor avoid te direct 'return' ?
+                            return creator.instance #TODO: improve self._value_castor avoid the direct 'return' ?
                         else:
-                            import_errors.append((line, ugettext(u'Error while extracting value [%(raw_error)s]: tried to retrieve and then build "%(value)s" on %(model)s') % {
+                            import_errors.append((line, ugettext(u'Error while extracting value: tried to retrieve and then build "%(value)s" (column %(column)s) on %(model)s. Raw error: [%(raw_error)s]') % {
                                                                 'raw_error': e,
+                                                                'column': self._column_index,
                                                                 'value': value,
                                                                 'model': self._fk_model._meta.verbose_name,
                                                             }
                                                 ))
                     else:
-                        import_errors.append((line, ugettext(u'Error while extracting value [%(raw_error)s]: tried to retrieve "%(value)s" on %(model)s') % {
+                        import_errors.append((line, ugettext(u'Error while extracting value: tried to retrieve "%(value)s" (column %(column)s) on %(model)s. Raw error: [%(raw_error)s]') % {
                                                             'raw_error': e,
+                                                            'column': self._column_index,
                                                             'value':     value,
                                                             'model':     self._fk_model._meta.verbose_name,
                                                         }
@@ -163,9 +172,9 @@ class CSVExtractor(object):
         return self._value_castor(value)
 
 
-class CSVExtractorWidget(SelectMultiple):
+class ExtractorWidget(SelectMultiple):
     def __init__(self, *args, **kwargs):
-        super(CSVExtractorWidget, self).__init__(*args, **kwargs)
+        super(ExtractorWidget, self).__init__(*args, **kwargs)
         self.default_value_widget = None
         self.subfield_select = None
         self.propose_creation = False
@@ -210,7 +219,7 @@ class CSVExtractorWidget(SelectMultiple):
                            <td class="csv_subfields_select">%(label)s %(select)s %(check)s
                             <script type="text/javascript">
                                 $(document).ready(function() {
-                                    creme.forms.toCSVImportField('%(id)s');
+                                    creme.forms.toImportField('%(id)s');
                                 });
                             </script>""" % {
                           'label':  ugettext(u'Search by:'),
@@ -241,12 +250,12 @@ class CSVExtractorWidget(SelectMultiple):
                }
 
 
-class CSVExtractorField(Field):
+class ExtractorField(Field):
     default_error_messages = {
     }
 
     def __init__(self, choices, modelfield, modelform_field, *args, **kwargs):
-        super(CSVExtractorField, self).__init__(self, widget=CSVExtractorWidget, *args, **kwargs)
+        super(ExtractorField, self).__init__(self, widget=ExtractorWidget, *args, **kwargs)
         self.required = modelform_field.required
         self._modelfield = modelfield
         self._can_create = False #if True and field is a FK/M2M -> the referenced model can be created
@@ -290,7 +299,7 @@ class CSVExtractorField(Field):
         if not self._can_create and subfield_create:
             raise ValidationError("You can not create: %s" % self._modelfield)
 
-        extractor = CSVExtractor(col_index, def_value, self._original_field.clean)
+        extractor = Extractor(col_index, def_value, self._original_field.clean)
 
         subfield_search = value['subfield_search']
         if subfield_search:
@@ -305,7 +314,7 @@ class CSVExtractorField(Field):
 
 #Extractors (and related field/widget) for relations----------------------------
 
-class CSVRelationExtractor(object):
+class RelationExtractor(object):
     def __init__(self, column_index, rtype, subfield_search, related_model, create_if_unfound):
         self._column_index    = column_index
         self._rtype           = rtype
@@ -331,8 +340,9 @@ class CSVRelationExtractor(object):
         try:
             object_entities = EntityCredentials.filter(user, self._related_model.objects.filter(**data))[:1]
         except Exception as e:
-            import_errors.append((line, ugettext('Error while extracting value (%(raw_error)s) to build a Relation: tried to retrieve %(field)s="%(value)s" on %(model)s') %{
+            import_errors.append((line, ugettext('Error while extracting value to build a Relation: tried to retrieve %(field)s="%(value)s" (column %(column)s) on %(model)s. Raw error: [%(raw_error)s]') %{
                                                 'raw_error': e,
+                                                'column': self._column_index,
                                                 'field':     self._subfield_search,
                                                 'value':     value,
                                                 'model':     self._related_model._meta.verbose_name,
@@ -347,8 +357,9 @@ class CSVRelationExtractor(object):
             creator = self._related_form(data=data)
 
             if not creator.is_valid():
-                import_errors.append((line, ugettext('Error while extracting value: tried to build  %(model)s with data=%(data)s => errors=%(errors)s') %{
+                import_errors.append((line, ugettext('Error while extracting value: tried to build  %(model)s with data=%(data)s (column %(column)s) => errors=%(errors)s') % {
                                                     'model':  self._related_model._meta.verbose_name,
+                                                    'column': self._column_index,
                                                     'data':   data,
                                                     'errors': creator.errors
                                                 }
@@ -357,8 +368,9 @@ class CSVRelationExtractor(object):
 
             object_entity = creator.save()
         else:
-            import_errors.append((line, ugettext('Error while extracting value to build a Relation: tried to retrieve %(field)s="%(value)s" on %(model)s') % {
+            import_errors.append((line, ugettext('Error while extracting value to build a Relation: tried to retrieve %(field)s="%(value)s" (column %(column)s) on %(model)s') % {
                                                  'field': self._subfield_search,
+                                                 'column': self._column_index,
                                                  'value': value,
                                                  'model': self._related_model._meta.verbose_name,
                                              }
@@ -368,7 +380,7 @@ class CSVRelationExtractor(object):
         return (self._rtype, object_entity)
 
 
-class CSVMultiRelationsExtractor(object):
+class MultiRelationsExtractor(object):
     def __init__(self, extractors):
         self._extractors = extractors
 
@@ -384,10 +396,10 @@ class RelationExtractorSelector(SelectorList):
         chained_input = ChainedInput(attrs)
         attrs = {'auto': False}
 
-        chained_input.add_dselect("column",      options=columns, attrs=attrs)
-        chained_input.add_dselect("rtype",       options=relation_types, attrs=attrs)
-        chained_input.add_dselect("ctype",       options='/creme_core/relation/predicate/${rtype}/content_types/json', attrs=attrs)
-        chained_input.add_dselect("searchfield", options='/creme_core/entity/get_info_fields/${ctype}/json', attrs=attrs)
+        chained_input.add_dselect("rtype",       options=relation_types, attrs=attrs, label=ugettext(u"The entity"))
+        chained_input.add_dselect("ctype",       options='/creme_core/relation/predicate/${rtype}/content_types/json', attrs=attrs, )
+        chained_input.add_dselect("searchfield", options='/creme_core/entity/get_info_fields/${ctype}/json', attrs=attrs, label=ugettext(u"which/whose field"))
+        chained_input.add_dselect("column",      options=columns, attrs=attrs, label=ugettext(u"equals to"))
 
         super(RelationExtractorSelector, self).__init__(chained_input)
 
@@ -440,7 +452,7 @@ class RelationExtractorField(MultiRelationEntityField):
             if self.required:
                 raise ValidationError(self.error_messages['required'])
 
-            return CSVMultiRelationsExtractor([])
+            return MultiRelationsExtractor([])
 
         if not isinstance(selector_data, list):
             raise ValidationError(self.error_messages['invalidformat'])
@@ -485,7 +497,7 @@ class RelationExtractorField(MultiRelationEntityField):
             except FieldDoesNotExist:
                 raise ValidationError(self.error_messages['fielddoesnotexist'], params={'field': searchfield})
 
-            extractors.append(CSVRelationExtractor(column_index=column,
+            extractors.append(RelationExtractor(column_index=column,
                                                    rtype=rtype,
                                                    subfield_search=searchfield,
                                                    related_model=model,
@@ -493,45 +505,45 @@ class RelationExtractorField(MultiRelationEntityField):
                                                   )
                              )
 
-        return CSVMultiRelationsExtractor(extractors)
+        return MultiRelationsExtractor(extractors)
 
 #-------------------------------------------------------------------------------
 
 
-class CSVImportForm(CremeModelForm):
-    csv_step       = IntegerField(widget=HiddenInput)
-    csv_document   = IntegerField(widget=HiddenInput)
-    csv_has_header = BooleanField(widget=HiddenInput, required=False)
+class ImportForm(CremeModelForm):
+    step       = IntegerField(widget=HiddenInput)
+    document   = IntegerField(widget=HiddenInput)
+    has_header = BooleanField(widget=HiddenInput, required=False)
 
-    blocks = FieldBlockManager(('general', _(u'Importing from a CSV file'), '*'))
+    blocks = FieldBlockManager(('general', _(u'Importing from a file'), '*'))
 
     def __init__(self, *args, **kwargs):
-        super(CSVImportForm, self).__init__(*args, **kwargs)
+        super(ImportForm, self).__init__(*args, **kwargs)
         self.import_errors = LimitedList(50)
-        self.imported_objects_count = 0 #TODO: properties ??
+        self.imported_objects_count = 0  # TODO: properties ??
         self.lines_count = 0
 
     #NB: hack to bypass the model validation (see form_factory() comment)
     def _post_clean(self):
         pass
 
-    def clean_csv_document(self):
-        document_id = self.cleaned_data['csv_document']
+    def clean_document(self):
+        document_id = self.cleaned_data['document']
 
         try:
-            csv_document = Document.objects.get(pk=document_id)
+            document = Document.objects.get(pk=document_id)
         except Document.DoesNotExist:
             raise ValidationError(ugettext("This document doesn't exist or doesn't exist any more."))
 
-        if not self.user.has_perm('creme_core.view_entity', csv_document):
+        if not self.user.has_perm('creme_core.view_entity', document):
             raise ValidationError(ugettext("You have not the credentials to read this document."))
 
-        return csv_document
+        return document
 
-    def _post_instance_creation(self, instance, line): #overload me
+    def _post_instance_creation(self, instance, line):  # overload me
         pass
 
-    def _pre_instance_save(self, instance, line): #overload me
+    def _pre_instance_save(self, instance, line):  # overload me
         pass
 
     def save(self):
@@ -552,17 +564,27 @@ class CSVImportForm(CremeModelForm):
             if not cleaned:
                 continue
 
-            good_fields = extractor_fields if isinstance(cleaned, CSVExtractor) else regular_fields
+            good_fields = extractor_fields if isinstance(cleaned, Extractor) else regular_fields
             good_fields.append((fname, cleaned))
 
-        filedata = self.cleaned_data['csv_document'].filedata
+        filedata = self.cleaned_data['document'].filedata
+        pathname, extension = os.path.splitext(filedata.name)
+        file_extension = extension.replace('.', '')
+
         filedata.open()
+        backend = import_backend_registry.get_backend(file_extension)
+        if backend is None:
+            verbose_error = "Error reading document, unsupported file type: %s." % file_extension
+            self.import_errors.append((filedata.name, verbose_error))
+            info(verbose_error, Exception(verbose_error), Exception)
+            filedata.close()
+            return
 
-        lines = UnicodeReader(filedata)
-
-        if get_cleaned('csv_has_header'):
+        lines = backend(filedata)
+        if get_cleaned('has_header'):
             lines.next()
 
+        i = None
         for i, line in enumerate(ifilter(None, lines)):
             try:
                 instance = model_class()
@@ -582,19 +604,24 @@ class CSVImportForm(CremeModelForm):
                 self._post_instance_creation(instance, line)
 
                 for m2m in self._meta.model._meta.many_to_many:
-                    extractor = get_cleaned(m2m.name) #can be a regular_field ????
+                    extractor = get_cleaned(m2m.name)  # can be a regular_field ????
                     if extractor:
                         setattr(instance, m2m.name, extractor.extract_value(line, self.import_errors))
             except Exception as e:
-                self.import_errors.append((line, str(e)))
                 info('Exception in CSV importing: %s (%s)', e, type(e))
+                try:
+                    for messages in e.message_dict.itervalues():
+                        for message in messages:
+                            self.import_errors.append((line, unicode(message)))
+                except:
+                    self.import_errors.append((line, str(e)))
         else:
-            self.lines_count = i + 1
+            self.lines_count = i + 1 if i is not None else 0
 
         filedata.close()
 
 
-class CSVImportForm4CremeEntity(CSVImportForm):
+class ImportForm4CremeEntity(ImportForm):
     user            = ModelChoiceField(label=_('User'), queryset=User.objects.all(), empty_label=None)
     property_types  = ModelMultipleChoiceField(label=_(u'Properties'), required=False,
                                                queryset=CremePropertyType.objects.none(),
@@ -613,7 +640,7 @@ class CSVImportForm4CremeEntity(CSVImportForm):
         #exclude = ('is_deleted', 'is_actived')
 
     def __init__(self, *args, **kwargs):
-        super(CSVImportForm4CremeEntity, self).__init__(*args, **kwargs)
+        super(ImportForm4CremeEntity, self).__init__(*args, **kwargs)
 
         fields = self.fields
         ct     = ContentType.objects.get_for_model(self._meta.model)
@@ -666,14 +693,14 @@ class CSVImportForm4CremeEntity(CSVImportForm):
 def extractorfield_factory(modelfield, header_dict, choices):
     formfield = modelfield.formfield()
 
-    if not formfield: #happens for crementity_ptr (OneToOneField)
+    if not formfield:  # happens for crementity_ptr (OneToOneField)
         return None
 
-    selected_column = header_dict.get(modelfield.verbose_name.lower())
+    selected_column = header_dict.get(slugify(modelfield.verbose_name))
     if selected_column is None:
-        selected_column = header_dict.get(modelfield.name.lower(), 0)
+        selected_column = header_dict.get(slugify(modelfield.name), 0)
 
-    return CSVExtractorField(choices, modelfield, formfield,
+    return ExtractorField(choices, modelfield, formfield,
                              label=modelfield.verbose_name,
                              initial={'selected_column': selected_column}
                             )
@@ -683,7 +710,7 @@ def extractorfield_factory(modelfield, header_dict, choices):
 #    bit we need to avoid the model validation, because we are are not building a true
 #    'self.instance', but a set of instances ; we just use the regular form validation.
 def form_factory(ct, header):
-    choices = [(0, _('Not in the CSV file'))]
+    choices = [(0, _('Not in the file'))]
     header_dict = {}
 
     if header:
@@ -692,20 +719,20 @@ def form_factory(ct, header):
         for i, col_name in enumerate(header):
             i += 1
             choices.append((i, fstring % {'index': i, 'name': col_name}))
-            header_dict[col_name.lower()] = i
+            header_dict[slugify(col_name)] = i
     else:
         fstring = ugettext(u'Column %i')
         choices.extend((i, fstring % i) for i in xrange(1, 21))
 
     model_class = ct.model_class()
-    customform_factory = csv_form_registry.get(ct)
+    customform_factory = import_form_registry.get(ct)
 
     if customform_factory:
         base_form_class = customform_factory(header_dict, choices)
     elif issubclass(model_class, CremeEntity):
-        base_form_class = CSVImportForm4CremeEntity
+        base_form_class = ImportForm4CremeEntity
     else:
-        base_form_class = CSVImportForm
+        base_form_class = ImportForm
 
     modelform = modelform_factory(model_class, form=base_form_class,
                                   formfield_callback=partial(extractorfield_factory, header_dict=header_dict, choices=choices)

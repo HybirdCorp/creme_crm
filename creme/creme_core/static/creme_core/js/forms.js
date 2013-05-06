@@ -516,7 +516,7 @@ creme.forms.toOrderedMultiSelect = function(table_id, reduced) {
     creme.forms._toDualColumnMultiSelect(table_id, true, buildColumns, refreshTable, reduced);
 }
 
-creme.forms.toCSVImportField = function(table_id) {
+creme.forms.toImportField = function(table_id) {
     var $table = $('#' + table_id);
     var $csv_select    = $table.find('.csv_col_select');
     var $fields_select = $table.find('.csv_subfields_select');
@@ -529,7 +529,7 @@ creme.forms.toCSVImportField = function(table_id) {
         $fields_select.hide();
     }
 
-    function handleCSVColChange() {
+    function handleColChange() {
         if (not_in_csv()) {
             $fields_select.hide('normal');
         } else {
@@ -537,5 +537,5 @@ creme.forms.toCSVImportField = function(table_id) {
         }
     }
 
-    $csv_select.change(handleCSVColChange);
+    $csv_select.change(handleColChange);
 }

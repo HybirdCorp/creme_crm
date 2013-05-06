@@ -5,7 +5,7 @@ try:
 
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.tests.views.csv_import import CSVImportBaseTestCaseMixin
+    from creme.creme_core.tests.views.list_view_import import CSVImportBaseTestCaseMixin
     from creme.creme_core.models import Relation, CremeProperty, SetCredentials
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
@@ -604,10 +604,10 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         city2 = 'Chicago'
         lines = [(name1, city1, ''), (name2, '', city2)]
 
-        doc = self._build_doc(lines)
-        response = self.client.post(self._build_csvimport_url(Organisation),
-                                    data={'csv_step':     1,
-                                          'csv_document': doc.id,
+        doc = self._build_csv_doc(lines)
+        response = self.client.post(self._build_import_url(Organisation),
+                                    data={'step':     1,
+                                          'document': doc.id,
                                           #csv_has_header
 
                                           'user':           self.user.id,

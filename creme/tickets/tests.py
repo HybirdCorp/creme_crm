@@ -7,7 +7,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
-    from creme.creme_core.tests.views.csv_import import CSVImportBaseTestCaseMixin
+    from creme.creme_core.tests.views.list_view_import import CSVImportBaseTestCaseMixin
     from creme.creme_core.models import HeaderFilter
 
     from .models import *
@@ -347,13 +347,13 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                  (titles[1], status_l[1].name, priorities[1].name, criticities[1].name, descriptions[1]),
                 ]
 
-        doc = self._build_doc(lines)
-        url = self._build_csvimport_url(Ticket)
+        doc = self._build_csv_doc(lines)
+        url = self._build_import_url(Ticket)
         self.assertGET200(url)
 
-        response = self.client.post(url, data={'csv_step':     1,
-                                               'csv_document': doc.id,
-                                               #csv_has_header
+        response = self.client.post(url, data={'step':     1,
+                                               'document': doc.id,
+                                               #has_header
 
                                                'user': self.user.id,
 

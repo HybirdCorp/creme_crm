@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-03-23 08:52+0100\n"
+"POT-Creation-Date: 2013-04-03 16:35+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,64 +17,62 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n>1\n"
 
-#: static/creme_core/js/blocks.js:121
-msgid "Show empty fields"
-msgstr "Montrer les champs vides"
-
-#: static/creme_core/js/blocks.js:121
-msgid "Hide empty fields"
-msgstr "Cacher les champs vides"
-
 #: static/creme_core/js/export.js:42
 msgid "Pdf file (PDF)"
 msgstr "Fichier Pdf (PDF)"
 
-#: static/creme_core/js/export.js:45 static/creme_core/js/relations.js:43
-#: static/creme_core/js/utils.js:68 static/creme_core/js/utils.js.py:165
-#: static/creme_core/js/utils.js:179 static/creme_core/js/utils.js.py:217
-#: static/creme_core/js/utils.js:500
+#: static/creme_core/js/export.js:45 static/creme_core/js/export.js.py:70
+#: static/creme_core/js/relations.js:43 static/creme_core/js/utils.js:68
+#: static/creme_core/js/utils.js.py:165 static/creme_core/js/utils.js:179
+#: static/creme_core/js/utils.js.py:217 static/creme_core/js/utils.js:500
 msgid "Ok"
 msgstr "Ok"
 
-#: static/creme_core/js/forms.js:233 static/creme_core/js/lv_widget.js:39
+#: static/creme_core/js/forms.js:182
+#: static/creme_core/js/widgets/daterangeselector.js:43
+#: static/creme_core/js/widgets/datetime.js:40
+msgid "Calendar"
+msgstr ""
+
+#: static/creme_core/js/forms.js:234 static/creme_core/js/lv_widget.js:39
 msgid "Add"
 msgstr "Ajouter"
 
-#: static/creme_core/js/forms.js:234
+#: static/creme_core/js/forms.js:235
 msgid "Remove"
 msgstr "Enlever"
 
-#: static/creme_core/js/forms.js:235
+#: static/creme_core/js/forms.js:236
 msgid "Add all"
 msgstr "Ajouter tout"
 
-#: static/creme_core/js/forms.js:236
+#: static/creme_core/js/forms.js:237
 msgid "Remove all"
 msgstr "Enlever tout"
 
-#: static/creme_core/js/forms.js:237
+#: static/creme_core/js/forms.js:238
 msgid "Up"
 msgstr "Monter"
 
-#: static/creme_core/js/forms.js:238
+#: static/creme_core/js/forms.js:239
 msgid "Down"
 msgstr "Descendre"
 
-#: static/creme_core/js/forms.js:399
+#: static/creme_core/js/forms.js:400
 msgid "Available"
 msgstr "Disponible(s)"
 
-#: static/creme_core/js/forms.js:401
+#: static/creme_core/js/forms.js:402
 msgid "Chosen"
 msgstr "Choisi(s)"
 
-#: static/creme_core/js/forms.js:402 static/creme_core/js/lv_widget.js:36
+#: static/creme_core/js/forms.js:403 static/creme_core/js/lv_widget.js:36
+#: static/creme_core/js/widgets/entityselector.js:30
 msgid "Select"
 msgstr "Sélectionnez"
 
 #: static/creme_core/js/lv_widget.js:48 static/creme_core/js/relations.js:33
 #: static/creme_core/js/utils.js:604
-#: static/creme_core/js/widgets/entityselector.js:80
 msgid "Please select at least one entity."
 msgstr "Veuillez sélectionner au moins un enregistrement."
 
@@ -84,7 +82,6 @@ msgstr "Veuillez sélectionner au moins un enregistrement."
 #: static/creme_core/js/relations.js:63 static/creme_core/js/utils.js:191
 #: static/creme_core/js/utils.js.py:239 static/creme_core/js/utils.js:512
 #: static/creme_core/js/utils.js.py:693
-#: static/creme_core/js/widgets/entityselector.js:80
 msgid "Error"
 msgstr "Erreur"
 
@@ -95,14 +92,13 @@ msgstr "Veuillez sélectioner un seul enregistrement."
 
 #: static/creme_core/js/lv_widget.js:61 static/creme_core/js/merge.js:39
 #: static/creme_core/js/relations.js:72
-#: static/creme_core/js/widgets/entityselector.js:74
 msgid "Validate the selection"
 msgstr "Valider la sélection"
 
 #: static/creme_core/js/lv_widget.js:113 static/creme_core/js/lv_widget.js:114
 #: static/creme_core/js/lv_widget.js:159 static/creme_core/js/lv_widget.js:160
-#: static/creme_core/js/widgets/selectorlist.js:59
-#: static/creme_core/js/widgets/selectorlist.js:60
+#: static/creme_core/js/widgets/selectorlist.js:104
+#: static/creme_core/js/widgets/selectorlist.js:105
 msgid "Delete"
 msgstr "Effacer"
 
@@ -141,10 +137,6 @@ msgstr "Envoyer"
 msgid "Error during loading the page."
 msgstr "Le chargement de la page a échoué"
 
-#: static/creme_core/js/utils.js:508
-msgid "Suppression done"
-msgstr "Suppression effectuée"
-
 #: static/creme_core/js/utils.js:587
 msgid "Search results..."
 msgstr "Résultats de recherche..."
@@ -157,8 +149,21 @@ msgstr "Erreur !"
 msgid "The page will be reload !"
 msgstr "La page va être rechargée !"
 
-msgid "No data"
-msgstr "Aucune donnée"
+#: static/creme_core/js/widgets/datetime.js:28
+msgid "Today"
+msgstr ""
+
+#~ msgid "Show empty fields"
+#~ msgstr "Montrer les champs vides"
+
+#~ msgid "Hide empty fields"
+#~ msgstr "Cacher les champs vides"
+
+#~ msgid "Suppression done"
+#~ msgstr "Suppression effectuée"
+
+#~ msgid "No data"
+#~ msgstr "Aucune donnée"
 
 #~ msgid "Selection..."
 #~ msgstr "Sélection..."
