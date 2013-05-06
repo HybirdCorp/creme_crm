@@ -495,7 +495,7 @@ def _delete_entity(user, entity):
         related = entity.get_related_entity()
 
         if related is None:
-            logger.critical('delete_entity(): an auxiliary entity seems orphan (id=%s)', entity_id)
+            logger.critical('delete_entity(): an auxiliary entity seems orphan (id=%s)', entity.id)
             return 403, _(u'You are not allowed to delete this entity: %s') % entity.allowed_unicode(user)
 
         if not related.can_change(user):
