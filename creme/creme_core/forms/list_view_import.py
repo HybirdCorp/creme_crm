@@ -51,12 +51,9 @@ from .validators import validate_linkable_entities
 
 
 class UploadForm(CremeForm):
-    step   = IntegerField(widget=HiddenInput)
-    document   = CreatorEntityField(label=_(u'File to import'), model=Document,
-                                    create_action_url='/documents/quickforms/from_widget/document/csv/add/1',
-                                    help_text=mark_safe("<ul>%s</ul>" %
-                                                        u''.join(("<li>%s: %s</li>" % (unicode(be.verbose_name), unicode(be.help_text))
-                                                                 for be in import_backend_registry.iterbackends()))))
+    step     = IntegerField(widget=HiddenInput)
+    document = CreatorEntityField(label=_(u'File to import'), model=Document,
+                                    create_action_url='/documents/quickforms/from_widget/document/csv/add/1')
 #    csv_document   = CremeEntityField(label=_(u'CSV file'), model=Document,
 #                                      help_text=_(u'A file that contains the fields values of an entity on each line, '
 #                                                   'separated by commas or semicolons and each one can be surrounded by quotation marks " '
@@ -64,13 +61,18 @@ class UploadForm(CremeForm):
 #                                                 )
 #                                     )
     has_header = BooleanField(label=_(u'Header present ?'), required=False,
-                                  help_text=_(u'Does the first line of the line contain the header of the columns (eg: "Last name","First name") ?')
-                                 )
+                              help_text=_(u'Does the first line of the line contain the header of the columns (eg: "Last name","First name") ?')
+                             )
 
     def __init__(self, *args, **kwargs):
         super(UploadForm, self).__init__(*args, **kwargs)
         self._header = None
-        self.fields['document'].user = self.user
+        document = self.fields['document']
+        document.user = self.user
+        document.help_text = mark_safe("<ul>%s</ul>" %
+                                       u''.join(("<li>%s: %s</li>" %
+                                                (unicode(be.verbose_name), unicode(be.help_text))
+                                                for be in import_backend_registry.iterbackends())))
 
     @property
     def header(self):
