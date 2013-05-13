@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,13 +41,11 @@ class ButtonMenuItem(CremeModel):
         """Creation helper ; useful for populate.py scripts.
         @param model Can be None for 'all models'
         """
-        kwargs = {'content_type': ContentType.objects.get_for_model(model) if model else None,
-                  'button_id':    button.id_,
-                 }
-
-        try:
-            bmi = ButtonMenuItem.objects.get(**kwargs)
-        except ButtonMenuItem.DoesNotExist:
-            bmi = ButtonMenuItem.objects.create(pk=pk, order=order, **kwargs)
-
-        return bmi
+        #TODO: remove pkstring & use ('content_type', 'button_id') as PK
+        return ButtonMenuItem.objects.get_or_create(
+                    pk=pk,
+                    defaults={'content_type': ContentType.objects.get_for_model(model) if model else None,
+                              'button_id':    button.id_,
+                              'order':        order,
+                             }
+                   )[0]
