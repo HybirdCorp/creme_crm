@@ -33,9 +33,12 @@ from creme.creme_core.utils import creme_entity_content_types
 #TODO: User friendly order in choices fields
 
 class CustomFieldsBaseForm(CremeModelForm):
-    field_type  = TypedChoiceField(label=_(u'Type of field'), choices=[(i, klass.verbose_name) for i, klass in _TABLES.iteritems()], coerce=int)
+    field_type  = TypedChoiceField(label=_(u'Type of field'), coerce=int,
+                                   choices=[(i, klass.verbose_name) for i, klass in _TABLES.iteritems()],
+                                  )
     enum_values = CharField(widget=Textarea(), label=_(u'List content'), required=False,
-                            help_text=_(u'Give the possible  choices (one per line) if you choose the type "Choices list".'))
+                            help_text=_(u'Give the possible  choices (one per line) if you choose the type "Choices list".'),
+                           )
 
     class Meta:
         model = CustomField
@@ -63,7 +66,8 @@ class CustomFieldsBaseForm(CremeModelForm):
 
 class CustomFieldsCTAddForm(CustomFieldsBaseForm):
     content_type = ModelChoiceField(label=_(u'Related resource'), queryset=ContentType.objects.none(),
-                                    help_text=_(u'The other custom fields for this type of resource will be chosen by editing the configuration'))
+                                    help_text=_(u'The other custom fields for this type of resource will be chosen by editing the configuration'),
+                                   )
 
     def __init__(self, *args, **kwargs):
         super(CustomFieldsCTAddForm, self).__init__(*args, **kwargs)
@@ -100,10 +104,12 @@ class CustomFieldsEditForm(CremeModelForm):
             fields = self.fields
             fields['old_choices'] = ListEditionField(content=[enum.value for enum in self._enum_values],
                                                      label=ugettext(u'Existing choices of the list'),
-                                                     help_text=ugettext(u'Uncheck the choices you want to delete.'))
+                                                     help_text=ugettext(u'Uncheck the choices you want to delete.'),
+                                                    )
             fields['new_choices'] = CharField(widget=Textarea(), required=False,
                                               label=ugettext(u'New choices of the list'),
-                                              help_text=ugettext(u'Give the new possible choices (one per line).'))
+                                              help_text=ugettext(u'Give the new possible choices (one per line).'),
+                                             )
 
     def save(self):
         cfield = super(CustomFieldsEditForm, self).save()

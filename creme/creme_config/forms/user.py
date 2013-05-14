@@ -116,7 +116,8 @@ class UserAddForm(CremeModelForm):
 #TODO: factorise with UserAddForm
 class UserEditForm(CremeModelForm):
     role = ModelChoiceField(label=_(u"Role"), queryset=UserRole.objects.all(), required=False,
-                            help_text=_(u"You must choose a role for a non-super user."))
+                            help_text=_(u"You must choose a role for a non-super user."),
+                           )
 
     class Meta:
         model = User
@@ -160,7 +161,8 @@ class UserChangePwForm(CremeForm):
 class TeamCreateForm(CremeModelForm):
     teammates = ModelMultipleChoiceField(queryset=User.objects.filter(is_team=False),
                                          widget=UnorderedMultipleChoiceWidget,
-                                         label=_(u"Teammates"), required=False)
+                                         label=_(u"Teammates"), required=False,
+                                        )
 
     class Meta:
         model = User
@@ -177,6 +179,8 @@ class TeamCreateForm(CremeModelForm):
         super(TeamCreateForm, self).save(*args, **kwargs)
 
         team.teammates = self.cleaned_data['teammates']
+
+        return team
 
 
 class TeamEditForm(TeamCreateForm):

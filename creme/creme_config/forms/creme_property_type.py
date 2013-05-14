@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,14 +33,15 @@ class _CremePropertyTypeBaseForm(CremeForm):
                                               help_text=_(u'No selected type means that all types are accepted'),
                                               queryset=Q_creme_entity_content_types(),
                                               widget=UnorderedMultipleChoiceWidget,
-                                              required=False)
+                                              required=False,
+                                             )
 
 
 class CremePropertyTypeAddForm(_CremePropertyTypeBaseForm):
     def clean_text(self):
         text = self.cleaned_data['text']
 
-        if CremePropertyType.objects.filter(text=text).exists():
+        if CremePropertyType.objects.filter(text=text).exists(): #TODO: unique constraint in model too ??
             raise ValidationError(ugettext(u"A property type with this name already exists"))
 
         return text
@@ -49,7 +50,8 @@ class CremePropertyTypeAddForm(_CremePropertyTypeBaseForm):
         get_data = self.cleaned_data.get
         CremePropertyType.create('creme_config-userproperty',
                                  get_data('text'), get_data('subject_ctypes'),
-                                 is_custom=True, generate_pk=True)
+                                 is_custom=True, generate_pk=True,
+                                )
         super(CremePropertyTypeAddForm, self).save()
 
 
@@ -65,5 +67,7 @@ class CremePropertyTypeEditForm(_CremePropertyTypeBaseForm):
 
     def save(self):
         get_data = self.cleaned_data.get
-        CremePropertyType.create(self.instance.id, get_data('text'), get_data('subject_ctypes'), is_custom=True)
+        CremePropertyType.create(self.instance.id, get_data('text'),
+                                 get_data('subject_ctypes'), is_custom=True,
+                                )
         super(CremePropertyTypeEditForm, self).save()

@@ -33,8 +33,8 @@ from creme.creme_core.models import SearchConfigItem, SearchField
 #EXCLUDED_FIELDS_TYPES = frozenset(['AutoField', 'DateTimeField', 'DateField', 'FileField', 'ImageField', 'OneToOneField'])
 
 class SearchAddForm(CremeModelForm):
-    ct_id  = ChoiceField(label=_(u'Related resource'), choices=(), required=True) #TODO: ContentTypeChoiceField
-    user   = ModelChoiceField(label=_(u'User'), queryset=User.objects.all(), empty_label=_(u"All users"), required=False)
+    ct_id = ChoiceField(label=_(u'Related resource'), choices=(), required=True) #TODO: ContentTypeChoiceField
+    user  = ModelChoiceField(label=_(u'User'), queryset=User.objects.all(), empty_label=_(u"All users"), required=False)
 
     class Meta:
         model = SearchConfigItem
