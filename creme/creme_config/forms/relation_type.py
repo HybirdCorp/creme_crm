@@ -54,7 +54,8 @@ class _RelationTypeBaseForm(CremeForm):
 
     blocks = FieldBlockManager(('subject',   _(u'Subject'),        ('subject_ctypes', 'subject_properties')),
                                ('predicate', _(u'Verb/Predicate'), ('subject_predicate', 'object_predicate')),
-                               ('object',    _(u'Object'),         ('object_ctypes', 'object_properties')))
+                               ('object',    _(u'Object'),         ('object_ctypes', 'object_properties')),
+                              )
 
 
 class RelationTypeCreateForm(_RelationTypeBaseForm):
@@ -66,7 +67,8 @@ class RelationTypeCreateForm(_RelationTypeBaseForm):
 
         RelationType.create(('creme_config-subject_userrelationtype', get_data('subject_predicate'), subject_ctypes, get_data('subject_properties')),
                             ('creme_config-object_userrelationtype',  get_data('object_predicate'),  object_ctypes,  get_data('object_properties')),
-                            is_custom=True, generate_pk=True)
+                            is_custom=True, generate_pk=True,
+                           )
 
 
 class RelationTypeEditForm(_RelationTypeBaseForm):
@@ -96,13 +98,14 @@ class RelationTypeEditForm(_RelationTypeBaseForm):
 
         RelationType.create((instance.id,                get_data('subject_predicate'), subject_ctypes, get_data('subject_properties')),
                             (instance.symmetric_type_id, get_data('object_predicate'),  object_ctypes,  get_data('object_properties')),
-                            is_custom=True
+                            is_custom=True,
                            )
 
 
 class SemiFixedRelationTypeCreateForm(CremeModelForm):
     semi_relation = RelationEntityField(label=_('Type and object'),
-                                        allowed_rtypes=RelationType.objects.filter(is_internal=False))
+                                        allowed_rtypes=RelationType.objects.filter(is_internal=False),
+                                       )
 
     class Meta:
         model = SemiFixedRelationType
