@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,23 +36,8 @@ class CalendarForm(CremeModelForm):
         return self.user
 
     def save(self):
-        user = self.get_user()
-
-        instance = self.instance
-        instance.is_custom = True
-        instance.user = user
-
-        if instance.is_default:
-            Calendar.objects.filter(user=user).update(is_default=False)
-
-        super(CalendarForm, self).save()
-
-        #TODO: regroup with the code before save() (so save once) (use signals instead, for delete too)
-        if not Calendar.objects.filter(user=user, is_default=True).exists():
-            instance.is_default = True
-            instance.save()
-
-        return instance
+        self.instance.user = self.get_user()
+        return super(CalendarForm, self).save()
 
 
 class CalendarConfigForm(CalendarForm):
@@ -62,7 +47,7 @@ class CalendarConfigForm(CalendarForm):
             self.fields['user'] = ModelChoiceField(label=_('User'),
                                                    queryset=User.objects.all(),
                                                    empty_label=None,
-                                                   initial=self.user.id
+                                                   initial=self.user.id,
                                                   )
 
     def get_user(self):

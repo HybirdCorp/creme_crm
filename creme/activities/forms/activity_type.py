@@ -18,13 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeModelForm
-from creme.creme_core.forms.fields import ColorField, DurationField
+from creme.creme_core.forms.fields import ColorField, DurationField, JSONField
+from creme.creme_core.forms.widgets import ChainedInput
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
 
-from ..models import ActivityType
+from ..models import ActivityType, ActivitySubType
 
 
 class ActivityTypeForm(CremeModelForm):
@@ -33,7 +35,7 @@ class ActivityTypeForm(CremeModelForm):
 
     class Meta:
         model = ActivityType
-        exclude = ('id', 'is_custom')
+        #exclude = ('id', 'is_custom')
 
     def save(self):
         instance = self.instance
@@ -45,3 +47,89 @@ class ActivityTypeForm(CremeModelForm):
             super(ActivityTypeForm, self).save()
 
         return instance
+
+
+class ActivitySubTypeForm(CremeModelForm):
+    class Meta:
+        model = ActivitySubType
+
+    def save(self, *args, **kwargs):
+        instance = self.instance
+
+        if not instance.id:
+            super(ActivitySubTypeForm, self).save(commit=False, *args, **kwargs)
+            generate_string_id_and_save(ActivitySubType, [instance], 'creme_config-useractivitydetailesubtype')
+        else:
+            super(ActivitySubTypeForm, self).save(*args, **kwargs)
+
+        return instance
+
+
+class ActivityTypeWidget(ChainedInput):
+    def __init__(self, types, attrs=None, creation_allowed=True):
+        super(ActivityTypeWidget, self).__init__(attrs)
+        attrs = {'auto': False}
+        self.creation_allowed = creation_allowed
+
+        self.add_dselect('type', options=types, attrs=attrs)
+        self.add_dselect('sub_type', options='/activities/type/${type}/json', attrs=attrs)
+#        self.add_dselect("type", options=types, attrs=attrs, label=_(u'Kind of activity'))
+#        self.add_dselect("sub_type", options='/activities/type/${type}/json', attrs=attrs, label=_(u'Activity type'))
+
+
+class ActivityTypeField(JSONField):
+    default_error_messages = {
+        'typenotallowed':    _('This kind causes constraint error.'),
+        'subtyperequired': _('Type is required.'),
+    }
+    value_type = dict
+
+    def __init__(self, types=None, *args, **kwargs):
+        super(ActivityTypeField, self).__init__(*args, **kwargs)
+        self.types = types if types is not None else ActivityType.objects.all()
+
+    def _create_widget(self):
+        return ActivityTypeWidget((atype.pk, unicode(atype)) for atype in self.types)
+#        return ActivityTypeWidget(self._get_types_options(self._get_types_objects()),
+#                                  attrs={'reset':False, 'direction':ChainedInput.VERTICAL})
+
+    def _value_to_jsonifiable(self, value):
+        if isinstance(value, ActivitySubType):
+            type_id = value.type_id
+            subtype_id = value.id
+        else:
+            type_id, subtype_id = value
+
+        return {'type': type_id, 'sub_type': subtype_id}
+
+    def _value_from_unjsonfied(self, data):
+        clean = self.clean_value
+        type_pk  = clean(data, 'type', str)
+        subtype_pk = clean(data, 'sub_type', str, required=False)
+
+        try:
+            atype = self.types.get(pk=type_pk)
+        except ActivityType.DoesNotExist:
+            raise ValidationError(self.error_messages['typenotallowed'])
+
+        related_types = ActivitySubType.objects.filter(type=atype)
+        subtype = None
+
+        if subtype_pk:
+            try:
+                subtype = related_types.get(pk=subtype_pk)
+            except ActivitySubType.DoesNotExist:
+                raise ValidationError(self.error_messages['subtyperequired'])
+        elif self.required and related_types.exists():
+            raise ValidationError(self.error_messages['subtyperequired'])
+
+        return (atype, subtype)
+
+    @property
+    def types(self):
+        return self._types.all()
+
+    @types.setter
+    def types(self, types):
+        self._types = types
+        self._build_widget()

@@ -40,9 +40,11 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertGET200(url)
 
         title = 'Generalissime'
-        self.assertNoFormError(self.client.post(url, data={'title': title}))
+        shortcut = 'G.'
+        self.assertNoFormError(self.client.post(url, data={'title': title, 'shortcut': shortcut}))
         self.assertEqual(count + 1, Civility.objects.count())
-        self.get_object_or_fail(Civility, title=title)
+        civility = self.get_object_or_fail(Civility, title=title)
+        self.assertEqual(shortcut, civility.shortcut)
 
     def test_add02(self):
         count = InvoiceStatus.objects.count()
@@ -77,11 +79,13 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertGET200(url)
 
         title = 'Generalissime'
-        response = self.client.post(url, data={'title': title})
+        shortcut = 'G.'
+        response = self.client.post(url, data={'title': title, 'shortcut': shortcut})
         self.assertNoFormError(response)
         self.assertEqual(count + 1, Civility.objects.count())
 
         civility = self.get_object_or_fail(Civility, title=title)
+        self.assertEqual(shortcut, civility.shortcut)
         self.assertWidgetResponse(response, civility)
 
     def test_add02_from_widget(self):
@@ -107,14 +111,18 @@ class GenericModelConfigTestCase(CremeTestCase):
 
     def test_edit01(self):
         title = 'herr'
-        civ = Civility.objects.create(title=title)
+        shortcut = 'H.'
+        civ = Civility.objects.create(title=title, shortcut=shortcut)
 
         url = '/creme_config/persons/civility/edit/%s' % civ.id
         self.assertGET200(url)
 
         title = title.title()
-        self.assertNoFormError(self.client.post(url, data={'title': title}))
-        self.assertEqual(title, self.refresh(civ).title)
+        self.assertNoFormError(self.client.post(url, data={'title': title, 'shortcut': shortcut}))
+
+        civ = self.refresh(civ)
+        self.assertEqual(title,    civ.title)
+        self.assertEqual(shortcut, civ.shortcut)
 
     def test_edit02(self):
         "Order not changed"

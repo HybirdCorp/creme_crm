@@ -2,11 +2,19 @@
 
 {% block main_content %}
     {% with form.get_blocks as blocks %}
-        {% include "creme_core/generics/blockform/content.html" with form_block=blocks.general %}
-        {% include "creme_core/generics/blockform/content.html" with form_block=blocks.datetime %}
+        <table width="100%">
+            <tr>
+                <td width="50%" valign="top">
+                    {% include "creme_core/generics/blockform/content.html" with form_block=blocks.general %}
+                </td>
+                <td valign="top">
+                    {% include "creme_core/generics/blockform/content.html" with form_block=blocks.datetime %}
+                    {% include "creme_core/generics/blockform/content.html" with form_block=blocks.alert_period %}
+                    {% include "creme_core/generics/blockform/content.html" with form_block=blocks.alert_datetime %}
+                </td>
+            </tr>
+        </table>
         {% include "creme_core/generics/blockform/content.html" with form_block=blocks.participants %}
-        {% include "activities/frags/alert_datetime_block.html" with form_block=blocks.alert_datetime %}
-        {% include "activities/frags/alert_period_block.html" with form_block=blocks.alert_period %}
         {% for form_block in blocks %}
             {% include "creme_core/generics/blockform/content.html" %}
         {% endfor %}

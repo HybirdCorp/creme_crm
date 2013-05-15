@@ -181,6 +181,10 @@ class CremeForm(Form, HookableForm):
         """@param user The user that sends the request (i order to check the permissions)"""
         super(CremeForm, self).__init__(*args, **kwargs)
         self.user = user
+
+        for fn, field in self.fields.iteritems():
+            field.user = user #used by CreatorModelChoiceField for example
+
         self._creme_post_init()
 
     def clean(self, *args, **kwargs):

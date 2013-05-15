@@ -1,25 +1,23 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
-{% load creme_core_tags %}
+{% load creme_core_tags creme_widgets %}
 {% block page_title %} - {% trans "Calendars" %}{% endblock %}
 {% block extrahead %}
-<script type='text/javascript'>
+<script type='text/javascript'>{% comment %}TODO: move to a JS file{% endcomment %}
 $(document).ready(function() {
     function updater(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view){
         $.ajax({
                   type: "POST",
                   url: "/activities/calendar/activity/update",
-                  data: {start:event.start.getTime(), end : event.end.getTime(),id:event.id, allDay: allDay},
-                  error : function(request, textStatus, errorThrown){
-                      if(request.status == 403){
+                  data: {start: event.start.getTime(), end: event.end.getTime(), id: event.id, allDay: allDay},
+                  error : function(request, textStatus, errorThrown) {
+                      if(request.status == 403) {
                         alert("{% trans "You do not have permission, the change will not be saved." %}");
                         revertFunc();
-                      }
-                      else if(request.status == 409){
+                      } else if(request.status == 409) {
                         creme.utils.showDialog(unescape(request.responseText));
                         revertFunc();
-                      }
-                      else if(request.status >= 300 || request.status == 0){
+                      } else if(request.status >= 300 || request.status == 0) {
                           alert("{% trans "Error, please reload the page." %}");
                           revertFunc();
                       }
@@ -36,36 +34,36 @@ $(document).ready(function() {
 
     $('#calendar').fullCalendar({
             weekends: true,
-            header : {
+            header: {
                 left:   'title, prevYear, nextYear',
                 center: 'today, prev,next',
                 right:  'agendaDay, agendaWeek, month'
             },
-            theme : false,
-            firstDay : 1,
-            weekMode : 'fixed',
+            theme: false,
+            firstDay: 1,
+            weekMode: 'fixed',
             aspectRatio: 2,
             defaultView : 'month',//'agendaWeek',
             allDaySlot: true,
             allDayText: "{% trans "All day" %}",
-            axisFormat : "H'h'mm",
-            slotMinutes:15,
-            defaultEventMinutes:120,
+            axisFormat: "H'h'mm",
+            slotMinutes: 15,
+            defaultEventMinutes: 120,
             firstHour : new Date().toString("HH"),
-            minTime : 0,
-            maxTime : 24,
-            timeFormat : "H'h'mm", //TODO: use l110n time format
-            columnFormat:{
+            minTime: 0,
+            maxTime: 24,
+            timeFormat: "H'h'mm", //TODO: use l110n time format
+            columnFormat: {
                 "month":"dddd",
                 "agendaWeek":"dddd d MMMM",
                 "agendaDay":"dddd d MMMM"
             },
-            titleFormat:{
+            titleFormat: {
                 month: 'MMMM yyyy',
                 week: "d[ yyyy]{ '&#8212;' d MMMM yyyy}",
                 day: 'dddd d MMMM yyyy'
             },
-            buttonText :{
+            buttonText: {
                 prev:     '&nbsp;&#9668;&nbsp;',  // left triangle
                 next:     '&nbsp;&#9658;&nbsp;',  // right triangle
                 prevYear: '&nbsp;&lt;&lt;&nbsp;', // <<
@@ -75,33 +73,33 @@ $(document).ready(function() {
                 week:     "{%trans "Week" %}",
                 day:      "{%trans "Day" %}"
             },
-            monthNames : ["{%trans "January" %}", "{%trans "February" %}", "{%trans "March" %}",
-                          "{%trans "April" %}", "{%trans "May" %}", "{%trans "June" %}",
-                          "{%trans "July" %}", "{%trans "August" %}", "{%trans "September" %}",
-                          "{%trans "October" %}", "{%trans "November" %}", "{%trans "December" %}"],
-            dayNames : ["{%trans "Sunday" %}", "{%trans "Monday" %}", "{%trans "Tuesday" %}",
-                        "{%trans "Wesnesday" %}", "{%trans "Thursday" %}", "{%trans "Friday" %}",
-                        "{%trans "Saturday" %}"],
+            monthNames: ["{%trans "January" %}", "{%trans "February" %}", "{%trans "March" %}",
+                         "{%trans "April" %}", "{%trans "May" %}", "{%trans "June" %}",
+                         "{%trans "July" %}", "{%trans "August" %}", "{%trans "September" %}",
+                         "{%trans "October" %}", "{%trans "November" %}", "{%trans "December" %}"],
+            dayNames: ["{%trans "Sunday" %}", "{%trans "Monday" %}", "{%trans "Tuesday" %}",
+                       "{%trans "Wesnesday" %}", "{%trans "Thursday" %}", "{%trans "Friday" %}",
+                       "{%trans "Saturday" %}"],
             events: "{{events_url}}",
-            editable:true,
+            editable: true,
             loading: function(bool, view) {
                 //console.log(arguments);
                 /*if (bool) $('#loading').show("slow");
                 else $('#loading').hide("slow");*/
                 if (bool) creme.utils.loading('loading', false, {});
                 else creme.utils.loading('loading', true, {});
-                //TODO creme.utils.loading('loading', bool, {}); ???
+                //TODO creme.utils.loading('loading', !bool, {}); ???
             },
             dayClick : function(date, allDay, jsEvent, view) {
                 creme.utils.showInnerPopup('/activities/activity/add_popup',
-                                           {'beforeClose': function(){location.reload();}},
+                                           {beforeClose: function(){location.reload();}},
                                            null,
-                                           {'data' : {'year':   date.getFullYear(),
-                                                      'month':  date.getMonth()+1,
-                                                      'day':    date.getDate(),
-                                                      'hour':   date.getHours(),
-                                                      'minute': date.getMinutes()
-                                                     }
+                                           {data: {'year':   date.getFullYear(),
+                                                   'month':  date.getMonth()+1,
+                                                   'day':    date.getDate(),
+                                                   'hour':   date.getHours(),
+                                                   'minute': date.getMinutes()
+                                                  }
                                            });
             },
             eventAfterRender : function(event, element, view) {
@@ -109,12 +107,11 @@ $(document).ready(function() {
                 $(element).find('.fc-event-time').css('background-color', event.entity_color);
                 creme.activities.calendar.setReadableColor($(element).find('a'), event.entity_color);
             },
-            eventDragStart : function(calEvent, domEvent, ui, view)
-            {
+            eventDragStart : function(calEvent, domEvent, ui, view) {
                 /*ui.helper.attr('old_top', ui.helper.css('top'));
                 ui.helper.attr('old_left', ui.helper.css('left'));*/
             },
-            eventDrop : function( event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view ) {
+            eventDrop : function(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view) {
                 updater(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view);
             },
             eventClick: function(event) {
@@ -122,7 +119,7 @@ $(document).ready(function() {
                 creme.utils.showInnerPopup(event.url);
                 return false;
             },
-            eventResize: function( event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view ) {
+            eventResize: function(event, dayDelta, minuteDelta, revertFunc, jsEvent, ui, view) {
                 updater(event, dayDelta, minuteDelta, null, revertFunc, jsEvent, ui, view);
             }
         });
@@ -225,47 +222,6 @@ $(document).ready(function() {
 {% block content %}
 <div class="full-calendar-header">
     <div class="full-calendar-buttons">
-        <ul class="button_list hbox">
-            {% if creation_perm %}
-                <li>
-                    <a class="menu_button" href="/activities/activity/add/meeting" >
-                        <img src="{% creme_media_url 'images/meeting_32.png' %}" border="0" title="{% trans "Meeting" %}" alt="{% trans "Meeting" %}" />
-                        {% trans "Create a meeting" %}
-                    </a>
-                </li>
-                <li>
-                    <a class="menu_button" href="/activities/activity/add/phonecall">
-                        <img src="{% creme_media_url 'images/phone_32.png' %}" border="0" title="{% trans "Phone call" %}" alt="{% trans "Phone call" %}" />
-                        {% trans "Create a phone call" %}
-                    </a>
-                </li>
-                <li>
-                    <a class="menu_button" href="/activities/activity/add/task">
-                        <img src="{% creme_media_url 'images/task_32.png' %}" border="0" title="{% trans "Task" %}" alt="{% trans "Task" %}" />
-                        {% trans "Create a task" %}
-                    </a>
-                </li>
-            {% else %}
-                <li>
-                    <span class="menu_button forbidden" title="{% trans "forbidden" %}">
-                        <img src="{% creme_media_url 'images/meeting_32.png' %}" border="0" title="{% trans "Meeting" %}" alt="{% trans "Meeting" %}" />
-                        {% trans "Create a meeting" %}
-                    </span>
-                </li>
-                <li>
-                    <span class="menu_button forbidden" title="{% trans "forbidden" %}">
-                        <img src="{% creme_media_url 'images/phone_32.png' %}" border="0" title="{% trans "Phone call" %}" alt="{% trans "Phone call" %}" />
-                        {% trans "Create a phone call" %}
-                    </span>
-                </li>
-                <li>
-                    <span class="menu_button forbidden" title="{% trans "forbidden" %}">
-                        <img src="{% creme_media_url 'images/task_32.png' %}" border="0" title="{% trans "Task" %}" alt="{% trans "Task" %}" />
-                        {% trans "Create a task" %}
-                    </span>
-                </li>
-            {% endif %}
-        </ul>
         <form action="" method="POST" name="user_choice">{% csrf_token %}
             <table width="100%">
                 <tbody>
@@ -324,6 +280,24 @@ $(document).ready(function() {
                                         {% if forloop.counter0|mod:16 == 15 %}</tr>{% endif %}
                                     {% endfor %}
                                 </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2">
+                            <table style="border:2px solid #D7E2E7;width:100%;">
+                                <tr>
+                                    <tr>
+                                        <td>{% trans "Floating activities" %} :</td>
+                                    </tr>
+                                    <td style="background-color: #F7CBC6">
+                                        {% for floating_activity in floating_activities %}
+                                            {% widget_entity_hyperlink floating_activity user %}{% if not forloop.last %} - {% endif %}
+                                        {% empty %}
+                                            {% trans "None for the moment" %}
+                                        {% endfor %}
+                                    </td>
+                                </tr>
                             </table>
                         </td>
                     </tr>

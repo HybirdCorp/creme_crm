@@ -25,7 +25,7 @@ from django.utils.translation import ugettext as _
 
 from creme.creme_core.models import Relation
 
-from .constants import REL_SUB_PART_2_ACTIVITY
+from .constants import REL_SUB_PART_2_ACTIVITY, NARROW, FLOATING_TIME
 from .models import Activity
 
 
@@ -36,11 +36,12 @@ def get_last_day_of_a_month(date):
     except:
         try:
             rdate = rdate + timedelta(days=30)
-        except :
-            try :
+        except:
+            try:
                 rdate = rdate + timedelta(days=29)
             except:
                 rdate = rdate + timedelta(days=28)
+
     return rdate
 
 
@@ -49,14 +50,14 @@ def check_activity_collisions(activity_start, activity_end, participants, busy=T
     collisions     = []
 
     for participant in participants:
-        # find activities of participant
+        # find activities of participant
         activity_req = Relation.objects.filter(subject_entity=participant.id, type=REL_SUB_PART_2_ACTIVITY)
 
-        # exclude current activity if asked
+        # exclude current activity if asked
         if exclude_activity_id is not None:
             activity_req = activity_req.exclude(object_entity=exclude_activity_id)
 
-        # get id of activities of participant
+        # get id of activities of participant
         activity_ids = activity_req.values_list("object_entity__id", flat=True)
 
         # do collision request
@@ -69,6 +70,7 @@ def check_activity_collisions(activity_start, activity_end, participants, busy=T
         activity_collisions = Activity.objects.filter(collision_test,
                                                       is_deleted=False,
                                                       pk__in=activity_ids,
+                                                      floating_type__in=(NARROW, FLOATING_TIME),
                                                       **busy_args
                                                      )[:1]
 
@@ -99,7 +101,8 @@ def get_ical_date(dateTime):
 def get_ical(activities):
     """Return a normalized iCalendar string
     /!\ Each parameter has to be separated by \n ONLY no spaces allowed!
-    Example : BEGIN:VCALENDAR\nVERSION:2.0"""
+    Example : BEGIN:VCALENDAR\nVERSION:2.0
+    """
     return """BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//CremeCRM//CremeCRM//EN

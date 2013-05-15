@@ -2,10 +2,10 @@
 <script>
     function download_ical() {
         if($('form[name="list_view_form"]').list_view('countEntities') <= 0) {
-            creme.utils.showDialog("{% trans "Please select at least a line in order to export." %}", {'title':'Erreur'});
+            creme.utils.showDialog("{% trans "Please select at least a line in order to export." %}", {'title':'{% trans "Error" %}'});
             return false;
         }
-        document.location.href='/activities/activities/'+$('form[name="list_view_form"]').list_view("getSelectedEntities")+'/ical';
+        document.location.href = '/activities/activities/' + $('form[name="list_view_form"]').list_view("getSelectedEntities") + '/ical';
         return false;
     }
 </script>

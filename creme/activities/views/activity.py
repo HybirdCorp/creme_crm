@@ -26,169 +26,176 @@ from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.models import RelationType, EntityCredentials, Relation
-from creme.creme_core.views.generic import view_real_entity, add_entity, list_view, inner_popup
-from creme.creme_core.utils import get_ct_or_404, get_from_GET_or_404, get_from_POST_or_404
+from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.models import RelationType
+from creme.creme_core.auth import EntityCredentials
+from creme.creme_core.views.generic import view_real_entity, list_view, inner_popup, edit_entity
+from creme.creme_core.utils import get_ct_or_404, get_from_GET_or_404, jsonify
 
-from ..models import Activity
-from ..forms import *
+from ..models import Activity, ActivityType, ActivitySubType
+from ..forms.activity import (ActivityCreateForm, IndisponibilityCreateForm,
+                              RelatedActivityCreateForm, CalendarActivityCreateForm,
+                              ActivityEditForm)
 from ..utils import get_ical
-from ..constants import ACTIVITYTYPE_INDISPO
+from ..constants import ACTIVITYTYPE_INDISPO, ACTIVITYTYPE_MEETING, ACTIVITYTYPE_PHONECALL, ACTIVITYTYPE_TASK
 
 
-INDISPONIBILITY_HELP_MESSAGE = _("""*** How indisponibility works ***
-Unlike other kind of activities, an indisponibility works only for one Creme user participant. This user will be the one chosen by the assigned user field.
-He will be in charge of the indisponibility entity and considered as unavailable on the chosen dates.
-A user's indisponibility isn't linked to a specific calendar. It can be seen by anyone who chooses to see the activities of this user.
-Don't be surprised if you can't add new participant on an indisponibility's detailview and don't forget that the person unavailable by this indisponibility is the assigned user of this detailview.
-""")
+def _add_activity(request, form_class,
+                  content_template='activities/frags/activity_form_content.html',
+                  type_id=None, **form_args):
+    if request.method == 'POST':
+        form = form_class(activity_type_id=type_id, user=request.user, data=request.POST, **form_args)
+
+        if form.is_valid():
+            form.save()
+
+            #TODO: hasattr is not great (expand form_args instead ?)
+            entity = form.entity_for_relation if hasattr(form, 'entity_for_relation') else \
+                     form.instance
+
+            return HttpResponseRedirect(entity.get_absolute_url())
+    else:
+        form = form_class(activity_type_id=type_id, user=request.user, **form_args)
+
+    return render(request, 'activities/add_activity_form.html',
+                  {'form':             form,
+                   'title':            Activity.get_creation_title(type_id),
+                   'content_template': content_template,
+                  }
+                 )
 
 @login_required
 @permission_required('activities')
 @permission_required('activities.add_activity')
-def add_indisponibility(request):
-    return add_entity(request, IndisponibilityCreateForm, '/activities/calendar/user',
-                      extra_template_dict={'help_message' : INDISPONIBILITY_HELP_MESSAGE,
-                                           'title':         ugettext(u'Add an indisponibility'),
-                                          },
-                     )
+def add(request):
+    return _add_activity(request, ActivityCreateForm)
 
-def _add_activity(request, class_form, **form_args):
-    if request.method == 'POST':
-        activity_form = class_form(user=request.user, data=request.POST, **form_args)
-
-        if activity_form.is_valid():
-            activity_form.save()
-
-            related_url = None
-            if hasattr(activity_form, 'entity_for_relation'): #TODO: not great (expeand form_args instead)
-                related_url = activity_form.entity_for_relation.get_absolute_url()
-            elif hasattr(activity_form.instance, 'get_absolute_url'):
-                related_url = activity_form.instance.get_absolute_url()
-
-            #TODO: factorise get_absolute_url()
-            return HttpResponseRedirect(related_url or '/activities/calendar/my')
-    else:
-        activity_form = class_form(user=request.user, **form_args)
-
-    return render(request, 'activities/add_activity_form.html', {'form': activity_form})
-
-_forms_map = {
-        "meeting":   (RelatedMeetingCreateForm,        MeetingCreateForm),
-        "task":      (RelatedTaskCreateForm,           TaskCreateForm),
-        "phonecall": (RelatedPhoneCallCreateForm,      PhoneCallCreateForm),
-        "activity":  (RelatedCustomActivityCreateForm, CustomActivityCreateForm),
+_TYPES_MAP = {
+        "meeting":   ACTIVITYTYPE_MEETING,
+        "phonecall": ACTIVITYTYPE_PHONECALL,
+        "task":      ACTIVITYTYPE_TASK,
     }
 
 @login_required
 @permission_required('activities')
 @permission_required('activities.add_activity')
-def add_related(request, act_type):
+def add_fixedtype(request, act_type):
+    type_id = _TYPES_MAP.get(act_type)
+
+    if not type_id:
+        raise Http404('No activity type matches with: %s' % act_type)
+
+    return _add_activity(request, ActivityCreateForm, type_id=type_id)
+
+@login_required
+@permission_required('activities')
+@permission_required('activities.add_activity')
+def add_indisponibility(request):
+    return _add_activity(request, IndisponibilityCreateForm,
+                         content_template='activities/frags/indispo_form_content.html',
+                         type_id=ACTIVITYTYPE_INDISPO,
+                        )
+
+@login_required
+@permission_required('activities')
+@permission_required('activities.add_activity')
+def add_related(request):
     GET = request.GET
-    ct_id     = get_from_GET_or_404(GET, 'ct_entity_for_relation')
-    entity_id = get_from_GET_or_404(GET, 'id_entity_for_relation')
-    rtype_id  = get_from_GET_or_404(GET, 'entity_relation_type')
+    ct_id       = get_from_GET_or_404(GET, 'ct_entity_for_relation')
+    entity_id   = get_from_GET_or_404(GET, 'id_entity_for_relation')
+    rtype_id    = get_from_GET_or_404(GET, 'entity_relation_type')
+    #act_type_id = get_from_GET_or_404(GET, 'activity_type')
+    act_type_id = GET.get('activity_type')
 
     model_class   = get_ct_or_404(ct_id).model_class()
     entity        = get_object_or_404(model_class, pk=entity_id)
     relation_type = get_object_or_404(RelationType, pk=rtype_id)
+    #activity_type = get_object_or_404(ActivityType, pk=act_type_id)
+
+    if act_type_id:
+        get_object_or_404(ActivityType, pk=act_type_id)
 
     entity.can_link_or_die(request.user)
 
     #TODO: move to a RelationType method...
     subject_ctypes = frozenset(relation_type.subject_ctypes.values_list('id', flat=True))
     if subject_ctypes and not int(ct_id) in subject_ctypes:
-        raise Http404('Incompatible relation type') #bof bof
+        raise ConflictError('Incompatible relation type')
 
-    form_class = _forms_map.get(act_type)
-
-    if not form_class:
-        raise Http404('No activity type matches with: %s' % act_type)
-
-    return _add_activity(request, form_class[0], entity_for_relation=entity, relation_type=relation_type)
-
-@login_required
-@permission_required('activities')
-@permission_required('activities.add_activity')
-def add(request, act_type):
-    form_class = _forms_map.get(act_type)
-
-    if not form_class:
-        raise Http404('No activity type matches with: %s' % act_type)
-
-    return _add_activity(request, form_class[1])
+    return _add_activity(request, RelatedActivityCreateForm,
+                         entity_for_relation=entity,
+                         relation_type=relation_type,
+                         #type_id=activity_type.id,
+                         type_id=act_type_id,
+                        )
 
 @login_required
 @permission_required('activities')
 @permission_required('activities.add_activity')
 def add_popup(request):
     if request.method == 'POST':
-        form = CalendarActivityCreateForm(user=request.user, data=request.POST, files=request.FILES or None)
+        form = CalendarActivityCreateForm(user=request.user, data=request.POST,
+                                          files=request.FILES or None,
+                                         )
+
         if form.is_valid():
             form.save()
     else:
         get_or_404 = partial(get_from_GET_or_404, GET=request.GET, cast=int)
-
         today = datetime.today()
         start_date = datetime(get_or_404(key='year',   default=today.year),
                               get_or_404(key='month',  default=today.month),
                               get_or_404(key='day',    default=today.day),
                               get_or_404(key='hour',   default=today.hour),
-                              get_or_404(key='minute', default=today.minute))
-
+                              get_or_404(key='minute', default=today.minute),
+                             )
         form = CalendarActivityCreateForm(start=start_date, user=request.user)
 
-    return inner_popup(request, "activities/add_popup_activity_form.html",
+    return inner_popup(request, 'activities/add_popup_activity_form.html',
                        {'form':   form,
                         'title':  _(u'New activity'),
+                        #TODO: content_template ?? (see template)
                        },
                        is_valid=form.is_valid(),
                        reload=False,
                        delegate_reload=True,
                       )
 
-#TODO: use edit_entity() ? (problem additionnal get_real_entity())
 @login_required
 @permission_required('activities')
 def edit(request, activity_id):
-    activity = get_object_or_404(Activity, pk=activity_id).get_real_entity()
-
-    activity.can_change_or_die(request.user)
-
-    form_class = ActivityEditForm if activity.type_id != ACTIVITYTYPE_INDISPO else IndisponibilityCreateForm
-
-    if request.method == 'POST':
-        form = form_class(user=request.user, data=request.POST, instance=activity)
-
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect('/activities/activity/%s' % activity_id)
-    else:
-        form = form_class(instance=activity, user=request.user)
-
-    return render(request, 'creme_core/generics/blockform/edit.html',
-                  {'form': form, 'object': activity}
-                 )
+    return edit_entity(request, activity_id, Activity, ActivityEditForm)
 
 @login_required
 @permission_required('activities')
 def detailview(request, activity_id):
-    return view_real_entity(request, activity_id, '/activities/activity', 'activities/view_activity.html')
+    return view_real_entity(request, activity_id, '/activities/activity',
+                            'activities/view_activity.html',
+                           )
 
 @login_required
 @permission_required('activities')
 def popupview(request, activity_id):
-    return view_real_entity(request, activity_id, '/activities/activity', 'activities/view_activity_popup.html')
+    return view_real_entity(request, activity_id, '/activities/activity',
+                            'activities/view_activity_popup.html',
+                           )
 
 @login_required
 @permission_required('activities')
-def listview(request):
+def listview(request, type_id=None):
+    kwargs = {}
+
+    from django.db.models import Q
+
+    if type_id:
+        #TODO: change 'add' button too ??
+        kwargs['extra_q'] = Q(type=type_id)
+
     return list_view(request, Activity,
-                     extra_dict={'extra_bt_templates':
-                                    ('activities/frags/ical_list_view_button.html',
-                                     'activities/frags/button_add_meeting.html',
-                                     'activities/frags/button_add_phonecall.html') #TODO: add Task too ??
-                                }
+                     extra_dict={'add_url': '/activities/activity/add',
+                                 'extra_bt_templates': ('activities/frags/ical_list_view_button.html', )
+                                },
+                     **kwargs
                     )
 
 @login_required
@@ -203,16 +210,10 @@ def download_ical(request, ids):
 
     return response
 
+@jsonify
 @login_required
-@permission_required('activities')
-def delete_participant(request):
-    relation = get_object_or_404(Relation, pk=get_from_POST_or_404(request.POST, 'id'))
-    subject  = relation.subject_entity
-    user     = request.user
-
-    subject.can_unlink_or_die(user)
-    relation.object_entity.can_unlink_or_die(user)
-
-    relation.delete()
-
-    return HttpResponseRedirect(subject.get_real_entity().get_absolute_url())
+def get_types(request, type_id):
+    get_object_or_404(ActivityType, pk=type_id)
+    return list(ActivitySubType.objects.filter(type=type_id).order_by('id')
+                                       .values_list('id', 'name')
+               )

@@ -24,11 +24,11 @@ from django.conf import settings
 
 from creme.creme_core.models import Relation
 from creme.creme_core.utils.dates import (get_utc_dt_from_creme_dt, get_utc_now,
-                                    get_creme_dt_from_utc_dt, get_dt_to_iso8601_str,
-                                    get_dt_from_iso8601_str, get_naive_dt_from_tzdate)
+                                          get_creme_dt_from_utc_dt, get_dt_to_iso8601_str,
+                                          get_dt_from_iso8601_str, get_naive_dt_from_tzdate)
 
-from creme.activities.models import Meeting, Calendar
-from creme.activities.constants import REL_SUB_PART_2_ACTIVITY
+from creme.activities.models import Activity, Calendar
+from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, ACTIVITYTYPE_MEETING
 
 from ..models import AS_Folder, EntityASData
 from ..utils import generate_guid, encode_AS_timezone
@@ -235,7 +235,7 @@ def save_meeting(data, user, folder, *args, **kwargs):
         @Returns : A saved meeting instance
     """
 
-    meeting = Meeting(user=user)
+    meeting = Activity(user=user, type_id=ACTIVITYTYPE_MEETING)
     calendar = get_calendar(folder, user)
     _set_meeting_from_data(meeting, data, user, folder)
 

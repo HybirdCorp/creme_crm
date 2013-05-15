@@ -1,6 +1,5 @@
 {% load i18n %}
 {% load creme_core_tags creme_block creme_widgets %}
-{% if object.type_id != 'activities-activitytype_indispo' %}{% comment %}Ugly bugfix, will be removed soon{% endcomment %}
 {% has_perm_to link object as activity_link_perm %}{% has_perm_to unlink object as activity_unlink_perm %}
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=3 %}
@@ -18,7 +17,9 @@
                     <tr class="content">
                         <td class="{{row_color}}">{% widget_entity_hyperlink participant user %}</td>
                         <td class="{{row_color}}">
-                            {% if participant.is_user %}({{participant.is_user}} -> {{participant.calendar_cache}}){% endif %}
+                            {% if participant.is_user and participant.calendar_cache %}
+                                ({{participant.is_user}} -> {{participant.calendar_cache}})
+                            {% endif %}
                         </td>
                         <td class="{{row_color}} action" width="5%">
                             {% has_perm_to unlink participant as participant_unlink_perm %}
@@ -35,4 +36,3 @@
     </tbody>
     {% get_block_footer 3 %}
 </table>
-{% endif %}

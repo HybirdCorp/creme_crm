@@ -20,119 +20,57 @@
 
 from datetime import datetime
 
-from django.db.models import (CharField, IntegerField, DateTimeField, TextField,
-                              BooleanField, PositiveIntegerField, ManyToManyField,
-                              ForeignKey, PROTECT)
+from django.db.models import (PositiveIntegerField, DateTimeField, CharField, TextField,
+                              BooleanField, ManyToManyField, ForeignKey, PROTECT, SET_NULL)
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.models import CremeEntity, CremeModel
-from creme.creme_core.models.fields import DurationField, CremeUserForeignKey
+from creme.creme_core.models import CremeEntity, Relation
 
 from creme.creme_config.models import SettingValue
 
 from ..constants import *
-
-
-class Calendar(CremeModel):
-    name        = CharField(_(u'Name'), max_length=100, unique=True)
-    is_default  = BooleanField(_(u'Default ?'), default=False)
-    is_custom   = BooleanField(default=True, editable=False) #used by creme_config
-    is_public   = BooleanField(default=False, verbose_name=_(u"Is public ?"))
-    user        = CremeUserForeignKey(verbose_name=_(u"Calendar owner"))
-
-    class Meta:
-        app_label = 'activities'
-        verbose_name = _(u"Calendar")
-        verbose_name_plural = _(u"Calendars")
-        ordering = ['name']
-
-    def __unicode__(self):
-        return self.name
-
-    @staticmethod
-    def get_user_calendars(user, get_default_if_none=True):
-        calendars = Calendar.objects.filter(user=user)
-        if not calendars and get_default_if_none:
-            calendars = [Calendar.get_user_default_calendar(user)]
-        return calendars
-
-    @staticmethod
-    def get_user_default_calendar(user):
-        """ Returns the default user calendar and creating it if necessary"""
-        try:
-            return Calendar.objects.get(user=user, is_default=True)
-        except Calendar.DoesNotExist:
-            try:
-                c = Calendar.objects.filter(user=user)[0]
-                c.is_default = True
-                c.save()
-                return c
-            except IndexError:
-                return Calendar.objects.create(name=_(u"Default %(user)s's calendar") % {'user': user},
-                                               user=user,
-                                               is_default=True,
-                                               is_custom=False)
-        except Calendar.MultipleObjectsReturned:
-            calendars = Calendar.objects.filter(user=user)
-            calendars.update(is_default=False)
-            c = calendars[0]
-            c.is_default = True
-            c.save()
-            return c
-
-
-class ActivityType(CremeModel):
-    id                    = CharField(primary_key=True, max_length=100)
-    name                  = CharField(_(u'Name'), max_length=100)
-    color                 = CharField(_(u'Color'), max_length=100, blank=True, null=True)
-    default_day_duration  = IntegerField(_(u'Default day duration'))
-    default_hour_duration = DurationField(_(u'Default hour duration'), max_length=15)
-    is_custom             = BooleanField(default=True) #used by creme_config
-
-    def __unicode__(self):
-        return self.name
-
-    class Meta:
-        app_label = 'activities'
-        verbose_name = _(u"Activity type")
-        verbose_name_plural = _(u"Activity types")
-
-
-class Status(CremeModel):
-    name        = CharField(_(u'Name'), max_length=100)
-    description = TextField(_(u'Description'))
-
-    def __unicode__(self):
-        return self.name
-
-    class Meta:
-        app_label = 'activities'
-        verbose_name = _(u'Status')
-        verbose_name_plural = _(u'Status') #arf plural....
+from .calendar import Calendar
+from .other_models import ActivityType, ActivitySubType, Status
 
 
 class Activity(CremeEntity):
-    """Activity : event or task"""
-    title       = CharField(_(u'Title'), max_length=100)
-    start       = DateTimeField(_(u'Start'), blank=True, null=True)
-    end         = DateTimeField(_(u'End'), blank=True, null=True)
-    description = TextField(_(u'Description'), blank=True, null=True)
-    minutes     = TextField(_(u'Minutes'), blank=True, null=True)
-    type        = ForeignKey(ActivityType, verbose_name=_(u"Activity type"), on_delete=PROTECT)
-    calendars   = ManyToManyField(Calendar, verbose_name=_(u"Calendars"), blank=True, null=True)
-    is_all_day  = BooleanField(_(u'All day ?'), blank=True, default=False)
-    status      = ForeignKey(Status, verbose_name=_(u'Status'), blank=True, null=True)
-    busy        = BooleanField(_(u'Busy ?'), default=False)
+    "Activity : task, meeting, phone call, indisponibility, ..."
+    title         = CharField(_(u'Title'), max_length=100)
+    start         = DateTimeField(_(u'Start'), blank=True, null=True)
+    end           = DateTimeField(_(u'End'), blank=True, null=True)
+    description   = TextField(_(u'Description'), blank=True, null=True)
+    minutes       = TextField(_(u'Minutes'), blank=True, null=True)
+    place         = CharField(_(u'Activity place'), max_length=100, blank=True, null=True)
+    duration      = PositiveIntegerField(_(u'Duration (in hour)'), blank=True, null=True)
+    type          = ForeignKey(ActivityType, verbose_name=_(u'Kind of activity'),
+                               on_delete=PROTECT, editable=False,
+                              )
+    sub_type      = ForeignKey(ActivitySubType, verbose_name=_(u'Activity type'),
+                               blank=True, null=True, on_delete=SET_NULL,
+                              )
+    status        = ForeignKey(Status, verbose_name=_(u'Status'), blank=True, null=True)
+    calendars     = ManyToManyField(Calendar, verbose_name=_(u'Calendars'),
+                                    blank=True, null=True, editable=False,
+                                   )
+    is_all_day    = BooleanField(_(u'All day?'), blank=True, default=False)
+    busy          = BooleanField(_(u'Busy?'), default=False)
+    #TODO: use choices ; to be improved with choices: listview search/field printers/history
+    floating_type = PositiveIntegerField(_(u'Floating type'), default=NARROW,
+                                         editable=False,
+                                        ).set_tags(viewable=False)
+
 
     creation_label = _('Add an activity')
     #research_fields = CremeEntity.research_fields + ['title', 'type__name']
-    #excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['activity_ptr', ]
+    #excluded_fields_in_html_output = CremeEntity.excluded_fields_in_html_output + ['activity_ptr', 'floating_type']
 
     class Meta:
         app_label = 'activities'
         verbose_name = _(u'Activity')
         verbose_name_plural = _(u'Activities')
-        ordering =('-start',)
+        ordering = ('-start',)
 
     def as_ical_event(self):
         """Return a normalized iCalendar event string
@@ -149,18 +87,21 @@ LOCATION:%(location)s
 CATEGORIES:%(categories)s
 STATUS:%(status)s
 END:VEVENT
-""" % {
-                    'dtstamp'    : get_ical_date(datetime.now()),
-                    'summary'    : self.title,
-                    'dtstart'    : get_ical_date(self.start),
-                    'dtend'      : get_ical_date(self.end),
-                    'location'   : "",
-                    'categories' : self.type.name,
-                    'status'     : ""
-                }
+""" % {'dtstamp':    get_ical_date(datetime.now()),
+       'summary':    self.title,
+       'dtstart':    get_ical_date(self.start),
+       'dtend':      get_ical_date(self.end),
+       'location':   '',
+       'categories': self.type.name,
+       'status':     '',
+      }
 
     def get_title_for_calendar(self):
-        return  '%s  %s' % (self.title, self.user.username)
+        return u'%s - %s' % (self.title, self.user)
+
+    @classmethod
+    def get_creation_title(cls, type_id):
+        return CREATION_LABELS.get(type_id, cls.creation_label)
 
     def __unicode__(self):
         return self.title
@@ -173,7 +114,6 @@ END:VEVENT
 
     @staticmethod
     def get_lv_absolute_url():
-        """url for list_view """
         return "/activities/activities"
 
     def get_participant_relations(self):
@@ -219,7 +159,7 @@ END:VEVENT
                                .distinct()
 
     @staticmethod
-    def get_future_linked(entity, today):
+    def get_future_linked(entity, today): #TODO end greater than today or floating type equal to floating
         return Activity._get_linked_aux(entity).filter(end__gt=today).order_by('start')
 
     @staticmethod
@@ -272,60 +212,62 @@ END:VEVENT
         super(Activity, self)._copy_relations(source, allowed_internal=[REL_OBJ_PART_2_ACTIVITY])
 
 
-class Meeting(Activity):
-    place = CharField(_(u'Meeting place'), max_length=100, blank=True, null=True)
+#class Meeting(Activity):
+    #place = CharField(_(u'Meeting place'), max_length=100, blank=True, null=True)
 
-    #excluded_fields_in_html_output = Activity.excluded_fields_in_html_output + ['type']
+    #def __init__(self, *args, **kwargs):
+        #super(Meeting, self).__init__(*args, **kwargs)
+        #self.type_id = ACTIVITYTYPE_MEETING
 
-    def __init__(self, *args, **kwargs):
-        super(Meeting, self).__init__(*args, **kwargs)
-        self.type_id = ACTIVITYTYPE_MEETING
-
-    class Meta:
-        app_label = 'activities'
-        verbose_name = _('Meeting')
-        verbose_name_plural = _(u'Meetings')
+    #class Meta:
+        #app_label = 'activities'
 
 
-class Task(Activity):
-    duration = PositiveIntegerField(_(u'Duration (in hour)'), blank=True, null=True)
+#class Task(Activity):
+    #duration = PositiveIntegerField(_(u'Duration (in hour)'), blank=True, null=True)
 
-    #excluded_fields_in_html_output = Activity.excluded_fields_in_html_output + ['type']
+    #def __init__ (self, *args , **kwargs):
+        #super(Task, self).__init__(*args, **kwargs)
+        #self.type_id = ACTIVITYTYPE_TASK
 
-    def __init__ (self, *args , **kwargs):
-        super(Task, self).__init__(*args, **kwargs)
-        self.type_id = ACTIVITYTYPE_TASK
-
-    class Meta:
-        app_label = 'activities'
-        verbose_name = _(u'Task')
-        verbose_name_plural = _(u'Tasks')
+    #class Meta:
+        #app_label = 'activities'
 
 
-class PhoneCallType(CremeModel):
-    name        = CharField(_(u"Call type"), max_length=100, blank=True, null=True)
-    description = TextField(_(u'Description'))
+#class PhoneCallType(CremeModel):
+    #name        = CharField(_(u"Call type"), max_length=100, blank=True, null=True)
+    #description = TextField(_(u'Description'))
 
-    def __unicode__(self):
-        return self.name
+    #def __unicode__(self):
+        #return self.name
 
-    class Meta:
-        app_label = 'activities'
-        verbose_name = _("Phonecall type")
-        verbose_name_plural = _(u"Phonecall types")
+    #class Meta:
+        #app_label = 'activities'
 
 
-class PhoneCall(Activity):
-    call_type = ForeignKey(PhoneCallType, verbose_name=_(u"Phonecall type"), blank=True, null=True)
+#class PhoneCall(Activity):
+    #call_type = ForeignKey(PhoneCallType, verbose_name=_(u"Phonecall type"), blank=True, null=True)
 
-    #excluded_fields_in_html_output = Activity.excluded_fields_in_html_output + ['type']
+    #def __init__(self, *args, **kwargs):
+        #super(PhoneCall, self).__init__(*args, **kwargs)
+        #self.type_id = ACTIVITYTYPE_PHONECALL
 
-    def __init__(self, *args, **kwargs):
-        super(PhoneCall, self).__init__(*args, **kwargs)
-        self.type_id = ACTIVITYTYPE_PHONECALL
+    #class Meta:
+        #app_label = 'activities'
 
-    class Meta:
-        app_label = 'activities'
-        verbose_name = _(u'Phone call')
-        verbose_name_plural = _(u'Phone calls')
 
+@receiver(post_delete, sender=Relation)
+def _set_null_calendar_on_delete_participant(sender, instance, **kwargs):
+    type_id = instance.type_id
+
+    if type_id == REL_SUB_PART_2_ACTIVITY:
+        contact  = instance.subject_entity.get_real_entity()
+        activity = instance.object_entity.get_real_entity()
+    elif type_id == REL_OBJ_PART_2_ACTIVITY:
+        contact  = instance.object_entity.get_real_entity()
+        activity = instance.subject_entity.get_real_entity()
+    else:
+        return
+
+    if contact.is_user:
+        activity.calendars.remove(Calendar.get_user_default_calendar(contact.is_user))

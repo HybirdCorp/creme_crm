@@ -25,10 +25,16 @@ from creme.creme_core.views.generic.portal import app_portal
 from creme.creme_config.utils import generate_portal_url
 
 from ..models import Activity
+from ..constants import *
 
 
 def portal(request):
-    stats = ((_(u"Activities' count"), Activity.objects.count()),
+    act_filter = Activity.objects.filter
+
+    stats = ((_(u"Activities count"),  Activity.objects.count()),
+             (_(u"Meetings count"),    act_filter(type=ACTIVITYTYPE_MEETING).count()),
+             (_(u"Phone calls count"), act_filter(type=ACTIVITYTYPE_PHONECALL).count()),
+             (_(u"Tasks count"),       act_filter(type=ACTIVITYTYPE_TASK).count()),
             )
 
     return app_portal(request, 'activity', 'activities/portal.html', Activity,

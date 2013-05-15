@@ -389,18 +389,19 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         clean = MultiGenericEntityField(models=[Organisation, Contact], required=False).clean
         self.assertEqual([], clean('[{"ctype": "%s"}]' % contact.entity_type_id))
         self.assertEqual([], clean('[{"ctype": "%s", "entity": null}]' % contact.entity_type_id))
-        self.assertEqual([contact, orga],
-                         clean('[{"ctype": "%s"},'
-                               ' {"ctype": "%s", "entity": null},'
-                               ' {"ctype": "%s", "entity": "%s"},'
-                               ' {"ctype": "%s", "entity": "%s"}]' % (
+
+        entities = clean('[{"ctype": "%s"},'
+                         ' {"ctype": "%s", "entity": null},'
+                         ' {"ctype": "%s", "entity": "%s"},'
+                         ' {"ctype": "%s", "entity": "%s"}]' % (
                                      contact.entity_type_id,
                                      contact.entity_type_id,
                                      contact.entity_type_id, contact.pk,
                                      orga.entity_type_id, orga.pk,
                                     )
-                              )
                         )
+        self.assertEqual(2, len(entities))
+        self.assertEqual(set([contact, orga]), set(entities))
 
     def test_clean_incomplete_required(self):
         "Required -> 'friendly' errors :)"
@@ -415,18 +416,18 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                                              contact.entity_type_id,
                                             )
                                        )
-        self.assertEqual([contact, orga],
-                         clean('[{"ctype": "%s"},'
-                               ' {"ctype": "%s", "entity": null},'
-                               ' {"ctype": "%s", "entity": "%s"},'
-                               ' {"ctype": "%s", "entity":"%s"}]' % (
-                                     contact.entity_type_id,
-                                     contact.entity_type_id,
-                                     contact.entity_type_id, contact.pk,
-                                     orga.entity_type_id, orga.pk,
-                                    )
+        entities = clean('[{"ctype": "%s"},'
+                         ' {"ctype": "%s", "entity": null},'
+                         ' {"ctype": "%s", "entity": "%s"},'
+                         ' {"ctype": "%s", "entity":"%s"}]' % (
+                               contact.entity_type_id,
+                               contact.entity_type_id,
+                               contact.entity_type_id, contact.pk,
+                               orga.entity_type_id, orga.pk,
                               )
                         )
+        self.assertEqual(2, len(entities))
+        self.assertEqual(set([contact, orga]), set(entities))
 
 
 class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):

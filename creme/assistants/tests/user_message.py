@@ -5,11 +5,12 @@ try:
     from functools import partial
 
     from django.contrib.auth.models import User
+    from django.utils.simplejson.encoder import JSONEncoder
 
     from creme.persons.models import Contact
 
-    from creme.activities.models import Meeting, Calendar
-    from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT
+    from creme.activities.models import Activity, Calendar
+    from creme.activities.constants import *
 
     from ..models import UserMessage, UserMessagePriority
     from ..constants import PRIO_NOT_IMP_PK
@@ -23,6 +24,11 @@ __all__ = ('UserMessageTestCase',)
 
 class UserMessageTestCase(AssistantsTestCase):
     DEL_PRIORITY_URL = '/creme_config/assistants/message_priority/delete'
+
+    @classmethod
+    def setUpClass(cls):
+        AssistantsTestCase.setUpClass()
+        cls.populate('activities', 'assistants')
 
     def _build_add_url(self, entity=None):
         return '/assistants/message/add/%s/' % entity.id if entity else \
@@ -159,8 +165,6 @@ class UserMessageTestCase(AssistantsTestCase):
 
     def test_activity_createview01(self):
         "Test activity form hooking"
-        self.populate('activities', 'assistants')
-
         user       = self.user
         other_user = self.other_user
         self.assertEqual(0, UserMessage.objects.count())
@@ -171,8 +175,13 @@ class UserMessageTestCase(AssistantsTestCase):
         genma = create_contact(first_name='Genma', last_name='Saotome')
         akane = create_contact(first_name='Akane', last_name='Tendo')
 
-        url = '/activities/activity/add/meeting'
-        self.assertGET200(url)
+        url = '/activities/activity/add'
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+
+        self.assertIn('informed_users', fields)
 
         title  = 'Meeting dojo'
         field_format = '[{"ctype": "%s", "entity": "%s"}]'
@@ -180,6 +189,10 @@ class UserMessageTestCase(AssistantsTestCase):
         response = self.client.post(url, follow=True,
                                     data={'user':                user.pk,
                                           'title':               title,
+                                          'type_selector':       JSONEncoder().encode({'type': ACTIVITYTYPE_MEETING,
+                                                                                       'sub_type': ACTIVITYSUBTYPE_MEETING_NETWORK,
+                                                                                      }
+                                                                                     ),
                                           'start':               '2010-1-10',
                                           'my_participation':    True,
                                           'my_calendar':         my_calendar.pk,
@@ -191,7 +204,7 @@ class UserMessageTestCase(AssistantsTestCase):
                                    )
         self.assertNoFormError(response)
 
-        meeting = self.get_object_or_fail(Meeting, title=title)
+        meeting = self.get_object_or_fail(Activity, title=title, type=ACTIVITYTYPE_MEETING)
 
         self.assertRelationCount(1, me,    REL_SUB_PART_2_ACTIVITY,  meeting)
         self.assertRelationCount(1, ranma, REL_SUB_PART_2_ACTIVITY,  meeting)
@@ -218,6 +231,15 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertIn(unicode(akane), body)
         self.assertIn(unicode(me), body)
         self.assertIn(unicode(ranma), body)
+
+    def test_activity_createview02(self):
+        "Pop-up form is not hooked"
+        response = self.assertGET200('/activities/activity/add_popup')
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+
+        self.assertNotIn('informed_users', fields)
 
     def test_merge(self):
         def creator(contact01, contact02):

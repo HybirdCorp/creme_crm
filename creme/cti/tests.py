@@ -8,7 +8,7 @@ try:
 
     from creme.persons.models import Contact, Organisation
 
-    from creme.activities.models import PhoneCall, PhoneCallType, Calendar
+    from creme.activities.models import Activity, Calendar, ActivitySubType
     from creme.activities.constants import *
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
@@ -32,21 +32,21 @@ class CTITestCase(CremeTestCase):
         self.login()
         user = self.user
 
-        self.assertFalse(PhoneCall.objects.exists())
-        self.assertTrue(PhoneCallType.objects.exists())
+        self.assertFalse(Activity.objects.filter(type=ACTIVITYTYPE_PHONECALL).exists())
+        self.assertTrue(ActivitySubType.objects.filter(type=ACTIVITYTYPE_PHONECALL).exists())
 
         contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit')
         self.assertPOST200('/cti/add_phonecall', data={'entity_id': contact.id})
 
-        pcalls = PhoneCall.objects.all()
+        pcalls = Activity.objects.filter(type=ACTIVITYTYPE_PHONECALL)
         self.assertEqual(1, len(pcalls))
 
         pcall = pcalls[0]
         self.assertEqual(user, pcall.user)
         self.assertIn(unicode(contact), pcall.title)
         self.assert_(pcall.description)
-        self.assertEqual(PHONECALLTYPE_OUTGOING, pcall.call_type.id)
-        self.assertEqual(STATUS_IN_PROGRESS,     pcall.status.id)
+        self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pcall.sub_type.id)
+        self.assertEqual(STATUS_IN_PROGRESS, pcall.status.id)
         self.assertLess((datetime.now() - pcall.start).seconds, 10)
         self.assertEqual(timedelta(minutes=5), (pcall.end - pcall.start))
 
@@ -56,19 +56,21 @@ class CTITestCase(CremeTestCase):
         calendar = Calendar.get_user_default_calendar(user)
         self.assertTrue(pcall.calendars.filter(pk=calendar.id).exists())
 
-    def test_add_phonecall02(self): #no contact
+    def test_add_phonecall02(self):
+        "No contact"
         self.login()
 
         self.assertPOST404('/cti/add_phonecall', data={'entity_id': '1024'})
-        self.assertFalse(PhoneCall.objects.exists())
+        self.assertFalse(Activity.objects.filter(type=ACTIVITYTYPE_PHONECALL).exists())
 
-    def test_add_phonecall03(self): #organisation
+    def test_add_phonecall03(self):
+        "Organisation"
         self.login()
 
         orga = Organisation.objects.create(user=self.user, name='Gunsmith Cats')
         self.assertPOST200('/cti/add_phonecall', data={'entity_id': orga.id})
 
-        pcalls = PhoneCall.objects.all()
+        pcalls = Activity.objects.filter(type=ACTIVITYTYPE_PHONECALL)
         self.assertEqual(1, len(pcalls))
 
         pcall = pcalls[0]
@@ -159,14 +161,14 @@ class CTITestCase(CremeTestCase):
         contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit')
         self.assertEqual(302, self.client.post('/cti/phonecall/add/%s' % contact.id).status_code)
 
-        pcalls = PhoneCall.objects.all()
+        pcalls = Activity.objects.filter(type=ACTIVITYTYPE_PHONECALL)
         self.assertEqual(1, len(pcalls))
 
         pcall = pcalls[0]
         self.assertEqual(user, pcall.user)
         self.assertIn(unicode(contact), pcall.title)
         self.assertTrue(pcall.description)
-        self.assertEqual(PHONECALLTYPE_INCOMING, pcall.call_type.id)
+        self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_INCOMING, pcall.sub_type.id)
         self.assertEqual(STATUS_IN_PROGRESS,     pcall.status.id)
         self.assertLess((datetime.now() - pcall.start).seconds, 10)
         self.assertEqual(timedelta(minutes=5), (pcall.end - pcall.start))
@@ -183,9 +185,9 @@ class CTITestCase(CremeTestCase):
 
         self.assertEqual(302, self.client.post('/cti/phonecall/add/%s' % self.contact.id).status_code)
 
-        self.assertEqual(1, PhoneCall.objects.count())
+        self.assertEqual(1, Activity.objects.count())
 
-        phone_call = PhoneCall.objects.all()[0]
+        phone_call = Activity.objects.all()[0]
         self.assertRelationCount(1, self.contact, REL_SUB_PART_2_ACTIVITY, phone_call)
 
         calendar = Calendar.get_user_default_calendar(user)
@@ -198,9 +200,9 @@ class CTITestCase(CremeTestCase):
 
         self.assertEqual(302, self.client.post('/cti/phonecall/add/%s' % self.contact_other_user.id).status_code)
 
-        self.assertEqual(1, PhoneCall.objects.count())
+        self.assertEqual(1, Activity.objects.count())
 
-        phone_call = PhoneCall.objects.all()[0]
+        phone_call = Activity.objects.all()[0]
         self.assertRelationCount(1, self.contact, REL_SUB_PART_2_ACTIVITY, phone_call)
         self.assertRelationCount(1, self.contact_other_user, REL_SUB_PART_2_ACTIVITY, phone_call)
 

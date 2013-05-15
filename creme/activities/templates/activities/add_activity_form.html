@@ -1,9 +1,5 @@
-{% extends "creme_core/base.html" %}
-{% load i18n %}
-{% load creme_core_tags %}
-
-{% block page_title %} - {% trans 'Add' %}: {{form|get_meta_value:'model'|get_meta_value:'verbose_name'}}{% endblock %}
+{% extends "creme_core/generics/blockform/add.html" %}
 
 {% block content %}
-    {% include "activities/frags/activity_form_content.html" with logo='images/add_64.png' title=_('Add') %}
+    {% include content_template with logo='images/add_64.png' %}
 {% endblock %}

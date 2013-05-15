@@ -26,7 +26,7 @@ from creme.creme_core.gui.block import QuerysetBlock, list4url
 
 from creme.persons.models import Contact, Organisation
 
-from .models import Activity, Meeting, PhoneCall, Task, Calendar
+from .models import Activity, Calendar
 from .constants import *
 
 
@@ -36,7 +36,7 @@ class ParticipantsBlock(QuerysetBlock):
     relation_type_deps = (REL_OBJ_PART_2_ACTIVITY,)
     verbose_name  = _(u'Participants')
     template_name = 'activities/templatetags/block_participants.html'
-    target_ctypes = (Activity, Meeting, PhoneCall, Task)
+    target_ctypes = (Activity, )
 
     def detailview_display(self, context):
         activity = context['object']
@@ -68,7 +68,7 @@ class SubjectsBlock(QuerysetBlock):
     relation_type_deps = (REL_OBJ_ACTIVITY_SUBJECT,)
     verbose_name  = _(u'Subjects')
     template_name = 'activities/templatetags/block_subjects.html'
-    target_ctypes = (Activity, Meeting, PhoneCall, Task)
+    target_ctypes = (Activity, )
 
     def detailview_display(self, context):
         activity = context['object']

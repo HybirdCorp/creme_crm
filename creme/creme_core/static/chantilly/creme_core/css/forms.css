@@ -42,6 +42,10 @@ form .table_detail_view.dual_column .td_info > textarea,
     width: 100%;
 }
 
+form .table_detail_view .td_info > textarea {
+    height: 12em; /* See Activity popup form (Calendar) if you change this */
+}
+
 .table_detail_view .td_info > input[type="checkbox"],
 .table_detail_view.dual_column .td_info > input[type="checkbox"] {/* Fix for chrome & opera */
     width: auto;

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,30 +22,39 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.gui.button_menu import Button
 
+from .models import Activity
+from .constants import *
 
-_PERMISSION = 'activities.add_activity'
 
-class AddMeetingButton(Button):
+class AddRelatedActivityButton(Button):
+    id_           = Button.generate_id('activities', 'add_activity')
+    template_name = 'activities/templatetags/button_add_related.html'
+    permission    = 'activities.add_activity'
+    verbose_name  = Activity.creation_label
+    activity_type = None #None means type is not fixed
+
+    def render(self, context):
+        context['activity_type'] = atype = self.activity_type
+        context['verbose_name'] = Activity.get_creation_title(atype)
+        return super(AddRelatedActivityButton, self).render(context)
+
+
+class AddMeetingButton(AddRelatedActivityButton):
     id_           = Button.generate_id('activities', 'add_meeting')
-    verbose_name  = _(u'Add a meeting')
-    template_name = 'activities/templatetags/button_add_related_meeting.html'
-    permission    = _PERMISSION
+    activity_type = ACTIVITYTYPE_MEETING
 
 
-class AddPhoneCallButton(Button):
+class AddPhoneCallButton(AddRelatedActivityButton):
     id_           = Button.generate_id('activities', 'add_phonecall')
-    verbose_name  = _(u'Add a phone call')
-    template_name = 'activities/templatetags/button_add_related_phonecall.html'
-    permission    = _PERMISSION
+    activity_type = ACTIVITYTYPE_PHONECALL
 
 
-class AddTaskButton(Button):
+class AddTaskButton(AddRelatedActivityButton):
     id_           = Button.generate_id('activities', 'add_task')
-    verbose_name  = _(u'Add a task')
-    template_name = 'activities/templatetags/button_add_related_task.html'
-    permission    = _PERMISSION
+    activity_type = ACTIVITYTYPE_TASK
 
 
+add_activity_button  = AddRelatedActivityButton()
 add_meeting_button   = AddMeetingButton()
 add_phonecall_button = AddPhoneCallButton()
 add_task_button      = AddTaskButton()

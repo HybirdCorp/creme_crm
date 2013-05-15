@@ -48,6 +48,7 @@ See the creme/settings.py and set your parameters (or put them in a new file cal
 When you have chosen the creme apps you want (by commenting the unwanted ones), and configured the DB parameters
 run the following commands in the root directory:
 >> python manage.py syncdb
+[if it is the initial installation, you are asked if you want to create a new user ; you should create one]
 
 >> python manage.py migrate
 >> python manage.py generatemedia
