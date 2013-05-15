@@ -80,16 +80,17 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(datetime(year=2010, month=12, day=31), project.end_date)
         self.assertRelationCount(1, project, REL_OBJ_PROJECT_MANAGER, manager)
 
-    def test_project_createview02(self): #credentials error
+    def test_project_createview02(self):
+        "Credentials error"
         self.login(is_superuser=False, creatable_models=[Project])
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
-        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
+        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
                         EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
                   set_type=SetCredentials.ESET_ALL
                  )
-        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
-                        EntityCredentials.DELETE | EntityCredentials.LINK | \
+        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                        EntityCredentials.DELETE | EntityCredentials.LINK |
                         EntityCredentials.UNLINK,
                   set_type=SetCredentials.ESET_OWN
                  )
@@ -97,34 +98,35 @@ class ProjectsTestCase(CremeTestCase):
         manager = Contact.objects.create(user=self.user, first_name='Gendo', last_name='Ikari')
         self.assertFalse(manager.can_link(self.user))
 
-        response = self.client.post(self.ADD_PROJECT_URL, follow=True,
-                                    data={'user':         self.user.pk,
-                                          'name':         'Eva00',
-                                          'status':       ProjectStatus.objects.all()[0].id,
-                                          'start_date':   '2011-10-11',
-                                          'end_date':     '2011-12-31',
-                                          'responsibles': manager.id,
-                                         }
-                                   )
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200(self.ADD_PROJECT_URL, follow=True,
+                                      data={'user':         self.user.pk,
+                                            'name':         'Eva00',
+                                            'status':       ProjectStatus.objects.all()[0].id,
+                                            'start_date':   '2011-10-11',
+                                            'end_date':     '2011-12-31',
+                                            'responsibles': manager.id,
+                                           }
+                                     )
         self.assertFormError(response, 'form', 'responsibles',
-                             [_(u"Some entities are not linkable: %s") % (_(u'Entity #%s (not viewable)') % manager.id)]
+                             [_(u"Some entities are not linkable: %s") % (
+                                    _(u'Entity #%s (not viewable)') % manager.id
+                                )
+                             ]
                             )
 
     def test_project_createview03(self): #validation error with start/end
         self.login()
 
         manager = Contact.objects.create(user=self.user, first_name='Gendo', last_name='Ikari')
-        response = self.client.post(self.ADD_PROJECT_URL, follow=True,
-                                    data={'user':         self.user.pk,
-                                          'name':         'Eva00',
-                                          'status':       ProjectStatus.objects.all()[0].id,
-                                          'start_date':   '2012-2-16',
-                                          'end_date':     '2012-2-15',
-                                          'responsibles': manager.id,
-                                         }
-                                   )
-        self.assertEqual(200, response.status_code)
+        response = self.assertPOST200(self.ADD_PROJECT_URL, follow=True,
+                                      data={'user':         self.user.pk,
+                                            'name':         'Eva00',
+                                            'status':       ProjectStatus.objects.all()[0].id,
+                                            'start_date':   '2012-2-16',
+                                            'end_date':     '2012-2-15',
+                                            'responsibles': manager.id,
+                                           }
+                                     )
         self.assertFormError(response, 'form', None, [_(u'Start must be before end.')])
 
     def test_project_lisview(self):
@@ -139,16 +141,19 @@ class ProjectsTestCase(CremeTestCase):
 
         project = self.create_project('Eva01', start_date='2012-2-16', end_date='2012-3-26')[0]
         url = '/creme_core/entity/edit/%s/%s/field/%s' % (project.entity_type_id, project.id, 'start_date')
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
-        response = self.client.post(url, data={'entities_lbl': [unicode(project)],
-                                               'field_value':  '2012-3-4',
-                                              }
-                                   )
-        self.assertNoFormError(response)
-        self.assertEqual(datetime(year=2012, month=3, day=4), self.refresh(project).start_date)
+        self.assertNoFormError(self.client.post(url, data={'entities_lbl': [unicode(project)],
+                                                           'field_value':  '2012-3-4',
+                                                          }
+                                                )
+                              )
+        self.assertEqual(datetime(year=2012, month=3, day=4),
+                         self.refresh(project).start_date
+                        )
 
-    def test_project_inner_edit02(self): #validation error
+    def test_project_inner_edit02(self):
+        "Validation error"
         self.login()
 
         project = self.create_project('Eva01', start_date='2012-2-16', end_date='2012-3-26')[0]
@@ -160,7 +165,8 @@ class ProjectsTestCase(CremeTestCase):
         self.assertFormError(response, 'form', None, [_(u'Start must be before end.')])
         self.assertEqual(datetime(year=2012, month=2, day=16), self.refresh(project).start_date)
 
-    def test_task_createview01(self): #create 2 tasks without collisions
+    def test_task_createview01(self):
+        "Create 2 tasks without collisions"
         self.login()
 
         user = self.user
@@ -210,9 +216,10 @@ class ProjectsTestCase(CremeTestCase):
         tasks = ProjectTask.objects.filter(project=project)
         self.assertEqual(2, tasks.count())
 
-        tasks2 = filter(lambda t: t.id != task1.id, tasks)
+        tasks2 = [t for t in tasks if t.id != task1.id]
+        self.assertEqual(1, len(tasks2))
+
         task2 = tasks2[0]
-        self.assertEqual(1,          len(tasks2))
         self.assertEqual([task1.id], [t.id for t in task2.parent_tasks.all()])
 
         self.assertEqual(set(tasks), set(project.get_tasks()))
@@ -221,7 +228,8 @@ class ProjectsTestCase(CremeTestCase):
         self.assertRelationCount(1, contact, REL_SUB_PART_2_ACTIVITY, task2)
         self.assertEqual(1, task2.calendars.count())
 
-    def test_task_createview02(self): #can be parented with task of an other project
+    def test_task_createview02(self):
+        "Can not be parented with task of an other project"
         self.login()
 
         project01 = self.create_project('Eva01')[0]
@@ -246,7 +254,8 @@ class ProjectsTestCase(CremeTestCase):
                              ]
                             )
 
-    def test_task_createview03(self): #create 2 tasks with a collision
+    def test_task_createview03(self):
+        "Create 2 tasks with a collision"
         self.login()
 
         user = self.user
@@ -256,20 +265,18 @@ class ProjectsTestCase(CremeTestCase):
 
         url = self._build_add_ask_url(project)
         self.assertGET200(url)
-
-        response = self.client.post(url, follow=True,
-                                    data={'user':                user.id,
-                                          'title':               'head',
-                                          'start':               '2010-10-11 15:00',
-                                          'end':                 '2010-10-11 17:00',
-                                          'duration':            50,
-                                          'tstatus':             TaskStatus.objects.all()[0].id,
-                                          'participating_users': user.id,
-                                          'busy':                True,
-                                          'type_selector':       self.TYPE_VALUE,
-                                         }
-                                    )
-        self.assertEqual(200, response.status_code)
+        self.assertPOST200(url, follow=True,
+                           data={'user':                user.id,
+                                 'title':               'head',
+                                 'start':               '2010-10-11 15:00',
+                                 'end':                 '2010-10-11 17:00',
+                                 'duration':            50,
+                                 'tstatus':             TaskStatus.objects.all()[0].id,
+                                 'participating_users': user.id,
+                                 'busy':                True,
+                                 'type_selector':       self.TYPE_VALUE,
+                                }
+                          )
 
         task2_start = get_dt_from_str('2010-10-11 16:59')
         task2_end = get_dt_from_str('2010-10-11 17:30')
@@ -286,7 +293,7 @@ class ProjectsTestCase(CremeTestCase):
                                    )
 
         tasks = ProjectTask.objects.filter(project=project)
-        self.assertEqual(1, tasks.count())
+        self.assertEqual(1, len(tasks))
         task1 = tasks[0]
 
         self.assertFormError(response, 'form', None,
@@ -320,7 +327,6 @@ class ProjectsTestCase(CremeTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         task = self.refresh(task)
         self.assertEqual(title,    task.title)
@@ -377,10 +383,14 @@ class ProjectsTestCase(CremeTestCase):
         #Error: already parent
         self.assertFormError(self.client.post(url, data={'parents': task02.id}),
                              'form', 'parents',
-                             [_(u'Select a valid choice. %(value)s is not an available choice.') % {'value': task02.id}]
+                             [_(u'Select a valid choice. %(value)s is not an available choice.') % {
+                                    'value': task02.id,
+                                }
+                             ]
                             )
 
-    def test_task_add_parent02(self): #error task that belong to another project
+    def test_task_add_parent02(self):
+        "Error task that belong to another project"
         self.login()
 
         project01 = self.create_project('Eva01')[0]
@@ -393,10 +403,14 @@ class ProjectsTestCase(CremeTestCase):
                                     data={'parents': task01.id}
                                    )
         self.assertFormError(response, 'form', 'parents',
-                             [_(u'Select a valid choice. %(value)s is not an available choice.') % {'value': task01.id}]
+                             [_(u'Select a valid choice. %(value)s is not an available choice.') % {
+                                    'value': task01.id,
+                                }
+                             ]
                             )
 
-    def test_task_add_parent03(self): #cycle error
+    def test_task_add_parent03(self):
+        "Cycle error"
         self.login()
 
         project = self.create_project('Eva01')[0]
@@ -437,7 +451,8 @@ class ProjectsTestCase(CremeTestCase):
 
         return self.get_object_or_fail(ProjectTask, project=project, title=title)
 
-    def test_resource_n_period01(self): #createviews
+    def test_resource_n_period01(self):
+        "Creation views"
         self.login()
 
         project = self.create_project('Eva02')[0]
@@ -478,26 +493,27 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(800, project.get_project_cost()) #8 * 100
         self.assertEqual(0,   project.get_delay())
 
-    def test_resource_n_period02(self): #editviews
+    def test_resource_n_period02(self):
+        "Edition views"
         self.login()
 
         project  = self.create_project('Eva02')[0]
         task     = self.create_task(project, 'arms')
         worker   = Contact.objects.create(user=self.user, first_name='Yui', last_name='Ikari')
-        response = self.client.post('/projects/task/%s/resource/add' % task.id, follow=True,
-                                    data={'user':           self.user.id,
-                                          'linked_contact': worker.id,
-                                          'hourly_cost':    100,
-                                         }
-                                   )
+        self.client.post('/projects/task/%s/resource/add' % task.id, follow=True,
+                         data={'user':           self.user.id,
+                               'linked_contact': worker.id,
+                               'hourly_cost':    100,
+                              }
+                        )
         resource = task.resources_set.all()[0]
-        response = self.client.post('/projects/task/%s/period/add' % task.id, follow=True,
-                                    data={'resource':   resource.id,
-                                          'start_date': '2010-10-11',
-                                          'end_date':   '2010-10-12',
-                                          'duration':   8,
-                                         }
-                                   )
+        self.client.post('/projects/task/%s/period/add' % task.id, follow=True,
+                         data={'resource':   resource.id,
+                               'start_date': '2010-10-11',
+                               'end_date':   '2010-10-12',
+                               'duration':   8,
+                              }
+                        )
 
         url = '/projects/resource/edit/%s' % resource.id
         self.assertGET200(url)
@@ -527,7 +543,6 @@ class ProjectsTestCase(CremeTestCase):
                                           'duration':   10,
                                          }
                                    )
-        self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         wperiod = self.refresh(wperiod)
@@ -552,13 +567,18 @@ class ProjectsTestCase(CremeTestCase):
         self.assertLess(delta.seconds, 10)
 
         #already closed
-        self.assertEqual(404, self.client.post(url, follow=True).status_code)
+        self.assertPOST404(url, follow=True)
 
     def _create_task(self, title, project, parents=None):
         status = TaskStatus.objects.get_or_create(name='status', description="")[0]
-        task = ProjectTask.objects.create(project=project, order=0, duration=0, tstatus=status, user=self.user, title=title, type_id=ACTIVITYTYPE_TASK)
+        task = ProjectTask.objects.create(project=project, order=0, duration=0,
+                                          tstatus=status, user=self.user,
+                                          title=title, type_id=ACTIVITYTYPE_TASK,
+                                         )
+
         if parents is not None:
             task.parent_tasks = parents
+
         return task
 
     def _create_resource(self, contact, task):
