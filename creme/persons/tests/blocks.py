@@ -8,8 +8,10 @@ try:
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.activities.models import Meeting, PhoneCall, PhoneCallType
-    from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY, REL_SUB_LINKED_2_ACTIVITY
+    from creme.activities.models import Activity
+    from creme.activities.constants import (REL_SUB_ACTIVITY_SUBJECT, REL_SUB_PART_2_ACTIVITY,
+                                            REL_SUB_LINKED_2_ACTIVITY,
+                                            ACTIVITYTYPE_MEETING, ACTIVITYTYPE_PHONECALL)
 
     from ..models import *
     from ..constants import *
@@ -82,9 +84,10 @@ class BlocksTestCase(CremeTestCase):
         self.assertEqual(2, len(self._get_neglected_orgas()))
 
         tomorrow = datetime.now() + timedelta(days=1) #so in the future
-        meeting  = Meeting.objects.create(user=user, title='meet01', start=tomorrow,
-                                          end=tomorrow + timedelta(hours=2),
-                                         )
+        meeting  = Activity.objects.create(user=user, type_id=ACTIVITYTYPE_MEETING,
+                                           title='meet01', start=tomorrow,
+                                           end=tomorrow + timedelta(hours=2),
+                                          )
 
         get_rtype = RelationType.objects.get
         create_rel = partial(Relation.objects.create, user=user, object_entity=meeting)
@@ -104,10 +107,10 @@ class BlocksTestCase(CremeTestCase):
         customer02 = self._build_customer_orga(mng_orga, 'Suna')
 
         yesterday = datetime.now() - timedelta(days=1) #so in the past
-        meeting  = Meeting.objects.create(user=user, title='meet01',
-                                          start=yesterday,
-                                          end=yesterday + timedelta(hours=2)
-                                         )
+        meeting  = Activity.objects.create(user=user, type_id=ACTIVITYTYPE_MEETING,
+                                           title='meet01', start=yesterday,
+                                           end=yesterday + timedelta(hours=2),
+                                          )
 
         create_rel = partial(Relation.objects.create, user=user, object_entity=meeting)
         create_rel(subject_entity=customer02,   type_id=REL_SUB_ACTIVITY_SUBJECT)
@@ -123,9 +126,10 @@ class BlocksTestCase(CremeTestCase):
         customer = self._build_customer_orga(mng_orga, 'Suna')
 
         tomorrow = datetime.now() + timedelta(days=1) #so in the future
-        meeting = Meeting.objects.create(user=user, title='meet01', start=tomorrow,
-                                         end=tomorrow + timedelta(hours=2),
-                                        )
+        meeting = Activity.objects.create(user=user, type_id=ACTIVITYTYPE_MEETING,
+                                          title='meet01', start=tomorrow,
+                                          end=tomorrow + timedelta(hours=2),
+                                         )
         create_rel = partial(Relation.objects.create, user=user)
         create_rel(subject_entity=user_contact, object_entity=meeting,
                    type_id=REL_SUB_PART_2_ACTIVITY,
@@ -155,11 +159,14 @@ class BlocksTestCase(CremeTestCase):
         customer = self._build_customer_orga(mng_orga, 'Suna')
 
         tomorrow = datetime.now() + timedelta(days=1) #so in the future
-        meeting   = Meeting.objects.create(user=user, title='meet01', start=tomorrow, end=tomorrow + timedelta(hours=2))
-        phonecall = PhoneCall.objects.create(user=user, title='call01',
-                                             start=tomorrow, end=tomorrow + timedelta(minutes=15),
-                                             call_type=PhoneCallType.objects.all()[0]
-                                            )
+        create_activity = partial(Activity.objects.create, user=user, start=tomorrow)
+        meeting   = create_activity(title='meet01', type_id=ACTIVITYTYPE_MEETING,
+                                    end=tomorrow + timedelta(hours=2)
+                                   )
+        phonecall = create_activity(title='call01', type_id=ACTIVITYTYPE_PHONECALL,
+                                    end=tomorrow + timedelta(minutes=15),
+                                   )
+
         create_rel = partial(Relation.objects.create, user=user)
         create_rel(subject_entity=user_contact, object_entity=phonecall, type_id=REL_SUB_PART_2_ACTIVITY)
         create_rel(subject_entity=user_contact, object_entity=meeting,   type_id=REL_SUB_PART_2_ACTIVITY)
@@ -184,10 +191,10 @@ class BlocksTestCase(CremeTestCase):
         competitor = Organisation.objects.create(user=user, name='Akatsuki')
 
         tomorrow = datetime.now() + timedelta(days=1) #so in the future
-        meeting  = Meeting.objects.create(user=user, title='meet01',
-                                          start=tomorrow,
-                                          end=tomorrow + timedelta(hours=2),
-                                         )
+        meeting  = Activity.objects.create(user=user, type_id=ACTIVITYTYPE_MEETING, 
+                                           title='meet01', start=tomorrow,
+                                           end=tomorrow + timedelta(hours=2),
+                                          )
 
         manager = Contact.objects.create(user=user,  first_name='Gaara', last_name='???')
 

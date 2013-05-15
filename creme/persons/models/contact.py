@@ -69,7 +69,11 @@ class Contact(CremeEntity):
 
     def __unicode__(self):
         if self.civility:
-            return u'%s %s %s' % (self.civility, self.first_name, self.last_name)
+#            return u'%s %s %s' % (self.civility.shortcut, self.first_name, self.last_name)
+            return ugettext('%(civility)s %(first_name)s %(last_name)s') % {'civility':     self.civility.shortcut,
+                                                                            'first_name':   self.first_name,
+                                                                            'last_name':    self.last_name
+                                                                           }
 
         return u'%s %s' % (self.first_name, self.last_name)
 

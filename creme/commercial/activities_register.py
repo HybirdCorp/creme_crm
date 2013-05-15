@@ -24,7 +24,8 @@ from functools import partial
 from django.utils.translation import ugettext as _
 from django.forms import BooleanField
 
-from creme.activities.forms.activity import ActivityCreateForm #, ActivityEditForm
+#from creme.activities.forms.activity import _ActivityCreateForm #, ActivityEditForm
+from creme.activities.forms.activity import ActivityCreateForm
 
 from .models import CommercialApproach
 
@@ -63,6 +64,8 @@ def save_commapp_field(form):
     #instance = form.instance
     #CommercialApproach.objects.filter(related_activity=instance).update(title=instance.title)
 
+#_ActivityCreateForm.add_post_init_callback(add_commapp_field)
+#_ActivityCreateForm.add_post_save_callback(save_commapp_field)
 ActivityCreateForm.add_post_init_callback(add_commapp_field)
 ActivityCreateForm.add_post_save_callback(save_commapp_field)
 

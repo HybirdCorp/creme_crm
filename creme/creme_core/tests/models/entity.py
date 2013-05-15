@@ -20,8 +20,8 @@ try:
 
     from creme.media_managers.models import Image, MediaCategory
 
-    from creme.activities.models import Activity, ActivityType, Status, Meeting
-    from creme.activities.constants import REL_SUB_PART_2_ACTIVITY
+    from creme.activities.models import Activity, ActivityType, Status
+    from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, ACTIVITYTYPE_MEETING
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -270,15 +270,15 @@ class EntityTestCase(CremeTestCase):
 
     def test_clone05(self):
         #ct_activity = ContentType.objects.get_for_model(Activity)
-        act_type = ActivityType.objects.all()[0]
+        #act_type = ActivityType.objects.all()[0]
         act_status = Status.objects.all()[0]#Import status as ActivityStatus ?
         rtype_participant = RelationType.objects.get(pk=REL_SUB_PART_2_ACTIVITY)
 
-        activity1 = Meeting.objects.create(user=self.user, type=act_type, title=u"Meeting",
-                                           start=datetime.now(), end=datetime.now(),
-                                           description=u"Desc", minutes=u"123", is_all_day=False,
-                                           status=act_status, busy=True, place=u"Here"
-                                          )
+        activity1 = Activity.objects.create(user=self.user, type_id=ACTIVITYTYPE_MEETING, title='Meeting',
+                                            start=datetime.now(), end=datetime.now(),
+                                            description='Desc', minutes='123', is_all_day=False,
+                                            status=act_status, busy=True, place='Here',
+                                           )
         contact1 = Contact.objects.create(user=self.user)
         contact2 = contact1.clone()
 

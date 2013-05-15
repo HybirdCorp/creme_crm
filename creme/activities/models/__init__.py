@@ -1,3 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from .activity import Activity, ActivityType, Meeting, PhoneCall, PhoneCallType, Task, Status, Calendar
+from .activity import Activity
+from .calendar import Calendar
+from .other_models import ActivityType, ActivitySubType, Status

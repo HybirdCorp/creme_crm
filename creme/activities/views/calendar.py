@@ -19,182 +19,206 @@
 ################################################################################
 
 from datetime import datetime, timedelta
-#from logging import debug
+import logging
 
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
-from django.utils.simplejson import JSONEncoder, JSONDecoder
+from django.utils.simplejson import JSONDecoder #JSONEncoder
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
 
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import EntityCredentials
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
-from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.utils import get_from_POST_or_404, jsonify
+
+from creme.persons.models.contact import Contact
 
 from ..models import Activity, Calendar
 from ..utils import get_last_day_of_a_month, check_activity_collisions
 from ..forms.calendar import CalendarForm
-from ..constants import ACTIVITYTYPE_INDISPO
+from ..constants import FLOATING, FLOATING_TIME, ACTIVITYTYPE_INDISPO, REL_OBJ_PART_2_ACTIVITY
 
 
-@login_required
-@permission_required('activities')
-def get_users_calendar(request, usernames, calendars_ids):
+logger = logging.getLogger(__name__)
+
+
+def _get_users_calendar(request, usernames, calendars_ids): #TODO: used once ??
     user = request.user
+    usernames = frozenset(usernames)
+
     if user.username not in usernames:
         calendars_ids = []
 
     cal_ids = [str(id) for id in calendars_ids]
+    users = User.objects.order_by('username')
+    
     return render(request, 'activities/calendar.html',
-                  {'events_url':        "/activities/calendar/users_activities/%s/%s" % (",".join(usernames), ",".join(cal_ids)),
-                   'users':             User.objects.order_by('username'),
-                   'current_users':     User.objects.filter(username__in=usernames), #TODO: avoid this query by filter in python...
-                   'my_calendars' :     Calendar.objects.filter(user=user),
-                   'current_calendars': cal_ids,
-                   'creation_perm':     user.has_perm('activities.add_activity'),
+                  {'events_url':          '/activities/calendar/users_activities/%s/%s' % (
+                                                    ','.join(usernames),
+                                                    ','.join(cal_ids),
+                                                ),
+                   'users':               users,
+                   'current_users':       [u for u in users if u.username in usernames],
+                   'my_calendars' :       Calendar.objects.filter(user=user),
+                   'current_calendars':   cal_ids,
+                   'creation_perm':       user.has_perm('activities.add_activity'),
+                   'floating_activities': Activity.objects.filter(user=user,
+                                                                  floating_type=FLOATING,
+                                                                  is_deleted=False,
+                                                                 ), #TODO only floating activities assigned to logged user ??
                   }
                  )
 
-#TODO: rename
-def getFormattedDictFromAnActivity(activity, user):
+def _activity_2_dict(activity, user):
+    "Return a 'jsonifiable' dictionary"
     start = activity.start
     end   = activity.end
-    is_all_day = activity.is_all_day
+    #TODO: hack to hide start time of floating time activities, only way to do that without change js calendar api
+    is_all_day = activity.is_all_day or activity.floating_type == FLOATING_TIME
 
     if start == end and not is_all_day:
         end += timedelta(seconds=1)
 
-    is_editable = activity.can_change(user) #TODO: inline
-
-    return {"id" :          int(activity.pk),
-            "title":        activity.get_title_for_calendar(),
-            "start":        start.isoformat(),
-            "end":          end.isoformat(),
-            "url":          "/activities/activity/%s/popup" % activity.pk,
-            "entity_color": "#%s" % (activity.type.color or "C1D9EC"),
-            "allDay" :      is_all_day,
-            "editable":     is_editable,
+    return {'id' :          int(activity.pk), #TODO: int() useful ??
+            'title':        activity.get_title_for_calendar(),
+            'start':        start.isoformat(),
+            'end':          end.isoformat(),
+            'url':          "/activities/activity/%s/popup" % activity.pk,
+            'entity_color': "#%s" % (activity.type.color or 'C1D9EC'),
+            'allDay' :      is_all_day,
+            'editable':     activity.can_change(user),
            }
 
 @login_required
 @permission_required('activities')
 def user_calendar(request):
-#    return getUserCalendar(request, request.POST.get('username', request.user.username))
     user = request.user
-    getlist = request.POST.getlist
+    getlist = request.POST.getlist #TODO: POST ??
     Calendar.get_user_default_calendar(user)#Don't really need the calendar but this create it in case of the user hasn't a calendar
 
-    #usernames = User.objects.values_list('username', flat=True)
+    return _get_users_calendar(request,
+                               getlist('user_selected') or [user.username],
+                               #getlist('calendar_selected') or Calendar.get_user_calendars(user)
+                                                                       #.values_list('id', flat=True),
+                                getlist('calendar_selected') or [c.id for c in Calendar.get_user_calendars(user)],
+                              )
 
-    #TODO: useful to compute if getlist('calendar_selected') is not empty ??
-    calendars_ids = Calendar.get_user_calendars(user, False).values_list('id', flat=True)
-    if not calendars_ids:
-        calendars_ids = [Calendar.get_user_default_calendar(user).pk]
+#COMMENTED on march 2013
+#@login_required
+#@permission_required('activities')
+#def my_calendar(request):
+    #user = request.user
+    #return _get_users_calendar(request, user.username,
+                               #[Calendar.get_user_default_calendar(user).pk]
+                              #)
 
-    return get_users_calendar(request,
-                              getlist('user_selected') or [user.username],#usernames,
-                              getlist('calendar_selected') or calendars_ids#[Calendar.get_user_default_calendar(user).pk])
-                             )
+def _get_datetime(data, key, default_func):
+    timestamp = data.get(key)
 
-def my_calendar(request):
-    user = request.user
-    return get_users_calendar(request, user.username, [Calendar.get_user_default_calendar(user).pk])
+    if timestamp is not None:
+        try:
+            return datetime.fromtimestamp(float(timestamp))
+        except Exception as e:
+            logger.debug('_get_datetime(key=%s): %s', key, e)
 
-#TODO: need refactoring (and certainly unit tests...)
+    return default_func()
+
 @login_required
 @permission_required('activities')
+@jsonify
 def get_users_activities(request, usernames, calendars_ids):
-    users = User.objects.filter(username__in=usernames.split(',')) #TODO: problem => this queryset causes nested queries later
+    user = request.user
+
+    users    = list(User.objects.filter(username__in=usernames.split(','))) #NB: list() to avoid inner query
+    contacts = list(Contact.objects.filter(is_user__in=users).values_list('id', flat=True)) #idem
+
+    users_cal_ids = set(Calendar.objects.filter(is_public=True)
+                                        .exclude(user=user)
+                                        .values_list('id', flat=True)
+                       )
+    users_cal_ids.update(cal_id for cal_id in calendars_ids.split(',') if cal_id.isdigit()) #TODO: check Calendar credentials...
+
     GET = request.GET
+    start = _get_datetime(GET, 'start', (lambda: datetime.now().replace(day=1)))
+    end   = _get_datetime(GET, 'end',   (lambda: get_last_day_of_a_month(start)))
 
-    #TODO: list comprehesion + isdigit()
-    cals_ids = []
-    for cal_id in calendars_ids.split(','):
-        if cal_id:
-            try:
-                cals_ids.append(long(cal_id))
-            except ValueError:
-                continue
-
-    #TODO: user = request.user
-    #TODO: use exclude() ...
-    #TODO: exclude request.user from seque,ce in python, to avoid a query
-    users_cal_ids  = set(Calendar.objects.filter(is_public=True, user__in=users.filter(~Q(pk=request.user.pk))).values_list('id', flat=True))
-    users_cal_ids |= set(cals_ids)
-
-    if GET.has_key("start"):
-        try:
-            start = datetime.fromtimestamp(float(GET['start']))
-        except:
-            start = datetime.now().replace(day=1)
-    else:
-        start = datetime.now().replace(day=1) #TODO: factorise (with smart exception usage....)
-
-    if GET.has_key("end"):
-        try:
-            end = datetime.fromtimestamp(float(GET['end']))
-        except:
-            end = get_last_day_of_a_month(start)
-    else:
-        end = get_last_day_of_a_month(start)
-
+    #TODO: label when no calendar related to the participant of an indispo
     activities = EntityCredentials.filter(
-                        request.user,
+                        user,
                         Activity.objects.filter(is_deleted=False)
                                         .filter(Q(start__range=(start, end)) |
                                                 Q(end__gt=start, start__lt=end)
                                                )
                                         .filter(Q(calendars__pk__in=users_cal_ids) |
-                                                Q(type=ACTIVITYTYPE_INDISPO, user__in=users)
+                                                Q(type=ACTIVITYTYPE_INDISPO, #user__in=users
+                                                  relations__type=REL_OBJ_PART_2_ACTIVITY,
+                                                  relations__object_entity__in=contacts,
+                                                 )
                                                )
                     )
 
-    return HttpResponse(JSONEncoder().encode([getFormattedDictFromAnActivity(activity, request.user) for activity in activities]),
-                        mimetype="text/javascript"
-                       )
+    #return HttpResponse(JSONEncoder().encode([_activity_2_dict(activity, user)
+                                                #for activity in activities
+                                             #]
+                                            #),
+                        #mimetype='text/javascript'
+                       #)
+    return [_activity_2_dict(activity, user) for activity in activities]
+
+
+def _js_timestamp_to_datetime(timestamp):
+    "@raise ValueError"
+    return datetime.fromtimestamp(float(timestamp) / 1000) #Js gives us miliseconds
 
 @login_required
 @permission_required('activities')
+@jsonify
 def update_activity_date(request):
-    POST_get = request.POST.get
-    id_             = POST_get('id')
-    start_timestamp = POST_get('start')
-    end_timestamp   = POST_get('end')
+    if request.method != 'POST':
+        raise Http404
 
-    try:
-        is_all_day = JSONDecoder().decode(POST_get('allDay', 'null'))
-    except ValueError:
-        is_all_day = None
+    POST = request.POST
 
-    if id_ is not None and start_timestamp is not None and end_timestamp is not None: #TODO: use a guard instead ??
-        activity = get_object_or_404(Activity, pk=id_)
+    act_id          = POST['id']
+    start_timestamp = POST['start']
+    end_timestamp   = POST['end']
 
-        #if not user_has_edit_permission_for_an_object(request, activity, 'activities'):
-        if not activity.can_change(request.user):
-            return HttpResponse("forbidden", mimetype="text/javascript", status=403)
+    #try:
+        #is_all_day = JSONDecoder().decode(POST.get('allDay', 'null'))
+    #except ValueError as e:
+        #logger.debug('update_activity_date(): %s', e)
+        #is_all_day = None
+    is_all_day = POST.get('allDay')
 
-        try:
-            #TODO:factorise (_time_from_JS() function ??)
-            activity.start = datetime.fromtimestamp(float(start_timestamp) / 1000)#Js gives us miliseconds
-            activity.end   = datetime.fromtimestamp(float(end_timestamp) / 1000)
-            if is_all_day is not None:
-                activity.is_all_day = is_all_day
-                activity.handle_all_day()
-        except ValueError:
-            return HttpResponse("error", mimetype="text/javascript", status=400)
+    if is_all_day is not None:
+        is_all_day = bool(JSONDecoder().decode(is_all_day))
 
-        participants = [act.object_entity for act in activity.get_participant_relations()]
-        collisions = check_activity_collisions(activity.start, activity.end, participants, busy=activity.busy, exclude_activity_id=activity.id)
-        if collisions:
-            return HttpResponse(u", ".join(collisions), mimetype="text/plain", status=409)
+    activity = Activity.objects.get(pk=act_id)
+    activity.can_change_or_die(request.user)
 
-        activity.save()
+    #TODO: factorise (_time_from_JS() function ??)
+    activity.start = _js_timestamp_to_datetime(start_timestamp)
+    activity.end   = _js_timestamp_to_datetime(end_timestamp)
 
-        return HttpResponse("success", mimetype="text/javascript")
+    if is_all_day is not None and activity.floating_type != FLOATING_TIME:
+        activity.is_all_day = is_all_day
+        activity.handle_all_day()
 
-    return HttpResponse("error", mimetype="text/javascript", status=400)
+    collisions = check_activity_collisions(
+                        activity.start, activity.end,
+                        participants=[r.object_entity for r in activity.get_participant_relations()],
+                        busy=activity.busy,
+                        exclude_activity_id=activity.id,
+                    )
+
+    if collisions:
+        raise ConflictError(u', '.join(collisions)) #TODO: improve msg ??
+
+    activity.save()
 
 @login_required
 @permission_required('activities')
@@ -211,18 +235,14 @@ def edit_user_calendar(request, calendar_id):
 
 @login_required
 @permission_required('activities')
+@jsonify
 def delete_user_calendar(request):
     #TODO: Adding the possibility to transfert activities
     calendar = get_object_or_404(Calendar, pk=get_from_POST_or_404(request.POST, 'id'))
-    status, msg = 200, ""
     user = request.user
 
-    #TODO: simply raise PermissionDenied ?
     #TODO: factorise calendar credentials functions ?
-    if (user.is_superuser or calendar.user == user) and calendar.is_custom:
-        calendar.delete()
-    else:
-        status = 403
-        msg = _(u"You are not allowed to delete this calendar.")
+    if not calendar.is_custom or (not user.is_superuser and calendar.user_id != user.id):
+        raise PermissionDenied(_(u'You are not allowed to delete this calendar.'))
 
-    return HttpResponse(msg, mimetype="text/javascript", status=status)
+    calendar.delete()

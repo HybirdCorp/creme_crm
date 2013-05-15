@@ -29,9 +29,9 @@ class Command(BaseCommand):
     args = ''
 
     def handle(self, *args, **options):
-        from creme.persons.models.contact import Contact
+        from creme.persons.models import Contact
 
-        from creme.activities.models.activity import Calendar, Activity
+        from creme.activities.models import Calendar, Activity
         from creme.activities.constants import REL_OBJ_ACTIVITY_SUBJECT, REL_OBJ_PART_2_ACTIVITY#, REL_OBJ_LINKED_2_ACTIVITY
 
         contacts_get                  = Contact.objects.get

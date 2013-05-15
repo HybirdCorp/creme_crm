@@ -9,8 +9,9 @@ try:
 
     from creme.persons.models import Organisation, Contact
 
-    from creme.activities.models import Activity, Meeting, Status, Calendar
-    from creme.activities.constants import ACTIVITYTYPE_MEETING, REL_SUB_PART_2_ACTIVITY
+    from creme.activities.models import Activity, Status, Calendar
+    from creme.activities.constants import (ACTIVITYTYPE_MEETING, ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+                                           REL_SUB_PART_2_ACTIVITY)
 
     from ..models import CommercialApproach
 except Exception as e:
@@ -94,7 +95,7 @@ class CommercialApproachTestCase(CremeTestCase):
         self.login()
 
         user = self.user
-        url = '/activities/activity/add/meeting'
+        url = '/activities/activity/add'
         self.assertGET200(url)
 
         Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki', is_user=user) #me
@@ -104,6 +105,10 @@ class CommercialApproachTestCase(CremeTestCase):
         response = self.client.post(url, follow=True,
                                     data={'user':             user.pk,
                                           'title':            title,
+                                          'type_selector':    '{"type": "%s", "sub_type": "%s"}' % (
+                                                                    ACTIVITYTYPE_MEETING,
+                                                                    ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+                                                                ),
                                           'status':           Status.objects.all()[0].pk,
                                           'start':            '2011-5-18',
                                           'my_participation': True,
@@ -130,9 +135,13 @@ class CommercialApproachTestCase(CremeTestCase):
         title = 'Meeting #01'
         description = 'Stuffs about the fighting'
         my_calendar = Calendar.get_user_default_calendar(user)
-        response = self.client.post('/activities/activity/add/meeting', follow=True,
+        response = self.client.post('/activities/activity/add', follow=True,
                                     data={'user':             user.pk,
                                           'title':            title,
+                                          'type_selector':    '{"type": "%s", "sub_type": "%s"}' % (
+                                                                    ACTIVITYTYPE_MEETING,
+                                                                    ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
+                                                                ),
                                           'description':      description,
                                           'status':           Status.objects.all()[0].pk,
                                           'start':            '2011-5-18',
@@ -167,10 +176,11 @@ class CommercialApproachTestCase(CremeTestCase):
         user = self.user
         title = 'meeting #01'
         description = 'Stuffs about the fighting'
-        meeting = Meeting.objects.create(user=user, title=title, description=description,
-                                         start=datetime(year=2011, month=5, day=18, hour=14, minute=0),
-                                         end=datetime(year=2011,   month=6, day=1,  hour=15, minute=0)
-                                        )
+        meeting = Activity.objects.create(user=user, title=title, description=description,
+                                          type_id=ACTIVITYTYPE_MEETING,
+                                          start=datetime(year=2011, month=5, day=18, hour=14, minute=0),
+                                          end=datetime(year=2011,   month=6, day=1,  hour=15, minute=0)
+                                         )
         ryoga = Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki', is_user=user)
 
         Relation.objects.create(subject_entity=ryoga, type_id=REL_SUB_PART_2_ACTIVITY,

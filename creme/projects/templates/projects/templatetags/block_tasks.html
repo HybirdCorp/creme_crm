@@ -1,7 +1,7 @@
 {% load i18n %}
-{% load creme_core_tags creme_block creme_widgets %}
+{% load creme_core_tags creme_block creme_widgets activities_tags %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
-    {% get_block_header colspan=8 %}
+    {% get_block_header colspan=9 %}
         <th class="collapser label">{% get_block_title  _('%s Related Task') _('%s Related Tasks') 'task_48.png' _('Tasks') %}</th>
         <th class="actions">
             <div class="buttons">
@@ -14,6 +14,7 @@
             <tr class="header">
                 <th class="block_header_line_dark">{% trans "Order" %}</th>
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
+                <th class="block_header_line_dark">{% trans "Type" %}</th>
                 <th class="block_header_line_dark">{% trans "Estimated duration (hours)" %}</th>
                 <th class="block_header_line_dark">{% trans "Effective duration (hours)" %}</th>
                 <th class="block_header_line_dark">{% trans "Status" %}</th>
@@ -26,6 +27,7 @@
                     <td class="{{row_color}}" align="center">{{task.order}}</td>
                     <td class="{{row_color}}" align="center">{% widget_entity_hyperlink task user %}</td>
                     {% if view_perm %}
+                        <td class="{{row_color}}" align="center">{% get_activity_icon task.type_id 'small' %}</td>
                         <td class="{{row_color}}" align="center">{{task.duration}}h</td>
                         {% include 'projects/frag_task_delay_td.html' %}
                         <td class="{{row_color}}" align="center">{{task.tstatus}}</td>
@@ -39,6 +41,7 @@
                         </td>
                         <td class="{{row_color}}" align="right">{{task.get_task_cost}} €</td>
                     {% else %}
+                        <td class="{{row_color}}"></td>
                         <td class="{{row_color}}" align="center">?? h</td>
                         <td class="{{row_color}}" align="center">?? h</td>
                         <td class="{{row_color}}" align="center">??</td>
@@ -63,5 +66,5 @@
             </tr>
         {% endif %}
     </tbody>
-    {% get_block_footer 8 %}
+    {% get_block_footer 9 %}
 </table>

@@ -1,3 +1,5 @@
 {% extends "creme_core/generics/view_entity.html" %}
-{% load creme_widgets %}
-{% block add_new_button %}<li>{% get_clone_button object request.user %}</li>{% endblock %}
+{% load creme_widgets activities_tags %}
+
+{% block logo %}{% get_activity_icon object.type.pk %}{% endblock %}
+{% block title %}{{object.type.name}} : {{object|title}}{% endblock %}

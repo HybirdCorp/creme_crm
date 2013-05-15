@@ -34,8 +34,12 @@ from creme.persons.models import Contact, Organisation
 from creme.persons.forms.contact import ContactForm
 from creme.persons.forms.organisation import OrganisationForm
 
-from creme.activities.models import Activity, Status, PhoneCall, PhoneCallType, Calendar
-from creme.activities import constants
+from creme.activities.models import Activity, Calendar
+from creme.activities.constants import (ACTIVITYTYPE_PHONECALL,
+                                        ACTIVITYSUBTYPE_PHONECALL_INCOMING,
+                                        ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+                                        STATUS_IN_PROGRESS, REL_SUB_PART_2_ACTIVITY,
+                                        REL_SUB_LINKED_2_ACTIVITY)
 
 
 def _build_phonecall(user, entity_id, calltype_id, title_format):
@@ -43,16 +47,17 @@ def _build_phonecall(user, entity_id, calltype_id, title_format):
 
     entity.can_link_or_die(user)
 
-    user.has_perm_to_create_or_die(Activity) #TODO: PhoneCall instead ???
+    user.has_perm_to_create_or_die(Activity)
 
     user_contact = get_object_or_404(Contact, is_user=user)
     entity = entity.get_real_entity()
     now = datetime.now()
-    pcall = PhoneCall.objects.create(user=user,
+    pcall = Activity.objects.create(user=user,
                                      title=title_format % entity,
+                                     type_id=ACTIVITYTYPE_PHONECALL,
                                      description=_(u'Automatically created by CTI'),
-                                     status=get_object_or_404(Status, pk=constants.STATUS_IN_PROGRESS),
-                                     call_type=get_object_or_404(PhoneCallType, pk=calltype_id),
+                                     status_id=STATUS_IN_PROGRESS,
+                                     sub_type_id=calltype_id,
                                      start=now,
                                      end=now + timedelta(minutes=5),
                                     )
@@ -64,8 +69,8 @@ def _build_phonecall(user, entity_id, calltype_id, title_format):
         pcall.calendars.add(Calendar.get_user_default_calendar(entity.is_user))
 
     #TODO: link credentials
-    caller_rtype = constants.REL_SUB_PART_2_ACTIVITY
-    entity_rtype = constants.REL_SUB_PART_2_ACTIVITY if isinstance(entity, Contact) else constants.REL_SUB_LINKED_2_ACTIVITY
+    caller_rtype = REL_SUB_PART_2_ACTIVITY
+    entity_rtype = REL_SUB_PART_2_ACTIVITY if isinstance(entity, Contact) else REL_SUB_LINKED_2_ACTIVITY
     rtypes_ids   = set((caller_rtype, entity_rtype))
 
     rtypes_map = RelationType.objects.in_bulk(rtypes_ids)
@@ -85,7 +90,7 @@ def _build_phonecall(user, entity_id, calltype_id, title_format):
 def create_phonecall_as_caller(request):
     pcall = _build_phonecall(request.user,
                              get_from_POST_or_404(request.POST, 'entity_id'),
-                             constants.PHONECALLTYPE_OUTGOING,
+                             ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
                              _(u'Call to %s')
                             )
 
@@ -137,6 +142,6 @@ def add_orga(request, number):
 @permission_required('activities')
 @permission_required('activities.add_activity')
 def add_phonecall(request, entity_id):
-    pcall = _build_phonecall(request.user, entity_id, constants.PHONECALLTYPE_INCOMING, _(u'Call from %s'))
+    pcall = _build_phonecall(request.user, entity_id, ACTIVITYSUBTYPE_PHONECALL_INCOMING, _(u'Call from %s'))
 
     return HttpResponseRedirect(pcall.get_absolute_url())

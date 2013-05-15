@@ -114,7 +114,7 @@ class JSONField(CharField):
 
         try:
             data = jsonloads(value)
-        except:
+        except Exception:
             raise ValidationError(self.error_messages['invalidformat'])
 
         if expected_type is not None and data is not None and not isinstance(data, expected_type):

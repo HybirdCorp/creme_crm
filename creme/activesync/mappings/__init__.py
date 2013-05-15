@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from creme.activities.models import Meeting, Task
+from creme.activities.models import Activity
 
 from creme.persons.models import Contact
 
@@ -31,8 +31,8 @@ from .utils import serialize_entity
 #Mapping between AS folder types and creme types
 FOLDERS_TYPES_CREME_TYPES_MAPPING = {
     SYNC_FOLDER_TYPE_CONTACT: Contact,
-    SYNC_FOLDER_TYPE_APPOINTMENT: Meeting,
-    SYNC_FOLDER_TYPE_TASK: Task,
+    SYNC_FOLDER_TYPE_APPOINTMENT: Activity,
+    SYNC_FOLDER_TYPE_TASK: Activity,
 }
 
 CREME_TYPES_FOLDERS_TYPES_MAPPING = dict((v,k) for k, v in FOLDERS_TYPES_CREME_TYPES_MAPPING.iteritems())
@@ -57,7 +57,7 @@ CREME_AS_MAPPING = {
         'type': SYNC_FOLDER_TYPE_CONTACT,
         'pre_serialization': pre_serialize_contact,
     },
-    Meeting:{
+    Activity:{
         'mapping': CREME_MEETING_MAPPING,
         'class': "Calendar",
         'save': save_meeting,

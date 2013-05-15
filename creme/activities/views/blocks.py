@@ -18,7 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
@@ -27,8 +28,9 @@ from creme.creme_core.views.generic import add_to_entity
 from creme.creme_core.utils import get_from_POST_or_404
 
 from ..models import Activity
-from ..forms import ParticipantCreateForm, SubjectCreateForm
-from ..constants import REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY
+from ..forms.blocks import ParticipantCreateForm, SubjectCreateForm
+from ..constants import (REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY,
+                         REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
 
 
 @login_required
@@ -38,6 +40,23 @@ def add_participant(request, activity_id):
                          _(u'Adding participants to activity <%s>'),
                          entity_class=Activity, link_perm=True,
                         )
+
+@login_required
+@permission_required('activities')
+def delete_participant(request):
+    relation = get_object_or_404(Relation,
+                                 pk=get_from_POST_or_404(request.POST, 'id'),
+                                 type=REL_OBJ_PART_2_ACTIVITY,
+                                )
+    subject  = relation.subject_entity
+    user     = request.user
+
+    subject.can_unlink_or_die(user)
+    relation.object_entity.can_unlink_or_die(user)
+
+    relation.delete()
+
+    return HttpResponseRedirect(subject.get_real_entity().get_absolute_url())
 
 @login_required
 @permission_required('activities')

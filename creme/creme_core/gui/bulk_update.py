@@ -47,7 +47,7 @@ class _BulkUpdateRegistry(object):
         excluded_fields = self._excluded_fieldnames.get(model)
 
         # get excluded field by inheritance in case of working model is not registered yet
-        if excluded_fields is None:
+        if not excluded_fields:
             self.register((model, []))
             excluded_fields = self._excluded_fieldnames.get(model)
 

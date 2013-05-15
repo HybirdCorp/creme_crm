@@ -21,6 +21,7 @@
 from django.template import Library
 from django.utils.html import escape
 
+from ..constants import ICON_SIZE_MAP
 from ..gui.icon_registry import icon_registry
 from ..utils.media import get_creme_media_url
 
@@ -88,16 +89,8 @@ def widget_entity_hyperlink(entity, user, ignore_deleted=False): #TODO: takes_co
 def widget_select_or_msg(items, void_msg):
     return {'items': items, 'void_msg': void_msg}
 
-_SIZE_MAP = {
-        'big':    64,
-        'normal': 48,
-        'medium': 32,
-        'small':  22,
-        'tiny':   16,
-    }
-
 def _get_image_path_for_model(theme, model, size):
-    path  = icon_registry.get(model, _SIZE_MAP[size])
+    path = icon_registry.get(model, ICON_SIZE_MAP[size])
 
     if not path:
         return ''

@@ -6,7 +6,7 @@ try:
 
     from creme.persons.models import Contact, Organisation
 
-    from creme.activities.models import Meeting
+    from creme.activities.models import Activity
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -78,7 +78,7 @@ class BlockRegistryTestCase(CremeTestCase):
 
         class FoobarInstanceBlock3(_FoobarInstanceBlock):
             id_ = InstanceBlockConfigItem.generate_base_id('creme_core', 'foobar_instance_block_3')
-            target_ctypes = (Organisation, Meeting) # <-- KO !!
+            target_ctypes = (Organisation, Activity) # <-- KO !!
 
             def detailview_display(self, context):
                 return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity)

@@ -9,7 +9,8 @@ try:
     from creme.persons.models import Contact, Organisation
     from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
-    from creme.activities.models import Meeting
+    from creme.activities.models import Activity
+    from creme.activities.constants import ACTIVITYTYPE_MEETING
 
     from ..models import UserSynchronizationHistory, CremeExchangeMapping
 except Exception as e:
@@ -94,13 +95,13 @@ class ActiveSyncModelsTestCase(CremeTestCase):
 
     def test_mapping_update_meeting01(self):
         user = self.user
-        meeting = Meeting.objects.create(user=user, title="Meeting with Peach")
-        ct_meeting = ContentType.objects.get_for_model(meeting)
+        meeting = Activity.objects.create(user=user, title="Meeting with Peach", type_id=ACTIVITYTYPE_MEETING)
+        ct_activity = ContentType.objects.get_for_model(Activity)
 
         self.assertEqual(0, CremeExchangeMapping.objects.filter(user=user).count())
 
         CremeExchangeMapping.objects.create(user=user, synced=False, creme_entity_id=meeting.pk,
-                                            exchange_entity_id="fake id", creme_entity_ct=ct_meeting
+                                            exchange_entity_id="fake id", creme_entity_ct=ct_activity
                                            )
 
         meeting.place = 'Mushroom castle'
@@ -112,11 +113,11 @@ class ActiveSyncModelsTestCase(CremeTestCase):
 
     def test_mapping_delete_meeting01(self):
         user = self.user
-        meeting = Meeting.objects.create(user=user, title="Meeting with Peach")
-        ct_meeting = ContentType.objects.get_for_model(meeting)
+        meeting = Activity.objects.create(user=user, title="Meeting with Peach", type_id=ACTIVITYTYPE_MEETING)
+        ct_activity = ContentType.objects.get_for_model(meeting)
 
         mapping = CremeExchangeMapping.objects.create(user=user, synced=False, creme_entity_id=meeting.pk,
-                                                      exchange_entity_id="fake id", creme_entity_ct=ct_meeting
+                                                      exchange_entity_id="fake id", creme_entity_ct=ct_activity
                                                      )
         self.assertFalse(mapping.was_deleted)
 

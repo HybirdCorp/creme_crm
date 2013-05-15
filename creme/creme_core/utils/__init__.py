@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import warn
+import logging
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
@@ -28,6 +28,10 @@ from django.contrib.contenttypes.models import ContentType
 #from django.utils.translation import ugettext
 
 from ..registry import creme_registry
+from ..core.exceptions import ConflictError
+
+
+logger = logging.getLogger(__name__)
 
 
 def creme_entity_content_types():
@@ -81,18 +85,23 @@ def jsonify(func):
 
         try:
             rendered = func(*args, **kwargs)
-        except Http404, e:
-            rendered = unicode(e)
+        except Http404 as e:
+            msg = unicode(e)
             status = 404
-        except PermissionDenied, e:
-            rendered = unicode(e)
+        except PermissionDenied as e:
+            msg = unicode(e)
             status = 403
+        except ConflictError as e:
+            msg = unicode(e)
+            status = 409
         except Exception as e:
-            warn('Exception in @jsonify(%s): %s', func.__name__, e)
-            rendered = unicode(e)
+            logger.debug('Exception in @jsonify(%s): %s', func.__name__, e)
+            msg = unicode(e)
             status = 400
+        else:
+            msg = JSONEncoder().encode(rendered)
 
-        return HttpResponse(JSONEncoder().encode(rendered), mimetype="text/javascript", status=status)
+        return HttpResponse(msg, mimetype='text/javascript', status=status)
 
     return _aux
 

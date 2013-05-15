@@ -9,7 +9,7 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.tests.base import CremeTestCase
 
-    from creme.activities.models import Meeting
+    from creme.activities.models import Activity
 
     from creme.persons.models import Contact, Organisation #need CremeEntity
 
@@ -51,7 +51,7 @@ class UserRoleTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         name = 'CEO'
         creatable_ctypes = [get_ct(Contact).id, get_ct(Organisation).id]
-        exportable_ctypes = [get_ct(Contact).id, get_ct(Meeting).id]
+        exportable_ctypes = [get_ct(Contact).id, get_ct(Activity).id]
         apps = ['persons']
         response = self.client.post(url, follow=True,
                                     data={'name':              name,
@@ -190,7 +190,7 @@ class UserRoleTestCase(CremeTestCase):
         name   = role.name + '_edited'
         get_ct = ContentType.objects.get_for_model
         creatable_ctypes = [get_ct(Contact).id, get_ct(Organisation).id]
-        exportable_ctypes = [get_ct(Contact).id, get_ct(Meeting).id]
+        exportable_ctypes = [get_ct(Contact).id, get_ct(Activity).id]
         apps   = ['persons', 'tickets']
         admin_apps = ['persons']
         response = self.client.post(url, follow=True,

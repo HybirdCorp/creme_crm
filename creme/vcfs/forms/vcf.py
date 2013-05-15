@@ -166,7 +166,8 @@ class VcfImportForm(CremeModelWithUserForm):
                 fields['adr_last_name'].initial = last_name
                 prefix = value.prefix
                 if prefix:
-                    civil = Civility.objects.filter(title__icontains=prefix)[:1]
+                    #civil = Civility.objects.filter(title__icontains=prefix)[:1]
+                    civil = Civility.objects.filter(shortcut__icontains=prefix)[:1] #TODO: find in title too ?
                     if civil:
                         fields['civility'].initial = civil[0].id
                     else:

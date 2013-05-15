@@ -4,6 +4,7 @@ try:
     from datetime import datetime, date, time
     from functools import partial
 
+    from django.utils.simplejson.encoder import JSONEncoder
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
@@ -14,7 +15,7 @@ try:
     from creme.persons.models import Contact
 
     from creme.activities.models import Calendar
-    from creme.activities.constants import REL_SUB_PART_2_ACTIVITY
+    from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, ACTIVITYTYPE_TASK, NARROW
 
     from .models import *
     from .constants import *
@@ -25,6 +26,8 @@ except Exception as e:
 class ProjectsTestCase(CremeTestCase):
     ADD_PROJECT_URL = '/projects/project/add'
     ADD_TASK_PARENT_URL = '/projects/task/%s/parent/add'
+
+    TYPE_VALUE = JSONEncoder().encode({'type': ACTIVITYTYPE_TASK, 'sub_type': None})
 
     @classmethod
     def setUpClass(cls):
@@ -169,14 +172,15 @@ class ProjectsTestCase(CremeTestCase):
         self.assertGET200(url)
 
         response = self.client.post(url, follow=True,
-                                    data={'user':               user.id,
-                                          'title':              'head',
-                                          'start':              '2010-10-11 15:00',
-                                          'end':                '2010-10-11 17:00',
-                                          'duration':           50,
-                                          'tstatus':            TaskStatus.objects.all()[0].id,
-                                          'participating_users':user.id,
-                                          'busy':               True
+                                    data={'user':                user.id,
+                                          'title':               'head',
+                                          'start':               '2010-10-11 15:00',
+                                          'end':                 '2010-10-11 17:00',
+                                          'duration':            50,
+                                          'tstatus':             TaskStatus.objects.all()[0].id,
+                                          'participating_users': user.id,
+                                          'busy':                True,
+                                          'type_selector':       self.TYPE_VALUE,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -190,14 +194,15 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(1, task1.calendars.count())
 
         response = self.client.post(url, follow=True,
-                                    data={'user':               user.id,
-                                          'title':              'torso',
-                                          'start':              '2010-10-11 17:01',
-                                          'end':                '2010-10-11 17:30',
-                                          'duration':           180,
-                                          'tstatus':            TaskStatus.objects.all()[0].id,
-                                          'parent_tasks':       task1.id,
-                                          'participating_users':user.id
+                                    data={'user':                user.id,
+                                          'title':               'torso',
+                                          'start':               '2010-10-11 17:01',
+                                          'end':                 '2010-10-11 17:30',
+                                          'duration':            180,
+                                          'tstatus':             TaskStatus.objects.all()[0].id,
+                                          'parent_tasks':        task1.id,
+                                          'participating_users': user.id,
+                                          'type_selector':       self.TYPE_VALUE,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -210,8 +215,8 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(1,          len(tasks2))
         self.assertEqual([task1.id], [t.id for t in task2.parent_tasks.all()])
 
-        self.assertEqual(list(tasks), list(project.get_tasks()))
-        self.assertEqual(180 + 50,    project.get_expected_duration())
+        self.assertEqual(set(tasks), set(project.get_tasks()))
+        self.assertEqual(180 + 50,   project.get_expected_duration())
 
         self.assertRelationCount(1, contact, REL_SUB_PART_2_ACTIVITY, task2)
         self.assertEqual(1, task2.calendars.count())
@@ -224,17 +229,21 @@ class ProjectsTestCase(CremeTestCase):
 
         task01 = self.create_task(project01, 'Title')
         response = self.client.post(self._build_add_ask_url(project02), #follow=True,
-                                    data={'user':         self.user.id,
-                                          'title':        'head',
-                                          'start':        '2010-10-11',
-                                          'end':          '2010-10-30',
-                                          'duration':     50,
-                                          'tstatus':      TaskStatus.objects.all()[0].id,
-                                          'parent_tasks': task01.id,
+                                    data={'user':          self.user.id,
+                                          'title':         'head',
+                                          'start':         '2010-10-11',
+                                          'end':           '2010-10-30',
+                                          'duration':      50,
+                                          'tstatus':       TaskStatus.objects.all()[0].id,
+                                          'parent_tasks':  task01.id,
+                                          'type_selector': self.TYPE_VALUE,
                                          }
                                    )
         self.assertFormError(response, 'form', 'parent_tasks',
-                             [_(u'Select a valid choice. %(value)s is not an available choice.') % {'value': task01.id}]
+                             [_(u'Select a valid choice. %(value)s is not an available choice.') % {
+                                 'value': task01.id,
+                               }
+                             ]
                             )
 
     def test_task_createview03(self): #create 2 tasks with a collision
@@ -249,14 +258,15 @@ class ProjectsTestCase(CremeTestCase):
         self.assertGET200(url)
 
         response = self.client.post(url, follow=True,
-                                    data={'user':               user.id,
-                                          'title':              'head',
-                                          'start':              '2010-10-11 15:00',
-                                          'end':                '2010-10-11 17:00',
-                                          'duration':           50,
-                                          'tstatus':            TaskStatus.objects.all()[0].id,
-                                          'participating_users':user.id,
-                                          'busy':               True,
+                                    data={'user':                user.id,
+                                          'title':               'head',
+                                          'start':               '2010-10-11 15:00',
+                                          'end':                 '2010-10-11 17:00',
+                                          'duration':            50,
+                                          'tstatus':             TaskStatus.objects.all()[0].id,
+                                          'participating_users': user.id,
+                                          'busy':                True,
+                                          'type_selector':       self.TYPE_VALUE,
                                          }
                                     )
         self.assertEqual(200, response.status_code)
@@ -264,13 +274,14 @@ class ProjectsTestCase(CremeTestCase):
         task2_start = get_dt_from_str('2010-10-11 16:59')
         task2_end = get_dt_from_str('2010-10-11 17:30')
         response = self.client.post(url, follow=True,
-                                    data={'user':               user.id,
-                                          'title':              'torso',
-                                          'start':              task2_start,
-                                          'end':                task2_end,
-                                          'duration':           180,
-                                          'tstatus':            TaskStatus.objects.all()[0].id,
-                                          'participating_users':user.id
+                                    data={'user':                user.id,
+                                          'title':               'torso',
+                                          'start':               task2_start,
+                                          'end':                 task2_end,
+                                          'duration':            180,
+                                          'tstatus':             TaskStatus.objects.all()[0].id,
+                                          'participating_users': user.id,
+                                          'type_selector':       self.TYPE_VALUE,
                                          }
                                    )
 
@@ -300,15 +311,16 @@ class ProjectsTestCase(CremeTestCase):
         duration = 55
         tstatus  = TaskStatus.objects.all()[1]
         response = self.client.post(url, follow=True,
-                                    data={'user':     self.user.id,
-                                          'title':    title,
-                                          'start':    '2011-5-16',
-                                          'end':      '2012-6-17',
-                                          'duration': duration,
-                                          'tstatus':  tstatus.id,
+                                    data={'user':           self.user.id,
+                                          'title':          title,
+                                          'start':          '2011-5-16',
+                                          'end':            '2012-6-17',
+                                          'duration':       duration,
+                                          'tstatus':        tstatus.id,
                                          }
                                    )
         self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
 
         task = self.refresh(task)
         self.assertEqual(title,    task.title)
@@ -329,12 +341,12 @@ class ProjectsTestCase(CremeTestCase):
         title = 'Head'
         duration = 55
         response = self.client.post(url, follow=True,
-                                    data={'user':     self.user.id,
-                                          'title':    title,
-                                          'start':    '2011-5-16',
-                                          'end':      '2012-6-17',
-                                          'duration': duration,
-                                          'tstatus':  TaskStatus.objects.all()[0].id,
+                                    data={'user':           self.user.id,
+                                          'title':          title,
+                                          'start':          '2011-5-16',
+                                          'end':            '2012-6-17',
+                                          'duration':       duration,
+                                          'tstatus':        TaskStatus.objects.all()[0].id,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -412,15 +424,15 @@ class ProjectsTestCase(CremeTestCase):
     def create_task(self, project, title, status=None):
         status = status or TaskStatus.objects.all()[0]
         response = self.client.post(self._build_add_ask_url(project), follow=True,
-                                    data={'user':     self.user.id,
-                                          'title':    title,
-                                          'start':    '2010-10-11',
-                                          'end':      '2010-10-30',
-                                          'duration': 50,
-                                          'tstatus':  status.id,
+                                    data={'user':          self.user.id,
+                                          'title':         title,
+                                          'start':         '2010-10-11',
+                                          'end':           '2010-10-30',
+                                          'duration':      50,
+                                          'tstatus':       status.id,
+                                          'type_selector': self.TYPE_VALUE,
                                          }
                                    )
-        #self.assertEqual(200, response.status_code)
         self.assertNoFormError(response)
 
         return self.get_object_or_fail(ProjectTask, project=project, title=title)
@@ -544,7 +556,7 @@ class ProjectsTestCase(CremeTestCase):
 
     def _create_task(self, title, project, parents=None):
         status = TaskStatus.objects.get_or_create(name='status', description="")[0]
-        task = ProjectTask.objects.create(project=project, order=0, duration=0, tstatus=status, user=self.user, title=title)
+        task = ProjectTask.objects.create(project=project, order=0, duration=0, tstatus=status, user=self.user, title=title, type_id=ACTIVITYTYPE_TASK)
         if parents is not None:
             task.parent_tasks = parents
         return task
@@ -663,7 +675,8 @@ class ProjectsTestCase(CremeTestCase):
         status = ProjectStatus.objects.create(name='Sinking')
         project = self.create_project('Project', status=status)[0]
         self.assertEqual(404, self._delete_project_status(status).status_code)
-        self.assertTrue(ProjectStatus.objects.filter(pk=status.pk).exists())
+        #self.assertTrue(ProjectStatus.objects.filter(pk=status.pk).exists())
+        self.get_object_or_fail(ProjectStatus, pk=status.pk)
 
         project = self.get_object_or_fail(Project, pk=project.pk)
         self.assertEqual(status, project.status)

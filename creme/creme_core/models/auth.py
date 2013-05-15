@@ -381,3 +381,18 @@ class TeamM2M(Model):
 # signal handler to create the corresponding Profile object each time a User is
 # created
 contribute_to_model(UserProfile, User)
+
+#TODO: we could also check related contact to find first_name, last_name
+def _user_unicode(user):
+    first_name = user.first_name
+    last_name  = user.last_name
+
+    if first_name and last_name:
+        return ugettext(u"%(first_name)s %(last_name)s.") % {
+                    'first_name': first_name,
+                    'last_name':  last_name[0],
+                }
+    else:
+        return user.username
+
+User.__unicode__ = _user_unicode

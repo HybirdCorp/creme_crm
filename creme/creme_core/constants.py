@@ -12,3 +12,11 @@ DEFAULT_CURRENCY_PK = 1
 DISPLAY_CURRENCY_LOCAL_SYMBOL = 'creme_core-display_currency_local_symbol'
 
 MODELBLOCK_ID = 'modelblock'
+
+ICON_SIZE_MAP = {
+        'big':    64,
+        'normal': 48,
+        'medium': 32,
+        'small':  22,
+        'tiny':   16,
+    }

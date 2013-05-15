@@ -26,7 +26,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.models.relation import Relation
 
 from creme.activities.models import Activity
-from creme.activities.constants import ACTIVITYTYPE_TASK, REL_SUB_PART_2_ACTIVITY
+from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, NARROW
 
 from ..constants import COMPLETED_PK, CANCELED_PK
 from .project import Project
@@ -37,8 +37,8 @@ class ProjectTask(Activity):
     project      = ForeignKey(Project, verbose_name=_(u'Project'), related_name='tasks_set')
     order        = PositiveIntegerField(_(u'Order'), blank=True, null=True)
     parent_tasks = ManyToManyField("self", blank=True, null=True, symmetrical=False, related_name='children_set') #TODO: rename parent_tasks
-    duration     = PositiveIntegerField(_(u'Estimated duration (in hours)'), blank=False, null=False)
-    tstatus      = ForeignKey(TaskStatus, verbose_name=_(u'Status'), on_delete=PROTECT)
+#    duration     = PositiveIntegerField(_(u'Estimated duration (in hours)'), blank=False, null=False) #TODO delete this field ? already have activity duration in Activity
+    tstatus      = ForeignKey(TaskStatus, verbose_name=_(u'Task situation'), on_delete=PROTECT)
 
     #header_filter_exclude_fields = Activity.header_filter_exclude_fields + ['activity_ptr'] #todo: use a set() ??
     #excluded_fields_in_html_output = Activity.excluded_fields_in_html_output + ['status']
@@ -55,7 +55,7 @@ class ProjectTask(Activity):
 
     def __init__ (self, *args , **kwargs):
         super(ProjectTask, self).__init__(*args, **kwargs)
-        self.type_id = ACTIVITYTYPE_TASK
+        self.floating_type = NARROW
 
     def _pre_delete(self):
         for relation in Relation.objects.filter(type=REL_SUB_PART_2_ACTIVITY, object_entity=self):
@@ -154,11 +154,16 @@ class ProjectTask(Activity):
             new_task.project = project
             new_task.save()
 
-            context[task.id] = {'new_pk': new_task.id, 'o_children': project_task_filter(parent_tasks=task.id).values_list('pk', flat=True)}
+            context[task.id] = {'new_pk':     new_task.id, 
+                                'o_children': project_task_filter(parent_tasks=task.id)
+                                                .values_list('pk', flat=True),
+                               }
 #            context[new_task.id] = task.id
 
-        new_links = dict((values['new_pk'], [context[old_child_id]['new_pk'] for old_child_id in values['o_children']])
-                          for old_key, values in context.iteritems())
+        new_links = dict((values['new_pk'], 
+                          [context[old_child_id]['new_pk'] for old_child_id in values['o_children']]
+                         ) for old_key, values in context.iteritems()
+                        )
 
         for task in project_task_filter(pk__in=new_links.keys()):
             for sub_task in project_task_filter(pk__in=new_links[task.id]):

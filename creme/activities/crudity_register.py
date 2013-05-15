@@ -20,10 +20,10 @@
 
 from creme.crudity.backends.models import CrudityBackend
 
-from .models import Meeting
+from .models import Activity
 
 
-class MeetingBackend(CrudityBackend):
-    model = Meeting
+class ActivityBackend(CrudityBackend):
+    model = Activity
 
-backends = [MeetingBackend, ]
+backends = [ActivityBackend, ]

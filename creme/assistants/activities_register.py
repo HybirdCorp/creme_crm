@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,13 +23,17 @@ from django.forms import ModelMultipleChoiceField
 from django.forms.widgets import CheckboxSelectMultiple
 from django.contrib.auth.models import User
 
-from creme.activities.forms.activity import ActivityCreateForm
+#from creme.activities.forms.activity import _ActivityCreateForm
+from creme.activities.forms.activity import ActivityCreateForm, CalendarActivityCreateForm
 
 from .constants import PRIO_NOT_IMP_PK
 from .models import UserMessage
 
 
 def add_users_field(form):
+    if isinstance(form, CalendarActivityCreateForm):
+        return
+
     form.fields['informed_users'] = ModelMultipleChoiceField(queryset=User.objects.all(),
                                                              widget=CheckboxSelectMultiple(),
                                                              required=False, label=_(u"Users"),
@@ -38,6 +42,9 @@ def add_users_field(form):
     form.blocks = form.blocks.new(('informed_users', _(u'Users to keep informed'), ['informed_users']))
 
 def save_users_field(form):
+    if isinstance(form, CalendarActivityCreateForm):
+        return
+
     cdata     = form.cleaned_data
     raw_users = cdata['informed_users']
 
@@ -63,5 +70,7 @@ def save_users_field(form):
     UserMessage.create_messages(raw_users, title, body, PRIO_NOT_IMP_PK, activity.user, activity) #TODO: sender = the real user that created the activity ???
 
 
+#_ActivityCreateForm.add_post_init_callback(add_users_field)
+#_ActivityCreateForm.add_post_save_callback(save_users_field)
 ActivityCreateForm.add_post_init_callback(add_users_field)
 ActivityCreateForm.add_post_save_callback(save_users_field)

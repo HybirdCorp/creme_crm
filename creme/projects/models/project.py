@@ -78,7 +78,7 @@ class Project(CremeEntity):
 
     def get_tasks(self):
         if self.tasks_list is None:
-            self.tasks_list = self.tasks_set.all()
+            self.tasks_list = self.tasks_set.order_by('order')
         return self.tasks_list
 
     def attribute_order_task(self):

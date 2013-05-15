@@ -27,7 +27,8 @@ from creme.creme_core.models import CremeModel
 __all__ = ('Civility', 'Position', 'StaffSize', 'LegalForm', 'Sector')
 
 class Civility(CremeModel):
-    title = CharField(_(u'Title'), max_length=100)
+    title    = CharField(_(u'Title'), max_length=100)
+    shortcut = CharField(_(u'Shortcut'), max_length=100)
 
     def __unicode__(self):
         return self.title

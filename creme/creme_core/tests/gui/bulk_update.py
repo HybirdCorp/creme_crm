@@ -8,7 +8,7 @@ try:
 
     from creme.persons.models import Contact, Organisation
 
-    from creme.activities.models import Meeting, Activity
+    from creme.activities.models import Activity
 
     from creme.tickets.models import Ticket
 except Exception as e:
@@ -65,69 +65,69 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertFalse(is_bulk_updatable(field_name='end_date'))
         self.assertFalse(is_bulk_updatable(field_name='busy'))
 
-    def test_bulk_update_registry04_1(self): # Inheritance test case Parent / Child
-        bulk_update_registry = self.bulk_update_registry
+    #def test_bulk_update_registry04_1(self): # Inheritance test case Parent / Child
+        #bulk_update_registry = self.bulk_update_registry
 
-        is_bulk_updatable_for_activity = partial(bulk_update_registry.is_bulk_updatable, model=Activity)
-        is_bulk_updatable_for_meeting = partial(bulk_update_registry.is_bulk_updatable, model=Meeting)
+        #is_bulk_updatable_for_activity = partial(bulk_update_registry.is_bulk_updatable, model=Activity)
+        #is_bulk_updatable_for_meeting = partial(bulk_update_registry.is_bulk_updatable, model=Meeting)
 
-        activity_excluded_fields = ['type', 'start', 'end', 'busy', 'is_all_day']
+        #activity_excluded_fields = ['type', 'start', 'end', 'busy', 'is_all_day']
 
-        bulk_update_registry.register((Activity, activity_excluded_fields))
+        #bulk_update_registry.register((Activity, activity_excluded_fields))
 
-        self.assertFalse(is_bulk_updatable_for_activity(field_name='type'))
-        self.assertFalse(is_bulk_updatable_for_activity(field_name='end'))
-        self.assertFalse(is_bulk_updatable_for_activity(field_name='busy'))
+        #self.assertFalse(is_bulk_updatable_for_activity(field_name='type'))
+        #self.assertFalse(is_bulk_updatable_for_activity(field_name='end'))
+        #self.assertFalse(is_bulk_updatable_for_activity(field_name='busy'))
 
-        bulk_update_registry.register((Meeting, []))
+        #bulk_update_registry.register((Meeting, []))
 
-        # inherited automatically from CremeEntity
-        self.assertFalse(is_bulk_updatable_for_meeting(field_name='created'))
+        ## inherited automatically from CremeEntity
+        #self.assertFalse(is_bulk_updatable_for_meeting(field_name='created'))
 
-        # inherited from Activity excluded fields
-        self.assertFalse(is_bulk_updatable_for_meeting(field_name='type'))
-        self.assertFalse(is_bulk_updatable_for_meeting(field_name='end'))
-        self.assertFalse(is_bulk_updatable_for_meeting(field_name='busy'))
+        ## inherited from Activity excluded fields
+        #self.assertFalse(is_bulk_updatable_for_meeting(field_name='type'))
+        #self.assertFalse(is_bulk_updatable_for_meeting(field_name='end'))
+        #self.assertFalse(is_bulk_updatable_for_meeting(field_name='busy'))
 
-    def test_bulk_update_registry04_2(self): # Inheritance test case Parent / Child without registering model first
-        bulk_update_registry = self.bulk_update_registry
+    #def test_bulk_update_registry04_2(self): # Inheritance test case Parent / Child without registering model first
+        #bulk_update_registry = self.bulk_update_registry
 
-        is_bulk_updatable_for_activity = partial(bulk_update_registry.is_bulk_updatable, model=Activity)
-        is_bulk_updatable_for_meeting = partial(bulk_update_registry.is_bulk_updatable, model=Meeting)
+        #is_bulk_updatable_for_activity = partial(bulk_update_registry.is_bulk_updatable, model=Activity)
+        #is_bulk_updatable_for_meeting = partial(bulk_update_registry.is_bulk_updatable, model=Meeting)
 
-        activity_excluded_fields = ['type', 'start', 'end', 'busy', 'is_all_day']
+        #activity_excluded_fields = ['type', 'start', 'end', 'busy', 'is_all_day']
 
-        bulk_update_registry.register((Activity, activity_excluded_fields))
+        #bulk_update_registry.register((Activity, activity_excluded_fields))
 
-        self.assertFalse(is_bulk_updatable_for_activity(field_name='type'))
-        self.assertFalse(is_bulk_updatable_for_activity(field_name='end'))
-        self.assertFalse(is_bulk_updatable_for_activity(field_name='busy'))
+        #self.assertFalse(is_bulk_updatable_for_activity(field_name='type'))
+        #self.assertFalse(is_bulk_updatable_for_activity(field_name='end'))
+        #self.assertFalse(is_bulk_updatable_for_activity(field_name='busy'))
 
-        # inherited automatically from CremeEntity
-        self.assertFalse(is_bulk_updatable_for_meeting(field_name='created'))
+        ## inherited automatically from CremeEntity
+        #self.assertFalse(is_bulk_updatable_for_meeting(field_name='created'))
 
-        # inherited from Activity excluded fields
-        self.assertFalse(is_bulk_updatable_for_meeting(field_name='type'))
-        self.assertFalse(is_bulk_updatable_for_meeting(field_name='end'))
-        self.assertFalse(is_bulk_updatable_for_meeting(field_name='busy'))
+        ## inherited from Activity excluded fields
+        #self.assertFalse(is_bulk_updatable_for_meeting(field_name='type'))
+        #self.assertFalse(is_bulk_updatable_for_meeting(field_name='end'))
+        #self.assertFalse(is_bulk_updatable_for_meeting(field_name='busy'))
 
-    def test_bulk_update_registry05(self): # Inheritance test case Child / Parent
-        bulk_update_registry = self.bulk_update_registry
+    #def test_bulk_update_registry05(self): # Inheritance test case Child / Parent
+        #bulk_update_registry = self.bulk_update_registry
 
-        is_bulk_updatable_for_meeting = partial(bulk_update_registry.is_bulk_updatable, model=Meeting)
+        #is_bulk_updatable_for_meeting = partial(bulk_update_registry.is_bulk_updatable, model=Meeting)
 
-        bulk_update_registry.register((Meeting, []))
+        #bulk_update_registry.register((Meeting, []))
 
-        self.assertTrue(is_bulk_updatable_for_meeting(field_name='type'))
-        self.assertTrue(is_bulk_updatable_for_meeting(field_name='end'))
-        self.assertTrue(is_bulk_updatable_for_meeting(field_name='busy'))
+        #self.assertTrue(is_bulk_updatable_for_meeting(field_name='type'))
+        #self.assertTrue(is_bulk_updatable_for_meeting(field_name='end'))
+        #self.assertTrue(is_bulk_updatable_for_meeting(field_name='busy'))
 
-        activity_excluded_fields = ['type', 'start', 'end', 'busy', 'is_all_day']
-        bulk_update_registry.register((Activity, activity_excluded_fields))
+        #activity_excluded_fields = ['type', 'start', 'end', 'busy', 'is_all_day']
+        #bulk_update_registry.register((Activity, activity_excluded_fields))
 
-        self.assertFalse(is_bulk_updatable_for_meeting(field_name='type'))
-        self.assertFalse(is_bulk_updatable_for_meeting(field_name='end'))
-        self.assertFalse(is_bulk_updatable_for_meeting(field_name='busy'))
+        #self.assertFalse(is_bulk_updatable_for_meeting(field_name='type'))
+        #self.assertFalse(is_bulk_updatable_for_meeting(field_name='end'))
+        #self.assertFalse(is_bulk_updatable_for_meeting(field_name='busy'))
 
     def test_bulk_update_registry06(self): # unique field
         is_bulk_updatable = partial(self.bulk_update_registry.is_bulk_updatable, model=Ticket)

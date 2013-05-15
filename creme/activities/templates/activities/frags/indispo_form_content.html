@@ -1,0 +1,17 @@
+{% extends "creme_core/generics/blockform/base.html" %}
+
+{% block main_content %}
+    {% with blocks=form.get_blocks %}
+        {% with form_block=blocks.general %}
+            {% include "creme_core/generics/blockform/content.html" %}
+        {% endwith %}
+
+        {% with form_block=blocks.participants %}
+            {% include "creme_core/generics/blockform/content.html" %}
+        {% endwith %}
+
+        {% for form_block in blocks %}
+            {% include "creme_core/generics/blockform/content.html" %}
+        {% endfor %}
+    {% endwith %}
+{% endblock %}
