@@ -28,7 +28,7 @@ from django.forms import ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.registry import creme_registry
+from creme.creme_core.registry import creme_registry, export_backend_registry
 from creme.creme_core.forms import CremeEntityForm, CremeForm
 from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget, ListViewWidget
 from creme.creme_core.forms.fields import AjaxMultipleChoiceField, AjaxModelChoiceField, CremeEntityField, DateRangeField
@@ -40,6 +40,7 @@ from creme.creme_core.utils.meta import (get_verbose_field_name, get_function_fi
                                          get_date_fields, get_related_field_verbose_name,
                                          ModelFieldEnumerator) #get_flds_with_fk_flds get_flds_with_fk_flds_str
 
+from ..utils import encode_datetime
 from ..models import Report, Field
 from ..report_aggregation_registry import field_aggregation_registry
 
@@ -422,6 +423,7 @@ class AddFieldToReportForm(CremeForm):
 
 
 class DateReportFilterForm(CremeForm):
+    doc_type = ChoiceField(label=_(u'Extension'), required=False, choices=())
     date_fields = ChoiceField(label=_(u'Date fields'), required=True, choices=())
     date_filter = DateRangeField(label=_(u'Date filters'))
 
@@ -429,7 +431,17 @@ class DateReportFilterForm(CremeForm):
         super(DateReportFilterForm, self).__init__(*args, **kwargs)
         self.report = report
         fields = self.fields
+
         fields['date_fields'].choices = [(field.name, field.verbose_name) for field in get_date_fields(report.ct.model_class())]
+
+        doc_type = fields['doc_type']
+        choices = [(backend.id, backend.verbose_name) for backend in export_backend_registry.iterbackends()]
+        if choices:
+            doc_type.choices = choices
+            try:
+                doc_type.initial = choices[0][0]
+            except IndexError:
+                pass
 
     def get_q_dict(self):
         cleaned_data = self.cleaned_data
@@ -442,6 +454,23 @@ class DateReportFilterForm(CremeForm):
         if cleaned_data:
             return cleaned_data['date_filter'].get_dates(datetime.now())
         return None, None
+
+    @property
+    def forge_url_data(self):
+        cleaned_data = self.cleaned_data
+        if cleaned_data:
+            data = []
+            start, end = self.get_dates()
+            get_cdata = cleaned_data.get
+
+            data.append("field=%s" % get_cdata('date_fields'))
+            data.append("range_name=%s" % get_cdata('date_filter').name)
+            if start is not None:
+                data.append('start=%s' % encode_datetime(start))
+            if end is not None:
+                data.append('end=%s' % encode_datetime(end))
+
+            return "&".join(data)
 
     def save(self, *args, **kwargs):#TODO: Useful ?
         return self.cleaned_data

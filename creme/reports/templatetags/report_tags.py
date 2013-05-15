@@ -61,7 +61,7 @@ def get_verbose_type(type_id):
 #def get_column_header(column):
 #    return {'data' : column.get_children_fields_with_hierarchy()}
 
-@register.inclusion_tag('reports/backends/html_column_value.html')
+@register.inclusion_tag('reports/frags/html_column_value.html')
 def get_html_column_value(column, line, index, add_index=0):
     return {'line' : line, 'column': column, 'index': index+add_index}
 

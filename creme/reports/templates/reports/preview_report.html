@@ -19,13 +19,16 @@
                         <img src="{% creme_media_url 'images/previous_64.png' %}" title="{% blocktrans %}Back to the detailview : '{{object}}'{% endblocktrans %}" alt="{% trans "Back" %}"/>
                     </a>&nbsp;
 
-                    {% if form.cleaned_data %}
-                        <a href="/reports/report/{{object.id}}/csv?field={{form.cleaned_data.date_fields}}&range_name={{ form.cleaned_data.date_filter.name }}{% if start %}&start={{start|to_filter_format}}{% endif %}{% if end %}&end={{end|to_filter_format}}{% endif %}">
-                    {% else %}
-                        <a href="/reports/report/{{object.id}}/csv">
-                    {% endif %}
+                    {% get_export_backends as export_backends %}
+                    {% if export_backends|length > 2 %}
+                        {% if form.cleaned_data %}
+                            <a href="/reports/report/export/{{object.id}}/%s?{{form.forge_url_data}}" onclick="creme._export.selectBackend(event, {{ export_backends }}, this);">
+                        {% else %}
+                            <a href="/reports/report/export/{{object.id}}/%s" onclick="creme._export.selectBackend(event, {{ export_backends }}, this);">
+                        {% endif %}
                         <img src="{% creme_media_url 'images/document_csv_64.png' %}" title="{% blocktrans %}Download '{{object}}' as CSV file{% endblocktrans %}" alt="{% trans "Download CSV" %}"/>
-                    </a>&nbsp;
+                        </a>&nbsp;
+                    {% endif %}
                 </span>
             </td>
         </tr>
@@ -52,11 +55,21 @@
                                 <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{% get_column_header column %}</th>
                             {% endfor %}-->
                         {% endcomment %}
-                        {% for column in flat_columns %}
-                            <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{{column}}</th>
+                        {% for column in flat_columns %}{% cycle "block_header_line_dark" "block_header_line_light" as row_color silent %}
+                            <th class="{{row_color}}">{{column}}</th>
                         {% endfor %}
                     </tr>
-                    {{html_backend.render}}
+                    {% for line in lines %}
+                        <tr>
+                            {% comment %}
+                                This cannot be done in any other way, cycle won't reset after exiting the first loop
+                                so an odd number of column will result in a chessboard. https://code.djangoproject.com/ticket/5908
+                            {% endcomment %}
+                            {% for val in line %}
+                                <td class="{% if forloop.counter|divisibleby:2 %}block_line_light{%else%}block_line_dark{%endif%}">{{val}}&nbsp;</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>

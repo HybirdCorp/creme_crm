@@ -21,28 +21,28 @@
 from datetime import datetime
 #from logging import debug
 
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.db.models import ForeignKey, ManyToManyField, Q
-from django.shortcuts import render_to_response, get_object_or_404
-from django.template import RequestContext
+from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext as _
 from django.utils.simplejson import JSONEncoder
+from django.utils.encoding import smart_str
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.models import RelationType
 from creme.creme_core.utils.date_range import date_range_registry
 from creme.creme_core.views.generic import (add_entity, edit_entity, view_entity,
-                                      list_view, inner_popup, add_to_entity)
+                                            list_view, inner_popup, add_to_entity)
 from creme.creme_core.utils.meta import get_model_field_info, ModelFieldEnumerator, get_related_field #get_flds_with_fk_flds
 from creme.creme_core.utils import get_ct_or_404, get_from_POST_or_404, jsonify
+from creme.creme_core.registry import export_backend_registry
 
 from ..models import Report, Field
 from ..forms.report import (CreateForm, EditForm, LinkFieldToReportForm, AddFieldToReportForm,
                             get_aggregate_custom_fields, DateReportFilterForm)
-from ..registry import report_backend_registry
 from ..report_aggregation_registry import field_aggregation_registry
-from ..constants import DATETIME_FILTER_FORMAT
+from ..utils import decode_datetime, encode_datetime
 
 @login_required
 @permission_required('reports')
@@ -201,37 +201,36 @@ def change_field_order(request):
 @login_required
 @permission_required('reports')
 def preview(request, report_id):
+    user = request.user
     report = get_object_or_404(Report, pk=report_id)
-    report.can_view_or_die(request.user)
+    report.can_view_or_die(user)
 
     extra_q_filter = Q()
     start = end = None
 
     if request.method == 'POST':
-        filter_form = DateReportFilterForm(report=report, user=request.user, data=request.POST)
+        filter_form = DateReportFilterForm(report=report, user=user, data=request.POST)
 
         if filter_form.is_valid():
             extra_q_filter = Q(**filter_form.get_q_dict())
             start, end = filter_form.get_dates()
 
     else:
-        filter_form = DateReportFilterForm(report=report, user=request.user)
+        filter_form = DateReportFilterForm(report=report, user=user)
 
     LIMIT_TO = 25
-    html_backend = report_backend_registry.get_backend('HTML')
-    req_ctx = RequestContext(request)
-    html_backend = html_backend(report, context_instance=req_ctx, limit_to=LIMIT_TO, extra_fetch_q=extra_q_filter) #reusing the same variable is not great
 
-    return render_to_response("reports/preview_report.html",
-                              {'object':        report,
-                               'html_backend':  html_backend,
-                               'limit_to':      LIMIT_TO,
-                               'form':          filter_form,
-                               'start':         start,
-                               'end':           end,
-                              },
-                              context_instance=req_ctx
-                             )
+    return render(request, "reports/preview_report.html",
+                  {'lines': report.fetch_all_lines(limit_to=LIMIT_TO,
+                                                   extra_q=extra_q_filter,
+                                                   user=user),
+                   'object':        report,
+                   'limit_to':      LIMIT_TO,
+                   'form':          filter_form,
+                   'start':         start,
+                   'end':           end,
+                   },
+                  )
 
 @login_required
 @permission_required('reports')
@@ -262,35 +261,42 @@ def set_selected(request):
 
     return HttpResponse("", status=200, mimetype="text/javascript")
 
-def _encode_datetime(date):
-    return date.strftime(DATETIME_FILTER_FORMAT) if date else None
-
-def _decode_datetime(date_str):
-    return datetime.strptime(date_str, DATETIME_FILTER_FORMAT) if date_str else None
-
 @login_required
 @permission_required('reports')
-def csv(request, report_id):
+def export(request, report_id, doc_type):
     report         = get_object_or_404(Report, pk=report_id)
-    csv_backend    = report_backend_registry.get_backend('CSV')
     GET_get        = request.GET.get
     user           = request.user
     extra_q_filter = None
+
+    backend = export_backend_registry.get_backend(doc_type)
+    if backend is None:
+        raise Http404('Unknown extension')
+
+    writer = backend()
+    writerow = writer.writerow
 
     report.can_view_or_die(user)
 
     field_name    = GET_get('field')
     if field_name is not None:
-        dt_range_name = GET_get('range_name')#Empty str should get CustomRange
+        dt_range_name = GET_get('range_name')  # Empty str should get CustomRange
 
         dt_range = date_range_registry.get_range(dt_range_name,
-                                                 _decode_datetime(GET_get('start')),
-                                                 _decode_datetime(GET_get('end')))
+                                                 decode_datetime(GET_get('start')),
+                                                 decode_datetime(GET_get('end')))
 
         if dt_range is not None:
             extra_q_filter = Q(**dt_range.get_q_dict(field_name, datetime.now()))
 
-    return csv_backend(report, extra_q_filter, user).render_to_response()
+    writerow([smart_str(column.title) for column in report.get_children_fields_flat()])
+
+    for line in report.fetch_all_lines(extra_q=extra_q_filter, user=user):
+        writerow([smart_str(value) for value in line])
+
+    writer.save(smart_str(report.name))
+
+    return writer.response
 
 #TODO: use @jsonify ?
 #TODO: factorise with forms.report.get_aggregate_fields
@@ -323,19 +329,14 @@ def get_aggregate_fields(request):
 def date_filter_form(request, report_id):
     report = get_object_or_404(Report, pk=report_id)
 
-    redirect = False
-    simple_redirect = False
-    valid = False
-    start = end = None
+    callback_url = None
 
     if request.method == 'POST':
         form = DateReportFilterForm(report=report, user=request.user, data=request.POST)
-        redirect = True
-        valid = True
-        if not form.is_valid():
-           simple_redirect = True
-        else:
-            start, end = form.get_dates()
+        if form.is_valid():
+            callback_url = '/reports/report/export/%s/%s?%s' % (report_id,
+                                                                form.cleaned_data.get('doc_type'),
+                                                                form.forge_url_data)
     else:
         form = DateReportFilterForm(report=report, user=request.user)
 
@@ -344,14 +345,11 @@ def date_filter_form(request, report_id):
                         'title':           _(u'Temporal filters for <%s>' % report),
                         'inner_popup':     True,
                         'report_id':       report_id,
-                        'redirect':        redirect,
-                        'simple_redirect': simple_redirect,
-                        'start':           _encode_datetime(start),
-                        'end':             _encode_datetime(end),
                        },
-                       is_valid=valid,
-                       reload=False,
-                       delegate_reload=True,
+                       is_valid=form.is_valid(),
+                       reload=True,
+                       delegate_reload=False,
+                       callback_url=callback_url,
                       )
 
 @jsonify
@@ -369,4 +367,3 @@ def get_predicates_choices_4_ct(request): #move to creme_core ???
 def get_related_fields(request):
     ct = get_ct_or_404(get_from_POST_or_404(request.POST, 'ct_id')) #TODO: why not GET ??
     return Report.get_related_fields_choices(ct.model_class())
-

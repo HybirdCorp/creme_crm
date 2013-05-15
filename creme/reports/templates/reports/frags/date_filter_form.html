@@ -1,16 +1,21 @@
 {% load i18n %}
 {% load creme_core_tags %}
-
-{% if redirect %}
-    <script type="text/javascript">
-        {% if simple_redirect %}
-            creme.utils.go_to("/reports/report/{{report_id}}/csv", false);
-        {% else %}
-            creme.utils.go_to("/reports/report/{{report_id}}/csv?field={{form.cleaned_data.date_fields}}&range_name={{ form.cleaned_data.date_filter.name }}{% if start %}&start={{start}}{% endif %}{% if end %}&end={{end}}{% endif %}", false);
-        {% endif %}
-    </script>
-{% endif %}
 <form action="" method="POST">{% csrf_token %}
+    {% if inner_popup %}
+        <table class="table_detail_view ui-corner-all with-header">
+            <thead>
+                <tr>
+                    <th colspan="2">{% trans 'Extension' %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr class="content">
+                    <td>{{form.doc_type.label}}</td>
+                    <td>{{form.doc_type.errors}} {{form.doc_type}}</td>
+                </tr>
+            </tbody>
+        </table>
+    {% endif %}
     <table class="table_detail_view ui-corner-all with-header">
         <thead>
             <tr>
