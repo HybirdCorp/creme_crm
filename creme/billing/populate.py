@@ -20,7 +20,7 @@
 
 #from datetime import date
 from decimal import Decimal
-from logging import info
+import logging
 
 from django.utils.translation import ugettext as _, pgettext
 
@@ -41,6 +41,9 @@ from .models import *
 from .constants import *
 from .blocks import *
 from .buttons import *
+
+
+logger = logging.getLogger(__name__)
 
 
 class Populator(BasePopulator):
@@ -201,7 +204,7 @@ class Populator(BasePopulator):
             BlockDetailviewLocation.create(block_id=history_block.id_,         order=20,  zone=BlockDetailviewLocation.RIGHT, model=model)
 
         if 'creme.assistants' in settings.INSTALLED_APPS:
-            info('Assistants app is installed => we use the assistants blocks on detail views')
+            logger.info('Assistants app is installed => we use the assistants blocks on detail views')
 
             from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
@@ -225,7 +228,7 @@ class Populator(BasePopulator):
         SettingValue.create_if_needed(key=sk, user=None, value=True)
 
         if 'creme.reports' in settings.INSTALLED_APPS:
-            info('Reports app is installed => we create 2 billing reports, with 3 graphs, and related blocks in home')
+            logger.info('Reports app is installed => we create 2 billing reports, with 3 graphs, and related blocks in home')
             self.create_reports(rt_sub_bill_received, resulted, resulted_collection)
 
     def create_reports(self, rt_sub_bill_received, resulted, resulted_collection):

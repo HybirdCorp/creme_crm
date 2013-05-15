@@ -19,7 +19,7 @@
 ################################################################################
 
 from functools import partial
-from logging import warn, error
+import logging
 
 from django.core.exceptions import PermissionDenied
 from django.template import RequestContext
@@ -31,6 +31,9 @@ from ..gui.block import block_registry, str2list, BlocksManager
 from ..models.block import BlockState
 from ..utils import jsonify, get_ct_or_404 #, get_from_POST_or_404
 from ..blocks import relations_block
+
+
+logger = logging.getLogger(__name__)
 
 
 def _get_depblock_ids(request, block_id):
@@ -53,7 +56,7 @@ def _build_blocks_render(request, block_id, blocks_manager, block_render_functio
             try:
                 permission = block.permission
             except AttributeError:
-                error('You should set "permission" on the block: %s (id=%s)', block.__class__, block.id_)
+                logger.error('You should set "permission" on the block: %s (id=%s)', block.__class__, block.id_)
             else:
                 if permission is not None and not has_perm(permission):
                     raise PermissionDenied('Error: you are not allowed to view this block: %s' % block.id_)
@@ -77,7 +80,7 @@ def _render_detail(block, context):
     if fun:
         return fun(context)
 
-    warn('Block without detailview_display() : %s (id=%s)', block.__class__, block.id_)
+    logger.warn('Block without detailview_display() : %s (id=%s)', block.__class__, block.id_)
 
 @login_required
 @jsonify
@@ -104,7 +107,7 @@ def reload_home(request, block_id):
         if fun:
             return fun(context)
 
-        warn('Block without home_display() : %s (id=%s)', block.__class__, block.id_)
+        logger.warn('Block without home_display() : %s (id=%s)', block.__class__, block.id_)
 
     return _build_blocks_render(request, block_id, BlocksManager.get(context), render_home)
 
@@ -129,7 +132,7 @@ def reload_portal(request, block_id, ct_ids):
         if fun:
             return fun(context, ct_ids)
 
-        warn('Block without portal_display() : %s (id=%s)', block.__class__, block.id_)
+        logger.warn('Block without portal_display() : %s (id=%s)', block.__class__, block.id_)
 
     return _build_blocks_render(request, block_id, BlocksManager.get(context), render_portal)
 

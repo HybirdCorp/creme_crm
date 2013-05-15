@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from logging import debug
-
 from django.forms import CharField, ModelChoiceField
 from django.forms.widgets import TextInput
 from django.utils.translation import ugettext_lazy as _, ugettext

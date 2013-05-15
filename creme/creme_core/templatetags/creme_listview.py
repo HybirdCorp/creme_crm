@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+import logging
 
 from django.template import Library
 from django.db import models
@@ -31,6 +31,8 @@ from ..utils.meta import get_model_field_info
 from ..gui.field_printers import field_printers_registry
 from .creme_widgets import widget_entity_hyperlink
 
+
+logger = logging.getLogger(__name__)
 register = Library()
 
 
@@ -195,6 +197,6 @@ def get_listview_cell(hfi, entity, user):
         if render_func:
             return render_func(entity, hfi, user)
     except AttributeError as e:
-        debug('Templatetag "get_listview_cell": %s', e)
+        logger.debug('Templatetag "get_listview_cell": %s', e)
 
     return u""

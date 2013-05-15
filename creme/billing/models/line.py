@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from functools import partial
 from decimal import Decimal
-from logging import warn #debug
+from functools import partial
+import logging
 
 from django.core.exceptions import ValidationError
 from django.db.models import (CharField, IntegerField, DecimalField, BooleanField,
@@ -37,6 +37,8 @@ from ..constants import REL_OBJ_HAS_LINE, REL_SUB_LINE_RELATED_ITEM, PERCENT_PK,
 from ..utils import round_to_2
 from .other_models import Vat
 
+
+logger = logging.getLogger(__name__)
 
 default_decimal = Decimal()
 default_quantity = Decimal('1.00')
@@ -177,7 +179,7 @@ class Line(CremeEntity):
             try:
                 self._related_item = self.relations.get(type=REL_SUB_LINE_RELATED_ITEM, subject_entity=self.id).object_entity.get_real_entity()
             except Relation.DoesNotExist:
-                warn('Line.related_item(): relation does not exist !!')
+                logger.warn('Line.related_item(): relation does not exist !!')
 
         return self._related_item
 

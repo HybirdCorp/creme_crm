@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+import logging
 
 from django.forms import CharField
 
@@ -29,6 +29,9 @@ from creme.creme_core.views.file_handling import handle_uploaded_file
 
 from ..models import FolderCategory, Folder, Document
 from ..constants import REL_SUB_RELATED_2_DOC, DOCUMENTS_FROM_ENTITIES
+
+
+logger = logging.getLogger(__name__)
 
 
 class DocumentCreateForm(CremeEntityForm):
@@ -89,7 +92,7 @@ class DocumentCreateViewForm(DocumentCreateForm):
                                                 },
                                       ) [0]
         except (Folder.DoesNotExist, FolderCategory.DoesNotExist) as e:
-            debug("Populate.py had not been run ?! : %s", e)
+            logger.debug("Populate.py had not been run ?! : %s", e)
             #TODO: continue !?
 
         self.instance.folder = entity_folder

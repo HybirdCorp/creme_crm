@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import info
+import logging
 
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
@@ -30,6 +30,9 @@ from .utils import create_if_needed
 from .constants import *
 from .blocks import properties_block, relations_block, customfields_block, history_block
 from .management.commands.creme_populate import BasePopulator
+
+
+logger = logging.getLogger(__name__)
 
 
 class Populator(BasePopulator):
@@ -55,7 +58,7 @@ class Populator(BasePopulator):
             root.set_password(password)
             root.save()
 
-            info('A super-user has been created with login="%(login)s" and password="%(password)s".' % {
+            logger.info('A super-user has been created with login="%(login)s" and password="%(password)s".' % {
                             'login':    login,
                             'password': password,
                         })

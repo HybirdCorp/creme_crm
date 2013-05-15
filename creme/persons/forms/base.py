@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+import logging
 
 from django.utils.translation import ugettext_lazy as _
 
@@ -28,6 +28,8 @@ from creme.creme_core.forms import CremeEntityForm
 #from creme.persons.models import Address
 from .address import AddressForm
 
+
+logger = logging.getLogger(__name__)
 
 _BILLING_ADDRESS_FIELD  = 'billing_address'
 _SHIPPING_ADDRESS_FIELD = 'shipping_address'
@@ -85,7 +87,7 @@ class _BasePersonForm(CremeEntityForm):
                 setattr(instance, addr_fieldname, addr_form.save())
                 save_instance = True
         else:
-            debug('Address form (%s) is not valid: %s', addr_fieldname, addr_form.errors)
+            logger.debug('Address form (%s) is not valid: %s', addr_fieldname, addr_form.errors)
 
         return save_instance
 

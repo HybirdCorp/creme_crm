@@ -20,7 +20,7 @@
 
 from decimal import Decimal
 from itertools import chain
-from logging import debug
+import logging
 
 from django.db.models import CharField, TextField, ForeignKey, DateField, DecimalField, SET_NULL, PROTECT
 from django.db.models.signals import post_save, post_delete
@@ -43,7 +43,9 @@ from .algo import ConfigBillingAlgo
 from .other_models import AdditionalInformation, PaymentTerms, PaymentInformation
 
 
+logger = logging.getLogger(__name__)
 default_decimal = Decimal()
+
 
 class Base(CremeEntity):
     name             = CharField(_(u'Name'), max_length=100)
@@ -157,7 +159,7 @@ class Base(CremeEntity):
                 algo = algo_registry.get_algo(name_algo)
                 self.number = algo().generate_number(source, real_content_type)
             except Exception as e:
-                debug('Exception during billing.generate_number(): %s', e)
+                logger.debug('Exception during billing.generate_number(): %s', e)
 
     @property
     def product_lines(self):
@@ -165,7 +167,7 @@ class Base(CremeEntity):
             #force the retrieving all lines (no slice)
             self._productlines_cache = list(ProductLine.objects.filter(relations__object_entity=self.id))
         else:
-            debug('Cache HIT for product lines in document pk=%s !!' % self.id)
+            logger.debug('Cache HIT for product lines in document pk=%s !!' % self.id)
 
         return self._productlines_cache
 
@@ -174,7 +176,7 @@ class Base(CremeEntity):
         if self._servicelines_cache is None:
             self._servicelines_cache = list(ServiceLine.objects.filter(relations__object_entity=self.id))
         else:
-            debug('Cache HIT for service lines in document pk=%s !!' % self.id)
+            logger.debug('Cache HIT for service lines in document pk=%s !!' % self.id)
 
         return self._servicelines_cache
 
@@ -237,7 +239,7 @@ class Base(CremeEntity):
         return self
 
     def _build_object(self, template):
-        debug("=> Clone base object")
+        logger.debug("=> Clone base object")
         self.user               = template.user
         self.name               = template.name
         self.number             = template.number
@@ -250,17 +252,17 @@ class Base(CremeEntity):
         self.save()
 
     def _build_lines(self, template, klass):
-        debug("=> Clone lines")
+        logger.debug("=> Clone lines")
         for line in template.get_lines(klass):
             line.clone(self)
         #self._post_clone(template) #TODO
 
     def _build_relations(self, template):
-        debug("=> Clone relations")
+        logger.debug("=> Clone relations")
         self._copy_relations(template)
 
     def _build_properties(self, template):
-        debug("=> Clone properties")
+        logger.debug("=> Clone properties")
         self._copy_properties(template)
 
     def save(self, *args, **kwargs):

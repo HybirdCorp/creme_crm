@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+import logging
 
 from django.db.models import (PositiveIntegerField, PositiveSmallIntegerField, CharField,
                               TextField, DateTimeField, ForeignKey, ManyToManyField)
@@ -36,7 +36,9 @@ from ..constants import MAIL_STATUS_NOTSENT, MAIL_STATUS
 from .signature import EmailSignature
 
 
+logger = logging.getLogger(__name__)
 ID_LENGTH = 32
+
 
 class _Email(CremeModel):
     reads          = PositiveIntegerField(_(u'Number of reads'), blank=True, null=True, default=0)
@@ -91,7 +93,7 @@ class EntityEmail(_Email, CremeEntity):
                 self.identifier = generate_id()
                 self.save(force_insert=True)
             except IntegrityError:  #a mail with this id already exists
-                debug('Mail id already exists: %s', self.identifier)
+                logger.debug('Mail id already exists: %s', self.identifier)
                 self.pk = None
 
                 transaction.savepoint_rollback(sid)
@@ -154,7 +156,7 @@ class EntityEmail(_Email, CremeEntity):
                                   )
 
         if sender.send(self):
-            debug("Mail sent to %s", self.recipient)
+            logger.debug("Mail sent to %s", self.recipient)
 
 
 class EntityEmailSender(EMailSender):

@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import error
+import logging
 
 from django.db.models import ForeignKey
 from django.forms import Field, Widget, Select, CheckboxInput
@@ -32,6 +32,9 @@ from ..models import CremeEntity
 from ..signals import pre_merge_related
 from ..gui.merge import merge_form_registry
 from .base import CremeForm
+
+
+logger = logging.getLogger(__name__)
 
 
 class EntitiesHeaderWidget(Widget):
@@ -178,9 +181,9 @@ class MergeEntitiesBaseForm(CremeForm):
         try:
             entity2.delete()
         except Exception as e:
-            error('Error when merging 2 entities : the old one "%s"(id=%s) cannot be deleted: %s',
-                  entity2, entity2.id, e
-                 )
+            logger.error('Error when merging 2 entities : the old one "%s"(id=%s) cannot be deleted: %s',
+                         entity2, entity2.id, e
+                        )
 
 
 def mergefield_factory(modelfield):

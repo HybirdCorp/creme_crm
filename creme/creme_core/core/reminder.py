@@ -19,7 +19,7 @@
 ################################################################################
 
 from datetime import datetime
-from logging import warning
+import logging
 
 from django.core.mail import EmailMessage, get_connection
 from django.conf import settings
@@ -28,7 +28,9 @@ from django.contrib.contenttypes.models import ContentType
 from ..models import DateReminder
 
 
+logger = logging.getLogger(__name__)
 FIRST_REMINDER = 1
+
 
 class Reminder(object):
     id_    = None   #overload with an unicode object ; use generate_id()
@@ -106,7 +108,7 @@ class ReminderRegistry(object):
         reminder_id = reminder.id_
 
         if reminders.has_key(reminder_id):
-            warning("Duplicate reminder's id or reminder registered twice : %s", reminder_id) #exception instead ???
+            logger.warning("Duplicate reminder's id or reminder registered twice : %s", reminder_id) #exception instead ???
 
         reminders[reminder_id] = reminder
 

@@ -18,24 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import warn
-
-from re import compile
-
+from datetime import date, datetime
+import logging
 from os.path import join
 from os import listdir
-
+from re import compile
 from random import randint
 
 from django.http import Http404
 from django.conf import settings
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-
 from django.utils.safestring import mark_safe
 from django.utils.formats import time_format
-
-from datetime import date, datetime
 
 from ..gui import block_registry
 from ..gui.block import PaginatedBlock
@@ -48,6 +43,9 @@ from ..utils import is_testenvironment
 from ..utils.media import get_current_theme, creme_media_themed_url as media_url
 
 from creme.persons.models.contact import Contact
+
+
+logger = logging.getLogger(__name__)
 
 TEST_TEMPLATE_PATH = join(settings.CREME_ROOT, 'creme_core', 'templates', 'creme_core', 'tests')
 TEST_TEMPLATE_BLOCK_PATH = join(TEST_TEMPLATE_PATH, 'blocks')
@@ -74,7 +72,7 @@ class MockManyToMany(object):
 
     def all(self):
         return self.model.objects.all()
-    
+
     def filter(self, **kwargs):
         return self.model.objects.filter(**kwargs)
 
@@ -127,7 +125,7 @@ def js_testview_or_404(request, message, error):
     if not is_testenvironment(request) and not settings.FORCE_JS_TESTVIEW:
         raise Http404(error)
 
-    warn(message)
+    logger.warn(message)
 
 def js_testview_context(request, viewname):
     test_view_pattern = compile('^test_(?P<name>[\d\w]+)\.html')

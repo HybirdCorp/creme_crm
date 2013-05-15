@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import info
+import logging
 
 from django.utils.translation import ugettext as _
 from django.conf import settings
@@ -33,6 +33,9 @@ from creme.persons.models import Contact
 from .models import ProjectStatus, TaskStatus, Project, ProjectTask, Resource
 from .blocks import *
 from .constants import REL_OBJ_PROJECT_MANAGER, REL_SUB_PROJECT_MANAGER, TASK_STATUS
+
+
+logger = logging.getLogger(__name__)
 
 
 class Populator(BasePopulator):
@@ -89,7 +92,7 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=history_block.id_,             order=20,  zone=BlockDetailviewLocation.RIGHT, model=ProjectTask)
 
         if 'creme.assistants' in settings.INSTALLED_APPS:
-            info('Assistants app is installed => we use the assistants blocks on detail views')
+            logger.info('Assistants app is installed => we use the assistants blocks on detail views')
 
             from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 

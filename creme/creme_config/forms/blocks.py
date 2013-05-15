@@ -19,7 +19,6 @@
 ################################################################################
 
 from itertools import chain
-#from logging import debug
 
 from django.forms import MultipleChoiceField, ChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext

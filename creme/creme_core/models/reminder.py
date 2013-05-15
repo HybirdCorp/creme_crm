@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from logging import debug
-
 from django.db.models import Model, DateTimeField, ForeignKey, PositiveIntegerField
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType

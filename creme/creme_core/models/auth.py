@@ -19,7 +19,7 @@
 ################################################################################
 
 #from collections import defaultdict
-from logging import debug
+import logging
 from operator import or_ as or_op
 
 from django.core.exceptions import PermissionDenied
@@ -34,6 +34,9 @@ from ..auth.entity_credentials import EntityCredentials
 from ..registry import creme_registry
 from ..utils.contribute_to_model import contribute_to_model
 from .fields import CTypeForeignKey
+
+
+logger = logging.getLogger(__name__)
 
 
 class UserRole(Model):
@@ -120,10 +123,10 @@ class UserRole(Model):
         setcredentials = self._setcredentials
 
         if setcredentials is None:
-            debug('UserRole.get_credentials(): Cache MISS for id=%s', self.id)
+            logger.debug('UserRole.get_credentials(): Cache MISS for id=%s', self.id)
             self._setcredentials = setcredentials = list(self.credentials.all())
         else:
-            debug('UserRole.get_credentials(): Cache HIT for id=%s', self.id)
+            logger.debug('UserRole.get_credentials(): Cache HIT for id=%s', self.id)
 
         return setcredentials
 
@@ -309,10 +312,10 @@ class UserProfile(Model):
         teammates = self._teammates
 
         if teammates is None:
-            debug('User.teammates: Cache MISS for user_id=%s', self.id)
+            logger.debug('User.teammates: Cache MISS for user_id=%s', self.id)
             self._teammates = teammates = dict((u.id, u) for u in User.objects.filter(team_m2m__team=self))
         else:
-            debug('User.teammates: Cache HIT for user_id=%s', self.id)
+            logger.debug('User.teammates: Cache HIT for user_id=%s', self.id)
 
         return teammates
 

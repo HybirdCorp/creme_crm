@@ -19,7 +19,6 @@
 ################################################################################
 
 from datetime import datetime
-#from logging import debug
 
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.db.models import ForeignKey, ManyToManyField, Q

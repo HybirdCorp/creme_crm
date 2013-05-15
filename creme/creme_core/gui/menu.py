@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import warn
+import logging
 
 from django.utils.encoding import smart_str, smart_unicode
 
@@ -26,6 +26,10 @@ from ..registry import creme_registry
 
 #TODO: merge the 2 menu api (idea: use tags ?)
 #TODO: refactor code.....
+
+
+logger = logging.getLogger(__name__)
+
 
 ######################### 1rst Menu API #########################################
 
@@ -95,7 +99,7 @@ class CremeMenu(object):
             app_item = MenuAppItem(app_name, app_url, name, force_order)
             self._app_items[app_name] = app_item
         else:
-            warn('This app has already been registered in the menu: %s', app_name)
+            logger.warn('This app has already been registered in the menu: %s', app_name)
             app_item = None
 
         return app_item

@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+import logging
 
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseRedirect, Http404
@@ -33,6 +33,9 @@ from ..utils import get_ct_or_404, get_from_POST_or_404, jsonify, creme_entity_c
 from .generic import add_entity
 
 #TODO: factorise with HeaderFilter ??
+
+logger = logging.getLogger(__name__)
+
 
 def _set_current_efilter(request, path, filter_instance):
     lvs = ListViewState.get_state(request, path)
@@ -50,7 +53,7 @@ def add(request, ct_id):
     try:
         callback_url = ct.model_class().get_lv_absolute_url()
     except AttributeError:
-        debug('%s has no get_lv_absolute_url() method ?!' % ct.model_class())
+        logger.debug('%s has no get_lv_absolute_url() method ?!' % ct.model_class())
         callback_url = '/'
 
     return add_entity(request, EntityFilterCreateForm, callback_url,

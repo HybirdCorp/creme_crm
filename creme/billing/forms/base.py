@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+import logging
 
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -35,6 +35,9 @@ from creme.persons.models import Organisation, Address, Contact
 
 from ..models import Line, AdditionalInformation, PaymentTerms
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+
+
+logger = logging.getLogger(__name__)
 
 
 class BaseEditForm(CremeEntityForm):
@@ -151,8 +154,8 @@ class BaseCreateForm(BaseEditForm):
 
         try:
             self.fields['source'].initial = Organisation.get_all_managed_by_creme().values_list('id', flat=True)[0] #[:1][0] ??
-        except IndexError, e:
-            debug('Exception in %s.__init__: %s', self.__class__, e)
+        except IndexError as e:
+            logger.debug('Exception in %s.__init__: %s', self.__class__, e)
 
     def _copy_or_create_address(self, address, owner, name):
         if address is None:

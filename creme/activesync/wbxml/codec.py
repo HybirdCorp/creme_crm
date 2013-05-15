@@ -10,7 +10,7 @@
 #
 #    Copyright (c) 2006 Ole André Vadla Ravnås <oleavr@gmail.com>
 #    Copyright (c) 2007 Dr J A Gow <J.A.Gow@furrybubble.co.uk>
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -26,9 +26,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+import logging
 import StringIO
 from xml.etree.ElementTree import XML, Element, ElementTree, _ElementInterface #SubElement, tostring, fromstring
+
+
+logger = logging.getLogger(__name__)
 
 ################################################################################
 # Low-level WBXML codecs functions
@@ -115,7 +118,7 @@ class WBXMLEncoder(object):
         self._dtd    = dtd
 
     def encode(self, to_encode):
-        debug('Enter encode')
+        logger.debug('Enter encode')
 
         self._out    = StringIO.StringIO()
         self._tagcp  = 0
@@ -140,21 +143,21 @@ class WBXMLEncoder(object):
 
         self._out.close()
 
-        debug('Exit encode with %s', out)
+        logger.debug('Exit encode with %s', out)
         return out
 
     def get_ns(self, name):
         """Get the namespace"""
-        debug('Enter get_ns with %s', name)
+        logger.debug('Enter get_ns with %s', name)
         ns = None
         if name[0] == "{":
             ns, sep, tag = name[1:].rpartition("}")
-        debug('Exit get_ns with %s', ns)
+        logger.debug('Exit get_ns with %s', ns)
         return ns
 
     def get_tag(self, tag, ns=None):
-        debug('Enter get_tag with tag="%s" ns=%s', tag, ns)
-        debug('Exit get_tag with %s', tag.replace('{%s}' % ns, '')) #TODO: variable for tag.replace(...)
+        logger.debug('Enter get_tag with tag="%s" ns=%s', tag, ns)
+        logger.debug('Exit get_tag with %s', tag.replace('{%s}' % ns, '')) #TODO: variable for tag.replace(...)
         return tag.replace('{%s}' % ns, '')
 
     def _encode_node(self, node):
@@ -198,7 +201,7 @@ class WBXMLEncoder(object):
 
     def write_header(self):
         """Write the initial WBXML header"""
-        debug('write_header')
+        logger.debug('write_header')
         self.write_byte(0x03)
         self.write_multi_byte(0x01)
         self.write_multi_byte(106)
@@ -208,7 +211,7 @@ class WBXMLEncoder(object):
         """Call to create a new tag. Pass in a tuple of (ns, name) for tag."""
         stackelem = {}
 
-        debug('Enter start_tag with tag="%s" attributes=%s nocontent=%s', tag, attributes, nocontent)
+        logger.debug('Enter start_tag with tag="%s" attributes=%s nocontent=%s', tag, attributes, nocontent)
 
         if not nocontent:
             stackelem['tag'] = tag
@@ -221,25 +224,25 @@ class WBXMLEncoder(object):
             self._output_stack()
             self._start_tag(tag, attributes, nocontent)
 
-        debug('Exit start_tag')
+        logger.debug('Exit start_tag')
 
     def _end_tag(self):
         """Send end tag data to the file"""
-        debug('_end_tag')
+        logger.debug('_end_tag')
         self.write_byte(WBXML_END)
 
     def end_tag(self):
         """Called at end of tag (only one with content)"""
         stackelem = self._stack.pop()
 
-        debug('end_tag with stackelem: %s', stackelem)
+        logger.debug('end_tag with stackelem: %s', stackelem)
 
         if stackelem['sent']:
             self._end_tag()
 
     def content(self, content):
         """Called to output tag content"""
-        debug("Enter content with content: %s", content)
+        logger.debug("Enter content with content: %s", content)
 
         content = content.replace('\0', '')
 
@@ -249,22 +252,22 @@ class WBXMLEncoder(object):
         self._output_stack()
         self._content(content)
 
-        debug("Exit content")
+        logger.debug("Exit content")
 
     def _output_stack(self):
         """Spool all stacked tags to the output file."""
-        debug("Enter _output_stack")
+        logger.debug("Enter _output_stack")
 
         for i in range(len(self._stack)):
             if not self._stack[i]['sent']:
                 self._start_tag(self._stack[i]['tag'], self._stack[i]['attributes'], self._stack[i]['nocontent'])
                 self._stack[i]['sent'] = True
 
-        debug("Exit _output_stack")
+        logger.debug("Exit _output_stack")
 
     def _start_tag(self, tag, attributes=False, nocontent=False):
         """Set up a new tag and handle the DTD mappings"""
-        debug('Enter _start_tag with tag="%s" attributes=%s nocontent=%s', tag, attributes, nocontent)
+        logger.debug('Enter _start_tag with tag="%s" attributes=%s nocontent=%s', tag, attributes, nocontent)
 
         mapping = self.get_mapping(tag)
 
@@ -284,44 +287,44 @@ class WBXMLEncoder(object):
         if code & 0x80:
             self.write_attributes(attributes)
 
-        debug("Exit _start_tag")
+        logger.debug("Exit _start_tag")
 
     def _content(self, content):
         """Send tag content to the file"""
-        debug("Enter _content with %s", content)
+        logger.debug("Enter _content with %s", content)
 
         self.write_byte(WBXML_STR_I)
         self.write_null_str(content)
 
-        debug("Exit _content")
+        logger.debug("Exit _content")
 
     def write_null_str(self, content):
         """Send a null terminated string to the output stream"""
-        debug("Enter write_null_str")
+        logger.debug("Enter write_null_str")
         self._out.write(content)
         self._out.write(chr(0))
-        debug("Exit write_null_str")
+        logger.debug("Exit write_null_str")
 
     def write_attributes(self):
         """Send attributes to the stream (needs work)"""
-        debug("Enter write_attributes")
+        logger.debug("Enter write_attributes")
         self.write_byte(WBXML_END)
-        debug("Exit write_attributes")
+        logger.debug("Exit write_attributes")
 
     def write_switch_page(self, page):
         """Send a switch page command to the stream"""
-        debug("Enter write_switch_page with page: %s", page)
+        logger.debug("Enter write_switch_page with page: %s", page)
 
         self.write_byte(WBXML_SWITCH_PAGE)
         self.write_byte(page)
 
-        debug("Exit write_switch_page")
+        logger.debug("Exit write_switch_page")
 
     def get_mapping(self, tag):
         """Return a mapping between a tag and a DTD code pair
             'tag' is a tuple of (namespace,tagname)
         """
-        debug('Enter get_mapping with tag="%s"', tag)
+        logger.debug('Enter get_mapping with tag="%s"', tag)
         mapping = {}
 
         ns, name = tag
@@ -336,7 +339,7 @@ class WBXMLEncoder(object):
         mapping['cp']   = cp
         mapping['code'] = code
 
-        debug("Exit get_mapping with mapping: %s", mapping)
+        logger.debug("Exit get_mapping with mapping: %s", mapping)
         return mapping
 
 ################################################################################
@@ -409,7 +412,7 @@ class WBXMLDecoder(object):
                     curTag = node
 
                 if e[EN_FLAGS]&2:
-                    debug("must get attrs, %s", e[EN_FLAGS]&2)#WTF?
+                    logger.debug("must get attrs, %s", e[EN_FLAGS]&2)#WTF?
 
                 if not (e[EN_FLAGS]&1):
                     curTag = curTag.parent
@@ -420,7 +423,7 @@ class WBXMLDecoder(object):
 #                    curTag = curTag.parent
 #                else:
 #                    curTag = None
-#                    debug("error: no parent")
+#                    logger.debug("error: no parent")
 
 
             elif e[EN_TYPE] == EN_TYPE_CONTENT and curTag is not None:
@@ -430,7 +433,7 @@ class WBXMLDecoder(object):
 #                if curTag is not None:
 #                    curTag.text = e[EN_CONTENT]
 #                else:
-#                    debug("error: no node")
+#                    logger.debug("error: no node")
 
         self.input.close()
         return root

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,15 +20,18 @@
 
 from __future__ import division
 
-from logging import warning
 from datetime import datetime, timedelta
 from calendar import monthrange
+import logging
 
 from django.utils.translation import ugettext_lazy as _
 
 
+logger = logging.getLogger(__name__)
+
 _DAY_START = {'hour': 0,  'minute': 0,  'second': 0}
 _DAY_END   = {'hour': 23, 'minute': 59, 'second': 59}
+
 
 def get_month_last_day(year, month):
     return monthrange(year, month)[1]
@@ -277,7 +280,7 @@ class DateRangeRegistry(object):
             name = drange.name
 
             if ranges_map.has_key(name):
-                warning("Duplicate date range's id or date range registered twice : %s", name) #exception instead ???
+                logger.warning("Duplicate date range's id or date range registered twice : %s", name) #exception instead ???
 
             ranges_map[name] = drange
 

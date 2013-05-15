@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import info
+import logging
 
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
@@ -32,6 +32,9 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 from .models import Document, FolderCategory, Folder
 from .blocks import folder_docs_block #linked_docs_block
 from .constants import *
+
+
+logger = logging.getLogger(__name__)
 
 
 class Populator(BasePopulator):
@@ -50,7 +53,7 @@ class Populator(BasePopulator):
                                   description=_(u"Folder containing all the documents related to entities")
                                  )
         else:
-            info("A Folder with title 'Creme' already exists => no re-creation")
+            logger.info("A Folder with title 'Creme' already exists => no re-creation")
 
         hf = HeaderFilter.create(pk='documents-hf_document', name=_(u"Document view"), model=Document)
         hf.set_items([HeaderFilterItem.build_4_field(model=Document, name='title'),
@@ -71,7 +74,7 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Folder)
 
         if 'creme.assistants' in settings.INSTALLED_APPS:
-            info('Assistants app is installed => we use the assistants blocks on detail view')
+            logger.info('Assistants app is installed => we use the assistants blocks on detail view')
 
             from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 

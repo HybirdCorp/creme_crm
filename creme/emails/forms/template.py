@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+import logging
 
 from django.core.exceptions import ValidationError
 from django.forms.fields import CharField
@@ -36,6 +36,8 @@ from creme.documents.models import Document
 from ..models import EmailTemplate
 from .utils import validate_images_in_html
 
+
+logger = logging.getLogger(__name__)
 
 TEMPLATES_VARS = set(['last_name', 'first_name', 'civility', 'name'])
 
@@ -76,7 +78,7 @@ class EmailTemplateForm(CremeEntityForm):
 
         #TODO: Add and handle a M2M for embedded images after Document & Image merge
         images = validate_images_in_html(body, self.user)
-        debug('EmailTemplate will be created with images: %s', images)
+        logger.debug('EmailTemplate will be created with images: %s', images)
 
         return body
 

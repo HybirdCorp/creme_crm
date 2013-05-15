@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import warning, debug
 from collections import defaultdict
+import logging
 
 from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.template.loader import get_template
@@ -30,6 +30,9 @@ from django.contrib.contenttypes.models import ContentType
 
 from ..models import (Relation, RelationType, RelationBlockItem,
                       InstanceBlockConfigItem, BlockState) #CremeEntity
+
+
+logger = logging.getLogger(__name__)
 
 
 def list4url(list_):
@@ -170,7 +173,7 @@ class Block(object):
 
         #assert BlocksManager.get(context).block_is_registered(self) #!! problem with blocks in inner popups
         if not BlocksManager.get(context).block_is_registered(self):
-            debug('Not registered block: %s', self.id_)
+            logger.debug('Not registered block: %s', self.id_)
 
         if block_context.update(modified, template_context):
             request.session.modified = True
@@ -217,7 +220,7 @@ class PaginatedBlock(Block):
             try:
                 page_index = int(page_index)
             except ValueError:
-                debug('Invalid page number for block %s: %s', block_name, page_index)
+                logger.debug('Invalid page number for block %s: %s', block_name, page_index)
                 page_index = 1
         else:
             page_index = block_context.page
@@ -429,7 +432,7 @@ class BlocksManager(object):
         state = _state_cache.get(block_id)
         if state is None:
             state = self._state_cache[block_id] = BlockState.get_for_block_id(block_id, user)
-            debug("State not set in cache for '%s'" % block_id)
+            logger.debug("State not set in cache for '%s'" % block_id)
 
         return state
 
@@ -500,7 +503,7 @@ class _BlockRegistry(object):
         block_class = self._instance_block_classes.get(InstanceBlockConfigItem.get_base_id(block_id))
 
         if block_class is None:
-            warning('Block class seems deprecated: %s', block_id)
+            logger.warning('Block class seems deprecated: %s', block_id)
             return None
 
         block = block_class(ibi)
@@ -548,7 +551,7 @@ class _BlockRegistry(object):
                 block = self._blocks.get(id_)
 
                 if block is None:
-                    warning('Block seems deprecated: %s', id_)
+                    logger.warning('Block seems deprecated: %s', id_)
                     block = Block()
 
             blocks.append(block)

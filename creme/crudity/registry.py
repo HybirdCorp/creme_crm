@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,8 +19,8 @@
 ################################################################################
 
 #from itertools import chain
-from logging import warning
 from collections import defaultdict
+import logging
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -31,6 +31,9 @@ from creme.creme_core.registry import NotRegistered
 from creme.creme_core.utils.imports import find_n_import
 
 from creme.crudity.backends.models import CrudityBackend
+
+
+logger = logging.getLogger(__name__)
 
 
 class FetcherInterface(object):
@@ -96,7 +99,7 @@ class CRUDityRegistry(object):
         if fetcher is not None:
             fetcher.add_inputs(*inputs)
         else:
-            warning(u"The fetcher '%s' does not exist, inputs : %s will not be registered" % (source, inputs))
+            logger.warning(u"The fetcher '%s' does not exist, inputs : %s will not be registered" % (source, inputs))
 
     def register_backends(self, backends):
         for backend in backends:

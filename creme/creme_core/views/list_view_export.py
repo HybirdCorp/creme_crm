@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+import logging
 
 from django.db.models import Q
 from django.http import Http404
@@ -32,6 +32,9 @@ from creme.creme_core.utils import get_ct_or_404
 from creme.creme_core.utils.meta import get_instance_field_info
 from creme.creme_core.utils.chunktools import iter_as_slices
 from creme.creme_core.registry import export_backend_registry
+
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -104,7 +107,7 @@ def dl_listview(request, ct_id, doc_type, header_only=False):
                             assert type_ == HFI_CUSTOM
                             res = entity.get_custom_value(column.get_customfield())
                     except Exception, e:
-                        debug('Exception in CSV export: %s', e)
+                        logger.debug('Exception in CSV export: %s', e)
                         res = ''
 
                     line.append(smart_str(res) if res else '')

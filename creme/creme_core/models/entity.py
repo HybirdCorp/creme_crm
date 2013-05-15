@@ -19,7 +19,7 @@
 ################################################################################
 
 from collections import defaultdict
-from logging import debug
+import logging
 
 #from django.db import models
 from django.db.models import ForeignKey, Q
@@ -33,6 +33,9 @@ from django.forms.util import flatatt
 from ..auth.entity_credentials import EntityCredentials
 from ..core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
 from .base import CremeAbstractEntity
+
+
+logger = logging.getLogger(__name__)
 
 
 class EntityAction(object):
@@ -147,10 +150,10 @@ class CremeEntity(CremeAbstractEntity):
         creds = creds_map.get(user.id)
 
         if creds is None:
-            debug('CremeEntity._get_credentials(): Cache MISS for id=%s user=%s', self.id, user)
+            logger.debug('CremeEntity._get_credentials(): Cache MISS for id=%s user=%s', self.id, user)
             creds_map[user.id] = creds = EntityCredentials(user, self)
         else:
-            debug('CremeEntity._get_credentials(): Cache HIT for id=%s user=%s', self.id, user)
+            logger.debug('CremeEntity._get_credentials(): Cache HIT for id=%s user=%s', self.id, user)
 
         return creds
 
@@ -188,7 +191,7 @@ class CremeEntity(CremeAbstractEntity):
         relations = self._relations_map.get(relation_type_id)
 
         if relations is None:
-            debug('CremeEntity.get_relations(): Cache MISS for id=%s type=%s', self.id, relation_type_id)
+            logger.debug('CremeEntity.get_relations(): Cache MISS for id=%s type=%s', self.id, relation_type_id)
             relations = self.relations.filter(type=relation_type_id).order_by('id')
 
             if real_obj_entities:
@@ -197,7 +200,7 @@ class CremeEntity(CremeAbstractEntity):
 
             self._relations_map[relation_type_id] = relations
         else:
-            debug('CremeEntity.get_relations(): Cache HIT for id=%s type=%s', self.id, relation_type_id)
+            logger.debug('CremeEntity.get_relations(): Cache HIT for id=%s type=%s', self.id, relation_type_id)
 
         return relations
 
@@ -215,16 +218,16 @@ class CremeEntity(CremeAbstractEntity):
         for entity in entities:
             for relation_type_id in relation_type_ids:
                 entity._relations_map[relation_type_id] = relations_map[entity.id][relation_type_id]
-                debug(u'Fill relations cache id=%s type=%s', entity.id, relation_type_id)
+                logger.debug(u'Fill relations cache id=%s type=%s', entity.id, relation_type_id)
 
     def get_custom_value(self, custom_field):
         cvalue = self._cvalues_map.get(custom_field.id)
 
         if cvalue is None:
-            debug('CremeEntity.get_custom_value(): Cache MISS for id=%s cf_id=%s', self.id, custom_field.id)
+            logger.debug('CremeEntity.get_custom_value(): Cache MISS for id=%s cf_id=%s', self.id, custom_field.id)
             self._cvalues_map[custom_field.id] = cvalue = custom_field.get_pretty_value(self.id)
         else:
-            debug('CremeEntity.get_custom_value(): Cache HIT for id=%s cf_id=%s', self.id, custom_field.id)
+            logger.debug('CremeEntity.get_custom_value(): Cache HIT for id=%s cf_id=%s', self.id, custom_field.id)
 
         return cvalue
 
@@ -237,7 +240,7 @@ class CremeEntity(CremeAbstractEntity):
             for custom_field in custom_fields:
                 cf_id = custom_field.id
                 entity._cvalues_map[cf_id] = cvalues_map[entity_id].get(cf_id, u'')
-                debug(u'Fill custom value cache entity_id=%s cfield_id=%s', entity_id, cf_id)
+                logger.debug(u'Fill custom value cache entity_id=%s cfield_id=%s', entity_id, cf_id)
 
     def get_entity_summary(self, user):
         return escape(self.allowed_unicode(user))
@@ -282,10 +285,10 @@ class CremeEntity(CremeAbstractEntity):
 
     def get_properties(self):
         if self._properties is None:
-            debug('CremeEntity.get_properties(): Cache MISS for id=%s', self.id)
+            logger.debug('CremeEntity.get_properties(): Cache MISS for id=%s', self.id)
             self._properties = list(self.properties.all().select_related('type'))
         else:
-            debug('CremeEntity.get_properties(): Cache HIT for id=%s', self.id)
+            logger.debug('CremeEntity.get_properties(): Cache HIT for id=%s', self.id)
 
         return self._properties
 
@@ -302,7 +305,7 @@ class CremeEntity(CremeAbstractEntity):
 
         for entity in entities:
             entity_id = entity.id
-            debug(u'Fill properties cache entity_id=%s', entity_id)
+            logger.debug(u'Fill properties cache entity_id=%s', entity_id)
             entity._properties = properties_map[entity_id]
 
     @staticmethod
@@ -336,7 +339,7 @@ class CremeEntity(CremeAbstractEntity):
         self.header_filter_search_field = self._search_field_value()
 
         super(CremeEntity, self).save(*args, **kwargs)
-        debug('CremeEntity.save(%s, %s)', args, kwargs)
+        logger.debug('CremeEntity.save(%s, %s)', args, kwargs)
 
     def _search_field_value(self):
         """Overload this method if you want to customise the value to search on your CremeEntity type."""

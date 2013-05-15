@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from logging import debug
-
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import render

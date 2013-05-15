@@ -19,7 +19,7 @@
 ################################################################################
 
 from itertools import chain
-from logging import debug, error
+import logging
 #from xml.etree.ElementTree import tostring
 
 from django.db.models import Q
@@ -44,6 +44,9 @@ from ..errors import (SYNC_ERR_VERBOSE, SYNC_ERR_CREME_PERMISSION_DENIED_CREATE,
                       SYNC_ERR_CREME_PERMISSION_DENIED_DELETE_SPECIFIC)
 from ..utils import is_user_sync_calendars, is_user_sync_contacts
 from .base import Base
+
+
+logger = logging.getLogger(__name__)
 
 
 class AirSync(Base):
@@ -264,7 +267,7 @@ class AirSync(Base):
                             msg = _(u"Successfully created %s")  if created else _(u"WARNING : %s was already created")
                             self.add_message(MessageSucceedContactAdd(contact=entity, message=msg % entity))
                         except IntegrityError:
-                            error(u"Entity : %s (pk=%s) big error in the mapping", entity, entity.pk)#TODO:Make a merge UI?
+                            logger.error(u"Entity : %s (pk=%s) big error in the mapping", entity, entity.pk)#TODO:Make a merge UI?
                             add_error_message(u"TODO: REMOVE ME : Entity : %s (pk=%s) big error in the mapping" % (entity, entity.pk))
 
             else:
@@ -280,7 +283,7 @@ class AirSync(Base):
                     entity_mapping = exch_map_manager_get(exchange_entity_id=c_server_id, user=user)
                     entity = entity_mapping.get_entity()
                 except CremeExchangeMapping.DoesNotExist:
-                    error("Server changes object with server_id: %s when creme hasn't it or doesn't belongs to %s", c_server_id, user)
+                    logger.error("Server changes object with server_id: %s when creme hasn't it or doesn't belongs to %s", c_server_id, user)
                     continue #TODO: Think about creating it ? / got a mapping issue ?
 
                 if entity is not None:
@@ -310,7 +313,7 @@ class AirSync(Base):
                                     c_field = c_field(needs_attr=True)
                                 update_data[c_field] = u""
 
-                    debug("Update %s with %s", entity, update_data)
+                    logger.debug("Update %s with %s", entity, update_data)
 
                     history = self.add_history_update_in_creme(entity, None)
 
@@ -334,7 +337,7 @@ class AirSync(Base):
                     c_x_mapping = exch_map_manager_get(exchange_entity_id=c_server_id, user=user)
                     entity = c_x_mapping.get_entity()
                 except CremeExchangeMapping.DoesNotExist:
-                    error("Server delete object with server_id: %s when creme hasn't it or doesn't belongs to %s", c_server_id, user)
+                    logger.error("Server delete object with server_id: %s when creme hasn't it or doesn't belongs to %s", c_server_id, user)
                     continue #TODO: Think about creating it ? / got a mapping issue ?
 
                 if entity is not None:
@@ -344,10 +347,10 @@ class AirSync(Base):
 
                     if not IS_SERVER_MASTER and c_x_mapping.is_creme_modified:
                         #We don't delete the entity because creme modified it and it's the master
-                        debug("Creme modified %s, when the server deletes it", entity)
+                        logger.debug("Creme modified %s, when the server deletes it", entity)
                         self.add_info_message(_(u"The server deletes the %s but Creme modified it, so it will be synced at the next synchronization.") % creme_model_verbose_name)
                     else:
-                        debug("Deleting %s", entity)
+                        logger.debug("Deleting %s", entity)
                         entity_pk = entity.pk
                         try:
                             entity.delete()
@@ -528,7 +531,7 @@ def get_change_objects(reverse_ns, user, airsync_cmd, creme_model, serializer, m
 
     objects = []
 
-    debug(u"Change object ids : %s", modified_ids)
+    logger.debug(u"Change object ids : %s", modified_ids)
 
     add_info_message = airsync_cmd.add_info_message
     objects_append   = objects.append
@@ -542,7 +545,7 @@ def get_change_objects(reverse_ns, user, airsync_cmd, creme_model, serializer, m
         else:
             add_info_message(_(u"The entity <%s> was not updated on the server because you haven't the right to view it") % entity.allowed_unicode(user))
 
-    debug(u"Change object : %s", objects)
+    logger.debug(u"Change object : %s", objects)
 
     return objects
 

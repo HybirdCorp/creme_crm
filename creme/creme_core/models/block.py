@@ -19,7 +19,7 @@
 ################################################################################
 
 from functools import partial
-from logging import warn
+import logging
 
 from django.db.models import (CharField, ForeignKey, PositiveIntegerField,
                               PositiveSmallIntegerField, BooleanField, TextField)
@@ -41,6 +41,7 @@ __all__ = ('BlockDetailviewLocation', 'BlockPortalLocation', 'BlockMypageLocatio
            'RelationBlockItem', 'InstanceBlockConfigItem',
            'BlockState',
           )
+logger = logging.getLogger(__name__)
 
 
 class BlockDetailviewLocation(CremeModel):
@@ -149,7 +150,7 @@ class BlockMypageLocation(CremeModel):
                 for loc in BlockMypageLocation.objects.filter(user=None):
                     create(user=instance, block_id=loc.block_id, order=loc.order)
             except Exception:
-                warn('Can not create block config for this user: %s (if it is the first user, do not worry because it is normal)' % instance)
+                logger.warn('Can not create block config for this user: %s (if it is the first user, do not worry because it is normal)' % instance)
 
     @staticmethod
     def create(block_id, order, user=None):

@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from logging import debug
-
 from django.forms import MultipleChoiceField, ChoiceField
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _
