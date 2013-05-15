@@ -38,7 +38,7 @@ from ..models import CremeEntity, Relation
 from ..utils.currency_format import currency
 from ..utils.media import get_creme_media_url, get_current_theme
 from ..utils.meta import get_verbose_field_name
-from ..registry import export_backend_registry
+from ..registry import export_backend_registry, import_backend_registry
 
 
 register = Library()
@@ -357,7 +357,11 @@ def include_creme_media(parser, token):
     contents[1] = u'"%s%s"' % (get_current_theme(), contents[1][1:-1])
     return include_media(parser, Token(token.token_type, ' '.join(contents)))
 
-@register.simple_tag
-def get_backends():
+@register.assignment_tag
+def get_export_backends():
     return dumps([[backend.id, unicode(backend.verbose_name)]
                  for backend in export_backend_registry.iterbackends()])
+
+@register.assignment_tag
+def get_import_backends():
+    return dumps([[backend.id] for backend in import_backend_registry.iterbackends()])

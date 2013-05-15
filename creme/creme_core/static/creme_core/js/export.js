@@ -51,19 +51,29 @@ creme._export.select_one = function(evt, a) {
 creme._export.selectBackend = function(evt, data, a) {
     evt.preventDefault();
 
-    var current_href = $(a).attr('href');
     var me = this;
+    var current_href = $(a).attr('href');
 
-    this.okDialogHandler = function(ui) {
-        current_href = current_href.replace('%s', $(ui).find('select').val());
+    this.destroyOkDialog = function(ui) {
         $(ui).dialog("destroy");
         $(ui).remove();
-        window.location.href = current_href;
+    }
+    this.okDialogHandler = function(ui) {
+        var new_href = current_href.replace('%s', $(ui).find('select').val());
+        me.destroyOkDialog(ui);
+        window.location.href = new_href;
     }
 
-    var $select = creme.forms.Select.fill($('<select/>'), data, data[0][0]);
+    if(!data.length) {
+        var $select = creme.forms.Select.fill($('<select/>'), [['', 'No backend found']], '');
+        var okAction = function() {me.destroyOkDialog($(this))}
+    } else {
+        var $select = creme.forms.Select.fill($('<select/>'), data, data[0][0]);
+        var okAction = function() {me.okDialogHandler($(this))}
+    }
+        
     var buttons = {};
-    buttons[gettext("Ok")] = function() {me.okDialogHandler($(this))}
+    buttons[gettext("Ok")] = okAction
 
     creme.utils.showDialog($select, {title: '', modal: true, buttons: buttons});
 }
