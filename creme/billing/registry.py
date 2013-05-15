@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,9 +19,12 @@
 ################################################################################
 
 from imp import find_module
-from logging import debug, warning
+import logging
 
 from django.conf import settings
+
+
+logger = logging.getLogger(__name__)
 
 
 class Algo(object):
@@ -38,7 +41,7 @@ class AlgoRegistry(object):
 
         for name, algo in to_register:
             if algos.has_key(name):
-                warning("Duplicate algo's id or algo registered twice : %s", name) #exception instead ???
+                logger.warning("Duplicate algo's id or algo registered twice : %s", name) #exception instead ???
 
             algos[name] = algo
 
@@ -59,7 +62,7 @@ class AlgoRegistry(object):
 algo_registry = AlgoRegistry()
 
 #TODO: use creme_core.utils.import find_n_import
-debug('Billing: algos registering')
+logger.debug('Billing: algos registering')
 for app in settings.INSTALLED_APPS:
     try:
         find_module("billing_register", __import__(app, {}, {}, [app.split(".")[-1]]).__path__)

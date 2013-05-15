@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import error, debug
+import logging
 
 from django.core.exceptions import ValidationError
 from django.db.models import (CharField, TextField, ForeignKey, PositiveIntegerField,
@@ -42,6 +42,9 @@ from creme.products.models import Product, Service
 from creme.billing.models import Invoice, SalesOrder, Quote, Vat
 
 from ..constants import *
+
+
+logger = logging.getLogger(__name__)
 
 
 class _TurnoverField(FunctionField):
@@ -151,7 +154,7 @@ class Opportunity(CremeEntity):
         try:
             use_current_quote = SettingValue.objects.get(key=SETTING_USE_CURRENT_QUOTE).value
         except SettingValue.DoesNotExist:
-            debug("Populate opportunities is not loaded")
+            logger.debug("Populate opportunities is not loaded")
             use_current_quote = False
 
         return use_current_quote
@@ -221,7 +224,7 @@ class Opportunity(CremeEntity):
                                     .values_list('subject_entity_id', flat=True)
 
         if len(quote_ids) > 1:
-            error('Several current quotes for opportunity: %s', self)
+            logger.error('Several current quotes for opportunity: %s', self)
 
         if quote_ids:
             quote_id = quote_ids[0]

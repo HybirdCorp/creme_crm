@@ -18,12 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+import logging
 
 from django.db import transaction, IntegrityError
 
 from .models import SimpleBillingAlgo
 from .registry import Algo
+
+
+logger = logging.getLogger(__name__)
 
 
 class SimpleAlgo(Algo):
@@ -45,7 +48,7 @@ class SimpleAlgo(Algo):
                 # remember the <unique_together = ("organisation", "last_number", "ct")> in SimpleBillingAlgo.Meta
                 conf.save(force_insert=True)
             except IntegrityError as e: #problen with the 'unique_together' constraint
-                debug('SimpleAlgo.generate_number() (save new conf): %s', e)
+                logger.debug('SimpleAlgo.generate_number() (save new conf): %s', e)
                 transaction.savepoint_rollback(sid)
                 continue
 
@@ -56,7 +59,7 @@ class SimpleAlgo(Algo):
                 # (eg: this loop is preempted on a server during a long time - yes it's a wacky idea! :) )
                 SimpleBillingAlgo.objects.get(pk=old_conf.id).delete()
             except SimpleBillingAlgo.DoesNotExist:
-                debug('SimpleAlgo.generate_number() (delete old conf): %s', e)
+                logger.debug('SimpleAlgo.generate_number() (delete old conf): %s', e)
                 conf.delete()
                 continue
 

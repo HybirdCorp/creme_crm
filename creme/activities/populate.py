@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import info
+import logging
 
 from django.conf import settings
 from django.utils.translation import ugettext as _, pgettext
@@ -40,6 +40,9 @@ from .models import ActivityType, ActivitySubType, Activity, Status, Calendar
 from .blocks import participants_block, subjects_block, future_activities_block, past_activities_block
 from .buttons import add_activity_button, add_meeting_button, add_phonecall_button, add_task_button
 from .constants import *
+
+
+logger = logging.getLogger(__name__)
 
 
 class Populator(BasePopulator):
@@ -117,7 +120,7 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Activity)
 
         if 'creme.assistants' in settings.INSTALLED_APPS:
-            info('Assistants app is installed => we use the activities blocks on detail views')
+            logger.info('Assistants app is installed => we use the activities blocks on detail views')
 
             from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 

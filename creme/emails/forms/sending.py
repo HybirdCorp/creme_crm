@@ -19,7 +19,6 @@
 ################################################################################
 
 from datetime import datetime
-#from logging import debug
 from pickle import dumps
 
 from django.forms import TypedChoiceField, IntegerField

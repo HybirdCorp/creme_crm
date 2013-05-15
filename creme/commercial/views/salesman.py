@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from logging import debug
-
 from django.db.models import Q
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required

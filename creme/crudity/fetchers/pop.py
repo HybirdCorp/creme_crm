@@ -18,18 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import poplib
-import email
-import re
-from datetime import datetime
 #from collections import namedtuple
-from logging import debug
+from datetime import datetime
+import email
+import poplib
+import logging
+import re
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.conf import settings
 
 #from ..utils import get_unicode_decoded_str
 from creme.creme_core.utils import safe_unicode
+
 from .base import CrudityFetcher
 
 CREME_GET_EMAIL_SERVER       = settings.CREME_GET_EMAIL_SERVER
@@ -80,8 +81,8 @@ class PopFetcher(CrudityFetcher):
 
             message_count, mailbox_size = client.stat()
             response, messages, total_size = client.list()
-        except Exception, e:#TODO: Define better exception
-            debug("Pop connection error : %s", e)
+        except Exception as e:#TODO: Define better exception
+            logger.debug("Pop connection error : %s", e)
             if client is not None:
                 client.quit()
             return []

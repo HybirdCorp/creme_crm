@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+import logging
 
 from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.forms import ModelChoiceField
@@ -32,6 +32,9 @@ from ..utils.collections import LimitedList
 from .base import CremeForm
 from .fields import JSONField
 from .widgets import DynamicInput, SelectorList, ChainedInput, PolymorphicInput
+
+
+logger = logging.getLogger(__name__)
 
 
 class BatchActionsWidget(SelectorList):
@@ -161,7 +164,7 @@ class BatchProcessForm(CremeForm):
                              for field, errors in ve.message_dict.iteritems()
                         ]
         except Exception as e:
-            debug('BatchProcessForm._humanize_validation_error: %s', e)
+            logger.debug('BatchProcessForm._humanize_validation_error: %s', e)
             humanized = [unicode(ve)]
 
         return humanized

@@ -19,15 +19,18 @@
 ################################################################################
 
 from decimal import Decimal, InvalidOperation
-from logging import debug
+import logging
 
 from .constants import ROUND_POLICY
+
+
+logger = logging.getLogger(__name__)
 
 
 def round_to_2(decimal_instance):
     try:
         return Decimal(decimal_instance).quantize(Decimal('.01'), rounding=ROUND_POLICY)
     except InvalidOperation, e:
-        debug("round_to_2: InvalidOperation : %s", e)
+        logger.debug("round_to_2: InvalidOperation : %s", e)
         return Decimal()
 

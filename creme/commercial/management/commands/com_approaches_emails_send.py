@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import error, info
 from datetime import datetime, timedelta
+import logging
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import get_connection
@@ -34,6 +34,7 @@ from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
 
 
+logger = logging.getLogger(__name__)
 LOCK_NAME = "com_approaches_sending_emails"
 
 #NB: python manage.py com_approaches_emails_send
@@ -113,8 +114,8 @@ class Command(BaseCommand):
                         connection.send_messages(emails_to_send)
                         connection.close()
 
-                        info(u"Emails sended")
+                        logger.info(u"Emails sended")
                     except Exception as e:
-                        error(u"An error has occurred during sending mails (%s)" % e)
+                        logger.error(u"An error has occurred during sending mails (%s)" % e)
         #finally:
             Mutex.graceful_release(LOCK_NAME)

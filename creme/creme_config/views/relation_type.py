@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from logging import debug
-
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _

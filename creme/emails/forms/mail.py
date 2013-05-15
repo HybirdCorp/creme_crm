@@ -19,7 +19,7 @@
 ################################################################################
 
 from itertools import chain
-from logging import debug
+import logging
 
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
@@ -41,6 +41,9 @@ from creme.persons.models import Contact, Organisation
 from ..constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED
 from ..models import EntityEmail, EmailTemplate
 from ..forms.utils import validate_images_in_html
+
+
+logger = logging.getLogger(__name__)
 
 
 class EntityEmailForm(CremeEntityForm):
@@ -114,7 +117,7 @@ class EntityEmailForm(CremeEntityForm):
         body = self.cleaned_data['body_html']
         images = validate_images_in_html(body, self.user)
 
-        debug('EntityEmail will be created with images: %s', images)
+        logger.debug('EntityEmail will be created with images: %s', images)
 
         return body
 

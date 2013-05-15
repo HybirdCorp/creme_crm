@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+import logging
 
 from django.db.models import Q, CharField, ForeignKey, ManyToManyField, BooleanField, PROTECT
 from django.db import transaction
@@ -32,6 +32,9 @@ from ..signals import pre_merge_related
 from .base import CremeModel, CremeAbstractEntity
 from .entity import CremeEntity
 from .creme_property import CremePropertyType
+
+
+logger = logging.getLogger(__name__)
 
 
 class RelationType(CremeModel):
@@ -231,7 +234,7 @@ class Relation(CremeAbstractEntity):
                 self.symmetric_relation = sym_relation
                 super(Relation, self).save(using=using, force_insert=False)
         except Exception, e:
-            debug('Error in creme_core.Relation.save(): %s', e)
+            logger.debug('Error in creme_core.Relation.save(): %s', e)
             transaction.rollback()
         else:
             transaction.commit()

@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+import logging
 from os.path import join, split
 import shutil
 
@@ -27,6 +27,9 @@ from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
 from ..models import Image
+
+
+logger = logging.getLogger(__name__)
 
 
 class _ImageForm(CremeEntityForm):
@@ -57,7 +60,7 @@ class ImageCreateForm(_ImageForm):
         try:
             shutil.move(src_path, dst_path)
         except IOError, e:
-            debug('IOError in %s: %s', self.__class__, e)
+            logger.debug('IOError in %s: %s', self.__class__, e)
         else:
             instance.image = join('upload', 'images', dst_filename)#Not dst_path! chrooted?
             instance.save()

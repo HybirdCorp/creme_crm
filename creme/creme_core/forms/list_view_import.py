@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 import os
 from functools import partial
 from itertools import chain, ifilter
-from logging import info
+import logging
 
 from django.db.models import Q, ManyToManyField
 from django.db.models.fields import FieldDoesNotExist
@@ -48,6 +48,9 @@ from .base import CremeForm, CremeModelForm, FieldBlockManager
 from .fields import MultiRelationEntityField, CreatorEntityField #CremeEntityField
 from .widgets import UnorderedMultipleChoiceWidget, ChainedInput, SelectorList
 from .validators import validate_linkable_entities
+
+
+logger = logging.getLogger(__name__)
 
 
 class UploadForm(CremeForm):
@@ -578,7 +581,7 @@ class ImportForm(CremeModelForm):
         if backend is None:
             verbose_error = "Error reading document, unsupported file type: %s." % file_extension
             self.import_errors.append((filedata.name, verbose_error))
-            info(verbose_error, Exception(verbose_error), Exception)
+            logger.info(verbose_error, Exception(verbose_error), Exception)
             filedata.close()
             return
 
@@ -610,7 +613,7 @@ class ImportForm(CremeModelForm):
                     if extractor:
                         setattr(instance, m2m.name, extractor.extract_value(line, self.import_errors))
             except Exception as e:
-                info('Exception in CSV importing: %s (%s)', e, type(e))
+                logger.info('Exception in CSV importing: %s (%s)', e, type(e))
                 try:
                     for messages in e.message_dict.itervalues():
                         for message in messages:

@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import error
+import logging
 
 from django.contrib.contenttypes.models import ContentType
 
@@ -26,12 +26,15 @@ from creme.persons.constants import REL_SUB_EMPLOYED_BY
 from creme.persons.models import Contact
 
 
+logger = logging.getLogger(__name__)
+
+
 def _get_mapping_from_creme_entity_id(id_):
     from .models import CremeExchangeMapping
     try:
         return CremeExchangeMapping.objects.get(creme_entity_id=id_)
     except CremeExchangeMapping.DoesNotExist as e:
-        error(u"Mapping problem detected with creme_entity_id=%s. Error is %s", id_, e)
+        logger.error(u"Mapping problem detected with creme_entity_id=%s. Error is %s", id_, e)
 
 
 def post_save_activesync_handler(sender, instance, created, **kwargs):

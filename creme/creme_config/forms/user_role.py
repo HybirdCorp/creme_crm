@@ -19,7 +19,6 @@
 ################################################################################
 
 from itertools import izip
-#from logging import debug
 
 from django.forms import CharField, ChoiceField, BooleanField, MultipleChoiceField, ModelChoiceField
 from django.utils.translation import ugettext_lazy as _, ugettext

@@ -19,7 +19,6 @@
 ################################################################################
 
 import re
-#from logging import debug
 from collections import defaultdict
 
 from django.forms import CharField, ModelChoiceField, ModelMultipleChoiceField, ValidationError

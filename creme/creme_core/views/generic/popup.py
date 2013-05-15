@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+#from logging import debug
 
 from django.http import HttpResponse
 from django.template.context import RequestContext
@@ -31,7 +31,7 @@ from django.utils.simplejson.encoder import JSONEncoder
                 #html=None, callback_url='', reload=True, delegate_reload=False, *args, **kwargs):
 def inner_popup(request, template, template_dict, is_valid=True, html=None,
                 callback_url='', reload=True, delegate_reload=False, *args, **kwargs):
-    debug("Inner_popup for: %s", request.path)
+    #debug("Inner_popup for: %s", request.path)
 
     context_instance = RequestContext(request)
     template_dict['hide_submit'] = True

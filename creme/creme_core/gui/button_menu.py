@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import warning
+import logging
 
 from django.template.loader import get_template
+
+
+logger = logging.getLogger(__name__)
 
 
 class Button(object):
@@ -73,7 +76,7 @@ class ButtonsRegistry(object):
             button_id = button.id_
 
             if buttons_dic.has_key(button_id):
-                warning("Duplicate button's id or button registered twice : %s", button_id) #exception instead ???
+                logger.warning("Duplicate button's id or button registered twice : %s", button_id) #exception instead ???
 
             buttons_dic[button_id] = button
 
@@ -85,7 +88,7 @@ class ButtonsRegistry(object):
             button = buttons.get(button_id)
 
             if button is None:
-                warning('Button seems deprecated: %s', button_id)
+                logger.warning('Button seems deprecated: %s', button_id)
                 #button = Button()
             elif button.ok_4_display(entity):
                 buttons_2_display.append(button)

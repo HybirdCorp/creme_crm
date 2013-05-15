@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+import logging
 
 from django.db import transaction, IntegrityError
+
+
+logger = logging.getLogger(__name__)
 
 
 #We use transaction because the IntegrityError aborts the current transaction on PGSQL
@@ -46,7 +49,7 @@ def generate_string_id_and_save(model, objects, prefix):
                 obj.save(force_insert=True)
             except IntegrityError as e:  #an object with this id already exists
                 #TODO: indeed it can be raise if the given object if badly build.... --> improve this (detect the guilty column)???
-                debug('gen_id_and_save(): id %s already exists ? (%s)', obj.id, e)
+                logger.debug('gen_id_and_save(): id %s already exists ? (%s)', obj.id, e)
                 last_exception = e
                 obj.pk = None
 

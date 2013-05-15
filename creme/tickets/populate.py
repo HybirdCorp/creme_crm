@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import info
+import logging
 
 from django.utils.translation import ugettext as _
 from django.conf import settings
@@ -32,6 +32,9 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 from .models import *
 from .models.status import BASE_STATUS
 from .constants import REL_SUB_LINKED_2_TICKET, REL_OBJ_LINKED_2_TICKET
+
+
+logger = logging.getLogger(__name__)
 
 
 class Populator(BasePopulator):
@@ -77,7 +80,7 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Ticket)
 
         if 'creme.assistants' in settings.INSTALLED_APPS:
-            info('Assistants app is installed => we use the assistants blocks on detail view')
+            logger.info('Assistants app is installed => we use the assistants blocks on detail view')
 
             from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 
@@ -89,12 +92,12 @@ class Populator(BasePopulator):
         if 'creme.persons' in settings.INSTALLED_APPS:
             try:
                 from creme.persons.models import Contact, Organisation
-            except ImportError, e:
-                info(str(e))
+            except ImportError as e:
+                logger.info(str(e))
             else:
                 from creme.tickets.buttons import linked_2_ticket_button
 
                 ButtonMenuItem.create_if_needed(pk='tickets-linked_contact_button', model=Contact,      button=linked_2_ticket_button, order=50)
                 ButtonMenuItem.create_if_needed(pk='tickets-linked_orga_button',    model=Organisation, button=linked_2_ticket_button, order=50)
 
-                info("'Persons' app is installed => add button 'Linked to a ticket' to Contact & Organisation")
+                logger.info("'Persons' app is installed => add button 'Linked to a ticket' to Contact & Organisation")

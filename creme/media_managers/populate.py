@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import info
+import logging
 
 from django.utils.translation import ugettext as _
 from django.conf import settings
@@ -30,6 +30,9 @@ from creme.creme_core.management.commands.creme_populate import BasePopulator
 
 from .models import MediaCategory, Image
 from .blocks import *
+
+
+logger = logging.getLogger(__name__)
 
 
 class Populator(BasePopulator):
@@ -60,7 +63,7 @@ class Populator(BasePopulator):
         BlockPortalLocation.create(app_name='media_managers', block_id=history_block.id_,     order=30)
 
         if 'creme.assistants' in settings.INSTALLED_APPS:
-            info('Assistants app is installed => we use the assistants blocks on detail view')
+            logger.info('Assistants app is installed => we use the assistants blocks on detail view')
 
             from creme.assistants.blocks import alerts_block, memos_block, todos_block, messages_block
 

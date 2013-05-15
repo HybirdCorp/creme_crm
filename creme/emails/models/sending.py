@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from logging import debug
+import logging
 from pickle import loads
 from time import sleep
 
@@ -41,7 +41,9 @@ from .campaign import EmailCampaign
 from .signature import  EmailSignature
 
 
-#TODO: move to constants ???
+logger = logging.getLogger(__name__)
+
+#TODO: move to constants.py ???
 SENDING_TYPE_IMMEDIATE = 1
 SENDING_TYPE_DEFERRED  = 2
 
@@ -150,10 +152,10 @@ class EmailSending(CremeModel):
             if sender.send(mail, connection=connection):
                 mails_count += 1
                 one_mail_sent = True
-                debug("Mail sent to %s", mail.recipient)
+                logger.debug("Mail sent to %s", mail.recipient)
 
             if mails_count > SENDING_SIZE:
-                debug('Sending: waiting timeout')
+                logger.debug('Sending: waiting timeout')
 
                 mails_count = 0
                 sleep(SLEEP_TIME) #avoiding the mail to be classed as spam
@@ -181,7 +183,7 @@ class LightWeightEmail(_Email):
         try:
             return Template(sending_body).render(Context(loads(body.encode('utf-8')) if body else {}))
         except Exception as e: #Pickle raise too much differents exceptions...Catch'em all ?
-            debug('Error in LightWeightEmail._render_body(): %s', e)
+            logger.debug('Error in LightWeightEmail._render_body(): %s', e)
             return ""
 
     def get_body(self):
@@ -204,7 +206,7 @@ class LightWeightEmail(_Email):
                 self.id = generate_id()
                 self.save(force_insert=True)
             except IntegrityError:  #a mail with this id already exists
-                debug('Mail id already exists: %s', self.id)
+                logger.debug('Mail id already exists: %s', self.id)
                 self.pk = None
 
                 transaction.savepoint_rollback(sid)

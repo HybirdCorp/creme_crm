@@ -19,13 +19,13 @@
 ################################################################################
 
 from collections import deque
-from logging import debug
+import logging
 
 from ..models import CremeEntity
 
 
-#TODO: in settings ???
-MAX_LAST_ITEMS = 9
+logger = logging.getLogger(__name__)
+MAX_LAST_ITEMS = 9 #TODO: in settings ???
 
 
 class LastViewedItem(object):
@@ -47,7 +47,7 @@ class LastViewedItem(object):
         self.modified = entity.modified
 
     def __add(self, request):
-        debug('LastViewedItem.add: %s', self)
+        logger.debug('LastViewedItem.add: %s', self)
         session = request.session
         last_viewed_items = session.get('last_viewed_items', deque(maxlen=MAX_LAST_ITEMS))
         #last_viewed_items = session.get('last_viewed_items', deque())
@@ -58,7 +58,7 @@ class LastViewedItem(object):
         try:
             last_viewed_items.remove(self)
         except ValueError:
-            debug('%s not in last_viewed', self)
+            logger.debug('%s not in last_viewed', self)
 
         last_viewed_items.appendleft(self)
         #while len(last_viewed_items) > MAX_LAST_ITEMS:

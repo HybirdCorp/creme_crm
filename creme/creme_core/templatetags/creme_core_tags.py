@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 #from time import mktime
 from re import compile as compile_re
-from logging import debug
 
 #from django import template
 from django.template import Library, Template, TemplateSyntaxError, Node as TemplateNode, Token
@@ -41,7 +41,9 @@ from ..utils.meta import get_verbose_field_name
 from ..registry import export_backend_registry, import_backend_registry
 
 
+logger = logging.getLogger(__name__)
 register = Library()
+
 
 @register.filter(name="print_boolean") #TODO: factorise with field_printers ?
 def print_boolean(x):
@@ -71,7 +73,7 @@ def get_value(dic, key, default=''):
   try:
     return dic.get(key, default)
   except Exception, e: #TODO: really useful ???
-    debug('Exception in get_value(): %s', e)
+    logger.debug('Exception in get_value(): %s', e)
     return default
 
 @register.filter

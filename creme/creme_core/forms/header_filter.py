@@ -20,7 +20,6 @@
 
 #from itertools import chain
 from collections import defaultdict
-#from logging import debug
 
 #from django.db import models
 from django.db.models.query_utils import Q
