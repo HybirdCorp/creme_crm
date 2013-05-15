@@ -30,6 +30,7 @@
                 <th class="block_header_line_dark action">{% trans "Synchronize" %}</th>
                 <th class="block_header_line_dark action">{% trans "Delete" %}</th>
             </tr>
+            {% trans "Details" as details_label %}{% trans "Synchronize" as sync_label %}{% trans "Can't synchronize" as nosync_label %}
             {% for sending in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{sending.date}}</td>
@@ -37,16 +38,16 @@
                     <td class="{{row_color}}">{{sending.formatstatus}}</td>
                     <td class="{{row_color}} action">
                         <a onclick="creme.utils.showInnerPopup('/sms/campaign/sending/{{sending.pk}}', {width:700})">
-                            <img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{% trans "Details" %}" alt="{% trans "Details" %}" />
+                            <img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{{details_label}}" alt="{{details_label}}" />
                         </a>
                     </td>
                     <td class="{{row_color}} action">
                         {% if has_perm %}
                             <a onclick="sms_sendings.sync({{sending.pk}});">
-                                <img src="{% creme_media_url 'images/refresh_22.png' %}" border="0" title="{% trans "Synchronize" %}" alt="{% trans "Synchronize" %}" />
+                                <img src="{% creme_media_url 'images/refresh_22.png' %}" border="0" title="{{sync_label}}" alt="{{sync_label}}" />
                             </a>
                         {% else %}
-                            <img class="forbidden" src="{% creme_media_url 'images/refresh_22.png' %}" border="0" title="{% trans "Can't synchronize" %}" alt="{% trans "Can't synchronize" %}" />
+                            <img class="forbidden" src="{% creme_media_url 'images/refresh_22.png' %}" border="0" title="{{nosync_label}}" alt="{{nosync_label}}" />
                         {% endif %}
                     </td>
                     <td class="{{row_color}} action">

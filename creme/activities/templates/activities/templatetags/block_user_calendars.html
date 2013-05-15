@@ -12,8 +12,8 @@
         <tr>
             <th colspan="5" class="block_header_line_dark" align="left">
                 <a class="button_link" onclick="creme.utils.innerPopupNReload('/activities/calendar/add', {% get_block_reload_uri %});">
-                    <img src="{% creme_media_url 'images/add_22.png' %}" border="0" alt="{% trans "New calendar" %}" title="{% trans "New calendar" %}"/>
-                    {% trans "New calendar" %}
+                    {% trans "New calendar" as label %}<img src="{% creme_media_url 'images/add_22.png' %}" border="0" alt="{{label}}" title="{{label}}"/>
+                    {{label}}
                 </a>
             </th>
         </tr>
@@ -32,7 +32,7 @@
                     <td class="{{row_color}}">{% print_field object=calendar field='is_public' %}</td>
                     <td class="{{row_color}} action">
                         <a onclick="creme.utils.innerPopupNReload('/activities/calendar/{{calendar.id}}/edit', {% get_block_reload_uri %});">
-                            <img src="{% creme_media_url 'images/edit_22.png' %}" border="0" alt="{% trans "Edit calendar" %}" title="{% trans "Edit calendar" %}"/>
+                            {% trans "Edit calendar" as img_title %}<img src="{% creme_media_url 'images/edit_22.png' %}" border="0" alt="{{img_title}}" title="{{img_title}}"/>
                         </a>
                     </td>
                     <td class="{{row_color}} action">

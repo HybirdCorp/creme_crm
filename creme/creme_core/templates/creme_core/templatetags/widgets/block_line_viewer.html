@@ -2,10 +2,10 @@
 {% load creme_block creme_core_tags %}
 {% if line_perm %}
     <a class="view" href="{{action_url}}">
-        <img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{% trans "View" %}" alt="{% trans "View" %}" />{{label}}
+        {% trans "View" as img_title %}<img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />{{label}}
     </a>
 {% else %}
     <span class="view forbidden">
-        <img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{% trans "Can't view" %}" alt="{% trans "Can't view" %}" />{{label}}
+        {% trans "Can't view" as img_title %}<img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />{{label}}
     </span>
 {% endif %}

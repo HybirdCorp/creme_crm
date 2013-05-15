@@ -25,13 +25,16 @@
                 {% get_column_header _('Type') 'type' %}
                 <th class="block_header_line_dark action">{% trans 'Actions' %}</th>
             </tr>
+{% trans 'Edit' as edit_label %}{% trans "Can't edit" as noedit_label %}
+{% trans 'Expand' as expand_label %}{% trans 'Reduce' as reduce_label %}
+{% trans 'Create a block with this graph' as addblock_label %}{% trans "Can't create block"  as noaddblock_label %}
             {% for graph in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content ui-creme-widget ui-creme-toggle toggle-collapsed widget-auto" widget="ui-creme-toggle"
                     ontoggle="$('.ui-creme-toggle.widget-ready#graph-{{graph.id}}').creme().widget().toggle(!collapsed);">
                     <td class="{{row_color}} action">
                         <div class="toggle-icon toggle-trigger" style="width:16px;height:16px;"
-                             toggle-close-alt="{% trans 'Expand' %}" toggle-close-title="{% trans 'Expand' %}"
-                             toggle-open-alt="{% trans 'Reduce' %}" toggle-open-title="{% trans 'Reduce' %}"/>
+                             toggle-close-alt="{{expand_label}}" toggle-close-title="{{expand_label}}"
+                             toggle-open-alt="{{reduce_label}}" toggle-open-title="{{reduce_label}}"/>
                     </td>
                     <td class="{{row_color}}"><a href="{{graph.get_absolute_url}}">{{graph.name}}</a></td>
                     <td class="{{row_color}}">{{graph|verbose_abscissa:graph.abscissa}}</td>
@@ -42,10 +45,10 @@
                         {% has_perm_to delete graph as graph_delete_perm %}
                         {% if graph_edit_perm %}
                             <a onclick="creme.utils.innerPopupNReload('/reports/graph/edit/{{graph.id}}', {% get_block_reload_uri %});">
-                                <img src="{% creme_media_url 'images/edit_22.png' %}" alt="{% trans 'Edit' %}" title="{% trans 'Edit' %}" border="0">
+                                <img src="{% creme_media_url 'images/edit_22.png' %}" alt="{{edit_label}}" title="{{edit_label}}" border="0">
                             </a>
                         {% else %}
-                            <img class="forbidden" src="{% creme_media_url 'images/edit_22.png' %}" border="0" title="{% trans "Can't edit" %}" alt="{% trans "Can't edit" %}" />
+                            <img class="forbidden" src="{% creme_media_url 'images/edit_22.png' %}" border="0" title="{{noedit_label}}" alt="{{noedit_label}}" />
                         {% endif %}
                         {% get_line_deletor at_url '/creme_core/entity/delete/multi' with_args "{'ids' : '{{graph.id}}' }" with_perms graph_delete_perm %}
                     </td>
@@ -61,11 +64,11 @@
                                 {% if user_can_admin_report %}
                                     <button onclick="creme.utils.innerPopupNReload('/reports/graph/{{graph.id}}/block/add', {% get_block_reload_uri %});"
                                             style="padding: 1px 1px;vertical-align:middle;">
-                                        <img src="{% creme_media_url 'images/add_16.png' %}" alt="{% trans 'Create a block' %}" title="{% trans 'Create a block with this graph' %}"
+                                        <img src="{% creme_media_url 'images/add_16.png' %}" alt="{{addblock_label}}" title="{{addblock_label}}"
                                              style="border:0; vertical-align:middle;"/>
                                     </button>
                                 {% else %}
-                                    <img class="forbidden" src="{% creme_media_url 'images/add_16.png' %}" alt="{% trans "Can't add" %}" title="{% trans "Can't add" %}" />
+                                    <img class="forbidden" src="{% creme_media_url 'images/add_16.png' %}" alt="{{noaddblock_label}}" title="{{noaddblock_label}}" />
                                 {% endif %}
                                 </li>
                             </ul>

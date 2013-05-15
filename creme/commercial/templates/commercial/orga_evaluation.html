@@ -35,9 +35,8 @@
     <div class=zone_spacer_5px>
         <ul class="button_list hbox">
             <li>
-                <a class="menu_button" href="{{strategy.get_absolute_url}}">
-                    <img src="{% creme_media_url 'images/previous_32.png' %}" border="0" title="{% trans "Back to the strategy" %}" alt="{% trans "Back to the strategy" %}" />
-                    {% trans "Back to the strategy" %}
+                <a class="menu_button" href="{{strategy.get_absolute_url}}">{% trans "Back to the strategy" as label %}
+                    <img src="{% creme_media_url 'images/previous_32.png' %}" border="0" title="{{label}}" alt="{{label}}" />{{label}}
                 </a>
             </li>
         </ul>
@@ -48,7 +47,7 @@
     {% block view_title %}
         <table class="table_header" cellpadding="0" cellspacing="0">
             <tr>
-                <td width="5%"><img src="{% creme_media_url 'images/organisation_64.png' %}" border="0" title="{% trans "Organisation" %}" alt="{% trans "Organisation" %}" /></td>
+                <td width="5%">{% trans "Organisation" as img_title %}<img src="{% creme_media_url 'images/organisation_64.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" /></td>
                 <td width="95%"><h1>{% blocktrans %}Evaluation of «{{orga}}» by «{{strategy}}»{% endblocktrans %}</h1></td>
             </tr>
         </table>

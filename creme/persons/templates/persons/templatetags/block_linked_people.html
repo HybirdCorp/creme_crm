@@ -13,7 +13,7 @@
                     </a>
                 {% else %}
                     <span class="add forbidden">
-                        <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't add or link" %}" alt="{% trans "Can't add or link" %}" />{{add_title}}
+                        {% trans "Can't add or link" as img_title %}<img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />{{add_title}}
                     </span>
                 {% endif %}
                 {% get_line_relator to_subject object with_rtype_id rtype_id with_ct_id ct.id with_label _("Link to existing contacts") with_perms link_perm %}
@@ -29,6 +29,7 @@
                 <th class="block_header_line_dark">{% trans "Email" %}</th>
                 <th class="block_header_line_dark action">{% trans "Actions" %}</th>
             </tr>
+            {% trans "Edit" as edit_label %}{% trans "Can't edit" as noedit_label %}
             {% for people in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                 <tr class="content">{% has_perm_to view people as people_view_perm %}
                     <td class="{{row_color}}">{% widget_entity_hyperlink people user %}</td>
@@ -43,9 +44,9 @@
                     {% endif %}
                     <td class="{{row_color}} action">{% has_perm_to change people as people_edit_perm %}{% has_perm_to unlink people as people_unlink_perm %}
                         {% if people_edit_perm %}
-                            <a href="{{people.get_edit_absolute_url}}"><img src="{% creme_media_url 'images/edit_22.png' %}" border="0"></a>
+                            <a href="{{people.get_edit_absolute_url}}"><img src="{% creme_media_url 'images/edit_22.png' %}" border="0" title="{{edit_label}}" alt="{{edit_label}}"></a>
                         {% else %}
-                            <img class="forbidden" src="{% creme_media_url 'images/edit_22.png' %}" border="0" title="{% trans "Can't edit" %}" alt="{% trans "Can't edit" %}" />
+                            <img class="forbidden" src="{% creme_media_url 'images/edit_22.png' %}" border="0" title="{{noedit_label}}" alt="{{noedit_label}}" />
                         {% endif %}
                         {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{ 'subject_id':{{object.pk}}, 'type':'{{rtype_id}}', 'object_id':{{people.pk}} }" with_perms unlink_perm|and_op:people_unlink_perm %}
                     </td>

@@ -2,6 +2,6 @@
 {% load creme_core_tags %}
 {# No particular permission is required, the view already check if user has perm to access to the view #}
 <a class="download" href="/crudity/infopath/create_form/{{ backend.subject }}">
-    <img src="{% creme_media_url 'images/download_22.png' %}" border="0" title="{% trans "Download" %}" alt="{% trans "Download" %}" />
+    {% trans "Download" as img_title %}<img src="{% creme_media_url 'images/download_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
     {% blocktrans with backend.model|get_meta_value:"verbose_name" as verbose_name %}Infopath form for "{{ verbose_name }}"{% endblocktrans %}
 </a>

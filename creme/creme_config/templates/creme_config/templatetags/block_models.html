@@ -44,12 +44,12 @@
                                                 {% with object.order as order %}
                                                     {% if order != 1 %}
                                                         <a onclick="creme.utils.postNReload('/creme_config/{{app_name}}/{{model_name}}/up/{{object.id}}', {% get_block_reload_uri %});">
-                                                            <img src="{% creme_media_url 'images/small_up_arrow_16.png' %}" border="0" title="{% trans "Move up" %}" alt="{% trans "Move up" %}" />
+                                                            {% trans "Move up" as img_title %}<img src="{% creme_media_url 'images/small_up_arrow_16.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
                                                         </a>
                                                     {% endif %}<br/>
                                                     {% if order != total_count %}
                                                         <a onclick="creme.utils.postNReload('/creme_config/{{app_name}}/{{model_name}}/down/{{object.id}}', {% get_block_reload_uri %});">
-                                                            <img src="{% creme_media_url 'images/small_down_arrow_16.png' %}" border="0" title="{% trans "Move down" %}" alt="{% trans "Move down" %}" />
+                                                            {% trans "Move down" as img_title %}<img src="{% creme_media_url 'images/small_down_arrow_16.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
                                                         </a>
                                                     {% endif %}
                                                 {% endwith %}

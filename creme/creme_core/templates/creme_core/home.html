@@ -14,9 +14,9 @@
 
 {% block content %}
     <table class="table_header" cellpadding="0" cellspacing="0">
-        <tr>
-            <td class="logo"><img src="{% creme_media_url 'images/home_64.png' %}" alt="{% trans "Home" %}"/></td>
-            <td class="title"><h1>{% trans "Home" %}</h1></td>
+        <tr>{% trans "Home" as title %}
+            <td class="logo"><img src="{% creme_media_url 'images/home_64.png' %}" alt="{{title}}"/></td>
+            <td class="title"><h1>{{title}}</h1></td>
             <td class="actions"></td>
         </tr>
     </table>

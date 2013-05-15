@@ -1,39 +1,20 @@
 {% extends "creme_core/generics/view_entity.html" %}
 {% load i18n %}
-{% load creme_core_tags %}{% comment %}{% load creme_block %}{% endcomment %}
+{% load creme_core_tags %}
 
 {% block extra_menu_buttons %}
     {% if not object.is_closed %}
-        <li>{% has_perm_to change object as has_perm %}
+        <li>{% has_perm_to change object as has_perm %}{% trans "Close project" as close_label %}
             {% if has_perm %}
                 <a class="menu_button" onclick="$('#id_project_close').submit();">
-                    <img src="{% creme_media_url 'images/cancel_32.png' %}" border="0" title="{% trans "Close project" %}" alt="{% trans "Close project" %}" />
-                    {% trans "Close project" %}
+                    <img src="{% creme_media_url 'images/cancel_32.png' %}" border="0" title="{{close_label}}" alt="{{close_label}}" />{{close_label}}
                     <div style="display:none;"><form id="id_project_close" method="POST" action="/projects/project/{{object.id}}/close">{% csrf_token %}</form></div>
                 </a>
             {% else %}
                 <span class="menu_button forbidden" title="{% trans "forbidden" %}">
-                    <img src="{% creme_media_url 'images/cancel_32.png' %}" border="0" title="{% trans "Close project" %}" alt="{% trans "Close project" %}" />
-                    {% trans "Close project" %}
+                    <img src="{% creme_media_url 'images/cancel_32.png' %}" border="0" title="{{close_label}}" alt="{{close_label}}" />{{close_label}}
                 </span>
             {% endif %}
         </li>
     {% endif %}
 {% endblock %}
-
-{% comment %}
-{% block creme_blocks_import %}
-    {{block.super}}
-
-    {% import_block from_app 'projects' named 'project_tasks' as 'project_tasks_block' %}
-    {% import_block from_app 'projects' named 'project_extra_info' as 'project_xtra_block' %}
-{% endblock %}
-
-{% block detail_view_top_1 %}
-    {% display_block_detailview 'project_tasks_block' %}
-{% endblock %}
-
-{% block after_object_as_table_1 %}
-    {% display_block_detailview 'project_xtra_block' %}
-{% endblock %}
-{% endcomment %}

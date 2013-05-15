@@ -10,5 +10,5 @@
     }
 </script>
 <a onclick="return download_ical();">
-    <img border="0" src="{% creme_media_url 'images/calendar_ical_22.png' %}" alt="{% trans "Download in iCalendar format" %}" title="{% trans "Download in iCalendar format" %}"/>{% trans "Download in iCalendar format" %}
+    {% trans "Download in iCalendar format" as label %}<img border="0" src="{% creme_media_url 'images/calendar_ical_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
 </a>&nbsp;

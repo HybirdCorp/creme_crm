@@ -13,12 +13,11 @@
                 {% if creation_perm and link_perm %}
                     <a class="add" onclick="creme.utils.iframeInnerPopup('/documents/document/add_related/{{object.id}}');">
                     {% comment %}<a class="add" href="/documents/document/add_related?callback_url={{object.get_absolute_url}}&entity_id={{object.id}}">{% endcomment %}
-                        <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{% trans "Add a document" %}" alt="{% trans "Add a document" %}" />
-                        {% trans "Add a document" %}
+                        {% trans "Add a document" as label %}<img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{label}}" alt="{{label}}" />{{label}}
                     </a>
                 {% else %}
                     <span class="add forbidden">
-                        <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't add or link" %}" alt="{% trans "Can't add or link" %}" />
+                        {% trans "Can't add or link" as img_title %}<img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
                         {% trans "Add a document" %}
                     </span>
                 {% endif %}
@@ -44,7 +43,7 @@
                                     <img src="{% creme_media_url 'images/download_22.png' %}" title="{% blocktrans %}Download '{{doc}}'{% endblocktrans %}" alt="{% trans "Download" %}"/>
                                 </a>
                             {% else %}
-                                <img class="forbidden" src="{% creme_media_url 'images/download_22.png' %}" border="0" title="{% trans "Can't download" %}" alt="{% trans "Can't download" %}">
+                                {% trans "Can't download" as img_title %}<img class="forbidden" src="{% creme_media_url 'images/download_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}">
                             {% endif %}
                         </td>
                         <td class="{{row_color}} action">

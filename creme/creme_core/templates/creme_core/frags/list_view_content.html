@@ -46,13 +46,8 @@
                 <table>
                     <tbody>
                         <tr>
-                            <th class="filters">
-                                {% comment %}{% get_listview_filters %}{% endcomment %}
-                                {% get_listview_entity_filters %}
-                            </th>
-                            <th class="views">
-                                {% get_listview_headerfilters %}
-                            </th>
+                            <th class="filters">{% get_listview_entity_filters %}</th>
+                            <th class="views">{% get_listview_headerfilters %}</th>
                         </tr>
                     </tbody>
                 </table>
@@ -64,30 +59,30 @@
                     {% has_perm_to create model as creation_perm %}{% has_perm_to export model as export_perm %}
                     {% if add_url %}
                         <a {% if creation_perm %}href="{{add_url}}"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
-                            <img border="0" src="{% creme_media_url 'images/add_22.png' %}" alt="{% trans "New" %}" title="{% trans "New" %}"/>{{model.creation_label}}
+                            {% trans "New" as img_title %}<img border="0" src="{% creme_media_url 'images/add_22.png' %}" alt="{{img_title}}" title="{{img_title}}"/>{{model.creation_label}}
                         </a>&nbsp;
                     {% endif %}
                     {% get_export_backends as export_backends %}
                     {% if export_backends|length > 2 %}
-                        <a {% if export_perm %}href="/creme_core/list_view/download/{{content_type_id}}/%s?list_url={{request.path}}" onclick="creme._export.selectBackend(event, {{ export_backends }}, this);"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
-                            <img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{% trans "Download" %}" title="{% trans "Download" %}"/>{% trans "Download" %}
+                        <a {% if export_perm %}href="/creme_core/list_view/download/{{content_type_id}}/%s?list_url={{request.path}}" onclick="creme._export.selectBackend(event, {{export_backends}}, this);"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
+                            {% trans "Download" as label %}<img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
                         </a>&nbsp;
-                        <a {% if export_perm %}href="/creme_core/list_view/download_header/{{content_type_id}}/%s?list_url={{request.path}}" onclick="creme._export.selectBackend(event, {{ export_backends }}, this);"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
-                            <img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{% trans "Download header" %}" title="{% trans "Download header" %}"/>{% trans "Download header" %}
+                        <a {% if export_perm %}href="/creme_core/list_view/download_header/{{content_type_id}}/%s?list_url={{request.path}}" onclick="creme._export.selectBackend(event, {{export_backends}}, this);"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
+                            {% trans "Download header" as label %}<img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
                         </a>&nbsp;
                     {% endif %}
                     {% get_import_backends as import_backends %}
                     {% if import_backends|length > 2 %}
                         <a {% if creation_perm %}href="/creme_core/list_view/import/{{content_type_id}}?list_url={{request.path}}"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
-                            <img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{% trans "Import" %}" title="{% trans "Import" %}"/>{% trans "Import" %}
+                            {% trans "Import" as label %}<img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
                         </a>&nbsp;
                     {% endif %}
                     <a href="/creme_core/list_view/batch_process/{{content_type_id}}?list_url={{request.path}}">
-                        <img border="0" src="{% creme_media_url 'images/batch_process_22.png' %}" alt="{% trans "Batch process" %}" title="{% trans "Batch process" %}"/>{% trans "Batch process" %}
+                        {% trans "Batch process" as label %}<img border="0" src="{% creme_media_url 'images/batch_process_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
                     </a>&nbsp;
                 {% endif %}
                 <button class="clear-search" value="0" type="button" name="_search"{% if not search %} disabled="true" {% else %} onclick="$(this.form).list_view('getSubmit')(this);" {% endif %}>{% trans "Clean the search" %}</button>&nbsp;
-                <button class="do-search"    value="1" type="button" name="_search" onclick="$(this.form).list_view('getSubmit')(this);"><img border="0" src="{% creme_media_url 'images/search_22.png' %}" alt="{% trans "Research" %}" title="{% trans "Research" %}"/>{% trans "Research" %}</button>
+                <button class="do-search"    value="1" type="button" name="_search" onclick="$(this.form).list_view('getSubmit')(this);">{% trans "Research" as label %}<img border="0" src="{% creme_media_url 'images/search_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}</button>
                 {% block extra_buttons %}{% endblock %}
                 {% if extra_bt_templates|isiterable %}
                     {% for templ in extra_bt_templates %}
@@ -98,11 +93,11 @@
         </tr>
         <tr style="display:none;">
             <th colspan="{{colspan}}">
-                <input value="{{list_view_state.sort_field}}" id="sort_field"    type="hidden" name="sort_field"  />
-                <input value="{{list_view_state.sort_order}}" id="sort_order"    type="hidden" name="sort_order"  />
-                <input value=""                               id="selected_rows" type="hidden"/>
-                <input value="{{o2m}}"                        id="o2m"           type="hidden"/>
-                <input value="{{q_filter}}"                   id="q_filter"      type="hidden" name="q_filter"/>
+                <input value="{{list_view_state.sort_field}}" id="sort_field"    type="hidden" name="sort_field" />
+                <input value="{{list_view_state.sort_order}}" id="sort_order"    type="hidden" name="sort_order" />
+                <input value=""                               id="selected_rows" type="hidden" />
+                <input value="{{o2m}}"                        id="o2m"           type="hidden" />
+                <input value="{{q_filter}}"                   id="q_filter"      type="hidden" name="q_filter" />
                 {% block extra_buttons_hidden %}{% endblock %}
             </th>
         </tr>
@@ -179,9 +174,7 @@
                                 </select>
                             </td>
                             <td class="page_information">
-                                {% with start_index=entities.start_index end_index=entities.end_index entities_count=entities.paginator.count %}
-                                    {% blocktrans %}Recordings {{start_index}} - {{end_index}} on {{entities_count}}{% endblocktrans %}
-                                {% endwith %}
+                                {% blocktrans with start_index=entities.start_index end_index=entities.end_index entities_count=entities.paginator.count %}Recordings {{start_index}} - {{end_index}} on {{entities_count}}{% endblocktrans %}
                             </td>
                         </tr>
                     </tbody>

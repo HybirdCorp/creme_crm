@@ -5,7 +5,7 @@
 
 {% block entity_buttons %}
     <a href="/events/event/{{object.id}}/contacts">
-        <img src="{% creme_media_url 'images/view_64.png' %}" title="{% trans "View related contacts" %}" alt="{% trans "View related contacts" %}"/>
+        {% trans "View related contacts" as img_title %}<img src="{% creme_media_url 'images/view_64.png' %}" title="{{img_title}}" alt="{{img_title}}"/>
     </a>&nbsp;
     {{block.super}}
 {% endblock %}

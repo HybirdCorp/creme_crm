@@ -28,7 +28,7 @@
                     <td class="{{row_color}}">{{sending.get_mails.count}}{% if sending.get_unsent_mails_count %} / <span class="errorlist">{{ sending.get_unsent_mails_count }} {% trans "not sent" %}{% endif %}</span></td>
                     <td class="{{row_color}} action">
                         <a class="button_link" onclick="creme.utils.showInnerPopup('/emails/campaign/sending/{{sending.pk}}')">
-                            <img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{% trans "Details" %}" alt="{% trans "Details" %}" />
+                            {% trans "Details" as img_title %}<img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
                         </a>
                     </td>
                     <td class="{{row_color}} action">

@@ -8,15 +8,14 @@
         <th class="actions">
             <div class="buttons">
                 {% get_line_adder at_url '/sms/messaging_list/{{object.pk}}/recipient/add' with_label _("Add manually") with_perms has_perm %}
+                {% trans "Add from a CSV file" as csv_label %}
                 {% if has_perm %}
                     <a class="add" onclick="creme.utils.iframeInnerPopup('/sms/messaging_list/{{object.pk}}/recipient/add_csv');">
-                        <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{% trans "Add from a CSV file" %}" alt="{% trans "Add from a CSV file" %}" />
-                        {% trans "Add from a CSV file" %}
+                        <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{csv_label}}" alt="{{csv_label}}" />{{csv_label}}
                     </a>
                 {% else %}
                     <span class="add forbidden">
-                        <img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{% trans "Can't add" %}" alt="{% trans "Can't add" %}" />
-                        {% trans "Add from a CSV file" %}
+                        {% trans "Can't add" as img_title %}<img src="{% creme_media_url 'images/add_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />{{csv_label}}
                     </span>
                 {% endif %}
             </div>

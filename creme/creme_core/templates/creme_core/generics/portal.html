@@ -21,7 +21,7 @@
                 {% block header_link %}
                     <a href="{% block list_url %}{% endblock %}">
                         {% block list_msg %}{% endblock %}
-                        <img src="{% creme_media_url 'images/next_64.png' %}" title="{% trans "Go to the list" %}" alt="{% trans "Go to the list" %}"/>
+                        {% trans "Go to the list" as img_title %}<img src="{% creme_media_url 'images/next_64.png' %}" title="{{img_title}}" alt="{{img_title}}"/>
                     </a>
                 {% endblock %}
             </td>
@@ -31,16 +31,14 @@
     {% if config_url %}
         <div>
             <ul class="button_list hbox">
-                <li>
+                <li>{% trans "Configure" as config_label %}
                     {% if can_admin %}
                         <a class="menu_button" href="{{config_url}}">
-                            <img src="{% creme_media_url 'images/config_32.png' %}" border="0" title="{% trans "Configure" %}" alt="{% trans "Configure" %}" />
-                            {% trans "Configure" %}
+                            <img src="{% creme_media_url 'images/config_32.png' %}" border="0" title="{{config_label}}" alt="{{config_label}}" />{{config_label}}
                         </a>
                     {% else %}
                         <span class="menu_button forbidden" title="{% trans "forbidden" %}">
-                            <img src="{% creme_media_url 'images/config_32.png' %}" border="0" title="{% trans "Configure" %}" alt="{% trans "Configure" %}" />
-                            {% trans "Configure" %}
+                            <img src="{% creme_media_url 'images/config_32.png' %}" border="0" title="{{config_label}}" alt="{{config_label}}" />{{config_label}}
                         </span>
                     {% endif %}
                 </li>

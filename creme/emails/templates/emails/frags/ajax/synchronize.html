@@ -12,7 +12,7 @@
         <td class="actions">
             <span>
                 <a onclick="creme.reload_synchronisation($('#sub_content'), '/emails/synchronization');">
-                    <img src="{% creme_media_url 'images/refresh_64.png' %}" title="{% trans "Refresh" %}" alt="{% trans "Refresh" %}"/>
+                    {% trans "Refresh" as img_title %}<img src="{% creme_media_url 'images/refresh_64.png' %}" title="{{img_title}}" alt="{{img_title}}"/>
                 </a>&nbsp;
             </span>
         </td>
