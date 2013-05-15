@@ -29,6 +29,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.models import CremeEntity, CremeModel, Relation, EntityFilter
+from creme.creme_core.models.fields import CTypeForeignKey
 
 from creme.opportunities.models import Opportunity
 
@@ -121,7 +122,8 @@ class ActObjective(CremeModel):
     act          = ForeignKey(Act, related_name='objectives', editable=False)
     counter      = PositiveIntegerField(_(u'Counter'), default=0, editable=False)
     counter_goal = PositiveIntegerField(_(u'Value to reach'), default=1)
-    ctype        = ForeignKey(ContentType, verbose_name=_(u'Counted type'), null=True, blank=True, editable=False)
+    #ctype        = ForeignKey(ContentType, verbose_name=_(u'Counted type'), null=True, blank=True, editable=False)
+    ctype        = CTypeForeignKey(verbose_name=_(u'Counted type'), null=True, blank=True, editable=False)
     filter       = ForeignKey(EntityFilter, verbose_name=_(u'Filter on counted entities'), null=True, blank=True, on_delete=PROTECT, editable=False)
 
     _count_cache = None
@@ -226,7 +228,8 @@ class ActObjectivePatternComponent(CremeModel):
     pattern      = ForeignKey(ActObjectivePattern, related_name='components', editable=False)
     parent       = ForeignKey('self', null=True, related_name='children', editable=False)
     name         = CharField(_(u"Name"), max_length=_NAME_LENGTH)
-    ctype        = ForeignKey(ContentType, verbose_name=_(u'Counted type'), null=True, blank=True, editable=False)
+    #ctype        = ForeignKey(ContentType, verbose_name=_(u'Counted type'), null=True, blank=True, editable=False)
+    ctype        = CTypeForeignKey(verbose_name=_(u'Counted type'), null=True, blank=True, editable=False)
     filter       = ForeignKey(EntityFilter, verbose_name=_(u'Filter on counted entities'), null=True, blank=True, on_delete=PROTECT, editable=False)
     success_rate = PositiveIntegerField(_(u'Success rate')) #smallinteger ??
 

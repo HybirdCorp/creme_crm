@@ -29,7 +29,7 @@ from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeModel, CremeEntity, Relation
-from creme.creme_core.models.fields import CreationDateTimeField
+from creme.creme_core.models.fields import CreationDateTimeField, CTypeForeignKey
 
 from creme.activities.models import Activity
 
@@ -76,7 +76,8 @@ USER_HISTORY_WHERE_VERBOSE = dict(USER_HISTORY_WHERE)
 
 class CremeExchangeMapping(CremeModel):
     creme_entity_id    = IntegerField(u'Creme entity pk', unique=True)
-    creme_entity_ct    = ForeignKey(ContentType, verbose_name=u'Creme entity ct')#For filtering when the entity was deleted
+    #creme_entity_ct    = ForeignKey(ContentType, verbose_name=u'Creme entity ct')#For filtering when the entity was deleted
+    creme_entity_ct    = CTypeForeignKey(verbose_name=u'Creme entity ct')#For filtering when the entity was deleted
     exchange_entity_id = CharField(u'Exchange entity pk', max_length=64, unique=True)
     synced             = BooleanField(u'Already synced on server', default=False)
     is_creme_modified  = BooleanField(u'Modified by creme?',       default=False)
@@ -182,7 +183,8 @@ class UserSynchronizationHistory(CremeModel):
     user           = ForeignKey(User, verbose_name=u'user')
     entity_repr    = CharField(u'Entity', max_length=200, default=None, blank=True, null=True)#Saving the representation of the entity in case it was deleted
     entity_pk      = IntegerField(u'Entity pk', max_length=50, blank=True, null=True)#Saving the pk of the entity
-    entity_ct      = ForeignKey(ContentType, verbose_name=u'What', null=True, blank=True)
+    #entity_ct      = ForeignKey(ContentType, verbose_name=u'What', null=True, blank=True)
+    entity_ct      = CTypeForeignKey(verbose_name=u'What', null=True, blank=True)
     created        = CreationDateTimeField(_('Creation date'), default=lambda: datetime.now())
     entity_changes = TextField(_(u'Entity changes'), default=lambda: pickle.dumps({}))
     type           = IntegerField(u'', max_length=1, choices=USER_HISTORY_TYPE)

@@ -32,6 +32,7 @@ from ..constants import SETTING_BLOCK_DEFAULT_STATE_IS_OPEN, SETTING_BLOCK_DEFAU
 from .base import CremeModel
 from .entity import CremeEntity
 from .relation import RelationType
+from .fields import CTypeForeignKey
 
 from creme.creme_config.models import SettingValue
 
@@ -43,7 +44,8 @@ __all__ = ('BlockDetailviewLocation', 'BlockPortalLocation', 'BlockMypageLocatio
 
 
 class BlockDetailviewLocation(CremeModel):
-    content_type = ForeignKey(ContentType, verbose_name=_(u"Related type"), null=True)
+    #content_type = ForeignKey(ContentType, verbose_name=_(u"Related type"), null=True)
+    content_type = CTypeForeignKey(verbose_name=_(u'Related type'), null=True)
     block_id     = CharField(max_length=100)
     order        = PositiveIntegerField()
     zone         = PositiveSmallIntegerField()
@@ -67,6 +69,7 @@ class BlockDetailviewLocation(CremeModel):
     def create(block_id, order, zone, model=None): #TODO: rename 'create_if_needed'
         ct = ContentType.objects.get_for_model(model) if model else None
 
+        #TODO: get_or_create()
         try:
             loc = BlockDetailviewLocation.objects.get(content_type=ct, block_id=block_id)
         except Exception:

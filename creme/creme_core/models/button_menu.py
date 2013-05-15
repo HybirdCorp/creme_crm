@@ -18,16 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import CharField, ForeignKey, PositiveIntegerField
+from django.db.models import CharField, PositiveIntegerField #ForeignKey
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from .base import CremeModel
+from .fields import CTypeForeignKey
 
 
 class ButtonMenuItem(CremeModel):
     id           = CharField(primary_key=True, max_length=100) #TODO: pk string still useful ???
-    content_type = ForeignKey(ContentType, verbose_name=_(u"Related type"), null=True) #null means: all ContentTypes are accepted.
+    #content_type = ForeignKey(ContentType, verbose_name=_(u"Related type"), null=True) #null means: all ContentTypes are accepted.
+    content_type = CTypeForeignKey(verbose_name=_(u'Related type'), null=True) #null means: all ContentTypes are accepted.
     button_id    = CharField(_(u"Button ID"), max_length=100, blank=False, null=False)
     order        = PositiveIntegerField(_(u"Priority"))
 

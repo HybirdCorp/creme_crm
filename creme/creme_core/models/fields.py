@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,14 +20,13 @@
 
 from datetime import datetime
 
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
-from django.db.models import DateTimeField, CharField, SET
+from django.db.models import DateTimeField, CharField, ForeignKey, SET
 
 
 #TODO: add a form field ?? (validation)
 #TODO: fix the max_lenght value ?,
-from django.db.models.fields.related import ForeignKey
-
 class PhoneField(CharField):
     def south_field_triple(self):
         """Field description for South. (see http://south.aeracode.org/docs/customfields.html#south-field-triple)"""
@@ -39,6 +38,7 @@ class PhoneField(CharField):
 
 #TODO: Make a real api for this
 class DurationField(CharField):
+    #TODO: factorise
     def south_field_triple(self):
         """Field description for South. (see http://south.aeracode.org/docs/customfields.html#south-field-triple)"""
         from south.modelsinspector import introspector
@@ -68,6 +68,39 @@ class CremeUserForeignKey(ForeignKey):
         args, kwargs = introspector(self)
 
         return (field_class, args, kwargs)
+
+
+class CTypeForeignKey(ForeignKey):
+    def __init__(self, **kwargs):
+        kwargs['to'] = ContentType
+        super(CTypeForeignKey, self).__init__(**kwargs)
+
+    def __get__(self, instance, instance_type=None):
+        #return ContentType.objects.get_for_id(getattr(instance, self.attname))
+        ct_id = getattr(instance, self.attname)
+        return ContentType.objects.get_for_id(ct_id) if ct_id else None
+
+    def __set__(self, instance, value):
+        #TODO: accept model directly + get_for_model() ??
+        setattr(instance, self.attname, value.id if value else value)
+
+    def contribute_to_class(self, cls, name):
+        super(CTypeForeignKey, self).contribute_to_class(cls, name)
+
+        #Connect self as the descriptor for this field (thx to GenericForeignKey code)
+        setattr(cls, name, self)
+
+    #TODO: factorise
+    def get_internal_type(self):
+        return "ForeignKey"
+
+    def south_field_triple(self):
+        from south.modelsinspector import introspector
+        field_class = 'django.db.models.fields.related.ForeignKey'
+        args, kwargs = introspector(self)
+
+        return (field_class, args, kwargs)
+
 
 # Code copied/modified from django_extensions one:
 #    http://code.google.com/p/django-command-extensions/

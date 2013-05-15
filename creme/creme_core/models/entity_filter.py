@@ -35,7 +35,7 @@ from ..utils.meta import is_date_field, get_model_field_info
 from ..utils.date_range import date_range_registry
 from .relation import RelationType, Relation
 from .custom_field import CustomField
-from .fields import CremeUserForeignKey
+from .fields import CremeUserForeignKey, CTypeForeignKey
 
 
 logger = logging.getLogger(__name__)
@@ -82,7 +82,8 @@ class EntityFilter(Model): #CremeModel ???
     id          = CharField(primary_key=True, max_length=100, editable=False)
     name        = CharField(max_length=100, verbose_name=_('Name'))
     user        = CremeUserForeignKey(verbose_name=_(u'Owner'), blank=True, null=True)
-    entity_type = ForeignKey(ContentType, editable=False)
+    #entity_type = ForeignKey(ContentType, editable=False)
+    entity_type = CTypeForeignKey(editable=False)
     is_custom   = BooleanField(editable=False, default=True)
     use_or      = BooleanField(verbose_name=_(u'Use "OR"'), default=False)
 

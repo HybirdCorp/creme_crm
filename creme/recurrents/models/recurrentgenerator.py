@@ -20,9 +20,10 @@
 
 from django.db.models import CharField, TextField, ForeignKey, DateTimeField, BooleanField, PROTECT
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.contenttypes.models import ContentType
+#from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.models import CremeEntity
+from creme.creme_core.models.fields import CTypeForeignKey
 
 from .periodicity import Periodicity
 
@@ -33,7 +34,8 @@ class RecurrentGenerator(CremeEntity):
     first_generation = DateTimeField(_(u'Date of the first recurrent generation'), blank=True, null=True)
     last_generation  = DateTimeField(_(u'Date of the last recurrent generation'), blank=True, null=True, editable=False)
     periodicity      = ForeignKey(Periodicity, verbose_name=_(u'Periodicity of the generation'), on_delete=PROTECT)
-    ct               = ForeignKey(ContentType, verbose_name=_(u'Type of the recurrent resource'))
+    #ct               = ForeignKey(ContentType, verbose_name=_(u'Type of the recurrent resource'))
+    ct               = CTypeForeignKey(verbose_name=_(u'Type of the recurrent resource'))
     template         = ForeignKey(CremeEntity, verbose_name=_(u'Related model'), related_name='template_set')
     is_working       = BooleanField(_(u'Active ?'), editable=False, default=True)
 

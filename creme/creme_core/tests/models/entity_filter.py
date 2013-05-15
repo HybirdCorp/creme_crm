@@ -83,6 +83,17 @@ class EntityFiltersTestCase(CremeTestCase):
 
         return ids
 
+    def test_ct_cache(self):
+        efilter = EntityFilter.create('test-filter01', 'Ikari', Contact)
+
+        with self.assertNumQueries(0):
+            ContentType.objects.get_for_id(efilter.entity_type_id)
+
+        efilter = self.refresh(efilter)
+
+        with self.assertNumQueries(0):
+            efilter.entity_type
+
     def test_filter_field_equals01(self):
         self.assertEqual(len(self.contacts), Contact.objects.count())
 

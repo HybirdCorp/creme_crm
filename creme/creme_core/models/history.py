@@ -32,7 +32,7 @@ from ..global_info import get_global_info
 from .entity import CremeEntity
 from .relation import RelationType, Relation
 from .creme_property import CremePropertyType, CremeProperty
-from .fields import CremeUserForeignKey
+from .fields import CremeUserForeignKey, CTypeForeignKey
 
 
 logger = logging.getLogger(__name__)
@@ -94,7 +94,8 @@ _PRINTERS = {
 #TODO: manage the related objects edition (Addresses, Alerts...)
 class HistoryLine(Model):
     entity       = ForeignKey(CremeEntity, null=True, on_delete=SET_NULL)
-    entity_ctype = ForeignKey(ContentType)  #we do not use entity.entity_type because we keep history of the deleted entities
+    #entity_ctype = ForeignKey(ContentType)  #we do not use entity.entity_type because we keep history of the deleted entities
+    entity_ctype = CTypeForeignKey()  #we do not use entity.entity_type because we keep history of the deleted entities
     entity_owner = CremeUserForeignKey()    #we do not use entity.user because we keep history of the deleted entities
     username     = CharField(max_length=30) #not a Fk to a User object because we want to keep the same line after the deletion of a User.
     date         = DateTimeField()
