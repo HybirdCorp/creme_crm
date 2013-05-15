@@ -20,7 +20,7 @@
                     </a>&nbsp;
 
                     {% if form.cleaned_data %}
-                        <a href="/reports/report/{{object.id}}/csv?field={{form.cleaned_data.date_fields}}&range_name={{ form.cleaned_data.date_filter.name }}{% if start %}&start={{start|to_timestamp}}{% endif %}{% if end %}&end={{end|to_timestamp}}{% endif %}">
+                        <a href="/reports/report/{{object.id}}/csv?field={{form.cleaned_data.date_fields}}&range_name={{ form.cleaned_data.date_filter.name }}{% if start %}&start={{start|to_filter_format}}{% endif %}{% if end %}&end={{end|to_filter_format}}{% endif %}">
                     {% else %}
                         <a href="/reports/report/{{object.id}}/csv">
                     {% endif %}

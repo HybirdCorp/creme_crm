@@ -42,7 +42,7 @@ from ..forms.report import (CreateForm, EditForm, LinkFieldToReportForm, AddFiel
                             get_aggregate_custom_fields, DateReportFilterForm)
 from ..registry import report_backend_registry
 from ..report_aggregation_registry import field_aggregation_registry
-
+from ..constants import DATETIME_FILTER_FORMAT
 
 @login_required
 @permission_required('reports')
@@ -262,13 +262,11 @@ def set_selected(request):
 
     return HttpResponse("", status=200, mimetype="text/javascript")
 
-_DATETIME_FILTER_FORMAT = '%d|%m|%Y|%H|%M|%S'
-
 def _encode_datetime(date):
-    return date.strftime(_DATETIME_FILTER_FORMAT) if date else None
+    return date.strftime(DATETIME_FILTER_FORMAT) if date else None
 
 def _decode_datetime(date_str):
-    return datetime.strptime(date_str, _DATETIME_FILTER_FORMAT) if date_str else None
+    return datetime.strptime(date_str, DATETIME_FILTER_FORMAT) if date_str else None
 
 @login_required
 @permission_required('reports')
