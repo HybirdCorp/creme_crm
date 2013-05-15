@@ -34,7 +34,7 @@ from ..utils.id_generator import generate_string_id_and_save
 from .entity import CremeEntity
 from .relation import RelationType
 from .custom_field import CustomField
-from .fields import CremeUserForeignKey
+from .fields import CremeUserForeignKey, CTypeForeignKey
 
 
 logger = logging.getLogger(__name__)
@@ -82,7 +82,8 @@ class HeaderFilter(Model): #CremeModel ???
     id          = CharField(primary_key=True, max_length=100)
     name        = CharField(_('Name of the view'), max_length=100)
     user        = CremeUserForeignKey(verbose_name=_(u'Owner'), blank=True, null=True)
-    entity_type = ForeignKey(ContentType, editable=False)
+    #entity_type = ForeignKey(ContentType, editable=False)
+    entity_type = CTypeForeignKey(editable=False)
     is_custom   = BooleanField(blank=False, default=True)
 
     creation_label = _('Add a view')

@@ -33,6 +33,7 @@ from django.contrib.contenttypes.models import ContentType
 from ..auth.entity_credentials import EntityCredentials
 from ..registry import creme_registry
 from ..utils.contribute_to_model import contribute_to_model
+from .fields import CTypeForeignKey
 
 
 class UserRole(Model):
@@ -128,8 +129,9 @@ class UserRole(Model):
 
     def get_perms(self, user, entity):
         """@return (can_view, can_change, can_delete, can_link, can_unlink) 5 boolean tuple"""
-        #TODO: move this optimization in CremeEntity
-        real_entity_class = ContentType.objects.get_for_id(entity.entity_type_id).model_class()
+        #todo: move this optimization in CremeEntity
+        #real_entity_class = ContentType.objects.get_for_id(entity.entity_type_id).model_class()
+        real_entity_class = entity.entity_type.model_class()
 
         if self.is_app_allowed_or_administrable(real_entity_class._meta.app_label):
             perms = SetCredentials.get_perms(self._get_setcredentials(), user, entity)
@@ -165,7 +167,8 @@ class SetCredentials(Model):
     role     = ForeignKey(UserRole, related_name='credentials')
     value    = PositiveSmallIntegerField() #see EntityCredentials.VIEW|CHANGE|DELETE|LINK|UNLINK
     set_type = PositiveIntegerField() #see SetCredentials.ESET_*
-    ctype    = ForeignKey(ContentType, null=True, blank=True)
+    #ctype    = ForeignKey(ContentType, null=True, blank=True)
+    ctype    = CTypeForeignKey(null=True, blank=True)
     #entity  = ForeignKey(CremeEntity, null=True) ??
 
     #ESET means 'Entities SET'

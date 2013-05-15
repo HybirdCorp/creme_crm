@@ -20,16 +20,18 @@
 
 from collections import defaultdict
 
-from django.db.models import ForeignKey, CharField, PositiveSmallIntegerField, IntegerField, DecimalField, DateTimeField, BooleanField, ManyToManyField
+from django.db.models import (ForeignKey, CharField, PositiveSmallIntegerField, IntegerField,
+                              DecimalField, DateTimeField, BooleanField, ManyToManyField)
 from django import forms
 from django.utils.formats import date_format
 from django.utils.translation import ugettext, ugettext_lazy as _
 from django.utils.datastructures import SortedDict as OrderedDict #use python2.7 OrderedDict later.....
-from django.contrib.contenttypes.models import ContentType
+#from django.contrib.contenttypes.models import ContentType
 from django.core.validators import EMPTY_VALUES
 
 from .base import CremeModel
 from .entity import CremeEntity
+from .fields import CTypeForeignKey
 
 
 __all__ = ('CustomField', 'CustomFieldValue',
@@ -48,7 +50,8 @@ class CustomField(CremeModel):
     MULTI_ENUM  = 101
 
     name          = CharField(_(u'Field name'), max_length=100)
-    content_type  = ForeignKey(ContentType, verbose_name=_(u'Related type'))
+    #content_type  = ForeignKey(ContentType, verbose_name=_(u'Related type'))
+    content_type  = CTypeForeignKey(verbose_name=_(u'Related type'))
     field_type    = PositiveSmallIntegerField(_(u'Field type')) #see INT, FLOAT etc...
     #default_value = CharField(_(u'Valeur par defaut'), max_length=100, blank=True, null=True)
     #extra_args    = CharField(max_length=500, blank=True, null=True)

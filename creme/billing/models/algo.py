@@ -26,6 +26,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.models import CremeModel, CremeProperty
+from creme.creme_core.models.fields import CTypeForeignKey
 from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
 from creme.persons.models import Organisation
@@ -34,7 +35,8 @@ from creme.persons.models import Organisation
 class ConfigBillingAlgo(CremeModel):
     organisation = ForeignKey(Organisation, verbose_name=_(u'Organisation'))
     name_algo    = CharField(_(u"Algo name"), max_length=400)
-    ct           = ForeignKey(ContentType)
+    #ct           = ForeignKey(ContentType)
+    ct           = CTypeForeignKey()
 
     class Meta:
         app_label = 'billing'
@@ -44,7 +46,8 @@ class SimpleBillingAlgo(Model):
     organisation = ForeignKey(Organisation, verbose_name=_(u'Organisation'))
     last_number  = IntegerField()
     prefix       = CharField(_(u'Invoice prefix'), max_length=400)
-    ct           = ForeignKey(ContentType)
+    #ct           = ForeignKey(ContentType)
+    ct           = CTypeForeignKey()
 
     ALGO_NAME = "SIMPLE_ALGO"
 

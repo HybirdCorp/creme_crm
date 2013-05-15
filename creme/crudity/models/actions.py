@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,18 +18,16 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-#from base64 import encodestring, decodestring
-
 from pickle import loads, dumps
 
 from django.db.models.signals import post_save
-from django.db.models import TextField, CharField, ForeignKey
-from django.contrib.contenttypes.models import ContentType
+from django.db.models import TextField, CharField #ForeignKey
+#from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import ugettext_lazy as _, ugettext
 #from django.utils.simplejson import loads, dumps
 
 from creme.creme_core.models import CremeModel
-from creme.creme_core.models.fields import CremeUserForeignKey
+from creme.creme_core.models.fields import CremeUserForeignKey, CTypeForeignKey
 
 from creme.creme_config.models import SettingValue
 
@@ -40,10 +38,11 @@ __all__ = ("WaitingAction",)
 
 
 class WaitingAction(CremeModel):
-    action  = CharField(_(u"Action"), max_length=100)#Action (i.e: create, update...)
+    action  = CharField(_(u"Action"), max_length=100)#Action (i.e: create, update...) #TODO: int instead ??
     source  = CharField(_(u"Source"), max_length=100)#Source (i.e: email raw, email from infopath, sms raw...)
     data    = TextField(blank=True, null=True)
-    ct      = ForeignKey(ContentType, verbose_name=_(u"Ressource's type"), blank=False, null=False)#Redundant, but faster bd recovery
+    #ct      = ForeignKey(ContentType, verbose_name=_(u"Ressource's type"), blank=False, null=False)#Redundant, but faster bd recovery
+    ct      = CTypeForeignKey(verbose_name=_(u"Ressource's type"))#Redundant, but faster bd recovery
     subject = CharField(_(u"Subject"), max_length=100)
     user    = CremeUserForeignKey(verbose_name=_(u"Owner"), blank=True, null=True, default=None)#Case of sandboxes are by user
 
@@ -59,6 +58,7 @@ class WaitingAction(CremeModel):
             for k,v in data.iteritems():
                 d[k] = v.decode('utf8') if isinstance(v, basestring) else v
             data = d
+
         return data
 
     def set_data(self, data):
@@ -68,6 +68,7 @@ class WaitingAction(CremeModel):
         """self.user not None means that sandbox is by user"""
         if self.user is not None and self.user != user and not user.is_superuser:
             return (False, ugettext(u"You are not allowed to validate/delete the waiting action <%s>") % self.id)
+
         return (True, ugettext(u"OK"))
 
 post_save.connect(post_save_setting_value, sender=SettingValue)

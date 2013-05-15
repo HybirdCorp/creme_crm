@@ -29,13 +29,15 @@ from django.contrib.contenttypes.models import ContentType
 
 from ..utils.meta import get_verbose_field_name, ModelFieldEnumerator, get_model_field_info
 from .base import CremeModel
+from .fields import CTypeForeignKey
 
 
 logger = logging.getLogger(__name__)
 
 
 class SearchConfigItem(CremeModel):
-    content_type = ForeignKey(ContentType, verbose_name=_(u"Related type"))
+    #content_type = ForeignKey(ContentType, verbose_name=_(u"Related type"))
+    content_type = CTypeForeignKey(verbose_name=_(u"Related type"))
 #    role         = ForeignKey(UserRole, verbose_name=_(u"Related role"), null=True) #TODO:To be done ?
     user         = ForeignKey(User, verbose_name=_(u"Related user"), null=True)
 
@@ -66,7 +68,8 @@ class SearchConfigItem(CremeModel):
         if self._searchfields is None:
             self._searchfields = sfields = []
             append = sfields.append
-            model = ContentType.objects.get_for_id(self.content_type_id).model_class()
+            #model = ContentType.objects.get_for_id(self.content_type_id).model_class()
+            model = self.content_type.model_class()
 
             for sfield in SearchField.objects.filter(search_config_item=self):
                 #if 
@@ -81,7 +84,8 @@ class SearchConfigItem(CremeModel):
         return self._searchfields
 
     def get_modelfields_choices(self):
-        """TODO
+        """Return a list of tuples (useful for Select.choices) representing
+        Fields that can be chosen by the user.
         """
         return self._get_modelfields_choices(self.content_type.model_class())
 

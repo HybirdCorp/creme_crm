@@ -47,6 +47,19 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual(self.orga_ct, hf.entity_type)
         self.assertIs(hf.is_custom, False)
 
+    def test_ct_cache(self):
+        hf = HeaderFilter.create(pk='tests-hf_contact', name='Contact view',
+                                 model=Contact, is_custom=True,
+                                )
+
+        with self.assertNumQueries(0):
+            ContentType.objects.get_for_id(hf.entity_type_id)
+
+        hf = self.refresh(hf)
+
+        with self.assertNumQueries(0):
+            hf.entity_type
+
     def test_build_4_field01(self):
         field_name = 'first_name'
         hfi = HeaderFilterItem.build_4_field(model=Contact, name=field_name)
@@ -212,7 +225,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertEqual(hf_items, items)
         self.assertEqual([1, 2],   [hfi.order for hfi in items])
 
-        with self.assertNumQueries(1):
+        with self.assertNumQueries(0):
             hfilter.entity_type
 
         with self.assertNumQueries(1):

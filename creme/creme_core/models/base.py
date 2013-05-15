@@ -23,13 +23,13 @@ from itertools import chain
 from collections import defaultdict
 
 from django.db import transaction
-from django.db.models import Model, Manager, ForeignKey, CharField, BooleanField, FileField
+from django.db.models import Model, Manager, CharField, BooleanField, FileField #ForeignKey
 from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
 from ..core.function_field import FunctionFieldsManager
-from .fields import CreationDateTimeField, ModificationDateTimeField, CremeUserForeignKey
+from .fields import CreationDateTimeField, ModificationDateTimeField, CremeUserForeignKey, CTypeForeignKey
 
 
 class CremeModel(Model):
@@ -98,7 +98,8 @@ class CremeAbstractEntity(CremeModel):
     created  = CreationDateTimeField(_('Creation date'), editable=False).set_tags(clonable=False)
     modified = ModificationDateTimeField(_('Last modification'), editable=False).set_tags(clonable=False)
 
-    entity_type = ForeignKey(ContentType, editable=False).set_tags(viewable=False)
+    #entity_type = ForeignKey(ContentType, editable=False).set_tags(viewable=False)
+    entity_type = CTypeForeignKey(editable=False).set_tags(viewable=False)
     header_filter_search_field = CharField(max_length=200, editable=False).set_tags(viewable=False)
 
     is_deleted = BooleanField(default=False, editable=False).set_tags(viewable=False)
@@ -129,8 +130,8 @@ class CremeAbstractEntity(CremeModel):
             has_arg = kwargs.has_key
             if not has_arg('entity_type') and not has_arg('entity_type_id'):
                 self.entity_type = ContentType.objects.get_for_model(self)
-        else:
-            self.entity_type = ContentType.objects.get_for_id(self.entity_type_id)
+        #else:
+            #self.entity_type = ContentType.objects.get_for_id(self.entity_type_id)
 
     def _get_real_entity(self, base_model):
         entity = self._real_entity
