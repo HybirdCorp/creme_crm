@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,14 +18,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from datetime import datetime
 
-class ReportBackend(object):
-    def __init__(self, report):
-        self.report   = report
+from .constants import DATETIME_FILTER_FORMAT
 
-    def render(self):
-        raise NotImplementedError("Define it in your subclass")
 
-    def render_to_response(self):
-        raise NotImplementedError("Define it in your subclass")
+def encode_datetime(date):
+    return date.strftime(DATETIME_FILTER_FORMAT) if date else None
 
+
+def decode_datetime(date_str):
+    return datetime.strptime(date_str, DATETIME_FILTER_FORMAT) if date_str else None

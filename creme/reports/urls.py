@@ -6,12 +6,12 @@ from django.conf.urls import patterns
 urlpatterns = patterns('creme.reports.views',
     (r'^$', 'portal.portal'),
 
-    (r'^reports$',                           'report.listview'),
-    (r'^report/add$',                        'report.add'),
-    (r'^report/edit/(?P<report_id>\d+)$',    'report.edit'),
-    (r'^report/(?P<report_id>\d+)$',         'report.detailview'),
-    (r'^report/(?P<report_id>\d+)/preview$', 'report.preview'),
-    (r'^report/(?P<report_id>\d+)/csv$',     'report.csv'),
+    (r'^reports$',                                               'report.listview'),
+    (r'^report/add$',                                            'report.add'),
+    (r'^report/edit/(?P<report_id>\d+)$',                        'report.edit'),
+    (r'^report/(?P<report_id>\d+)$',                             'report.detailview'),
+    (r'^report/preview/(?P<report_id>\d+)$',                     'report.preview'),
+    (r'^report/export/(?P<report_id>\d+)/(?P<doc_type>[\w-]+)$', 'report.export'),
 
     #Fields block
     #(r'^(?P<report_id>\d+)/fields_block/reload/$',                                               'report.reload_fields_block'),
