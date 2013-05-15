@@ -593,3 +593,19 @@ class EntityFilterViewsTestCase(ViewsTestCase):
     def test_filters_for_ctype03(self):
         self.login(is_superuser=False)
         self.assertGET403('/creme_core/entity_filter/get_for_ctype/%s' % self.ct_contact.id)
+
+    def test_filters_for_ctype04(self):
+        "Include 'All' fake filter"
+        self.login()
+
+        efilter01 = EntityFilter.create('test-filter01', 'Filter 01', Contact)
+        efilter02 = EntityFilter.create('test-filter02', 'Filter 02', Contact)
+        EntityFilter.create('test-filter03', 'Filter 03', Organisation)
+
+        response = self.assertGET200('/creme_core/entity_filter/get_for_ctype/%s/all' % self.ct_contact.id)
+        self.assertEqual([['',           _(u'All')],
+                          [efilter01.id, 'Filter 01'],
+                          [efilter02.id, 'Filter 02'],
+                         ],
+                         simplejson.loads(response.content)
+                        )

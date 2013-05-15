@@ -11,24 +11,24 @@
         </th>
     {% end_get_block_header %}
     <tbody class="collapsable">
-        {% if page.paginator.count %}{% cycle "block_line_light" "block_line_dark" as row_color silent %}
+        {% if page.paginator.count %}
             <tr class="header">
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
                 <th class="block_header_line_dark">{% trans "Made sales" %}</th>
                 <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
             </tr>
-            {% for opp in page.object_list %}{% cycle row_color silent %}
+            {% for opp in page.object_list %}
                 <tr class="content">{% has_perm_to view opp as opp_view_perm %}{% has_perm_to unlink opp as opp_unlink_perm %}
-                    <td class="{{row_color}}">{% widget_entity_hyperlink opp user %}</td>
+                    <td class="{% cycle "block_line_light" "block_line_dark" as row_color silent %}">{% widget_entity_hyperlink opp user %}</td>
                     <td class="{{row_color}}">{% if opp_view_perm %}{{opp.made_sales|default:''}}{% else %}??{% endif %}</td>
                     <td class="{{row_color}} action">
                         {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{ 'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{opp.pk}} }" with_perms unlink_perm|and_op:opp_unlink_perm %}
                     </td>
                 </tr>
             {% endfor %}
-            <tr>{% cycle row_color silent %}
-                <td class="{{row_color}}"><h3>{% trans "Total" %}</h3></td>
-                <td class="{{row_color}}" colspan="2"><strong>{{object.get_made_sales}}</strong></td>
+            <tr>{% cycle row_color %}
+                <td class="block_header_line_light"><h3>{% trans "Total" %}</h3></td>
+                <td class="block_header_line_light" colspan="2"><strong>{{object.get_made_sales}}</strong></td>
             </tr>
         {% else %}
             <tr class="content empty">

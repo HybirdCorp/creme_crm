@@ -28,7 +28,7 @@ from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.models import CremeEntity, CremeModel, Relation
+from creme.creme_core.models import CremeEntity, CremeModel, Relation, EntityFilter
 
 from creme.opportunities.models import Opportunity
 
@@ -118,10 +118,11 @@ class Act(CremeEntity):
 
 class ActObjective(CremeModel):
     name         = CharField(_(u"Name"), max_length=_NAME_LENGTH)
-    act          = ForeignKey(Act, related_name='objectives')
-    counter      = PositiveIntegerField(_(u'Counter'), default=0)
+    act          = ForeignKey(Act, related_name='objectives', editable=False)
+    counter      = PositiveIntegerField(_(u'Counter'), default=0, editable=False)
     counter_goal = PositiveIntegerField(_(u'Value to reach'), default=1)
-    ctype        = ForeignKey(ContentType, verbose_name=_(u'Counted type'), null=True, blank=True)
+    ctype        = ForeignKey(ContentType, verbose_name=_(u'Counted type'), null=True, blank=True, editable=False)
+    filter       = ForeignKey(EntityFilter, verbose_name=_(u'Filter on counted entities'), null=True, blank=True, on_delete=PROTECT, editable=False)
 
     _count_cache = None
 
@@ -136,17 +137,32 @@ class ActObjective(CremeModel):
     def get_related_entity(self): #NB: see edit_related_to_entity()
         return self.act
 
-    def get_count(self):
-        if self._count_cache is None:
-            self._count_cache =  self.counter if not self.ctype else \
-                                 Relation.objects.filter(type=REL_SUB_COMPLETE_GOAL,
-                                                         object_entity=self.act_id,
-                                                         subject_entity__is_deleted=False,
-                                                         subject_entity__entity_type=self.ctype_id,
-                                                        ) \
-                                                 .count()
+    def get_count(self): #TODO: property ??
+        count = self._count_cache
 
-        return self._count_cache
+        if count is None:
+            ctype = self.ctype
+
+            if ctype:
+                if self.filter:
+                    qs = ctype.model_class().objects.filter(is_deleted=False, #TODO: test deleted=False
+                                                            relations__type=REL_SUB_COMPLETE_GOAL,
+                                                            relations__object_entity=self.act_id,
+                                                           )
+                    count = self.filter.filter(qs).count()
+                else:
+                    count = Relation.objects.filter(type=REL_SUB_COMPLETE_GOAL,
+                                                    object_entity=self.act_id,
+                                                    subject_entity__is_deleted=False,
+                                                    subject_entity__entity_type=ctype,
+                                                   ) \
+                                            .count()
+            else:
+                count = self.counter
+
+            self._count_cache = count
+
+        return count
 
     @property
     def reached(self):
@@ -207,10 +223,11 @@ class ActObjectivePattern(CremeEntity):
 
 
 class ActObjectivePatternComponent(CremeModel):
-    pattern      = ForeignKey(ActObjectivePattern, related_name='components')
-    parent       = ForeignKey('self', null=True, related_name='children')
+    pattern      = ForeignKey(ActObjectivePattern, related_name='components', editable=False)
+    parent       = ForeignKey('self', null=True, related_name='children', editable=False)
     name         = CharField(_(u"Name"), max_length=_NAME_LENGTH)
-    ctype        = ForeignKey(ContentType, verbose_name=_(u'Counted type'), null=True, blank=True)
+    ctype        = ForeignKey(ContentType, verbose_name=_(u'Counted type'), null=True, blank=True, editable=False)
+    filter       = ForeignKey(EntityFilter, verbose_name=_(u'Filter on counted entities'), null=True, blank=True, on_delete=PROTECT, editable=False)
     success_rate = PositiveIntegerField(_(u'Success rate')) #smallinteger ??
 
     _children_cache = None
@@ -240,7 +257,7 @@ class ActObjectivePatternComponent(CremeModel):
 
         children2del = []
 
-        #TODO: tree may inherit from a smart tree strucrure with right method like found()/flatten() etc...
+        #TODO: tree may inherit from a smart tree structure with right method like found()/flatten() etc...
         flatten_node_ids(find_node(self.pattern.get_components_tree(), self.id), children2del)
         ActObjectivePatternComponent.objects.filter(pk__in=children2del).delete()
         #NB super(ActObjectivePatternComponent, self).delete() is not called
@@ -265,7 +282,8 @@ class ActObjectivePatternComponent(CremeModel):
         me = ActObjectivePatternComponent.objects.create(pattern=pattern,
                                                          parent=own_parent or parent,
                                                          name=self.name,
-                                                         ctype=self.ctype,
+                                                         ctype_id=self.ctype_id,
+                                                         filter_id=self.filter_id,
                                                          success_rate=self.success_rate,
                                                         )
 

@@ -63,6 +63,7 @@ entity_filter_patterns = patterns('creme.creme_core.views.entity_filter',
     (r'^delete$',                                   'delete'),
     (r'^rtype/(?P<rtype_id>[\w-]+)/content_types$', 'get_content_types'),
     (r'^get_for_ctype/(?P<ct_id>\d+)$',             'get_for_ctype'),
+    (r'^get_for_ctype/(?P<ct_id>\d+)/all$',         'get_for_ctype', {'include_all': True}),
 )
 
 headerfilter_patterns = patterns('creme.creme_core.views.header_filter',

@@ -6,9 +6,10 @@ try:
 
     from creme.creme_core.tests.forms.base import FieldTestCase
     from creme.creme_core.forms.fields import (JSONField, GenericEntityField, MultiGenericEntityField,
-                                               RelationEntityField, MultiRelationEntityField, CreatorEntityField)
+                                               RelationEntityField, MultiRelationEntityField,
+                                               CreatorEntityField, FilteredEntityTypeField)
     from creme.creme_core.utils import creme_entity_content_types
-    from creme.creme_core.models import CremeProperty, CremePropertyType, RelationType
+    from creme.creme_core.models import CremeProperty, CremePropertyType, RelationType, EntityFilter
     from creme.creme_core.constants import REL_SUB_HAS
 
     from creme.persons.models import Organisation, Contact
@@ -21,7 +22,7 @@ except Exception as e:
 __all__ = ('JSONFieldTestCase',
            'GenericEntityFieldTestCase', 'MultiGenericEntityFieldTestCase',
            'RelationEntityFieldTestCase', 'MultiRelationEntityFieldTestCase',
-           'CreatorEntityFieldTestCase',
+           'CreatorEntityFieldTestCase', 'FilteredEntityTypeFieldTestCase',
           )
 
 
@@ -266,6 +267,7 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertFieldValidationError(GenericEntityField, 'entityrequired', clean,
                                         '{"ctype": "%s", "entity": null}' % contact.entity_type_id,
                                        )
+
 
 
 class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
@@ -563,7 +565,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         rtype_id1 = 'test-i_do_not_exist'
         rtype_id2 = 'test-neither_do_i'
 
-        # message changes cause unknown rtype is ignored in allowed list
+        #message changes cause unknown rtype is ignored in allowed list
 #        self.assertFieldValidationError(
 #                RelationEntityField, 'rtypedoesnotexist',
 #                RelationEntityField(allowed_rtypes=[rtype_id1, rtype_id2]).clean,
@@ -803,7 +805,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         rtype_id1 = 'test-i_do_not_exist'
         rtype_id2 = 'test-neither_do_i'
 
-        # message changes cause unknown rtype is ignored in allowed list
+        #message changes cause unknown rtype is ignored in allowed list
 #        self.assertFieldValidationError(
 #                MultiRelationEntityField, 'rtypedoesnotexist',
 #                MultiRelationEntityField(allowed_rtypes=[rtype_id1, rtype_id2]).clean,
@@ -1042,6 +1044,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
                         )
 
 
+
 class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_format_object(self):
         self.login()
@@ -1173,3 +1176,134 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         field.qfilter_options({'pk': contact.pk}, action_url)
         self.assertEqual(contact, field.clean(str(contact.pk)))
+
+
+class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
+    format_str = '{"ctype": "%s", "efilter": "%s"}'
+
+    @classmethod
+    def setUpClass(cls):
+        cls.autodiscover()
+
+        get_ct = ContentType.objects.get_for_model
+        cls.ct_contact = get_ct(Contact)
+        cls.ct_orga    = get_ct(Organisation)
+
+    def test_clean_empty_required(self):
+        clean = FilteredEntityTypeField(required=True).clean
+        self.assertFieldValidationError(FilteredEntityTypeField, 'required', clean, None)
+        self.assertFieldValidationError(FilteredEntityTypeField, 'required', clean, '')
+
+    def test_clean_invalid_json(self):
+        field = FilteredEntityTypeField(required=False)
+        self.assertFieldValidationError(FilteredEntityTypeField, 'invalidformat', field.clean,
+                                        '{"ctype":"10", "efilter":"creme_core-testfilter"'
+                                       )
+
+    def test_clean_invalid_data_type(self):
+        clean = FilteredEntityTypeField(required=False).clean
+        self.assertFieldValidationError(FilteredEntityTypeField, 'invalidformat', clean, '"this is a string"')
+        self.assertFieldValidationError(FilteredEntityTypeField, 'invalidformat', clean, '"{}"')
+        self.assertFieldValidationError(FilteredEntityTypeField, 'invalidformat', clean, '{"ctype":"not_an_int", "efilter":"creme_core-testfilter"}')
+
+    def test_clean_required_ctype(self):
+        self.assertFieldValidationError(FilteredEntityTypeField, 'ctyperequired',
+                                        FilteredEntityTypeField(required=True).clean,
+                                        self.format_str % ('', '')
+                                       )
+
+    def test_clean_unknown_ctype(self):
+        self.assertFieldValidationError(FilteredEntityTypeField, 'ctypenotallowed',
+                                        FilteredEntityTypeField().clean,
+                                        self.format_str % (1024, '')
+                                       )
+
+    def test_clean_unallowed_ctype01(self):
+        "Allowed ContentTypes given as a queryset"
+        ctypes = ContentType.objects.filter(pk__in=[self.ct_contact.id])
+        error_msg = self.format_str % (self.ct_orga.id, '')
+
+        field = FilteredEntityTypeField(ctypes=ctypes)
+        self.assertEqual(ctypes, field.ctypes)
+
+        from creme.creme_core.forms.widgets import FilteredEntityTypeWidget
+        self.assertIsInstance(field.widget, FilteredEntityTypeWidget)
+
+        self.assertFieldValidationError(FilteredEntityTypeField, 'ctypenotallowed',
+                                        field.clean, error_msg
+                                       )
+
+        #use setter
+        field = FilteredEntityTypeField()
+        field.ctypes = ctypes
+        self.assertFieldValidationError(FilteredEntityTypeField, 'ctypenotallowed',
+                                        field.clean, error_msg
+                                       )
+
+    def test_clean_unallowed_ctype02(self):
+        "Allowed ContentTypes given as a list"
+        ctypes = [self.ct_contact.id]
+        error_msg = self.format_str % (self.ct_orga.id, '')
+
+        self.assertFieldValidationError(FilteredEntityTypeField, 'ctypenotallowed',
+                                        FilteredEntityTypeField(ctypes=ctypes).clean,
+                                        error_msg
+                                       )
+
+        #use setter
+        field = FilteredEntityTypeField()
+        field.ctypes = ctypes
+        self.assertFieldValidationError(FilteredEntityTypeField, 'ctypenotallowed',
+                                        field.clean, error_msg
+                                       )
+
+    def test_clean_unknown_efilter01(self):
+        "EntityFilter does not exist"
+        self.assertFieldValidationError(FilteredEntityTypeField, 'invalidefilter',
+                                        FilteredEntityTypeField().clean,
+                                        self.format_str % (self.ct_contact.id, 'idonotexist')
+                                       )
+
+    def test_clean_unknown_efilter02(self):
+        "Content type does not correspond to EntityFilter"
+        efilter = EntityFilter.create('test-filter01', 'Acme', Organisation)
+        self.assertFieldValidationError(FilteredEntityTypeField, 'invalidefilter',
+                                        FilteredEntityTypeField().clean,
+                                        self.format_str % (self.ct_contact.id, efilter.id)
+                                       )
+
+    def test_clean_void(self):
+        field = FilteredEntityTypeField(required=False)
+        self.assertEqual((None, None), field.clean(self.format_str % ('', '')))
+        self.assertEqual((None, None), field.clean('{"ctype": "0", "efilter": null}'))
+
+    def test_clean_only_ctype01(self):
+        "All element of this ContentType are allowed"
+        field = FilteredEntityTypeField()
+        self.assertEqual((self.ct_contact, None),
+                         field.clean(self.format_str % (self.ct_contact.id, ''))
+                        )
+
+    def test_clean_only_ctype02(self):
+        "Allowed ContentTypes given as a queryset"
+        ct = self.ct_contact
+        field = FilteredEntityTypeField(ContentType.objects.filter(pk__in=[ct.id, self.ct_orga.id]))
+        self.assertEqual((self.ct_contact, None),
+                         field.clean(self.format_str % (self.ct_contact.id, ''))
+                        )
+
+    def test_clean_only_ctype03(self):
+        "Allowed ContentTypes given as a list"
+        ct = self.ct_contact
+        field = FilteredEntityTypeField(ctypes=[ct.id, self.ct_orga.id])
+        self.assertEqual((ct, None),
+                         field.clean(self.format_str % (ct.id, ''))
+                        )
+
+    def test_clean_with_filter01(self):
+        efilter = EntityFilter.create('test-filter01', 'John', Contact)
+        field = FilteredEntityTypeField()
+        ct = self.ct_contact
+        self.assertEqual((ct, efilter),
+                         field.clean(self.format_str % (ct.id, efilter.id))
+                        )

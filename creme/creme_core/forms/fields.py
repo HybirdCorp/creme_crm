@@ -35,20 +35,22 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.validators import validate_email
 from django.db.models.query import QuerySet
 
-from ..models import RelationType, CremeEntity
+from ..models import RelationType, CremeEntity, EntityFilter
 from ..constants import REL_SUB_HAS
-from ..utils import creme_entity_content_types
+from ..utils import creme_entity_content_types, Q_creme_entity_content_types
 from ..utils.queries import get_q_from_dict
 from ..utils.date_range import date_range_registry
-from .widgets import (CTEntitySelector, EntitySelector, SelectorList, RelationSelector, ActionButtonList,
-                      ListViewWidget, ListEditionWidget, CalendarWidget, TimeWidget, DateRangeWidget,
+from .widgets import (CTEntitySelector, EntitySelector, FilteredEntityTypeWidget, 
+                      SelectorList, RelationSelector, ActionButtonList,
+                      ListViewWidget, ListEditionWidget, 
+                      CalendarWidget, TimeWidget, DateRangeWidget,
                       ColorPickerWidget, DurationWidget)
 
 
 __all__ = ('GenericEntityField', 'MultiGenericEntityField',
            'RelationEntityField', 'MultiRelationEntityField',
            'CremeEntityField', 'MultiCremeEntityField',
-           'CreatorEntityField',
+           'FilteredEntityTypeField', 'CreatorEntityField',
            'ListEditionField',
            'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
            'CremeTimeField', 'CremeDateField', 'CremeDateTimeField',
@@ -97,6 +99,9 @@ class JSONField(CharField):
 
         if isinstance(value, type):
             return value
+
+        if value == '' and not required:
+            return None
 
         try:
             return type(value)
@@ -798,6 +803,90 @@ class MultiCremeEntityField(_EntityField):
                                  )
 
         return entities
+
+
+class FilteredEntityTypeField(JSONField):
+    default_error_messages = {
+        'ctyperequired':   _(u'The content type is required.'),
+        'ctypenotallowed': _(u'This content type is not allowed.'), #TODO: factorise
+        'invalidefilter':  _(u'This filter is invalid.'),
+    }
+    value_type = dict
+
+    def __init__(self, ctypes=None, empty_label=None, *args, **kwargs):
+        """Constructor.
+        @param ctypes Allowed types.
+                        - None : all CremeEntity types.
+                        - Sequence of ContentTypes ID.
+                        - A QuerySet of ContentTypes.
+        """
+        super(FilteredEntityTypeField, self).__init__(*args, **kwargs)
+        self._empty_label = empty_label #TODO: setter property ??
+        self.ctypes = ctypes
+
+    def _build_empty_value(self):
+        return None, None
+
+    def _clean_ctype(self, ctype_pk):
+        try:
+            return self._ctypes.get(pk=ctype_pk)
+        except ContentType.DoesNotExist:
+            pass
+
+    @property
+    def ctypes(self):
+        return self._ctypes
+
+    @ctypes.setter
+    def ctypes(self, ctypes):
+        if ctypes is None:
+            ctypes = Q_creme_entity_content_types()
+        elif not isinstance(ctypes, QuerySet):
+            ctypes = ContentType.objects.filter(pk__in=ctypes)
+
+        self._ctypes = ctypes
+
+        self._build_widget()
+
+    def _create_widget(self):
+        #TODO: improve ChoiceModelIterator to manage empty_label ??
+        #return FilteredEntityTypeWidget(ChoiceModelIterator(self._ctypes))
+
+        choices = []
+        if self._empty_label is not None:
+            choices.append((0, unicode(self._empty_label))) #TODO: improve widget to do not make a request for '0'
+
+        choices.extend(((ct.pk, unicode(ct)) for ct in self._ctypes.all()))
+
+        return FilteredEntityTypeWidget(choices)
+
+    def _value_from_unjsonfied(self, data):
+        clean_value = self.clean_value
+        ctype_pk = clean_value(data, 'ctype',  int, required=False)
+
+        if not ctype_pk:
+            if self.required:
+                raise ValidationError(self.error_messages['ctyperequired'])
+
+            return self._build_empty_value()
+
+        ct = self._clean_ctype(ctype_pk)
+        if ct is None:
+            raise ValidationError(self.error_messages['ctypenotallowed'])
+
+        efilter_pk = clean_value(data, 'efilter',  str, required=False)
+        if not efilter_pk:  #TODO: self.filter_required ???
+            efilter = None
+        else:
+            try:
+                efilter = EntityFilter.objects.get(entity_type=ct, pk=efilter_pk)
+            except EntityFilter.DoesNotExist:
+                raise ValidationError(self.error_messages['invalidefilter'])
+
+        return ct, efilter
+
+    def _value_to_jsonifiable(self, value):
+        return {'ctype': value[0], 'efilter': value[1]}
 
 
 class ListEditionField(Field):

@@ -56,13 +56,13 @@ class CommercialApproachTestCase(CremeTestCase):
         self.login()
         user = self.user
 
-        create_orga = Organisation.objects.create
-        orga01 = create_orga(user=user, name='NERV')
-        orga02 = create_orga(user=user, name='Nerv')
+        create_orga = partial(Organisation.objects.create, user=user)
+        orga01 = create_orga(name='NERV')
+        orga02 = create_orga(name='Nerv')
 
-        create_commapp = CommercialApproach.objects.create
-        create_commapp(title='Commapp01', description='...', creation_date=datetime.now(), creme_entity=orga01)
-        create_commapp(title='Commapp02', description='...', creation_date=datetime.now(), creme_entity=orga02)
+        create_commapp = partial(CommercialApproach.objects.create, description='...')
+        create_commapp(title='Commapp01', creation_date=datetime.now(), creme_entity=orga01)
+        create_commapp(title='Commapp02', creation_date=datetime.now(), creme_entity=orga02)
         self.assertEqual(2, CommercialApproach.objects.count())
 
         response = self.client.post('/creme_core/entity/merge/%s,%s' % (orga01.id, orga02.id),

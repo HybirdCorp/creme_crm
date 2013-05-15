@@ -6,7 +6,9 @@ try:
     from django.contrib.contenttypes.models import ContentType
     from django.utils.translation import ugettext as _
 
-    from creme.persons.models import Contact
+    from creme.creme_core.models import EntityFilter
+
+    from creme.persons.models import Contact, Organisation
 
     from ..models import ActObjectivePattern, ActObjectivePatternComponent
     from .base import CommercialBaseTestCase
@@ -21,6 +23,12 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'persons', 'commercial')
+
+    def _build_addcomp_url(self, pattern):
+        return '/commercial/objective_pattern/%s/add_component' % pattern.id
+
+    def _build_parent_url(self, component):
+        return '/commercial/objective_pattern/component/%s/add_parent' % component.id
 
     def test_create(self):
         url = '/commercial/objective_pattern/add'
@@ -100,12 +108,13 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         "No parent component, no counted relation"
         pattern  = self._create_pattern()
 
-        url = '/commercial/objective_pattern/%s/add_component' % pattern.id
+        url = self._build_addcomp_url(pattern)
         self.assertGET200(url)
 
         name = 'Signed opportunities'
         response = self.client.post(url, data={'name':         name,
                                                'success_rate': 10,
+                                               'entity_counting': self._build_ctypefilter_field(),
                                               }
                                    )
         self.assertNoFormError(response)
@@ -123,10 +132,10 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         pattern = self._create_pattern()
         name = 'Called contacts'
         ct = ContentType.objects.get_for_model(Contact)
-        response = self.client.post('/commercial/objective_pattern/%s/add_component' % pattern.id,
-                                    data={'name':         name,
-                                          'ctype':        ct.id,
-                                          'success_rate': 15,
+        response = self.client.post(self._build_addcomp_url(pattern),
+                                    data={'name':            name,
+                                          'entity_counting': self._build_ctypefilter_field(ct),
+                                          'success_rate':    15,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -137,6 +146,27 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         component = components[0]
         self.assertEqual(name, component.name)
         self.assertEqual(ct,   component.ctype)
+        self.assertIsNone(component.filter)
+
+    def test_add_root_pattern_component03(self): #counted relation with filter (no parent component)
+        pattern = self._create_pattern()
+        name = 'Called contacts'
+        ct = ContentType.objects.get_for_model(Contact)
+        efilter = EntityFilter.create('test-filter01', 'Ninja', Contact)
+        response = self.client.post(self._build_addcomp_url(pattern),
+                                    data={'name':            name,
+                                          'entity_counting': self._build_ctypefilter_field(ct, efilter),
+                                          'success_rate':    15,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(200, response.status_code)
+
+        with self.assertNoException():
+            component = pattern.components.get(name=name)
+
+        self.assertEqual(ct,      component.ctype)
+        self.assertEqual(efilter, component.filter)
 
     def test_add_child_pattern_component01(self): #parent component
         pattern = self._create_pattern()
@@ -150,6 +180,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         name = 'Spread Vcards'
         self.assertNoFormError(self.client.post(url, data={'name':         name,
                                                            'success_rate': 20,
+                                                           'entity_counting': self._build_ctypefilter_field(),
                                                           }
                                                )
                               )
@@ -164,9 +195,9 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         name = 'Called contacts'
         ct   = ContentType.objects.get_for_model(Contact)
-        response = self.client.post(url, data={'name':         name,
-                                               'ctype':        ct.id,
-                                               'success_rate': 60,
+        response = self.client.post(url, data={'name':            name,
+                                               'entity_counting': self._build_ctypefilter_field(ct),
+                                               'success_rate':    60,
                                               }
                                    )
         self.assertNoFormError(response)
@@ -184,13 +215,14 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                                              success_rate=5
                                                             )
 
-        url = '/commercial/objective_pattern/component/%s/add_parent' % comp01.id
+        url = self._build_parent_url(comp01)
         self.assertGET200(url)
 
         name = 'Signed opportunities'
         success_rate = 50
-        self.assertNoFormError(self.client.post(url, data={'name':         name,
-                                                          'success_rate': success_rate,
+        self.assertNoFormError(self.client.post(url, data={'name':           name,
+                                                          'success_rate':    success_rate,
+                                                          'entity_counting': self._build_ctypefilter_field(),
                                                           }
                                                )
                               )
@@ -217,15 +249,15 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         name = 'Called contacts'
         ct   = ContentType.objects.get_for_model(Contact)
-        response = self.client.post('/commercial/objective_pattern/component/%s/add_parent' % comp02.id,
-                                    data={'name':         name,
-                                          'ctype':        ct.id,
-                                          'success_rate': 20,
+        response = self.client.post(self._build_parent_url(comp02),
+                                    data={'name':            name,
+                                          'entity_counting': self._build_ctypefilter_field(ct),
+                                          'success_rate':    20,
                                          }
                                    )
         self.assertNoFormError(response)
 
-        pattern = ActObjectivePattern.objects.get(pk=pattern.id)
+        pattern = self.get_object_or_fail(ActObjectivePattern, pk=pattern.id)
         components = pattern.components.order_by('id')
         self.assertEqual(3, len(components))
 
@@ -244,7 +276,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
     def test_add_pattern_component_errors(self):
         pattern = self._create_pattern()
-        url = '/commercial/objective_pattern/%s/add_component' % pattern.id
+        url = self._build_addcomp_url(pattern)
 
         response = self.client.post(url, data={'name':         'Signed opportunities',
                                                'success_rate': 0, #minimunm is 1
@@ -335,23 +367,27 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertEqual(3, len(remaining_ids))
         self.assertEqual(set([comp00.id, comp05.id, comp06.id]), set(remaining_ids))
 
-    def _names_set(self, comp_qs):
-        return set(comp_qs.values_list('name', flat=True))
+    def assertCompNamesEqual(self, comp_qs, *names):
+        self.assertEqual(set(names), set(comp_qs.values_list('name', flat=True)))
 
     def test_actobjectivepattern_clone01(self):
         pattern = self._create_pattern()
+
+        ct_contact = ContentType.objects.get_for_model(Contact)
+        ct_orga    = ContentType.objects.get_for_model(Organisation)
+        efilter = EntityFilter.create('test-filter01', 'Ninja', Contact)
+
         create_comp = partial(ActObjectivePatternComponent.objects.create,
                               pattern=pattern, success_rate=1,
                              )
-
-        comp1   = create_comp(name='1')
-        comp11  = create_comp(name='1.1',   parent=comp1)
+        comp1   = create_comp(name='1',                    ctype=ct_orga)
+        comp11  = create_comp(name='1.1',   parent=comp1,  success_rate=20, ctype=ct_contact)
         comp111 = create_comp(name='1.1.1', parent=comp11)
         comp112 = create_comp(name='1.1.2', parent=comp11)
-        comp12  = create_comp(name='1.2',   parent=comp1)
+        comp12  = create_comp(name='1.2',   parent=comp1,  ctype=ct_contact, filter=efilter)
         comp121 = create_comp(name='1.2.1', parent=comp12)
         comp122 = create_comp(name='1.2.2', parent=comp12)
-        comp2   = create_comp(name='2')
+        comp2   = create_comp(name='2',                    success_rate=50)
         comp21  = create_comp(name='2.1',   parent=comp2)
         comp211 = create_comp(name='2.1.1', parent=comp21)
         comp212 = create_comp(name='2.1.2', parent=comp21)
@@ -361,24 +397,37 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         cloned_pattern = pattern.clone()
 
-        filter_comp = ActObjectivePatternComponent.objects.filter
-        filter_get = ActObjectivePatternComponent.objects.get
+        filter_comp = partial(ActObjectivePatternComponent.objects.filter, pattern=cloned_pattern)
+        self.assertEqual(14, filter_comp().count())
 
-        self.assertEqual(14, filter_comp(pattern=cloned_pattern).count())
-        self.assertEqual(2,  filter_comp(pattern=cloned_pattern, parent=None).count())
-        self.assertEqual(1,  filter_comp(pattern=cloned_pattern, name=comp1.name).count())
+        cloned_comp1 = self.get_object_or_fail(ActObjectivePatternComponent,
+                                               pattern=cloned_pattern, name=comp1.name,
+                                              )
+        self.assertIsNone(cloned_comp1.parent)
+        self.assertEqual(1, cloned_comp1.success_rate)
+        self.assertEqual(ct_orga, cloned_comp1.ctype)
+        self.assertIsNone(cloned_comp1.filter)
+        #self.assertCompNamesEqual(cloned_comp1.children, '1.1', '1.2')
 
-        names_set = self._names_set
-        self.assertEqual(set(['1.1', '1.2']),
-                         names_set(filter_get(pattern=cloned_pattern, name=comp1.name).children)
-                        )
-        self.assertEqual(set(['1.1.1', '1.1.2', '1.2.1', '1.2.2']),
-                         names_set(filter_comp(pattern=cloned_pattern, parent__name__in=['1.1', '1.2']))
-                        )
-        self.assertEqual(1, filter_comp(pattern=cloned_pattern, name=comp2.name).count())
-        self.assertEqual(set(['2.1', '2.2']),
-                         names_set(filter_get(pattern=cloned_pattern, name=comp2.name).children)
-                        )
-        self.assertEqual(set(['2.1.1', '2.1.2', '2.2.1', '2.2.2']),
-                         names_set(filter_comp(pattern=cloned_pattern, parent__name__in=['2.1', '2.2']))
-                        )
+        with self.assertNoException():
+            cloned_comp11, cloned_comp12 = cloned_comp1.children.all()
+
+        self.assertEqual(ct_contact, cloned_comp11.ctype)
+        self.assertEqual(efilter,    cloned_comp12.filter)
+
+        self.assertCompNamesEqual(filter_comp(parent__name__in=['1.1', '1.2']),
+                                  '1.1.1', '1.1.2', '1.2.1', '1.2.2'
+                                 )
+
+        cloned_comp2 = self.get_object_or_fail(ActObjectivePatternComponent,
+                                               pattern=cloned_pattern, name=comp2.name,
+                                              )
+        self.assertIsNone(cloned_comp2.parent)
+        self.assertEqual(50, cloned_comp2.success_rate)
+        self.assertIsNone(cloned_comp2.ctype)
+        self.assertIsNone(cloned_comp1.filter)
+        self.assertCompNamesEqual(cloned_comp2.children, '2.1', '2.2')
+
+        self.assertCompNamesEqual(filter_comp(parent__name__in=['2.1', '2.2']),
+                                  '2.1.1', '2.1.2', '2.2.1', '2.2.2'
+                                 )

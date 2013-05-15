@@ -3,7 +3,7 @@
 {% load commercial_tags %}
 {% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
-    {% get_block_header colspan=3 %}
+    {% get_block_header colspan=4 %}
         <th class="collapser label">{% trans 'Objectives'%}</th>
         <th class="actions">
             <div class="buttons">
@@ -15,7 +15,8 @@
         {% if components %}
             {% for component in components %}{% cycle "block_line_light" "block_line_dark" as row_color silent %}
                 <tr class="content">
-                    <td class="{{row_color}}">{% for i in component.deep|xrange %}&nbsp;&nbsp;&nbsp;{% endfor %}{{component}}</td>
+                    <td class="{{row_color}}">{% for i in component.deep|xrange %}&nbsp;&nbsp;&nbsp;{% endfor %}{{component}}</td>{% comment %}TODO div spacer{% endcomment %}
+                    <td class="{{row_color}}">{% trans "Success rate" %} : {{component.success_rate}}%{% if component.ctype %} ({{component.ctype}}{% if component.filter %} / {{component.filter}}{% endif %}){% endif %}</td>
                     <td class="{{row_color}}">{% comment %}TODO: Add a class for inline action ? {% endcomment %}
                         {% get_line_adder at_url '/commercial/objective_pattern/component/{{component.id}}/add_child' with_label _("New sub-objective") with_perms has_perm %}
                         {% get_line_adder at_url '/commercial/objective_pattern/component/{{component.id}}/add_parent' with_label _("New parent objective") with_perms has_perm %}
