@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-04-26 16:43+0200\n"
+"POT-Creation-Date: 2013-05-15 10:44+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: blocks.py:33 forms/list_view_import.py:627 models/creme_property.py:91
+#: blocks.py:33 forms/list_view_import.py:628 models/creme_property.py:91
 #: models/entity.py:49
 msgid "Properties"
 msgstr "Propriétés"
@@ -121,11 +121,11 @@ msgstr ""
 "Afficher la devise avec son symbole locale (ex: €) ? Sinon le symbole "
 "internationale sera utilisé (ex: EUR)."
 
-#: backends/csv_export.py:32 backends/csv_import.py:31
+#: backends/csv_export.py:31 backends/csv_import.py:30
 msgid "CSV File"
 msgstr "Fichier CSV"
 
-#: backends/csv_import.py:32
+#: backends/csv_import.py:31
 msgid ""
 "A CSV file contains the fields values of an entity on each line, separated "
 "by commas or semicolons and each one can be surrounded by quotation marks "
@@ -136,11 +136,11 @@ msgstr ""
 "entourée par des guillemets \" (pour protégér une valeur contenant une "
 "virgule par exemple)."
 
-#: backends/xls_export.py:36 backends/xls_import.py:31
+#: backends/xls_export.py:35 backends/xls_import.py:30
 msgid "XLS File"
 msgstr "Fichier XLS"
 
-#: backends/xls_import.py:32
+#: backends/xls_import.py:31
 msgid ""
 "XLS is a file extension for a spreadsheet file format created by Microsoft "
 "for use with Microsoft Excel (Excel 97-2003 Workbook)."
@@ -148,11 +148,11 @@ msgstr ""
 "XLS est une extension de nom de fichier pour tableur au format de Microsoft "
 "Excel.  (Excel 97-2003 Workbook)."
 
-#: backends/xls_import.py:38
+#: backends/xls_import.py:37
 msgid "XLSX File"
 msgstr "Fichier XLSX"
 
-#: backends/xls_import.py:39
+#: backends/xls_import.py:38
 msgid "XLSX file extension introduced by Microsoft Excel 2007."
 msgstr "Extension XLSX introduite par Microsoft Excel 2007."
 
@@ -196,7 +196,7 @@ msgstr "Enlever le début (N caractères)"
 msgid "Remove the end (N characters)"
 msgstr "Enlever la fin (N caractères)"
 
-#: core/batch_process.py:93 forms/fields.py:624 forms/fields.py:625
+#: core/batch_process.py:93 forms/fields.py:629 forms/fields.py:630
 #: forms/widgets.py:337 models/base.py:38
 #: templates/creme_core/generics/blockform/add_popup.html:27
 #: templates/creme_core/generics/form/add.html:4
@@ -232,7 +232,7 @@ msgstr "%(operator)s : %(message)s."
 msgid "General information"
 msgstr "Informations générales"
 
-#: forms/base.py:226 forms/list_view_import.py:626 models/base.py:106
+#: forms/base.py:226 forms/list_view_import.py:627 models/base.py:106
 #: models/prefered_menu.py:27
 msgid "User"
 msgstr "Utilisateur"
@@ -264,7 +264,7 @@ msgstr "Filtre"
 #: forms/batch_process.py:139
 #: templates/creme_core/templatetags/listview_entityfilters.html:26
 #: templates/creme_core/templatetags/search_panel.html:17
-#: views/entity_filter.py:112
+#: views/entity_filter.py:112 views/entity_filter.py:126
 msgid "All"
 msgstr "Tout"
 
@@ -469,42 +469,42 @@ msgstr "Utiliser \"OU\" entre les conditions (sinon \"ET\" est utilisé)."
 msgid "The filter must have at least one condition."
 msgstr "Le filtre doit avoir au moins une condition."
 
-#: forms/fields.py:61
+#: forms/fields.py:63
 msgid "Invalid format"
 msgstr "Format invalide"
 
-#: forms/fields.py:62 forms/fields.py:206 forms/fields.py:340
-#: forms/fields.py:547 forms/fields.py:745
+#: forms/fields.py:64 forms/fields.py:211 forms/fields.py:345
+#: forms/fields.py:552 forms/fields.py:750
 msgid "This entity doesn't exist."
 msgstr "Cette fiche n'existe pas."
 
-#: forms/fields.py:204
+#: forms/fields.py:209 forms/fields.py:811
 msgid "This content type is not allowed."
 msgstr "Ce type de resource n'est pas autorisé'."
 
-#: forms/fields.py:205 forms/fields.py:337
+#: forms/fields.py:210 forms/fields.py:342 forms/fields.py:810
 msgid "The content type is required."
 msgstr "Le type de resource est obligatoire."
 
-#: forms/fields.py:207 forms/fields.py:339 forms/fields.py:548
+#: forms/fields.py:212 forms/fields.py:344 forms/fields.py:553
 msgid "The entity is required."
 msgstr "La fiche est obligatoire."
 
-#: forms/fields.py:335
+#: forms/fields.py:340
 msgid "This type of relationship doesn't exist."
 msgstr "Ce type de relation n'existe pas."
 
-#: forms/fields.py:336
+#: forms/fields.py:341
 msgid "This type of relationship causes a constraint error."
 msgstr "Ce type de relation provoque une erreur de contrainte."
 
-#: forms/fields.py:338
+#: forms/fields.py:343
 msgid "This content type cause constraint error with the type of relationship."
 msgstr ""
 "Ce type de resource provoque une erreur de contrainte avec le type de "
 "relation"
 
-#: forms/fields.py:341
+#: forms/fields.py:346
 msgid ""
 "This entity has no property that matches the constraints of the type of "
 "relationship."
@@ -512,44 +512,48 @@ msgstr ""
 "Cette fiche n'a aucune propriété qui convient avec les contrainte de type de "
 "relation"
 
-#: forms/fields.py:611
+#: forms/fields.py:616
 msgid "Clear"
 msgstr "Effacer"
 
-#: forms/fields.py:625
+#: forms/fields.py:630
 #: templates/creme_core/templatetags/widgets/add_button.html:10
 #: templates/creme_core/templatetags/widgets/block_line_adder.html:9
 msgid "Can't add"
 msgstr "Création interdite"
 
-#: forms/fields.py:677
+#: forms/fields.py:682
 #, python-format
 msgid "Select a valid choice. %(value)s is not an available choice."
 msgstr ""
 "Sélectionnez un choix valide. %(value)s n'est pas un des choix disponibles."
 
-#: forms/fields.py:950
+#: forms/fields.py:812
+msgid "This filter is invalid."
+msgstr "Ce filtre est invalide."
+
+#: forms/fields.py:1039
 msgid ""
 "If you select customized you have to specify a start date and/or an end date."
 msgstr ""
 "Si vous sélectionnez 'Personnalisé' vous devez spécifier une date de début "
 "et/ou une date de fin."
 
-#: forms/fields.py:951
+#: forms/fields.py:1040
 msgid "Start date has to be before end date."
 msgstr "La date début doit être avant la date de fin."
 
-#: forms/fields.py:955 forms/widgets.py:235 forms/widgets.py:891
+#: forms/fields.py:1044 forms/widgets.py:235 forms/widgets.py:905
 msgid "Customized"
 msgstr "Personnalisé"
 
 #  Translated in Django ; leave untranslated here...
-#: forms/fields.py:1002
+#: forms/fields.py:1091
 msgid "Enter a whole number."
 msgstr ""
 
 #  Translated in Django ; leave untranslated here...
-#: forms/fields.py:1003
+#: forms/fields.py:1092
 #, python-format
 msgid "Ensure this value is greater than or equal to %(limit_value)s."
 msgstr ""
@@ -562,15 +566,15 @@ msgstr "Fonctions"
 msgid "You have to choose at least one element in available lists."
 msgstr "Vous devez choisir au moins un élément dans les listes disponibles"
 
-#: forms/list_view_import.py:56
+#: forms/list_view_import.py:55
 msgid "File to import"
 msgstr "Fichier à importer"
 
-#: forms/list_view_import.py:67
+#: forms/list_view_import.py:63
 msgid "Header present ?"
 msgstr "Entête présent ?"
 
-#: forms/list_view_import.py:68
+#: forms/list_view_import.py:64
 msgid ""
 "Does the first line of the line contain the header of the columns (eg: "
 "\"Last name\",\"First name\") ?"
@@ -578,22 +582,22 @@ msgstr ""
 "La 1ère ligne du fichier contient-il l'entête des colonnes de valeurs (ex: "
 "\"Nom\",\"Prénom\") ?"
 
-#: forms/list_view_import.py:90 forms/list_view_import.py:540
+#: forms/list_view_import.py:91 forms/list_view_import.py:541
 msgid "You have not the credentials to read this document."
 msgstr "Vous n'avez pas les droits pour lire ce document."
 
-#: forms/list_view_import.py:95
+#: forms/list_view_import.py:96
 #, python-format
 msgid "Error reading document, unsupported file type: %s."
 msgstr ""
 "Erreur lors de la lecture du document, type de fichier non supporté: %s."
 
-#: forms/list_view_import.py:103
+#: forms/list_view_import.py:104
 #, python-format
 msgid "Error reading document: %s."
 msgstr "Erreur lors de la lecture du document: %s."
 
-#: forms/list_view_import.py:150
+#: forms/list_view_import.py:151
 #, python-format
 msgid ""
 "Error while extracting value: tried to retrieve and then build \"%(value)s"
@@ -603,7 +607,7 @@ msgstr ""
 "construire \"%(value)s\" (colonne %(column)s) sur %(model)s. Erreur brute: "
 "[%(raw_error)s]"
 
-#: forms/list_view_import.py:158
+#: forms/list_view_import.py:159
 #, python-format
 msgid ""
 "Error while extracting value: tried to retrieve \"%(value)s\" (column "
@@ -612,19 +616,19 @@ msgstr ""
 "Erreur lors de l'extraction de valeur: a essayé de retrouver \"%(value)s"
 "\" (colonne %(column)s) sur %(model)s. Erreur brute: [%(raw_error)s]"
 
-#: forms/list_view_import.py:226
+#: forms/list_view_import.py:227
 msgid "Search by:"
 msgstr "Chercher selon:"
 
-#: forms/list_view_import.py:230
+#: forms/list_view_import.py:231
 msgid "Create if not found ?"
 msgstr "Créer si non trouvé ?"
 
-#: forms/list_view_import.py:238
+#: forms/list_view_import.py:239
 msgid "Default value"
 msgstr "Valeur par défaut"
 
-#: forms/list_view_import.py:344
+#: forms/list_view_import.py:345
 #, python-format
 msgid ""
 "Error while extracting value to build a Relation: tried to retrieve "
@@ -635,7 +639,7 @@ msgstr ""
 "de retrouver %(field)s=\"%(value)s\" (colonne %(column)s) sur %(model)s "
 "Erreur brute: [%(raw_error)s]"
 
-#: forms/list_view_import.py:361
+#: forms/list_view_import.py:362
 #, python-format
 msgid ""
 "Error while extracting value: tried to build  %(model)s with data=%(data)s "
@@ -644,7 +648,7 @@ msgstr ""
 "Erreur lors de l'extraction  de valeur: a essayé de construire %(model)s "
 "avec données=%(data)s (colonne %(column)s) => errors=%(errors)s"
 
-#: forms/list_view_import.py:372
+#: forms/list_view_import.py:373
 #, python-format
 msgid ""
 "Error while extracting value to build a Relation: tried to retrieve "
@@ -653,19 +657,19 @@ msgstr ""
 "Erreur lors de l'extraction de valeur pour construire une Relation: a essayé "
 "de retrouver %(field)s=\"%(value)s\" (column %(column)s) sur %(model)s"
 
-#: forms/list_view_import.py:400
+#: forms/list_view_import.py:401
 msgid "The entity"
 msgstr "L'entité"
 
-#: forms/list_view_import.py:402
+#: forms/list_view_import.py:403
 msgid "which/whose field"
 msgstr ""
 
-#: forms/list_view_import.py:403
+#: forms/list_view_import.py:404
 msgid "equals to"
 msgstr "Est égal à"
 
-#: forms/list_view_import.py:414
+#: forms/list_view_import.py:415
 msgid ""
 "Create entities if they are not found ? (only fields followed by [CREATION] "
 "allows you to create, if they exist)"
@@ -673,57 +677,57 @@ msgstr ""
 "Créer les fiches si elle ne sont pas trouvées ? (seuls les champs suivi de "
 "[CRÉATION] vous permettent de créer, si ils existent)"
 
-#: forms/list_view_import.py:426
+#: forms/list_view_import.py:427
 msgid "This field doesn't exist in this ContentType."
 msgstr "Ce champ n'existe pas dans ce type de fiche."
 
-#: forms/list_view_import.py:427
+#: forms/list_view_import.py:428
 msgid "This column is not a valid choice."
 msgstr "Cette colonne n'est pas un choix valide'."
 
-#: forms/list_view_import.py:519
+#: forms/list_view_import.py:520
 msgid "Importing from a file"
 msgstr "Import depuis un fichier"
 
-#: forms/list_view_import.py:537
+#: forms/list_view_import.py:538
 msgid "This document doesn't exist or doesn't exist any more."
 msgstr "Ce document n'existe pas/plus."
 
-#: forms/list_view_import.py:630
+#: forms/list_view_import.py:631
 msgid "Fixed relationships"
 msgstr "Relations fixes"
 
-#: forms/list_view_import.py:631
+#: forms/list_view_import.py:632
 msgid "Relationships from CSV"
 msgstr "Relations depuis le CSV"
 
-#: forms/list_view_import.py:633
+#: forms/list_view_import.py:634
 msgid "Generic information"
 msgstr "Infos génériques"
 
-#: forms/list_view_import.py:634
+#: forms/list_view_import.py:635
 msgid "Related properties"
 msgstr "Propriétés associées"
 
-#: forms/list_view_import.py:635
+#: forms/list_view_import.py:636
 msgid "Associated relationships"
 msgstr "Relations associées"
 
-#: forms/list_view_import.py:675 models/auth.py:351
+#: forms/list_view_import.py:676 models/auth.py:351
 #, python-format
 msgid "You are not allowed to create: %s"
 msgstr "Vous n'avez pas la permission de créer: %s"
 
-#: forms/list_view_import.py:714
+#: forms/list_view_import.py:715
 msgid "Not in the file"
 msgstr "Pas dans le fichier"
 
-#: forms/list_view_import.py:718
+#: forms/list_view_import.py:719
 #, python-format
 msgid "Column %(index)s - %(name)s"
 msgstr "Colonne %(index)s - %(name)s"
 
-#: forms/list_view_import.py:725
+#: forms/list_view_import.py:726
 #, python-format
 msgid "Column %i"
 msgstr "Colonne %i"
@@ -780,35 +784,35 @@ msgstr "Vider"
 msgid "Select..."
 msgstr "Sélectionner..."
 
-#: forms/widgets.py:427
+#: forms/widgets.py:441
 msgid "On"
 msgstr "Le"
 
-#: forms/widgets.py:428
+#: forms/widgets.py:442
 msgid "at"
 msgstr "à"
 
-#: forms/widgets.py:429 forms/widgets.py:454
+#: forms/widgets.py:443 forms/widgets.py:468
 msgid "h"
 msgstr "h"
 
-#: forms/widgets.py:432
+#: forms/widgets.py:446
 msgid "Clean"
 msgstr "Effacer"
 
-#: forms/widgets.py:433 forms/widgets.py:457
+#: forms/widgets.py:447 forms/widgets.py:471
 msgid "Now"
 msgstr "Maintenant"
 
-#: forms/widgets.py:938
+#: forms/widgets.py:952
 msgid "Hour(s)"
 msgstr "Heure(s)"
 
-#: forms/widgets.py:939
+#: forms/widgets.py:953
 msgid "Minute(s)"
 msgstr "Minute(s)"
 
-#: forms/widgets.py:940
+#: forms/widgets.py:954
 msgid "Second(s)"
 msgstr "Seconde(s)"
 
@@ -1442,7 +1446,7 @@ msgid "About Hybird"
 msgstr "À propos d'Hybird"
 
 #: templates/creme_core/batch_process.html:4
-#: templates/creme_core/frags/list_view_content.html:82
+#: templates/creme_core/frags/list_view_content.html:88
 msgid "Batch process"
 msgstr "Traitement par lots"
 
@@ -1584,9 +1588,9 @@ msgid "Go to the page"
 msgstr "Aller sur la fiche"
 
 #: templates/creme_core/frags/list_view_content.html:68
-#: templates/creme_core/frags/list_view_content.html:72
-#: templates/creme_core/frags/list_view_content.html:75
-#: templates/creme_core/frags/list_view_content.html:78
+#: templates/creme_core/frags/list_view_content.html:74
+#: templates/creme_core/frags/list_view_content.html:77
+#: templates/creme_core/frags/list_view_content.html:83
 msgid "Forbidden"
 msgstr "Interdit"
 
@@ -1595,53 +1599,53 @@ msgstr "Interdit"
 msgid "New"
 msgstr "Nouveau"
 
-#: templates/creme_core/frags/list_view_content.html:73
+#: templates/creme_core/frags/list_view_content.html:75
 msgid "Download"
 msgstr "Télécharger"
 
-#: templates/creme_core/frags/list_view_content.html:76
+#: templates/creme_core/frags/list_view_content.html:78
 msgid "Download header"
 msgstr "Télécharger l'en-tête"
 
-#: templates/creme_core/frags/list_view_content.html:79
+#: templates/creme_core/frags/list_view_content.html:84
 msgid "Import"
 msgstr "Importer"
 
-#: templates/creme_core/frags/list_view_content.html:85
+#: templates/creme_core/frags/list_view_content.html:91
 msgid "Clean the search"
 msgstr "Effacer la recherche"
 
-#: templates/creme_core/frags/list_view_content.html:86
+#: templates/creme_core/frags/list_view_content.html:92
 #: templates/creme_core/templatetags/search_panel.html:24
 msgid "Research"
 msgstr "Rechercher"
 
-#: templates/creme_core/frags/list_view_content.html:112
+#: templates/creme_core/frags/list_view_content.html:118
 #, python-format
 msgid "Sort by %(col_title)s"
 msgstr "Trier par %(col_title)s"
 
-#: templates/creme_core/frags/list_view_content.html:144
+#: templates/creme_core/frags/list_view_content.html:150
 msgid "No entity exists / match your search"
 msgstr "Aucun élément n'existe / ne correspond à votre recherche"
 
-#: templates/creme_core/frags/list_view_content.html:159
+#: templates/creme_core/frags/list_view_content.html:165
 msgid "Page"
 msgstr "Page"
 
-#: templates/creme_core/frags/list_view_content.html:159
+#: templates/creme_core/frags/list_view_content.html:165
 msgid "'Enter' to submit"
 msgstr "Touche 'Entrée' pour valider"
 
-#: templates/creme_core/frags/list_view_content.html:159
+#: templates/creme_core/frags/list_view_content.html:165
 msgid "on"
 msgstr "sur"
 
-#: templates/creme_core/frags/list_view_content.html:166
+#: templates/creme_core/frags/list_view_content.html:172
 msgid "Nb / Page"
 msgstr "Nb / Page"
 
-#: templates/creme_core/frags/list_view_content.html:179
+#: templates/creme_core/frags/list_view_content.html:185
 #, python-format
 msgid "Recordings %(start_index)s - %(end_index)s on %(entities_count)s"
 msgstr "Enregistrements %(start_index)s - %(end_index)s sur %(entities_count)s"

@@ -23,8 +23,9 @@ from math import ceil
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.forms import ModelChoiceField, IntegerField
 
-from creme.creme_core.forms import CremeForm, CremeEntityForm, CremeModelForm, CremeDateTimeField
-from creme.creme_core.utils import Q_creme_entity_content_types
+from creme.creme_core.forms import CremeForm, CremeEntityForm, CremeModelForm
+from creme.creme_core.forms.fields import CremeDateTimeField, FilteredEntityTypeField
+#from creme.creme_core.utils import Q_creme_entity_content_types
 
 from ..models import Act, ActObjective, ActObjectivePattern, ActObjectivePatternComponent
 
@@ -38,9 +39,13 @@ class ActForm(CremeEntityForm):
 
 
 class ObjectiveForm(CremeModelForm):
+    entity_counting = FilteredEntityTypeField(label=_(u'Entity counting'), required=False,
+                                              empty_label=_(u'Do not count entity')
+                                             ) #TODO: help text ???
+
     class Meta:
         model = ActObjective
-        fields = ('name', 'counter_goal', 'ctype')
+        #fields = ('name', 'counter_goal')
 
     def __init__(self, entity, *args, **kwargs):
         super(ObjectiveForm, self).__init__(*args, **kwargs)
@@ -49,13 +54,16 @@ class ObjectiveForm(CremeModelForm):
 
         fields['counter_goal'].help_text = ugettext(u'Integer value the counter has to reach')
 
-        ctype_field = fields['ctype']
-        ctype_field.queryset = Q_creme_entity_content_types()
-        ctype_field.empty_label = ugettext(u'Do not count entity')
+        instance = self.instance
+        if instance.pk: #edition
+            fields['entity_counting'].initial = instance.ctype_id, instance.filter_id
 
     def save(self, *args, **kwargs):
-        self.instance.act = self.act
-        super(ObjectiveForm, self).save(*args, **kwargs)
+        instance = self.instance
+        instance.act = self.act
+        instance.ctype, instance.filter = self.cleaned_data['entity_counting']
+
+        return super(ObjectiveForm, self).save(*args, **kwargs)
 
 
 class ObjectivesFromPatternForm(CremeForm):
@@ -80,7 +88,9 @@ class ObjectivesFromPatternForm(CremeForm):
         def create_objectives_from_components(comps, parent_goal):
             for comp in comps:
                 counter_goal = int(ceil(parent_goal * (100.0 / comp.success_rate)))
-                create_objective(act=act, name=comp.name, ctype_id=comp.ctype_id, counter_goal=counter_goal)
+                create_objective(act=act, name=comp.name, counter_goal=counter_goal,
+                                 ctype_id=comp.ctype_id, filter_id=comp.filter_id
+                                )
                 create_objectives_from_components(comp.get_children(), counter_goal)
 
         create_objectives_from_components(pattern.get_components_tree(), won_opps)
@@ -92,21 +102,30 @@ class ObjectivePatternForm(CremeEntityForm):
 
 
 class _PatternComponentForm(CremeModelForm):
-    success_rate = IntegerField(label=_(u'Success rate'), min_value=1, max_value=100,
-                                help_text=_(u'Percentage of success')
-                               )
+    entity_counting = FilteredEntityTypeField(label=_(u'Entity counting'), required=False,
+                                              empty_label=_(u'Do not count entity')
+                                             ) #TODO: help text ???
+    success_rate    = IntegerField(label=_(u'Success rate'), min_value=1, max_value=100,
+                                   help_text=_(u'Percentage of success')
+                                  )
 
     class Meta:
         model = ActObjectivePatternComponent
-        exclude = ('pattern', 'parent')
+        #exclude = ('pattern', 'parent')
 
     def __init__(self, *args, **kwargs):
         super(_PatternComponentForm, self).__init__(*args, **kwargs)
 
         #TODO: factorise with ObjectiveForm ??
-        ctype_field = self.fields['ctype']
-        ctype_field.queryset = Q_creme_entity_content_types()
-        ctype_field.empty_label = ugettext(u'Do not count entity')
+        #ctype_field = self.fields['ctype']
+        #ctype_field.queryset = Q_creme_entity_content_types()
+        #ctype_field.empty_label = ugettext(u'Do not count entity')
+
+    def save(self, *args, **kwargs):
+        instance = self.instance
+        instance.ctype, instance.filter = self.cleaned_data['entity_counting']
+
+        return super(_PatternComponentForm, self).save(*args, **kwargs)
 
 
 class PatternComponentForm(_PatternComponentForm):

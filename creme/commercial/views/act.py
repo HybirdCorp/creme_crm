@@ -25,8 +25,10 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 from creme.creme_core.views import generic
 from creme.creme_core.utils import get_from_POST_or_404
+from creme.creme_core.utils.queries import get_first_or_None
 
-from ..models import Act, ActObjective, ActObjectivePattern, ActObjectivePatternComponent
+from ..models import (ActType, Act, ActObjective, MarketSegment,
+                      ActObjectivePattern, ActObjectivePatternComponent)
 from ..forms import act as forms
 
 
@@ -34,7 +36,11 @@ from ..forms import act as forms
 @permission_required('commercial')
 @permission_required('commercial.add_act')
 def add(request):
-    return generic.add_entity(request, forms.ActForm)
+    return generic.add_entity(request, forms.ActForm,
+                              extra_initial={'act_type': get_first_or_None(ActType),
+                                             'segment':  get_first_or_None(MarketSegment),
+                                            }
+                             )
 
 @login_required
 @permission_required('commercial')

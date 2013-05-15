@@ -116,10 +116,15 @@ def get_content_types(request, rtype_id):
 
 @login_required
 @jsonify
-def get_for_ctype(request, ct_id):
+def get_for_ctype(request, ct_id, include_all=False):
     ct = get_ct_or_404(ct_id)
 
     if not request.user.has_perm(ct.app_label): #TODO: helper in auth.py ??
         raise PermissionDenied(_(u"You are not allowed to acceed to this app"))
 
-    return list(EntityFilter.objects.filter(entity_type=ct).order_by('id').values_list('id', 'name'))
+    #return list(EntityFilter.objects.filter(entity_type=ct).order_by('id').values_list('id', 'name'))
+    choices = [('', _(u'All'))] if include_all else []
+
+    choices.extend(EntityFilter.objects.filter(entity_type=ct).order_by('id').values_list('id', 'name'))
+
+    return choices

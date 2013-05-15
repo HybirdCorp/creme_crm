@@ -351,7 +351,7 @@ class StrategyTestCase(CommercialBaseTestCase):
         self._set_asset_score(strategy, orga, asset02, segment_desc01, score21)
         self._set_asset_score(strategy, orga, asset02, segment_desc02, score22)
 
-        strategy = Strategy.objects.get(pk=strategy.pk) #refresh object (cache....)
+        strategy = self.refresh(strategy) #(cache....)
         self.assertEqual(score11, strategy.get_asset_score(orga, asset01, segment_desc01))
         self.assertEqual(score12, strategy.get_asset_score(orga, asset01, segment_desc02))
         self.assertEqual(score21, strategy.get_asset_score(orga, asset02, segment_desc01))
@@ -475,7 +475,7 @@ class StrategyTestCase(CommercialBaseTestCase):
 
         self._set_segment_category(strategy, individual, orga, 2)
 
-        strategy = Strategy.objects.get(pk=strategy.pk) #refresh object (cache....)
+        strategy = self.refresh(strategy) #(cache....)
         self.assertEqual([association.id], list(segment_ids(strategy, orga, 4)))
         self.assertEqual([],               list(segment_ids(strategy, orga, 3)))
         self.assertEqual([industry.id],    list(segment_ids(strategy, orga, 1)))

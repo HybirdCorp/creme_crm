@@ -264,6 +264,7 @@ class ActObjectivesBlock(QuerysetBlock):
 
     def detailview_display(self, context):
         act_id = context['object'].id
+        #TODO: pre-populate EntityFilters ??
         return self._render(self.get_block_template_context(context,
                                                             ActObjective.objects.filter(act=act_id), #NB: "act.objectives.all()" causes a strange additional query...
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, act_id),

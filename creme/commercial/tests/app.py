@@ -53,6 +53,8 @@ class CommercialTestCase(CremeTestCase):
 
         self.assertRedirects(response, salesman.get_absolute_url())
 
+        self.assertRedirects(response, salesman.get_absolute_url())
+
     def test_salesman_listview01(self):
         self.login()
 

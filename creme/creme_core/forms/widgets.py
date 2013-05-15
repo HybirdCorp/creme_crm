@@ -403,6 +403,20 @@ class RelationSelector(ChainedInput):
         self.add_input("entity", widget=EntitySelector, attrs={'auto': False, 'multiple': multiple})
 
 
+class FilteredEntityTypeWidget(ChainedInput):
+    def __init__(self, content_types, attrs=None):
+        super(FilteredEntityTypeWidget, self).__init__(attrs)
+
+        add_dselect = self.add_dselect
+        attrs = {'auto': False}
+        ctype_name = 'ctype'
+        add_dselect(ctype_name, options=content_types, attrs=attrs)
+
+        #TODO: 'all' as GET parameter ??
+        #TODO: allow to omit the 'All' filter ??
+        add_dselect('efilter', options='/creme_core/entity_filter/get_for_ctype/${%s}/all' % ctype_name, attrs=attrs)
+
+
 class DateTimeWidget(TextInput):
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')

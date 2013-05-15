@@ -15,8 +15,10 @@ __all__ = ('MarketSegmentTestCase',)
 
 
 class MarketSegmentTestCase(CommercialBaseTestCase):
+    ADD_URL = '/commercial/market_segment/add'
+
     def test_create01(self):
-        url = '/commercial/market_segment/add'
+        url = self.ADD_URL
         self.assertGET200(url)
 
         name = 'Industry'
@@ -33,7 +35,7 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
     def test_create02(self):
         "A segment with same name already exists"
         name = 'Industry'
-        url = '/commercial/market_segment/add'
+        url = self.ADD_URL
         self.assertNoFormError(self.client.post(url, data={'name': name}))
 
         response = self.assertPOST200(url, data={'name': name})
@@ -47,7 +49,7 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         pname = _(u'is in the segment "%s"') % name
         CremePropertyType.create('commercial-marketsegmenttestcase01', pname)
 
-        response = self.assertPOST200('/commercial/market_segment/add', data={'name': name})
+        response = self.assertPOST200(self.ADD_URL, data={'name': name})
         self.assertFormError(response, 'form', 'name',
                              [_(u'A property with the name <%s> already exists') % pname]
                             )
