@@ -232,8 +232,7 @@
                     <a href="/creme_config/my_settings/">{% trans 'My settings' %}</a> -
                     <a href="/creme_core/clean/">{% trans 'Log out' %}</a> -
                     <a href="/creme_core/entity/trash">
-                        <img src="{% creme_media_url 'images/delete_16.png' %}" alt="{% trans 'Trash' %}" />
-                        {% trans 'Trash' %}
+                        {% trans 'Trash' as trash_label %} <img src="{% creme_media_url 'images/delete_16.png' %}" alt="{{trash_label}}" title="{{trash_label}}" />{{trash_label}}
                     </a>
                 {% endblock %}
             </div>

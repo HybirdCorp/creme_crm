@@ -2,4 +2,4 @@
 {% load i18n %}
 {% load creme_core_tags %}
 
-{% block message %}{{ message }} - <a href="{{ contact.get_absolute_url }}"><img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{% blocktrans %}View '{{contact}}' details{% endblocktrans %}" alt="{% trans "View" %}" />{% trans "View" %}</a>{% endblock %}
+{% block message %}{{ message }} - <a href="{{contact.get_absolute_url}}">{% trans "View" as label %}<img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{% blocktrans %}View '{{contact}}' details{% endblocktrans %}" alt="{{label}}" />{{label}}</a>{% endblock %}

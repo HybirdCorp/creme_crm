@@ -1,9 +1,10 @@
 {% load i18n %}
 {% load creme_core_tags %}{% has_perm_to link object as link_perm %}
+{% trans which_document as img_title %}
 {% if link_perm %}
     {% if managed_orga|length == 1 %}
         <a class="menu_button" onclick="creme.utils.showInnerPopup('{{ become_url }}/source/{{managed_orga.0.pk}}');">
-            <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{% trans which_document %}" alt="{% trans which_document %}" />
+            <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
             {{verbose_name}}
         </a>
     {% else %}
@@ -16,21 +17,21 @@
                             buttons: {
                                 '{% trans "Ok" %}': function() {
                                     $(this).dialog("close");
-                                    creme.utils.showInnerPopup("{{ become_url }}/source/" + $('select', this).val(), {'beforeClose': function(){location.reload();}});
+                                    creme.utils.showInnerPopup("{{become_url}}/source/" + $('select', this).val(), {'beforeClose': function(){location.reload();}});
                                 }
                             }
                         }
                 );
             }
         </script>
-        <a class="menu_button" onclick="create_related_{{ which_document }}(this);">
-            <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{% trans which_document %}" alt="{% trans which_document %}" />
+        <a class="menu_button" onclick="create_related_{{which_document}}(this);">
+            <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
             {{verbose_name}}
         </a>
     {% endif %}
 {% else %}
     <span class="menu_button forbidden" title="{% trans "forbidden" %}">
-        <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{% trans which_document %}" alt="{% trans which_document %}" />
+        <img src="{% creme_media_url 'images/invoice_32.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
         {{verbose_name}}
     </span>
 {% endif %}

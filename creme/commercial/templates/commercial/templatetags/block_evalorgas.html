@@ -24,20 +24,20 @@
                     {% if orga_view_perm %}
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                             <a href="/commercial/strategy/{{object.id}}/organisation/{{orga.id}}/evaluation">
-                                <img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{% trans "Evaluation" %}" alt="{% trans "Evaluation" %}" />
+                                {% trans "Evaluation" as img_title %}<img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
                             </a>
                         </td>
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
                             <a href="/commercial/strategy/{{object.id}}/organisation/{{orga.id}}/synthesis">
-                                <img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{% trans "Synthesis" %}" alt="{% trans "Synthesis" %}" />
+                                {% trans "Synthesis" as img_title %}<img src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
                             </a>
                         </td>
-                    {% else %}
+                    {% else %}{% trans "Forbidden" as img_title %}
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                            <img class="forbidden" src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{% trans "Forbidden" %}" alt="{% trans "Forbidden" %}" />
+                            <img class="forbidden" src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
                         </td>
                         <td class="{{row_color}}" align="center" valign="center" style="width:10%;">
-                            <img class="forbidden" src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{% trans "Forbidden" %}" alt="{% trans "Forbidden" %}" />
+                            <img class="forbidden" src="{% creme_media_url 'images/view_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}" />
                         </td>
                     {% endif %}
                     <td class="{{row_color}} action">

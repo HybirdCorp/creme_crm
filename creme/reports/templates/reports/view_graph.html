@@ -53,16 +53,16 @@
                         </th>
                         <th>
                             <a onclick="creme.graphael.simple_refetch('/reports/graph/fetch_graph/{{object.id}}/'+$('#graph_ordering_{{object.id}}').val(), $('#graph_type_{{object.id}}').val(), '.graph_container_{{object.id}}', '{{object|verbose_ordinate:object.ordinate}}', '{{object|verbose_abscissa:object.abscissa}}  - {{verbose_report_graph_types|get_value:object.type}}', '#graph_gen_date_{{object.id}}');">
-                                <img src="{% creme_media_url 'images/refresh_22.png' %}" alt="{% trans 'Regenerate' %}" title="{% trans 'Regenerate' %}" />
+                                {% trans 'Regenerate' as img_title %}<img src="{% creme_media_url 'images/refresh_22.png' %}" alt="{{img_title}}" title="{{img_title}}" />
                             </a>
                         </th>
                         <th>
                             {% if user_can_admin_report %}
                                 <a onclick="creme.utils.showInnerPopup('/reports/graph/{{object.id}}/block/add');">
-                                    <img src="{% creme_media_url 'images/add_22.png' %}" alt="{% trans 'Create a block' %}" title="{% trans 'Create a block with this graph' %}" />
+                                    {% trans 'Create a block with this graph' as img_title %}<img src="{% creme_media_url 'images/add_22.png' %}" alt="{{img_title}}" title="{{img_title}}" />
                                 </a>
                             {% else %}
-                                <img class="forbidden" src="{% creme_media_url 'images/add_22.png' %}" alt="{% trans "Can't add" %}" title="{% trans "Can't add" %}" />
+                                {% trans "Can't add" as img_title %}<img class="forbidden" src="{% creme_media_url 'images/add_22.png' %}" alt="{{img_title}}" title="{{img_title}}" />
                             {% endif %}
                         </th>
                     </tr>

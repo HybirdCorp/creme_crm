@@ -68,8 +68,7 @@
         <ul class="button_list hbox">
             <li>
                 <a class="menu_button" href="{{back_url}}">
-                    <img src="{% creme_media_url 'images/listview_32.png' %}" border="0" title="{% trans "Back to the list" %}" alt="{% trans "Back to the list" %}" />
-                    {% trans "Back to the list" %}
+                    {% trans "Back to the list" as back_label %}<img src="{% creme_media_url 'images/listview_32.png' %}" border="0" title="{{back_label}}" alt="{{back_label}}" />{{back_label}}
                 </a>
             </li>
         </ul>

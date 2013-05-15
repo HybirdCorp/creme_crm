@@ -1,18 +1,20 @@
 {% extends "emails/templatetags/_block_synchronization.html" %}
 {% load i18n %}
 {% load creme_block creme_core_tags %}
+
+{% trans "Marked as 'to be treated'" as tobetreated_tabel %}{% trans "Delete" del_label %}
+
 {% block top_header %}
     {% get_block_header colspan=7 %}
         <th class="collapser label">{% get_block_title  _('%s Incoming email marked as spam') _('%s Incoming emails marked as spam') 'spam_48.png' _('Spam') %}</th>
         <th class="actions">
             <div class="buttons">
                 <a class="add" onclick="creme.emails.mass_action('/emails/mail/waiting', '[name=select_one]:checked', {% get_block_reload_uri %});">
-                    <img src="{% creme_media_url 'images/email_22.png' %}" border="0" title="{% trans "Marked as 'to be treated'" %}" alt="{% trans "Marked as 'to be treated'" %}" />
-                    {% trans "Marked as 'to be treated'" %}
+                    <img src="{% creme_media_url 'images/email_22.png' %}" border="0" title="{{tobetreated_tabel}}" alt="{{tobetreated_tabel}}" />
+                    {{tobetreated_tabel}}
                 </a>
                 <a class="negative" onclick="creme.emails.mass_action('/creme_core/entity/delete/multi', '[name=select_one]:checked', {% get_block_reload_uri %}, null, function(v){return v.join(',')});">
-                    <img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{% trans "Delete" %}" alt="{% trans "Delete" %}" />
-                    {% trans "Delete" %}
+                    <img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{{del_label}}" alt="{{del_label}}" />{{del_label}}
                 </a>
             </div>
         </th>
@@ -21,6 +23,6 @@
 
 {% block mail_action %}
     <a onclick="creme.emails.mass_action('/emails/mail/waiting',  'input[name=select_one][value={{ mail.id }}]', {% get_block_reload_uri %});" style="cursor: pointer;">
-        <img src="{% creme_media_url 'images/email_22.png' %}" border="0" title="{% trans "Marked as 'to be treated'" %}" alt="{% trans "Marked as 'to be treated'" %}" />
+        <img src="{% creme_media_url 'images/email_22.png' %}" border="0" title="{{tobetreated_tabel}}" alt="{{tobetreated_tabel}}" />
     </a>
 {% endblock %}

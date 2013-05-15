@@ -236,7 +236,7 @@ $(document).ready(function() {
                                         <td colspan="16" align="center">
                                             <button type="button" id="show-hide-users">{% trans "Hide the list of users" %}</button>
                                             <button type="button" id="btn_select_all_users">{% trans "Select all users" %}</button>
-                                            <input  type="submit" value="{% trans "See public calendars of selected users" %}" title="{% trans "See public calendars of selected users" %}"/>
+                                            {% trans "See public calendars of selected users" as submit_label %}<input  type="submit" value="{{submit_label}}" title="{{submit_label}}"/>
                                         </td>
                                     </tr>
                                 </thead>
@@ -264,7 +264,7 @@ $(document).ready(function() {
                                         <td colspan="16" align="center">
                                             <button type="button" id="show-hide-mycalendars">{% trans "Hide the list of my calendars" %}</button>
                                             <button type="button" id="btn_select_all_mycalendars">{% trans "Select all my calendars" %}</button></br>
-                                            <input  type="submit" value="{% trans "See my selected calendars" %}" title="{% trans "See my selected calendars" %}" />
+                                            {% trans "See my selected calendars" as submit_label %}<input  type="submit" value="{{submit_label}}" title="{{submit_label}}" />
                                         </td>
                                     </tr>
                                 </thead>

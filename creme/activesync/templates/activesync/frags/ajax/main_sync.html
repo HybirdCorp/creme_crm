@@ -2,16 +2,16 @@
 {% load creme_block creme_core_tags activesync_tags %}
 <table class="table_header" cellpadding="0" cellspacing="0">
     <tr>
-        <td width="5%"><img src="{% creme_media_url 'images/phone_sync_48.png' %}" alt="{% trans 'Phone synchronization' %}" title="{% trans 'Phone synchronization' %}"/></td>
+        <td width="5%">{% trans 'Phone synchronization' as img_title %}<img src="{% creme_media_url 'images/phone_sync_48.png' %}" alt="{{img_title}}" title="{{img_title}}"/></td>
         <td width="75%"><h1>{% trans 'Mobile synchronization' %}</h1></td>
         <td width="20%" align="right">
             <span>
                 <a class="pointer" onclick="creme.utils.innerPopupNReload('/activesync/user_settings', {% get_block_reload_uri %});">
-                    <img src="{% creme_media_url 'images/config_64.png' %}" border="0" alt="{% trans "Edit your mobile configuration" %}" title="{% trans "Edit your mobile configuration" %}"/>
+                    {% trans "Edit your mobile configuration" as img_title %}<img src="{% creme_media_url 'images/config_64.png' %}" border="0" alt="{{img_title}}" title="{{img_title}}"/>
                 </a>
                 &nbsp;
                 <a class="pointer" onclick="creme.reload_synchronisation($('#sub_content'), '/activesync/sync');">
-                    <img src="{% creme_media_url 'images/refresh_64.png' %}" title="{% trans "Refresh" %}" alt="{% trans "Refresh" %}"/>
+                    {% trans "Refresh" as img_title %}<img src="{% creme_media_url 'images/refresh_64.png' %}" title="{{img_title}}" alt="{{img_title}}"/>
                 </a>
             </span>
         </td>
@@ -51,7 +51,7 @@
             <tr class="content">
                 <th class="th_info">
                     <span class="icon">
-                        <img src="{% creme_media_url 'images/calendar_22.png' %}" alt="{% trans "Calendar" %}" title="{% trans "Calendar" %}"/>
+                        {% trans "Calendar" as img_title %}<img src="{% creme_media_url 'images/calendar_22.png' %}" alt="{{img_title}}" title="{{img_title}}"/>
                     </span>
                     {% trans "Synchronize your calendars ?" %}
                 </th>
@@ -60,7 +60,7 @@
             <tr class="content">
                 <th class="th_info">
                     <span class="icon">
-                        <img src="{% creme_media_url 'images/contact_22.png' %}" alt="{% trans "Contacts" %}" title="{% trans "Contacts" %}"/>
+                        {% trans "Contacts" as img_title %}<img src="{% creme_media_url 'images/contact_22.png' %}" alt="{{img_title}}" title="{{img_title}}"/>
                     </span>
                     {% trans "Synchronize your contacts ?" %}
                 </th>
@@ -78,14 +78,12 @@
     <tbody class="collapsable">
         {% for type, messages in all_messages %}
             <tr class="header">
-                <th class="th_info">{% with messages|length as messages_length%}{{ messages_length }} {% get_verbose_message_type type messages_length %}{% endwith %}</th>
+                <th class="th_info">{% with messages|length as messages_length%}{{messages_length}} {% get_verbose_message_type type messages_length %}{% endwith %}</th>
             </tr>
             {% for message in messages %}
-            <tr class="content">
-                <td class="td_info">
-                    {% render_message message %}
-                </td>
-            </tr>
+                <tr class="content">
+                    <td class="td_info">{% render_message message %}</td>
+                </tr>
             {% endfor %}
         {% empty %}
             <tr class="content empty">

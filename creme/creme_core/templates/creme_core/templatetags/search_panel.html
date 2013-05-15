@@ -11,7 +11,7 @@
 </script>
 <div class="research_box">
     <span>
-        <img border="0" title="{% trans "Search" %}" alt="{% trans "Search" %}" src="{% creme_media_url 'images/search_22.png' %}" align="top">
+        {% trans "Search" as img_title %}<img border="0" title="{{img_title}}" alt="{{img_title}}" src="{% creme_media_url 'images/search_22.png' %}" align="top">
         <select name="ct_id">
             <option value="">{% trans "All" %}</option>
             <option disabled>------</option>

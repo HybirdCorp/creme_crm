@@ -11,8 +11,7 @@
                 <tr class="header toolbar">
                     <th colspan="{{colspan}}" class="block_header_line_dark" align="left">{% comment %}TODO: factorise {% endcomment %}
                         <a class="pointer" onclick="creme.utils.ajaxDelete('/creme_core/entity/trash/empty', {}, {complete:function(req, st){if(st!='error'){creme.utils.loadBlock({% get_block_reload_uri %});}creme.utils.loading('loading', true);}});">
-                        <img src="{% creme_media_url 'images/cancel_22.png' %}" border="0" title="{% trans "Empty the trash" %}" alt="{% trans "Empty the trash" %}">
-                            {% trans "Empty the trash" %}
+                        {% trans "Empty the trash" as label %}<img src="{% creme_media_url 'images/cancel_22.png' %}" border="0" title="{{label}}" alt="{{label}}">{{label}}
                         </a>
                     </th>
                 </tr>
@@ -35,10 +34,10 @@
                         <td class="{{row_color}} action">{% has_perm_to delete entity as has_perm %}
                             {% if has_perm %}
                                 <a class="pointer" onclick="creme.utils.ajaxDelete('/creme_core/entity/restore/{{entity.id}}', {}, {complete:function(req, st){if(st!='error'){creme.utils.loadBlock({% get_block_reload_uri %});}creme.utils.loading('loading', true);}});">
-                                    <img src="{% creme_media_url 'images/restore_22.png' %}" border="0" title="{% trans "Restore" %}" alt="{% trans "Restore" %}">
+                                    {% trans "Restore" as img_title %}<img src="{% creme_media_url 'images/restore_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}">
                                 </a>
                             {% else %}
-                                <img class="forbidden" src="{% creme_media_url 'images/restore_22.png' %}" border="0" title="{% trans "Can't restore" %}" alt="{% trans "Can't restore" %}">
+                                {% trans "Can't restore" as img_title %}<img class="forbidden" src="{% creme_media_url 'images/restore_22.png' %}" border="0" title="{{img_title}}" alt="{{img_title}}">
                             {% endif %}
                         </td>
                         <td class="{{row_color}} action">
