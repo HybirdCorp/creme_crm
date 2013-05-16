@@ -30,7 +30,7 @@
                 <td class="{{row_color}}">{{user.username}}</td>
                 <td class="{{row_color}}">{{user.last_name}}</td>
                 <td class="{{row_color}}">{{user.first_name}}</td>
-                <td class="{{row_color}}">{{user.role|default:_('None')}}</td>
+                <td class="{{row_color}}">{{user.role|default:''}}</td>
                 <td class="{{row_color}}">{{user.email}}</td>
                 <td class="{{row_color}}">{{user.is_superuser|yesno:_('Yes,No')}}</td>
                 <td class="{{row_color}}">{{user.is_active|yesno:_('Yes,No')}}</td>

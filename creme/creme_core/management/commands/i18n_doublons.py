@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import print_function
+
 from collections import defaultdict
 from optparse import make_option, OptionParser
-from os import listdir
+from os import listdir, sep
 from os.path import join, exists
 
 from django.core.management.base import BaseCommand
@@ -36,7 +38,8 @@ class Command(BaseCommand):
                                 ),
                      make_option('-d', '--not_diverging', action='store_true',
                                  dest='not_diverging', default=False,
-                                 help='Display the not diverging doublons in translations too. '
+                                 help='Display the not diverging doublons in translations too '
+                                      '(useful to see translation message that are duplicated between apps). '
                                       '[default: %default]'
                                 ),
                      make_option('-n', '--no_context', action='store_true',
@@ -58,14 +61,14 @@ class Command(BaseCommand):
         try:
             from polib import pofile
         except ImportError as e:
-            print e
-            print 'The required "polib" library seems not installed ; aborting.'
+            print(e)
+            print('The required "polib" library seems not installed ; aborting.')
             return
 
         verbosity = int(options.get('verbosity'))
 
         if verbosity >= 2:
-            print 'OK "polib" library is installed.'
+            print('OK "polib" library is installed.')
 
         language = options.get('language')
         not_diverging = options.get('not_diverging')
@@ -75,7 +78,9 @@ class Command(BaseCommand):
         entries_per_id = defaultdict(list)
 
         for app_name in settings.INSTALLED_CREME_APPS:
-            basepath = '%s/locale/%s/LC_MESSAGES/' % (app_name, language)
+            basepath = join(app_name.replace('.', sep), #creme.creme_core => creme/creme_core
+                            'locale', language, 'LC_MESSAGES',
+                           )
 
             if exists(basepath):
                 for fname in listdir(basepath):
@@ -86,9 +91,11 @@ class Command(BaseCommand):
                             entry_count += 1
                             entry.file_path = path
                             entries_per_id[entry.msgid].append(entry)
+            elif verbosity >= 1:
+                print('No locale file for "%s"' % app_name)
 
         if verbosity >= 1:
-            print 'Number of entries:', entry_count
+            print('Number of entries:', entry_count)
 
         problems_count = 0
 
@@ -102,7 +109,7 @@ class Command(BaseCommand):
                 if len(entries_per_msg) == 1:
                     if not_diverging:
                         msg_entries = entries_per_msg.itervalues().next()
-                        print '[doublon] {%s} in %s' % (msgid, [entry.file_path for entry in msg_entries])
+                        print('\n[doublon] {%s} in %s' % (msgid, [entry.file_path for entry in msg_entries]))
 
                         problems_count += 1
                 else:
@@ -120,12 +127,16 @@ class Command(BaseCommand):
                                           )
 
                     if cxt_conflict:
-                        print '[diverging]\n {%s} in :' % msgid
+                        print('\n[diverging]\n {%s} in :' % msgid)
 
                         for msgstr, msg_entries in entries_per_msg.iteritems():
-                            print '    {%s} in %s' % (msgstr, [(entry.file_path, entry.msgctxt) for entry in msg_entries])
+                            print('    {%s} in:' % msgstr,
+                                  ', '.join('(file=%s, cxt=%s)' % (entry.file_path, entry.msgctxt)
+                                                for entry in msg_entries
+                                           )
+                                 )
 
                         problems_count += 1
 
         if verbosity >= 1:
-            print '\nNumber of problems:', problems_count
+            print('\nNumber of problems:', problems_count)

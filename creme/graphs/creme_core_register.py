@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.gui import creme_menu, block_registry, icon_registry
@@ -27,13 +27,13 @@ from .models import Graph
 from .blocks import root_nodes_block, orbital_rtypes_block
 
 
-creme_registry.register_app('graphs', _(u'Graphs'), '/graphs')
+creme_registry.register_app('graphs', pgettext_lazy('graphs', u'Graphs'), '/graphs')
 creme_registry.register_entity_models(Graph)
 
 reg_item = creme_menu.register_app('graphs', '/graphs/').register_item
-reg_item('/graphs/',           _(u'Portal of graphs'), 'graphs')
-reg_item('/graphs/graphs',     _(u'All graphs'),       'graphs')
-reg_item('/graphs/graph/add',  Graph.creation_label,   'graphs.add_graph')
+reg_item('/graphs/',          _(u'Portal of graphs'), 'graphs')
+reg_item('/graphs/graphs',    _(u'All graphs'),       'graphs')
+reg_item('/graphs/graph/add', Graph.creation_label,   'graphs.add_graph')
 
 block_registry.register(root_nodes_block, orbital_rtypes_block)
 

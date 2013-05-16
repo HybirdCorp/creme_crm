@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.db.models import CharField, BooleanField, TextField, DecimalField, PositiveIntegerField, ForeignKey
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
 
@@ -57,29 +57,29 @@ class AbstractStatus(CremeModel):
 class InvoiceStatus(AbstractStatus):
     class Meta(AbstractStatus.Meta):
         abstract = False
-        verbose_name = _(u'Invoice status')
-        verbose_name_plural = _(u'Invoice status')
+        verbose_name        = pgettext_lazy('billing-singular', u'Invoice status')
+        verbose_name_plural = pgettext_lazy('billing-plural',   u'Invoice status')
 
 
 class QuoteStatus(AbstractStatus):
     class Meta(AbstractStatus.Meta):
         abstract = False
-        verbose_name = _(u'Quote status')
-        verbose_name_plural = _(u'Quote status')
+        verbose_name        = pgettext_lazy('billing-singular', u'Quote status')
+        verbose_name_plural = pgettext_lazy('billing-plural',   u'Quote status')
 
 
 class SalesOrderStatus(AbstractStatus):
     class Meta(AbstractStatus.Meta):
         abstract = False
-        verbose_name = _(u'Sales order status')
-        verbose_name_plural = _(u'Sales order status')
+        verbose_name        = pgettext_lazy('billing-singular', u'Sales order status')
+        verbose_name_plural = pgettext_lazy('billing-plural',   u'Sales order status')
 
 
 class CreditNoteStatus(AbstractStatus):
     class Meta(AbstractStatus.Meta):
         abstract = False
-        verbose_name = _(u"Credit note status")
-        verbose_name_plural = _(u"Credit note status")
+        verbose_name        = pgettext_lazy('billing-singular', u"Credit note status")
+        verbose_name_plural = pgettext_lazy('billing-plural',   u"Credit note status")
 
 
 class AdditionalInformation(CremeModel):
@@ -92,8 +92,8 @@ class AdditionalInformation(CremeModel):
 
     class Meta:
         app_label = 'billing'
-        verbose_name = _(u"Additional information")
-        verbose_name_plural = _(u"Additional information")
+        verbose_name        = pgettext_lazy('billing-singular', u"Additional information")
+        verbose_name_plural = pgettext_lazy('billing-plural',   u"Additional information")
 
 
 class PaymentTerms(CremeModel):
@@ -130,8 +130,8 @@ class PaymentInformation(CremeModel):
 
     class Meta:
         app_label = 'billing'
-        verbose_name = _(u'Payment information')
-        verbose_name_plural = _(u'Payments information')
+        verbose_name        = pgettext_lazy('billing-singular', u'Payment information')
+        verbose_name_plural = pgettext_lazy('billing-plural',   u'Payments information')
 
     #TODO: see Vat.save()
     #TODO: create a function/ an abstract model for saving model with is_default attribute (and use it for Vat too)
@@ -172,8 +172,8 @@ class Vat(CremeModel):
 
     class Meta:
         app_label = 'billing'
-        verbose_name = _(u'Vat')
-        verbose_name_plural = _(u'Vat')
+        verbose_name = _(u'VAT')
+        verbose_name_plural = _(u'VAT')
 
     def save(self, *args, **kwargs):
         if self.is_default:

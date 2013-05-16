@@ -20,25 +20,25 @@
 
 from django.db.models import CharField, ManyToManyField, ForeignKey
 from django.http import HttpResponseRedirect
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 from django.conf import settings
 
 from creme.creme_core.models import CremeModel, CremeEntity, RelationType, Relation
 
 
 class Graph(CremeEntity):
-    name                   = CharField(_(u'Name of the graph'), max_length=100)
+    name                   = CharField(pgettext_lazy('graphs', u'Name of the graph'), max_length=100)
     orbital_relation_types = ManyToManyField(RelationType, verbose_name=_(u'Types of the peripheral relations'))
 
-    creation_label = _('Add a graph')
+    creation_label = pgettext_lazy('graphs', 'Add a graph')
 
     class GraphException(Exception):
         pass
 
     class Meta:
         app_label = 'graphs'
-        verbose_name = _(u'Graph')
-        verbose_name_plural = _(u'Graphs')
+        verbose_name = pgettext_lazy('graphs', u'Graph')
+        verbose_name_plural = pgettext_lazy('graphs', u'Graphs')
 
     def __unicode__(self):
         return self.name

@@ -1,17 +1,16 @@
 # FR LOCALISATION OF 'DOCUMENTS' APP
-# Copyright (C) 2012 Hybird
+# Copyright (C) 2013 Hybird
 # This file is distributed under the same license as the Creme package.
 #
+# > django-admin.py makemessages -l fr -e html -i "tests/*"
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: Creme Documents 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-04-19 17:21+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"POT-Creation-Date: 2013-05-16 16:09+0200\n"
+"Last-Translator: Hybird <contact@hybird.org>\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -20,7 +19,7 @@ msgstr ""
 msgid "Folder documents"
 msgstr "Documents du classeur"
 
-#: blocks.py:60
+#: blocks.py:61
 msgid "Linked documents"
 msgstr "Documents liés"
 
@@ -36,77 +35,74 @@ msgstr "Portail des documents"
 msgid "All documents"
 msgstr "Lister les documents"
 
-#: creme_core_register.py:37
-#: templates/documents/templatetags/block_linked_docs.html:18
-#: templates/documents/templatetags/block_linked_docs.html:19
-#: templates/documents/templatetags/block_linked_docs.html:24
-msgid "Add a document"
-msgstr "Ajouter un document"
-
 #: creme_core_register.py:38
 msgid "All folders"
 msgstr "Lister les classeurs"
 
-#: creme_core_register.py:39
-msgid "Add a folder"
-msgstr "Ajouter un classeur"
-
-#: populate.py:41
+#: populate.py:44
 msgid "related to the document"
 msgstr "concerne le document"
 
-#: populate.py:42
+#: populate.py:45
 msgid "document related to"
 msgstr "document concerné par"
 
-#: populate.py:45
+#: populate.py:48
 msgid "Documents related to entities"
 msgstr "Documents crées à partir des fiches"
 
-#: populate.py:46
+#: populate.py:49
 msgid "Documents received by email"
 msgstr "Documents reçus par e-mail"
 
-#: populate.py:50
+#: populate.py:53
 msgid "Folder containing all the documents related to entities"
 msgstr "Classeur contenant tous les documents créés à partir des fiches"
 
-#: populate.py:55
+#: populate.py:58
 msgid "Document view"
 msgstr "Vue de Document"
 
-#: populate.py:60
+#: populate.py:63
 msgid "Folder view"
 msgstr "Vue de Classeur"
 
-#: utils.py:26
+#: utils.py:27
 msgid "CSV Documents"
 msgstr "Documents CSV"
 
-#: utils.py:32
+#: utils.py:34
 msgid "Folder containing all the CSV documents used when importing data"
-msgstr "Classeur contenant tous les documents CSV utilisés lors des imports de données"
+msgstr ""
+"Classeur contenant tous les documents CSV utilisés lors des imports de "
+"données"
 
 #: forms/folder.py:39
 #, python-format
 msgid "Folder's category must be the same than its parent's one: %s"
 msgstr "La catégorie du classeur doit être la même que celle du parent: %s"
 
-#: models/document.py:32 models/folder.py:38
+#: models/document.py:31 models/folder.py:38
 msgid "Title"
 msgstr "Titre"
 
-#: models/document.py:33 models/folder.py:39
+#: models/document.py:32 models/folder.py:39
 msgid "Description"
 msgstr "Description"
 
-#: models/document.py:34
+#: models/document.py:33
 msgid "File"
 msgstr "Fichier"
 
-#: models/document.py:35 models/folder.py:48
+#: models/document.py:34 models/folder.py:49
 msgid "Folder"
 msgstr "Classeur"
+
+#: models/document.py:37
+#: templates/documents/templatetags/block_linked_docs.html:18
+#: templates/documents/templatetags/block_linked_docs.html:23
+msgid "Add a document"
+msgstr "Ajouter un document"
 
 #: models/document.py:41
 #: templates/documents/templatetags/block_documents.html:5
@@ -122,15 +118,19 @@ msgstr "Classeur parent"
 msgid "Category"
 msgstr "Catégorie"
 
-#: models/folder.py:49
+#: models/folder.py:45
+msgid "Add a folder"
+msgstr "Ajouter un classeur"
+
+#: models/folder.py:50
 msgid "Folders"
 msgstr "Classeurs"
 
-#: models/folder.py:67
+#: models/folder.py:68
 msgid "Copy"
 msgstr "Copie"
 
-#: models/folder.py:75
+#: models/folder.py:76
 msgid "Explore"
 msgstr "Explorer"
 
@@ -161,14 +161,10 @@ msgid "Download '%(object)s'"
 msgstr "Télécharger '%(object)s'"
 
 #: templates/documents/view_document.html:7
-#: templates/documents/templatetags/block_linked_docs.html:35
-#: templates/documents/templatetags/block_linked_docs.html:46
+#: templates/documents/templatetags/block_linked_docs.html:34
+#: templates/documents/templatetags/block_linked_docs.html:45
 msgid "Download"
 msgstr "Télécharger"
-
-#: templates/documents/frags/previous.html:5
-msgid "Previous"
-msgstr "Précedent"
 
 #: templates/documents/frags/previous.html:5
 msgid "Previous folder"
@@ -185,7 +181,7 @@ msgid "%s Contained Documents"
 msgstr "%s Documents contenus"
 
 #: templates/documents/templatetags/block_documents.html:15
-#: templates/documents/templatetags/block_linked_docs.html:34
+#: templates/documents/templatetags/block_linked_docs.html:33
 msgid "Name"
 msgstr "Nom"
 
@@ -211,32 +207,32 @@ msgstr "%s Document lié"
 msgid "%s linked Documents"
 msgstr "%s Documents liés"
 
-#: templates/documents/templatetags/block_linked_docs.html:23
+#: templates/documents/templatetags/block_linked_docs.html:22
 msgid "Can't add or link"
 msgstr "Création ou liaison interdite"
 
-#: templates/documents/templatetags/block_linked_docs.html:27
+#: templates/documents/templatetags/block_linked_docs.html:26
 msgid "Link to an existing document"
 msgstr "Lier à un document existant"
 
-#: templates/documents/templatetags/block_linked_docs.html:36
+#: templates/documents/templatetags/block_linked_docs.html:35
 msgid "Delete"
 msgstr "Supprimer"
 
-#: templates/documents/templatetags/block_linked_docs.html:46
+#: templates/documents/templatetags/block_linked_docs.html:45
 #, python-format
 msgid "Download '%(doc)s'"
 msgstr "Télécharger '%(doc)s'"
 
-#: templates/documents/templatetags/block_linked_docs.html:49
+#: templates/documents/templatetags/block_linked_docs.html:48
 msgid "Can't download"
 msgstr "Impossible de télécharger"
 
-#: templates/documents/templatetags/block_linked_docs.html:61
+#: templates/documents/templatetags/block_linked_docs.html:60
 msgid "No linked document"
 msgstr "Aucun document lié"
 
-#: views/document.py:47
+#: views/document.py:52
 #, python-format
 msgid "New document for <%s>"
 msgstr "Ajout de document à <%s>"
@@ -254,9 +250,12 @@ msgstr "Nombre de document(s)"
 msgid "Number of folders"
 msgstr "Nombre de classeur(s)"
 
-#: views/quick_forms.py:58
+#: views/quick_forms.py:50
 msgid "New value"
-msgstr ""
+msgstr "Nouvelle valeur"
+
+#~ msgid "Previous"
+#~ msgstr "Précedent"
 
 #~ msgid "Folder - Title"
 #~ msgstr "Classeur - Titre"

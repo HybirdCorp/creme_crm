@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.db.models import CharField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy
 
 from creme.creme_core.models import CremeModel
 
@@ -27,7 +27,7 @@ from creme.creme_core.models import CremeModel
 __all__ = ('Civility', 'Position', 'StaffSize', 'LegalForm', 'Sector')
 
 class Civility(CremeModel):
-    title    = CharField(_(u'Title'), max_length=100)
+    title    = CharField(pgettext_lazy('persons-civility', u'Title'), max_length=100)
     shortcut = CharField(_(u'Shortcut'), max_length=100)
 
     def __unicode__(self):
@@ -40,7 +40,7 @@ class Civility(CremeModel):
 
 
 class Position(CremeModel):
-    title = CharField(_(u'Title'), max_length=100)
+    title = CharField(pgettext_lazy('persons-position', u'Title'), max_length=100)
 
     def __unicode__(self):
         return self.title
@@ -52,7 +52,7 @@ class Position(CremeModel):
 
 
 class Sector(CremeModel):
-    title = CharField(_(u'Title'), max_length=100)
+    title = CharField(pgettext_lazy('persons-sector', u'Title'), max_length=100)
 
     def __unicode__(self):
         return self.title
@@ -64,7 +64,7 @@ class Sector(CremeModel):
 
 
 class LegalForm(CremeModel):
-    title = CharField(_(u'Title'), max_length=100)
+    title = CharField(pgettext_lazy('persons-legalform', u'Title'), max_length=100)
 
     def __unicode__(self):
         return self.title

@@ -2,7 +2,7 @@
 {% load creme_core_tags creme_block %}
 <table class="table_detail_view ui-corner-all {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=3 %}
-        <th style="width: 80%;" class="collapser">{% get_basic_block_header _('Informations on the billing document') 'info_48.png' _('Information') %}</th>
+        <th style="width: 80%;" class="collapser">{% get_basic_block_header _('Information on the billing document') 'info_48.png' _('Information') %}</th>
         <th style="width: 20%;" align="right">
             <div class="buttons">
                 {% get_toggle_empty_field_button %}
@@ -51,7 +51,7 @@
                 {% if object.discount %}
                     {% print_field object=object field='discount' %} %
                 {% else %}
-                    {% trans "None" %}
+                    {% trans "None" context "billing-discount" %}
                 {% endif %}
             </td>
             <td class="{{row_color}} td_info edit_inner">{% get_field_editor on regular 'discount' for object %}</td>

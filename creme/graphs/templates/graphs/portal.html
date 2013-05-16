@@ -1,7 +1,7 @@
 {% extends "creme_core/generics/portal.html" %}
 {% load i18n %}
 {% load creme_core_tags %}
-{% block logo %}<img src="{% creme_media_url 'images/graph_64.png' %}" alt="{% trans "Graph" %}"/>{% endblock %}
+{% block logo %}<img src="{% creme_media_url 'images/graph_64.png' %}" alt="{% trans "Graph" context "graphs" %}"/>{% endblock %}
 {% block title %}{% trans "Graphs portal" %}{% endblock %}
 {% block list_url %}/graphs/graphs{% endblock %}
-{% block list_msg %}{% trans "List of Graphs" %}{% endblock %}
+{% block list_msg %}{% trans "List of Graphs" context "graphs" %}{% endblock %}

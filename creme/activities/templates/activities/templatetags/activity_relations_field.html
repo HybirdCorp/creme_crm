@@ -2,7 +2,7 @@
 {% load creme_widgets %}
 {% with relations|length as count %}
     {% if not count %}
-        {% trans "No one" %}
+        {% trans "No entity" %}
     {% elif count == 1 %}
         {% widget_entity_hyperlink relations.0.object_entity.get_real_entity user %}
     {% elif count <= 3 %}
