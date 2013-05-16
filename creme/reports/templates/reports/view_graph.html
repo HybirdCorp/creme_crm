@@ -11,7 +11,7 @@
             <td class="logo">{% get_image_for_object object 'big' %}</td>
             <td class="title">
                 <h1>
-                    {% blocktrans with object|get_meta_value:"verbose_name"|title as verbose_name and object|title as title %}Rendered {{verbose_name}} : {{title}}{% endblocktrans %}
+                    {% blocktrans with verbose_name=object|get_meta_value:"verbose_name"|title title=object|title %}Rendered {{verbose_name}} : {{title}}{% endblocktrans %}
                 </h1>
             </td>
             <td class="actions">

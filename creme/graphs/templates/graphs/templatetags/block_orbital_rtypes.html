@@ -3,7 +3,7 @@
 {% has_perm_to change object as has_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=2 %}
-        <th class="collapser label">{% get_block_title _('%s Periperal type of relation') _('%s Periperal types of relation') 'graph_48.png' _('Periperal relation types') %}</th>
+        <th class="collapser label">{% get_block_title _('%s Peripheral type of relation') _('%s Peripheral types of relation') 'graph_48.png' _('Peripheral relation types') %}</th>
         <th class="actions">
             <div class="buttons">
                 {% get_line_adder at_url '/graphs/graph/{{object.pk}}/relation_types/add' with_label _("Add some existing types of relation") with_perms has_perm %}

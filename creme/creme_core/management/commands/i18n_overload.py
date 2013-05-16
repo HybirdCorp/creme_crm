@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import print_function
+
 from datetime import datetime
 from optparse import make_option, OptionParser
-from os import listdir, makedirs
+from os import listdir, makedirs, sep
 from os.path import join, exists, isdir
 
 import pytz
@@ -56,20 +58,20 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if not args:
-            print "Error: give at least one term"
+            print('Error: give at least one term')
             return
 
         try:
             from polib import pofile, POFile
         except ImportError as e:
-            print e
-            print 'The required "polib" library seems not installed ; aborting.'
+            print(e)
+            print('The required "polib" library seems not installed ; aborting.')
             return
 
         verbosity = int(options.get('verbosity'))
 
         if verbosity >= 2:
-            print 'OK "polib" library is installed.'
+            print('OK "polib" library is installed.')
 
         language = options.get('language')
         catalog_entries = {}
@@ -85,12 +87,12 @@ class Command(BaseCommand):
                 catalog_entries[entry.msgid] = entry
         else:
             if verbosity >= 1:
-                print 'Create catalog at ', catalog_path
+                print('Create catalog at ', catalog_path)
 
             if not exists(catalog_dirpath):
                 makedirs(catalog_dirpath)
             elif not isdir(catalog_dirpath):
-                print 'Error: "%s" exists and is not a directory.' % catalog_dirpath
+                print('Error: "%s" exists and is not a directory.' % catalog_dirpath)
                 return
 
             catalog = POFile()
@@ -114,7 +116,10 @@ class Command(BaseCommand):
         entry_count = 0
 
         for app_name in settings.INSTALLED_CREME_APPS:
-            basepath = '%s/locale/%s/LC_MESSAGES/' % (app_name, language)
+            #basepath = '%s/locale/%s/LC_MESSAGES/' % (app_name, language)
+            basepath = join(app_name.replace('.', sep), #creme.creme_core => creme/creme_core
+                            'locale', language, 'LC_MESSAGES',
+                           )
 
             if exists(basepath):
                 for fname in listdir(basepath):
@@ -145,4 +150,4 @@ class Command(BaseCommand):
         catalog.save(catalog_path)
 
         if verbosity >= 1:
-            print 'Number of examinated entries:', entry_count
+            print('Number of examinated entries:', entry_count)

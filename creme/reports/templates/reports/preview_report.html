@@ -10,7 +10,7 @@
             <td class="logo"><img src="{% creme_media_url 'images/report_64.png' %}" alt="{% trans "Report" %}"/></td>
             <td class="title">
                 <h1>
-                    {% blocktrans with object|get_meta_value:"verbose_name"|title as verbose_name and object|title as title %}Preview {{verbose_name}} : {{title}}{% endblocktrans %}
+                    {% blocktrans verbose_name=object|get_meta_value:"verbose_name"|title title=object|title %}Preview {{verbose_name}} : {{title}}{% endblocktrans %}
                 </h1>
             </td>
             <td class="actions">

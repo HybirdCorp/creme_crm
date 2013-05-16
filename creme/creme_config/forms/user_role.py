@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 from itertools import izip
 
 from django.forms import CharField, ChoiceField, BooleanField, MultipleChoiceField, ModelChoiceField
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 
@@ -122,7 +122,7 @@ class AddCredentialsForm(CremeModelForm):
         super(AddCredentialsForm, self).__init__(*args, **kwargs)
         self.role = role
 
-        choices = [(0, ugettext('None'))]
+        choices = [(0, pgettext('content_type', 'None'))]
         choices += sorted_entity_models_choices()
         self.fields['ctype'].choices = choices
 

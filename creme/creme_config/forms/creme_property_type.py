@@ -28,7 +28,7 @@ from creme.creme_core.utils import Q_creme_entity_content_types
 
 
 class _CremePropertyTypeBaseForm(CremeForm):
-    text           = CharField(label=_(u'Title'), help_text=_("For example: 'is hairy'"))
+    text           = CharField(label=_(u'Text'), help_text=_("For example: 'is pretty'"))
     subject_ctypes = ModelMultipleChoiceField(label=_(u"Related to types of entities"),
                                               help_text=_(u'No selected type means that all types are accepted'),
                                               queryset=Q_creme_entity_content_types(),

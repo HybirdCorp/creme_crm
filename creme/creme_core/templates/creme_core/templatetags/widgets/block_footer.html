@@ -9,7 +9,7 @@
                         {% trans "Previous page" %}
                     </a>
                 {% endif %}
-                {% blocktrans with page.number as page_number and page.paginator.num_pages as num_pages %}Page {{page_number}} / {{num_pages}}{% endblocktrans %}
+                {% blocktrans with page_number=page.number num_pages=page.paginator.num_pages %}Page {{page_number}} / {{num_pages}}{% endblocktrans %}
                 {% if page.has_next %}
                     <a class="button_link next" onclick="creme.utils.loadBlock({% get_block_reload_uri %} + '&{{block_name}}_page={{page.next_page_number}}')">
                         {% trans "Next page" %}

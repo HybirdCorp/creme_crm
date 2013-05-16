@@ -22,7 +22,7 @@ from datetime import timedelta
 
 from django.db.models import PositiveIntegerField, CharField, BooleanField, ForeignKey, FieldDoesNotExist, Min, Max
 from django.db.models.query_utils import Q
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _, pgettext_lazy, ugettext
 from django.utils.simplejson import JSONEncoder
 
 from creme.creme_core.models import CremeEntity, RelationType, Relation, InstanceBlockConfigItem
@@ -52,13 +52,13 @@ verbose_report_graph_types = {
 
 
 class ReportGraph(CremeEntity):
-    name     = CharField(_(u'Name of the graph'), max_length=100)
+    name     = CharField(pgettext_lazy('reports-graphs', u'Name of the graph'), max_length=100)
     report   = ForeignKey(Report)
     abscissa = CharField(_(u'Abscissa axis'), max_length=100)
     ordinate = CharField(_(u'Ordinate axis'), max_length=100)
     type     = PositiveIntegerField(_(u'Type'))
     days     = PositiveIntegerField(_(u'Days'), blank=True, null=True)
-    is_count = BooleanField(_(u'Make a count instead of aggregate ?'))
+    is_count = BooleanField(_(u'Make a count instead of aggregate?'))
 
     creation_label = _("Add a report's graph")
 

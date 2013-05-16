@@ -78,10 +78,10 @@ class Populator(BasePopulator):
             rt_map[rt.id] = rt
             rt_map[sym_rt.id] = sym_rt
 
-        create_if_needed(Civility,          {'pk': 1}, title=_(u"Madam"),   shortcut=_(u"Mrs."))
-        create_if_needed(Civility,          {'pk': 2}, title=_(u"Miss"),    shortcut=_(u"Ms."))
-        mister = create_if_needed(Civility, {'pk': 3}, title=_(u"Mister"),  shortcut=_(u"Mr."))
-        create_if_needed(Civility,          {'pk': 4}, title=_(u"Unknown"), shortcut=u"")
+        create_if_needed(Civility,          {'pk': 1}, title=_(u"Madam"),  shortcut=_(u"Mrs."))
+        create_if_needed(Civility,          {'pk': 2}, title=_(u"Miss"),   shortcut=_(u"Ms."))
+        mister = create_if_needed(Civility, {'pk': 3}, title=_(u"Mister"), shortcut=_(u"Mr."))
+        create_if_needed(Civility,          {'pk': 4}, title=_(u"N/A"),    shortcut=u"")
 
         create_if_needed(Position, {'pk': 1}, title=_(u"CEO"))
         create_if_needed(Position, {'pk': 2}, title=_(u"Secretary"))
