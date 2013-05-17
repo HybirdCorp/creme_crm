@@ -40,24 +40,23 @@ def add_properties_bulk(request, ct_id):#TODO: Factorise with add_relations_bulk
     #CremeEntity.populate_credentials(entities, user)
 
     filtered = {True: [], False: []}
+    has_perm = user.has_perm_to_change
     for entity in entities:
-        filtered[entity.can_change(user)].append(entity)
+        filtered[has_perm(entity)].append(entity)
 
     if request.method == 'POST':
-        form = AddPropertiesBulkForm(model=model,
+        form = AddPropertiesBulkForm(model=model, user=user,
                                      entities=filtered[True],
                                      forbidden_entities=filtered[False],
-                                     user=request.user,
-                                     data=request.POST
+                                     data=request.POST,
                                     )
 
         if form.is_valid():
             form.save()
     else:
-        form = AddPropertiesBulkForm(model=model,
+        form = AddPropertiesBulkForm(model=model, user=user,
                                      entities=filtered[True],
                                      forbidden_entities=filtered[False],
-                                     user=request.user
                                     )
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',

@@ -179,7 +179,7 @@ class BlockViewTestCase(CremeTestCase):
         SetCredentials.objects.create(role=self.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
 
         atom = Contact.objects.create(user=self.other_user, first_name='Atom', last_name='Tenma')
-        self.assertTrue(atom.can_view(self.user))
+        self.assertTrue(self.user.has_perm_to_view(atom))
 
         class FoobarBlock(self.TestBlock):
             id_ = Block.generate_id('creme_core', 'test_reload_detailview04')
@@ -412,5 +412,5 @@ class BlockViewTestCase(CremeTestCase):
         SetCredentials.objects.create(role=self.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
 
         atom = Contact.objects.create(user=self.other_user, first_name='Atom', last_name='Tenma')
-        self.assertTrue(atom.can_view(self.user))
+        self.assertTrue(self.user.has_perm_to_view(atom))
         self.assertGET200('/creme_core/blocks/reload/relations_block/%s/' % atom.id)

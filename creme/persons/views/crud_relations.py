@@ -45,9 +45,10 @@ def _link(request, entity_id, relation_type_id):
     if not relation_type.object_ctypes.filter(id=managed_orga.entity_type_id).exists(): #TODO: in a Relation type method() ??
         raise Http404('Incompatible relation type for object') #bof bof
 
-    #CremeEntity.populate_credentials([entity, managed_orga], user) #optimisation
-    entity.can_link_or_die(user)
-    managed_orga.can_link_or_die(user)
+
+    has_perm_or_die = user.has_perm_to_link_or_die
+    has_perm_or_die(entity)
+    has_perm_or_die(managed_orga)
 
     Relation.objects.create(subject_entity=entity, type_id=relation_type_id,
                             object_entity=managed_orga, user=user,

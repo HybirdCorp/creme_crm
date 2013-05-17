@@ -45,7 +45,7 @@ def edit(request, campaign_id):
 @permission_required('sms')
 def delete(request, id):
     campaign = get_object_or_404(SMSCampaign, pk=id)
-    campaign.can_delete_or_die(request.user)
+    request.user.has_perm_to_delete_or_die(campaign)
 
     callback_url = campaign.get_lv_absolute_url()
 
@@ -73,7 +73,7 @@ def add_messaging_list(request, campaign_id):
 @permission_required('sms')
 def delete_messaging_list(request, campaign_id):
     campaign = get_object_or_404(SMSCampaign, pk=campaign_id)
-    campaign.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(campaign)
 
     campaign.lists.remove(request.POST.get('id'))
 

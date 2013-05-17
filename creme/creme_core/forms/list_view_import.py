@@ -89,8 +89,7 @@ class UploadForm(CremeForm):
             filedata = document.filedata
             filename = filedata.name
 
-            #if not self.user.has_perm('creme_core.view_entity', csv_document):
-            if not document.can_view(self.user):
+            if not self.user.has_perm_to_view(document):
                 raise ValidationError(ugettext("You have not the credentials to read this document."))
 
             pathname, extension = os.path.splitext(filename)
@@ -403,7 +402,7 @@ class RelationExtractorSelector(SelectorList):
 
         chained_input.add_dselect("rtype",       options=relation_types, attrs=attrs, label=ugettext(u"The entity"))
         chained_input.add_dselect("ctype",       options='/creme_core/relation/predicate/${rtype}/content_types/json', attrs=attrs, )
-        chained_input.add_dselect("searchfield", options='/creme_core/entity/get_info_fields/${ctype}/json', attrs=attrs, label=ugettext(u"which/whose field"))
+        chained_input.add_dselect("searchfield", options='/creme_core/entity/get_info_fields/${ctype}/json', attrs=attrs, label=ugettext(u"which field"))
         chained_input.add_dselect("column",      options=columns, attrs=attrs, label=ugettext(u"equals to"))
 
         super(RelationExtractorSelector, self).__init__(chained_input)

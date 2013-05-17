@@ -38,14 +38,16 @@ def add(request, task_id):
 @login_required
 @permission_required('projects')
 def edit(request, period_id):
-    return _edit_generic(request, WorkingPeriodForm, period_id, WorkingPeriod, _(u"Edition of a working period"))
+    return _edit_generic(request, WorkingPeriodForm, period_id, WorkingPeriod,
+                         _(u"Edition of a working period"),
+                        )
 
 @login_required
 @permission_required('projects')
 def delete(request):
     period = get_object_or_404(WorkingPeriod, pk=get_from_POST_or_404(request.POST, 'id'))
 
-    period.task.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(period.task)
     period.delete()
 
     return HttpResponse("")

@@ -42,7 +42,7 @@ def validate(request, alert_id):
     alert = get_object_or_404(Alert, pk=alert_id)
     entity = alert.creme_entity
 
-    entity.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(entity)
 
     alert.is_validated = True
     alert.save()

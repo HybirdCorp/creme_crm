@@ -50,16 +50,16 @@ def edit(request, task_id):
 @permission_required('projects')
 def edit_popup(request, task_id):
     return edit_model_with_popup(request, {'pk': task_id}, ProjectTask, TaskEditForm,
-                                 can_change=ProjectTask.can_change
-                                ) #TODO: edit_entity_with_popup ???
+                                 #can_change=ProjectTask.can_change
+                                )
 
 @login_required
 @permission_required('projects')
 def add_parent(request, task_id):
     #return edit_entity(request, task_id, ProjectTask, TaskAddParentForm)
     return edit_model_with_popup(request, {'pk': task_id}, ProjectTask, TaskAddParentForm,
-                                 can_change=ProjectTask.can_change
-                                ) #TODO: edit_entity_with_popup ???
+                                 #can_change=ProjectTask.can_change
+                                )
 
 @login_required
 @permission_required('projects')
@@ -68,8 +68,8 @@ def delete(request):
     project = task.project
     user = request.user
 
-    project.can_change_or_die(user)
-    task.can_delete_or_die(user)
+    user.has_perm_to_change_or_die(project)
+    user.has_perm_to_delete_or_die(task)
 
     task.delete()
 
@@ -87,7 +87,7 @@ def delete_parent(request):
     user = request.user
 
     #task.project.can_change_or_die(user) #beware: modify block_tasks.html template if uncommented....
-    task.can_change_or_die(user)
+    user.has_perm_to_change_or_die(task)
 
     task.parent_tasks.remove(parent_id)
 

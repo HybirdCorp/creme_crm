@@ -219,8 +219,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         orga01 = create_orga(user=self.other_user, name='Genshiken')
         orga02 = create_orga(user=self.user,       name='Manga club')
 
-        self.assertFalse(orga01.can_change(self.user)) # <== user cannot change
-        self.assertTrue(orga02.can_change(self.user))
+        self.assertFalse(self.user.has_perm_to_change(orga01)) # <== user cannot change
+        self.assertTrue(self.user.has_perm_to_change(orga02))
 
         response = self.client.post(self.build_url(Organisation), follow=True,
                                     data={'actions': self.format_str1 % {

@@ -51,8 +51,9 @@ def delete_participant(request):
     subject  = relation.subject_entity
     user     = request.user
 
-    subject.can_unlink_or_die(user)
-    relation.object_entity.can_unlink_or_die(user)
+    has_perm = user.has_perm_to_unlink_or_die
+    has_perm(subject)
+    has_perm(relation.object_entity)
 
     relation.delete()
 
@@ -77,11 +78,10 @@ def unlink_activity(request):
     if len(entities) != 2:
         raise Http404(_('One entity does not exist any more.'))
 
-    user = request.user
-    #CremeEntity.populate_credentials(entities, user)
+    has_perm = request.user.has_perm_to_unlink_or_die
 
     for entity in entities:
-        entity.can_unlink_or_die(user)
+        has_perm(entity)
 
     types = (REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
     for relation in Relation.objects.filter(subject_entity=entity_id, 

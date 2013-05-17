@@ -25,7 +25,6 @@ LINK_PERM   = 'creme_core.link_entity'
 UNLINK_PERM = 'creme_core.unlink_entity'
 
 
-#TODO: move to auth/
 class EntityCredentials(object):
     NONE   =  0
     #ADD    =  1 #0b000001   #useless...

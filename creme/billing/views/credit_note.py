@@ -47,7 +47,8 @@ def edit(request, credit_note_id):
 def edit_comment(request, credit_note_id):
     return edit_model_with_popup(request, {'pk': credit_note_id},
                                  CreditNote, CreditNotePopupEditForm,
-                                 can_change=CreditNote.can_change)
+                                 #can_change=CreditNote.can_change,
+                                )
 
 @login_required
 @permission_required('billing')
@@ -70,12 +71,15 @@ def add_related_credit_note(request, base_id):
 @login_required
 @permission_required('billing')
 def delete_related_credit_note(request, credit_note_id, base_id):
-    relation = get_object_or_404(Relation, subject_entity=base_id, object_entity=credit_note_id, type=REL_OBJ_CREDIT_NOTE_APPLIED)
+    relation = get_object_or_404(Relation, subject_entity=base_id,
+                                 object_entity=credit_note_id,
+                                 type=REL_OBJ_CREDIT_NOTE_APPLIED,
+                                )
     subject  = relation.subject_entity
-    user = request.user
 
-    subject.can_unlink_or_die(user)
-    relation.object_entity.can_unlink_or_die(user)
+    has_perm = request.user.has_perm_to_unlink_or_die
+    has_perm(subject)
+    has_perm(relation.object_entity)
 
     relation.get_real_entity().delete()
 

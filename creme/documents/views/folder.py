@@ -63,7 +63,7 @@ def listview(request):
             pass
         else:
             folder = get_object_or_404(Folder, pk=parent_id)
-            folder.can_view_or_die(request.user)
+            request.user.has_perm_to_view_or_die(folder)
             extra_q = Q(parent_folder=folder)
             previous_id = folder.parent_folder_id
 
@@ -73,12 +73,15 @@ def listview(request):
             parents.insert(0, folder)
             parents.reverse()
             template_dict['list_title'] = _(u"List sub-folders of %s") % folder
-            template_dict['list_sub_title'] = u" > ".join([f.title for f in parents])
+            template_dict['list_sub_title'] = u" > ".join(f.title for f in parents)
 
     return list_view(request, Folder, extra_q=extra_q,
-                     extra_dict={'add_url': '/documents/folder/add', 'parent_id': parent_id or "",
-                                 'extra_bt_templates':('documents/frags/previous.html', ),
-                                 'previous_id': previous_id},
-                     post_process=post_process)
+                     extra_dict={'add_url': '/documents/folder/add',
+                                 'parent_id': parent_id or "",
+                                 'extra_bt_templates': ('documents/frags/previous.html', ),
+                                 'previous_id': previous_id,
+                                },
+                     post_process=post_process,
+                    )
 
 

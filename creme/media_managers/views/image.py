@@ -99,5 +99,5 @@ def select_image_tiny_mce(request):
 @permission_required('media_managers')
 def get_url(request, image_id):
     image = get_object_or_404(Image, pk=image_id)
-    image.can_view_or_die(request.user)
+    request.user.has_perm_to_view_or_die(image)
     return {'url': image.get_image_url()}

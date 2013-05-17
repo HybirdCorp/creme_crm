@@ -22,7 +22,9 @@ from django.core.exceptions import ValidationError
 from django.forms.fields import CharField
 from django.utils.translation import ugettext_lazy as _, ugettext
 
+from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.forms import CremeModelWithUserForm
+from creme.creme_core.forms.validators import validate_linkable_model
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.models import Relation
 
@@ -43,8 +45,8 @@ class ContactQuickForm(CremeModelWithUserForm): #not CremeEntityForm to ignore c
         super(ContactQuickForm, self).__init__(*args, **kwargs)
 
         has_perm = self.user.has_perm_to_link
-        c_link_perm = has_perm(model=Contact, owned=True)
-        o_link_perm = has_perm(model=Organisation, owned=True)
+        c_link_perm = has_perm(Contact, owner=None)
+        o_link_perm = has_perm(Organisation, owner=None)
 
         self.has_perm_to_link = link_perm = (c_link_perm and o_link_perm)
 
@@ -65,17 +67,44 @@ class ContactQuickForm(CremeModelWithUserForm): #not CremeEntityForm to ignore c
 
         if self.has_perm_to_link:
             if orga_name:
-                try:
-                    orga = Organisation.objects.get(name=orga_name)
-                except Organisation.DoesNotExist:
+                orgas = self._get_organisations(orga_name)
+
+                if not orgas:
                     if not self.can_create():
                         raise ValidationError(ugettext(u'You are not allowed to create an Organisation.'))
 
                     orga = None
+                else:
+                    has_perm = self.user.has_perm_to_link
+                    linkable_orgas = [o for o in orgas if has_perm(o)]
+
+                    if not linkable_orgas:
+                        raise ValidationError(ugettext(u'No linkable Organisation found.'))
+
+                    if len(linkable_orgas) > 1:
+                        raise ValidationError(ugettext(u'Several Organisations with this name have been found.'))
+
+                    orga = linkable_orgas[0]
 
                 self.retrieved_orga = orga
 
         return orga_name
+
+    def clean(self):
+        cdata = self.cleaned_data
+
+        if not self._errors and cdata['organisation']:
+            owner = cdata['user']
+
+            validate_linkable_model(Contact, self.user, owner)
+
+            if self.has_perm_to_link and not self.retrieved_orga:
+                validate_linkable_model(Organisation, self.user, owner)
+
+        return cdata
+
+    def _get_organisations(self, orga_name):
+        return EntityCredentials.filter(self.user, Organisation.objects.filter(name=orga_name))
 
     def save(self):
         contact = super(ContactQuickForm, self).save()
@@ -88,7 +117,10 @@ class ContactQuickForm(CremeModelWithUserForm): #not CremeEntityForm to ignore c
 
                 if orga is None:
                     #NB: we retry to get, because in an Formset, another Form can create the orga in its save()
-                    orga = Organisation.objects.get_or_create(name=orga_name, defaults={'user': contact.user})[0]
+                    orga = self._get_organisations(orga_name) \
+                               .get_or_create(name=orga_name,
+                                              defaults={'user': contact.user},
+                                             )[0]
 
                 Relation.objects.create(subject_entity=contact,
                                         type_id=REL_SUB_EMPLOYED_BY,

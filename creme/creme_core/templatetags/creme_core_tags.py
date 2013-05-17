@@ -297,11 +297,11 @@ def _can_export(model_or_ct, user):
 _PERMS_FUNCS = {
         'create': _can_create,
         'export': _can_export,
-        'view':   lambda entity, user: entity.can_view(user),
-        'change': lambda entity, user: entity.can_change(user),
-        'delete': lambda entity, user: entity.can_delete(user),
-        'link':   lambda entity, user: entity.can_link(user),
-        'unlink': lambda entity, user: entity.can_unlink(user),
+        'view':   lambda entity, user: user.has_perm_to_view(entity),
+        'change': lambda entity, user: user.has_perm_to_change(entity),
+        'delete': lambda entity, user: user.has_perm_to_delete(entity),
+        'link':   lambda entity_or_model, user: user.has_perm_to_link(entity_or_model),
+        'unlink': lambda entity, user: user.has_perm_to_unlink(entity),
     }
 
 @register.tag(name="has_perm_to")
@@ -309,9 +309,10 @@ def do_has_perm_to(parser, token):
     """{% has_perm_to TYPE OBJECT as VAR %}
     eg: {% has_perm_to change action.creme_entity as has_perm %}
 
-    TYPE: in ('create', 'view','change', 'delete', 'link', 'unlink')
-    OBJECT: must be a CremeEntity, for ('view','change', 'delete', 'link', 'unlink') types
-            and a class inheriting from CremeEntity OR a ContentType instance for 'create' type.
+    TYPE: miust be in ('create', 'view','change', 'delete', 'link', 'unlink', 'create', 'export')
+    OBJECT: * TYPE in ('view','change', 'delete', 'unlink') => must be a CremeEntity.
+            * TYPE='link' => can be a CremeEntity instance or a class inheriting from CremeEntity.
+            * TYPE in ('create', 'export') and a class inheriting from CremeEntity OR a ContentType instance.
     """
     try:
         # Splitting by None == splitting by spaces.

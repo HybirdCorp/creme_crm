@@ -63,7 +63,7 @@ def delete_attachment(request, template_id):
     attachment_id = get_from_POST_or_404(request.POST, 'id')
     template = get_object_or_404(EmailTemplate, pk=template_id)
 
-    template.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(template)
 
     template.attachments.remove(attachment_id)
 

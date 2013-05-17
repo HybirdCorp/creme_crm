@@ -108,7 +108,7 @@ def _add_subpattern_component(request, component_id, form_class, title):
     related_comp = get_object_or_404(ActObjectivePatternComponent, pk=component_id)
     user = request.user
 
-    related_comp.pattern.can_change_or_die(user)
+    user.has_perm_to_change_or_die(related_comp.pattern)
 
     if request.method == 'POST':
         form = form_class(related_comp, user=user, data=request.POST)
@@ -150,7 +150,7 @@ def edit_objective(request, objective_id):
 @permission_required('commercial')
 def incr_objective_counter(request, objective_id): #TODO: test if relation Objective ???
     objective = get_object_or_404(ActObjective, pk=objective_id)
-    objective.act.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(objective.act)
 
     objective.counter += get_from_POST_or_404(request.POST, 'diff', int)
     objective.save()

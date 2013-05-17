@@ -64,7 +64,7 @@ def vcf_import(request):
 @permission_required('persons')
 def vcf_export(request, contact_id):
     person = get_object_or_404(Contact, pk=contact_id)
-    person.can_view_or_die(request.user)
+    request.user.has_perm_to_view_or_die(person)
 
     vc = VcfGenerator(person).serialize()
 

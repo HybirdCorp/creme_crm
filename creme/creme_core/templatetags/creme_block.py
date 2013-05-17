@@ -364,7 +364,7 @@ class RegularFieldEditorNode(TemplateNode):
 
         context['object']    = object
         context['ct_id']     = ContentType.objects.get_for_model(object).pk
-        context['edit_perm'] = owner.can_change(context['user'])
+        context['edit_perm'] = context['user'].has_perm_to_change(owner)
 
         self._update_context(context, field, object)
 

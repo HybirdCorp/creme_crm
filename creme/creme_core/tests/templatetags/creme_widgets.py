@@ -39,7 +39,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
 
         user = self.user
         orga = Organisation.objects.create(user=self.other_user, name='NERV')
-        self.assertFalse(orga.can_view(user))
+        self.assertFalse(user.has_perm_to_view(orga))
 
         with self.assertNoException():
             tpl = Template(r'{% load creme_widgets %}{% widget_entity_hyperlink orga user %}')

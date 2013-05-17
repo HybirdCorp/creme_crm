@@ -139,7 +139,7 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(role,     user.role)
         self.assertEqual(ce_count, CremeEntity.objects.count())
 
-        self.assertTrue(orga.can_view(user))
+        self.assertTrue(user.has_perm_to_view(orga))
 
         contact = self.refresh(contact)
         self.assertEqual(user, contact.is_user)
@@ -240,7 +240,7 @@ class UserTestCase(CremeTestCase):
         other_user = User.objects.create(username='deunan', role=role1)
 
         briareos = Contact.objects.create(user=self.user, first_name='Briareos', last_name='Hecatonchires')
-        self.assertTrue(briareos.can_view(other_user))
+        self.assertTrue(other_user.has_perm_to_view(briareos))
 
         url = '/creme_config/user/edit/%s' % other_user.id
         self.assertGET200(url)
@@ -265,7 +265,7 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(role2,      other_user.role)
 
         briareos = self.refresh(briareos) #refresh cache
-        self.assertFalse(briareos.can_view(other_user))
+        self.assertFalse(other_user.has_perm_to_view(briareos))
 
     def test_edit02(self): #can not edit a team with the user edit view
         self.login()
@@ -289,7 +289,7 @@ class UserTestCase(CremeTestCase):
         other_user = User.objects.create(username='deunan', role=role1)
 
         briareos = Contact.objects.create(user=self.user, first_name='Briareos', last_name='Hecatonchires')
-        self.assertTrue(briareos.can_view(other_user))
+        self.assertTrue(other_user.has_perm_to_view(briareos))
 
         url = '/creme_config/user/edit/%s' % other_user.id
         self.assertGETRedirectsToLogin(url)
@@ -408,9 +408,9 @@ class UserTestCase(CremeTestCase):
         team = self._create_team(teamname, [user01, user02])
 
         entity = CremeEntity.objects.create(user=team)
-        self.assertTrue(entity.can_view(user01))
-        self.assertTrue(entity.can_view(user02))
-        self.assertFalse(entity.can_view(user03))
+        self.assertTrue(user01.has_perm_to_view(entity))
+        self.assertTrue(user02.has_perm_to_view(entity))
+        self.assertFalse(user03.has_perm_to_view(entity))
 
         url = '/creme_config/team/edit/%s' % team.id
         self.assertGET200(url)
@@ -434,9 +434,9 @@ class UserTestCase(CremeTestCase):
 
         #credentials have been updated ?
         entity = CremeEntity.objects.get(pk=entity.id)
-        self.assertFalse(entity.can_view(self.refresh(user01)))
-        self.assertTrue(entity.can_view(self.refresh(user02)))
-        self.assertTrue(entity.can_view(self.refresh(user03)))
+        self.assertFalse(self.refresh(user01).has_perm_to_view(entity))
+        self.assertTrue(self.refresh(user02).has_perm_to_view(entity))
+        self.assertTrue(self.refresh(user03).has_perm_to_view(entity))
 
     def test_team_edit02(self):
         self.login_not_as_superuser()

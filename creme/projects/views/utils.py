@@ -39,7 +39,7 @@ def _add_generic(request, form, task_id, title):
     task = get_object_or_404(ProjectTask, pk=task_id)
     user = request.user
 
-    task.can_change_or_die(user)
+    user.has_perm_to_change_or_die(task)
 
     if not task.is_alive():
         state = task.tstatus.name
@@ -69,7 +69,7 @@ def _edit_generic(request, form, obj_id, model, title):
     task = obj.task
     user = request.user
 
-    task.can_change_or_die(user)
+    user.has_perm_to_change_or_die(task)
 
     if request.method == 'POST':
         form_obj = form(task, user=user, data=request.POST, instance=obj)

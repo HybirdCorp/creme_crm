@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 ################################################################################
 
 from datetime import datetime
+from functools import partial
 
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
@@ -57,7 +58,10 @@ def add_to(request, ce_id, inner_popup=False):
     centity = get_object_or_404(CremeEntity, pk=ce_id).get_real_entity()
     user = request.user
 
-    centity.can_link_or_die(user) #TODO: test the link creds with the future opp in the form.clean()
+    user.has_perm_to_link_or_die(centity)
+    # We don't need the link credentials with future Opportunity because
+    # Target/emitter relationships are internal (they are mandatory
+    # and can be seen as ForeignKeys).
 
     initial = {'target': '{"ctype":"%s","entity":"%s"}' % (centity.entity_type_id, centity.id), #TODO: This is not an easy way to init the field...
                'sales_phase': get_first_or_None(SalesPhase),
@@ -65,9 +69,10 @@ def add_to(request, ce_id, inner_popup=False):
 
     if inner_popup:
         response = add_model_with_popup(request, OpportunityCreateForm,
-                                    title=_(u'New opportunity related to <%s>') % centity.allowed_unicode(user),
-                                    initial=initial,
-                                   )
+                                        title=_(u'New opportunity related to <%s>') %
+                                                    centity.allowed_unicode(user),
+                                        initial=initial,
+                                       )
     else:
         response = add_entity(request, OpportunityCreateForm, extra_initial=initial)
 
@@ -90,23 +95,16 @@ def detailview(request, opp_id):
 def listview(request):
     return list_view(request, Opportunity, extra_dict={'add_url': '/opportunities/opportunity/add'})
 
-_RELATIONS_DICT = {
-            Quote:      REL_OBJ_LINKED_QUOTE,
-            Invoice:    REL_OBJ_LINKED_INVOICE,
-            SalesOrder: REL_OBJ_LINKED_SALESORDER,
-        }
 
-_CURRENT_DOC_DICT = {
-            Quote:      True,
-            Invoice:    False,
-            SalesOrder: False
-        }
-
-_WORKFLOW_DICT = {
-            Quote:      transform_target_into_prospect,
-            Invoice:    transform_target_into_customer,
-            SalesOrder: None
-        }
+_GEN_BEHAVIOURS = {
+    #Value is (Relation type ID between the new doc & the opportunity,
+    #          Set the Relationship 'Current doc' ?,
+    #          Workflow function,
+    #         )
+    Quote:      (REL_SUB_LINKED_QUOTE,      True,  transform_target_into_prospect),
+    Invoice:    (REL_SUB_LINKED_INVOICE,    False, transform_target_into_customer),
+    SalesOrder: (REL_SUB_LINKED_SALESORDER, False, None),
+}
 
 @login_required
 @permission_required('opportunities')
@@ -115,31 +113,37 @@ def generate_new_doc(request, opp_id, ct_id):
         raise Http404('This view accepts only POST method')
 
     ct_doc = get_ct_or_404(ct_id)
-    opp    = get_object_or_404(Opportunity, id=opp_id)
-    user   = request.user
-
-    opp.can_link_or_die(user)
-
-    #TODO: link credentials on the future doc too....
-
     klass = ct_doc.model_class()
 
-    user.has_perm_to_create_or_die(klass)
+    try:
+        rtype_id, set_as_current, workflow_action = _GEN_BEHAVIOURS[klass]
+    except KeyError:
+        raise Http404('Bad billing document type')
 
-    document = klass.objects.create(user=user, issuing_date=datetime.now(), status_id=1, currency=opp.currency,
+    user = request.user
+    user.has_perm_to_create_or_die(klass)
+    user.has_perm_to_link_or_die(klass, owner=user) #TODO: check in template too (must upgrade 'has_perm' to use owner!=None)
+
+    opp = get_object_or_404(Opportunity, id=opp_id)
+    user.has_perm_to_link_or_die(opp)
+
+    document = klass.objects.create(user=user, issuing_date=datetime.now(),
+                                    status_id=1, currency=opp.currency,
                                     comment=_(u"Generated from the opportunity «%s»") % opp
                                    )
 
-    create_relation = Relation.objects.create
-    create_relation(subject_entity=document, type_id=REL_SUB_BILL_ISSUED,    object_entity=opp.get_source(), user=user)
-    create_relation(subject_entity=document, type_id=REL_SUB_BILL_RECEIVED,  object_entity=opp.get_target(), user=user)
-    create_relation(subject_entity=opp,      type_id=_RELATIONS_DICT[klass], object_entity=document,         user=user)
+    create_relation = partial(Relation.objects.create, subject_entity=document, user=user)
+    create_relation(type_id=REL_SUB_BILL_ISSUED,   object_entity=opp.get_source())
+    create_relation(type_id=REL_SUB_BILL_RECEIVED, object_entity=opp.get_target())
+    create_relation(type_id=rtype_id,              object_entity=opp)
 
     document.generate_number() #Need the relation with emitter orga
     document.name = u'%s(%s)' % (document.number, opp.name)
     document.save()
 
-    relations = Relation.objects.filter(subject_entity=opp, type__in=[REL_OBJ_LINKED_PRODUCT, REL_OBJ_LINKED_SERVICE]).select_related('object_entity')
+    relations = Relation.objects.filter(subject_entity=opp.id,
+                                        type__in=[REL_OBJ_LINKED_PRODUCT, REL_OBJ_LINKED_SERVICE],
+                                       ).select_related('object_entity')
     Relation.populate_real_object_entities(relations)
 
     for relation in relations:
@@ -149,15 +153,18 @@ def generate_new_doc(request, opp_id, ct_id):
                                   related_document=document,
                                   unit_price=item.unit_price,
                                   unit=item.unit,
-                                  vat_value=Vat.get_default_vat())
+                                  vat_value=Vat.get_default_vat(), #TODO: cache ?
+                                 )
 
-    for relation in Relation.objects.filter(object_entity=opp.id, type=REL_SUB_CURRENT_DOC, subject_entity__entity_type=ct_doc):
+    for relation in Relation.objects.filter(object_entity=opp.id,
+                                            type=REL_SUB_CURRENT_DOC,
+                                            subject_entity__entity_type=ct_doc,
+                                           ):
         relation.delete()
 
-    if _CURRENT_DOC_DICT[klass]:
-        create_relation(subject_entity=document, type_id=REL_SUB_CURRENT_DOC, object_entity=opp, user=user)
+    if set_as_current:
+        create_relation(type_id=REL_SUB_CURRENT_DOC, object_entity=opp)
 
-    workflow_action = _WORKFLOW_DICT[klass]
     if workflow_action:
         workflow_action(opp.get_source(), opp.get_target(), user)
 

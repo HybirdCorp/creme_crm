@@ -111,7 +111,7 @@ class ConvertTestCase(_BillingTestCase, CremeTestCase):
                                      expiration_date=datetime.now() + timedelta(days=10),
                                      status=QuoteStatus.objects.all()[0],
                                      )
-        self.assertFalse(quote.can_view(self.user))
+        self.assertFalse(self.user.has_perm_to_view(quote))
 
         self._convert(403, quote, 'invoice')
         self.assertFalse(Invoice.objects.exists())

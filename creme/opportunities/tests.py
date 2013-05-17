@@ -229,7 +229,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.login(is_superuser=False, allowed_apps=['opportunities'], creatable_models=[Opportunity])
 
         SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
+                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
                                             EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
                                       set_type=SetCredentials.ESET_OWN
                                      )
@@ -341,7 +341,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.login(is_superuser=False, allowed_apps=['opportunities'], creatable_models=[Opportunity])
 
         SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
+                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
                                             EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
                                       set_type=SetCredentials.ESET_OWN
                                      )
@@ -420,10 +420,12 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
     def test_add_to_contact03(self):
         "User can not link to the Contact target"
-        self.login(is_superuser=False, allowed_apps=['opportunities'], creatable_models=[Opportunity])
+        self.login(is_superuser=False, allowed_apps=['persons', 'opportunities'],
+                   creatable_models=[Opportunity],
+                  )
 
         SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
+                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
                                             EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
                                       set_type=SetCredentials.ESET_OWN
                                      )
@@ -435,8 +437,9 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         "Target is not a Contact/Organisation"
         self.login()
 
-        target  = CremeEntity.objects.create(user=self.user)
-        emitter = Organisation.objects.create(user=self.user, name='My society')
+        user = self.user
+        target  = CremeEntity.objects.create(user=user)
+        emitter = Organisation.objects.create(user=user, name='My society')
         opportunity_count = Opportunity.objects.count()
 
         CremeProperty.objects.create(type_id=PROP_IS_MANAGED_BY_CREME, creme_entity=emitter)
@@ -444,7 +447,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         url = self.ADDTO_URL % target.id
         self.assertGET200(url) #TODO: is it normal ??
 
-        response = self.client.post(url, data={'user':         self.user.pk,
+        response = self.client.post(url, data={'user':         user.pk,
                                                'name':         'Opp #1',
                                                'sales_phase':  SalesPhase.objects.all()[0].id,
                                                'closing_date': '2011-03-12',
@@ -519,9 +522,10 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertRelationCount(1, target, REL_OBJ_TARGETS, opportunity)
         self.assertRelationCount(1, target, REL_OBJ_TARGETS, cloned) #<== internal
 
-    def _build_gendoc_url(self, opportunity, ct):
+    def _build_gendoc_url(self, opportunity, model=Quote):
         return '/opportunities/opportunity/generate_new_doc/%s/%s' % (
-                        opportunity.id, ct.id
+                        opportunity.id,
+                        ContentType.objects.get_for_model(model).id,
                     )
 
     def test_generate_new_doc01(self):
@@ -530,7 +534,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(0, Quote.objects.count())
 
         opportunity, target, emitter = self._create_opportunity_n_organisations()
-        url = self._build_gendoc_url(opportunity, ContentType.objects.get_for_model(Quote))
+        url = self._build_gendoc_url(opportunity)
 
         self.assertGET404(url)
         self.assertPOST200(url, follow=True)
@@ -553,7 +557,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.login()
 
         opportunity, target, emitter = self._create_opportunity_n_organisations()
-        url = self._build_gendoc_url(opportunity, ContentType.objects.get_for_model(Quote))
+        url = self._build_gendoc_url(opportunity)
 
         self.client.post(url)
         quote1 = Quote.objects.all()[0]
@@ -575,13 +579,11 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertRelationCount(1, target, REL_SUB_PROSPECT, emitter)
 
-    #def test_opportunity_generate_new_doc03(self): #TODO test with credentials problems
-
-    def test_generate_new_doc04(self):
+    def test_generate_new_doc03(self):
         self.login()
 
         opportunity, target, emitter = self._create_opportunity_n_organisations()
-        url = self._build_gendoc_url(opportunity, ContentType.objects.get_for_model(Invoice))
+        url = self._build_gendoc_url(opportunity, Invoice)
 
         self.client.post(url)
         invoice1 = Invoice.objects.all()[0]
@@ -601,6 +603,44 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertRelationCount(1, target, REL_SUB_CUSTOMER_SUPPLIER, emitter)
 
+    def test_generate_new_doc_error01(self):
+        "Invalid target type"
+        self.login()
+
+        contact_count = Contact.objects.count()
+
+        opportunity = self._create_opportunity_n_organisations()[0]
+        self.assertPOST404(self._build_gendoc_url(opportunity, Contact))
+        self.assertEqual(contact_count, Contact.objects.count()) #no Contact created
+
+    def test_generate_new_doc_error02(self):
+        "Credentials problems"
+        self.login(is_superuser=False, allowed_apps=['billing', 'opportunities'],
+                   creatable_models=[Opportunity], #Not Quote
+                  )
+
+        opportunity = self._create_opportunity_n_organisations()[0]
+        url = self._build_gendoc_url(opportunity)
+        self.assertPOST403(url)
+
+        role = self.role
+        get_ct = ContentType.objects.get_for_model
+        quote_ct = get_ct(Quote)
+        role.creatable_ctypes.add(quote_ct)
+        self.assertPOST403(url)
+
+        create_sc = partial(SetCredentials.objects.create, role=role,
+                            set_type=SetCredentials.ESET_ALL,
+                           )
+        create_sc(value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE)
+        self.assertPOST403(url)
+
+        create_sc(value=EntityCredentials.LINK, ctype=get_ct(Opportunity))
+        self.assertPOST403(url)
+
+        create_sc(value=EntityCredentials.LINK, ctype=quote_ct)
+        self.assertPOST200(url, follow=True)
+
     def _build_setcurrentquote_url(self, opportunity, quote):
         return '/opportunities/opportunity/%s/linked/quote/%s/set_current/' % (
                     opportunity.id, quote.id
@@ -610,7 +650,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.login()
 
         opportunity, target, emitter = self._create_opportunity_n_organisations()
-        gendoc_url = self._build_gendoc_url(opportunity, ContentType.objects.get_for_model(Quote))
+        gendoc_url = self._build_gendoc_url(opportunity)
 
         self.client.post(gendoc_url)
         quote1 = Quote.objects.all()[0]
@@ -642,7 +682,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.login()
 
         opportunity = self._create_opportunity_n_organisations()[0]
-        url = self._build_gendoc_url(opportunity, ContentType.objects.get_for_model(Quote))
+        url = self._build_gendoc_url(opportunity)
 
         opportunity.estimated_sales = Decimal('1000')
         opportunity.save()
@@ -678,7 +718,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         opportunity.estimated_sales = estimated_sales
         opportunity.save()
 
-        self.client.post(self._build_gendoc_url(opportunity, ContentType.objects.get_for_model(Quote)))
+        self.client.post(self._build_gendoc_url(opportunity))
         quote1 = Quote.objects.all()[0]
         ServiceLine.objects.create(user=self.user, related_document=quote1,
                                    on_the_fly_item='Foobar', unit_price=Decimal("300")
@@ -695,7 +735,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self._set_quote_config(True)
 
         opportunity = self._create_opportunity_n_organisations()[0]
-        self.client.post(self._build_gendoc_url(opportunity, ContentType.objects.get_for_model(Quote)))
+        self.client.post(self._build_gendoc_url(opportunity))
 
         quote = Quote.objects.all()[0]
         self.assertEqual(self.refresh(opportunity).estimated_sales, quote.total_no_vat)
@@ -737,7 +777,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                          target=create_orga(name='Target renegade'),
                                         )
         self.assertPOST404('/creme_config/creme_core/currency/delete', data={'id': currency.pk})
-        self.assertTrue(Currency.objects.filter(pk=currency.pk).exists())
+        self.get_object_or_fail(Currency, pk=currency.pk)
 
         opp = self.get_object_or_fail(Opportunity, pk=opp.pk)
         self.assertEqual(currency, opp.currency)
@@ -972,7 +1012,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(200, response.status_code)
         self.assertFormError(response, 'form', 'sales_phase', [_('This field is required.')])
 
-    def test_csv_import04(self): #creation of Organisation/Contact is not wanted
+    def test_csv_import04(self):
+        "Creation of Organisation/Contact is not wanted"
         self.login()
 
         count = Opportunity.objects.count()

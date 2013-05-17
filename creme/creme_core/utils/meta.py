@@ -214,8 +214,7 @@ def get_fk_entity(entity, column_name, get_value=False, user=None):
     if get_value:
         fk = getattr(entity, fk_column)
 
-        has_to_check_view_perms = issubclass(fk.__class__, CremeEntity) and user is not None
-        if has_to_check_view_perms and not fk.can_view(user):
+        if isinstance(fk, CremeEntity) and user is not None and not user.has_perm_to_view(fk):
             return settings.HIDDEN_VALUE
 
         return getattr(fk, '__'.join(rest))
@@ -250,7 +249,7 @@ def get_m2m_entities(entity, column_name, get_value=False, q_filter=None, get_va
             HIDDEN_VALUE = settings.HIDDEN_VALUE
 
             for m in m2m_entities:
-                if m.can_view(user):
+                if user.has_perm_to_view(m):
                     attr = getattr(m, rest, u"")
                     if attr is None:
                         attr = u""

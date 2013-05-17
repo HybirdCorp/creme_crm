@@ -96,7 +96,7 @@ class ProjectsTestCase(CremeTestCase):
                  )
 
         manager = Contact.objects.create(user=self.user, first_name='Gendo', last_name='Ikari')
-        self.assertFalse(manager.can_link(self.user))
+        self.assertFalse(self.user.has_perm_to_link(manager))
 
         response = self.assertPOST200(self.ADD_PROJECT_URL, follow=True,
                                       data={'user':         self.user.pk,

@@ -27,6 +27,11 @@ __all__ = ('ContactTestCase',)
 
 class ContactTestCase(_BaseTestCase):
     ADD_URL = '/persons/contact/add'
+    ADD_RELATED_URL = "/persons/contact/add_with_relation/%(orga_id)s/%(rtype_id)s?callback_url=%(url)s"
+
+    #TODO: in creme_core ??
+    def _build_delete_url(self, entity):
+        return '/creme_core/entity/delete/%s' % entity.id
 
     def _build_edit_url(self, contact):
         return '/persons/contact/edit/%s' % contact.id
@@ -169,11 +174,10 @@ class ContactTestCase(_BaseTestCase):
 
         orga = Organisation.objects.create(user=self.user, name='Acme')
         redir = orga.get_absolute_url()
-        uri = "/persons/contact/add_with_relation/%(orga_id)s/%(rtype_id)s?callback_url=%(url)s" % {
-                    'orga_id':  orga.id,
-                    'rtype_id': REL_OBJ_EMPLOYED_BY,
-                    'url':      redir,
-                }
+        uri = self.ADD_RELATED_URL % {'orga_id':  orga.id,
+                                      'rtype_id': REL_OBJ_EMPLOYED_BY,
+                                      'url':      redir,
+                                     }
         self.assertGET200(uri)
 
         first_name = 'Bugs'
@@ -197,29 +201,49 @@ class ContactTestCase(_BaseTestCase):
         "No LINK credentials"
         self.login(is_superuser=False, creatable_models=[Contact])
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
-                                            EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
-                                      set_type=SetCredentials.ESET_OWN
-                                     )
+        create_sc = partial(SetCredentials.objects.create, role=self.role,
+                            set_type=SetCredentials.ESET_OWN,
+                           )
+        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                        EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
+                 )
 
         orga = Organisation.objects.create(user=self.user, name='Acme')
-        self.assertTrue(orga.can_view(self.user))
-        self.assertFalse(orga.can_link(self.user))
+        self.assertTrue(self.user.has_perm_to_view(orga))
+        self.assertFalse(self.user.has_perm_to_link(orga))
 
-        response = self.client.get("/persons/contact/add_with_relation/%(orga_id)s/%(rtype_id)s?callback_url=%(url)s" % {
-                                        'orga_id':  orga.id,
-                                        'rtype_id': REL_OBJ_EMPLOYED_BY,
-                                        'url':      orga.get_absolute_url(),
-                                    })
-        self.assertTrue(response.context) #no context if redirect to creme_login...
-        self.assertEqual(403, response.status_code)
+        uri = self.ADD_RELATED_URL % {'orga_id':  orga.id,
+                                      'rtype_id': REL_OBJ_EMPLOYED_BY,
+                                      'url':      orga.get_absolute_url(),
+                                     }
+        self.assertGET403(uri)
+
+        get_ct = ContentType.objects.get_for_model
+        create_sc(value=EntityCredentials.LINK, ctype=get_ct(Organisation))
+        self.assertGET403(uri)
+
+        create_sc(value=EntityCredentials.LINK, ctype=get_ct(Contact))
+        self.assertGET200(uri)
+
+        response = self.assertPOST200(uri, follow=True,
+                                      data={'orga_overview': 'dontcare',
+                                            'relation':      'dontcare',
+                                            'user':          self.other_user.pk,
+                                            'first_name':    'Bugs',
+                                            'last_name':     'Bunny',
+                                           }
+                                     )
+        self.assertFormError(response, 'form', 'user',
+                             [_(u'You are not allowed to link with the «%s» of this user.') % 
+                                _(u'Contacts')
+                             ]
+                            )
 
     def test_create_linked_contact03(self):
         self.login()
 
         orga = Organisation.objects.create(user=self.user, name='Acme')
-        url = "/persons/contact/add_with_relation/%(orga_id)s/%(rtype_id)s?callback_url=%(url)s"
+        url = self.ADD_RELATED_URL
 
         self.assertGET404(url % {'orga_id':  1024, #doesn't exist
                                  'rtype_id': REL_OBJ_EMPLOYED_BY,
@@ -232,7 +256,6 @@ class ContactTestCase(_BaseTestCase):
                                 }
                         )
 
-    #TODO: test relation's object creds
     #TODO: test bad rtype (doesn't exist, constraints) => fixed list of types ??
 
     def test_clone(self):
@@ -284,10 +307,6 @@ class ContactTestCase(_BaseTestCase):
             self.assertIsNotNone(address2, ident)
             self.assertAddressOnlyContentEqual(address, address2)
 
-    #TODO: factorise ??
-    def _build_delete_url(self, entity):
-        return '/creme_core/entity/delete/%s' % entity.id
-
     def test_delete01(self):
         self.login()
         naruto = Contact.objects.create(user=self.user, first_name='Naruto', last_name='Uzumaki')
@@ -325,6 +344,7 @@ class ContactTestCase(_BaseTestCase):
         return '/creme_core/quickforms/%s/%s' % (ct.id, count)
 
     def test_quickform01(self):
+        "2 Contacts created"
         self.login()
 
         orga_count = Organisation.objects.count()
@@ -368,9 +388,19 @@ class ContactTestCase(_BaseTestCase):
             self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
 
     def test_quickform02(self):
-        self.login()
+        "2 Contacts & 1 Organisation created"
+        self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+
+        create_sc = partial(SetCredentials.objects.create, role=self.role,
+                            set_type=SetCredentials.ESET_OWN,
+                           )
+        create_sc(value=EntityCredentials.VIEW)
+        create_sc(value=EntityCredentials.LINK)
 
         orga_name = 'Bebop'
+        self.assertFalse(Organisation.objects.filter(name=orga_name).exists())
+        existing_orga = Organisation.objects.create(user=self.other_user, name=orga_name) #not viewable
+
         data = [('Faye', 'Valentine', orga_name), ('Spike', 'Spiegel', orga_name)]
         response = self.client.post(self._build_quickform_url(len(data)),
                                     data={'form-TOTAL_FORMS':      len(data),
@@ -389,24 +419,34 @@ class ContactTestCase(_BaseTestCase):
         self.assertNoFormError(response)
 
         self.assertEqual(3, Contact.objects.count())
-        self.assertEqual(2, Organisation.objects.count())
 
-        created_orga = self.get_object_or_fail(Organisation, name=orga_name)
+        orgas = Organisation.objects.filter(name=orga_name)
+        self.assertEqual(2, len(orgas))
+
+        created_orga = next(o for o in orgas if o != existing_orga)
 
         for first_name, last_name, orga_name in data:
             contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
             self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, created_orga)
 
     def test_quickform03(self):
-        self.login()
+        "2 Contacts created and link with an existing Organisation"
+        self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW | EntityCredentials.LINK,
+                                      set_type=SetCredentials.ESET_OWN,
+                                     )
 
         orga_name = 'Bebop'
         self.assertFalse(Organisation.objects.filter(name=orga_name))
-        orga = Organisation.objects.create(name=orga_name, user=self.user)
+
+        create_orga = partial(Organisation.objects.create, name=orga_name)
+        orga1 = create_orga(user=self.user)
+        orga2 = create_orga(user=self.other_user) #this one can not be seen by user
 
         data = [('Faye', 'Valentine', orga_name), ('Spike', 'Spiegel', orga_name)]
-        ct = ContentType.objects.get_for_model(Contact)
-        response = self.client.post('/creme_core/quickforms/%s/%s' % (ct.id, len(data)),
+        response = self.client.post(self._build_quickform_url(len(data)),
                                     data={'form-TOTAL_FORMS':      len(data),
                                           'form-INITIAL_FORMS':    0,
                                           'form-MAX_NUM_FORMS':    u'',
@@ -423,11 +463,12 @@ class ContactTestCase(_BaseTestCase):
         self.assertNoFormError(response)
 
         self.assertEqual(3, Contact.objects.count())
-        self.assertEqual(1, Organisation.objects.filter(name=orga_name).count())
+        self.assertEqual(2, Organisation.objects.filter(name=orga_name).count())
 
         for first_name, last_name, orga_name in data:
             contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
-            self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga)
+            self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga1)
+            self.assertRelationCount(0, contact, REL_SUB_EMPLOYED_BY, orga2)
 
     def test_quickform04(self):
         "No permission to create Organisation"
@@ -512,13 +553,16 @@ class ContactTestCase(_BaseTestCase):
         self.assertFalse(Relation.objects.filter(subject_entity=contact))
 
     def test_quickform06(self):
-        "No permission to link Contact"
-        self.login(is_superuser=False, creatable_models=[Contact])
+        "No permission to link Contact in general"
+        self.login(is_superuser=False, creatable_models=[Contact, Organisation])
 
-        get_ct = ContentType.objects.get_for_model
-        create_sc = partial(SetCredentials.objects.create, role=self.role)
-        create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
-        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_ALL, ctype=get_ct(Organisation))
+        create_sc = partial(SetCredentials.objects.create, role=self.role,
+                            set_type=SetCredentials.ESET_ALL,
+                           )
+        create_sc(value=EntityCredentials.VIEW)
+        create_sc(value=EntityCredentials.LINK,
+                  ctype=ContentType.objects.get_for_model(Organisation),
+                 )
 
         response = self.assertGET200(self._build_quickform_url(1))
 
@@ -529,6 +573,154 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(_(u'You are not allowed to link with a Contact'),
                          orga_f.initial
                         )
+
+    def test_quickform07(self):
+        "No permission to link Contact with a specific owner"
+        self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+
+        get_ct = ContentType.objects.get_for_model
+        create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_ALL, ctype=get_ct(Organisation))
+        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN, ctype=get_ct(Contact))
+
+        url = self._build_quickform_url(1)
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            orga_f = response.context['formset'][0].fields['organisation']
+
+        self.assertIsNone(orga_f.initial)
+
+        first_name = 'Faye'
+        last_name = 'Valentine'
+        data = {'form-TOTAL_FORMS':     1,
+                'form-INITIAL_FORMS':   0,
+                'form-MAX_NUM_FORMS':   u'',
+                'form-0-user':          self.other_user.id,
+                'form-0-first_name':    'Faye',
+                'form-0-last_name':     'Valentine',
+               }
+        response = self.client.post(url, data=dict(data, **{'form-0-organisation': 'Bebop'}))
+        self.assertFormSetError(response, 'formset', 0, None,
+                                [_(u'You are not allowed to link with the «%s» of this user.') %
+                                    _(u'Contacts')
+                                ]
+                               )
+
+        response = self.client.post(url, data=data)
+        self.assertFormSetError(response, 'formset', 0, None, expected_errors=None)
+        self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+
+    def test_quickform08(self):
+        "Multiple Organisations found"
+        self.login()
+
+        orga_name = 'Bebop'
+        create_orga = partial(Organisation.objects.create, name=orga_name)
+        create_orga(user=self.user)
+        create_orga(user=self.other_user)
+
+        response = self.client.post(self._build_quickform_url(1),
+                                    data={'form-TOTAL_FORMS':      1,
+                                          'form-INITIAL_FORMS':    0,
+                                          'form-MAX_NUM_FORMS':    u'',
+                                          'form-0-user':           self.user.id,
+                                          'form-0-first_name':     'Faye',
+                                          'form-0-last_name':      'Valentine',
+                                          'form-0-organisation':   orga_name,
+                                         }
+                                   )
+        self.assertFormSetError(response, 'formset', 0, 'organisation',
+                                [_(u'Several Organisations with this name have been found.')]
+                               )
+
+    def test_quickform09(self):
+        "Multiple Organisations found, only one linkable (so we use it)"
+        self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+
+        create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
+
+        orga_name = 'Bebop'
+        create_orga = partial(Organisation.objects.create, name=orga_name)
+        orga1 = create_orga(user=self.user)
+        create_orga(user=self.other_user) #can not be linked by user
+
+        first_name = 'Faye'
+        last_name = 'Valentine'
+        response = self.client.post(self._build_quickform_url(1),
+                                    data={'form-TOTAL_FORMS':      1,
+                                          'form-INITIAL_FORMS':    0,
+                                          'form-MAX_NUM_FORMS':    u'',
+                                          'form-0-user':           self.user.id,
+                                          'form-0-first_name':     first_name,
+                                          'form-0-last_name':      last_name,
+                                          'form-0-organisation':   orga_name,
+                                         }
+                                   )
+        self.assertFormSetError(response, 'formset', 0, 'organisation', None)
+
+        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+        self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga1)
+
+    def test_quickform10(self):
+        "Multiple Organisations found, but none of them is linkable"
+        self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+
+        create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
+
+        orga_name = 'Bebop'
+
+        for i in xrange(2):
+            Organisation.objects.create(user=self.other_user, name=orga_name)
+
+        response = self.client.post(self._build_quickform_url(1),
+                                    data={'form-TOTAL_FORMS':      1,
+                                          'form-INITIAL_FORMS':    0,
+                                          'form-MAX_NUM_FORMS':    u'',
+                                          'form-0-user':           self.user.id,
+                                          'form-0-first_name':     'Faye',
+                                          'form-0-last_name':      'Valentine',
+                                          'form-0-organisation':   orga_name,
+                                         }
+                                   )
+        self.assertFormSetError(response, 'formset', 0, 'organisation', 
+                                [_(u'No linkable Organisation found.')]
+                               )
+
+    def test_quickform11(self):
+        "Have to create an Organisations, but can not link to it"
+        self.login(is_superuser=False, creatable_models=[Contact, Organisation])
+
+        create_sc = partial(SetCredentials.objects.create, role=self.role)
+        create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_ALL,
+                  ctype=ContentType.objects.get_for_model(Contact),
+                 )
+        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_OWN)
+
+        orga_name = 'Bebop'
+        self.assertFalse(Organisation.objects.filter(name=orga_name).exists())
+
+        response = self.client.post(self._build_quickform_url(1),
+                                    data={'form-TOTAL_FORMS':      1,
+                                          'form-INITIAL_FORMS':    0,
+                                          'form-MAX_NUM_FORMS':    u'',
+                                          'form-0-user':           self.other_user.id,
+                                          'form-0-first_name':     'Faye',
+                                          'form-0-last_name':      'Valentine',
+                                          'form-0-organisation':   orga_name,
+                                         }
+                                   )
+        self.assertFormSetError(response, 'formset', 0, None,
+                                [_(u'You are not allowed to link with the «%s» of this user.') % 
+                                    _(u'Organisations')
+                                ]
+                               )
 
     def test_merge01(self):
         "Merging addresses"

@@ -59,7 +59,8 @@ def add_service_line_on_the_fly(request, document_id):
 def edit_line(request, line_id):
     return edit_model_with_popup(request, {'pk': line_id},
                                  Line, LineEditForm,
-                                 can_change=Line.can_change) #TODO check line or billing document credentials ??
+                                 #can_change=Line.can_change
+                                ) #TODO check line or billing document credentials ??
 
 @jsonify
 @login_required
@@ -71,7 +72,7 @@ def edit_inner_line(request, line_id):
     line     = get_object_or_404(Line, pk=line_id)
     document = line.related_document
 
-    document.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(document)
 
     request_POST = request.POST
     request_POST_get = request_POST.get

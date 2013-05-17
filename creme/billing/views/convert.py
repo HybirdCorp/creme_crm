@@ -39,7 +39,7 @@ def convert(request, document_id):
     src = get_object_or_404(CremeEntity, pk=document_id).get_real_entity()
     user = request.user
 
-    src.can_view_or_die(user)
+    user.has_perm_to_view_or_die(src)
 
     dest_class = _CLASS_MAP.get(get_from_POST_or_404(request.POST, 'type'))
     if not dest_class:

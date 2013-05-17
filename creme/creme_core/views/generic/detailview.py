@@ -29,8 +29,7 @@ def view_entity(request, object_id, model, path,
                 template='creme_core/generics/view_entity.html',
                 extra_template_dict=None):
     entity = get_object_or_404(model, pk=object_id)
-    #entity = get_object_or_404(model.objects.even_deleted(), pk=object_id)
-    entity.can_view_or_die(request.user)
+    request.user.has_perm_to_view_or_die(entity)
 
     LastViewedItem(request, entity)
 
@@ -42,8 +41,7 @@ def view_entity(request, object_id, model, path,
 
 def view_real_entity(request, object_id, path, template='creme_core/generics/view_entity.html'):
     entity = get_object_or_404(CremeEntity, pk=object_id).get_real_entity()
-    #entity = get_object_or_404(CremeEntity.objects.even_deleted(), pk=object_id).get_real_entity()
-    entity.can_view_or_die(request.user)
+    request.user.has_perm_to_view_or_die(entity)
 
     LastViewedItem(request, entity)
 

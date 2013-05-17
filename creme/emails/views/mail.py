@@ -44,7 +44,7 @@ from ..models import LightWeightEmail, EntityEmail
 def get_lightweight_mail_body(request, mail_id):
     """Used to show an html document in an iframe """
     email = get_object_or_404(LightWeightEmail, pk=mail_id)
-    email.sending.campaign.can_view_or_die(request.user)
+    request.user.has_perm_to_view_or_die(email.sending.campaign)
     return HttpResponse(email.get_body_html())
 
 @login_required
@@ -53,7 +53,7 @@ def view_lightweight_mail(request, mail_id):
     email = get_object_or_404(LightWeightEmail, pk=mail_id)
 
     #TODO: disable the link in the template if view is not allowed
-    email.sending.campaign.can_view_or_die(request.user)
+    request.user.has_perm_to_view_or_die(email.sending.campaign)
 
     template = "emails/view_email.html"
     ctx_dict = {'mail': email, 'title': _(u'Details of the mail')}
@@ -85,7 +85,7 @@ def set_emails_status(request, status):
     #CremeEntity.populate_credentials(emails, user)
 
     for email in emails:
-        if not email.can_change(user):
+        if not user.has_perm_to_change(email):
             errors.append(ugettext(u'You are not allowed to edit this entity: %s') % email.allowed_unicode(user))
         else:
             email.status = status
@@ -158,7 +158,7 @@ def create_from_template_n_send(request, entity_id):
     entity = get_object_or_404(CremeEntity, pk=entity_id)
     user = request.user
 
-    entity.can_link_or_die(user)
+    user.has_perm_to_link_or_die(entity)
 
     entity = entity.get_real_entity()
 
@@ -225,5 +225,5 @@ def popupview(request, mail_id):
 def get_entity_mail_body(request, entity_id): #TODO: rename entity_id -> mail_id
     """Used to show an html document in an iframe """
     email = get_object_or_404(EntityEmail, pk=entity_id)
-    email.can_view_or_die(request.user)
+    request.user.has_perm_to_view_or_die(email)
     return HttpResponse(email.get_body())

@@ -216,10 +216,10 @@ class EntityEmailTestCase(_EmailsTestCase):
         orga01 = create_orga(user=self.other_user, name='Venus gate', email='contact@venusgate.jp')
         orga02 = create_orga(user=user, name='Nerv', email='contact@nerv.jp')
 
-        self.assertTrue(contact01.can_view(user))
-        self.assertFalse(contact01.can_link(user))
-        self.assertTrue(contact02.can_view(user))
-        self.assertTrue(contact02.can_link(user))
+        self.assertTrue(user.has_perm_to_view(contact01))
+        self.assertFalse(user.has_perm_to_link(contact01))
+        self.assertTrue(user.has_perm_to_view(contact02))
+        self.assertTrue(user.has_perm_to_link(contact02))
 
         def post(contact):
             return self.client.post('/emails/mail/add/%s' % contact.id,

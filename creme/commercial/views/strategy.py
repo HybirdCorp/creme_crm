@@ -124,7 +124,7 @@ def edit_charm(request, charm_id):
 @permission_required('commercial')
 def delete_evalorga(request, strategy_id):
     strategy = get_object_or_404(Strategy, pk=strategy_id)
-    strategy.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(strategy)
 
     orga_id = get_from_POST_or_404(request.POST, 'id', int)
     strategy.evaluated_orgas.remove(orga_id)
@@ -137,13 +137,12 @@ def delete_evalorga(request, strategy_id):
     return HttpResponseRedirect(strategy.get_absolute_url())
 
 def _get_strategy_n_orga(request, strategy_id, orga_id):
-    user = request.user
-
     strategy = get_object_or_404(Strategy, pk=strategy_id)
-    strategy.can_view_or_die(user)
+    has_perm = request.user.has_perm_to_view_or_die
+    has_perm(strategy)
 
     orga = get_object_or_404(Organisation, pk=orga_id)
-    orga.can_view_or_die(user)
+    has_perm(orga)
 
     return strategy, orga
 
@@ -169,7 +168,7 @@ def orga_synthesis(request, strategy_id, orga_id):
 @permission_required('commercial')
 def _set_score(request, strategy_id, method_name):
     strategy = get_object_or_404(Strategy, pk=strategy_id)
-    strategy.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(strategy)
 
     POST = request.POST
     model_id   = get_from_POST_or_404(POST, 'model_id', int)
@@ -194,7 +193,7 @@ def set_charm_score(request, strategy_id):
 @permission_required('commercial')
 def set_segment_category(request, strategy_id):
     strategy = get_object_or_404(Strategy, pk=strategy_id)
-    strategy.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(strategy)
 
     POST = request.POST
     segment_desc_id = get_from_POST_or_404(POST, 'segment_desc_id', int)

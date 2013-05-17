@@ -24,6 +24,7 @@ from django.forms import CharField
 
 from creme.creme_core.models import Relation
 from creme.creme_core.forms import CremeEntityForm
+from creme.creme_core.forms.validators import validate_linkable_model
 from creme.creme_core.forms.widgets import UploadedFileWidget
 from creme.creme_core.views.file_handling import handle_uploaded_file
 from creme.creme_core.utils import ellipsis
@@ -53,15 +54,16 @@ class DocumentEditForm(CremeEntityForm):
 _TITLE_MAX_LEN = Folder._meta.get_field('title').max_length
 
 
-#TODO : rename it in RelatedDocumentCreateForm
-class DocumentCreateViewForm(DocumentCreateForm):
-    class Meta(CremeEntityForm.Meta):
-        model   = Document
-        exclude = CremeEntityForm.Meta.exclude + ('folder', )
+class RelatedDocumentCreateForm(DocumentCreateForm):
+    class Meta(DocumentCreateForm.Meta):
+        exclude = DocumentCreateForm.Meta.exclude + ('folder', )
 
     def __init__(self, *args, **kwargs):
-        super(DocumentCreateViewForm, self).__init__(*args, **kwargs)
+        super(RelatedDocumentCreateForm, self).__init__(*args, **kwargs)
         self.related_entity = self.initial['entity']
+
+    def clean_user(self):
+        return validate_linkable_model(Document, self.user, owner=self.cleaned_data['user'])
 
     def save(self):
         entity = self.related_entity.get_real_entity()
@@ -91,7 +93,7 @@ class DocumentCreateViewForm(DocumentCreateForm):
             #TODO: continue !?
 
         self.instance.folder = entity_folder
-        super(DocumentCreateViewForm, self).save()
+        super(RelatedDocumentCreateForm, self).save()
 
         Relation.objects.create(subject_entity=entity,
                                 type_id=REL_SUB_RELATED_2_DOC,

@@ -102,7 +102,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
                                      )
 
         orga = Organisation.objects.create(user=self.user, name='Amestris')
-        self.assertTrue(orga.can_view(self.user))
+        self.assertTrue(self.user.has_perm_to_view(orga))
 
         with self.assertNoException():
             template = Template("{% load creme_core_tags %}"

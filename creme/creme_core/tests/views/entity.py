@@ -393,8 +393,8 @@ class EntityViewsTestCase(ViewsTestCase):
         contact2 = create_contact(first_name='Holo',     last_name='Wolf')
         contact3 = create_contact(first_name='Nora',     last_name='Alend', user=self.other_user)
 
-        self.assertTrue(contact1.can_delete(user))
-        self.assertFalse(contact3.can_delete(user))
+        self.assertTrue(user.has_perm_to_delete(contact1))
+        self.assertFalse(user.has_perm_to_delete(contact3))
 
         url = self.EMPTY_TRASH_URL
         self.assertGET404(url)
@@ -612,9 +612,10 @@ class EntityViewsTestCase(ViewsTestCase):
         ryuji   = create_contact(user=user,            first_name='Ryuji',   last_name='Danma',   phone='987654') #phone KO
         onibaku = Organisation.objects.create(user=user, name='Onibaku', phone=phone) #phone Ok and readable
 
-        self.assertFalse(onizuka.can_view(user))
-        self.assertTrue(ryuji.can_view(user))
-        self.assertTrue(onibaku.can_view(user))
+        has_perm = user.has_perm_to_view
+        self.assertFalse(has_perm(onizuka))
+        self.assertTrue(has_perm(ryuji))
+        self.assertTrue(has_perm(onibaku))
         self._assert_detailview(self.client.get(url, data=data, follow=True), onibaku)
 
     def test_search_and_view06(self):
@@ -1139,7 +1140,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         self._set_all_creds_except_one(EntityCredentials.CHANGE)
 
         mario = self.create_contact()
-        self.assertFalse(mario.can_change(self.user))
+        self.assertFalse(self.user.has_perm_to_change(mario))
 
         self.assertGET403(self.url % (mario.entity_type_id, mario.id, 'first_name'))
 

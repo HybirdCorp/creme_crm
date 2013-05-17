@@ -113,8 +113,8 @@ class RelationViewsTestCase(ViewsTestCase):
         self._set_all_creds_except_one(excluded=EntityCredentials.LINK)
 
         unlinkable = CremeEntity.objects.create(user=self.other_user)
-        self.assertTrue(unlinkable.can_view(self.user))
-        self.assertFalse(unlinkable.can_link(self.user))
+        self.assertTrue(self.user.has_perm_to_view(unlinkable))
+        self.assertFalse(self.user.has_perm_to_link(unlinkable))
 
         ct_id = self.ct_id
         response = self.client.post(self._build_add_url(self.subject01),
@@ -411,7 +411,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self._aux_test_add_relations(is_superuser=False)
 
         unviewable = CremeEntity.objects.create(user=self.other_user)
-        self.assertFalse(unviewable.can_view(self.user))
+        self.assertFalse(self.user.has_perm_to_view(unviewable))
 
         url = self._build_bulk_add_url(self.ct_id, self.subject01, unviewable)
         response = self.assertGET200(url)
@@ -438,8 +438,8 @@ class RelationViewsTestCase(ViewsTestCase):
 
         self._set_all_creds_except_one(excluded=EntityCredentials.LINK)
         unlinkable = CremeEntity.objects.create(user=self.other_user)
-        self.assertTrue(unlinkable.can_view(self.user))
-        self.assertFalse(unlinkable.can_link(self.user))
+        self.assertTrue(self.user.has_perm_to_view(unlinkable))
+        self.assertFalse(self.user.has_perm_to_link(unlinkable))
 
         response = self.assertGET200(self._build_bulk_add_url(self.ct_id, self.subject01, unlinkable))
 
@@ -752,8 +752,8 @@ class RelationViewsTestCase(ViewsTestCase):
                                                ('test-object_foobar',  'is loved by',)
                                               )
 
-        self.assertFalse(forbidden.can_link(user))
-        self.assertTrue(allowed01.can_link(user))
+        self.assertFalse(user.has_perm_to_link(forbidden))
+        self.assertTrue(user.has_perm_to_link(allowed01))
 
         self.assertPOST403(self.ADD_FROM_PRED_URL,
                            data={'subject_id':   forbidden.id,

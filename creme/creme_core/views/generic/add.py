@@ -83,9 +83,9 @@ def add_to_entity(request, entity_id, form_class, title, entity_class=None, init
     user = request.user
 
     if link_perm:
-        entity.can_link_or_die(user)
+        user.has_perm_to_link_or_die(entity)
     else:
-        entity.can_change_or_die(user)
+        user.has_perm_to_change_or_die(entity)
 
     if request.method == 'POST':
         form = form_class(entity=entity, user=user, data=request.POST, files=request.FILES or None, initial=initial)

@@ -34,6 +34,7 @@ from ..auth.entity_credentials import EntityCredentials
 from ..registry import creme_registry
 from ..utils.contribute_to_model import contribute_to_model
 from .fields import CTypeForeignKey
+from .entity import CremeEntity
 
 
 logger = logging.getLogger(__name__)
@@ -116,8 +117,15 @@ class UserRole(Model):
 
         return (ct.id in self._exportable_ctypes_set)
 
-    def _can_link(self, model, owned):
-        return SetCredentials._can_link(self._get_setcredentials(), model, owned)
+    def can_do_on_model(self, user, model, owner, perm):
+        """Can the given user execute an action (VIEW, CHANGE etc..) on this model.
+        @param user User instance ; user that try to do something.
+        @param model Class inheriting CremeEntity
+        @param owner User instance ; owner of the not-yet-existing instance of 'model'
+                     None means any user that would allows the action (if it exists of course)
+        @param perm See EntityCredentials.{VIEW, CHANGE, ...}
+        """
+        return SetCredentials._can_do(self._get_setcredentials(), user, model, owner, perm)
 
     def _get_setcredentials(self):
         setcredentials = self._setcredentials
@@ -231,16 +239,30 @@ class SetCredentials(Model):
         return reduce(or_op, (sc._get_perms(user, entity) for sc in sc_sequence), EntityCredentials.NONE)
 
     @staticmethod
-    def _can_link(sc_sequence, model, owned): #TODO: more generic (VIEW, EDIT...)
-        perm = EntityCredentials.LINK
+    def _can_do(sc_sequence, user, model, owner=None, perm=EntityCredentials.VIEW):
         allowed_ctype_ids = (None, ContentType.objects.get_for_model(model).id) #TODO: factorise
-        types = (SetCredentials.ESET_ALL, SetCredentials.ESET_OWN) if owned else (SetCredentials.ESET_ALL,)
 
-        for sc in sc_sequence:
-            if sc.set_type in types and sc.ctype_id in allowed_ctype_ids and sc.value & perm:
-                return True
+        if owner is None: #None means: all user that allows the action
+            filtered_sc_sequence = sc_sequence
+        else:
+            ESET_OWN = SetCredentials.ESET_OWN
 
-        return False
+            def generator():
+                for sc in sc_sequence:
+                    if sc.set_type == ESET_OWN:
+                        if owner.is_team:
+                            if user.id not in owner.teammates:
+                                continue
+                        elif user != owner:
+                            continue
+
+                    yield sc
+
+            filtered_sc_sequence = generator()
+
+        return any(sc.ctype_id in allowed_ctype_ids and sc.value & perm
+                        for sc in filtered_sc_sequence
+                  )
 
     @staticmethod
     def filter(sc_sequence, user, queryset, perm):
@@ -282,7 +304,7 @@ class SetCredentials(Model):
 class UserProfile(Model):
     role    = ForeignKey(UserRole, verbose_name=_(u'Role'), null=True, on_delete=PROTECT)
     is_team = BooleanField(verbose_name=_(u'Is a team ?'), default=False)
-    #permissions = None #TODO; can we "erase" 'permissions' fields ?? doesn't seem to work
+    #TODO: delete 'permissions' table
 
     _teams = None
     _teammates = None
@@ -339,6 +361,23 @@ class UserProfile(Model):
 
         self._teammates = None #clear cache (we could rebuild it but ...)
 
+    def _get_credentials(self, entity):
+        creds_map = getattr(entity, '_credentials_map', None)
+
+        if creds_map is None:
+            entity._credentials_map = creds_map = {}
+            creds = None
+        else:
+            creds = creds_map.get(self.id)
+
+        if creds is None:
+            logger.debug('UserProfile._get_credentials(): Cache MISS for id=%s user=%s', entity.id, self)
+            creds_map[self.id] = creds = EntityCredentials(self, entity)
+        else:
+            logger.debug('UserProfile._get_credentials(): Cache HIT for id=%s user=%s', entity.id, self)
+
+        return creds
+
     def has_perm_to_admin(self, app_name):
         return self.has_perm('%s.can_admin' % app_name)
 
@@ -346,31 +385,105 @@ class UserProfile(Model):
         if not self.has_perm_to_admin(app_name):
             raise PermissionDenied(ugettext('You are not allowed to configure this app: %s') % app_name)
 
+    def has_perm_to_change(self, entity):
+        if entity.is_deleted:
+            return False
+
+        get_related_entity = getattr(entity, 'get_related_entity', None)
+        main_entity = get_related_entity() if get_related_entity else entity
+
+        return self._get_credentials(main_entity).can_change()
+
+    def has_perm_to_change_or_die(self, entity):
+        if not self.has_perm_to_change(entity):
+            raise PermissionDenied(ugettext(u'You are not allowed to edit this entity: %s') %
+                                    entity.allowed_unicode(self)
+                                  )
+
     def has_perm_to_create(self, model_or_entity):
         """Helper for has_perm() method.
-        eg: user.has_perm('myapp.add_mymodel') => user.has_perm_to_create(MyModel)"""
+        eg: user.has_perm('myapp.add_mymodel') => user.has_perm_to_create(MyModel)
+        """
         meta = model_or_entity._meta
         return self.has_perm('%s.add_%s' % (meta.app_label, meta.object_name.lower()))
 
     def has_perm_to_create_or_die(self, model_or_entity):
         if not self.has_perm_to_create(model_or_entity):
-            raise PermissionDenied(ugettext(u'You are not allowed to create: %s') % model_or_entity._meta.verbose_name)
+            raise PermissionDenied(ugettext(u'You are not allowed to create: %s') %
+                                        model_or_entity._meta.verbose_name
+                                  )
 
-    def has_perm_to_link(self, model, owned=False):
-        """@param owned Boolean; 'False' answsers if the user can link with
-                        its own entities (not enlarged to every entities).
-        """
-        return True if self.is_superuser else self.role._can_link(model, owned)
+    def has_perm_to_delete(self, entity):
+        get_related_entity = getattr(entity, 'get_related_entity', None)
+        if get_related_entity:
+            return self._get_credentials(get_related_entity()).can_change()
+
+        return self._get_credentials(entity).can_delete()
+
+    def has_perm_to_delete_or_die(self, entity):
+        if not self.has_perm_to_delete(entity):
+            raise PermissionDenied(ugettext(u'You are not allowed to delete this entity: %s') %
+                                    entity.allowed_unicode(self)
+                                  )
 
     def has_perm_to_export(self, model_or_entity): #TODO: factorise with has_perm_to_create() ??
         """Helper for has_perm() method.
-        eg: user.has_perm('myapp.export_mymodel') => user.has_perm_to_export(MyModel)"""
+        eg: user.has_perm('myapp.export_mymodel') => user.has_perm_to_export(MyModel)
+        """
         meta = model_or_entity._meta
         return self.has_perm('%s.export_%s' % (meta.app_label, meta.object_name.lower()))
 
     def has_perm_to_export_or_die(self, model_or_entity):
         if not self.has_perm_to_export(model_or_entity):
-            raise PermissionDenied(ugettext(u'You are not allowed to export: %s') % model_or_entity._meta.verbose_name)
+            raise PermissionDenied(ugettext(u'You are not allowed to export: %s') %
+                                        model_or_entity._meta.verbose_name
+                                  )
+
+    def has_perm_to_link(self, entity_or_model, owner=None):
+        """Can the user link a future entity of a given class ?
+        @param entity_or_model {Instance of} class inheriting CremeEntity.
+        @param owner (only used when 1rst param is a class) Instance of auth.User ;
+                     owner of the (future) entity. 'None' means: is there an
+                     owner (at least) that allows linking.
+        """
+        assert not self.is_team #teams can not be logged, it has no sense
+
+        if isinstance(entity_or_model, CremeEntity):
+            return False if entity_or_model.is_deleted else \
+                   self._get_credentials(entity_or_model).can_link()
+
+        assert issubclass(entity_or_model, CremeEntity)
+        return True if self.is_superuser else \
+               self.role.can_do_on_model(self, entity_or_model, owner, EntityCredentials.LINK)
+
+    def has_perm_to_link_or_die(self, entity_or_model, owner=None): #TODO: factorise ??
+        if not self.has_perm_to_link(entity_or_model, owner):
+            if isinstance(entity_or_model, CremeEntity):
+                msg = ugettext(u'You are not allowed to link this entity: %s') % \
+                                        entity_or_model.allowed_unicode(self)
+            else:
+                msg = ugettext(u'You are not allowed to link: %s') % \
+                            entity_or_model._meta.verbose_name
+
+            raise PermissionDenied(msg)
+
+    def has_perm_to_unlink(self, entity):
+        return self._get_credentials(entity).can_unlink()
+
+    def has_perm_to_unlink_or_die(self, entity):
+        if not self.has_perm_to_unlink(entity):
+            raise PermissionDenied(ugettext(u'You are not allowed to unlink this entity: %s') %
+                                    entity.allowed_unicode(self)
+                                  )
+
+    def has_perm_to_view(self, entity):
+        return self._get_credentials(entity).can_view()
+
+    def has_perm_to_view_or_die(self, entity):
+        if not self.has_perm_to_view(entity):
+            raise PermissionDenied(ugettext(u'You are not allowed to view this entity: %s') %
+                                    entity.allowed_unicode(self)
+                                  )
 
 
 #TODO: remove this class when we can contribute_to_model with a ManyToManyField

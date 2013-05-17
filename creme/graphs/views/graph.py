@@ -43,7 +43,7 @@ def dl_png(request, graph_id):
     graph = get_object_or_404(Graph, pk=graph_id)
     user  = request.user
 
-    graph.can_view_or_die(user)
+    user.has_perm_to_view_or_die(graph)
 
     try:
         return graph.generate_png(user)
@@ -77,7 +77,7 @@ def delete_relation_type(request, graph_id):
     rtypes_id = get_from_POST_or_404(request.POST, 'id')
     graph     = get_object_or_404(Graph, pk=graph_id)
 
-    graph.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(graph)
     graph.orbital_relation_types.remove(rtypes_id)
 
     return HttpResponse("", mimetype="text/javascript")

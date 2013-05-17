@@ -93,7 +93,7 @@ class UserRoleTestCase(CremeTestCase):
 
         other_user = User.objects.create(username='chloe', role=role)
         contact    = Contact.objects.create(user=self.user, first_name='Yuki', last_name='Kajiura')
-        self.assertFalse(contact.can_view(other_user))
+        self.assertFalse(other_user.has_perm_to_view(contact))
 
         self.assertEqual(0, role.credentials.count())
 
@@ -122,7 +122,7 @@ class UserRoleTestCase(CremeTestCase):
 
         contact = self.refresh(contact) #refresh cache
         other_user = self.refresh(other_user)
-        self.assertTrue(contact.can_view(other_user))
+        self.assertTrue(other_user.has_perm_to_view(contact))
 
     def test_add_credentials02(self):
         self.login()
@@ -182,7 +182,7 @@ class UserRoleTestCase(CremeTestCase):
 
         other_user = User.objects.create(username='chloe', role=role)
         contact    = Contact.objects.create(user=self.user, first_name='Yuki', last_name='Kajiura')
-        self.assertFalse(contact.can_view(other_user)) #role.allowed_apps does not contain 'persons'
+        self.assertFalse(other_user.has_perm_to_view(contact)) #role.allowed_apps does not contain 'persons'
 
         url = '/creme_config/role/edit/%s' % role.id
         self.assertGET200(url)
@@ -219,7 +219,7 @@ class UserRoleTestCase(CremeTestCase):
         self.assertEqual(SetCredentials.ESET_ALL, creds.set_type)
 
         contact = self.refresh(contact) #refresh cache
-        self.assertTrue(contact.can_view(self.refresh(other_user))) #role.allowed_apps contains 'persons' now
+        self.assertTrue(self.refresh(other_user).has_perm_to_view(contact)) #role.allowed_apps contains 'persons' now
 
     def test_edit02(self):
         self.login()
@@ -239,8 +239,8 @@ class UserRoleTestCase(CremeTestCase):
         create_contact = Contact.objects.create
         yuki   = create_contact(user=self.user,  first_name='Yuki',    last_name='Kajiura')
         altena = create_contact(user=other_user, first_name=u'Alténa', last_name='??')
-        self.assertTrue(yuki.can_view(other_user))
-        self.assertTrue(altena.can_view(other_user))
+        self.assertTrue(other_user.has_perm_to_view(yuki))
+        self.assertTrue(other_user.has_perm_to_view(altena))
 
         response = self.client.post('/creme_config/role/edit/%s' % role.id, follow=True,
                                     data={'name':                    role.name,
@@ -258,8 +258,8 @@ class UserRoleTestCase(CremeTestCase):
 
         #beware to refresh caches
         other_user = self.refresh(other_user)
-        self.assertFalse(self.refresh(yuki).can_view(other_user)) #no more SetCredentials
-        self.assertTrue(self.refresh(altena).can_view(other_user))
+        self.assertFalse(other_user.has_perm_to_view(self.refresh(yuki))) #no more SetCredentials
+        self.assertTrue(other_user.has_perm_to_view(self.refresh(altena)))
 
     def test_edit03(self):
         self.login_not_as_superuser()

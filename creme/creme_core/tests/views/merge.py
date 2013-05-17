@@ -79,7 +79,7 @@ class MergeViewsTestCase(ViewsTestCase):
                 set_type=SetCredentials.ESET_OWN
             )
         orga = Organisation.objects.create(user=self.other_user, name='Genshiken')
-        self.assertFalse(orga.can_view(self.user))
+        self.assertFalse(self.user.has_perm_to_view(orga))
         self.assertGET403(self._build_select_url(orga))
 
     def test_select_entity_for_merge03(self):
@@ -91,8 +91,8 @@ class MergeViewsTestCase(ViewsTestCase):
                                       set_type=SetCredentials.ESET_ALL
                                      )
         orga = Organisation.objects.create(user=self.other_user, name='Genshiken')
-        self.assertTrue(orga.can_view(self.user))
-        self.assertFalse(orga.can_change(self.user))
+        self.assertTrue(self.user.has_perm_to_view(orga))
+        self.assertFalse(self.user.has_perm_to_change(orga))
         self.assertGET403(self._build_select_url(orga))
 
     def test_merge01(self):
@@ -367,8 +367,9 @@ class MergeViewsTestCase(ViewsTestCase):
         orga01 = create_orga(user=user,            name='Genshiken')
         orga02 = create_orga(user=self.other_user, name='Gen-shi-ken')
 
-        self.assertTrue(orga01.can_view(user));  self.assertTrue(orga01.can_change(user))
-        self.assertFalse(orga02.can_view(user)); self.assertFalse(orga02.can_delete(user))
+        can_view = user.has_perm_to_view
+        self.assertTrue(can_view(orga01));  self.assertTrue(user.has_perm_to_change(orga01))
+        self.assertFalse(can_view(orga02)); self.assertFalse(user.has_perm_to_delete(orga02))
 
         self.assertGET403(self._build_merge_url(orga01, orga02))
         self.assertGET403(self._build_merge_url(orga02, orga01))

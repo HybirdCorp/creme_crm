@@ -47,7 +47,7 @@ def delete(request):
     sending  = get_object_or_404(Sending , pk=get_from_POST_or_404(request.POST, 'id'))
     campaign = sending.campaign
 
-    campaign.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(campaign)
 
     sending.delete() #TODO: try/except ??
 
@@ -61,7 +61,7 @@ def delete(request):
 def sync_messages(request, id):
     sending = get_object_or_404(Sending, pk=id)
     #sending.campaign.can_view_or_die(request.user)
-    sending.campaign.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(sending.campaign)
 
     Message.sync(sending)
 
@@ -72,7 +72,7 @@ def sync_messages(request, id):
 def send_messages(request, id):
     sending = get_object_or_404(Sending, pk=id)
     #sending.campaign.can_view_or_die(request.user)
-    sending.campaign.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(sending.campaign)
 
     Message.send(sending)
 
@@ -82,7 +82,7 @@ def send_messages(request, id):
 @permission_required('sms')
 def detailview(request, id):
     sending  = get_object_or_404(Sending, pk=id)
-    sending.campaign.can_view_or_die(request.user)
+    request.user.has_perm_to_view_or_die(sending.campaign)
 
     return render(request, 'sms/popup_sending.html', {'object': sending})
 
@@ -92,13 +92,13 @@ def delete_message(request, id):
     message  = get_object_or_404(Message, pk=id)
     campaign = message.sending.campaign
 
-    campaign.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(campaign)
 
     try:
         message.sync_delete()
         message.delete()
     except Exception, err:
-        return HttpResponse(err, status=500)
+        return HttpResponse(err, status=500) #TODO: WTF ?!
 
     if request.is_ajax():
         return HttpResponse("success", mimetype="text/javascript")
@@ -117,7 +117,7 @@ def delete_message(request, id):
 @permission_required('sms')
 def reload_block_messages(request, id):
     sending  = get_object_or_404(Sending, pk=id)
-    sending.campaign.can_view_or_die(request.user)
+    request.user.has_perm_to_view_or_die(sending.campaign)
 
     context = RequestContext(request)
     context['object'] = sending

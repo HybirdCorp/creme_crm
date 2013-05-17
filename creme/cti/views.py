@@ -45,7 +45,7 @@ from creme.activities.constants import (ACTIVITYTYPE_PHONECALL,
 def _build_phonecall(user, entity_id, calltype_id, title_format):
     entity = get_object_or_404(CremeEntity, pk=entity_id)
 
-    entity.can_link_or_die(user)
+    user.has_perm_to_link_or_die(entity)
 
     user.has_perm_to_create_or_die(Activity)
 

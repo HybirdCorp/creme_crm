@@ -115,7 +115,7 @@ def add_related(request):
     if act_type_id:
         get_object_or_404(ActivityType, pk=act_type_id)
 
-    entity.can_link_or_die(request.user)
+    request.user.has_perm_to_link_or_die(entity)
 
     #TODO: move to a RelationType method...
     subject_ctypes = frozenset(relation_type.subject_ctypes.values_list('id', flat=True))

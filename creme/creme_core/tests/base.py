@@ -117,6 +117,7 @@ class _CremeTestCase(object):
         It checks both error and no error tests.
         """
         self.assertIn(form, response.context)
+        fieldname = fieldname or '__all__'
 
         self.assertIsInstance(response.context[form], BaseFormSet, "context field '%s' is not a FormSet")
         self.assertGreaterEqual(index, 0)

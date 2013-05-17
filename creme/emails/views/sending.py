@@ -42,7 +42,7 @@ def _get_sending(request, sending_id):
     sending  = get_object_or_404(EmailSending, pk=sending_id)
     campaign = sending.campaign
 
-    campaign.can_view_or_die(request.user)
+    request.user.has_perm_to_view_or_die(campaign)
 
     return sending
 

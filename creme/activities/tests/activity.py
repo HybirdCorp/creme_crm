@@ -1104,8 +1104,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                                      )
 
         activity = self._create_meeting()
-        self.assertTrue(activity.can_change(self.user))
-        self.assertFalse(activity.can_link(self.user))
+        self.assertTrue(self.user.has_perm_to_change(activity))
+        self.assertFalse(self.user.has_perm_to_link(activity))
         self.assertGET403(self._buid_add_participants_url(activity))
 
     def test_participants03(self):
@@ -1114,11 +1114,11 @@ class ActivityTestCase(_ActivitiesTestCase):
         self._build_nolink_setcreds()
 
         activity = self._create_meeting()
-        self.assertTrue(activity.can_link(self.user))
+        self.assertTrue(self.user.has_perm_to_link(activity))
 
         contact = Contact.objects.create(user=self.other_user, first_name='Musashi', last_name='Miyamoto')
-        self.assertTrue(contact.can_change(self.user))
-        self.assertFalse(contact.can_link(self.user))
+        self.assertTrue(self.user.has_perm_to_change(contact))
+        self.assertFalse(self.user.has_perm_to_link(contact))
 
         uri = self._buid_add_participants_url(activity)
         self.assertGET200(uri)
@@ -1203,8 +1203,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                                      )
 
         activity = self._create_meeting()
-        self.assertTrue(activity.can_change(self.user))
-        self.assertFalse(activity.can_link(self.user))
+        self.assertTrue(self.user.has_perm_to_change(activity))
+        self.assertFalse(self.user.has_perm_to_link(activity))
         self.assertGET403(self._buid_add_subjects_url(activity))
 
     def test_add_subjects03(self): 
@@ -1213,11 +1213,11 @@ class ActivityTestCase(_ActivitiesTestCase):
         self._build_nolink_setcreds()
 
         activity = self._create_meeting()
-        self.assertTrue(activity.can_link(self.user))
+        self.assertTrue(self.user.has_perm_to_link(activity))
 
         orga = Organisation.objects.create(user=self.other_user, name='Ghibli')
-        self.assertTrue(orga.can_change(self.user))
-        self.assertFalse(orga.can_link(self.user))
+        self.assertTrue(self.user.has_perm_to_change(orga))
+        self.assertFalse(self.user.has_perm_to_link(orga))
 
         uri = self._buid_add_subjects_url(activity)
         self.assertGET200(uri)

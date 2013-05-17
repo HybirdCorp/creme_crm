@@ -50,11 +50,12 @@ logger = logging.getLogger(__name__)
 def get_creme_entities_repr(request, entities_ids):
     entities = CremeEntity.objects.filter(pk__in=[id for id in entities_ids.split(',') if id])
     user = request.user
+    has_perm = user.has_perm_to_view
 
     #TODO: populate real entities....
 
     return [{'id': entity.id,
-             'text': entity.get_real_entity().get_entity_summary(user) if entity.can_view(user) else \
+             'text': entity.get_real_entity().get_entity_summary(user) if has_perm(entity) else \
                      _(u'Entity #%s (not viewable)') % entity.id
             } for entity in entities
            ]
@@ -74,7 +75,7 @@ def get_creme_entity_as_json(request):
         except CremeEntity.DoesNotExist:
             pass
         else:
-            if entity.can_view(request.user):
+            if request.user.has_perm_to_view(entity):
                 data = [entity]
                 status = 200
 
@@ -126,8 +127,9 @@ def bulk_update(request, ct_id):#TODO: Factorise with add_properties_bulk and ad
     #CremeEntity.populate_credentials(entities, user)
 
     filtered = {True: [], False: []}
+    has_perm = user.has_perm_to_change
     for entity in entities:
-        filtered[entity.can_change(user)].append(entity)
+        filtered[has_perm(entity)].append(entity)
 
     if request.method == 'POST':
         form = EntitiesBulkUpdateForm(model=model,
@@ -234,7 +236,7 @@ def get_widget(request, ct_id):
     if inner_edit_obj_id:
         object = model.objects.get(pk=inner_edit_obj_id)
         owner = object.get_related_entity() if hasattr(object, 'get_related_entity') else object
-        owner.can_change_or_die(request.user)
+        request.user.has_perm_to_change_or_die(owner)
         is_updatable = bulk_update_registry.is_bulk_updatable(model, field_name, exclude_unique=False)
     else:
         is_updatable = bulk_update_registry.is_bulk_updatable(model, field_name)
@@ -269,7 +271,7 @@ def clone(request):
 
     user = request.user
     user.has_perm_to_create_or_die(entity)
-    entity.can_view_or_die(user)
+    user.has_perm_to_view_or_die(entity)
 
     new_entity = entity.clone()
 
@@ -332,7 +334,7 @@ def edit_field(request, ct_id, id, field_str):
     entity = get_object_or_404(model, pk=id)
 
     owner = entity.get_related_entity() if hasattr(entity, 'get_related_entity') else entity
-    owner.can_change_or_die(user)
+    user.has_perm_to_change_or_die(owner)
 
     try:
         if request.method == 'POST':
@@ -367,7 +369,7 @@ def select_entity_for_merge(request, entity1_id):
     entity1 = get_object_or_404(CremeEntity, pk=entity1_id)
 
     user = request.user
-    entity1.can_view_or_die(user); entity1.can_change_or_die(user)
+    user.has_perm_to_view_or_die(entity1); user.has_perm_to_change_or_die(entity1)
 
     #TODO: filter viewable & deletable entities + (manage swapping ?)
     #TODO: change list_view_popup_from_widget code (o2m should be '1', but True works)
@@ -384,8 +386,9 @@ def merge(request, entity1_id, entity2_id):
         raise Http404('You can not merge entities of different types.')
 
     user = request.user
-    entity1.can_view_or_die(user); entity1.can_change_or_die(user)
-    entity2.can_view_or_die(user); entity2.can_delete_or_die(user)
+    can_view = user.has_perm_to_view_or_die
+    can_view(entity1); user.has_perm_to_change_or_die(entity1)
+    can_view(entity2); user.has_perm_to_delete_or_die(entity2)
 
     #TODO: try to swap 1 & 2
 
@@ -478,7 +481,7 @@ def restore_entity(request, entity_id):
     if hasattr(entity, 'get_related_entity'):
         raise Http404('Can not restore an auxiliary entity') #see trash_entity()
 
-    entity.can_delete_or_die(request.user)
+    request.user.has_perm_to_delete_or_die(entity)
     entity.restore()
 
     if request.is_ajax():
@@ -498,14 +501,14 @@ def _delete_entity(user, entity):
             logger.critical('delete_entity(): an auxiliary entity seems orphan (id=%s)', entity.id)
             return 403, _(u'You are not allowed to delete this entity: %s') % entity.allowed_unicode(user)
 
-        if not related.can_change(user):
+        if not user.has_perm_to_change(related):
             return 403, _(u'%s : <b>Permission denied</b>,') % entity.allowed_unicode(user)
 
         entity.relations.exclude(type__is_internal=True).delete()
         #entity.properties.all().delete()
         trash = False
     else:
-        if not entity.can_delete(user):
+        if not user.has_perm_to_delete(entity):
             return 403, _(u'%s : <b>Permission denied</b>,') % entity.allowed_unicode(user)
 
         trash = not entity.is_deleted
@@ -599,7 +602,7 @@ def delete_related_to_entity(request, ct_id):
     auxiliary = get_object_or_404(model, pk=get_from_POST_or_404(request.POST, 'id'))
     entity = auxiliary.get_related_entity()
 
-    entity.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(entity)
     auxiliary.delete()
 
     if request.is_ajax():

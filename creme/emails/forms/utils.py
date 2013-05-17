@@ -38,7 +38,7 @@ def validate_images_in_html(html, user):
             raise create_image_validation_error(filename)
 
         try:
-            image.can_view_or_die(user)
+            user.has_perm_to_view_or_die(image)
         except PermissionDenied as pde:
             raise ValidationError(pde)
 
