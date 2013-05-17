@@ -85,8 +85,6 @@ def print_date(entity, fval, user):
 
 def print_foreignkey(entity, fval, user):
     if isinstance(fval, CremeEntity):
-        #return '<a href="%s"><u>%s</u></a>' % (fval.get_absolute_url(), fval) if fval.can_view(user) else \
-               #fval.allowed_unicode(user)
         return widget_entity_hyperlink(fval, user)
 
     return unicode(fval) if fval else u''
@@ -96,8 +94,7 @@ def print_many2many(entity, fval, user):
 
     if issubclass(fval.model, CremeEntity):
         entities = list(fval.filter(is_deleted=False))
-        #CremeEntity.populate_credentials(entities, user)
-        output.extend('<li>%s</li>' % (e.get_entity_m2m_summary(user) if e.can_view(user) else
+        output.extend('<li>%s</li>' % (e.get_entity_m2m_summary(user) if user.has_perm_to_view(e) else
                                        e.allowed_unicode(user)
                                       ) for e in entities
                      )

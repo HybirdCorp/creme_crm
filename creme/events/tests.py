@@ -301,16 +301,16 @@ class EventsTestCase(CremeTestCase):
 
         event = _create_event(user=user, name='Eclipse 01')
         casca = create_contact(user=other_user, first_name='Casca', last_name='Miura')
-        self.assertTrue(event.can_link(user))
-        self.assertFalse(casca.can_link(user))
+        self.assertTrue(user.has_perm_to_link(event))
+        self.assertFalse(user.has_perm_to_link(casca))
         self.assertPOST403(self._build_invitation_url(event, casca),
                            data={'status': INV_STATUS_REFUSED}
                           )
 
         event = _create_event(user=other_user, name='Eclipse 02')
         guts = create_contact(user=user, first_name='Guts', last_name='Miura')
-        self.assertFalse(event.can_link(user))
-        self.assertTrue(guts.can_link(user))
+        self.assertFalse(user.has_perm_to_link(event))
+        self.assertTrue(user.has_perm_to_link(guts))
         self.assertPOST403(self._build_invitation_url(event, guts),
                            data={'status': INV_STATUS_REFUSED}
                           )
@@ -396,16 +396,16 @@ class EventsTestCase(CremeTestCase):
 
         event = _create_event(user=user, name='Eclipse 01', type=etype, start_date=datetime.now())
         casca = create_contact(user=other_user, first_name='Casca', last_name='Miura')
-        self.assertTrue(event.can_link(user))
-        self.assertFalse(casca.can_link(user))
+        self.assertTrue(user.has_perm_to_link(event))
+        self.assertFalse(user.has_perm_to_link(casca))
         self.assertPOST403(self._build_presence_url(event, casca),
                            data={'status': PRES_STATUS_COME}
                           )
 
         event = _create_event(user=other_user, name='Eclipse 02', type=etype, start_date=datetime.now())
         guts = create_contact(user=user, first_name='Guts', last_name='Miura')
-        self.assertFalse(event.can_link(user))
-        self.assertTrue(guts.can_link(user))
+        self.assertFalse(user.has_perm_to_link(event))
+        self.assertTrue(user.has_perm_to_link(guts))
         self.assertPOST403(self._build_presence_url(event, guts),
                            data={'status': PRES_STATUS_COME}
                           )

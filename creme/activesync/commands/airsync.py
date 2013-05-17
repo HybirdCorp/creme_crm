@@ -287,7 +287,7 @@ class AirSync(Base):
                     continue #TODO: Think about creating it ? / got a mapping issue ?
 
                 if entity is not None:
-                    if not entity.can_change(user):
+                    if not user.has_perm_to_change(entity):
                         add_error_message(SYNC_ERR_VERBOSE[SYNC_ERR_CREME_PERMISSION_DENIED_CHANGE_SPECIFIC] % entity)
                         continue
 
@@ -341,7 +341,7 @@ class AirSync(Base):
                     continue #TODO: Think about creating it ? / got a mapping issue ?
 
                 if entity is not None:
-                    if not entity.can_delete(user):
+                    if not user.has_perm_to_delete(entity):
                         add_error_message(SYNC_ERR_VERBOSE[SYNC_ERR_CREME_PERMISSION_DENIED_DELETE_SPECIFIC] % entity)
                         continue
 
@@ -510,7 +510,7 @@ def get_add_objects(reverse_ns, user, airsync_cmd, creme_model, serializer, mapp
     add_history_create_on_server = airsync_cmd.add_history_create_on_server
 
     for entity in creme_model.objects.filter(q_not_synced & Q(is_deleted=False, user=user)):
-        if entity.can_view(user):
+        if user.has_perm_to_view(entity):
             add_message(MessageInfoContactAdd(entity, _(u"Adding %s on the server") % entity))
             add_history_create_on_server(entity)
 #            objects_append(add_object(entity, lambda cc: serializer(cc, reverse_ns)))
@@ -538,7 +538,7 @@ def get_change_objects(reverse_ns, user, airsync_cmd, creme_model, serializer, m
     add_history_update_on_server = airsync_cmd.add_history_update_on_server
 
     for entity in creme_model.objects.filter(id__in=modified_ids.keys()):
-        if entity.can_view(user):
+        if user.has_perm_to_view(entity):
             add_info_message(_(u"Sending changes of %s on the server") % entity)
             add_history_update_on_server(entity, None)#TODO: Add update information....
             objects_append(change_object(modified_ids[entity.id], entity, lambda cc: serializer(cc, mapping)))#Naive version send all attribute even it's not modified

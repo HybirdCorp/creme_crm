@@ -87,7 +87,7 @@ def _render_detail(block, context):
 def reload_detailview(request, block_id, entity_id):
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
-    entity.can_view_or_die(request.user)
+    request.user.has_perm_to_view_or_die(entity)
 
     context = RequestContext(request)
     context['object'] = entity
@@ -157,7 +157,7 @@ def reload_basic(request, block_id):
 def reload_relations_block(request, entity_id, relation_type_ids=''):
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
-    entity.can_view_or_die(request.user)
+    request.user.has_perm_to_view_or_die(entity)
 
     context = RequestContext(request)
     context['object'] = entity

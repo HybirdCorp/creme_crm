@@ -197,7 +197,7 @@ class Field(CremeModel):
 #            return unicode(value or empty_value)#Maybe format map (i.e : datetime...)
 
             if value and check_user:
-                return unicode(value) if entity.can_view(user) else HIDDEN_VALUE
+                return unicode(value) if user.has_perm_to_view(entity) else HIDDEN_VALUE
 
             return unicode(value or empty_value)
 
@@ -211,7 +211,7 @@ class Field(CremeModel):
                 return empty_value
 
             value = entity.get_custom_value(cf)
-            if value and check_user and not entity.can_view(user):
+            if value and check_user and not user.has_perm_to_view(entity):
                 return HIDDEN_VALUE
 
             return value
@@ -270,7 +270,7 @@ class Field(CremeModel):
             return u", ".join(unicode(related_entity) for related_entity in related_entities) or empty_value
 
         elif column_type == HFI_FUNCTION:
-            if check_user and not entity.can_view(user):
+            if check_user and not user.has_perm_to_view(entity):
                 return HIDDEN_VALUE
 
             funfield = entity.function_fields.get(column_name) #TODO: in a cache ??

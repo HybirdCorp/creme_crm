@@ -152,9 +152,10 @@ def json_predicate_content_types(request, id):
         return HttpResponse(err, mimetype="text/javascript", status=500)
 
 def _get_entity_predicates(request, id):
-    entity = get_object_or_404(CremeEntity, pk=id).get_real_entity() #TODO: useful 'get_real_entity() ??'
+    #entity = get_object_or_404(CremeEntity, pk=id).get_real_entity()
+    entity = get_object_or_404(CremeEntity, pk=id)
 
-    entity.can_view_or_die(request.user)
+    request.user.has_perm_to_view_or_die(entity)
 
     predicates = RelationType.objects.filter(is_internal=False).order_by('predicate')
 
@@ -166,7 +167,7 @@ def add_relations(request, subject_id, relation_type_id=None):
         NB: In case of relation_type_id=None is internal relation type is verified in RelationCreateForm clean
     """
     subject = get_object_or_404(CremeEntity, pk=subject_id)
-    subject.can_link_or_die(request.user)
+    request.user.has_perm_to_link_or_die(subject)
 
     relations_types = None
 
@@ -201,8 +202,9 @@ def add_relations_bulk(request, model_ct_id, relations_types=None):#TODO: Factor
     #CremeEntity.populate_credentials(entities, user)
 
     filtered = {True: [], False: []}
+    has_perm_to_link = user.has_perm_to_link
     for entity in entities:
-        filtered[entity.can_link(user)].append(entity)
+        filtered[has_perm_to_link(entity)].append(entity)
 
     if relations_types is not None:
         relations_types = [rt for rt in relations_types.split(',') if rt]
@@ -239,8 +241,9 @@ def delete(request):
     subject  = relation.subject_entity
     user = request.user
 
-    subject.can_unlink_or_die(user)
-    relation.object_entity.can_unlink_or_die(user)
+    has_perm = user.has_perm_to_unlink_or_die
+    has_perm(subject)
+    has_perm(relation.object_entity)
     relation.type.is_not_internal_or_die()
 
     relation.get_real_entity().delete()
@@ -261,8 +264,9 @@ def delete_similar(request):
     user = request.user
     subject = get_object_or_404(CremeEntity, pk=subject_id)
 
-    subject.can_unlink_or_die(user)
-    get_object_or_404(CremeEntity, pk=object_id).can_unlink_or_die(user)
+    has_perm = user.has_perm_to_unlink_or_die
+    has_perm(subject)
+    has_perm(get_object_or_404(CremeEntity, pk=object_id))
 
     rtype = get_object_or_404(RelationType, pk=rtype_id)
     rtype.is_not_internal_or_die()
@@ -280,13 +284,13 @@ def delete_all(request):
     subject_id = get_from_POST_or_404(request.POST, 'subject_id')
     user = request.user
     subject = get_object_or_404(CremeEntity, pk=subject_id)
-    subject.can_unlink_or_die(user)
+    user.has_perm_to_unlink_or_die(subject)
 
-    errors   = defaultdict(list)
+    errors = defaultdict(list)
 
     for relation in Relation.objects.filter(type__is_internal=False, subject_entity=subject_id):
         relation = relation.get_real_entity()
-        if relation.object_entity.can_unlink(user):
+        if user.has_perm_to_unlink(relation.object_entity):
             relation.delete()
         else:
             errors[403].append(_(u'%s : <b>Permission denied</b>,') % relation)
@@ -310,7 +314,7 @@ def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=F
     Tip: see the js function creme.relations.handleAddFromPredicateEntity()
     """
     subject = get_object_or_404(CremeEntity, pk=subject_id)
-    subject.can_link_or_die(request.user)
+    request.user.has_perm_to_link_or_die(subject)
 
     rtype = get_object_or_404(RelationType, pk=rtype_id)
     rtype.is_not_internal_or_die()
@@ -368,7 +372,7 @@ def add_relations_with_same_type(request):
     else:
         raise Http404('Can not find entity with id=%s' % subject_id)
 
-    subject.can_link_or_die(user)
+    user.has_perm_to_link_or_die(subject)
 
     errors = defaultdict(list)
     len_diff = len(entity_ids) - len(entities)
@@ -398,7 +402,7 @@ def add_relations_with_same_type(request):
             errors[404].append(_(u"Incompatible type for object entity with id=%s") % entity.id) #404 ??
         elif not check_properties(entity):
             errors[404].append(_(u"Missing compatible property for object entity with id=%s") % entity.id) #404 ??
-        elif not entity.can_link(user):
+        elif not user.has_perm_to_link(entity):
             errors[403].append(_("Permission denied to entity with id=%s") % entity.id)
         else:
             create_relation(subject_entity=subject, type=rtype, object_entity=entity, user=user)

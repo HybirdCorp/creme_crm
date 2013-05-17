@@ -23,6 +23,7 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import ugettext as _
 
+from creme.creme_core.models import CremeEntity
 from .popup import inner_popup
 
 
@@ -30,7 +31,7 @@ def edit_entity(request, object_id, model, edit_form, template='creme_core/gener
     entity = get_object_or_404(model, pk=object_id)
     user = request.user
 
-    entity.can_change_or_die(user)
+    user.has_perm_to_change_or_die(entity)
 
     if request.method == 'POST':
         form = edit_form(user=user, data=request.POST, files=request.FILES or None, instance=entity)
@@ -54,7 +55,7 @@ def edit_related_to_entity(request, pk, model, form_class, title_format):
     entity = auxiliary.get_related_entity()
     user = request.user
 
-    entity.can_change_or_die(user)
+    user.has_perm_to_change_or_die(entity)
 
     if request.method == 'POST':
         edit_form = form_class(entity=entity, user=user, data=request.POST, instance=auxiliary)
@@ -77,23 +78,27 @@ def edit_model_with_popup(request, query_dict, model, form_class,
                           title_format=None, can_change=None,
                           template='creme_core/generics/blockform/edit_popup.html'):
     """
-    @param query_dict A dictionary that represnts the query to retrieve the edited instance (eg: {'pk': 12})
+    @param query_dict A dictionary that represents the query to retrieve the edited instance (eg: {'pk': 12})
     @param model A django model class that implements the method get_related_entity().
     @param model title_format A format unicode with an arg (for the edited instance).
     @param can_change A function with instance and user as paramaters, which return a Boolean: False causes a 403 error.
     """
     instance = get_object_or_404(model, **query_dict)
+    user = request.user
 
-    if can_change and not can_change(instance, request.user):
-        raise PermissionDenied(_(u'You can not edit this model'))
+    if can_change:
+        if not can_change(instance, user):
+            raise PermissionDenied(_(u'You can not edit this model'))
+    elif isinstance(instance, CremeEntity):
+        user.has_perm_to_change_or_die(instance)
 
     if request.method == 'POST':
-        edit_form = form_class(user=request.user, data=request.POST, files=request.FILES or None, instance=instance)
+        edit_form = form_class(user=user, data=request.POST, files=request.FILES or None, instance=instance)
 
         if edit_form.is_valid():
             edit_form.save()
     else: #return page on GET request
-        edit_form = form_class(user=request.user, instance=instance)
+        edit_form = form_class(user=user, instance=instance)
 
     title_format = title_format or _(u'Edit <%s>')
 

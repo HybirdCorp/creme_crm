@@ -490,7 +490,7 @@ class LineTestCase(_BillingTestCase, CremeTestCase):
 
         user = self.user
         invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
-        self.assertFalse(invoice.can_change(user))
+        self.assertFalse(user.has_perm_to_change(invoice))
 
         create_line = partial(ProductLine.objects.create, user=user,
                               related_document=invoice

@@ -35,7 +35,8 @@ class GenerateInvoiceNumberButton(Button):
         return (Invoice,)
 
     def has_perm(self, context):
-        return context['object'].can_change(context['request'].user)
+        #return context['object'].can_change(context['request'].user)
+        return context['user'].has_perm_to_change(context['object'])
 
     def ok_4_display(self, entity):
         return not bool(entity.number)

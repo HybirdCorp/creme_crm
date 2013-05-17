@@ -111,9 +111,10 @@ class PropertyViewsTestCase(ViewsTestCase):
         ptype01 = create_ptype(str_pk='test-prop_foobar01', text='wears strange hats')
         ptype02 = create_ptype(str_pk='test-prop_foobar02', text='wears strange pants')
 
-        self.assertFalse(entity01.can_change(self.user))
-        self.assertFalse(entity02.can_change(self.user))
-        self.assertTrue(entity03.can_change(self.user))
+        has_perm = self.user.has_perm_to_change
+        self.assertFalse(has_perm(entity01))
+        self.assertFalse(has_perm(entity02))
+        self.assertTrue(has_perm(entity03))
 
         url = self._build_bulk_url(self.centity_ct, entity01, entity02, entity03, entity04)
         response = self.assertGET200(url)
@@ -158,8 +159,8 @@ class PropertyViewsTestCase(ViewsTestCase):
         self._set_all_creds_except_one(excluded=EntityCredentials.CHANGE)
         uneditable = CremeEntity.objects.create(user=self.other_user)
 
-        self.assertTrue(uneditable.can_view(self.user))
-        self.assertFalse(uneditable.can_change(self.user))
+        self.assertTrue(self.user.has_perm_to_view(uneditable))
+        self.assertFalse(self.user.has_perm_to_change(uneditable))
 
         response = self.assertGET200(self._build_bulk_url(self.centity_ct, uneditable))
 

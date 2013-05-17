@@ -38,21 +38,21 @@ def get_add_button(context, entity, user):
 @register.inclusion_tag('creme_core/templatetags/widgets/delete_button.html', takes_context=True)
 def get_delete_button(context, entity, user):
     context.update({
-            'can_delete': entity.can_delete(user),
+            'can_delete': user.has_perm_to_delete(entity),
            })
     return context
 
 @register.inclusion_tag('creme_core/templatetags/widgets/restore_button.html', takes_context=True)
 def get_restore_button(context, entity, user): #TODO: factorise
     context.update({
-            'can_delete': entity.can_delete(user),
+            'can_delete': user.has_perm_to_delete(entity),
            })
     return context
 
 @register.inclusion_tag('creme_core/templatetags/widgets/edit_button.html', takes_context=True)
 def get_edit_button(context, entity, user):
     context.update({
-            'can_change': entity.can_change(user),
+            'can_change': user.has_perm_to_change(entity),
            })
     return context
 
@@ -76,7 +76,7 @@ def get_entity_actions(context, entity):
 @register.simple_tag
 def widget_entity_hyperlink(entity, user, ignore_deleted=False): #TODO: takes_context for user ???
     "{% widget_entity_hyperlink my_entity user %}"
-    if entity.can_view(user):
+    if user.has_perm_to_view(entity):
         return u'<a href="%s"%s>%s</a>' % (
                         entity.get_absolute_url(),
                         ' class="is_deleted"' if entity.is_deleted and not ignore_deleted else '',

@@ -39,7 +39,7 @@ def widget_asset_score(context, segment_desc, asset):
     context['score'] = strategy.get_asset_score(orga, asset, segment_desc)
     context['model_name'] = 'asset'
     context['model'] = asset
-    context['has_perm'] = strategy.can_change(context['user'])
+    context['has_perm'] = context['user'].has_perm_to_change(strategy)
 
     return context
 
@@ -51,7 +51,7 @@ def widget_charm_score(context, segment, charm):
     context['score'] = strategy.get_charm_score(orga, charm, segment)
     context['model_name'] = 'charm'
     context['model'] = charm
-    context['has_perm'] = strategy.can_change(context['user'])
+    context['has_perm'] = context['user'].has_perm_to_change(strategy)
 
     return context
 
@@ -61,6 +61,6 @@ def widget_segment_category(context, segment):
     orga     = context['orga']
 
     context['category'] = strategy.get_segment_category(orga, segment)
-    context['has_perm'] = strategy.can_change(context['user'])
+    context['has_perm'] = context['user'].has_perm_to_change(strategy)
 
     return context

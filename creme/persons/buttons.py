@@ -106,10 +106,15 @@ class AddLinkedContactButton(Button):
     id_           = Button.generate_id('persons', 'add_linked_contact')
     verbose_name  = _(u'Add a related contact')
     template_name = 'persons/templatetags/button_add_linked_contact.html'
-    permission    = 'persons.add_contact'
+    permission    = 'persons.add_contact' #TODO: 'persons.addrelated_contact' ??
 
     def get_ctypes(self):
         return (Organisation,)
+
+    def render(self, context):
+        context['contact_link_perm'] = context['user'].has_perm_to_link(Contact)
+
+        return super(AddLinkedContactButton, self).render(context)
 
 
 become_customer_button    = BecomeCustomerButton()

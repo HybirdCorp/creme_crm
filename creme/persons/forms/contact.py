@@ -25,6 +25,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.models import RelationType, Relation
 from creme.creme_core.forms import CremeEntityField, CremeDateTimeField
+from creme.creme_core.forms.validators import validate_linkable_model
 from creme.creme_core.forms.widgets import Label
 
 #from creme.creme_config.forms.fields import CreatorModelChoiceField
@@ -63,37 +64,40 @@ class ContactForm(_BasePersonForm):
         #self.fields['sector'].user = self.user
 
 
-class ContactWithRelationForm(ContactForm):
+class RelatedContactForm(ContactForm):
     orga_overview = CharField(label=_(u'Concerned organisation'), widget=Label, initial=_('No one'))
 
     def __init__(self, *args, **kwargs):
-        super(ContactWithRelationForm, self).__init__(*args, **kwargs)
-
+        super(RelatedContactForm, self).__init__(*args, **kwargs)
         self.linked_orga = self.initial.get('linked_orga')
 
         if not self.linked_orga:
             return
 
-        self.fields['orga_overview'].initial = self.linked_orga
-
+        fields = self.fields
+        fields['orga_overview'].initial = self.linked_orga
         self.relation_type = self.initial.get('relation_type')
 
         if self.relation_type:
             relation_field = CharField(label=ugettext(u'Relation type'),
                                        widget=TextInput(attrs={'readonly': 'readonly'}),
-                                       initial=self.relation_type
+                                       initial=self.relation_type,
                                       )
         else:
             get_ct = ContentType.objects.get_for_model
             relation_field = ModelChoiceField(label=ugettext(u"Status in the organisation"),
                                               queryset=RelationType.objects.filter(subject_ctypes=get_ct(Contact),
                                                                                    object_ctypes=get_ct(Organisation),
-                                                                                  )
+                                                                                  ),
                                              )
-        self.fields['relation'] = relation_field
+
+        fields['relation'] = relation_field
+
+    def clean_user(self):
+        return validate_linkable_model(Contact, self.user, owner=self.cleaned_data['user'])
 
     def save(self):
-        instance = super(ContactWithRelationForm, self).save()
+        instance = super(RelatedContactForm, self).save()
 
         if self.linked_orga:
             Relation.objects.create(subject_entity=instance,

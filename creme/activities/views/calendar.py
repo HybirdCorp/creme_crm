@@ -90,7 +90,7 @@ def _activity_2_dict(activity, user):
             'url':          "/activities/activity/%s/popup" % activity.pk,
             'entity_color': "#%s" % (activity.type.color or 'C1D9EC'),
             'allDay' :      is_all_day,
-            'editable':     activity.can_change(user),
+            'editable':     user.has_perm_to_change(activity),
            }
 
 @login_required
@@ -198,7 +198,7 @@ def update_activity_date(request):
         is_all_day = bool(JSONDecoder().decode(is_all_day))
 
     activity = Activity.objects.get(pk=act_id)
-    activity.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(activity)
 
     #TODO: factorise (_time_from_JS() function ??)
     activity.start = _js_timestamp_to_datetime(start_timestamp)

@@ -56,8 +56,7 @@ class _RelationsCreateForm(CremeForm):
                                                          .exclude(object_entity__in=subjects_ids)
                                                          .select_related('object_entity')
                    ]
-        #CremeEntity.populate_credentials(entities, user)
-        sfrt_queryset = SemiFixedRelationType.objects.filter(object_entity__in=[e for e in entities if e.can_link(user)])
+        sfrt_queryset = SemiFixedRelationType.objects.filter(object_entity__in=filter(user.has_perm_to_link, entities))
 
         if not relations_types:
             relations_types = RelationType.get_compatible_ones(content_type)

@@ -22,14 +22,12 @@ from django.core.exceptions import PermissionDenied
 from django.forms.util import ValidationError
 from django.utils.translation import ugettext as _
 
-#from creme.creme_core.models import CremeEntity
 from ..utils import entities2unicode
 
 
 def validate_editable_entities(entities, user):
-    #CremeEntity.populate_credentials(entities, user)
-
-    uneditable = entities2unicode((e for e in entities if not e.can_change(user)), user)
+    has_perm = user.has_perm_to_change
+    uneditable = entities2unicode((e for e in entities if not has_perm(e)), user)
 
     if uneditable:
         raise ValidationError(_(u"Some entities are not editable: %s") % uneditable)
@@ -38,9 +36,8 @@ def validate_editable_entities(entities, user):
 
 #TODO: factorise ??
 def validate_linkable_entities(entities, user):
-    #CremeEntity.populate_credentials(entities, user)
-
-    unlinkable = entities2unicode((e for e in entities if not e.can_link(user)), user)
+    has_perm = user.has_perm_to_link
+    unlinkable = entities2unicode((e for e in entities if not has_perm(e)), user)
 
     if unlinkable:
         raise ValidationError(_(u"Some entities are not linkable: %s") % unlinkable)
@@ -49,8 +46,16 @@ def validate_linkable_entities(entities, user):
 
 def validate_linkable_entity(entity, user):
     try:
-        entity.can_link_or_die(user)
+        user.has_perm_to_link_or_die(entity)
     except PermissionDenied as e:
         raise ValidationError(unicode(e))
 
     return entity
+
+def validate_linkable_model(model, user, owner):
+    if not user.has_perm_to_link(model, owner=owner):
+        raise ValidationError(_(u'You are not allowed to link with the «%s» of this user.') %
+                                    model._meta.verbose_name_plural
+                             )
+
+    return owner

@@ -77,10 +77,13 @@ PRES_STATUS_MAP = {
 def build_get_actions(event, entity):
     """Build bound method to overload 'get_actions()' method of CremeEntities"""
     def _get_actions(user):
-        return {'default': EntityAction(entity.get_absolute_url(), ugettext(u"See"), entity.can_view(user), icon="images/view_16.png"),
+        return {'default': EntityAction(entity.get_absolute_url(), ugettext(u"See"),
+                                        user.has_perm_to_view(entity),
+                                        icon="images/view_16.png",
+                                       ),
                 'others':  [EntityAction('/events/event/%s/add_opportunity_with/%s' % (event.id, entity.id),
                                          ugettext(u"Create an opportunity"),
-                                         user.has_perm('opportunities.add_opportunity') and event.can_link(user),
+                                         user.has_perm('opportunities.add_opportunity') and user.has_perm_to_link(event),
                                          icon="images/opportunity_16.png",
                                         ),
                            ]
@@ -140,10 +143,11 @@ class ListViewPostProcessor(object):
         else:
             current_status = INV_STATUS_NO_ANSWER
 
+        has_perm = user.has_perm_to_link
         select = ["""<select onchange="post_contact_status('/events/event/%s/contact/%s/set_invitation_status', this);" %s>""" % (
                         event.id,
                         entity.id,
-                        '' if event.can_link(user) and entity.can_link(user) else 'disabled="True"'
+                        '' if has_perm(event) and has_perm(entity) else 'disabled="True"'
                     )
                  ]
         select.extend(u'<option value="%s" %s>%s</option>' % (
@@ -168,10 +172,11 @@ class ListViewPostProcessor(object):
         else:
             current_status = PRES_STATUS_DONT_KNOW
 
+        has_perm = user.has_perm_to_link
         select = ["""<select onchange="post_contact_status('/events/event/%s/contact/%s/set_presence_status', this);" %s>""" % (
                         event.id,
                         entity.id,
-                        '' if event.can_link(user) and entity.can_link(user) else 'disabled="True"'
+                        '' if has_perm(event) and has_perm(entity) else 'disabled="True"'
                     )
                  ]
         select.extend(u'<option value="%s" %s>%s</option>' % (
@@ -198,7 +203,7 @@ _FILTER_RELATIONTYPES = (REL_SUB_IS_INVITED_TO,
 def list_contacts(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
 
-    event.can_view_or_die(request.user)
+    request.user.has_perm_to_view_or_die(event)
 
     return list_view(request, Contact, template='events/list_events.html',
                      extra_dict={'list_title': _(u'List of contacts related to <%s>') % event,
@@ -230,9 +235,9 @@ def _get_event_n_contact(event_id, contact_id, user):
     event   = get_object_or_404(Event, pk=event_id)
     contact = get_object_or_404(Contact, pk=contact_id)
 
-    #CremeEntity.populate_credentials([event, contact], user) #optimisation
-    event.can_link_or_die(user)
-    contact.can_link_or_die(user)
+    has_perm_or_die = user.has_perm_to_link_or_die
+    has_perm_or_die(event)
+    has_perm_or_die(contact)
 
     return event, contact
 
@@ -267,6 +272,6 @@ def add_opportunity(request, event_id, contact_id):
     event   = get_object_or_404(Event, pk=event_id)
     contact = get_object_or_404(Contact, pk=contact_id)
 
-    event.can_link_or_die(request.user)
+    request.user.has_perm_to_link_or_die(event)
 
     return add_entity(request, RelatedOpportunityCreateForm, extra_initial={'event': event, 'contact': contact})

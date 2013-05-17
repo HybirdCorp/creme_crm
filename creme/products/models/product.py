@@ -63,7 +63,7 @@ class Product(CremeEntity):
         return "/products/products"
 
     def get_entity_summary(self, user):
-        if not self.can_view(user):
+        if not user.has_perm_to_view(self):
             return self.allowed_unicode(user)
 
         summary = "%s<br />" % escape(self.name)

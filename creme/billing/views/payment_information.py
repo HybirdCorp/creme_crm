@@ -57,10 +57,10 @@ def set_default(request, payment_information_id, billing_id):
     user    = request.user
 
     organisation = pi.get_related_entity()
-    organisation.can_view_or_die(user)
-    organisation.can_link_or_die(user)
+    user.has_perm_to_view_or_die(organisation)
+    user.has_perm_to_link_or_die(organisation)
 
-    billing_doc.can_change_or_die(user)
+    user.has_perm_to_change_or_die(billing_doc)
 
     inv_orga_source = billing_doc.get_source()
     if not inv_orga_source or inv_orga_source.id != organisation.id:

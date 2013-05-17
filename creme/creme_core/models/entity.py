@@ -20,6 +20,7 @@
 
 from collections import defaultdict
 import logging
+import warnings
 
 #from django.db import models
 from django.db.models import ForeignKey, Q
@@ -30,7 +31,6 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.conf import settings
 from django.forms.util import flatatt
 
-from ..auth.entity_credentials import EntityCredentials
 from ..core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
 from .base import CremeAbstractEntity
 
@@ -76,7 +76,6 @@ class CremeEntity(CremeAbstractEntity):
         self._relations_map = {}
         self._properties = None
         self._cvalues_map = {}
-        self._credentials_map = {}
 
     #def delete(self):
         #if settings.TRUE_DELETE:
@@ -94,68 +93,73 @@ class CremeEntity(CremeAbstractEntity):
         return unicode(real_entity)
 
     def allowed_unicode(self, user):
-        return unicode(self) if self.can_view(user) else ugettext(u'Entity #%s (not viewable)') % self.id
+        return unicode(self) if user.has_perm_to_view(self) else ugettext(u'Entity #%s (not viewable)') % self.id
 
     def can_change(self, user):
-        if self.is_deleted:
-            return False
-
-        get_related_entity = getattr(self, 'get_related_entity', None)
-        main_entity = get_related_entity() if get_related_entity else self
-
-        return main_entity._get_credentials(user).can_change()
+        warnings.warn("CremeEntity.can_change() method is deprecated; use User.has_perm_to_change() instead",
+                      DeprecationWarning
+                     )
+        return user.has_perm_to_change(self)
 
     def can_change_or_die(self, user):
-        if not self.can_change(user):
-            #TODO allowed_unicode --> recompute creds -> replace by a forbidden_unicode() method  OR CACHE
-            raise PermissionDenied(ugettext(u'You are not allowed to edit this entity: %s') % self.allowed_unicode(user))
+        warnings.warn("CremeEntity.can_change_or_die() method is deprecated; use User.has_perm_to_change_or_die() instead",
+                      DeprecationWarning
+                     )
+        user.has_perm_to_change_or_die(self)
 
     def can_delete(self, user):
-        get_related_entity = getattr(self, 'get_related_entity', None)
-        if get_related_entity:
-            return get_related_entity()._get_credentials(user).can_change()
-
-        return self._get_credentials(user).can_delete()
+        warnings.warn("CremeEntity.can_delete() method is deprecated; use User.has_perm_to_delete() instead",
+                      DeprecationWarning
+                     )
+        return user.has_perm_to_delete(self)
 
     def can_delete_or_die(self, user):
-        if not self.can_delete(user):
-            raise PermissionDenied(ugettext(u'You are not allowed to delete this entity: %s') % self.allowed_unicode(user))
+        warnings.warn("CremeEntity.can_delete_or_die() method is deprecated; use User.has_perm_to_delete_or_die() instead",
+                      DeprecationWarning
+                     )
+        user.has_perm_to_delete_or_die(self)
 
     def can_link(self, user):
-        if self.is_deleted:
-            return False
-
-        return self._get_credentials(user).can_link()
+        warnings.warn("CremeEntity.can_link() method is deprecated; use User.has_perm_to_link() instead",
+                      DeprecationWarning
+                     )
+        return user.has_perm_to_link(self)
 
     def can_link_or_die(self, user):
-        if not self.can_link(user):
-            raise PermissionDenied(ugettext(u'You are not allowed to link this entity: %s') % self.allowed_unicode(user))
+        warnings.warn("CremeEntity.can_link_or_die() method is deprecated; use User.has_perm_to_link_or_die() instead",
+                      DeprecationWarning
+                     )
+        user.has_perm_to_link_or_die(self)
 
     def can_unlink(self, user):
-        return self._get_credentials(user).can_unlink()
+        warnings.warn("CremeEntity.can_unlink() method is deprecated; use User.has_perm_to_unlink() instead",
+                      DeprecationWarning
+                     )
+        return user.has_perm_to_unlink(self)
 
     def can_unlink_or_die(self, user):
-        if not self.can_unlink(user):
-            raise PermissionDenied(ugettext(u'You are not allowed to unlink this entity: %s') % self.allowed_unicode(user))
+        warnings.warn("CremeEntity.can_unlink_or_die() method is deprecated; use User.has_perm_to_unlink_or_die() instead",
+                      DeprecationWarning
+                     )
+        user.has_perm_to_unlink_or_die(self)
 
     def can_view(self, user):
-        return self._get_credentials(user).can_view()
+        warnings.warn("CremeEntity.can_view() method is deprecated; use User.has_perm_to_view() instead",
+                      DeprecationWarning
+                     )
+        return user.has_perm_to_view(self)
 
     def can_view_or_die(self, user):
-        if not self.can_view(user):
-            raise PermissionDenied(ugettext(u'You are not allowed to view this entity: %s') % self.allowed_unicode(user))
+        warnings.warn("CremeEntity.can_view_or_die() method is deprecated; use User.has_perm_to_view_or_die() instead",
+                      DeprecationWarning
+                     )
+        user.has_perm_to_view_or_die(self)
 
-    def _get_credentials(self, user):
-        creds_map = self._credentials_map
-        creds = creds_map.get(user.id)
-
-        if creds is None:
-            logger.debug('CremeEntity._get_credentials(): Cache MISS for id=%s user=%s', self.id, user)
-            creds_map[user.id] = creds = EntityCredentials(user, self)
-        else:
-            logger.debug('CremeEntity._get_credentials(): Cache HIT for id=%s user=%s', self.id, user)
-
-        return creds
+    @staticmethod
+    def populate_credentials(entities, user):
+        warnings.warn("CremeEntity.populate_credentials() method is deprecated & useless.",
+                      DeprecationWarning
+                     )
 
     @staticmethod
     def get_real_entity_by_id(pk):
@@ -165,7 +169,6 @@ class CremeEntity(CremeAbstractEntity):
         return self._get_real_entity(CremeEntity)
 
     def get_absolute_url(self):
-        #TODO : /!\ If the derived class hasn't get_absolute_url error max recursion
         real_entity = self.get_real_entity()
 
         if self is real_entity:
@@ -247,7 +250,7 @@ class CremeEntity(CremeAbstractEntity):
 
     def get_entity_m2m_summary(self, user):
         """Return a string summary useful for list (ie: <ul><li>) representation."""
-        if not self.can_view(user):
+        if not user.has_perm_to_view(self):
             return self.allowed_unicode(user)
 
         return '<a target="_blank" href="%s">%s</a></li>' % (self.get_absolute_url(), escape(unicode(self)))
@@ -258,16 +261,16 @@ class CremeEntity(CremeAbstractEntity):
         edit_url = self.get_edit_absolute_url()
         if edit_url:
             actions.append(EntityAction(edit_url, ugettext('Edit'),
-                                self.can_change(user), icon='images/edit_16.png'
+                                user.has_perm_to_change(self), icon='images/edit_16.png'
                                )
                            )
 
         delete_url = self.get_delete_absolute_url()
         if delete_url:
             actions.append(EntityAction(delete_url, ugettext('Delete'),
-                                        self.can_delete(user),
+                                        user.has_perm_to_delete(self),
                                         icon='images/delete_16.png',
-                                        attrs={'class': 'confirm post ajax lv_reload'}
+                                        attrs={'class': 'confirm post ajax lv_reload'},
                                        )
                           )
 

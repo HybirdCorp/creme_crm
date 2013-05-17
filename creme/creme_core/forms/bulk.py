@@ -157,7 +157,7 @@ class _EntitiesEditForm(CremeForm):
 
             cleaned_value = field.formfield().clean(field_value)
 
-            if isinstance(cleaned_value, CremeEntity) and not cleaned_value.can_view(self.user):
+            if isinstance(cleaned_value, CremeEntity) and not self.user.has_perm_to_view(cleaned_value):
                 raise ValidationError(ugettext(u"You can't view this value, so you can't set it."))
 
             if cleaned_value is None and not field.null:

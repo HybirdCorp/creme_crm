@@ -45,7 +45,7 @@ def add(request):
 @permission_required('billing.add_invoice')
 def add_from_detailview(request, entity_id):
     entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
-    entity.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(entity)
 
     return add_model_with_popup(request, InvoiceCreateForm,
                                 title=_(u"Add an invoice for <%s>") % entity,
@@ -85,7 +85,7 @@ def generate_number(request, invoice_id):
 
     invoice = get_object_or_404(Invoice, pk=invoice_id)
 
-    invoice.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(invoice)
 
     #TODO: move in model ???
     if not invoice.number:

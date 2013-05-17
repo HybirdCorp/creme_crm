@@ -27,7 +27,7 @@ from creme.creme_core.views.generic import add_entity, edit_entity, view_entity,
 from creme.creme_core.utils.queries import get_first_or_None
 
 from ..models import Document, Folder
-from ..forms.document import DocumentCreateForm, DocumentCreateViewForm, DocumentEditForm
+from ..forms.document import DocumentCreateForm, RelatedDocumentCreateForm, DocumentEditForm
 
 
 @login_required
@@ -45,10 +45,11 @@ def add_related(request, entity_id):
     entity = get_object_or_404(CremeEntity, pk=entity_id)
     user = request.user
 
-    entity.can_view_or_die(user)
-    entity.can_link_or_die(user)
+    user.has_perm_to_view_or_die(entity)
+    user.has_perm_to_link_or_die(entity)
+    user.has_perm_to_link_or_die(Document, owner=None)
 
-    return add_model_with_popup(request, DocumentCreateViewForm,
+    return add_model_with_popup(request, RelatedDocumentCreateForm,
                                 _(u'New document for <%s>') % entity,
                                 initial={'entity': entity}
                                )

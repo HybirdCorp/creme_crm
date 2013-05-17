@@ -26,7 +26,7 @@ from creme.creme_core.models import RelationType
 from creme.creme_core.views.generic import add_entity, edit_entity, view_entity, list_view
 
 from ..models import Contact, Organisation
-from ..forms.contact import ContactWithRelationForm, ContactForm
+from ..forms.contact import RelatedContactForm, ContactForm
 
 
 @login_required
@@ -41,15 +41,16 @@ def add(request):
 def add_with_relation(request, orga_id, predicate_id=None):
     user = request.user
     linked_orga = get_object_or_404(Organisation, pk=orga_id)
-    linked_orga.can_link_or_die(user)
-    linked_orga.can_view_or_die(user) #displayed in the form....
+    user.has_perm_to_link_or_die(linked_orga)
+    user.has_perm_to_view_or_die(linked_orga) #displayed in the form....
+    user.has_perm_to_link_or_die(Contact)
 
     initial = {'linked_orga': linked_orga}
 
     if predicate_id:
         initial['relation_type'] = get_object_or_404(RelationType, symmetric_type=predicate_id)
 
-    return add_entity(request, ContactWithRelationForm,
+    return add_entity(request, RelatedContactForm,
                       request.REQUEST.get('callback_url'),
                       'persons/add_contact_form.html', extra_initial=initial
                      )

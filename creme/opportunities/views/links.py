@@ -41,10 +41,11 @@ def set_current_quote(request, opp_id, quote_id):
     opp = get_object_or_404(Opportunity, pk=opp_id)
     user = request.user
 
-    opp.can_link_or_die(user)
+    has_perm_or_die = user.has_perm_to_link_or_die
+    has_perm_or_die(opp)
 
     quote = get_object_or_404(Quote, pk=quote_id)
-    quote.can_link_or_die(user)
+    has_perm_or_die(quote)
 
     #TODO: modify the existing relation instead of delete it ???
     ct = ContentType.objects.get_for_model(Quote)

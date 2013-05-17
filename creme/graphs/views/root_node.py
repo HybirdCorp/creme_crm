@@ -47,7 +47,7 @@ def edit(request, root_id):
 def delete(request):
     root_node = get_object_or_404(RootNode, pk=get_from_POST_or_404(request.POST, 'id'))
 
-    root_node.graph.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(root_node.graph)
     root_node.delete()
 
     return HttpResponse("", mimetype="text/javascript")

@@ -73,9 +73,12 @@ class Folder(CremeEntity):
     def get_actions(self, user):
         actions = super(Folder, self).get_actions(user)
 
-        actions['others'].append(EntityAction('%s?parent_id=%s' % (self.get_lv_absolute_url(), self.id), ugettext(u"Explore"),
-                                        self.can_view(user),
-                                        icon="images/view_16.png"))#TODO: Ajaxify this
+        actions['others'].append(EntityAction('%s?parent_id=%s' % (self.get_lv_absolute_url(), self.id),
+                                              ugettext(u"Explore"),
+                                              user.has_perm_to_view(self),
+                                              icon="images/view_16.png",
+                                             ),
+                                )#TODO: Ajaxify this
         return actions
 
     def get_parents(self):

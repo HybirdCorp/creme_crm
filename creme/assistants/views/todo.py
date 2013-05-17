@@ -42,7 +42,7 @@ def validate(request, todo_id):
     todo = get_object_or_404(ToDo, pk=todo_id)
     entity = todo.creme_entity
 
-    entity.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(entity)
 
     todo.is_ok = True
     todo.save()

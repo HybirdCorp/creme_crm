@@ -136,10 +136,10 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         role.creatable_ctypes = [ContentType.objects.get_for_model(Invoice)]
 
         source = Organisation.objects.create(user=self.other_user, name='Source Orga')
-        self.assertFalse(source.can_link(user))
+        self.assertFalse(user.has_perm_to_link(source))
 
         target = Organisation.objects.create(user=self.other_user, name='Target Orga')
-        self.assertFalse(target.can_link(user))
+        self.assertFalse(user.has_perm_to_link(target))
 
         response = self.client.get('/billing/invoice/add', follow=True)
 

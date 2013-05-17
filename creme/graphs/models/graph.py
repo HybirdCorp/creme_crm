@@ -67,8 +67,9 @@ class Graph(CremeEntity):
 
         #NB: "self.roots.all()" causes a strange additional query (retrieving of the base CremeEntity !)....
         #roots = RootNode.objects.filter(graph=self.id).select_related('entity')
+        has_perm_to_view = user.has_perm_to_view
         roots = [root for root in RootNode.objects.filter(graph=self.id).select_related('entity')
-                    if not root.entity.is_deleted and root.entity.can_view(user)
+                    if not root.entity.is_deleted and has_perm_to_view(root.entity)
                 ]
 
         add_node = graph.add_node
@@ -103,7 +104,7 @@ class Graph(CremeEntity):
 
             for relation in relations:
                 object_ = relation.object_entity
-                if not object_.can_view(user):
+                if not user.has_perm_to_view(object_):
                     continue
 
                 uni_object = unicode(object_)

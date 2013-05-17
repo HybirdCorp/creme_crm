@@ -1,9 +1,12 @@
  # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+
     from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
     from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import CremeEntity, RelationType, HeaderFilter, SetCredentials
     from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -29,7 +32,9 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertTrue(RelationType.objects.filter(pk=REL_SUB_RELATED_2_DOC).exists())
 
         get_ct = ContentType.objects.get_for_model
-        self.assertTrue(HeaderFilter.objects.filter(entity_type=get_ct(Document)).exists())
+        hf_filter = HeaderFilter.objects.filter
+        self.assertTrue(hf_filter(entity_type=get_ct(Document)).exists())
+        self.assertTrue(hf_filter(entity_type=get_ct(Folder)).exists())
 
         self.assertTrue(Folder.objects.exists())
         self.assertTrue(FolderCategory.objects.exists())
@@ -237,19 +242,40 @@ class DocumentTestCase(_DocumentsTestCase):
                    creatable_models=[Document]
                   )
 
-        SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   | \
-                                            EntityCredentials.CHANGE | \
-                                            EntityCredentials.DELETE | \
-                                            EntityCredentials.UNLINK, #not EntityCredentials.LINK
-                                      set_type=SetCredentials.ESET_ALL
-                                     )
+        create_sc = partial(SetCredentials.objects.create, role=self.role,
+                            set_type=SetCredentials.ESET_OWN,
+                           )
+        create_sc(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
+                        EntityCredentials.DELETE | EntityCredentials.UNLINK, #not EntityCredentials.LINK
+                 )
 
-        entity = CremeEntity.objects.create(user=self.other_user)
-        orga = Organisation.objects.create(user=self.other_user, name='NERV')
-        self.assertTrue(orga.can_view(self.user))
-        self.assertFalse(orga.can_link(self.user))
-        self.assertGET403(self._buid_addrelated_url(orga))
+        user = self.user
+        orga = Organisation.objects.create(user=user, name='NERV')
+        self.assertTrue(user.has_perm_to_view(orga))
+        self.assertFalse(user.has_perm_to_link(orga))
+
+        url = self._buid_addrelated_url(orga)
+        self.assertGET403(url)
+
+        get_ct = ContentType.objects.get_for_model
+        create_sc(value=EntityCredentials.LINK, ctype=get_ct(Organisation))
+        self.assertGET403(url)
+
+        create_sc(value=EntityCredentials.LINK, ctype=get_ct(Document))
+        self.assertGET200(url)
+
+        response = self.assertPOST200(url, follow=True,
+                                      data={'user':         self.other_user.pk,
+                                            'title':        'Title',
+                                            'description':  'Test description',
+                                            'filedata':     self._build_filedata('Yes I am the content '
+                                                                                 '(DocumentTestCase.test_add_related_document03)'
+                                                                                )[0],
+                                           }
+                                     )
+        self.assertFormError(response, 'form', 'user',
+                             [_(u'You are not allowed to link with the «%s» of this user.') % _(u'Documents')]
+                            )
 
     def test_add_related_document04(self):
         "View credentials"
@@ -258,17 +284,17 @@ class DocumentTestCase(_DocumentsTestCase):
                   )
 
         SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.CHANGE | \
-                                            EntityCredentials.DELETE | \
-                                            EntityCredentials.LINK   | \
+                                      value=EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
                                             EntityCredentials.UNLINK, #not EntityCredentials.VIEW
                                       set_type=SetCredentials.ESET_ALL
                                      )
 
         entity = CremeEntity.objects.create(user=self.other_user)
         orga = Organisation.objects.create(user=self.other_user, name='NERV')
-        self.assertTrue(orga.can_link(self.user))
-        self.assertFalse(orga.can_view(self.user))
+        self.assertTrue(self.user.has_perm_to_link(orga))
+        self.assertFalse(self.user.has_perm_to_view(orga))
         self.assertGET403(self._buid_addrelated_url(orga))
 
     def test_add_related_document05(self):

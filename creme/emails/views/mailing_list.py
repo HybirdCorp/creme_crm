@@ -94,7 +94,7 @@ def _delete_aux(request, ml_id, deletor):
     subobject_id = get_from_POST_or_404(request.POST, 'id')
     ml = get_object_or_404(MailingList, pk=ml_id)
 
-    ml.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(ml)
 
     deletor(ml, subobject_id)
 

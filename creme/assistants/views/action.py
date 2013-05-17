@@ -44,7 +44,7 @@ def validate(request, action_id):
     action = get_object_or_404(Action, pk=action_id)
     entity = action.creme_entity
 
-    entity.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(entity)
 
     action.is_ok = True
     action.validation_date = datetime.today()

@@ -72,17 +72,17 @@ def listview(request):
 @permission_required('reports')
 def unlink_report(request):
     field = get_object_or_404(Field, pk=request.POST.get('field_id'))
-    user  = request.user
+    has_perm_or_die = request.user.has_perm_to_unlink_or_die
 
     current_report = None
     try:
         current_report = field.report_columns_set.all()[0]
-        current_report.can_unlink_or_die(user)#User can unlink on current report
+        has_perm_or_die(current_report) #User can unlink on current report
     except IndexError:
-        pass#Should never get here...
+        pass #Should never get here...
 
     if current_report is not None:
-        field.report.can_unlink_or_die(user)#User can unlink on sub report
+        has_perm_or_die(field.report) #User can unlink on sub report
 
         field.report   = None
         field.selected = False
@@ -91,7 +91,7 @@ def unlink_report(request):
     return HttpResponse("", mimetype="text/javascript")
 
 def __link_report(request, report, field, ct):
-    report.can_link_or_die(request.user)
+    request.user.has_perm_to_link_or_die(report)
 
     #POST = request.POST
     #if POST:
@@ -182,7 +182,7 @@ def change_field_order(request):
     if report.id not in field.report_columns_set.values_list('pk', flat=True):
         return HttpResponse("", status=403, mimetype="text/javascript")
 
-    report.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(report)
 
     field.order =  field.order + _order_direction[direction]
     try:
@@ -202,7 +202,8 @@ def change_field_order(request):
 def preview(request, report_id):
     user = request.user
     report = get_object_or_404(Report, pk=report_id)
-    report.can_view_or_die(user)
+
+    user.has_perm_to_view_or_die(report)
 
     extra_q_filter = Q()
     start = end = None
@@ -213,7 +214,6 @@ def preview(request, report_id):
         if filter_form.is_valid():
             extra_q_filter = Q(**filter_form.get_q_dict())
             start, end = filter_form.get_dates()
-
     else:
         filter_form = DateReportFilterForm(report=report, user=user)
 
@@ -222,14 +222,15 @@ def preview(request, report_id):
     return render(request, "reports/preview_report.html",
                   {'lines': report.fetch_all_lines(limit_to=LIMIT_TO,
                                                    extra_q=extra_q_filter,
-                                                   user=user),
-                   'object':        report,
-                   'limit_to':      LIMIT_TO,
-                   'form':          filter_form,
-                   'start':         start,
-                   'end':           end,
+                                                   user=user,
+                                                  ),
+                   'object':   report,
+                   'limit_to': LIMIT_TO,
+                   'form':     filter_form,
+                   'start':    start,
+                   'end':      end,
                    },
-                  )
+                 )
 
 @login_required
 @permission_required('reports')
@@ -241,7 +242,7 @@ def set_selected(request):
     if report.id not in field.report_columns_set.values_list('pk', flat=True):
         return HttpResponse("Forbidden", status=403, mimetype="text/javascript")
 
-    report.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(report)
 
     try:
         checked = int(POST.get('checked', 0))
@@ -275,7 +276,7 @@ def export(request, report_id, doc_type):
     writer = backend()
     writerow = writer.writerow
 
-    report.can_view_or_die(user)
+    user.has_perm_to_view_or_die(report)
 
     field_name    = GET_get('field')
     if field_name is not None:

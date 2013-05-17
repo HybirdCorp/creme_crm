@@ -46,7 +46,7 @@ def edit(request, resource_id):
 def delete(request): #TODO: generic delete ??
     resource = get_object_or_404(Resource, pk=get_from_POST_or_404(request.POST, 'id'))
 
-    resource.task.can_change_or_die(request.user)
+    request.user.has_perm_to_change_or_die(resource.task)
     #resource.can_delete_or_die(request.user) #beware to change template if uncommented
 
     resource.delete()

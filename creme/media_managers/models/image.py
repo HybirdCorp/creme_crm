@@ -81,7 +81,7 @@ class Image(CremeEntity):
         return settings.MEDIA_URL + unicode(self.image).replace(os.sep, '/') #TODO credentials static/dynamic image
 
     def get_entity_summary(self, user):
-        if not self.can_view(user):
+        if not user.has_perm_to_view(self):
             return self.allowed_unicode(user)
 
         return mark_safe("""<a href="javascript:creme.utils.openWindow('%(url)s','image_popup');"><img src="%(url)s" %(size)s alt="%(name)s" title="%(name)s"/></a>""" % {
@@ -92,7 +92,7 @@ class Image(CremeEntity):
                       )
 
     def get_entity_m2m_summary(self, user):
-        if not self.can_view(user):
+        if not user.has_perm_to_view(self):
             return self.allowed_unicode(user)
 
         return '<img src="%(url)s" alt="%(title)s" title="%(title)s" %(size)s class="magnify"/>' % {

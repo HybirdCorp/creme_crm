@@ -66,8 +66,8 @@ class VcfExportTestCase(CremeTestCase):
                                      )
 
         contact = Contact.objects.create(user=self.other_user, last_name='Abitbol')
-        self.assertTrue(contact.can_change(user))
-        self.assertFalse(contact.can_view(user))
+        self.assertTrue(user.has_perm_to_change(contact))
+        self.assertFalse(user.has_perm_to_view(contact))
         self._generate_vcf(contact, status_code=403)
 
     def test_get_vcf_civility(self):
