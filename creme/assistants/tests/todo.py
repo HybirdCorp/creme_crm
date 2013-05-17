@@ -48,11 +48,14 @@ class TodoTestCase(AssistantsTestCase):
         entity = self.entity
         self.assertGET200(self._build_add_url(entity))
 
-        todo = self._create_todo('Title', 'Description')
+        title = 'Title'
+        todo = self._create_todo(title, 'Description')
         self.assertEqual(1, ToDo.objects.count())
         self.assertEqual(entity.id,             todo.entity_id)
         self.assertEqual(entity.entity_type_id, todo.entity_content_type_id)
         self.assertLess((datetime.now() - todo.creation_date).seconds, 10)
+
+        self.assertEqual(title, unicode(todo))
 
     def test_edit01(self):
         title       = 'Title'

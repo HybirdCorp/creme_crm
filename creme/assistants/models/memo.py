@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,6 +30,7 @@ from creme.creme_core.models import CremeModel, CremeEntity
 from creme.creme_core.models.fields import CremeUserForeignKey
 from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
 from creme.creme_core.signals import pre_merge_related
+from creme.creme_core.utils import ellipsis
 
 
 class Memo(CremeModel):
@@ -46,6 +47,10 @@ class Memo(CremeModel):
         app_label = 'assistants'
         verbose_name = _(u'Memo')
         verbose_name_plural = _(u'Memos')
+
+    def __unicode__(self):
+        #NB: translate for unicode can not take 2 arguments...
+        return ellipsis(self.content.strip().replace('\n', ''), 25)
 
     @staticmethod
     def get_memos(entity):

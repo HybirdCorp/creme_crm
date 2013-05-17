@@ -39,7 +39,8 @@ class AlertTestCase(AssistantsTestCase):
         entity = self.entity
         self.assertGET200(self._build_add_url(entity))
 
-        alert = self._create_alert('Title', 'Description', '2010-9-29')
+        title = 'Title'
+        alert = self._create_alert(title, 'Description', '2010-9-29')
         self.assertEqual(1, Alert.objects.count())
 
         self.assertIs(False,        alert.is_validated)
@@ -48,6 +49,8 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual(entity.id,             alert.entity_id)
         self.assertEqual(entity.entity_type_id, alert.entity_content_type_id)
         self.assertEqual(datetime(year=2010, month=9, day=29), alert.trigger_date)
+
+        self.assertEqual(title, unicode(alert))
 
     def test_create02(self):
         "Errors"

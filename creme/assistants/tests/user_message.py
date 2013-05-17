@@ -78,6 +78,8 @@ class UserMessageTestCase(AssistantsTestCase):
 
         self.assertLess((datetime.now() - message.creation_date).seconds, 10)
 
+        self.assertEqual(title, unicode(message))
+
     def test_create02(self):
         priority = UserMessagePriority.objects.create(title='Important')
         user01   = User.objects.create_user('User01', 'user01@foobar.com', 'password')

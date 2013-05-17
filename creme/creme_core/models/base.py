@@ -21,6 +21,7 @@
 import os
 from itertools import chain
 from collections import defaultdict
+import logging
 
 from django.db import transaction
 from django.db.models import Model, Manager, CharField, BooleanField, FileField #ForeignKey
@@ -30,6 +31,9 @@ from django.contrib.contenttypes.models import ContentType
 
 from ..core.function_field import FunctionFieldsManager
 from .fields import CreationDateTimeField, ModificationDateTimeField, CremeUserForeignKey, CTypeForeignKey
+
+
+logger = logging.getLogger(__name__)
 
 
 class CremeModel(Model):
@@ -72,6 +76,8 @@ class CremeModel(Model):
                 transaction.commit()
             except Exception as e:
                 transaction.rollback()
+                #NB: logger.exception() breaks the functioning of commit/rollback feature...
+                logger.debug('Error in CremeModel.delete(): %s', e)
                 raise e
 
         if _delete_files:

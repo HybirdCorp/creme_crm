@@ -26,6 +26,7 @@ from creme.creme_core.models import Relation
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.forms.widgets import UploadedFileWidget
 from creme.creme_core.views.file_handling import handle_uploaded_file
+from creme.creme_core.utils import ellipsis
 
 from ..models import FolderCategory, Folder, Document
 from ..constants import REL_SUB_RELATED_2_DOC, DOCUMENTS_FROM_ENTITIES
@@ -51,12 +52,6 @@ class DocumentEditForm(CremeEntityForm):
 
 _TITLE_MAX_LEN = Folder._meta.get_field('title').max_length
 
-#TODO: move in creme_core.utils ??
-def _ellipsis(s, length):
-    if len(s) > length:
-        s = s[:length - 1] + u'…'
-
-    return s
 
 #TODO : rename it in RelatedDocumentCreateForm
 class DocumentCreateViewForm(DocumentCreateForm):
@@ -83,9 +78,9 @@ class DocumentCreateViewForm(DocumentCreateForm):
                                       category=category,
                                       defaults={'user': user},
                                      ) [0]
-            entity_folder = get_folder(title=_ellipsis(u'%s_%s' % (entity.id, unicode(entity)),
-                                                       _TITLE_MAX_LEN,
-                                                      ), #beurkkk
+            entity_folder = get_folder(title=ellipsis(u'%s_%s' % (entity.id, unicode(entity)),
+                                                      _TITLE_MAX_LEN,
+                                                     ), #beurkkk
                                        defaults={'parent_folder': model_folder,
                                                  'category':      category,
                                                  'user':          user,

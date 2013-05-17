@@ -82,7 +82,7 @@ class Line(CremeEntity):
     function_fields = CremeEntity.function_fields.new(_LineTypeField())
     creation_label = _('Add a line')
 
-    _related_document = None
+    _related_document = False
     _related_item = None
 
     class Meta:
@@ -162,11 +162,19 @@ class Line(CremeEntity):
 
     @property
     def related_document(self):
-        if not self._related_document:
-            #TODO: subject_entity=self.id ?? test with assertNumQueries
-            self._related_document = self.relations.get(type=REL_OBJ_HAS_LINE, subject_entity=self.id).object_entity.get_real_entity()
+        related = self._related_document
 
-        return self._related_document
+        if related is False:
+            try:
+                related = self.relations.get(type=REL_OBJ_HAS_LINE, subject_entity=self.id) \
+                                        .object_entity \
+                                        .get_real_entity()
+            except Relation.DoesNotExist:
+                related = None
+
+            self._related_document = related
+
+        return related
 
     @related_document.setter
     def related_document(self, billing_entity):

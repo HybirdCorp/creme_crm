@@ -59,6 +59,8 @@ class ActionTestCase(AssistantsTestCase):
         self.assertLess((datetime.now() - action.creation_date).seconds, 10)
         self.assertEqual(datetime(year=2010, month=12, day=24), action.deadline)
 
+        self.assertEqual(title, unicode(action))
+
     def test_edit(self):
         title    = 'TITLE'
         descr    = 'DESCRIPTION'

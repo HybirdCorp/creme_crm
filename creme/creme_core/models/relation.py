@@ -18,10 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
 import logging
+import warnings
 
 from django.db.models import Q, CharField, ForeignKey, ManyToManyField, BooleanField, PROTECT
 from django.db import transaction
+from django.dispatch import receiver
 from django.http import Http404
 from django.utils.encoding import force_unicode, smart_str
 from django.utils.html import escape
@@ -233,8 +236,8 @@ class Relation(CremeAbstractEntity):
             if self.symmetric_relation is None:
                 self.symmetric_relation = sym_relation
                 super(Relation, self).save(using=using, force_insert=False)
-        except Exception, e:
-            logger.debug('Error in creme_core.Relation.save(): %s', e)
+        except Exception:
+            logger.exception('Error in creme_core.Relation.save()')
             transaction.rollback()
         else:
             transaction.commit()
@@ -280,11 +283,17 @@ class Relation(CremeAbstractEntity):
         return Q(relations__type=filter_predicate, relations__object_entity__header_filter_search_field__icontains=value_for_filter)
 
     def update_links(self, subject_entity=None, object_entity=None, save=False):
-        """Beware: use this method if you have to update the related entities of a relation.
+        """Deprecated
+        Beware: use this method if you have to update the related entities of a relation.
         @param subject_entity Give the param if you want to update the value of the relation's subject.
         @param object_entity Give the param if you want to update the value of the relation's object.
         @param save Save the relation if needed. Default to False.
         """
+        warnings.warn("Relation.update_links() method is deprecated; "
+                      "delete your old Relation instace and create a new one instead",
+                      DeprecationWarning
+                     )
+
         changed = False
 
         if subject_entity is not None:
@@ -318,17 +327,37 @@ class SemiFixedRelationType(CremeModel):
         return self.predicate
 
 
+@receiver(pre_merge_related)
 def _handle_merge(sender, other_entity, **kwargs):
-    sender_id = sender.id
-    rel_filter = sender.relations.filter
+    """Delete 'Duplicated' Relations (ie: exist in the removed entity & the
+    remaining entity).
+    """
 
-    for relation in other_entity.relations.all():
-        if rel_filter(subject_entity=sender_id, type=relation.type_id,
-                      object_entity=relation.object_entity_id
-                     ).exists():
+    #sender_id = sender.id
+    #rel_filter = sender.relations.filter
+
+    #for relation in other_entity.relations.all():
+        #if rel_filter(subject_entity=sender_id, type=relation.type_id,
+                      #object_entity=relation.object_entity_id
+                     #).exists():
+            #relation.delete()
+        ##else:
+            ##relation.update_links(subject_entity=sender)
+
+    from .history import HistoryLine
+
+    # TRICK: We use the related accessor 'relations_where_is_object' instead
+    # of 'relations' because HistoryLine creates lines for relation with
+    # types '*-subject_*' (symmetric with types '*-object_*')
+    # If we'd use 'sender.relations' we should disable/delete
+    # 'relation.symmetric_relation' that would take an additional query.
+    relations_info = defaultdict(list)
+    for rtype_id, entity_id in sender.relations_where_is_object \
+                                     .values_list('type', 'subject_entity'):
+        relations_info[rtype_id].append(entity_id)
+
+    rel_filter = other_entity.relations_where_is_object.filter
+    for rtype_id, entity_ids in relations_info.iteritems():
+        for relation in rel_filter(type=rtype_id, subject_entity__in=entity_ids):
+            HistoryLine.disable(relation)
             relation.delete()
-        else:
-            relation.update_links(subject_entity=sender)
-
-
-pre_merge_related.connect(_handle_merge, dispatch_uid='creme_core-relations_handle_merge')

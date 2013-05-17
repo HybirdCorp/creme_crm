@@ -34,33 +34,31 @@
                     {% endif %}
                     <td class="{{row_color}}">{{line.get_type_str}}</td>
                     <td class="{{row_color}}">
-                        {% with line.verbose_modifications as modifications %}
+                        {% with modifications=line.verbose_modifications %}
                             {% if modifications|length == 1 %}
                                 {{modifications.0}}
                             {% else %}
                                 <ul>{% for modif in modifications %}<li>{{modif}}</li>{% endfor %}</ul>
                             {% endif %}
                         {% endwith %}
-                        {% with line.related_line as related_line %}{% if related_line %}
-                            {% if line.is_about_relation %}&nbsp;
-                                {% with related_line.entity as related_entity %}
+                        {% with related_line=line.related_line %}{% if related_line %}
+                            {% with related_entity=related_line.entity %}
+                                {% if line.line_type.is_about_relation %}&nbsp;
                                     {% if related_entity %}
                                         {% widget_entity_hyperlink related_entity user %}
                                     {% else %}
                                         {{related_line.entity_repr}}{% comment %}TODO: improve credentials here !! {% endcomment %}
                                     {% endif %}
-                                {% endwith %}
-                            {% else %}
-                                {% with related_line.entity as related_entity %}
+                                {% else %}
                                     {% if related_entity %}
                                         {% trans "Edition of :" %}&nbsp;{% widget_entity_hyperlink related_entity user %}
                                     {% else %}
                                         {% blocktrans with related_line.entity_repr as entity %}Edit "{{entity}}"{% endblocktrans %}{% comment %}TODO: improve credentials here !! {% endcomment %}
                                     {% endif %}
-                                {% endwith %}
-                                <br/>
-                                {% for modif in related_line.verbose_modifications %} - {{modif}}<br/>{% endfor %}
-                            {% endif %}
+                                    <br/>
+                                    {% for modif in related_line.verbose_modifications %} - {{modif}}<br/>{% endfor %}
+                                {% endif %}
+                            {% endwith %}
                         {% endif %}{% endwith %}
                     </td>
                     <td class="{{row_color}}">{{line.username}}</td>
