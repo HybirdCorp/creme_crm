@@ -34,7 +34,7 @@ from creme.creme_core.signals import pre_merge_related
 
 class UserMessagePriority(CremeModel):
     title     = CharField(_(u'Title'), max_length=200)
-    is_custom = BooleanField(default=True) #used by creme_config
+    is_custom = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
 
     class Meta:
         app_label = 'assistants'

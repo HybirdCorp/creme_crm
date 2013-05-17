@@ -44,7 +44,7 @@ _NAME_LENGTH = 100
 
 class ActType(CremeModel):
     title     = CharField(_(u"Title"), max_length=75)
-    is_custom = BooleanField(default=True) #used by creme_config
+    is_custom = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
 
     class Meta:
         app_label = "commercial"

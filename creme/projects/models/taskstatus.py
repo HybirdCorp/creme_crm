@@ -28,7 +28,7 @@ class TaskStatus(CremeModel):
     name        = CharField(_('Name'), max_length=100)
     color_code  = CharField(_('Color'), max_length=100, blank=True, null=True)
     description = TextField(_('Description'))
-    is_custom   = BooleanField(default=True) #used by creme_config
+    is_custom   = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
 
     class Meta:
         app_label = 'projects'

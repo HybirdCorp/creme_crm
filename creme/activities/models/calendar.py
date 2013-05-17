@@ -28,7 +28,7 @@ from creme.creme_core.models.fields import CremeUserForeignKey
 class Calendar(CremeModel):
     name        = CharField(_(u'Name'), max_length=100, unique=True)
     is_default  = BooleanField(_(u'Is default?'), default=False)
-    is_custom   = BooleanField(default=True, editable=False) #used by creme_config
+    is_custom   = BooleanField(default=True, editable=False).set_tags(viewable=False) #used by creme_config
     is_public   = BooleanField(default=False, verbose_name=_(u'Is public?'))
     user        = CremeUserForeignKey(verbose_name=_(u'Calendar owner'))
 
