@@ -155,13 +155,13 @@ def related2unicode(entity, user):
     """
     return u'%s - %s' % (entity.get_related_entity().allowed_unicode(user), unicode(entity))
 
-__B2S_MAP = {
+__BFS_MAP = {
         'true':  True,
         'false': False,
     }
 
 def bool_from_str(string):
-    b = __B2S_MAP.get(string.lower())
+    b = __BFS_MAP.get(string.lower())
 
     if b is not None:
         return b
@@ -183,6 +183,12 @@ def truncate_str(str, max_length, suffix=""):
         return suffix
     else:
         return str[:total]
+
+def ellipsis(s, length):
+    if len(s) > length:
+        s = s[:length - 1] + u'…'
+
+    return s
 
 def is_testenvironment(request):
     return request.META.get('SERVER_NAME') == 'testserver'

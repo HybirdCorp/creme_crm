@@ -53,6 +53,8 @@ class CommercialApproachTestCase(CremeTestCase):
 
         self.assertLess((datetime.today() - commapp.creation_date).seconds, 10)
 
+        self.assertEqual(title, unicode(commapp))
+
     def test_merge(self):
         self.login()
         user = self.user

@@ -23,7 +23,8 @@ from collections import defaultdict
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
-from .models import CremeEntity, Relation, CremeProperty, HistoryLine
+from .models import CremeEntity, Relation, CremeProperty
+from .models.history import HistoryLine, TYPE_SYM_RELATION, TYPE_SYM_REL_DEL
 from .gui.block import SimpleBlock, QuerysetBlock, BlocksManager, list4url
 
 
@@ -106,30 +107,36 @@ class HistoryBlock(QuerysetBlock):
             entities_map.update(get_ct(ct_id).model_class().objects.in_bulk(entities_ids))
 
         for hline in hlines:
-            hline.entity = entities_map[hline.entity_id]
+            #hline.entity = entities_map[hline.entity_id]
+            hline.entity = entities_map.get(hline.entity_id) #should not happen that entity not more exists but...
 
         #CremeEntity.populate_credentials(entities_map.values(), user) #beware: values() and not itervalues()
 
     def detailview_display(self, context):
         pk = context['object'].pk
-        return self._render(self.get_block_template_context(context, HistoryLine.objects.filter(entity=pk),
-                                                            update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
-                                                           ))
+        return self._render(self.get_block_template_context(
+                                       context,
+                                       HistoryLine.objects.filter(entity=pk),
+                                       update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, pk),
+                                   )
+                           )
 
     def portal_display(self, context, ct_ids):
-        btc = self.get_block_template_context(context,
-                                              HistoryLine.objects.filter(entity_ctype__in=ct_ids),
-                                              update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
-                                             )
+        btc = self.get_block_template_context(
+                    context,
+                    HistoryLine.objects.filter(entity_ctype__in=ct_ids),
+                    update_url='/creme_core/blocks/reload/portal/%s/%s/' % (self.id_, list4url(ct_ids)),
+                   )
         self._populate_related_real_entities(btc['page'].object_list, context['request'].user)
 
         return self._render(btc)
 
     def home_display(self, context):
-        btc = self.get_block_template_context(context,
-                                              HistoryLine.objects.exclude(type=HistoryLine.TYPE_SYM_RELATION),
-                                              update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
-                                             )
+        btc = self.get_block_template_context(
+                    context,
+                    HistoryLine.objects.exclude(type__in=(TYPE_SYM_RELATION, TYPE_SYM_REL_DEL)),
+                    update_url='/creme_core/blocks/reload/home/%s/' % self.id_,
+                   )
         self._populate_related_real_entities(btc['page'].object_list, context['request'].user)
 
         return self._render(btc)

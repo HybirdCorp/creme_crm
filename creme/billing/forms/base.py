@@ -101,6 +101,20 @@ class BaseEditForm(CremeEntityForm):
 
         return cleaned_data
 
+    def _manage_relation(self, existing_relation, type_id, related_entity):
+        if existing_relation:
+            if related_entity.id != existing_relation.object_entity_id:
+                existing_relation.delete()
+                existing_relation = None
+
+        if not existing_relation:
+            instance = self.instance
+            Relation.objects.create(subject_entity=instance,
+                                    type_id=type_id,
+                                    object_entity=related_entity,
+                                    user=instance.user,
+                                   )
+
     def save(self):
         instance = self.instance
 
@@ -117,23 +131,25 @@ class BaseEditForm(CremeEntityForm):
 
         instance = super(BaseEditForm, self).save()
 
-        if self.issued_relation:
-            self.issued_relation.update_links(object_entity=source, save=True)
-        else:
-            Relation.objects.create(subject_entity=instance,
-                                    type_id=REL_SUB_BILL_ISSUED,
-                                    object_entity=source,
-                                    user=user
-                                   )
+        #if self.issued_relation:
+            #self.issued_relation.update_links(object_entity=source, save=True)
+        #else:
+            #Relation.objects.create(subject_entity=instance,
+                                    #type_id=REL_SUB_BILL_ISSUED,
+                                    #object_entity=source,
+                                    #user=user
+                                   #)
+        self._manage_relation(self.issued_relation, REL_SUB_BILL_ISSUED, source) #TODO: move this intelligence in models.Base.save()
 
-        if self.received_relation:
-            self.received_relation.update_links(object_entity=target, save=True)
-        else:
-            Relation.objects.create(subject_entity=instance,
-                                    type_id=REL_SUB_BILL_RECEIVED,
-                                    object_entity=target,
-                                    user=user
-                                   )
+        #if self.received_relation:
+            #self.received_relation.update_links(object_entity=target, save=True)
+        #else:
+            #Relation.objects.create(subject_entity=instance,
+                                    #type_id=REL_SUB_BILL_RECEIVED,
+                                    #object_entity=target,
+                                    #user=user
+                                   #)
+        self._manage_relation(self.received_relation, REL_SUB_BILL_RECEIVED, target)
 
         #TODO: do this in model/with signal to avoid errors ???
         if self.old_user_id and self.old_user_id != user.id:

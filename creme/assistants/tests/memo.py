@@ -39,7 +39,8 @@ class MemoTestCase(AssistantsTestCase):
         self.assertGET200(self._build_add_url(entity))
 
         homepage = True
-        memo = self._create_memo('Content', homepage)
+        content = 'Content'
+        memo = self._create_memo(content, homepage)
         self.assertEqual(1, Memo.objects.count())
 
         self.assertEqual(homepage,  memo.on_homepage)
@@ -50,15 +51,19 @@ class MemoTestCase(AssistantsTestCase):
 
         self.assertLess((datetime.now() - memo.creation_date).seconds, 10)
 
+        self.assertEqual(content, unicode(memo))
+
     def test_edit(self):
-        content  = 'content'
+        content  = ' content'
         homepage = True
         memo = self._create_memo(content, homepage)
 
         url = '/assistants/memo/edit/%s/' % memo.id
         self.assertGET200(url)
 
-        content += '_edited'
+        content += u""": 
+I add a long text in order to obtain a content that 
+will be truncate by unicode() method"""
         homepage = not homepage
         response = self.client.post(url, data={'user':        self.user.pk,
                                                'content':     content,
@@ -70,6 +75,8 @@ class MemoTestCase(AssistantsTestCase):
         memo = self.refresh(memo)
         self.assertEqual(content,  memo.content)
         self.assertEqual(homepage, memo.on_homepage)
+
+        self.assertEqual(u'content: I add a long te…', unicode(memo))
 
     def test_delete_related01(self):
         self._create_memo()

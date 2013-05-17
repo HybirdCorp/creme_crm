@@ -68,7 +68,7 @@ class RelationsTestCase(CremeTestCase):
         self.assertNotEqual(relation.subject_entity_id, relation.symmetric_relation.object_entity_id)
         self.assertNotEqual(relation.object_entity_id,  relation.symmetric_relation.subject_entity_id)
 
-    def test_relation03(self):
+    def test_relation03(self): #TODO: deprecated
         rtype1, rtype2 = RelationType.create(('test-subject_foobar', 'is loving'),
                                              ('test-object_foobar',  'is loved by'))
 

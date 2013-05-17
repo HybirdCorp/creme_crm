@@ -10,6 +10,9 @@ try:
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import (RelationType, Relation, SetCredentials,
                                    CremePropertyType, CremeProperty) #Language
+    from creme.creme_core.models.history import (HistoryLine, TYPE_EDITION,
+                            TYPE_RELATION, TYPE_RELATION_DEL,
+                            TYPE_SYM_REL_DEL, TYPE_PROP_ADD, TYPE_PROP_DEL)
     from .base import ViewsTestCase
 
     from creme.media_managers.models import Image
@@ -126,6 +129,8 @@ class MergeViewsTestCase(ViewsTestCase):
         prop2 = create_prop(type=ptype02, creme_entity=orga02)
         prop3 = create_prop(type=ptype01, creme_entity=orga02)
 
+        last_hline_id = HistoryLine.objects.order_by('-id')[0].id
+
         old_modified = orga01.modified
         self._oldify(orga01)
         assert old_modified > self.refresh(orga01).modified
@@ -183,6 +188,9 @@ class MergeViewsTestCase(ViewsTestCase):
         self.assertEqual(contact02.id,  rel3.subject_entity_id)
         self.assertEqual(rtype,         rel3.type)
         self.assertEqual(new_orga01.id, rel3.object_entity_id)
+        sym_rel3 = rel3.symmetric_relation
+        self.assertEqual(new_orga01.id, sym_rel3.subject_entity_id)
+        self.assertEqual(contact02.id,  sym_rel3.object_entity_id)
 
         #rel2 should have been deleted (no doublon)
         self.assertFalse(Relation.objects.filter(pk=rel2.id).exists())
@@ -198,6 +206,16 @@ class MergeViewsTestCase(ViewsTestCase):
 
         #prop3 should have been deleted (no doublon)
         self.assertFalse(CremeProperty.objects.filter(pk=prop3.pk).exists())
+
+        #HistoryLines: duplicated relations/properties that are deleted are do not generate line
+        hline_types = set(HistoryLine.objects.filter(id__gt=last_hline_id).values_list('type', flat=True))
+        self.assertIn(TYPE_EDITION,  hline_types)
+        self.assertIn(TYPE_RELATION, hline_types)
+        self.assertIn(TYPE_PROP_ADD, hline_types)
+
+        self.assertNotIn(TYPE_PROP_DEL, hline_types)
+        self.assertNotIn(TYPE_RELATION_DEL, hline_types)
+        self.assertNotIn(TYPE_SYM_REL_DEL, hline_types)
 
     #TODO: we need an other Entity with a M2M to test the fusion of M2M fields (language is now uneditable)
     def test_merge02(self):

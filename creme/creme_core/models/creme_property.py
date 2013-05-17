@@ -19,6 +19,7 @@
 ################################################################################
 
 from django.db.models import CharField, ForeignKey, ManyToManyField, BooleanField, Q
+from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 
@@ -97,16 +98,28 @@ class CremeProperty(CremeModel):
         return self.creme_entity
 
 
+@receiver(pre_merge_related)
 def _handle_merge(sender, other_entity, **kwargs):
-    sender_id = sender.id
-    prop_filter = sender.properties.filter
+    """Delete 'Duplicated' CremeProperties (ie: exist in the removed entity &
+    the remaining entity).
+    """
+    #sender_id = sender.id
+    #prop_filter = sender.properties.filter
 
-    for prop in other_entity.properties.all():
-        if prop_filter(creme_entity=sender_id, type=prop.type_id).exists():
-            prop.delete()
-        else:
-            prop.creme_entity = sender
-            prop.save()
+    #for prop in other_entity.properties.all():
+        #if prop_filter(creme_entity=sender_id, type=prop.type_id).exists():
+            #prop.delete()
+        ##else:
+            ##prop.creme_entity = sender
+            ##prop.save()
 
+    from .history import HistoryLine
 
-pre_merge_related.connect(_handle_merge, dispatch_uid='creme_core-properties_handle_merge')
+    ptype_ids = sender.properties.values_list('type', flat=True)
+
+    for prop in other_entity.properties.filter(type__in=ptype_ids):
+        # duplicates deletetion would be confusing to the user (the
+        # property type is still related to the remaining entity). So we
+        # disable the history for it.
+        HistoryLine.disable(prop)
+        prop.delete()
