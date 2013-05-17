@@ -29,12 +29,12 @@ from creme.creme_core.models.fields import DurationField
 
 #TODO: Rename to ActivityKind ??
 class ActivityType(CremeModel):
-    id                    = CharField(primary_key=True, max_length=100, editable=False)
+    id                    = CharField(primary_key=True, max_length=100, editable=False).set_tags(viewable=False)
     name                  = CharField(_(u'Name'), max_length=100)
     color                 = CharField(_(u'Color'), max_length=100, blank=True, null=True)
     default_day_duration  = IntegerField(_(u'Default day duration'))
     default_hour_duration = DurationField(_(u'Default hour duration'), max_length=15)
-    is_custom             = BooleanField(default=True, editable=False) #used by creme_config
+    is_custom             = BooleanField(default=True, editable=False).set_tags(viewable=False) #used by creme_config
 
     def __unicode__(self):
         return self.name
@@ -53,10 +53,10 @@ class ActivityType(CremeModel):
 
 
 class ActivitySubType(CremeModel):
-    id        = CharField(primary_key=True, max_length=100, editable=False)
+    id        = CharField(primary_key=True, max_length=100, editable=False).set_tags(viewable=False)
     name      = CharField(_(u'Name'), max_length=100)
     type      = ForeignKey(ActivityType, verbose_name=_(u'Kind of activity'))
-    is_custom = BooleanField(default=True, editable=False) #used by creme_config
+    is_custom = BooleanField(default=True, editable=False).set_tags(viewable=False) #used by creme_config
 
     def __unicode__(self):
         return self.name
@@ -70,7 +70,7 @@ class ActivitySubType(CremeModel):
 class Status(CremeModel):
     name        = CharField(_(u'Name'), max_length=100)
     description = TextField(_(u'Description'))
-    is_custom   = BooleanField(default=True) #used by creme_config
+    is_custom   = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
 
     def __unicode__(self):
         return self.name

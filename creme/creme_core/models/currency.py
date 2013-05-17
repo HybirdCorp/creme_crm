@@ -29,7 +29,7 @@ class Currency(CremeModel):
     name                    = CharField(_(u'Currency'), max_length=100)
     local_symbol            = CharField(_(u'Local symbol'), max_length=100)
     international_symbol    = CharField(_(u'International symbol'), max_length=100)
-    is_custom               = BooleanField(default=True) #used by creme_config
+    is_custom               = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
 
     def __unicode__(self):
         return self.name

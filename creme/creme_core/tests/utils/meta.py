@@ -128,7 +128,8 @@ class MetaTestCase(CremeTestCase):
                          choices, choices
                         )
 
-    def test_field_enumerator02(self): #filter, exclude (simple)
+    def test_field_enumerator02(self):
+        "Filter, exclude (simple)"
         expected = [('created',  _('Creation date')),
                     ('modified', _('Last modification')),
                     #('user',     _('User'))
@@ -149,7 +150,8 @@ class MetaTestCase(CremeTestCase):
         choices = meta.ModelFieldEnumerator(CremeEntity, only_leafs=False).exclude(viewable=False).choices()
         self.assertEqual(expected, choices, choices)
 
-    def test_field_enumerator03(self): #deep = 1
+    def test_field_enumerator03(self):
+        "deep = 1"
         fs = u'[%s] - %%s' % _('User')
         expected = [('created',          _('Creation date')),
                     ('modified',         _('Last modification')),
@@ -176,7 +178,8 @@ class MetaTestCase(CremeTestCase):
                          ]
                         )
 
-    def test_field_enumerator04(self): #filter with function, exclude
+    def test_field_enumerator04(self):
+        "Filter with function, exclude"
         self.assertEqual(meta.ModelFieldEnumerator(CremeEntity, deep=1).filter(lambda f: f.name.endswith('ied'), viewable=True).choices(),
                          [('modified', _('Last modification'))]
                         )
@@ -186,7 +189,8 @@ class MetaTestCase(CremeTestCase):
                          ]
                         )
 
-    def test_field_enumerator05(self): #other ct
+    def test_field_enumerator05(self):
+        "Other ct"
         expected = [('created',     _('Creation date')),
                     ('modified',    _('Last modification')),
                     ('last_name',   _('Last name')),
@@ -209,7 +213,8 @@ class MetaTestCase(CremeTestCase):
         expected.append(('language',  _('Spoken language(s)'))) #TODO: test with another model with a m2m field when this field is removed....
         self.assertEqual(expected, choices, choices)
 
-    def test_field_enumerator06(self): #filter/exclude : multiple conditions + field true attributes
+    def test_field_enumerator06(self):
+        "Filter/exclude : multiple conditions + field true attributes"
         expected = [('user',             _('User')),
                     ('civility',         _('Civility')),
                     ('last_name',        _('Last name')),
@@ -235,7 +240,8 @@ class MetaTestCase(CremeTestCase):
         choices = meta.ModelFieldEnumerator(Contact, only_leafs=False).exclude(editable=False, viewable=False).choices()
         self.assertEqual(expected, choices, choices)
 
-    def test_field_enumerator07(self): #ordering of FKs
+    def test_field_enumerator07(self):
+        "Ordering of FKs"
         choices = meta.ModelFieldEnumerator(Ticket, deep=1, only_leafs=False).filter(viewable=True).choices()
         fs = u'[%s] - %s'
         self.assertEqual([('created',           _('Creation date')),
@@ -255,7 +261,7 @@ class MetaTestCase(CremeTestCase):
                           ('user__role',        fs % (_('User'), _('Role'))),
                           ('user__is_team',     fs % (_('User'), _('Is a team ?'))),
                           ('status__name',      fs % (_('Status'), _('Name'))),
-                          ('status__is_custom', fs % (_('Status'), _('is custom'))),
+                          #('status__is_custom', fs % (_('Status'), _('is custom'))),
                           ('priority__name',    fs % (_('Priority'), _('Name'))),
                           ('criticity__name',   fs % (_('Criticity'), _('Name'))),
                          ],

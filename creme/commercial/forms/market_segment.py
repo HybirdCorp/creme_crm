@@ -30,7 +30,7 @@ from ..models import MarketSegment
 class MarketSegmentForm(CremeModelForm):
     class Meta:
         model = MarketSegment
-        exclude = ('property_type',)
+        #exclude = ('property_type',)
 
     def clean_name(self):
         name = self.cleaned_data['name']

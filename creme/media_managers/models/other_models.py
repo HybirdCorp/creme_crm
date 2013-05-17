@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,7 @@ __all__ = (
 
 class MediaCategory(CremeModel):
     name      = models.CharField(_(u'Name of media category'), max_length=100)
-    is_custom = models.BooleanField(default=True)
+    is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 
     def __unicode__(self):
         return self.name
