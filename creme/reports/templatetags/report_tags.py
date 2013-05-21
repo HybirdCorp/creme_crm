@@ -73,27 +73,32 @@ def get_value_at(iterable, index):
     except IndexError:
         return u''
 
-@register.inclusion_tag('reports/plot/barchart.json')
-def report_barchart_json(report):
-    return {'report': report}
+@register.inclusion_tag('reports/plot/barchart.json', takes_context=True)
+def report_barchart_json(context, report):
+    context['report'] = report;
+    return context
 
-@register.inclusion_tag('reports/plot/small_barchart.json')
-def report_small_barchart_json(report):
-    return {'report': report}
+@register.inclusion_tag('reports/plot/small_barchart.json', takes_context=True)
+def report_small_barchart_json(context, report):
+    context['report'] = report;
+    return context
 
-@register.inclusion_tag('reports/plot/piechart.json')
-def report_piechart_json(report, legendRows=None):
-    return {'report': report,
-            'reportLegendRows': legendRows}
+@register.inclusion_tag('reports/plot/piechart.json', takes_context=True)
+def report_piechart_json(context, report, legendRows=None):
+    context['report'] = report;
+    context['reportLegendRows'] = legendRows;
+    return context
 
-@register.inclusion_tag('reports/plot/tubechart.json')
-def report_tubechart_json(report, legendRows=1):
-    return {'report': report,
-            'reportLegendRows': legendRows}
+@register.inclusion_tag('reports/plot/tubechart.json', takes_context=True)
+def report_tubechart_json(context, report, legendRows=1):
+    context['report'] = report;
+    context['reportLegendRows'] = legendRows;
+    return context
 
-@register.inclusion_tag('reports/templatetags/report_chart.html')
-def get_report_chart(report):
-    return {'report': report}
+@register.inclusion_tag('reports/templatetags/report_chart.html', takes_context=True)
+def get_report_chart(context, report):
+    context['report'] = report;
+    return context
 
 @register.inclusion_tag('reports/templatetags/report_chart_selectors.html', takes_context=True)
 def get_report_chart_selectors(context):
