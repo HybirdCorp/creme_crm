@@ -33,7 +33,8 @@
                     <td class="{{row_color}}">{% widget_select_or_msg role.creatable_ctypes.all _('No creation credential') %}</td>
                     <td class="{{row_color}}">{% widget_select_or_msg role.exportable_ctypes.all _('No export credential') %}</td>
                     <td class="{{row_color}}">{% comment %} TODO inline action? {% endcomment %}
-                        {% widget_select_or_msg role.credentials.all _('No credential') %}
+                        {% comment %}{% widget_select_or_msg role.credentials.all _('No credential') %}{% endcomment %}
+                        <ul>{% for sc in role.credentials.all %}<li>{{sc}}{% get_line_deletor at_url '/creme_config/role/delete_credentials' with_args "{'id': '{{sc.pk}}'}" with_perms has_perm %}</li>{% endfor %}</ul>
                         {% get_line_adder at_url '/creme_config/role/add_credentials/{{role.id}}' with_label _("New credentials") with_perms has_perm %}
                     </td>
                     <td class="{{row_color}} action">

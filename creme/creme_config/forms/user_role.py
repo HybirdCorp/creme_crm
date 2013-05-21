@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from itertools import izip
+#from itertools import izip
 
 from django.forms import CharField, ChoiceField, BooleanField, MultipleChoiceField, ModelChoiceField
 from django.utils.translation import ugettext_lazy as _, ugettext, pgettext
@@ -27,7 +27,7 @@ from django.contrib.auth.models import User
 
 from creme.creme_core.models import UserRole, SetCredentials, Mutex
 from creme.creme_core.registry import creme_registry
-from creme.creme_core.forms import CremeForm, CremeModelForm, ListEditionField
+from creme.creme_core.forms import CremeForm, CremeModelForm #ListEditionField
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget, Label
 from creme.creme_core.utils import creme_entity_content_types
 
@@ -74,9 +74,9 @@ class UserRoleCreateForm(CremeModelForm):
 
 
 class UserRoleEditForm(UserRoleCreateForm):
-    set_credentials = ListEditionField(content=(), label=_(u'Existing set credentials'),
-                                       help_text=_(u'Uncheck the credentials you want to delete.'),
-                                       only_delete=True, required=False)
+    #set_credentials = ListEditionField(content=(), label=_(u'Existing set credentials'),
+                                       #help_text=_(u'Uncheck the credentials you want to delete.'),
+                                       #only_delete=True, required=False)
 
     def __init__(self, *args, **kwargs):
         super(UserRoleEditForm, self).__init__(*args, **kwargs)
@@ -84,25 +84,25 @@ class UserRoleEditForm(UserRoleCreateForm):
         fields = self.fields
         role   = self.instance
 
-        self._creds = role.credentials.all() #get_credentials() ?? problem with cache for updating SetCredentials lines
-        self._apps  = role.allowed_apps | role.admin_4_apps
+        #self._creds = role.credentials.all() #get_credentials() ?? problem with cache for updating SetCredentials lines
+        #self._apps  = role.allowed_apps | role.admin_4_apps
 
-        fields['set_credentials'].content = [unicode(creds) for creds in self._creds]
+        #fields['set_credentials'].content = [unicode(creds) for creds in self._creds]
         fields['allowed_apps'].initial = role.allowed_apps
         fields['admin_4_apps'].initial = role.admin_4_apps
 
-    def save(self, *args, **kwargs):
-        role = super(UserRoleEditForm, self).save(*args, **kwargs)
+    #def save(self, *args, **kwargs):
+        #role = super(UserRoleEditForm, self).save(*args, **kwargs)
 
-        creds2del = [creds.pk
-                        for creds, new_creds in izip(self._creds, self.cleaned_data['set_credentials'])
-                            if new_creds is None
-                    ]
+        #creds2del = [creds.pk
+                        #for creds, new_creds in izip(self._creds, self.cleaned_data['set_credentials'])
+                            #if new_creds is None
+                    #]
 
-        if creds2del:
-            SetCredentials.objects.filter(pk__in=creds2del).delete()
+        #if creds2del:
+            #SetCredentials.objects.filter(pk__in=creds2del).delete()
 
-        return role
+        #return role
 
 
 class AddCredentialsForm(CremeModelForm):
