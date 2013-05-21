@@ -33,7 +33,7 @@
                         ({% widget_select_or_msg relation_type.subject_properties.all _('No property') %})
                     </td>
                     <td class="{{row_color}}">
-                        {{relation_type.predicate}} ({{relation_type.getCreateLang}}) / {{relation_type.symmetric_type.predicate}} ({{relation_type.symmetric_type.getCreateLang}})
+                        {{relation_type.predicate}} / {{relation_type.symmetric_type.predicate}}
                     </td>
                     <td class="{{row_color}}">
                         {% widget_select_or_msg relation_type.object_ctypes.all _('No type') %}

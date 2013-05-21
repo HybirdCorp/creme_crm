@@ -26,7 +26,7 @@ from django.db.models import Q, CharField, ForeignKey, ManyToManyField, BooleanF
 from django.db import transaction
 from django.dispatch import receiver
 from django.http import Http404
-from django.utils.encoding import force_unicode, smart_str
+#from django.utils.encoding import force_unicode, smart_str
 from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
@@ -67,22 +67,23 @@ class RelationType(CremeModel):
     def __unicode__(self):
         sym_type = self.symmetric_type
         symmetric_pred = ugettext(u'No relationship') if sym_type is None else sym_type.predicate
-        return force_unicode(u'%s — %s' % (self.predicate, symmetric_pred))#NB: — == "\xE2\x80\x94" == &mdash;
+        #return force_unicode(u'%s — %s' % (self.predicate, symmetric_pred))#NB: — == "\xE2\x80\x94" == &mdash;
+        return u'%s — %s' % (self.predicate, symmetric_pred) #NB: — == "\xE2\x80\x94" == &mdash;
 
     def delete(self):
         sym_type = self.symmetric_type
 
         #RelationPredicate_i18n.objects.filter(relation_type__in=(self.pk, sym_type.pk)).delete()
 
-        super(RelationType, sym_type).delete()#TODO: Check comment this and test with postgresql
+        super(RelationType, sym_type).delete()
         super(RelationType, self).delete()
 
-    def getCreateLang(self):
-        #P = RelationPredicate_i18n.objects.get(predicate=self.predicate)
-        #code = P.language_code
-        ##print 'LANG CODE : ', code
-        #return code
-        return 'FRA'
+    #def getCreateLang(self):
+        ##P = RelationPredicate_i18n.objects.get(predicate=self.predicate)
+        ##code = P.language_code
+        ###print 'LANG CODE : ', code
+        ##return code
+        #return 'FRA'
 
     @staticmethod
     def get_compatible_ones(ct, include_internals=False):
@@ -129,10 +130,8 @@ class RelationType(CremeModel):
 #        create_or_update(RelationPredicate_i18n, relation_type_id=pk_subject, language_code='FRA', text=pred_subject)
 #        create_or_update(RelationPredicate_i18n, relation_type_id=pk_subject, language_code='FRA', text=pred_subject)
 
-
         sub_relation_type.symmetric_type = obj_relation_type
         obj_relation_type.symmetric_type = sub_relation_type
-
 
         #Delete old m2m (TODO: just remove useless ones ???)
         for rt in (sub_relation_type, obj_relation_type):
@@ -140,7 +139,6 @@ class RelationType(CremeModel):
             rt.subject_properties.clear()
             rt.object_ctypes.clear()
             rt.object_properties.clear()
-
 
         get_ct = ContentType.objects.get_for_model
 
@@ -183,7 +181,7 @@ class RelationType(CremeModel):
 #        app_label = 'creme_core'
 
 
-#TODO: remove CremeAbstractEntity inheritage (user not useful any more ??) ??
+#TODO: remove CremeAbstractEntity inheritage (user/modified not useful any more ??) ??
 class Relation(CremeAbstractEntity):
     type               = ForeignKey(RelationType, blank=True, null=True)
     symmetric_relation = ForeignKey('self', blank=True, null=True)
@@ -196,15 +194,17 @@ class Relation(CremeAbstractEntity):
         verbose_name_plural = _(u'Relationships')
 
     def __unicode__(self):
-        subject = self.subject_entity
-        object_ = self.object_entity
-        str_ = u'<a href="%s">%s</a> -- %s --> <a href="%s">%s</a>' % (
-                                subject.get_absolute_url(), escape(subject),
-                                escape(self.type),
-                                object_.get_absolute_url(), escape(object_)
-                            )
+        #TODO: as_a() method ?? (mark_safe)
+        #subject = self.subject_entity
+        #object_ = self.object_entity
+        #str_ = u'<a href="%s">%s</a> -- %s --> <a href="%s">%s</a>' % (
+                                #subject.get_absolute_url(), escape(subject),
+                                #escape(self.type),
+                                #object_.get_absolute_url(), escape(object_)
+                            #)
 
-        return force_unicode(smart_str(str_)) #hum....
+        #return force_unicode(smart_str(str_)) #hum....
+        return u'«%s» %s «%s»' % (self.subject_entity, self.type, self.object_entity)
 
     def _build_symmetric_relation(self, update):
         """Overload me in child classes.
