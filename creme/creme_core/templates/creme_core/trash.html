@@ -2,16 +2,14 @@
 {% load i18n %}
 {% load creme_block creme_core_tags %}
 
-{% trans "Trash" as title %}
-
-{% block page_title %} - {{title}}{% endblock %}
+{% block page_title %} - {% trans "Trash" %}{% endblock %}
 
 {% block content %}
     {% block view_title %}
         <table class="table_header" cellpadding="0" cellspacing="0">
             <tr>
                 <td width="5%"><img src="{% creme_media_url 'images/delete_64.png' %}" border="0" title="{{title}}" alt="{{title}}" /></td>
-                <td width="95%"><h1>{{title}}</h1></td>
+                <td width="95%"><h1>{% trans "Trash" %}</h1></td>
             </tr>
         </table>
     {% endblock %}
