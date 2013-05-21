@@ -64,6 +64,24 @@ class _CremeTestCase(object):
         if not list(creme_registry.iter_apps()):
             autodiscover()
 
+    def assertDoesNotExist(self, instance):
+        model = instance.__class__
+
+        try:
+            model.objects.get(pk=instance.pk)
+        except model.DoesNotExist:
+            return
+
+        self.fail('Your object still exists.')
+
+    def assertStillExists(self, instance):
+        model = instance.__class__
+
+        try:
+            model.objects.get(pk=instance.pk)
+        except model.DoesNotExist:
+            self.fail('Your object does not exist any more.')
+
     def assertGET(self, expected_status, *args, **kwargs):
         response = self.client.get(*args, **kwargs)
         self.assertEqual(expected_status, response.status_code)
@@ -100,8 +118,8 @@ class _CremeTestCase(object):
     def assertGETRedirectsToLogin(self, url):
         self.assertRedirectsToLogin(self.client.get(url), url)
 
-    def assertPOSTRedirectsToLogin(self, url, data):
-        self.assertRedirectsToLogin(self.client.post(url, data=data), url)
+    def assertPOSTRedirectsToLogin(self, url, data=None):
+        self.assertRedirectsToLogin(self.client.post(url, data=data or {}), url)
 
     def assertNoException(self, function=None, *args, **kwargs):
         if function is None:
@@ -127,9 +145,9 @@ class _CremeTestCase(object):
         if not all_errors:
             if expected_errors:
                 self.fail("The field '%s' on formset '%s' number %d contains no errors, expected:%s" % (
-                            fieldname, form, index, expected_errors
-                        )
-                     )
+                                fieldname, form, index, expected_errors
+                            )
+                         )
             return
 
         self.assertLess(index, len(all_errors))

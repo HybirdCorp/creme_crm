@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+
     from django.utils.translation import ugettext as _
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
@@ -22,9 +24,18 @@ __all__ = ('UserRoleTestCase',)
 
 
 class UserRoleTestCase(CremeTestCase):
+    ADD_URL = '/creme_config/role/add/'
+    DEL_CREDS_URL = '/creme_config/role/delete_credentials'
+
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config')
+
+    def _build_add_creds_url(self, role):
+        return '/creme_config/role/add_credentials/%s' % role.id
+
+    def _build_del_role_url(self, role):
+        return '/creme_config/role/delete/%s' % role.id
 
     def login_not_as_superuser(self):
         apps = ('creme_config',)
@@ -45,7 +56,7 @@ class UserRoleTestCase(CremeTestCase):
     def test_create01(self):
         self.login()
 
-        url = '/creme_config/role/add/'
+        url = self.ADD_URL
         self.assertGET200(url)
 
         get_ct = ContentType.objects.get_for_model
@@ -74,7 +85,7 @@ class UserRoleTestCase(CremeTestCase):
     def test_create02(self):
         self.login_not_as_superuser()
 
-        url = '/creme_config/role/add/'
+        url = self.ADD_URL
         self.assertGETRedirectsToLogin(url)
         self.assertPOSTRedirectsToLogin(url, data={'name':              'CEO',
                                                    'creatable_ctypes':  [],
@@ -97,7 +108,7 @@ class UserRoleTestCase(CremeTestCase):
 
         self.assertEqual(0, role.credentials.count())
 
-        url = '/creme_config/role/add_credentials/%s' % role.id
+        url = self._build_add_creds_url(role)
         self.assertGET200(url)
 
         set_type = SetCredentials.ESET_ALL
@@ -133,7 +144,7 @@ class UserRoleTestCase(CremeTestCase):
 
         set_type = SetCredentials.ESET_OWN
         ct_id = ContentType.objects.get_for_model(Contact).id
-        response = self.client.post('/creme_config/role/add_credentials/%s' % role.id,
+        response = self.client.post(self._build_add_creds_url(role),
                                     data={'can_view':   True,
                                           'can_change': True,
                                           'can_delete': False,
@@ -160,7 +171,7 @@ class UserRoleTestCase(CremeTestCase):
         role.allowed_apps = ['persons']
         role.save()
 
-        url = '/creme_config/role/add_credentials/%s' % role.id
+        url = self._build_add_creds_url(role)
         self.assertGETRedirectsToLogin(url)
         self.assertPOSTRedirectsToLogin(url, data={'can_view':   True,
                                                    'can_change': False,
@@ -171,6 +182,36 @@ class UserRoleTestCase(CremeTestCase):
                                                    'ctype':      0,
                                                    }
                                        )
+
+    def test_delete_credentials01(self):
+        self.login()
+
+        role = UserRole(name='CEO')
+        role.allowed_apps = ['persons']
+        role.save()
+
+        create_creds = partial(SetCredentials.objects.create, role=role, 
+                               set_type=SetCredentials.ESET_ALL
+                              )
+        sc1 = create_creds(value=EntityCredentials.VIEW)
+        sc2 = create_creds(value=EntityCredentials.CHANGE)
+
+        url = self.DEL_CREDS_URL
+        self.assertGET404(url)
+        self.assertPOST404(url)
+        self.assertPOST200(url, data={'id': sc1.id})
+
+        self.assertDoesNotExist(sc1)
+        self.assertStillExists(sc2)
+
+    def test_delete_credentials02(self):
+        self.login_not_as_superuser()
+
+        sc = SetCredentials.objects.create(role=self.role, 
+                                           set_type=SetCredentials.ESET_ALL,
+                                           value=EntityCredentials.VIEW,
+                                          )
+        self.assertPOSTRedirectsToLogin(self.DEL_CREDS_URL, data={'id': sc.id})
 
     def test_edit01(self):
         self.login()
@@ -191,7 +232,7 @@ class UserRoleTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         creatable_ctypes = [get_ct(Contact).id, get_ct(Organisation).id]
         exportable_ctypes = [get_ct(Contact).id, get_ct(Activity).id]
-        apps   = ['persons', 'tickets']
+        apps = ['persons', 'tickets']
         admin_apps = ['persons']
         response = self.client.post(url, follow=True,
                                     data={'name':                    name,
@@ -199,8 +240,8 @@ class UserRoleTestCase(CremeTestCase):
                                           'exportable_ctypes':       exportable_ctypes,
                                           'allowed_apps':            apps,
                                           'admin_4_apps':            admin_apps,
-                                          'set_credentials_check_0': True,
-                                          'set_credentials_value_0': SetCredentials.ESET_ALL,
+                                          #'set_credentials_check_0': True,
+                                          #'set_credentials_value_0': SetCredentials.ESET_ALL,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -221,47 +262,48 @@ class UserRoleTestCase(CremeTestCase):
         contact = self.refresh(contact) #refresh cache
         self.assertTrue(self.refresh(other_user).has_perm_to_view(contact)) #role.allowed_apps contains 'persons' now
 
+    #def test_edit02(self):
+        #self.login()
+
+        #apps = ['persons']
+
+        #role = UserRole(name='CEO')
+        #role.allowed_apps = apps
+        #role.save()
+
+        #create_creds = SetCredentials.objects.create
+        #create_creds(role=role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
+        #create_creds(role=role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN)
+
+        #other_user = User.objects.create(username='chloe', role=role)
+
+        #create_contact = Contact.objects.create
+        #yuki   = create_contact(user=self.user,  first_name='Yuki',    last_name='Kajiura')
+        #altena = create_contact(user=other_user, first_name=u'Alténa', last_name='??')
+        #self.assertTrue(other_user.has_perm_to_view(yuki))
+        #self.assertTrue(other_user.has_perm_to_view(altena))
+
+        #response = self.client.post('/creme_config/role/edit/%s' % role.id, follow=True,
+                                    #data={'name':                    role.name,
+                                          #'allowed_apps':            apps,
+                                          #'admin_4_apps':            [],
+                                          #'set_credentials_check_1': True,
+                                          #'set_credentials_value_1': SetCredentials.ESET_OWN,
+                                         #}
+                                   #)
+        #self.assertNoFormError(response)
+
+        #role = self.refresh(role)
+        #self.assertFalse(role.creatable_ctypes.exists())
+        #self.assertFalse(role.exportable_ctypes.exists())
+
+        ##beware to refresh caches
+        #other_user = self.refresh(other_user)
+        #self.assertFalse(other_user.has_perm_to_view(self.refresh(yuki))) #no more SetCredentials
+        #self.assertTrue(other_user.has_perm_to_view(self.refresh(altena)))
+
+    #def test_edit03(self):
     def test_edit02(self):
-        self.login()
-
-        apps = ['persons']
-
-        role = UserRole(name='CEO')
-        role.allowed_apps = apps
-        role.save()
-
-        create_creds = SetCredentials.objects.create
-        create_creds(role=role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
-        create_creds(role=role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN)
-
-        other_user = User.objects.create(username='chloe', role=role)
-
-        create_contact = Contact.objects.create
-        yuki   = create_contact(user=self.user,  first_name='Yuki',    last_name='Kajiura')
-        altena = create_contact(user=other_user, first_name=u'Alténa', last_name='??')
-        self.assertTrue(other_user.has_perm_to_view(yuki))
-        self.assertTrue(other_user.has_perm_to_view(altena))
-
-        response = self.client.post('/creme_config/role/edit/%s' % role.id, follow=True,
-                                    data={'name':                    role.name,
-                                          'allowed_apps':            apps,
-                                          'admin_4_apps':            [],
-                                          'set_credentials_check_1': True,
-                                          'set_credentials_value_1': SetCredentials.ESET_OWN,
-                                         }
-                                   )
-        self.assertNoFormError(response)
-
-        role = self.refresh(role)
-        self.assertFalse(role.creatable_ctypes.exists())
-        self.assertFalse(role.exportable_ctypes.exists())
-
-        #beware to refresh caches
-        other_user = self.refresh(other_user)
-        self.assertFalse(other_user.has_perm_to_view(self.refresh(yuki))) #no more SetCredentials
-        self.assertTrue(other_user.has_perm_to_view(self.refresh(altena)))
-
-    def test_edit03(self):
         self.login_not_as_superuser()
 
         role = UserRole.objects.create(name='CEO')
@@ -275,21 +317,20 @@ class UserRoleTestCase(CremeTestCase):
                                                   }
                                        )
 
-
     def test_delete01(self):
         "Not superuser -> error"
         self.login_not_as_superuser()
 
-        url = '/creme_config/role/delete/%s' % self.role.id
+        url = self._build_del_role_url(self.role)
         self.assertGETRedirectsToLogin(url)
-        self.assertPOSTRedirectsToLogin(url, data={})
+        self.assertPOSTRedirectsToLogin(url)
 
     def test_delete02(self):
         "Role is not used"
         self.login()
 
         role = UserRole.objects.create(name='CEO')
-        url = '/creme_config/role/delete/%s' % role.id
+        url = self._build_del_role_url(role)
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -300,10 +341,8 @@ class UserRoleTestCase(CremeTestCase):
         self.assertNotIn('to_role', fields)
 
         self.assertNoFormError(self.client.post(url))
-
-        rid = role.id
-        self.assertFalse(UserRole.objects.filter(pk=rid))
-        self.assertFalse(SetCredentials.objects.filter(role=rid))
+        self.assertDoesNotExist(role)
+        self.assertFalse(SetCredentials.objects.filter(role=role.id))
 
     def test_delete03(self):
         "To replace by another role"
@@ -314,7 +353,7 @@ class UserRoleTestCase(CremeTestCase):
         other_role = UserRole.objects.create(name='Coder')
         user = User.objects.create(username='chloe', role=role_2_del) #<= role is used
 
-        url = '/creme_config/role/delete/%s' % role_2_del.id
+        url = self._build_del_role_url(role_2_del)
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -329,7 +368,7 @@ class UserRoleTestCase(CremeTestCase):
 
         response = self.client.post(url, data={'to_role': replacing_role.id})
         self.assertNoFormError(response)
-        self.assertFalse(UserRole.objects.filter(pk=role_2_del.id))
+        self.assertDoesNotExist(role_2_del)
         self.assertFalse(SetCredentials.objects.filter(role=role_2_del.id))
         self.assertEqual(replacing_role, self.refresh(user).role)
 
@@ -340,5 +379,5 @@ class UserRoleTestCase(CremeTestCase):
         role = UserRole.objects.create(name='CEO')
         User.objects.create(username='chloe', role=role) #<= role is used
 
-        response = self.assertPOST200('/creme_config/role/delete/%s' % role.id)
+        response = self.assertPOST200(self._build_del_role_url(role))
         self.assertFormError(response, 'form', 'to_role', [_('This field is required.')])

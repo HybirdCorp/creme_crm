@@ -27,6 +27,7 @@ role_patterns = patterns('creme.creme_config.views.user_role',
     (r'^edit/(?P<role_id>\d+)$',            'edit'),
     (r'^delete/(?P<role_id>\d+)$',          'delete'),
     (r'^add_credentials/(?P<role_id>\d+)$', 'add_credentials'),
+    (r'^delete_credentials$',               'delete_credentials'),
 )
 
 relation_type_patterns = patterns('creme.creme_config.views.relation_type',
