@@ -55,7 +55,7 @@
                                 <tr class="header">
                                     <th class="{% cycle "block_header_line_dark" "block_header_line_light" %} action">{% trans 'Action' %}</th>
                                     {% for field in fields %}
-                                        <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{{field.field_verbose_name}}</th>
+                                        <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{{field}}</th>
                                     {% endfor %}
                                 </tr>
                                 {% for res in entities %}

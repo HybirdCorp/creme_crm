@@ -37,11 +37,13 @@ class SearchConfigTestCase(CremeTestCase):
         fn_field = sfields[0]
         self.assertEqual('first_name',     fn_field.field)
         self.assertEqual(_(u'First name'), fn_field.field_verbose_name)
+        self.assertEqual(_(u'First name'), unicode(fn_field))
         self.assertEqual(1,                fn_field.order)
 
         ln_field = sfields[1]
         self.assertEqual('last_name',     ln_field.field)
         self.assertEqual(_(u'Last name'), ln_field.field_verbose_name)
+        self.assertEqual(_(u'Last name'), unicode(ln_field))
         self.assertEqual(2,               ln_field.order)
 
         SearchConfigItem.create_if_needed(Contact, ['first_name', 'last_name'])

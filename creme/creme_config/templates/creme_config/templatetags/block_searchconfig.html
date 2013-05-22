@@ -23,7 +23,7 @@
             {% for search_item in page.object_list %}{% cycle row_color %}
                 <tr class="content">
                     <td class="{{row_color}}">{{search_item.content_type}}</td>
-                    <td class="{{row_color}}">{{search_item.searchfields|join:", "|default:_("<em>All fields</em>")}}</td>
+                    <td class="{{row_color}}">{{search_item.searchfields|join:" / "|default:_("<em>All fields</em>")}}</td>
                     {% comment %}<td class="{{row_color}}">{{search_item.role|default:"All roles"}}</td>{% endcomment %}
                     <td class="{{row_color}}">{{search_item.user|default:_("All users")}}</td>
                     <td class="{{row_color}} action">{% get_line_editor at_url '/creme_config/search/edit/{{search_item.id}}' with_perms 1 %}</td>
