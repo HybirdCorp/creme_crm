@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-05-16 15:17+0200\n"
+"POT-Creation-Date: 2013-05-22 17:26+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -252,25 +252,25 @@ msgstr "Adresse de facturation"
 msgid "Shipping address"
 msgstr "Adresse de livraison"
 
-#: forms/contact.py:40 models/contact.py:53
+#: forms/contact.py:41 models/contact.py:53
 #: templates/persons/templatetags/block_contact.html:59
 msgid "Birthday"
 msgstr "Anniversaire"
 
-#: forms/contact.py:41
+#: forms/contact.py:42
 msgid "Image"
 msgstr "Image"
 
-#: forms/contact.py:52
+#: forms/contact.py:53
 #: templates/persons/templatetags/block_orga_coordinates.html:5
 msgid "Coordinates"
 msgstr "Coordonnées"
 
-#: forms/contact.py:67
+#: forms/contact.py:68
 msgid "Concerned organisation"
 msgstr "Société concernée"
 
-#: forms/contact.py:67
+#: forms/contact.py:68
 msgid "No one"
 msgstr "Aucune"
 
@@ -297,29 +297,37 @@ msgstr "Date de création"
 msgid "Logo"
 msgstr "Logo"
 
-#: forms/quick.py:34 models/organisation.py:68
+#: forms/quick.py:36 models/organisation.py:68
 msgid "Organisation"
 msgstr "Société"
 
-#: forms/quick.py:35
+#: forms/quick.py:37
 msgid "If no organisation is found, a new one will be created."
 msgstr "Si aucune société n'est trouvée, une nouvelle sera créée."
 
-#: forms/quick.py:55
+#: forms/quick.py:57
 msgid "You are not allowed to link with a Contact"
 msgstr "Vous n'êtes pas autorisé à lier avec un Contact"
 
-#: forms/quick.py:56
+#: forms/quick.py:58
 msgid "You are not allowed to link with an Organisation"
 msgstr "Vous n'êtes pas autorisé à lier avec une Société"
 
-#: forms/quick.py:58
+#: forms/quick.py:60
 msgid "Enter the name of an existing Organisation."
 msgstr "Entrez le nom d'une société existante"
 
-#: forms/quick.py:72
+#: forms/quick.py:74
 msgid "You are not allowed to create an Organisation."
 msgstr "Vous n'êtes pas autorisé à créer une Société."
+
+#: forms/quick.py:82
+msgid "No linkable Organisation found."
+msgstr "Aucune Société liable n'a été trouvée."
+
+#: forms/quick.py:85
+msgid "Several Organisations with this name have been found."
+msgstr "Plusieurs Sociétés avec ce nom ont été trouvées."
 
 #: models/address.py:32 models/organisation.py:39
 #: templates/persons/templatetags/block_linked_people.html:26
