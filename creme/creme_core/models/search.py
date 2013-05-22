@@ -27,7 +27,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 
-from ..utils.meta import get_verbose_field_name, ModelFieldEnumerator, get_model_field_info
+from ..utils.meta import get_verbose_field_name, ModelFieldEnumerator #get_model_field_info
 from .base import CremeModel
 from .fields import CTypeForeignKey
 
@@ -68,13 +68,15 @@ class SearchConfigItem(CremeModel):
         if self._searchfields is None:
             self._searchfields = sfields = []
             append = sfields.append
-            #model = ContentType.objects.get_for_id(self.content_type_id).model_class()
-            model = self.content_type.model_class()
+            ##model = ContentType.objects.get_for_id(self.content_type_id).model_class()
+            #model = self.content_type.model_class()
 
             for sfield in SearchField.objects.filter(search_config_item=self):
-                #if 
+                sfield.search_config_item = self #avoids query in SearchField.__unicode__
+
                 try:
-                    get_model_field_info(model, sfield.field, silent=False)
+                    #get_model_field_info(model, sfield.field, silent=False)
+                    unicode(sfield)
                 except FieldDoesNotExist as e:
                     logger.warn('%s => SearchField instance removed', e)
                     sfield.delete()
@@ -125,7 +127,7 @@ class SearchConfigItem(CremeModel):
                 fields = list(fields)
                 break
         else: #Fallback
-            fields = [SearchField(field=name, field_verbose_name=verbose_name, order=i)
+            fields = [_FakeSearchField(field=name, field_verbose_name=verbose_name, order=i)
                         for i, (name, verbose_name) in enumerate(SearchConfigItem._get_modelfields_choices(model))
                      ]
 
@@ -141,13 +143,16 @@ class SearchConfigItem(CremeModel):
             sfci_dict[sf.search_config_item_id].append(sf)
 
         for sfci in search_config_items:
-            sfci._searchfields = sfci_dict[sfci.id]
+            #sfci._searchfields = sfci_dict[sfci.id]
+            sfci._searchfields = sfields = sfci_dict[sfci.id]
+            for sfield in sfields:
+                sfield.search_config_item = sfci #avoids query in SearchField.__unicode__
 
 
-#TODO: is this model really useful ??? (store fields in a textfield in SearchConfigItem ?)
+#TODO: remove this model and store fields in a TextField in SearchConfigItem
 class SearchField(CremeModel):
     field              = CharField(_(u"Field"), max_length=100)
-    field_verbose_name = CharField(_(u"Field (long name)"), max_length=100)
+    field_verbose_name = CharField(_(u"Field (long name)"), max_length=100) #TODO: not used any more
     search_config_item = ForeignKey(SearchConfigItem, verbose_name=_(u"Associated configuration"))
     order              = PositiveIntegerField(_(u"Priority"))
 
@@ -156,6 +161,19 @@ class SearchField(CremeModel):
         verbose_name = _(u'Search field')
         verbose_name_plural = _(u'Search fields')
         ordering = ('order',)
+
+    def __unicode__(self):
+        "@throws FieldDoesNotExist"
+        #return self.field_verbose_name
+        model = self.search_config_item.content_type.model_class()
+        return get_verbose_field_name(model, self.field, silent=False)
+
+
+class _FakeSearchField(object):
+    def __init__(self, field, field_verbose_name, order):
+        self.field = field
+        self.field_verbose_name = field_verbose_name
+        self.order = order
 
     def __unicode__(self):
         return self.field_verbose_name

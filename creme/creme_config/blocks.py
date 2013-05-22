@@ -32,7 +32,7 @@ from creme.creme_core.registry import creme_registry
 
 from .models import  SettingValue
 
-_PAGE_SIZE = 12
+_PAGE_SIZE = 20
 
 
 class GenericModelsBlock(QuerysetBlock):
