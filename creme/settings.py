@@ -238,6 +238,7 @@ IMPORT_BACKENDS = (
 )
 EXPORT_BACKENDS = (
                    'creme.creme_core.backends.csv_export.CSVExportBackend',
+                   'creme.creme_core.backends.csv_export.SemiCSVExportBackend',
                    'creme.creme_core.backends.xls_export.XLSExportBackend',  # You need to install xlwt and xlrd
 )
 
