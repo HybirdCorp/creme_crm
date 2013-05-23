@@ -120,6 +120,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertEqual(result[0], [hfi.title for hfi in hf_items])
 
     def test_list_view_export01(self):
+        "csv"
         self.login()
         hf_items = self._build_hf_n_contacts()
         lv_url = self._set_listview_state()
@@ -141,6 +142,28 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertEqual(result[5], u'"","Wong","Edward","","is a girl"')
 
     def test_list_view_export02(self):
+        "scsv"
+        self.login()
+        hf_items = self._build_hf_n_contacts()
+        lv_url = self._set_listview_state()
+
+        response = self.assertGET200(self._build_url(self.ct, doc_type='scsv'), data={'list_url': lv_url})
+
+        #TODO: sort the relations/properties by they verbose_name ??
+        result = map(force_unicode, response.content.splitlines())
+        self.assertEqual(6, len(result))
+        self.assertEqual(result[0], u';'.join(u'"%s"' % hfi.title for hfi in hf_items))
+        self.assertEqual(result[1], u'"";"Black";"Jet";"Bebop";""')
+        self.assertEqual(result[2], u'"Monsieur";"Creme";"Fulbert";"";""')
+        self.assertIn(result[3], (u'"";"Spiegel";"Spike";"Bebop/Swordfish";""',
+                                  u'"";"Spiegel";"Spike";"Swordfish/Bebop";""')
+                     )
+        self.assertIn(result[4], (u'"";"Valentine";"Faye";"";"is a girl/is beautiful"',
+                                  u'"";"Valentine";"Faye";"";"is beautiful/is a girl"')
+                     )
+        self.assertEqual(result[5], u'"";"Wong";"Edward";"";"is a girl"')
+
+    def test_list_view_export03(self):
         "'export' credential"
         self.login(is_superuser=False, allowed_apps=['creme_core', 'persons'])
         self._build_hf_n_contacts()

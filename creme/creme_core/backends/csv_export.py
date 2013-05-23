@@ -28,15 +28,23 @@ from .base import ExportBackend
 
 class CSVExportBackend(ExportBackend):
     id = 'csv'
-    verbose_name = _(u'CSV File')
+    verbose_name = _(u"CSV File (delimiter: ',')")
+    delimiter = ','
     help_text = ''
 
     def __init__(self):
         self.response = HttpResponse(mimetype='text/csv')
-        self.writer = csv.writer(self.response, quoting=csv.QUOTE_ALL)
+        self.writer = csv.writer(self.response, quoting=csv.QUOTE_ALL, delimiter=self.delimiter)
 
     def writerow(self, row):
         return self.writer.writerow(row)
 
     def save(self, filename):
-        self.response['Content-Disposition'] = 'attachment; filename="%s.%s"' % (filename, self.id)
+        self.response['Content-Disposition'] = 'attachment; filename="%s.csv"' % filename
+
+
+class SemiCSVExportBackend(CSVExportBackend):
+    id = 'scsv'
+    verbose_name = _(u"CSV File (delimiter: ';')")
+    delimiter = ';'
+    help_text = ''
