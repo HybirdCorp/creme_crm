@@ -15,7 +15,7 @@ DEPENDENCIES:
         - pytz >= 2011e
         - Java >= 1.4 (only needed to build the compressed version of CSS and JavaScript files at installation time)
 
-    - Optionnal
+    - Optional
         - creme.creme_core:
             - xlrd (to import contacts and organisations from xls files)
             - xlwt (to export contacts and organisations as xls files)
