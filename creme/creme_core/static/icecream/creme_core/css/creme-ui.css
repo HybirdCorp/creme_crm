@@ -174,6 +174,11 @@ td.td_info > ul.ui-creme-actionbuttonlist { width: 100%; }
 td.td_info > ul.ui-creme-actionbuttonlist li.delegate { width: 45%; }
 td.td_info > ul.ui-creme-actionbuttonlist li.delegate > * { width: 100%; }
 
+/*-------------------------*/
+span.ui-creme-datepicker-trigger {
+	vertical-align:middle;
+}
+
 /*----------------------------------*/
 .ui-creme-toggle .toggle-target.toggle-collapsed {
     display: none;
@@ -204,11 +209,11 @@ td.td_info > ul.ui-creme-actionbuttonlist li.delegate > * { width: 100%; }
 }
 
 .ui-creme-autosave.autosave-wait .autosave-status {
-    background-image: url("chantilly/images/wait.gif");
+    background-image: url("icecream/images/wait.gif");
     display:block;
 }
 
 .ui-creme-autosave.autosave-modified .autosave-status {
-    background-image: url("chantilly/images/edit_16.png");
+    background-image: url("icecream/images/edit_16.png");
     display:block;
 }
