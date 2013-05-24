@@ -96,11 +96,11 @@ ul.ui-layout.vbox li { position:relative; display:block; }
     background-color: white;
 }
 
-.ui-creme-jqueryplot.widget-active[widget="ui-creme-jqueryplot"] {
+.ui-creme-jqueryplot.widget-active[widget="ui-creme-jqueryplot"][status="wait"] {
     background-image: url("chantilly/images/wait.gif");
 }
 
-.ui-creme-jqueryplot.widget-active.widget-ready[widget="ui-creme-jqueryplot"] {
+.ui-creme-jqueryplot.widget-active[widget="ui-creme-jqueryplot"][status="valid"] {
     background-image: none;
 }
 
@@ -188,15 +188,32 @@ span.ui-creme-datepicker-trigger {
     cursor: pointer;
 }
 
+.toggle-icon {
+    background-image: url("chantilly/images/expanded.gif");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.toggle-icon.toggle-collapsed, .toggle-collapsed .toggle-icon {
+    background-image: url("chantilly/images/expandme.gif");
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
 /*----------------------------------*/
 .ui-creme-autosave .autosave-status {
     background-image: none;
+    width:16px;
+    height:16px;
+    display:none;
 }
 
 .ui-creme-autosave.autosave-wait .autosave-status {
     background-image: url("chantilly/images/wait.gif");
+    display:block;
 }
 
 .ui-creme-autosave.autosave-modified .autosave-status {
     background-image: url("chantilly/images/edit_16.png");
+    display:block;
 }

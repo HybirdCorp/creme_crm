@@ -42,6 +42,8 @@ from ..gui.field_printers import (print_image,
 from ..utils import is_testenvironment
 from ..utils.media import get_current_theme, creme_media_themed_url as media_url
 
+from ..global_info import set_global_info
+
 from creme.persons.models.contact import Contact
 
 
@@ -162,4 +164,13 @@ def test_widget(request, widget):
                        "Beware : If you are not running unittest this view shouldn't be reachable. Check your server configuration.",
                        'This is view is only reachable during unittests')
 
-    return render(request, 'creme_core/tests/test_' + widget + '.html', js_testview_context(request, widget))
+    context = js_testview_context(request, widget)
+    theme = context['THEME_NAME']
+    usertheme = get_current_theme()
+
+    set_global_info(usertheme=theme)
+
+    try:
+        return render(request, 'creme_core/tests/test_' + widget + '.html', context)
+    finally:
+        set_global_info(usertheme=usertheme)
