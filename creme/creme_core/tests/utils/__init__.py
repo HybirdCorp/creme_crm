@@ -13,9 +13,10 @@ try:
     from creme.creme_core.utils import (find_first, truncate_str, create_if_needed, 
                                         get_from_GET_or_404, get_from_POST_or_404,
                                         safe_unicode, safe_unicode_error)
-    from creme.creme_core.utils.dates import(get_dt_from_iso8601_str, get_dt_to_iso8601_str,
-                                             get_naive_dt_from_tzdate, get_creme_dt_from_utc_dt,
-                                             get_utc_dt_from_creme_dt)
+    from creme.creme_core.utils.dates import (get_dt_from_iso8601_str, get_dt_to_iso8601_str,
+                                              get_naive_dt_from_tzdate, get_creme_dt_from_utc_dt,
+                                              get_utc_dt_from_creme_dt)
+    from creme.creme_core.utils.dependence_sort import dependence_sort, DependenciesLoopError
     from creme.creme_core.utils.queries import get_first_or_None
 
     from creme.persons.models import Civility
@@ -124,7 +125,7 @@ class MiscTestCase(CremeTestCase):
         class false_unicode_object(object):
             def __init__(self, text):
                 self.text = text;
-            
+
             def __unicode__(self):
                 return self.text
 
@@ -165,6 +166,77 @@ class MiscTestCase(CremeTestCase):
                 return unicode(self.message)
 
         self.assertEqual(u'My message', safe_unicode_error(MyAnnoyingException()))
+
+
+class DependenceSortTestCase(CremeTestCase): #TODO: SimpleTestCase
+    class DepSortable(object):
+        def __init__(self, name, deps=None):
+            self.name = name
+            self.dependencies = deps or []
+
+        def __repr__(self):
+            return self.name
+
+        def key(self):
+            return self.name
+
+        def deps(self): 
+            return self.dependencies
+
+    def test_dependence_sort01(self):
+        self.assertEqual([], dependence_sort([], lambda ds: ds.name, lambda ds: ds.dependencies))
+
+    def test_dependence_sort02(self):
+        A = self.DepSortable('A')
+        B = self.DepSortable('B')
+        self.assertEqual([A, B], 
+                         dependence_sort([A, B], lambda ds: ds.name, lambda ds: ds.dependencies)
+                        )
+
+    def test_dependence_sort03(self):
+        DS = self.DepSortable
+        A = DS('A', ['B'])
+        B = DS('B')
+        self.assertEqual([B, A],
+                         dependence_sort([A, B], DS.key, DS.deps)
+                        )
+
+    def test_dependence_sort04(self):
+        DS = self.DepSortable
+        A = DS('A', ['C'])
+        B = DS('B')
+        C = DS('C', ['B'])
+        self.assertEqual([B, C, A], dependence_sort([A, B, C], DS.key, DS.deps))
+
+    def test_dependence_sort05(self):
+        DS = self.DepSortable
+        A = DS('A', ['C', 'D'])
+        B = DS('B')
+        C = DS('C', ['B'])
+        D = DS('D')
+        self.assertIn(dependence_sort([A, B, C, D], DS.key, DS.deps),
+                      ([B, D, C, A],
+                       [B, C, D, A],
+                       [D, B, C, A],
+                      )
+                     )
+
+    def test_dependence_sort06(self):
+        DS = self.DepSortable
+        A = DS('A', ['C'])
+        B = DS('B')
+        C = DS('C', ['A'])
+
+        self.assertRaises(DependenciesLoopError, dependence_sort,
+                          [A, B, C], DS.key, DS.deps,
+                         )
+
+    def test_dependence_sort07(self):
+        DS = self.DepSortable
+        A = DS('End', ['Middle'])
+        B = DS('Start')
+        C = DS('Middle', ['Start'])
+        self.assertEqual([B, C, A], dependence_sort([A, B, C], DS.key, DS.deps))
 
 
 class DatesTestCase(CremeTestCase):
