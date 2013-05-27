@@ -27,7 +27,7 @@ from django.forms.util import ErrorList
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 
-from creme.creme_core.models import Relation
+from creme.creme_core.models import RelationType, Relation
 from creme.creme_core.forms import CremeForm
 from creme.creme_core.forms.fields import MultiCremeEntityField, MultiGenericEntityField
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
@@ -143,8 +143,9 @@ class ParticipantCreateForm(CremeForm):
         for participant in self.participants:
             user = participant.is_user
             if user:
-                calendar = self.cleaned_data['my_calendar'] if user == self.user else Calendar.get_user_default_calendar(user)
-                activity.calendars.add(calendar)
+                activity.calendars.add(self.cleaned_data['my_calendar'] if user == self.user else
+                                       Calendar.get_user_default_calendar(user)
+                                      )
 
             create_relation(subject_entity=participant)
 
@@ -155,14 +156,16 @@ class SubjectCreateForm(CremeForm):
     def __init__(self, entity, *args, **kwargs):
         super(SubjectCreateForm, self).__init__(*args, **kwargs)
         self.activity = entity
+        self.rtype = rtype = RelationType.objects.get(pk=REL_SUB_ACTIVITY_SUBJECT)
+        self.fields['subjects'].allowed_models = [ct.model_class() for ct in rtype.subject_ctypes.all()]
 
     def clean_subjects(self):
         return validate_linkable_entities(self.cleaned_data['subjects'], self.user)
 
     def save(self):
-        create_relation = partial(Relation.objects.create, subject_entity=self.activity,
-                                  type_id=REL_OBJ_ACTIVITY_SUBJECT, user=self.user
+        create_relation = partial(Relation.objects.create, type=self.rtype,
+                                  object_entity=self.activity, user=self.user,
                                  )
 
         for entity in self.cleaned_data['subjects']:
-            create_relation(object_entity=entity)
+            create_relation(subject_entity=entity)

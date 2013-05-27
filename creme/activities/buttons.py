@@ -23,7 +23,7 @@ from django.utils.translation import ugettext_lazy as _
 from creme.creme_core.gui.button_menu import Button
 
 from .models import Activity
-from .constants import *
+from .constants import ACTIVITYTYPE_MEETING, ACTIVITYTYPE_PHONECALL, ACTIVITYTYPE_TASK
 
 
 class AddRelatedActivityButton(Button):

@@ -5,7 +5,6 @@ try:
     from functools import partial
 
     from django.forms.util import ValidationError
-    from django.core.serializers.json import simplejson
     from django.utils.encoding import force_unicode
     from django.utils.formats import date_format
     from django.utils.translation import ugettext as _
@@ -35,21 +34,17 @@ __all__ = ('ActivityTestCase',)
 class ActivityTestCase(_ActivitiesTestCase):
     ADD_URL         = '/activities/activity/add'
     ADD_POPUP_URL   = '/activities/activity/add_popup'
-    ADD_RELATED_URL = '/activities/activity/add_related'
     ADD_INDISPO_URL = '/activities/activity/add_indispo'
     DEL_ACTTYPE_URL = '/creme_config/activities/activity_type/delete'
 
     def _buid_add_participants_url(self, activity):
         return '/activities/activity/%s/participant/add' % activity.id
 
-    def _build_add_related_uri(self, related, rtype_id, act_type_id=None):
-        args = ['ct_entity_for_relation=%s' % related.entity_type_id,
-                'id_entity_for_relation=%s' % related.id,
-                'entity_relation_type=%s' % rtype_id,
-               ]
-        if act_type_id:
-            args.append('activity_type=%s' % act_type_id)
-        return self.ADD_RELATED_URL + '?' + '&'.join(args)
+    def _build_add_related_uri(self, related, act_type_id=None):
+        return '/activities/activity/add_related/%(entity)s%(type_arg)s' % {
+                    'entity':   related.id,
+                    'type_arg': '' if not act_type_id else '?activity_type=%s' % act_type_id,
+                }
 
     def _buid_add_subjects_url(self, activity):
         return '/activities/activity/%s/subject/add' % activity.id
@@ -355,6 +350,25 @@ class ActivityTestCase(_ActivitiesTestCase):
                              [_(u"A floating on the day activity can't busy its participants")]
                             )
 
+    def test_createview_errors02(self):
+        "RelationType constraint error"
+        self.login()
+
+        user = self.user
+        bad_subject = self._create_meeting()
+        response = self.assertPOST200(self.ADD_URL, follow=True,
+                                      data={'user':             user.pk,
+                                            'title':            'My task',
+                                            'type_selector':    self._acttype_field_value(ACTIVITYTYPE_TASK),
+                                            'my_participation': True,
+                                            'my_calendar':      Calendar.get_user_default_calendar(user).pk,
+                                            'subjects':         self._relation_field_value(bad_subject),
+                                        }
+                                     )
+        self.assertFormError(response, 'form', 'subjects',
+                             [_(u"This content type is not allowed.")]
+                            )
+
     def test_createview_alert01(self):
         self.login()
 
@@ -559,8 +573,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         contact01 = Contact.objects.create(user=user, first_name='Ranma', last_name='Saotome')
         contact02 = self.other_contact
 
-        uri = self._build_add_related_uri(contact01, REL_SUB_PART_2_ACTIVITY)
-
+        uri = self._build_add_related_uri(contact01)
         response = self.assertGET200(uri)
 
         with self.assertNoException():
@@ -587,7 +600,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(datetime(year=2010, month=1, day=10, hour=17, minute=30),
                          meeting.start
                         )
-        self.assertEqual(ACTIVITYTYPE_MEETING,         meeting.type.pk)
+        self.assertEqual(ACTIVITYTYPE_MEETING,            meeting.type.pk)
         self.assertEqual(ACTIVITYSUBTYPE_MEETING_REVIVAL, meeting.sub_type_id)
 
         self.assertEqual(2, Relation.objects.count())
@@ -603,7 +616,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.login()
 
         response = self.assertGET200(self._build_add_related_uri(self.other_contact,
-                                                                 REL_SUB_PART_2_ACTIVITY,
                                                                  ACTIVITYTYPE_MEETING,
                                                                 )
                                     )
@@ -616,49 +628,43 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview_related03(self):
         self.login()
 
-        ryoga = Contact.objects.create(user=self.user, first_name='Ryoga', last_name='Hibiki')
-        response = self.assertGET200(self._build_add_related_uri(ryoga, REL_SUB_ACTIVITY_SUBJECT,
-                                                                 ACTIVITYTYPE_MEETING,
-                                                                )
-                                    )
+        dojo = Organisation.objects.create(user=self.user, name='Tendo no dojo')
+        response = self.assertGET200(self._build_add_related_uri(dojo, ACTIVITYTYPE_MEETING))
 
         with self.assertNoException():
             subjects = response.context['form'].fields['subjects']
 
-        self.assertEqual([ryoga.id], [e.id for e in subjects.initial])
+        self.assertEqual([dojo.id], [e.id for e in subjects.initial])
 
     def test_createview_related04(self):
         self.login()
 
-        ryoga = Contact.objects.create(user=self.user, first_name='Ryoga', last_name='Hibiki')
-        response = self.assertGET200(self._build_add_related_uri(ryoga, REL_SUB_LINKED_2_ACTIVITY,
-                                                                 ACTIVITYTYPE_PHONECALL,
-                                                                )
-                                    )
+        linked = Activity.objects.create(user=self.user, title='Meet01',
+                                         type_id=ACTIVITYTYPE_MEETING,
+                                        )
+        response = self.assertGET200(self._build_add_related_uri(linked, ACTIVITYTYPE_PHONECALL))
 
         with self.assertNoException():
             linked_entities = response.context['form'].fields['linked_entities']
 
-        self.assertEqual([ryoga.id], [e.id for e in linked_entities.initial])
+        self.assertEqual([linked.id], [e.id for e in linked_entities.initial])
 
     def test_createview_related_meeting01(self):
         "Meeting forced"
         self.login()
 
         user = self.user
-        contact01 = Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki')
+        ryoga = Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki')
 
-        uri = self._build_add_related_uri(contact01, REL_SUB_PART_2_ACTIVITY,
-                                          ACTIVITYTYPE_MEETING,
-                                         )
+        uri = self._build_add_related_uri(ryoga, ACTIVITYTYPE_MEETING)
         title  = 'My meeting'
         my_calendar = Calendar.get_user_default_calendar(user)
         response = self.client.post(uri, follow=True,
                                     data={'user':             user.pk,
                                           'title':            title,
-                                          'type_selector':       self._acttype_field_value(ACTIVITYTYPE_MEETING,
-                                                                                           ACTIVITYSUBTYPE_MEETING_REVIVAL,
-                                                                                          ),
+                                          'type_selector':    self._acttype_field_value(ACTIVITYTYPE_MEETING,
+                                                                                        ACTIVITYSUBTYPE_MEETING_REVIVAL,
+                                                                                       ),
                                           'start':            '2013-5-21',
                                           'start_time':       '9:30:00',
                                           'my_participation': True,
@@ -666,19 +672,19 @@ class ActivityTestCase(_ActivitiesTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertRedirects(response, contact01.get_absolute_url())
+        self.assertRedirects(response, ryoga.get_absolute_url())
 
         meeting = self.get_object_or_fail(Activity, title=title)
         self.assertEqual(datetime(year=2013, month=5, day=21, hour=9, minute=30),
                          meeting.start
                         )
-        self.assertEqual(ACTIVITYTYPE_MEETING,         meeting.type.pk)
+        self.assertEqual(ACTIVITYTYPE_MEETING,            meeting.type.pk)
         self.assertEqual(ACTIVITYSUBTYPE_MEETING_REVIVAL, meeting.sub_type_id)
 
         response = self.assertPOST200(uri, follow=True,
                                       data={'user':             user.pk,
                                             'title':            'Other meeting',
-                                            'type_selector':       self._acttype_field_value(ACTIVITYTYPE_TASK),
+                                            'type_selector':    self._acttype_field_value(ACTIVITYTYPE_TASK),
                                             'start':            '2013-5-21',
                                             'start_time':       '9:30:00',
                                             'my_participation': True,
@@ -689,20 +695,14 @@ class ActivityTestCase(_ActivitiesTestCase):
                              [_(u'This kind causes constraint error.')]
                             )
 
-    def test_createview_404(self):
+    def test_createview_related_other01(self):
         self.login()
 
-#        self.assertEqual(200, self.client.get('/activities/activity/add/phonecall').status_code)
-#        self.assertEqual(404, self.client.get('/activities/activity/add/foobar').status_code)
-        c = Contact.objects.create(user=self.user, first_name='first_name', last_name='last_name')
-        data = {'ct_entity_for_relation': c.entity_type_id,
-                'id_entity_for_relation': c.id,
-                'entity_relation_type':   REL_SUB_LINKED_2_ACTIVITY,
-               }
-        url = self.ADD_RELATED_URL
-        self.assertGET200(url, data=dict(data, activity_type=ACTIVITYTYPE_PHONECALL))
-        self.assertGET200(url, data=dict(data, activity_type=ACTIVITYTYPE_MEETING))
-        self.assertGET404(url, data=dict(data, activity_type='foobar'))
+        ryoga = Contact.objects.create(user=self.user, first_name='Ryoga', last_name='Hibiki')
+        build_url = partial(self._build_add_related_uri, ryoga)
+        self.assertGET200(build_url(ACTIVITYTYPE_PHONECALL))
+        self.assertGET200(build_url(ACTIVITYTYPE_TASK))
+        self.assertGET404(build_url('foobar'))
 
     def test_popup_view01(self):
         self.login()
@@ -1029,7 +1029,7 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_unlink02(self):
         "Can not unlink the activity"
         self.login(is_superuser=False)
-        SetCredentials.objects.create(role=self.user.role,
+        SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   |
                                             EntityCredentials.CHANGE |
                                             EntityCredentials.DELETE |
@@ -1095,7 +1095,7 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_participants02(self):
         "Credentials error with the activity"
         self.login(is_superuser=False)
-        SetCredentials.objects.create(role=self.user.role,
+        SetCredentials.objects.create(role=self.role,
                                       value=EntityCredentials.VIEW   |
                                             EntityCredentials.CHANGE |
                                             EntityCredentials.DELETE |
@@ -1212,12 +1212,13 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.login(is_superuser=False)
         self._build_nolink_setcreds()
 
+        user = self.user
         activity = self._create_meeting()
-        self.assertTrue(self.user.has_perm_to_link(activity))
+        self.assertTrue(user.has_perm_to_link(activity))
 
         orga = Organisation.objects.create(user=self.other_user, name='Ghibli')
-        self.assertTrue(self.user.has_perm_to_change(orga))
-        self.assertFalse(self.user.has_perm_to_link(orga))
+        self.assertTrue(user.has_perm_to_change(orga))
+        self.assertFalse(user.has_perm_to_link(orga))
 
         uri = self._buid_add_subjects_url(activity)
         self.assertGET200(uri)
@@ -1231,31 +1232,20 @@ class ActivityTestCase(_ActivitiesTestCase):
                                                 )
                         )
 
-    def test_get_entity_relation_choices(self):
+    def test_add_subjects04(self): 
+        "Bad ContentType (relationType constraint error)"
         self.login()
 
-        url = '/activities/get_relationtype_choices'
-        self.assertPOST404(url)
-        self.assertPOST404(url, data={'ct_id': 'blubkluk'})
+        create_meeting = self._create_meeting
+        activity    = create_meeting(title='My meeting')
+        bad_subject = create_meeting(title="I'm bad heeheeeee")
 
-        get_ct = ContentType.objects.get_for_model
-        response = self.assertPOST200(url, data={'ct_id': get_ct(Contact).id})
-
-        content = simplejson.loads(response.content)
-        self.assertTrue(isinstance(content, list))
-        self.assertEqual([{'pk': REL_SUB_PART_2_ACTIVITY,   'predicate': _(u"participates to the activity")},
-                          {'pk': REL_SUB_ACTIVITY_SUBJECT,  'predicate': _(u"is subject of the activity")},
-                          {'pk': REL_SUB_LINKED_2_ACTIVITY, 'predicate': _(u"related to the activity")}
-                         ],
-                         content
-                        )
-
-        response = self.assertPOST200(url, data={'ct_id': get_ct(Organisation).id})
-        self.assertEqual([{'pk': REL_SUB_ACTIVITY_SUBJECT,  'predicate': _(u"is subject of the activity")},
-                          {'pk': REL_SUB_LINKED_2_ACTIVITY, 'predicate': _(u"related to the activity")},
-                         ],
-                         simplejson.loads(response.content)
-                        )
+        response = self.assertPOST200(self._buid_add_subjects_url(activity),
+                                      data={'subjects': self._relation_field_value(bad_subject)}
+                                     )
+        self.assertFormError(response, 'form', 'subjects',
+                             [_(u"This content type is not allowed.")]
+                            )
 
     def test_indisponibility_createview01(self):
         "Can not create an indispo with generic view"

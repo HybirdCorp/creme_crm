@@ -52,7 +52,8 @@ class RelationsTestCase(CremeTestCase):
         self.assertEqual(sym.subject_entity, entity2)
         self.assertEqual(sym.object_entity,  entity1)
 
-    def test_relation02(self): #BEWARE: bad usage of Relations (see the next test for good usage)
+    def test_relation02(self):
+        "BEWARE: don't do this ! Bad usage of Relations"
         rtype1, rtype2 = RelationType.create(('test-subject_foobar', 'is loving'),
                                              ('test-object_foobar',  'is loved by'))
 
@@ -119,6 +120,9 @@ class RelationsTestCase(CremeTestCase):
         self.assertIn(rtype.id,          compatibles_ids)
         self.assertIn(internal_rtype.id, compatibles_ids)
 
+        self.assertTrue(rtype.is_compatible(self.contact_ct_id))
+        self.assertFalse(rtype.is_compatible(ContentType.objects.get_for_model(Organisation).id))
+
     def test_get_compatible_ones02(self):
         original_compatibles_ids = self.build_compatible_set()
         rtype, sym_rtype = RelationType.create(('test-subject_foobar', 'manages',       [Contact]),
@@ -158,3 +162,5 @@ class RelationsTestCase(CremeTestCase):
         self.assertIn(sym_rtype.id,          compatibles_ids)
         self.assertIn(internal_rtype.id,     compatibles_ids)
         self.assertIn(internal_sym_rtype.id, compatibles_ids)
+
+        self.assertTrue(rtype.is_compatible(self.contact_ct_id))

@@ -8,7 +8,11 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
     from creme.creme_core.tests.views.list_view_import import CSVImportBaseTestCaseMixin
-    from creme.creme_core.models import HeaderFilter
+    from creme.creme_core.models import RelationType, HeaderFilter
+
+    from creme.persons.models import Contact
+
+    from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
 
     from .models import *
     from .models.status import BASE_STATUS, OPEN_PK, CLOSED_PK, INVALID_PK
@@ -19,7 +23,8 @@ except Exception as e:
 class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'tickets')
+        #cls.populate('creme_core', 'creme_config', 'tickets')
+        cls.populate('creme_config', 'tickets')
 
     def _build_edit_url(self, ticket):
         return '/tickets/ticket/edit/%s' % ticket.pk
@@ -36,8 +41,15 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         get_ct = ContentType.objects.get_for_model
         hf_filter = HeaderFilter.objects.filter
-        self.assertTrue(hf_filter(entity_type=get_ct(Ticket)).exists())
+        ticket_ct = get_ct(Ticket)
+        self.assertTrue(hf_filter(entity_type=ticket_ct).exists())
         self.assertTrue(hf_filter(entity_type=get_ct(TicketTemplate)).exists())
+
+        #contribution to activities
+        rtype = self.get_object_or_fail(RelationType, pk=REL_SUB_ACTIVITY_SUBJECT)
+        self.assertTrue(rtype.subject_ctypes.filter(id=ticket_ct.id).exists())
+        self.assertTrue(rtype.subject_ctypes.filter(id=get_ct(Contact).id).exists())
+        self.assertTrue(rtype.symmetric_type.object_ctypes.filter(id=ticket_ct.id).exists())
 
     def test_portal(self):
         self.login()

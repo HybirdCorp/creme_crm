@@ -49,18 +49,19 @@ class Populator(BasePopulator):
     dependencies = ['creme_core']
 
     def populate(self, *args, **kwargs):
-        RelationType.create((REL_SUB_LINKED_2_ACTIVITY, _(u"related to the activity")),
-                            (REL_OBJ_LINKED_2_ACTIVITY, _(u"(activity) related to"),        [Activity])
-                           )
-        rt_sub_activity_subject, rt_obj_activity_subject = \
-        RelationType.create((REL_SUB_ACTIVITY_SUBJECT, _(u"is subject of the activity")),
-                            (REL_OBJ_ACTIVITY_SUBJECT, _(u'(activity) is to subject'),      [Activity])
-                           )
-        rt_sub_part_2_activity, rt_obj_part_2_activity = \
-        RelationType.create((REL_SUB_PART_2_ACTIVITY,  _(u"participates to the activity"),  [Contact]),
-                            (REL_OBJ_PART_2_ACTIVITY,  _(u'(activity) has as participant'), [Activity]),
-                            is_internal=True
-                           )
+        create_rtype = RelationType.create
+        create_rtype((REL_SUB_LINKED_2_ACTIVITY, _(u"related to the activity")),
+                     (REL_OBJ_LINKED_2_ACTIVITY, _(u"(activity) related to"),    [Activity])
+                    )
+        rt_obj_activity_subject = \
+            create_rtype((REL_SUB_ACTIVITY_SUBJECT, _(u"is subject of the activity"), [Contact, Organisation]),
+                         (REL_OBJ_ACTIVITY_SUBJECT, _(u'(activity) is to subject'),   [Activity])
+                        )[1]
+        rt_obj_part_2_activity = \
+            create_rtype((REL_SUB_PART_2_ACTIVITY, _(u"participates to the activity"),  [Contact]),
+                         (REL_OBJ_PART_2_ACTIVITY, _(u'(activity) has as participant'), [Activity]),
+                         is_internal=True
+                        )[1]
 
         create_if_needed(Status, {'pk': STATUS_PLANNED},     name=pgettext('activities-status', 'Planned'),     description=pgettext('activities-status', 'Planned'),     is_custom=False)
         create_if_needed(Status, {'pk': STATUS_IN_PROGRESS}, name=pgettext('activities-status', 'In progress'), description=pgettext('activities-status', 'In progress'), is_custom=False)

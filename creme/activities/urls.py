@@ -19,7 +19,7 @@ urlpatterns = patterns('creme.activities.views',
     (r'^activity/add/(?P<act_type>\w+)$',           'activity.add_fixedtype'),
     (r'^activity/add_indispo$',                     'activity.add_indisponibility'),
     (r'^activity/add_popup$',                       'activity.add_popup'),
-    (r'^activity/add_related$',                     'activity.add_related'),
+    (r'^activity/add_related/(?P<entity_id>\d+)$',  'activity.add_related'),
     (r'^activity/edit/(?P<activity_id>\d+)$',       'activity.edit'),
     (r'^activity/(?P<activity_id>\d+)$',            'activity.detailview'),
     (r'^activity/(?P<activity_id>\d+)/popup$',      'activity.popupview'),
@@ -39,8 +39,6 @@ urlpatterns = patterns('creme.activities.views',
     (r'^calendar/add$',                                                 'calendar.add_user_calendar'),
     (r'^calendar/(?P<calendar_id>\d+)/edit$',                           'calendar.edit_user_calendar'),
     (r'^calendar/delete$',                                              'calendar.delete_user_calendar'),
-
-    (r'^get_relationtype_choices$', 'ajax.get_relationtype_choices'),
 )
 
 find_n_import("activities_register", [])

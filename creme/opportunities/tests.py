@@ -19,6 +19,8 @@ try:
     from creme.persons.models import Organisation, Contact
     from creme.persons.constants import REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
 
+    from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
+
     from creme.products.models import Product, Service
 
     from creme.billing.models import Quote, SalesOrder, Invoice, ServiceLine #Vat
@@ -36,10 +38,11 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'documents',
-                     'persons', 'commercial', 'billing',
-                     'activities', 'opportunities',
-                    )
+        #cls.populate('creme_core', 'creme_config', 'documents',
+                     #'persons', 'commercial', 'billing',
+                     #'activities', 'opportunities',
+                    #)
+        cls.populate('opportunities', 'documents', 'commercial')
 
     def tearDown(self):
         if self.doc:
@@ -70,7 +73,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         return opp, target, emitter
 
     def test_populate(self): #test get_compatible_ones() too
-        ct = ContentType.objects.get_for_model(Opportunity)
+        get_ct = ContentType.objects.get_for_model
+        ct = get_ct(Opportunity)
         relation_types = dict((rtype.id, rtype) for rtype in RelationType.get_compatible_ones(ct))
 
         self.assertNotIn(REL_SUB_TARGETS, relation_types)
@@ -115,6 +119,12 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         keys = SettingKey.objects.filter(pk=SETTING_USE_CURRENT_QUOTE)
         self.assertEqual(1, len(keys))
         self.assertEqual(1, SettingValue.objects.filter(key=keys[0]).count())
+
+        #contribution to activities
+        rtype = self.get_object_or_fail(RelationType, pk=REL_SUB_ACTIVITY_SUBJECT)
+        self.assertTrue(rtype.subject_ctypes.filter(id=ct.id).exists())
+        self.assertTrue(rtype.subject_ctypes.filter(id=get_ct(Contact).id).exists())
+        self.assertTrue(rtype.symmetric_type.object_ctypes.filter(id=ct.id).exists())
 
     def test_portal(self):
         self.login()

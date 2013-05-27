@@ -4,8 +4,11 @@ try:
     from decimal import Decimal
     from functools import partial
 
+    from django.contrib.contenttypes.models import ContentType
+
     from creme.creme_core.tests.base import CremeTestCase
-    from creme.creme_core.models import Currency, CremePropertyType, CremeProperty
+    from creme.creme_core.models import (RelationType, Currency,
+                                         CremePropertyType, CremeProperty)
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
     from creme.persons.models import Contact, Organisation
@@ -138,6 +141,16 @@ class AppTestCase(_BillingTestCase, CremeTestCase):
         self.assertEqual(1, CreditNoteStatus.objects.filter(pk=1).count())
 
         self.assertEqual(4, Vat.objects.count())
+
+        #contribution to activities
+        from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
+
+        rtype = self.get_object_or_fail(RelationType, pk=REL_SUB_ACTIVITY_SUBJECT)
+        get_ct = ContentType.objects.get_for_model
+        ct_ids = [get_ct(m).id for m in (Invoice, Quote, SalesOrder)]
+        self.assertEqual(len(ct_ids), rtype.subject_ctypes.filter(id__in=ct_ids).count())
+        self.assertTrue(rtype.subject_ctypes.filter(id=get_ct(Contact).id).exists())
+        self.assertEqual(len(ct_ids), rtype.symmetric_type.object_ctypes.filter(id__in=ct_ids).count())
 
     def test_portal(self):
         self.login()
