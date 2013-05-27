@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme_core', 'persons']
+    dependencies = ['creme_core', 'persons', 'activities']
 
     def populate(self, *args, **kwargs):
         billing_entities = [Invoice, Quote, SalesOrder, CreditNote, TemplateBase]
@@ -202,6 +202,12 @@ class Populator(BasePopulator):
             BlockDetailviewLocation.create(block_id=target_block.id_,          order=2,   zone=BlockDetailviewLocation.RIGHT, model=model)
             BlockDetailviewLocation.create(block_id=total_block.id_,           order=3,   zone=BlockDetailviewLocation.RIGHT, model=model)
             BlockDetailviewLocation.create(block_id=history_block.id_,         order=20,  zone=BlockDetailviewLocation.RIGHT, model=model)
+
+        if 'creme.activities' in settings.INSTALLED_APPS:
+            from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
+
+            RelationType.objects.get(pk=REL_SUB_ACTIVITY_SUBJECT) \
+                                .add_subject_ctypes(Invoice, Quote, SalesOrder)
 
         if 'creme.assistants' in settings.INSTALLED_APPS:
             logger.info('Assistants app is installed => we use the assistants blocks on detail views')

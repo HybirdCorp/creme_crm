@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2010  Hybird
+    Copyright (C) 2009-2013  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -18,40 +18,14 @@
 
 creme.activities = {};
 
-creme.activities.ajax = {};
-
-creme.activities.select_one = function(url, ct_id) {
-    var me = this;
-
-    this.okDialogHandler = function(ui) {
-        url += '&entity_relation_type=' + $(ui).find('select').val();
-        $(ui).dialog("destroy");
-        $(ui).remove();
-        window.location.href = url;
-    }
-
-    creme.ajax.json.post('/activities/get_relationtype_choices', {'ct_id': ct_id},
-        function(data) {
-            var options = creme.forms.Select.optionsFromData(data, 'predicate', 'pk');
-            var $select = creme.forms.Select.fill($('<select/>'), options, options[0][0]);
-            var buttons = {};
-
-            buttons[gettext("Ok")] = function() {
-                    me.okDialogHandler($(this))
-                }
-
-            creme.utils.showDialog($select, {title: '', modal: true, buttons: buttons });
-         });
-};
+// creme.activities.ajax = {};
 
 creme.activities.calendar = {};
 
-creme.activities.calendar.setReadableColor = function (target, bgColor){
-    if (creme.utils.RGBtoHSB(creme.utils.HEXtoRGB(bgColor)).b > 60)
-    {
+creme.activities.calendar.setReadableColor = function (target, bgColor) {
+    if (creme.utils.RGBtoHSB(creme.utils.HEXtoRGB(bgColor)).b > 60) {
         target.css('color', 'black');
-    }
-    else{
+    } else {
         target.css('color', 'white');
     }
 }

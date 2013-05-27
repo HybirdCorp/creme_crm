@@ -23,10 +23,12 @@ import logging
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
-from creme.creme_core.models import (RelationType, SearchConfigItem, HeaderFilterItem, HeaderFilter,
-                               BlockDetailviewLocation, RelationBlockItem, ButtonMenuItem)
+from creme.creme_core.models import (RelationType, SearchConfigItem,
+                HeaderFilterItem, HeaderFilter,
+                BlockDetailviewLocation, RelationBlockItem, ButtonMenuItem)
 from creme.creme_core.utils import create_if_needed
-from creme.creme_core.blocks import properties_block, relations_block, customfields_block, history_block
+from creme.creme_core.blocks import (properties_block, relations_block,
+                                     customfields_block, history_block)
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 
 from .models import *
@@ -38,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme_core']
+    dependencies = ['creme_core', 'activities']
 
     def populate(self, *args, **kwargs):
         RelationType.create((REL_SUB_LINKED_2_TICKET, _(u'is linked to the ticket')),
@@ -78,6 +80,11 @@ class Populator(BasePopulator):
         BlockDetailviewLocation.create(block_id=relations_block.id_,    order=500, zone=BlockDetailviewLocation.LEFT,  model=Ticket)
         BlockDetailviewLocation.create(block_id=rbi.block_id,           order=1,   zone=BlockDetailviewLocation.RIGHT, model=Ticket)
         BlockDetailviewLocation.create(block_id=history_block.id_,      order=20,  zone=BlockDetailviewLocation.RIGHT, model=Ticket)
+
+        if 'creme.activities' in settings.INSTALLED_APPS:
+            from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
+
+            RelationType.objects.get(pk=REL_SUB_ACTIVITY_SUBJECT).add_subject_ctypes(Ticket)
 
         if 'creme.assistants' in settings.INSTALLED_APPS:
             logger.info('Assistants app is installed => we use the assistants blocks on detail view')

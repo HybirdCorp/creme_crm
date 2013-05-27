@@ -70,6 +70,12 @@ class RelationType(CremeModel):
         #return force_unicode(u'%s — %s' % (self.predicate, symmetric_pred))#NB: — == "\xE2\x80\x94" == &mdash;
         return u'%s — %s' % (self.predicate, symmetric_pred) #NB: — == "\xE2\x80\x94" == &mdash;
 
+    def add_subject_ctypes(self, *models):
+        get_ct = ContentType.objects.get_for_model
+        cts = [get_ct(model) for model in models]
+        self.subject_ctypes.add(*cts)
+        self.symmetric_type.object_ctypes.add(*cts)
+
     def delete(self):
         sym_type = self.symmetric_type
 
@@ -166,6 +172,12 @@ class RelationType(CremeModel):
         transaction.commit()
 
         return (sub_relation_type, obj_relation_type)
+
+    def is_compatible(self, ctype_id):
+        #TODO: check if self.subject_ctypes.all() is already retrieved (prefetch_related)?
+        subject_ctypes = frozenset(self.subject_ctypes.values_list('id', flat=True))
+
+        return not subject_ctypes or ctype_id in subject_ctypes
 
     def is_not_internal_or_die(self):
         if self.is_internal:

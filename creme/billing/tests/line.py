@@ -28,7 +28,8 @@ __all__ = ('LineTestCase',)
 class LineTestCase(_BillingTestCase, CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'products', 'billing')
+        #cls.populate('creme_core', 'creme_config', 'products', 'billing')
+        cls.populate('creme_config', 'products', 'billing')
 
     def test_add_product_lines01(self):
         "Multiple adding"

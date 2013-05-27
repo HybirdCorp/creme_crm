@@ -30,7 +30,8 @@ __all__ = ('InvoiceTestCase', 'BillingDeleteTestCase')
 class InvoiceTestCase(_BillingTestCase, CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'persons', 'billing')
+        #cls.populate('creme_core', 'creme_config', 'persons', 'billing')
+        cls.populate('creme_config', 'billing')
 
     def test_createview01(self):
         self.login()

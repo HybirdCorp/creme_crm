@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme_core', 'creme_config', 'persons', 'products', 'billing']
+    dependencies = ['creme_core', 'creme_config', 'persons', 'activities', 'products', 'billing']
 
     def populate(self, *args, **kwargs):
         rt_sub_targets, rt_obj_targets = \
@@ -150,12 +150,14 @@ class Populator(BasePopulator):
             logger.info('Activities app is installed => we use the "Future activities" & "Past activities" blocks')
 
             from creme.activities.blocks import future_activities_block, past_activities_block
+            from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
+
+            RelationType.objects.get(pk=REL_SUB_ACTIVITY_SUBJECT).add_subject_ctypes(Opportunity)
 
             BlockDetailviewLocation.create(block_id=future_activities_block.id_, order=20, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
             BlockDetailviewLocation.create(block_id=past_activities_block.id_,   order=21, zone=BlockDetailviewLocation.RIGHT, model=Opportunity)
             BlockPortalLocation.create(app_name='opportunities', block_id=future_activities_block.id_, order=20)
             BlockPortalLocation.create(app_name='opportunities', block_id=past_activities_block.id_,   order=21)
-
 
         if 'creme.assistants' in settings.INSTALLED_APPS:
             logger.info('Assistants app is installed => we use the assistants blocks on detail views and portal')

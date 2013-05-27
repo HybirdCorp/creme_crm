@@ -28,7 +28,7 @@ from django.forms.util import ValidationError, ErrorList
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 
-from creme.creme_core.models import Relation
+from creme.creme_core.models import RelationType, Relation
 from creme.creme_core.forms import CremeEntityForm
 #from creme.creme_core.forms.base import FieldBlockManager
 from creme.creme_core.forms.fields import CremeDateTimeField, CremeTimeField, MultiCremeEntityField, MultiGenericEntityField
@@ -262,6 +262,11 @@ class ActivityCreateForm(_ActivityCreateForm):
         fields['my_participation'].widget.attrs['onclick'] = \
             "if($(this).is(':checked')){$('#id_my_calendar').removeAttr('disabled');}else{$('#id_my_calendar').attr('disabled', 'disabled');}"
 
+        fields['subjects'].allowed_models = [ct.model_class() 
+                                                for ct in RelationType.objects
+                                                                      .get(pk=REL_SUB_ACTIVITY_SUBJECT)
+                                                                      .subject_ctypes.all()
+                                            ]
         fields['participating_users'].queryset = User.objects.exclude(pk=user.id)
         fields['other_participants'].q_filter = {'is_user__isnull': True}
 
@@ -356,23 +361,21 @@ class ActivityCreateForm(_ActivityCreateForm):
 
 
 class RelatedActivityCreateForm(ActivityCreateForm):
-    def __init__(self, entity_for_relation, relation_type, *args, **kwargs):
+    def __init__(self, related_entity, relation_type_id, *args, **kwargs):
         super(RelatedActivityCreateForm, self).__init__(*args, **kwargs)
-        self.entity_for_relation = entity_for_relation
-        rtype_id = relation_type.id
 
-        if rtype_id == REL_SUB_PART_2_ACTIVITY:
-            assert isinstance(entity_for_relation, Contact)
+        if relation_type_id == REL_SUB_PART_2_ACTIVITY:
+            assert isinstance(related_entity, Contact)
 
-            if entity_for_relation.is_user:
-                self.fields['participating_users'].initial = [entity_for_relation.is_user]
+            if related_entity.is_user:
+                self.fields['participating_users'].initial = [related_entity.is_user]
             else:
-                self.fields['other_participants'].initial = [entity_for_relation.id]
-        elif rtype_id == REL_SUB_ACTIVITY_SUBJECT:
-            self.fields['subjects'].initial = [entity_for_relation]
+                self.fields['other_participants'].initial = [related_entity.id]
+        elif relation_type_id == REL_SUB_ACTIVITY_SUBJECT:
+            self.fields['subjects'].initial = [related_entity]
         else:
-            assert rtype_id == REL_SUB_LINKED_2_ACTIVITY
-            self.fields['linked_entities'].initial = [entity_for_relation]
+            assert relation_type_id == REL_SUB_LINKED_2_ACTIVITY
+            self.fields['linked_entities'].initial = [related_entity]
 
 
 class CalendarActivityCreateForm(ActivityCreateForm):

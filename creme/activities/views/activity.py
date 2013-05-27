@@ -21,23 +21,26 @@
 from datetime import datetime
 from functools import partial
 
+from django.db.models import Q
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.core.exceptions import ConflictError
-from creme.creme_core.models import RelationType
+from creme.creme_core.models import CremeEntity, RelationType
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.views.generic import view_real_entity, list_view, inner_popup, edit_entity
 from creme.creme_core.utils import get_ct_or_404, get_from_GET_or_404, jsonify
+
+from creme.persons.models import Contact
 
 from ..models import Activity, ActivityType, ActivitySubType
 from ..forms.activity import (ActivityCreateForm, IndisponibilityCreateForm,
                               RelatedActivityCreateForm, CalendarActivityCreateForm,
                               ActivityEditForm)
 from ..utils import get_ical
-from ..constants import ACTIVITYTYPE_INDISPO, ACTIVITYTYPE_MEETING, ACTIVITYTYPE_PHONECALL, ACTIVITYTYPE_TASK
+from ..constants import (ACTIVITYTYPE_INDISPO, ACTIVITYTYPE_MEETING, ACTIVITYTYPE_PHONECALL, ACTIVITYTYPE_TASK,
+                         REL_SUB_PART_2_ACTIVITY, REL_SUB_ACTIVITY_SUBJECT, REL_SUB_LINKED_2_ACTIVITY)
 
 
 def _add_activity(request, form_class,
@@ -48,10 +51,7 @@ def _add_activity(request, form_class,
 
         if form.is_valid():
             form.save()
-
-            #TODO: hasattr is not great (expand form_args instead ?)
-            entity = form.entity_for_relation if hasattr(form, 'entity_for_relation') else \
-                     form.instance
+            entity = form_args.get('related_entity', form.instance)
 
             return HttpResponseRedirect(entity.get_absolute_url())
     else:
@@ -99,33 +99,28 @@ def add_indisponibility(request):
 @login_required
 @permission_required('activities')
 @permission_required('activities.add_activity')
-def add_related(request):
-    GET = request.GET
-    ct_id       = get_from_GET_or_404(GET, 'ct_entity_for_relation')
-    entity_id   = get_from_GET_or_404(GET, 'id_entity_for_relation')
-    rtype_id    = get_from_GET_or_404(GET, 'entity_relation_type')
-    #act_type_id = get_from_GET_or_404(GET, 'activity_type')
-    act_type_id = GET.get('activity_type')
-
-    model_class   = get_ct_or_404(ct_id).model_class()
-    entity        = get_object_or_404(model_class, pk=entity_id)
-    relation_type = get_object_or_404(RelationType, pk=rtype_id)
-    #activity_type = get_object_or_404(ActivityType, pk=act_type_id)
+def add_related(request, entity_id):
+    act_type_id = request.GET.get('activity_type')
+    entity = get_object_or_404(CremeEntity, pk=entity_id).get_real_entity()
 
     if act_type_id:
         get_object_or_404(ActivityType, pk=act_type_id)
 
     request.user.has_perm_to_link_or_die(entity)
 
-    #TODO: move to a RelationType method...
-    subject_ctypes = frozenset(relation_type.subject_ctypes.values_list('id', flat=True))
-    if subject_ctypes and not int(ct_id) in subject_ctypes:
-        raise ConflictError('Incompatible relation type')
+    if isinstance(entity, Contact):
+        rtype_id = REL_SUB_PART_2_ACTIVITY
+    else:
+        rtype = RelationType.objects.get(pk=REL_SUB_ACTIVITY_SUBJECT)
+
+        if rtype.is_compatible(entity.entity_type_id):
+            rtype_id = REL_SUB_ACTIVITY_SUBJECT
+        else:
+            rtype_id = REL_SUB_LINKED_2_ACTIVITY #not custom, & all ContentTypes should be accepted
 
     return _add_activity(request, RelatedActivityCreateForm,
-                         entity_for_relation=entity,
-                         relation_type=relation_type,
-                         #type_id=activity_type.id,
+                         related_entity=entity,
+                         relation_type_id=rtype_id,
                          type_id=act_type_id,
                         )
 
@@ -184,8 +179,6 @@ def popupview(request, activity_id):
 @permission_required('activities')
 def listview(request, type_id=None):
     kwargs = {}
-
-    from django.db.models import Q
 
     if type_id:
         #TODO: change 'add' button too ??
