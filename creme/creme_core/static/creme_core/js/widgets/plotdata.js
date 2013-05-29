@@ -99,6 +99,30 @@ $.extend(creme.widget.PlotProcessors, {
     }
 });
 
+creme.widget.PlotProcessors.register('formatSerieLabel', function(series, options) {
+    var options = $.extend({format: "%s", seriesIndex: 0}, options);
+    var seriesIndex = options.seriesIndex;
+    var serie = seriesIndex < series.length ? series[seriesIndex] : [];
+
+    var formatter = function(format) {
+        return function(value, index, data) {return format.format(data);}
+    }(options.format);
+
+    return serie.map(new Generator().each(formatter).iterator());
+});
+
+creme.widget.PlotProcessors.register('formatEntryLabel', function(series, options) {
+    var options = $.extend({format: "%s", entryIndex: 0}, options);
+    var entryIndex = options.entryIndex;
+    var labels = []
+
+    var formatter = function(format, entryIndex) {
+        return function(serie, index, data) {return format.format(serie[entryIndex]);};
+    }(options.format, entryIndex);
+
+    return series.map(formatter);
+});
+
 creme.widget.PlotProcessors.register('ticksLabel', function(series, options) {
     var options = $.extend({labelIndex: 2, seriesIndex: 0}, options);
     var labelIndex = options.labelIndex;

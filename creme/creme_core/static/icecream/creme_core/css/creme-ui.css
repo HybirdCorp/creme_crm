@@ -113,6 +113,7 @@ ul.ui-layout.vbox li { position:relative; display:block; }
     font-weight: bold;
     padding: 3px;
     z-index: 1;
+    pointer-events: none;
 }
 
 .ui-creme-jqueryplot .jqplot-table-legend .jqplot-table-legend-label {

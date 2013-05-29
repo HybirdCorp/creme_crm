@@ -23,6 +23,10 @@
             {% if reportLegendRows %}"numberRows": {{reportLegendRows}},{% endif %}
             "disableIEFading": false
         },
+        "labels": "preprocess.formatEntryLabel",
+        "formatEntryLabelOptions": {
+            "format": "%2$s&nbsp;(%0$.2f&nbsp;%%)"
+        },
         "placement": "outsideGrid",
         "location": "s"
     },
