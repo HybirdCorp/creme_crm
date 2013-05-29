@@ -461,6 +461,7 @@ ul.button_list.vbox li {
     /*color: #5A90A7;*/
     margin-left: 0px;
     font-weight: bold;
+    text-align: center;
 }
 
 .main_content {
