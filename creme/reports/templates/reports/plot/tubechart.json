@@ -60,6 +60,11 @@
             "labelRenderer": "jqplot.CanvasAxisLabelRenderer"
         }
     },
+    "cursor": {
+        "show": true,
+        "style": "pointer",
+        "showTooltip": false
+    },
     "highlighter": {
         "show": true,
         "showMarker": false,

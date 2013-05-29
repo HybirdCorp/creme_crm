@@ -30,6 +30,7 @@
  */
 (function($) {
     $.jqplot.eventListenerHooks.push(['jqplotMouseMove', handleMove]);
+    $.jqplot.eventListenerHooks.push(['jqplotMouseLeave', handleMove]);
 
     /**
      * Class: $.jqplot.Highlighter
@@ -157,9 +158,9 @@
         $.extend(true, this, options);
     };
 
-    var locations = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
-    var locationIndicies = {'nw':0, 'n':1, 'ne':2, 'e':3, 'se':4, 's':5, 'sw':6, 'w':7};
-    var oppositeLocations = ['se', 's', 'sw', 'w', 'nw', 'n', 'ne', 'e'];
+    var locations = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w', 'cursor'];
+    var locationIndicies = {'nw':0, 'n':1, 'ne':2, 'e':3, 'se':4, 's':5, 'sw':6, 'w':7, 'cursor':8};
+    var oppositeLocations = ['se', 's', 'sw', 'w', 'nw', 'n', 'ne', 'e', 'cursor'];
 
     // axis.renderer.tickrenderer.formatter
 
@@ -226,7 +227,7 @@
         mr.draw(s.gridData[neighbor.pointIndex][0], s.gridData[neighbor.pointIndex][1], hl.highlightCanvas._ctx);
     }
 
-    function showTooltip(plot, series, neighbor) {
+    function showTooltip(plot, series, neighbor, position) {
         // neighbor looks like: {seriesIndex: i, pointIndex:j, gridData:p, data:s.data[j]}
         // gridData should be x,y pixel coords on the grid.
         // add the plot._gridPadding to that to get x,y in the target.
@@ -378,11 +379,16 @@
                 var x = gridpos.x + plot._gridPadding.left - elem.outerWidth(true) - opts.tooltipOffset - ms;
                 var y = gridpos.y + plot._gridPadding.top - elem.outerHeight(true)/2;
                 break;
+            case 'cursor':
+                var x = position.x - elem.outerWidth(true)/2;
+                var y = position.y - elem.outerHeight(true)/2;
+                break;
             default: // same as 'nw'
                 var x = gridpos.x + plot._gridPadding.left - elem.outerWidth(true) - opts.tooltipOffset - fact * ms;
                 var y = gridpos.y + plot._gridPadding.top - opts.tooltipOffset - elem.outerHeight(true) - fact * ms;
                 break;
         }
+
         elem.css('left', x);
         elem.css('top', y);
         if (opts.fadeTooltip) {
@@ -433,7 +439,7 @@
                     draw(plot, neighbor);
                 }
                 if (hl.showTooltip && (!c || !c._zoom.started)) {
-                    showTooltip(plot, plot.series[neighbor.seriesIndex], neighbor);
+                    showTooltip(plot, plot.series[neighbor.seriesIndex], neighbor, gridpos);
                 }
                 if (hl.bringSeriesToFront) {
                     plot.moveSeriesToFront(neighbor.seriesIndex);
@@ -453,7 +459,7 @@
                         draw(plot, neighbor);
                     }
                     if (hl.showTooltip && (!c || !c._zoom.started)) {
-                        showTooltip(plot, plot.series[neighbor.seriesIndex], neighbor);
+                        showTooltip(plot, plot.series[neighbor.seriesIndex], neighbor, gridpos);
                     }
                     if (hl.bringSeriesToFront) {
                         plot.moveSeriesToFront(neighbor.seriesIndex);
