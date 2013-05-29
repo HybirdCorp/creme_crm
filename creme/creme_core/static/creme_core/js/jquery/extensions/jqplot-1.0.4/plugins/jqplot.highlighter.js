@@ -155,6 +155,9 @@
         this.isHighlighting = false;
         this.currentNeighbor = null;
 
+        this.cursorStyle = null;
+        this.previousCursor = null;
+
         $.extend(true, this, options);
     };
 
@@ -388,7 +391,6 @@
                 var y = gridpos.y + plot._gridPadding.top - opts.tooltipOffset - elem.outerHeight(true) - fact * ms;
                 break;
         }
-
         elem.css('left', x);
         elem.css('top', y);
         if (opts.fadeTooltip) {
@@ -412,15 +414,22 @@
 
                 var ctx = hl.highlightCanvas._ctx;
                 ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
                 if (hl.fadeTooltip) {
                     hl._tooltipElem.fadeOut(hl.tooltipFadeSpeed);
-                }
-                else {
+                } else {
                     hl._tooltipElem.hide();
                 }
+
                 if (hl.bringSeriesToFront) {
                     plot.restorePreviousSeriesOrder();
                 }
+
+                if ((!c || !c._zoom.started)) {
+                    $(ev.target).css('cursor', hl.previousCursor);
+                    hl.previousCursor = null;
+                }
+
                 hl.isHighlighting = false;
                 hl.currentNeighbor = null;
                 ctx = null;
@@ -433,8 +442,14 @@
                 var ins = [neighbor.seriesIndex, neighbor.pointIndex, neighbor.data, plot];
                 plot.target.trigger(evt, ins);
 
+                if (hl.cursorStyle != null && (!c || !c._zoom.started)) {
+                    hl.previousCursor = $(ev.target).css('cursor');
+                    $(ev.target).css('cursor', hl.cursorStyle);
+                }
+
                 hl.isHighlighting = true;
                 hl.currentNeighbor = neighbor;
+
                 if (hl.showMarker) {
                     draw(plot, neighbor);
                 }
@@ -455,6 +470,7 @@
                     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
                     hl.isHighlighting = true;
                     hl.currentNeighbor = neighbor;
+
                     if (hl.showMarker) {
                         draw(plot, neighbor);
                     }
@@ -463,8 +479,8 @@
                     }
                     if (hl.bringSeriesToFront) {
                         plot.moveSeriesToFront(neighbor.seriesIndex);
-                    }                    
-                }                
+                    }
+                }
             }
         }
     }
