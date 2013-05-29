@@ -37,17 +37,13 @@
             "labelRenderer": "jqplot.CanvasAxisLabelRenderer"
         }
     },
-    "cursor": {
-        "show": true,
-        "style": "pointer",
-        "showTooltip": false
-    },
     "highlighter": {
         "show": true,
         "showMarker": false,
         "tooltipAxes": "y",
         "formatString": "%s",
-        "tooltipLocation": "n"
+        "tooltipLocation": "n",
+        "cursorStyle": "pointer"
     },
     "handlers": [
         {"action": "redirect", "event": "click", "url": "%2$s"}

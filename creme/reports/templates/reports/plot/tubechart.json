@@ -60,18 +60,14 @@
             "labelRenderer": "jqplot.CanvasAxisLabelRenderer"
         }
     },
-    "cursor": {
-        "show": true,
-        "style": "pointer",
-        "showTooltip": false
-    },
     "highlighter": {
         "show": true,
         "showMarker": false,
         "yvalues": 4,
         "tooltipAxes": "yx",
         "formatString": "<center>%2$s</center><center>%4$.2f €</center><center>%3$s</center>",
-        "tooltipLocation": "w"
+        "tooltipLocation": "w",
+        "cursorStyle": "pointer"
     },
     "handlers": [
         {"action": "redirect", "event": "click", "url": "%5$s"}
