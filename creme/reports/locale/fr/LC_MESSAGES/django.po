@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-05-16 11:09+0200\n"
+"POT-Creation-Date: 2013-05-29 16:18+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -444,7 +444,6 @@ msgstr "Aucune colonne définie pour le moment"
 
 #: templates/reports/templatetags/block_report_graph.html:8
 #: templates/reports/templatetags/report_chart_selectors.html:4
-#: templates/reports/templatetags/small_report_chart.html:8
 msgctxt "reports-graphs"
 msgid "Graph"
 msgstr "Graphique"
@@ -527,37 +526,30 @@ msgid "(inherited de %(report)s)"
 msgstr "(hérité de %(report)s)"
 
 #: templates/reports/templatetags/report_chart_selectors.html:6
-#: templates/reports/templatetags/small_report_chart.html:11
 msgid "Histogram"
 msgstr "Histogramme"
 
 #: templates/reports/templatetags/report_chart_selectors.html:7
-#: templates/reports/templatetags/small_report_chart.html:12
 msgid "Pie"
 msgstr "Camembert"
 
 #: templates/reports/templatetags/report_chart_selectors.html:8
-#: templates/reports/templatetags/small_report_chart.html:13
 msgid "Tube"
-msgstr "Tube"
+msgstr "Barres empilées 100%"
 
 #: templates/reports/templatetags/report_chart_selectors.html:12
-#: templates/reports/templatetags/small_report_chart.html:17
 msgid "Sorting"
 msgstr "Tri"
 
 #: templates/reports/templatetags/report_chart_selectors.html:14
-#: templates/reports/templatetags/small_report_chart.html:20
 msgid "Ascending"
 msgstr "Ascendant"
 
 #: templates/reports/templatetags/report_chart_selectors.html:15
-#: templates/reports/templatetags/small_report_chart.html:21
 msgid "Descending"
 msgstr "Descendant"
 
-#: templates/reports/templatetags/report_chart_selectors.html:20
-#: templates/reports/templatetags/small_report_chart.html:27
+#: templates/reports/templatetags/report_chart_selectors.html:21
 msgid "Regenerate"
 msgstr "Générer à nouveau"
 
@@ -622,7 +614,7 @@ msgstr "Liaison de la colonne <%s>"
 msgid "Adding column to <%s>"
 msgstr "Ajout de colonne à <%s>"
 
-#: views/report.py:344
+#: views/report.py:345
 #, python-format
 msgid "Temporal filters for <%s>"
 msgstr "Filtres temporels pour <%s>"

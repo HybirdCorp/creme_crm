@@ -78,7 +78,7 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
         plotmode:       'svg',
         savable:        false,
         resizable:      false,
-        'resize-delay': 500
+        'resize-delay': 200
     },
 
     _create: function(element, options, cb, sync, arguments)
@@ -91,7 +91,7 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
         this._plot_info = {options: {}, data: []}
         this._plot_handlers = [];
 
-        element.bind('resize', function() {self._onResize(element);});
+        element.bind('resizestop', function() {self._onResize(element);});
 
         this.draw(element, this.plotScript(element), cb, cb);
     },
@@ -155,6 +155,21 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
         });
     },
 
+    _populateSVGActions: function(element, target, options)
+    {
+        var self = this;
+        var actions = $('<div class="jqplot-actions">');
+
+        if (this._issavable) {
+            actions.append($('<button>').attr('title', gettext('View as image'))
+                                        .attr('alt', gettext('View as image'))
+                                        .attr('name', 'capture')
+                                        .bind('click', function() {self._popupRasterImage();}))
+        }
+
+        target.append(actions);
+    },
+
     _drawSVG: function(element, target, data, options, cb)
     {
         var self = this;
@@ -164,15 +179,18 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
         self._plot = target.jqplot(data, options);
         self._plot_id = target.attr('id');
 
-        if (this._issavable)
-        {
-            var button = $('<button>').text(gettext('View as image'))
-                                      .bind('click', function() {self._popupRasterImage();})
-                                      .css('position', 'absolute')
-                                      .css('z-index', '1')
-                                      .css('right', 5);
-            target.append(button);
-        }
+        self._populateSVGActions(element, target, options);
+
+//        if (this._issavable)
+//        {
+//            var button = $('<button>').text(gettext('View as image'))
+//                                      .addClass()
+//                                      .bind('click', function() {self._popupRasterImage();})
+//                                      .css('position', 'absolute')
+//                                      .css('z-index', '1')
+//                                      .css('right', 5);
+//            target.append(button);
+//        }
 
         self._bindPlotHandlers(self._plot, options);
 
