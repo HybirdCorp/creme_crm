@@ -120,6 +120,41 @@ ul.ui-layout.vbox li { position:relative; display:block; }
     padding-right: 10px;
 }
 
+.ui-creme-jqueryplot .jqplot-target .jqplot-actions {
+    position: absolute;
+    z-index: 1;
+    right: 0;
+    display: none;
+}
+
+.ui-creme-jqueryplot .jqplot-target:hover .jqplot-actions {
+    display: block;
+}
+
+.ui-creme-jqueryplot .jqplot-target .jqplot-actions button {
+    margin: 2px;
+    padding: 0;
+    border: 0;
+    width: 24px;
+    height: 24px;
+    background-color: #f4fafd;
+    background-repeat: no-repeat;
+    background-position: 50% 50%;
+    opacity: 1;
+    float: right;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+}
+
+.ui-creme-jqueryplot .jqplot-target .jqplot-actions button:hover {
+    cursor: pointer;
+}
+
+.ui-creme-jqueryplot .jqplot-target .jqplot-actions button[name="capture"] {
+    background-image: url("icecream/images/image_22.png");
+}
+
 /*----------------------------------*/
 ul.ui-creme-actionbuttonlist { display: inline; }
 
@@ -129,6 +164,7 @@ ul.ui-creme-actionbuttonlist button.ui-creme-actionbutton {
     margin: 0px;
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
+    border-radius: 4px;
     background-repeat: no-repeat;
     background-position: 2px 50%;
     border: 1px solid #6E9EB2;
