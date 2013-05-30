@@ -124,15 +124,14 @@ ul.ui-layout.vbox li { position:relative; display:block; }
     position: absolute;
     z-index: 1;
     right: 0;
-    display: none;
+    opacity: 0.5;
 }
 
 .ui-creme-jqueryplot .jqplot-target:hover .jqplot-actions {
-    display: block;
+    opacity: 1;
 }
 
 .ui-creme-jqueryplot .jqplot-target .jqplot-actions button {
-    margin: 2px;
     padding: 0;
     border: 0;
     width: 24px;
@@ -140,7 +139,6 @@ ul.ui-layout.vbox li { position:relative; display:block; }
     background-color: #f4fafd;
     background-repeat: no-repeat;
     background-position: 50% 50%;
-    opacity: 1;
     float: right;
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
