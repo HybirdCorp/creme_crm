@@ -23,6 +23,8 @@ creme.ajax.MockAjaxBackend = function(options) {
 
     this.GET =  {};
     this.POST = {};
+
+    this.counts = {GET: 0, POST: 0, SUBMIT:0};
 }
 
 creme.ajax.MockAjaxBackend.prototype = new creme.ajax.Backend();
@@ -63,21 +65,32 @@ $.extend(creme.ajax.MockAjaxBackend.prototype, {
         return creme.object.invoke(on_success, response.responseText);
     },
 
-    get:function(url, data, on_success, on_error, options) {
+    get:function(url, data, on_success, on_error, options)
+    {
+        this.counts.GET += 1;
         return this.send(url, data, this.GET, on_success, on_error, options);
     },
 
-    post:function(url, data, on_success, on_error, options) {
+    post:function(url, data, on_success, on_error, options)
+    {
+        this.counts.POST += 1;
         return this.send(url, data, this.POST, on_success, on_error, options);
     },
 
-    submit:function(form, on_success, on_error, options) {
+    submit:function(form, on_success, on_error, options)
+    {
         var options = options || {};
         var action = options.action || form.attr('action');
+
+        this.counts.SUBMIT += 1;
         return this.send(action, undefined, this.POST, on_success, on_error, options);
     },
 
     response: function(status, data) {
         return new creme.ajax.XHR({responseText: data, status: status});
+    },
+
+    resetMockCounts: function() {
+        this.counts = {GET: 0, POST: 0, SUBMIT:0};
     }
 });

@@ -1,3 +1,11 @@
+MockChainedSelect = function(backend) {
+    return $.extend({}, creme.widget.ChainedSelect, {
+        options: {
+            backend: backend
+        }
+    });
+};
+
 function mock_chainedselect_create(value, noauto)
 {
     var element = creme.widget.buildTag($('<span/>'), 'ui-creme-chainedselect', {}, !noauto)
@@ -89,6 +97,9 @@ module("creme.widgets.chainedselect.js", {
 
       creme.widget.unregister('ui-creme-dselect');
       creme.widget.declare('ui-creme-dselect', new MockDynamicSelect(this.backend));
+
+      creme.widget.unregister('ui-creme-chainedselect');
+      creme.widget.declare('ui-creme-chainedselect', new MockChainedSelect(this.backend));
   },
   teardown: function() {
   }

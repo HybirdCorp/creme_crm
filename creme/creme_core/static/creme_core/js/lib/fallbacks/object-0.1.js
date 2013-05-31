@@ -12,6 +12,19 @@
             Object.prototype[name] = method;
     };
 
+    appendStatic('keys', function(obj) {
+        var keys = [];
+        var key;
+
+        for (key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                keys.push(key);
+            }
+        }
+
+        return keys;
+    });
+
     appendStatic('isNone', function(obj) {
         return obj === undefined || obj === null;
     });
@@ -20,7 +33,7 @@
         if (Object.isNone(obj) || obj.length === 0)
             return true
 
-        if (obj === 0)
+        if (typeof obj === 'number')
             return false;
 
         for(var name in obj) {

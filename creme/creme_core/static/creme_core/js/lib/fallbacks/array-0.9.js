@@ -26,7 +26,7 @@
 	*/
 	function append(name, method)
 	{
-		if(!Array.prototype[name]) {
+		if(!Array.prototype[name]) {
 			Array.prototype[name] = method;
 		}
 	};

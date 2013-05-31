@@ -16,10 +16,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+creme.widget.DYNAMIC_SELECT_BACKEND = new creme.ajax.CacheBackend(new creme.ajax.Backend(),
+                                                                  {condition: new creme.ajax.CacheBackendTimeout(120 * 1000)});
+
 creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     options: {
         url: '',
-        backend: new creme.ajax.Backend({dataType:'json', sync:true}),
+        backend: creme.widget.DYNAMIC_SELECT_BACKEND, //new creme.ajax.Backend({dataType:'json', sync:true}),
         datatype: 'string',
         multiple: undefined,
         sortable: undefined,
@@ -31,7 +34,11 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     {
         this._initial = element.html();
         this._url = new creme.string.Template(options.url);
-        this._fill(element, this.url(element), cb, undefined, sync);
+
+        if (this._url.iscomplete()) {
+            this._fill(element, this.url(element), cb, undefined, sync);
+        }
+
         this._autocomplete = this._init_autocomplete(element, options)
     },
 
@@ -58,7 +65,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         return component;
     },
 
-    _update_disabled_state: function(element) {
+    _update_disabled_state: function(element) {
         ($('option', element).length > 1) ? element.removeAttr('disabled') : element.attr('disabled', 'disabled');
     },
 
@@ -73,7 +80,12 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     reload: function(element, data, cb, error_cb, sync)
     {
         this._url.update(data);
-        this._fill(element, this.url(element), cb, error_cb, sync);
+
+        if (this._url.iscomplete()) {
+            this._fill(element, this.url(element), cb, error_cb, sync);
+        } else {
+            creme.object.invoke(error_cb, element, new creme.ajax.AjaxResponse('404', ''));
+        }
     },
 
     update: function(element, data)
@@ -155,7 +167,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
                                      self._fill_end(element, old);
                                      creme.object.invoke(error_cb, element, error);
                                  },
-                                 {sync:sync});
+                                 {sync:sync, dataType:'json'});
     },
 
     _fill: function(element, data, cb, error_cb, sync)
@@ -240,7 +252,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
     choice: function(element, key)
     {
-        if (creme.object.isempty(key) === true)
+        if (Object.isEmpty(key) === true)
             return;
 
         var choices = this._querychoices(element, key);
@@ -265,7 +277,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     {
         var groups = [];
 
-        this._querygroups(element).each(function() {
+        this._querygroups(element).each(function() {
             return groups.push($(this).attr('label'));
         });
 

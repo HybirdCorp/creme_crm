@@ -101,7 +101,7 @@ Generator.prototype = {
         if (typeof getter === 'number') {
             var _index = getter;
             this._getter = function(entry, index, data) {return ArrayTools.get(entry, _index);};
-        } else if (typeof getter === 'function') {
+        } else if (typeof getter === 'function') {
             this._getter = getter;
         } else if (getter !== null) {
             var _key = getter;

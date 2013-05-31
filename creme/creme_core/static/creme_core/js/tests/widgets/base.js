@@ -14,7 +14,7 @@ test('creme.widget.parseopt (no default options)', function() {
     deepEqual(options, {});
 
     options = creme.widget.parseopt($('<div attr1="val1" attr2="val2" attr3="val3"/>'));
-    deepEqual(options, {});
+    deepEqual(options, {});
 
     options = creme.widget.parseopt($('<div attr1="val1" attr2="val2" attr3="val3"/>'), {}, {}, []);
     deepEqual(options, {});
@@ -263,9 +263,9 @@ test('creme.object.delegate', function() {
     equal(undefined, creme.object.delegate(undefined));
     equal(undefined, creme.object.delegate(null));
 
-    var instance = {
-        val: function() {return 12;},
-        add: function(a, b) {return a + b;}
+    var instance = {
+        val: function() {return 12;},
+        add: function(a, b) {return a + b;}
     };
 
     equal(undefined, creme.object.delegate(null, 'val'));
@@ -551,7 +551,7 @@ test('creme.object.JSON.encode', function() {
 test('creme.object.JSON.decode (null)', function() {
     var codec = new creme.object.JSON();
 
-    raises(function() {codec.decode(null);});
+    raises(function() {codec.decode(null);});
 });
 
 test('creme.object.JSON.decode (invalid)', function() {

@@ -170,7 +170,7 @@ creme.widget.PlotProcessors.register('swap', function(series, options) {
 creme.widget.PlotProcessors.register('fill', function(series, options) {
     var options = $.extend({index: 0, value: 0}, options);
     return series.map(function(serie, index, data) {
-        return serie.map(function(value, index, data) {
+        return serie.map(function(value, index, data) {
             var res = value.slice();
             res.splice(options.index, 0, options.value);
             return res;
@@ -181,7 +181,7 @@ creme.widget.PlotProcessors.register('fill', function(series, options) {
 creme.widget.PlotProcessors.register('index', function(series, options) {
     var options = $.extend({index: 0}, options);
     return series.map(function(serie, s_index, data) {
-        return serie.map(function(value, index, data) {
+        return serie.map(function(value, index, data) {
             var res = value.slice();
             res.splice(options.index, 0, index);
             return res;
