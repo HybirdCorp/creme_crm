@@ -16,6 +16,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+creme.widget.ENTITY_SELECT_BACKEND = new creme.ajax.CacheBackend(new creme.ajax.Backend(),
+                                                                 {condition: new creme.ajax.CacheBackendTimeout(120 * 1000)});
+
 creme.widget.EntitySelectorMode = {
     MULTIPLE: 0,
     SINGLE: 1
@@ -29,7 +32,7 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
         labelURL: '',
         label: gettext('Select'),
         qfilter: '',
-        backend: new creme.ajax.Backend({dataType:'json', sync:true})
+        backend: creme.widget.ENTITY_SELECT_BACKEND
     },
 
     _create: function(element, options, cb, sync)
@@ -157,7 +160,7 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
                                 button.text(options.label);
                                 creme.object.invoke(on_error, element, error);
                             },
-                            {sync:sync});
+                            {dataType:'json', sync:sync});
     },
 
     isMultiple: function(element) {

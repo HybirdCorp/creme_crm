@@ -123,8 +123,10 @@ dummy_list_block = DummyListBlock()
 block_registry.register(dummy_list_block)
 
 def js_testview_or_404(request, message, error):
+    if is_testenvironment(request) and not settings.FORCE_JS_TESTVIEW:
+        raise Http404(error)
 
-    if not is_testenvironment(request) and not settings.FORCE_JS_TESTVIEW:
+    if not settings.FORCE_JS_TESTVIEW:
         raise Http404(error)
 
     logger.warn(message)

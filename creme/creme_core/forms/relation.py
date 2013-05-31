@@ -31,7 +31,7 @@ from .widgets import Label, UnorderedMultipleChoiceWidget
 
 
 class _RelationsCreateForm(CremeForm):
-    relations        = MultiRelationEntityField(label=_(u'Relationships'), required=False)
+    relations        = MultiRelationEntityField(label=_(u'Relationships'), required=False, autocomplete=True)
     semifixed_rtypes = ModelMultipleChoiceField(label=_(u'Semi-fixed types of relationship'),
                                                 queryset=SemiFixedRelationType.objects.none(),
                                                 required=False, widget=UnorderedMultipleChoiceWidget

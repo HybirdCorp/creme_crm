@@ -566,7 +566,7 @@ ul.button_list.vbox li {
 .button_link:hover {
     cursor: pointer;
     text-decoration: none;
-    border: 1px solid #306075;
+    /*border: 1px solid #306075;*/
 }
 
 .button_link img {

@@ -213,8 +213,9 @@ class GenericEntityField(JSONField):
     }
     value_type = dict
 
-    def __init__(self, models=None, *args, **kwargs):
+    def __init__(self, models=None, autocomplete=False, *args, **kwargs):
         super(GenericEntityField, self).__init__(models, *args, **kwargs)
+        self._autocomplete = autocomplete
         self.allowed_models = models
 
     @property
@@ -224,6 +225,15 @@ class GenericEntityField(JSONField):
     @allowed_models.setter
     def allowed_models(self, allowed=()):
         self._allowed_models = allowed if allowed else list()
+        self._build_widget()
+
+    @property
+    def autocomplete(self):
+        return self._autocomplete
+
+    @autocomplete.setter
+    def autocomplete(self, autocomplete):
+        self._autocomplete = autocomplete
         self._build_widget()
 
     def _create_widget(self):
@@ -270,8 +280,8 @@ class GenericEntityField(JSONField):
 class MultiGenericEntityField(GenericEntityField):
     value_type = list
 
-    def __init__(self, models=None, *args, **kwargs):
-        super(MultiGenericEntityField, self).__init__(models, *args, **kwargs)
+    def __init__(self, models=None, autocomplete=False, *args, **kwargs):
+        super(MultiGenericEntityField, self).__init__(models, autocomplete, *args, **kwargs)
 
     def _create_widget(self):
         return SelectorList(CTEntitySelector(self._get_ctypes_options(self.get_ctypes()), multiple=True))
@@ -280,7 +290,7 @@ class MultiGenericEntityField(GenericEntityField):
         #return [entry if not isinstance(entry, CremeEntity) else
                 #{'ctype': entry.entity_type_id, 'entity': entry.id}
                     #for entry in value
-               #]
+                #]
         return map(super(MultiGenericEntityField, self)._value_to_jsonifiable, value)
 
     def _value_from_unjsonfied(self, data):
@@ -362,13 +372,24 @@ class RelationEntityField(JSONField):
         self._allowed_rtypes = rtypes
         self._build_widget()
 
-    def __init__(self, allowed_rtypes=(REL_SUB_HAS, ), *args, **kwargs):
+    @property
+    def autocomplete(self):
+        return self._autocomplete
+
+    @autocomplete.setter
+    def autocomplete(self, autocomplete):
+        self._autocomplete = autocomplete
+        self._build_widget()
+
+    def __init__(self, allowed_rtypes=(REL_SUB_HAS, ), autocomplete=False, *args, **kwargs):
         super(RelationEntityField, self).__init__(*args, **kwargs)
+        self._autocomplete = autocomplete
         self.allowed_rtypes = allowed_rtypes
 
     def _create_widget(self):
         return RelationSelector(self._get_options,
                                 '/creme_core/relation/predicate/${rtype}/content_types/json',
+                                autocomplete=self.autocomplete
                                )
 
     def _value_to_jsonifiable(self, value):
@@ -437,6 +458,7 @@ class MultiRelationEntityField(RelationEntityField):
         return SelectorList(RelationSelector(self._get_options,
                                              '/creme_core/relation/predicate/${rtype}/content_types/json',
                                              multiple=True,
+                                             autocomplete=self.autocomplete
                                             )
                            )
 

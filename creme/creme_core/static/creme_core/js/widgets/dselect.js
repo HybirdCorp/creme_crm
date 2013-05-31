@@ -44,7 +44,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
     _init_autocomplete: function(element, options)
     {
-        if (options.autocomplete === undefined)
+        if (Object.isNone(options.autocomplete))
             return;
 
         try {

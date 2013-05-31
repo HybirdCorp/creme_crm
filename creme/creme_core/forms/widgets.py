@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
+#from datetime import datetime
 from itertools import chain
 
 from django.contrib.contenttypes.models import ContentType
@@ -387,28 +387,30 @@ class EntitySelector(TextInput):
 
 
 class CTEntitySelector(ChainedInput):
-    def __init__(self, content_types, attrs=None, multiple=False):
+    def __init__(self, content_types, attrs=None, multiple=False, autocomplete=False):
         super(CTEntitySelector, self).__init__(attrs)
 
-        self.add_dselect("ctype", options=content_types, attrs={'auto': False})
+        self.add_dselect("ctype", options=content_types, attrs={'auto': False, 'autocomplete': True} if autocomplete else {'auto': False})
         self.add_input("entity", widget=EntitySelector, attrs={'auto': False, 'multiple':multiple})
 
 
 class RelationSelector(ChainedInput):
-    def __init__(self, relation_types, content_types, attrs=None, multiple=False):
+    def __init__(self, relation_types, content_types, attrs=None, multiple=False, autocomplete=False):
         super(RelationSelector, self).__init__(attrs)
 
-        self.add_dselect("rtype", options=relation_types, attrs={'auto': False, 'autocomplete': True})
-        self.add_dselect("ctype", options=content_types, attrs={'auto': False, 'autocomplete': True})
+        dselect_attrs = {'auto': False, 'autocomplete': True} if autocomplete else {'auto': False}
+
+        self.add_dselect("rtype", options=relation_types, attrs=dselect_attrs)
+        self.add_dselect("ctype", options=content_types, attrs=dselect_attrs)
         self.add_input("entity", widget=EntitySelector, attrs={'auto': False, 'multiple': multiple})
 
 
 class FilteredEntityTypeWidget(ChainedInput):
-    def __init__(self, content_types, attrs=None):
+    def __init__(self, content_types, attrs=None, autocomplete=False):
         super(FilteredEntityTypeWidget, self).__init__(attrs)
 
         add_dselect = self.add_dselect
-        attrs = {'auto': False}
+        attrs = {'auto': False, 'autocomplete': True} if autocomplete else {'auto': False}
         ctype_name = 'ctype'
         add_dselect(ctype_name, options=content_types, attrs=attrs)
 

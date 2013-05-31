@@ -156,9 +156,9 @@ ul.ui-layout.vbox li { position:relative; display:block; }
 /*----------------------------------*/
 ul.ui-creme-actionbuttonlist { display: inline; }
 
-ul.ui-creme-actionbuttonlist button.ui-creme-actionbutton { 
-    padding: 1px 6px 1px 6px; 
-    cursor: pointer; 
+ul.ui-creme-actionbuttonlist button.ui-creme-actionbutton {
+    padding: 1px 6px 1px 6px;
+    cursor: pointer;
     margin: 0px;
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
@@ -168,9 +168,9 @@ ul.ui-creme-actionbuttonlist button.ui-creme-actionbutton {
     background-color: #D9E5EA;
 }
 
-ul.ui-creme-actionbuttonlist button.ui-creme-actionbutton:hover { 
+ul.ui-creme-actionbuttonlist button.ui-creme-actionbutton:hover {
     -webkit-border-radius: 4px;
-    -moz-border-radius: 4px; 
+    -moz-border-radius: 4px;
     border-radius: 4px;
     /*
     border: 1px solid #6E9EB2;
@@ -184,22 +184,22 @@ ul.ui-creme-actionbuttonlist button.ui-creme-actionbutton:disabled {
     filter: Alpha(Opacity=50);
 }
 
-ul.ui-creme-actionbuttonlist button.ui-creme-actionbutton[name=create] { 
+ul.ui-creme-actionbuttonlist button.ui-creme-actionbutton[name=create] {
     background-image: url("chantilly/images/add_16.png");
     padding-left: 20px;
 }
 
-ul.ui-creme-actionbuttonlist button.ui-creme-actionbutton[name=delete] { 
+ul.ui-creme-actionbuttonlist button.ui-creme-actionbutton[name=delete] {
     background-image: url("chantilly/images/delete_16.png");
     padding-left: 20px;
 }
 
-ul.ui-creme-actionbuttonlist button.ui-creme-actionbutton[name=reset] { 
+ul.ui-creme-actionbuttonlist button.ui-creme-actionbutton[name=reset] {
     background-image: url("chantilly/images/delete_16.png");
     padding-left: 20px;
 }
 
-ul.ui-creme-actionbuttonlist button.ui-creme-actionbutton[name=edit] { 
+ul.ui-creme-actionbuttonlist button.ui-creme-actionbutton[name=edit] {
     background-image: url("chantilly/images/edit_16.png");
     padding-left: 20px;
 }
