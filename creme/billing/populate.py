@@ -248,7 +248,7 @@ class Populator(BasePopulator):
         from creme.reports.models.graph import RGT_FK, RGT_MONTH
 
         if not (resulted and resulted_collection):
-            print "Invoice status 'Resulted' and/or 'Resulted collection' have change => do not create reports 'All invoices of the current year' and 'Invoices unpaid of the current year'"
+            logger.info("Invoice status 'Resulted' and/or 'Resulted collection' have change => do not create reports 'All invoices of the current year' and 'Invoices unpaid of the current year'")
             return
 
         invoice_ct = ContentType.objects.get_for_model(Invoice)
@@ -289,7 +289,7 @@ class Populator(BasePopulator):
 
             BlockPortalLocation.create(app_name='creme_core', block_id=ibci.block_id, order=1)
         else:
-            print "The report 'Invoices of the current year' already exists"
+            logger.info("The report 'Invoices of the current year' already exists")
 
         #Create current year and unpaid invoices report ------------------------
         report_name = _(u"Invoices unpaid of the current year")
@@ -307,4 +307,4 @@ class Populator(BasePopulator):
 
             BlockPortalLocation.create(app_name='creme_core', block_id=ibci.block_id, order=2)
         else:
-            print "The report 'Invoices unpaid of the current year' already exists"
+            logger.info("The report 'Invoices unpaid of the current year' already exists")

@@ -204,7 +204,7 @@ class Populator(BasePopulator):
         opp_ct = ContentType.objects.get_for_model(Opportunity)
 
         if Report.objects.filter(name=report_name, ct=opp_ct).exists():
-            logger.info('It seems that a report "%s" already exists => do not recreate one.')
+            logger.info('It seems that a report "%s" already exists => do not recreate one.', report_name)
             return
 
         #Create a list view filter to use it in the report ---------------------

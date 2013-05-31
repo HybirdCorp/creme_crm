@@ -40,7 +40,7 @@ class BaseReportsTestCase(CremeTestCase):
     def setUp(self):
         self.login()
 
-    def create_report(self, name):
+    def create_report(self, name='Report #1', efilter=None):
         hf = HeaderFilter.create(pk='test_hf', name='name', model=Contact)
         hf.set_items([HeaderFilterItem.build_4_field(model=Contact, name='last_name'),
                       HeaderFilterItem.build_4_field(model=Contact, name='user'),
@@ -49,10 +49,11 @@ class BaseReportsTestCase(CremeTestCase):
                      ])
 
         response = self.client.post(self.ADD_URL, follow=True,
-                                    data={'user': self.user.pk,
-                                          'name': name,
-                                          'ct':   ContentType.objects.get_for_model(Contact).id,
-                                          'hf':   hf.id,
+                                    data={'user':   self.user.pk,
+                                          'name':   name,
+                                          'ct':     ContentType.objects.get_for_model(Contact).id,
+                                          'hf':     hf.id,
+                                          'filter': efilter.id if efilter else '',
                                          }
                                    )
         self.assertNoFormError(response)
@@ -127,8 +128,28 @@ class BaseReportsTestCase(CremeTestCase):
             create_field(name=REL_SUB_EMPLOYED_BY, title="is employed by",     selected=True,  report=report_orga, type=HFI_RELATION, order=4),
           ]
 
+    def _create_invoice(self, source, target, name="", total_vat=Decimal("0")):
+        # TODO: improve billing to make this code simpler
+        self.invoice_status = InvoiceStatus.objects.get_or_create(name=_(u"Draft"))[0]
+        user = self.user
+        self.issuing_date = getattr(self, 'issuing_date', None) or datetime.now().date()
+        invoice = Invoice.objects.create(user=user, status=self.invoice_status,
+                                         issuing_date=self.issuing_date, name=name,
+                                         total_vat=total_vat
+                                        )
+        ProductLine.objects.create(user=user, related_document=invoice,
+                                   on_the_fly_item='Stuff',
+                                   quantity=Decimal("1"), unit_price=total_vat,
+                                   vat_value=Vat.objects.create(value=Decimal()),
+                                  )
+
+        create_rel = partial(Relation.objects.create, subject_entity=invoice, user=user)
+        create_rel(type_id=REL_SUB_BILL_ISSUED,   object_entity=source)
+        create_rel(type_id=REL_SUB_BILL_RECEIVED, object_entity=target)
+
+        return invoice
+
     def _setUp_data_for_big_report(self):
-        now = datetime.now()
         managed_by_creme = CremePropertyType.objects.get(pk=PROP_IS_MANAGED_BY_CREME)
         user = self.user
 
@@ -163,34 +184,10 @@ class BaseReportsTestCase(CremeTestCase):
         self.crash = create_contact(first_name='Crash', last_name='Bandicoot')
         create_rel(subject_entity=self.crash, object_entity=self.sony)
 
-        self.issuing_date = now.date()
-
-        #Invoices
-        # TODO: improve billing to make this code simpler
-        def create_invoice(source, target, name="", total_vat=Decimal("0")):
-            self.invoice_status = InvoiceStatus.objects.get_or_create(name=_(u"Draft"))[0]
-            invoice = Invoice.objects.create(user=user, status=self.invoice_status, issuing_date=self.issuing_date, name=name, total_vat=total_vat)
-            ProductLine.objects.create(user=user, related_document=invoice,
-                                       on_the_fly_item='Stuff',
-                                       quantity=Decimal("1"), unit_price=total_vat,
-                                       vat_value=Vat.objects.create(value=Decimal()),
-                                       )
-
-            Relation.objects.create(subject_entity=invoice,
-                                    type_id=REL_SUB_BILL_ISSUED,
-                                    object_entity=source,
-                                    user=user
-                                   )
-            Relation.objects.create(subject_entity=invoice,
-                                    type_id=REL_SUB_BILL_RECEIVED,
-                                    object_entity=target,
-                                    user=user
-                                   )
-            return invoice
-
+        create_invoice = partial(self._create_invoice, self.nintendo)
         self.invoices = {
-            self.nintendo.pk: [create_invoice(self.nintendo, self.virgin, name="Invoice 1", total_vat=Decimal("10")),
-                               create_invoice(self.nintendo, self.sega,   name="Invoice 2", total_vat=Decimal("2")),
+            self.nintendo.pk: [create_invoice(self.virgin, name="Invoice 1", total_vat=Decimal("10")),
+                               create_invoice(self.sega,   name="Invoice 2", total_vat=Decimal("2")),
                               ],
             self.virgin.pk:   [],
             self.sega.pk:     [],

@@ -95,7 +95,7 @@ def jsonify(func):
             msg = unicode(e)
             status = 409
         except Exception as e:
-            logger.debug('Exception in @jsonify(%s): %s', func.__name__, e)
+            logger.exception('Exception in @jsonify(%s)', func.__name__)
             msg = unicode(e)
             status = 400
         else:

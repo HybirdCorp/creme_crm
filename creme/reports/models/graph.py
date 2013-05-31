@@ -74,18 +74,17 @@ class ReportGraph(CremeEntity):
     def get_absolute_url(self):
         return "/reports/graph/%s" % self.id
 
-    def get_edit_absolute_url(self):
-        return "/reports/graph/edit/%s" % self.id
+    #def get_edit_absolute_url(self):
+        #return "/reports/graph/edit/%s" % self.id
 
     def get_related_entity(self):
         return self.report
 
     def fetch(self, extra_q=None, order='ASC'):
-        assert order=='ASC' or order=='DESC'
+        assert order == 'ASC' or order == 'DESC'
         report        = self.report
         ct            = report.ct
         model         = ct.model_class()
-        model_manager = model.objects
         gtype         = self.type
         abscissa      = self.abscissa
         ordinate      = self.ordinate
@@ -95,10 +94,10 @@ class ReportGraph(CremeEntity):
         aggregate_func  = aggregate_field.func if aggregate_field else None #Seems to be a count
         aggregate_col   = aggregate_func(ordinate_col) if aggregate_func else None #Seems to be a count
 
-        entities = model_manager.all()
+        entities = model.objects.all()
 
         if report.filter is not None:
-            entities = (report.filter.filter(entities))
+            entities = report.filter.filter(entities)
 
         if extra_q is not None:
             entities = entities.filter(extra_q)
@@ -114,7 +113,7 @@ class ReportGraph(CremeEntity):
         def listview_url(model, q_filter):
             return model.get_lv_absolute_url() + '?q_filter=' + json_encoder.encode(q_filter)
 
-        #TODO: map of function ???
+        #TODO: map of functions ???
         if gtype == RGT_DAY:
             x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col,
                                      aggregate_func, entities_filter, 'day',
@@ -130,7 +129,7 @@ class ReportGraph(CremeEntity):
                                      date_format="%m/%Y", order=order, is_count=is_count,
                                      url_func=lambda date: listview_url(model, {'%s__year' % abscissa: date.year, '%s__month' % abscissa: date.month})
                                     )
-        elif gtype == RGT_YEAR:
+        elif gtype == RGT_YEAR: #TODO: unit test
             x, y = _get_dates_values(entities, abscissa, ordinate, ordinate_col,
                                      aggregate_func, entities_filter, 'year',
                                      q_func=lambda date: Q(**{str('%s__year' % abscissa): date.year}),
@@ -138,7 +137,7 @@ class ReportGraph(CremeEntity):
                                      url_func=lambda date: listview_url(model, {'%s__year' % abscissa: date.year})
                                     )
 
-        elif gtype == RGT_RANGE:
+        elif gtype == RGT_RANGE: #TODO: unit test
             min_date = entities.aggregate(min_date=Min(abscissa)).get('min_date')
             max_date = entities.aggregate(max_date=Max(abscissa)).get('max_date')
             days = timedelta(self.days or 1)
@@ -151,13 +150,14 @@ class ReportGraph(CremeEntity):
                         end   = min_date + days
                         x_append("%s-%s" % (begin.strftime("%d/%m/%Y"), end.strftime("%d/%m/%Y")))
 
-                        sub_entities = entities_filter(Q(**{str('%s__range' % abscissa): (begin, end)}))
+                        sub_entities = entities_filter(Q(**{str('%s__range' % abscissa): (begin, end)}))  #TODO: Q useless
                         url = listview_url(model, {'%s__range' % abscissa: [begin.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")]})
 
                         if is_count:
                             y_append([sub_entities.count(), url])
                         else:
                             y_append([sub_entities.aggregate(aggregate_col).get(ordinate), url])
+
                         min_date = end
                 else:
                     while max_date >= min_date:
@@ -165,17 +165,15 @@ class ReportGraph(CremeEntity):
                         end   = max_date - days
                         x_append("%s-%s" % (begin.strftime("%d/%m/%Y"), end.strftime("%d/%m/%Y")))
 
-                        sub_entities = entities_filter(Q(**{str('%s__range' % abscissa): (end, begin)}))
+                        sub_entities = entities_filter(Q(**{str('%s__range' % abscissa): (end, begin)}))  #TODO: Q useless
                         url = listview_url(model, {'%s__range' % abscissa: [end.strftime("%Y-%m-%d"), begin.strftime("%Y-%m-%d")]})
-
-                        print url
 
                         if is_count:
                             y_append([sub_entities.count(), url])
                         else:
                             y_append([sub_entities.aggregate(aggregate_col).get(ordinate), url])
-                        max_date = end
 
+                        max_date = end
         elif gtype == RGT_FK:
             _fks_model = entities.model._meta.get_field(abscissa).rel.to
             _fks = _fks_model.objects.all() #TODO: rename
@@ -186,15 +184,14 @@ class ReportGraph(CremeEntity):
 
             for fk in _fks:
                 x_append(unicode(fk))
-                sub_entities = entities_filter(Q(**{str('%s' % abscissa): fk.id})) #TODO: Q useless ??
+                sub_entities = entities_filter(**{str('%s' % abscissa): fk.id})
                 url = listview_url(model, {'%s' % abscissa: fk.id})
 
                 if is_count:
                     y_append([sub_entities.count(), url])
                 else:
                     y_append([sub_entities.aggregate(aggregate_col).get(ordinate), url])
-
-        elif gtype == RGT_RELATION:
+        elif gtype == RGT_RELATION: #TODO: unit test
             #TODO: Optimize !
             #TODO: make listview url for this case
             #      the q_filter {"pk__in": ub_relations.values_list('subject_entity__id')} may create too long urls
@@ -235,7 +232,7 @@ class ReportGraph(CremeEntity):
     def create_instance_block_config_item(self, volatile_field=None, volatile_rtype=None, save=True):
         from creme.reports.blocks import ReportGraphBlock
 
-        if volatile_field:
+        if volatile_field: #TODO: unit test
             assert volatile_rtype is None
             verbose = get_verbose_field_name(self.report.ct.model_class(), volatile_field)
             key = u"%s|%s" % (volatile_field, HFI_FIELD)
@@ -266,31 +263,27 @@ class ReportGraph(CremeEntity):
         return ibci
 
 
-def _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func, qfilter, range, q_func=None, url_func=None, date_format=None, order='ASC', is_count=False):
-    distinct_dates = entities.dates(abscissa, range, order)
-    x, y = [], []
+def _get_dates_values(entities, abscissa, ordinate, ordinate_col, aggregate_func,
+                      qfilter, range, q_func=None, url_func=None, date_format=None,
+                      order='ASC', is_count=False):
+    x = []
+    y = []
 
-    for date in distinct_dates:
+    for date in entities.dates(abscissa, range, order):
         sub_entities = qfilter(q_func(date))
-        url = url_func(date)
-        x.append(date.strftime(date_format))
+        #TODO: unit test count
+        value = sub_entities.count() if is_count else \
+                sub_entities.aggregate(aggregate_func(ordinate_col)).get(ordinate)
 
-        if is_count:
-            y.append([sub_entities.count(), url])
-        else:
-            y.append([sub_entities.aggregate(aggregate_func(ordinate_col)).get(ordinate), url])
+        x.append(date.strftime(date_format))
+        y.append([value, url_func(date)])
 
     return x, y
 
 #TODO: move to utils ???
 def fetch_graph_from_instance_block(instance_block, entity, order='ASC'):
     volatile_column   = instance_block.data
-
     graph             = instance_block.entity.get_real_entity()
-    report            = graph.report
-    report_model      = report.ct.model_class()
-
-    model             = entity.__class__
     ct_entity         = entity.entity_type #entity should always be a CremeEntity because graphs can be created only on CremeEntities
 
     columns = volatile_column.split('|')
@@ -301,19 +294,20 @@ def fetch_graph_from_instance_block(instance_block, entity, order='ASC'):
     except ValueError:
         hfi_type = 0
 
-    x, y = [], []
+    x = []
+    y = []
 
-    if hfi_type == HFI_FIELD:
+    if hfi_type == HFI_FIELD: #TODO: unit test
         try:
-            field = report_model._meta.get_field(volatile_column)
+            field = graph.report.ct.model_class()._meta.get_field(volatile_column)
         except FieldDoesNotExist:
             pass
         else:
-            if field.get_internal_type() == 'ForeignKey' and field.rel.to == model:
-                x, y = graph.fetch(extra_q=Q(**{str('%s__pk' % volatile_column): entity.pk}),
+            if field.get_internal_type() == 'ForeignKey' and field.rel.to == entity.__class__: #TODO: use isinstance()
+                x, y = graph.fetch(extra_q=Q(**{str('%s__pk' % volatile_column): entity.pk}), #TODO: str() ??
                                    order=order
                                   )
-    elif hfi_type == HFI_RELATION:
+    elif hfi_type == HFI_RELATION: #TODO: unit test
         try:
             rtype = RelationType.objects.get(pk=volatile_column)
         except RelationType.DoesNotExist:
@@ -321,9 +315,10 @@ def fetch_graph_from_instance_block(instance_block, entity, order='ASC'):
         else:
             obj_ctypes = rtype.object_ctypes.all()
 
-            if not obj_ctypes or ct_entity in obj_ctypes:
-                x, y = graph.fetch(extra_q=Q(relations__type=rtype) & \
-                                           Q(relations__object_entity=entity.pk),
+            if not obj_ctypes or ct_entity in obj_ctypes: #TODO: use RelationType.is_compatible
+                x, y = graph.fetch(extra_q=Q(relations__type=rtype,
+                                             relations__object_entity=entity.pk,
+                                            ),
                                    order=order
                                   )
     else:

@@ -1,6 +1,6 @@
 {% load i18n %}
-{% load creme_core_tags creme_block creme_queryset %}
-{% load report_tags %}
+{% load creme_core_tags creme_block %}
+{% load reports_tags %}
 {% with 6 as colspan %}
 {% has_perm_to change object as has_perm %}{% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
@@ -29,7 +29,7 @@
                 {% endif %}
             </th>
         </tr>
-        {% if object.columns.all %}
+        {% if columns %}
             <tr class="header">
                 <th class="block_header_line_light">{% trans "#" %}</th>
                 <th class="block_header_line_light">{% trans "Column" %}</th>
@@ -38,13 +38,13 @@
                 <th class="block_header_line_light action">{% trans "Action(s)" %}</th>
                 <th class="block_header_line_light action">{% trans "Expand ?" %}</th>
             </tr>
-            {% for column in object.columns.all|order_by:"order" %}{% cycle "block_line_light" "block_line_dark" as row_color silent %}
+            {% for column in columns %}{% cycle "block_line_light" "block_line_dark" as row_color silent %}
                 <tr class="content">
                     <td class="{{row_color}}">{{column.order}}</td>
                     <td class="{{row_color}}">{{column}}</td>
                     <td class="{{row_color}}">
                     {% if column.report %}
-                        {% trans "Columns of" %} : <a href="{{column.report.get_absolute_url}}">{{column.report}}</a> ({{column.report.columns.all|order_by:"order"|join:", "}})
+                        {% trans "Columns of" %} : <a href="{{column.report.get_absolute_url}}">{{column.report}}</a> ({{column.report.columns.all|join:", "}})
                     {% else %}
                         {% trans "Value" %}
                     {% endif %}
@@ -56,53 +56,42 @@
                                 <tr>
                                     <td style="width: 66%;">
                                         {% if HFI_FIELD == column.type %}
-                                            {% if column.report %}
-                                                {% has_perm_to unlink column.report as unlink_sub_report_perm %}
+                                            {% if column.report %}{% comment %}TODO: factorise unlink{% endcomment %}{% has_perm_to unlink column.report as unlink_sub_report_perm %}
                                                 {% if unlink_perm and unlink_sub_report_perm %}
                                                     <a onclick="creme.reports.unlink_report('{{column.pk}}', '{{update_url}}');">{% trans 'Unlink the report' %}</a>
                                                 {% else %}
                                                     <span class="forbidden">{% trans 'Unlink the report' %}</span>
                                                 {% endif %}
-                                            {% else %}
-                                                    {% if column|is_field_is_linkable:object.ct %}
-                                                        {% if link_perm %}
-                                                            <a onclick="creme.reports.link_report('{{object.id}}', '{{column.pk}}', {% get_block_reload_uri %});">{% trans 'Link a report' %}</a>
-                                                        {% else %}
-                                                            <span class="forbidden">{% trans 'Link a report' %}</span>
-                                                        {% endif %}
-                                                    {% endif %}
-                                            {% endif %}
-                                        {% endif %}
-                                        {% if HFI_RELATED == column.type %}
-                                            {% if column.report %}
-                                                {% has_perm_to unlink column.report as unlink_sub_report_perm %}
-                                                {% if unlink_perm and unlink_sub_report_perm %}
-                                                    <a onclick="creme.reports.unlink_report('{{column.pk}}', '{{update_url}}');">{% trans 'Unlink the report' %}</a>
-                                                {% else %}
-                                                    <span class="forbidden">{% trans 'Unlink the report' %}</span>
-                                                {% endif %}
-                                            {% else %}
+                                            {% elif column|is_field_is_linkable:object.ct %}
                                                 {% if link_perm %}
-                                                    <a onclick="creme.reports.link_related_report('{{object.id}}', '{{column.pk}}', {% get_block_reload_uri %});">{% trans 'Link a report' %}</a>
+                                                    <a onclick="creme.reports.link_report('{{object.id}}', '{{column.pk}}', {% get_block_reload_uri %});">{% trans 'Link a report' %}</a>
                                                 {% else %}
                                                     <span class="forbidden">{% trans 'Link a report' %}</span>
                                                 {% endif %}
                                             {% endif %}
-                                        {% endif %}
-                                        {% if HFI_RELATION == column.type %}
-                                            {% if column.report %}
-                                                {% has_perm_to unlink column.report as unlink_sub_report_perm %}
+                                        {% elif HFI_RELATED == column.type %}
+                                            {% if column.report %}{% has_perm_to unlink column.report as unlink_sub_report_perm %}
+                                                {% if unlink_perm and unlink_sub_report_perm %}
+                                                    <a onclick="creme.reports.unlink_report('{{column.pk}}', '{{update_url}}');">{% trans 'Unlink the report' %}</a>
+                                                {% else %}
+                                                    <span class="forbidden">{% trans 'Unlink the report' %}</span>
+                                                {% endif %}
+                                            {% elif link_perm %}
+                                                <a onclick="creme.reports.link_related_report('{{object.id}}', '{{column.pk}}', {% get_block_reload_uri %});">{% trans 'Link a report' %}</a>
+                                            {% else %}
+                                                <span class="forbidden">{% trans 'Link a report' %}</span>
+                                            {% endif %}
+                                        {% elif HFI_RELATION == column.type %}
+                                            {% if column.report %}{% has_perm_to unlink column.report as unlink_sub_report_perm %}
                                                 {% if unlink_perm and unlink_sub_report_perm %}
                                                     <a onclick="creme.reports.unlink_report('{{column.pk}}', {% get_block_reload_uri %});">{% trans 'Unlink the report' %}</a>
                                                 {% else %}
                                                     <span class="forbidden">{% trans 'Unlink the report' %}</span>
                                                 {% endif %}
+                                            {% elif link_perm %}
+                                                <a onclick="creme.reports.link_relation_report('{{object.id}}', '{{column.pk}}', '{{column.name}}', {% get_block_reload_uri %});">{% trans 'Link a report' %}</a>
                                             {% else %}
-                                                {% if link_perm %}
-                                                    <a onclick="creme.reports.link_relation_report('{{object.id}}', '{{column.pk}}', '{{column.name}}', {% get_block_reload_uri %});">{% trans 'Link a report' %}</a>
-                                                {% else %}
-                                                    <span class="forbidden">{% trans 'Link a report' %}</span>
-                                                {% endif %}
+                                                <span class="forbidden">{% trans 'Link a report' %}</span>
                                             {% endif %}
                                         {% endif %}
                                     </td>
@@ -113,7 +102,7 @@
                                                     <img src="{% creme_media_url 'images/small_up_arrow_16.png' %}" border="0" title="{{up_label}}" alt="{{up_label}}" />
                                                 </a>
                                             {% else %}
-                                                    <img class="forbidden" src="{% creme_media_url 'images/small_up_arrow_16.png' %}" border="0" title="{{up_label}}" alt="{{up_label}}" />
+                                                <img class="forbidden" src="{% creme_media_url 'images/small_up_arrow_16.png' %}" border="0" title="{{up_label}}" alt="{{up_label}}" />
                                             {% endif %}
                                         {% endif %}<br/>
                                         {% if column.order != object.columns.count %}{% trans "Column down" as down_label %}
@@ -122,7 +111,7 @@
                                                     <img src="{% creme_media_url 'images/small_down_arrow_16.png' %}" border="0" title="{{down_label}}" alt="{{down_label}}" />
                                                 </a>
                                             {% else %}
-                                                    <img class="forbidden" src="{% creme_media_url 'images/small_down_arrow_16.png' %}" border="0" title="{{down_label}}" alt="{{down_label}}" />
+                                                <img class="forbidden" src="{% creme_media_url 'images/small_down_arrow_16.png' %}" border="0" title="{{down_label}}" alt="{{down_label}}" />
                                             {% endif %}
                                         {% endif %}
                                     </td>
@@ -131,21 +120,15 @@
                         </table>
                     </td>
                     <td class="{{row_color}} action">
-                        {% if HFI_FIELD == column.type %}
-                            {% if column|is_field_is_linkable:object.ct and column.report %}
-                                <input {% if not has_perm %}disabled="true"{% endif %} type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %} checked {% endif %}/>
-                            {% endif %}
-                        {% elif HFI_RELATION == column.type or HFI_RELATED == column.type %}
-                            {# if column.report #}
-                                <input {% if not has_perm %}disabled="true"{% endif %} type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %} checked {% endif %}/>
-                            {# endif #}
+                        {% if column.report %}
+                            <input {% if not has_perm %}disabled="true"{% endif %} type="checkbox" name="selected" onclick="creme.reports.setSelected(this, '{{object.id}}', '{{column.pk}}', '{{update_url}}?base_url={{base_url}}');" {% if column.selected %}checked {% endif %}/>
                         {% endif %}
                     </td>
                 </tr>
             {% endfor %}
         {% else %}
             <tr class="content empty">
-                <td class="{% cycle "block_line_dark" "block_line_light" %}">{% trans 'No column set for the moment' %}</td>
+                <td class="block_line_dark">{% trans 'No column set for the moment' %}</td>
             </tr>
         {% endif %}
     </tbody>

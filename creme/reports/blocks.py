@@ -40,6 +40,7 @@ class ReportFieldsBlock(Block):
         report = context['object']
         return self._render(self.get_block_template_context(context,
                                                             update_url='/creme_core/blocks/reload/%s/%s/' % (self.id_, report.pk),
+                                                            columns=report.columns.all(),
                                                             HFI_FIELD=HFI_FIELD,
                                                             HFI_RELATION=HFI_RELATION,
                                                             HFI_RELATED=HFI_RELATED,
@@ -75,18 +76,14 @@ class ReportGraphsBlock(QuerysetBlock):
 
 
 class ReportGraphBlock(Block):
-#    id_           = Block.generate_id('reports', 'graph')
-    #id_           = InstanceBlockConfigItem.generate_id('reports', 'graph')
     id_           = InstanceBlockConfigItem.generate_base_id('reports', 'graph')
     dependencies  = (ReportGraph,)
     verbose_name  = _(u"Report's graph")
     template_name = 'reports/templatetags/block_report_graph.html'
     order_by      = 'name'
 
-    #def __init__(self, id_, instance_block_config):
     def __init__(self, instance_block_config):
         super(ReportGraphBlock, self).__init__()
-        #self.id_                   = id_
         self.graph                 = instance_block_config.entity.get_real_entity() #TODO: avoid a query ?
         self.block_id              = instance_block_config.block_id
         self.volatile_column       = instance_block_config.data
@@ -94,12 +91,6 @@ class ReportGraphBlock(Block):
         self.instance_block_id     = instance_block_config.id
         self.instance_block_config = instance_block_config
         self.verbose_name          = self.verbose
-
-    #@staticmethod
-    #def generate_id(app_name, name):
-        #app_name = app_name.replace('-', '_')
-        #name = name.replace('-', '_')
-        #return InstanceBlockConfigItem.generate_id('reports_blocks_ReportGraphBlock', app_name, name)
 
     def detailview_display(self, context):
         entity  = context['object']

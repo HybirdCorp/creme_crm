@@ -1,5 +1,5 @@
 {% load creme_core_tags %}
-{% load report_tags graph_tags %}
+{% load reports_tags %}
 {
     "seriesDefaults": {
         "renderer": "jqplot.BarRenderer", 

@@ -1047,16 +1047,19 @@ class MultiEmailField(Field):
 
 
 class DateRangeField(MultiValueField):
-    """
-    A field which returns a creme_core.utils.DateRange
-    Commonly used with a DateRangeWidget
-    ex:
-        DateRangeField(label=_(u'Date range'))#Use DateRangeWidget with defaults params
-        DateRangeField(label=_(u'Date range'), widget=DateRangeWidget(attrs={'render_as': 'ul'}))#Render DateRangeWidget as ul/li
-        DateRangeField(label=_(u'Date range'), widget=DateRangeWidget(attrs={'render_as': 'table'}))#Render DateRangeWidget as a table
+    """A field which returns a creme_core.utils.DateRange.
+    Commonly used with a DateRangeWidget.
+    eg:
+        #Use DateRangeWidget with defaults params
+        DateRangeField(label=_(u'Date range'))
+
+        #Render DateRangeWidget as ul/li
+        DateRangeField(label=_(u'Date range'), widget=DateRangeWidget(attrs={'render_as': 'ul'}))
+
+        #Render DateRangeWidget as a table
+        DateRangeField(label=_(u'Date range'), widget=DateRangeWidget(attrs={'render_as': 'table'}))
     """
     widget = DateRangeWidget
-
     default_error_messages = {
         'customized_empty': _(u'If you select customized you have to specify a start date and/or an end date.'),
         'customized_invalid': _(u'Start date has to be before end date.'),
@@ -1078,16 +1081,16 @@ class DateRangeField(MultiValueField):
         return u'', u'', u''
 
     def clean(self, value):
-        field_name, start, end = super(DateRangeField, self).clean(value)
+        range_name, start, end = super(DateRangeField, self).clean(value)
 
-        if field_name == "":
-            if not (start or end):
+        if range_name == "":
+            if not start and not end:
                 raise ValidationError(self.error_messages['customized_empty'])
 
-            if start is not None and end is not None and start > end:
+            if start and end and start > end:
                 raise ValidationError(self.error_messages['customized_invalid'])
 
-        return date_range_registry.get_range(field_name, start, end)
+        return date_range_registry.get_range(range_name, start, end)
 
     def widget_attrs(self, widget):
         return {'render_as': self.render_as}
@@ -1102,13 +1105,11 @@ class ColorField(RegexField):
         super(ColorField, self).__init__(self.regex, max_length=6, min_length=6, *args, **kwargs)
 
     def clean(self, value):
-        value = super(ColorField, self).clean(value)
-        return value.upper()
+        return super(ColorField, self).clean(value).upper()
 
 
 class DurationField(MultiValueField):
     widget = DurationWidget
-
     default_error_messages = {
         'invalid': _(u'Enter a whole number.'),
         'min_value': _(u'Ensure this value is greater than or equal to %(limit_value)s.'),

@@ -30,11 +30,10 @@ from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.registry import creme_registry, export_backend_registry
 from creme.creme_core.forms import CremeEntityForm, CremeForm
-from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget, ListViewWidget
+from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
 from creme.creme_core.forms.fields import AjaxMultipleChoiceField, AjaxModelChoiceField, CremeEntityField, DateRangeField
-#from creme.creme_core.models import Filter, RelationType, CustomField
 from creme.creme_core.models import EntityFilter, RelationType, CustomField
-from creme.creme_core.models.header_filter import (HeaderFilter, HeaderFilterItem, HFI_FIELD, HFI_RELATION,
+from creme.creme_core.models.header_filter import (HeaderFilter, HFI_FIELD, HFI_RELATION,
                                                    HFI_CUSTOM, HFI_FUNCTION, HFI_CALCULATED, HFI_RELATED)
 from creme.creme_core.utils.meta import (get_verbose_field_name, get_function_field_verbose_name,
                                          get_date_fields, get_related_field_verbose_name,
@@ -46,8 +45,7 @@ from ..report_aggregation_registry import field_aggregation_registry
 
 
 def _save_field(name, title, order, type):
-    f = Field.objects.create(name=name, title=title, order=order, type=type)
-    return f
+    return Field.objects.create(name=name, title=title, order=order, type=type)
 
 def save_hfi_field(model, column, order):
     return _save_field(column, get_verbose_field_name(model, column), order, HFI_FIELD)
@@ -59,11 +57,11 @@ def save_hfi_cf(name, title, order):
     return _save_field(name, title, order, HFI_CUSTOM)
 
 def save_hfi_relation(relation, order):
-    rel_type_get = RelationType.objects.get
     try:
-        predicate_verbose = rel_type_get(pk=relation)
+        predicate_verbose = RelationType.objects.get(pk=relation)
     except RelationType.DoesNotExist:
-        predicate_verbose =  relation
+        predicate_verbose = relation
+
     return _save_field(relation, predicate_verbose, order, HFI_RELATION)
 
 def save_hfi_function(model, function_name, order):
@@ -143,11 +141,10 @@ def get_aggregate_custom_fields(model, aggregate_pattern): #TODO: generator expr
             ]
 
 
-def get_aggregate_fields(fields, model, initial_data=None):
+def get_aggregate_fields(fields, model, initial_data=None): #TODO: move to AddFieldToReportForm ??
     authorized_fields = field_aggregation_registry.authorized_fields
 
     for aggregate in field_aggregation_registry.itervalues():
-        aggregate_title = aggregate.title
         aggregate_pattern = aggregate.pattern
 
         #choices = [(u"%s" % (aggregate_pattern % f.name), unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if f.__class__ in authorized_fields]
@@ -162,7 +159,7 @@ def get_aggregate_fields(fields, model, initial_data=None):
 #            choices.extend([(u"cf__%s__%s" % (cf.field_type, aggregate_pattern % cf.id), cf.name)])
         choices.extend(get_aggregate_custom_fields(model, aggregate_pattern))
 
-        fields[aggregate.name] = MultipleChoiceField(label=_(aggregate_title), required=False, choices=choices, widget=OrderedMultipleChoiceWidget)
+        fields[aggregate.name] = MultipleChoiceField(label=_(aggregate.title), required=False, choices=choices, widget=OrderedMultipleChoiceWidget)
         if initial_data is not None:
             fields[aggregate.name].initial = initial_data
 
@@ -171,7 +168,7 @@ class CreateForm(CremeEntityForm):
     hf     = AjaxModelChoiceField(label=_(u"Existing view"), queryset=HeaderFilter.objects.none(), required=False)
     filter = AjaxModelChoiceField(label=_(u"Filter"), queryset=EntityFilter.objects.none(), required=False)
 
-    columns        = AjaxMultipleChoiceField(label=_(u'Regular fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    regular_fields = AjaxMultipleChoiceField(label=_(u'Regular fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
     custom_fields  = AjaxMultipleChoiceField(label=_(u'Custom fields'),  required=False, choices=(), widget=OrderedMultipleChoiceWidget)
     related_fields = AjaxMultipleChoiceField(label=_(u'Related fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
     relations      = AjaxMultipleChoiceField(label=_(u'Relations'),      required=False, choices=(), widget=OrderedMultipleChoiceWidget)
@@ -179,17 +176,16 @@ class CreateForm(CremeEntityForm):
 
     blocks = CremeEntityForm.blocks.new(
         ('hf_block',         _(u'Select from a existing view : '), ['hf']),
-        ('fields_block',     _(u'Or'), ['columns', 'related_fields', 'custom_fields','relations', 'functions']),
+        ('fields_block',     _(u'Or'), ['regular_fields', 'related_fields', 'custom_fields','relations', 'functions']),
         ('aggregates_block', _(u'Calculated values'), [aggregate.name for aggregate in field_aggregation_registry.itervalues()]),
     )
 
-    class Meta:
+    class Meta(CremeEntityForm.Meta):
         model = Report
-        exclude = CremeEntityForm.Meta.exclude
 
     def __init__(self, *args, **kwargs):
         super(CreateForm, self).__init__(*args, **kwargs)
-        fields   = self.fields
+        fields = self.fields
 
         #TODO: create a ContentTypeModelChoice ??
         get_ct = ContentType.objects.get_for_model
@@ -210,7 +206,7 @@ class CreateForm(CremeEntityForm):
         fields       = self.fields
 
         hf             = get_data('hf')
-        columns        = get_data('columns')
+        regular_fields = get_data('regular_fields')
         related_fields = get_data('related_fields')
         custom_fields  = get_data('custom_fields')
         relations      = get_data('relations')
@@ -218,75 +214,57 @@ class CreateForm(CremeEntityForm):
 
         aggregates = self.aggregates
 
-        _fields = ['columns', 'related_fields', 'custom_fields', 'relations', 'functions']
-        _fields.extend([aggregate.name for aggregate in aggregates])
-        _fields_choices = [unicode(fields[f].label) for f in _fields]
-
         is_one_aggregate_selected = False
         for aggregate in aggregates:
             for data in get_data(aggregate.name):
                 is_one_aggregate_selected |= bool(data)
 
-        if not hf and not (columns or related_fields or custom_fields or relations or functions or is_one_aggregate_selected):
-            raise ValidationError(ugettext(u"You must select an existing view, or at least one field from : %s") % ", ".join(_fields_choices))
+        if not hf and not (regular_fields or related_fields or custom_fields or relations or functions or is_one_aggregate_selected):
+            rfield_fields = ['regular_fields', 'related_fields', 'custom_fields', 'relations', 'functions']
+            rfield_fields.extend(aggregate.name for aggregate in aggregates)
+            raise ValidationError(ugettext(u"You must select an existing view, or at least one field from : %s") %
+                                    u", ".join(unicode(fields[f].label) for f in rfield_fields)
+                                 )
 
         #TODO: Do a real validation
 
         return cleaned_data
 
-    def save(self):
-        get_data = self.cleaned_data.get
-
-        user           = get_data('user')
-        name           = get_data('name')
-        ct             = get_data('ct')
-        filter         = get_data('filter')
-        hf             = get_data('hf')
-        columns        = get_data('columns')
-        custom_fields  = get_data('custom_fields')
-        relations      = get_data('relations')
-        functions      = get_data('functions')
-        related_fields = get_data('related_fields')
-
-        model = ct.model_class()
-
-        report = Report()
-        report.user = user
-        report.name = name
-        report.ct = ct
-        report.filter = filter
-        report.save()
-        self.instance = report
-
+    def save(self, *args, **kwargs):
+        report = super(CreateForm, self).save(*args, **kwargs)
         report_fields = []
+        get_data = self.cleaned_data.get
+        hf = get_data('hf')
 
         if hf is not None:
             #Have to build from an existant header filter
-            hf_items = HeaderFilterItem.objects.filter(header_filter=hf)
             field_get_instance_from_hf_item = Field.get_instance_from_hf_item
-            for hf_item in hf_items:
+
+            for hf_item in hf.items:
                 f = field_get_instance_from_hf_item(hf_item)
                 f.save()
                 report_fields.append(f)
         else:
+            model = report.ct.model_class()
             i = 1
-            for column in columns:
-                report_fields.append(save_hfi_field(model, column, i))
+
+            for regular_field in get_data('regular_fields'):
+                report_fields.append(save_hfi_field(model, regular_field, i))
                 i += 1
 
-            for related_field in related_fields:
+            for related_field in get_data('related_fields'):
                 report_fields.append(save_hfi_related_field(model, related_field, i))
                 i += 1
 
-            for custom_field in custom_fields:
+            for custom_field in get_data('custom_fields'):
                 report_fields.append(save_hfi_cf(custom_field, custom_field, i))
                 i += 1
 
-            for relation in relations:
+            for relation in get_data('relations'):
                 report_fields.append(save_hfi_relation(relation, i))
                 i += 1
 
-            for function in functions:
+            for function in get_data('functions'):
                 report_fields.append(save_hfi_function(model, function, i))
                 i += 1
 
@@ -297,43 +275,46 @@ class CreateForm(CremeEntityForm):
                     i += 1
 
         report.columns = report_fields
-        report.save()
+
+        return report
 
 
 class EditForm(CremeEntityForm):
     class Meta:
         model = Report
-        exclude = CremeEntityForm.Meta.exclude + ('ct', 'columns')
+        #exclude = CremeEntityForm.Meta.exclude + ('ct', 'columns')
+        exclude = CremeEntityForm.Meta.exclude + ('ct',)
 
     def __init__(self, *args, **kwargs):
         super(EditForm, self).__init__(*args, **kwargs)
-        instance = self.instance
+        ct = self.instance.ct
         fields = self.fields
 
         base_filter = [('', ugettext(u'All'))]
-        #base_filter.extend(Filter.objects.filter(model_ct=instance.ct).values_list('id','name'))
-        base_filter.extend(EntityFilter.objects.filter(entity_type=instance.ct).values_list('id', 'name'))
+        base_filter.extend(EntityFilter.objects.filter(entity_type=ct).values_list('id', 'name'))
         fields['filter'].choices = base_filter
-        fields['filter'].initial = instance.ct.id
+        fields['filter'].initial = ct.id
 
 
 class LinkFieldToReportForm(CremeForm):
-    report = CremeEntityField(label=_(u"Sub-report linked to the column"), model=Report, widget=ListViewWidget)
+    report = CremeEntityField(label=_(u"Sub-report linked to the column"), model=Report)
 
     def __init__(self, report, field, ct, *args, **kwargs):
-        self.field = field
-        self.ct = ct
         super(LinkFieldToReportForm, self).__init__(*args, **kwargs)
-
-        self.fields['report'].q_filter = {'ct__id' : ct.id, '~id__in' : [r.id for r in chain(report.get_ascendants_reports(),[report])]}
+        self.rfield = field
+        self.fields['report'].q_filter = {
+                'ct__id' :  ct.id,
+                '~id__in' : [r.id for r in chain(report.get_ascendants_reports(), [report])]
+            }
 
     def save(self):
-        self.field.report = self.cleaned_data['report']
-        self.field.save()
+        rfield = self.rfield
+        rfield.report = self.cleaned_data['report']
+        rfield.save()
 
 
 class AddFieldToReportForm(CremeForm):
-    columns        = MultipleChoiceField(label=_(u'Regular fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
+    regular_fields = MultipleChoiceField(label=_(u'Regular fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
     related_fields = MultipleChoiceField(label=_(u'Related fields'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
     custom_fields  = MultipleChoiceField(label=_(u'Custom fields'),  required=False, choices=(), widget=OrderedMultipleChoiceWidget)
     relations      = MultipleChoiceField(label=_(u'Relations'), required=False, choices=(), widget=OrderedMultipleChoiceWidget)
@@ -352,7 +333,7 @@ class AddFieldToReportForm(CremeForm):
         fields = self.fields
 
         #fields['columns'].choices        = get_flds_with_fk_flds_str(model, 1)
-        fields['columns'].choices        = ModelFieldEnumerator(model, deep=1).filter(viewable=True).choices()
+        fields['regular_fields'].choices = ModelFieldEnumerator(model, deep=1).filter(viewable=True).choices()
         fields['related_fields'].choices = Report.get_related_fields_choices(model)
         fields['custom_fields'].choices  = [(cf.name, cf.name) for cf in CustomField.objects.filter(content_type=ct)]
         fields['relations'].choices      = [(r.id, r.predicate) for r in RelationType.objects.filter(Q(subject_ctypes=ct)|Q(subject_ctypes__isnull=True)).order_by('predicate')]
@@ -360,16 +341,23 @@ class AddFieldToReportForm(CremeForm):
 
         initial_data = defaultdict(list)
 
-        for f in entity.columns.all():
-            initial_data[f.type].append(f)
+        for f in entity.columns.all(): #TODO: cache columns
+            #initial_data[f.type].append(f)
+            initial_data[f.type].append(f.name)
 
-        fields['columns'].initial        = [f.name for f in initial_data[HFI_FIELD]]
-        fields['related_fields'].initial = [f.name for f in initial_data[HFI_RELATED]]
-        fields['custom_fields'].initial  = [f.name for f in initial_data[HFI_CUSTOM]]
-        fields['relations'].initial      = [f.name for f in initial_data[HFI_RELATION]]
-        fields['functions'].initial      = [f.name for f in initial_data[HFI_FUNCTION]]
+        #fields['columns'].initial        = [f.name for f in initial_data[HFI_FIELD]]
+        #fields['related_fields'].initial = [f.name for f in initial_data[HFI_RELATED]]
+        #fields['custom_fields'].initial  = [f.name for f in initial_data[HFI_CUSTOM]]
+        #fields['relations'].initial      = [f.name for f in initial_data[HFI_RELATION]]
+        #fields['functions'].initial      = [f.name for f in initial_data[HFI_FUNCTION]]
+        fields['regular_fields'].initial = initial_data[HFI_FIELD]
+        fields['related_fields'].initial = initial_data[HFI_RELATED]
+        fields['custom_fields'].initial  = initial_data[HFI_CUSTOM]
+        fields['relations'].initial      = initial_data[HFI_RELATION]
+        fields['functions'].initial      = initial_data[HFI_FUNCTION]
 
-        get_aggregate_fields(fields, model, initial_data=[f.name for f in initial_data[HFI_CALCULATED]])
+        #get_aggregate_fields(fields, model, initial_data=[f.name for f in initial_data[HFI_CALCULATED]])
+        get_aggregate_fields(fields, model, initial_data=initial_data[HFI_CALCULATED])
 
     def save(self):
         get_data = self.cleaned_data.get
@@ -378,7 +366,7 @@ class AddFieldToReportForm(CremeForm):
         model = ct.model_class()
         report_columns = report.columns.all()
 
-        columns        = get_data('columns')
+        regular_fields = get_data('regular_fields')
         related_fields = get_data('related_fields')
         custom_fields  = get_data('custom_fields')
         relations      = get_data('relations')
@@ -389,8 +377,8 @@ class AddFieldToReportForm(CremeForm):
         columns_get = report.columns.get
 
         i = 1
-        for column in columns:
-            fields_to_keep.append(get_hfi_field_or_save(columns_get, model, column, i))
+        for regular_field in regular_fields:
+            fields_to_keep.append(get_hfi_field_or_save(columns_get, model, regular_field, i))
             i += 1
 
         for related_field in related_fields:
@@ -423,20 +411,22 @@ class AddFieldToReportForm(CremeForm):
 
 
 class DateReportFilterForm(CremeForm):
-    doc_type = ChoiceField(label=_(u'Extension'), required=False, choices=())
-    date_fields = ChoiceField(label=_(u'Date fields'), required=True, choices=())
-    date_filter = DateRangeField(label=_(u'Date filters'))
+    doc_type    = ChoiceField(label=_(u'Extension'), required=False, choices=())
+    date_field  = ChoiceField(label=_(u'Date field'), required=True, choices=())
+    date_filter = DateRangeField(label=_(u'Date filter'))
 
     def __init__(self, report, *args, **kwargs):
         super(DateReportFilterForm, self).__init__(*args, **kwargs)
-        self.report = report
         fields = self.fields
+        fields['date_field'].choices = [(field.name, field.verbose_name)
+                                            for field in get_date_fields(report.ct.model_class())
+                                       ]
 
-        fields['date_fields'].choices = [(field.name, field.verbose_name) for field in get_date_fields(report.ct.model_class())]
-
-        doc_type = fields['doc_type']
-        choices = [(backend.id, backend.verbose_name) for backend in export_backend_registry.iterbackends()]
+        choices = [(backend.id, backend.verbose_name)
+                        for backend in export_backend_registry.iterbackends()
+                  ]
         if choices:
+            doc_type = fields['doc_type']
             doc_type.choices = choices
             try:
                 doc_type.initial = choices[0][0]
@@ -444,9 +434,9 @@ class DateReportFilterForm(CremeForm):
                 pass
 
     def get_q_dict(self):
-        cleaned_data = self.cleaned_data
-        if cleaned_data:
-            return cleaned_data['date_filter'].get_q_dict(cleaned_data['date_fields'], datetime.now())
+        cdata = self.cleaned_data
+        if cdata:
+            return cdata['date_filter'].get_q_dict(cdata['date_field'], datetime.now())
         return None
 
     def get_dates(self):
@@ -459,12 +449,12 @@ class DateReportFilterForm(CremeForm):
     def forge_url_data(self):
         cleaned_data = self.cleaned_data
         if cleaned_data:
-            data = []
-            start, end = self.get_dates()
             get_cdata = cleaned_data.get
+            data = ['field=%s' % get_cdata('date_field'),
+                    'range_name=%s' % get_cdata('date_filter').name
+                   ]
 
-            data.append("field=%s" % get_cdata('date_fields'))
-            data.append("range_name=%s" % get_cdata('date_filter').name)
+            start, end = self.get_dates()
             if start is not None:
                 data.append('start=%s' % encode_datetime(start))
             if end is not None:
@@ -472,5 +462,5 @@ class DateReportFilterForm(CremeForm):
 
             return "&".join(data)
 
-    def save(self, *args, **kwargs):#TODO: Useful ?
-        return self.cleaned_data
+    #def save(self, *args, **kwargs):
+        #return self.cleaned_data
