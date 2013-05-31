@@ -16,11 +16,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
+creme.widget.PLOT_SELECTOR_BACKEND = new creme.ajax.CacheBackend(new creme.ajax.Backend(),
+                                                                 {condition: new creme.ajax.CacheBackendTimeout(120 * 1000)});
+
+
 creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
     options: {
         'plot-data-url': '',
         'plot-name': undefined,
-        backend: new creme.ajax.Backend({dataType:'json'}),
+        backend: creme.widget.PLOT_SELECTOR_BACKEND,
         initial: {}
     },
 
@@ -68,7 +72,7 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
         }
     },
 
-    _updatePlotData: function(plot, data, cb)
+    _updatePlotData: function(plot, data, cb, options)
     {
         var self = this;
         var backend = this.options.backend;
@@ -95,7 +99,8 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
                         self._plot_last_url = undefined;
                         plot.plotData([]);
                         creme.object.invoke(cb, plot.plotData());
-                    });
+                    },
+                    $.extend({dataType:'json'}, options));
     },
 
     plotOptions: function(element)
@@ -134,7 +139,7 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
         creme.object.invoke(cb, element, error);
     },
 
-    reload: function(element, data, cb, error_cb, sync)
+    reload: function(element, data, cb, error_cb, sync, options)
     {
         var self = this;
         var plot = this._delegate(element);
@@ -154,7 +159,7 @@ creme.widget.PlotSelector = creme.widget.declare('ui-creme-plotselector', {
                                          function() {self._onRedrawOk(element, plot, data, cb);},
                                          function() {self._onRedrawError(element, plot, null, error_cb);}
                                      );
-                                 });
+                                 }, options);
         } catch(error) {
             self._onRedrawError(element, plot, error, error_cb);
         }

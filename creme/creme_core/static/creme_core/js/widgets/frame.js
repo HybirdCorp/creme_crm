@@ -44,18 +44,18 @@ creme.widget.Frame = creme.widget.declare('ui-creme-frame', {
         try {
             element.append($(data));
             creme.widget.ready(element);
-        } catch(e) {
+        } catch(e) {
         }
     },
 
     _overlay_state: function(element, visible, status)
     {
-    	var visible = visible || false;
+    	var visible = visible || false;
         var options = this.options;
         var overlay = $('> .ui-creme-overlay', element);
         var z_index = visible ? 1 : -1;
 
-        overlay.css('z-index', z_index).toggleClass('overlay-active', visible || false);
+        overlay.css('z-index', z_index).toggleClass('overlay-active', visible || false);
 
         if (status === undefined)
             overlay.removeAttr('status');

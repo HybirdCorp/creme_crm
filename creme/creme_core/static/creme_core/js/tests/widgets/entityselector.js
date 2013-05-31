@@ -174,7 +174,7 @@ test('creme.widget.EntitySelector.reload (url)', function() {
     equal("mock/popup", element.creme().widget().popupURL());
 });
 
-test('creme.widget.EntitySelector.reload (template url, multiple)', function() {
+test('creme.widget.EntitySelector.reload (template url, multiple)', function() {
     var element = mock_entityselector_create({popupURL:'mock/popup/${selection}'});
 
     creme.widget.create(element);
@@ -189,7 +189,7 @@ test('creme.widget.EntitySelector.reload (template url, multiple)', function() 
     equal("mock/popup/2", element.creme().widget().popupURL());
 });
 
-test('creme.widget.EntitySelector.reload (template url, multiple, qfilter)', function() {
+test('creme.widget.EntitySelector.reload (template url, multiple, qfilter)', function() {
     var element = mock_entityselector_create({popupURL:'mock/popup/${selection}?q_filter=${qfilter}'});
 
     creme.widget.create(element);

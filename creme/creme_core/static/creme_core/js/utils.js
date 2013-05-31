@@ -135,7 +135,7 @@ creme.utils.tableExpandState = function($self, state, trigger) {
 
     $table.toggleClass('collapsed faded', !state);
 
-    if (trigger === undefined || trigger) {
+    if (trigger === undefined || trigger) {
         $table.trigger('creme-table-collapse', {action: state ? 'show' : 'hide'});
     }
 }

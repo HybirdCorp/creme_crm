@@ -49,6 +49,7 @@ test('fallbacks.Object.isEmpty', function() {
     equal(Object.isEmpty(''), true);
 
     equal(Object.isEmpty(0), false);
+    equal(Object.isEmpty(15), false);
     equal(Object.isEmpty({a:12}), false);
     equal(Object.isEmpty([12]), false);
     equal(Object.isEmpty('a'), false);
@@ -130,6 +131,12 @@ test('fallbacks.Object.isType (function)', function() {
     equal(Object.isFunc({}, 'object'),    false);
     equal(Object.isFunc(true, 'boolean'), false);
     equal(Object.isFunc('a', 'string'),   false);
+});
+
+test('fallbacks.Object.keys', function() {
+    deepEqual([], Object.keys({}));
+    deepEqual(['a', 'b'], Object.keys({a:1, b:2}));
+    deepEqual(['a', 'b', 'c', 'd', 'z'], Object.keys({a:1, b:2, c:5, d:7, z:8}));
 });
 
 test('fallbacks.Object.proxy (no context)', function() {

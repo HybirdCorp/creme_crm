@@ -24,8 +24,8 @@ if (!this['CSSStyleDeclaration']) {
     this['CSSStyleDeclaration'] = function () {};
 }
 
-//HTMLDocument = $.assertIEVersions(7, 8, 9) ? function() {} : HTMLDocument;
-//CSSStyleDeclaration = $.assertIEVersions(7) ? function() {} : CSSStyleDeclaration;
+//HTMLDocument = $.assertIEVersions(7, 8, 9) ? function() {} : HTMLDocument;
+//CSSStyleDeclaration = $.assertIEVersions(7) ? function() {} : CSSStyleDeclaration;
 
 (function() {
 

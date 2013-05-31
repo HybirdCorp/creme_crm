@@ -101,7 +101,7 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
         var image = document.createElement("img");
         var str = plot.jqplotToImageStr(options);
 
-        image.onload = function() {onload(image);}
+        image.onload = function() {onload(image);}
         image.src = str;
         return image;
     },
@@ -257,7 +257,7 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
     },
 
     _convertData: function(data, options) {
-        return $.converters.convert(options.dataFormat || 'jqplotData', 'jqplotData', data);
+        return $.converters.convert(options.dataFormat || 'jqplotData', 'jqplotData', data);
     },
 
     _preprocess: function()

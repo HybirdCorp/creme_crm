@@ -71,6 +71,9 @@ module("creme.widgets.selectorlist.js", {
 
       creme.widget.unregister('ui-creme-dselect');
       creme.widget.declare('ui-creme-dselect', new MockDynamicSelect(this.backend));
+
+      creme.widget.unregister('ui-creme-chainedselect');
+      creme.widget.declare('ui-creme-chainedselect', new MockChainedSelect(this.backend));
   },
   teardown: function() {
   }

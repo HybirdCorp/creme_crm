@@ -22,7 +22,7 @@ creme.object = {
     },
 
     isempty: function(obj) {
-        return this.isnone(obj) || obj.length === 0 || (obj !== 0 && $.isEmptyObject(obj))
+        return this.isnone(obj) || obj.length === 0 || (obj !== 0 && $.isEmptyObject(obj))
     },
 
     invoke: function()
@@ -75,7 +75,7 @@ creme.object = {
         var parameters = parameters || [];
 
         try {
-            var script = script ? 'cb = function(' + parameters.join(',') + ') {' + (script.indexOf('return') === -1 ? 'return ' : '') + script + '};' : undefined;
+            var script = script ? 'cb = function(' + parameters.join(',') + ') {' + (script.indexOf('return') === -1 ? 'return ' : '') + script + '};' : undefined;
             return script ? eval(script) : undefined;
         } catch(e) {
             throw Error('Invalid callback script : ' + e);
@@ -113,7 +113,7 @@ creme.object = {
         var key = 'deferred__' + name;
         var previous = element.data(key);
 
-        if (previous !== undefined) {
+        if (previous !== undefined) {
             element.removeData(key);
             previous.reject();
         }
@@ -286,7 +286,7 @@ creme.string.Template = function(pattern, parameters, renderer) {
         update: function(data)
         {
             // data is a string, use it as url
-            if ($.isArray(data)) {
+            if ($.isArray(data)) {
                 this.pattern = data[0];
                 $.extend(this.parameters, data[1]);
             } else if (typeof data === 'object') {
@@ -306,14 +306,14 @@ creme.widget.Widget = function() {
         options:{},
         arguments:{},
 
-        _create: function(element, options, cb, sync) {},
+        _create: function(element, options, cb, sync) {},
         _destroy: function(element) {},
 
         destroy: function(element) {
             creme.widget.destroy(element);
         },
 
-        isActive: function(element) {
+        isActive: function(element) {
             return creme.widget.is_valid(element);
         },
 

@@ -143,7 +143,8 @@ creme.widget.Toggle = creme.widget.declare('ui-creme-toggle', {
         target.toggleClass('toggle-collapsed', collapsed);
         this._toggle_attributes(target, collapsed);
 
-        $('.ui-creme-resizable', target).trigger('resize');
+        $('.ui-creme-resizable', target).trigger('resize')
+                                        .trigger('resizestop');
     },
 
     _toggle_attributes: function(target, collapsed)

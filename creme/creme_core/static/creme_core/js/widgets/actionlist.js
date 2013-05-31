@@ -26,7 +26,7 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
         var self = this;
         var delegate = creme.widget.create(self.delegate(element));
 
-        self.actions(element).each(function() {
+        self.actions(element).each(function() {
             $(this).bind('click', function() {
                 self._handle_action(element, $(this));
                 return false;
@@ -75,7 +75,7 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
     cleanedval: function(element)
     {
         var delegate = this.delegate(element).creme().widget();
-        return creme.object.delegate(delegate, 'cleanedval') || null;
+        return creme.object.delegate(delegate, 'cleanedval') || null;
     },
 
     _on_action_success: function(element, data, statusText, dataType)
