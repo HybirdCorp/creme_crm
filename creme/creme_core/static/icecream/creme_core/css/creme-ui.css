@@ -195,7 +195,7 @@ ul.ui-creme-actionbuttonlist button.ui-creme-actionbutton[name=delete] {
     padding-left: 20px;
 }
 
-ul.ui-creme-actionbuttonlist button.ui-creme-actionbutton[name=reset] { 
+ul.ui-creme-actionbuttonlist button.ui-creme-actionbutton[name=reset] {
     background-image: url("icecream/images/delete_16.png");
     padding-left: 20px;
 }

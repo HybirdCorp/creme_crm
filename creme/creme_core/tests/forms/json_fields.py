@@ -268,6 +268,15 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                                         '{"ctype": "%s", "entity": null}' % contact.entity_type_id,
                                        )
 
+    def test_autocomplete_property(self):
+        field = GenericEntityField()
+        self.assertFalse(field.autocomplete)
+
+        field = GenericEntityField(autocomplete=True)
+        self.assertTrue(field.autocomplete)
+
+        field.autocomplete = False
+        self.assertFalse(field.autocomplete)
 
 
 class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
@@ -428,6 +437,16 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
                         )
         self.assertEqual(2, len(entities))
         self.assertEqual(set([contact, orga]), set(entities))
+
+    def test_autocomplete_property(self):
+        field = MultiGenericEntityField()
+        self.assertFalse(field.autocomplete)
+
+        field = MultiGenericEntityField(autocomplete=True)
+        self.assertTrue(field.autocomplete)
+
+        field.autocomplete = False
+        self.assertFalse(field.autocomplete)
 
 
 class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
@@ -713,6 +732,16 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
                                                 rtype.id, contact.entity_type_id
                                             )
                                        )
+
+    def test_autocomplete_property(self):
+        field = RelationEntityField()
+        self.assertFalse(field.autocomplete)
+
+        field = RelationEntityField(autocomplete=True)
+        self.assertTrue(field.autocomplete)
+
+        field.autocomplete = False
+        self.assertFalse(field.autocomplete)
 
 
 class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
@@ -1044,6 +1073,15 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
                          field.from_python([(rtype1, contact), (rtype2, orga)])
                         )
 
+    def test_autocomplete_property(self):
+        field = MultiRelationEntityField()
+        self.assertFalse(field.autocomplete)
+
+        field = MultiRelationEntityField(autocomplete=True)
+        self.assertTrue(field.autocomplete)
+
+        field.autocomplete = False
+        self.assertFalse(field.autocomplete)
 
 
 class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
