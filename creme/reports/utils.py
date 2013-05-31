@@ -26,6 +26,5 @@ from .constants import DATETIME_FILTER_FORMAT
 def encode_datetime(date):
     return date.strftime(DATETIME_FILTER_FORMAT) if date else None
 
-
 def decode_datetime(date_str):
     return datetime.strptime(date_str, DATETIME_FILTER_FORMAT) if date_str else None

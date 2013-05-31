@@ -14,7 +14,6 @@ urlpatterns = patterns('creme.reports.views',
     (r'^report/export/(?P<report_id>\d+)/(?P<doc_type>[\w-]+)$', 'report.export'),
 
     #Fields block
-    #(r'^(?P<report_id>\d+)/fields_block/reload/$',                                               'report.reload_fields_block'),
     (r'^report/field/unlink_report$',                                                            'report.unlink_report'),
     (r'^report/field/change_order$',                                                             'report.change_field_order'),
     (r'^report/field/set_selected$',                                                             'report.set_selected'),

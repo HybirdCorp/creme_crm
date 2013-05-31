@@ -13,25 +13,27 @@ try:
     from django.utils.unittest.case import skipIf
     from django.core.serializers.json import simplejson
 
-    from creme.creme_core.models import (CremePropertyType, CremeProperty, RelationType,
-                                         Relation, InstanceBlockConfigItem)
+    from creme.creme_core.models import (RelationType, Relation,
+                                         EntityFilter, EntityFilterCondition)
     from creme.creme_core.models.header_filter import (HeaderFilterItem, HeaderFilter,
                                                        HFI_FIELD, HFI_RELATION, HFI_FUNCTION)
     from creme.creme_core.constants import REL_SUB_HAS
     from creme.creme_core.utils.meta import get_verbose_field_name, get_instance_field_info
 
-    from creme.billing.models import Invoice
-    from creme.billing.constants import REL_SUB_BILL_RECEIVED
+    from creme.documents.models import Folder, Document
 
-    from creme.opportunities.models import Opportunity
-    from creme.opportunities.constants import REL_SUB_EMIT_ORGA
+    from creme.media_managers.models import Image
 
     from creme.persons.models import Contact, Organisation
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_OBJ_CUSTOMER_SUPPLIER
 
-    from ..models import Field, Report, ReportGraph
-    from ..models.graph import RGT_MONTH
+    from creme.billing.models import Invoice
 
+    from creme.opportunities.models import Opportunity
+    from creme.opportunities.constants import REL_SUB_EMIT_ORGA
+
+    from ..models import Field, Report
+    from ..models.report import HFI_RELATED
     from .base import BaseReportsTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
@@ -45,20 +47,26 @@ except Exception as e:
     XlsImport = True
 
 
-__all__ = ('ReportsTestCase',)
+__all__ = ('ReportTestCase',)
 
 
-class ReportsTestCase(BaseReportsTestCase):
+class ReportTestCase(BaseReportsTestCase):
+    def test_portal(self):
+        self.assertGET200('/reports/')
+
     def test_report_createview01(self):
         url = self.ADD_URL
-        self.assertGET200(url)
+        response = self.assertGET200(url)
 
-        response = self.client.post(url, data={'user': self.user.pk,
-                                               'name': 'name',
-                                               'ct':   ContentType.objects.get_for_model(Contact).id,
-                                              }
-                                   )
-        self.assertFormError(response, 'form', None,
+        with self.assertNoException():
+            response.context['form'].fields['regular_fields']
+
+        name = 'My report on Contact'
+        data = {'user': self.user.pk,
+                'name': name,
+                'ct':   ContentType.objects.get_for_model(Contact).id,
+               }
+        self.assertFormError(self.client.post(url, data=data), 'form', None,
                              [_(u"You must select an existing view, or at least one field from : %s") % 
                                 ', '.join([_(u'Regular fields'), _(u'Related fields'),
                                            _(u'Custom fields'), _(u'Relations'), _(u'Functions'),
@@ -67,12 +75,29 @@ class ReportsTestCase(BaseReportsTestCase):
                              ]
                             )
 
+        response = self.client.post(url, follow=True,
+                                    data=dict(data,
+                                              **{'regular_fields_check_%s' % 1: 'on',
+                                                 'regular_fields_value_%s' % 1: 'last_name',
+                                                 'regular_fields_order_%s' % 1: 1,
+                                                }
+                                             )
+                                   )
+        self.assertNoFormError(response)
+
+        report = self.get_object_or_fail(Report, name=name)
+        self.assertEqual(1, report.columns.count())
+
     def test_report_createview02(self):
         name  = 'trinita'
         self.assertFalse(Report.objects.filter(name=name).exists())
 
         report  = self.create_report(name)
-        columns = list(report.columns.order_by('order'))
+        self.assertEqual(self.user, report.user)
+        self.assertEqual(Contact,   report.ct.model_class())
+        self.assertIsNone(report.filter)
+
+        columns = list(report.columns.all())
         self.assertEqual(4, len(columns))
 
         field = columns[0]
@@ -96,11 +121,69 @@ class ReportsTestCase(BaseReportsTestCase):
         self.assertEqual(_(u'Properties'),        field.title)
         self.assertEqual(HFI_FUNCTION,            field.type)
 
-    def test_report_editview(self):
-        report = self.create_report('trinita')
-        self.assertGET200('/reports/report/edit/%s' % report.id)
+    def test_report_createview03(self):
+        efilter = EntityFilter.create('test-filter', 'Mihana family', Contact, is_custom=True)
+        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
+                                                                    operator=EntityFilterCondition.IEQUALS,
+                                                                    name='last_name', values=['Mihana']
+                                                                   )
+                               ])
 
-        #TODO: complete this test
+        report  = self.create_report('My awesome report', efilter)
+        self.assertEqual(efilter, report.filter)
+
+    def test_report_editview(self):
+        name = 'my report'
+        report = self.create_report(name)
+        url = '/reports/report/edit/%s' % report.id
+        self.assertGET200(url)
+
+        name = name.title()
+        response = self.client.post(url, follow=True, 
+                                    data={'user': self.user.pk,
+                                          'name': name,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+        self.assertEqual(name, self.refresh(report).name)
+
+    def test_listview(self):
+        reports = [self.create_report('Report#1'),
+                   self.create_report('Report#2'),
+                  ]
+
+        response = self.assertGET200('/reports/reports')
+
+        with self.assertNoException():
+            reports_page = response.context['entities']
+
+        for report in reports:
+            self.assertIn(report, reports_page.object_list)
+
+    def test_preview(self):
+        create_c  = partial(Contact.objects.create, user=self.user)
+        chiyo = create_c(first_name='Chiyo', last_name='Mihana', birthday=datetime(year=1995, month=3, day=26))
+        osaka = create_c(first_name='Ayumu', last_name='Kasuga', birthday=datetime(year=1990, month=4, day=1))
+
+        report = self.create_report('My report')
+        url = '/reports/report/preview/%s' % report.id
+
+        response = self.assertGET200(url)
+        self.assertTemplateUsed('reports/preview_report.html')
+        self.assertContains(response, chiyo.last_name)
+        self.assertContains(response, osaka.last_name)
+
+        response = self.assertPOST200(url,
+                                      data={'date_filter_0': '',
+                                            'date_filter_1': '1990-01-01',
+                                            'date_filter_2': '1990-12-31',
+                                            'date_field':    'birthday',
+                                           }
+                                     )
+        self.assertTemplateUsed('reports/preview_report.html')
+        self.assertNoFormError(response)
+        self.assertContains(response, osaka.last_name)
+        self.assertNotContains(response, chiyo.last_name)
 
     def test_report_change_field_order01(self):
         url = self.SET_FIELD_ORDER_URL
@@ -146,7 +229,35 @@ class ReportsTestCase(BaseReportsTestCase):
                                 }
                           )
 
-    def test_report_csv01(self): #void report
+    def test_date_filter_form(self):
+        report = self.create_report('My report')
+        url = '/reports/date_filter_form/%s' % report.id
+        response = self.assertGET200(url)
+
+        date_field = 'birthday'
+        response = self.assertPOST200(url,
+                                      data={'date_filter_0': '',
+                                            'date_filter_1': '1990-01-01',
+                                            'date_filter_2': '1990-12-31',
+                                            'date_field':    date_field,
+                                           }
+                                     )
+        self.assertNoFormError(response)
+
+        with self.assertNoException():
+            callback_url = response.context['callback_url']
+
+        self.assertEqual('/reports/report/export/%s/?field=%s'
+                                                   '&range_name=base_date_range'
+                                                   '&start=01|01|1990|00|00|00'
+                                                   '&end=31|12|1990|23|59|59' % (
+                                report.id, date_field,
+                            ),
+                         callback_url
+                        )
+
+    def test_report_csv01(self):
+        "Empty report"
         self.assertFalse(Invoice.objects.all())
 
         rt = RelationType.objects.get(pk=REL_SUB_HAS)
@@ -231,29 +342,212 @@ class ReportsTestCase(BaseReportsTestCase):
         self.assertEqual(["Ayanami", "Kirika", "", "Kawaii"], result[1])
         self.assertEqual(["Langley", "Kirika", "", ""],       result[2])
 
+    def test_get_related_fields(self):
+        url = '/reports/get_related_fields'
+        self.assertGET404(url)
+
+        get_ct = ContentType.objects.get_for_model
+
+        def post(model):
+            response = self.assertPOST200(url, data={'ct_id': get_ct(model).id})
+            return simplejson.loads(response.content)
+
+        self.assertEqual([], post(Organisation))
+        self.assertEqual([['document', _('Document')]],
+                         post(Folder)
+                        )
+
     def test_report_field_add01(self):
         report = self.create_report('trinita')
         url = '/reports/report/%s/field/add' % report.id
-
         response = self.assertGET200(url)
 
         with self.assertNoException():
             form = response.context['form']
-            fields_columns = form.fields['columns']
+            choices = form.fields['regular_fields'].choices
 
-        for i, (fname, fvname) in enumerate(fields_columns.choices):
-            if fname == 'last_name': created_index = i; break
+        f_name = 'last_name'
+        for i, (fname, fvname) in enumerate(choices):
+            if fname == f_name: created_index = i; break
         else:
             self.fail('No "last_name" field')
 
         response = self.client.post(url, data={'user': self.user.pk,
-                                               'columns_check_%s' % created_index: 'on',
-                                               'columns_value_%s' % created_index: 'last_name',
-                                               'columns_order_%s' % created_index: 1,
+                                               'regular_fields_check_%s' % created_index: 'on',
+                                               'regular_fields_value_%s' % created_index: f_name,
+                                               'regular_fields_order_%s' % created_index: 1,
                                               }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(1, report.columns.count())
+
+        columns = list(report.columns.all())
+        self.assertEqual(1, len(columns))
+
+        column = columns[0]
+        self.assertEqual(f_name,          column.name)
+        self.assertEqual(_(u'Last name'), column.title)
+        self.assertEqual(1,               column.order)
+        self.assertEqual(HFI_FIELD,       column.type)
+        self.assertFalse(column.selected)
+        self.assertIsNone(column.report)
+
+    #def test_report_field_add02(self): TODO: other types
+
+    def _build_image_report(self):
+        img_report = Report.objects.create(user=self.user, name="Report on images",
+                                           ct=ContentType.objects.get_for_model(Image),
+                                          )
+        create_field = partial(Field.objects.create, selected=False, report=None, type=HFI_FIELD)
+        img_report.columns = [
+            create_field(name="name",        title="Name",        order=1),
+            create_field(name="description", title="Description", order=2),
+          ]
+
+        return img_report
+
+    def _build_orga_report(self):
+        orga_report = Report.objects.create(user=self.user, name="Report on organisations",
+                                            ct=ContentType.objects.get_for_model(Organisation),
+                                           )
+        create_field = partial(Field.objects.create, selected=False, report=None, type=HFI_FIELD)
+        orga_report.columns = [
+            create_field(name="name",              title="Name",               order=1),
+            create_field(name="legal_form__title", title="Legal form - title", order=2),
+          ]
+
+        return orga_report
+
+    def test_link_report01(self):
+        contact_report = Report.objects.create(user=self.user, name="Report on contacts", 
+                                               ct=ContentType.objects.get_for_model(Contact),
+                                              )
+
+        create_field = partial(Field.objects.create, selected=False, report=None, type=HFI_FIELD)
+        contact_report.columns = rfields = [
+            create_field(name="last_name",             title="Last name",      order=1),
+            create_field(name="sector__title",         title="Sector - Title", order=2),
+            create_field(name="image__name",           title="Image - Name",   order=3),
+            create_field(name="get_pretty_properties", title="Properties",     order=4, type=HFI_FUNCTION),
+          ]
+
+        img_report = self._build_image_report()
+
+        url_fmt = '/reports/report/%s/field/%s/link_report'
+        self.assertGET404(url_fmt % (contact_report.id, rfields[3].id)) #not a HFI_FIELD Field
+        self.assertGET404(url_fmt % (contact_report.id, rfields[0].id)) #not a FK field
+        self.assertGET404(url_fmt % (contact_report.id, rfields[1].id)) #not a FK to a CremeEntity
+
+        rfield = rfields[2]
+        url = url_fmt % (contact_report.id, rfield.id)
+        self.assertGET200(url)
+        self.assertNoFormError(self.client.post(url, data={'report': img_report.id}))
+
+        rfield = self.refresh(rfield)
+        self.assertEqual(img_report, rfield.report)
+
+        #unlink --------------------------------------------------------------
+        rfield.selected = True
+        rfield.save()
+        url = '/reports/report/field/unlink_report'
+        self.assertGET404(url)
+        self.assertPOST404(url, data={'field_id': rfields[0].id})
+        self.assertPOST200(url, data={'field_id': rfield.id})
+
+        rfield = self.refresh(rfield)
+        self.assertIsNone(rfield.report)
+        self.assertFalse(rfield.selected)
+
+    def test_link_report02(self):
+        get_ct = ContentType.objects.get_for_model
+        contact_report = Report.objects.create(user=self.user, ct=get_ct(Contact),
+                                               name="Report on contacts",
+                                              )
+
+        create_field = partial(Field.objects.create, selected=False, report=None, type=HFI_FIELD)
+        contact_report.columns = rfields = [
+            create_field(name='last_name',         title="Last name",      order=1),
+            create_field(name=REL_SUB_EMPLOYED_BY, title="Is employed by", order=2, type=HFI_RELATION),
+          ]
+
+        orga_ct = get_ct(Organisation)
+        orga_report = self._build_orga_report()
+
+        url_fmt = '/reports/report/%s/field/%s/link_relation_report/%s'
+        self.assertGET404(url_fmt % (contact_report.id, rfields[0].id, orga_ct.id)) #not a HFI_RELATION Field
+        self.assertGET404(url_fmt % (contact_report.id, rfields[1].id, get_ct(Image).id)) #ct not compatible
+
+        url = url_fmt % (contact_report.id, rfields[1].id, orga_ct.id)
+        self.assertGET200(url)
+        self.assertNoFormError(self.client.post(url, data={'report': orga_report.id}))
+        self.assertEqual(orga_report, self.refresh(rfields[1]).report)
+
+    def test_link_report03(self):
+        self.assertEqual([('document', _(u'Document'))],
+                         Report.get_related_fields_choices(Folder)
+                        )
+        get_ct = ContentType.objects.get_for_model
+        create_field = partial(Field.objects.create, selected=False, report=None, type=HFI_FIELD)
+        create_report = partial(Report.objects.create, user=self.user, filter=None)
+
+        folder_report = create_report(name="Report on folders", ct=get_ct(Folder))
+        folder_report.columns = rfields = [
+            create_field(name='title',    title='Title',    order=1),
+            create_field(name='document', title='Document', order=2, type=HFI_RELATED),
+          ]
+
+        doc_report = create_report(name="Documents report", ct=get_ct(Document))
+        doc_report.columns = [
+            create_field(name='title',       title='Title',       order=1),
+            create_field(name="description", title='Description', order=2),
+          ]
+
+        url_fmt = '/reports/report/%s/field/%s/link_related_report'
+        self.assertGET404(url_fmt % (folder_report.id, rfields[0].id)) #not a HFI_RELATION Field
+
+        url = url_fmt % (folder_report.id, rfields[1].id)
+        self.assertGET200(url)
+        self.assertNoFormError(self.client.post(url, data={'report': doc_report.id}))
+        self.assertEqual(doc_report, self.refresh(rfields[1]).report)
+
+    def test_set_selected(self):
+        img_report = self._build_image_report()
+        orga_report = self._build_orga_report()
+
+        contact_report = Report.objects.create(user=self.user, name="Report on contacts",
+                                               ct=ContentType.objects.get_for_model(Contact),
+                                              )
+        create_field = partial(Field.objects.create, selected=False, report=None, type=HFI_FIELD)
+        contact_report.columns = rfields = [
+            create_field(name="last_name",         title="Last name",      order=1),
+            create_field(name="image__name",       title="Image - Name",   order=2, report=img_report),
+            create_field(name=REL_SUB_EMPLOYED_BY, title="Is employed by", order=3, 
+                         report=orga_report, type=HFI_RELATION, selected=True,
+                        ),
+          ]
+
+        url = '/reports/report/field/set_selected'
+        self.assertGET404(url)
+
+        data = {'report_id': contact_report.id, 
+                'field_id':  rfields[0].id,
+                'checked':   1,
+               }
+        self.assertPOST404(url, data=data)
+
+        fk_rfield = rfields[1]
+        rel_rfield = rfields[2]
+        data['field_id'] = fk_rfield.id
+        self.assertPOST200(url, data=data)
+        self.assertTrue(self.refresh(fk_rfield).selected)
+        self.assertFalse(self.refresh(rel_rfield).selected)
+
+        self.assertPOST200(url, data=data)
+        self.assertTrue(self.refresh(fk_rfield).selected)
+        self.assertFalse(self.refresh(rel_rfield).selected)
+
+        self.assertPOST200(url, data=dict(data, checked=0))
+        self.assertFalse(self.refresh(fk_rfield).selected)
+        self.assertFalse(self.refresh(rel_rfield).selected)
 
     def test_report_fetch01(self):
         create_contact = partial(Contact.objects.create, user=self.user)
@@ -342,14 +636,7 @@ class ReportsTestCase(BaseReportsTestCase):
                                 user=user
                                )
 
-        #opportunity_nintendo_1 = self.create_opportunity(name="Opportunity nintendo 1", reference=u"1.1")
         opportunity_nintendo_1 = self.create_opportunity(name="Opportunity nintendo 1", reference=u"1.1", emitter=self.nintendo)
-        #Relation.objects.create(subject_entity=self.nintendo,
-                                #type_id=REL_SUB_EMIT_ORGA,
-                                #object_entity=opportunity_nintendo_1,
-                                #user=user
-                               #)
-
         opp_nintendo_values = " - ".join(u"%s: %s" % (get_verbose_field_name(model=Opportunity, separator="-", field_name=field_name),
                                                       get_instance_field_info(opportunity_nintendo_1, field_name)[1]
                                                      )
@@ -401,81 +688,21 @@ class ReportsTestCase(BaseReportsTestCase):
 
         #TODO: test HFI_RELATED, HFI_CUSTOM
 
-    def _create_report_n_graph(self):
-        #self.populate('billing')
+    def test_get_aggregate_fields(self):
+        url = '/reports/get_aggregate_fields'
+        self.assertGET404(url)
+        self.assertPOST404(url)
 
-        report = Report.objects.create(user=self.user,
-                                       name=u"All invoices of the current year",
-                                       ct=ContentType.objects.get_for_model(Invoice),
-                                      )
-        self.rtype = RelationType.objects.get(pk=REL_SUB_BILL_RECEIVED)
+        data = {'ct_id': ContentType.objects.get_for_model(Organisation).id}
+        response = self.assertPOST200(url, data=data)
+        self.assertEqual([], simplejson.loads(response.content))
 
-        #TODO: we need helpers: Field.create_4_field(), Field.create_4_relation() etc...
-        create_field = Field.objects.create
-        report.columns = [create_field(name='name',         title=get_verbose_field_name(Invoice, 'name'),         order=1, type=HFI_FIELD),
-                          create_field(name=self.rtype.id,  title=unicode(self.rtype),                             order=2, type=HFI_RELATION),
-                          create_field(name='total_no_vat', title=get_verbose_field_name(Invoice, 'total_no_vat'), order=3, type=HFI_FIELD),
-                          create_field(name='issuing_date', title=get_verbose_field_name(Invoice, 'issuing_date'), order=4, type=HFI_FIELD),
-                         ]
+        response = self.assertPOST200(url, data=dict(data, aggregate_name='stuff'))
+        self.assertEqual([], simplejson.loads(response.content))
 
-        #TODO: we need a helper ReportGraph.create() ??
-        rgraph = ReportGraph.objects.create(user=self.user, report=report,
-                                            name=u"Sum of current year invoices total without taxes / month",
-                                            abscissa='issuing_date',
-                                            ordinate='total_no_vat__sum',
-                                            type=RGT_MONTH, is_count=False
-                                           )
-
-        return rgraph
-
-    def test_add_graph_instance_block01(self):
-        rgraph = self._create_report_n_graph()
-        self.assertFalse(InstanceBlockConfigItem.objects.filter(entity=rgraph.id).exists())
-
-        url = '/reports/graph/%s/block/add' % rgraph.id
-        self.assertGET200(url)
-        self.assertNoFormError(self.client.post(url, data={'graph': rgraph.name}))
-
-        items = InstanceBlockConfigItem.objects.filter(entity=rgraph.id)
-        self.assertEqual(1, len(items))
-
-        item = items[0]
-        self.assertEqual(u'instanceblock_reports-graph|%s-' % rgraph.id, item.block_id)
-        self.assertEqual(u'%s - %s' % (rgraph.name, _(u'None')), item.verbose)
-        self.assertEqual('', item.data)
-
-        #-----------------------------------------------------------------------
-        response = self.assertPOST200(url, data={'graph': rgraph.name})
-        self.assertFormError(response, 'form', None,
-                             [_(u'The instance block for %(graph)s with %(column)s already exists !') % {
-                                        'graph':  rgraph.name,
-                                        'column': _(u'None'),
-                                    }
-                             ]
-                            )
-
-    def test_add_graph_instance_block02(self):
-        "Volatile relation"
-        rgraph = self._create_report_n_graph()
-        rtype_id = self.rtype.id
-        response = self.client.post('/reports/graph/%s/block/add' % rgraph.id,
-                                    data={'graph':           rgraph.name,
-                                          'volatile_column': '%s|%s' % (rtype_id, HFI_RELATION),
-                                         }
-                                   )
-        self.assertNoFormError(response)
-
-        items = InstanceBlockConfigItem.objects.filter(entity=rgraph.id)
-        self.assertEqual(1, len(items))
-
-        item = items[0]
-        self.assertEqual(u'instanceblock_reports-graph|%s-%s|%s' % (rgraph.id, rtype_id, HFI_RELATION),
-                         item.block_id
+        response = self.assertPOST200(url, data=dict(data, aggregate_name='sum'))
+        self.assertEqual([['capital__sum', _('Capital')]],
+                         simplejson.loads(response.content)
                         )
-        self.assertEqual(u'%s - %s' % (rgraph.name, self.rtype), item.verbose)
-        self.assertEqual('%s|%s' % (rtype_id, HFI_RELATION), item.data)
-
-    #def test_add_graph_instance_block03(self): #TODO: volatile field
-
 
 #TODO: test with subreports, expanding etc...

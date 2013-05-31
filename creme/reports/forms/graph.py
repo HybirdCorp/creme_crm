@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,13 +22,13 @@ from django.db import models
 from django.db.models.fields.related import ForeignKey
 from django.db.models.fields import FieldDoesNotExist, DateTimeField, DateField
 from django.forms.util import ValidationError
-from django.forms.fields import ChoiceField, BooleanField, CharField
+from django.forms.fields import ChoiceField, BooleanField #CharField
 from django.forms.widgets import Select, CheckboxInput
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.models.relation import RelationType
+from creme.creme_core.models import RelationType
 from creme.creme_core.forms.base import CremeEntityForm
-from creme.creme_core.forms.widgets import DependentSelect, Label
+from creme.creme_core.forms.widgets import DependentSelect #Label
 from creme.creme_core.forms.fields import AjaxChoiceField
 from creme.creme_core.utils.meta import ModelFieldEnumerator #get_flds_with_fk_flds
 
@@ -40,16 +40,24 @@ AUTHORIZED_AGGREGATE_FIELDS = field_aggregation_registry.authorized_fields
 AUTHORIZED_ABSCISSA_TYPES = (models.DateField, models.DateTimeField, models.ForeignKey)
 
 
-class ReportGraphAddForm(CremeEntityForm):
-    report_lbl        = CharField(label=_(u'Report'), widget=Label)
+class ReportGraphForm(CremeEntityForm):
+    #report_lbl        = CharField(label=_(u'Report'), widget=Label, required=False)
 
-    aggregates        = ChoiceField(label=_(u'Ordinate aggregate'), choices=[(aggregate.name, aggregate.title) for aggregate in field_aggregation_registry.itervalues()],required=False)
+    aggregates        = ChoiceField(label=_(u'Ordinate aggregate'), required=False,
+                                    choices=[(agg.name, agg.title) for agg in field_aggregation_registry.itervalues()],
+                                   )
     aggregates_fields = ChoiceField(label=_(u'Ordinate aggregate field'), choices=())
 
-    abscissa_fields   = ChoiceField(label=_(u'Abscissa field'), choices=(), widget=DependentSelect(target_id='id_abscissa_group_by'))#DependentSelect is kept until *Selector widgets accept optgroup
-    abscissa_group_by = AjaxChoiceField(label=_(u'Abscissa : Group by'), choices=(), widget=Select(attrs={'id': 'id_abscissa_group_by'}))
+    abscissa_fields   = ChoiceField(label=_(u'Abscissa field'), choices=(),
+                                    widget=DependentSelect(target_id='id_abscissa_group_by'),
+                                   ) #TODO: DependentSelect is kept until *Selector widgets accept optgroup
+    abscissa_group_by = AjaxChoiceField(label=_(u'Abscissa : Group by'), choices=(),
+                                        widget=Select(attrs={'id': 'id_abscissa_group_by'}),
+                                       )
 
-    is_count = BooleanField(label=_(u'Entities count'), help_text=_(u'Make a count instead of aggregate ?'), required=False, widget=CheckboxInput(attrs={'onchange': "creme.reports.toggleDisableOthers(this, ['#id_aggregates', '#id_aggregates_fields']);"}))
+    is_count = BooleanField(label=_(u'Entities count'), help_text=_(u'Make a count instead of aggregate ?'), required=False,
+                            widget=CheckboxInput(attrs={'onchange': "creme.reports.toggleDisableOthers(this, ['#id_aggregates', '#id_aggregates_fields']);"}),
+                           )
 
     blocks = CremeEntityForm.blocks.new(
                 ('abscissa', _(u'Abscissa informations'),  ['abscissa_fields', 'abscissa_group_by', 'days']),
@@ -61,14 +69,14 @@ class ReportGraphAddForm(CremeEntityForm):
         exclude = CremeEntityForm.Meta.exclude + ('ordinate', 'abscissa', 'type', 'report')
 
     def __init__(self, entity, *args, **kwargs):
-        super(ReportGraphAddForm, self).__init__(*args,  **kwargs)
+        super(ReportGraphForm, self).__init__(*args,  **kwargs)
         self.report = entity
         report_ct = entity.ct
         model = report_ct.model_class()
 
         fields = self.fields
 
-        fields['report_lbl'].initial = unicode(entity)
+        #fields['report_lbl'].initial = unicode(entity)
         aggregates_fields = fields['aggregates_fields']
         aggregates        = fields['aggregates']
         abscissa_fields   = fields['abscissa_fields']
@@ -81,7 +89,10 @@ class ReportGraphAddForm(CremeEntityForm):
              aggregates_fields.required = False
              aggregates.required = False
 
-        abscissa_predicates   = [(rtype.id, rtype.predicate) for rtype in RelationType.get_compatible_ones(report_ct, include_internals=True).order_by('predicate')]#Relation type as abscissa
+        abscissa_predicates   = [(rtype.id, rtype.predicate) 
+                                    for rtype in RelationType.get_compatible_ones(report_ct, include_internals=True)
+                                                             .order_by('predicate')
+                                ] #Relation type as abscissa
         #abscissa_model_fields   = [(f.name, unicode(f.verbose_name)) for f in get_flds_with_fk_flds(model, deep=0) if isinstance(f, AUTHORIZED_ABSCISSA_TYPES)]#One field of the model as abscissa
         #One field of the model as abscissa
         abscissa_model_fields = ModelFieldEnumerator(model, deep=0, only_leafs=False) \
@@ -89,7 +100,10 @@ class ReportGraphAddForm(CremeEntityForm):
                                     .choices()
         abscissa_model_fields.sort(key=lambda x: x[1])
 
-        abscissa_fields.choices = ((_(u"Fields"), abscissa_model_fields), (_(u"Relations"), abscissa_predicates))
+        #TODO: we could build the complete map fields/allowed_types, instead of doing AJAX queries...
+        abscissa_fields.choices = ((_(u"Fields"), abscissa_model_fields),
+                                   (_(u"Relations"), abscissa_predicates),
+                                  )
         abscissa_fields.widget.target_url = '/reports/graph/get_available_types/%s' % str(report_ct.id) #Bof
 
         data = self.data
@@ -111,7 +125,7 @@ class ReportGraphAddForm(CremeEntityForm):
     def clean(self):
         cleaned_data = self.cleaned_data
         get_data     = cleaned_data.get
-        model = self.report.ct.model_class() #TODO: want we several Report classes ?? If not, simply replace by 'Report' #Post TODO: What?? Each report target a different CT (Report of opportunity, of contacts...)
+        model = self.report.ct.model_class()
 
         try:
             abscissa_group_by = int(get_data('abscissa_group_by'))
@@ -120,60 +134,56 @@ class ReportGraphAddForm(CremeEntityForm):
 
         abscissa_fields = get_data('abscissa_fields')
         abscissa_field  = None
-        aggregates_fields = get_data('aggregates_fields')
-        is_count = get_data('is_count')
 
         def val_err():
-            return ValidationError(self.fields['abscissa_group_by'].error_messages['invalid_choice'] % {'value': abscissa_fields})
-
-        is_abscissa_group_by_is_RGT_RELATION = abscissa_group_by == RGT_RELATION #TODO: used once ??
+            return ValidationError(self.fields['abscissa_group_by']
+                                       .error_messages['invalid_choice'] % {
+                                                'value': abscissa_fields,
+                                           }
+                                  )
 
         try:
             abscissa_field = model._meta.get_field(abscissa_fields)
         except FieldDoesNotExist:
-            if not is_abscissa_group_by_is_RGT_RELATION:
+            if abscissa_group_by != RGT_RELATION:
                 raise val_err()
-            else:
-                try:
-                    RelationType.objects.get(pk=abscissa_fields)
-                except Exception:
-                    raise val_err()
+            #else:
+                #try:
+                    #RelationType.objects.get(pk=abscissa_fields)
+                #except Exception:
+                    #raise val_err()
+            if not RelationType.objects.filter(pk=abscissa_fields).exists(): #TODO: keep the compatible rtypes in a cache
+                raise val_err()
 
-        is_abscissa_group_by_is_RGT_FK = abscissa_group_by == RGT_FK
-
-        #TODO: factorise "if is_abscissa_group_by_is_RGT_FK"
-        if isinstance(abscissa_field, ForeignKey) and not is_abscissa_group_by_is_RGT_FK:
-            raise val_err()
-        if isinstance(abscissa_field, (DateField, DateTimeField)) and is_abscissa_group_by_is_RGT_FK:
+        #is_abscissa_group_by_is_RGT_FK = abscissa_group_by == RGT_FK
+        #if isinstance(abscissa_field, ForeignKey) and not is_abscissa_group_by_is_RGT_FK:
+            #raise val_err()
+        #if isinstance(abscissa_field, (DateField, DateTimeField)) and is_abscissa_group_by_is_RGT_FK:
+            #raise val_err()
+        #TODO: use a better system to check compatible Field types (each type could be associated to an object with own compatibilities)
+        if abscissa_group_by == RGT_FK:
+            if isinstance(abscissa_field, (DateField, DateTimeField)):
+                raise val_err()
+        elif isinstance(abscissa_field, ForeignKey):
             raise val_err()
 
         if abscissa_group_by == RGT_RANGE and not cleaned_data.get('days'):
             raise ValidationError(ugettext(u"You have to specify a day range if you use 'by X days'"))
 
-        if not aggregates_fields and not is_count:
+        if not get_data('aggregates_fields') and not get_data('is_count'):
             raise ValidationError(ugettext(u"If you don't choose an ordinate field (or none available) you have to check 'Make a count instead of aggregate ?'"))
 
         return cleaned_data
 
-    def save(self):
+    def save(self, *args, **kwargs):
         get_data = self.cleaned_data.get
-
-        graph =  self.instance# or ReportGraph()
-        graph.user     = get_data('user')
-        graph.name     = get_data('name')
+        graph    =  self.instance
         graph.report   = self.report
         graph.abscissa = get_data('abscissa_fields')
+        graph.type = get_data('abscissa_group_by')
 
-        aggregates_fields = get_data('aggregates_fields')
+        agg_fields = get_data('aggregates_fields')
+        graph.ordinate = '%s__%s' % (agg_fields, get_data('aggregates')) if agg_fields else u""
 
-        if aggregates_fields:
-            graph.ordinate = '%s__%s' % (aggregates_fields, get_data('aggregates'))
-        else:
-            graph.ordinate = u""
-
-        graph.type     = get_data('abscissa_group_by')
-        graph.is_count = get_data('is_count')
-        graph.days     = get_data('days')
-        graph.save()
-
-        return graph
+        #graph.days = get_data('days')
+        return super(ReportGraphForm, self).save(*args, **kwargs)

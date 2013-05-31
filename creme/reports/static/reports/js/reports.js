@@ -47,7 +47,7 @@ creme.reports.load = function(options) {
     var $filter   = $(options.filter);
     this.loadFilters(ct_id, $filter);
 
-    this.loadColumns(ct_id, options);
+    this.loadRegularFields(ct_id, options);
     this.loadRelatedFields(ct_id, options);
     this.loadCf(ct_id, options);
     this.loadRelations(ct_id,  options);
@@ -160,11 +160,12 @@ creme.reports.__loadOrderedMultiSelect = function(url, pdata, table_id, input_na
     creme.ajax.json.post(url, pdata, success_cb, error_cb, false, this.loading_options);
 }
 
-creme.reports.loadColumns = function(ct_id, options) {
+creme.reports.loadRegularFields = function(ct_id, options) {
     creme.reports.__loadOrderedMultiSelect('/creme_core/entity/get_fields',
                                            {'ct_id': ct_id},
-                                           options.columns.table_id,
-                                           options.columns.name);
+                                           options.regular_fields.table_id,
+                                           options.regular_fields.name
+                                          );
 }
 
 creme.reports.loadRelatedFields = function(ct_id, options) {

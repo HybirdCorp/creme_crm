@@ -3,7 +3,6 @@ syntax: glob
 *~
 *.blend1
 *.pyc
-.svn
 *.db
 local_settings*.py
 django.wsgi
@@ -22,7 +21,9 @@ nbproject/*
 creme/activesync/SyncEngine/*
 creme/activesync/backup/*
 
-.idea/*
+#coverage.py
+.coverage
+htmlcov/*
 
 \.orig\..*$
 \.orig$

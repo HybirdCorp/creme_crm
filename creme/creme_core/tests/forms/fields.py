@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from datetime import datetime
+
     from django.core.exceptions import ValidationError
+    from django.utils.timezone import now
 
     from creme.creme_core.forms.fields import DateRangeField, ColorField, DurationField
+    from creme.creme_core.utils.date_range import DateRange, CustomRange, CurrentYearRange
     from .base import FieldTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
@@ -22,6 +26,25 @@ class DateRangeFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(DateRangeField, 'customized_invalid',
                                         DateRangeField().clean, [u"", u"2011-05-16", u"2011-05-15"]
                                        )
+
+    def test_ok01(self):
+        drange = DateRangeField().clean(['', '2013-05-29', '2013-06-16'])
+        self.assertIsInstance(drange, DateRange)
+        self.assertIsInstance(drange, CustomRange)
+        self.assertEqual((datetime(year=2013, month=5, day=29, hour=0,  minute=0,  second=0),
+                          datetime(year=2013, month=6, day=16, hour=23, minute=59, second=59),
+                         ),
+                         drange.get_dates(now())
+                        )
+
+    def test_ok02(self):
+        drange = DateRangeField().clean([CurrentYearRange.name, '', ''])
+        self.assertIsInstance(drange, CurrentYearRange)
+        self.assertEqual((datetime(year=2013, month=1, day=1,   hour=0,  minute=0,  second=0),
+                          datetime(year=2013, month=12, day=31, hour=23, minute=59, second=59),
+                         ),
+                         drange.get_dates(datetime(year=2013, month=5, day=29, hour=11))
+                        )
 
 
 class ColorFieldTestCase(FieldTestCase):

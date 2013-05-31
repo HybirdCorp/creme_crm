@@ -104,6 +104,7 @@ def get_related_field_verbose_name(model, related_field_name):
             return unicode(related_field.model._meta.verbose_name)
 
 def get_related_field(model, related_field_name):
+    #TODO: use find_first
     for related_field in model._meta.get_all_related_objects():
         if related_field.var_name == related_field_name:
             return related_field

@@ -20,14 +20,17 @@
 
 from django.template import Library
 from django.db.models.fields.related import ForeignKey, ManyToManyField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.utils.meta import get_model_field_info
+from creme.creme_core.utils.meta import get_model_field_info, get_verbose_field_name
+from creme.creme_core.models import RelationType
 from creme.creme_core.models.header_filter import (HFI_FIELD, HFI_RELATION, HFI_FUNCTION,
                                                    HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED)
 from creme.creme_core.registry import creme_registry
 
 from ..constants import DATETIME_FILTER_FORMAT
+from ..models.graph import RGT_RELATION
+from ..report_aggregation_registry import field_aggregation_registry
 
 
 register = Library()
@@ -44,8 +47,10 @@ HFI_TYPE_VERBOSE = {
 @register.filter(name="is_field_is_linkable")
 def is_linkable(field, ct):
     field_infos = get_model_field_info(ct.model_class(), field.name)
-    registred_models = creme_registry.iter_entity_models()
+    #registred_models = creme_registry.iter_entity_models()
+    registred_models = frozenset(creme_registry.iter_entity_models())
 
+    #TODO: any(...)
     for field_dict in field_infos:
         if isinstance(field_dict.get('field'), (ForeignKey, ManyToManyField)) and \
            field_dict.get('model') in registred_models:
@@ -61,17 +66,18 @@ def get_verbose_type(type_id):
 #def get_column_header(column):
 #    return {'data' : column.get_children_fields_with_hierarchy()}
 
-@register.inclusion_tag('reports/frags/html_column_value.html')
-def get_html_column_value(column, line, index, add_index=0):
-    return {'line' : line, 'column': column, 'index': index+add_index}
+#TODO: remove template too
+#@register.inclusion_tag('reports/frags/html_column_value.html')
+#def get_html_column_value(column, line, index, add_index=0):
+    #return {'line' : line, 'column': column, 'index': index+add_index}
 
-#Here because of try except, but when this will be fixed in reports, remove try except and move to creme_core_tags
-@register.filter(name="get_value_at")
-def get_value_at(iterable, index):
-    try:
-        return iterable[index]
-    except IndexError:
-        return u''
+##Here because of try except, but when this will be fixed in reports, remove try except and move to creme_core_tags
+#@register.filter(name="get_value_at")
+#def get_value_at(iterable, index):
+    #try:
+        #return iterable[index]
+    #except IndexError:
+        #return u''
 
 @register.inclusion_tag('reports/plot/barchart.json', takes_context=True)
 def report_barchart_json(context, report):
@@ -96,7 +102,7 @@ def report_tubechart_json(context, report, legendRows=1):
     return context
 
 @register.inclusion_tag('reports/templatetags/report_chart.html', takes_context=True)
-def get_report_chart(context, report):
+def get_report_chart(context, report): #TODO: rename 'report' to 'rgraph' ! or leave 'object' & use and {% include %}
     context['report'] = report
     return context
 
@@ -104,6 +110,29 @@ def get_report_chart(context, report):
 def get_report_chart_selectors(context):
     return context
 
-@register.filter
-def to_filter_format(date):
-    return date.strftime(DATETIME_FILTER_FORMAT)
+#@register.filter
+#def to_filter_format(date):
+    #return date.strftime(DATETIME_FILTER_FORMAT)
+
+@register.filter(name="verbose_abscissa")
+def get_verbose_abscissa(report_graph, graph_abscissa):
+    if report_graph.type == RGT_RELATION:
+        try:
+            return RelationType.objects.get(pk=graph_abscissa).predicate
+        except RelationType.DoesNotExist:
+            return u""
+
+    return get_verbose_field_name(report_graph.report.ct.model_class(), graph_abscissa)
+
+@register.filter(name="verbose_ordinate")
+def get_verbose_ordinate(report_graph, graph_ordinate):
+    if report_graph.is_count:
+        return ugettext(u"Count")
+
+    ordinate, sep, aggregate = graph_ordinate.rpartition('__')
+
+    verbose_field_name = get_verbose_field_name(report_graph.report.ct.model_class(), ordinate)
+    field_aggregate = field_aggregation_registry.get(aggregate)
+    field_aggregate = field_aggregate.title if field_aggregate else u''
+
+    return u"%s - %s" % (verbose_field_name, unicode(field_aggregate))

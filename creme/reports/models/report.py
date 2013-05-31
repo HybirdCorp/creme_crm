@@ -40,7 +40,7 @@ from ..report_aggregation_registry import field_aggregation_registry
 class DropLine(Exception):
     pass
 
-
+#TODO: unit test
 class FkClass(object):
     """A simple container to handle values for a foreign key which requires particular
         treatment in fetch & fetch_all_lines functions
@@ -69,7 +69,7 @@ class Field(CremeModel):
         app_label = 'reports'
         verbose_name = _(u'Column of report')
         verbose_name_plural = _(u'Columns of report')
-        ordering = ['order']
+        ordering = ('order',)
 
     def __unicode__(self):
         return self.title
@@ -132,7 +132,8 @@ class Field(CremeModel):
         report = self.report
 
         if report:
-            fields = report.columns.order_by('order')
+            #fields = report.columns.order_by('order')
+            fields = report.columns.all()
             field_dict['children'] = [field.get_children_fields_with_hierarchy() for field in fields]
             field_dict['report'] = report
 
@@ -344,7 +345,9 @@ class Report(CremeEntity):
     name    = CharField(_(u'Name of the report'), max_length=100)
     #ct      = ForeignKey(ContentType, verbose_name=_(u"Entity type"))
     ct      = CTypeForeignKey(verbose_name=_(u'Entity type'))
-    columns = ManyToManyField(Field, verbose_name=_(u"Displayed columns"), related_name='report_columns_set') #TODO: use a One2Many instead....
+    columns = ManyToManyField(Field, verbose_name=_(u"Displayed columns"), 
+                              related_name='report_columns_set', editable=False,
+                             ) #TODO: use a One2Many instead....
     filter  = ForeignKey(EntityFilter, verbose_name=_(u'Filter'), blank=True, null=True)
 
     creation_label = _('Add a report')
@@ -353,7 +356,7 @@ class Report(CremeEntity):
         app_label = 'reports'
         verbose_name = _(u'Report')
         verbose_name_plural = _(u'Reports')
-        ordering = ['name']
+        ordering = ('name',)
 
     def __unicode__(self):
         return self.name

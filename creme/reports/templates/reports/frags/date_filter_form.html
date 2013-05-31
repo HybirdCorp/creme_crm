@@ -29,19 +29,13 @@
                 </tr>
             {% endif %}
             <tr class="header">
-                <td>{{form.date_fields.label}}</td>
+                <td>{{form.date_field.label}}</td>
                 <td>{{form.date_filter.label}}</td>
-{#                <td>{{form.begin_date.label}}</td>#}
-{#                <td>{{form.end_date.label}}</td>#}
-                {% if not inner_popup %}
-                    <td class="action"></td>
-                {% endif %}
+                {% if not inner_popup %}<td class="action"></td>{% endif %}
             </tr>
             <tr class="content">
-                <td>{{form.date_fields.errors}} {{form.date_fields}}</td>
+                <td>{{form.date_field.errors}} {{form.date_field}}</td>
                 <td>{{form.date_filter.errors}} {{form.date_filter}}</td>
-{#                <td>{{form.begin_date}}</td>#}
-{#                <td>{{form.end_date}}</td>#}
                 {% if not inner_popup %}
                     <td class="action">
                         <button type="submit">{% trans 'Generate' %}</button>
