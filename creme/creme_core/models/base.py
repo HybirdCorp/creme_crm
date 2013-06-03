@@ -74,11 +74,12 @@ class CremeModel(Model):
 
                 self._delete_without_transaction()
                 transaction.commit()
-            except Exception as e:
+            #except Exception as e:
+            except:
                 transaction.rollback()
-                #NB: logger.exception() breaks the functioning of commit/rollback feature...
-                logger.debug('Error in CremeModel.delete(): %s', e)
-                raise e
+                #NB: logger.whatever() breaks the functioning of commit/rollback feature...
+                #logger.debug('Error in CremeModel.delete(): %s', e)
+                raise
 
         if _delete_files:
             obj_filter = self._default_manager.filter
