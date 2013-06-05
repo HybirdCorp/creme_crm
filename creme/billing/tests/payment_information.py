@@ -5,7 +5,6 @@ try:
     from functools import partial
 
     from creme.creme_core.models import Currency
-    from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons.models import Organisation
 
@@ -18,7 +17,7 @@ except Exception as e:
 __all__ = ('PaymentInformationTestCase',)
 
 
-class PaymentInformationTestCase(_BillingTestCase, CremeTestCase):
+class PaymentInformationTestCase(_BillingTestCase):
     def setUp(self):
         #_BillingTestCase.setUp(self)
         self.login()

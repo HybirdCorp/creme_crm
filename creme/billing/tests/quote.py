@@ -5,11 +5,10 @@ try:
     from decimal import Decimal
 
     from creme.creme_core.models import Currency
-    from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons.constants import REL_SUB_PROSPECT
 
-    from ..models import QuoteStatus
+    from ..models import QuoteStatus, Quote
     from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
     from .base import _BillingTestCase
 except Exception as e:
@@ -18,8 +17,8 @@ except Exception as e:
 
 __all__ = ('QuoteTestCase',)
 
-
-class QuoteTestCase(_BillingTestCase, CremeTestCase):
+#class QuoteTestCase(_BillingTestCase, CremeTestCase):
+class QuoteTestCase(_BillingTestCase):
     def setUp(self):
         #_BillingTestCase.setUp(self)
         self.login()
@@ -89,3 +88,6 @@ class QuoteTestCase(_BillingTestCase, CremeTestCase):
         quote = self.create_quote_n_orgas('Nerv', status=status)[0]
 
         self.assertDeleteStatusKO(status, 'quote_status', quote)
+
+    def test_csv_import(self):
+        self._aux_test_csv_import(Quote, QuoteStatus)

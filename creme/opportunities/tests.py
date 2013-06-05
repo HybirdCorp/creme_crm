@@ -829,6 +829,12 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         doc = self._build_csv_doc(lines)
         url = self._build_import_url(Opportunity)
         self.assertGET200(url)
+        self.assertNoFormError(self.client.post(url, data={'step':     0,
+                                                           'document': doc.id,
+                                                           #has_header
+                                                          }
+                                               )
+                              )
 
         response = self.client.post(url, data={'step':     1,
                                                'document': doc.id,
@@ -845,10 +851,10 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                                'sales_phase_create':    True,
                                                'sales_phase_defval':    sp5.pk,
 
-                                               'target_orga_colselect':    5,
-                                               'target_orga_create':       True,
-                                               'target_contact_colselect': 6,
-                                               'target_contact_create':    True,
+                                               'target_persons_organisation_colselect': 5,
+                                               'target_persons_organisation_create':    True,
+                                               'target_persons_contact_colselect':      6,
+                                               'target_persons_contact_create':         True,
 
                                                'currency_colselect': 0,
                                                'currency_defval':    DEFAULT_CURRENCY_PK,
@@ -878,10 +884,10 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(count + len(lines), Opportunity.objects.count())
 
         opp1 = self.get_object_or_fail(Opportunity, name='Opp01')
-        self.assertEqual(user,      opp1.user)
-        self.assertEqual(1000,      opp1.estimated_sales)
-        self.assertEqual(2000,      opp1.made_sales)
-        self.assertEqual(sp1,       opp1.sales_phase)
+        self.assertEqual(user, opp1.user)
+        self.assertEqual(1000, opp1.estimated_sales)
+        self.assertEqual(2000, opp1.made_sales)
+        self.assertEqual(sp1,  opp1.sales_phase)
         self.assertFalse(opp1.reference)
         self.assertIsNone(opp1.origin)
         self.assertEqual(emitter1, opp1.get_source())
@@ -891,10 +897,10 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(max_order + 1, sp2.order)
 
         opp2 = self.get_object_or_fail(Opportunity, name='Opp02')
-        self.assertEqual(user,      opp2.user)
-        self.assertEqual(100,       opp2.estimated_sales)
-        self.assertEqual(200,       opp2.made_sales)
-        self.assertEqual(sp2, opp2.sales_phase)
+        self.assertEqual(user, opp2.user)
+        self.assertEqual(100,  opp2.estimated_sales)
+        self.assertEqual(200,  opp2.made_sales)
+        self.assertEqual(sp2,  opp2.sales_phase)
         self.assertEqual(self.get_object_or_fail(Organisation, name=target2_name),
                          opp2.get_target()
                         )
@@ -940,10 +946,10 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                           'sales_phase_create':    '', #<=======
                                           #'sales_phase_defval':   [...], #<=======
 
-                                          'target_orga_colselect':    5,
-                                          'target_orga_create':       True,
-                                          'target_contact_colselect': 6,
-                                          'target_contact_create':    True,
+                                          'target_persons_organisation_colselect': 5,
+                                          'target_persons_organisation_create':    True,
+                                          'target_persons_contact_colselect':      6,
+                                          'target_persons_contact_create':         True,
 
                                           'currency_colselect': 0,
                                           'currency_defval':    DEFAULT_CURRENCY_PK,
@@ -998,10 +1004,10 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                           'sales_phase_create':    '',
                                           #'sales_phase_defval':   [...],
 
-                                          'target_orga_colselect':    4,
-                                          'target_orga_create':       '',
-                                          'target_contact_colselect': 0,
-                                          'target_contact_create':    '',
+                                          'target_persons_organisation_colselect': 4,
+                                          'target_persons_organisation_create':    '',
+                                          'target_persons_contact_colselect':      0,
+                                          'target_persons_contact_create':         '',
 
                                           'currency_colselect': 0,
                                           'currency_defval':    DEFAULT_CURRENCY_PK,
@@ -1050,10 +1056,10 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                           'sales_phase_colselect': 2,
                                           'sales_phase_create':    True,
 
-                                          'target_orga_colselect':    5,
-                                          'target_orga_create':       '', #<===
-                                          'target_contact_colselect': 6,
-                                          'target_contact_create':    '', #<===
+                                          'target_persons_organisation_colselect': 5,
+                                          'target_persons_organisation_create':    '', #<===
+                                          'target_persons_contact_colselect':      6,
+                                          'target_persons_contact_create':         '', #<===
 
                                           'currency_colselect': 0,
                                           'currency_defval':    DEFAULT_CURRENCY_PK,

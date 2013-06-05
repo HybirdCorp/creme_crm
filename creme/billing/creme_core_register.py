@@ -21,9 +21,11 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.registry import creme_registry
-from creme.creme_core.gui import creme_menu, button_registry, block_registry, icon_registry, bulk_update_registry
+from creme.creme_core.gui import (creme_menu, button_registry, block_registry,
+                    icon_registry, import_form_registry, bulk_update_registry)
 
 from .models import Invoice, Quote, SalesOrder, CreditNote, TemplateBase, Line, ServiceLine, ProductLine #Base
+from .forms.lv_import import get_import_form_builder
 from .blocks import block_list, BillingBlock
 from .buttons import button_list
 
@@ -60,6 +62,11 @@ reg_icon(CreditNote,   'images/invoice_%(size)s.png')
 reg_icon(TemplateBase, 'images/invoice_%(size)s.png')
 reg_icon(ProductLine,  'images/invoice_%(size)s.png')
 reg_icon(ServiceLine,  'images/invoice_%(size)s.png')
+
+reg_import_form = import_form_registry.register
+reg_import_form(Invoice,    get_import_form_builder)
+reg_import_form(Quote,      get_import_form_builder)
+reg_import_form(SalesOrder, get_import_form_builder)
 
 bulk_update_registry.register(
     (TemplateBase, ['status_id', 'ct', 'base_ptr']),

@@ -26,7 +26,8 @@ from django.forms.util import flatatt
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 
-from creme.creme_core.forms.list_view_import import ImportForm4CremeEntity, ExtractorWidget, Extractor
+from creme.creme_core.forms.list_view_import import (ImportForm4CremeEntity,
+                             ExtractorWidget, Extractor, EntityExtractorField)
 
 from creme.persons.models import Organisation, Contact
 
@@ -161,154 +162,6 @@ class SalesPhaseExtractorField(Field):
         return SalesPhaseExtractor(col_index, def_value, create_if_unfound=value['create'])
 
 
-# Target management ------------------------------------------------------------
-class TargetExtractor(object):
-    def __init__(self, orga_column_index, create_orga, contact_column_index, create_contact):
-        self._orga_column_index    = orga_column_index
-        self._contact_column_index = contact_column_index
-        self._create_orga          = create_orga
-        self._create_contact       = create_contact
-
-    def _extract_person(self, line, user, model, index, field_name, create):
-        #TODO: manage credentials (linkable (& viewable ?) Contact/Organisation)
-        if not index: #0 -> not in csv
-            return None, None
-
-        value = line[index - 1]
-        if not value:
-            return None, None
-
-        error_msg = None
-        extracted = None
-        kwargs = {field_name: value}
-
-        try:
-            extracted = model.objects.get(**kwargs)
-        except Exception as e:
-            if create:
-                created = model(user=user, **kwargs)
-
-                try:
-                    created.full_clean() #can raise ValidationError
-                    created.save() #TODO should we use save points for this line ?
-                except Exception as e:
-                    error_msg = _(u'Error while extracting value [%(raw_error)s]: tried to retrieve and then build "%(value)s" on %(model)s') % {
-                                        'raw_error': e,
-                                        'value': value,
-                                        'model': model._meta.verbose_name,
-                                    }
-                else:
-                    extracted = created
-            else:
-                error_msg = _(u'Error while extracting value [%(raw_error)s]: tried to retrieve "%(value)s" on %(model)s') % {
-                                    'raw_error': e,
-                                    'value':     value,
-                                    'model':     model._meta.verbose_name,
-                                }
-
-        return error_msg, extracted
-
-    def extract_value(self, line, user, import_errors):
-        extract_person = self._extract_person
-        error_msg1, extracted = extract_person(line, user, Organisation, self._orga_column_index, 'name', self._create_orga)
-
-        if extracted is None:
-            error_msg2, extracted = extract_person(line, user, Contact, self._contact_column_index, 'last_name', self._create_contact)
-
-            if extracted is None:
-                import_errors.append((line, u'\n'.join(msg for msg in (error_msg1, error_msg2) if msg)))
-
-        return extracted
-
-
-#TODO: use ul/li instead of table...
-class TargetExtractorWidget(ExtractorWidget):
-    def __init__(self, *args, **kwargs):
-        super(TargetExtractorWidget, self).__init__(*args, **kwargs)
-        #self.propose_orga_creation = False #TODO
-        #self.propose_contact_creation = False #TODO
-
-    def _render_column_select(self, name, value, choices, line_name):
-        try:
-            sel_val = int(value.get('%s_selected_column' % line_name, -1))
-        except TypeError:
-            sel_val = 0
-
-        return self._render_select("%s_%s_colselect" % (name, line_name),
-                                   choices=chain(self.choices, choices),
-                                   sel_val=sel_val,
-                                   attrs={'class': 'csv_col_select'}
-                                  )
-
-    def _render_line(self, output, name, value, choices, line_title, line_name):
-        append = output.append
-        append(u'<tr><td>%s: </td><td>' % line_title)
-        append(self._render_column_select(name, value, choices, line_name))
-        append('</td><td>&nbsp;%(label)s <input type="checkbox" name="%(name)s_%(subname)s_create" %(checked)s></td></tr>' % {
-                            'label':   _(u'Create if not found ?'),
-                            'name':    name,
-                            'subname': line_name,
-                            'checked': 'checked' if value.get('%s_create' % line_name) else '',
-                        }
-                     )
-
-    def render(self, name, value, attrs=None, choices=()):
-        value = value or {}
-        output = [u'<table %s><tbody>' % flatatt(self.build_attrs(attrs, name=name))]
-
-        render_line = self._render_line
-        render_line(output, name, value, choices, _('Target organisation'), 'orga')
-        render_line(output, name, value, choices, _('Target contact'),      'contact')
-
-        output.append(u'</tbody></table>')
-
-        return mark_safe(u'\n'.join(output))
-
-    def value_from_datadict(self, data, files, name):
-        get = data.get
-        return {'orga_selected_column':    get("%s_orga_colselect" % name),
-                'create_orga':             get("%s_orga_create" % name, False),
-                'contact_selected_column': get("%s_contact_colselect" % name),
-                'create_contact':          get("%s_contact_create" % name, False),
-               }
-
-
-class TargetExtractorField(Field):
-    def __init__(self, choices, *args, **kwargs):
-        super(TargetExtractorField, self).__init__(self, widget=TargetExtractorWidget, *args, **kwargs)
-        widget = self.widget
-        #widget.propose_orga_creation    = self._can_create_orga    = True #TODO user.can_create(...)
-        #widget.propose_contact_creation = self._can_create_contact = True #TODO user.can_create(...)
-
-        widget.choices = choices
-
-    def _get_column_index(self, value, index_key):
-        try:
-            return int(value[index_key])
-        except TypeError:
-            raise ValidationError(self.error_messages['invalid'])
-
-    def clean(self, value):
-        get_column_index = self._get_column_index
-        orga_col_index    = get_column_index(value, 'orga_selected_column')
-        contact_col_index = get_column_index(value, 'contact_selected_column')
-
-        if self.required and not (orga_col_index or contact_col_index): #TODO: test
-            raise ValidationError(self.error_messages['required'])
-
-        #TODO: check that indexes are in self._choices ???
-
-        create_orga = value['create_orga']
-        #if not self._can_create_orga and orga_create: #TODO
-            #raise ValidationError("You can not create any Organisation.")
-
-        create_contact = value['create_contact']
-        #if not self._can_create_orga and orga_create: #TODO
-            #raise ValidationError("You can not create any Organisation.")
-
-        return TargetExtractor(orga_col_index, create_orga, contact_col_index, create_contact)
-
-
 # Main -------------------------------------------------------------------------
 def get_csv_form_builder(header_dict, choices):
     class OpportunityCSVImportForm(ImportForm4CremeEntity):
@@ -318,10 +171,13 @@ def get_csv_form_builder(header_dict, choices):
                                                   label=_('Sales phase'),
                                                   #initial={'selected_column': selected_column} #TODO ??
                                                  )
-        target      = TargetExtractorField(choices, label=_('Target'))
+        target = EntityExtractorField([(Organisation, 'name'), (Contact, 'last_name')],
+                                      choices, label=_('Target')
+                                     )
 
-        #TODO: filter linkable
-        emitter = ModelChoiceField(label=_(u"Concerned organisation"), queryset=Organisation.get_all_managed_by_creme(), empty_label=None)
+        emitter = ModelChoiceField(label=_(u"Concerned organisation"), empty_label=None,
+                                   queryset=Organisation.get_all_managed_by_creme(),
+                                  )
 
         def _pre_instance_save(self, instance, line):
             cdata = self.cleaned_data
