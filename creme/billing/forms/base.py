@@ -40,6 +40,15 @@ from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 logger = logging.getLogger(__name__)
 
 
+#TODO: move to persons ??
+def copy_or_create_address(address, owner, name):
+    if address is None:
+        name = unicode(name)
+        return Address.objects.create(name=name, owner=owner, address=name)
+
+    return address.clone(owner)
+
+
 class BaseEditForm(CremeEntityForm):
     #currency = CreatorModelChoiceField(label=_(u'Currency'), queryset=Currency.objects.all(), initial=DEFAULT_CURRENCY_PK)
 
@@ -173,13 +182,6 @@ class BaseCreateForm(BaseEditForm):
         except IndexError as e:
             logger.debug('Exception in %s.__init__: %s', self.__class__, e)
 
-    def _copy_or_create_address(self, address, owner, name):
-        if address is None:
-            name = unicode(name)
-            return Address.objects.create(name=name, owner=owner, address=name)
-
-        return address.clone(owner)
-
     def save(self, *args, **kwargs):
         instance = self.instance
         cleaned_data = self.cleaned_data
@@ -190,7 +192,6 @@ class BaseCreateForm(BaseEditForm):
 
         super(BaseCreateForm, self).save(*args, **kwargs)
 
-        copy_or_create_address    = self._copy_or_create_address
         instance.billing_address  = copy_or_create_address(target.billing_address, instance,  _(u'Billing address'))
         instance.shipping_address = copy_or_create_address(target.shipping_address, instance, _(u'Shipping address'))
 

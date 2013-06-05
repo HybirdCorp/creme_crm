@@ -6,7 +6,6 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.models import Relation
-    from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons.models import Organisation
 
@@ -21,7 +20,7 @@ except Exception as e:
 __all__ = ('TemplateBaseTestCase',)
 
 
-class TemplateBaseTestCase(_BillingTestCase, CremeTestCase):
+class TemplateBaseTestCase(_BillingTestCase):
     def setUp(self):
         self.login()
 

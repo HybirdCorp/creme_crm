@@ -7,19 +7,20 @@ try:
 
     from django.db.models.deletion import ProtectedError
     from django.utils.translation import ugettext as _
+    from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.tests.base import CremeTestCase, CremeTransactionTestCase
+    from creme.creme_core.tests.base import CremeTransactionTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import CremeEntity, Relation, SetCredentials, Currency #CremeProperty
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_HAS
 
-    from creme.persons.models import Organisation, Address
+    from creme.persons.models import Contact, Organisation, Address
     from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
 
     from ..models import *
     from ..constants import *
-    from .base import _BillingTestCase
+    from .base import _BillingTestCase, _BillingTestCaseMixin
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -27,7 +28,7 @@ except Exception as e:
 __all__ = ('InvoiceTestCase', 'BillingDeleteTestCase')
 
 
-class InvoiceTestCase(_BillingTestCase, CremeTestCase):
+class InvoiceTestCase(_BillingTestCase):
     @classmethod
     def setUpClass(cls):
         #cls.populate('creme_core', 'creme_config', 'persons', 'billing')
@@ -77,10 +78,6 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         self.create_invoice('Invoice002', source, target, currency)
         self.assertRelationCount(1, target, REL_SUB_CUSTOMER_SUPPLIER, source)
 
-    def assertAddressContentEqual(self, address1, address2): #TODO: move in persons ??
-        for f in ('name', 'address', 'po_box', 'zipcode', 'city', 'department', 'state', 'country'):
-            self.assertEqual(getattr(address1, f), getattr(address1, f))
-
     def test_createview02(self):
         self.login()
 
@@ -99,7 +96,7 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
                                              )
         target.billing_address  = create_addr(name='BillingAddr', address='Temple of sand',
                                               po_box='8778', zipcode='123', city='Suna',
-                                              department='dep2', state='Foo',   country='Land of Sand'
+                                              department='dep2', state='Foo', country='Land of Sand'
                                              )
         target.save()
 
@@ -107,8 +104,6 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
 
         invoice = self.create_invoice(name, source, target)
 
-        #self.assertEqual(target.billing_address.id,  invoice.billing_address_id)
-        #self.assertEqual(target.shipping_address.id, invoice.shipping_address_id)
         self.assertAddressContentEqual(target.billing_address, invoice.billing_address)
         self.assertEqual(invoice, invoice.billing_address.owner)
 
@@ -596,8 +591,12 @@ class InvoiceTestCase(_BillingTestCase, CremeTestCase):
         invoice = self.get_object_or_fail(Invoice, pk=invoice.pk)
         self.assertIsNone(invoice.additional_info)
 
+    def test_csv_import(self):
+        self.login()
+        self._aux_test_csv_import(Invoice, InvoiceStatus)
 
-class BillingDeleteTestCase(_BillingTestCase, CremeTransactionTestCase):
+
+class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
     def setUp(self): #setUpClass does not work here
         #_BillingTestCase.setUp(self)
         self.populate('creme_core', 'creme_config', 'billing')
@@ -617,9 +616,11 @@ class BillingDeleteTestCase(_BillingTestCase, CremeTransactionTestCase):
         self.assertFalse(Invoice.objects.filter(pk=invoice.pk).exists())
         self.assertFalse(ServiceLine.objects.filter(pk=service_line.pk).exists())
 
-        with self.assertNoException(): #TODO: use get_object_or_fail
-            Organisation.objects.get(pk=source.pk)
-            Organisation.objects.get(pk=target.pk)
+        #with self.assertNoException():
+            #Organisation.objects.get(pk=source.pk)
+            #Organisation.objects.get(pk=target.pk)
+        self.get_object_or_fail(Organisation, pk=source.pk)
+        self.get_object_or_fail(Organisation, pk=target.pk)
 
         self.assertFalse(Address.objects.filter(pk=b_addr.id).exists())
         self.assertFalse(Address.objects.filter(pk=s_addr.id).exists())

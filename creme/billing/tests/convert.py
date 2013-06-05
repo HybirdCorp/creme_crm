@@ -8,7 +8,6 @@ try:
     from django.db.models.query_utils import Q
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import CremePropertyType, CremeProperty, SetCredentials
 
@@ -24,7 +23,7 @@ except Exception as e:
 __all__ = ('ConvertTestCase',)
 
 
-class ConvertTestCase(_BillingTestCase, CremeTestCase):
+class ConvertTestCase(_BillingTestCase):
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'persons', 'billing')

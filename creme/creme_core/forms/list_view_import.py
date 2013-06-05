@@ -20,7 +20,7 @@
 
 import os
 from functools import partial
-from itertools import chain, ifilter
+from itertools import chain, ifilter, izip_longest
 import logging
 
 from django.db.models import Q, ManyToManyField
@@ -314,6 +314,201 @@ class ExtractorField(Field):
                                          )
 
         return extractor
+
+#Extractors (and related field/widget) for entities---------------------------
+
+class EntityExtractionCommand(object):
+    def __init__(self, model, field_name, column_index, create):
+        self.model = model
+        self.field_name = field_name
+        self.column_index_str = column_index
+        self.create = create
+
+    def build_column_index(self):
+        "@throw TypeError"
+        self.column_index = index = int(self.column_index_str)
+        return index
+
+
+class EntityExtractor(object):
+    def __init__(self, extraction_cmds):
+        "@params extraction_cmds List of EntityExtractionCommands"
+        self._commands = extraction_cmds
+
+    def _extract_entity(self, line, user, command):
+        index = command.column_index
+
+        #TODO: manage credentials (linkable (& viewable ?))
+        if not index: #0 -> not in csv
+            return None, None
+
+        value = line[index - 1]
+        if not value:
+            return None, None
+
+        model = command.model
+        error_msg = None
+        extracted = None
+        kwargs = {command.field_name: value}
+
+        try:
+            extracted = model.objects.get(**kwargs)
+        except Exception as e:
+            if command.create:
+                created = model(user=user, **kwargs)
+
+                try:
+                    created.full_clean() #can raise ValidationError
+                    created.save() #TODO should we use save points for this line ?
+                except Exception as e:
+                    error_msg = _(u'Error while extracting value [%(raw_error)s]: tried to retrieve and then build "%(value)s" on %(model)s') % {
+                                        'raw_error': e,
+                                        'value': value,
+                                        'model': model._meta.verbose_name,
+                                    }
+                else:
+                    extracted = created
+            else:
+                error_msg = _(u'Error while extracting value [%(raw_error)s]: tried to retrieve "%(value)s" on %(model)s') % {
+                                    'raw_error': e,
+                                    'value':     value,
+                                    'model':     model._meta.verbose_name,
+                                }
+
+        return error_msg, extracted
+
+    def extract_value(self, line, user, import_errors):
+        extracted = None
+        extract_entity = partial(self._extract_entity, line, user)
+        error_msgs = []
+
+        for cmd in self._commands:
+            error_msg, extracted = extract_entity(cmd)
+
+            if extracted is not None:
+                break
+
+            if error_msg:
+                error_msgs.append(error_msg)
+        else:
+            import_errors.append((line, u'\n'.join(error_msgs)))
+
+        return extracted
+
+
+#TODO: use ul/li instead of table...
+class EntityExtractorWidget(ExtractorWidget):
+    def __init__(self, *args, **kwargs):
+        super(EntityExtractorWidget, self).__init__(*args, **kwargs)
+        #self.propose_creation = False #TODO
+
+    def _build_model_id(self, model):
+        return model._meta.app_label, model.__name__.lower()
+
+    def _build_colselect_id(self, name, model_id):
+        return "{0}_{1}_{2}_colselect".format(name, *model_id)
+
+    def _build_create_id(self, name, model_id):
+        return "{0}_{1}_{2}_create".format(name, *model_id)
+
+    def _render_column_select(self, name, cmd, choices, model_id):
+        sel_val = 0
+
+        if cmd:
+            try:
+                sel_val = cmd.build_column_index()
+            except TypeError:
+                pass
+
+        return self._render_select(self._build_colselect_id(name, model_id),
+                                   choices=chain(self.choices, choices),
+                                   sel_val=sel_val,
+                                   attrs={'class': 'csv_col_select'},
+                                  )
+
+    def _render_line(self, output, name, cmd, choices, model):
+        append = output.append
+        model_id = self._build_model_id(model)
+
+        append(u'<tr><td>%s: </td><td>' % model._meta.verbose_name)
+        append(self._render_column_select(name, cmd, choices, model_id))
+        append(u'</td><td>&nbsp;%(label)s <input type="checkbox" name="%(name)s" %(checked)s></td></tr>' % {
+                            'label':   _(u'Create if not found ?'),
+                            'name':    self._build_create_id(name, model_id),
+                            'checked': 'checked' if cmd and cmd.create else '',
+                        }
+                     )
+
+    def render(self, name, value, attrs=None, choices=()):
+        output = [u'<table %s><tbody>' % flatatt(self.build_attrs(attrs, name=name))]
+        render_line = self._render_line
+
+        for info, cmd in izip_longest(self.models_info, value or ()):
+            render_line(output, name, cmd, choices, info[0])
+
+        output.append(u'</tbody></table>')
+
+        return mark_safe(u'\n'.join(output))
+
+    def value_from_datadict(self, data, files, name):
+        get = data.get
+        build_model_id = self._build_model_id
+        build_colselect_id = partial(self._build_colselect_id, name)
+        build_create_id = partial(self._build_create_id, name)
+
+        value = []
+        for model, field_name in self.models_info:
+            model_id = build_model_id(model)
+            value.append(EntityExtractionCommand(
+                            model, field_name,
+                            column_index=get(build_colselect_id(model_id)),
+                            create=get(build_create_id(model_id), False),
+                           )
+                        )
+
+        return value
+
+
+class EntityExtractorField(Field):
+    def __init__(self, models_info, choices, *args, **kwargs):
+        """@param model_info Sequence of tuple (Entity class, field name)
+                             Field name if used to get or create class instances.
+        """
+        super(EntityExtractorField, self).\
+            __init__(self, widget=EntityExtractorWidget, *args, **kwargs)
+        self.models_info = models_info
+        self.allowed_indexes = set(c[0] for c in choices)
+
+        widget = self.widget
+        widget.choices = choices
+        widget.models_info = models_info
+
+    def _clean_indexes(self, value):
+        indexes = []
+        allowed_indexes = self.allowed_indexes
+
+        try:
+            for cmd in value:
+                index = cmd.build_column_index()
+
+                if not index in allowed_indexes:
+                    raise ValidationError(self.error_messages['invalid'])
+
+                indexes.append(index)
+        except TypeError:
+            raise ValidationError(self.error_messages['invalid'])
+
+        return indexes
+
+    def clean(self, value):
+        indexes = self._clean_indexes(value)
+
+        if self.required and not any(indexes):
+            raise ValidationError(self.error_messages['required'])
+
+        #TODO: creation credentials
+
+        return EntityExtractor(value)
 
 
 #Extractors (and related field/widget) for relations----------------------------
@@ -649,7 +844,9 @@ class ImportForm4CremeEntity(ImportForm):
         fields = self.fields
         ct     = ContentType.objects.get_for_model(self._meta.model)
 
-        fields['property_types'].queryset = CremePropertyType.objects.filter(Q(subject_ctypes=ct) | Q(subject_ctypes__isnull=True))
+        fields['property_types'].queryset = CremePropertyType.objects.filter(Q(subject_ctypes=ct) |
+                                                                             Q(subject_ctypes__isnull=True)
+                                                                            )
 
         rtypes = RelationType.get_compatible_ones(ct)
         fields['fixed_relations'].allowed_rtypes = rtypes
@@ -675,7 +872,9 @@ class ImportForm4CremeEntity(ImportForm):
 
         for extractor in extractors:
             if extractor.create_if_unfound and not can_create(extractor.related_model):
-                raise ValidationError(_('You are not allowed to create: %s') % extractor.related_model._meta.verbose_name)
+                raise ValidationError(_('You are not allowed to create: %s') %
+                                        extractor.related_model._meta.verbose_name
+                                     )
 
         return extractors
 
@@ -690,7 +889,10 @@ class ImportForm4CremeEntity(ImportForm):
         for relationtype, entity in cleaned_data['fixed_relations']:
             create_relation(type=relationtype, object_entity=entity)
 
-        for relationtype, entity in cleaned_data['dyn_relations'].extract_value(line, cleaned_data['user'], self.import_errors):
+        for relationtype, entity in cleaned_data['dyn_relations']\
+                                                .extract_value(line, cleaned_data['user'],
+                                                               self.import_errors,
+                                                              ):
             create_relation(type=relationtype, object_entity=entity)
 
 
@@ -739,7 +941,10 @@ def form_factory(ct, header):
         base_form_class = ImportForm
 
     modelform = modelform_factory(model_class, form=base_form_class,
-                                  formfield_callback=partial(extractorfield_factory, header_dict=header_dict, choices=choices)
+                                  formfield_callback=partial(extractorfield_factory,
+                                                             header_dict=header_dict,
+                                                             choices=choices,
+                                                            )
                                  )
     modelform.columns4dynrelations = choices[1:]
 

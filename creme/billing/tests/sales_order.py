@@ -5,7 +5,6 @@ try:
     from decimal import Decimal
 
     from creme.creme_core.models import Currency
-    from creme.creme_core.tests.base import CremeTestCase
 
     from creme.persons.models import Organisation
 
@@ -19,7 +18,7 @@ except Exception as e:
 __all__ = ('SalesOrderTestCase',)
 
 
-class SalesOrderTestCase(_BillingTestCase, CremeTestCase):
+class SalesOrderTestCase(_BillingTestCase):
     def setUp(self):
         #_BillingTestCase.setUp(self)
         self.login()
@@ -117,3 +116,6 @@ class SalesOrderTestCase(_BillingTestCase, CremeTestCase):
         order = self.create_salesorder_n_orgas('Order', status=status)[0]
 
         self.assertDeleteStatusKO(status, 'sales_order_status', order)
+
+    def test_csv_import(self):
+        self._aux_test_csv_import(SalesOrder, SalesOrderStatus)

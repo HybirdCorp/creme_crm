@@ -7,7 +7,6 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
-    from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import Relation, SetCredentials
 
@@ -25,7 +24,7 @@ except Exception as e:
 __all__ = ('LineTestCase',)
 
 
-class LineTestCase(_BillingTestCase, CremeTestCase):
+class LineTestCase(_BillingTestCase):
     @classmethod
     def setUpClass(cls):
         #cls.populate('creme_core', 'creme_config', 'products', 'billing')
