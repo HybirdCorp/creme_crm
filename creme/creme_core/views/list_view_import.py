@@ -18,11 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.http import Http404
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
 from creme.creme_core.forms.list_view_import import UploadForm, form_factory
+from creme.creme_core.gui.list_view_import import import_form_registry
 from creme.creme_core.utils import get_ct_or_404
 
 #django wizard doesn't manage to inject its input in the 2nd form
@@ -32,6 +34,11 @@ from creme.creme_core.utils import get_ct_or_404
 def import_listview(request, ct_id):
     ct = get_ct_or_404(ct_id)
     user = request.user
+
+    try:
+        import_form_registry.get(ct)
+    except import_form_registry.UnregisteredCTypeException as e:
+        raise Http404(e)
 
     user.has_perm_to_create_or_die(ct.model_class())
 
@@ -51,7 +58,10 @@ def import_listview(request, ct_id):
                                           }
                                  )
         else:
-            assert step == 1
+            #assert step == 1
+            if step != 1:
+                raise Http404('Step should be in (0, 1)')
+
             form.is_valid() #clean fields
 
             ImportForm = form_factory(ct, form.header)

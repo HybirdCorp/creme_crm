@@ -29,6 +29,7 @@ from ..models.header_filter import HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CU
 from ..models import CustomField
 from ..utils.meta import get_model_field_info
 from ..gui.field_printers import field_printers_registry
+from ..gui.list_view_import import import_form_registry
 from .creme_widgets import widget_entity_hyperlink
 
 
@@ -200,3 +201,7 @@ def get_listview_cell(hfi, entity, user):
         logger.debug('Templatetag "get_listview_cell": %s', e)
 
     return u""
+
+@register.assignment_tag
+def ctype_is_registered_for_import(ctype):
+    return import_form_registry.is_registered(ctype)

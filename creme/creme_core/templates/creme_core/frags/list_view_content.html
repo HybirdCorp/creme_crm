@@ -22,19 +22,6 @@
     <thead>
         <tr class="title">
             <th colspan="{{colspan}}"><h2>{{list_title}}</h2></th>
-            {% comment %}
-            <th colspan="{{colspan}}" class="title">
-                <div>
-                    <h2 style="display:inline-block;">{{list_title}}</h2>
-                    <div class="filters column-filter" style="display:inline-block;">
-                        {% get_listview_headerfilters %}
-                    </div>
-                    <div class="filters line-filter" style="display:inline-block;">
-                        {% get_listview_entity_filters %}
-                    </div>
-                </div>
-            </th>
-            {% endcomment %}
         </tr>
         {% if list_sub_title %}
             <tr class="sub_title">
@@ -71,11 +58,14 @@
                             {% trans "Download header" as label %}<img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
                         </a>&nbsp;
                     {% endif %}
-                    {% get_import_backends as import_backends %}
-                    {% if import_backends|length > 2 %}
-                        <a {% if creation_perm %}href="/creme_core/list_view/import/{{content_type_id}}?list_url={{request.path}}"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
-                            {% trans "Import" as label %}<img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
-                        </a>&nbsp;
+                    {% ctype_is_registered_for_import content_type as can_import %}
+                    {% if can_import %}
+                        {% get_import_backends as import_backends %}
+                        {% if import_backends|length > 2 %}
+                            <a {% if creation_perm %}href="/creme_core/list_view/import/{{content_type_id}}?list_url={{request.path}}"{% else %}class="forbidden" title="{% trans "Forbidden" %}"{% endif %}>
+                                {% trans "Import" as label %}<img border="0" src="{% creme_media_url 'images/document_csv_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}
+                            </a>&nbsp;
+                        {% endif %}
                     {% endif %}
                     <a href="/creme_core/list_view/batch_process/{{content_type_id}}?list_url={{request.path}}">
                         {% trans "Batch process" as label %}<img border="0" src="{% creme_media_url 'images/batch_process_22.png' %}" alt="{{label}}" title="{{label}}"/>{{label}}

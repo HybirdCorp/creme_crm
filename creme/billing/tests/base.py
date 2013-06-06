@@ -224,19 +224,19 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
                 #'fixed_relations',
                 #'dyn_relations',
                }
-        response = self.client.post(url, data=data)
+        response = self.assertPOST200(url, data=data)
         self.assertFormError(response, 'form', 'source', [_(u'Enter a valid value.')])
 
-        response = self.client.post(url,
-                                    data=dict(data,
-                                              source_persons_organisation_colselect=0,
-                                              source_persons_organisation_create=True,
-                                              target_persons_organisation_colselect=0,
-                                              target_persons_organisation_create=True,
-                                              target_persons_contact_colselect=0,
-                                              target_persons_contact_create=True,
-                                             )
-                                   )
+        response = self.assertPOST200(url,
+                                      data=dict(data,
+                                                source_persons_organisation_colselect=0,
+                                                source_persons_organisation_create=True,
+                                                target_persons_organisation_colselect=0,
+                                                target_persons_organisation_create=True,
+                                                target_persons_contact_colselect=0,
+                                                target_persons_contact_create=True,
+                                               )
+                                     )
         self.assertFormError(response, 'form', 'source', [_(u'This field is required.')])
 
         response = self.client.post(url,
