@@ -17,7 +17,7 @@ except Exception as e:
 
 __all__ = ('QuoteTestCase',)
 
-#class QuoteTestCase(_BillingTestCase, CremeTestCase):
+
 class QuoteTestCase(_BillingTestCase):
     def setUp(self):
         #_BillingTestCase.setUp(self)

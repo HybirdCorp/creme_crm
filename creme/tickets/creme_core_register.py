@@ -21,7 +21,8 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.registry import creme_registry
-from creme.creme_core.gui import creme_menu, block_registry, button_registry, icon_registry
+from creme.creme_core.gui import (creme_menu, block_registry, button_registry,
+                                  icon_registry, import_form_registry)
 
 from .models import Ticket, TicketTemplate
 from .blocks import TicketBlock
@@ -44,3 +45,4 @@ reg_icon = icon_registry.register
 reg_icon(Ticket,         'images/ticket_%(size)s.png')
 reg_icon(TicketTemplate, 'images/ticket_%(size)s.png')
 
+import_form_registry.register(Ticket)

@@ -583,3 +583,9 @@ class LineTestCase(_BillingTestCase):
 
         line = self.get_object_or_fail(ProductLine, pk=line.pk)
         self.assertEqual(vat, line.vat_value)
+
+    def test_csv_import(self):
+        self.login()
+        self.assertGET404(self._build_import_url(Line))
+        self.assertGET404(self._build_import_url(ServiceLine))
+        self.assertGET404(self._build_import_url(ProductLine))
