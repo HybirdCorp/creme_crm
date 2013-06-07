@@ -4,8 +4,9 @@ try:
     from decimal import Decimal
     from functools import partial
 
-    from creme.creme_core.models import Relation, Currency
+    from django.utils.translation import ugettext as _
 
+    from creme.creme_core.models import Relation, Currency
     from creme.persons.models import Organisation
 
     from ..models import CreditNoteStatus, CreditNote, ProductLine
@@ -21,6 +22,12 @@ __all__ = ('CreditNoteTestCase',)
 class CreditNoteTestCase(_BillingTestCase):
     def setUp(self):
         self.login()
+    
+    def _build_deleterelated_url(self, credit_note, invoice):
+        return '/billing/credit_note/delete_related/%(credit_note)d/from/%(invoice)d/' % {'credit_note': credit_note.id,
+                                                                                          'invoice': invoice.id,
+                                                                                         }
+
 
     def create_credit_note(self, name, source, target, currency=None, discount=Decimal(), user=None, status=None):
         user = user or self.user
@@ -45,15 +52,21 @@ class CreditNoteTestCase(_BillingTestCase):
 
         return credit_note
 
-    def create_credit_note_n_orgas(self, name, user=None, status=None):
+    def create_credit_note_n_orgas(self, name, user=None, status=None, **kwargs):
         user = user or self.user
         create_orga = partial(Organisation.objects.create, user=user)
         source = create_orga(name='Source Orga')
         target = create_orga(name='Target Orga')
 
-        credit_note = self.create_credit_note(name, source, target, user=user, status=status)
+        credit_note = self.create_credit_note(name, source, target, user=user, status=status, **kwargs)
 
         return credit_note, source, target
+
+    def assertInvoiceTotalToPay(self, invoice, total):
+        invoice = self.refresh(invoice)
+        expected_total = Decimal(total)
+        self.assertEqual(expected_total, invoice.total_no_vat)
+        self.assertEqual(expected_total, invoice.total_vat)
 
     def test_createview01(self):
         "Credit note total < billing document total where the credit note is applied"
@@ -134,9 +147,9 @@ class CreditNoteTestCase(_BillingTestCase):
         credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
         create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("60"))
 
-        r = Relation.objects.create(object_entity=invoice, subject_entity=credit_note,
-                                    type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user,
-                                   )
+        Relation.objects.create(object_entity=invoice, subject_entity=credit_note,
+                                type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user,
+                               )
         self.assertEqual(Decimal('40'), self.refresh(invoice).total_no_vat)
 
         credit_note.trash()
@@ -158,5 +171,203 @@ class CreditNoteTestCase(_BillingTestCase):
         credit_note = self.create_credit_note_n_orgas('Credit Note 001', status=status)[0]
 
         self.assertDeleteStatusKO(status, 'credit_note_status', credit_note)
+
+    def test_addrelated_view(self):
+        "attach credit note to existing invoice"
+        user = self.user
+        create_line = partial(ProductLine.objects.create, user=user)
+
+        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        invoice_target = invoice.get_target()
+        create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
+        create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
+
+        self.assertGET200('/billing/credit_note/add_related_to/%d/' % invoice.id)
+
+        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003');
+        credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source, target=invoice_target)
+        create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("50"))
+
+        self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertInvoiceTotalToPay(invoice, 300)
+
+        response = self.client.post('/billing/credit_note/add_related_to/%d/' % invoice.id, follow=True,
+                                    data={'credit_notes':    '%s' % credit_note.id,}
+                                   )
+        self.assertNoFormError(response)
+
+        self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertInvoiceTotalToPay(invoice, 250)
+
+    def test_addrelated_view_no_invoice(self):
+        "cannot attach credit note to invalid invoice"
+        self.assertGET404('/billing/credit_note/add_related_to/%d/' % 12445)
+
+    def test_addrelated_view_not_same_currency(self):
+        "cannot attach credit note in US Dollar to invoice in Euro"
+        user = self.user
+        create_line = partial(ProductLine.objects.create, user=user)
+        us_dollar = Currency.objects.all()[1]
+
+        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        invoice_target = invoice.get_target()
+        create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
+        create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
+
+        self.assertGET200('/billing/credit_note/add_related_to/%d/' % invoice.id)
+
+        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003');
+        credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source, target=invoice_target, currency=us_dollar)
+        create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("50"))
+
+        self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertInvoiceTotalToPay(invoice, 300)
+
+        response = self.client.post('/billing/credit_note/add_related_to/%d/' % invoice.id, follow=True,
+                                    data={'credit_notes':    '%s' % credit_note.id,}
+                                   )
+        self.assertFormError(response, 'form', 'credit_notes', 
+                             [_(u"Select a valid choice. %(value)s is not an available choice.") % {'value': credit_note.id}]
+                            )
+
+        self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertInvoiceTotalToPay(invoice, 300)
+
+    def test_addrelated_view_already_linked(self):
+        "cannot attach credit note in US Dollar to invoice in Euro"
+        user = self.user
+        create_line = partial(ProductLine.objects.create, user=user)
+        us_dollar = Currency.objects.all()[1]
+
+        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        invoice_target = invoice.get_target()
+        create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
+        create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
+
+        self.assertGET200('/billing/credit_note/add_related_to/%d/' % invoice.id)
+
+        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003');
+        credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source, target=invoice_target, currency=us_dollar)
+        create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("50"))
+
+        Relation.objects.create(object_entity=invoice, subject_entity=credit_note,
+                                type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user,
+                               )
+
+        self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertInvoiceTotalToPay(invoice, 250)
+
+        response = self.client.post('/billing/credit_note/add_related_to/%d/' % invoice.id, follow=True,
+                                    data={'credit_notes':    '%s' % credit_note.id,}
+                                   )
+        self.assertFormError(response, 'form', 'credit_notes', 
+                             [_(u"Select a valid choice. %(value)s is not an available choice.") % {'value': credit_note.id}]
+                            )
+
+        self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertInvoiceTotalToPay(invoice, 250)
+
+    def test_addrelated_view_already_not_same_target(self):
+        "cannot attach credit note in US Dollar to invoice in Euro"
+        user = self.user
+        create_line = partial(ProductLine.objects.create, user=user)
+
+        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
+        create_line(related_document=invoice, on_the_fly_item='Otf2', unit_price=Decimal("200"))
+
+        self.assertGET200('/billing/credit_note/add_related_to/%d/' % invoice.id)
+
+        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003');
+        credit_note_target = Organisation.objects.create(user=user, name='Organisation 004');
+        credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source, target=credit_note_target)
+        create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("50"))
+
+        self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertInvoiceTotalToPay(invoice, 300)
+
+        response = self.client.post('/billing/credit_note/add_related_to/%d/' % invoice.id, follow=True,
+                                    data={'credit_notes':    '%s' % credit_note.id,}
+                                   )
+        self.assertFormError(response, 'form', 'credit_notes', 
+                             [_(u"Select a valid choice. %(value)s is not an available choice.") % {'value': credit_note.id}]
+                            )
+
+        self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertInvoiceTotalToPay(invoice, 300)
+
+    def test_deleterelated_view(self):
+        user = self.user
+        create_line = partial(ProductLine.objects.create, user=user)
+
+        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        invoice_target = invoice.get_target()
+        create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
+
+        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003');
+        credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source, target=invoice_target)
+        create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("50"))
+
+        Relation.objects.create(object_entity=invoice, subject_entity=credit_note,
+                                type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user,
+                               )
+
+        self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertInvoiceTotalToPay(invoice, 50)
+
+        response = self.client.post(self._build_deleterelated_url(credit_note, invoice), follow=True)
+
+        self.assertNoFormError(response)
+
+        self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertInvoiceTotalToPay(invoice, 100)
+
+    def test_deleterelated_view_not_exists(self):
+        user = self.user
+        create_line = partial(ProductLine.objects.create, user=user)
+
+        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        invoice_target = invoice.get_target()
+        create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
+
+        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003');
+        credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source, target=invoice_target)
+        create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("50"))
+
+        self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertInvoiceTotalToPay(invoice, 100)
+
+        self.assertPOST404(self._build_deleterelated_url(credit_note, invoice), follow=True)
+
+        self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertInvoiceTotalToPay(invoice, 100)
+
+    def test_deleterelated_view_not_allowed(self):
+        user = self.user
+        create_line = partial(ProductLine.objects.create, user=user)
+
+        invoice = self.create_invoice_n_orgas('Invoice0001', discount=0)[0]
+        invoice_target = invoice.get_target()
+        create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
+
+        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003');
+        credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source, target=invoice_target)
+        create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("50"))
+
+        Relation.objects.create(object_entity=invoice, subject_entity=credit_note,
+                                type_id=REL_SUB_CREDIT_NOTE_APPLIED, user=user,
+                               )
+
+        self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertInvoiceTotalToPay(invoice, 50)
+
+        self.client.logout();
+        self.client.login(username=self.other_user.username, password='test')
+
+        self.assertPOST403(self._build_deleterelated_url(credit_note, invoice), follow=True)
+
+        self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
+        self.assertInvoiceTotalToPay(invoice, 50)
+
 
     #TODO: complete (other views)
