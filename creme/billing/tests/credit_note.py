@@ -199,6 +199,9 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 250)
 
+        # check invoice view (bug in block_credit_note.html)
+        self.assertGET200('/billing/invoice/%d' % invoice.id)
+
     def test_addrelated_view_no_invoice(self):
         "cannot attach credit note to invalid invoice"
         self.assertGET404('/billing/credit_note/add_related_to/%d/' % 12445)
@@ -233,6 +236,9 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 300)
 
+        # check invoice view (bug in block_credit_note.html)
+        self.assertGET200('/billing/invoice/%d' % invoice.id)
+
     def test_addrelated_view_already_linked(self):
         "cannot attach credit note in US Dollar to invoice in Euro"
         user = self.user
@@ -266,6 +272,9 @@ class CreditNoteTestCase(_BillingTestCase):
 
         self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 250)
+
+        # check invoice view (bug in block_credit_note.html)
+        self.assertGET200('/billing/invoice/%d' % invoice.id)
 
     def test_addrelated_view_already_not_same_target(self):
         "cannot attach credit note in US Dollar to invoice in Euro"

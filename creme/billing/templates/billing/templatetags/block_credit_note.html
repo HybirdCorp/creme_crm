@@ -48,16 +48,16 @@
                         <td class="{{row_color}}" align="center">{{credit_note.expiration_date}}</td>
                         <td class="{{row_color}}" align="right">
                              {% if credit_note.currency %}
-                                -{{credit_note.get_total|format_amount:credit_note.currency.pk}}
+                                -{{credit_note.total_no_vat|format_amount:credit_note.currency.pk}}
                              {% else %}
-                                -{{credit_note.get_total|format_amount:''}}
+                                -{{credit_note.total_no_vat|format_amount:''}}
                              {% endif %}
                         </td>
                         <td class="{{row_color}}" align="right">
                              {% if credit_note.currency %}
-                                -{{credit_note.get_total_with_tax|format_amount:credit_note.currency.pk}}
+                                -{{credit_note.total_vat|format_amount:credit_note.currency.pk}}
                              {% else %}
-                                -{{credit_note.get_total_with_tax|format_amount:''}}
+                                -{{credit_note.total_vat|format_amount:''}}
                              {% endif %}
                         </td>
                         <td class="{{row_color}}" align="center" width="6%">
