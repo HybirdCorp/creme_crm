@@ -74,8 +74,8 @@ creme.utils.showDialog = function(text, options, div_id) {
     $div.dialog(jQuery.extend({
         buttons: buttons,
         closeOnEscape: false,
-        hide: 'slide',
-        show: 'slide',
+        /*hide: 'slide',
+        show: 'slide',*/
         title: '',
         modal: true,
         width:'auto',
