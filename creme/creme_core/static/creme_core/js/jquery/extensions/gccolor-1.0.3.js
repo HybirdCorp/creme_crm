@@ -286,6 +286,13 @@
 				closeDialog(data.target, data.options, true);
 			}
 		},
+		toggleDialog = function(target, options) {
+		    if ($('#gccolor-dialog').is(':visible')) {
+		        closeDialog(target, options, false);
+		    } else {
+		        openDialog(target, options);
+		    }
+		},
 		openDialog = function(target, options){
 			$(document).data('gccolor', {
 					target: target,
@@ -301,15 +308,20 @@
 				hexColor = options.defaultColor;
 			}
 			_setFromHEX(hexColor);
-      $('#gccolor-current-color').css('background-color', '#' + hexColor);
+			$('#gccolor-current-color').css('background-color', '#' + hexColor);
 
-      $('#gccolor-submit').click(function(){
-      	closeDialog($(document).data('gccolor').target, options, false);
+			$('#gccolor-submit').click(function(){
+			    closeDialog($(document).data('gccolor').target, options, false);
 			});
-
+			
+			$('#gccolor-dialog #gccolor-color').bind('dblclick', function() {
+			    closeDialog($(document).data('gccolor').target, options, false);
+			});
+			
 			$('#gccolor-dialog').css('top', $(target).offset().top + $(target).outerHeight());
 			$('#gccolor-dialog').css('left', $(target).offset().left);
-			$('#gccolor-dialog').show('slide', {direction: 'up'}, 1000);
+			//$('#gccolor-dialog').show('slide', {direction: 'up'}, 1000);
+			$('#gccolor-dialog').show();
 			$(document).keyup(closeOnEsc);
 		},
 		changeColor = function(){
@@ -361,10 +373,15 @@
 						$(this).after('<a href="Javascript:;" class="gccolor-button">Pick a color!</a>');
 						var button = $(this).next();
 						$(this).width($(this).width() - 24);
-						$(this).css('margin-left', '24px');
+						$(this).css('margin-right', '24px');
+						
+						button.css('left', 'auto')
+						      .css('right', 0)
+						      .css('top', -3);
+
 						//button.css('left', ($(this).position().left + $(this).outerWidth(true) - 22) + 'px');
 						button.click(function(){
-							openDialog($(this).prev(), options);
+						    toggleDialog($(this).prev(), options);
 						});
                         $(this).css('background-color', '#'+$(this).val());
                         changeTextColor($(this), $(this).val());
@@ -378,7 +395,7 @@
 
 					} else {
 						$(this).click(function(){
-							openDialog($(this), options);
+						    toggleDialog($(this), options);
 						});
 					}
 				});
