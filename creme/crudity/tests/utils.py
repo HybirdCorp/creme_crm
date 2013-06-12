@@ -8,6 +8,9 @@ except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
 
+__all__ = ('UtilsTestCase',)
+
+
 class UtilsTestCase(CremeTestCase):
     def test_decode_b64binary01(self):
         img_blob = "\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x10\x00\x00\x00\x10\x08\x06\x00\x00\x00\x1f\xf3\

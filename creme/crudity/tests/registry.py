@@ -12,6 +12,9 @@ except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
 
+__all__ =  ('CrudityRegistryTestCase',)
+
+
 class CrudityRegistryTestCase(CrudityTestCase):
     def setUp(self):
         super(CrudityRegistryTestCase, self).setUp()
@@ -47,9 +50,8 @@ class CrudityRegistryTestCase(CrudityTestCase):
 
         crudity_registry.register_inputs("test", [i1, i2])
 
-        fetcher = crudity_registry.get_fetcher("test")
         inputs = []
-        for value in fetcher._inputs.values():
+        for value in crudity_registry.get_fetcher("test")._inputs.values():
             inputs.extend(value.values())
 
         self.assertEqual(set(i.name for i in inputs), set([i1.name, i2.name]))

@@ -8,16 +8,15 @@ try:
     from ..backends.models import CrudityBackend
     from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER
     from ..exceptions import ImproperlyConfiguredBackend
-    from ..registry import crudity_registry # CRUDityRegistry
+    from ..registry import crudity_registry
     from .base import CrudityTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
 
 class BackendsTestCase(CrudityTestCase):
-    def _get_backend(self, model_klass, password=u"", in_sandbox=True, body_map=None, subject=u"", limit_froms=()):
-        body_map = body_map or {}
-
+    def _get_backend(self, model_klass, password=u"", in_sandbox=True,
+                     body_map=None, subject=u"", limit_froms=()):
         class SubCrudityBackend(CrudityBackend):
             model = model_klass
 
@@ -25,7 +24,7 @@ class BackendsTestCase(CrudityTestCase):
                                   'in_sandbox':  in_sandbox,
                                   'subject':     subject,
                                   'limit_froms': limit_froms,
-                                  'body_map':    body_map,
+                                  'body_map':    body_map or {},
                                  }
                                 )
 
@@ -38,7 +37,8 @@ class BackendsTestCase(CrudityTestCase):
 
     def test_check_configuration01(self):
         self.assertRaises(ImproperlyConfiguredBackend, self._get_backend,
-                          Contact, subject="contact", body_map={'user_id': 1, 'di_resu': 1}
+                          Contact, subject="contact",
+                          body_map={'user_id': 1, 'di_resu': 1}
                          )
 
     def test_is_sandbox_by_user_property01(self):

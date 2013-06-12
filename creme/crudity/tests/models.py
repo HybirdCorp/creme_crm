@@ -16,15 +16,20 @@ except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
 
+__all__ = ('WaitingActionTestCase',)
+
+
 class WaitingActionTestCase(CrudityTestCase):
-    def test_can_validate_or_delete01(self):#Sandbox for everyone
+    def test_can_validate_or_delete01(self):
+        "Sandbox for everyone"
         action = WaitingAction.objects.create(user=None, source="unknown", action="create", subject="",
                                               ct=ContentType.objects.get_for_model(CremeEntity)
                                              )
         self.assertTrue(action.can_validate_or_delete(self.user)[0])
         self.assertTrue(action.can_validate_or_delete(self.other_user)[0])
 
-    def test_can_validate_or_delete02(self):#Sandbox by user
+    def test_can_validate_or_delete02(self):
+        "Sandbox by user"
         self._set_sandbox_by_user()
         ct = ContentType.objects.get_for_model(CremeEntity)
         action  = WaitingAction.objects.create(user=self.user, source="unknown", action="create", subject="", ct=ct)
@@ -36,8 +41,9 @@ class WaitingActionTestCase(CrudityTestCase):
         self.assertTrue(action2.can_validate_or_delete(self.other_user)[0])
 
     def test_auto_assignation01(self):
-        """If the sandbox was not by user, but now it is all WaitingAction has to be assigned to someone"""
-        #Sandbox for everyone
+        """If the sandbox was not by user, but now it is all WaitingAction has
+        to be assigned to someone.
+        """
         action  = WaitingAction.objects.create(source="unknown", action="create", subject="",
                                                ct=ContentType.objects.get_for_model(CremeEntity)
                                               )
