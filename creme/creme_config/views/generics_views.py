@@ -52,11 +52,15 @@ def _get_modelconf(app_config, model_name):
 
     raise Http404('Unknown model')
 
+def _popup_title(model_conf):
+    #TODO: creation label for all CremeModel ??
+    return _('New value: %s') % model_conf.model._meta.verbose_name
+
 @login_required
 def add_model(request, app_name, model_name):
-    return add_model_with_popup(request,
-                                _get_modelconf(_get_appconf(request.user, app_name), model_name).model_form,
-                                _('New value'),
+    model_conf = _get_modelconf(_get_appconf(request.user, app_name), model_name)
+
+    return add_model_with_popup(request, model_conf.model_form, _popup_title(model_conf),
                                 template='creme_core/generics/form/add_innerpopup.html',
                                )
 
@@ -65,13 +69,15 @@ def add_model_from_widget(request, app_name, model_name):
     if request.method == 'GET':
         return add_model(request, app_name, model_name)
 
-    form_class = _get_modelconf(_get_appconf(request.user, app_name), model_name).model_form
-    form = form_class(user=request.user, data=request.POST, files=request.FILES or None, initial=None)
+    model_conf = _get_modelconf(_get_appconf(request.user, app_name), model_name)
+    form = model_conf.model_form(user=request.user, data=request.POST,
+                                 files=request.FILES or None, initial=None,
+                                )
 
     if not form.is_valid():
-        return inner_popup(request,  'creme_core/generics/form/add_innerpopup.html',
-                           {'form':   form,
-                            'title':  _('New value'),
+        return inner_popup(request, 'creme_core/generics/form/add_innerpopup.html',
+                           {'form':  form,
+                            'title': _popup_title(model_conf),
                            },
                            is_valid=form.is_valid(),
                            reload=False,
@@ -80,11 +86,12 @@ def add_model_from_widget(request, app_name, model_name):
 
     form.save()
 
-    response = {'value':form.instance.id,
-                'added':[(form.instance.id, unicode(form.instance))]}
+    instance = form.instance
+    response = {'value': instance.id, 'added': [(instance.id, unicode(instance))]}
 
-    return HttpResponse(u"""<json>%s</json>""" % JSONEncoder().encode(response), mimetype="text/html", status=200)
-
+    return HttpResponse(u"""<json>%s</json>""" % JSONEncoder().encode(response),
+                        mimetype="text/html"
+                       )
 
 @login_required
 def portal_model(request, app_name, model_name):

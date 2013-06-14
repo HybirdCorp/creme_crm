@@ -109,7 +109,8 @@ def add_from_widget(request, ct_id, count):
     if request.method == 'GET' or not form.is_valid():
         return inner_popup(request, 'creme_core/generics/form/add_innerpopup.html',
                            {'form':   form,
-                            'title':  _('New value'),
+                            #'title':  _('New value'),
+                            'title':  model.creation_label,
                            },
                            is_valid=form.is_valid(),
                            reload=False,

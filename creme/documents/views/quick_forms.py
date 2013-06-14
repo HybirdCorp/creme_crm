@@ -47,7 +47,8 @@ def add_csv_from_widget(request, count):
     if request.method == 'GET' or not form.is_valid():
         return inner_popup(request, 'creme_core/generics/form/add_innerpopup.html',
                            {'form':   form,
-                            'title':  _('New value'),
+                            #'title':  _('New value'),
+                            'title':  Document.creation_label,
                            },
                            is_valid=form.is_valid(),
                            reload=False,

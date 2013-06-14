@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-05-16 18:08+0200\n"
+"POT-Creation-Date: 2013-06-14 15:12+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -402,14 +402,6 @@ msgstr "Applications autorisées"
 msgid "Administrated applications"
 msgstr "Applications administrées"
 
-#: forms/user_role.py:77
-msgid "Existing set credentials"
-msgstr "Droits d'ensemble existants"
-
-#: forms/user_role.py:78
-msgid "Uncheck the credentials you want to delete."
-msgstr "Décochez les droits que vous voulez supprimer."
-
 #: forms/user_role.py:109
 msgid "Can view"
 msgstr "Peut voir"
@@ -648,7 +640,7 @@ msgstr "Nom"
 #: templates/creme_config/templatetags/block_searchconfig.html:22
 #: templates/creme_config/templatetags/block_semifixed_relation_types.html:21
 #: templates/creme_config/templatetags/block_teams.html:31
-#: templates/creme_config/templatetags/block_user_roles.html:47
+#: templates/creme_config/templatetags/block_user_roles.html:49
 #: templates/creme_config/templatetags/block_users.html:43
 msgid "Delete"
 msgstr "Supprimer"
@@ -792,7 +784,6 @@ msgid "No type of instance block created for the moment"
 msgstr "Aucun bloc d'instance créé pour le moment"
 
 #: templates/creme_config/templatetags/block_models.html:19
-#: views/generics_views.py:59 views/generics_views.py:74
 msgid "New value"
 msgstr "Nouvelle valeur"
 
@@ -1005,7 +996,7 @@ msgid "No teammate"
 msgstr "Aucun Coéquipier"
 
 #: templates/creme_config/templatetags/block_teams.html:34
-#: templates/creme_config/templatetags/block_user_roles.html:50
+#: templates/creme_config/templatetags/block_user_roles.html:52
 #: templates/creme_config/templatetags/block_users.html:46
 msgid "Can't delete"
 msgstr "Suppression interdite"
@@ -1048,7 +1039,7 @@ msgid "%s Roles"
 msgstr "%s Rôles"
 
 #: templates/creme_config/templatetags/block_user_roles.html:16
-#: views/user_role.py:35
+#: views/user_role.py:37
 msgid "New role"
 msgstr "Nouveau rôle"
 
@@ -1080,15 +1071,11 @@ msgstr "Pas de droit de création"
 msgid "No export credential"
 msgstr "Pas de droit d'export"
 
-#: templates/creme_config/templatetags/block_user_roles.html:38
-msgid "No credential"
-msgstr "Aucun droit"
-
-#: templates/creme_config/templatetags/block_user_roles.html:39
+#: templates/creme_config/templatetags/block_user_roles.html:41
 msgid "New credentials"
 msgstr "Nouveaux droits"
 
-#: templates/creme_config/templatetags/block_user_roles.html:57
+#: templates/creme_config/templatetags/block_user_roles.html:59
 msgid "No role for the moment"
 msgstr "Aucun rôle pour le moment"
 
@@ -1178,7 +1165,12 @@ msgstr "Modifier \"Ma page\""
 msgid "Edit the type \"%s\""
 msgstr "Modifier le type \"%s\""
 
-#: views/generics_views.py:113
+#: views/generics_views.py:57
+#, python-format
+msgid "New value: %s"
+msgstr "Nouvelle valeur : %s"
+
+#: views/generics_views.py:120
 #, python-format
 msgid "%s can not be deleted because of its dependencies."
 msgstr "%s ne peut pas être effacé à cause de ses dépendances."
@@ -1210,15 +1202,24 @@ msgstr "Supprimer %s et réassigner ses fiches"
 msgid "You can't delete this user."
 msgstr "Vous ne pouvez pas supprimer cet utilisateur."
 
-#: views/user_role.py:57
+#: views/user_role.py:59
 #, python-format
 msgid "Add creddentials to <%s>"
 msgstr "Ajouter des droits à <%s>"
 
-#: views/user_role.py:75
+#: views/user_role.py:87
 #, python-format
 msgid "Delete role <%s>"
 msgstr "Supprimer le rôle <%s>"
+
+#~ msgid "Existing set credentials"
+#~ msgstr "Droits d'ensemble existants"
+
+#~ msgid "Uncheck the credentials you want to delete."
+#~ msgstr "Décochez les droits que vous voulez supprimer."
+
+#~ msgid "No credential"
+#~ msgstr "Aucun droit"
 
 #~ msgid "Title"
 #~ msgstr "Intitulé"
