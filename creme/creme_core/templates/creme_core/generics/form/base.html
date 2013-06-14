@@ -21,11 +21,11 @@
         {% for hidden in form.hidden_fields %}{{hidden}}{% endfor %}
 
         <table class="table_detail_view ui-corner-all">
-            <thead>
+            {% comment %}<thead>
                 <tr>
                     <th colspan="2" valign="middle">{% trans "Form" %}</th>
                 </tr>
-            </thead>
+            </thead>{% endcomment %}
             <tbody class="collapsable">
                 {% for field in form.visible_fields %}
                     {% if not field.is_hidden %}
