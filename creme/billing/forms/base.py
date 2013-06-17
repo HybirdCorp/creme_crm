@@ -59,7 +59,7 @@ class BaseEditForm(CremeEntityForm):
     target = GenericEntityField(label=_(u"Target organisation"), models=[Organisation, Contact]) #, required=True
 
     issuing_date    = CremeDateField(label=_(u"Issuing date"), required=False)
-    expiration_date = CremeDateField(label=_(u"Expiration date"))
+    expiration_date = CremeDateField(label=_(u"Expiration date"), required=False)
 
     blocks = CremeEntityForm.blocks.new(
                 ('orga_n_address', _(u'Organisation'), ['source', 'target']),

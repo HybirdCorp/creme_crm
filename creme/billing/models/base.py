@@ -51,7 +51,7 @@ class Base(CremeEntity):
     name             = CharField(_(u'Name'), max_length=100)
     number           = CharField(_(u'Number'), max_length=100, blank=True, null=True)
     issuing_date     = DateField(_(u"Issuing date"), blank=True, null=True)
-    expiration_date  = DateField(_(u"Expiration date"), blank=True, null=True) # TODO blank, null = False, required in form
+    expiration_date  = DateField(_(u"Expiration date"), blank=True, null=True)
     discount         = DecimalField(_(u'Overall discount'), max_digits=10, decimal_places=2, default=default_decimal)
     billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'), related_name='BillingAddress_set', blank=True, null=True)
     shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'), related_name='ShippingAddress_set', blank=True, null=True)
