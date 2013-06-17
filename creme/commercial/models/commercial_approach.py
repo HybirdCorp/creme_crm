@@ -20,7 +20,7 @@
 
 #import logging
 
-from django.db.models import CharField, BooleanField, TextField, DateTimeField, PositiveIntegerField, ForeignKey
+from django.db.models import CharField, BooleanField, TextField, PositiveIntegerField, ForeignKey
 from django.db.models.signals import pre_delete, post_save
 from django.dispatch import receiver
 from django.utils.translation import ugettext_lazy as _
@@ -28,6 +28,7 @@ from django.contrib.contenttypes.generic import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.models import CremeModel, CremeEntity
+from creme.creme_core.models.fields import CreationDateTimeField
 from creme.creme_core.signals import pre_merge_related
 
 from creme.activities.models import Activity
@@ -37,12 +38,12 @@ class CommercialApproach(CremeModel):
     title               = CharField(_(u'Title'), max_length=200)
     ok_or_in_futur      = BooleanField(_("Done ?"), editable=False)#TODO: Future ?
     description         = TextField(_(u'Description'), blank=True, null=True)
-    creation_date       = DateTimeField(_(u'Creation date'), blank=False, null=False)
+    creation_date       = CreationDateTimeField(_(u'Creation date'), editable=False)
 
-    related_activity    = ForeignKey(Activity, null=True)
+    related_activity    = ForeignKey(Activity, null=True, editable=False)
 
-    entity_content_type = ForeignKey(ContentType, related_name="comapp_entity_set")
-    entity_id           = PositiveIntegerField()
+    entity_content_type = ForeignKey(ContentType, related_name="comapp_entity_set", editable=False)
+    entity_id           = PositiveIntegerField(editable=False)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 
     class Meta:
@@ -55,7 +56,8 @@ class CommercialApproach(CremeModel):
 
     @staticmethod
     def get_approaches(entity_pk=None):
-        queryset = CommercialApproach.objects.filter(ok_or_in_futur=False).select_related('related_activity')
+        queryset = CommercialApproach.objects.filter(ok_or_in_futur=False) \
+                                             .select_related('related_activity')
 
         if entity_pk:
             queryset = queryset.filter(entity_id=entity_pk)
@@ -64,7 +66,8 @@ class CommercialApproach(CremeModel):
 
     @staticmethod
     def get_approaches_for_ctypes(ct_ids):
-        return CommercialApproach.objects.filter(entity_content_type__in=ct_ids, ok_or_in_futur=False).select_related('related_activity')
+        return CommercialApproach.objects.filter(entity_content_type__in=ct_ids, ok_or_in_futur=False) \
+                                 .select_related('related_activity')
 
 
 #TODO: with a real ForeignKey can not we remove these handlers ??

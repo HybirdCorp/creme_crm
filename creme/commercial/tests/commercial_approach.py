@@ -64,8 +64,10 @@ class CommercialApproachTestCase(CremeTestCase):
         orga02 = create_orga(name='Nerv')
 
         create_commapp = partial(CommercialApproach.objects.create, description='...')
-        create_commapp(title='Commapp01', creation_date=datetime.now(), creme_entity=orga01)
-        create_commapp(title='Commapp02', creation_date=datetime.now(), creme_entity=orga02)
+        #create_commapp(title='Commapp01', creation_date=datetime.now(), creme_entity=orga01)
+        #create_commapp(title='Commapp02', creation_date=datetime.now(), creme_entity=orga02)
+        create_commapp(title='Commapp01', creme_entity=orga01)
+        create_commapp(title='Commapp02', creme_entity=orga02)
         self.assertEqual(2, CommercialApproach.objects.count())
 
         response = self.client.post('/creme_core/entity/merge/%s,%s' % (orga01.id, orga02.id),
@@ -191,7 +193,7 @@ class CommercialApproachTestCase(CremeTestCase):
 
         comapp = CommercialApproach.objects.create(title=title,
                                                    description=description,
-                                                   creation_date=datetime.now(),
+                                                   #creation_date=datetime.now(),
                                                    related_activity_id=meeting.id, #TODO: related_activity=instance after activities refactoring ?
                                                    creme_entity=ryoga,
                                                   )
@@ -207,7 +209,7 @@ class CommercialApproachTestCase(CremeTestCase):
         orga = Organisation.objects.create(user=self.user, name='NERV')
         comapp = CommercialApproach.objects.create(title='Commapp01',
                                                    description='A commercial approach',
-                                                   creation_date=datetime.now(),
+                                                   #creation_date=datetime.now(),
                                                    creme_entity=orga
                                                   )
 

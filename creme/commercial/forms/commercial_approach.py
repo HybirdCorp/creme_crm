@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
+#from datetime import datetime
 
 from creme.creme_core.forms import CremeModelForm
 
@@ -28,15 +28,16 @@ from ..models import CommercialApproach
 class ComAppCreateForm(CremeModelForm):
     class Meta:
         model = CommercialApproach
-        fields = ('title', 'description')
+        #fields = ('title', 'description')
 
     def __init__(self, entity, *args, **kwargs):
         super(ComAppCreateForm, self).__init__(*args, **kwargs)
-        self._entity = entity
+        #self._entity = entity
+        self.instance.creme_entity = entity
 
-    def save(self):
-        instance = self.instance
-        instance.creation_date = datetime.today()
-        instance.creme_entity = self._entity
+    #def save(self):
+        #instance = self.instance
+        #instance.creation_date = datetime.today()
+        #instance.creme_entity = self._entity
 
-        return super(ComAppCreateForm, self).save()
+        #return super(ComAppCreateForm, self).save()
