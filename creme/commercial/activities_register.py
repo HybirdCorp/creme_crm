@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
+#from datetime import datetime
 from functools import partial
 
 from django.utils.translation import ugettext as _
@@ -53,7 +53,7 @@ def save_commapp_field(form):
     create_comapp = partial(CommercialApproach.objects.create,
                             title=instance.title,
                             description=instance.description,
-                            creation_date=datetime.now(),
+                            #creation_date=datetime.now(),
                             related_activity_id=instance.id, #TODO: related_activity=instance after activities refactoring ?
                            )
 
