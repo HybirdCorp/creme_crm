@@ -76,7 +76,7 @@ class Command(BaseCommand):
         language = options.get('language')
         catalog_entries = {}
 
-        catalog_dirpath = join(APP_NAME, 'locale', language, 'LC_MESSAGES')
+        catalog_dirpath = join(settings.CREME_ROOT, APP_NAME, 'locale', language, 'LC_MESSAGES')
         catalog_path = join(catalog_dirpath, 'django.po')
 
         if exists(catalog_path):
