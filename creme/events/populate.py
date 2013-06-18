@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
-    def populate(self, *args, **kwargs):
+    def populate(self):
         create_rtype = RelationType.create
         create_rtype((REL_SUB_IS_INVITED_TO,       _(u'is invited to the event'),               [Contact]),
                      (REL_OBJ_IS_INVITED_TO,       _(u'has invited'),                           [Event]),

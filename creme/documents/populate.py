@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
-    def populate(self, *args, **kwargs):
+    def populate(self):
         RelationType.create((REL_SUB_RELATED_2_DOC, _(u'related to the document')),
                             (REL_OBJ_RELATED_2_DOC, _(u'document related to'),      [Document])
                            )

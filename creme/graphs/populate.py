@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
-    def populate(self, *args, **kwargs):
+    def populate(self):
         hf = HeaderFilter.create(pk='graphs-hf', name=_(u'Graph view'), model=Graph)
         hf.set_items([HeaderFilterItem.build_4_field(model=Graph, name='name')])
 

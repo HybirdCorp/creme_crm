@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'activities']
 
-    def populate(self, *args, **kwargs):
+    def populate(self):
         RelationType.create((REL_SUB_PROJECT_MANAGER, _(u'is one of the leaders of this project'), [Contact]),
                             (REL_OBJ_PROJECT_MANAGER, _(u'has as leader'),                         [Project]))
 

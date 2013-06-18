@@ -49,7 +49,7 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons', 'activities']
 
-    def populate(self, *args, **kwargs):
+    def populate(self):
         billing_entities = [Invoice, Quote, SalesOrder, CreditNote, TemplateBase]
         line_entities = [Line, ProductLine, ServiceLine]
         RelationType.create((REL_SUB_BILL_ISSUED,   _(u"issued by"),    billing_entities),

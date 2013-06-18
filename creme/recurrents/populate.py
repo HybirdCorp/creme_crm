@@ -30,7 +30,7 @@ from .models import RecurrentGenerator, Periodicity
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
-    def populate(self, *args, **kwargs):
+    def populate(self):
         create_if_needed(Periodicity, {'pk': 1}, name=_(u'Daily'),     value_in_days=1,   description=_(u'Every day'))
         create_if_needed(Periodicity, {'pk': 2}, name=_(u'Weekly'),    value_in_days=7,   description=_(u'Every week'))
         create_if_needed(Periodicity, {'pk': 3}, name=_(u'Monthly'),   value_in_days=30,  description=_(u'Every month'))

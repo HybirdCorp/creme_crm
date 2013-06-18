@@ -29,7 +29,7 @@ from .models import Product, Service, Category, SubCategory
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
-    def populate(self, *args, **kwargs):
+    def populate(self):
         hf = HeaderFilter.create(pk='products-hf_product', name=_(u'Product view'), model=Product)
         hf.set_items([HeaderFilterItem.build_4_field(model=Product, name='images__name'),
                       HeaderFilterItem.build_4_field(model=Product, name='name'),

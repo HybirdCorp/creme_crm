@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 
 
 class Populator(BasePopulator):
-    def populate(self, *args, **kwargs):
+    def populate(self):
         create_if_needed(Language, {'pk': 1}, name=_(u'French'),  code='FRA')
         create_if_needed(Language, {'pk': 2}, name=_(u'English'), code='EN')
 

@@ -48,7 +48,7 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
-    def populate(self, *args, **kwargs):
+    def populate(self):
         create_rtype = RelationType.create
         create_rtype((REL_SUB_LINKED_2_ACTIVITY, _(u"related to the activity")),
                      (REL_OBJ_LINKED_2_ACTIVITY, _(u"(activity) related to"),    [Activity])

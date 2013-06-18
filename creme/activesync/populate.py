@@ -29,7 +29,7 @@ from .constants import (MAPI_DOMAIN, MAPI_SERVER_SSL, MAPI_SERVER_URL, USER_MOBI
 
 
 class Populator(BasePopulator):
-    def populate(self, *args, **kwargs):
+    def populate(self):
         sk = SettingKey.create(pk=MAPI_SERVER_URL,
                                description="", hidden=True,
                                app_label='activesync', type=SettingKey.STRING

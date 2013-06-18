@@ -42,7 +42,7 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'activities']
 
-    def populate(self, *args, **kwargs):
+    def populate(self):
         RelationType.create((REL_SUB_LINKED_2_TICKET, _(u'is linked to the ticket')),
                             (REL_OBJ_LINKED_2_TICKET, _(u'(ticket) linked to the entitity'), [Ticket]))
 

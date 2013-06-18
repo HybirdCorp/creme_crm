@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
-    def populate(self, *args, **kwargs):
+    def populate(self):
         hf = HeaderFilter.create(pk='reports-hf', name=_(u'Report view'), model=Report)
         hf.set_items([HeaderFilterItem.build_4_field(model=Report, name='name'),
                       HeaderFilterItem.build_4_field(model=Report, name='ct__name'),

@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
-    def populate(self, *args, **kwargs):
+    def populate(self):
         #TODO: created by 'products' & 'persons' app ?? (pk_string)
         create_if_needed(MediaCategory, {'pk': 1}, name=_(u"Product image"),      is_custom=False)
         create_if_needed(MediaCategory, {'pk': 2}, name=_(u"Organisation logo"),  is_custom=False)

@@ -49,7 +49,7 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'creme_config', 'persons', 'activities', 'products', 'billing']
 
-    def populate(self, *args, **kwargs):
+    def populate(self):
         rt_sub_targets, rt_obj_targets = \
             RelationType.create((REL_SUB_TARGETS,       _(u'targets the organisation/contact'),      [Opportunity]),
                                 (REL_OBJ_TARGETS,       _(u"targeted by the opportunity"),           [Organisation, Contact]),

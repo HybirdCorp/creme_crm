@@ -25,7 +25,7 @@ from creme.creme_config.models import SettingKey
 
 
 class Populator(BasePopulator):
-    def populate(self, *args, **kwargs):
+    def populate(self):
         SettingKey.create(pk=USER_THEME_NAME,
                           description="", hidden=True,
                           app_label='creme_config', type=SettingKey.STRING

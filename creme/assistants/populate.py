@@ -30,7 +30,7 @@ from .blocks import alerts_block, memos_block, todos_block, messages_block
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
-    def populate(self, *args, **kwargs):
+    def populate(self):
         for pk, title in USERMESSAGE_PRIORITIES.iteritems():
             create_if_needed(UserMessagePriority, {'pk': pk}, title=unicode(title), is_custom=False)
 
