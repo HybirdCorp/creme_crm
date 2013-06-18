@@ -26,7 +26,6 @@ from django.core import validators
 from django.utils.translation import ugettext_lazy as _
 from django.utils.timezone import now
 
-from creme.creme_config.models import SettingValue
 
 from creme.activesync import constants as as_constants
 from .constants import (MAPI_DOMAIN, MAPI_SERVER_SSL, MAPI_SERVER_URL,
@@ -58,6 +57,8 @@ class Synchronization(object):
         TODO: Handle SSL & Domain
     """
     def __init__(self, user, *args, **kwargs):
+        from creme.creme_config.models import SettingValue
+
         self.user = user
         self.client = CremeClient.objects.get_or_create(user=user)[0]
         self.client_id  = self.client.client_id
