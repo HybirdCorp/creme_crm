@@ -140,7 +140,7 @@ class HeaderFiltersTestCase(CremeTestCase):
 
     def test_build_4_customfield03(self):
         "DATE CustomField"
-        customfield = CustomField.objects.create(name=u'Day', field_type=CustomField.DATE,
+        customfield = CustomField.objects.create(name=u'Day', field_type=CustomField.DATETIME,
                                                  content_type=self.contact_ct
                                                 )
 

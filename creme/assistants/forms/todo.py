@@ -18,17 +18,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
+from datetime import datetime, time
 
-from django.utils.translation import ugettext_lazy as _
+from django.forms import TypedChoiceField
+from django.utils.timezone import now, localtime
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeModelWithUserForm, CremeDateTimeField
+from creme.creme_core.utils.dates import make_aware_dt
 
 from ..models import ToDo
 
 
 class ToDoEditForm(CremeModelWithUserForm):
-    deadline = CremeDateTimeField(label=_(u"Deadline"), required=False)
+    deadline      = CremeDateTimeField(label=_(u'Deadline'), required=False)
+    deadline_hour = TypedChoiceField(label=_(u'Deadline hour'), coerce=int,
+                                     choices=[(i, '%ih' % i) for i in xrange(0, 24)],
+                                     required=False, empty_value=None, initial=8,
+                                     help_text=_(u'The hour is used only if you set the deadline date.'),
+                                    )
 
     class Meta:
         model = ToDo
@@ -37,6 +45,32 @@ class ToDoEditForm(CremeModelWithUserForm):
         super(ToDoEditForm, self).__init__(*args, **kwargs)
         self.entity = entity
 
+        deadline = self.instance.deadline
+        if deadline:
+            self.fields['deadline_hour'].initial = localtime(deadline).hour
+
+    def clean(self):
+        cdata = self.cleaned_data
+
+        if not self._errors:
+            get_data = cdata.get
+            deadline = get_data('deadline')
+
+            if deadline:
+                deadline_hour = get_data('deadline_hour') 
+
+                if deadline_hour is None:
+                    self._errors['deadline_hour'] = self.error_class(
+                            [ugettext(u'The hour is required if you set a date.')]
+                        )
+                else:
+                    cdata['deadline'] = make_aware_dt(datetime.combine(deadline,
+                                                                       time(deadline_hour)
+                                                                      )
+                                                     )
+
+        return cdata
+
     def save(self, *args, **kwargs):
         self.instance.creme_entity = self.entity
         return super(ToDoEditForm, self).save(*args, **kwargs)
@@ -44,5 +78,5 @@ class ToDoEditForm(CremeModelWithUserForm):
 
 class ToDoCreateForm(ToDoEditForm):
     def save(self, *args, **kwargs):
-        self.instance.creation_date = datetime.now()
+        self.instance.creation_date = now()
         return super(ToDoCreateForm, self).save(*args, **kwargs)

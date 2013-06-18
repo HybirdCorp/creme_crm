@@ -13,13 +13,16 @@ try:
 
     from creme.persons.models import Contact
 
+    from creme.activities.models import Activity
+    from creme.activities.constants import ACTIVITYTYPE_MEETING, ACTIVITYSUBTYPE_MEETING_MEETING
+
     from ..backends.models import CrudityBackend
     from ..fetchers.pop import PopEmail
     from ..inputs.email import CreateEmailInput, CreateInfopathInput
     from ..models.actions import WaitingAction
     from ..models.history import History
     from ..utils import decode_b64binary
-    from .base import CrudityTestCase, ContactFakeBackend, DocumentFakeBackend
+    from .base import CrudityTestCase, ContactFakeBackend, DocumentFakeBackend, ActivityFakeBackend
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -106,7 +109,7 @@ class InputsTestCase(InputsBaseTestCase):
 
         ce = Contact.objects.filter(q_contact_existing_ids)[0]
         self.assertEqual(user, ce.user)
-        self.assertEqual(datetime(year=2003, month=2, day=1), ce.created)
+        self.assertEqual(self.create_datetime(year=2003, month=2, day=1), ce.created)
 
     def test_create_email_input05(self):
         "Html mail sandboxed"
@@ -172,7 +175,7 @@ class InputsTestCase(InputsBaseTestCase):
 
         ce = Contact.objects.filter(q_contact_existing_ids)[0]
         self.assertEqual(user, ce.user)
-        self.assertEqual(datetime(year=2003, month=2, day=1), ce.created)
+        self.assertEqual(self.create_datetime(year=2003, month=2, day=1), ce.created)
 
     def test_create_email_input07(self):
         "Text mail sandboxed with one multiline"
@@ -448,7 +451,7 @@ description3=[[<br>]]
         self.assertEqual(user, wa.user)
 
     def test_create_email_input14(self):
-        """Text mail un-sandboxed but by user"""
+        "Text mail un-sandboxed but by user"
         user = self.user
         other_user = self.other_user
 
@@ -552,11 +555,11 @@ description3=[[<br>]]
 
         contact = self.get_object_or_fail(Contact, url_site='plop')
         self.assertEqual(user, contact.user)
-        self.assertEqual(datetime(year=2003, month=2, day=1), contact.created)
+        self.assertEqual(self.create_datetime(year=2003, month=2, day=1), contact.created)
         self.assertIs(contact.is_actived, False)
 
     def test_get_owner01(self):
-        """The sandbox is not by user"""
+        "The sandbox is not by user"
         user = self.user
         Contact.objects.create(is_user=user, user=user, email="user@cremecrm.com")
         email_input = self._get_email_input(ContactFakeBackend, password=u"creme",
@@ -622,7 +625,8 @@ description3=[[<br>]]
     def test_create_contact01(self):
         "Text mail sandboxed"
         user = self.user
-        email_input = self._get_email_input(ContactFakeBackend, password=u"creme", subject="create_contact",
+        email_input = self._get_email_input(ContactFakeBackend, password=u"creme",
+                                            subject="create_contact", #TODO: factorise
                                             body_map={'user_id':     user.id,
                                                       'is_actived':  True,
                                                       'first_name':  '',
@@ -660,12 +664,64 @@ description3=[[<br>]]
 
         contact = self.get_object_or_fail(Contact, first_name='Mario', last_name='Bros')
         self.assertEqual(user, contact.user)
-        self.assertEqual(datetime(year=2003, month=2, day=1), contact.created)
+        #self.assertEqual(datetime(year=2003, month=2, day=1), contact.created)
+        self.assertEqual(self.create_datetime(year=2003, month=2, day=1), contact.created) #TODO: should created be set manually ??
         self.assertEqual("mario@bros.com", contact.email)
         self.assertEqual("http://mario.com", contact.url_site)
         self.assertIs(contact.is_actived, True)
-        self.assertEqual(datetime(year=1987, month=8, day=2).date(), contact.birthday)
+        self.assertEqual(date(year=1987, month=8, day=2), contact.birthday)
         self.assertEqual("A plumber", contact.description)
+
+    def test_create_activity01(self): #TODO: move some validation code from Activity form to model (start<end etc...)
+        "Datetimes with or without timezone"
+        self.populate('activities')
+
+        title = 'My Meeting'
+        self.assertFalse(Activity.objects.filter(title=title))
+
+        user = self.user
+        subject = 'create_activity'
+        email_input = self._get_email_input(ActivityFakeBackend, password=u"creme",
+                                            subject=subject,
+                                            body_map={'user_id':     user.id,
+                                                      'is_actived':  True,
+                                                      'title':       '',
+                                                      'type_id':     ACTIVITYTYPE_MEETING,
+                                                      'sub_type_id': ACTIVITYSUBTYPE_MEETING_MEETING,
+                                                      'start':       '',
+                                                      'end':         '',
+                                                     },
+                                            model=Activity,
+                                           )
+
+        body = ['password=creme', 'title=%s' % title,
+                'start=2013-06-15 12:00:00+03:00',
+                'end=2013-06-15 12:28:45',
+               ]
+
+        self.assertEqual(0, WaitingAction.objects.count())
+        email_input.create(self._get_pop_email(body="\n".join(body), senders=('creme@crm.org',), subject=subject))
+
+        wactions = WaitingAction.objects.all()
+        self.assertEqual(1, len(wactions))
+
+        is_created, activity = email_input.get_backend(CrudityBackend.normalize_subject(subject)).create(wactions[0])
+        self.assertTrue(is_created)
+        self.assertIsInstance(activity, Activity)
+
+        activity = self.refresh(activity)
+        self.assertEqual(user,                            activity.user)
+        self.assertEqual(title,                           activity.title)
+        self.assertEqual(ACTIVITYTYPE_MEETING,            activity.type.id)
+        self.assertEqual(ACTIVITYSUBTYPE_MEETING_MEETING, activity.sub_type.id)
+
+        create_dt = self.create_datetime
+        self.assertEqual(create_dt(year=2013, month=6, day=15, hour=9, utc=True),
+                         activity.start
+                        )
+        self.assertEqual(create_dt(year=2013, month=6, day=15, hour=12, minute=28, second=45),
+                         activity.end
+                        )
 
 
 class InfopathInputEmailTestCase(InputsBaseTestCase):
@@ -967,7 +1023,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
         ce = Contact.objects.filter(q_c_existing_ids)[0]
         self.assertEqual(user, ce.user)
-        self.assertEqual(date(year=2011, month=10, day=9), ce.created.date())
+        self.assertEqual(self.create_datetime(year=2011, month=10, day=9), ce.created)
 
     def test_create11(self):
         "Allowed with valid xml with no sandbox but by user with real match on email"
@@ -1009,7 +1065,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
         contact = Contact.objects.filter(q_c_existing_ids)[0]
         self.assertEqual(other_user, contact.user)
-        self.assertEqual(date(year=2003, month=2, day=1), contact.created.date())
+        self.assertEqual(self.create_datetime(year=2003, month=2, day=1), contact.created)
 
     def test_create_contact01(self):
         "Sandboxed with image"
@@ -1069,13 +1125,13 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         contact = Contact.objects.filter(q_contact_existing_ids)[0]
 
         self.assertEqual(user, contact.user)
-        self.assertEqual(datetime(year=2003, month=2, day=1), contact.created)
+        self.assertEqual(self.create_datetime(year=2003, month=2, day=1), contact.created)
         self.assertEqual("Bros", contact.last_name)
         self.assertEqual("Mario", contact.first_name)
         self.assertEqual("mario@bros.com", contact.email)
         self.assertEqual("http://mario.com", contact.url_site)
         self.assertEqual(True, contact.is_actived)
-        self.assertEqual(datetime(year=1987, month=8, day=2).date(), contact.birthday)
+        self.assertEqual(self.create_datetime(year=1987, month=8, day=2).date(), contact.birthday)
         self.assertEqual("A plumber", contact.description)
         self.assertTrue(contact.image)
 
@@ -1163,13 +1219,13 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         contact = Contact.objects.filter(q_contact_existing_ids)[0]
 
         self.assertEqual(user, contact.user)
-        self.assertEqual(datetime(year=2003, month=2, day=1), contact.created)
+        self.assertEqual(self.create_datetime(year=2003, month=2, day=1), contact.created)
         self.assertEqual("Bros", contact.last_name)
         self.assertEqual("Mario", contact.first_name)
         self.assertEqual("mario@bros.com", contact.email)
         self.assertEqual("http://mario.com", contact.url_site)
         self.assertIs(contact.is_actived, True)
-        self.assertEqual(datetime(year=1987, month=8, day=2).date(), contact.birthday)
+        self.assertEqual(self.create_datetime(year=1987, month=8, day=2).date(), contact.birthday)
         self.assertEqual("A plumber", contact.description)
         self.assertEqual(set(languages[:2]), set(contact.language.all()))
 
@@ -1234,13 +1290,13 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
 
         contact = Contact.objects.filter(q_contact_existing_ids)[0]
         self.assertEqual(user, contact.user)
-        self.assertEqual(datetime(year=2003, month=2, day=1), contact.created)
+        self.assertEqual(self.create_datetime(year=2003, month=2, day=1), contact.created)
         self.assertEqual("Bros", contact.last_name)
         self.assertEqual("Mario", contact.first_name)
         self.assertEqual("mario@bros.com", contact.email)
         self.assertEqual("http://mario.com", contact.url_site)
         self.assertIs(contact.is_actived, True)
-        self.assertEqual(datetime(year=1987, month=8, day=2).date(), contact.birthday)
+        self.assertEqual(self.create_datetime(year=1987, month=8, day=2).date(), contact.birthday)
         self.assertEqual("A plumber", contact.description)
         self.assertEqual(set(languages[:2]), set(contact.language.all()))
 

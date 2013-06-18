@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import datetime, date, time, timedelta
+    from datetime import datetime, date, time # timedelta
     from functools import partial
 
     from django.forms.util import ValidationError
@@ -10,6 +10,7 @@ try:
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
     from django.utils.simplejson.encoder import JSONEncoder
+    from django.utils.timezone import now, get_current_timezone, make_naive
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import RelationType, Relation, SetCredentials, EntityFilter
@@ -61,24 +62,27 @@ class ActivityTestCase(_ActivitiesTestCase):
                  )
 
     def _create_meeting(self, title='Meeting01', subtype_id=ACTIVITYSUBTYPE_MEETING_NETWORK, hour=14):
+        create_dt = self.create_datetime
         return Activity.objects.create(user=self.user, title=title,
                                        type_id=ACTIVITYTYPE_MEETING, sub_type_id=subtype_id,
-                                       start=datetime(year=2013, month=4, day=1, hour=hour,     minute=0),
-                                       end=datetime(year=2013,   month=4, day=1, hour=hour + 1, minute=0),
+                                       start=create_dt(year=2013, month=4, day=1, hour=hour,     minute=0),
+                                       end=create_dt(year=2013,   month=4, day=1, hour=hour + 1, minute=0),
                                       )
 
     def _create_phonecall(self, title='Call01', subtype_id=ACTIVITYSUBTYPE_PHONECALL_OUTGOING, hour=14):
+        create_dt = self.create_datetime
         return Activity.objects.create(user=self.user, title=title,
                                        type_id=ACTIVITYTYPE_PHONECALL, sub_type_id=subtype_id,
-                                       start=datetime(year=2013, month=4, day=1, hour=hour, minute=0),
-                                       end=datetime(year=2013,   month=4, day=1, hour=hour, minute=15),
+                                       start=create_dt(year=2013, month=4, day=1, hour=hour, minute=0),
+                                       end=create_dt(year=2013,   month=4, day=1, hour=hour, minute=15),
                                       )
 
     def _create_task(self, title='Task01', day=1):
+        create_dt = self.create_datetime
         return Activity.objects.create(user=self.user, title=title,
                                        type_id=ACTIVITYTYPE_TASK,
-                                       start=datetime(year=2013, month=4, day=day, hour=8,  minute=0),
-                                       end=datetime(year=2013,   month=4, day=day, hour=18, minute=0),
+                                       start=create_dt(year=2013, month=4, day=day, hour=8,  minute=0),
+                                       end=create_dt(year=2013,   month=4, day=day, hour=18, minute=0),
                                       )
 
     def _acttype_field_value(self, atype_id, subtype_id=None):
@@ -181,10 +185,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertIsNone(act.sub_type)
         self.assertEqual(status, act.status)
         self.assertEqual(NARROW, act.floating_type)
-        self.assertEqual(datetime(year=2010, month=1, day=10, hour=17, minute=30),
+        self.assertEqual(self.create_datetime(year=2010, month=1, day=10, hour=17, minute=30),
                          act.start,
                         )
-        self.assertEqual(datetime(year=2010, month=1, day=10, hour=18, minute=45),
+        self.assertEqual(self.create_datetime(year=2010, month=1, day=10, hour=18, minute=45),
                          act.end,
                         )
 
@@ -277,8 +281,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         act = self.get_object_or_fail(Activity, type=type_id, title=title)
         self.assertEqual(status, act.status)
-        self.assertEqual(datetime(year=2013, month=3, day=26, hour=12, minute=10), act.start)
-        self.assertEqual(datetime(year=2013, month=3, day=27, hour=12, minute=25), act.end)
+        self.assertEqual(self.create_datetime(year=2013, month=3, day=26, hour=12, minute=10), act.start)
+        self.assertEqual(self.create_datetime(year=2013, month=3, day=27, hour=12, minute=25), act.end)
 
         self.assertEqual(4 * 2, Relation.objects.count()) # * 2: relations have their symmetric ones
 
@@ -307,8 +311,9 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview04(self):
         "No end but end time"
         act = self._create_task_by_view(start='2013-3-29', start_time='14:30:00', end_time='15:45:00')
-        self.assertEqual(datetime(year=2013, month=3, day=29, hour=14, minute=30), act.start)
-        self.assertEqual(datetime(year=2013, month=3, day=29, hour=15, minute=45), act.end)
+        create_dt = self.create_datetime
+        self.assertEqual(create_dt(year=2013, month=3, day=29, hour=14, minute=30), act.start)
+        self.assertEqual(create_dt(year=2013, month=3, day=29, hour=15, minute=45), act.end)
 
     def test_createview05(self):
         "FLOATING type"
@@ -320,8 +325,9 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_createview06(self):
         "FLOATING_TIME type"
         act = self._create_task_by_view(start='2013-3-30', end='2013-3-30')
-        self.assertEqual(datetime(year=2013, month=3, day=30, hour=0,  minute=0),  act.start)
-        self.assertEqual(datetime(year=2013, month=3, day=30, hour=23, minute=59), act.end)
+        create_dt = self.create_datetime
+        self.assertEqual(create_dt(year=2013, month=3, day=30, hour=0,  minute=0),  act.start)
+        self.assertEqual(create_dt(year=2013, month=3, day=30, hour=23, minute=59), act.end)
         self.assertEqual(FLOATING_TIME, act.floating_type)
 
     def test_createview_errors01(self):
@@ -395,7 +401,9 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertNoFormError(response)
 
         act = self.get_object_or_fail(Activity, title=title)
-        self.assertEqual(date(year=2010, month=1, day=10), act.start.date())
+        create_dt = self.create_datetime
+        #self.assertEqual(date(year=2010, month=1, day=10), act.start.date())
+        self.assertEqual(create_dt(year=2010, month=1, day=10), act.start)
         self.assertEqual(ACTIVITYTYPE_MEETING, act.type.id)
         self.assertEqual(ACTIVITYSUBTYPE_MEETING_QUALIFICATION, act.sub_type.id)
 
@@ -405,9 +413,9 @@ class ActivityTestCase(_ActivitiesTestCase):
         alert1 = alerts[0]
         self.assertEqual(_('Alert of activity'), alert1.title)
         self.assertEqual(_(u'Alert related to %s') % act, alert1.description)
-        self.assertEqual(datetime(2010, 2, 10, 10, 05), alert1.trigger_date)
+        self.assertEqual(create_dt(2010, 2, 10, 10, 05), alert1.trigger_date)
 
-        self.assertEqual(datetime(2010, 1, 8, 0, 0), alerts[1].trigger_date)
+        self.assertEqual(create_dt(2010, 1, 8, 0, 0), alerts[1].trigger_date)
 
     def test_createview_alert02(self):
         "Unit is missing"
@@ -435,7 +443,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         act = self.get_object_or_fail(Activity, title=title)
         alert = self.get_object_or_fail(Alert, entity_id=act.id)
-        self.assertEqual(datetime(2013, 3, 28, 17, 28), alert.trigger_date)
+        self.assertEqual(self.create_datetime(2013, 3, 28, 17, 28), alert.trigger_date)
 
     def test_create_view_meeting01(self):
         self.login()
@@ -483,10 +491,10 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         self.assertEqual(status, meeting.status)
         self.assertEqual(NARROW, meeting.floating_type)
-        self.assertEqual(datetime(year=2013, month=4, day=12, hour=10, minute=00),
+        self.assertEqual(self.create_datetime(year=2013, month=4, day=12, hour=10, minute=00),
                          meeting.start,
                         )
-        self.assertEqual(datetime(year=2013, month=4, day=12, hour=10, minute=15),
+        self.assertEqual(self.create_datetime(year=2013, month=4, day=12, hour=10, minute=15),
                          meeting.end,
                         )
 
@@ -597,7 +605,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertRedirects(response, contact01.get_absolute_url())
 
         meeting = self.get_object_or_fail(Activity, title=title)
-        self.assertEqual(datetime(year=2010, month=1, day=10, hour=17, minute=30),
+        self.assertEqual(self.create_datetime(year=2010, month=1, day=10, hour=17, minute=30),
                          meeting.start
                         )
         self.assertEqual(ACTIVITYTYPE_MEETING,            meeting.type.pk)
@@ -675,7 +683,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertRedirects(response, ryoga.get_absolute_url())
 
         meeting = self.get_object_or_fail(Activity, title=title)
-        self.assertEqual(datetime(year=2013, month=5, day=21, hour=9, minute=30),
+        self.assertEqual(self.create_datetime(year=2013, month=5, day=21, hour=9, minute=30),
                          meeting.start
                         )
         self.assertEqual(ACTIVITYTYPE_MEETING,            meeting.type.pk)
@@ -707,9 +715,10 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_popup_view01(self):
         self.login()
 
+        create_dt = self.create_datetime
         activity = Activity.objects.create(user=self.user, title='Meet01', type_id=ACTIVITYTYPE_MEETING,
-                                           start=datetime(year=2010, month=10, day=1, hour=14, minute=0),
-                                           end=datetime(year=2010, month=10, day=1, hour=15, minute=0),
+                                           start=create_dt(year=2010, month=10, day=1, hour=14, minute=0),
+                                           end=create_dt(year=2010, month=10, day=1, hour=15, minute=0),
                                           )
         response = self.assertGET200('/activities/activity/%s/popup' % activity.id)
         self.assertContains(response, activity.type)
@@ -718,9 +727,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.login()
 
         title = 'meet01'
+        create_dt = self.create_datetime
         activity = Activity.objects.create(user=self.user, title=title, type_id=ACTIVITYTYPE_MEETING,
-                                           start=datetime(year=2010, month=10, day=1, hour=14, minute=0),
-                                           end=datetime(year=2010, month=10, day=1, hour=15, minute=0),
+                                           start=create_dt(year=2010, month=10, day=1, hour=14, minute=0),
+                                           end=create_dt(year=2010, month=10, day=1, hour=15, minute=0),
                                           )
         rel = Relation.objects.create(subject_entity=self.contact, user=self.user,
                                 type_id=REL_SUB_PART_2_ACTIVITY,
@@ -741,7 +751,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         activity = self.refresh(activity)
         self.assertEqual(title, activity.title)
-        self.assertEqual(date(year=2011, month=2, day=22), activity.start.date())
+        #self.assertEqual(date(year=2011, month=2, day=22), activity.start.date())
+        self.assertEqual(create_dt(year=2011, month=2, day=22), activity.start)
 
         relations = Relation.objects.filter(type=REL_SUB_PART_2_ACTIVITY)
         self.assertEqual(1, len(relations))
@@ -763,9 +774,10 @@ class ActivityTestCase(_ActivitiesTestCase):
 #                         default_day_duration=0, default_hour_duration="00:15:00", is_custom=True
 #                        )
 
+        create_dt = self.create_datetime
         activity = Activity.objects.create(user=self.user, title=title,
-                                           start=datetime(year=2010, month=10, day=1, hour=14, minute=0),
-                                           end=datetime(year=2010, month=10, day=1, hour=15, minute=0),
+                                           start=create_dt(year=2010, month=10, day=1, hour=14, minute=0),
+                                           end=create_dt(year=2010, month=10, day=1, hour=15, minute=0),
                                            type_id=ACTIVITYTYPE_PHONECALL,
                                            sub_type_id=ACTIVITYSUBTYPE_PHONECALL_INCOMING
                                           )
@@ -781,7 +793,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         activity = self.refresh(activity)
         self.assertEqual(title, activity.title)
-        self.assertEqual(date(year=2011, month=2, day=22), activity.start.date())
+        self.assertEqual(create_dt(year=2011, month=2, day=22), activity.start)
         self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_OUTGOING, activity.sub_type_id)
 
     def test_editview03(self):
@@ -799,13 +811,14 @@ class ActivityTestCase(_ActivitiesTestCase):
 
             return task
 
+        create_dt = self.create_datetime
         task01 = create_task(title='Task#1',
-                             start=datetime(year=2013, month=4, day=17, hour=11, minute=0),
-                             end=datetime(year=2013,   month=4, day=17, hour=12, minute=0),
+                             start=create_dt(year=2013, month=4, day=17, hour=11, minute=0),
+                             end=create_dt(year=2013,   month=4, day=17, hour=12, minute=0),
                             )
         task02 = create_task(title='Task#2', busy=True,
-                             start=datetime(year=2013, month=4, day=17, hour=14, minute=0),
-                             end=datetime(year=2013,   month=4, day=17, hour=15, minute=0),
+                             start=create_dt(year=2013, month=4, day=17, hour=14, minute=0),
+                             end=create_dt(year=2013,   month=4, day=17, hour=15, minute=0),
                             )
 
         response = self.assertPOST200(self._buid_edit_url(task01), follow=True,
@@ -863,20 +876,21 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.login()
 
         create_activity = partial(Activity.objects.create, user=self.user)
+        create_dt = self.create_datetime
 
         with self.assertNoException():
             act01 = create_activity(title='call01', type_id=ACTIVITYTYPE_PHONECALL,
                                     sub_type_id=ACTIVITYSUBTYPE_PHONECALL_INCOMING,
-                                    start=datetime(year=2010, month=10, day=1, hour=12, minute=0),
-                                    end=datetime(year=2010, month=10, day=1, hour=13, minute=0)
+                                    start=create_dt(year=2010, month=10, day=1, hour=12, minute=0),
+                                    end=create_dt(year=2010, month=10, day=1, hour=13, minute=0),
                                    )
             act02 = create_activity(title='meet01', type_id=ACTIVITYTYPE_MEETING,
-                                    start=datetime(year=2010, month=10, day=1, hour=14, minute=0),
-                                    end=datetime(year=2010, month=10, day=1, hour=15, minute=0)
+                                    start=create_dt(year=2010, month=10, day=1, hour=14, minute=0),
+                                    end=create_dt(year=2010, month=10, day=1, hour=15, minute=0),
                                    )
             act03 = create_activity(title='meet02',  type_id=ACTIVITYTYPE_MEETING, busy=True,
-                                    start=datetime(year=2010, month=10, day=1, hour=18, minute=0),
-                                    end=datetime(year=2010, month=10, day=1, hour=19, minute=0)
+                                    start=create_dt(year=2010, month=10, day=1, hour=18, minute=0),
+                                    end=create_dt(year=2010, month=10, day=1, hour=19, minute=0),
                                    )
 
             create_contact = partial(Contact.objects.create, user=self.user)
@@ -895,22 +909,22 @@ class ActivityTestCase(_ActivitiesTestCase):
         try:
             #no collision
             #next day
-            check_coll(activity_start=datetime(year=2010, month=10, day=2, hour=12, minute=0),
-                       activity_end=datetime(year=2010,   month=10, day=2, hour=13, minute=0),
+            check_coll(activity_start=create_dt(year=2010, month=10, day=2, hour=12, minute=0),
+                       activity_end=create_dt(year=2010,   month=10, day=2, hour=13, minute=0),
                       )
 
             #one minute before
-            check_coll(activity_start=datetime(year=2010, month=10, day=1, hour=11, minute=0),
-                       activity_end=datetime(year=2010,   month=10, day=1, hour=11, minute=59),
+            check_coll(activity_start=create_dt(year=2010, month=10, day=1, hour=11, minute=0),
+                       activity_end=create_dt(year=2010,   month=10, day=1, hour=11, minute=59),
                       )
 
             #one minute after
-            check_coll(activity_start=datetime(year=2010, month=10, day=1, hour=13, minute=1),
-                       activity_end=datetime(year=2010,   month=10, day=1, hour=13, minute=10),
+            check_coll(activity_start=create_dt(year=2010, month=10, day=1, hour=13, minute=1),
+                       activity_end=create_dt(year=2010,   month=10, day=1, hour=13, minute=10),
                       )
             #not busy
-            check_coll(activity_start=datetime(year=2010, month=10, day=1, hour=14, minute=0),
-                       activity_end=datetime(year=2010,   month=10, day=1, hour=15, minute=0),
+            check_coll(activity_start=create_dt(year=2010, month=10, day=1, hour=14, minute=0),
+                       activity_end=create_dt(year=2010,   month=10, day=1, hour=15, minute=0),
                        busy=False
                       )
         except ValidationError as e:
@@ -919,41 +933,41 @@ class ActivityTestCase(_ActivitiesTestCase):
         #collision with act01
         #before
         self.assertRaises(ValidationError, self._check_activity_collisions,
-                          activity_start=datetime(year=2010, month=10, day=1, hour=11, minute=30),
-                          activity_end=datetime(year=2010, month=10, day=1, hour=12, minute=30),
+                          activity_start=create_dt(year=2010, month=10, day=1, hour=11, minute=30),
+                          activity_end=create_dt(year=2010, month=10, day=1, hour=12, minute=30),
                           participants=[c1, c2]
                          )
 
         #after
         self.assertRaises(ValidationError, self._check_activity_collisions,
-                          activity_start=datetime(year=2010, month=10, day=1, hour=12, minute=30),
-                          activity_end=datetime(year=2010, month=10, day=1, hour=13, minute=30),
+                          activity_start=create_dt(year=2010, month=10, day=1, hour=12, minute=30),
+                          activity_end=create_dt(year=2010, month=10, day=1, hour=13, minute=30),
                           participants=[c1, c2]
                          )
 
         #shorter
         self.assertRaises(ValidationError, self._check_activity_collisions,
-                          activity_start=datetime(year=2010, month=10, day=1, hour=12, minute=10),
-                          activity_end=datetime(year=2010, month=10, day=1, hour=12, minute=30),
+                          activity_start=create_dt(year=2010, month=10, day=1, hour=12, minute=10),
+                          activity_end=create_dt(year=2010, month=10, day=1, hour=12, minute=30),
                           participants=[c1, c2]
                          )
 
         #longer
         self.assertRaises(ValidationError, self._check_activity_collisions,
-                          activity_start=datetime(year=2010, month=10, day=1, hour=11, minute=0),
-                          activity_end=datetime(year=2010, month=10, day=1, hour=13, minute=30),
+                          activity_start=create_dt(year=2010, month=10, day=1, hour=11, minute=0),
+                          activity_end=create_dt(year=2010, month=10, day=1, hour=13, minute=30),
                           participants=[c1, c2]
                          )
         #busy1
         self.assertRaises(ValidationError, self._check_activity_collisions,
-                          activity_start=datetime(year=2010, month=10, day=1, hour=17, minute=30),
-                          activity_end=datetime(year=2010, month=10, day=1, hour=18, minute=30),
+                          activity_start=create_dt(year=2010, month=10, day=1, hour=17, minute=30),
+                          activity_end=create_dt(year=2010, month=10, day=1, hour=18, minute=30),
                           participants=[c1, c2]
                          )
         #busy2
         self.assertRaises(ValidationError, self._check_activity_collisions,
-                          activity_start=datetime(year=2010, month=10, day=1, hour=18, minute=0),
-                          activity_end=datetime(year=2010, month=10, day=1, hour=18, minute=30),
+                          activity_start=create_dt(year=2010, month=10, day=1, hour=18, minute=0),
+                          activity_end=create_dt(year=2010, month=10, day=1, hour=18, minute=30),
                           busy=False, participants=[c1, c2]
                          )
 
@@ -962,15 +976,16 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertFalse(Activity.objects.all())
 
         create_act = partial(Activity.objects.create, user=self.user)
+        create_dt = self.create_datetime
         acts = [create_act(title='call01', type_id=ACTIVITYTYPE_PHONECALL,
                            sub_type_id=ACTIVITYSUBTYPE_PHONECALL_INCOMING,
-                           start=datetime(year=2010, month=10, day=1, hour=12, minute=0),
-                           end=datetime(year=2010, month=10, day=1, hour=13, minute=0)
+                           start=create_dt(year=2010, month=10, day=1, hour=12, minute=0),
+                           end=create_dt(year=2010, month=10, day=1, hour=13, minute=0)
                          ),
                 create_act(title='meet01', type_id=ACTIVITYTYPE_MEETING,
                            sub_type_id=ACTIVITYSUBTYPE_MEETING_REVIVAL,
-                           start=datetime(year=2010, month=10, day=1, hour=14, minute=0),
-                           end=datetime(year=2010, month=10, day=1, hour=15, minute=0)
+                           start=create_dt(year=2010, month=10, day=1, hour=14, minute=0),
+                           end=create_dt(year=2010, month=10, day=1, hour=15, minute=0)
                           ),
                ]
 
@@ -1139,8 +1154,9 @@ class ActivityTestCase(_ActivitiesTestCase):
         logged   = self.contact
         other    = self.other_contact
         contact3 = Contact.objects.create(user=user, first_name='Roy', last_name='Mustang')
+        dt_now = now()
         phone_call = Activity.objects.create(title='a random activity',
-                                             start=datetime.today(), end=datetime.today(),
+                                             start=dt_now, end=dt_now,
                                              user=user, type_id=ACTIVITYTYPE_PHONECALL
                                             )
 
@@ -1281,7 +1297,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         user = self.user
         title  = 'Away'
-        my_calendar = Calendar.get_user_default_calendar(user)
+        #my_calendar = Calendar.get_user_default_calendar(user)
         response = self.client.post(self.ADD_INDISPO_URL, follow=True,
                                     data={'user':               user.pk,
                                           'title':              title,
@@ -1299,8 +1315,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertIsNone(act.status)
         self.assertFalse(act.is_all_day)
         self.assertFalse(act.busy)
-        self.assertEqual(datetime(year=2010, month=1, day=10, hour=9, minute=8, second=7), act.start)
-        self.assertEqual(datetime(year=2010, month=1, day=12, hour=6, minute=5, second=4), act.end)
+
+        create_dt = self.create_datetime
+        self.assertEqual(create_dt(year=2010, month=1, day=10, hour=9, minute=8, second=7), act.start)
+        self.assertEqual(create_dt(year=2010, month=1, day=12, hour=6, minute=5, second=4), act.end)
 
         self.assertRelationCount(1, contact1, REL_SUB_PART_2_ACTIVITY, act)
         self.assertRelationCount(1, contact2, REL_SUB_PART_2_ACTIVITY, act)
@@ -1329,8 +1347,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         act = self.get_object_or_fail(Activity, type=ACTIVITYTYPE_INDISPO, title=title)
         self.assertEqual(subtype, act.sub_type)
         self.assertTrue(act.is_all_day)
-        self.assertEqual(datetime(year=2010, month=1, day=10, hour=0,  minute=0),  act.start)
-        self.assertEqual(datetime(year=2010, month=1, day=12, hour=23, minute=59), act.end)
+        self.assertEqual(self.create_datetime(year=2010, month=1, day=10, hour=0,  minute=0),  act.start)
+        self.assertEqual(self.create_datetime(year=2010, month=1, day=12, hour=23, minute=59), act.end)
 
     def test_detete_activity_type01(self):
         self.login()
@@ -1365,8 +1383,9 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.login()
 
         url = self.ADD_POPUP_URL
-        today = datetime.today().replace(second=0, microsecond=0)
-
+        #today = datetime.today().replace(second=0, microsecond=0)
+        today = make_naive(now().replace(second=0, microsecond=0), get_current_timezone()) #beurkk
+ 
         response = self.assertGET200(url)
 
         with self.assertNoException():
@@ -1382,6 +1401,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         self.assertGreaterEqual(initial_start, today)
         self.assertLessEqual(initial_start, datetime.today())
+        #self.assertLessEqual(initial_start, now())
 
         initial_end = end_f.initial
         self.assertIsNone(initial_end)
@@ -1405,8 +1425,9 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(1, Activity.objects.count())
 
         activity = self.get_object_or_fail(Activity, title=title)
-        self.assertEqual(datetime(year=2010, month=1, day=10, hour=9, minute=30, second=0), activity.start)
-        self.assertEqual(datetime(year=2010, month=1, day=10, hour=15, minute=0, second=0), activity.end)
+        create_dt = self.create_datetime
+        self.assertEqual(create_dt(year=2010, month=1, day=10, hour=9, minute=30, second=0), activity.start)
+        self.assertEqual(create_dt(year=2010, month=1, day=10, hour=15, minute=0, second=0), activity.end)
         self.assertEqual(ACTIVITYTYPE_MEETING, activity.type_id)
         self.assertEqual(ACTIVITYSUBTYPE_MEETING_NETWORK, activity.sub_type_id)
 
@@ -1432,8 +1453,9 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(1, Activity.objects.count())
 
         activity = self.get_object_or_fail(Activity, title=title)
-        self.assertEqual(datetime(year=2010, month=3, day=15, hour=19, minute=30, second=0), activity.start)
-        self.assertEqual(datetime(year=2010, month=3, day=15, hour=20, minute=0, second=0), activity.end)
+        create_dt = self.create_datetime
+        self.assertEqual(create_dt(year=2010, month=3, day=15, hour=19, minute=30, second=0), activity.start)
+        self.assertEqual(create_dt(year=2010, month=3, day=15, hour=20, minute=0, second=0), activity.end)
         self.assertEqual(ACTIVITYTYPE_PHONECALL, activity.type_id)
         self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_CONFERENCE, activity.sub_type_id)
 
@@ -1446,7 +1468,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                          default_day_duration=0, default_hour_duration="00:15:00", is_custom=True
                         )
 
-        today = datetime.today()
+        #today = datetime.today()
+        today = now()
         title = "meeting activity popup 3"
         response = self.client.post(self.ADD_POPUP_URL,
                                     data={'user':           self.user.pk,
@@ -1460,10 +1483,11 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(1, Activity.objects.count())
 
         activity = self.get_object_or_fail(Activity, title=title)
-        self.assertEqual(datetime(year=today.year, month=today.month, day=today.day, hour=0, minute=0, second=0),
+        create_dt = self.create_datetime
+        self.assertEqual(create_dt(year=today.year, month=today.month, day=today.day, hour=0, minute=0, second=0),
                          activity.start
                         )
-        self.assertEqual(datetime(year=today.year, month=today.month, day=today.day, hour=23, minute=59, second=0),
+        self.assertEqual(create_dt(year=today.year, month=today.month, day=today.day, hour=23, minute=59, second=0),
                          activity.end
                         )
         self.assertEqual(ACTIVITYTYPE_ACTIVITY, activity.type_id)
@@ -1502,13 +1526,14 @@ class ActivityTestCase(_ActivitiesTestCase):
         create_act = partial(Activity.objects.create, user=self.user,
                              type_id=ACTIVITYTYPE_TASK, busy=True,
                             )
+        create_dt = self.create_datetime
         act1 = create_act(title='Act#1',
-                          start=datetime(year=2013, month=4, day=1, hour=9),
-                          end=datetime(year=2013,   month=4, day=1, hour=10),
+                          start=create_dt(year=2013, month=4, day=1, hour=9),
+                          end=create_dt(year=2013,   month=4, day=1, hour=10),
                          )
         act2 = create_act(title='Act#2',
-                          start=datetime(year=2013, month=4, day=2, hour=9),
-                          end=datetime(year=2013,   month=4, day=2, hour=10),
+                          start=create_dt(year=2013, month=4, day=2, hour=9),
+                          end=create_dt(year=2013,   month=4, day=2, hour=10),
                          )
 
         response = self.assertGET200('/activities/activities/%s,%s/ical' % (

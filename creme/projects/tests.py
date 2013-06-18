@@ -1,21 +1,22 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import datetime, date, time
+    #from datetime import datetime, date, time
     from functools import partial
 
     from django.utils.simplejson.encoder import JSONEncoder
+    from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.models import SetCredentials
     from creme.creme_core.auth.entity_credentials import EntityCredentials
-    from creme.creme_core.utils.dates import get_dt_from_str
+    #from creme.creme_core.utils.dates import get_dt_from_str
 
     from creme.persons.models import Contact
 
-    from creme.activities.models import Calendar
-    from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, ACTIVITYTYPE_TASK, NARROW
+    #from creme.activities.models import Calendar
+    from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, ACTIVITYTYPE_TASK # NARROW
 
     from .models import *
     from .constants import *
@@ -76,8 +77,11 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(self.user, project.user)
         self.assertEqual(name,      project.name)
         self.assertEqual(status,    project.status)
-        self.assertEqual(datetime(year=2010, month=10, day=11), project.start_date)
-        self.assertEqual(datetime(year=2010, month=12, day=31), project.end_date)
+
+        create_dt = self.create_datetime
+        self.assertEqual(create_dt(year=2010, month=10, day=11), project.start_date)
+        self.assertEqual(create_dt(year=2010, month=12, day=31), project.end_date)
+
         self.assertRelationCount(1, project, REL_OBJ_PROJECT_MANAGER, manager)
 
     def test_project_createview02(self):
@@ -148,7 +152,7 @@ class ProjectsTestCase(CremeTestCase):
                                                           }
                                                 )
                               )
-        self.assertEqual(datetime(year=2012, month=3, day=4),
+        self.assertEqual(self.create_datetime(year=2012, month=3, day=4),
                          self.refresh(project).start_date
                         )
 
@@ -163,7 +167,9 @@ class ProjectsTestCase(CremeTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', None, [_(u'Start must be before end.')])
-        self.assertEqual(datetime(year=2012, month=2, day=16), self.refresh(project).start_date)
+        self.assertEqual(self.create_datetime(year=2012, month=2, day=16),
+                         self.refresh(project).start_date
+                        )
 
     def test_task_createview01(self):
         "Create 2 tasks without collisions"
@@ -278,8 +284,10 @@ class ProjectsTestCase(CremeTestCase):
                                 }
                           )
 
-        task2_start = get_dt_from_str('2010-10-11 16:59')
-        task2_end = get_dt_from_str('2010-10-11 17:30')
+        #task2_start = get_dt_from_str('2010-10-11 16:59')
+        #task2_end = get_dt_from_str('2010-10-11 17:30')
+        task2_start = '2010-10-11 16:59'
+        task2_end   = '2010-10-11 17:30'
         response = self.client.post(url, follow=True,
                                     data={'user':                user.id,
                                           'title':               'torso',
@@ -300,8 +308,10 @@ class ProjectsTestCase(CremeTestCase):
             [_(u'%(participant)s already participates to the activity «%(activity)s» between %(start)s and %(end)s.') % {
                     'participant': contact,
                     'activity':    task1,
-                    'start':       max(task2_start.time(), task1.start.time()),
-                    'end':         min(task2_end.time(),   task1.end.time()),
+                    #'start':       max(task2_start.time(), task1.start.time()),
+                    #'end':         min(task2_end.time(),   task1.end.time()),
+                    'start':       '16:59:00',
+                    'end':         '17:00:00',
                 }
             ]
         )
@@ -332,8 +342,10 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(title,    task.title)
         self.assertEqual(duration, task.duration)
         self.assertEqual(tstatus,  task.tstatus)
-        self.assertEqual(date(year=2011, month=5, day=16), task.start.date())
-        self.assertEqual(date(year=2012, month=6, day=17), task.end.date())
+
+        create_dt = self.create_datetime
+        self.assertEqual(create_dt(year=2011, month=5, day=16), task.start)
+        self.assertEqual(create_dt(year=2012, month=6, day=17), task.end)
 
     def test_task_editview02(self):
         "Popup version"
@@ -360,8 +372,10 @@ class ProjectsTestCase(CremeTestCase):
         task = self.refresh(task)
         self.assertEqual(title,    task.title)
         self.assertEqual(duration, task.duration)
-        self.assertEqual(date(year=2011, month=5, day=16), task.start.date())
-        self.assertEqual(date(year=2012, month=6, day=17), task.end.date())
+
+        create_dt = self.create_datetime
+        self.assertEqual(create_dt(year=2011, month=5, day=16), task.start)
+        self.assertEqual(create_dt(year=2012, month=6, day=17), task.end)
 
     def test_task_add_parent01(self):
         self.login()
@@ -563,8 +577,9 @@ class ProjectsTestCase(CremeTestCase):
         self.assertTrue(project.is_closed)
         self.assertTrue(project.effective_end_date)
 
-        delta = datetime.combine(date.today(), time()) - project.effective_end_date
-        self.assertLess(delta.seconds, 10)
+        #delta = datetime.combine(date.today(), time()) - project.effective_end_date
+        #self.assertLess(delta.seconds, 10)
+        self.assertLess((now() - project.effective_end_date).seconds, 10)
 
         #already closed
         self.assertPOST404(url, follow=True)

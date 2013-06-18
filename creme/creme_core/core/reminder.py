@@ -18,12 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
 import logging
 
 from django.core.mail import EmailMessage, get_connection
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.utils.timezone import now
 
 from ..models import DateReminder
 
@@ -80,7 +80,7 @@ class Reminder(object):
         model_ = self.__class__.model_ #TODO: why not self.model_ ???
         objects = model_.objects.filter(self.get_Q_filter())
         object_ct = ContentType.objects.get_for_model(model_)
-        now = datetime.now().replace(microsecond=0, second=0)
+        now = now().replace(microsecond=0, second=0)
         reminder_filter = DateReminder.objects.filter
 
         for object in objects:

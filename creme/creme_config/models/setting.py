@@ -65,12 +65,13 @@ class SettingValue(Model):
     class Meta:
         app_label = "creme_config"
 
-    def _get_value(self):
+    @property
+    def value(self):
         return self.key.cast(self.value_str)
 
-    def _set_value(self, value):
+    @value.setter
+    def value(self, value):
         self.value_str = str(value)
-    value = property(_get_value, _set_value); del _get_value, _set_value
 
     @staticmethod
     def create_if_needed(key, user, value): #TODO: unit test

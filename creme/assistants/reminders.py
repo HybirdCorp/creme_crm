@@ -18,9 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime, timedelta
+from datetime import timedelta #datetime
 
 from django.db.models import Q
+from django.utils.timezone import now
 from django.utils.translation import ugettext as _
 from django.conf import settings
 
@@ -49,7 +50,7 @@ class ReminderAlert(Reminder):
 
     def get_Q_filter(self):
         delta = timedelta(minutes=getattr(settings, 'DEFAULT_TIME_ALERT_REMIND', 30))
-        now   = datetime.now().replace(microsecond=0, second=0)
+        now   = now().replace(microsecond=0, second=0)
         return Q(trigger_date__lte=now - delta, is_validated=False)
 
 
@@ -73,12 +74,11 @@ class ReminderTodo(Reminder):
 
     def get_Q_filter(self):
         delta = timedelta(days=1)
-        now   = datetime.now().replace(microsecond=0, second=0)
+        now   = now().replace(microsecond=0, second=0)
         return Q(deadline__lte=now + delta, is_ok=False)
 
     def ok_for_continue(self):
-        #return True if datetime.now().hour > 8 else False
-        return (datetime.now().hour > 8)
+        return now().hour > 8
 
 
 reminder_alert = ReminderAlert()

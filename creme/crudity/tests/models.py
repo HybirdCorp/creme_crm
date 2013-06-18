@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import datetime
 
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
+    from django.utils.timezone import now
 
     from creme.creme_core.models import CremeEntity
 
@@ -81,8 +81,10 @@ class WaitingActionTestCase(CrudityTestCase):
 
     def test_data_property02(self):
         action = WaitingAction(ct=ContentType.objects.get_for_model(Contact))
-        expected_data = {u'first_name': u'Mario', u'last_name': u'Bros', u"friends": [u"Yoshi", u"Toad"],
-                         u"lives": 99, u"ennemies": {'Bowser': 1, 'Koopa':50}, "epoch": datetime.now()}
+        expected_data = {u'first_name': u'Mario', u'last_name': u'Bros',
+                         u"friends": [u"Yoshi", u"Toad"], u"lives": 99,
+                         u"ennemies": {'Bowser': 1, 'Koopa':50}, "epoch": now(),
+                        }
         action.data = action.set_data(expected_data)
         action.save()
 

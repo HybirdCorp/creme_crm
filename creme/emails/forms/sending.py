@@ -18,12 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
 from pickle import dumps
 
 from django.forms import TypedChoiceField, IntegerField
 from django.forms.util import ErrorList
 from django.template import Template, VariableNode
+from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeModelForm, CremeEntityField, CremeDateTimeField
@@ -53,19 +53,20 @@ class SendingCreateForm(CremeModelForm):
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        sending_date = cleaned_data['sending_date']
 
         if cleaned_data['type'] == SENDING_TYPE_DEFERRED:
+            sending_date = cleaned_data['sending_date']
+
             if sending_date is None:
                 self._errors["sending_date"] = ErrorList([ugettext(u"Sending date required for a deferred sending")])
-            elif sending_date < datetime.now():
+            elif sending_date < now():
                 self._errors["sending_date"] = ErrorList([ugettext(u"Sending date must be is the future")])
             else:
                 cleaned_data['sending_date'] = sending_date.replace(hour=int(cleaned_data.get('hour') or 0),
                                                                     minute=int(cleaned_data.get('minute') or 0),
                                                                    )
         else:
-            cleaned_data['sending_date'] = datetime.now()
+            cleaned_data['sending_date'] = now()
 
         return cleaned_data
 

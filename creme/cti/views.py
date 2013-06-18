@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,11 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime, timedelta
+from datetime import timedelta # datetime
 
 from django.db.models.query_utils import Q
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
+from django.utils.timezone import now
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
@@ -51,15 +52,15 @@ def _build_phonecall(user, entity_id, calltype_id, title_format):
 
     user_contact = get_object_or_404(Contact, is_user=user)
     entity = entity.get_real_entity()
-    now = datetime.now()
+    now_value = now()
     pcall = Activity.objects.create(user=user,
                                      title=title_format % entity,
                                      type_id=ACTIVITYTYPE_PHONECALL,
                                      description=_(u'Automatically created by CTI'),
                                      status_id=STATUS_IN_PROGRESS,
                                      sub_type_id=calltype_id,
-                                     start=now,
-                                     end=now + timedelta(minutes=5),
+                                     start=now_value,
+                                     end=now_value + timedelta(minutes=5),
                                     )
 
     pcall.calendars.add(Calendar.get_user_default_calendar(user))

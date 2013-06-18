@@ -48,7 +48,10 @@ class AlertTestCase(AssistantsTestCase):
 
         self.assertEqual(entity.id,             alert.entity_id)
         self.assertEqual(entity.entity_type_id, alert.entity_content_type_id)
-        self.assertEqual(datetime(year=2010, month=9, day=29), alert.trigger_date)
+        #self.assertEqual(datetime(year=2010, month=9, day=29), alert.trigger_date)
+        self.assertEqual(self.create_datetime(year=2010, month=9, day=29),
+                         alert.trigger_date
+                        )
 
         self.assertEqual(title, unicode(alert))
 
@@ -80,7 +83,7 @@ class AlertTestCase(AssistantsTestCase):
                                                'title':        title,
                                                'description':  description,
                                                'trigger_date': '2011-10-30',
-                                               'trigger_time': '15:12:32',
+                                               'trigger_time': '15:12:00',
                                               }
                                    )
         self.assertNoFormError(response)
@@ -90,7 +93,10 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual(description, alert.description)
 
         #don't care about seconds
-        self.assertEqual(datetime(year=2011, month=10, day=30, hour=15, minute=12), alert.trigger_date)
+        #self.assertEqual(datetime(year=2011, month=10, day=30, hour=15, minute=12), alert.trigger_date)
+        self.assertEqual(self.create_datetime(year=2011, month=10, day=30, hour=15, minute=12),
+                         alert.trigger_date
+                        )
 
     def test_delete_related01(self):
         self._create_alert()

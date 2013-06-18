@@ -8,6 +8,8 @@ from creme.persons.models import Contact, Organisation
 
 from creme.documents.models import Document
 
+from creme.activities.models import Activity
+
 from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER
 from ..backends.models import CrudityBackend
 from ..fetchers.base import CrudityFetcher
@@ -32,6 +34,10 @@ class OrganisationFakeBackend(CrudityBackend):
 
 class DocumentFakeBackend(CrudityBackend):
     model = Document
+
+
+class ActivityFakeBackend(CrudityBackend):
+    model = Activity
 
 
 class CrudityTestCase(CremeTestCase):

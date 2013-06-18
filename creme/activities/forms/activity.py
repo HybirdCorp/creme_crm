@@ -34,6 +34,7 @@ from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.forms.fields import CremeDateTimeField, CremeTimeField, MultiCremeEntityField, MultiGenericEntityField
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.forms.validators import validate_linkable_entities, validate_linkable_entity
+from creme.creme_core.utils.dates import make_aware_dt
 
 #from creme.creme_config.forms.fields import CreatorModelChoiceField TODO
 
@@ -111,14 +112,17 @@ class _ActivityForm(CremeEntityForm):
             raise ValidationError(ugettext(u"You can't set the end of your activity without setting its start"))
 
         if start and start_time:
-            start = datetime.combine(start, start_time)
+            #start = datetime.combine(start, start_time)
+            start = make_aware_dt(datetime.combine(start, start_time))
 
         if end and end_time:
-            end = datetime.combine(end, end_time)
+            #end = datetime.combine(end, end_time)
+            end = make_aware_dt(datetime.combine(end, end_time))
 
         if start and not end:
             if end_time is not None:
-                end = datetime.combine(start, end_time)
+                #end = datetime.combine(start, end_time)
+                end = make_aware_dt(datetime.combine(start, end_time))
             else:
                 end = start + atype.as_timedelta()
 

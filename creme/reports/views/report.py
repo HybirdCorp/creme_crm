@@ -18,11 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
-
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.db.models import ForeignKey, ManyToManyField, Q
 from django.shortcuts import get_object_or_404, render
+from django.utils.timezone import now
 from django.utils.translation import ugettext as _
 #from django.utils.simplejson import JSONEncoder
 from django.utils.encoding import smart_str
@@ -43,6 +42,7 @@ from ..forms.report import (CreateForm, EditForm, LinkFieldToReportForm, AddFiel
                             get_aggregate_custom_fields, DateReportFilterForm)
 from ..report_aggregation_registry import field_aggregation_registry
 from ..utils import decode_datetime, encode_datetime
+
 
 @login_required
 @permission_required('reports')
@@ -306,7 +306,7 @@ def export(request, report_id, doc_type):
                                                  decode_datetime(GET_get('end')))
 
         if dt_range is not None:
-            extra_q_filter = Q(**dt_range.get_q_dict(field_name, datetime.now()))
+            extra_q_filter = Q(**dt_range.get_q_dict(field_name, now()))
 
     writerow([smart_str(column.title) for column in report.get_children_fields_flat()])
 

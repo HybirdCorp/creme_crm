@@ -26,6 +26,7 @@ from django.db.models import Q
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
 from django.utils.simplejson import JSONDecoder #JSONEncoder
+from django.utils.timezone import now, make_naive, get_current_timezone
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.auth.models import User
@@ -34,8 +35,9 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import EntityCredentials
 from creme.creme_core.views.generic import add_model_with_popup, edit_model_with_popup
 from creme.creme_core.utils import get_from_POST_or_404, jsonify
+from creme.creme_core.utils.dates import make_aware_dt
 
-from creme.persons.models.contact import Contact
+from creme.persons.models import Contact
 
 from ..models import Activity, Calendar
 from ..utils import get_last_day_of_a_month, check_activity_collisions
@@ -75,8 +77,12 @@ def _get_users_calendar(request, usernames, calendars_ids): #TODO: used once ??
 
 def _activity_2_dict(activity, user):
     "Return a 'jsonifiable' dictionary"
-    start = activity.start
-    end   = activity.end
+    #start = activity.start
+    #end   = activity.end
+    tz = get_current_timezone()
+    start = make_naive(activity.start, tz)
+    end   = make_naive(activity.end, tz)
+
     #TODO: hack to hide start time of floating time activities, only way to do that without change js calendar api
     is_all_day = activity.is_all_day or activity.floating_type == FLOATING_TIME
 
@@ -121,9 +127,10 @@ def _get_datetime(data, key, default_func):
 
     if timestamp is not None:
         try:
-            return datetime.fromtimestamp(float(timestamp))
-        except Exception as e:
-            logger.debug('_get_datetime(key=%s): %s', key, e)
+            #return datetime.fromtimestamp(float(timestamp))
+            return make_aware_dt(datetime.fromtimestamp(float(timestamp)))
+        except Exception:
+            logger.exception('_get_datetime(key=%s): %s', key)
 
     return default_func()
 
@@ -143,7 +150,7 @@ def get_users_activities(request, usernames, calendars_ids):
     users_cal_ids.update(cal_id for cal_id in calendars_ids.split(',') if cal_id.isdigit()) #TODO: check Calendar credentials...
 
     GET = request.GET
-    start = _get_datetime(GET, 'start', (lambda: datetime.now().replace(day=1)))
+    start = _get_datetime(GET, 'start', (lambda: now().replace(day=1)))
     end   = _get_datetime(GET, 'end',   (lambda: get_last_day_of_a_month(start)))
 
     #TODO: label when no calendar related to the participant of an indispo
@@ -172,7 +179,8 @@ def get_users_activities(request, usernames, calendars_ids):
 
 def _js_timestamp_to_datetime(timestamp):
     "@raise ValueError"
-    return datetime.fromtimestamp(float(timestamp) / 1000) #Js gives us miliseconds
+    #return datetime.fromtimestamp(float(timestamp) / 1000) #Js gives us miliseconds
+    return make_aware_dt(datetime.fromtimestamp(float(timestamp) / 1000)) #Js gives us miliseconds
 
 @login_required
 @permission_required('activities')

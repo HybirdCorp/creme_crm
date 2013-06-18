@@ -18,15 +18,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import time
+from datetime import datetime, time
 
+from django.utils.timezone import localtime
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeModelWithUserForm, CremeDateTimeField, CremeTimeField
+from creme.creme_core.utils.dates import make_aware_dt
 
 from ..models import Alert
 
 
+#TODO: alright, we need a real date time widget that this shit !
 class AlertForm(CremeModelWithUserForm):
     trigger_date = CremeDateTimeField(label=_(u'Trigger date'))
     trigger_time = CremeTimeField(label=_(u'Hour'), required=False)
@@ -38,16 +41,24 @@ class AlertForm(CremeModelWithUserForm):
         super(AlertForm, self).__init__(*args, **kwargs)
         self.entity = entity
 
-        trigger_date = self.instance.trigger_date
-        self.fields['trigger_time'].initial = trigger_date.time() if trigger_date else time()
+        #trigger_date = self.instance.trigger_date
+        #self.fields['trigger_time'].initial = trigger_date.time() if trigger_date else time()
+        trigger_date = localtime(self.instance.trigger_date)
+        self.fields['trigger_time'].initial = time(hour=trigger_date.hour,
+                                                   minute=trigger_date.minute,
+                                                  ) if trigger_date else time()
 
     def clean(self):
         cleaned_data = self.cleaned_data
 
         if not self._errors:
-            trigger_date = cleaned_data.get('trigger_date')
-            trigger_time = cleaned_data.get('trigger_time') or time()
-            cleaned_data['trigger_date'] = trigger_date.replace(hour=trigger_time.hour, minute=trigger_time.minute)
+            #trigger_date = cleaned_data.get('trigger_date')
+            #trigger_time = cleaned_data.get('trigger_time') or time()
+            #cleaned_data['trigger_date'] = trigger_date.replace(hour=trigger_time.hour, minute=trigger_time.minute)
+
+            trigger_time = cleaned_data.get('trigger_time')
+            if trigger_time:
+                cleaned_data['trigger_date'] = make_aware_dt(datetime.combine(cleaned_data['trigger_date'], trigger_time))
 
         return cleaned_data
 

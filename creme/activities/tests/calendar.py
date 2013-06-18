@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import datetime, timedelta
+    from datetime import timedelta #datetime
     from functools import partial
 
     from django.utils.encoding import force_unicode
+    from django.utils.timezone import make_naive, get_current_timezone
     from django.utils.translation import ugettext as _
     from django.utils.simplejson import loads as jsonloads
 
     from creme.creme_core.models import Relation
 
-    from creme.persons.models import Contact
+    #from creme.persons.models import Contact
 
     from .base import _ActivitiesTestCase
     from ..models import Calendar, Activity
@@ -298,7 +299,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         "Other user's calendar"
         self.login(is_superuser=False)
 
-        user = self.user
+        #user = self.user
         other_user = self.other_user
 
         Calendar.get_user_default_calendar(other_user)
@@ -326,8 +327,11 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         cal = Calendar.get_user_default_calendar(user)
 
-        start = datetime(year=2013, month=3, day=1)
-        end   = datetime(year=2013, month=3, day=31, hour=23, minute=59)
+        #start = datetime(year=2013, month=3, day=1)
+        #end   = datetime(year=2013, month=3, day=31, hour=23, minute=59)
+        create_dt = self.create_datetime
+        start = create_dt(year=2013, month=3, day=1)
+        end   = create_dt(year=2013, month=3, day=31, hour=23, minute=59)
 
         create = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_TASK)
         act1 = create(title='Act#1', start=start + timedelta(days=1), end=start + timedelta(days=2))
@@ -354,12 +358,17 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         self.assertEqual(3, len(data))
 
+        def formated_dt(dt):
+            return make_naive(dt, get_current_timezone()).isoformat()
+
         url_fmt = '/activities/activity/%s/popup'
         self.assertEqual({'id':           act1.id,
                           'title':        'Act#1 - Kirika',
                           'allDay':       False,
-                          'start':        act1.start.isoformat(),
-                          'end':          act1.end.isoformat(),
+                          #'start':        act1.start.isoformat(),
+                          #'end':          act1.end.isoformat(),
+                          'start':        formated_dt(act1.start),
+                          'end':          formated_dt(act1.end),
                           'url':          url_fmt % act1.id,
                           'entity_color': '#987654',
                           'editable':     True,
@@ -369,8 +378,10 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertEqual({'id':           act3.id,
                           'title':        'Act#3 - Kirika',
                           'allDay':       True,
-                          'start':        act3.start.isoformat(),
-                          'end':          act3.end.isoformat(),
+                          #'start':        act3.start.isoformat(),
+                          #'end':          act3.end.isoformat(),
+                          'start':        formated_dt(act3.start),
+                          'end':          formated_dt(act3.end),
                           'url':          url_fmt % act3.id,
                           'entity_color': '#456FFF',
                           'editable':     True,
@@ -392,7 +403,8 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal2 = Calendar.get_user_default_calendar(other_user)
         cal3 = Calendar.objects.create(user=other_user, name='Cal #3', is_custom=True, is_default=False)
 
-        start = datetime(year=2013, month=4, day=1)
+        #start = datetime(year=2013, month=4, day=1)
+        start = self.create_datetime(year=2013, month=4, day=1)
 
         create = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_TASK)
         act1 = create(title='Act#1', start=start + timedelta(days=1), end=start + timedelta(days=2))
@@ -429,7 +441,8 @@ class CalendarTestCase(_ActivitiesTestCase):
     def test_update_activity_date01(self):
         self.login()
 
-        start = datetime(year=2013, month=4, day=1, hour=9)
+        #start = datetime(year=2013, month=4, day=1, hour=9)
+        start = self.create_datetime(year=2013, month=4, day=1, hour=9)
         end   = start + timedelta(hours=2)
         act = Activity.objects.create(user=self.user, type_id=ACTIVITYTYPE_TASK,
                                       title='Act#1', start=start, end=end,
@@ -461,13 +474,18 @@ class CalendarTestCase(_ActivitiesTestCase):
         create_act = partial(Activity.objects.create, user=user,
                              type_id=ACTIVITYTYPE_TASK, busy=True,
                             )
+        create_dt = self.create_datetime
         act1 = create_act(title='Act#1',
-                          start=datetime(year=2013, month=4, day=1, hour=9),
-                          end=datetime(year=2013,   month=4, day=1, hour=10),
+                          #start=datetime(year=2013, month=4, day=1, hour=9),
+                          #end=datetime(year=2013,   month=4, day=1, hour=10),
+                          start=create_dt(year=2013, month=4, day=1, hour=9),
+                          end=create_dt(year=2013,   month=4, day=1, hour=10),
                          )
         act2 = create_act(title='Act#2',
-                          start=datetime(year=2013, month=4, day=2, hour=9),
-                          end=datetime(year=2013,   month=4, day=2, hour=10),
+                          #start=datetime(year=2013, month=4, day=2, hour=9),
+                          #end=datetime(year=2013,   month=4, day=2, hour=10),
+                          start=create_dt(year=2013, month=4, day=2, hour=9),
+                          end=create_dt(year=2013,   month=4, day=2, hour=10),
                          )
 
         create_rel = partial(Relation.objects.create, user=user, type_id=REL_SUB_PART_2_ACTIVITY)

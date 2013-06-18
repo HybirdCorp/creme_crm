@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import datetime
-
     from django.contrib.contenttypes.models import ContentType
+    from django.utils.timezone import now
 
     from creme.creme_core.models import CremeEntity
 
@@ -49,7 +48,7 @@ class MemoTestCase(AssistantsTestCase):
         self.assertEqual(entity.id,             memo.entity_id)
         self.assertEqual(entity.entity_type_id, memo.entity_content_type_id)
 
-        self.assertLess((datetime.now() - memo.creation_date).seconds, 10)
+        self.assertLess((now() - memo.creation_date).seconds, 10)
 
         self.assertEqual(content, unicode(memo))
 

@@ -2,11 +2,12 @@
 
 try:
     from functools import partial
-    from datetime import datetime, timedelta
+    from datetime import timedelta # datetime
     from pickle import loads
 
-    from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
+    from django.utils.timezone import now, make_naive, get_current_timezone
+    from django.utils.translation import ugettext as _
 
     from creme.persons.models import Contact, Organisation
 
@@ -203,9 +204,11 @@ class SendingsTestCase(_EmailsTestCase):
         camp     = EmailCampaign.objects.create(user=user, name='camp01')
         template = EmailTemplate.objects.create(user=user, name='name', subject='subject', body='body')
 
-        now = datetime.now()
-        sending_date = now.replace(year=now.year + 1)
-
+        #now = datetime.now()
+        #sending_date = now.replace(year=now.year + 1)
+        now_dt = now()
+        sending_date = now_dt + timedelta(weeks=1)
+        naive_sending_date = make_naive(sending_date, get_current_timezone())
         data = {'sender':   'vicious@reddragons.mrs',
                 'type':     SENDING_TYPE_DEFERRED,
                 'template': template.id,
@@ -213,9 +216,12 @@ class SendingsTestCase(_EmailsTestCase):
 
         post = partial(self.client.post, '/emails/campaign/%s/sending/add' % camp.id)
         self.assertNoFormError(post(data=dict(data,
-                                              sending_date=sending_date.strftime('%Y-%m-%d'), #future: OK
-                                              hour=sending_date.hour,
-                                              minute=sending_date.minute,
+                                              #sending_date=sending_date.strftime('%Y-%m-%d'), #future: OK
+                                              #hour=sending_date.hour,
+                                              #minute=sending_date.minute,
+                                              sending_date=naive_sending_date.strftime('%Y-%m-%d'), #future: OK
+                                              hour=naive_sending_date.hour,
+                                              minute=naive_sending_date.minute,
                                              )
                                    )
                               )
@@ -223,14 +229,15 @@ class SendingsTestCase(_EmailsTestCase):
         with self.assertNoException():
             sending = self.refresh(camp).sendings_set.all()[0]
 
-        fmt = '%d %m %Y %H %M'
-        self.assertEqual(sending_date.strftime(fmt), sending.sending_date.strftime(fmt))
+        #fmt = '%d %m %Y %H %M'
+        #self.assertEqual(sending_date.strftime(fmt), sending.sending_date.strftime(fmt))
+        self.assertLess(abs((sending_date - sending.sending_date).seconds), 60)
 
         self.assertFormError(post(data=data), 'form', 'sending_date',
                              [_(u"Sending date required for a deferred sending")]
                             )
         self.assertFormError(post(data=dict(data,
-                                            sending_date=(now - timedelta(days=1)).strftime('%Y-%m-%d')
+                                            sending_date=(now_dt - timedelta(days=1)).strftime('%Y-%m-%d')
                                            )
                                  ),
                              'form', 'sending_date', [_(u"Sending date must be is the future")]

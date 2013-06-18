@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2010  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime, timedelta
+from datetime import  timedelta #datetime
 
 from django.core.management.base import BaseCommand
+from django.utils.timezone import now
+
 
 LOCK_NAME = "generate_recurrent_documents"
 
@@ -43,14 +45,14 @@ class Command(BaseCommand):
 
                 last  = generator.last_generation
                 first = generator.first_generation
-                now   = datetime.now()
+                now_value = now()
 
-                if recurrent_date < now or (last == first and first < now):
+                if recurrent_date < now_value or (last == first and first < now_value):
                     template = generator.template.get_real_entity()
 
                     template.create_entity()
 
-                    generator.last_generation = datetime.now()
+                    generator.last_generation = now_value
                     generator.save()
         #finally:
             Mutex.graceful_release(LOCK_NAME)

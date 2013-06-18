@@ -478,7 +478,7 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
     def model(self, model):
         self._model = model
         self._cfields = dict((cf.id, cf) for cf in CustomField.objects.filter(content_type=ContentType.objects.get_for_model(model),
-                                                                              field_type=CustomField.DATE
+                                                                              field_type=CustomField.DATETIME
                                                                              )
                             )
         self._build_widget()

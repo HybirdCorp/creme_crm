@@ -24,6 +24,7 @@ from django.db.models import (ForeignKey, CharField, PositiveSmallIntegerField, 
                               DecimalField, DateTimeField, BooleanField, ManyToManyField)
 from django import forms
 from django.utils.formats import date_format
+from django.utils.timezone import localtime
 from django.utils.translation import ugettext, ugettext_lazy as _
 from django.utils.datastructures import SortedDict as OrderedDict #use python2.7 OrderedDict later.....
 #from django.contrib.contenttypes.models import ContentType
@@ -45,7 +46,7 @@ class CustomField(CremeModel):
     FLOAT       = 2
     BOOL        = 3
     STR         = 10
-    DATE        = 20
+    DATETIME    = 20
     ENUM        = 100
     MULTI_ENUM  = 101
 
@@ -243,9 +244,11 @@ class CustomFieldDateTime(CustomFieldValue):
     class Meta:
         app_label = 'creme_core'
 
+    #TODO: factorise with gui.field_printers
     def __unicode__(self):
         value = self.value
-        return date_format(value, 'DATETIME_FORMAT') if value else ''
+        #return date_format(value, 'DATETIME_FORMAT') if value else ''
+        return date_format(localtime(value), 'DATETIME_FORMAT') if value else ''
 
     @staticmethod
     def _get_formfield(**kwargs):
@@ -375,7 +378,7 @@ _TABLES = OrderedDict([
     (CustomField.FLOAT,      CustomFieldFloat),
     (CustomField.BOOL,       CustomFieldBoolean),
     (CustomField.STR,        CustomFieldString),
-    (CustomField.DATE,       CustomFieldDateTime),
+    (CustomField.DATETIME,   CustomFieldDateTime),
     (CustomField.ENUM,       CustomFieldEnum),
     (CustomField.MULTI_ENUM, CustomFieldMultiEnum),
 ])

@@ -150,7 +150,7 @@ def get_listview_columns_header(context):
 
             if field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
                 _build_select_search_widget(widget_ctx, item_value, cf.customfieldenumvalue_set.values_list('id', 'value'))
-            elif field_type == CustomField.DATE:
+            elif field_type == CustomField.DATETIME:
                 _build_date_search_widget(widget_ctx, item_value)
             elif field_type == CustomField.BOOL:
                 _build_bool_search_widget(widget_ctx, item_value)

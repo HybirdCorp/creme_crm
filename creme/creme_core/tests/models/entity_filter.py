@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import date
+    from datetime import date, timedelta
     from functools import partial
     from logging import info
 
     from django.contrib.contenttypes.models import ContentType
+    from django.utils.timezone import now
 
     from creme.creme_core.models import *
     from creme.creme_core.models.header_filter import *
@@ -1136,7 +1137,7 @@ class EntityFiltersTestCase(CremeTestCase):
                           custom_field=custom_field, operator=EntityFilterCondition.CONTAINS, value='not an int'
                          )
 
-        custom_field = CustomField.objects.create(name='Day', content_type=self.contact_ct, field_type=CustomField.DATE)
+        custom_field = CustomField.objects.create(name='Day', content_type=self.contact_ct, field_type=CustomField.DATETIME)
         self.assertRaises(EntityFilterCondition.ValueError,
                           EntityFilterCondition.build_4_customfield,
                           custom_field=custom_field, operator=EntityFilterCondition.EQUALS, value=2011 #DATE
@@ -1149,13 +1150,21 @@ class EntityFiltersTestCase(CremeTestCase):
                          )
 
     def _aux_test_datecf(self):
-        custom_field = CustomField.objects.create(name='First fight', content_type=self.contact_ct, field_type=CustomField.DATE)
+        custom_field = CustomField.objects.create(name='First fight',
+                                                  content_type=self.contact_ct,
+                                                  field_type=CustomField.DATETIME,
+                                                 )
 
-        klass = custom_field.get_value_class()
+        #klass = custom_field.get_value_class()
         contacts = self.contacts
-        klass(custom_field=custom_field, entity=contacts['rei']).set_value_n_save(date(year=2015, month=3, day=14))
-        klass(custom_field=custom_field, entity=contacts['shinji']).set_value_n_save(date(year=2015, month=4, day=21))
-        klass(custom_field=custom_field, entity=contacts['asuka']).set_value_n_save(date(year=2015, month=5, day=3))
+        #klass(custom_field=custom_field, entity=contacts['rei']).set_value_n_save(date(year=2015, month=3, day=14))
+        #klass(custom_field=custom_field, entity=contacts['shinji']).set_value_n_save(date(year=2015, month=4, day=21))
+        #klass(custom_field=custom_field, entity=contacts['asuka']).set_value_n_save(date(year=2015, month=5, day=3))
+        klass = partial(custom_field.get_value_class(), custom_field=custom_field)
+        create_dt = self.create_datetime
+        klass(entity=contacts['rei']).set_value_n_save(create_dt(year=2015, month=3, day=14))
+        klass(entity=contacts['shinji']).set_value_n_save(create_dt(year=2015, month=4, day=21))
+        klass(entity=contacts['asuka']).set_value_n_save(create_dt(year=2015, month=5, day=3))
         self.assertEqual(3, CustomFieldDateTime.objects.count())
 
         return custom_field
@@ -1167,6 +1176,7 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter = EntityFilter.create('test-filter01', 'After April', Contact)
         cond = EntityFilterCondition.build_4_datecustomfield(custom_field=custom_field,
                                                              start=date(year=2015, month=4, day=1),
+                                                             #start=self.create_datetime(year=2015, month=4, day=1),
                                                             )
         self.assertEqual(EntityFilterCondition.EFC_DATECUSTOMFIELD, cond.type)
 
@@ -1198,17 +1208,25 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_datecustomfield04(self):
         "Relative to now"
-        custom_field = CustomField.objects.create(name='First flight', content_type=self.contact_ct, field_type=CustomField.DATE)
+        custom_field = CustomField.objects.create(name='First flight',
+                                                  content_type=self.contact_ct,
+                                                  field_type=CustomField.DATETIME,
+                                                 )
 
         contacts = self.contacts
         spike = contacts['spike']
         jet   = contacts['jet']
-        today = date.today()
+        #today = date.today()
+        dt_now = now()
 
-        klass = custom_field.get_value_class()
-        klass(custom_field=custom_field, entity=contacts['faye']).set_value_n_save(date(year=2000, month=3, day=14))
-        klass(custom_field=custom_field, entity=spike).set_value_n_save(today.replace(year=today.year + 100))
-        klass(custom_field=custom_field, entity=jet).set_value_n_save(today.replace(year=today.year + 95))
+        #klass = custom_field.get_value_class()
+        #klass(custom_field=custom_field, entity=contacts['faye']).set_value_n_save(date(year=2000, month=3, day=14))
+        #klass(custom_field=custom_field, entity=spike).set_value_n_save(today.replace(year=today.year + 100))
+        #klass(custom_field=custom_field, entity=jet).set_value_n_save(today.replace(year=today.year + 95))
+        klass = partial(custom_field.get_value_class(), custom_field=custom_field)
+        klass(entity=contacts['faye']).set_value_n_save(self.create_datetime(year=2000, month=3, day=14))
+        klass(entity=spike).set_value_n_save(dt_now + timedelta(days=3650))
+        klass(entity=jet).set_value_n_save(dt_now + timedelta(days=700))
 
         efilter = EntityFilter.create('test-filter01', name='In the future', model=Contact)
         efilter.set_conditions([EntityFilterCondition.build_4_datecustomfield(custom_field=custom_field,
@@ -1222,12 +1240,20 @@ class EntityFiltersTestCase(CremeTestCase):
         contacts = self.contacts
         shinji = contacts['shinji']
         custom_field01 = self._aux_test_datecf()
-        custom_field02 = CustomField.objects.create(name='Last fight', content_type=self.contact_ct, field_type=CustomField.DATE)
+        custom_field02 = CustomField.objects.create(name='Last fight',
+                                                    content_type=self.contact_ct,
+                                                    field_type=CustomField.DATETIME,
+                                                   )
 
-        klass = custom_field02.get_value_class()
-        klass(custom_field=custom_field02, entity=contacts['rei']).set_value_n_save(date(year=2020, month=3, day=14))
-        klass(custom_field=custom_field02, entity=shinji).set_value_n_save(date(year=2030, month=4, day=21))
-        klass(custom_field=custom_field02, entity=contacts['asuka']).set_value_n_save(date(year=2040, month=5, day=3))
+        #klass = custom_field02.get_value_class()
+        #klass(custom_field=custom_field02, entity=contacts['rei']).set_value_n_save(date(year=2020, month=3, day=14))
+        #klass(custom_field=custom_field02, entity=shinji).set_value_n_save(date(year=2030, month=4, day=21))
+        #klass(custom_field=custom_field02, entity=contacts['asuka']).set_value_n_save(date(year=2040, month=5, day=3))
+        klass = partial(custom_field02.get_value_class(), custom_field=custom_field02)
+        create_dt = self.create_datetime
+        klass(entity=contacts['rei']).set_value_n_save(create_dt(year=2020, month=3, day=14))
+        klass(entity=shinji).set_value_n_save(create_dt(year=2030, month=4, day=21))
+        klass(entity=contacts['asuka']).set_value_n_save(create_dt(year=2040, month=5, day=3))
 
         efilter = EntityFilter.create('test-filter01', 'Complex filter', Contact, use_or=False)
         build_cond = EntityFilterCondition.build_4_datecustomfield
@@ -1242,17 +1268,17 @@ class EntityFiltersTestCase(CremeTestCase):
         custom_field = create_cf(name='First flight', content_type=self.contact_ct, field_type=CustomField.INT) #not a DATE
         self.assertRaises(EntityFilterCondition.ValueError,
                           EntityFilterCondition.build_4_datecustomfield,
-                          custom_field=custom_field, date_range='in_future'
+                          custom_field=custom_field, date_range='in_future',
                          )
 
-        custom_field = create_cf(name='Day', content_type=self.contact_ct, field_type=CustomField.DATE)
+        custom_field = create_cf(name='Day', content_type=self.contact_ct, field_type=CustomField.DATETIME)
         self.assertRaises(EntityFilterCondition.ValueError,
                           EntityFilterCondition.build_4_datecustomfield,
                           custom_field=custom_field, #no date
                          )
         self.assertRaises(EntityFilterCondition.ValueError,
                           EntityFilterCondition.build_4_datecustomfield,
-                          custom_field=custom_field, date_range='unknown_range'
+                          custom_field=custom_field, date_range='unknown_range',
                          )
 
     def test_invalid_field(self):

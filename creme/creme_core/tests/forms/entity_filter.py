@@ -334,8 +334,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
 class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
     def setUp(self):
         ct = ContentType.objects.get_for_model(Contact)
-        self.cfield01 = CustomField.objects.create(name='Day', content_type=ct, field_type=CustomField.DATE)
-        self.cfield02 = CustomField.objects.create(name='First flight', content_type=ct, field_type=CustomField.DATE)
+        self.cfield01 = CustomField.objects.create(name='Day', content_type=ct, field_type=CustomField.DATETIME)
+        self.cfield02 = CustomField.objects.create(name='First flight', content_type=ct, field_type=CustomField.DATETIME)
 
     def test_clean_invalid_data(self):
         clean = DateCustomFieldsConditionsField(model=Contact).clean

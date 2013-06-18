@@ -18,11 +18,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import date
+#from datetime import date
 
 from django.core.exceptions import ValidationError
 from django.db.models import CharField, TextField, ForeignKey, DateTimeField, Max, PROTECT
 from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.timezone import now
 
 from creme.creme_core.models import CremeEntity
 
@@ -103,7 +104,8 @@ class Project(CremeEntity):
             already_closed = False
         else:
             already_closed = True
-            self.effective_end_date = date.today()
+            #self.effective_end_date = date.today()
+            self.effective_end_date = now()
 
         return already_closed
 

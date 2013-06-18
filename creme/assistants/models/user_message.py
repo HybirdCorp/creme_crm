@@ -18,11 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
-
 from django.db.models import (CharField, BooleanField, TextField, DateTimeField,
                               ForeignKey, PositiveIntegerField, PROTECT)
 from django.db.models.signals import pre_delete
+from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
@@ -90,11 +89,13 @@ class UserMessage(CremeModel):
             else:
                 users_map[user.id] = user
 
-        now = datetime.now()
+        now_value = now()
 
         for user in users_map.itervalues():
-            msg = UserMessage(title=title, body=body, creation_date=now, priority_id=priority_id,
-                              sender=sender, recipient=user, email_sent=False)
+            msg = UserMessage(title=title, body=body, creation_date=now_value,
+                              priority_id=priority_id,
+                              sender=sender, recipient=user, email_sent=False,
+                             )
             msg.creme_entity = entity
             msg.save()
 
@@ -120,7 +121,6 @@ class UserMessage(CremeModel):
             connection.open()
             connection.send_messages(messages)
             connection.close()
-
         except Exception, e: #TODO: wtf ??
             raise e
 

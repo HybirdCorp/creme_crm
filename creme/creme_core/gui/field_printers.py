@@ -25,6 +25,7 @@ from django.template.defaultfilters import linebreaks
 from django.utils.html import escape
 from django.utils.formats import date_format
 from django.utils.safestring import mark_safe
+from django.utils.timezone import localtime
 from django.utils.translation import ungettext, ugettext_lazy as _
 
 from ..models import CremeEntity, fields
@@ -78,7 +79,8 @@ def print_urlfield(entity, fval, user):
     return '<a href="%s" target="_blank">%s</a>' % (esc_fval, esc_fval)
 
 def print_datetime(entity, fval, user):
-    return date_format(fval, 'DATETIME_FORMAT') if fval else ''
+    #return date_format(fval, 'DATETIME_FORMAT') if fval else ''
+    return date_format(localtime(fval), 'DATETIME_FORMAT') if fval else ''
 
 def print_date(entity, fval, user):
     return date_format(fval, 'DATE_FORMAT') if fval else ''

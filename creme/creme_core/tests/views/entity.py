@@ -960,7 +960,7 @@ class BulkEditTestCase(_BulkEditTestCase):
 
         get_cf_values = self.get_cf_values
         mario, luigi, url = self.create_2_contacts_n_url()
-        cf_date = CustomField.objects.create(name='date', content_type=self.contact_ct, field_type=CustomField.DATE)
+        cf_date = CustomField.objects.create(name='date', content_type=self.contact_ct, field_type=CustomField.DATETIME)
 
         #Date
         settings.DATETIME_INPUT_FORMATS += ("-%dT%mU%Y-",) #This weird format have few chances to be present in settings
@@ -971,7 +971,8 @@ class BulkEditTestCase(_BulkEditTestCase):
                                    )
         self.assertNoFormError(response)
 
-        dt = datetime(2000, 1, 31)
+        #dt = datetime(2000, 1, 31)
+        dt = self.create_datetime(2000, 1, 31)
         self.assertEqual(dt, get_cf_values(cf_date, self.refresh(mario)).value)
         self.assertEqual(dt, get_cf_values(cf_date, self.refresh(luigi)).value)
 

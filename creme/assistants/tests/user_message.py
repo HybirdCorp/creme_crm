@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import datetime
     from functools import partial
 
     from django.contrib.auth.models import User
     from django.utils.simplejson.encoder import JSONEncoder
+    from django.utils.timezone import now
 
     from creme.persons.models import Contact
 
@@ -76,7 +76,7 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertEqual(self.user, message.sender)
         self.assertEqual(user01,    message.recipient)
 
-        self.assertLess((datetime.now() - message.creation_date).seconds, 10)
+        self.assertLess((now() - message.creation_date).seconds, 10)
 
         self.assertEqual(title, unicode(message))
 
@@ -219,7 +219,7 @@ class UserMessageTestCase(AssistantsTestCase):
         message = messages[0]
         self.assertEqual(user, message.sender)
         #self.assertEqual(user, message.recipient)
-        self.assertLess((datetime.now() - message.creation_date).seconds, 10)
+        self.assertLess((now() - message.creation_date).seconds, 10)
         self.assertEqual(PRIO_NOT_IMP_PK,  message.priority_id)
         self.assertFalse(message.email_sent)
         self.assertEqual(meeting.id,             message.entity_id)

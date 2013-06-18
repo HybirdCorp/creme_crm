@@ -23,24 +23,27 @@ import re
 
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
-from django.db.models.fields import FieldDoesNotExist, TextField, BooleanField
-from django.db.models.fields.files import FileField
-from django.db.models.fields.related import ForeignKey, ManyToManyField
+from django.db.models import (FieldDoesNotExist, TextField, BooleanField,
+                              DateField, DateTimeField,
+                              FileField, ForeignKey, ManyToManyField)
 from django.db import transaction, IntegrityError
 from django.template.context import Context
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _ #TODO: lazy ??
 
-from creme.creme_core.utils.dates import get_dt_from_str
-from creme.creme_core.utils.meta import is_date_field
+from creme.creme_core.utils.dates import get_dt_from_str, get_date_from_str
+#from creme.creme_core.utils.meta import is_date_field
 from creme.creme_core.views.file_handling import handle_uploaded_file
 
 from creme.creme_config.models import SettingValue
 
-from creme.media_managers.models.image import Image
+from creme.media_managers.models import Image
 
 from ..models import History
 from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER
 from ..exceptions import ImproperlyConfiguredBackend
+
+
+logger = logging.getLogger(__name__)
 
 
 class CrudityBackend(object):
@@ -81,12 +84,12 @@ class CrudityBackend(object):
         TODO: Check the requirement, default value ?
         """
         if self.is_configured:
-            model = self.model
+            model = self.model #TODO: alias _meta
             for field_name in self.body_map.iterkeys():
                 try:
                     model._meta.get_field(field_name)
-                except FieldDoesNotExist, e:
-                    for field in model._meta.fields:
+                except FieldDoesNotExist as e:
+                    for field in model._meta.fields: #TODO: any()
                         if field.get_attname() == field_name:
                             break
                     else:
@@ -144,6 +147,8 @@ class CrudityBackend(object):
                 #TODO: data.pop(field_name) when virtual fields are added in crudity, because for example user_id is not a "real field" (model._meta.get_field)
                 continue
 
+            #TODO: exclude not editable fields ??
+
             if field_value is None:
                 data[field_name] = field.to_python(None)
                 continue
@@ -154,8 +159,12 @@ class CrudityBackend(object):
             if not isinstance(field, TextField) and isinstance(field_value, basestring):
                 data[field_name] = field_value = field_value.replace('\n', ' ')
 
-            if is_date_field(model_get_field(field_name)):
+            #if is_date_field(field):
+                #data[field_name] = field_value = get_dt_from_str(field_value.strip())
+            if isinstance(field, DateTimeField):
                 data[field_name] = field_value = get_dt_from_str(field_value.strip())
+            elif isinstance(field, DateField):
+                data[field_name] = field_value = get_date_from_str(field_value.strip())
 
             elif isinstance(field, BooleanField) and isinstance(field_value, basestring):
                 data[field_name] = field_value = field.to_python(field_value.strip()[0:1].lower()) #Trick to obtain 't'/'f' or '1'/'0'
@@ -169,12 +178,12 @@ class CrudityBackend(object):
                     if shift_user_id is None:
                         try:
                             shift_user_id = User.objects.filter(is_superuser=True)#Not as the default value of data.get because a query is always done even the default value is not necessary
-                        except User.DoesNotExist:
+                        except User.DoesNotExist: #TODO: WTF filter does not raise DoesNotExist !!!
                             continue#There is really nothing we can do
                 else:
                     shift_user_id = user.id
 
-                img_entity = Image()
+                img_entity = Image() #TODO:  Image.objects.create() ??
                 img_entity.image = handle_uploaded_file(ContentFile(blob), path=upload_path, name=filename)
                 img_entity.user_id  = shift_user_id
                 img_entity.save()
@@ -209,7 +218,7 @@ class CrudityBackend(object):
             history.description = _(u"Creation of %(entity)s") % {'entity': instance}
             history.save()
         except IntegrityError as e:
-            logging.error(e)
+            logger.error('_create_instance_n_history() : error when try to create instance [%s]', e)
             is_created = False
             transaction.rollback()
         else:

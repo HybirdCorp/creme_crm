@@ -54,3 +54,6 @@ run the following commands in the root directory:
 >> python manage.py generatemedia
 [Do not worry about 'URL not found' messages]
 >> python manage.py creme_populate
+
+If you are upgrading from Creme 1.2, run the following command:
+>> python manage.py convert_naive_datetimes

@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import datetime, timedelta
+    from datetime import timedelta #datetime
     from decimal import Decimal
     from functools import partial
 
     from django.db.models.query_utils import Q
     from django.contrib.contenttypes.models import ContentType
+    from django.utils.timezone import now
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import CremePropertyType, CremeProperty, SetCredentials
@@ -106,8 +107,8 @@ class ConvertTestCase(_BillingTestCase):
                                      )
 
         quote = Quote.objects.create(user=self.other_user, name='My Quote',
-                                     issuing_date=datetime.now(),
-                                     expiration_date=datetime.now() + timedelta(days=10),
+                                     issuing_date=now(),
+                                     expiration_date=now() + timedelta(days=10),
                                      status=QuoteStatus.objects.all()[0],
                                      )
         self.assertFalse(self.user.has_perm_to_view(quote))
