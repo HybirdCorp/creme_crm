@@ -2,7 +2,7 @@
 {% load creme_core_tags creme_block creme_widgets %}
 {% has_perm_to link object as link_perm %}{% has_perm_to unlink object as unlink_perm %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
-    {% get_block_header colspan=3 %}
+    {% get_block_header colspan=5 %}
         <th class="collapser label">{% get_block_title _('%s Related opportunity') _('%s Related opportunities') 'opportunity_48.png' _('Opportunity') %}</th>
         <th class="actions">
             <div class="buttons">
@@ -14,21 +14,35 @@
         {% if page.paginator.count %}
             <tr class="header">
                 <th class="block_header_line_dark">{% trans "Name" %}</th>
+                <th class="block_header_line_dark">{% trans "Sales phase" %}</th>
+                <th class="block_header_line_dark">{% trans "Estimated sales" %}</th>
                 <th class="block_header_line_dark">{% trans "Made sales" %}</th>
                 <th class="block_header_line_dark action">{% trans "Unlink" %}</th>
             </tr>
             {% for opp in page.object_list %}
                 <tr class="content">{% has_perm_to view opp as opp_view_perm %}{% has_perm_to unlink opp as opp_unlink_perm %}
                     <td class="{% cycle "block_line_light" "block_line_dark" as row_color silent %}">{% widget_entity_hyperlink opp user %}</td>
-                    <td class="{{row_color}}">{% if opp_view_perm %}{{opp.made_sales|default:''}}{% else %}??{% endif %}</td>
+                    {% if opp_view_perm %}
+                        <td class="{{row_color}}">{{opp.sales_phase}}</td>
+                        <td class="{{row_color}}">{{opp.estimated_sales|default:''}}</td>
+                        <td class="{{row_color}}">{{opp.made_sales|default:''}}</td>
+                    {% else %}
+                        <td class="{{row_color}}">??</td>
+                        <td class="{{row_color}}">??</td>
+                        <td class="{{row_color}}">??</td>
+                    {% endif %}
                     <td class="{{row_color}} action">
                         {% get_line_unlinker at_url '/creme_core/relation/delete/similar' with_args "{ 'subject_id':{{object.pk}}, 'type':'{{predicate_id}}', 'object_id':{{opp.pk}} }" with_perms unlink_perm|and_op:opp_unlink_perm %}
                     </td>
                 </tr>
             {% endfor %}
             <tr>{% cycle row_color %}
+                <td class="block_header_line_light">{% trans "Total Estimed Sales" %}</td>
+                <td class="block_header_line_light" colspan="4" style="text-align: right">{{object.get_estimated_sales}}</td>
+            </tr>
+            <tr>{% cycle row_color %}
                 <td class="block_header_line_light"><h3>{% trans "Total" %}</h3></td>
-                <td class="block_header_line_light" colspan="2"><strong>{{object.get_made_sales}}</strong></td>
+                <td class="block_header_line_light" colspan="4" style="text-align: right"><strong>{{object.get_made_sales}}</strong></td>
             </tr>
         {% else %}
             <tr class="content empty">
@@ -36,5 +50,5 @@
             </tr>
         {% endif %}
     </tbody>
-    {% get_block_footer 3 %}
+    {% get_block_footer 5 %}
 </table>
