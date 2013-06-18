@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
-    def populate(self, *args, **kwargs):
+    def populate(self):
         hf = HeaderFilter.create(pk='sms-hf_mlist', name=_(u'Messaging list view'), model=MessagingList)
         hf.set_items([HeaderFilterItem.build_4_field(model=MessagingList, name='name')])
 

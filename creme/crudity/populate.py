@@ -28,7 +28,7 @@ from .constants import SETTING_CRUDITY_SANDBOX_BY_USER
 
 
 class Populator(BasePopulator):
-    def populate(self, *args, **kwargs):
+    def populate(self):
         sk = SettingKey.create(pk=SETTING_CRUDITY_SANDBOX_BY_USER,
                                description=_(u"Are waiting actions are by user?"),
                                app_label='crudity', type=SettingKey.BOOL,

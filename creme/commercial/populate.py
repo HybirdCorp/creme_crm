@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core', 'persons']
 
-    def populate(self, *args, **kwargs):
+    def populate(self):
         RelationType.create((REL_SUB_SOLD_BY,       _(u'has sold')),
                             (REL_OBJ_SOLD_BY,       _(u'has been sold by')))
         RelationType.create((REL_SUB_COMPLETE_GOAL, _(u'completes a goal of the commercial action')),

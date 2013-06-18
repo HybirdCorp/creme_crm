@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
-    def populate(self, *args, **kwargs):
+    def populate(self):
         rt_map = {}
         for rt_info in [((REL_SUB_EMPLOYED_BY,       _(u'is an employee of'),          [Contact]),
                          (REL_OBJ_EMPLOYED_BY,       _(u'employs'),                    [Organisation]),

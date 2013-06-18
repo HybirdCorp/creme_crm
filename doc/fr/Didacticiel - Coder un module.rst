@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 06-03-2013 pour la version 1.3 de Creme
+:Version: 18-06-2013 pour la version 1.3 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett
@@ -551,7 +551,7 @@ la vue de liste. Créons un nouveau fichier : ``beavers/populate.py``. ::
     class Populator(BasePopulator):
         dependencies = ['creme_core']
 
-        def populate(self, *args, **kwargs):
+        def populate(self):
             hf = HeaderFilter.create(pk='beavers-hf_beaver', name=_(u'Beaver view'), model=Beaver)
             hf.set_items([HeaderFilterItem.build_4_field(model=Beaver, name='name'),
                           HeaderFilterItem.build_4_field(model=Beaver, name='birthday'),
@@ -572,7 +572,7 @@ Explications :
 Le code est exécuté par la commande ``creme_populate``. La commande permet de ne
 'peupler' que notre app. Dans ``creme/``, exécutez : ::
 
-    > python manage.py creme_populate -v -a beavers
+    > python manage.py creme_populate beavers
 
 En réaffichant votre liste de castors, la deuxième vue est bien là.
 
@@ -815,7 +815,7 @@ Utilisons tout de suite ces constantes ; modifiez ``populate.py`` : ::
 
     [...]
 
-    def populate(self, *args, **kwargs):
+    def populate(self):
         [...]
 
         create(Status, STATUS_HEALTHY, name=_(u'Healthy'), is_custom=False)
@@ -827,7 +827,7 @@ supprimables. Les constantes créées juste avant sont les PK des 2 objets ``Sta
 que l'ont créé ; on pourra ainsi y accéder facilement plus tard. Relancez la
 commande pour 'peupler' : ::
 
-    > python manage.py creme_populate -a beavers
+    > python manage.py creme_populate beavers
 
 
 Le formulaire de création de Beaver nous propose bien ces 2 statuts. Créez

@@ -53,4 +53,4 @@ run the following commands in the root directory:
 >> python manage.py migrate
 >> python manage.py generatemedia
 [Do not worry about 'URL not found' messages]
->> python manage.py creme_populate -v
+>> python manage.py creme_populate

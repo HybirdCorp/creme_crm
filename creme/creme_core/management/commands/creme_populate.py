@@ -54,9 +54,10 @@ def _extended_app_name(app_name, app_names, raise_exception=True):
 class BasePopulator(object):
     dependencies = [] #eg ['appname1', 'appname2']
 
-    def __init__(self, is_verbose, app, all_apps):
-        self.is_verbose = is_verbose
+    def __init__(self, verbosity, app, all_apps, options):
+        self.verbosity = verbosity
         self.app = app
+        self.options = options
         self.build_dependencies(all_apps)
 
     def __repr__(self):
@@ -75,10 +76,10 @@ class BasePopulator(object):
 
         self.dependencies = deps
 
-    def populate(self, *args, **kwargs):
+    def populate(self):
         raise NotImplementedError
 
-    #def reset(self, *args, **kwargs):
+    #def reset(self):
         #pass
 
     def get_app(self):
@@ -89,17 +90,16 @@ class BasePopulator(object):
 
 
 class Command(BaseCommand):
-    option_list = BaseCommand.option_list + (
+    #option_list = BaseCommand.option_list + ( #TODO: when reset is possible
         #make_option("-R", "--reset",    action="store_const", const="reset",    dest="action"),
-        make_option("-P", "--populate", action="store_const", const="populate", dest="action"),
-
-        make_option("-a", "--app",     action="append",      dest="application", default=None),
-        make_option("-v", "--verbose", action="store_const", dest="verbose",     const="true"), #TODO: use inherited option (int)
-                                                                                                       # action="store_true" ??
-    )
+        #make_option("-P", "--populate", action="store_const", const="populate", dest="action"),
+    #)
+    help = ('Populates the database for the specified applications, or the '
+            'entire site if no apps are specified.')
+    args = '[appname ...]'
 
     def create_parser(self, prog_name, subcommand):
-        """ Create and return the ``OptionParser`` which will be used to parse
+        """Create and return the ``OptionParser`` which will be used to parse
         the arguments to this command.
         """
         return OptionParser(prog=prog_name,
@@ -109,19 +109,19 @@ class Command(BaseCommand):
                             conflict_handler="resolve",
                            )
 
-    def handle(self, *args, **options):
-        action = options.get('action') or 'populate'
-        is_verbose = bool(options.get('verbose'))
-        app = options.get('application')
+    def handle(self, *app_names, **options):
+        #action = options.get('action') or 'populate' #TODO: when reset is possible
+        action = 'populate'
 
         translation.activate(settings.LANGUAGE_CODE)
-        self._do_populate_action(action, is_verbose, app, *args, **options)
+        self._do_populate_action(action, app_names, **options)
 
     def _signal_handler(self, sender, instance, **kwargs):
         if instance.pk and not isinstance(instance.pk, basestring): # models with string pk should manage pk manually, so we can optimise
             self.models.add(sender)
 
-    def _do_populate_action(self, name, is_verbose, applications, *args, **options):
+    def _do_populate_action(self, name, applications, *args, **options):
+        verbosity = int(options.get('verbosity'))
         all_apps = frozenset(settings.INSTALLED_CREME_APPS)
 
         if not applications:
@@ -145,9 +145,11 @@ class Command(BaseCommand):
 
             for app in apps_2_populate:
                 try:
-                    populator = self._get_populate_module(app).populate.Populator(is_verbose, app, all_apps)
+                    populator = self._get_populate_module(app) \
+                                    .populate \
+                                    .Populator(verbosity, app, all_apps, options)
                 except ImportError as e:
-                    if is_verbose:
+                    if verbosity >= 1:
                         print('disable populate for "%s": %s' % (app, e))
                 else:
                     assert isinstance(populator, BasePopulator)
@@ -161,7 +163,7 @@ class Command(BaseCommand):
             apps_2_populate = total_deps - populators_names
             total_missing_deps |= apps_2_populate
 
-        if total_missing_deps and is_verbose:
+        if total_missing_deps and verbosity >= 1:
             print('additionnal dependencies will be populated:', ', '.join(total_missing_deps))
 
         # clean the dependencies (avoid dependencies that do not exist in
@@ -169,7 +171,7 @@ class Command(BaseCommand):
         for populator in populators:
             populator.build_dependencies(populators_names)
 
-        populators = dependence_sort(populators, 
+        populators = dependence_sort(populators,
                                      BasePopulator.get_app,
                                      BasePopulator.get_dependencies,
                                     )
@@ -181,24 +183,25 @@ class Command(BaseCommand):
         pre_save.connect(self._signal_handler, dispatch_uid=dispatch_uid)
 
         for populator in populators:
-            if is_verbose:
+            if verbosity >= 1:
                 print('populate "%s" ...' % populator.app)
 
             try:
-                getattr(populator, name)(*args, **options)
+                #getattr(populator, name)(*args, **options)
+                getattr(populator, name)()
             except Exception as e:
                 print('populate "%s" failed (%s)' % (populator.app, e))
-                if is_verbose:
+                if verbosity >= 1:
                     exc_type, exc_value, exc_traceback = sys.exc_info()
                     print(''.join(format_exception(exc_type, exc_value, exc_traceback)))
 
-            if is_verbose:
+            if verbosity >= 1:
                 print('populate "%s" done.' % populator.app)
 
         pre_save.disconnect(dispatch_uid=dispatch_uid)
 
         #-----------------------------------------------------------------------
-        if is_verbose:
+        if verbosity >= 1:
             print('update sequences for models :', [model.__name__ for model in self.models])
 
         connection = connections[options.get('database', DEFAULT_DB_ALIAS)]
@@ -209,7 +212,7 @@ class Command(BaseCommand):
 
         #connection.close() #seems useless (& does not work with mysql)
 
-        if is_verbose:
+        if verbosity >= 1:
             print('update sequences done.')
 
     def _get_populate_module(self, app):

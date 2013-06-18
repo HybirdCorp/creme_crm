@@ -44,7 +44,7 @@ logger = logging.getLogger(__name__)
 class Populator(BasePopulator):
     dependencies = ['creme_core']
 
-    def populate(self, *args, **kwargs):
+    def populate(self):
         RelationType.create((REL_SUB_MAIL_RECEIVED, _(u"(email) received by"),  [EntityEmail]),
                             (REL_OBJ_MAIL_RECEIVED, _(u"received the email"),   [Organisation, Contact]))
         RelationType.create((REL_SUB_MAIL_SENDED,   _(u"(email) sended"),       [EntityEmail]),
