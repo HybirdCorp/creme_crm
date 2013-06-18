@@ -27,7 +27,8 @@ from django.conf import settings
 class Cipher(object):
     @staticmethod
     def get_cipher():
-        return AES.new(settings.SECRET_KEY[:32], AES.MODE_CFB)
+        iv = ''.join(chr(0) for i in xrange(16))
+        return AES.new(settings.SECRET_KEY[:32], AES.MODE_CFB, iv)
 
     @staticmethod
     def encrypt(text):
@@ -47,5 +48,4 @@ class Cipher(object):
     def decrypt_from_db(ciphered):
         """base64 Decode the ciphered string and un-cipher it."""
         return Cipher.decrypt(base64.b64decode(ciphered))
-
 
