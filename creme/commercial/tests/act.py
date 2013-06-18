@@ -479,7 +479,7 @@ class ActTestCase(CommercialBaseTestCase):
                              emitter=emitter, target=target,
                             )
         create_rel = partial(Relation.objects.create, type=rtype, object_entity=act, user=user)
-        opp01 = create_opp(name='OPP01', closing_date=date.today())
+        opp01 = create_opp(name='OPP01', closing_date=date.today(), estimated_sales=2000)
         create_rel(subject_entity=opp01)
 
         act = self.refresh(act) #refresh cache
@@ -488,8 +488,9 @@ class ActTestCase(CommercialBaseTestCase):
 
         opp01.made_sales = 1500; opp01.save()
         self.assertEqual(1500, self.refresh(act).get_made_sales())
+        self.assertEqual(2000, self.refresh(act).get_estimated_sales())
 
-        opp02 = create_opp(name='OPP02', closing_date=date.today(), made_sales=500)
+        opp02 = create_opp(name='OPP02', closing_date=date.today(), made_sales=500, estimated_sales=3000)
         create_rel(subject_entity=opp02)
 
         act  = self.refresh(act) #refresh cache
@@ -497,6 +498,7 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(2, len(opps))
         self.assertEqual(set([opp01, opp02]), set(opps))
         self.assertEqual(2000, self.refresh(act).get_made_sales())
+        self.assertEqual(5000, self.refresh(act).get_estimated_sales())
 
         opp01.trash()
         self.assertEqual([opp02], self.refresh(act).get_related_opportunities())

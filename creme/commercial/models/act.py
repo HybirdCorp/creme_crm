@@ -93,6 +93,9 @@ class Act(CremeEntity):
     def get_made_sales(self):
         return sum(o.made_sales for o in self.get_related_opportunities() if o.made_sales)
 
+    def get_estimated_sales(self):
+        return sum(o.estimated_sales for o in self.get_related_opportunities() if o.estimated_sales)
+
     def get_related_opportunities(self):
         relopps = self._related_opportunities
 
