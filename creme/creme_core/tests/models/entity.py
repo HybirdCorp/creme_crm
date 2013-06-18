@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import datetime
     from decimal import Decimal
     from functools import partial
     from tempfile import NamedTemporaryFile
@@ -9,6 +8,7 @@ try:
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
     from django.db.models.deletion import ProtectedError
+    from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
     from ..base import CremeTestCase
@@ -41,9 +41,9 @@ class EntityTestCase(CremeTestCase):
         with self.assertNoException():
             entity = CremeEntity.objects.create(user=self.user)
 
-        now = datetime.now()
-        self.assertLess((now - entity.created).seconds,  10)
-        self.assertLess((now - entity.modified).seconds, 10)
+        now_value = now()
+        self.assertLess((now_value - entity.created).seconds,  10)
+        self.assertLess((now_value - entity.modified).seconds, 10)
 
     def test_property01(self): #TODO: create a test case for CremeProperty ???
         text = 'TEXT'
@@ -142,7 +142,7 @@ class EntityTestCase(CremeTestCase):
     def test_clone01(self):
         self._setUpClone()
 
-        created = modified = datetime.now()
+        created = modified = now()
         entity1 = CremeEntity.objects.create(user=self.user)
         original_ce = CremeEntity.objects.create(created=created, modified=modified, is_deleted=False, is_actived=True, user=self.user)
 
@@ -185,7 +185,7 @@ class EntityTestCase(CremeTestCase):
 
         naruto = Contact.objects.create(user=self.user, civility=civility,
                                         first_name=u'Naruto', last_name=u'Uzumaki',
-                                        description=u"Ninja", birthday=datetime.now(),
+                                        description=u"Ninja", birthday=now(),
                                         mobile=u"+81 0 0 0 00 01", email=u"naruto.uzumaki@konoha.jp",
                                         image=image,
                                        )
@@ -218,7 +218,7 @@ class EntityTestCase(CremeTestCase):
         cf_float      = create_cf(name='float',      field_type=CustomField.FLOAT)
         cf_bool       = create_cf(name='bool',       field_type=CustomField.BOOL)
         cf_str        = create_cf(name='str',        field_type=CustomField.STR)
-        cf_date       = create_cf(name='date',       field_type=CustomField.DATE)
+        cf_date       = create_cf(name='date',       field_type=CustomField.DATETIME)
         cf_enum       = create_cf(name='enum',       field_type=CustomField.ENUM)
         cf_multi_enum = create_cf(name='multi_enum', field_type=CustomField.MULTI_ENUM)
 
@@ -234,7 +234,7 @@ class EntityTestCase(CremeTestCase):
         CustomFieldFloat.objects.create(custom_field=cf_float, entity=orga, value=Decimal("10.5"))
         CustomFieldBoolean.objects.create(custom_field=cf_bool, entity=orga, value=True)
         CustomFieldString.objects.create(custom_field=cf_str, entity=orga, value="kunai")
-        CustomFieldDateTime.objects.create(custom_field=cf_date, entity=orga, value=datetime.now())
+        CustomFieldDateTime.objects.create(custom_field=cf_date, entity=orga, value=now())
         CustomFieldEnum.objects.create(custom_field=cf_enum, entity=orga, value=enum1)
         CustomFieldMultiEnum(custom_field=cf_multi_enum, entity=orga).set_value_n_save([m_enum1, m_enum2])
 
@@ -275,7 +275,7 @@ class EntityTestCase(CremeTestCase):
         rtype_participant = RelationType.objects.get(pk=REL_SUB_PART_2_ACTIVITY)
 
         activity1 = Activity.objects.create(user=self.user, type_id=ACTIVITYTYPE_MEETING, title='Meeting',
-                                            start=datetime.now(), end=datetime.now(),
+                                            start=now(), end=now(), #TODO: timedelta for end
                                             description='Desc', minutes='123', is_all_day=False,
                                             status=act_status, busy=True, place='Here',
                                            )

@@ -4,6 +4,8 @@ try:
     from datetime import datetime, timedelta
     from functools import partial
 
+    from django.utils.timezone import now
+
     from creme.creme_core.models import CremeEntity, Relation
     from creme.creme_core.tests.base import CremeTestCase
 
@@ -51,7 +53,7 @@ class CommercialApproachTestCase(CremeTestCase):
         self.assertEqual(description, commapp.description)
         self.assertEqual(entity.id,   commapp.entity_id)
 
-        self.assertLess((datetime.today() - commapp.creation_date).seconds, 10)
+        self.assertLess((now() - commapp.creation_date).seconds, 10)
 
         self.assertEqual(title, unicode(commapp))
 
@@ -167,12 +169,12 @@ class CommercialApproachTestCase(CremeTestCase):
         self.assertEqual(3, len(comapps))
         self.assertEqual(set([genma, ranma, dojo]), set(comapp.creme_entity for comapp in comapps))
 
-        now = datetime.now()
+        now_value = now()
 
         for comapp in comapps:
             self.assertEqual(title,       comapp.title)
             self.assertEqual(description, comapp.description)
-            self.assertAlmostEqual(now, comapp.creation_date, delta=timedelta(seconds=1))
+            self.assertAlmostEqual(now_value, comapp.creation_date, delta=timedelta(seconds=1))
 
     def test_sync_with_activity(self):
         self.login()
@@ -180,10 +182,13 @@ class CommercialApproachTestCase(CremeTestCase):
         user = self.user
         title = 'meeting #01'
         description = 'Stuffs about the fighting'
+        create_dt = self.create_datetime
         meeting = Activity.objects.create(user=user, title=title, description=description,
                                           type_id=ACTIVITYTYPE_MEETING,
-                                          start=datetime(year=2011, month=5, day=18, hour=14, minute=0),
-                                          end=datetime(year=2011,   month=6, day=1,  hour=15, minute=0)
+                                          #start=datetime(year=2011, month=5, day=18, hour=14, minute=0),
+                                          #end=datetime(year=2011,   month=6, day=1,  hour=15, minute=0)
+                                          start=create_dt(year=2011, month=5, day=18, hour=14, minute=0),
+                                          end=create_dt(year=2011,   month=6, day=1,  hour=15, minute=0)
                                          )
         ryoga = Contact.objects.create(user=user, first_name='Ryoga', last_name='Hibiki', is_user=user)
 

@@ -18,16 +18,17 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime, timedelta
+from datetime import timedelta #datetime
 import logging
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.mail import get_connection
 from django.core.mail.message import EmailMessage
 from django.core.management.base import BaseCommand
 from django.db.models.query_utils import Q
+from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, activate
-from django.conf import settings
 
 from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
 
@@ -63,7 +64,7 @@ class Command(BaseCommand):
         from creme.opportunities.constants import REL_SUB_TARGETS
         from creme.opportunities.models import Opportunity
 
-        from creme.persons.models    import Organisation, Contact
+        from creme.persons.models import Organisation, Contact
 
         try:
             lock = Mutex.get_n_lock(LOCK_NAME)
@@ -71,13 +72,16 @@ class Command(BaseCommand):
             print 'A process is already running'
         else:
             if SettingValue.objects.get(key__id=DISPLAY_ONLY_ORGA_COM_APPROACH_ON_ORGA_DETAILVIEW).value:
+                get_ct = ContentType.objects.get_for_model
+                ctypes = [get_ct(model) for model in (Organisation, Contact, Opportunity)]
+
                 for extra_q, delay in self.list_target_orga:
+                    now_value       = now()
+                    thirty_days_ago = now_value - timedelta(days=delay)
 
-                    now             = datetime.now()
-                    thirty_days_ago = now - timedelta(days=delay)
-
-
-                    com_apps         = CommercialApproach.objects.filter(entity_content_type__in=[ContentType.objects.get_for_model(model) for model in (Organisation, Contact, Opportunity)], creation_date__range=(thirty_days_ago, now))
+                    com_apps         = CommercialApproach.objects.filter(entity_content_type__in=ctypes,
+                                                                         creation_date__range=(thirty_days_ago, now_value),
+                                                                        )
                     com_apps_filter  = com_apps.filter
 
                     opportunities_targets_orga = Opportunity.objects.filter(relations__type=REL_SUB_TARGETS)
@@ -87,19 +91,20 @@ class Command(BaseCommand):
 
                     EMAIL_SENDER = settings.EMAIL_SENDER
 
+                    #TODO: are 'values_list' real optimizations here ??
                     for organisation in Organisation.objects.filter(~Q(properties__type=PROP_IS_MANAGED_BY_CREME) & extra_q):
                         have_to_send_mail = False
 
                         is_any_com_app_in_orga = com_apps_filter(entity_id=organisation.id).exists()
 
                         if not is_any_com_app_in_orga:
-                            is_any_com_app_in_managers = com_apps_filter(entity_id__in=organisation.get_managers().values_list('id',flat=True)).exists()
+                            is_any_com_app_in_managers = com_apps_filter(entity_id__in=organisation.get_managers().values_list('id', flat=True)).exists()
 
                             if not is_any_com_app_in_managers:
-                                is_any_com_app_in_employees = com_apps_filter(entity_id__in=organisation.get_employees().values_list('id',flat=True)).exists()
+                                is_any_com_app_in_employees = com_apps_filter(entity_id__in=organisation.get_employees().values_list('id', flat=True)).exists()
 
                                 if not is_any_com_app_in_employees and \
-                                   not com_apps_filter(entity_id__in=opportunities_targets_orga.filter(relations__object_entity=organisation).values_list('id',flat=True)).exists():
+                                   not com_apps_filter(entity_id__in=opportunities_targets_orga.filter(relations__object_entity=organisation).values_list('id', flat=True)).exists():
                                     have_to_send_mail = True
 
                         if have_to_send_mail:

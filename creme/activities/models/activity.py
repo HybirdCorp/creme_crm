@@ -18,12 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
-
 from django.db.models import (PositiveIntegerField, DateTimeField, CharField, TextField,
                               BooleanField, ManyToManyField, ForeignKey, PROTECT, SET_NULL)
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
+from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, Relation
@@ -87,7 +86,7 @@ LOCATION:%(location)s
 CATEGORIES:%(categories)s
 STATUS:%(status)s
 END:VEVENT
-""" % {'dtstamp':    get_ical_date(datetime.now()),
+""" % {'dtstamp':    get_ical_date(now()),
        'summary':    self.title,
        'dtstart':    get_ical_date(self.start),
        'dtend':      get_ical_date(self.end),

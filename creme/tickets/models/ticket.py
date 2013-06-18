@@ -18,10 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
 from random import randint
 
 from django.db.models import ForeignKey, CharField, TextField, DateTimeField, PROTECT
+from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.utils.formats import date_format
 
@@ -99,12 +99,12 @@ class Ticket(AbstractTicket):
     def _pre_save_clone(self, source):
         super(Ticket, self)._pre_save_clone(source)
         if self.status_id == CLOSED_PK:
-            self.closing_date = self.created = self.modified = datetime.now()
+            self.closing_date = self.created = self.modified = now()
 
     def save(self, *args, **kwargs):
         if self.pk:
             if (self.status_id == CLOSED_PK) and (self.old_status_id != CLOSED_PK):
-                self.closing_date = datetime.now()
+                self.closing_date = now()
         else: #creation
             self.status_id = self.status_id or OPEN_PK
 
@@ -136,8 +136,8 @@ class TicketTemplate(AbstractTicket):
     def create_entity(self):
         """This method is used by the generation job of the 'recurrents' app"""
         #Beware: the 'title' column must be unique
-        now = datetime.now()
-        title = u'%s %s' % (self.title, date_format(now.date(), 'DATE_FORMAT'))
+        now_value = now()
+        title = u'%s %s' % (self.title, date_format(now_value.date(), 'DATE_FORMAT')) #TODO: use localtime() ?
 
         ticket = Ticket(user=self.user,
                         description=self.description,
@@ -145,7 +145,7 @@ class TicketTemplate(AbstractTicket):
                         priority_id=self.priority_id,
                         criticity_id=self.criticity_id,
                         solution=self.solution,
-                        closing_date = now if self.status_id == CLOSED_PK else None
+                        closing_date=(now_value if self.status_id == CLOSED_PK else None),
                        )
 
         min_index = Ticket.objects.filter(title__startswith=title).count() + 1

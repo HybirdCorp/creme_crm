@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import datetime, timedelta
+    from datetime import  timedelta #datetime
     from functools import partial
+
+    from django.utils.timezone import now
 
     from creme.creme_core.models import RelationType, Relation, CremeProperty
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME
@@ -42,7 +44,7 @@ class BlocksTestCase(CremeTestCase):
 
     def _get_neglected_orgas(self):
         neglected_orgas_block = NeglectedOrganisationsBlock()
-        return neglected_orgas_block._get_neglected(datetime.now())
+        return neglected_orgas_block._get_neglected(now())
 
     def test_neglected_block01(self):
         #neglected_orgas_block = NeglectedOrganisationsBlock()
@@ -83,7 +85,7 @@ class BlocksTestCase(CremeTestCase):
         customer02 = self._build_customer_orga(mng_orga, 'Suna')
         self.assertEqual(2, len(self._get_neglected_orgas()))
 
-        tomorrow = datetime.now() + timedelta(days=1) #so in the future
+        tomorrow = now() + timedelta(days=1) #so in the future
         meeting  = Activity.objects.create(user=user, type_id=ACTIVITYTYPE_MEETING,
                                            title='meet01', start=tomorrow,
                                            end=tomorrow + timedelta(hours=2),
@@ -106,7 +108,7 @@ class BlocksTestCase(CremeTestCase):
         self._build_customer_orga(mng_orga, 'Konoha')
         customer02 = self._build_customer_orga(mng_orga, 'Suna')
 
-        yesterday = datetime.now() - timedelta(days=1) #so in the past
+        yesterday = now() - timedelta(days=1) #so in the past
         meeting  = Activity.objects.create(user=user, type_id=ACTIVITYTYPE_MEETING,
                                            title='meet01', start=yesterday,
                                            end=yesterday + timedelta(hours=2),
@@ -125,7 +127,7 @@ class BlocksTestCase(CremeTestCase):
 
         customer = self._build_customer_orga(mng_orga, 'Suna')
 
-        tomorrow = datetime.now() + timedelta(days=1) #so in the future
+        tomorrow = now() + timedelta(days=1) #so in the future
         meeting = Activity.objects.create(user=user, type_id=ACTIVITYTYPE_MEETING,
                                           title='meet01', start=tomorrow,
                                           end=tomorrow + timedelta(hours=2),
@@ -158,7 +160,7 @@ class BlocksTestCase(CremeTestCase):
 
         customer = self._build_customer_orga(mng_orga, 'Suna')
 
-        tomorrow = datetime.now() + timedelta(days=1) #so in the future
+        tomorrow = now() + timedelta(days=1) #so in the future
         create_activity = partial(Activity.objects.create, user=user, start=tomorrow)
         meeting   = create_activity(title='meet01', type_id=ACTIVITYTYPE_MEETING,
                                     end=tomorrow + timedelta(hours=2)
@@ -190,7 +192,7 @@ class BlocksTestCase(CremeTestCase):
         customer   = self._build_customer_orga(mng_orga, 'Suna')
         competitor = Organisation.objects.create(user=user, name='Akatsuki')
 
-        tomorrow = datetime.now() + timedelta(days=1) #so in the future
+        tomorrow = now() + timedelta(days=1) #so in the future
         meeting  = Activity.objects.create(user=user, type_id=ACTIVITYTYPE_MEETING, 
                                            title='meet01', start=tomorrow,
                                            end=tomorrow + timedelta(hours=2),

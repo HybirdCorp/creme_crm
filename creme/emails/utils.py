@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
 from email.mime.image import MIMEImage
 import logging
 from os.path import basename, exists, join
@@ -28,6 +27,7 @@ from string import ascii_letters, digits
 
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
+from django.utils.timezone import now
 
 from creme.media_managers.models import Image
 
@@ -191,7 +191,7 @@ class EMailSender(object):
                 mail.status = MAIL_STATUS_SENDINGERROR
             else:
                 mail.status = MAIL_STATUS_SENT
-                mail.sending_date = datetime.now() #####??
+                mail.sending_date = now() #####??
                 ok = True
 
             mail.save()

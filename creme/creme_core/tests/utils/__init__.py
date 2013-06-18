@@ -2,24 +2,25 @@
 
 try:
     import string
-    from datetime import datetime
+    from datetime import datetime, date
 
     import pytz
 
     from django.http import Http404
+    from django.conf import settings
 
     from ..base import CremeTestCase
     from creme.creme_core.models import CremePropertyType, PreferedMenuItem
-    from creme.creme_core.utils import (find_first, truncate_str, create_if_needed, 
+    from creme.creme_core.utils import (find_first, truncate_str, create_if_needed, update_model_instance,
                                         get_from_GET_or_404, get_from_POST_or_404,
                                         safe_unicode, safe_unicode_error)
-    from creme.creme_core.utils.dates import (get_dt_from_iso8601_str, get_dt_to_iso8601_str,
-                                              get_naive_dt_from_tzdate, get_creme_dt_from_utc_dt,
-                                              get_utc_dt_from_creme_dt)
+    from creme.creme_core.utils.dates import (get_dt_from_str, get_date_from_str,
+                              get_dt_from_iso8601_str, get_dt_to_iso8601_str)
+                              #get_creme_dt_from_utc_dt get_utc_dt_from_creme_dt get_naive_dt_from_tzdate
     from creme.creme_core.utils.dependence_sort import dependence_sort, DependenciesLoopError
     from creme.creme_core.utils.queries import get_first_or_None
 
-    from creme.persons.models import Civility
+    from creme.persons.models import Civility, Contact
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -93,6 +94,43 @@ class MiscTestCase(CremeTestCase):
         pmi = create_if_needed(PreferedMenuItem, {'user': user, 'url': url}, label=label + ' new', order=order + 2)
         self.assertEqual(label,  pmi.label)
         self.assertEqual(order,  pmi.order)
+
+    def test_update_model_instance01(self):
+        self.login()
+
+        first_name = 'punpun'
+        last_name = 'punpunyama'
+        pupun = Contact.objects.create(user=self.user, first_name=first_name, last_name=last_name)
+
+        first_name = first_name.title()
+
+        update_model_instance(pupun, first_name=first_name)
+        self.assertEqual(first_name, self.refresh(pupun).first_name)
+
+        with self.assertNumQueries(0):
+            update_model_instance(pupun, last_name=last_name)
+
+        self.assertRaises(AttributeError, update_model_instance,
+                          pupun, first_name=first_name, unknown_field='??'
+                         )
+
+    def test_update_model_instance02(self):
+        self.login()
+
+        first_name = 'punpun'
+        last_name = 'punpunyama'
+        pupun = Contact.objects.create(user=self.user, first_name=first_name, last_name=last_name)
+
+        first_name = first_name.title()
+        last_name = last_name.title()
+        update_model_instance(pupun, first_name=first_name, last_name=last_name)
+
+        pupun = self.refresh(pupun)
+        self.assertEqual(first_name, pupun.first_name)
+        self.assertEqual(last_name,  pupun.last_name)
+
+        with self.assertNumQueries(0):
+            update_model_instance(pupun, first_name=first_name, last_name=last_name)
 
     def test_get_from_request_or_404(self):
         request = {'name': 'robert', 'age': '36'}
@@ -242,21 +280,57 @@ class DependenceSortTestCase(CremeTestCase): #TODO: SimpleTestCase
 class DatesTestCase(CremeTestCase):
     def test_get_dt_from_iso8601_str_01(self):
         dt = get_dt_from_iso8601_str('20110522T223000Z')
-        self.assertEqual(datetime(2011, 05, 22, 22, 30, 00), dt)
+        self.assertEqual(datetime(2011, 5, 22, 22, 30, 0), dt)
 
     def test_get_dt_to_iso8601_str_01(self):
-        dt = datetime(2011, 05, 22, 22, 30, 00)
+        dt = datetime(2011, 5, 22, 22, 30, 0)
         self.assertEqual('20110522T223000Z', get_dt_to_iso8601_str(dt))
 
-    def test_get_naive_dt_from_tzdate_01(self):
-        dt_localized = pytz.utc.localize(datetime(2011, 05, 22, 22, 30, 00))
-        dt = get_naive_dt_from_tzdate(dt_localized)
-        self.assertEqual(datetime(2011, 05, 22, 22, 30, 00), dt)
+    #def test_get_naive_dt_from_tzdate_01(self):
+        #dt_localized = pytz.utc.localize(datetime(2011, 5, 22, 22, 30, 0))
+        #dt = get_naive_dt_from_tzdate(dt_localized)
+        #self.assertEqual(datetime(2011, 5, 22, 22, 30, 0), dt)
 
-    def test_get_creme_dt_from_utc_dt_01(self):
-        dt_localized = pytz.utc.localize(datetime(2011, 05, 22, 22, 30, 00))
-        utc_dt = get_utc_dt_from_creme_dt(get_creme_dt_from_utc_dt(dt_localized))
-        self.assertEqual(dt_localized, utc_dt)
+    #def test_get_creme_dt_from_utc_dt_01(self):
+        #dt_localized = pytz.utc.localize(datetime(2011, 5, 22, 22, 30, 0))
+        #utc_dt = get_utc_dt_from_creme_dt(get_creme_dt_from_utc_dt(dt_localized))
+        #self.assertEqual(dt_localized, utc_dt)
+
+    def test_get_dt_from_str(self):
+        create_dt = self.create_datetime
+        self.assertEqual(create_dt(year=2013, month=7, day=25, hour=12, minute=28, second=45),
+                         get_dt_from_str('2013-07-25 12:28:45')
+                        )
+        self.assertEqual(create_dt(year=2013, month=7, day=25, hour=8, utc=True),
+                         get_dt_from_str('2013-07-25 11:00:00+03:00')
+                        )
+
+        DATETIME_INPUT_FORMATS = settings.DATETIME_INPUT_FORMATS
+
+        def check(fmt, dt_str, **kwargs):
+            if fmt in DATETIME_INPUT_FORMATS:
+                self.assertEqual(create_dt(**kwargs), get_dt_from_str(dt_str))
+            else:
+                print 'DatesTestCase: skipped datetime format:', fmt
+
+        check('%d-%m-%Y', '25/07/2013', year=2013, month=7, day=25)
+        check('%Y-%m-%d', '2014-08-26', year=2014, month=8, day=26)
+
+        check('%Y-%m-%dT%H:%M:%S.%fZ', '2013-07-25 12:28:45',
+              year=2013, month=7, day=25, hour=12, minute=28, second=45
+             )
+
+    def test_get_date_from_str(self):
+        DATE_INPUT_FORMATS = settings.DATE_INPUT_FORMATS
+
+        def check(fmt, date_str, **kwargs):
+            if fmt in DATE_INPUT_FORMATS:
+                self.assertEqual(date(**kwargs), get_date_from_str(date_str))
+            else:
+                print 'DatesTestCase: skipped date format:', fmt
+
+        check('%d-%m-%Y', '25/07/2013', year=2013, month=7, day=25)
+        check('%Y-%m-%d', '2014-08-26', year=2014, month=8, day=26)
 
 
 class QueriesTestCase(CremeTestCase):

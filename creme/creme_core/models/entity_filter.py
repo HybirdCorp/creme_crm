@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime, date
+from datetime import datetime # date
 from itertools import ifilter
 import logging
 
@@ -27,12 +27,14 @@ from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.db.models.signals import pre_delete
 from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _, ugettext
-from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
 from django.contrib.contenttypes.models import ContentType
+from django.utils.simplejson import loads as jsonloads, dumps as jsondumps
+from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.timezone import now
 
 from ..utils.meta import is_date_field, get_model_field_info
 from ..utils.date_range import date_range_registry
+from ..utils.dates import make_aware_dt
 from .relation import RelationType, Relation
 from .custom_field import CustomField
 from .fields import CremeUserForeignKey, CTypeForeignKey
@@ -410,7 +412,7 @@ class EntityFilterCondition(Model):
         if not EntityFilterCondition._OPERATOR_MAP.get(operator):
             raise EntityFilterCondition.ValueError('build_4_customfield(): unknown operator: %s', operator)
 
-        if custom_field.field_type == CustomField.DATE:
+        if custom_field.field_type == CustomField.DATETIME:
             raise EntityFilterCondition.ValueError('build_4_customfield(): does not manage DATE CustomFields')
 
         if custom_field.field_type == CustomField.BOOL and operator != EntityFilterCondition.EQUALS:
@@ -467,7 +469,7 @@ class EntityFilterCondition(Model):
 
     @staticmethod
     def build_4_datecustomfield(custom_field, date_range=None, start=None, end=None):
-        if not custom_field.field_type == CustomField.DATE:
+        if not custom_field.field_type == CustomField.DATETIME:
             raise EntityFilterCondition.ValueError('build_4_datecustomfield(): not a date custom field.')
 
         value = EntityFilterCondition._build_daterange_dict(date_range, start, end)
@@ -585,7 +587,8 @@ class EntityFilterCondition(Model):
         for key in ('start', 'end'):
             date_kwargs = get(key)
             if date_kwargs:
-                kwargs[key] = date(**date_kwargs)
+                #kwargs[key] = date(**date_kwargs)
+                kwargs[key] = make_aware_dt(datetime(**date_kwargs))
 
         return date_range_registry.get_range(**kwargs)
 
@@ -595,7 +598,7 @@ class EntityFilterCondition(Model):
         related_name = search_info['rname']
         fname = '%s__value' % related_name
 
-        q_dict = self._load_daterange(search_info).get_q_dict(field=fname, now=datetime.now())
+        q_dict = self._load_daterange(search_info).get_q_dict(field=fname, now=now())
         q_dict['%s__custom_field' % related_name] = int(self.name)
 
         return Q(pk__in=self.filter.entity_type.model_class().objects.filter(**q_dict).values_list('id', flat=True))
@@ -664,7 +667,7 @@ class EntityFilterCondition(Model):
             EFC_RELATION:           _get_q_relation,
             EFC_RELATION_SUBFILTER: _get_q_relation_subfilter,
             EFC_PROPERTY:           _get_q_property,
-            EFC_DATEFIELD:          (lambda self: Q(**self._load_daterange(self.decoded_value).get_q_dict(field=self.name, now=datetime.now()))),
+            EFC_DATEFIELD:          (lambda self: Q(**self._load_daterange(self.decoded_value).get_q_dict(field=self.name, now=now()))),
             EFC_CUSTOMFIELD:        _get_q_customfield,
             EFC_DATECUSTOMFIELD:    _get_q_datecustomfield,
         }

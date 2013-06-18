@@ -25,8 +25,14 @@
     <div class=zone_spacer_5px></div>
 
     <div class="theme_picker">
-        <form action="/creme_config/my_settings/edit_theme/" method="POST">
-            <span>{% csrf_token %}{{ themes_form }}</span>
+        <form action="/creme_config/my_settings/set_theme/" method="POST">
+            <span>{% csrf_token %}{{theme_form}}</span>
+        </form>
+    </div>
+
+    <div class="tz_picker">
+        <form action="/creme_config/my_settings/set_timezone/" method="POST">
+            <span>{% csrf_token %}{{tz_form}}</span>
         </form>
     </div>
 

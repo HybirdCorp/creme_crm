@@ -1,11 +1,12 @@
  # -*- coding: utf-8 -*-
 
 try:
-    from datetime import datetime, date
+    from datetime import date #datetime
     from decimal import Decimal
     from time import sleep
 
     from django.contrib.contenttypes.models import ContentType
+    from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import (CremeProperty, CremePropertyType,
@@ -35,7 +36,7 @@ class HistoryTestCase(CremeTestCase):
         cls.populate('creme_core', 'creme_config')
 
     def setUp(self):
-        self.old_time = datetime.now().replace(microsecond=0)
+        self.old_time = now().replace(microsecond=0)
         self.login()
 
     def _build_organisation(self, name, extra_args=None, **kwargs):
@@ -61,11 +62,11 @@ class HistoryTestCase(CremeTestCase):
         return self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
 
     def assertBetweenDates(self, hline):
-        now = datetime.now()
+        now_value = now()
         hdate = hline.date
         old_time = self.old_time
-        self.assertTrue(old_time <= hdate <= now,
-                        'old_time=%s ; hline.date=%s ; now=%s' % (old_time, hdate, now)
+        self.assertTrue(old_time <= hdate <= now_value,
+                        'old_time=%s ; hline.date=%s ; now=%s' % (old_time, hdate, now_value)
                        )
 
     def _get_hlines(self):
@@ -312,7 +313,7 @@ about this fantastic animation studio."""
         user = self.user
         gainax = Organisation.objects.create(user=user, name='Gainax')
         todo = ToDo.objects.create(user=user, creme_entity=gainax, title='Todo#1',
-                                   creation_date=datetime.now(),
+                                   creation_date=now(),
                                   )
         old_count = HistoryLine.objects.count()
 
@@ -521,7 +522,7 @@ about this fantastic animation studio."""
         self.assertEqual(unicode(rei),      hline.entity_repr)
         self.assertEqual(TYPE_RELATION_DEL, hline.type)
         self.assertEqual([rtype.id],        hline.modifications)
-        self.assertLess((datetime.now() - hline.date).seconds, 1)
+        self.assertLess((now() - hline.date).seconds, 1)
         self.assertEqual(True,              hline.line_type.is_about_relation)
 
         hline_sym = hlines[-1]
@@ -542,7 +543,7 @@ about this fantastic animation studio."""
         old_count = HistoryLine.objects.count()
 
         todo = ToDo.objects.create(user=user, creme_entity=nerv, title='Todo#1',
-                                   creation_date=datetime.now(),
+                                   creation_date=now(),
                                   )
         hlines = self._get_hlines()
         self.assertEqual(old_count + 1, len(hlines))
@@ -558,7 +559,7 @@ about this fantastic animation studio."""
         user = self.user
         nerv = Organisation.objects.create(user=user, name='Nerv')
         todo = ToDo.objects.create(user=user, creme_entity=nerv, title='Todo#1',
-                                   creation_date=datetime.now(),
+                                   creation_date=now(),
                                   )
         old_count = HistoryLine.objects.count()
 
@@ -694,7 +695,7 @@ about this fantastic animation studio."""
         user = self.user
         nerv = Organisation.objects.create(user=user, name='Nerv')
         todo = ToDo.objects.create(user=user, creme_entity=nerv, title='Todo#1',
-                                   creation_date=datetime.now(),
+                                   creation_date=now(),
                                   )
         old_count = HistoryLine.objects.count()
 

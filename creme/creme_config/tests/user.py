@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from django.utils.translation import ugettext as _
     from django.conf import settings
     from django.contrib.sessions.models import Session
     from django.contrib.auth.models import User
+    from django.utils.simplejson import loads as jsonloads
+    from django.utils import timezone as django_tz
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import (CremeEntity, CremeProperty, Relation, EntityCredentials,
                                    UserRole, SetCredentials, Mutex)
@@ -16,7 +18,7 @@ try:
     from creme.persons.models import Contact, Organisation #need CremeEntity
     from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 
-    from ..constants import USER_THEME_NAME
+    from ..constants import USER_THEME_NAME, USER_TIMEZONE
     from ..models import SettingKey, SettingValue
     from ..utils import get_user_theme
     from ..blocks import UsersBlock, TeamsBlock, UserPreferedMenusBlock, BlockMypageLocationsBlock
@@ -698,11 +700,11 @@ class UserSettingsTestCase(CremeTestCase):
         self.assertContains(response, 'id="%s"' % BlockMypageLocationsBlock.id_)
 
     def test_change_theme01(self):
-        self.assertEqual(1, SettingKey.objects.filter(pk=USER_THEME_NAME).count())
-        self.assertEqual(0, SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME).count())
+        self.get_object_or_fail(SettingKey, pk=USER_THEME_NAME)
+        self.assertFalse(SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME))
 
         def change_theme(theme):
-            self.assertPOST200('/creme_config/my_settings/edit_theme/', data={'themes': theme})
+            self.assertPOST200('/creme_config/my_settings/set_theme/', data={'theme': theme})
 
             svalues = SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME)
             self.assertEqual(1, len(svalues))
@@ -712,16 +714,22 @@ class UserSettingsTestCase(CremeTestCase):
         change_theme("icecream")
 
     def test_get_user_theme01(self):
-        self.assertEqual(1, SettingKey.objects.filter(pk=USER_THEME_NAME).count())
-        self.assertEqual(0, SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME).count())
+        user = self.user
 
-        self.assertEqual(settings.DEFAULT_THEME, get_user_theme(self.user))
-        self.assertEqual(1, SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME).count())
+        class FakeRequest(object):
+            def __init__(self):
+                self.user = user
+                self.session = {}
 
-        sv = SettingValue.objects.get(user=self.user, key=USER_THEME_NAME)
+        self.get_object_or_fail(SettingKey, pk=USER_THEME_NAME)
+        self.assertFalse(SettingValue.objects.filter(user=user, key=USER_THEME_NAME))
+
+        self.assertEqual(settings.DEFAULT_THEME, get_user_theme(FakeRequest()))
+        sv = self.get_object_or_fail(SettingValue, user=user, key=USER_THEME_NAME)
+
         sv.value = "unknown theme"
         sv.save()
-        self.assertEqual(settings.DEFAULT_THEME, get_user_theme(self.user))
+        self.assertEqual(settings.DEFAULT_THEME, get_user_theme(FakeRequest()))
 
     def test_get_user_theme02(self):
         class FakeRequest(object):
@@ -738,10 +746,72 @@ class UserSettingsTestCase(CremeTestCase):
 
             return theme
 
-        self.assertEqual(1, SettingKey.objects.filter(pk=USER_THEME_NAME).count())
-        self.assertEqual(0, SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME).count())
+        self.get_object_or_fail(SettingKey, pk=USER_THEME_NAME)
+        self.assertFalse(SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME))
         self.assertIsNone(get_theme())
 
         self.client.get('/')
-        self.assertEqual(1, SettingValue.objects.filter(user=self.user, key=USER_THEME_NAME).count())
+        self.get_object_or_fail(SettingValue, user=self.user, key=USER_THEME_NAME)
         self.assertEqual(settings.DEFAULT_THEME, get_theme())
+
+    def test_change_timezone01(self):
+        self.get_object_or_fail(SettingKey, pk=USER_TIMEZONE)
+        self.assertFalse(SettingValue.objects.filter(user=self.user, key=USER_TIMEZONE))
+
+        #TODO: use 'nonlocal' in py3k
+        inner = {'called':       False,
+                 'activated_tz': None,
+                }
+
+        def fake_activate(tz):
+            inner['called']       = True
+            inner['activated_tz'] = tz
+
+        django_tz.activate = fake_activate
+
+        self.client.get('/')
+        self.assertFalse(inner['called'])
+
+        url = '/creme_config/my_settings/set_timezone/'
+
+        def assertSelected(selected_tz):
+            response = self.assertGET200(url)
+
+            with self.assertNoException():
+                form_str = jsonloads(response.content)['form']
+
+            for line in form_str.split('\n'):
+                if selected_tz in line:
+                    option = line
+                    break
+            else:
+                self.fail('Option not found')
+
+            self.assertEqual(1, option.count('<option '))
+            self.assertIn('selected', option)
+
+        def change_tz(tz):
+            self.assertPOST200(url, data={'time_zone': tz})
+
+            svalues = SettingValue.objects.filter(user=self.user, key=USER_TIMEZONE)
+            self.assertEqual(1, len(svalues))
+            self.assertEqual(tz, svalues[0].value)
+
+            self.client.get('/')
+            self.assertTrue(inner['called'])
+            self.assertEqual(tz, inner['activated_tz'])
+
+            inner['called'] = False
+
+        TIME_ZONE = settings.TIME_ZONE
+        time_zones = [tz for tz in ('Asia/Tokyo', 'US/Eastern', 'Europe/Paris')
+                        if tz != TIME_ZONE
+                     ]
+
+        assertSelected(TIME_ZONE)
+
+        tz = time_zones[0]
+        change_tz(tz)
+        assertSelected(tz)
+
+        change_tz(time_zones[1])

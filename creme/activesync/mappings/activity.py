@@ -21,11 +21,11 @@
 from datetime import timedelta
 
 from django.conf import settings
+from django.utils.timezone import now
 
 from creme.creme_core.models import Relation
-from creme.creme_core.utils.dates import (get_utc_dt_from_creme_dt, get_utc_now,
-                                          get_creme_dt_from_utc_dt, get_dt_to_iso8601_str,
-                                          get_dt_from_iso8601_str, get_naive_dt_from_tzdate)
+from creme.creme_core.utils.dates import get_dt_to_iso8601_str, get_dt_from_iso8601_str
+                                         #get_creme_dt_from_utc_dt get_utc_dt_from_creme_dt, get_utc_now, get_naive_dt_from_tzdate
 
 from creme.activities.models import Activity, Calendar
 from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, ACTIVITYTYPE_MEETING
@@ -57,25 +57,24 @@ def get_start_date(activity=None, needs_attr=False, *args, **kwargs):
         return 'start'
 
     if activity.start:
-        return get_dt_to_iso8601_str(get_utc_dt_from_creme_dt(activity.start))
-    
+        #return get_dt_to_iso8601_str(get_utc_dt_from_creme_dt(activity.start))
+        return get_dt_to_iso8601_str(activity.start)
 
 def get_end_date(activity=None, needs_attr=False, *args, **kwargs):
     if needs_attr:
         return 'end'
 
     if activity.end:
-        return get_dt_to_iso8601_str(get_utc_dt_from_creme_dt(activity.end))
-
-
+        #return get_dt_to_iso8601_str(get_utc_dt_from_creme_dt(activity.end))
+        return get_dt_to_iso8601_str(activity.end)
 
 def get_modified_date(activity=None, needs_attr=False, *args, **kwargs):
     if needs_attr:
         return 'modified'
 
     if activity.end:
-        return get_dt_to_iso8601_str(get_utc_dt_from_creme_dt(activity.modified))
-
+        #return get_dt_to_iso8601_str(get_utc_dt_from_creme_dt(activity.modified))
+        return get_dt_to_iso8601_str(activity.modified)
 
 def handle_uid(entity=None, needs_attr=False, value=None, *args, **kwargs):
     if needs_attr:
@@ -187,7 +186,8 @@ def _set_meeting_from_data(meeting, data, user, folder):
 #    else:
     #is_all_day or not if a meeting hasn't a start and/or end it last one day
     if meeting.start is None and meeting.end is None:
-        meeting.start = meeting.end = get_utc_now()#Don't use meeting.handle_all_day AS semantic is different
+        #meeting.start = meeting.end = get_utc_now()#Don't use meeting.handle_all_day AS semantic is different
+        meeting.start = meeting.end = now()#Don't use meeting.handle_all_day AS semantic is different
         meeting.end  += ONE_DAY_TD
 
     elif meeting.start is None and meeting.end is not None:
@@ -203,13 +203,13 @@ def _set_meeting_from_data(meeting, data, user, folder):
     except (ValueError, TypeError):
         pass
 
-    meeting.start    = get_naive_dt_from_tzdate(get_creme_dt_from_utc_dt(meeting.start))
-    meeting.end      = get_naive_dt_from_tzdate(get_creme_dt_from_utc_dt(meeting.end))
-    meeting.modified = get_naive_dt_from_tzdate(get_creme_dt_from_utc_dt(meeting.modified))
+    #meeting.start    = get_naive_dt_from_tzdate(get_creme_dt_from_utc_dt(meeting.start))
+    #meeting.end      = get_naive_dt_from_tzdate(get_creme_dt_from_utc_dt(meeting.end))
+    #meeting.modified = get_naive_dt_from_tzdate(get_creme_dt_from_utc_dt(meeting.modified))
 
     meeting.title = data_pop('title', "")
     meeting.place = data_pop('place', "")
-    
+
     meeting.busy = AS_BUSY_STATUSES.get(int(data_pop('busy', 0)))
 
     meeting.save()

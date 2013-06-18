@@ -154,7 +154,7 @@ class CustomFieldsTestCase(CremeTestCase):
     def test_delete(self):
         ct = ContentType.objects.get_for_model(Contact)
         create_cf = CustomField.objects.create
-        cfield1 = create_cf(content_type=ct, name='Day',       field_type=CustomField.DATE)
+        cfield1 = create_cf(content_type=ct, name='Day',       field_type=CustomField.DATETIME)
         cfield2 = create_cf(content_type=ct, name='Languages', field_type=CustomField.ENUM)
         cfield3 = create_cf(content_type=ct, name='Hobbies',   field_type=CustomField.MULTI_ENUM)
 

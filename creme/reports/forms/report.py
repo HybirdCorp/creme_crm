@@ -18,13 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
 from collections import defaultdict
 from itertools import chain
 
 from django.db.models.query_utils import Q
 from django.forms.fields import MultipleChoiceField, ChoiceField
 from django.forms import ValidationError
+from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
@@ -436,13 +436,13 @@ class DateReportFilterForm(CremeForm):
     def get_q_dict(self):
         cdata = self.cleaned_data
         if cdata:
-            return cdata['date_filter'].get_q_dict(cdata['date_field'], datetime.now())
+            return cdata['date_filter'].get_q_dict(cdata['date_field'], now())
         return None
 
     def get_dates(self):
         cleaned_data = self.cleaned_data
         if cleaned_data:
-            return cleaned_data['date_filter'].get_dates(datetime.now())
+            return cleaned_data['date_filter'].get_dates(now())
         return None, None
 
     @property

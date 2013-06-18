@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import datetime, date
+    from datetime import date # datetime
     from functools import partial
 
+    from django.utils.timezone import now
     from django.utils.translation import ugettext as _
     from django.contrib.contenttypes.models import ContentType
 
@@ -67,8 +68,7 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(1,     Event.objects.count())
         self.assertEqual(name,  event.name)
         self.assertEqual(etype, event.type)
-
-        self.assertEqual(date(2010, 11, 3), event.start_date.date())
+        self.assertEqual(self.create_datetime(2010, 11, 3), event.start_date)
 
     def test_event_editview(self):
         self.login()
@@ -83,16 +83,16 @@ class EventsTestCase(CremeTestCase):
         name += '_edited'
         self.assertNoFormError(self.client.post(url, follow=True,
                                                 data={'user':        self.user.pk,
-                                                    'name':        name,
-                                                    'type':        etype.pk,
-                                                    'start_date':  '2010-11-4',
-                                                    }
+                                                      'name':        name,
+                                                      'type':        etype.pk,
+                                                      'start_date':  '2010-11-4',
+                                                     }
                                                )
                               )
 
         event = self.refresh(event)
         self.assertEqual(name, event.name)
-        self.assertEqual(4,    event.start_date.day)
+        self.assertEqual(self.create_datetime(2010, 11, 4), event.start_date)
 
     def test_listview(self):
         self.login()
@@ -295,7 +295,7 @@ class EventsTestCase(CremeTestCase):
         create_contact = Contact.objects.create
 
         def _create_event(user, name):
-            return Event.objects.create(user=user, name=name, start_date=datetime.now(),
+            return Event.objects.create(user=user, name=name, start_date=now(),
                                         type=EventType.objects.all()[0],
                                        )
 
@@ -394,7 +394,7 @@ class EventsTestCase(CremeTestCase):
         _create_event = Event.objects.create
         create_contact = Contact.objects.create
 
-        event = _create_event(user=user, name='Eclipse 01', type=etype, start_date=datetime.now())
+        event = _create_event(user=user, name='Eclipse 01', type=etype, start_date=now())
         casca = create_contact(user=other_user, first_name='Casca', last_name='Miura')
         self.assertTrue(user.has_perm_to_link(event))
         self.assertFalse(user.has_perm_to_link(casca))
@@ -402,7 +402,7 @@ class EventsTestCase(CremeTestCase):
                            data={'status': PRES_STATUS_COME}
                           )
 
-        event = _create_event(user=other_user, name='Eclipse 02', type=etype, start_date=datetime.now())
+        event = _create_event(user=other_user, name='Eclipse 02', type=etype, start_date=now())
         guts = create_contact(user=user, first_name='Guts', last_name='Miura')
         self.assertFalse(user.has_perm_to_link(event))
         self.assertTrue(user.has_perm_to_link(guts))
@@ -540,7 +540,7 @@ class EventsTestCase(CremeTestCase):
 
         event = Event.objects.create(user=self.user, name='Eclipse',
                                      type=EventType.objects.all()[0],
-                                     start_date=datetime.now(),
+                                     start_date=now(),
                                     )
         casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Miura')
         url = '/events/event/%s/link_contacts' % event.id

@@ -118,7 +118,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         create_cf = CustomField.objects.create
         custom_field = create_cf(name='Profits',        field_type=CustomField.INT,  content_type=ct)
-        datecfield   = create_cf(name='Last gathering', field_type=CustomField.DATE, content_type=ct)
+        datecfield   = create_cf(name='Last gathering', field_type=CustomField.DATETIME, content_type=ct)
 
         url = self._build_add_url(ct)
         form = self.client.get(url).context['form']
@@ -250,7 +250,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         create_cf = partial(CustomField.objects.create, content_type=self.ct_contact)
         custom_field = create_cf(name='Nickname',      field_type=CustomField.STR)
-        datecfield   = create_cf(name='First meeting', field_type=CustomField.DATE)
+        datecfield   = create_cf(name='First meeting', field_type=CustomField.DATETIME)
 
         name = 'Filter 03'
         efilter = EntityFilter.create('test-filter03', name, Contact, is_custom=True)

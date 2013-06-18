@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
 import pickle
 
 from django.db.models import Model, IntegerField, BooleanField, CharField, TextField, DateTimeField, ForeignKey
@@ -26,6 +25,7 @@ from django.db.models.signals import post_save, post_delete
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
+from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeModel, CremeEntity, Relation
@@ -185,7 +185,7 @@ class UserSynchronizationHistory(CremeModel):
     entity_pk      = IntegerField(u'Entity pk', max_length=50, blank=True, null=True)#Saving the pk of the entity
     #entity_ct      = ForeignKey(ContentType, verbose_name=u'What', null=True, blank=True)
     entity_ct      = CTypeForeignKey(verbose_name=u'What', null=True, blank=True)
-    created        = CreationDateTimeField(_('Creation date'), default=lambda: datetime.now())
+    created        = CreationDateTimeField(_('Creation date'), default=now)
     entity_changes = TextField(_(u'Entity changes'), default=lambda: pickle.dumps({}))
     type           = IntegerField(u'', max_length=1, choices=USER_HISTORY_TYPE)
     where          = IntegerField(u'', max_length=1, choices=USER_HISTORY_WHERE)

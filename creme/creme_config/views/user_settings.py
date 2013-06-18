@@ -23,28 +23,52 @@ from django.contrib.auth.decorators import login_required
 
 from creme.creme_core.utils import jsonify
 
-from ..forms.user_settings import UserThemeForm
+from ..forms.user_settings import UserThemeForm, UserTimeZoneForm
 
 #NB: no special permissions needed (user can only view/change its settings)
 
 @login_required
 def view(request):
+    user = request.user
+
     return render(request, 'creme_config/user_settings.html',
-                 {'user':        request.user,
-                  'themes_form': UserThemeForm(request.user).as_span(),
-                 }
-                )
+                  {#'user':       user,
+                   'theme_form': UserThemeForm(user).as_span(),
+                   'tz_form':    UserTimeZoneForm(user).as_span(),
+                  }
+                 )
+
+#@jsonify
+#@login_required
+#def set_theme(request):
+    #if request.method == 'POST':
+        #theme_form = UserThemeForm(user=request.user, data=request.POST)
+
+        #if theme_form.is_valid():
+            ##theme_form.save()
+            ##del request.session['usertheme']
+            #request.session['usertheme'] = theme_form.save()
+    #else:
+        #theme_form = UserThemeForm(user=request.user)
+
+    #return {'form': theme_form.as_span()}
 
 @jsonify
 @login_required
-def edit_theme(request):
+def _set_usersetting(request, form_cls, session_key):
     if request.method == 'POST':
-        theme_form = UserThemeForm(user=request.user, data=request.POST)
+        form = form_cls(user=request.user, data=request.POST)
 
-        if theme_form.is_valid():
-            theme_form.save()
-            del request.session['usertheme']
+        if form.is_valid():
+            request.session[session_key] = form.save()
     else:
-        theme_form = UserThemeForm(user=request.user)
+        form = form_cls(user=request.user)
 
-    return {'form': theme_form.as_span()}
+    return {'form': form.as_span()}
+
+def set_theme(request):
+    return _set_usersetting(request, UserThemeForm, 'usertheme')
+
+
+def set_timezone(request):
+    return _set_usersetting(request, UserTimeZoneForm, 'usertimezone')

@@ -79,6 +79,18 @@ def create_if_needed(model, get_dict, **attrs):
 
     return instance
 
+def update_model_instance(obj, **fields):
+    """Update the field values of an instance, and save it only if it has changed."""
+    save = False
+
+    for f_name, f_value in fields.iteritems():
+        if getattr(obj, f_name) != f_value:
+            setattr(obj, f_name, f_value)
+            save = True
+
+    if save:
+        obj.save()
+
 def jsonify(func):
     def _aux(*args, **kwargs):
         status = 200

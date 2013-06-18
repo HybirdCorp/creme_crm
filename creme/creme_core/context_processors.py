@@ -18,9 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
-
 from django.conf import settings
+from django.utils.timezone import now
 
 from creme import __version__
 
@@ -33,10 +32,14 @@ def get_logo_url(request):
 
 def get_css_theme(request):
     current_theme = get_current_theme()
-    return {'THEME_NAME': current_theme, 'DEFAULT_THEME': settings.DEFAULT_THEME, 'THEME_VERBOSE_NAME': get_current_theme_vb(current_theme)}
+
+    return {'THEME_NAME':         current_theme,
+            'DEFAULT_THEME':      settings.DEFAULT_THEME,
+            'THEME_VERBOSE_NAME': get_current_theme_vb(current_theme),
+           }
 
 def get_today(request):
-    return {'today': datetime.today()}
+    return {'today': now()}
 
 def get_blocks_manager(request):
     return {BlocksManager.var_name: BlocksManager()}

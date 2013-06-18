@@ -234,7 +234,7 @@ class HeaderFilterItem(Model):  #CremeModel ???
 
     _CF_PATTERNS = {
             CustomField.BOOL:       '%s__value__creme-boolean',
-            CustomField.DATE:       '%s__value__range',
+            CustomField.DATETIME:   '%s__value__range',
             CustomField.ENUM:       '%s__value__exact',
             CustomField.MULTI_ENUM: '%s__value__exact',
         }

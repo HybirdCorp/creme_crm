@@ -1,8 +1,8 @@
-.theme_picker {
+.theme_picker, .tz_picker {
     padding: 2px;
 }
 
-.theme_picker label {
+.theme_picker label, .tz_picker label {
     color: white;
     font-size: 1em;
     font-weight: bolder;

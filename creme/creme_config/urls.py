@@ -17,8 +17,9 @@ team_patterns = patterns('creme.creme_config.views.user',
 )
 
 user_settings_patterns = patterns('creme.creme_config.views.user_settings',
-    (r'^edit_theme/$', 'edit_theme'),
-    (r'^$',            'view'),
+    (r'^set_theme/$',    'set_theme'),
+    (r'^set_timezone/$', 'set_timezone'),
+    (r'^$',              'view'),
 )
 
 role_patterns = patterns('creme.creme_config.views.user_role',

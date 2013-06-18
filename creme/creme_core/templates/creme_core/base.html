@@ -227,7 +227,7 @@
     {% block top_bar %}
         <div id="top" class="header">
             <div class="widget">
-                {% trans 'Welcome,' %} <strong>{% if user.first_name %}{{ user.first_name|escape }}{% else %}{{ user.username }}{% endif %}</strong> -
+                {% trans 'Welcome,' %} <strong>{% if user.first_name %}{{user.first_name|escape}}{% else %}{{user.username}}{% endif %}</strong> ({% blocktrans %}Time zone: {{TIME_ZONE}}{% endblocktrans %}) -
                 {% block userlinks %}
                     <a href="/creme_config/my_settings/">{% trans 'My settings' %}</a> -
                     <a href="/creme_core/clean/">{% trans 'Log out' %}</a> -

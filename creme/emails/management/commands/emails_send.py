@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2012  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,10 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
-
 from django.core.management.base import BaseCommand
 #from django.conf import settings
+from django.utils.timezone import now
 
 
 LOCK_NAME = "sending_emails"
@@ -43,7 +42,7 @@ class Command(BaseCommand):
         else:
             #for sending in EmailSending.objects.filter(state=SENDING_STATE_PLANNED):
             for sending in EmailSending.objects.exclude(state=SENDING_STATE_DONE):
-                if SENDING_TYPE_IMMEDIATE == sending.type or sending.sending_date <= datetime.now():
+                if SENDING_TYPE_IMMEDIATE == sending.type or sending.sending_date <= now():
                     sending.state = SENDING_STATE_INPROGRESS
                     sending.save()
 

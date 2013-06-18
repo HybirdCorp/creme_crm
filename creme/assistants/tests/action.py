@@ -4,6 +4,7 @@ try:
     from datetime import datetime
 
     from django.contrib.contenttypes.models import ContentType
+    from django.utils.timezone import now
 
     from ..models import Action
     from .base import AssistantsTestCase
@@ -28,7 +29,7 @@ class ActionTestCase(AssistantsTestCase):
                                           'title':             title,
                                           'description':       descr,
                                           'expected_reaction': reaction,
-                                          'deadline':          deadline
+                                          'deadline':          deadline,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -56,8 +57,11 @@ class ActionTestCase(AssistantsTestCase):
         self.assertEqual(entity.id,             action.entity_id)
         self.assertEqual(entity.id,             action.creme_entity.id)
 
-        self.assertLess((datetime.now() - action.creation_date).seconds, 10)
-        self.assertEqual(datetime(year=2010, month=12, day=24), action.deadline)
+        self.assertLess((now() - action.creation_date).seconds, 10)
+        #self.assertEqual(datetime(year=2010, month=12, day=24), action.deadline)
+        self.assertEqual(self.create_datetime(year=2010, month=12, day=24),
+                         action.deadline
+                        )
 
         self.assertEqual(title, unicode(action))
 
@@ -88,7 +92,10 @@ class ActionTestCase(AssistantsTestCase):
         self.assertEqual(title,    action.title)
         self.assertEqual(descr,    action.description)
         self.assertEqual(reaction, action.expected_reaction)
-        self.assertEqual(datetime(year=2011, month=11, day=25, hour=17, minute=37), action.deadline)
+        #self.assertEqual(datetime(year=2011, month=11, day=25, hour=17, minute=37), action.deadline)
+        self.assertEqual(self.create_datetime(year=2011, month=11, day=25, hour=17, minute=37),
+                         action.deadline
+                        )
 
     def test_delete_entity01(self):
         action = self._create_action('2010-12-24', 'title', 'descr', 'reaction')
@@ -125,7 +132,7 @@ class ActionTestCase(AssistantsTestCase):
 
         action = self.refresh(action)
         self.assertTrue(action.is_ok)
-        self.assertLess((datetime.now() - action.validation_date).seconds, 10)
+        self.assertLess((now() - action.validation_date).seconds, 10)
 
     def test_merge(self):
         def creator(contact01, contact02):

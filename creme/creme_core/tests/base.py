@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
+
 from django.test import TestCase, TransactionTestCase
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.forms.formsets import BaseFormSet
+from django.utils.timezone import utc, get_current_timezone, make_aware
 
 from ..models import UserRole, RelationType, Relation, CremePropertyType
 from ..management.commands.creme_populate import Command as PopulateCommand
@@ -230,6 +233,10 @@ class _CremeTestCase(object):
                 msg = '%s\n[maxDiff too small for larger message]' % diff.short_msg
 
             raise self.failureException('XML are not equal\n%s' % msg)
+
+    def create_datetime(self, *args, **kwargs):
+        tz = utc if kwargs.pop('utc', False) else get_current_timezone()
+        return make_aware(datetime(*args, **kwargs), tz)
 
     def get_object_or_fail(self, model, **kwargs):
         try:

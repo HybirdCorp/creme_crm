@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import datetime, timedelta
+    from datetime import timedelta # datetime
     from functools import partial
+
+    from django.utils.timezone import now
 
     from creme.creme_core.tests.base import CremeTestCase
 
@@ -47,7 +49,7 @@ class CTITestCase(CremeTestCase):
         self.assert_(pcall.description)
         self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_OUTGOING, pcall.sub_type.id)
         self.assertEqual(STATUS_IN_PROGRESS, pcall.status.id)
-        self.assertLess((datetime.now() - pcall.start).seconds, 10)
+        self.assertLess((now() - pcall.start).seconds, 10)
         self.assertEqual(timedelta(minutes=5), (pcall.end - pcall.start))
 
         self.assertRelationCount(1, self.contact, REL_SUB_PART_2_ACTIVITY, pcall)
@@ -170,7 +172,7 @@ class CTITestCase(CremeTestCase):
         self.assertTrue(pcall.description)
         self.assertEqual(ACTIVITYSUBTYPE_PHONECALL_INCOMING, pcall.sub_type.id)
         self.assertEqual(STATUS_IN_PROGRESS,     pcall.status.id)
-        self.assertLess((datetime.now() - pcall.start).seconds, 10)
+        self.assertLess((now() - pcall.start).seconds, 10)
         self.assertEqual(timedelta(minutes=5), (pcall.end - pcall.start))
 
         self.assertRelationCount(1, self.contact, REL_SUB_PART_2_ACTIVITY, pcall)

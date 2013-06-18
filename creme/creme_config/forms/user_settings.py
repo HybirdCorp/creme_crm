@@ -18,43 +18,64 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import pytz
+
 from django.conf import settings
 from django.forms.fields import ChoiceField
 from django.forms.widgets import Select
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms.base import CremeForm
+from creme.creme_core.utils import update_model_instance
 from creme.creme_core.utils.media import get_current_theme
 
-from ..constants import USER_THEME_NAME
+from ..constants import USER_THEME_NAME, USER_TIMEZONE
 from ..models import SettingValue, SettingKey
+from ..utils import get_user_timezone_config
 
 
 class UserThemeForm(CremeForm):
-    themes = ChoiceField(label=_(u"Choose your theme"), choices=settings.THEMES,
-                         widget=Select(attrs={'onchange': 'creme.ajax.json.ajaxFormSubmit($(this.form));'}),
-                         help_text=_(u"Think to reload the page once you changed the theme.")
-                        )
+    theme = ChoiceField(label=_(u"Choose your theme"), choices=settings.THEMES,
+                        widget=Select(attrs={'onchange': 'creme.ajax.json.ajaxFormSubmit($(this.form));'}),
+                        help_text=_(u"Think to reload the page once you changed the theme."),
+                       )
 
-    def __init__(self, user, *args, **kwargs):
-        super(UserThemeForm, self).__init__(user, *args, **kwargs)
-        self.fields['themes'].initial = get_current_theme()
+    def __init__(self, *args, **kwargs):
+        super(UserThemeForm, self).__init__(*args, **kwargs)
+        self.fields['theme'].initial = get_current_theme()
 
     def save(self, *args, **kwargs):
+        theme = self.cleaned_data['theme']
+
         try:
             sv = SettingValue.objects.get(user=self.user, key=USER_THEME_NAME)
         except SettingValue.DoesNotExist:
             sk = SettingKey.objects.get(pk=USER_THEME_NAME)
-            sv = SettingValue.objects.create(user=self.user, key=sk)
+            SettingValue.objects.create(user=self.user, key=sk, value=theme)
+        else:
+            update_model_instance(sv, value=theme)
 
-        sv.value = self.cleaned_data['themes']
-        sv.save()
+        return theme
 
-    def as_span(self):#TODO: In CremeForm?
-        """Returns this form rendered as HTML <span>s."""
-        return self._html_output(normal_row=u'<span%(html_class_attr)s>%(label)s %(field)s%(help_text)s</span>',
-                                 error_row=u'%s',
-                                 row_ender='</span>',
-                                 help_text_html=u' <span class="helptext">%s</span>',
-                                 errors_on_separate_row=False,
-                                )
+
+class UserTimeZoneForm(CremeForm):
+    time_zone = ChoiceField(label=_(u'Choose your time zone'),
+                            choices=[(tz, tz) for tz in pytz.common_timezones],
+                            widget=Select(attrs={'onchange': 'creme.ajax.json.ajaxFormSubmit($(this.form));'}),
+                           )
+
+    def __init__(self, *args, **kwargs):
+        super(UserTimeZoneForm, self).__init__(*args, **kwargs)
+        self.fields['time_zone'].initial, self.setting_value = \
+            get_user_timezone_config(self.user)
+
+    def save(self, *args, **kwargs):
+        time_zone = self.cleaned_data['time_zone']
+
+        if not self.setting_value:
+            sk = SettingKey.objects.get(pk=USER_TIMEZONE)
+            SettingValue.objects.create(user=self.user, key=sk, value=time_zone)
+        else:
+            update_model_instance(self.setting_value, value=time_zone)
+
+        return time_zone

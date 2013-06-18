@@ -19,12 +19,12 @@
 ################################################################################
 
 from collections import defaultdict
-from datetime import datetime
 
-from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core import validators
-from django.conf import settings
+from django.utils.translation import ugettext_lazy as _
+from django.utils.timezone import now
 
 from creme.creme_config.models import SettingValue
 
@@ -219,7 +219,7 @@ class Synchronization(object):
 
         #TODO: Try except and put this in the else
         client.policy_key = policy_key
-        client.last_sync  = datetime.now()
+        client.last_sync  = now()
         client.save()
 
     def _sync(self, policy_key, as_folder, synckey=None, fetch=True):

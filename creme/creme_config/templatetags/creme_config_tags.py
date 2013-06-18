@@ -23,10 +23,9 @@ from django.template import Library, Node as TemplateNode
 from creme.creme_core.gui.block import BlocksManager
 
 from ..registry import config_registry
-#from creme.creme_config.constants import USER_SETTINGS_BLOCK_PREFIX
+
 
 register = Library()
-
 _USER_SETTINGS_BLOCK = 'user_settings_blocks'
 
 @register.filter(name="is_custom")

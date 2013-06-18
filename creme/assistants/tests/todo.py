@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import datetime
+    #from datetime import datetime
 
     from django.core.serializers.json import simplejson
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
+    from django.utils.timezone import now
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import CremeEntity
 
@@ -42,20 +44,49 @@ class TodoTestCase(AssistantsTestCase):
 
         return self.get_object_or_fail(ToDo, title=title, description=description)
 
-    def test_create(self):
+    def test_create01(self):
         self.assertFalse(ToDo.objects.exists())
 
         entity = self.entity
-        self.assertGET200(self._build_add_url(entity))
+        response = self.assertGET200(self._build_add_url(entity))
+
+        with self.assertNoException():
+            hours = response.context['form'].fields['deadline_hour'].choices
+
+        self.assertIn((0, '0h'), hours)
+        self.assertIn((23, '23h'), hours)
+        self.assertEqual(24, len(hours))
 
         title = 'Title'
         todo = self._create_todo(title, 'Description')
         self.assertEqual(1, ToDo.objects.count())
         self.assertEqual(entity.id,             todo.entity_id)
         self.assertEqual(entity.entity_type_id, todo.entity_content_type_id)
-        self.assertLess((datetime.now() - todo.creation_date).seconds, 10)
+        self.assertLess((now() - todo.creation_date).seconds, 10)
+        self.assertIsNone(todo.deadline)
 
         self.assertEqual(title, unicode(todo))
+
+    def test_create02(self):
+        "Dealine"
+        url = self._build_add_url(self.entity)
+        title = 'my Todo'
+        data = {'user':        self.user.pk,
+                'title':       title,
+                'description': '',
+                'deadline':    '2013-6-7',
+               }
+        response = self.assertPOST200(url, data=data)
+        self.assertFormError(response, 'form', 'deadline_hour',
+                             [_(u'The hour is required if you set a date.')]
+                            )
+
+        self.assertNoFormError(self.client.post(url, data=dict(data, deadline_hour=9)))
+
+        todo = self.get_object_or_fail(ToDo, title=title)
+        self.assertEqual(self.create_datetime(year=2013, month=6, day=7, hour=9),
+                         todo.deadline
+                        )
 
     def test_edit01(self):
         title       = 'Title'

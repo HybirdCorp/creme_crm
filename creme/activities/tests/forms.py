@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from functools import partial
+    #from functools import partial
 
     from django.utils.simplejson import dumps as jsondumps
 

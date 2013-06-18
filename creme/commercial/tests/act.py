@@ -530,10 +530,13 @@ class ActTestCase(CommercialBaseTestCase):
         create_rel(type_id=REL_SUB_COMPLETE_GOAL, object_entity=act1)
         create_rel(type_id=REL_SUB_COMPLETE_GOAL, object_entity=act2)
 
+        create_dt = self.create_datetime
         meeting = Activity.objects.create(user=user, title='Meeting #01', type_id=ACTIVITYTYPE_MEETING,
-                                          start=datetime(year=2011, month=5, day=20, hour=14, minute=0),
-                                          end=datetime(year=2011,   month=6, day=1,  hour=15, minute=0)
-                                        )
+                                          #start=datetime(year=2011, month=5, day=20, hour=14, minute=0),
+                                          #end=datetime(year=2011,   month=6, day=1,  hour=15, minute=0)
+                                          start=create_dt(year=2011, month=5, day=20, hour=14, minute=0),
+                                          end=create_dt(year=2011,   month=6, day=1,  hour=15, minute=0),
+                                         )
 
         create_rel(type_id=REL_SUB_ACTIVITY_SUBJECT, object_entity=meeting)
         self.assertRelationCount(1, meeting, REL_SUB_COMPLETE_GOAL, act1)

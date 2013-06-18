@@ -38,7 +38,8 @@
                     <td class="{{row_color}}">{% print_field object=todo field='description' %}</td>
                     {% with todo.deadline as deadline %}
                         {% if deadline %}
-                            <td class="{% if todo.is_ok or deadline.date >= today.date %}td_valid{% else %}td_error{% endif %}">{{deadline|date}}</td>
+                            {% comment %}<td class="{% if todo.is_ok or deadline.date >= today.date %}td_valid{% else %}td_error{% endif %}">{{deadline|date}}</td>{% endcomment %}
+                            <td class="{% if todo.is_ok or deadline >= today %}td_valid{% else %}td_error{% endif %}">{{deadline}}</td>
                         {% else %}
                             <td class="{% if todo.is_ok %}td_valid{% else %}{{row_color}}{% endif %}"></td>
                         {% endif %}

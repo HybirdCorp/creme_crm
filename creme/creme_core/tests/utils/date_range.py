@@ -2,6 +2,7 @@
 
 try:
     from datetime import datetime, date
+    from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.utils.date_range import date_range_registry
@@ -19,49 +20,49 @@ class DateRangeTestCase(CremeTestCase):
         self.assertIsNotNone(date_range)
         self.assertEqual(_(u"In the future"), unicode(date_range.verbose_name))
 
-        now = datetime.now()
-        self.assertEqual({'birthday__gte': now},
-                         date_range.get_q_dict(field='birthday', now=now)
+        now_value = now()
+        self.assertEqual({'birthday__gte': now_value},
+                         date_range.get_q_dict(field='birthday', now=now_value)
                         )
 
     def test_past(self):
-        now = datetime.now()
+        now_value = now()
         date_range = date_range_registry.get_range(name='in_past')
         self.assertIsNotNone(date_range)
-        self.assertEqual({'created__lte': now},
-                         date_range.get_q_dict(field='created', now=now)
+        self.assertEqual({'created__lte': now_value},
+                         date_range.get_q_dict(field='created', now=now_value)
                         )
 
     def test_custom_start01(self):
-        now = date(year=2011, month=6, day=1)
-        date_range = date_range_registry.get_range(start=now)
+        now_value = date(year=2011, month=6, day=1)
+        date_range = date_range_registry.get_range(start=now_value)
         self.assertIsNotNone(date_range)
         self.assertEqual({'created__gte': datetime(year=2011, month=6, day=1, hour=0, minute=0, second=0)},
-                         date_range.get_q_dict(field='created', now=datetime.now())
+                         date_range.get_q_dict(field='created', now=now())
                         )
 
     def test_custom_start02(self):
-        now = datetime(year=2011, month=6, day=1, hour=12, minute=36, second=12)
-        date_range = date_range_registry.get_range(start=now)
+        now_value = datetime(year=2011, month=6, day=1, hour=12, minute=36, second=12)
+        date_range = date_range_registry.get_range(start=now_value)
         self.assertIsNotNone(date_range)
         self.assertEqual({'created__gte': datetime(year=2011, month=6, day=1, hour=12, minute=36, second=12)},
-                         date_range.get_q_dict(field='created', now=datetime.now())
+                         date_range.get_q_dict(field='created', now=now())
                         )
 
     def test_custom_end01(self):
-        now = date(year=2012, month=7, day=15)
-        date_range = date_range_registry.get_range(end=now)
+        now_value = date(year=2012, month=7, day=15)
+        date_range = date_range_registry.get_range(end=now_value)
         self.assertIsNotNone(date_range)
         self.assertEqual({'modified__lte': datetime(year=2012, month=7, day=15, hour=23, minute=59, second=59)},
-                         date_range.get_q_dict(field='modified', now=datetime.now())
+                         date_range.get_q_dict(field='modified', now=now())
                         )
 
     def test_custom_end02(self):
-        now = datetime(year=2012, month=7, day=15, hour=10, minute=21, second=50)
-        date_range = date_range_registry.get_range(end=now)
+        now_value = datetime(year=2012, month=7, day=15, hour=10, minute=21, second=50)
+        date_range = date_range_registry.get_range(end=now_value)
         self.assertIsNotNone(date_range)
         self.assertEqual({'modified__lte': datetime(year=2012, month=7, day=15, hour=10, minute=21, second=50)},
-                         date_range.get_q_dict(field='modified', now=datetime.now())
+                         date_range.get_q_dict(field='modified', now=now())
                         )
 
     def test_custom_range01(self):
@@ -73,7 +74,7 @@ class DateRangeTestCase(CremeTestCase):
                                               datetime(year=2011, month=8, day=3, hour=23, minute=59, second=59)
                                              )
                          },
-                         date_range.get_q_dict(field='modified', now=datetime.now())
+                         date_range.get_q_dict(field='modified', now=now())
                         )
 
     def test_previous_year(self):

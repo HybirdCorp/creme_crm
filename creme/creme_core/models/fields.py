@@ -18,11 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 from django.db.models import DateTimeField, CharField, ForeignKey, SET
+from django.utils.timezone import now
 
 
 #TODO: add a form field ?? (validation)
@@ -130,13 +130,13 @@ class CTypeForeignKey(ForeignKey):
 class CreationDateTimeField(DateTimeField):
     """ CreationDateTimeField
 
-    By default, sets editable=False, blank=True, default=datetime.now
+    By default, sets editable=False, blank=True, default=now
     """
     def __init__(self, *args, **kwargs):
         setdefault = kwargs.setdefault
         setdefault('editable', False)
         setdefault('blank',    True)
-        setdefault('default',  datetime.now)
+        setdefault('default',  now)
 
         super(CreationDateTimeField, self).__init__(*args, **kwargs)
 
@@ -156,13 +156,13 @@ class CreationDateTimeField(DateTimeField):
 class ModificationDateTimeField(CreationDateTimeField):
     """ ModificationDateTimeField
 
-    By default, sets editable=False, blank=True, default=datetime.now
+    By default, sets editable=False, blank=True, default=now
 
-    Sets value to datetime.now() on each save of the model.
+    Sets value to now() on each save of the model.
     """
 
     def pre_save(self, model, add):
-        value = datetime.now()
+        value = now()
         setattr(model, self.attname, value)
 
         return value

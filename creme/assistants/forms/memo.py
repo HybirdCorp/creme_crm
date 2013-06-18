@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
+from django.utils.timezone import now
 
 from creme.creme_core.forms import CremeModelWithUserForm
 
@@ -40,5 +40,5 @@ class MemoEditForm(CremeModelWithUserForm):
 
 class MemoCreateForm(MemoEditForm):
     def save(self, *args, **kwargs):
-        self.instance.creation_date = datetime.now()
+        self.instance.creation_date = now()
         return super(MemoCreateForm, self).save(*args, **kwargs)

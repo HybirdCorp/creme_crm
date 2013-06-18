@@ -6,6 +6,7 @@ try:
     from functools import partial
 
     from django.contrib.contenttypes.models import ContentType
+    from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.models import CremePropertyType, CremeProperty, Relation, Language, RelationType
@@ -132,7 +133,7 @@ class BaseReportsTestCase(CremeTestCase):
         # TODO: improve billing to make this code simpler
         self.invoice_status = InvoiceStatus.objects.get_or_create(name=_(u"Draft"))[0]
         user = self.user
-        self.issuing_date = getattr(self, 'issuing_date', None) or datetime.now().date()
+        self.issuing_date = getattr(self, 'issuing_date', None) or now().date()
         invoice = Invoice.objects.create(user=user, status=self.invoice_status,
                                          issuing_date=self.issuing_date, name=name,
                                          total_vat=total_vat

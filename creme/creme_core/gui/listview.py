@@ -19,13 +19,13 @@
 ################################################################################
 
 from collections import defaultdict
-from datetime import datetime
 from functools import partial
 import logging
 
 from django.db.models import Q, FieldDoesNotExist
 #from django.db.models.sql.constants import QUERY_TERMS
 from django.utils.encoding import smart_str
+from django.utils.timezone import now
 
 from ..models import Relation, CustomField #CustomFieldEnumValue
 from ..models.header_filter import HFI_FIELD, HFI_RELATION, HFI_CUSTOM, HFI_FUNCTION
@@ -201,7 +201,7 @@ class ListViewState(object):
 
     def _build_date_range_q(self, name, value):
         don = partial(self._date_or_None, value=value)
-        return Q(**CustomRange(don(index=0), don(index=1)).get_q_dict(name, datetime.now()))
+        return Q(**CustomRange(don(index=0), don(index=1)).get_q_dict(name, now()))
 
     def _get_item_by_pk(self, hf_items, pk):
         try:

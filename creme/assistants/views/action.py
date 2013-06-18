@@ -18,10 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
+#from datetime import datetime
 
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
+from django.utils.timezone import now
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
@@ -47,7 +48,8 @@ def validate(request, action_id):
     request.user.has_perm_to_change_or_die(entity)
 
     action.is_ok = True
-    action.validation_date = datetime.today()
+    #action.validation_date = datetime.today()
+    action.validation_date = now()
     action.save()
 
     return HttpResponseRedirect(entity.get_absolute_url())

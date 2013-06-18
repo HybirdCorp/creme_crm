@@ -18,8 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
-
+from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms.base import CremeModelForm
@@ -43,7 +42,7 @@ class SendingCreateForm(CremeModelForm):
     def save(self):
         instance = self.instance
         instance.campaign = self.campaign
-        instance.date = datetime.now()
+        instance.date = now()
         super(SendingCreateForm, self).save()
 
         template = instance.template

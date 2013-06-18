@@ -18,11 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
 from functools import partial
 
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404
+from django.utils.timezone import now
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
@@ -127,7 +127,7 @@ def generate_new_doc(request, opp_id, ct_id):
     opp = get_object_or_404(Opportunity, id=opp_id)
     user.has_perm_to_link_or_die(opp)
 
-    document = klass.objects.create(user=user, issuing_date=datetime.now(),
+    document = klass.objects.create(user=user, issuing_date=now(),
                                     status_id=1, currency=opp.currency,
                                     comment=_(u"Generated from the opportunity «%s»") % opp
                                    )

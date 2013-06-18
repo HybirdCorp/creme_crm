@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from datetime import datetime
 from functools import partial
 from itertools import chain
 import os
@@ -36,6 +35,7 @@ from django.template.loader import render_to_string
 from django.template.context import RequestContext
 from django.http import HttpResponse
 from django.template import TemplateDoesNotExist
+from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import fields
@@ -209,7 +209,7 @@ class InfopathFormBuilder(object):
     def __init__(self, request, backend):
         assert backend.model is not None
         self.backend   = backend
-        self.now       = datetime.now()
+        self.now       = now()
         self.namespace = self.get_namespace()
         self.urn       = self.get_urn()
         self.request   = request

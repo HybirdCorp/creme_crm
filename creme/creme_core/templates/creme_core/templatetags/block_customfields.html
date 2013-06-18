@@ -15,7 +15,7 @@
                 {% for field, value in custom_fields_n_values %}
                     <tr class="content">
                         <th class="{% cycle "block_header_line_dark" "block_header_line_light" %} th_info">{{field.name}}</th>
-                        <td class="{% cycle "block_line_dark" "block_line_light" %} td_info">{{ value }}</td>
+                        <td class="{% cycle "block_line_dark" "block_line_light" %} td_info">{{value}}</td>
                         <td class="{% cycle "block_line_dark" "block_line_light" %} edit_inner">{% get_field_editor on custom field for object %}</td>
                     </tr>
                 {% endfor %}

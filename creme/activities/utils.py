@@ -21,6 +21,7 @@
 from datetime import timedelta
 
 from django.db.models.query_utils import Q
+from django.utils.timezone import localtime
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.models import Relation
@@ -76,8 +77,10 @@ def check_activity_collisions(activity_start, activity_end, participants, busy=T
 
         if activity_collisions:
             collision = activity_collisions[0]
-            collision_start = max(activity_start.time(), collision.start.time())
-            collision_end   = min(activity_end.time(),   collision.end.time())
+            #collision_start = max(activity_start.time(), collision.start.time())
+            #collision_end   = min(activity_end.time(),   collision.end.time())
+            collision_start = max(activity_start.time(), localtime(collision.start).time())
+            collision_end   = min(activity_end.time(),   localtime(collision.end).time())
 
             collisions.append(_(u"%(participant)s already participates to the activity «%(activity)s» between %(start)s and %(end)s.") % {
                         'participant': participant,
@@ -88,14 +91,16 @@ def check_activity_collisions(activity_start, activity_end, participants, busy=T
 
     return collisions
 
-def get_ical_date(dateTime):
+def get_ical_date(date_time):
+    date_time = localtime(date_time)
+
     return "%(year)s%(month)02d%(day)02dT%(hour)02d%(minute)02d%(second)02dZ" % {
-        'year' : dateTime.year,
-        'month': dateTime.month,
-        'day'  : dateTime.day,
-        'hour'  : dateTime.hour,
-        'minute'  : dateTime.minute,
-        'second'  : dateTime.second
+        'year':   date_time.year,
+        'month':  date_time.month,
+        'day':    date_time.day,
+        'hour':   date_time.hour,
+        'minute': date_time.minute,
+        'second': date_time.second,
     }
 
 def get_ical(activities):

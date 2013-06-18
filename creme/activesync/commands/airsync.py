@@ -95,7 +95,7 @@ class AirSync(Base):
 #        self.last_synckey    = synckey
         self.last_synckey    = folder.sync_key
         CONFLICT_MODE        = self.CONFLICT_MODE
-        IS_SERVER_MASTER     = True if CONFLICT_MODE==CONFLICT_SERVER_MASTER else False
+        IS_SERVER_MASTER     = True if CONFLICT_MODE==CONFLICT_SERVER_MASTER else False #TODO: lol
         client               = CremeClient.objects.get(user=user)
         folder.supported = []
         folder.entities = []
