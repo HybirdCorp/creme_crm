@@ -22,7 +22,8 @@ from datetime import datetime # date
 from itertools import ifilter
 import logging
 
-from django.db.models import Model, CharField, TextField, PositiveSmallIntegerField, BooleanField, ForeignKey, Q
+from django.db.models import (Model, CharField, TextField, BooleanField,
+                              PositiveSmallIntegerField, ForeignKey, Q)
 from django.db import models
 from django.db.models.fields import FieldDoesNotExist
 from django.db.models.signals import pre_delete
@@ -81,13 +82,13 @@ class EntityFilter(Model): #CremeModel ???
      - The existence (or the not existence) of a kind of Relationship.
      - The holding (or the not holding) of a kind of CremeProperty
     """
-    id          = CharField(primary_key=True, max_length=100, editable=False)
+    id          = CharField(primary_key=True, max_length=100, editable=False).set_tags(viewable=False)
     name        = CharField(max_length=100, verbose_name=_('Name'))
-    user        = CremeUserForeignKey(verbose_name=_(u'Owner'), blank=True, null=True)
+    user        = CremeUserForeignKey(verbose_name=_(u'Owner'), blank=True, null=True).set_tags(viewable=False)
     #entity_type = ForeignKey(ContentType, editable=False)
-    entity_type = CTypeForeignKey(editable=False)
-    is_custom   = BooleanField(editable=False, default=True)
-    use_or      = BooleanField(verbose_name=_(u'Use "OR"'), default=False)
+    entity_type = CTypeForeignKey(editable=False).set_tags(viewable=False)
+    is_custom   = BooleanField(editable=False, default=True).set_tags(viewable=False)
+    use_or      = BooleanField(verbose_name=_(u'Use "OR"'), default=False).set_tags(viewable=False)
 
     creation_label = _('Add a filter')
     _connected_filter_cache = None

@@ -58,12 +58,12 @@ class FkClass(object):
 
 
 class Field(CremeModel):
-    name      = CharField(_(u'Name of the column'), max_length=100)
-    title     = CharField(max_length=100)
-    order     = PositiveIntegerField()
-    type      = PositiveSmallIntegerField() #==> {HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED}#Add in choices ?
-    selected  = BooleanField(default=False) #use this field to expand
-    report    = ForeignKey("Report", blank=True, null=True) #Sub report
+    name     = CharField(_(u'Name of the column'), max_length=100).set_tags(viewable=False)
+    title    = CharField(max_length=100).set_tags(viewable=False)
+    order    = PositiveIntegerField().set_tags(viewable=False)
+    type     = PositiveSmallIntegerField().set_tags(viewable=False) #==> {HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED}#Add in choices ?
+    selected = BooleanField(default=False).set_tags(viewable=False) #use this field to expand
+    report   = ForeignKey("Report", blank=True, null=True).set_tags(viewable=False) #Sub report
 
     class Meta:
         app_label = 'reports'
