@@ -29,6 +29,7 @@ def _add_tags_to_fields():
     """
     from django.db.models import Field, AutoField, OneToOneField
     from django.contrib.auth.models import User
+    from django.contrib.contenttypes.models import ContentType
 
     def _set_tags(self, **kwargs):
         for tag_name in ('clonable', 'viewable'):
@@ -66,3 +67,9 @@ def _add_tags_to_fields():
                   'date_joined', 'groups', 'user_permissions'):
         get_user_field(fname)[0].set_tags(viewable=False)
 
+    #TODO: could become useless with HeaderFilter refactoring, that ignores
+    #      by default the sub fields of FK. (to be continued...)
+    #ContentType hooking
+    get_ct_field = ContentType._meta.get_field_by_name
+    for fname in ('name', 'app_label', 'model'):
+        get_ct_field(fname)[0].set_tags(viewable=False)

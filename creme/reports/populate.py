@@ -40,7 +40,7 @@ class Populator(BasePopulator):
     def populate(self):
         hf = HeaderFilter.create(pk='reports-hf', name=_(u'Report view'), model=Report)
         hf.set_items([HeaderFilterItem.build_4_field(model=Report, name='name'),
-                      HeaderFilterItem.build_4_field(model=Report, name='ct__name'),
+                      HeaderFilterItem.build_4_field(model=Report, name='ct'),
                      ])
 
         BlockDetailviewLocation.create_4_model_block(order=5, zone=BlockDetailviewLocation.LEFT, model=Report)
