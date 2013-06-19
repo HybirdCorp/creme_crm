@@ -111,15 +111,9 @@ class _PatternComponentForm(CremeModelForm):
 
     class Meta:
         model = ActObjectivePatternComponent
-        #exclude = ('pattern', 'parent')
 
-    def __init__(self, *args, **kwargs):
-        super(_PatternComponentForm, self).__init__(*args, **kwargs)
-
-        #TODO: factorise with ObjectiveForm ??
-        #ctype_field = self.fields['ctype']
-        #ctype_field.queryset = Q_creme_entity_content_types()
-        #ctype_field.empty_label = ugettext(u'Do not count entity')
+    #def __init__(self, *args, **kwargs):
+        #super(_PatternComponentForm, self).__init__(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         instance = self.instance

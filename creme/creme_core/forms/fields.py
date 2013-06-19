@@ -19,13 +19,14 @@
 ################################################################################
 
 from collections import defaultdict
+from copy import deepcopy
 from itertools import chain
 from re import compile as compile_re
 
 from django.forms import (Field, CharField, MultipleChoiceField, ChoiceField,
                           ModelChoiceField, DateField, TimeField, DateTimeField, IntegerField)
 from django.forms.util import ValidationError
-from django.forms.widgets import Textarea
+from django.forms.widgets import Select, Textarea
 from django.forms.fields import EMPTY_VALUES, MultiValueField, RegexField
 from django.utils.translation import ugettext_lazy as _
 from django.utils.simplejson import loads as jsonloads
@@ -35,9 +36,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.validators import validate_email
 from django.db.models.query import QuerySet
 
-from ..models import RelationType, CremeEntity, EntityFilter
 from ..constants import REL_SUB_HAS
-from ..utils import creme_entity_content_types, Q_creme_entity_content_types
+from ..models import RelationType, CremeEntity, EntityFilter
+from ..registry import creme_registry
+from ..utils import creme_entity_content_types, Q_creme_entity_content_types, build_ct_choices
 from ..utils.queries import get_q_from_dict
 from ..utils.date_range import date_range_registry
 from .widgets import (CTEntitySelector, EntitySelector, FilteredEntityTypeWidget, 
@@ -55,6 +57,7 @@ __all__ = ('GenericEntityField', 'MultiGenericEntityField',
            'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
            'CremeTimeField', 'CremeDateField', 'CremeDateTimeField',
            'DateRangeField', 'ColorField', 'DurationField',
+           'CTypeChoiceField',
           )
 
 
@@ -1136,3 +1139,60 @@ class DurationField(MultiValueField):
         seconds = seconds or 0
         return ':'.join([str(hours), str(minutes), str(seconds)])
 
+
+class CTypeChoiceField(Field):
+    "A ChoiceField whose choices are a ContentType instances."
+    widget = Select
+    default_error_messages = {
+        'invalid_choice': _(u'Select a valid choice. That choice is not one of'
+                            u' the available choices.'),
+    }
+
+    #TODO: ctypes_or_models ??
+    def __init__(self, ctypes=(), empty_label=u"---------",
+                 required=True, widget=None, label=None, initial=None,
+                 help_text=None, to_field_name=None, *args, **kwargs):
+        super(CTypeChoiceField, self).__init__(required, widget, label, initial, help_text,
+                                               *args, **kwargs
+                                              )
+        self.empty_label = empty_label
+        self.ctypes = ctypes
+
+    def __deepcopy__(self, memo):
+        result = super(CTypeChoiceField, self).__deepcopy__(memo)
+        result._ctypes = deepcopy(self._ctypes, memo)
+        return result
+
+    @property
+    def ctypes(self):
+        return self._ctypes
+
+    @ctypes.setter
+    def ctypes(self, ctypes):
+        self._ctypes = ctypes = list(ctypes)
+        self.widget.choices = build_ct_choices(ctypes) or [('', self.empty_label)]
+
+    def to_python(self, value):
+        if value in EMPTY_VALUES:
+            return None
+
+        try:
+            ct_id = int(value)
+
+            for ctype in self._ctypes:
+                if ctype.id == ct_id:
+                    return ctype
+        except ValueError:
+            pass
+
+        raise ValidationError(self.error_messages['invalid_choice'])
+
+
+#TODO: MultiCTypeChoiceField
+
+
+class EntityCTypeChoiceField(CTypeChoiceField):
+    def __init__(self, *args, **kwargs):
+        super(EntityCTypeChoiceField, self).__init__(ctypes=creme_entity_content_types(),
+                                                     *args, **kwargs
+                                                    )

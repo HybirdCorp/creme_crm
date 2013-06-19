@@ -41,15 +41,17 @@ class SearchConfigTestCase(CremeTestCase):
 
         url = self.ADD_URL
         self.assertGET200(url)
-        self.assertNoFormError(self.client.post(url, data={'ct_id': ct.id}))
+        #self.assertNoFormError(self.client.post(url, data={'ct_id': ct.id}))
+        self.assertNoFormError(self.client.post(url, data={'content_type': ct.id}))
 
         sc_items = SearchConfigItem.objects.filter(content_type=ct)
         self.assertEqual(1, len(sc_items))
         self.assertIsNone(sc_items[0].user)
 
     def test_add02(self):
-        post = partial(self.client.post, self.ADD_URL, data={'ct_id': self.ct_contact.id,
-                                                             'user':  self.other_user.id,
+        post = partial(self.client.post, self.ADD_URL, data={#'ct_id': self.ct_contact.id,
+                                                             'content_type': self.ct_contact.id,
+                                                             'user':         self.other_user.id,
                                                             }
                       )
         self.assertNoFormError(post())

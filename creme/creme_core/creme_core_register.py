@@ -18,13 +18,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
-from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import ugettext_lazy as _
 
-#from .models import CremeEntity
 from .registry import creme_registry
-from .gui import creme_menu, block_registry, button_registry # bulk_update_registry
+from .gui import creme_menu, block_registry, button_registry
 from .blocks import relations_block, properties_block, customfields_block, history_block, trash_block
 from .buttons import merge_entities_button
 
@@ -34,9 +32,6 @@ User._meta.ordering = ('username',)
 #Those fields haven't to be accessible to users from IHM
 #todo: currently the restriction is applied only in list_view via header filters, so extend to all the app ?
 #User.header_filter_exclude_fields = ['id', 'pk', 'password', 'is_active', 'is_superuser', 'is_staff', 'last_login', 'date_joined']
-
-ContentType.__unicode__ = lambda self: ugettext(self.name)
-
 
 creme_registry.register_app('creme_core', _(u'Core'), '/')
 

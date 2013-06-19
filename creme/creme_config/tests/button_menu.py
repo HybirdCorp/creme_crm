@@ -16,6 +16,9 @@ __all__ = ('ButtonMenuConfigTestCase',)
 
 
 class ButtonMenuConfigTestCase(CremeTestCase):
+    ADD_URL = '/creme_config/button_menu/add/'
+    DEL_URL = '/creme_config/button_menu/delete'
+
     @classmethod
     def setUpClass(cls):
         ButtonMenuItem.objects.all().delete()
@@ -31,10 +34,10 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         ct = ContentType.objects.get_for_model(Contact)
         self.assertFalse(ButtonMenuItem.objects.filter(content_type=ct))
 
-        url = '/creme_config/button_menu/add/'
+        url = self.ADD_URL
         self.assertGET200(url)
 
-        self.assertNoFormError(self.client.post(url, data={'ct_id': ct.id}))
+        self.assertNoFormError(self.client.post(url, data={'ctype': ct.id}))
 
         self.assertEqual([('', 1)],
                          [(bmi.button_id, bmi.order) for bmi in ButtonMenuItem.objects.filter(content_type=ct)]
@@ -43,9 +46,9 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         response = self.client.get(url)
 
         with self.assertNoException():
-            choices = response.context['form'].fields['ct_id'].choices
+            ctypes = response.context['form'].fields['ctype'].ctypes
 
-        self.assertNotIn(ct.id, (ct_id for ct_id, ctype in choices))
+        self.assertNotIn(ct, ctypes)
 
     def _find_field_index(self, formfield, button_id):
         for i, (f_button_id, f_button_vname) in enumerate(formfield.choices):
@@ -115,7 +118,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         button03 = TestButton03()
         button_registry.register(button01, button02, button03)
 
-        self.client.post('/creme_config/button_menu/add/', data={'ct_id': ct.id})
+        self.client.post(self.ADD_URL, data={'ctype': ct.id})
         self.assertEqual(1, ButtonMenuItem.objects.filter(content_type=ct).count())
 
         url = '/creme_config/button_menu/edit/%s' % ct.id
@@ -147,7 +150,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
                         )
 
     def test_delete01(self): #can not delete default conf
-        url = '/creme_config/button_menu/delete'
+        url = self.DEL_URL
         bmi = ButtonMenuItem.objects.create(content_type=None, button_id='', order=1)
         self.assertPOST404(url)
         self.assertPOST200(url, data={'id': 0})
@@ -155,8 +158,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
     def test_delete_detailview02(self):
         ct = ContentType.objects.get_for_model(Contact)
-        self.client.post('/creme_config/button_menu/add/', data={'ct_id': ct.id})
+        self.client.post(self.ADD_URL, data={'ctype': ct.id})
         self.assertEqual(1, ButtonMenuItem.objects.filter(content_type=ct).count())
 
-        self.assertPOST200('/creme_config/button_menu/delete', data={'id': ct.id})
+        self.assertPOST200(self.DEL_URL, data={'id': ct.id})
         self.assertFalse(ButtonMenuItem.objects.filter(content_type=ct))

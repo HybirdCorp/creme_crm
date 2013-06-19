@@ -49,6 +49,12 @@ def get_ct_or_404(ct_id):
 
     return ct
 
+def build_ct_choices(ctypes):
+    choices = [(ct.id, unicode(ct)) for ct in ctypes]
+    choices.sort(key=lambda k: k[1]) #TODO: unicode collation
+
+    return choices
+
 def create_or_update(model, pk=None, **attrs):
     """Get a model instance by its PK, or create a new one ; then set its attributes.
     @param model Django model (class)

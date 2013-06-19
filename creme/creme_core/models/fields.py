@@ -76,7 +76,6 @@ class CTypeForeignKey(ForeignKey):
         super(CTypeForeignKey, self).__init__(**kwargs)
 
     def __get__(self, instance, instance_type=None):
-        #return ContentType.objects.get_for_id(getattr(instance, self.attname))
         ct_id = getattr(instance, self.attname)
         return ContentType.objects.get_for_id(ct_id) if ct_id else None
 
@@ -100,6 +99,27 @@ class CTypeForeignKey(ForeignKey):
         args, kwargs = introspector(self)
 
         return (field_class, args, kwargs)
+
+    def formfield(self, **kwargs):
+        from ..forms.fields import CTypeChoiceField
+        defaults = {'form_class': CTypeChoiceField}
+        defaults.update(kwargs)
+
+        #Beware we don't call super(CTypeForeignKey, self).formfield(**defaults)
+        #to avoid useless/annoying 'queryset' arg
+        return super(ForeignKey, self).formfield(**defaults)
+
+
+class EntityCTypeForeignKey(CTypeForeignKey):
+    #TODO: assert that it is a CremeEntity instance ??
+    #def __set__(self, instance, value):
+        #setattr(instance, self.attname, value.id if value else value)
+
+    def formfield(self, **kwargs):
+        from ..forms.fields import EntityCTypeChoiceField
+        defaults = {'form_class': EntityCTypeChoiceField}
+        defaults.update(kwargs)
+        return super(EntityCTypeForeignKey, self).formfield(**defaults)
 
 
 # Code copied/modified from django_extensions one:

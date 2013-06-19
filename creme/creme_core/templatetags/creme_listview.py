@@ -20,16 +20,18 @@
 
 import logging
 
-from django.template import Library
 from django.db import models
+from django.template import Library
 from django.utils.html import escape
 from django.utils.translation import ugettext as _
 
-from ..models.header_filter import HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_VOLATILE
 from ..models import CustomField
-from ..utils.meta import get_model_field_info
+from ..models.header_filter import HFI_FIELD, HFI_RELATION, HFI_FUNCTION, HFI_CUSTOM, HFI_VOLATILE
+from ..models.fields import EntityCTypeForeignKey
 from ..gui.field_printers import field_printers_registry
 from ..gui.list_view_import import import_form_registry
+from ..utils import creme_entity_content_types, build_ct_choices
+from ..utils.meta import get_model_field_info
 from .creme_widgets import widget_entity_hyperlink
 
 
@@ -127,8 +129,14 @@ def get_listview_columns_header(context):
                 continue
 
             if isinstance(field, models.ForeignKey):
-                _build_select_search_widget(widget_ctx, item_value,
-                                            ((o.id, o) for o in field.rel.to.objects.distinct().order_by(*field.rel.to._meta.ordering) if unicode(o) != ""))
+                if isinstance(field, EntityCTypeForeignKey):
+                    choices = build_ct_choices(creme_entity_content_types())
+                else:
+                    choices = ((o.id, o)
+                                    for o in field.rel.to.objects.distinct()
+                                        if unicode(o) != ""
+                              )
+                _build_select_search_widget(widget_ctx, item_value, choices)
             elif isinstance(field, models.BooleanField):
                 _build_bool_search_widget(widget_ctx, item_value)
             elif isinstance(field, (models.DateField, models.DateTimeField)):

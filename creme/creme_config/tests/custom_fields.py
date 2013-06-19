@@ -52,11 +52,14 @@ class CustomFieldsTestCase(CremeTestCase):
         response = self.assertGET200(url)
 
         with self.assertNoException():
-            choices = response.context['form'].fields['content_type'].choices
+            #choices = response.context['form'].fields['content_type'].choices
+            ctypes = response.context['form'].fields['content_type'].ctypes
 
-        ct_set = set(ct_id for ct_id, vname in choices)
-        self.assertNotIn(ct.id, ct_set)
-        self.assertIn(ContentType.objects.get_for_model(Organisation).id, ct_set)
+        #ct_set = set(ct_id for ct_id, vname in choices)
+        #self.assertNotIn(ct.id, ct_set)
+        #self.assertIn(ContentType.objects.get_for_model(Organisation).id, ct_set)
+        self.assertNotIn(ct, ctypes)
+        self.assertIn(ContentType.objects.get_for_model(Organisation), ctypes)
 
         self.assertGET200('/creme_config/custom_fields/ct/%s' % ct.id)
 

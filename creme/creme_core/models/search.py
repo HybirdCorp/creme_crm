@@ -29,7 +29,7 @@ from django.contrib.contenttypes.models import ContentType
 
 from ..utils.meta import get_verbose_field_name, ModelFieldEnumerator #get_model_field_info
 from .base import CremeModel
-from .fields import CTypeForeignKey
+from .fields import EntityCTypeForeignKey
 
 
 logger = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 class SearchConfigItem(CremeModel):
     #content_type = ForeignKey(ContentType, verbose_name=_(u"Related type"))
-    content_type = CTypeForeignKey(verbose_name=_(u"Related type"))
+    content_type = EntityCTypeForeignKey(verbose_name=_(u'Related resource'))
 #    role         = ForeignKey(UserRole, verbose_name=_(u"Related role"), null=True) #TODO:To be done ?
     user         = ForeignKey(User, verbose_name=_(u"Related user"), null=True)
 

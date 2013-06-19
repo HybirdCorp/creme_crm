@@ -48,7 +48,7 @@ class BlocksConfigTestCase(CremeTestCase):
         ct = ContentType.objects.get_for_model(Contact)
         self.assertFalse(BlockDetailviewLocation.objects.filter(content_type=ct))
 
-        self.assertNoFormError(self.client.post(url, data={'ct_id': ct.id}))
+        self.assertNoFormError(self.client.post(url, data={'ctype': ct.id}))
 
         b_locs = BlockDetailviewLocation.objects.filter(content_type=ct)
         self.assertEqual([('', 1)] * 4, [(bl.block_id, bl.order) for bl in b_locs])
@@ -59,9 +59,9 @@ class BlocksConfigTestCase(CremeTestCase):
         response = self.client.get(url)
 
         with self.assertNoException():
-            choices = response.context['form'].fields['ct_id'].choices
+            ctypes = response.context['form'].fields['ctype'].ctypes
 
-        self.assertNotIn(ct.id, (ct_id for ct_id, ctype in choices))
+        self.assertNotIn(ct, ctypes)
 
     def _find_field_index(self, formfield, name):
         for i, (fname, fvname) in enumerate(formfield.choices):
@@ -89,7 +89,7 @@ class BlocksConfigTestCase(CremeTestCase):
         model = Contact
         ct = ContentType.objects.get_for_model(model)
 
-        self.client.post(self.ADD_DT_URL, data={'ct_id': ct.id})
+        self.client.post(self.ADD_DT_URL, data={'ctype': ct.id})
         self.assertEqual(4, BlockDetailviewLocation.objects.filter(content_type=ct).count())
 
         class FoobarBlock1(Block):
@@ -275,7 +275,7 @@ class BlocksConfigTestCase(CremeTestCase):
         model = Contact
         ct = ContentType.objects.get_for_model(model)
 
-        self.client.post(self.ADD_DT_URL, data={'ct_id': ct.id})
+        self.client.post(self.ADD_DT_URL, data={'ctype': ct.id})
         self.assertEqual(4, BlockDetailviewLocation.objects.filter(content_type=ct).count())
 
         url = self._build_editdetail_url(ct)
@@ -314,7 +314,7 @@ class BlocksConfigTestCase(CremeTestCase):
         model = Contact
         ct = ContentType.objects.get_for_model(model)
 
-        self.client.post(self.ADD_DT_URL, data={'ct_id': ct.id})
+        self.client.post(self.ADD_DT_URL, data={'ctype': ct.id})
 
         rtype = RelationType.objects.all()[0]
         rtype_block_id = SpecificRelationsBlock.generate_id('test', 'foobar')
@@ -351,7 +351,7 @@ class BlocksConfigTestCase(CremeTestCase):
 
     def test_delete_detailview02(self):
         ct = ContentType.objects.get_for_model(Contact)
-        self.client.post(self.ADD_DT_URL, data={'ct_id': ct.id})
+        self.client.post(self.ADD_DT_URL, data={'ctype': ct.id})
 
         self.assertPOST200(self.DEL_DETAIL_URL, data={'id': ct.id})
         self.assertFalse(BlockDetailviewLocation.objects.filter(content_type=ct))

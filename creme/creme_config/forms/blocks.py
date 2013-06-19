@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,15 +22,14 @@ from itertools import chain
 
 from django.forms import MultipleChoiceField, ChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.models import (RelationType, BlockDetailviewLocation, BlockPortalLocation,
                                BlockMypageLocation, RelationBlockItem)
 from creme.creme_core.forms import CremeForm, CremeModelForm
+from creme.creme_core.forms.fields import EntityCTypeChoiceField
 from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
 from creme.creme_core.gui.block import block_registry, SpecificRelationsBlock
-from creme.creme_core.utils import creme_entity_content_types
 from creme.creme_core.constants import MODELBLOCK_ID
 
 
@@ -97,20 +96,22 @@ class _BlockDetailviewLocationsForm(_BlockLocationsForm):
 
 
 class BlockDetailviewLocationsAddForm(_BlockDetailviewLocationsForm):
-    ct_id = ChoiceField(label=_(u'Related resource'), choices=(), required=True)
+    ctype = EntityCTypeChoiceField(label=_(u'Related resource'))
 
     def __init__(self, *args, **kwargs):
         super(BlockDetailviewLocationsAddForm, self).__init__(*args, **kwargs)
 
-        entity_ct_ids = set(ct.id for ct in creme_entity_content_types())
-        used_ct_ids   = set(BlockDetailviewLocation.objects.exclude(content_type=None)
-                                                           .distinct()
-                                                           .values_list('content_type_id', flat=True)
+        #TODO: factorise (ButtonMenuAddForm etc...)
+        used_ct_ids   = set(BlockDetailviewLocation.objects
+                                                   .exclude(content_type=None)
+                                                   .distinct()
+                                                   .values_list('content_type_id', flat=True)
                            )
-        self.fields['ct_id'].choices = [(ct.id, ct) for ct in ContentType.objects.filter(pk__in=entity_ct_ids - used_ct_ids)]
+        ct_field = self.fields['ctype']
+        ct_field.ctypes = (ct for ct in ct_field.ctypes if ct.id not in used_ct_ids)
 
     def save(self, *args, **kwargs):
-        self._save_detail_locations(ContentType.objects.get_for_id(self.cleaned_data['ct_id']))
+        self._save_detail_locations(self.cleaned_data['ctype'])
 
 
 class BlockDetailviewLocationsEditForm(_BlockDetailviewLocationsForm):
