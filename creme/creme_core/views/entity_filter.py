@@ -110,7 +110,8 @@ def delete(request):
 @login_required
 @jsonify
 def get_content_types(request, rtype_id):
-    content_types = get_object_or_404(RelationType, pk=rtype_id).object_ctypes.all() or creme_entity_content_types()
+    content_types = get_object_or_404(RelationType, pk=rtype_id).object_ctypes.all() or \
+                    creme_entity_content_types()
 
     choices = [(0, _(u'All'))]
     choices.extend((ct.id, unicode(ct)) for ct in content_types)

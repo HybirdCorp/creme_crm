@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,15 +20,13 @@
 
 from itertools import izip
 
-from django.forms import TypedChoiceField, ModelChoiceField, CharField, ValidationError
+from django.forms import TypedChoiceField, CharField, ValidationError
 from django.forms.widgets import Textarea
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.models.custom_field import CustomField, CustomFieldEnumValue, _TABLES
 from creme.creme_core.forms import CremeModelForm
-from creme.creme_core.forms.fields import ListEditionField
-from creme.creme_core.utils import creme_entity_content_types
+from creme.creme_core.forms.fields import EntityCTypeChoiceField, ListEditionField
 
 #TODO: User friendly order in choices fields
 
@@ -65,16 +63,19 @@ class CustomFieldsBaseForm(CremeModelForm):
 
 
 class CustomFieldsCTAddForm(CustomFieldsBaseForm):
-    content_type = ModelChoiceField(label=_(u'Related resource'), queryset=ContentType.objects.none(),
-                                    help_text=_(u'The other custom fields for this type of resource will be chosen by editing the configuration'),
-                                   )
+    content_type = EntityCTypeChoiceField(
+                        label=_(u'Related resource'),
+                        help_text=_(u'The other custom fields for this type of resource '
+                                    u'will be chosen by editing the configuration'
+                                   ),
+                    )
 
     def __init__(self, *args, **kwargs):
         super(CustomFieldsCTAddForm, self).__init__(*args, **kwargs)
 
-        entity_ct_ids = set(ct.id for ct in creme_entity_content_types())
-        used_ct_ids   = set(CustomField.objects.values_list('content_type_id', flat=True))
-        self.fields['content_type'].queryset = ContentType.objects.filter(pk__in=entity_ct_ids - used_ct_ids)
+        used_ct_ids = set(CustomField.objects.values_list('content_type_id', flat=True))
+        ct_field = self.fields['content_type']
+        ct_field.ctypes = (ct for ct in ct_field.ctypes if ct.id not in used_ct_ids)
 
 
 class CustomFieldsAddForm(CustomFieldsBaseForm):

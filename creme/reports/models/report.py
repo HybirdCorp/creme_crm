@@ -29,7 +29,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeModel, CremeEntity, EntityFilter
 from creme.creme_core.models.custom_field import CustomField, _TABLES
-from creme.creme_core.models.fields import CTypeForeignKey
+from creme.creme_core.models.fields import EntityCTypeForeignKey
 from creme.creme_core.utils.meta import (get_instance_field_info, get_model_field_info,
                                    filter_entities_on_ct, get_fk_entity, get_m2m_entities, get_related_field, get_verbose_field_name)
 from creme.creme_core.models.header_filter import HFI_FUNCTION, HFI_RELATION, HFI_FIELD, HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED
@@ -344,7 +344,7 @@ class Field(CremeModel):
 class Report(CremeEntity):
     name    = CharField(_(u'Name of the report'), max_length=100)
     #ct      = ForeignKey(ContentType, verbose_name=_(u"Entity type"))
-    ct      = CTypeForeignKey(verbose_name=_(u'Entity type'))
+    ct      = EntityCTypeForeignKey(verbose_name=_(u'Entity type'))
     columns = ManyToManyField(Field, verbose_name=_(u"Displayed columns"), 
                               related_name='report_columns_set', editable=False,
                              ) #TODO: use a One2Many instead....

@@ -59,7 +59,9 @@ class UserRoleCreateForm(CremeModelForm):
         fields['creatable_ctypes'].choices  = models_choices
         fields['exportable_ctypes'].choices = models_choices
 
-        apps = sorted(((app.name, unicode(app.verbose_name)) for app in creme_registry.iter_apps()), key=lambda t: t[1])
+        apps = sorted(((app.name, unicode(app.verbose_name)) for app in creme_registry.iter_apps()),
+                      key=lambda t: t[1]
+                     )
         fields['allowed_apps'].choices = apps
         fields['admin_4_apps'].choices = apps
 

@@ -28,7 +28,7 @@ from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_core.registry import creme_registry, export_backend_registry
+from creme.creme_core.registry import export_backend_registry #creme_registry
 from creme.creme_core.forms import CremeEntityForm, CremeForm
 from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
 from creme.creme_core.forms.fields import AjaxMultipleChoiceField, AjaxModelChoiceField, CremeEntityField, DateRangeField
@@ -187,11 +187,10 @@ class CreateForm(CremeEntityForm):
         super(CreateForm, self).__init__(*args, **kwargs)
         fields = self.fields
 
-        #TODO: create a ContentTypeModelChoice ??
-        get_ct = ContentType.objects.get_for_model
-        cts    = [(ct.id, unicode(ct)) for ct in (get_ct(model) for model in creme_registry.iter_entity_models())]
-        cts.sort(key=lambda ct_tuple: ct_tuple[1]) #sort by alphabetical order
-        fields['ct'].choices = cts
+        #get_ct = ContentType.objects.get_for_model
+        #cts    = [(ct.id, unicode(ct)) for ct in (get_ct(model) for model in creme_registry.iter_entity_models())]
+        #cts.sort(key=lambda ct_tuple: ct_tuple[1]) #sort by alphabetical order
+        #fields['ct'].choices = cts
 
         self.aggregates = list(field_aggregation_registry.itervalues())#Convert to list to reuse it in template
 
