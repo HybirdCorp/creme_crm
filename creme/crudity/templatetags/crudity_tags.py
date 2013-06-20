@@ -24,6 +24,7 @@ from django.template.defaultfilters import truncatewords
 
 register = template.Library()
 
+#TODO: in creme_core ?? use u'…' (like in utils.ellipsis) ??
 @register.filter(name="truncate")
 def truncate(word, truncate_at):
     words = truncatewords(word, truncate_at)
