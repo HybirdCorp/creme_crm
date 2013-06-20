@@ -56,3 +56,52 @@ class CrudityViewsTestCase(CrudityTestCase):
 
         contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
         self.assertEqual(self.user, contact.user)
+
+    def test_download_email_template(self):
+        subject = 'create_contact'
+        url = '/crudity/download_email_template/%s' % subject
+        self.assertGET404(url) #no backend
+
+        crudity_input = FakeInput()
+        crudity_input.name = "raw"
+        crudity_input.method = "create"
+
+        #TODO: clean crudity_registry ??
+        fetcher = FetcherInterface([FakeFetcher()])
+        fetcher.add_inputs(crudity_input)
+
+        backend = ContactFakeBackend({'subject': subject})
+        crudity_input.add_backend(backend)
+        crudity_registry.register_fetchers("email", [fetcher])
+        crudity_registry.register_inputs("email", [crudity_input])
+        crudity_registry.register_backends([backend])
+
+        self.assertGET404(url) #no contact related to user
+
+        user = self.user
+        Contact.objects.create(user=user, is_user=user, first_name='Haruhi',
+                               last_name ='Suzumiya',
+                              )
+
+        response = self.assertGET200(url)
+        self.assertEqual('attachment; filename=CREATE_CONTACT.eml',
+                         response['Content-Disposition']
+                        )
+        self.assertEqual('application/vnd.sealed.eml', response['Content-Type'])
+        self.assertContains(response, 'Subject: CREATE_CONTACT')
+        self.assertTemplateUsed(response, 'crudity/create_email_template.html')
+
+    def test_history(self):
+        response = self.assertGET200('/crudity/history')
+        self.assertTemplateUsed(response, 'crudity/history.html')
+        #TODO: complete
+
+    #def test_history_reload(self): TODO
+
+    def test_actions_fetch(self): #TODO: test with data
+        response = self.assertGET200('/crudity/waiting_actions')
+        self.assertTemplateUsed(response, 'emails/templatetags/block_synchronization.html')
+        self.assertTemplateUsed(response, 'emails/templatetags/block_synchronization_spam.html')
+
+    #def test_actions_delete(self): TODO
+    #def test_actions_reload(self): TODO

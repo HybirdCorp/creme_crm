@@ -33,6 +33,9 @@ from creme.creme_core.utils import safe_unicode
 
 from .base import CrudityFetcher
 
+
+logger = logging.getLogger(__name__)
+
 CREME_GET_EMAIL_SERVER       = settings.CREME_GET_EMAIL_SERVER
 CREME_GET_EMAIL_USERNAME     = settings.CREME_GET_EMAIL_USERNAME
 CREME_GET_EMAIL_PASSWORD     = settings.CREME_GET_EMAIL_PASSWORD
@@ -44,14 +47,14 @@ CREME_GET_EMAIL_SSL_CERTFILE = settings.CREME_GET_EMAIL_SSL_CERTFILE
 
 class PopEmail(object):
     def __init__(self, body=u"", body_html=u"", senders=(), tos=(), ccs=(), subject=None, dates=(), attachments=()):
-        self.body             = body
-        self.body_html        = body_html
-        self.senders          = senders
-        self.tos              = tos
-        self.ccs              = ccs
-        self.subject          = subject
-        self.dates            = dates
-        self.attachments      = attachments
+        self.body        = body
+        self.body_html   = body_html
+        self.senders     = senders
+        self.tos         = tos
+        self.ccs         = ccs
+        self.subject     = subject
+        self.dates       = dates
+        self.attachments = attachments
 
 #Better ?
 #PopEmail = namedtuple('PopEmail', 'body body_html senders tos ccs subjects dates attachment_paths', verbose=False)
@@ -81,8 +84,8 @@ class PopFetcher(CrudityFetcher):
 
             message_count, mailbox_size = client.stat()
             response, messages, total_size = client.list()
-        except Exception as e:#TODO: Define better exception
-            logger.debug("Pop connection error : %s", e)
+        except Exception:#TODO: Define better exception
+            logger.exception("PopFetcher.fetch: POP connection error")
             if client is not None:
                 client.quit()
             return []

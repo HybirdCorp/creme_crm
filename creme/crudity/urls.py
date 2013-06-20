@@ -4,10 +4,10 @@ from django.conf.urls import patterns
 
 
 urlpatterns = patterns('creme.crudity.views',
-    (r'^waiting_actions$', 'actions.fetch'),
-
+    (r'^waiting_actions$',          'actions.fetch'),
     (r'^waiting_actions/delete$',   'actions.delete'),
     (r'^waiting_actions/validate$', 'actions.validate'),
+
     (r'^waiting_actions_blocks/block_crudity-(?P<ct_id>\d+)-(?P<backend_subject>\w+)/reload$', 'actions.reload'),
 
     (r'^history$',                                           'history.history'),

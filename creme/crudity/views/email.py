@@ -54,7 +54,7 @@ def download_email_template(request, subject):
     response = HttpResponse(render_to_string("crudity/create_email_template.html",
                                              {'backend': backend,
                                               'contact': contact_user,
-                                              'to':      settings.CREME_GET_EMAIL
+                                              'to':      settings.CREME_GET_EMAIL,
                                              },
                                              context_instance=RequestContext(request)
                                             ),
