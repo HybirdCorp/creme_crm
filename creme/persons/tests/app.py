@@ -16,7 +16,7 @@ __all__ = ('PersonsAppTestCase',)
 class PersonsAppTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('persons')
+        cls.populate('creme_config', 'persons')
 
     def test_populate(self):
         self.get_relationtype_or_fail(REL_SUB_EMPLOYED_BY,       [Contact],               [Organisation])
@@ -27,6 +27,7 @@ class PersonsAppTestCase(CremeTestCase):
         self.get_relationtype_or_fail(REL_SUB_PARTNER,           [Contact, Organisation], [Contact, Organisation])
         self.get_relationtype_or_fail(REL_SUB_INACTIVE,          [Contact, Organisation], [Contact, Organisation])
         self.get_relationtype_or_fail(REL_SUB_SUBSIDIARY,        [Organisation],          [Organisation])
+        self.get_relationtype_or_fail(REL_SUB_COMPETITOR,        [Contact, Organisation], [Contact, Organisation])
 
         efilter = self.get_object_or_fail(EntityFilter, pk=FILTER_MANAGED_ORGA)
         self.assertFalse(efilter.is_custom)
@@ -35,6 +36,6 @@ class PersonsAppTestCase(CremeTestCase):
 
     def test_portal(self):
         self.login()
-        self.assertEqual(self.client.get('/persons/').status_code, 200)
+        self.assertGET200('/persons/')
 
 #TODO: tests for portal stats

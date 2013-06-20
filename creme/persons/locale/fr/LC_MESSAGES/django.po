@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-05-22 17:26+0200\n"
+"POT-Creation-Date: 2013-06-20 16:52+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -160,83 +160,91 @@ msgstr "a pour filiale"
 msgid "is a subsidiary of"
 msgstr "est une filiale de"
 
-#: populate.py:81
+#: populate.py:76
+msgid "is a competitor of"
+msgstr "est un concurrent de"
+
+#: populate.py:77
+msgid "has as competitor"
+msgstr "a pour concurrent"
+
+#: populate.py:84
 msgid "Madam"
 msgstr "Madame"
 
-#: populate.py:81
+#: populate.py:84
 msgid "Mrs."
 msgstr "Mme"
 
-#: populate.py:82
+#: populate.py:85
 msgid "Miss"
 msgstr "Mademoiselle"
 
-#: populate.py:82
+#: populate.py:85
 msgid "Ms."
 msgstr "Mlle"
 
-#: populate.py:83
+#: populate.py:86
 msgid "Mister"
 msgstr "Monsieur"
 
-#: populate.py:83
+#: populate.py:86
 msgid "Mr."
 msgstr "Mr"
 
-#: populate.py:84
+#: populate.py:87
 msgid "N/A"
 msgstr "NC"
 
-#: populate.py:86
+#: populate.py:89
 msgid "CEO"
 msgstr "PDG"
 
-#: populate.py:87
+#: populate.py:90
 msgid "Secretary"
 msgstr "Secrétaire"
 
-#: populate.py:88
+#: populate.py:91
 msgid "Technician"
 msgstr "Technicien"
 
-#: populate.py:90
+#: populate.py:93
 msgid "Food Industry"
 msgstr "Agro-Alimentaire"
 
-#: populate.py:91
+#: populate.py:94
 msgid "Industry"
 msgstr "Industrie"
 
-#: populate.py:92
+#: populate.py:95
 msgid "Informatic"
 msgstr "Informatique"
 
-#: populate.py:93
+#: populate.py:96
 msgid "Telecom"
 msgstr "Télécom"
 
-#: populate.py:94
+#: populate.py:97
 msgid "Restoration"
 msgstr "Restauration"
 
-#: populate.py:109
+#: populate.py:112
 msgid "Contact view"
 msgstr "Vue de Contact"
 
-#: populate.py:118
+#: populate.py:121
 msgid "Prospect/Suspect view"
 msgstr "Vue Prospect/Suspect"
 
-#: populate.py:129
+#: populate.py:132
 msgid "Organisation view"
 msgstr "Vue de Société"
 
-#: populate.py:153
+#: populate.py:156
 msgid "Managed by creme"
 msgstr "Gérée par creme"
 
-#: populate.py:166
+#: populate.py:169
 msgid "ReplaceByYourSociety"
 msgstr "RemplacezParVotreSociété"
 
@@ -835,9 +843,6 @@ msgstr "Nombre de client(s) de %s"
 
 #~ msgid "Other Information"
 #~ msgstr "Autres Informations"
-
-#~ msgid "has as customer"
-#~ msgstr "a pour client"
 
 #~ msgid "has as supplier"
 #~ msgstr "a pour fournisseur"
