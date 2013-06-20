@@ -81,6 +81,56 @@ class AddressTestCase(CremeTestCase):
         self.assertContains(response, country)
         self.assertContains(response, department)
 
+    def test_create_billing(self):
+        orga = self.login()
+        self.assertGET404('/persons/address/add/invalid/%s' % orga.id)
+
+        url = '/persons/address/add/billing/%s' % orga.id
+        self.assertGET200(url)
+
+        addr_value = '21 jump street'
+        city = 'Atlantis'
+        self.assertNoFormError(self.client.post(url, data={'address': addr_value,
+                                                           'city':    city,
+                                                          }
+                                               )
+                              )
+
+        addresses = Address.objects.filter(object_id=orga.id)
+        self.assertEqual(1, len(addresses))
+
+        address = addresses[0]
+        self.assertEqual(city,       address.city)
+        self.assertEqual(addr_value, address.address)
+        self.assertEqual('',         address.po_box)
+        self.assertEqual('',         address.name)
+
+        self.assertEqual(address, self.refresh(orga).billing_address)
+
+    def test_create_shipping(self):
+        orga = self.login()
+        url = '/persons/address/add/shipping/%s' % orga.id
+        self.assertGET200(url)
+
+        addr_value = '21 jump street'
+        country = 'Wonderland'
+        self.assertNoFormError(self.client.post(url, data={'address': addr_value,
+                                                           'country': country,
+                                                          }
+                                               )
+                              )
+
+        addresses = Address.objects.filter(object_id=orga.id)
+        self.assertEqual(1, len(addresses))
+
+        address = addresses[0]
+        self.assertEqual(country,    address.country)
+        self.assertEqual(addr_value, address.address)
+        self.assertEqual('',         address.zipcode)
+        self.assertEqual('',         address.name)
+
+        self.assertEqual(address, self.refresh(orga).shipping_address)
+
     def test_editview(self):
         orga = self.login()
 
