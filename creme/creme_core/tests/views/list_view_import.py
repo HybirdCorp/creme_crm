@@ -2,9 +2,12 @@
 
 try:
     from tempfile import NamedTemporaryFile
+    from os import remove as delete_file, listdir, makedirs
+    from os import path as os_path
 
     from django.utils.translation import ugettext as _
     from django.utils.unittest.case import skipIf
+    from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation
@@ -29,11 +32,26 @@ __all__ = ('CSVImportViewsTestCase', )
 
 
 class CSVImportBaseTestCaseMixin(object):
-    doc = None
+    @classmethod
+    def setUpClass(cls):
+        cls.documents_dir = documents_dir = os_path.join(settings.MEDIA_ROOT,
+                                                         'upload',
+                                                         'documents',
+                                                        )
+
+        if os_path.exists(documents_dir):
+            cls.existing_doc_files = set(listdir(documents_dir))
+        else:
+            makedirs(documents_dir, 0755)
+            cls.existing_doc_files = set()
 
     def tearDown(self):
-        if self.doc:
-            self.doc.filedata.delete() #clean
+        existing_files = self.existing_doc_files
+        dir_path = self.documents_dir
+
+        for filename in listdir(dir_path):
+            if filename not in existing_files:
+                delete_file(os_path.join(dir_path, filename))
 
     def _build_file(self, content, extension=None):
         tmpfile = NamedTemporaryFile(suffix=".%s" % extension if extension else '')
@@ -62,9 +80,9 @@ class CSVImportBaseTestCaseMixin(object):
         self.assertNoFormError(response)
 
         with self.assertNoException():
-            self.doc = Document.objects.get(title=title)
+            doc = Document.objects.get(title=title)
 
-        return self.doc
+        return doc
 
     def _build_csv_doc(self, lines, separator=',', extension='csv'):
         content = u'\n'.join(separator.join(u'"%s"' % item for item in line) for line in lines)
@@ -91,12 +109,17 @@ class CSVImportBaseTestCaseMixin(object):
 class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
     @classmethod
     def setUpClass(cls):
+        CSVImportBaseTestCaseMixin.setUpClass()
+
         cls.populate('creme_core', 'creme_config')
 
         Contact.objects.all().delete()
         Organisation.objects.all().delete()
         Position.objects.all().delete()
         Sector.objects.all().delete()
+
+    def tearDown(self):
+        CSVImportBaseTestCaseMixin.tearDown(self)
 
     def _test_import01(self, builder):
         self.login()
@@ -490,7 +513,8 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         for first_name, last_name in lines[1:]:
             self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
 
-    def test_import_error01(self): #Form error: unknown extension
+    def test_import_error01(self):
+        "Form error: unknown extension"
         self.login()
 
         self.assertFalse(Contact.objects.exists())
@@ -507,4 +531,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
                                                 }
                                      )
         self.assertFormError(response, 'form', None,
-                             [_(u"Error reading document, unsupported file type: %s.") % doc.filedata.name])
+                             [_(u"Error reading document, unsupported file type: %s.") % 
+                                    doc.filedata.name
+                             ]
+                            )
