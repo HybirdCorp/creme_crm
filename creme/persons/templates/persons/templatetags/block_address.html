@@ -1,33 +1,41 @@
 {% load i18n %}
 {% load creme_core_tags creme_block %}
+{% has_perm_to change object as has_perm %}
+{% with b_address=object.billing_address s_address=object.shipping_address %}
 <table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
     {% get_block_header colspan=6 %}
         <th class="collapser label">{% get_basic_block_header _("Addresses") 'info_48.png' _('Addresses') %}</th>
         <th class="actions">
             <div class="buttons">
-                {% get_toggle_empty_field_button %}
+                {% if b_address == None %}{% get_line_adder at_url '/persons/address/add/billing/{{object.id}}' with_label _("Add a billing address") with_perms has_perm %}{% endif %}
+                {% if s_address == None %}{% get_line_adder at_url '/persons/address/add/shipping/{{object.id}}' with_label _("Add a shipping address") with_perms has_perm %}{% endif %}
+                {% if b_address != None or s_address != None %}{% get_toggle_empty_field_button %}{% endif %}
             </div>
         </th>
     {% end_get_block_header %}
     <tbody class="collapsable">
-        {% cycle "block_line_dark"  "block_line_light" as row_color_b silent %}
-        {% cycle "block_line_light" "block_line_dark"  as row_color_s silent %}
+{% cycle "block_line_dark"  "block_line_light" as row_color_b silent %}
+{% cycle "block_line_light" "block_line_dark"  as row_color_s silent %}
         <tr class="header">
-            <th colspan="3" class="block_header_line_dark" >{% trans "Billing address" %}</th>
-            <th colspan="3" class="block_header_line_light">{% trans "Shipping address" %}</th>
+            {% if b_address != None %}<th colspan="3" class="block_header_line_dark" >{% trans "Billing address" %}</th>{% endif %}
+            {% if s_address != None %}<th colspan="3" class="block_header_line_light">{% trans "Shipping address" %}</th>{% endif %}
         </tr>
-        {% with b_address=object.billing_address s_address=object.shipping_address %}
+        {% if b_address != None or s_address != None %}
             {% for field_name in field_names %}
                 <tr class="content">
-                    <th class="block_header_line_dark  th_info_4_columns">{% get_field_verbose_name address_model field_name %}</th>
-                    <td class="{% cycle row_color_b %} td_info_4_columns" >{% print_field object=b_address field=field_name %}</td>
-                    <td class="{% cycle row_color_b %} edit_inner width_inner_edit_address">{% if b_address %}{% get_field_editor on regular field_name for b_address %}{% endif %}</td>
-
-                    <th class="block_header_line_light th_info_4_columns">{% get_field_verbose_name address_model field_name %}</th>
-                    <td class="{% cycle row_color_s %} td_info_4_columns">{% print_field object=s_address field=field_name %}</td>
-                    <td class="{% cycle row_color_s %} edit_inner width_inner_edit_address">{% if s_address %}{% get_field_editor on regular field_name for s_address %}{% endif %}</td>
+                    {% if b_address != None %}
+                        <th class="block_header_line_dark  th_info_4_columns">{% get_field_verbose_name address_model field_name %}</th>
+                        <td class="{% cycle row_color_b %} td_info_4_columns" >{% print_field object=b_address field=field_name %}</td>
+                        <td class="{% cycle row_color_b %} edit_inner width_inner_edit_address">{% if b_address %}{% get_field_editor on regular field_name for b_address %}{% endif %}</td>
+                    {% endif %}
+                    {% if s_address != None %}
+                        <th class="block_header_line_light th_info_4_columns">{% get_field_verbose_name address_model field_name %}</th>
+                        <td class="{% cycle row_color_s %} td_info_4_columns">{% print_field object=s_address field=field_name %}</td>
+                        <td class="{% cycle row_color_s %} edit_inner width_inner_edit_address">{% if s_address %}{% get_field_editor on regular field_name for s_address %}{% endif %}</td>
+                    {% endif %}
                 </tr>
             {% endfor %}
-        {% endwith %}
+        {% endif %}
     </tbody>
 </table>
+{% endwith %}

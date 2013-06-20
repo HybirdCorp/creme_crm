@@ -25,6 +25,8 @@ urlpatterns = patterns('creme.persons.views',
     (r'^(?P<entity_id>\d+)/become_inactive_customer$', 'crud_relations.become_inactive'),
     (r'^(?P<entity_id>\d+)/become_supplier$',          'crud_relations.become_supplier'),
 
-    (r'^address/add/(?P<entity_id>\d+)$',  'address.add'),
-    (r'^address/edit/(?P<address_id>\d+)', 'address.edit'),
+    (r'^address/add/(?P<entity_id>\d+)$',          'address.add'),
+    (r'^address/add/billing/(?P<entity_id>\d+)$',  'address.add_billing'),
+    (r'^address/add/shipping/(?P<entity_id>\d+)$', 'address.add_shipping'),
+    (r'^address/edit/(?P<address_id>\d+)',         'address.edit'),
 )

@@ -24,15 +24,33 @@ from django.contrib.auth.decorators import login_required, permission_required
 from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
 
 from ..models import Address
-from ..forms.address import AddressForm
+from ..forms.address import AddressForm, BillingAddressForm, ShippingAddressForm
 
 
 @login_required
 @permission_required('persons')
 def add(request, entity_id):
-    return add_to_entity(request, entity_id, AddressForm, _(u'Adding Address to <%s>'))
+    return add_to_entity(request, entity_id, AddressForm,
+                         _(u'Adding address to <%s>')
+                        )
+
+@login_required
+@permission_required('persons')
+def add_billing(request, entity_id):
+    return add_to_entity(request, entity_id, BillingAddressForm,
+                         _(u'Adding billing address to <%s>')
+                        )
+
+@login_required
+@permission_required('persons')
+def add_shipping(request, entity_id):
+    return add_to_entity(request, entity_id, ShippingAddressForm,
+                         _(u'Adding shipping address to <%s>')
+                        )
 
 @login_required
 @permission_required('persons')
 def edit(request, address_id):
-    return edit_related_to_entity(request, address_id, Address, AddressForm, _(u"Address for <%s>"))
+    return edit_related_to_entity(request, address_id, Address, AddressForm,
+                                  _(u"Address for <%s>")
+                                 )
