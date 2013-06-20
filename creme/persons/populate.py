@@ -73,6 +73,9 @@ class Populator(BasePopulator):
                         ((REL_SUB_SUBSIDIARY,        _(u'has as subsidiary'),          [Organisation]),
                          (REL_OBJ_SUBSIDIARY,        _(u"is a subsidiary of"),         [Organisation]),
                         ),
+                        ((REL_SUB_COMPETITOR,        _(u'is a competitor of'),         [Contact, Organisation]),
+                         (REL_OBJ_COMPETITOR,        _(u'has as competitor'),          [Contact, Organisation]),
+                        ),
                        ]:
             rt, sym_rt = RelationType.create(*rt_info)
             rt_map[rt.id] = rt
