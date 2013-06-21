@@ -101,8 +101,7 @@ class ServiceTestCase(_ProductsTestCase):
                                ),
                    ]
 
-        response = self.client.get('/products/services')
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/products/services')
 
         with self.assertNoException():
             services_page = response.context['entities']
@@ -125,7 +124,7 @@ class ServiceTestCase(_ProductsTestCase):
         self.assertPOST404('/creme_config/products/subcategory/delete', data={'id': sub_cat.pk})
         self.get_object_or_fail(SubCategory, pk=sub_cat.pk)
 
-        service = self.get_object_or_fail(Service, pk=service.pk)
+        service = self.assertStillExists(service)
         self.assertEqual(sub_cat, service.sub_category)
 
     def test_delete_category(self):
@@ -135,6 +134,6 @@ class ServiceTestCase(_ProductsTestCase):
         self.get_object_or_fail(SubCategory, pk=sub_cat.pk)
         self.get_object_or_fail(Category, pk=cat.pk)
 
-        service = self.get_object_or_fail(Service, pk=service.pk)
+        service = self.assertStillExists(service)
         self.assertEqual(sub_cat, service.sub_category)
         self.assertEqual(cat,     service.category)

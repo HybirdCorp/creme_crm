@@ -81,7 +81,7 @@ class _CremeTestCase(object):
         model = instance.__class__
 
         try:
-            model.objects.get(pk=instance.pk)
+            return model.objects.get(pk=instance.pk)
         except model.DoesNotExist:
             self.fail('Your object does not exist any more.')
 
