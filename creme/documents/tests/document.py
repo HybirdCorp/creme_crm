@@ -29,7 +29,7 @@ class DocumentTestCase(_DocumentsTestCase):
         return '/documents/document/add_related/%s' % entity.id
 
     def test_populate(self):
-        self.assertTrue(RelationType.objects.filter(pk=REL_SUB_RELATED_2_DOC).exists())
+        self.get_object_or_fail(RelationType, pk=REL_SUB_RELATED_2_DOC)
 
         get_ct = ContentType.objects.get_for_model
         hf_filter = HeaderFilter.objects.filter
@@ -61,8 +61,6 @@ class DocumentTestCase(_DocumentsTestCase):
         file_obj, file_name = self._build_filedata(content, suffix='.%s' % ext)
         folder   = Folder.objects.all()[0]
         response = self._create_doc(title, file_obj, folder, description)
-        self.assertTrue(response.redirect_chain)
-        self.assertEqual(1, len(response.redirect_chain))
 
         docs = Document.objects.all()
         self.assertEqual(1, len(docs))
@@ -71,6 +69,8 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual(title,       doc.title)
         self.assertEqual(description, doc.description)
         self.assertEqual(folder,      doc.folder)
+
+        self.assertRedirects(response, '/documents/document/%s' % doc.id)
 
         filedata = doc.filedata
         self.assertEqual('upload/documents/%s' % file_name, filedata.name)
