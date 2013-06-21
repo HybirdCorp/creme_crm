@@ -299,11 +299,11 @@ class StrategyTestCase(CommercialBaseTestCase):
                           )
         self.assertEqual([orga2], list(strategy1.evaluated_orgas.all()))
 
-        self.assertFalse(CommercialAssetScore.objects.filter(pk=asset_score1.pk).exists())
+        self.assertDoesNotExist(asset_score1)
         self.get_object_or_fail(CommercialAssetScore, pk=asset_score2.pk) #no deleted (other orga)
         self.get_object_or_fail(CommercialAssetScore, pk=asset_score3.pk) #no deleted (other strategy)
 
-        self.assertFalse(MarketSegmentCharmScore.objects.filter(pk=charm_score1.pk).exists())
+        self.assertDoesNotExist(charm_score1)
         self.get_object_or_fail(MarketSegmentCharmScore, pk=charm_score2.pk) #no deleted (other orga)
         self.get_object_or_fail(MarketSegmentCharmScore, pk=charm_score3.pk) #no deleted (other strategy)
 
@@ -494,7 +494,7 @@ class StrategyTestCase(CommercialBaseTestCase):
         self.assertEqual(1, Strategy.objects.count())
 
         strategy.delete()
-        self.assertFalse(Strategy.objects.filter(pk=strategy.pk))
+        self.assertDoesNotExist(strategy)
 
     def test_delete02(self):
         strategy = Strategy.objects.create(user=self.user, name='Strat#1')

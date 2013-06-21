@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import date, datetime
+    from datetime import date #datetime
     from functools import partial
 
     from django.utils.translation import ugettext as _
@@ -31,7 +31,7 @@ class ActTestCase(CommercialBaseTestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'persons', 'activities', 'commercial')
+        cls.populate('creme_config', 'activities', 'commercial')
 
     def _build_addobjective_url(self, act):
         return '/commercial/act/%s/add/objective' % act.id
@@ -184,8 +184,8 @@ class ActTestCase(CommercialBaseTestCase):
 
         name = 'Objective#1'
         counter_goal = 20
-        response = self.client.post(url, data={'name':         name,
-                                               'counter_goal': counter_goal,
+        response = self.client.post(url, data={'name':            name,
+                                               'counter_goal':    counter_goal,
                                                'entity_counting': self._build_ctypefilter_field(),
                                               }
                                    )
@@ -365,9 +365,11 @@ class ActTestCase(CommercialBaseTestCase):
         objective = ActObjective.objects.create(act=act, name='OBJ#1')
         ct = ContentType.objects.get_for_model(ActObjective)
 
-        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, data={'id': objective.id})
+        response = self.client.post('/creme_core/entity/delete_related/%s' % ct.id, 
+                                    data={'id': objective.id}
+                                   )
         self.assertRedirects(response, act.get_absolute_url())
-        self.assertFalse(ActObjective.objects.filter(pk=objective.id))
+        self.assertDoesNotExist(objective)
 
     def test_incr_objective_counter(self):
         act = self.create_act()

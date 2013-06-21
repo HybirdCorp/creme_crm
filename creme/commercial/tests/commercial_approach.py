@@ -23,6 +23,7 @@ except Exception as e:
 __all__ = ('CommercialApproachTestCase',)
 
 
+#TODO: test command
 class CommercialApproachTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
@@ -219,4 +220,4 @@ class CommercialApproachTestCase(CremeTestCase):
                                                   )
 
         orga.delete()
-        self.assertFalse(CommercialApproach.objects.filter(pk=comapp.id))
+        self.assertDoesNotExist(comapp)
