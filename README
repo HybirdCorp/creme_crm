@@ -12,7 +12,7 @@ DEPENDENCIES:
         - Django 1.4
         - Django-mediagenerator 1.10
         - South 0.7
-        - pytz >= 2011e
+        - pytz
         - Java >= 1.4 (only needed to build the compressed version of CSS and JavaScript files at installation time)
 
     - Optional
@@ -27,7 +27,7 @@ DEPENDENCIES:
             - pygraphviz (seems unavailable on windows)
 
         - creme.activesync:
-            - PIL >= 1.1.7
+            - Pillow 2.0.0
             - restkit 2.2.1
             - pycrypto 2.3
 
@@ -57,3 +57,8 @@ run the following commands in the root directory:
 
 If you are upgrading from Creme 1.2, run the following command:
 >> python manage.py convert_naive_datetimes
+
+
+TROUBLESHOOTING:
+- If you got some problems with PIL, check if you are using the legacy PIL (that was in our old requirements) or
+  its fork Pillow (new requirement). The best thing to do is first to uninstall PIL, and then install Pillow.
