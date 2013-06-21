@@ -130,8 +130,7 @@ class ProductTestCase(_ProductsTestCase):
                     create_prod(name='Eva01', code=43),
                    ]
 
-        response = self.client.get('/products/products')
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200('/products/products')
 
         with self.assertNoException():
             products_page = response.context['entities']
@@ -146,7 +145,7 @@ class ProductTestCase(_ProductsTestCase):
         sub_cat = SubCategory.objects.create(name='Eva', description='Fake gods', category=cat)
 
         self.assertPOST200('/creme_config/products/subcategory/delete', data={'id': sub_cat.pk})
-        self.assertFalse(SubCategory.objects.filter(pk=sub_cat.pk).exists())
+        self.assertDoesNotExist(sub_cat)
 
     def _build_product_cat_subcat(self):
         cat = Category.objects.create(name='Mecha', description='Mechanical devices')
@@ -166,7 +165,7 @@ class ProductTestCase(_ProductsTestCase):
         self.assertPOST404('/creme_config/products/subcategory/delete', data={'id': sub_cat.pk})
         self.assertTrue(SubCategory.objects.filter(pk=sub_cat.pk).exists())
 
-        product = self.get_object_or_fail(Product, pk=product.pk)
+        product = self.assertStillExists(product)
         self.assertEqual(sub_cat, product.sub_category)
 
     def test_delete_category03(self):
@@ -178,6 +177,6 @@ class ProductTestCase(_ProductsTestCase):
         self.assertTrue(SubCategory.objects.filter(pk=sub_cat.pk).exists())
         self.assertTrue(Category.objects.filter(pk=cat.pk).exists())
 
-        product = self.get_object_or_fail(Product, pk=product.pk)
+        product = self.assertStillExists(product)
         self.assertEqual(sub_cat, product.sub_category)
         self.assertEqual(cat,     product.category)
