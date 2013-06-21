@@ -10,16 +10,22 @@ try:
 
     from creme.persons.models import Contact, Organisation
 
-    from creme.activities.models import Activity, Calendar, ActivitySubType
+    from creme.activities.models import Activity, Calendar, ActivityType, ActivitySubType
     from creme.activities.constants import *
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
 
 class CTITestCase(CremeTestCase):
+    ADD_PCALL_URL = '/cti/add_phonecall'
+    RESPOND_URL = '/cti/respond_to_a_call'
+
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'activities')
+
+    def _buid_add_pcall_url(self, contact):
+        return '/cti/phonecall/add/%s' % contact.id
 
     def login(self):
         super(CTITestCase, self).login()
@@ -34,13 +40,14 @@ class CTITestCase(CremeTestCase):
         self.login()
         user = self.user
 
-        self.assertFalse(Activity.objects.filter(type=ACTIVITYTYPE_PHONECALL).exists())
-        self.assertTrue(ActivitySubType.objects.filter(type=ACTIVITYTYPE_PHONECALL).exists())
+        atype = self.get_object_or_fail(ActivityType, pk=ACTIVITYTYPE_PHONECALL)
+        self.assertTrue(ActivitySubType.objects.filter(type=atype).exists())
+        self.assertFalse(Activity.objects.filter(type=atype).exists())
 
         contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit')
-        self.assertPOST200('/cti/add_phonecall', data={'entity_id': contact.id})
+        self.assertPOST200(self.ADD_PCALL_URL, data={'entity_id': contact.id})
 
-        pcalls = Activity.objects.filter(type=ACTIVITYTYPE_PHONECALL)
+        pcalls = Activity.objects.filter(type=atype)
         self.assertEqual(1, len(pcalls))
 
         pcall = pcalls[0]
@@ -62,7 +69,7 @@ class CTITestCase(CremeTestCase):
         "No contact"
         self.login()
 
-        self.assertPOST404('/cti/add_phonecall', data={'entity_id': '1024'})
+        self.assertPOST404(self.ADD_PCALL_URL, data={'entity_id': '1024'})
         self.assertFalse(Activity.objects.filter(type=ACTIVITYTYPE_PHONECALL).exists())
 
     def test_add_phonecall03(self):
@@ -70,7 +77,7 @@ class CTITestCase(CremeTestCase):
         self.login()
 
         orga = Organisation.objects.create(user=self.user, name='Gunsmith Cats')
-        self.assertPOST200('/cti/add_phonecall', data={'entity_id': orga.id})
+        self.assertPOST200(self.ADD_PCALL_URL, data={'entity_id': orga.id})
 
         pcalls = Activity.objects.filter(type=ACTIVITYTYPE_PHONECALL)
         self.assertEqual(1, len(pcalls))
@@ -85,8 +92,7 @@ class CTITestCase(CremeTestCase):
         phone='558899'
         contact = Contact.objects.create(user=self.user, first_name='Bean', last_name='Bandit', phone=phone)
 
-        response = self.client.get('/cti/respond_to_a_call', data={'number': phone})
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(self.RESPOND_URL, data={'number': phone})
 
         with self.assertNoException():
             callers = response.context['callers']
@@ -99,8 +105,7 @@ class CTITestCase(CremeTestCase):
 
         phone='558899'
         contact = Contact.objects.create(user=self.user, first_name='Bean', last_name='Bandit', mobile=phone)
-        response = self.client.get('/cti/respond_to_a_call', data={'number': phone})
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(self.RESPOND_URL, data={'number': phone})
         self.assertEqual([contact.id], [c.id for c in response.context['callers']])
 
     def test_respond_to_a_call03(self):
@@ -108,7 +113,7 @@ class CTITestCase(CremeTestCase):
 
         phone='558899'
         orga = Organisation.objects.create(user=self.user, name='Gunsmith Cats', phone=phone)
-        response = self.client.get('/cti/respond_to_a_call', data={'number': phone})
+        response = self.client.get(self.RESPOND_URL, data={'number': phone})
         self.assertEqual([orga.id], [o.id for o in response.context['callers']])
 
     def test_create_contact(self):
@@ -116,52 +121,50 @@ class CTITestCase(CremeTestCase):
 
         phone = '121366'
         url = '/cti/contact/add/%s' % phone
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             form = response.context['form']
 
         self.assertEqual(phone, form.initial.get('phone'))
 
-        response = self.client.post(url, follow=True,
-                                    data={'user':       self.user.id,
-                                          'first_name': 'Minnie',
-                                          'last_name':  'May',
-                                          'phone':      phone,
-                                        }
-                                   )
-        self.assertNoFormError(response)
-        self.assertEqual(1, Contact.objects.filter(phone=phone).count())
+        self.assertNoFormError(self.client.post(url, follow=True,
+                                                data={'user':       self.user.id,
+                                                      'first_name': 'Minnie',
+                                                      'last_name':  'May',
+                                                      'phone':      phone,
+                                                     }
+                                               )
+                              )
+        self.get_object_or_fail(Contact, phone=phone)
 
     def test_create_orga(self):
         self.login()
 
         phone = '987654'
         url = '/cti/organisation/add/%s' % phone
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             form = response.context['form']
 
         self.assertEqual(phone, form.initial.get('phone'))
 
-        response = self.client.post(url, follow=True,
-                                    data={'user':  self.user.id,
-                                          'name':  'Gunsmith cats',
-                                          'phone': phone,
-                                        }
-                                   )
-        self.assertNoFormError(response)
-        self.assertEqual(1, Organisation.objects.filter(phone=phone).count())
+        self.assertNoFormError(self.client.post(url, follow=True,
+                                                data={'user':  self.user.id,
+                                                      'name':  'Gunsmith cats',
+                                                      'phone': phone,
+                                                     }
+                                               )
+                              )
+        self.get_object_or_fail(Organisation, phone=phone)
 
     def test_create_phonecall01(self):
         self.login()
         user = self.user
 
         contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit')
-        self.assertEqual(302, self.client.post('/cti/phonecall/add/%s' % contact.id).status_code)
+        self.assertPOST(302, self._buid_add_pcall_url(contact))
 
         pcalls = Activity.objects.filter(type=ACTIVITYTYPE_PHONECALL)
         self.assertEqual(1, len(pcalls))
@@ -183,32 +186,30 @@ class CTITestCase(CremeTestCase):
 
     def test_create_phonecall02(self):
         self.login()
-        user = self.user
 
-        self.assertEqual(302, self.client.post('/cti/phonecall/add/%s' % self.contact.id).status_code)
+        self.assertPOST(302, self._buid_add_pcall_url(self.contact))
 
-        self.assertEqual(1, Activity.objects.count())
+        activities = Activity.objects.all()
+        self.assertEqual(1, len(activities))
 
-        phone_call = Activity.objects.all()[0]
+        phone_call = activities[0]
         self.assertRelationCount(1, self.contact, REL_SUB_PART_2_ACTIVITY, phone_call)
 
-        calendar = Calendar.get_user_default_calendar(user)
+        calendar = Calendar.get_user_default_calendar(self.user)
         self.assertTrue(phone_call.calendars.filter(pk=calendar.id).exists())
 
     def test_create_phonecall03(self):
         self.login()
-        user = self.user
-        other_user = self.other_user
 
-        self.assertEqual(302, self.client.post('/cti/phonecall/add/%s' % self.contact_other_user.id).status_code)
+        self.assertPOST(302, self._buid_add_pcall_url(self.contact_other_user))
 
         self.assertEqual(1, Activity.objects.count())
 
         phone_call = Activity.objects.all()[0]
-        self.assertRelationCount(1, self.contact, REL_SUB_PART_2_ACTIVITY, phone_call)
+        self.assertRelationCount(1, self.contact,            REL_SUB_PART_2_ACTIVITY, phone_call)
         self.assertRelationCount(1, self.contact_other_user, REL_SUB_PART_2_ACTIVITY, phone_call)
 
-        calendar_user = Calendar.get_user_default_calendar(user)
-        calendar_other_user = Calendar.get_user_default_calendar(other_user)
-        self.assertTrue(phone_call.calendars.filter(pk=calendar_user.id).exists())
-        self.assertTrue(phone_call.calendars.filter(pk=calendar_other_user.id).exists())
+        get_cal = Calendar.get_user_default_calendar
+        filter_calendars = phone_call.calendars.filter
+        self.assertTrue(filter_calendars(pk=get_cal(self.user).id).exists())
+        self.assertTrue(filter_calendars(pk=get_cal(self.other_user).id).exists())
