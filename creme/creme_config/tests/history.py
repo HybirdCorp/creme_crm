@@ -13,6 +13,8 @@ __all__ = ('HistoryConfigTestCase',)
 
 
 class HistoryConfigTestCase(CremeTestCase):
+    ADD_URL = '/creme_config/history/add/'
+
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config')
@@ -30,7 +32,7 @@ class HistoryConfigTestCase(CremeTestCase):
         rtype01 = create_rt(('test-subject_foo', 'fooes'), ('test-object_foo', 'fooed'))[0]
         rtype02 = create_rt(('test-subject_bar', 'bars'),  ('test-object_bar', 'bared'))[0]
 
-        url = '/creme_config/history/add/'
+        url = self.ADD_URL
         self.assertGET200(url)
 
         rtype_ids = [rtype01.id, rtype02.id]
@@ -40,7 +42,8 @@ class HistoryConfigTestCase(CremeTestCase):
         self.assertEqual(2, len(hc_items))
         self.assertEqual(set(rtype_ids), set(hc_item.relation_type.id for hc_item in hc_items))
 
-    def test_add02(self): #no doublons
+    def test_add02(self):
+        "No doublons"
         create_rt = RelationType.create
         rtype01 = create_rt(('test-subject_foo', 'fooes'), ('test-object_foo', 'fooed'))[0]
         rtype02 = create_rt(('test-subject_bar', 'bars'),  ('test-object_bar', 'bared'))[0]
@@ -48,7 +51,7 @@ class HistoryConfigTestCase(CremeTestCase):
         HistoryConfigItem.objects.create(relation_type=rtype01)
 
         rtype_ids = [rtype01.id, rtype02.id]
-        response = self.client.post('/creme_config/history/add/', data={'relation_types': rtype_ids})
+        response = self.client.post(self.ADD_URL, data={'relation_types': rtype_ids})
         self.assertFormError(response, 'form', field='relation_types',
                              errors=_(u'Select a valid choice. %s is not one of the available choices.') % rtype01.id
                             )
@@ -58,4 +61,4 @@ class HistoryConfigTestCase(CremeTestCase):
         hci = HistoryConfigItem.objects.create(relation_type=rtype)
 
         self.assertPOST200('/creme_config/history/delete', data={'id': hci.id})
-        self.assertFalse(HistoryConfigItem.objects.filter(pk=hci.id))
+        self.assertDoesNotExist(hci)

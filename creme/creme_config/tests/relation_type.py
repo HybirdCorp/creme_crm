@@ -135,7 +135,8 @@ class RelationTypeTestCase(CremeTestCase):
                                       is_custom=True
                                      )
         self.assertPOST200(self.DEL_URL, data={'id': rt.id})
-        self.assertFalse(RelationType.objects.filter(pk__in=[rt.id, srt.id]))
+        self.assertDoesNotExist(rt)
+        self.assertDoesNotExist(srt)
 
 
 class SemiFixedRelationTypeTestCase(CremeTestCase):
@@ -237,4 +238,4 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
         self.assertPOST200('/creme_config/relation_type/semi_fixed/delete',
                            data={'id': sfrt.id}
                           )
-        self.assertFalse(SemiFixedRelationType.objects.filter(pk=sfrt.id))
+        self.assertDoesNotExist(sfrt)

@@ -52,7 +52,10 @@ class BlocksConfigTestCase(CremeTestCase):
 
         b_locs = BlockDetailviewLocation.objects.filter(content_type=ct)
         self.assertEqual([('', 1)] * 4, [(bl.block_id, bl.order) for bl in b_locs])
-        self.assertEqual(set([BlockDetailviewLocation.TOP, BlockDetailviewLocation.LEFT, BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM]),
+        self.assertEqual(set([BlockDetailviewLocation.TOP, BlockDetailviewLocation.LEFT,
+                              BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
+                             ]
+                            ),
                          set(bl.zone for bl in b_locs)
                         )
 
@@ -242,9 +245,12 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertEqual(1, self._find_location(block_top_id1, locations).order)
         self.assertEqual(2, self._find_location(block_top_id2, locations).order)
 
-        self.assertEqual([('', 1)], [(bl.block_id, bl.order) for bl in b_locs if bl.zone == BlockDetailviewLocation.LEFT])
-        self.assertEqual([('', 1)], [(bl.block_id, bl.order) for bl in b_locs if bl.zone == BlockDetailviewLocation.RIGHT])
-        self.assertEqual([('', 1)], [(bl.block_id, bl.order) for bl in b_locs if bl.zone == BlockDetailviewLocation.BOTTOM])
+        def blocks_info(zone):
+            return [(bl.block_id, bl.order) for bl in b_locs if bl.zone == zone]
+
+        self.assertEqual([('', 1)], blocks_info(BlockDetailviewLocation.LEFT))
+        self.assertEqual([('', 1)], blocks_info(BlockDetailviewLocation.RIGHT))
+        self.assertEqual([('', 1)], blocks_info(BlockDetailviewLocation.BOTTOM))
 
     def test_edit_detailview04(self):
         "Default conf"
@@ -266,7 +272,10 @@ class BlocksConfigTestCase(CremeTestCase):
 
         b_locs = BlockDetailviewLocation.objects.filter(content_type=None)
         self.assertEqual([('', 1)] * 4, [(bl.block_id, bl.order) for bl in b_locs])
-        self.assertEqual(set([BlockDetailviewLocation.TOP, BlockDetailviewLocation.LEFT, BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM]),
+        self.assertEqual(set([BlockDetailviewLocation.TOP, BlockDetailviewLocation.LEFT,
+                              BlockDetailviewLocation.RIGHT, BlockDetailviewLocation.BOTTOM,
+                             ]
+                            ),
                          set(bl.zone for bl in b_locs)
                         )
 
@@ -306,7 +315,9 @@ class BlocksConfigTestCase(CremeTestCase):
                                          }
                                    )
         self.assertFormError(response, 'form', field=None,
-                             errors=[_(u'The following block should be displayed only once: <%s>') % evil_block.verbose_name]
+                             errors=[_(u'The following block should be displayed only once: <%s>') %
+                                        evil_block.verbose_name
+                                    ]
                             )
 
     def test_edit_detailview06(self):
@@ -329,10 +340,14 @@ class BlocksConfigTestCase(CremeTestCase):
                 self.ibci = instance_block_config_item
 
             def detailview_display(self, context):
-                return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity) #useless :)
+                return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (
+                                self.id_, self.ibci.entity
+                            ) #useless :)
 
         instance_block_id = InstanceBlockConfigItem.generate_id(FoobarInstanceBlock, naru, '')
-        InstanceBlockConfigItem.objects.create(block_id=instance_block_id, entity=naru, verbose='All stuffes')
+        InstanceBlockConfigItem.objects.create(block_id=instance_block_id,
+                                               entity=naru, verbose='All stuffes',
+                                              )
 
         block_registry.register_4_instance(FoobarInstanceBlock)
 
@@ -433,7 +448,9 @@ class BlocksConfigTestCase(CremeTestCase):
                 self.ibci = instance_block_config_item
 
             def portal_display(self, context, ct_ids):
-                return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (self.id_, self.ibci.entity) #useless :)
+                return '<table id="%s"><thead><tr>%s</tr></thead></table>' % (
+                                self.id_, self.ibci.entity
+                            ) #useless :)
 
         instance_block_id = InstanceBlockConfigItem.generate_id(FoobarInstanceBlock, naru, '')
         InstanceBlockConfigItem.objects.create(block_id=instance_block_id, entity=naru, verbose='All stuffes')
@@ -485,7 +502,9 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertEqual(2, self._find_location(block_id2, b_locs).order)
 
     def _get_blocks_4_portal(self):
-        blocks = list(block for block_id, block in  block_registry if hasattr(block, 'portal_display'))
+        blocks = [block for block_id, block in block_registry
+                            if hasattr(block, 'portal_display')
+                 ]
         self.assertGreaterEqual(len(blocks), 2, blocks)
 
         return blocks
@@ -516,7 +535,8 @@ class BlocksConfigTestCase(CremeTestCase):
         self.assertEqual(1,  bpl.order)
         self.assertEqual('', bpl.block_id)
 
-    def test_edit_portal04(self): #default conf
+    def test_edit_portal04(self):
+        "Default conf"
         BlockPortalLocation.objects.filter(app_name='').delete()
         url = '/creme_config/blocks/portal/edit/default'
         self.assertGET404(url)
@@ -568,7 +588,7 @@ class BlocksConfigTestCase(CremeTestCase):
         "Edit portal of unknown app"
         app_name = 'unknown'
         self.assertFalse(BlockPortalLocation.objects.filter(app_name=app_name).exists())
-        self.assertEqual(404, self.client.get('/creme_config/blocks/portal/edit/%s' % app_name).status_code)
+        self.assertGET404('/creme_config/blocks/portal/edit/%s' % app_name)
 
     def test_delete_portal(self):
         app_name = 'persons'
@@ -581,7 +601,9 @@ class BlocksConfigTestCase(CremeTestCase):
         "Can not delete home conf"
         #TODO: use a helper method ??
         app_name = 'creme_core'
-        blocks = list(block for block_id, block in  block_registry if hasattr(block, 'home_display'))
+        blocks = [block for block_id, block in  block_registry
+                            if hasattr(block, 'home_display')
+                 ]
         self.assertGreaterEqual(len(blocks), 1)
 
         BlockPortalLocation.objects.create(app_name=app_name, block_id=blocks[0].id_, order=1)
@@ -663,24 +685,24 @@ class BlocksConfigTestCase(CremeTestCase):
     def test_delete_default_mypage01(self):
         loc = BlockMypageLocation.objects.create(user=None, block_id=history_block.id_, order=1)
         self.assertPOST200('/creme_config/blocks/mypage/default/delete', data={'id': loc.id})
-        self.assertFalse(BlockMypageLocation.objects.filter(pk=loc.pk))
+        self.assertDoesNotExist(loc)
 
     def test_delete_default_mypage02(self):
         "'user' must be 'None'"
         loc = BlockMypageLocation.objects.create(user=self.user, block_id=history_block.id_, order=1)
         self.assertPOST404('/creme_config/blocks/mypage/default/delete', data={'id': loc.id})
-        self.assertEqual(1,   BlockMypageLocation.objects.filter(pk=loc.pk).count())
+        self.assertStillExists(loc)
 
     def test_delete_mypage01(self):
         loc = BlockMypageLocation.objects.create(user=self.user, block_id=history_block.id_, order=1)
         self.assertPOST200('/creme_config/blocks/mypage/delete', data={'id': loc.id})
-        self.assertFalse(BlockMypageLocation.objects.filter(pk=loc.pk))
+        self.assertDoesNotExist(loc)
 
     def test_delete_mypage02(self):
         "BlockMypageLocation must belong to the user"
         loc = BlockMypageLocation.objects.create(user=self.other_user, block_id=history_block.id_, order=1)
         self.assertPOST404('/creme_config/blocks/mypage/delete', data={'id': loc.id})
-        self.assertEqual(1,   BlockMypageLocation.objects.filter(pk=loc.pk).count())
+        self.assertStillExists(loc)
 
     def test_add_relationblock(self):
         rt, srt = RelationType.create(('test-subfoo', 'subject_predicate'),
@@ -702,11 +724,14 @@ class BlocksConfigTestCase(CremeTestCase):
                                       ('test-objfoo', 'object_predicate'), is_custom=False
                                      )
         rbi = RelationBlockItem.objects.create(block_id='foobarid', relation_type=rt)
-        loc = BlockDetailviewLocation.create(block_id=rbi.block_id, order=5, zone=BlockDetailviewLocation.RIGHT, model=Contact)
+        loc = BlockDetailviewLocation.create(block_id=rbi.block_id, order=5,
+                                             zone=BlockDetailviewLocation.RIGHT,
+                                             model=Contact,
+                                            )
 
         self.assertPOST200('/creme_config/blocks/relation_block/delete', data={'id': rbi.id})
-        self.assertFalse(RelationBlockItem.objects.filter(pk=rbi.pk).exists())
-        self.assertFalse(BlockDetailviewLocation.objects.filter(pk=loc.pk).exists())
+        self.assertDoesNotExist(rbi)
+        self.assertDoesNotExist(loc)
 
     def test_delete_instanceblock(self):
         naru = Contact.objects.create(user=self.user, first_name='Naru', last_name='Narusegawa')
@@ -726,5 +751,5 @@ class BlocksConfigTestCase(CremeTestCase):
                                                     )
         loc = BlockDetailviewLocation.create(block_id=ibi.block_id, order=5, zone=BlockDetailviewLocation.RIGHT, model=Contact)
         self.assertPOST200('/creme_config/blocks/instance_block/delete', data={'id': ibi.id})
-        self.assertFalse(InstanceBlockConfigItem.objects.filter(pk=ibi.pk).exists())
-        self.assertFalse(BlockDetailviewLocation.objects.filter(pk=loc.pk).exists())
+        self.assertDoesNotExist(ibi)
+        self.assertDoesNotExist(loc)

@@ -115,5 +115,6 @@ class SearchConfigTestCase(CremeTestCase):
         sf2 = create_sf(field='last_name',  order=2)
 
         self.assertPOST200('/creme_config/search/delete', data={'id': sci.id})
-        self.assertFalse(SearchConfigItem.objects.filter(pk=sci.pk))
-        self.assertFalse(SearchField.objects.filter(pk__in=[sf1.pk, sf2.pk]))
+        self.assertDoesNotExist(sci)
+        self.assertDoesNotExist(sf1)
+        self.assertDoesNotExist(sf2)
