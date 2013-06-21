@@ -62,7 +62,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         name = 'Bebop'
         orga = Organisation.objects.create(user=self.user, name=name)
         url = '/persons/organisation/edit/%s' % orga.id
-        self.assertEqual(200, self.client.get(url).status_code)
+        self.assertGET200(url)
 
         name += '_edited'
         zipcode = '123456'
@@ -87,8 +87,7 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         nerv = create_orga(name='Nerv')
         acme = create_orga(name='Acme')
 
-        response = self.client.get('/persons/organisations')
-        self.assertEqual(response.status_code, 200)
+        response = self.assertGET200('/persons/organisations')
 
         with self.assertNoException():
             orgas_page = response.context['entities']
@@ -169,15 +168,12 @@ class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
         "Credentials errors"
         self.login(is_superuser=False)
 
-        role = self.role
-        create_creds = SetCredentials.objects.create
-        create_creds(role=role,
-                     value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
+        create_creds = partial(SetCredentials.objects.create, role=self.role)
+        create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
                            EntityCredentials.DELETE | EntityCredentials.UNLINK, #no LINK
                      set_type=SetCredentials.ESET_ALL
                     )
-        create_creds(role=role,
-                     value=EntityCredentials.VIEW   | EntityCredentials.CHANGE | \
+        create_creds(value=EntityCredentials.VIEW   | EntityCredentials.CHANGE |
                            EntityCredentials.DELETE | EntityCredentials.LINK | EntityCredentials.UNLINK,
                      set_type=SetCredentials.ESET_OWN
                     )

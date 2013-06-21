@@ -247,7 +247,7 @@ class AddressTestCase(CremeTestCase):
         other_addr = create_address(name="Other address", address="OA - Address", owner=orga)
 
         orga.delete()
-        self.assertFalse(Organisation.objects.filter(pk=orga.id).exists())
+        self.assertDoesNotExist(orga)
         self.assertFalse(Address.objects.filter(pk__in=[b_addr.id, s_addr.id, other_addr.id]))
 
     def test_delete_contact(self):
@@ -272,5 +272,5 @@ class AddressTestCase(CremeTestCase):
         other_addr = create_address(name="Other address", address="OA - Address", owner=contact)
 
         contact.delete()
-        self.assertFalse(Contact.objects.filter(pk=contact.id).exists())
+        self.assertDoesNotExist(contact)
         self.assertFalse(Address.objects.filter(pk__in=[b_addr.id, s_addr.id, other_addr.id]))

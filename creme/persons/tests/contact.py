@@ -515,10 +515,13 @@ class ContactTestCase(_BaseTestCase):
         "No permission to link Organisation"
         self.login(is_superuser=False, creatable_models=[Contact])
 
-        get_ct = ContentType.objects.get_for_model
-        create_sc = partial(SetCredentials.objects.create, role=self.role)
-        create_sc(value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_ALL)
-        create_sc(value=EntityCredentials.LINK, set_type=SetCredentials.ESET_ALL, ctype=get_ct(Contact))
+        create_sc = partial(SetCredentials.objects.create, role=self.role,
+                            set_type=SetCredentials.ESET_ALL
+                           )
+        create_sc(value=EntityCredentials.VIEW)
+        create_sc(value=EntityCredentials.LINK,
+                  ctype=ContentType.objects.get_for_model(Contact),
+                 )
 
         orga_count = Organisation.objects.count()
 
@@ -837,8 +840,7 @@ class ContactTestCase(_BaseTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-
-        self.assertFalse(Organisation.objects.filter(pk=contact02).exists())
+        self.assertDoesNotExist(contact02)
 
         with self.assertNoException():
             contact01 = self.refresh(contact01)
@@ -971,8 +973,7 @@ class ContactTestCase(_BaseTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-
-        self.assertFalse(Organisation.objects.filter(pk=contact02).exists())
+        self.assertDoesNotExist(contact02)
 
         with self.assertNoException():
             contact01 = self.refresh(contact01)
@@ -1058,5 +1059,5 @@ class ContactTestCase(_BaseTestCase):
 
         image.delete()
 
-        self.assertFalse(Image.objects.filter(pk=image.pk).exists())
+        self.assertDoesNotExist(image)
         self.assertIsNone(self.refresh(harlock).image)
