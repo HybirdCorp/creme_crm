@@ -22,7 +22,7 @@ __all__ = ('ActObjectivePatternTestCase',)
 class ActObjectivePatternTestCase(CommercialBaseTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'persons', 'commercial')
+        cls.populate('creme_config', 'commercial')
 
     def _build_addcomp_url(self, pattern):
         return '/commercial/objective_pattern/%s/add_component' % pattern.id
@@ -112,8 +112,8 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertGET200(url)
 
         name = 'Signed opportunities'
-        response = self.client.post(url, data={'name':         name,
-                                               'success_rate': 10,
+        response = self.client.post(url, data={'name':            name,
+                                               'success_rate':    10,
                                                'entity_counting': self._build_ctypefilter_field(),
                                               }
                                    )
@@ -148,7 +148,8 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertEqual(ct,   component.ctype)
         self.assertIsNone(component.filter)
 
-    def test_add_root_pattern_component03(self): #counted relation with filter (no parent component)
+    def test_add_root_pattern_component03(self):
+        "Counted relation with filter (no parent component)"
         pattern = self._create_pattern()
         name = 'Called contacts'
         ct = ContentType.objects.get_for_model(Contact)
@@ -160,7 +161,6 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
                                          }
                                    )
         self.assertNoFormError(response)
-        self.assertEqual(200, response.status_code)
 
         with self.assertNoException():
             component = pattern.components.get(name=name)
@@ -168,7 +168,8 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertEqual(ct,      component.ctype)
         self.assertEqual(efilter, component.filter)
 
-    def test_add_child_pattern_component01(self): #parent component
+    def test_add_child_pattern_component01(self):
+        "Parent component"
         pattern = self._create_pattern()
         comp01 = ActObjectivePatternComponent.objects.create(name='Signed opportunities',
                                                              pattern=pattern, success_rate=50
@@ -178,8 +179,8 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertGET200(url)
 
         name = 'Spread Vcards'
-        self.assertNoFormError(self.client.post(url, data={'name':         name,
-                                                           'success_rate': 20,
+        self.assertNoFormError(self.client.post(url, data={'name':            name,
+                                                           'success_rate':    20,
                                                            'entity_counting': self._build_ctypefilter_field(),
                                                           }
                                                )
@@ -212,7 +213,7 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         pattern = self._create_pattern()
         comp01 = ActObjectivePatternComponent.objects.create(name='Sent mails',
                                                              pattern=pattern,
-                                                             success_rate=5
+                                                             success_rate=5,
                                                             )
 
         url = self._build_parent_url(comp01)
