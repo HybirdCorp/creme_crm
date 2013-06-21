@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+
     from django.utils.unittest.case import skipIf
 
     from creme.creme_core.models import RelationType
     from creme.creme_core.tests.base import CremeTestCase
 
+    from creme.persons.models import Contact, Organisation
     from .models import *
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
@@ -21,10 +24,14 @@ except ImportError:
 class GraphsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config')
+        cls.populate('creme_core', 'creme_config', 'graphs')
 
     def login(self, is_superuser=True):
         super(GraphsTestCase, self).login(is_superuser, allowed_apps=['graphs'])
+
+    def test_portal(self):
+        self.login()
+        self.assertGET200('/graphs/')
 
     def test_graph_create(self):
         self.login()
@@ -65,10 +72,17 @@ class GraphsTestCase(CremeTestCase):
     def test_listview(self):
         self.login()
 
-        Graph.objects.create(user=self.user, name='Graph01')
-        Graph.objects.create(user=self.user, name='Graph02')
+        create_graph = partial(Graph.objects.create, user=self.user)
+        graph1 = create_graph(name='Graph01')
+        graph2 = create_graph(name='Graph02')
 
-        self.assertGET200('/graphs/graphs')
+        response = self.assertGET200('/graphs/graphs')
+
+        with self.assertNoException():
+            graphs = response.context['entities'].object_list
+
+        self.assertIn(graph1, graphs)
+        self.assertIn(graph2, graphs)
 
     def test_relation_types01(self):
         self.login()
@@ -80,12 +94,15 @@ class GraphsTestCase(CremeTestCase):
         self.assertGET200(url)
 
         rtype_create = RelationType.create
-        rtype01, srtype01 = rtype_create(('test-subject_love', 'loves'), ('test-object_love', 'is loved to'))
-        rtype02, srtype02 = rtype_create(('test-subject_hate', 'hates'), ('test-object_hate', 'is hated to'))
+        rtype01, srtype01 = rtype_create(('test-subject_love', 'loves'),
+                                         ('test-object_love',  'is loved to')
+                                        )
+        rtype02, srtype02 = rtype_create(('test-subject_hate', 'hates'),
+                                         ('test-object_hate',  'is hated to')
+                                        )
         rtypes_ids = [rtype01.id, rtype02.id]
 
-        response = self.client.post(url, data={'relation_types': rtypes_ids})
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(url, data={'relation_types': rtypes_ids}))
 
         rtypes = graph.orbital_relation_types.all()
         self.assertEqual(2,               len(rtypes))
@@ -100,14 +117,13 @@ class GraphsTestCase(CremeTestCase):
         self.login(is_superuser=False)
 
         graph = Graph.objects.create(user=self.other_user, name='Graph01')
-        self.assertEqual(403, self.client.get('/graphs/graph/%s/relation_types/add' % graph.id).status_code)
+        self.assertGET403('/graphs/graph/%s/relation_types/add' % graph.id)
 
         rtype, srtype = RelationType.create(('test-subject_love', 'loves'), ('test-object_love', 'is loved to'))
         graph.orbital_relation_types.add(rtype)
-        self.assertEqual(403,  self.client.post('/graphs/graph/%s/relation_type/delete' % graph.id,
-                                                data={'id': rtype.id}
-                                               ).status_code
-                        )
+        self.assertPOST403('/graphs/graph/%s/relation_type/delete' % graph.id,
+                           data={'id': rtype.id}
+                          )
 
     @skipIf(skip_graphviz_test, 'Pygraphviz is not installed (are you under Wind*ws ??')
     def test_download01(self):
@@ -118,4 +134,73 @@ class GraphsTestCase(CremeTestCase):
 
         #TODO: improve
 
-    #TODO: def test_root_nodes_/add/edit/delete
+    def test_add_rootnode(self):
+        self.login()
+
+        user = self.user
+        contact = Contact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
+        orga = Organisation.objects.create(user=user, name='NERV')
+
+        #TODO: factorise
+        rtype_create = RelationType.create
+        rtype01 = rtype_create(('test-subject_love', 'loves'),
+                               ('test-object_love',  'is loved to')
+                              )[0]
+        rtype02 = rtype_create(('test-subject_hate', 'hates'),
+                               ('test-object_hate',  'is hated to')
+                              )[0]
+
+        graph = Graph.objects.create(user=user, name='Graph01')
+        url = '/graphs/graph/%s/roots/add' % graph.id
+        self.assertGET200(url)
+
+        response = self.client.post(url, data={'entities': '[{"ctype":"%s","entity":"%s"}, {"ctype":"%s","entity":"%s"}]' % (
+                                                                contact.entity_type_id, contact.pk,
+                                                                orga.entity_type_id,    orga.pk
+                                                            ),
+                                               'relation_types': [rtype01.pk, rtype02.pk],
+                                              }
+                                   )
+        self.assertNoFormError(response)
+
+        rnodes = RootNode.objects.filter(graph=graph).order_by('id')
+        self.assertEqual(2, len(rnodes))
+
+        self.assertEqual(set([contact, orga]),
+                         set(rnode.entity.get_real_entity() for rnode in rnodes)
+                        )
+        self.assertEqual(set([rtype01, rtype02]), set(rnodes[0].relation_types.all()))
+
+        #delete
+        rnode = rnodes[1]
+        url = '/graphs/root/delete'
+        data = {'id': rnode.id}
+        self.assertGET404(url, data=data)
+
+        self.assertPOST200(url, data=data)
+        self.assertDoesNotExist(rnode)
+
+    def test_edit_rootnode(self):
+        self.login()
+
+        user = self.user
+        orga = Organisation.objects.create(user=user, name='NERV')
+
+        #TODO: factorise
+        rtype_create = RelationType.create
+        rtype01 = rtype_create(('test-subject_love', 'loves'),
+                               ('test-object_love',  'is loved to')
+                              )[0]
+        rtype02 = rtype_create(('test-subject_hate', 'hates'),
+                               ('test-object_hate',  'is hated to')
+                              )[0]
+
+        graph = Graph.objects.create(user=user, name='Graph01')
+        rnode = RootNode.objects.create(graph=graph, entity=orga)
+        rnode.relation_types = [rtype01]
+
+        url = '/graphs/root/edit/%s/' % rnode.id
+        self.assertGET200(url)
+
+        self.assertNoFormError(self.client.post(url, data={'relation_types': [rtype01.pk, rtype02.pk]}))
+        self.assertEqual(set([rtype01, rtype02]), set(rnode.relation_types.all()))

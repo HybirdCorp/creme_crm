@@ -20,6 +20,7 @@ class _DocumentsTestCase(CremeTestCase):
 
         cls.dir_path = dir_path = join(settings.MEDIA_ROOT, 'upload', 'documents')
 
+        #TODO: factorise with CSVImportBaseTestCaseMixin
         if exists(dir_path):
             cls.existing_files = set(listdir(dir_path))
         else:
