@@ -74,7 +74,10 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                        criticity=criticity,
                                       )
 
-        response = self.assertGET200('/tickets/ticket/%s' % ticket.pk)
+        abs_url = '/tickets/ticket/%s' % ticket.pk
+        self.assertEqual(abs_url, ticket.get_absolute_url())
+
+        response = self.assertGET200(abs_url)
 
         with self.assertNoException():
             retr_ticket = response.context['object']
@@ -108,8 +111,6 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                }
         response = self.client.post(url, follow=True, data=data)
         self.assertNoFormError(response)
-        self.assertTrue(response.redirect_chain)
-        self.assertEqual(1, len(response.redirect_chain))
 
         tickets = Ticket.objects.all()
         self.assertEqual(len(tickets), 1)
@@ -128,6 +129,8 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
             funf = ticket.function_fields.get('get_resolving_duration')
 
         self.assertEqual('', funf(ticket).for_html())
+
+        self.assertRedirects(response, ticket.get_absolute_url())
 
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(response, 'form', 'title',
@@ -261,7 +264,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertRedirects(response, Ticket.get_lv_absolute_url())
 
         response = self.assertPOST200(url, follow=True)
-        self.assertFalse(Ticket.objects.filter(pk=ticket.pk).exists())
+        self.assertDoesNotExist(ticket)
         self.assertRedirects(response, Ticket.get_lv_absolute_url())
 
     def test_clone01(self):
@@ -309,7 +312,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                        criticity=Criticity.objects.all()[0],
                                       )
         self.assertPOST404('/creme_config/tickets/status/delete', data={'id': status.pk})
-        self.assertTrue(Status.objects.filter(pk=status.pk).exists())
+        self.assertStillExists(status)
 
         ticket = self.get_object_or_fail(Ticket, pk=ticket.pk)
         self.assertEqual(status, ticket.status)
@@ -326,7 +329,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                        criticity=Criticity.objects.all()[0],
                                       )
         self.assertPOST404('/creme_config/tickets/priority/delete', data={'id': priority.pk})
-        self.assertTrue(Priority.objects.filter(pk=priority.pk).exists())
+        self.assertStillExists(priority)
 
         ticket = self.get_object_or_fail(Ticket, pk=ticket.pk)
         self.assertEqual(priority, ticket.priority)
@@ -343,7 +346,7 @@ class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                        criticity=criticity,
                                       )
         self.assertPOST404('/creme_config/tickets/criticity/delete', data={'id': criticity.pk})
-        self.assertTrue(Criticity.objects.filter(pk=criticity.pk).exists())
+        self.assertStillExists(criticity)
 
         ticket = self.get_object_or_fail(Ticket, pk=ticket.pk)
         self.assertEqual(criticity, ticket.criticity)
@@ -449,7 +452,7 @@ class TicketTestUniqueCase(CremeTransactionTestCase):
 class TicketTemplateTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        cls.populate('creme_core', 'creme_config', 'tickets') #TODO: factorise
+        cls.populate('creme_config', 'tickets') #TODO: factorise
 
     def create_template(self, title, description='description', status=None):
         status = status or Status.objects.get(pk=OPEN_PK)
@@ -466,7 +469,9 @@ class TicketTemplateTestCase(CremeTestCase):
         self.login()
 
         template = self.create_template('Title')
-        self.assertGET200('/tickets/template/%s' % template.id)
+        abs_url = '/tickets/template/%s' % template.id
+        self.assertEqual(abs_url, template.get_absolute_url())
+        self.assertGET200(abs_url)
 
     def test_edit(self):
         self.login()
@@ -538,7 +543,8 @@ class TicketTemplateTestCase(CremeTestCase):
         self.assertEqual(template.criticity,   ticket.criticity)
         self.assertTrue(ticket.closing_date)
 
-    def test_create_entity03(self): #several generations -> 'title' column must be unique
+    def test_create_entity03(self):
+        "Several generations -> 'title' column must be unique"
         self.login()
 
         self.assertEqual(0, Ticket.objects.count())
@@ -551,7 +557,8 @@ class TicketTemplateTestCase(CremeTestCase):
 
         self.assertEqual(2, Ticket.objects.count())
 
-    def test_multi_delete(self): #should not delete
+    def test_multi_delete(self):
+        "Should not delete"
         self.login()
 
         template01 = self.create_template('Title01')
