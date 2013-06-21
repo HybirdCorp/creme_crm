@@ -118,7 +118,8 @@ class ProjectsTestCase(CremeTestCase):
                              ]
                             )
 
-    def test_project_createview03(self): #validation error with start/end
+    def test_project_createview03(self):
+        "Validation error with start/end"
         self.login()
 
         manager = Contact.objects.create(user=self.user, first_name='Gendo', last_name='Ikari')
@@ -140,11 +141,18 @@ class ProjectsTestCase(CremeTestCase):
         self.create_project('Eva01')
         self.assertGET200('/projects/projects')
 
+    def _build_inner_edit_url(self, entity, field): #TODO: in creme_core ??
+        return '/creme_core/entity/edit/%s/%s/field/%s' % (
+                        entity.entity_type_id,
+                        entity.id,
+                        field,
+                    )
+
     def test_project_inner_edit01(self):
         self.login()
 
         project = self.create_project('Eva01', start_date='2012-2-16', end_date='2012-3-26')[0]
-        url = '/creme_core/entity/edit/%s/%s/field/%s' % (project.entity_type_id, project.id, 'start_date')
+        url = self._build_inner_edit_url(project, 'start_date')
         self.assertGET200(url)
 
         self.assertNoFormError(self.client.post(url, data={'entities_lbl': [unicode(project)],
@@ -161,7 +169,7 @@ class ProjectsTestCase(CremeTestCase):
         self.login()
 
         project = self.create_project('Eva01', start_date='2012-2-16', end_date='2012-3-26')[0]
-        response = self.client.post('/creme_core/entity/edit/%s/%s/field/%s' % (project.entity_type_id, project.id, 'start_date'),
+        response = self.client.post(self._build_inner_edit_url(project, 'start_date'),
                                     data={'entities_lbl': [unicode(project)],
                                           'field_value':  '2012-3-27', #<= after end_date
                                          }
@@ -404,7 +412,7 @@ class ProjectsTestCase(CremeTestCase):
                             )
 
     def test_task_add_parent02(self):
-        "Error task that belong to another project"
+        "Error task that belongs to another project"
         self.login()
 
         project01 = self.create_project('Eva01')[0]
@@ -702,7 +710,7 @@ class ProjectsTestCase(CremeTestCase):
 
         status = ProjectStatus.objects.create(name='Sinking')
         self.assertEqual(200, self._delete_project_status(status).status_code)
-        self.assertFalse(ProjectStatus.objects.filter(pk=status.pk).exists())
+        self.assertDoesNotExist(status)
 
     def test_delete_project_status02(self):
         self.login()
@@ -724,7 +732,7 @@ class ProjectsTestCase(CremeTestCase):
 
         status = TaskStatus.objects.create(name='Coming soon')
         self.assertEqual(200, self._delete_task_status(status).status_code)
-        self.assertFalse(TaskStatus.objects.filter(pk=status.pk).exists())
+        self.assertDoesNotExist(status)
 
     def test_delete_task_status02(self):
         self.login()
@@ -733,10 +741,10 @@ class ProjectsTestCase(CremeTestCase):
         status  = TaskStatus.objects.create(name='Coming soon')
         task    = self.create_task(project, 'Building head', status=status)
         self.assertEqual(404, self._delete_task_status(status).status_code)
-        self.assertTrue(TaskStatus.objects.filter(pk=status.pk).exists())
+        self.assertStillExists(status)
 
-        self.get_object_or_fail(Project, pk=project.pk)
-        task = self.get_object_or_fail(ProjectTask, pk=task.pk)
+        self.assertStillExists(project)
+        task = self.assertStillExists(task)
         self.assertEqual(status, task.tstatus)
 
     #TODO: test better get_project_cost(), get_effective_duration(), get_delay()
