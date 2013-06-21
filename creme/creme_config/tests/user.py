@@ -225,10 +225,9 @@ class UserTestCase(CremeTestCase):
         self.assertEqual(user, self.refresh(contact).is_user)
 
         new_user = self.get_object_or_fail(User, username=username)
-        contact = self.get_object_or_fail(Contact, is_user=new_user,
-                                          first_name=username,
-                                          last_name=username
-                                         )
+        self.get_object_or_fail(Contact, is_user=new_user,
+                                first_name=username, last_name=username
+                               )
 
     def test_edit01(self):
         self.login()
@@ -269,7 +268,8 @@ class UserTestCase(CremeTestCase):
         briareos = self.refresh(briareos) #refresh cache
         self.assertFalse(other_user.has_perm_to_view(briareos))
 
-    def test_edit02(self): #can not edit a team with the user edit view
+    def test_edit02(self):
+        "Can not edit a team with the user edit view"
         self.login()
 
         user = User.objects.create_user('Maruo', 'maruo@century.jp', 'uselesspw')
@@ -466,7 +466,7 @@ class UserTestCase(CremeTestCase):
         url = self._build_delete_url(team)
         self.assertGET200(url)
         self.assertPOST200(url, data={'to_user': user.id})
-        self.assertFalse(User.objects.filter(pk=team.id))
+        self.assertDoesNotExist(team)
 
     def test_team_delete02(self):
         self.login()
@@ -480,7 +480,7 @@ class UserTestCase(CremeTestCase):
         url = self._build_delete_url(team)
         self.assertGET200(url)
         self.assertPOST200(url, data={'to_user': team2.id})
-        self.assertFalse(User.objects.filter(pk=team.id))
+        self.assertDoesNotExist(team)
 
         ce = self.get_object_or_fail(CremeEntity, pk=ce.id)
         self.assertEqual(team2, ce.user)
@@ -492,7 +492,7 @@ class UserTestCase(CremeTestCase):
         CremeEntity.objects.create(user=team)
 
         self.assertPOST200(self._build_delete_url(team), data={'to_user': self.user.id})
-        self.assertFalse(User.objects.filter(pk=team.id))
+        self.assertDoesNotExist(team)
 
     def test_team_delete04(self):
         self.login_not_as_superuser()
@@ -616,7 +616,7 @@ class UserTestCase(CremeTestCase):
         self.assertFormError(response, 'form', 'to_user',
                              [_(u'Select a valid choice. That choice is not one of the available choices.')]
                             )
-        self.assertTrue(User.objects.filter(pk=self.user.id).exists())
+        self.assertStillExists(self.user)
 
     #TODO: move to 'activities'
     def test_user_delete_calendar(self):
@@ -652,8 +652,7 @@ class UserTestCase(CremeTestCase):
                                                 {'to_user': user.id}
                                                )
                               )
-
-        self.assertFalse(User.objects.filter(id=other_user.id).exists())
+        self.assertDoesNotExist(other_user)
 
         self.assertFalse(Contact.objects.filter(user=other_user).exists())
         self.assertFalse(Contact.objects.filter(is_user=other_user).exists())
@@ -674,7 +673,7 @@ class UserTestCase(CremeTestCase):
                                                 {'to_user': self.user.id}
                                                )
                               )
-        self.assertFalse(User.objects.filter(id=self.other_user.id).exists())
+        self.assertDoesNotExist(self.other_user)
         self.assertFalse(SettingValue.objects.filter(key=setting_key).exists())
 
     def test_user_delete_credentials(self):

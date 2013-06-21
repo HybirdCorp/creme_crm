@@ -143,13 +143,13 @@ class GenericModelConfigTestCase(CremeTestCase):
         self.assertEqual(status1.order, new_status1.order)
 
     def test_delete01(self):
-        pk = Civility.objects.create(title='Herr').pk
-        self.assertPOST200('/creme_config/persons/civility/delete', data={'id': pk})
-        self.assertFalse(Civility.objects.filter(pk=pk).exists())
+        civ = Civility.objects.create(title='Herr')
+        self.assertPOST200('/creme_config/persons/civility/delete', data={'id': civ.pk})
+        self.assertDoesNotExist(civ)
 
     def test_delete02(self):
-        pk = InvoiceStatus.objects.create(name='Okidoki', is_custom=False).pk
-        self.assertGET404('/creme_config/persons/civility/delete', data={'id': pk})
-        self.assertTrue(InvoiceStatus.objects.filter(pk=pk).exists())
+        civ = InvoiceStatus.objects.create(name='Okidoki', is_custom=False)
+        self.assertGET404('/creme_config/persons/civility/delete', data={'id': civ.pk})
+        self.assertStillExists(civ)
 
 #TODO: (r'^models/(?P<ct_id>\d+)/reload/$', 'generics_views.reload_block'),

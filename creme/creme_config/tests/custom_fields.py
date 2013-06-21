@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
+
     from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.models.custom_field import *
@@ -73,8 +75,8 @@ class CustomFieldsTestCase(CremeTestCase):
         cfield2 = create_cf(content_type=ct_contact, name='CF#2', field_type=CustomField.FLOAT)
         cfield3 = create_cf(content_type=ct_orga,    name='CF#3', field_type=CustomField.BOOL)
         self.assertPOST200('/creme_config/custom_fields/ct/delete', data={'id': ct_contact.id})
-        self.assertEqual(0, CustomField.objects.filter(pk__in=[cfield1.pk, cfield2.pk]).count())
-        self.assertEqual(1, CustomField.objects.filter(pk=cfield3.pk).count())
+        self.assertFalse(CustomField.objects.filter(pk__in=[cfield1.pk, cfield2.pk]))
+        self.assertStillExists(cfield3)
 
     def test_add(self):
         ct = ContentType.objects.get_for_model(Contact)
@@ -99,7 +101,11 @@ class CustomFieldsTestCase(CremeTestCase):
         self.assertEqual(name,       cfield2.name)
         self.assertEqual(field_type, cfield2.field_type)
         self.assertEqual([u'Eva01', u'Eva02', u'Eva03'],
-                         [cfev.value for cfev in CustomFieldEnumValue.objects.filter(custom_field=cfield2).order_by('id')]
+                         [cfev.value 
+                            for cfev in CustomFieldEnumValue.objects
+                                                            .filter(custom_field=cfield2)
+                                                            .order_by('id')
+                         ]
                         )
 
     def test_edit01(self):
@@ -127,8 +133,7 @@ class CustomFieldsTestCase(CremeTestCase):
         create_evalue(custom_field=cfield, value='Java')
 
         url = '/creme_config/custom_fields/edit/%s' % cfield.id
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        response = self.assertGET200(url)
 
         with self.assertNoException():
             fields = response.context['form'].fields
@@ -151,15 +156,20 @@ class CustomFieldsTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         self.assertEqual([u'C', u'Python', u'C++', u'Haskell'],
-                         [cfev.value for cfev in CustomFieldEnumValue.objects.filter(custom_field=cfield).order_by('id')]
+                         [cfev.value 
+                            for cfev in CustomFieldEnumValue.objects
+                                                            .filter(custom_field=cfield)
+                                                            .order_by('id')
+                         ]
                         )
 
     def test_delete(self):
-        ct = ContentType.objects.get_for_model(Contact)
-        create_cf = CustomField.objects.create
-        cfield1 = create_cf(content_type=ct, name='Day',       field_type=CustomField.DATETIME)
-        cfield2 = create_cf(content_type=ct, name='Languages', field_type=CustomField.ENUM)
-        cfield3 = create_cf(content_type=ct, name='Hobbies',   field_type=CustomField.MULTI_ENUM)
+        create_cf = partial(CustomField.objects.create,
+                            content_type=ContentType.objects.get_for_model(Contact)
+                           )
+        cfield1 = create_cf(name='Day',       field_type=CustomField.DATETIME)
+        cfield2 = create_cf(name='Languages', field_type=CustomField.ENUM)
+        cfield3 = create_cf(name='Hobbies',   field_type=CustomField.MULTI_ENUM)
 
         create_evalue = CustomFieldEnumValue.objects.create
         eval1 = create_evalue(custom_field=cfield2, value='C')
@@ -169,10 +179,13 @@ class CustomFieldsTestCase(CremeTestCase):
 
         self.assertPOST200('/creme_config/custom_fields/delete', data={'id': cfield2.id})
 
-        self.assertEqual(2, CustomField.objects.filter(pk__in=[cfield1.pk, cfield3.pk]).count())
-        self.assertFalse(CustomField.objects.filter(pk=cfield2.pk))
+        self.assertStillExists(cfield1)
+        self.assertStillExists(cfield3)
+        self.assertDoesNotExist(cfield2)
 
-        self.assertEqual(2, CustomFieldEnumValue.objects.filter(pk__in=[eval3.pk, eval4.pk]).count())
-        self.assertFalse(CustomFieldEnumValue.objects.filter(pk__in=[eval1.pk, eval2.pk]))
+        self.assertStillExists(eval3)
+        self.assertStillExists(eval4)
+        self.assertDoesNotExist(eval1)
+        self.assertDoesNotExist(eval2)
 
     #TODO: (r'^custom_fields/(?P<ct_id>\d+)/reload/$', 'custom_fields.reload_block'),

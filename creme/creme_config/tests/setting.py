@@ -26,7 +26,7 @@ class SettingTestCase(CremeTestCase):
         title = 'May the source be with you'
         sv = SettingValue.objects.create(key=sk, user=None, value=title)
 
-        self.assertEqual(title, SettingValue.objects.get(pk=sv.pk).value)
+        self.assertEqual(title, self.refresh(sv).value)
 
     def test_model02(self):
         sk = SettingKey.objects.create(pk='persons-page_size', description=u"Page size",
@@ -36,20 +36,21 @@ class SettingTestCase(CremeTestCase):
 
         size = 156
         sv = SettingValue.objects.create(key=sk, user=None, value=size)
-        self.assertEqual(size, SettingValue.objects.get(pk=sv.pk).value)
+        self.assertEqual(size, self.refresh(sv).value)
 
     def test_model03(self):
         self.login()
 
-        sk = SettingKey.objects.create(pk='persons-display_logo', description=u"Display logo ?",
+        sk = SettingKey.objects.create(pk='persons-display_logo',
+                                       description=u"Display logo ?",
                                        type=SettingKey.BOOL
                                       )
         sv = SettingValue.objects.create(key=sk, user=self.user, value=True)
-        self.assertIs(SettingValue.objects.get(pk=sv.pk).value, True)
+        self.assertIs(self.refresh(sv).value, True)
 
         sv.value = False
         sv.save()
-        self.assertIs(SettingValue.objects.get(pk=sv.pk).value, False)
+        self.assertIs(self.refresh(sv).value, False)
 
     def test_edit01(self):
         self.login()
@@ -85,7 +86,8 @@ class SettingTestCase(CremeTestCase):
     def test_edit03(self):
         self.login()
 
-        sk = SettingKey.objects.create(pk='persons-display_logo', description=u"Display logo ?",
+        sk = SettingKey.objects.create(pk='persons-display_logo',
+                                       description=u"Display logo ?",
                                        app_label='persons', type=SettingKey.BOOL,
                                        hidden=False,
                                       )
@@ -94,20 +96,24 @@ class SettingTestCase(CremeTestCase):
         self.assertNoFormError(self.client.post(self._buil_edit_url(sv), data={})) #False -> empty POST
         self.assertFalse(self.refresh(sv).value)
 
-    def test_edit04(self): #hidden => not editable
+    def test_edit04(self):
+        "Hidden => not editable"
         self.login()
 
-        sk = SettingKey.objects.create(pk='persons-display_logo', description=u"Display logo ?",
+        sk = SettingKey.objects.create(pk='persons-display_logo',
+                                       description=u"Display logo ?",
                                        app_label='persons', type=SettingKey.BOOL,
                                        hidden=True,
                                       )
         sv = SettingValue.objects.create(key=sk, user=None, value=True)
         self.assertGET404(self._buil_edit_url(sv))
 
-    def test_edit05(self): #hidden => not editable
+    def test_edit05(self):
+        "Hidden => not editable"
         self.login()
 
-        sk = SettingKey.objects.create(pk='persons-display_logo', description=u"Display logo ?",
+        sk = SettingKey.objects.create(pk='persons-display_logo',
+                                       description=u"Display logo ?",
                                        app_label='persons', type=SettingKey.BOOL,
                                        hidden=False,
                                       )

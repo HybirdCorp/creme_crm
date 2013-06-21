@@ -146,10 +146,14 @@ class ButtonMenuConfigTestCase(CremeTestCase):
                                    )
         self.assertNoFormError(response)
         self.assertEqual([(button01.id_, 1000), (button02.id_, 1001)],
-                         [(bmi.button_id, bmi.order) for bmi in ButtonMenuItem.objects.filter(content_type=ct).order_by('order')]
+                         [(bmi.button_id, bmi.order)
+                            for bmi in ButtonMenuItem.objects.filter(content_type=ct)
+                                                             .order_by('order')
+                         ]
                         )
 
-    def test_delete01(self): #can not delete default conf
+    def test_delete01(self):
+        "Can not delete default conf"
         url = self.DEL_URL
         bmi = ButtonMenuItem.objects.create(content_type=None, button_id='', order=1)
         self.assertPOST404(url)
@@ -159,7 +163,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
     def test_delete_detailview02(self):
         ct = ContentType.objects.get_for_model(Contact)
         self.client.post(self.ADD_URL, data={'ctype': ct.id})
-        self.assertEqual(1, ButtonMenuItem.objects.filter(content_type=ct).count())
+        self.get_object_or_fail(ButtonMenuItem, content_type=ct)
 
         self.assertPOST200(self.DEL_URL, data={'id': ct.id})
         self.assertFalse(ButtonMenuItem.objects.filter(content_type=ct))

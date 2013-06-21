@@ -787,7 +787,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                          target=create_orga(name='Target renegade'),
                                         )
         self.assertPOST404('/creme_config/creme_core/currency/delete', data={'id': currency.pk})
-        self.get_object_or_fail(Currency, pk=currency.pk)
+        self.assertStillExists(currency)
 
         opp = self.get_object_or_fail(Opportunity, pk=opp.pk)
         self.assertEqual(currency, opp.currency)

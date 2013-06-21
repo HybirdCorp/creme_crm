@@ -15,12 +15,17 @@ __all__ = ('PropertyTypeTestCase',)
 
 
 class PropertyTypeTestCase(CremeTestCase):
+    ADD_URL = '/creme_config/property_type/add/'
+
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config')
 
     def setUp(self):
         self.login()
+
+    def _build_edit_url(self, ptype):
+        return '/creme_config/property_type/edit/%s' % ptype.id
 
     def test_portal(self):
         self.assertGET200('/creme_config/property_type/portal/')
@@ -33,7 +38,7 @@ class PropertyTypeTestCase(CremeTestCase):
         self.fail('No property <%s>' % text)
 
     def test_create01(self):
-        url = '/creme_config/property_type/add/'
+        url = self.ADD_URL
         self.assertGET200(url)
 
         count = CremePropertyType.objects.count()
@@ -51,7 +56,7 @@ class PropertyTypeTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         ct_ids = [get_ct(Contact).id, get_ct(Organisation).id]
         text   = 'is beautiful'
-        response = self.client.post('/creme_config/property_type/add/',
+        response = self.client.post(self.ADD_URL,
                                     data={'text':           text,
                                           'subject_ctypes': ct_ids,
                                          }
@@ -67,12 +72,12 @@ class PropertyTypeTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         pt = CremePropertyType.create('test-foobar', 'is beautiful', [get_ct(Contact)], is_custom=False)
 
-        self.assertGET404('/creme_config/property_type/edit/%s' % pt.id)
+        self.assertGET404(self._build_edit_url(pt))
 
     def test_edit02(self):
         get_ct = ContentType.objects.get_for_model
         pt = CremePropertyType.create('test-foobar', 'is beautiful', [get_ct(Contact)], is_custom=True)
-        uri = '/creme_config/property_type/edit/%s' % pt.id
+        uri = self._build_edit_url(pt)
         self.assertGET200(uri)
 
         ct_orga = get_ct(Organisation)
@@ -94,4 +99,4 @@ class PropertyTypeTestCase(CremeTestCase):
     def test_delete02(self):
         pt = CremePropertyType.create('test-foobar', 'is beautiful', [], is_custom=True)
         self.assertPOST200('/creme_config/property_type/delete', data={'id': pt.id})
-        self.assertFalse(CremePropertyType.objects.filter(pk=pt.id))
+        self.assertDoesNotExist(pt)
