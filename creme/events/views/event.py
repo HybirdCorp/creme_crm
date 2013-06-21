@@ -274,4 +274,6 @@ def add_opportunity(request, event_id, contact_id):
 
     request.user.has_perm_to_link_or_die(event)
 
-    return add_entity(request, RelatedOpportunityCreateForm, extra_initial={'event': event, 'contact': contact})
+    return add_entity(request, RelatedOpportunityCreateForm,
+                      extra_initial={'event': event, 'contact': contact},
+                     )
