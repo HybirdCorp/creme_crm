@@ -3,9 +3,10 @@
 try:
     from functools import partial
 
-    from django.utils.unittest.case import skipIf
-    from django.utils.encoding import force_unicode
     from django.contrib.contenttypes.models import ContentType
+    from django.utils.encoding import force_unicode
+    from django.utils.translation import ugettext as _
+    from django.utils.unittest.case import skipIf
 
     from creme.creme_core.models import RelationType, Relation, CremePropertyType, CremeProperty, HeaderFilter, HeaderFilterItem
 
@@ -132,7 +133,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertEqual(6, len(result))
         self.assertEqual(result[0], u','.join(u'"%s"' % hfi.title for hfi in hf_items))
         self.assertEqual(result[1], u'"","Black","Jet","Bebop",""')
-        self.assertEqual(result[2], u'"Monsieur","Creme","Fulbert","",""')
+        self.assertEqual(result[2], u'"%s","Creme","Fulbert","",""' % _(u'Mister'))
         self.assertIn(result[3], (u'"","Spiegel","Spike","Bebop/Swordfish",""',
                                   u'"","Spiegel","Spike","Swordfish/Bebop",""')
                      )
@@ -154,7 +155,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertEqual(6, len(result))
         self.assertEqual(result[0], u';'.join(u'"%s"' % hfi.title for hfi in hf_items))
         self.assertEqual(result[1], u'"";"Black";"Jet";"Bebop";""')
-        self.assertEqual(result[2], u'"Monsieur";"Creme";"Fulbert";"";""')
+        self.assertEqual(result[2], u'"%s";"Creme";"Fulbert";"";""' % _('Mister'))
         self.assertIn(result[3], (u'"";"Spiegel";"Spike";"Bebop/Swordfish";""',
                                   u'"";"Spiegel";"Spike";"Swordfish/Bebop";""')
                      )
@@ -186,7 +187,7 @@ class CSVExportViewsTestCase(ViewsTestCase):
         self.assertEqual(6, len(result))
         self.assertEqual(result[0], [hfi.title for hfi in hf_items])
         self.assertEqual(result[1], ["", "Black", "Jet", "Bebop", ""])
-        self.assertEqual(result[2], ["Monsieur", "Creme", "Fulbert", "", ""])
+        self.assertEqual(result[2], [_('Mister'), "Creme", "Fulbert", "", ""])
         self.assertIn(result[3], (["", "Spiegel", "Spike", "Bebop/Swordfish", ""],
                                   ["", "Spiegel", "Spike", "Swordfish/Bebop", ""]))
         self.assertIn(result[4], (["", "Valentine", "Faye", "", "is a girl/is beautiful"],
