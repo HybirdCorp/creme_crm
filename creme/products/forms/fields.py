@@ -21,14 +21,10 @@
 from django.forms.util import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.forms import CremeEntityForm
-from creme.creme_core.forms.fields import MultiCremeEntityField, JSONField
+from creme.creme_core.forms.fields import JSONField
 from creme.creme_core.forms.widgets import ChainedInput
 
-from creme.media_managers.models import Image
-from creme.media_managers.forms.widgets import ImageM2MWidget
-
-from ..models import Product, Category, SubCategory
+from ..models import Category, SubCategory
 
 
 class CategorySelector(ChainedInput):

@@ -247,7 +247,7 @@ class _HLTEntityEdition(_HistoryLineType):
 
     @classmethod
     def create_lines(cls, entity):
-        modifs = fields_modifs = _HistoryLineType._build_fields_modifs(entity)
+        modifs = _HistoryLineType._build_fields_modifs(entity)
 
         if modifs:
             hline = HistoryLine._create_line_4_instance(entity, cls.type_id,

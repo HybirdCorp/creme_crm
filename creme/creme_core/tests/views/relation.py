@@ -680,12 +680,12 @@ class RelationViewsTestCase(ViewsTestCase):
         self._aux_add_relations_with_same_type()
 
         object_ids = [self.object01.id, self.object02.id]
-        response = self.assertPOST200(self.ADD_FROM_PRED_URL,
-                                      data={'subject_id':   self.subject.id,
-                                            'predicate_id': self.rtype.id,
-                                            'entities':     object_ids,
-                                           }
-                                     )
+        self.assertPOST200(self.ADD_FROM_PRED_URL,
+                           data={'subject_id':   self.subject.id,
+                                 'predicate_id': self.rtype.id,
+                                 'entities':     object_ids,
+                                 }
+                          )
         self.assertEqual(2, Relation.objects.filter(type=self.rtype).count())
 
         relations = self.subject.relations.filter(type=self.rtype)
@@ -697,15 +697,15 @@ class RelationViewsTestCase(ViewsTestCase):
         self.login()
         self._aux_add_relations_with_same_type()
 
-        response = self.assertPOST404(self.ADD_FROM_PRED_URL,
-                                      data={'subject_id':   self.subject.id,
-                                            'predicate_id': self.rtype.id,
-                                            'entities':     [self.object01.id,
-                                                             self.object02.id,
-                                                             self.object02.id + 1,
-                                                            ],
-                                           }
-                                     )
+        self.assertPOST404(self.ADD_FROM_PRED_URL,
+                           data={'subject_id':   self.subject.id,
+                                 'predicate_id': self.rtype.id,
+                                 'entities':     [self.object01.id,
+                                                  self.object02.id,
+                                                  self.object02.id + 1,
+                                                 ],
+                                }
+                          )
         self.assertEqual(2, Relation.objects.filter(type=self.rtype).count())
 
     def test_add_relations_with_same_type03(self):

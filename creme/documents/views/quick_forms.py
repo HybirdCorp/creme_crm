@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.core.exceptions import PermissionDenied
-from django.utils.translation import ugettext as _
+#from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
 
 from creme.creme_core.views.generic import inner_popup

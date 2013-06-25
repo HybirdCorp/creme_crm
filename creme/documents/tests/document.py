@@ -291,7 +291,7 @@ class DocumentTestCase(_DocumentsTestCase):
                                       set_type=SetCredentials.ESET_ALL
                                      )
 
-        entity = CremeEntity.objects.create(user=self.other_user)
+        #entity = CremeEntity.objects.create(user=self.other_user)
         orga = Organisation.objects.create(user=self.other_user, name='NERV')
         self.assertTrue(self.user.has_perm_to_link(orga))
         self.assertFalse(self.user.has_perm_to_view(orga))

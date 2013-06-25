@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse
 from django.db.models import ForeignKey, ManyToManyField, Q
 from django.shortcuts import get_object_or_404, render
 from django.utils.timezone import now
@@ -41,7 +41,7 @@ from ..models.report import HFI_FIELD, HFI_RELATION, HFI_RELATED #TODO: true rep
 from ..forms.report import (CreateForm, EditForm, LinkFieldToReportForm, AddFieldToReportForm,
                             get_aggregate_custom_fields, DateReportFilterForm)
 from ..report_aggregation_registry import field_aggregation_registry
-from ..utils import decode_datetime, encode_datetime
+from ..utils import decode_datetime
 
 
 @login_required

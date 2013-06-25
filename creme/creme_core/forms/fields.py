@@ -38,7 +38,7 @@ from django.db.models.query import QuerySet
 
 from ..constants import REL_SUB_HAS
 from ..models import RelationType, CremeEntity, EntityFilter
-from ..registry import creme_registry
+#from ..registry import creme_registry
 from ..utils import creme_entity_content_types, Q_creme_entity_content_types, build_ct_choices
 from ..utils.queries import get_q_from_dict
 from ..utils.date_range import date_range_registry

@@ -27,7 +27,7 @@ from django.db import transaction
 from django.dispatch import receiver
 from django.http import Http404
 #from django.utils.encoding import force_unicode, smart_str
-from django.utils.html import escape
+#from django.utils.html import escape
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.contenttypes.models import ContentType
 

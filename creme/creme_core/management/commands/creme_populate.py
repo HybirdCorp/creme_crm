@@ -22,7 +22,7 @@ from __future__ import print_function
 
 import sys
 from traceback import format_exception
-from optparse import make_option, OptionParser
+from optparse import OptionParser #make_option
 from imp import find_module
 
 from django.db import connections, DEFAULT_DB_ALIAS

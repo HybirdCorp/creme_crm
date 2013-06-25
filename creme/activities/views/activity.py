@@ -25,12 +25,12 @@ from django.db.models import Q
 from django.http import HttpResponseRedirect, Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.contrib.auth.decorators import login_required, permission_required
-from django.utils.translation import ugettext_lazy as _, ugettext
+from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremeEntity, RelationType
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.views.generic import view_real_entity, list_view, inner_popup, edit_entity
-from creme.creme_core.utils import get_ct_or_404, get_from_GET_or_404, jsonify
+from creme.creme_core.utils import get_from_GET_or_404, jsonify
 
 from creme.persons.models import Contact
 

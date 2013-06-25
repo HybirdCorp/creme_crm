@@ -4,7 +4,6 @@ try:
     from django.db.models.fields import FieldDoesNotExist
     from django.template import Template, Context, TemplateSyntaxError
     from django.contrib.contenttypes.models import ContentType
-    from django.conf import settings
 
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.gui.bulk_update import bulk_update_registry

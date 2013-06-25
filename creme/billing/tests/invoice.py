@@ -7,7 +7,6 @@ try:
 
     from django.db.models.deletion import ProtectedError
     from django.utils.translation import ugettext as _
-    from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.tests.base import CremeTransactionTestCase
@@ -15,7 +14,7 @@ try:
     from creme.creme_core.models import CremeEntity, Relation, SetCredentials, Currency #CremeProperty
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, REL_SUB_HAS
 
-    from creme.persons.models import Contact, Organisation, Address
+    from creme.persons.models import Organisation, Address
     from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
 
     from ..models import *

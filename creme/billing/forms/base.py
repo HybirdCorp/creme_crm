@@ -23,8 +23,9 @@ import logging
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.models import Relation, Currency
-from creme.creme_core.forms import CremeEntityForm, CremeDateField, GenericEntityField, CreatorEntityField
+from creme.creme_core.models import Relation # Currency
+from creme.creme_core.forms import (CremeEntityForm, CremeDateField,
+                                    GenericEntityField, CreatorEntityField)
 from creme.creme_core.forms.validators import validate_linkable_entity
 from creme.creme_core.utils import find_first
 #from creme.creme_core.constants import DEFAULT_CURRENCY_PK
@@ -33,7 +34,7 @@ from creme.creme_core.utils import find_first
 
 from creme.persons.models import Organisation, Address, Contact
 
-from ..models import Line, AdditionalInformation, PaymentTerms
+from ..models import Line # AdditionalInformation, PaymentTerms
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 
 

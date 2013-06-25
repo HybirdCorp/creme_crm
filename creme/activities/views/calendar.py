@@ -23,7 +23,7 @@ import logging
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-from django.http import HttpResponse, Http404
+from django.http import Http404 #HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils.simplejson import JSONDecoder #JSONEncoder
 from django.utils.timezone import now, make_naive, get_current_timezone

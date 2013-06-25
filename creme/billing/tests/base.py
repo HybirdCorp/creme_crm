@@ -427,8 +427,8 @@ class VatTestCase(CremeTestCase):
 
     def test_delete(self):
         create_vat = partial(Vat.objects.create, is_custom=False)
-        vat01 = Vat.objects.create(value=Decimal('5.0'), is_default=False)
-        vat02 = Vat.objects.create(value=Decimal('7.0'), is_default=True)
+        vat01 = create_vat(value=Decimal('5.0'), is_default=False)
+        vat02 = create_vat(value=Decimal('7.0'), is_default=True)
 
         vat02.delete()
 

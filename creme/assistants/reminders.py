@@ -50,8 +50,8 @@ class ReminderAlert(Reminder):
 
     def get_Q_filter(self):
         delta = timedelta(minutes=getattr(settings, 'DEFAULT_TIME_ALERT_REMIND', 30))
-        now   = now().replace(microsecond=0, second=0)
-        return Q(trigger_date__lte=now - delta, is_validated=False)
+        dt_now = now().replace(microsecond=0, second=0)
+        return Q(trigger_date__lte=dt_now - delta, is_validated=False)
 
 
 class ReminderTodo(Reminder):
@@ -74,8 +74,8 @@ class ReminderTodo(Reminder):
 
     def get_Q_filter(self):
         delta = timedelta(days=1)
-        now   = now().replace(microsecond=0, second=0)
-        return Q(deadline__lte=now + delta, is_ok=False)
+        dt_now = now().replace(microsecond=0, second=0)
+        return Q(deadline__lte=dt_now + delta, is_ok=False)
 
     def ok_for_continue(self):
         return now().hour > 8

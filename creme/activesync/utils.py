@@ -19,7 +19,6 @@
 ################################################################################
 
 import base64
-from datetime import datetime
 import os
 import random
 from struct import unpack

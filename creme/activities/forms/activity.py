@@ -23,7 +23,7 @@ from datetime import datetime, time, timedelta
 import logging
 
 from django.forms import IntegerField, BooleanField, ModelChoiceField, ModelMultipleChoiceField
-from django.forms.fields import ChoiceField, DateTimeField
+from django.forms.fields import ChoiceField # DateTimeField
 from django.forms.util import ValidationError, ErrorList
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
