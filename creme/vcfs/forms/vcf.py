@@ -344,7 +344,7 @@ class VcfImportForm(CremeModelWithUserForm):
                     #TODO: factorise with activesync ??
                     image_format = Image.get_image_format(image_encoded)
                     img_path     = handle_uploaded_file(ContentFile(base64.decodestring(image_encoded)), path=[IMG_UPLOAD_PATH], name='.'.join([img_name, image_format]))
-                except Exception as e:
+                except Exception:
                     logger.exception('VcfImportForm.save()')
                     img_path = ''
 

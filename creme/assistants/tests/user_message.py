@@ -162,7 +162,7 @@ class UserMessageTestCase(AssistantsTestCase):
         message = messages[0]
         self.assertEqual(self.user, message.recipient)
 
-        response = self.assertPOST(302, '/assistants/message/delete', data={'id': message.id})
+        self.assertPOST(302, '/assistants/message/delete', data={'id': message.id})
         self.assertFalse(UserMessage.objects.all())
 
     def test_activity_createview01(self):

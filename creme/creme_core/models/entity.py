@@ -24,11 +24,10 @@ import warnings
 
 #from django.db import models
 from django.db.models import ForeignKey, Q
-from django.core.exceptions import PermissionDenied
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _, ugettext
-from django.conf import settings
+#from django.conf import settings
 from django.forms.util import flatatt
 
 from ..core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList

@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import Q
 from django.http import Http404
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.shortcuts import render

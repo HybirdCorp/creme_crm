@@ -80,7 +80,7 @@ class Reminder(object):
         model_ = self.__class__.model_ #TODO: why not self.model_ ???
         objects = model_.objects.filter(self.get_Q_filter())
         object_ct = ContentType.objects.get_for_model(model_)
-        now = now().replace(microsecond=0, second=0)
+        dt_now = now().replace(microsecond=0, second=0)
         reminder_filter = DateReminder.objects.filter
 
         for object in objects:
@@ -90,7 +90,7 @@ class Reminder(object):
             if not reminder_filter(model_id=object.id, model_content_type=object_ct).exists():
                 self.send_mails(object)
                 date_reminder = DateReminder()
-                date_reminder.date_of_remind = now #factorise ??
+                date_reminder.date_of_remind = dt_now #factorise ??
                 date_reminder.ident = FIRST_REMINDER
                 date_reminder.object_of_reminder = object
                 date_reminder.save()

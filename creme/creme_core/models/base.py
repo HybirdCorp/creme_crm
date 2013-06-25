@@ -24,7 +24,7 @@ from collections import defaultdict
 import logging
 
 from django.db import transaction
-from django.db.models import Model, Manager, CharField, BooleanField, FileField #ForeignKey
+from django.db.models import Model, CharField, BooleanField, FileField #ForeignKey, Manager
 from django.db.models.query_utils import Q
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType

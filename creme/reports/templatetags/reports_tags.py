@@ -28,7 +28,7 @@ from creme.creme_core.models.header_filter import (HFI_FIELD, HFI_RELATION, HFI_
                                                    HFI_CUSTOM, HFI_CALCULATED, HFI_RELATED)
 from creme.creme_core.registry import creme_registry
 
-from ..constants import DATETIME_FILTER_FORMAT
+#from ..constants import DATETIME_FILTER_FORMAT
 from ..models.graph import RGT_RELATION
 from ..report_aggregation_registry import field_aggregation_registry
 

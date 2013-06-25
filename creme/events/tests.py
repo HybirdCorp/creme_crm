@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import date # datetime
+    #from datetime import date, datetime
     from functools import partial
 
     from django.utils.timezone import now

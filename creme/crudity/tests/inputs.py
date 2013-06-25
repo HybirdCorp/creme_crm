@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
-    from datetime import datetime, date
+    from datetime import date #datetime
 
     from django.contrib.auth.models import User
     from django.core.files.uploadedfile import SimpleUploadedFile

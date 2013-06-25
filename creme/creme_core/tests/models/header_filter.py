@@ -386,9 +386,8 @@ class HeaderFiltersTestCase(CremeTestCase):
         hf.set_items([hfi1, hfi2])
 
         create_contact = partial(Contact.objects.create, user=user)
-        contacts = [create_contact(first_name='Nagate',  last_name='Tanikaze'),
-                    create_contact(first_name='Shizuka', last_name='Hoshijiro'),
-                   ]
+        create_contact(first_name='Nagate',  last_name='Tanikaze')
+        create_contact(first_name='Shizuka', last_name='Hoshijiro')
 
         self.assertEqual([hfi1], hf.items)
         self.assertFalse(HeaderFilterItem.objects.filter(pk=hfi2.pk).exists())

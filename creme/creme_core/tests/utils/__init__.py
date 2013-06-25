@@ -4,7 +4,7 @@ try:
     import string
     from datetime import datetime, date
 
-    import pytz
+    #import pytz
 
     from django.http import Http404
     from django.conf import settings

@@ -534,9 +534,9 @@ class CredentialsTestCase(CremeTestCase):
 
     def test_ct_credentials(self):
         user = self.user
-        role = self._create_role('Coder', ['creme_core', 'persons'], users=[user],
-                                 set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_ALL, Contact)]
-                                )
+        self._create_role('Coder', ['creme_core', 'persons'], users=[user],
+                          set_creds=[(EntityCredentials.VIEW, SetCredentials.ESET_ALL, Contact)]
+                         )
 
         contact1 = self.contact1
         self.assertTrue(user.has_perm_to_view(contact1)) # <=====
@@ -857,8 +857,7 @@ class CredentialsTestCase(CremeTestCase):
         user = self.user
         user.is_superuser = True #<====
 
-        has_perm = user.has_perm_to_link
-
+        #has_perm = user.has_perm_to_link
         #self.assertTrue(user.has_perm_to_link()) TODO ??
         self.assertTrue(user.has_perm_to_link(Organisation))
 
@@ -893,10 +892,10 @@ class CredentialsTestCase(CremeTestCase):
         team = self._create_team('Teamee', [user, self.other_user])
 
         has_perm_to_link = user.has_perm_to_link
-        self.assertTrue(user.has_perm_to_link(Organisation))
-        self.assertTrue(user.has_perm_to_link(Organisation, owner=user))
-        self.assertTrue(user.has_perm_to_link(Organisation, owner=self.other_user))
-        self.assertTrue(user.has_perm_to_link(Organisation, owner=team))
+        self.assertTrue(has_perm_to_link(Organisation))
+        self.assertTrue(has_perm_to_link(Organisation, owner=user))
+        self.assertTrue(has_perm_to_link(Organisation, owner=self.other_user))
+        self.assertTrue(has_perm_to_link(Organisation, owner=team))
 
     def test_has_perm_to_link04(self):
         "With CT credentials -> has perm"

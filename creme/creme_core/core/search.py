@@ -19,9 +19,9 @@
 ################################################################################
 
 from django.db.models.query import Q
-from django.contrib.contenttypes.models import ContentType
+#from django.contrib.contenttypes.models import ContentType
 
-from ..models import SearchConfigItem, SearchField
+from ..models import SearchConfigItem # SearchField
 
 
 class Searcher(object):

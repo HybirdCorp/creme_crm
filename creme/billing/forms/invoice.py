@@ -18,13 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.translation import ugettext_lazy as _
+#from django.utils.translation import ugettext_lazy as _
 
 #from creme.creme_config.forms.fields import CreatorModelChoiceField
 
 from creme.persons.workflow import transform_target_into_customer
 
-from ..models import Invoice, InvoiceStatus, SettlementTerms
+from ..models import Invoice # InvoiceStatus, SettlementTerms
 from .base import BaseCreateForm, BaseEditForm
 
 

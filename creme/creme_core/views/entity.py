@@ -27,7 +27,7 @@ from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, get_list_or_404, render
 from django.core import serializers
 from django.forms.models import modelform_factory, model_to_dict
-from django.utils.encoding import smart_unicode
+#from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext as _
 from django.utils.simplejson import JSONEncoder
 from django.contrib.contenttypes.models import ContentType
