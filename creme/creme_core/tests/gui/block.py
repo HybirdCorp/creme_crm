@@ -15,6 +15,11 @@ __all__ = ('BlockRegistryTestCase', 'BlocksManagerTestCase')
 
 
 class BlockRegistryTestCase(CremeTestCase):
+    @classmethod
+    def setUpClass(cls):
+        RelationBlockItem.objects.all().delete()
+        InstanceBlockConfigItem.objects.all().delete()
+
     def test_get_compatible_blocks(self):
         self.login()
         casca = Contact.objects.create(user=self.user, first_name='Casca', last_name='Mylove')
