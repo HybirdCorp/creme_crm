@@ -20,10 +20,10 @@ class ViewsTestCase(CremeTestCase):
         super(ViewsTestCase, self).login(is_superuser, *args, **kwargs)
 
         SetCredentials.objects.create(role=self.role,
-                                      value=EntityCredentials.VIEW   | \
-                                            EntityCredentials.CHANGE | \
-                                            EntityCredentials.DELETE | \
-                                            EntityCredentials.LINK   | \
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
                                             EntityCredentials.UNLINK,
                                       set_type=SetCredentials.ESET_OWN
                                      )

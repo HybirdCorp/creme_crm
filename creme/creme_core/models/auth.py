@@ -379,7 +379,7 @@ class UserProfile(Model):
         return creds
 
     def has_perm_to_admin(self, app_name):
-        return self.has_perm('%s.can_admin' % app_name)
+        return self.has_perm('%s.can_admin' % app_name) #TODO: app_name in self.role.admin_4_apps + use this method in backend
 
     def has_perm_to_admin_or_die(self, app_name):
         if not self.has_perm_to_admin(app_name):
