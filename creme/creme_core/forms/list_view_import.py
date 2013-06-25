@@ -26,7 +26,8 @@ import logging
 from django.db.models import Q, ManyToManyField
 from django.db.models.fields import FieldDoesNotExist
 from django.forms.models import modelform_factory
-from django.forms import Field, BooleanField, ModelChoiceField, ModelMultipleChoiceField, ValidationError, IntegerField
+from django.forms import (Field, BooleanField, ModelChoiceField,
+                      ModelMultipleChoiceField, ValidationError, IntegerField)
 from django.forms.widgets import SelectMultiple, HiddenInput
 from django.forms.util import flatatt
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -36,7 +37,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.auth.models import User
 from django.template.defaultfilters import slugify
 
-from creme.creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation, CremeEntity, EntityCredentials
+from creme.creme_core.models import (CremePropertyType, CremeProperty,
+                       RelationType, Relation, CremeEntity, EntityCredentials)
 from creme.creme_core.gui.list_view_import import import_form_registry
 from creme.creme_core.utils.collections import LimitedList
 from creme.creme_core.views.entity import EXCLUDED_FIELDS
@@ -228,7 +230,7 @@ class ExtractorWidget(SelectMultiple):
                             </script>""" % {
                           'label':  ugettext(u'Search by:'),
                           'select': rselect("%s_subfield" % name, choices=self.subfield_select, sel_val=value.get('subfield_search')),
-                          'check':  '' if not self.propose_creation else \
+                          'check':  '' if not self.propose_creation else
                                     '&nbsp;%s <input type="checkbox" name="%s_create" %s>' % (
                                            ugettext(u'Create if not found ?'),
                                            name,
@@ -255,13 +257,14 @@ class ExtractorWidget(SelectMultiple):
 
 
 class ExtractorField(Field):
-    default_error_messages = {
-    }
+    #default_error_messages = {
+    #}
 
     def __init__(self, choices, modelfield, modelform_field, *args, **kwargs):
         super(ExtractorField, self).__init__(self, widget=ExtractorWidget, *args, **kwargs)
         self.required = modelform_field.required
         self._modelfield = modelfield
+        self._user = None
         self._can_create = False #if True and field is a FK/M2M -> the referenced model can be created
 
         widget = self.widget
@@ -272,15 +275,42 @@ class ExtractorField(Field):
         self._original_field = modelform_field
         widget.default_value_widget = modelform_field.widget
 
-        if modelfield.rel:
-            klass = modelfield.rel.to
-            is_entity = issubclass(klass, CremeEntity)
-            ffilter = (lambda fieldname: fieldname not in EXCLUDED_FIELDS) if is_entity else \
-                       lambda fieldname: fieldname != 'id'
+    @property
+    def user(self, user):
+        return self._user
 
-            sf_choices = [(field.name, field.verbose_name) for field in klass._meta.fields if ffilter(field.name)]
+    @user.setter
+    def user(self, user):
+        from creme.creme_config.registry import config_registry, NotRegisteredInConfig
+        rel = self._modelfield.rel
+
+        if rel:
+            model = rel.to
+            creation_perm = False
+
+            if issubclass(model, CremeEntity):
+                excluded = EXCLUDED_FIELDS #TODO: use tags
+            else:
+                excluded = ('id',) #TODO: use tags ??
+                app_name = model._meta.app_label
+
+                try:
+                    config_registry.get_app(app_name) \
+                                   .get_model_conf(ContentType.objects.get_for_model(model).id)
+                except (KeyError, NotRegisteredInConfig):
+                    pass
+                else:
+                    creation_perm = user.has_perm_to_admin(app_name)
+
+            #TODO: use utils.meta.ModelFieldEnumerator ??
+            sf_choices = [(field.name, field.verbose_name) 
+                            for field in model._meta.fields 
+                                if field.name not in excluded
+                         ]
+
+            widget = self.widget
             widget.subfield_select = sf_choices
-            widget.propose_creation = self._can_create = (not is_entity) and (len(sf_choices) == 1) #TODO: creation creds too...
+            widget.propose_creation = self._can_create = creation_perm and (len(sf_choices) == 1)
 
     def clean(self, value):
         try:
@@ -301,7 +331,7 @@ class ExtractorField(Field):
         subfield_create = value['subfield_create']
 
         if not self._can_create and subfield_create:
-            raise ValidationError("You can not create: %s" % self._modelfield)
+            raise ValidationError('You can not create instances')
 
         extractor = Extractor(col_index, def_value, self._original_field.clean)
 
@@ -310,7 +340,7 @@ class ExtractorField(Field):
             modelfield = self._modelfield
             extractor.set_subfield_search(subfield_search, modelfield.rel.to,
                                           multiple=isinstance(modelfield, ManyToManyField),
-                                          create_if_unfound=subfield_create,
+                                          create_if_unfound=subfield_create, #TODO: improve widget to disable creation check instead of hide it.
                                          )
 
         return extractor
@@ -470,6 +500,10 @@ class EntityExtractorWidget(ExtractorWidget):
 
 
 class EntityExtractorField(Field):
+    default_error_messages = {
+        'nocreationperm': _(u'You are not allowed to create: %s'),
+    }
+
     def __init__(self, models_info, choices, *args, **kwargs):
         """@param model_info Sequence of tuple (Entity class, field name)
                              Field name if used to get or create class instances.
@@ -483,9 +517,10 @@ class EntityExtractorField(Field):
         widget.choices = choices
         widget.models_info = models_info
 
-    def _clean_indexes(self, value):
-        indexes = []
+    def _clean_commands(self, value):
+        one_active_command = False
         allowed_indexes = self.allowed_indexes
+        can_create = self.user.has_perm_to_create
 
         try:
             for cmd in value:
@@ -494,19 +529,22 @@ class EntityExtractorField(Field):
                 if not index in allowed_indexes:
                     raise ValidationError(self.error_messages['invalid'])
 
-                indexes.append(index)
+                if cmd.create and not can_create(cmd.model):
+                    raise ValidationError(self.error_messages['nocreationperm'] %
+                                            cmd.model._meta.verbose_name
+                                         )
+
+                one_active_command |= bool(index)
         except TypeError:
             raise ValidationError(self.error_messages['invalid'])
 
-        return indexes
+        return one_active_command
 
     def clean(self, value):
-        indexes = self._clean_indexes(value)
+        one_active_command = self._clean_commands(value)
 
-        if self.required and not any(indexes):
+        if self.required and not one_active_command:
             raise ValidationError(self.error_messages['required'])
-
-        #TODO: creation credentials
 
         return EntityExtractor(value)
 
@@ -595,18 +633,21 @@ class RelationExtractorSelector(SelectorList):
         chained_input = ChainedInput(attrs)
         attrs = {'auto': False}
 
-        chained_input.add_dselect("rtype",       options=relation_types, attrs=attrs, label=ugettext(u"The entity"))
-        chained_input.add_dselect("ctype",       options='/creme_core/relation/predicate/${rtype}/content_types/json', attrs=attrs, )
-        chained_input.add_dselect("searchfield", options='/creme_core/entity/get_info_fields/${ctype}/json', attrs=attrs, label=ugettext(u"which field"))
-        chained_input.add_dselect("column",      options=columns, attrs=attrs, label=ugettext(u"equals to"))
+        add = partial(chained_input.add_dselect, attrs=attrs)
+        add("rtype",       options=relation_types, label=ugettext(u"The entity"))
+        add("ctype",       options='/creme_core/relation/predicate/${rtype}/content_types/json')
+        add("searchfield", options='/creme_core/entity/get_info_fields/${ctype}/json',
+            label=ugettext(u"which field")
+           )
+        add("column",      options=columns, label=ugettext(u"equals to"))
 
         super(RelationExtractorSelector, self).__init__(chained_input)
 
     def render(self, name, value, attrs=None):
         value = value or {}
 
-        return mark_safe("""<input type="checkbox" name="%(name)s_can_create" %(checked)s/>%(label)s"""
-                         """%(super)s""" % {
+        return mark_safe('<input type="checkbox" name="%(name)s_can_create" %(checked)s/>%(label)s'
+                         '%(super)s' % {
                         'name':    name,
                         'checked': 'checked' if value.get('can_create') else '',
                         'label':   ugettext(u'Create entities if they are not found ? (only fields followed by [CREATION] allows you to create, if they exist)'),
@@ -673,35 +714,48 @@ class RelationExtractorField(MultiRelationEntityField):
 
         for rtype_pk, ctype_pk, column, searchfield in cleaned_entries:
             if column not in allowed_columns:
-                raise ValidationError(self.error_messages['invalidcolunm'], params={'column': column})
+                raise ValidationError(self.error_messages['invalidcolunm'],
+                                      params={'column': column}
+                                     )
 
             if rtype_pk not in allowed_rtypes_ids:
-                raise ValidationError(self.error_messages['rtypenotallowed'], params={'rtype': rtype_pk, 'ctype': ctype_pk})
+                raise ValidationError(self.error_messages['rtypenotallowed'],
+                                      params={'rtype': rtype_pk, 'ctype': ctype_pk}
+                                     )
 
-            rtype, rtype_allowed_ctypes, rtype_allowed_properties = self._get_cache(rtypes_cache, rtype_pk, self._build_rtype_cache)
+            rtype, rtype_allowed_ctypes, rtype_allowed_properties = \
+                self._get_cache(rtypes_cache, rtype_pk, self._build_rtype_cache)
 
 #            if rtype_allowed_properties:
 #                need_property_validation = True
 
             if rtype_allowed_ctypes and ctype_pk not in rtype_allowed_ctypes:
-                raise ValidationError(self.error_messages['ctypenotallowed'], params={'ctype': ctype_pk})
+                raise ValidationError(self.error_messages['ctypenotallowed'],
+                                      params={'ctype': ctype_pk}
+                                     )
 
             try:
                 ct = ContentType.objects.get_for_id(ctype_pk)
                 model = ct.model_class()
-                #field = model._meta.get_field_by_name(searchfield)
                 model._meta.get_field_by_name(searchfield)
             except ContentType.DoesNotExist:
-                raise ValidationError(self.error_messages['ctypedoesnotexist'], params={'ctype': ctype_pk})
+                raise ValidationError(self.error_messages['ctypedoesnotexist'],
+                                      params={'ctype': ctype_pk}
+                                     )
             except FieldDoesNotExist:
-                raise ValidationError(self.error_messages['fielddoesnotexist'], params={'field': searchfield})
+                raise ValidationError(self.error_messages['fielddoesnotexist'],
+                                      params={'field': searchfield}
+                                     )
+
+            #TODO: creation creds for entity (it is done, but in the form)
+            #TODO: improve widget to answer for creation only if allowed
 
             extractors.append(RelationExtractor(column_index=column,
-                                                   rtype=rtype,
-                                                   subfield_search=searchfield,
-                                                   related_model=model,
-                                                   create_if_unfound=checked,
-                                                  )
+                                                rtype=rtype,
+                                                subfield_search=searchfield,
+                                                related_model=model,
+                                                create_if_unfound=checked,
+                                               )
                              )
 
         return MultiRelationsExtractor(extractors)
@@ -775,7 +829,7 @@ class ImportForm(CremeModelForm):
         if backend is None:
             verbose_error = "Error reading document, unsupported file type: %s." % file_extension
             self.import_errors.append((filedata.name, verbose_error))
-            logger.info(verbose_error, Exception(verbose_error), Exception)
+            #logger.info(verbose_error, Exception(verbose_error), Exception)
             filedata.close()
             return
 
@@ -866,7 +920,7 @@ class ImportForm4CremeEntity(ImportForm):
 
         return relations
 
-    def clean_dyn_relations(self):
+    def clean_dyn_relations(self): #TODO: move this validation in RelationExtractorField.clean()
         extractors = self.cleaned_data['dyn_relations']
         can_create = self.user.has_perm_to_create
 
@@ -899,7 +953,7 @@ class ImportForm4CremeEntity(ImportForm):
 def extractorfield_factory(modelfield, header_dict, choices):
     formfield = modelfield.formfield()
 
-    if not formfield:  # happens for crementity_ptr (OneToOneField)
+    if not formfield: # happens for crementity_ptr (OneToOneField)
         return None
 
     selected_column = header_dict.get(slugify(modelfield.verbose_name))
@@ -907,9 +961,9 @@ def extractorfield_factory(modelfield, header_dict, choices):
         selected_column = header_dict.get(slugify(modelfield.name), 0)
 
     return ExtractorField(choices, modelfield, formfield,
-                             label=modelfield.verbose_name,
-                             initial={'selected_column': selected_column}
-                            )
+                          label=modelfield.verbose_name,
+                          initial={'selected_column': selected_column}
+                         )
 
 
 #NB: we use ModelForm to get the all the django machinery to build a form from a model

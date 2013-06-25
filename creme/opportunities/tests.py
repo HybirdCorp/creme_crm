@@ -10,11 +10,14 @@ try:
 
     from creme.creme_core.tests.base import CremeTestCase
     from creme.creme_core.tests.views.list_view_import import CSVImportBaseTestCaseMixin
-    from creme.creme_core.models import CremeEntity, RelationType, CremeProperty, SetCredentials, Currency
+    from creme.creme_core.models import (CremeEntity, RelationType, 
+                                      CremeProperty, SetCredentials, Currency)
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.constants import PROP_IS_MANAGED_BY_CREME, DEFAULT_CURRENCY_PK
 
     from creme.creme_config.models import SettingKey, SettingValue
+
+    from creme.documents.models import Document
 
     from creme.persons.models import Organisation, Contact
     from creme.persons.constants import REL_SUB_PROSPECT, REL_SUB_CUSTOMER_SUPPLIER
@@ -44,6 +47,42 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                      #'activities', 'opportunities',
                     #)
         cls.populate('opportunities', 'documents', 'commercial')
+
+        cls.lvimport_data = {'step':     1,
+                             #'document': doc.id,
+                             #has_header
+
+                             #'user':    user.id,
+                             #'emitter': emitter1.id,
+
+                             #'name_colselect':            1,
+                             #'estimated_sales_colselect': 3,
+                             #'made_sales_colselect':      4,
+
+                             #'sales_phase_colselect': 2,
+                             #'sales_phase_create':    True,
+                             #'sales_phase_defval':    sp5.pk,
+
+                             #'target_persons_organisation_colselect': 5,
+                             #'target_persons_organisation_create':    True,
+                             #'target_persons_contact_colselect':      6,
+                             #'target_persons_contact_create':         True,
+
+                             'currency_colselect': 0,
+                             'currency_defval':    DEFAULT_CURRENCY_PK,
+
+                             'reference_colselect':              0,
+                             'chance_to_win_colselect':          0,
+                             'expected_closing_date_colselect':  0,
+                             'closing_date_colselect':           0,
+                             'origin_colselect':                 0,
+                             'description_colselect':            0,
+                             'first_action_date_colselect':      0,
+
+                             #'property_types',
+                             #'fixed_relations',
+                             #'dyn_relations',
+                            }
 
     def tearDown(self):
         CSVImportBaseTestCaseMixin.tearDown(self)
@@ -836,41 +875,25 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                                                )
                               )
 
-        response = self.client.post(url, data={'step':     1,
-                                               'document': doc.id,
-                                               #has_header
+        response = self.client.post(url,
+                                    data=dict(self.lvimport_data,
+                                              document=doc.id,
+                                              user=user.id,
+                                              emitter=emitter1.id,
 
-                                               'user':    user.id,
-                                               'emitter': emitter1.id,
+                                              name_colselect=1,
+                                              estimated_sales_colselect=3,
+                                              made_sales_colselect=4,
 
-                                               'name_colselect':            1,
-                                               'estimated_sales_colselect': 3,
-                                               'made_sales_colselect':      4,
+                                              sales_phase_colselect=2,
+                                              sales_phase_create=True,
+                                              sales_phase_defval=sp5.pk,
 
-                                               'sales_phase_colselect': 2,
-                                               'sales_phase_create':    True,
-                                               'sales_phase_defval':    sp5.pk,
-
-                                               'target_persons_organisation_colselect': 5,
-                                               'target_persons_organisation_create':    True,
-                                               'target_persons_contact_colselect':      6,
-                                               'target_persons_contact_create':         True,
-
-                                               'currency_colselect': 0,
-                                               'currency_defval':    DEFAULT_CURRENCY_PK,
-
-                                               'reference_colselect':              0,
-                                               'chance_to_win_colselect':          0,
-                                               'expected_closing_date_colselect':  0,
-                                               'closing_date_colselect':           0,
-                                               'origin_colselect':                 0,
-                                               'description_colselect':            0,
-                                               'first_action_date_colselect':      0,
-
-                                                #'property_types',
-                                                #'fixed_relations',
-                                                #'dyn_relations',
-                                              }
+                                              target_persons_organisation_colselect=5,
+                                              target_persons_organisation_create=True,
+                                              target_persons_contact_colselect=6,
+                                              target_persons_contact_create=True,
+                                             )
                                    )
         self.assertNoFormError(response)
 
@@ -931,42 +954,25 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         lines = [('Opp01', sp1_name, '1000', '2000', target1.name, '')]
         doc = self._build_csv_doc(lines)
         response = self.client.post(self._build_import_url(Opportunity),
-                                    data={'step':     1,
-                                          'document': doc.id,
-                                          #has_header
+                                    data=dict(self.lvimport_data,
+                                              document=doc.id,
+                                              user=self.user.id,
+                                              emitter=emitter.id,
 
-                                          'user':    self.user.id,
-                                          'emitter': emitter.id,
+                                              name_colselect=1,
+                                              estimated_sales_colselect=3,
+                                              made_sales_colselect=4,
 
-                                          'name_colselect':            1,
-                                          'estimated_sales_colselect': 3,
-                                          'made_sales_colselect':      4,
+                                              sales_phase_colselect=2,
+                                              sales_phase_create='', #<=======
+                                              #sales_phase_defval=[...], #<=======
 
-                                          'sales_phase_colselect': 2,
-                                          'sales_phase_create':    '', #<=======
-                                          #'sales_phase_defval':   [...], #<=======
-
-                                          'target_persons_organisation_colselect': 5,
-                                          'target_persons_organisation_create':    True,
-                                          'target_persons_contact_colselect':      6,
-                                          'target_persons_contact_create':         True,
-
-                                          'currency_colselect': 0,
-                                          'currency_defval':    DEFAULT_CURRENCY_PK,
-
-                                          'reference_colselect':              0,
-                                          'chance_to_win_colselect':          0,
-                                          'expected_closing_date_colselect':  0,
-                                          'closing_date_colselect':           0,
-                                          'origin_colselect':                 0,
-                                          'description_colselect':            0,
-                                          'first_action_date_colselect':      0,
-
-                                           #'property_types',
-                                           #'fixed_relations',
-                                           #'dyn_relations',
-                                        }
-                                   )
+                                              target_persons_organisation_colselect=5,
+                                              target_persons_organisation_create=True,
+                                              target_persons_contact_colselect=6,
+                                              target_persons_contact_create=True,
+                                             )
+                                     )
         self.assertNoFormError(response)
 
         with self.assertNoException():
@@ -988,45 +994,29 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         lines = [('Opp01', '1000', '2000', target.name)]
         doc = self._build_csv_doc(lines)
-        response = self.client.post(self._build_import_url(Opportunity),
-                                    data={'step':     1,
-                                          'document': doc.id,
-                                          #has_header
+        response = self.assertPOST200(self._build_import_url(Opportunity),
+                                      data=dict(self.lvimport_data,
+                                                document=doc.id,
+                                                user=self.user.id,
+                                                emitter=emitter.id,
 
-                                          'user':    self.user.id,
-                                          'emitter': emitter.id,
+                                                name_colselect=1,
+                                                estimated_sales_colselect=2,
+                                                made_sales_colselect=3,
 
-                                          'name_colselect':            1,
-                                          'estimated_sales_colselect': 2,
-                                          'made_sales_colselect':      3,
+                                                sales_phase_colselect=0,  #<=======
+                                                sales_phase_create='',
+                                                #sales_phase_defval=[...],
 
-                                          'sales_phase_colselect': 0,  #<=======
-                                          'sales_phase_create':    '',
-                                          #'sales_phase_defval':   [...],
-
-                                          'target_persons_organisation_colselect': 4,
-                                          'target_persons_organisation_create':    '',
-                                          'target_persons_contact_colselect':      0,
-                                          'target_persons_contact_create':         '',
-
-                                          'currency_colselect': 0,
-                                          'currency_defval':    DEFAULT_CURRENCY_PK,
-
-                                          'reference_colselect':              0,
-                                          'chance_to_win_colselect':          0,
-                                          'expected_closing_date_colselect':  0,
-                                          'closing_date_colselect':           0,
-                                          'origin_colselect':                 0,
-                                          'description_colselect':            0,
-                                          'first_action_date_colselect':      0,
-
-                                           #'property_types',
-                                           #'fixed_relations',
-                                           #'dyn_relations',
-                                        }
-                                   )
-        self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'sales_phase', [_('This field is required.')])
+                                                target_persons_organisation_colselect=4,
+                                                target_persons_organisation_create='',
+                                                target_persons_contact_colselect=0,
+                                                target_persons_contact_create='',
+                                                )
+                                     )
+        self.assertFormError(response, 'form', 'sales_phase',
+                             _('This field is required.')
+                            )
 
     def test_csv_import04(self):
         "Creation of Organisation/Contact is not wanted"
@@ -1042,40 +1032,23 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                 ]
         doc = self._build_csv_doc(lines)
         response = self.client.post(self._build_import_url(Opportunity),
-                                    data={'step':     1,
-                                          'document': doc.id,
-                                          #has_header
+                                    data=dict(self.lvimport_data,
+                                              document=doc.id,
+                                              user=self.user.id,
+                                              emitter=emitter.id,
 
-                                          'user':    self.user.id,
-                                          'emitter': emitter.id,
+                                              name_colselect=1,
+                                              estimated_sales_colselect=3,
+                                              made_sales_colselect=4,
 
-                                          'name_colselect':            1,
-                                          'estimated_sales_colselect': 3,
-                                          'made_sales_colselect':      4,
+                                              sales_phase_colselect=2,
+                                              sales_phase_create=True,
 
-                                          'sales_phase_colselect': 2,
-                                          'sales_phase_create':    True,
-
-                                          'target_persons_organisation_colselect': 5,
-                                          'target_persons_organisation_create':    '', #<===
-                                          'target_persons_contact_colselect':      6,
-                                          'target_persons_contact_create':         '', #<===
-
-                                          'currency_colselect': 0,
-                                          'currency_defval':    DEFAULT_CURRENCY_PK,
-
-                                          'reference_colselect':              0,
-                                          'chance_to_win_colselect':          0,
-                                          'expected_closing_date_colselect':  0,
-                                          'closing_date_colselect':           0,
-                                          'origin_colselect':                 0,
-                                          'description_colselect':            0,
-                                          'first_action_date_colselect':      0,
-
-                                          #'property_types',
-                                          #'fixed_relations',
-                                          #'dyn_relations',
-                                         }
+                                              target_persons_organisation_colselect=5,
+                                              target_persons_organisation_create='',  #<===
+                                              target_persons_contact_colselect=6,
+                                              target_persons_contact_create='',  #<===
+                                             )
                                    )
         self.assertNoFormError(response)
 
@@ -1092,6 +1065,49 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertEqual(count, Opportunity.objects.count())
         self.assertFalse(Organisation.objects.filter(name=orga_name))
         self.assertFalse(Contact.objects.filter(last_name=contact_name))
+
+    def test_csv_import05(self):
+        "No credentials to create Organisation or SalesPhase"
+        self.login(is_superuser=False,
+                   allowed_apps=['persons', 'documents', 'opportunities'],
+                   creatable_models=[Opportunity, Document], #not Organisation
+                  )
+        SetCredentials.objects.create(role=self.role,
+                                      value=EntityCredentials.VIEW   |
+                                            EntityCredentials.CHANGE |
+                                            EntityCredentials.DELETE |
+                                            EntityCredentials.LINK   |
+                                            EntityCredentials.UNLINK,
+                                      set_type=SetCredentials.ESET_ALL,
+                                     )
+        #TODO: factorise
+        emitter = Organisation.objects.filter(properties__type=PROP_IS_MANAGED_BY_CREME)[0]
+        doc = self._build_csv_doc([('Opp01', '1000', '2000', 'Acme', 'New phase')])
+        response = self.client.post(self._build_import_url(Opportunity),
+                                    data=dict(self.lvimport_data,
+                                              document=doc.id,
+                                              user=self.user.id,
+                                              emitter=emitter.id,
+
+                                              name_colselect=1,
+                                              estimated_sales_colselect=2,
+                                              made_sales_colselect=3,
+
+                                              sales_phase_colselect=5,
+                                              sales_phase_create=True,
+
+                                              target_persons_organisation_colselect=4,
+                                              target_persons_organisation_create=True,
+                                              target_persons_contact_colselect=0,
+                                              target_persons_contact_create='',
+                                             )
+                                     )
+        self.assertFormError(response, 'form', 'target',
+                             _(u'You are not allowed to create: %s') % _(u'Organisation')
+                            )
+        self.assertFormError(response, 'form', 'sales_phase',
+                             u'You are not allowed to create "Sales phase"'
+                            )
 
 
 class SalesPhaseTestCase(CremeTestCase):

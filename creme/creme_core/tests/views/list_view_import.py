@@ -118,16 +118,59 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         Position.objects.all().delete()
         Sector.objects.all().delete()
 
+        cls.data = {
+            'step': 1,
+            #'document':   doc.id,
+            #'has_header': True,
+            #'user':       self.user.id,
+
+            #'first_name_colselect': 1,
+            #'last_name_colselect':  2,
+
+            'civility_colselect':    0,
+            'description_colselect': 0,
+            'skype_colselect':       0,
+            'phone_colselect':       0,
+            'mobile_colselect':      0,
+            'fax_colselect':         0,
+            'position_colselect':    0,
+            'sector_colselect':      0,
+            'email_colselect':       0,
+            'url_site_colselect':    0,
+            'birthday_colselect':    0,
+            'image_colselect':       0,
+
+            #'property_types',
+            #'fixed_relations',
+            #'dyn_relations',
+
+            'billaddr_address_colselect':    0,  'shipaddr_address_colselect':    0,
+            'billaddr_po_box_colselect':     0,  'shipaddr_po_box_colselect':     0,
+            'billaddr_city_colselect':       0,  'shipaddr_city_colselect':       0,
+            'billaddr_state_colselect':      0,  'shipaddr_state_colselect':      0,
+            'billaddr_zipcode_colselect':    0,  'shipaddr_zipcode_colselect':    0,
+            'billaddr_country_colselect':    0,  'shipaddr_country_colselect':    0,
+            'billaddr_department_colselect': 0,  'shipaddr_department_colselect': 0,
+        }
+
     def tearDown(self):
         CSVImportBaseTestCaseMixin.tearDown(self)
+
+    def _dyn_relations_value(self, rtype, model, column, subfield):
+        return '[{"rtype":"%(rtype)s","ctype":"%(ctype)s",' \
+                 '"column":"%(column)s","searchfield":"%(search)s"}]' % {
+                        'rtype':  rtype.id,
+                        'ctype':  ContentType.objects.get_for_model(model).id,
+                        'column': column,
+                        'search': subfield,
+                    }
 
     def _test_import01(self, builder):
         self.login()
 
-        self.assertFalse(Contact.objects.exists())
-
-        lines = [("Ayanami", "Rei"),
-                 ("Asuka",   "Langley"),
+        count = Contact.objects.count()
+        lines = [("Rei",   "Ayanami"),
+                 ("Asuka", "Langley"),
                 ]
 
         doc = builder(lines)
@@ -149,66 +192,26 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         self.assertIn('value="1"', unicode(form['step']))
 
-        response = self.client.post(url, data={
-                                                'step':     1,
-                                                'document': doc.id,
-                                                #has_header
-
-                                                'user': self.user.id,
-
-                                                'civility_colselect':  0,
-
-                                                'first_name_colselect': 1,
-                                                'last_name_colselect':  2,
-
-                                                'description_colselect': 0,
-                                                'skype_colselect':       0,
-                                                'phone_colselect':       0,
-                                                'mobile_colselect':      0,
-                                                'fax_colselect':         0,
-                                                'position_colselect':    0,
-                                                'sector_colselect':      0,
-                                                'email_colselect':       0,
-                                                'url_site_colselect':    0,
-                                                'birthday_colselect':    0,
-                                                'image_colselect':       0,
-
-                                                #'property_types',
-                                                #'fixed_relations',
-                                                #'dyn_relations',
-
-                                                'billaddr_address_colselect':    0,
-                                                'billaddr_po_box_colselect':     0,
-                                                'billaddr_city_colselect':       0,
-                                                'billaddr_state_colselect':      0,
-                                                'billaddr_zipcode_colselect':    0,
-                                                'billaddr_country_colselect':    0,
-                                                'billaddr_department_colselect': 0,
-
-                                                'shipaddr_address_colselect':    0,
-                                                'shipaddr_po_box_colselect':     0,
-                                                'shipaddr_city_colselect':       0,
-                                                'shipaddr_state_colselect':      0,
-                                                'shipaddr_zipcode_colselect':    0,
-                                                'shipaddr_country_colselect':    0,
-                                                'shipaddr_department_colselect': 0,
-                                              }
+        response = self.client.post(url, data=dict(self.data, document=doc.id,
+                                                   user=self.user.id,
+                                                   first_name_colselect=1,
+                                                   last_name_colselect=2,
+                                                  ),
                                    )
         self.assertNoFormError(response)
 
         with self.assertNoException():
             form = response.context['form']
 
-        self.assertEqual(0,          len(form.import_errors))
-        self.assertEqual(len(lines), form.imported_objects_count)
-        self.assertEqual(len(lines), form.lines_count)
+        lines_count = len(lines)
+        self.assertEqual(0,           len(form.import_errors))
+        self.assertEqual(lines_count, form.imported_objects_count)
+        self.assertEqual(lines_count, form.lines_count)
 
-        self.assertEqual(len(lines), Contact.objects.count())
+        self.assertEqual(count + lines_count, Contact.objects.count())
 
         for first_name, last_name in lines:
-            with self.assertNoException():
-                contact = Contact.objects.get(first_name=first_name, last_name=last_name)
-
+            contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
             self.assertEqual(self.user, contact.user)
             #self.assert_(contact.billing_address is None) #TODO: fail ?!
 
@@ -229,11 +232,12 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
 
         nerv = Organisation.objects.create(user=self.user, name='Nerv')
         shinji = Contact.objects.create(user=self.user, first_name='Shinji', last_name='Ikari')
+        contact_count = Contact.objects.count()
 
         pos_title = 'Pilot'
         city = 'Tokyo'
         lines = [('First name', 'Last name', 'Position', 'Sector', 'City', 'Organisation'),
-                 ('Ayanami',    'Rei',       pos_title,  'Army',   city,   nerv.name),
+                 ('Rei',        'Ayanami',       pos_title,  'Army',   city,   nerv.name),
                  ('Asuka',      'Langley',   pos_title,  'Army',   '',     nerv.name),
                 ]
 
@@ -250,77 +254,43 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         self.assertIn('value="True"', unicode(form['has_header']))
 
         default_descr = 'A cute pilot'
-        response = self.client.post(url, data={
-                                                'step':       1,
-                                                'document':   doc.id,
-                                                'has_header': True,
+        response = self.client.post(
+                        url,
+                        data=dict(self.data, document=doc.id, has_header=True,
+                                    user=self.user.id,
+                                    first_name_colselect=1,
+                                    last_name_colselect=2,
 
-                                                'user': self.user.id,
+                                    description_colselect=0,
+                                    description_defval=default_descr,
 
-                                                'civility_colselect': 0,
+                                    position_colselect=3,
+                                    position_subfield='title',
+                                    position_create=True,
 
-                                                'first_name_colselect': 1,
-                                                'last_name_colselect':  2,
+                                    sector_colselect=4,
+                                    sector_subfield='title',
+                                    #sector_create=False,
 
-                                                'description_colselect': 0,
-                                                'description_defval':    default_descr,
+                                    property_types=[ptype.id],
+                                    fixed_relations='[{"rtype":"%s","ctype":"%s","entity":"%s"}]'  % (
+                                                            loves.id, shinji.entity_type_id, shinji.id
+                                                        ),
+                                    dyn_relations=self._dyn_relations_value(employed, Organisation, 6, 'name'),
 
-                                                'skype_colselect':       0,
-                                                'phone_colselect':       0,
-                                                'mobile_colselect':      0,
-                                                'fax_colselect':         0,
-
-                                                'position_colselect': 3,
-                                                'position_subfield':  'title',
-                                                'position_create':    True,
-
-                                                'sector_colselect': 4,
-                                                'sector_subfield':  'title',
-                                                #'sector_create':    False,
-
-                                                'email_colselect':       0,
-                                                'url_site_colselect':    0,
-                                                'birthday_colselect':    0,
-                                                'image_colselect':       0,
-
-                                                'property_types':  [ptype.id],
-                                                'fixed_relations': '[{"rtype":"%s","ctype":"%s","entity":"%s"}]'  % (
-                                                                            loves.id, shinji.entity_type_id, shinji.id
-                                                                        ),
-                                                'dyn_relations':    '[{"rtype":"%(rtype)s","ctype":"%(ctype)s","column":"%(column)s","searchfield":"%(search)s"}]'  % {
-                                                                            'rtype': employed.id,
-                                                                            'ctype': ContentType.objects.get_for_model(Organisation).id,
-                                                                            'column': 6,
-                                                                            'search': 'name',
-                                                                        },
-
-                                                'billaddr_address_colselect':    0,
-                                                'billaddr_po_box_colselect':     0,
-                                                'billaddr_city_colselect':       5,
-                                                'billaddr_state_colselect':      0,
-                                                'billaddr_zipcode_colselect':    0,
-                                                'billaddr_country_colselect':    0,
-                                                'billaddr_department_colselect': 0,
-
-                                                'shipaddr_address_colselect':    0,
-                                                'shipaddr_po_box_colselect':     0,
-                                                'shipaddr_city_colselect':       0,
-                                                'shipaddr_state_colselect':      0,
-                                                'shipaddr_zipcode_colselect':    0,
-                                                'shipaddr_country_colselect':    0,
-                                                'shipaddr_department_colselect': 0,
-                                              }
-                                   )
+                                    billaddr_city_colselect=5,
+                                    )
+                    )
         self.assertNoFormError(response)
 
         with self.assertNoException():
             form = response.context['form']
 
-        count = len(lines) - 1 # '-1' for header
-        self.assertEqual(count,     len(form.import_errors)) #sector not found
-        self.assertEqual(count,     form.imported_objects_count)
-        self.assertEqual(count,     form.lines_count)
-        self.assertEqual(count + 1, Contact.objects.count()) #+ 1 : because of shinji
+        lines_count = len(lines) - 1 # '-1' for header
+        self.assertEqual(lines_count, len(form.import_errors)) #sector not found
+        self.assertEqual(lines_count, form.imported_objects_count)
+        self.assertEqual(lines_count, form.lines_count)
+        self.assertEqual(contact_count + lines_count, Contact.objects.count())
 
         positions = Position.objects.all()
         self.assertEqual(1, len(positions))
@@ -331,81 +301,36 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         self.assertFalse(Sector.objects.exists())
 
         for first_name, last_name, pos_title, sector_title, city_name, orga_name in lines[1:]:
-            with self.assertNoException():
-                contact = Contact.objects.get(first_name=first_name, last_name=last_name)
-
+            contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
             self.assertEqual(default_descr, contact.description)
             self.assertEqual(position,      contact.position)
-            self.assertEqual(1,             CremeProperty.objects.filter(type=ptype, creme_entity=contact.id).count())
+            self.get_object_or_fail(CremeProperty, type=ptype, creme_entity=contact.id)
             self.assertRelationCount(1, contact, loves.id, shinji)
             self.assertRelationCount(1, contact, employed.id, nerv)
 
         rei = Contact.objects.get(first_name=lines[1][0])
         self.assertEqual(city, rei.billing_address.city)
 
-        doc.filedata.delete() #clean TODO: improve (not cleaned if there is a failure...)
-
     def _test_import03(self, builder):
         "Create entities to link with them"
         self.login()
-        self.assertFalse(Organisation.objects.exists())
+
+        orga_name = 'Nerv'
+        self.assertFalse(Organisation.objects.filter(name=orga_name))
 
         employed = RelationType.create(('persons-subject_employed_by', 'is an employee of'),
                                        ('persons-object_employed_by',  'employs')
                                       )[0]
-        orga_name = 'Nerv'
         doc = builder([('Ayanami', 'Rei', orga_name)])
         response = self.client.post(self._build_import_url(Contact),
-                                    data={
-                                            'step':       1,
-                                            'document':   doc.id,
-                                            #'has_header': True,
+                                    data=dict(self.data, document=doc.id,
+                                              user=self.user.id,
+                                              first_name_colselect=1,
+                                              last_name_colselect=2,
 
-                                            'user': self.user.id,
-
-                                            'civility_colselect': 0,
-
-                                            'first_name_colselect': 1,
-                                            'last_name_colselect':  2,
-
-                                            'description_colselect': 0,
-                                            'skype_colselect':       0,
-                                            'phone_colselect':       0,
-                                            'mobile_colselect':      0,
-                                            'fax_colselect':         0,
-                                            'position_colselect':    0,
-                                            'sector_colselect':      0,
-                                            'email_colselect':       0,
-                                            'url_site_colselect':    0,
-                                            'birthday_colselect':    0,
-                                            'image_colselect':       0,
-
-                                            #'property_types':,
-                                            #'fixed_relations':,
-                                            'dyn_relations':    '[{"rtype":"%(rtype)s","ctype":"%(ctype)s","column":"%(column)s","searchfield":"%(search)s"}]'  % {
-                                                                        'rtype':  employed.id,
-                                                                        'ctype':  ContentType.objects.get_for_model(Organisation).id,
-                                                                        'column': 3,
-                                                                        'search': 'name',
-                                                                    },
-                                            'dyn_relations_can_create': True,
-
-                                            'billaddr_address_colselect':    0,
-                                            'billaddr_po_box_colselect':     0,
-                                            'billaddr_city_colselect':       0,
-                                            'billaddr_state_colselect':      0,
-                                            'billaddr_zipcode_colselect':    0,
-                                            'billaddr_country_colselect':    0,
-                                            'billaddr_department_colselect': 0,
-
-                                            'shipaddr_address_colselect':    0,
-                                            'shipaddr_po_box_colselect':     0,
-                                            'shipaddr_city_colselect':       0,
-                                            'shipaddr_state_colselect':      0,
-                                            'shipaddr_zipcode_colselect':    0,
-                                            'shipaddr_country_colselect':    0,
-                                            'shipaddr_department_colselect': 0,
-                                         }
+                                              dyn_relations=self._dyn_relations_value(employed, Organisation, 3, 'name'),
+                                              dyn_relations_can_create=True,
+                                             ),
                                    )
         self.assertNoFormError(response)
 
@@ -445,7 +370,8 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
     def test_xls_import03(self):
         return self._test_import03(self._build_xls_doc)
 
-    def test_csv_import04(self): #other separator
+    def test_csv_import04(self): 
+        "Other separator"
         self.login()
 
         self.assertFalse(Contact.objects.exists())
@@ -464,46 +390,12 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         self.assertNoFormError(response)
         self.assertIn('value="1"', unicode(response.context['form']['step']))
 
-        response = self.client.post(url, data={
-                                                'step':       1,
-                                                'document':   doc.id,
-                                                'has_header': True,
-
-                                                'user': self.user.id,
-
-                                                'civility_colselect':  0,
-
-                                                'first_name_colselect': 1,
-                                                'last_name_colselect':  2,
-
-                                                'description_colselect': 0,
-                                                'skype_colselect':       0,
-                                                'phone_colselect':       0,
-                                                'mobile_colselect':      0,
-                                                'fax_colselect':         0,
-                                                'position_colselect':    0,
-                                                'sector_colselect':      0,
-                                                'email_colselect':       0,
-                                                'url_site_colselect':    0,
-                                                'birthday_colselect':    0,
-                                                'image_colselect':       0,
-
-                                                'billaddr_address_colselect':    0,
-                                                'billaddr_po_box_colselect':     0,
-                                                'billaddr_city_colselect':       0,
-                                                'billaddr_state_colselect':      0,
-                                                'billaddr_zipcode_colselect':    0,
-                                                'billaddr_country_colselect':    0,
-                                                'billaddr_department_colselect': 0,
-
-                                                'shipaddr_address_colselect':    0,
-                                                'shipaddr_po_box_colselect':     0,
-                                                'shipaddr_city_colselect':       0,
-                                                'shipaddr_state_colselect':      0,
-                                                'shipaddr_zipcode_colselect':    0,
-                                                'shipaddr_country_colselect':    0,
-                                                'shipaddr_department_colselect': 0,
-                                              }
+        response = self.client.post(url, data=dict(self.data, document=doc.id,
+                                                   has_header=True,
+                                                   user=self.user.id,
+                                                   first_name_colselect=1,
+                                                   last_name_colselect=2,
+                                                  ),
                                    )
         self.assertNoFormError(response)
         self.assertEqual([], list(response.context['form'].import_errors))
@@ -517,21 +409,63 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         "Form error: unknown extension"
         self.login()
 
-        self.assertFalse(Contact.objects.exists())
-
-        lines = [(u'First name', u'Last name'),
-                 (u'Unchô',      u'Kan-u'),
-                 (u'Gentoku',    u'Ryûbi'),
-                ]
-        extension = 'doc'
-        doc = self._build_doc(self._build_file('Non Empty File...', extension))
-        url = self._build_import_url(Contact)
-        response = self.assertPOST200(url, data={'step':     0,
-                                               'document': doc.id,
-                                                }
+        doc = self._build_doc(self._build_file('Non Empty File...', 'doc'))
+        response = self.assertPOST200(self._build_import_url(Contact),
+                                      data={'step': 0, 'document': doc.id}
                                      )
         self.assertFormError(response, 'form', None,
-                             [_(u"Error reading document, unsupported file type: %s.") % 
+                             [_(u"Error reading document, unsupported file type: %s.") %
                                     doc.filedata.name
                              ]
+                            )
+
+    def test_credentials01(self):
+        "Creation credentials for imported model"
+        self.login(is_superuser=False, allowed_apps=['persons'],
+                   creatable_models=[Organisation], #not Contact
+                  )
+        self.assertGET403(self._build_import_url(Contact))
+
+    def test_credentials02(self):
+        "Creation credentials for 'auxiliary' models"
+        self.login(is_superuser=False, allowed_apps=['persons', 'documents'],
+                   creatable_models=[Contact, Organisation, Document],
+                  )
+
+        doc = self._build_csv_doc([('Ayanami', 'Rei', 'Pilot')])
+        response = self.assertPOST200(self._build_import_url(Contact),
+                                      data=dict(self.data, document=doc.id,
+                                                user=self.user.id,
+                                                first_name_colselect=2,
+                                                last_name_colselect=1,
+
+                                                position_colselect=3,
+                                                position_subfield='title',
+                                                position_create=True,
+                                               ),
+                                     )
+        self.assertFormError(response, 'form', 'position', 'You can not create instances')
+
+    def test_credentials03(self):
+        "Creation credentials for related entities"
+        self.login(is_superuser=False, allowed_apps=['persons', 'documents'],
+                   creatable_models=[Contact, Document], #not Organisation
+                  )
+
+        employed = RelationType.create(('persons-subject_employed_by', 'is an employee of'),
+                                       ('persons-object_employed_by',  'employs')
+                                      )[0]
+        doc = self._build_csv_doc([('Ayanami', 'Rei', 'NERV')])
+        response = self.assertPOST200(self._build_import_url(Contact),
+                                      data=dict(self.data, document=doc.id,
+                                                user=self.user.id,
+                                                first_name_colselect=2,
+                                                last_name_colselect=1,
+
+                                                dyn_relations=self._dyn_relations_value(employed, Organisation, 3, 'name'),
+                                                dyn_relations_can_create=True,
+                                               ),
+                                     )
+        self.assertFormError(response, 'form', 'dyn_relations', 
+                             _(u'You are not allowed to create: %s') % _(u'Organisation')
                             )

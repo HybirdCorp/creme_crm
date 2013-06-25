@@ -88,39 +88,47 @@ class SalesPhaseExtractorWidget(ExtractorWidget):
     def __init__(self, *args, **kwargs):
         super(ExtractorWidget, self).__init__(*args, **kwargs)
         self.default_value_widget = None
-        #self.propose_creation = False #TODO: use (credentials)
+        self.propose_creation = False
 
     def render(self, name, value, attrs=None, choices=()):
         value = value or {}
         attrs = self.build_attrs(attrs, name=name)
-        output = [u'<table %s><tbody><tr><td>' % flatatt(attrs)]
-
-        out_append = output.append
 
         try:
             sel_val = int(value.get('selected_column', -1))
         except TypeError:
             sel_val = 0
 
-        out_append(self._render_select("%s_colselect" % name,
-                                       choices=chain(self.choices, choices),
-                                       sel_val=sel_val,
-                                       attrs={'class': 'csv_col_select'}
-                                      )
-                  )
-        out_append(u'</td><td>&nbsp;%s <input type="checkbox" name="%s_create" %s></td>' % (
-                        _(u'Create if not found ?'),
-                        name,
-                        'checked' if value.get('create') else '',
-                    ),
-                  )
-        out_append(u'<td>&nbsp;%s:%s</td></tr></tbody></table>' % (
-                        _('Default value'),
-                        self.default_value_widget.render("%s_defval" % name, value.get('default_value')),
-                    )
-                  )
+        if self.propose_creation:
+            tag_class = disabled = ''
+        else:
+            tag_class = 'class=forbidden'
+            disabled = 'disabled'
 
-        return mark_safe(u'\n'.join(output))
+        return mark_safe('<table %(attrs)s>'
+                            '<tbody>'
+                                '<tr>'
+                                    '<td>%(colselect)s</td>'
+                                    '<td %(td_class)s>&nbsp;%(chk_label)s <input type="checkbox" name="%(name)s_create" %(checked)s %(chk_disabled)s></td>'
+                                    '<td>&nbsp;%(defval_label)s:%(defval_widget)s</td>'
+                                '</tr>'
+                            '</tbody>'
+                         '</table>' % {
+            'name':          name,
+            'attrs':         flatatt(self.build_attrs(attrs, name=name)),
+            'colselect':     self._render_select("%s_colselect" % name,
+                                                 choices=chain(self.choices, choices),
+                                                 sel_val=sel_val,
+                                                 attrs={'class': 'csv_col_select'},
+                                                ),
+            'td_class':       tag_class,
+            'chk_label':     _(u'Create if not found ?'),
+            'checked':       'checked' if value.get('create') else '',
+            'chk_disabled':  disabled,
+            'defval_label':  _('Default value'),
+            'defval_widget': self.default_value_widget
+                                 .render("%s_defval" % name, value.get('default_value')),
+           })
 
     def value_from_datadict(self, data, files, name):
         get = data.get
@@ -133,11 +141,21 @@ class SalesPhaseExtractorWidget(ExtractorWidget):
 class SalesPhaseExtractorField(Field):
     def __init__(self, choices, modelform_field, *args, **kwargs):
         super(SalesPhaseExtractorField, self).__init__(self, widget=SalesPhaseExtractorWidget, *args, **kwargs)
-        #self._can_create = False  #TODO: creds
+        self._user = None
+        self._can_create = False
 
         widget = self.widget
         widget.default_value_widget = modelform_field.widget
         widget.choices = choices
+
+    @property
+    def user(self, user):
+        return self._user
+
+    @user.setter
+    def user(self, user):
+        self._user = user
+        self.widget.propose_creation = self._can_create = user.has_perm_to_admin('opportunity')
 
     def clean(self, value):
         #TODO: factorise
@@ -159,7 +177,12 @@ class SalesPhaseExtractorField(Field):
             if not def_value:
                 raise ValidationError(self.error_messages['required'])
 
-        return SalesPhaseExtractor(col_index, def_value, create_if_unfound=value['create'])
+        want_create = value['create']
+
+        if want_create and not self._can_create:
+            raise ValidationError(u'You are not allowed to create "Sales phase"')
+
+        return SalesPhaseExtractor(col_index, def_value, create_if_unfound=want_create)
 
 
 # Main -------------------------------------------------------------------------
@@ -167,14 +190,13 @@ def get_csv_form_builder(header_dict, choices):
     class OpportunityCSVImportForm(ImportForm4CremeEntity):
         #TODO: can we improve ExtractorField to use form registered in creme_config when it is possible ?
         sales_phase = SalesPhaseExtractorField(choices, #modelfield
-                                                  Opportunity._meta.get_field_by_name('sales_phase')[0].formfield(),
-                                                  label=_('Sales phase'),
-                                                  #initial={'selected_column': selected_column} #TODO ??
-                                                 )
+                                               Opportunity._meta.get_field_by_name('sales_phase')[0].formfield(),
+                                               label=_('Sales phase'),
+                                               #initial={'selected_column': selected_column} #TODO ??
+                                              )
         target = EntityExtractorField([(Organisation, 'name'), (Contact, 'last_name')],
                                       choices, label=_('Target')
                                      )
-
         emitter = ModelChoiceField(label=_(u"Concerned organisation"), empty_label=None,
                                    queryset=Organisation.get_all_managed_by_creme(),
                                   )
