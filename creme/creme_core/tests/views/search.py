@@ -27,7 +27,7 @@ class SearchViewTestCase(ViewsTestCase):
         create_contact = partial(Contact.objects.create, user=self.user)
         self.linus = create_contact(first_name='Linus', last_name='Torvalds')
         self.alan  = create_contact(first_name='Alan',  last_name='Cox')
-        create_contact(first_name='Linus', last_name='Impostor', is_deleted=True)
+        self.linus2 = create_contact(first_name='Linus', last_name='Impostor', is_deleted=True)
 
     def _setup_contacts(self):
         SearchConfigItem.create_if_needed(Contact, ['first_name', 'last_name'])
@@ -70,6 +70,7 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertEqual(0, len(result['entities']))
 
     def test_search02(self):
+        "Deleted entities are found too"
         self.login()
         self._setup_contacts()
 
@@ -77,15 +78,22 @@ class SearchViewTestCase(ViewsTestCase):
         self.assertEqual(200, response.status_code)
 
         results = response.context['results']
-        self.assertEqual(1, response.context['total'])
+        #self.assertEqual(1, response.context['total'])
+        self.assertEqual(2, response.context['total'])
         self.assertEqual(1, len(results))
 
         entities = results[0]['entities']
-        self.assertEqual(1, len(entities))
+        #self.assertEqual(1, len(entities))
+        self.assertEqual(2, len(entities))
 
-        entity = entities[0]
-        self.assertIsInstance(entity, Contact)
-        self.assertEqual(self.linus.id, entity.id)
+        #entity = entities[0]
+        #self.assertIsInstance(entity, Contact)
+        #self.assertEqual(self.linus.id, entity.id)
+        self.assertIsInstance(entities[0], Contact)
+        self.assertIsInstance(entities[1], Contact)
+        self.assertEqual(set([self.linus.id, self.linus2.id]),
+                         set(e.id for e in entities)
+                        )
 
     def test_search03(self):
         self.login()

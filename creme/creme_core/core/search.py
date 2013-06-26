@@ -31,7 +31,7 @@ class Searcher(object):
         self._search_map = dict((model, get_sfields(model, user)) for model in models)
 
     #def _build_query(self, research, fields, is_or=True):
-    def _build_query(self, research, fields):
+    def _build_query(self, research, fields): #TODO: inline ??
         "Build a Q with all params fields"
         result_q = Q()
 
@@ -58,6 +58,8 @@ class Searcher(object):
         """
         searchfields = self.get_fields(model)
 
-        return model.objects.filter(is_deleted=False) \
-                            .filter(self._build_query(research, searchfields)) \
+        #return model.objects.filter(is_deleted=False) \
+                            #.filter(self._build_query(research, searchfields)) \
+                            #.distinct()
+        return model.objects.filter(self._build_query(research, searchfields)) \
                             .distinct()
