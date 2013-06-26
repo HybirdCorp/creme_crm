@@ -43,7 +43,7 @@
                                 <tr>
                                     <th colspan="{{fields|length|add:1}}" valign="middle" align="left">
                                         {{entities|length}}
-                                        {% if entities|length == 1 %}
+                                        {% if entities|length == 1 %}{% comment %}TODO: improve plural management...{% endcomment %}
                                             {{result.model|get_meta_value:"verbose_name"}}
                                         {% else %}
                                             {{result.model|get_meta_value:"verbose_name_plural"}}
@@ -58,11 +58,11 @@
                                         <th class="{% cycle "block_header_line_dark" "block_header_line_light" %}">{{field}}</th>
                                     {% endfor %}
                                 </tr>
-                                {% for res in entities %}
+                                {% for entity in entities %}
                                     <tr class="{% cycle "block_line_dark" "block_line_light" %} content">
-                                        <td class="action"><a href="{{res.get_absolute_url}}">{% trans 'Go to the page' %}</a></td>
+                                        <td class="action"><a href="{{entity.get_absolute_url}}" {% if entity.is_deleted %}class="is_deleted"{% endif %}>{% trans 'Go to the page' %}</a></td>
                                         {% for field in fields %}
-                                            <td>{% print_field object=res field=field.field %}</td>
+                                            <td>{% print_field object=entity field=field.field %}</td>
                                         {% endfor %}
                                     </tr>
                                 {% endfor %}
