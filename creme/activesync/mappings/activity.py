@@ -21,7 +21,7 @@
 from datetime import timedelta
 
 from django.conf import settings
-from django.utils.timezone import now
+from django.utils.timezone import now, make_aware, localtime, utc
 
 from creme.creme_core.models import Relation
 from creme.creme_core.utils.dates import get_dt_to_iso8601_str, get_dt_from_iso8601_str
@@ -174,12 +174,12 @@ def _set_meeting_from_data(meeting, data, user, folder):
 
 #    if not is_all_day:
     try:
-        meeting.start = get_dt_from_iso8601_str(start)
+        meeting.start = localtime(make_aware(get_dt_from_iso8601_str(start), utc))
     except (ValueError, TypeError):
         pass
 
     try:
-        meeting.end = get_dt_from_iso8601_str(end)
+        meeting.end = localtime(make_aware(get_dt_from_iso8601_str(end), utc))
     except (ValueError, TypeError):
         pass
 
