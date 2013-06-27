@@ -16,7 +16,7 @@
                 "fontSize": "9pt",
                 "textColor":  "black"
             },
-            "label": "{{report|verbose_abscissa:report.abscissa}}{% if report.type %} - {{verbose_report_graph_types|get_value:report.type}}{% endif %}",
+            "label": "{{report|verbose_abscissa:report.abscissa}}{% if report.type %} - {{verbose_report_graph_types|get_value:report.type}}{% if report.days %} ({{report.days}}){% endif %}{% endif %}",
             "labelOptions": {
                 "fontWeight": "bold",
                 "fontSize":   "10pt",
