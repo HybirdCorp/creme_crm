@@ -28,8 +28,7 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
 
         self.actions(element).each(function() {
             $(this).bind('click', function() {
-                self._handle_action(element, $(this));
-                return false;
+                return self._handle_action(element, $(this));
             });
         });
 

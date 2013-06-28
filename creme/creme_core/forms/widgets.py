@@ -160,7 +160,7 @@ class ActionButtonList(Widget):
                    'title': title,
                   }
 
-        return u"""<li><button class="ui-creme-actionbutton" name="%(name)s" title="%(title)s" alt="%(title)s" %(attr)s>
+        return u"""<li><button class="ui-creme-actionbutton" name="%(name)s" title="%(title)s" alt="%(title)s" type="button" %(attr)s>
                        %(label)s
                    </button></li>""" % context
 

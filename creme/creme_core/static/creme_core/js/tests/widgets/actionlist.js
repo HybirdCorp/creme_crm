@@ -13,7 +13,7 @@ function mock_actionlist_delegate(element, delegate)
 
 function mock_actionlist_add(element, options)
 {
-    var button = creme.widget.writeAttr($('<button/>').addClass('ui-creme-actionbutton'), options);
+    var button = creme.widget.writeAttr($('<button type="button"/>').addClass('ui-creme-actionbutton'), options);
     element.append($('<li/>').append(button));
 }
 
@@ -24,11 +24,11 @@ function assertAction(action, name, label, type, url, enabled)
     if (creme.object.isempty(action))
         return;
 
-    equal(action.attr('name'), name);
-    equal(action.attr('label'), label);
-    equal(action.attr('action'), type);
-    equal(action.attr('url'), url);
-    equal(action.attr('disabled') === undefined, enabled)
+    equal(action.attr('name'), name, 'action name');
+    equal(action.attr('label'), label, 'action label');
+    equal(action.attr('action'), type, 'action type');
+    equal(action.attr('url'), url, 'action url');
+    equal(action.is(':not([disabled])'), enabled, 'action disabled ' + name)
 }
 
 module("creme.widgets.actionlist.js", {
