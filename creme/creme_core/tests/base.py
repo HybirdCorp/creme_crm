@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+from os import remove as delete_file, listdir, makedirs
+from os import path as os_path
 from tempfile import NamedTemporaryFile
 
 from django.test import TestCase, TransactionTestCase
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.forms.formsets import BaseFormSet
@@ -34,7 +37,35 @@ class _AssertNoExceptionContext(object):
 
 
 class _CremeTestCase(object):
-    def login(self, is_superuser=True, allowed_apps=('creme_core',), creatable_models=None, admin_4_apps=()):
+    #NB: set this line in inherited classes to clean upload/documents directory in tearDown
+    #clean_files_in_teardown = True
+
+    @classmethod
+    def setUpClass(cls):
+        cls.documents_dir = documents_dir = os_path.join(settings.MEDIA_ROOT,
+                                                         'upload',
+                                                         'documents',
+                                                        )
+
+        if os_path.exists(documents_dir):
+            cls.existing_doc_files = set(listdir(documents_dir))
+        else:
+            makedirs(documents_dir, 0755)
+            cls.existing_doc_files = set()
+
+    def tearDown(self):
+        if not getattr(self, 'clean_files_in_teardown', False):
+            return
+
+        existing_files = self.existing_doc_files
+        dir_path = self.documents_dir
+
+        for filename in listdir(dir_path):
+            if filename not in existing_files:
+                delete_file(os_path.join(dir_path, filename))
+
+    def login(self, is_superuser=True, allowed_apps=('creme_core',),
+              creatable_models=None, admin_4_apps=()):
         password = 'test'
 
         superuser = User.objects.create(username='Kirika')
