@@ -66,6 +66,56 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         return rgraph
 
+    def _create_report_n_graph_with_date_range(self, report, days):
+
+        #TODO: we need a helper ReportGraph.create() ??
+        rgraph = ReportGraph.objects.create(user=self.user, report=report,
+                                            name=u"number of organisation created / 15 days",
+                                            abscissa='creation_date',
+                                            type=RGT_RANGE, days=days, is_count=True,
+                                           )
+
+        return rgraph
+
+    def test_fetch_with_date_range(self):
+        self.report_organisation = report = Report.objects.create(user=self.user,
+                                                     name=u"All organisations",
+                                                     ct=ContentType.objects.get_for_model(Organisation),
+                                                    )
+
+        rgraph = self._create_report_n_graph_with_date_range(report, 15)
+        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga(name='Target Orga1', creation_date='2013-06-01')
+        create_orga(name='Target Orga2', creation_date='2013-06-05')
+        create_orga(name='Target Orga3', creation_date='2013-06-14')
+        create_orga(name='Target Orga4', creation_date='2013-06-15')
+        create_orga(name='Target Orga5', creation_date='2013-06-16')
+        create_orga(name='Target Orga6', creation_date='2013-06-30')
+
+        x_asc, y_asc = rgraph.fetch()
+        self.assertEqual(len(y_asc), 2)
+        first_count = y_asc[0][0]
+        second_count = y_asc[1][0]
+        self.assertEqual(first_count, 4)
+        self.assertEqual(second_count, 2)
+
+        x_desc, y_desc = rgraph.fetch(None, 'DESC')
+        self.assertEqual(y_desc[0][0], 2)
+        self.assertEqual(y_desc[1][0], 4)
+
+
+        rgraph_one_day = self._create_report_n_graph_with_date_range(report, 1)
+        x_one_day, y_one_day = rgraph_one_day.fetch()
+        self.assertEqual(len(y_one_day), 30)
+        self.assertEqual(y_one_day[0][0], 1)
+        self.assertEqual(y_one_day[1][0], 0)
+        self.assertEqual(y_one_day[12][0], 0)
+        self.assertEqual(y_one_day[13][0], 1)
+        self.assertEqual(y_one_day[14][0], 1)
+        self.assertEqual(y_one_day[15][0], 1)
+        self.assertEqual(y_one_day[16][0], 0)
+        self.assertEqual(y_one_day[29][0], 1)
+
     def test_createview01(self):
         report = self.create_report()
 
