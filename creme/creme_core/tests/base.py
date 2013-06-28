@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+from tempfile import NamedTemporaryFile
 
 from django.test import TestCase, TransactionTestCase
 from django.contrib.auth.models import User
@@ -13,6 +14,8 @@ from ..management.commands.creme_populate import Command as PopulateCommand
 from ..utils.xml_utils import xml_diff, XMLDiffError
 from ..registry import creme_registry
 from .. import autodiscover
+
+from creme.media_managers.models import Image
 
 
 class _AssertNoExceptionContext(object):
@@ -237,6 +240,17 @@ class _CremeTestCase(object):
     def create_datetime(self, *args, **kwargs):
         tz = utc if kwargs.pop('utc', False) else get_current_timezone()
         return make_aware(datetime(*args, **kwargs), tz)
+
+    def create_image(self, ident=1):
+        tmpfile = NamedTemporaryFile()
+        tmpfile.width = tmpfile.height = 0
+        tmpfile._committed = True
+        tmpfile.path = 'upload/file_%s.jpg' % ident
+
+        return Image.objects.create(user=self.user, image=tmpfile,
+                                    name=u'Image #%s' % ident,
+                                    description=u"Desc"
+                                   )
 
     def get_object_or_fail(self, model, **kwargs):
         try:

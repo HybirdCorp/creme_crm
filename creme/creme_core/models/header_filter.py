@@ -262,11 +262,15 @@ class HeaderFilterItem(Model):  #CremeModel ???
 
         field = field_info[0]['field']
         has_a_filter = True
+        sortable = True
         pattern = "%s__icontains"
 
-        if isinstance(field, ForeignKey) :
+        if isinstance(field, ForeignKey):
             if len(field_info) == 1:
                 pattern = "%s"
+
+                if issubclass(field.rel.to, CremeEntity):
+                    pattern = '%s__header_filter_search_field__icontains'
             else:
                 field = field_info[1]['field'] #The sub-field is considered as the main field
 
@@ -274,18 +278,21 @@ class HeaderFilterItem(Model):  #CremeModel ???
             pattern = "%s__range"
         elif isinstance(field, BooleanField):
             pattern = "%s__creme-boolean"
-        elif isinstance(field, ManyToManyField) and len(field_info) > 1:
+        #elif isinstance(field, ManyToManyField) and len(field_info) > 1:
+        elif isinstance(field, ManyToManyField):
             #pattern = "%s__in"
-            has_a_filter = False
+            has_a_filter = False #TODO: manage like ForeignKey...
+            sortable = False
 
         return HeaderFilterItem(name=name,
-                                 title=u" - ".join(unicode(info['field'].verbose_name) for info in field_info),
-                                 type=HFI_FIELD,
-                                 has_a_filter=has_a_filter,
-                                 editable=True,
-                                 sortable=True,
-                                 filter_string=pattern % name
-                                )
+                                title=u" - ".join(unicode(info['field'].verbose_name) for info in field_info),
+                                type=HFI_FIELD,
+                                has_a_filter=has_a_filter,
+                                editable=True,
+                                #sortable=True,
+                                sortable=sortable,
+                                filter_string=pattern % name if has_a_filter else '',
+                               )
 
     @staticmethod
     def build_4_functionfield(func_field):

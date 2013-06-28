@@ -3,7 +3,7 @@
 try:
     from decimal import Decimal
     from functools import partial
-    from tempfile import NamedTemporaryFile
+    #from tempfile import NamedTemporaryFile
 
     from django.contrib.auth.models import User
     from django.contrib.contenttypes.models import ContentType
@@ -18,7 +18,7 @@ try:
 
     from creme.persons.models import Contact, Organisation, Civility
 
-    from creme.media_managers.models import Image, MediaCategory
+    from creme.media_managers.models import MediaCategory #Image
 
     from creme.activities.models import Activity, ActivityType, Status
     from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, ACTIVITYTYPE_MEETING
@@ -128,16 +128,16 @@ class EntityTestCase(CremeTestCase):
         self.assertEqual(len(pd1), len(pd2))
         self.assertEqual(set(pd1), set(pd2))
 
-    def _create_image(self, ident=1):
-        tmpfile = NamedTemporaryFile()
-        tmpfile.width = tmpfile.height = 0
-        tmpfile._committed = True
-        tmpfile.path = 'upload/file_%s.jpg' % ident
+    #def create_image(self, ident=1):
+        #tmpfile = NamedTemporaryFile()
+        #tmpfile.width = tmpfile.height = 0
+        #tmpfile._committed = True
+        #tmpfile.path = 'upload/file_%s.jpg' % ident
 
-        return Image.objects.create(user=self.user, image=tmpfile,
-                                    name=u'Image #%s' % ident,
-                                    description=u"Desc"
-                                   )
+        #return Image.objects.create(user=self.user, image=tmpfile,
+                                    #name=u'Image #%s' % ident,
+                                    #description=u"Desc"
+                                   #)
 
     def test_clone01(self):
         self._setUpClone()
@@ -181,7 +181,7 @@ class EntityTestCase(CremeTestCase):
         sasuke  = CremeEntity.objects.create(user=self.user)
         sakura  = CremeEntity.objects.create(user=self.user)
 
-        image = self._create_image()
+        image = self.create_image()
 
         naruto = Contact.objects.create(user=self.user, civility=civility,
                                         first_name=u'Naruto', last_name=u'Uzumaki',
@@ -296,7 +296,7 @@ class EntityTestCase(CremeTestCase):
         self.assertSameRelationsNProperties(activity1, activity2)
 
     def test_clone06(self):
-        image = self._create_image()
+        image = self.create_image()
         image.categories = MediaCategory.objects.all()
 
         image2 = image.clone()

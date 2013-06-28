@@ -116,6 +116,7 @@ class ListViewState(object):
         self._search = get_arg('_search') #TODO: rename to search ?? or add property
         self.sort_order = get_arg('sort_order')
         self.sort_field = get_arg('sort_field')
+        self._extra_sort_field = ''
         self.url = get_arg('url')
         self.research = ()
         self.extra_q = None
@@ -272,21 +273,51 @@ class ListViewState(object):
 
         return query
 
-    def set_sort(self, model, field_name, order):
+    #TODO: factorise with :
+    #       - template_tags_creme_listview.get_listview_columns_header
+    #       - HeaderFilterItem builders
+    #TODO: beware, sorting by FK simply sort by id (Civility etc...) => can we improve that ??
+    #def set_sort(self, model, field_name, order):
+    def set_sort(self, model, header_filter_items, field_name, order):
         "@param order string '' or '-'(reverse order)."
         sort_field = 'id'
+        # extra field that is used to internally create the final query the
+        # sort order is toggled by comparing sorting field and column name
+        # (if it's the same '' <-> '-'), so we can not merge this extra field
+        # in sort_field, or the toggling we never happen
+        # (hfi.name == sort_field # ==> hfi.name != sort_field +'XXX')
+        extra_sort_field = ''
 
         if field_name:
-            try:
-                model._meta.get_field(field_name)
-            except FieldDoesNotExist as e:
-                logger.warn('set_sort_field: %s', e)
-            else:
-                sort_field = field_name
+            #try:
+                #field = model._meta.get_field(field_name)
+            #except FieldDoesNotExist as e:
+                #logger.warn('ListViewState.set_sort(): %s', e)
+            #else:
+                #sort_field = field_name
+            if field_name != 'id': #avoids annoying log ('id' can not be related to a column)
+                for hfi in header_filter_items:
+                    if hfi.name == field_name:
+                        if hfi.sortable:
+                            sort_field = field_name
+
+                            if hfi.filter_string.endswith('__header_filter_search_field__icontains'):
+                                extra_sort_field = '__header_filter_search_field'
+
+                        break
+                else:
+                    logger.warn('ListViewState.set_sort(): can not sort with field "%s"',
+                                field_name
+                               )
         else:
             ordering = model._meta.ordering
             if ordering:
                 sort_field = ordering[0]
 
         self.sort_field = sort_field
+        self._extra_sort_field = extra_sort_field
         self.sort_order = order if order == '-' else ''
+
+    def sort_query(self, queryset):
+        "Beware: you should have called set_sort() before"
+        return queryset.order_by(''.join((self.sort_order, self.sort_field, self._extra_sort_field)))

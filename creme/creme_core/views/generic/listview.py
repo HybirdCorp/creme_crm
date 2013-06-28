@@ -60,9 +60,13 @@ def _build_entity_queryset(request, model, list_view_state, extra_q, entity_filt
     #TODO: method in ListViewState that returns the improved queryset
     queryset = queryset.filter(list_view_state.get_q_with_research(model, header_filter.items))
 
-    return EntityCredentials.filter(request.user, queryset) \
-                            .distinct() \
-                            .order_by("%s%s" % (list_view_state.sort_order, list_view_state.sort_field))
+    #return EntityCredentials.filter(request.user, queryset) \
+                            #.distinct() \
+                            #.order_by("%s%s" % (list_view_state.sort_order, list_view_state.sort_field))
+    queryset = EntityCredentials.filter(request.user, queryset).distinct()
+    queryset = list_view_state.sort_query(queryset)
+
+    return queryset
 
 def _build_entities_page(request, list_view_state, queryset, size):
     paginator = Paginator(queryset, size)
@@ -126,7 +130,10 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
     header_filters = HeaderFilterList(ct)
     #Try first to get the posted header filter which is the most recent.
     #Then try to retrieve the header filter from session, then fallback
-    hf = header_filters.select_by_id(POST_get('hfilter', -1), current_lvs.header_filter_id, hf_pk)
+    hf = header_filters.select_by_id(POST_get('hfilter', -1),
+                                     current_lvs.header_filter_id,
+                                     hf_pk,
+                                    )
 
     if hf is None:
         raise NoHeaderFilterAvailable()
@@ -135,7 +142,7 @@ def list_view_content(request, model, hf_pk='', extra_dict=None,
 
     hf.build_items(show_actions)
     current_lvs.handle_research(request, hf.items)
-    current_lvs.set_sort(model,
+    current_lvs.set_sort(model, hf.items,
                          POST_get('sort_field', current_lvs.sort_field),
                          POST_get('sort_order', current_lvs.sort_order),
                         )
