@@ -140,7 +140,7 @@ class ReportGraph(CremeEntity):
         elif gtype == RGT_RANGE: #TODO: unit test
             min_date = entities.aggregate(min_date=Min(abscissa)).get('min_date')
             max_date = entities.aggregate(max_date=Max(abscissa)).get('max_date')
-            days = timedelta(self.days or 1)
+            days = timedelta((self.days or 1) - 1)
 
             if min_date is not None and max_date is not None:
                 #TODO: factorise the 2 'while' loops
@@ -158,7 +158,7 @@ class ReportGraph(CremeEntity):
                         else:
                             y_append([sub_entities.aggregate(aggregate_col).get(ordinate), url])
 
-                        min_date = end
+                        min_date = end + timedelta(days=1)
                 else:
                     while max_date >= min_date:
                         begin = max_date
@@ -173,7 +173,7 @@ class ReportGraph(CremeEntity):
                         else:
                             y_append([sub_entities.aggregate(aggregate_col).get(ordinate), url])
 
-                        max_date = end
+                        max_date = end - timedelta(days=1)
         elif gtype == RGT_FK:
             _fks_model = entities.model._meta.get_field(abscissa).rel.to
             _fks = _fks_model.objects.all() #TODO: rename
