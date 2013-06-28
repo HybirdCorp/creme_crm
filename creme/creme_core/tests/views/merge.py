@@ -3,7 +3,7 @@
 try:
     from datetime import timedelta
     from functools import partial
-    from tempfile import NamedTemporaryFile
+    #from tempfile import NamedTemporaryFile
 
     from django.utils.translation import ugettext as _
 
@@ -15,7 +15,7 @@ try:
                             TYPE_SYM_REL_DEL, TYPE_PROP_ADD, TYPE_PROP_DEL)
     from .base import ViewsTestCase
 
-    from creme.media_managers.models import Image
+    #from creme.media_managers.models import Image
 
     from creme.persons.models import Organisation, Contact
 except Exception as e:
@@ -40,16 +40,16 @@ class MergeViewsTestCase(ViewsTestCase):
         mdate = entity.modified - timedelta(hours=hours_delta)
         entity.__class__.objects.filter(pk=entity.pk).update(modified=mdate)
 
-    def _create_image(self, ident=1): #TODO factorise ? (see tests.models.entity._create_image)
-        tmpfile = NamedTemporaryFile()
-        tmpfile.width = tmpfile.height = 0
-        tmpfile._committed = True
-        tmpfile.path = 'upload/file_%s.jpg' % ident
+    #def create_image(self, ident=1):
+        #tmpfile = NamedTemporaryFile()
+        #tmpfile.width = tmpfile.height = 0
+        #tmpfile._committed = True
+        #tmpfile.path = 'upload/file_%s.jpg' % ident
 
-        return Image.objects.create(user=self.user, image=tmpfile,
-                                    name=u'Image #%s' % ident,
-                                    description=u"Desc"
-                                   )
+        #return Image.objects.create(user=self.user, image=tmpfile,
+                                    #name=u'Image #%s' % ident,
+                                    #description=u"Desc"
+                                   #)
 
     def test_select_entity_for_merge01(self):
         self.login()
@@ -222,9 +222,9 @@ class MergeViewsTestCase(ViewsTestCase):
         "2 Contacts, M2M, foreign key to CremeEntities"
         self.login()
 
-        image1 = self._create_image(ident=1)
-        image2 = self._create_image(ident=2)
-        self._create_image(ident=3) #image3 should not be proposed by the form
+        image1 = self.create_image(ident=1)
+        image2 = self.create_image(ident=2)
+        self.create_image(ident=3) #image3 should not be proposed by the form
 
         user = self.user
         create_contact = partial(Contact.objects.create, user=user)
@@ -305,7 +305,7 @@ class MergeViewsTestCase(ViewsTestCase):
         "Nullable foreign key to CremeEntities"
         self.login()
 
-        image = self._create_image()
+        image = self.create_image()
 
         create_contact = partial(Contact.objects.create, user=self.user)
         contact01 = create_contact(first_name='Makoto', last_name='Kosaka', image=image)

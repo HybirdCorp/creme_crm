@@ -63,16 +63,18 @@ def dl_listview(request, ct_id, doc_type, header_only=False):
     if not header_only:
         current_lvs.handle_research(request, columns)
 
-        sort_order = current_lvs.sort_order or ''
-        sort_field = current_lvs.sort_field
+        #sort_order = current_lvs.sort_order or ''
+        #sort_field = current_lvs.sort_field
 
-        if not sort_field:
-            try:  # TODO: 'if model._meta.ordering' instead ????
-                sort_field = model._meta.ordering[0]
-            except IndexError:
-                sort_field = 'id'
+        #if not sort_field:
+            #try:  # TODO: 'if model._meta.ordering' instead ????
+                #sort_field = model._meta.ordering[0]
+            #except IndexError:
+                #sort_field = 'id'
+        current_lvs.set_sort(model, columns, current_lvs.sort_field, current_lvs.sort_order)
 
-        entities = model.objects.filter(Q(is_deleted=False) | Q(is_deleted=None))
+        entities = model.objects.filter(Q(is_deleted=False) | Q(is_deleted=None)) \
+                                .distinct()
         efilter_id = current_lvs.entity_filter_id
 
         if efilter_id:
@@ -84,7 +86,8 @@ def dl_listview(request, ct_id, doc_type, header_only=False):
 
         entities = entities.filter(current_lvs.get_q_with_research(model, columns))
         entities = EntityCredentials.filter(request.user, entities)
-        entities = entities.distinct().order_by("%s%s" % (sort_order, sort_field))  # distinct ???
+        #entities = entities.distinct().order_by("%s%s" % (sort_order, sort_field))  # distinct ???
+        entities = current_lvs.sort_query(entities)
 
         for entities_slice in iter_as_slices(entities, 256):
             hf.populate_entities(entities_slice, user)  # optimisation time !!!

@@ -39,7 +39,7 @@ class MailingListsTestCase(_EmailsTestCase):
 
     def test_edit(self):
         name = 'my_mailinglist'
-        mlist = MailingList.objects.create(user=self.user,   name=name)
+        mlist = MailingList.objects.create(user=self.user, name=name)
         url = '/emails/mailing_list/edit/%s' % mlist.id
         self.assertGET200(url)
 

@@ -14,10 +14,12 @@ try:
     from creme.creme_core.utils import safe_unicode
     from .base import ViewsTestCase
 
-    from creme.persons.models import Organisation, Contact
+    from creme.persons.models import Organisation, Contact, Civility
 
     from creme.billing.models import Invoice, InvoiceStatus, Line, ProductLine, ServiceLine
     from creme.billing.models.line import PRODUCT_LINE_TYPE, SERVICE_LINE_TYPE
+
+    from creme.emails.models import EmailCampaign
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -31,6 +33,7 @@ class ListViewTestCase(ViewsTestCase):
         cls.populate('creme_core', 'creme_config', 'billing')
         cls.url = Organisation.get_lv_absolute_url()
         cls.ctype = ContentType.objects.get_for_model(Organisation)
+        Civility.objects.all().delete()
 
     def assertFound(self, x, string): #TODO: in CremeTestCase ??
         idx = string.find(x)
@@ -131,12 +134,12 @@ class ListViewTestCase(ViewsTestCase):
 
         self._build_hf()
 
-        def post(first, second, sort_order=None, sort_field='name'):
-            data = {'sort_field': sort_field}
-            if sort_order:
-                data['sort_order'] = sort_order
-
-            response = self.assertPOST200(self.url, data=data)
+        def post(first, second, sort_order='', sort_field='name'):
+            response = self.assertPOST200(self.url,
+                                          data={'sort_field': sort_field,
+                                                'sort_order': sort_order,
+                                               }
+                                         )
             content = self._get_lv_content(response)
             first_idx = self.assertFound(first.name, content)
             second_idx = self.assertFound(second.name, content)
@@ -146,6 +149,104 @@ class ListViewTestCase(ViewsTestCase):
         post(swordfish, bebop, '-')
         post(bebop, swordfish, '*') #invalid value
         post(bebop, swordfish, sort_field='unknown') #invalid value
+
+    def test_order02(self):
+        "Sort by ForeignKey"
+        self.login()
+
+        try:
+            bool(Contact.objects.order_by('image'))
+        except:
+            pass
+        else:
+            self.fail('ORM bug has been fixed ?! => reactivate FK on CremeEntity sorting')
+
+        create_civ = Civility.objects.create
+        mister = create_civ(title='Mister')
+        miss   = create_civ(title='Miss')
+        self.assertLess(mister.id, miss.id)
+
+        create_contact = partial(Contact.objects.create, user=self.user)
+        spike = create_contact(first_name='Spike',  last_name='Spiegel',   civility=mister)
+        faye  = create_contact(first_name='Faye',   last_name='Valentine', civility=miss)
+        ed    = create_contact(first_name='Edward', last_name='Wong')
+
+        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact)
+
+        build_hfi = partial(HeaderFilterItem.build_4_field, model=Contact)
+        hfi_image    = build_hfi(name='image')
+        hfi_img_name = build_hfi(name='image__name')
+        hfi_civ      = build_hfi(name='civility')
+        hfi_civ_name = build_hfi(name='civility__title')
+
+        self.assertTrue(hfi_civ.sortable)
+        #self.assertFalse(hfi_image.sortable)
+        self.assertTrue(hfi_image.sortable)
+        self.assertTrue(hfi_img_name.sortable)
+        self.assertTrue(hfi_civ_name.sortable)
+
+        hf.set_items([build_hfi(name='last_name'),
+                      hfi_image, hfi_img_name,
+                      hfi_civ, hfi_civ_name,
+                     ])
+
+        url = Contact.get_lv_absolute_url()
+
+        #---------------------------------------------------------------------
+        response = self.assertPOST200(url, data={'hfilter': hf.id})
+
+        with self.assertNoException():
+            selected_hf = response.context['header_filters'].selected
+
+        self.assertEqual(hf, selected_hf)
+
+        #---------------------------------------------------------------------
+        #FK on CremeEntity we just check that it does not crash
+        self.assertPOST200(url, data={'sort_field': 'image'})
+
+        #---------------------------------------------------------------------
+
+        def post(field_name, reverse, *contacts):
+            response = self.assertPOST200(url,
+                                          data={'sort_field': field_name,
+                                                'sort_order': '-' if reverse else '',
+                                               }
+                                         )
+            content = self._get_lv_content(response)
+            indices = [self.assertFound(c.last_name, content)
+                        for c in contacts
+                      ]
+            self.assertEqual(indices, sorted(indices))
+
+        post('civility', False, ed, spike, faye) #Beware: sorting is done by id
+        post('civility', True, faye, spike, ed)
+        post('civility__title', False, ed, faye, spike)
+        post('civility__title', True, spike, faye, ed)
+
+    def test_order03(self):
+        "Unsortable fields: ManyToMany, FunctionFields"
+        self.login()
+
+        #bug on ORM with M2M happens only if there is at least one entity
+        EmailCampaign.objects.create(user=self.user, name='Camp01')
+
+        fname = 'mailing_lists'
+        func_field = EmailCampaign.function_fields.get('get_pretty_properties')
+
+        hf = HeaderFilter.create(pk='test-hf_camp', name='Campaign view',
+                                 model=EmailCampaign,
+                                )
+        build_hfi = partial(HeaderFilterItem.build_4_field, model=EmailCampaign)
+
+        hf.set_items([build_hfi(name='name'),
+                      build_hfi(name=fname),
+                      HeaderFilterItem.build_4_functionfield(func_field),
+                     ])
+
+        url = EmailCampaign.get_lv_absolute_url()
+        #we just check that it does not crash
+        self.assertPOST200(url, data={'sort_field': fname})
+        self.assertPOST200(url, data={'sort_field': func_field.name})
 
     def test_efilter01(self):
         self.login()
@@ -274,6 +375,103 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
+
+    def test_search_fk(self):
+        self.login()
+
+        create_civ = Civility.objects.create
+        mister = create_civ(title='Mister')
+        miss   = create_civ(title='Miss')
+        self.assertLess(mister.id, miss.id)
+
+        img_faye = self.create_image(ident=1)
+        img_ed   = self.create_image(ident=2)
+
+        create_contact = partial(Contact.objects.create, user=self.user)
+        spike = create_contact(first_name='Spike',  last_name='Spiegel',   civility=mister)
+        faye  = create_contact(first_name='Faye',   last_name='Valentine', civility=miss, image=img_faye)
+        ed    = create_contact(first_name='Edward', last_name='Wong',                     image=img_ed)
+
+        hf = HeaderFilter.create(pk='test-hf_contact', name='Order02 view', model=Contact)
+
+        build_hfi = partial(HeaderFilterItem.build_4_field, model=Contact)
+        hfi_image    = build_hfi(name='image')
+        hfi_img_name = build_hfi(name='image__name')
+        hfi_civ      = build_hfi(name='civility')
+        hfi_civ_name = build_hfi(name='civility__title')
+
+        self.assertTrue(hfi_civ.has_a_filter)
+        self.assertTrue(hfi_civ_name.has_a_filter)
+        self.assertTrue(hfi_img_name.has_a_filter)
+        self.assertTrue(hfi_image.has_a_filter)
+        self.assertEqual('image__name__icontains', hfi_img_name.filter_string)
+        self.assertEqual('image__header_filter_search_field__icontains',
+                         hfi_image.filter_string
+                        )
+
+        hf.set_items([build_hfi(name='last_name'),
+                      hfi_image, hfi_img_name,
+                      hfi_civ, hfi_civ_name,
+                     ])
+
+        url = Contact.get_lv_absolute_url()
+
+        #---------------------------------------------------------------------
+        response = self.assertPOST200(url, data={'hfilter': hf.id})
+
+        with self.assertNoException():
+            selected_hf = response.context['header_filters'].selected
+
+        self.assertEqual(hf, selected_hf)
+
+        #---------------------------------------------------------------------
+        data = {'_search': 1}
+        response = self.assertPOST200(url, data=dict(data, civility=mister.id))
+        content = self._get_lv_content(response)
+        self.assertIn(spike.last_name,   content)
+        self.assertNotIn(faye.last_name, content)
+        self.assertNotIn(ed.last_name,   content)
+
+        #---------------------------------------------------------------------
+        response = self.assertPOST200(url, data=dict(data, civility__title='iss'))
+        content = self._get_lv_content(response)
+        self.assertNotIn(spike.last_name, content)
+        self.assertIn(faye.last_name,     content)
+        self.assertNotIn(ed.last_name,    content)
+
+        #---------------------------------------------------------------------
+        response = self.assertPOST200(url, data=dict(data, image__name=img_ed.name))
+        content = self._get_lv_content(response)
+        self.assertNotIn(spike.last_name, content)
+        self.assertNotIn(faye.last_name,  content)
+        self.assertIn(ed.last_name,       content)
+
+        #---------------------------------------------------------------------
+        response = self.assertPOST200(url, data=dict(data, image=img_ed.name))
+        content = self._get_lv_content(response)
+        self.assertNotIn(spike.last_name, content)
+        self.assertNotIn(faye.last_name,  content)
+        self.assertIn(ed.last_name,       content)
+
+    def test_search_m2mfields01(self):
+        self.login()
+        hf = HeaderFilter.create(pk='test-hf_camp', name='Campaign view',
+                                 model=EmailCampaign,
+                                )
+        build_hfi = partial(HeaderFilterItem.build_4_field, model=EmailCampaign)
+
+        hfi_m2m = build_hfi(name='mailing_lists')
+        self.assertFalse(hfi_m2m.has_a_filter)
+        self.assertEqual('', hfi_m2m.filter_string)
+
+        hf.set_items([build_hfi(name='name'), hfi_m2m])
+
+        #we just check that it does not crash
+        self.assertPOST200(EmailCampaign.get_lv_absolute_url(),
+                           data={'_search':       1,
+                                 'mailing_lists': 'MLname',
+                                }
+                          )
 
     def test_search_relations01(self):
         self.login()

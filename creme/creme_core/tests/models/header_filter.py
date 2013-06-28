@@ -87,10 +87,18 @@ class HeaderFiltersTestCase(CremeTestCase):
         hfi = HeaderFilterItem.build_4_field(model=Contact, name='position')
         self.assertEqual('position', hfi.filter_string)
 
+        hfi = HeaderFilterItem.build_4_field(model=Contact, name='image')
+        self.assertEqual('image__header_filter_search_field__icontains',
+                         hfi.filter_string
+                        )
+
     def test_build_4_field05(self):
         "Basic ForeignKey subfield"
         hfi = HeaderFilterItem.build_4_field(model=Contact, name='position__title')
         self.assertEqual('position__title__icontains', hfi.filter_string)
+
+        hfi = HeaderFilterItem.build_4_field(model=Contact, name='image__name')
+        self.assertEqual('image__name__icontains', hfi.filter_string)
 
     def test_build_4_field06(self):
         "Date ForeignKey subfield"
@@ -101,7 +109,9 @@ class HeaderFiltersTestCase(CremeTestCase):
     def test_build_4_field07(self):
         "ManyToMany"
         hfi = HeaderFilterItem.build_4_field(model=Contact, name='language')
-        self.assertIs(hfi.has_a_filter, True)
+        #self.assertIs(hfi.has_a_filter, True)
+        self.assertIs(hfi.has_a_filter, False)
+        self.assertIs(hfi.sortable, False)
 
         hfi = HeaderFilterItem.build_4_field(model=Contact, name='language__name')
         self.assertIs(hfi.has_a_filter, False)

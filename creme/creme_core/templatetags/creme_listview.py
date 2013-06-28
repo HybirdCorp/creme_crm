@@ -48,7 +48,7 @@ def get_listview_entity_filters(context):
 
     if efilter:
         efilter_id = efilter.id
-        permission = efilter.can_edit_or_delete(context['request'].user)[0]
+        permission = efilter.can_edit_or_delete(context['request'].user)[0] #TODO: context['user'] ??
     else:
         efilter_id = 0
         permission = False
@@ -65,7 +65,7 @@ def get_listview_headerfilters(context):
     hfilter  = hfilters.selected
 
     context['hfilter'] = hfilter
-    context['can_edit_or_delete'] = hfilter.can_edit_or_delete(context['request'].user)[0]
+    context['can_edit_or_delete'] = hfilter.can_edit_or_delete(context['request'].user)[0] #TODO: context['user'] ??
     context['select_values'] = [{'value': hf.id, 'text': hf.name} for hf in hfilters]
 
     return context
@@ -121,7 +121,7 @@ def get_listview_columns_header(context):
                 if field_name.find('__') > -1:
                     field = None
                     sub_field_obj = get_model_field_info(model, field_name)[1]['field']
-                    if isinstance(sub_field_obj, (models.DateField, models.DateTimeField, models.BooleanField)):
+                    if isinstance(sub_field_obj, (models.DateField, models.DateTimeField, models.BooleanField)): #TODO: DateTimeField useful ??
                         field = sub_field_obj
                 else:
                     field = get_model_field(field_name)
@@ -129,17 +129,21 @@ def get_listview_columns_header(context):
                 continue
 
             if isinstance(field, models.ForeignKey):
-                if isinstance(field, EntityCTypeForeignKey):
-                    choices = build_ct_choices(creme_entity_content_types())
+                if item.filter_string.endswith('__header_filter_search_field__icontains'):
+                    if item_value:
+                        widget_ctx['value'] = item_value[0]
                 else:
-                    choices = ((o.id, o)
-                                    for o in field.rel.to.objects.distinct()
-                                        if unicode(o) != ""
-                              )
-                _build_select_search_widget(widget_ctx, item_value, choices)
+                    if isinstance(field, EntityCTypeForeignKey):
+                        choices = build_ct_choices(creme_entity_content_types())
+                    else:
+                        choices = ((o.id, o)
+                                        for o in field.rel.to.objects.distinct()
+                                            if unicode(o) != ""
+                                  )
+                    _build_select_search_widget(widget_ctx, item_value, choices)
             elif isinstance(field, models.BooleanField):
                 _build_bool_search_widget(widget_ctx, item_value)
-            elif isinstance(field, (models.DateField, models.DateTimeField)):
+            elif isinstance(field, (models.DateField, models.DateTimeField)): #TODO: DateTimeField useful ??
                 _build_date_search_widget(widget_ctx, item_value)
             elif item_value:
                 widget_ctx['value'] = item_value[0]
@@ -157,7 +161,9 @@ def get_listview_columns_header(context):
             field_type = cf.field_type
 
             if field_type in (CustomField.ENUM, CustomField.MULTI_ENUM):
-                _build_select_search_widget(widget_ctx, item_value, cf.customfieldenumvalue_set.values_list('id', 'value'))
+                _build_select_search_widget(widget_ctx, item_value,
+                                            cf.customfieldenumvalue_set.values_list('id', 'value')
+                                           )
             elif field_type == CustomField.DATETIME:
                 _build_date_search_widget(widget_ctx, item_value)
             elif field_type == CustomField.BOOL:
