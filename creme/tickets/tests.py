@@ -23,12 +23,9 @@ except Exception as e:
 class TicketTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
     @classmethod
     def setUpClass(cls):
-        CSVImportBaseTestCaseMixin.setUpClass()
+        CremeTestCase.setUpClass()
         #cls.populate('creme_core', 'creme_config', 'tickets')
         cls.populate('creme_config', 'tickets')
-
-    def tearDown(self):
-        CSVImportBaseTestCaseMixin.tearDown(self)
 
     def _build_edit_url(self, ticket):
         return '/tickets/ticket/edit/%s' % ticket.pk

@@ -21,14 +21,6 @@ __all__ = ('OrganisationTestCase',)
 
 
 class OrganisationTestCase(_BaseTestCase, CSVImportBaseTestCaseMixin):
-    @classmethod
-    def setUpClass(cls):
-        _BaseTestCase.setUpClass()
-        CSVImportBaseTestCaseMixin.setUpClass()
-
-    def tearDown(self):
-        CSVImportBaseTestCaseMixin.tearDown(self)
-
     def test_createview01(self):
         self.login()
 

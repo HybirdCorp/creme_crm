@@ -2,12 +2,9 @@
 
 try:
     from tempfile import NamedTemporaryFile
-    from os import remove as delete_file, listdir, makedirs
-    from os import path as os_path
 
     from django.utils.translation import ugettext as _
     from django.utils.unittest.case import skipIf
-    from django.conf import settings
     from django.contrib.contenttypes.models import ContentType
 
     from creme.creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation
@@ -32,26 +29,7 @@ __all__ = ('CSVImportViewsTestCase', )
 
 
 class CSVImportBaseTestCaseMixin(object):
-    @classmethod
-    def setUpClass(cls):
-        cls.documents_dir = documents_dir = os_path.join(settings.MEDIA_ROOT,
-                                                         'upload',
-                                                         'documents',
-                                                        )
-
-        if os_path.exists(documents_dir):
-            cls.existing_doc_files = set(listdir(documents_dir))
-        else:
-            makedirs(documents_dir, 0755)
-            cls.existing_doc_files = set()
-
-    def tearDown(self):
-        existing_files = self.existing_doc_files
-        dir_path = self.documents_dir
-
-        for filename in listdir(dir_path):
-            if filename not in existing_files:
-                delete_file(os_path.join(dir_path, filename))
+    clean_files_in_teardown = True #see CremeTestCase
 
     def _build_file(self, content, extension=None):
         tmpfile = NamedTemporaryFile(suffix=".%s" % extension if extension else '')
@@ -109,7 +87,7 @@ class CSVImportBaseTestCaseMixin(object):
 class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
     @classmethod
     def setUpClass(cls):
-        CSVImportBaseTestCaseMixin.setUpClass()
+        ViewsTestCase.setUpClass()
 
         cls.populate('creme_core', 'creme_config')
 
@@ -152,9 +130,6 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
             'billaddr_country_colselect':    0,  'shipaddr_country_colselect':    0,
             'billaddr_department_colselect': 0,  'shipaddr_department_colselect': 0,
         }
-
-    def tearDown(self):
-        CSVImportBaseTestCaseMixin.tearDown(self)
 
     def _dyn_relations_value(self, rtype, model, column, subfield):
         return '[{"rtype":"%(rtype)s","ctype":"%(ctype)s",' \

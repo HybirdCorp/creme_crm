@@ -9,6 +9,7 @@ class _BaseTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
+        CremeTestCase.setUpClass()
         cls.populate('creme_core', 'creme_config', 'persons')
         cls.autodiscover()
 

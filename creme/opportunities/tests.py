@@ -41,7 +41,7 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
     @classmethod
     def setUpClass(cls):
-        CSVImportBaseTestCaseMixin.setUpClass()
+        CremeTestCase.setUpClass()
         #cls.populate('creme_core', 'creme_config', 'documents',
                      #'persons', 'commercial', 'billing',
                      #'activities', 'opportunities',
@@ -83,9 +83,6 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
                              #'fixed_relations',
                              #'dyn_relations',
                             }
-
-    def tearDown(self):
-        CSVImportBaseTestCaseMixin.tearDown(self)
 
     def _genericfield_format_entity(self, entity):
         return '{"ctype":"%s", "entity":"%s"}' % (entity.entity_type_id, entity.id)

@@ -43,6 +43,7 @@ class ActivityFakeBackend(CrudityBackend):
 class CrudityTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
+        CremeTestCase.setUpClass()
         cls.populate('creme_core', 'creme_config', 'crudity')
 
     def setUp(self):
