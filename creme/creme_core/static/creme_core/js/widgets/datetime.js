@@ -26,6 +26,7 @@ creme.widget.DatePicker = creme.widget.declare('ui-creme-datepicker', {
         var self = this;
         var parent = element.parent()
         var today = $('<button>').attr('name', 'today').html(gettext('Today'))
+                                 .attr('type', 'button')
                                  .bind('click', function(e) {
                                                      element.datepicker('setDate', new Date());
                                                      return false;
