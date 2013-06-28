@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-05-16 14:51+0200\n"
+"POT-Creation-Date: 2013-06-28 18:14+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -243,7 +243,7 @@ msgstr "Fin"
 
 #: forms/activity.py:57
 msgid "Default duration of the type will be used if you leave blank."
-msgstr "La durée par défaut du type sera utilisé si vous laissez vide."
+msgstr "La durée par défaut du type sera utilisée si vous laissez vide."
 
 #: forms/activity.py:59
 msgid "End time"
@@ -312,7 +312,7 @@ msgid ""
 "Your alert will be raised X units (X = Value) before the start of the "
 "activity"
 msgstr ""
-"Votre alerte sera déclenchée dans X unité(s) (X = Valeur) avant le début de "
+"Votre alerte sera déclenchée X unité(s) (X = Valeur) avant le début de "
 "l'activité"
 
 #: forms/activity.py:229

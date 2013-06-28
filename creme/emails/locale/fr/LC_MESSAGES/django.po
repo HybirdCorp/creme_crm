@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'EMAILS' APP
-# Copyright (C) 2012 Hybird
+# Copyright (C) 2013 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin.py makemessages -l fr -e html -i tests.py
+# > django-admin.py makemessages -l fr -e html -i "tests/*"
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Emails 1.2\n"
+"Project-Id-Version: Creme Emails 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-04-19 14:22+0200\n"
+"POT-Creation-Date: 2013-06-28 18:14+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -163,7 +163,7 @@ msgstr "(e-mail) a été reçu par"
 
 #: populate.py:46
 msgid "received the email"
-msgstr "a reçu le e-mail"
+msgstr "a reçu l'e-mail"
 
 #: populate.py:47
 msgid "(email) sended"
@@ -171,7 +171,7 @@ msgstr "(e-mail) a été envoyé"
 
 #: populate.py:48
 msgid "sended the email"
-msgstr "a envoyé le e-mail"
+msgstr "a envoyé l'e-mail"
 
 #: populate.py:49
 msgid "(email) related to"
