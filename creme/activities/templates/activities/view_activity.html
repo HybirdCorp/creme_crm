@@ -2,4 +2,4 @@
 {% load creme_widgets activities_tags %}
 
 {% block logo %}{% get_activity_icon object.type.pk %}{% endblock %}
-{% block title %}{{object.type.name}} : {{object|title}}{% endblock %}
+{% block title %}{{object.type.name}} : {{object|capfirst}}{% endblock %}

@@ -27,7 +27,7 @@
         <tr>
             <td class="logo">{% get_image_for_object object 'big' %}</td>
             <td class="title">
-                <h1>{{object|get_meta_value:"verbose_name"|title}} : {{object|title}}</h1>
+                <h1>{{object|get_meta_value:"verbose_name"|capfirst}} : {{object|capfirst}}</h1>
             </td>
             <td class="actions"></td>
         </tr>

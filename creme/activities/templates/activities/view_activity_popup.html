@@ -7,7 +7,7 @@
         <td width="70%">
             <h1>
                 {% block title %}
-                    {{object.type.name}} : {{object|title}}
+                    {{object.type.name}} : {{object|capfirst}}
                 {% endblock %}
             </h1>
         </td>
