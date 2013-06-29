@@ -49,7 +49,7 @@
                 <td width="70%">
                     <h1>
                         {% block title %}
-                            {{object|get_meta_value:"verbose_name"|title}} : {{object|title}}{% if object.is_deleted %} [{% trans "deleted" %}]{% endif %}
+                            {{object|get_meta_value:"verbose_name"|capfirst}} : {{object|capfirst}}{% if object.is_deleted %} [{% trans "deleted" %}]{% endif %}
                         {% endblock %}
                     </h1>
                 </td>
