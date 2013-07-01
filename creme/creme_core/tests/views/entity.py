@@ -808,38 +808,39 @@ class BulkEditTestCase(_BulkEditTestCase):
         self.assertEqual(birthday, self.refresh(mario).birthday)
         self.assertEqual(birthday, self.refresh(luigi).birthday)
 
-    def test_regular_field09(self):
-        self.login(is_superuser=False, allowed_apps=('creme_core', 'persons', 'media_managers'))
+    #TODO: uncomment this test when image is bulk-updatable once again
+    #def test_regular_field09(self):
+        #self.login(is_superuser=False, allowed_apps=('creme_core', 'persons', 'media_managers'))
 
-        create_bros = partial(Contact.objects.create, last_name='Bros')
-        mario = create_bros(user=self.other_user, first_name='Mario', description=u"Luigi's brother")
-        luigi = create_bros(user=self.user,       first_name='Luigi', description="Mario's brother")
+        #create_bros = partial(Contact.objects.create, last_name='Bros')
+        #mario = create_bros(user=self.other_user, first_name='Mario', description=u"Luigi's brother")
+        #luigi = create_bros(user=self.user,       first_name='Luigi', description="Mario's brother")
 
-        tmpfile = NamedTemporaryFile()
-        tmpfile.width = tmpfile.height = 0
-        tmpfile._committed = True
+        #tmpfile = NamedTemporaryFile()
+        #tmpfile.width = tmpfile.height = 0
+        #tmpfile._committed = True
 
-        create_img = partial(Image.objects.create, image=tmpfile)
-        unallowed = create_img(user=self.other_user, name='unallowed')
-        allowed   = create_img(user=self.user,       name='allowed')
+        #create_img = partial(Image.objects.create, image=tmpfile)
+        #unallowed = create_img(user=self.other_user, name='unallowed')
+        #allowed   = create_img(user=self.user,       name='allowed')
 
-        url = self._build_url(mario.id, luigi.id)
-        response = self.client.post(url, data={'field_name':      'image',
-                                               'field_value':     unallowed.id,
-                                               'entities_lbl':    'whatever',
-                                               'bad_entities_lbl':'whatever',
-                                              }
-                                   )
-        self.assertFormError(response, 'form', None, [_(u"You can't view this value, so you can't set it.")])
+        #url = self._build_url(mario.id, luigi.id)
+        #response = self.client.post(url, data={'field_name':      'image',
+                                               #'field_value':     unallowed.id,
+                                               #'entities_lbl':    'whatever',
+                                               #'bad_entities_lbl':'whatever',
+                                              #}
+                                   #)
+        #self.assertFormError(response, 'form', None, [_(u"You can't view this value, so you can't set it.")])
 
-        self.client.post(url, data={'field_name':       'image',
-                                    'field_value':      allowed.id,
-                                    'entities_lbl':     'whatever',
-                                    'bad_entities_lbl': 'whatever',
-                                   }
-                        )
-        self.assertNotEqual(allowed, self.refresh(mario).image)
-        self.assertEqual(allowed,    self.refresh(luigi).image)
+        #self.client.post(url, data={'field_name':       'image',
+                                    #'field_value':      allowed.id,
+                                    #'entities_lbl':     'whatever',
+                                    #'bad_entities_lbl': 'whatever',
+                                   #}
+                        #)
+        #self.assertNotEqual(allowed, self.refresh(mario).image)
+        #self.assertEqual(allowed,    self.refresh(luigi).image)
 
     def test_custom_field01(self):
         self.login()
