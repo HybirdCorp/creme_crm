@@ -46,7 +46,7 @@ class ReportGraphForm(CremeEntityForm):
     aggregates        = ChoiceField(label=_(u'Ordinate aggregate'), required=False,
                                     choices=[(agg.name, agg.title) for agg in field_aggregation_registry.itervalues()],
                                    )
-    aggregates_fields = ChoiceField(label=_(u'Ordinate aggregate field'), choices=())
+    aggregates_fields = ChoiceField(label=_(u'Ordinate aggregate field'), choices=(), required=False)
 
     abscissa_fields   = ChoiceField(label=_(u'Abscissa field'), choices=(),
                                     widget=DependentSelect(target_id='id_abscissa_group_by'),
