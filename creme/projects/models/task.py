@@ -34,10 +34,12 @@ from .taskstatus import TaskStatus
 
 
 class ProjectTask(Activity):
-    project      = ForeignKey(Project, verbose_name=_(u'Project'), related_name='tasks_set')
-    order        = PositiveIntegerField(_(u'Order'), blank=True, null=True)
-    parent_tasks = ManyToManyField("self", blank=True, null=True, symmetrical=False, related_name='children_set') #TODO: rename parent_tasks
-#    duration     = PositiveIntegerField(_(u'Estimated duration (in hours)'), blank=False, null=False) #TODO delete this field ? already have activity duration in Activity
+    project      = ForeignKey(Project, verbose_name=_(u'Project'), related_name='tasks_set', editable=False)
+    order        = PositiveIntegerField(_(u'Order'), blank=True, null=True, editable=False)
+    parent_tasks = ManyToManyField("self", blank=True, null=True, symmetrical=False,
+                                   related_name='children_set', editable=False,
+                                  )
+#    duration     = PositiveIntegerField(_(u'Estimated duration (in hours)'), blank=False, null=False) #already have activity duration in Activity
     tstatus      = ForeignKey(TaskStatus, verbose_name=_(u'Task situation'), on_delete=PROTECT)
 
     #header_filter_exclude_fields = Activity.header_filter_exclude_fields + ['activity_ptr'] #todo: use a set() ??
@@ -81,13 +83,13 @@ class ProjectTask(Activity):
             self.parents = self.parent_tasks.all()
         return self.parents
 
-    def get_subtasks(self): #store result in a cache ?
+    def get_subtasks(self): #TODO: store result in a cache ?
         """Return all the subtasks in a list.
         Subtasks include the task itself, all its children, the children of its children etc...
         """
         subtasks = level_tasks = [self]
 
-        #TODO: it would be cool if the django ORM allows us to write optimized queries for M2M ....
+        #TODO: use prefetch_related() ??
         while level_tasks:
             level_tasks = list(chain.from_iterable(task.children_set.all() for task in level_tasks))
             subtasks.extend(level_tasks)
@@ -160,7 +162,7 @@ class ProjectTask(Activity):
                                }
 #            context[new_task.id] = task.id
 
-        new_links = dict((values['new_pk'], 
+        new_links = dict((values['new_pk'],
                           [context[old_child_id]['new_pk'] for old_child_id in values['o_children']]
                          ) for old_key, values in context.iteritems()
                         )

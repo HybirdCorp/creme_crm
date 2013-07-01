@@ -21,19 +21,18 @@
 from functools import partial
 
 from django.contrib.auth.models import User
-from django.forms import DateTimeField, ValidationError
-from django.forms.models import ModelMultipleChoiceField, ModelChoiceField
+from django.forms import DateTimeField, ValidationError, ModelMultipleChoiceField, ModelChoiceField
 from django.utils.translation import ugettext_lazy as _
 
-from creme.creme_core.forms import CremeForm, CremeEntityForm, FieldBlockManager
+from creme.creme_core.forms import CremeForm, CremeEntityForm #FieldBlockManager
 from creme.creme_core.forms.fields import MultiCremeEntityField
 from creme.creme_core.forms.validators import validate_linkable_entities
 from creme.creme_core.forms.widgets import DateTimeWidget, UnorderedMultipleChoiceWidget
-from creme.creme_core.models.relation import Relation
+from creme.creme_core.models import Relation
 
 #from creme.creme_config.forms.fields import CreatorModelChoiceField
 
-from creme.persons.models.contact import Contact
+from creme.persons.models import Contact
 
 from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, REL_OBJ_PART_2_ACTIVITY
 from creme.activities.forms.activity_type import ActivityTypeField
@@ -50,7 +49,8 @@ class _TaskForm(CremeEntityForm):
 
     class Meta(CremeEntityForm.Meta):
         model = ProjectTask
-        #exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'calendars', 'type', 'project', 'order', 'status', 'parent_tasks') TODO: factorise
+        #exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'calendars', 'type', 'project', 'order', 'status', 'parent_tasks')
+        exclude = CremeEntityForm.Meta.exclude + ('is_all_day', 'minutes', 'status')
 
     def __init__(self, *args, **kwargs):
         super(_TaskForm, self).__init__(*args, **kwargs)
@@ -76,36 +76,40 @@ class TaskEditForm(_TaskForm):
                                        #queryset=ActivitySubType.objects.none(),
                                       #) TODO
 
-    blocks = FieldBlockManager(('general', _(u'General information'), ['user', 'title', 'duration', 'sub_type', 'start',
-                                                                       'end', 'busy', 'tstatus', 'description', 'place']),
-                              )
+    #blocks = FieldBlockManager(('general', _(u'General information'), ['user', 'title', 'duration', 'sub_type', 'start',
+                                                                       #'end', 'busy', 'tstatus', 'description', 'place']),
+                              #)
 
-    class Meta(_TaskForm.Meta):
-        exclude = _TaskForm.Meta.exclude + ('is_all_day', 'type', 'calendars', 'project', 'order', 'status', 'parent_tasks', 'floating_type')
+    #class Meta(_TaskForm.Meta):
+        #exclude = _TaskForm.Meta.exclude + ('is_all_day', 'type', 'calendars', 'project', 'order', 'status', 'parent_tasks', 'floating_type')
 
     def __init__(self, *args, **kwargs):
         super(TaskEditForm, self).__init__(*args, **kwargs)
 
-        self.fields['sub_type'].queryset = ActivitySubType.objects.filter(type=self.instance.type)
-
-        self.participants = self.instance.get_related_entities(REL_OBJ_PART_2_ACTIVITY)
+        instance = self.instance
+        self.fields['sub_type'].queryset = ActivitySubType.objects.filter(type=instance.type)
+        self.participants = instance.get_related_entities(REL_OBJ_PART_2_ACTIVITY)
 
 
 class TaskCreateForm(_TaskForm):
     type_selector = ActivityTypeField(label=_(u"Task's nomenclature"))
     parent_tasks = MultiCremeEntityField(label=_(u'Parent tasks'), required=False, model=ProjectTask)
-    participating_users = ModelMultipleChoiceField(label=_(u'Calendars'), queryset=User.objects.all(),
-                                                   required=False, widget=UnorderedMultipleChoiceWidget)
+    participating_users = ModelMultipleChoiceField(label=_(u'Participating users'),
+                                                   queryset=User.objects.all(),
+                                                   required=False,
+                                                   widget=UnorderedMultipleChoiceWidget,
+                                                  )
 
-    blocks = FieldBlockManager(('general', _(u'General information'), ['user', 'title', 'duration', 'type_selector', 'start',
-                                                                       'end', 'busy', 'tstatus', 'description', 'place',
-                                                                       'parent_tasks', 'participating_users']),
-                              )
+    #blocks = FieldBlockManager(('general', _(u'General information'), ['user', 'title', 'duration', 'type_selector', 'start',
+                                                                       #'end', 'busy', 'tstatus', 'description', 'place',
+                                                                       #'parent_tasks', 'participating_users']),
+                              #)
 
     class Meta(_TaskForm.Meta):
-        exclude = _TaskForm.Meta.exclude + ('project', 'order', 'type', 'calendars', 'is_all_day',
-                                            'parent_tasks', 'floating_type', 'minutes', 'status', 'sub_type',
-                                           )
+        #exclude = _TaskForm.Meta.exclude + ('project', 'order', 'type', 'calendars', 'is_all_day',
+                                            #'parent_tasks', 'floating_type', 'minutes', 'status', 'sub_type',
+                                           #)
+        exclude = _TaskForm.Meta.exclude + ('sub_type',)
 
     def __init__(self, entity, *args, **kwargs):
         super(TaskCreateForm, self).__init__(*args, **kwargs)
@@ -118,7 +122,11 @@ class TaskCreateForm(_TaskForm):
 
     def clean_participating_users(self):
         users = self.cleaned_data['participating_users']
-        self.participants.extend(validate_linkable_entities(Contact.objects.filter(is_user__in=users), self.user))
+        self.participants.extend(
+                validate_linkable_entities(
+                        Contact.objects.filter(is_user__in=users), self.user
+                    )
+            )
         return users
 
     def save(self, *args, **kwargs):
@@ -134,10 +142,11 @@ class TaskCreateForm(_TaskForm):
         create_rel = partial(Relation.objects.create, type_id=REL_SUB_PART_2_ACTIVITY,
                              object_entity=instance, user=instance.user,
                             )
+        add_calendar = instance.calendars.add
 
         for part_user in self.participants:
             create_rel(subject_entity=part_user)
-            instance.calendars.add(Calendar.get_user_default_calendar(part_user.is_user))
+            add_calendar(Calendar.get_user_default_calendar(part_user.is_user))
 
         return instance
 
@@ -158,7 +167,7 @@ class TaskAddParentForm(CremeForm):
             }
 
     def save(self, *args, **kwargs):
-        tasks = self.task.parent_tasks
+        add_parent = self.task.parent_tasks.add
 
         for parent in self.cleaned_data['parents']:
-            tasks.add(parent)
+            add_parent(parent)

@@ -48,7 +48,7 @@ class TaskExtraInfo(SimpleBlock):
 class ParentTasksBlock(QuerysetBlock):
     id_           = QuerysetBlock.generate_id('projects', 'parent_tasks')
     dependencies  = (ProjectTask,)
-    verbose_name  = _(u'Parents of a Task')
+    verbose_name  = _(u'Parents of a task')
     template_name = 'projects/templatetags/block_parent_tasks.html'
     target_ctypes = (ProjectTask,)
 
