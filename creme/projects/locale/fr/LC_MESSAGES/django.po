@@ -2,12 +2,14 @@
 # Copyright (C) 2013 Hybird
 # This file is distributed under the same license as the Creme package.
 #
+# > django-admin.py makemessages -l fr -e html -i tests.py
+#
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Creme Projects 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-05-16 16:16+0200\n"
+"POT-Creation-Date: 2013-07-01 15:41+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -23,7 +25,7 @@ msgid "Extra project task information"
 msgstr "Informations supplémentaires sur une tâche de projet"
 
 #: blocks.py:51
-msgid "Parents of a Task"
+msgid "Parents of a task"
 msgstr "Parents d'une tâche"
 
 #: blocks.py:70
@@ -78,7 +80,7 @@ msgstr "Terminée"
 msgid "The task is finished"
 msgstr "La tâche est terminée"
 
-#: creme_core_register.py:30 models/project.py:48
+#: creme_core_register.py:30 models/project.py:49
 msgid "Projects"
 msgstr "Projets"
 
@@ -203,14 +205,14 @@ msgstr "Informations Générales"
 msgid "Task's nomenclature"
 msgstr "Nomenclature de tâche"
 
-#: forms/task.py:96 forms/task.py:146
+#: forms/task.py:96 forms/task.py:147
 #: templates/projects/templatetags/block_tasks.html:21
 msgid "Parent tasks"
 msgstr "Tâche(s) parente(s)"
 
 #: forms/task.py:97
-msgid "Calendars"
-msgstr "Calendriers"
+msgid "Participating users"
+msgstr "Utilisateurs participants"
 
 #: forms/workingperiod.py:33
 msgid "Resources allocated to this task"
@@ -230,39 +232,39 @@ msgstr "Et"
 msgid "Period duration"
 msgstr "Durée de la période"
 
-#: models/project.py:33
+#: models/project.py:34
 msgid "Name of the project"
 msgstr "Nom du projet"
 
-#: models/project.py:34 models/projectstatus.py:30 models/taskstatus.py:30
+#: models/project.py:35 models/projectstatus.py:30 models/taskstatus.py:30
 msgid "Description"
 msgstr "Description"
 
-#: models/project.py:35 templates/projects/templatetags/block_tasks.html:20
+#: models/project.py:36 templates/projects/templatetags/block_tasks.html:20
 msgid "Status"
 msgstr "Statut"
 
-#: models/project.py:36
+#: models/project.py:37
 msgid "Estimated start"
 msgstr "Début prévisionnel"
 
-#: models/project.py:37
+#: models/project.py:38
 msgid "Estimated end"
 msgstr "Fin prévisionnelle"
 
-#: models/project.py:38
+#: models/project.py:39
 msgid "Effective end date"
 msgstr "Fin effective"
 
-#: models/project.py:43
+#: models/project.py:44
 msgid "Add a project"
 msgstr "Ajouter un projet"
 
-#: models/project.py:47 models/task.py:37 templates/projects/portal.html:4
+#: models/project.py:48 models/task.py:37 templates/projects/portal.html:4
 msgid "Project"
 msgstr "Projet"
 
-#: models/project.py:72
+#: models/project.py:73
 msgid "Start must be before end."
 msgstr "Le début doit être avant la fin."
 
@@ -309,15 +311,15 @@ msgstr "Ressources de projet"
 msgid "Order"
 msgstr "Ordre"
 
-#: models/task.py:41
+#: models/task.py:43
 msgid "Task situation"
 msgstr "Situationde la tâche"
 
-#: models/task.py:53
+#: models/task.py:55
 msgid "Task of project"
 msgstr "Tâche d'un projet"
 
-#: models/task.py:54
+#: models/task.py:56
 msgid "Tasks of project"
 msgstr "Tâches d'un projet"
 
@@ -561,9 +563,12 @@ msgstr ""
 "Vous ne pouvez pas ajouter de ressources ou de périodes travaillées à une "
 "tâche en statut <%s>"
 
-#: views/workingperiod.py:41
+#: views/workingperiod.py:42
 msgid "Edition of a working period"
 msgstr "Modification d'une période travaillée"
+
+#~ msgid "Calendars"
+#~ msgstr "Calendriers"
 
 #~ msgid "Estimated duration (in hours)"
 #~ msgstr "Durée prévue (en heures)"

@@ -34,7 +34,8 @@ from ..forms.task import TaskCreateForm, TaskEditForm, TaskAddParentForm
 @permission_required('projects.add_projecttask')
 def add(request, project_id):
     return add_to_entity(request, project_id, TaskCreateForm,
-                         _(u'Add a task to <%s>'), entity_class=Project)
+                         _(u'Add a task to <%s>'), entity_class=Project,
+                        )
 
 @login_required
 @permission_required('projects')

@@ -16,7 +16,9 @@ try:
     from creme.persons.models import Contact
 
     #from creme.activities.models import Calendar
-    from creme.activities.constants import REL_SUB_PART_2_ACTIVITY, ACTIVITYTYPE_TASK # NARROW
+    from creme.activities.constants import (REL_SUB_PART_2_ACTIVITY,
+            ACTIVITYTYPE_TASK, ACTIVITYTYPE_MEETING,
+            ACTIVITYSUBTYPE_MEETING_MEETING, ACTIVITYSUBTYPE_MEETING_QUALIFICATION) # NARROW
 
     from .models import *
     from .constants import *
@@ -28,8 +30,6 @@ class ProjectsTestCase(CremeTestCase):
     ADD_PROJECT_URL = '/projects/project/add'
     ADD_TASK_PARENT_URL = '/projects/task/%s/parent/add'
 
-    TYPE_VALUE = JSONEncoder().encode({'type': ACTIVITYTYPE_TASK, 'sub_type': None})
-
     @classmethod
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'activities', 'projects')
@@ -40,8 +40,14 @@ class ProjectsTestCase(CremeTestCase):
     def _build_add_ask_url(self, project):
         return '/projects/project/%s/task/add' % project.id
 
+    def _build_type_value(self, atype=ACTIVITYTYPE_TASK, sub_type=None):
+        return JSONEncoder().encode({'type': atype, 'sub_type': sub_type})
+
     def test_populate(self):
-        self.get_relationtype_or_fail(REL_SUB_PROJECT_MANAGER, sub_models=[Contact], obj_models=[Project])
+        self.get_relationtype_or_fail(REL_SUB_PROJECT_MANAGER,
+                                      sub_models=[Contact],
+                                      obj_models=[Project],
+                                     )
 
         self.assertGreaterEqual(TaskStatus.objects.count(), 2)
         self.assertTrue(ProjectStatus.objects.exists())
@@ -65,6 +71,22 @@ class ProjectsTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         return self.get_object_or_fail(Project, name=name), manager
+
+    def create_task(self, project, title, status=None, atype=ACTIVITYTYPE_TASK, sub_type=None):
+        status = status or TaskStatus.objects.all()[0]
+        response = self.client.post(self._build_add_ask_url(project), follow=True,
+                                    data={'user':          self.user.id,
+                                          'title':         title,
+                                          'start':         '2010-10-11',
+                                          'end':           '2010-10-30',
+                                          'duration':      50,
+                                          'tstatus':       status.id,
+                                          'type_selector': self._build_type_value(atype, sub_type),
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        return self.get_object_or_fail(ProjectTask, project=project, title=title)
 
     def test_project_createview01(self):
         self.login()
@@ -200,7 +222,7 @@ class ProjectsTestCase(CremeTestCase):
                                           'tstatus':             TaskStatus.objects.all()[0].id,
                                           'participating_users': user.id,
                                           'busy':                True,
-                                          'type_selector':       self.TYPE_VALUE,
+                                          'type_selector':       self._build_type_value(),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -222,7 +244,7 @@ class ProjectsTestCase(CremeTestCase):
                                           'tstatus':             TaskStatus.objects.all()[0].id,
                                           'parent_tasks':        task1.id,
                                           'participating_users': user.id,
-                                          'type_selector':       self.TYPE_VALUE,
+                                          'type_selector':       self._build_type_value(),
                                          }
                                    )
         self.assertNoFormError(response)
@@ -258,7 +280,7 @@ class ProjectsTestCase(CremeTestCase):
                                           'duration':      50,
                                           'tstatus':       TaskStatus.objects.all()[0].id,
                                           'parent_tasks':  task01.id,
-                                          'type_selector': self.TYPE_VALUE,
+                                          'type_selector': self._build_type_value(),
                                          }
                                    )
         self.assertFormError(response, 'form', 'parent_tasks',
@@ -288,7 +310,7 @@ class ProjectsTestCase(CremeTestCase):
                                  'tstatus':             TaskStatus.objects.all()[0].id,
                                  'participating_users': user.id,
                                  'busy':                True,
-                                 'type_selector':       self.TYPE_VALUE,
+                                 'type_selector':       self._build_type_value(),
                                 }
                           )
 
@@ -304,7 +326,7 @@ class ProjectsTestCase(CremeTestCase):
                                           'duration':            180,
                                           'tstatus':             TaskStatus.objects.all()[0].id,
                                           'participating_users': user.id,
-                                          'type_selector':       self.TYPE_VALUE,
+                                          'type_selector':       self._build_type_value(),
                                          }
                                    )
 
@@ -324,6 +346,30 @@ class ProjectsTestCase(CremeTestCase):
             ]
         )
 
+    def test_task_createview04(self):
+        "Create task with 'Meeting' type"
+        self.login()
+
+        project = self.create_project('Eva01')[0]
+        title = 'Head'
+        atype = ACTIVITYTYPE_MEETING
+        stype = ACTIVITYSUBTYPE_MEETING_MEETING
+        response = self.client.post(self._build_add_ask_url(project), follow=True,
+                                    data={'user':          self.user.id,
+                                          'title':         title,
+                                          'start':         '2013-7-1',
+                                          'end':           '2013-7-14',
+                                          'duration':      50,
+                                          'tstatus':       TaskStatus.objects.all()[0].id,
+                                          'type_selector': self._build_type_value(atype, stype),
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        task = self.get_object_or_fail(ProjectTask, title=title, project=project)
+        self.assertEqual(atype, task.type_id)
+        self.assertEqual(stype, task.sub_type_id)
+
     def test_task_editview01(self):
         self.login()
 
@@ -336,12 +382,12 @@ class ProjectsTestCase(CremeTestCase):
         duration = 55
         tstatus  = TaskStatus.objects.all()[1]
         response = self.client.post(url, follow=True,
-                                    data={'user':           self.user.id,
-                                          'title':          title,
-                                          'start':          '2011-5-16',
-                                          'end':            '2012-6-17',
-                                          'duration':       duration,
-                                          'tstatus':        tstatus.id,
+                                    data={'user':     self.user.id,
+                                          'title':    title,
+                                          'start':    '2011-5-16',
+                                          'end':      '2012-6-17',
+                                          'duration': duration,
+                                          'tstatus':  tstatus.id,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -356,6 +402,33 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(create_dt(year=2012, month=6, day=17), task.end)
 
     def test_task_editview02(self):
+        "Meeting type"
+        self.login()
+
+        atype = ACTIVITYTYPE_MEETING
+        task = self.create_task(self.create_project('Eva01')[0],
+                                'Title', atype=atype,
+                                sub_type=ACTIVITYSUBTYPE_MEETING_MEETING,
+                               )
+
+        stype = ACTIVITYSUBTYPE_MEETING_QUALIFICATION
+        response = self.client.post('/projects/task/edit/%s' % task.id, follow=True, #TODO: factorise
+                                    data={'user':     self.user.id,
+                                          'title':    'Head',
+                                          'start':    '2013-5-16',
+                                          'end':      '2013-6-17',
+                                          'duration': 60,
+                                          'tstatus':  TaskStatus.objects.all()[1].id,
+                                          'sub_type': stype,
+                                         }
+                                   )
+        self.assertNoFormError(response)
+
+        task = self.refresh(task)
+        self.assertEqual(atype, task.type_id)
+        self.assertEqual(stype, task.sub_type_id)
+
+    def test_task_editview_popup01(self):
         "Popup version"
         self.login()
 
@@ -367,12 +440,12 @@ class ProjectsTestCase(CremeTestCase):
         title = 'Head'
         duration = 55
         response = self.client.post(url, follow=True,
-                                    data={'user':           self.user.id,
-                                          'title':          title,
-                                          'start':          '2011-5-16',
-                                          'end':            '2012-6-17',
-                                          'duration':       duration,
-                                          'tstatus':        TaskStatus.objects.all()[0].id,
+                                    data={'user':     self.user.id,
+                                          'title':    title,
+                                          'start':    '2011-5-16',
+                                          'end':      '2012-6-17',
+                                          'duration': duration,
+                                          'tstatus':  TaskStatus.objects.all()[0].id,
                                          }
                                    )
         self.assertNoFormError(response)
@@ -456,22 +529,6 @@ class ProjectsTestCase(CremeTestCase):
                                  }
                              ]
                             )
-
-    def create_task(self, project, title, status=None):
-        status = status or TaskStatus.objects.all()[0]
-        response = self.client.post(self._build_add_ask_url(project), follow=True,
-                                    data={'user':          self.user.id,
-                                          'title':         title,
-                                          'start':         '2010-10-11',
-                                          'end':           '2010-10-30',
-                                          'duration':      50,
-                                          'tstatus':       status.id,
-                                          'type_selector': self.TYPE_VALUE,
-                                         }
-                                   )
-        self.assertNoFormError(response)
-
-        return self.get_object_or_fail(ProjectTask, project=project, title=title)
 
     def test_resource_n_period01(self):
         "Creation views"
