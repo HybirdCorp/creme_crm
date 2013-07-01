@@ -50,6 +50,7 @@ _FIELDS_WIDGETS = {
 _CUSTOM_PREFIX = _CUSTOM_NAME.partition('%s')[0]
 
 #TODO : staticmethod ??
+#TODO: remove this when whe have a EntityForeignKey with the right model field that does the job.
 def _get_choices(model_field, user):
     form_field = model_field.formfield()
     choices = ()
@@ -85,7 +86,9 @@ class _EntitiesEditForm(CremeForm):
         fields = self.fields
 
         if subjects:
-            fields['entities_lbl'].initial = related2unicode(subjects[0], user) if hasattr(subjects[0], 'get_related_entity') else entities2unicode(subjects, user)
+            fields['entities_lbl'].initial = related2unicode(subjects[0], user) \
+                                             if hasattr(subjects[0], 'get_related_entity') \
+                                             else entities2unicode(subjects, user)
         else:
             fields['entities_lbl'].initial = ugettext(u'NONE !')
 
