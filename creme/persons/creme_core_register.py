@@ -69,3 +69,7 @@ reg_merge_form(Organisation, get_merge_form_builder)
 bulk_update_registry.register(
     (Organisation, ['siren']),
 )
+#TODO: remove when BulkUpdate manages correctly FK on CremeEntity (right field/widget) (see test_regular_field09)
+bulk_update_registry.register(
+    (Contact, ['image']),
+)
