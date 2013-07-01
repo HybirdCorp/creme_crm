@@ -25,7 +25,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q, FieldDoesNotExist, ForeignKey, ProtectedError
 from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import get_object_or_404, get_list_or_404, render
-from django.core import serializers
+#from django.core import serializers
 from django.forms.models import modelform_factory, model_to_dict
 #from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext as _
@@ -60,28 +60,29 @@ def get_creme_entities_repr(request, entities_ids):
             } for entity in entities
            ]
 
-@login_required
-def get_creme_entity_as_json(request):
-    POST   = request.POST
-    pk     = POST.get('pk')
-    fields = POST.getlist('fields') or None
+#Commented 1/7/2013 (if uncomment: check possible security problem (not viewable fields etc...))
+#@login_required
+#def get_creme_entity_as_json(request):
+    #POST   = request.POST
+    #pk     = POST.get('pk')
+    #fields = POST.getlist('fields') or None
 
-    data   = []
-    status = 404
+    #data   = []
+    #status = 404
 
-    if pk:
-        try:
-            entity = CremeEntity.objects.get(pk=pk).get_real_entity()
-        except CremeEntity.DoesNotExist:
-            pass
-        else:
-            if request.user.has_perm_to_view(entity):
-                data = [entity]
-                status = 200
+    #if pk:
+        #try:
+            #entity = CremeEntity.objects.get(pk=pk).get_real_entity()
+        #except CremeEntity.DoesNotExist:
+            #pass
+        #else:
+            #if request.user.has_perm_to_view(entity):
+                #data = [entity]
+                #status = 200
 
-    return HttpResponse(serializers.serialize('json', data, fields=fields),
-                        mimetype="text/javascript", status=status,
-                       )
+    #return HttpResponse(serializers.serialize('json', data, fields=fields),
+                        #mimetype="text/javascript", status=status,
+                       #)
 
 
 #TODO: use fields tags
@@ -135,7 +136,7 @@ def bulk_update(request, ct_id):#TODO: Factorise with add_properties_bulk and ad
         form = EntitiesBulkUpdateForm(model=model,
                                       subjects=filtered[True],
                                       forbidden_subjects=filtered[False],
-                                      user=request.user,
+                                      user=user,
                                       data=request.POST,
                                      )
 
@@ -145,7 +146,7 @@ def bulk_update(request, ct_id):#TODO: Factorise with add_properties_bulk and ad
         form = EntitiesBulkUpdateForm(model=model,
                                       subjects=filtered[True],
                                       forbidden_subjects=filtered[False],
-                                      user=request.user,
+                                      user=user,
                                      )
 
     return inner_popup(request, 'creme_core/generics/blockform/edit_popup.html',
@@ -200,7 +201,7 @@ def _get_ct_info(request, generator):
 
     return HttpResponse(msg, mimetype="text/javascript", status=status)
 
-
+@login_required
 def get_custom_fields(request):
     """@return Custom fields for a model [('cfield1_name', 'cfield1_name'), ...]"""
     return _get_ct_info(request,
@@ -209,6 +210,7 @@ def get_custom_fields(request):
                                    ]
                        )
 
+@login_required
 def get_function_fields(request):
     """@return functions fields for a model [('func_name', 'func_verbose_name'), ...]"""
     return _get_ct_info(request,
@@ -217,7 +219,7 @@ def get_function_fields(request):
                                    ]
                        )
 
-
+@login_required
 @jsonify
 def get_widget(request, ct_id):
     model               = get_ct_or_404(ct_id).model_class()
@@ -234,8 +236,8 @@ def get_widget(request, ct_id):
 
     # Set up context and credentials for inner edit case
     if inner_edit_obj_id:
-        object = model.objects.get(pk=inner_edit_obj_id)
-        owner = object.get_related_entity() if hasattr(object, 'get_related_entity') else object
+        instance = model.objects.get(pk=inner_edit_obj_id)
+        owner = instance.get_related_entity() if hasattr(instance, 'get_related_entity') else instance
         request.user.has_perm_to_change_or_die(owner)
         is_updatable = bulk_update_registry.is_bulk_updatable(model, field_name, exclude_unique=False)
     else:
@@ -245,8 +247,8 @@ def get_widget(request, ct_id):
     if is_custom:
         if inner_edit_obj_id:
             #TODO why get_custom_value doesnt seem to work when populate custom values has not been called
-            CremeEntity.populate_custom_values([object], [model_field])
-            form_field = model_field.get_formfield(object.get_custom_value(model_field))
+            CremeEntity.populate_custom_values([instance], [model_field])
+            form_field = model_field.get_formfield(instance.get_custom_value(model_field))
         else:
             form_field = model_field.get_formfield(None)
     elif is_updatable:
@@ -255,7 +257,7 @@ def get_widget(request, ct_id):
         form_field.widget = _FIELDS_WIDGETS.get(model_field.__class__) or form_field.widget
 
         if inner_edit_obj_id:
-            form_field.initial = model_to_dict(object, [field_name])[field_name]
+            form_field.initial = model_to_dict(instance, [field_name])[field_name]
 
     return {'rendered': form_field.widget.render(name=field_value_name,
                                                  value=form_field.initial,
@@ -528,7 +530,7 @@ def _delete_entity(user, entity):
 
 @login_required
 def delete_entities(request):
-    "Delete several CremeEntity, with a Ajax call (POSt method)."
+    "Delete several CremeEntities, with a Ajax call (POST method)."
     try:
         entity_ids = [int(e_id) for e_id in get_from_POST_or_404(request.POST, 'ids').split(',') if e_id]
     except ValueError:

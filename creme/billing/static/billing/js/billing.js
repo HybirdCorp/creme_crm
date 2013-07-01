@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2011  Hybird
+    Copyright (C) 2009-2013  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -22,27 +22,28 @@
 
 creme.billing = {};
 
-creme.billing.lineAutoPopulateSelection = function(id, targetInputId, nodesToPopulate) {
-    var $form = $('#' + targetInputId).parents('form');
-    var fields = nodesToPopulate.values;
-
-    creme.ajax.json.post(
-        '/creme_core/entity/json',
-        {
-            pk:     id[0],
-            fields: fields
-        },
-        function(data) {
-            for(var i in fields) {
-                var field = nodesToPopulate.values[i];
-                var node = $form.find('[' + nodesToPopulate.attr + '=' + field + ']');
-                if(node.size() > 0) {
-                    node.val(data[0].fields[field]);
-                }
-            }
-        }
-    );
-}
+// Commented 1/7/2013 (view has been commented too)
+// creme.billing.lineAutoPopulateSelection = function(id, targetInputId, nodesToPopulate) {
+//     var $form = $('#' + targetInputId).parents('form');
+//     var fields = nodesToPopulate.values;
+//
+//     creme.ajax.json.post(
+//         '/creme_core/entity/json',
+//         {
+//             pk:     id[0],
+//             fields: fields
+//         },
+//         function(data) {
+//             for(var i in fields) {
+//                 var field = nodesToPopulate.values[i];
+//                 var node = $form.find('[' + nodesToPopulate.attr + '=' + field + ']');
+//                 if(node.size() > 0) {
+//                     node.val(data[0].fields[field]);
+//                 }
+//             }
+//         }
+//     );
+// }
 
 creme.billing.setDefaultPaymentInformation = function(payment_info_id, invoice_id, reload_url) {
     creme.utils.postNReload('/billing/payment_information/set_default/'+payment_info_id+'/'+invoice_id, reload_url);
@@ -58,7 +59,7 @@ creme.billing.enableCheckAllBoxes = function(checkbox) {
     }
 }
 
-creme.billing.get_selected_lines = function() {
+creme.billing.get_selected_lines = function() { //TODO: rename (camelCase)
     var selected_lines_ids = new Array();
     var lines = $('[name="select_one"]');
 
@@ -127,7 +128,6 @@ creme.billing.checkValue = function(value) {
 }
 
 creme.billing.printLinesErrors = function(target, table, reload_url) {
-
     target.addClass('line-error');
     var message_one = gettext("Some errors were found on your lines. Click => ");
     var message_two = gettext("here");

@@ -124,62 +124,62 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertEqual(400,               response.status_code)
         self.assertEqual('text/javascript', response['Content-Type'])
 
-    def test_get_creme_entity_as_json01(self):
-        self.login()
+    #def test_get_creme_entity_as_json01(self):
+        #self.login()
 
-        with self.assertNoException():
-            entity = CremeEntity.objects.create(user=self.user)
+        #with self.assertNoException():
+            #entity = CremeEntity.objects.create(user=self.user)
 
-        response = self.assertPOST200('/creme_core/entity/json', data={'pk': entity.id})
-        self.assertEqual('text/javascript', response['Content-Type'])
+        #response = self.assertPOST200('/creme_core/entity/json', data={'pk': entity.id})
+        #self.assertEqual('text/javascript', response['Content-Type'])
 
-        json_data = simplejson.loads(response.content)
-        #[{'pk': 1,
-        #  'model': 'creme_core.cremeentity',
-        #  'fields': {'is_actived': False,
-        #             'is_deleted': False,
-        #             'created': '2010-11-09 14:34:04',
-        #             'header_filter_search_field': '',
-        #             'entity_type': 100,
-        #             'modified': '2010-11-09 14:34:04',
-        #             'user': 1
-        #            }
-        #}]
-        with self.assertNoException():
-            dic = json_data[0]
-            pk     = dic['pk']
-            model  = dic['model']
-            fields = dic['fields']
-            user = fields['user']
+        #json_data = simplejson.loads(response.content)
+        ##[{'pk': 1,
+        ##  'model': 'creme_core.cremeentity',
+        ##  'fields': {'is_actived': False,
+        ##             'is_deleted': False,
+        ##             'created': '2010-11-09 14:34:04',
+        ##             'header_filter_search_field': '',
+        ##             'entity_type': 100,
+        ##             'modified': '2010-11-09 14:34:04',
+        ##             'user': 1
+        ##            }
+        ##}]
+        #with self.assertNoException():
+            #dic = json_data[0]
+            #pk     = dic['pk']
+            #model  = dic['model']
+            #fields = dic['fields']
+            #user = fields['user']
 
-        self.assertEqual(entity.id, pk)
-        self.assertEqual('creme_core.cremeentity', model)
-        self.assertEqual(self.user.id, user)
+        #self.assertEqual(entity.id, pk)
+        #self.assertEqual('creme_core.cremeentity', model)
+        #self.assertEqual(self.user.id, user)
 
-    def test_get_creme_entity_as_json02(self):
-        self.login()
+    #def test_get_creme_entity_as_json02(self):
+        #self.login()
 
-        with self.assertNoException():
-            entity = CremeEntity.objects.create(user=self.user)
+        #with self.assertNoException():
+            #entity = CremeEntity.objects.create(user=self.user)
 
-        response = self.assertPOST200('/creme_core/entity/json',
-                                      data={'pk':     entity.id,
-                                            'fields': ['user', 'entity_type'],
-                                           }
-                                     )
+        #response = self.assertPOST200('/creme_core/entity/json',
+                                      #data={'pk':     entity.id,
+                                            #'fields': ['user', 'entity_type'],
+                                           #}
+                                     #)
 
-        json_data = simplejson.loads(response.content)
-        #[{'pk': 1,
-        #  'model': 'creme_core.cremeentity',
-        #  'fields': {'user': 1, 'entity_type': 100}}
-        #]
-        with self.assertNoException():
-            fields = json_data[0]['fields']
-            user = fields['user']
-            entity_type = fields['entity_type']
+        #json_data = simplejson.loads(response.content)
+        ##[{'pk': 1,
+        ##  'model': 'creme_core.cremeentity',
+        ##  'fields': {'user': 1, 'entity_type': 100}}
+        ##]
+        #with self.assertNoException():
+            #fields = json_data[0]['fields']
+            #user = fields['user']
+            #entity_type = fields['entity_type']
 
-        self.assertEqual(self.user.id, user)
-        self.assertEqual(ContentType.objects.get_for_model(CremeEntity).id, entity_type)
+        #self.assertEqual(self.user.id, user)
+        #self.assertEqual(ContentType.objects.get_for_model(CremeEntity).id, entity_type)
 
     def test_get_creme_entities_repr(self): #TODO: test with no permissons
         self.login()
