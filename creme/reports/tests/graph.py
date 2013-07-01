@@ -77,6 +77,33 @@ class ReportGraphTestCase(BaseReportsTestCase):
 
         return rgraph
 
+    def test_aggregates_fields_not_required_with_count(self):
+        report = Report.objects.create(user=self.user,
+                                       name=u"All organisations",
+                                       ct=ContentType.objects.get_for_model(Organisation),
+                                       )
+
+        url = '/reports/graph/%s/add' % report.id
+        response = self.assertGET200(url)
+        self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            fields_choices = fields['abscissa_fields'].choices[0][1]
+
+        choices_set = set(c[0] for c in fields_choices)
+        self.assertIn('created', choices_set)
+        self.assertIn('sector', choices_set)
+        self.assertNotIn('name', choices_set)
+
+        response = self.client.post(url, data={'user': self.user.pk, #TODO: report.user used instead ??
+                                               'name':              'My Graph #1',
+                                               'abscissa_fields':   'sector',
+                                               'abscissa_group_by': RGT_FK,
+                                               'is_count':          True,
+                                              })
+        self.assertNoFormError(response)
+
     def test_fetch_with_date_range(self):
         self.report_organisation = report = Report.objects.create(user=self.user,
                                                      name=u"All organisations",
