@@ -57,7 +57,7 @@ def _get_users_calendar(request, usernames, calendars_ids): #TODO: used once ??
 
     cal_ids = [str(id) for id in calendars_ids]
     users = User.objects.order_by('username')
-    
+
     return render(request, 'activities/calendar.html',
                   {'events_url':          '/activities/calendar/users_activities/%s/%s' % (
                                                     ','.join(usernames),
@@ -110,7 +110,7 @@ def user_calendar(request):
                                getlist('user_selected') or [user.username],
                                #getlist('calendar_selected') or Calendar.get_user_calendars(user)
                                                                        #.values_list('id', flat=True),
-                                getlist('calendar_selected') or [c.id for c in Calendar.get_user_calendars(user)],
+                               getlist('calendar_selected') or [c.id for c in Calendar.get_user_calendars(user)],
                               )
 
 #COMMENTED on march 2013
@@ -130,7 +130,7 @@ def _get_datetime(data, key, default_func):
             #return datetime.fromtimestamp(float(timestamp))
             return make_aware_dt(datetime.fromtimestamp(float(timestamp)))
         except Exception:
-            logger.exception('_get_datetime(key=%s): %s', key)
+            logger.exception('_get_datetime(key=%s)', key)
 
     return default_func()
 
@@ -143,11 +143,17 @@ def get_users_activities(request, usernames, calendars_ids):
     users    = list(User.objects.filter(username__in=usernames.split(','))) #NB: list() to avoid inner query
     contacts = list(Contact.objects.filter(is_user__in=users).values_list('id', flat=True)) #idem
 
-    users_cal_ids = set(Calendar.objects.filter(is_public=True)
-                                        .exclude(user=user)
-                                        .values_list('id', flat=True)
-                       )
-    users_cal_ids.update(cal_id for cal_id in calendars_ids.split(',') if cal_id.isdigit()) #TODO: check Calendar credentials...
+    users_cal_ids = list(Calendar.objects
+                                 .filter(Q(is_public=True) |
+                                         Q(user=user,
+                                           id__in=[cal_id
+                                                       for cal_id in calendars_ids.split(',')
+                                                         if cal_id.isdigit()
+                                                  ]
+                                          )
+                                        )
+                                 .values_list('id', flat=True)
+                        )
 
     GET = request.GET
     start = _get_datetime(GET, 'start', (lambda: now().replace(day=1)))
