@@ -13,6 +13,8 @@ try:
     from creme.persons.models import Contact
 
     from creme.tickets.models import Ticket
+
+    from creme.emails.models import EmailCampaign
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -197,24 +199,16 @@ class MetaTestCase(CremeTestCase):
         "Other ct"
         expected = [('created',     _('Creation date')),
                     ('modified',    _('Last modification')),
-                    ('last_name',   _('Last name')),
-                    ('first_name',  _('First name')),
-                    ('description', _('Description')),
-                    ('skype',       _('Skype')),
-                    ('phone',       _('Phone number')),
-                    ('mobile',      _('Mobile')),
-                    ('fax',         _('Fax')),
-                    ('email',       _('Email address')),
-                    ('url_site',    _('Web Site')),
-                    ('birthday',    _('Birthday')),
+                    ('name',        _('Name of the campaign')),
                    ]
-        choices = meta.ModelFieldEnumerator(Contact).filter(viewable=True).choices()
+        choices = meta.ModelFieldEnumerator(EmailCampaign).filter(viewable=True).choices()
         self.assertEqual(expected, choices, choices)
 
-        choices = meta.ModelFieldEnumerator(Contact, only_leafs=False) \
+        choices = meta.ModelFieldEnumerator(EmailCampaign, only_leafs=False) \
                       .filter((lambda f: f.get_internal_type() != 'ForeignKey'), viewable=True) \
                       .choices()
-        expected.append(('language',  _('Spoken language(s)'))) #TODO: test with another model with a m2m field when this field is removed....
+
+        expected.append(('mailing_lists', _('Related mailing lists')))
         self.assertEqual(expected, choices, choices)
 
     def test_field_enumerator06(self):
