@@ -236,7 +236,7 @@ class CremeModelForm(ModelForm, HookableForm):
 
 
 class CremeModelWithUserForm(CremeModelForm):
-    user = ModelChoiceField(label=_('User'), queryset=User.objects.all(), empty_label=None)
+    user = ModelChoiceField(label=_('Owner user'), queryset=User.objects.all(), empty_label=None) #label=_('User')
 
     def __init__(self, user, *args, **kwargs):
         super(CremeModelWithUserForm, self).__init__(user=user, *args, **kwargs)

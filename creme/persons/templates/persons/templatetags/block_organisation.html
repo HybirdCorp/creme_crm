@@ -76,7 +76,7 @@
             <td class="{{row_color}} td_info edit_inner">{% get_field_editor on regular 'subject_to_vat' for object %}</td>
         </tr>
         <tr class="content">
-            <th class="{% cycle header_color %} th_info">{% trans "Assigned to" %}</th>
+            <th class="{% cycle header_color %} th_info">{% trans "Owner user" %}{% comment %}{% trans "Assigned to" %}{% endcomment %}</th>
             <td class="{% cycle row_color %} td_info">{% print_field object=object field='user' %}</td>
             <td class="{{row_color}} td_info edit_inner">{% get_field_editor on regular 'user' for object %}</td>
         </tr>

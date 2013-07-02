@@ -81,7 +81,7 @@ class HeaderFilterList(list):
 class HeaderFilter(Model): #CremeModel ???
     id          = CharField(primary_key=True, max_length=100)
     name        = CharField(_('Name of the view'), max_length=100)
-    user        = CremeUserForeignKey(verbose_name=_(u'Owner'), blank=True, null=True)
+    user        = CremeUserForeignKey(verbose_name=_(u'Owner user'), blank=True, null=True) #verbose_name=_(u'Owner')
     #entity_type = ForeignKey(ContentType, editable=False)
     entity_type = CTypeForeignKey(editable=False)
     is_custom   = BooleanField(blank=False, default=True)

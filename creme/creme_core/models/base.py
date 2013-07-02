@@ -111,7 +111,7 @@ class CremeAbstractEntity(CremeModel):
 
     is_deleted = BooleanField(default=False, editable=False).set_tags(viewable=False)
     is_actived = BooleanField(default=False, editable=False).set_tags(viewable=False)
-    user       = CremeUserForeignKey(verbose_name=_('User'))
+    user       = CremeUserForeignKey(verbose_name=_('Owner user')) #verbose_name=_('User'
 
     #objects = CremeEntityManager()
 

@@ -42,7 +42,7 @@ class Alert(CremeModel):
     entity_id           = PositiveIntegerField(editable=False)
     creme_entity        = GenericForeignKey(ct_field="entity_content_type", fk_field="entity_id")
 
-    user                = CremeUserForeignKey(verbose_name=_(u"Assigned to"))
+    user                = CremeUserForeignKey(verbose_name=_('Owner user')) #verbose_name=_(u"Assigned to")
 
     class Meta:
         app_label = 'assistants'
