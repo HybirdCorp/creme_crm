@@ -46,7 +46,7 @@ class Contact(CremeEntity):
     sector          = ForeignKey(Sector, verbose_name=_(u'Line of business'), blank=True, null=True, on_delete=SET_NULL)
     email           = EmailField(_(u'Email address'), max_length=100, blank=True, null=True)
     url_site        = URLField(_(u'Web Site'), max_length=100, blank=True, null=True, verify_exists=False)
-    language        = ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'), blank=True, null=True, editable=False) #TODO: remove this field
+    language        = ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'), blank=True, null=True, editable=False).set_tags(viewable=False) #TODO: remove this field
     billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'), blank=True, null=True, related_name='billing_address_contact_set', editable=False) #.set_tags(clonable=False) useless
     shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'), blank=True, null=True, related_name='shipping_address_contact_set', editable=False)
     is_user         = ForeignKey(User, verbose_name=_(u'Related user'), #verbose_name=_(u'Is an user'),
