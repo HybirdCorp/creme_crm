@@ -25,7 +25,7 @@ from django.forms import CharField
 from creme.creme_core.models import Relation
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.forms.validators import validate_linkable_model
-from creme.creme_core.forms.widgets import UploadedFileWidget
+#from creme.creme_core.forms.widgets import UploadedFileWidget
 from creme.creme_core.views.file_handling import handle_uploaded_file
 from creme.creme_core.utils import ellipsis
 
@@ -45,10 +45,11 @@ class DocumentCreateForm(CremeEntityForm):
 
 
 class DocumentEditForm(CremeEntityForm):
-    filedata = CharField(required=False, widget=UploadedFileWidget) #TODO: useful to see the file (can not change it) ???
+    #filedata = CharField(required=False, widget=UploadedFileWidget)
 
     class Meta(CremeEntityForm.Meta):
         model = Document
+        exclude = CremeEntityForm.Meta.exclude + ('filedata',)
 
 
 _TITLE_MAX_LEN = Folder._meta.get_field('title').max_length

@@ -22,7 +22,8 @@
 from itertools import chain
 
 from django.contrib.contenttypes.models import ContentType
-from django.forms.widgets import Widget, Textarea, Select, SelectMultiple, FileInput, TextInput, Input, MultiWidget
+from django.forms.widgets import (Widget, Textarea, Select, SelectMultiple,
+                                  TextInput, Input, MultiWidget) #FileInput
 from django.forms.util import flatatt
 from django.utils.html import conditional_escape, escape
 from django.utils.translation import ugettext as _
@@ -585,26 +586,26 @@ class DependentSelect(Select):
         """ % {'input':super(DependentSelect, self).render(name, value, attrs, choices), 'id': id})
 
 
-class UploadedFileWidget(FileInput):
-    def __init__(self, attrs=None):
-        super(UploadedFileWidget, self).__init__(attrs)
+#class UploadedFileWidget(FileInput):
+    #def __init__(self, attrs=None):
+        #super(UploadedFileWidget, self).__init__(attrs)
 
-    def render(self, name, value, attrs=None):
-        visual=''
-        attrs = self.build_attrs(attrs, name=name)
+    #def render(self, name, value, attrs=None):
+        #visual=''
+        #attrs = self.build_attrs(attrs, name=name)
 
-        if value not in EMPTY_VALUES:
-            visual = """
-            <a href="/download_file/%(url)s">
-                <img src="%(media_url)s%(url)s" alt="%(url)s"/>
-            </a>""" % {
-                    'url': value,
-                    'media_url': settings.MEDIA_URL
-                }
-            attrs['type'] = 'hidden'
+        #if value not in EMPTY_VALUES:
+            #visual = """
+            #<a href="/download_file/%(url)s">
+                #<img src="%(media_url)s%(url)s" alt="%(url)s"/>
+            #</a>""" % {
+                    #'url': value,
+                    #'media_url': settings.MEDIA_URL
+                #}
+            #attrs['type'] = 'hidden'
 
-        input = super(UploadedFileWidget, self).render(name, value, attrs)
-        return mark_safe(input + visual)
+        #input = super(UploadedFileWidget, self).render(name, value, attrs)
+        #return mark_safe(input + visual)
 
 
 class TinyMCEEditor(Textarea):
