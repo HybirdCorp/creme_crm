@@ -401,21 +401,25 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         cal1 = Calendar.get_user_default_calendar(user)
         cal2 = Calendar.get_user_default_calendar(other_user)
-        cal3 = Calendar.objects.create(user=other_user, name='Cal #3', is_custom=True, is_default=False)
+        cal3 = Calendar.objects.create(user=other_user, name='Cal #3',
+                                       is_custom=True, is_default=False,
+                                       is_public=True,
+                                      )
+        self.assertFalse(cal2.is_public)
 
         #start = datetime(year=2013, month=4, day=1)
         start = self.create_datetime(year=2013, month=4, day=1)
 
         create = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_TASK)
-        act1 = create(title='Act#1', start=start + timedelta(days=1), end=start + timedelta(days=2))
-        act2 = create(title='Act#2', start=start + timedelta(days=1), end=start + timedelta(days=2)) #not in [cal1, cal2]
+        act1 = create(title='Act#1', start=start + timedelta(days=1),  end=start + timedelta(days=2))
+        act2 = create(title='Act#2', start=start + timedelta(days=1),  end=start + timedelta(days=2)) #not in [cal1, cal3]
         act3 = create(title='Act#3', start=start + timedelta(days=32), end=start + timedelta(days=33)) #start KO
         act4 = create(title='Act#4', start=start + timedelta(days=29), end=start + timedelta(days=30))
 
         act1.calendars = [cal1]
-        act2.calendars = [cal3]
-        act3.calendars = [cal2]
-        act4.calendars = [cal2]
+        act2.calendars = [cal2]
+        act3.calendars = [cal3]
+        act4.calendars = [cal3]
 
         create_ind = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_INDISPO)
         act6 = create_ind(title='Ind#1', start=start + timedelta(days=5), end=start + timedelta(days=6))
@@ -427,15 +431,20 @@ class CalendarTestCase(_ActivitiesTestCase):
         create_rel(subject_entity=contact1, object_entity=act8)
 
         response = self._get_cal_activities([user, other_user],
-                                            [cal1, cal2], # not cal3
+                                            [cal1, cal2], #cal2 should not be used, it does not belong to user (so, no 'act2')
                                             start=start.strftime('%s'),
                                            )
 
         with self.assertNoException():
             data = jsonloads(response.content)
 
-        self.assertEqual(set([act1.id, act4.id, act6.id, act8.id]),
-                         set(d['id'] for d in data),
+        expected = [act1, act4, act6, act8]
+        expected_ids = set(act.id for act in expected)
+        retrieved_ids = set(d['id'] for d in data)
+        self.assertEqual(expected_ids, retrieved_ids,
+                         '%s != %s (id map: %s)' % (expected_ids, retrieved_ids,
+                                                    ['%s -> %s' % (act.id, act.title) for act in expected]
+                                                   )
                         )
 
     def test_update_activity_date01(self):
