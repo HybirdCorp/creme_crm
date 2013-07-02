@@ -31,9 +31,8 @@ from django.utils.encoding import force_unicode
 from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.safestring import mark_safe
 #from django.utils.formats import date_format
-from django.core.validators import EMPTY_VALUES
+#from django.core.validators import EMPTY_VALUES
 from django.conf import settings
-#from django.db.models.query import QuerySet
 
 from ..utils.media import creme_media_themed_url as media_url
 from ..utils.date_range import date_range_registry
