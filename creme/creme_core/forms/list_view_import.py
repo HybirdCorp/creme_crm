@@ -875,7 +875,7 @@ class ImportForm(CremeModelForm):
 
 
 class ImportForm4CremeEntity(ImportForm):
-    user            = ModelChoiceField(label=_('User'), queryset=User.objects.all(), empty_label=None)
+    user            = ModelChoiceField(label=_('Owner user'), queryset=User.objects.all(), empty_label=None) #label=_('User')
     property_types  = ModelMultipleChoiceField(label=_(u'Properties'), required=False,
                                                queryset=CremePropertyType.objects.none(),
                                                widget=UnorderedMultipleChoiceWidget)

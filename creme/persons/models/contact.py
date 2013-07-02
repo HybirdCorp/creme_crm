@@ -49,7 +49,10 @@ class Contact(CremeEntity):
     language        = ManyToManyField(Language, verbose_name=_(u'Spoken language(s)'), blank=True, null=True, editable=False) #TODO: remove this field
     billing_address  = ForeignKey(Address, verbose_name=_(u'Billing address'), blank=True, null=True, related_name='billing_address_contact_set', editable=False) #.set_tags(clonable=False) useless
     shipping_address = ForeignKey(Address, verbose_name=_(u'Shipping address'), blank=True, null=True, related_name='shipping_address_contact_set', editable=False)
-    is_user         = ForeignKey(User, verbose_name=_(u'Is an user'), blank=True, null=True, related_name='related_contact', on_delete=SET_NULL, editable=False).set_tags(clonable=False)
+    is_user         = ForeignKey(User, verbose_name=_(u'Related user'), #verbose_name=_(u'Is an user'),
+                                 blank=True, null=True, related_name='related_contact',
+                                 on_delete=SET_NULL, editable=False
+                                ).set_tags(clonable=False)
     birthday        = DateField(_(u"Birthday"), blank=True, null=True)
     image           = ForeignKey(Image, verbose_name=_(u'Photograph'), blank=True, null=True, on_delete=SET_NULL)
 

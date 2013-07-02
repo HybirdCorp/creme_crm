@@ -37,7 +37,7 @@ class Memo(CremeModel):
     content       = TextField(_(u'Content'), blank=True, null=True)
     on_homepage   = BooleanField(_(u"Displayed on homepage"), blank=True, default=False)
     creation_date = DateTimeField(_(u'Creation date'), editable=False)
-    user          = CremeUserForeignKey(verbose_name=_(u"Assigned to"))
+    user          = CremeUserForeignKey(verbose_name=_('Owner user')) #verbose_name=_(u"Assigned to")
 
     entity_content_type = ForeignKey(ContentType, related_name="memo_entity_set", editable=False)
     entity_id           = PositiveIntegerField(editable=False)

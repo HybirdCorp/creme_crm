@@ -84,7 +84,7 @@ class EntityFilter(Model): #CremeModel ???
     """
     id          = CharField(primary_key=True, max_length=100, editable=False).set_tags(viewable=False)
     name        = CharField(max_length=100, verbose_name=_('Name'))
-    user        = CremeUserForeignKey(verbose_name=_(u'Owner'), blank=True, null=True).set_tags(viewable=False)
+    user        = CremeUserForeignKey(verbose_name=_(u'Owner user'), blank=True, null=True).set_tags(viewable=False) #verbose_name=_(u'Owner')
     #entity_type = ForeignKey(ContentType, editable=False)
     entity_type = CTypeForeignKey(editable=False).set_tags(viewable=False)
     is_custom   = BooleanField(editable=False, default=True).set_tags(viewable=False)

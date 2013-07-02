@@ -7,7 +7,7 @@ try:
     from django.contrib.contenttypes.models import ContentType
 
     from ..base import CremeTestCase
-    from creme.creme_core.models import CremePropertyType, CremeProperty, CremeEntity #, PreferedMenuItem
+    from creme.creme_core.models import CremePropertyType, CremeProperty, CremeEntity
     from creme.creme_core.utils import meta
 
     from creme.persons.models import Contact
@@ -123,7 +123,8 @@ class MetaTestCase(CremeTestCase):
                           ('header_filter_search_field', 'header filter search field'),
                           ('is_deleted',                 'is deleted'),
                           ('is_actived',                 'is actived'),
-                          ('user',                       _('User')),
+                          #('user',                       _('User')),
+                          ('user',                       _('Owner user')),
                          ],
                          choices, choices
                         )
@@ -142,7 +143,8 @@ class MetaTestCase(CremeTestCase):
 
         expected = [('created',  _('Creation date')),
                     ('modified', _('Last modification')),
-                    ('user',     _('User'))
+                    #('user',     _('User'))
+                    ('user',     _('Owner user'))
                    ]
         choices = meta.ModelFieldEnumerator(CremeEntity, only_leafs=False).filter(viewable=True).choices()
         self.assertEqual(expected, choices, choices)
@@ -152,7 +154,8 @@ class MetaTestCase(CremeTestCase):
 
     def test_field_enumerator03(self):
         "deep = 1"
-        fs = u'[%s] - %%s' % _('User')
+        #fs = u'[%s] - %%s' % _('User')
+        fs = u'[%s] - %%s' % _('Owner user')
         expected = [('created',          _('Creation date')),
                     ('modified',         _('Last modification')),
                     #('user',             _('User')),
@@ -168,7 +171,8 @@ class MetaTestCase(CremeTestCase):
         self.assertEqual(meta.ModelFieldEnumerator(CremeEntity, deep=1, only_leafs=False).filter(viewable=True).choices(),
                          [('created',          _('Creation date')),
                           ('modified',         _('Last modification')),
-                          ('user',             _('User')),
+                          #('user',             _('User')),
+                          ('user',             _('Owner user')),
                           ('user__username',   fs % _('username')),
                           ('user__first_name', fs % _('first name')),
                           ('user__last_name',  fs % _('last name')),
@@ -215,7 +219,8 @@ class MetaTestCase(CremeTestCase):
 
     def test_field_enumerator06(self):
         "Filter/exclude : multiple conditions + field true attributes"
-        expected = [('user',             _('User')),
+        expected = [#('user',             _('User')),
+                    ('user',             _('Owner user')),
                     ('civility',         _('Civility')),
                     ('last_name',        _('Last name')),
                     ('first_name',       _('First name')),
@@ -244,9 +249,11 @@ class MetaTestCase(CremeTestCase):
         "Ordering of FKs"
         choices = meta.ModelFieldEnumerator(Ticket, deep=1, only_leafs=False).filter(viewable=True).choices()
         fs = u'[%s] - %s'
+        #user_lbl = _('User')
+        user_lbl = _('Owner user')
         self.assertEqual([('created',           _('Creation date')),
                           ('modified',          _('Last modification')),
-                          ('user',              _('User')),
+                          ('user',              user_lbl),
                           ('title',             _('Title')),
                           ('description',       _('Description')),
                           ('status',            _('Status')),
@@ -254,12 +261,12 @@ class MetaTestCase(CremeTestCase):
                           ('criticity',         _('Criticity')),
                           ('solution',          _('Solution')),
                           ('closing_date',      _('Closing date')),
-                          ('user__username',    fs % (_('User'), _('username'))),
-                          ('user__first_name',  fs % (_('User'), _('first name'))),
-                          ('user__last_name',   fs % (_('User'), _('last name'))),
-                          ('user__email',       fs % (_('User'), _('e-mail address'))),
-                          ('user__role',        fs % (_('User'), _('Role'))),
-                          ('user__is_team',     fs % (_('User'), _('Is a team ?'))),
+                          ('user__username',    fs % (user_lbl, _('username'))),
+                          ('user__first_name',  fs % (user_lbl, _('first name'))),
+                          ('user__last_name',   fs % (user_lbl, _('last name'))),
+                          ('user__email',       fs % (user_lbl, _('e-mail address'))),
+                          ('user__role',        fs % (user_lbl, _('Role'))),
+                          ('user__is_team',     fs % (user_lbl, _('Is a team ?'))),
                           ('status__name',      fs % (_('Status'), _('Name'))),
                           #('status__is_custom', fs % (_('Status'), _('is custom'))),
                           ('priority__name',    fs % (_('Priority'), _('Name'))),

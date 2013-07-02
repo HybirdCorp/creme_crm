@@ -282,7 +282,7 @@ class ReportTestCase(BaseReportsTestCase):
         response = self.assertGET200('/reports/report/export/%s/csv' % report.id)
         self.assertEqual('text/html; charset=utf-8', response.request['CONTENT_TYPE'])
         self.assertEqual(smart_str('"%s","%s","%s","%s"\r\n' % (
-                                      _(u'Name'), _(u'User'), rt.predicate, _(u'Properties')
+                                      _(u'Name'), _(u'Owner user'), rt.predicate, _(u'Properties')
                                     )
                                   ),
                          response.content
@@ -298,7 +298,7 @@ class ReportTestCase(BaseReportsTestCase):
         content = [s for s in response.content.split('\r\n') if s]
         self.assertEqual(5, len(content)) #4 contacts + header
         self.assertEqual(smart_str('"%s","%s","%s","%s"' % (
-                                      _(u'Last name'), _(u'User'), _(u'owns'), _(u'Properties')
+                                      _(u'Last name'), _(u'Owner user'), _(u'owns'), _(u'Properties')
                                     )
                                   ),
                          content[0]

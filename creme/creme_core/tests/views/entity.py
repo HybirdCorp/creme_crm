@@ -57,7 +57,8 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertEqual(7, len(content))
 
         fmt = u'[%s] - %s'
-        user_str = _('User')
+        #user_str = _('User')
+        user_str = _('Owner user')
         self.assertEqual(content[0],    ['created',          _('Creation date')])
         self.assertEqual(content[1],    ['modified',         _('Last modification')])
         self.assertEqual(content[2],    ['user__username',   fmt % (user_str, _('username'))]) #TODO: hook user to set 'Username' ??
