@@ -124,7 +124,19 @@ class _ActivityForm(CremeEntityForm):
                 #end = datetime.combine(start, end_time)
                 end = make_aware_dt(datetime.combine(start, end_time))
             else:
-                end = start + atype.as_timedelta()
+                #end = start + atype.as_timedelta()
+                tdelta = atype.as_timedelta()
+
+                if (is_all_day or floating_type == FLOATING_TIME) and tdelta.days:
+                    # in 'all day' mode, we round the number of day
+                    days = tdelta.days - 1 #activity already takes 1 day (we do not want it takes 2)
+
+                    if tdelta.seconds:
+                        days += 1
+
+                    tdelta = timedelta(days=days)
+
+                end = start + tdelta
 
         if is_all_day or floating_type == FLOATING_TIME:
             start = start.replace(hour=0, minute=0)
