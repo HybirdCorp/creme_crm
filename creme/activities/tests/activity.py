@@ -291,14 +291,16 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertRelationCount(1, ranma, REL_SUB_ACTIVITY_SUBJECT,  act)
         self.assertRelationCount(1, dojo,  REL_SUB_LINKED_2_ACTIVITY, act)
 
-    def _create_task_by_view(self, **kwargs):
+    def _create_activity_by_view(self, title='My task',
+                                 atype_id=ACTIVITYTYPE_TASK, subtype_id=None,
+                                 **kwargs
+                                ):
         self.login()
 
         user = self.user
-        title = 'My task'
         data = {'user':             user.pk,
                 'title':            title,
-                'type_selector':    self._acttype_field_value(ACTIVITYTYPE_TASK),
+                'type_selector':    self._acttype_field_value(atype_id, subtype_id),
                 'my_participation': True,
                 'my_calendar':      Calendar.get_user_default_calendar(user).pk,
                }
@@ -310,25 +312,80 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_createview04(self):
         "No end but end time"
-        act = self._create_task_by_view(start='2013-3-29', start_time='14:30:00', end_time='15:45:00')
-        create_dt = self.create_datetime
-        self.assertEqual(create_dt(year=2013, month=3, day=29, hour=14, minute=30), act.start)
-        self.assertEqual(create_dt(year=2013, month=3, day=29, hour=15, minute=45), act.end)
+        act = self._create_activity_by_view(start='2013-3-29',
+                                            start_time='14:30:00',
+                                            end_time='15:45:00',
+                                           )
+        create_dt = partial(self.create_datetime, year=2013, month=3, day=29)
+        self.assertEqual(create_dt(hour=14, minute=30), act.start)
+        self.assertEqual(create_dt(hour=15, minute=45), act.end)
 
     def test_createview05(self):
         "FLOATING type"
-        act = self._create_task_by_view()
+        act = self._create_activity_by_view()
         self.assertIsNone(act.start)
         self.assertIsNone(act.end)
         self.assertEqual(FLOATING, act.floating_type)
 
     def test_createview06(self):
         "FLOATING_TIME type"
-        act = self._create_task_by_view(start='2013-3-30', end='2013-3-30')
-        create_dt = self.create_datetime
-        self.assertEqual(create_dt(year=2013, month=3, day=30, hour=0,  minute=0),  act.start)
-        self.assertEqual(create_dt(year=2013, month=3, day=30, hour=23, minute=59), act.end)
+        act = self._create_activity_by_view(start='2013-3-30', end='2013-3-30')
+        create_dt = partial(self.create_datetime, year=2013, month=3, day=30)
+        self.assertEqual(create_dt(hour=0,  minute=0),  act.start)
+        self.assertEqual(create_dt(hour=23, minute=59), act.end)
         self.assertEqual(FLOATING_TIME, act.floating_type)
+
+    def test_createview07(self):
+        "default_day_duration=1 + FLOATING_TIME"
+        atype = self.get_object_or_fail(ActivityType, id=ACTIVITYTYPE_SHOW)
+        self.assertEqual(1,          atype.default_day_duration)
+        self.assertEqual('00:00:00', atype.default_hour_duration)
+
+        act = self._create_activity_by_view('TGS', atype.id, start='2013-7-3')
+
+        create_dt = partial(self.create_datetime, year=2013, month=7, day=3)
+        self.assertEqual(create_dt(hour=0,  minute=0),  act.start)
+        self.assertEqual(create_dt(hour=23, minute=59), act.end)
+
+    def test_createview08(self):
+        "default_day_duration=1 + is_all_day"
+        act = self._create_activity_by_view('TGS', ACTIVITYTYPE_SHOW,
+                                            start='2013-7-3', is_all_day=True,
+                                           )
+
+        create_dt = partial(self.create_datetime, year=2013, month=7, day=3)
+        self.assertEqual(create_dt(hour=0,  minute=0),  act.start)
+        self.assertEqual(create_dt(hour=23, minute=59), act.end)
+
+    def test_createview09(self):
+        "default_duration = 1.5 day + FLOATING_TIME"
+        atype = ActivityType.objects.create(pk='activities-activity_custom_1',
+                                            name='Big Show', color='FFFFFF',
+                                            default_day_duration=1,
+                                            default_hour_duration='12:00:00',
+                                            is_custom=True,
+                                           )
+
+        act = self._create_activity_by_view('TGS', atype.id, start='2013-7-3')
+
+        create_dt = partial(self.create_datetime, year=2013, month=7)
+        self.assertEqual(create_dt(day=3, hour=0,  minute=0),  act.start)
+        self.assertEqual(create_dt(day=4, hour=23, minute=59), act.end)
+
+    def test_createview10(self):
+        "default_duration = 0 + FLOATING_TIME"
+        atype = ActivityType.objects.create(pk='activities-activity_custom_1',
+                                            name='Big Show', color="FFFFFF",
+                                            default_day_duration=0,
+                                            default_hour_duration='00:00:00',
+                                            is_custom=True,
+                                           )
+
+        act = self._create_activity_by_view('TGS', atype.id, start='2013-7-3')
+
+        create_dt = partial(self.create_datetime, year=2013, month=7, day=3)
+        self.assertEqual(create_dt(hour=0,  minute=0),  act.start)
+        self.assertEqual(create_dt(hour=23, minute=59), act.end)
 
     def test_createview_errors01(self):
         self.login()
