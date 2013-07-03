@@ -230,7 +230,7 @@ def safe_unicode(value, encodings=None):
     return unicode(value, encoding='utf-8', errors='replace')
 
 def safe_unicode_error(err, encodings=None):
-    #return safe_unicode(err.message) #this method is deprecated for python 3.* but str/unicode conversions won't be useful at all
+    #return safe_unicode(err.message)
 
     #Is this method deprecated for python 3.* (but str/unicode conversions won't be useful at all) ??
     try:
@@ -238,6 +238,7 @@ def safe_unicode_error(err, encodings=None):
     except:
         pass
 
+    # TODO : keep this deprecated method until migration to python 3.*, because some old APIs may use it in python 2.*
     msg = err.message
 
     #if isinstance(msg, basestring):

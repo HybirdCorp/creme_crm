@@ -3,9 +3,15 @@
 try:
     from django.conf import settings
 
+    from django.http import Http404
+    from django.test.client import RequestFactory
+
     from ..base import CremeTestCase
     from creme.creme_core.auth.entity_credentials import EntityCredentials
     from creme.creme_core.models import SetCredentials, Language, Currency
+    from creme.creme_core.utils import is_testenvironment
+
+    from creme.creme_core.views.testjs import js_testview_or_404
 
     from creme.persons.models import Contact
 except Exception as e:
@@ -75,11 +81,28 @@ class MiscViewsTestCase(ViewsTestCase):
         self.assertRedirects(response, '/creme_login/')
 
     def test_js_view(self):
+        factory = RequestFactory()
+
+        request = factory.get('/test_js');
         self.assertFalse(settings.FORCE_JS_TESTVIEW)
-        self.assertGET404('/test_js')
+        self.assertTrue(is_testenvironment(request));
+
+        with self.assertRaises(Http404):
+            js_testview_or_404(request, '', '')
 
         settings.FORCE_JS_TESTVIEW = True
-        self.assertGET200('/test_js')
+        self.assertTrue(settings.FORCE_JS_TESTVIEW)
+        self.assertTrue(is_testenvironment(request));
+
+        with self.assertRaises(Http404):
+            js_testview_or_404(request, '', '')
+
+        request.META['SERVER_NAME'] = 'otherserver'
+        self.assertTrue(settings.FORCE_JS_TESTVIEW)
+        self.assertFalse(is_testenvironment(request));
+
+        with self.assertNoException():
+            js_testview_or_404(request, '', '')
 
 class LanguageTestCase(ViewsTestCase):
     @classmethod

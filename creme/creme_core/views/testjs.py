@@ -29,7 +29,6 @@ from django.http import Http404
 from django.conf import settings
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.utils.formats import time_format
 from django.utils.safestring import mark_safe
 from django.utils.timezone import now
 
@@ -97,9 +96,6 @@ class Dummy(object):
         return self.name
 
 
-def print_datetime(entity, fval, user):
-    return time_format(fval, 'TIME_FORMAT') if fval else ''
-
 class DummyListBlock(PaginatedBlock):
     id_           = PaginatedBlock.generate_id('creme_core', 'test_dummy_list')
     verbose_name  = u'Dummies'
@@ -125,10 +121,7 @@ dummy_list_block = DummyListBlock()
 block_registry.register(dummy_list_block)
 
 def js_testview_or_404(request, message, error):
-    if is_testenvironment(request) and not settings.FORCE_JS_TESTVIEW:
-        raise Http404(error)
-
-    if not settings.FORCE_JS_TESTVIEW:
+    if is_testenvironment(request) or not settings.FORCE_JS_TESTVIEW:
         raise Http404(error)
 
     logger.warn(message)
@@ -158,15 +151,15 @@ def js_testview_context(request, viewname):
 def test_js(request):
     js_testview_or_404(request, 
                        "Beware : If you are not running unittest this view shouldn't be reachable. Check your server configuration.",
-                       'This is view is only reachable during unittests')
+                       'This is view is only reachable during javascript unittests')
 
     return render(request, 'creme_core/test_js.html')
 
 @login_required
 def test_widget(request, widget):
     js_testview_or_404(request, 
-                       "Beware : If you are not running unittest this view shouldn't be reachable. Check your server configuration.",
-                       'This is view is only reachable during unittests')
+                       "Beware : If you are not in testing javascript widgets this view shouldn't be reachable. Check your server configuration.",
+                       'This is view is only reachable during javascript debug')
 
     context = js_testview_context(request, widget)
     theme = context['THEME_NAME']
