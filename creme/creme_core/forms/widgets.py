@@ -454,24 +454,31 @@ class TimeWidget(TextInput):
     def render(self, name, value, attrs=None):
         attrs = self.build_attrs(attrs, name=name, type='hidden')
 
-        return mark_safe("""
-            <ul id="%(id)s_timepicker" class="ui-creme-timepicker">
-                %(input)s
-                <li class="hour"><input class="ui-corner-all" type="text" maxlength="2"/></li>
-                <li>%(hour_label)s</li>
-                <li class="minute"><input class="ui-corner-all" type="text" maxlength="2"/></li>
-                <li>%(minute_label)s</li>
-                <li><button type="button">%(now_label)s</button></li>
-            </ul>
-            <script type="text/javascript">
-                $('.ui-creme-timepicker#%(id)s_timepicker').each(function() {creme.forms.TimePicker.init($(this));});
-            </script>""" % {
-                'input':        super(TimeWidget, self).render(name, value, attrs),
+        return mark_safe(
+"""<ul id="%(id)s_timepicker" class="ui-creme-timepicker">
+    %(input)s
+    <li class="hour"><input class="ui-corner-all" type="text" maxlength="2"/></li>
+    <li>%(hour_label)s</li>
+    <li class="minute"><input class="ui-corner-all" type="text" maxlength="2"/></li>
+    <li>%(minute_label)s</li>
+    <li><button type="button">%(now_label)s</button></li>
+</ul>
+<script type="text/javascript">
+    $('.ui-creme-timepicker#%(id)s_timepicker').each(function() {creme.forms.TimePicker.init($(this));});
+</script>""" % {'input':        super(TimeWidget, self).render(name, value, attrs),
                 'hour_label':   _(u'h'),
                 'minute_label': '',
                 'id':           attrs['id'],
                 'now_label':    _(u'Now'),
               })
+
+    def value_from_datadict(self, data, files, name):
+        value = data.get(name, '')
+
+        if value.strip() == ':':
+            value = ''
+
+        return value
 
 
 class CalendarWidget(TextInput):
