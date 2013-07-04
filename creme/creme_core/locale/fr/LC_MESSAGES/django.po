@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-07-03 23:45+0200\n"
+"POT-Creation-Date: 2013-07-04 15:49+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -363,11 +363,11 @@ msgstr "A la relation"
 msgid "Does not have the relationship"
 msgstr "N'a pas la relation"
 
-#: forms/entity_filter.py:56 forms/entity_filter.py:59 models/history.py:102
+#: forms/entity_filter.py:56 forms/entity_filter.py:59 models/history.py:103
 msgid "True"
 msgstr "Vrai"
 
-#: forms/entity_filter.py:56 forms/entity_filter.py:59 models/history.py:102
+#: forms/entity_filter.py:56 forms/entity_filter.py:59 models/history.py:103
 msgid "False"
 msgstr "Faux"
 
@@ -543,7 +543,7 @@ msgstr ""
 msgid "Start date has to be before end date."
 msgstr "La date début doit être avant la date de fin."
 
-#: forms/fields.py:1072 forms/widgets.py:235 forms/widgets.py:907
+#: forms/fields.py:1072 forms/widgets.py:235 forms/widgets.py:914
 msgid "Customized"
 msgstr "Personnalisé"
 
@@ -821,7 +821,7 @@ msgstr "Le"
 msgid "at"
 msgstr "à"
 
-#: forms/widgets.py:445 forms/widgets.py:470
+#: forms/widgets.py:445 forms/widgets.py:469
 msgid "h"
 msgstr "h"
 
@@ -829,19 +829,19 @@ msgstr "h"
 msgid "Clean"
 msgstr "Effacer"
 
-#: forms/widgets.py:449 forms/widgets.py:473
+#: forms/widgets.py:449 forms/widgets.py:472
 msgid "Now"
 msgstr "Maintenant"
 
-#: forms/widgets.py:954
+#: forms/widgets.py:961
 msgid "Hour(s)"
 msgstr "Heure(s)"
 
-#: forms/widgets.py:955
+#: forms/widgets.py:962
 msgid "Minute(s)"
 msgstr "Minute(s)"
 
-#: forms/widgets.py:956
+#: forms/widgets.py:963
 msgid "Second(s)"
 msgstr "Seconde(s)"
 
@@ -1119,9 +1119,8 @@ msgid "Decimal"
 msgstr "Nombre à virgule"
 
 #: models/custom_field.py:242
-#: templates/creme_core/templatetags/block_history.html:12
-msgid "Date"
-msgstr "Date"
+msgid "Date and time"
+msgstr "Date et heure"
 
 #: models/custom_field.py:264
 msgid "Boolean (2 values: Yes/No)"
@@ -1308,102 +1307,102 @@ msgstr "Cette vue ne peut être modifiée/effacée"
 msgid "You are not allowed to edit/delete this view"
 msgstr "Vous n'êtes pas autorisé à modifier/supprimer cette vue"
 
-#: models/history.py:91
+#: models/history.py:92
 #, python-format
 msgid "Entity #%s"
 msgstr "Fiche #%s"
 
-#: models/history.py:203 models/history.py:209
+#: models/history.py:204 models/history.py:210
 #, python-format
 msgid "Set field “%(field)s”"
 msgstr "Champ “%(field)s” modifié"
 
-#: models/history.py:211
+#: models/history.py:212
 #, python-format
 msgid "Set field “%(field)s” to “%(value)s”"
 msgstr "Champ “%(field)s” mis à “%(value)s”"
 
-#: models/history.py:217
+#: models/history.py:218
 #, python-format
 msgid "Set field “%(field)s” from “%(oldvalue)s” to “%(value)s”"
 msgstr "Champ “%(field)s” passe de “%(oldvalue)s” à “%(value)s”"
 
-#: models/history.py:233
+#: models/history.py:234
 msgid "Creation"
 msgstr "Création"
 
-#: models/history.py:246
+#: models/history.py:247
 msgid "Edition"
 msgstr "Modification"
 
-#: models/history.py:263
+#: models/history.py:264
 msgid "Deletion"
 msgstr "Suppression"
 
-#: models/history.py:276
+#: models/history.py:277
 msgid "Related modification"
 msgstr "Modification liée"
 
-#: models/history.py:300
+#: models/history.py:301
 msgid "Property creation"
 msgstr "Création de propriété"
 
-#: models/history.py:301
+#: models/history.py:302
 #, python-format
 msgid "Add property “%s”"
 msgstr "Ajout de la propriété “%s”"
 
-#: models/history.py:322
+#: models/history.py:323
 msgid "Property deletion"
 msgstr "Suppression de propriété"
 
-#: models/history.py:323
+#: models/history.py:324
 #, python-format
 msgid "Delete property “%s”"
 msgstr "Suppression de la propriété “%s”"
 
-#: models/history.py:334 models/relation.py:205
+#: models/history.py:335 models/relation.py:205
 #: templates/creme_core/templatetags/block_relations.html:7
 msgid "Relationship"
 msgstr "Relation"
 
-#: models/history.py:337
+#: models/history.py:338
 #, python-format
 msgid "Add a relationship “%s”"
 msgstr "Ajout de la relation: “%s”"
 
-#: models/history.py:375
+#: models/history.py:376
 msgid "Relationship deletion"
 msgstr "Suppression de Relation"
 
-#: models/history.py:376
+#: models/history.py:377
 #, python-format
 msgid "Delete a relationship “%s”"
 msgstr "Suppression de la relation “%s”"
 
-#: models/history.py:391
+#: models/history.py:392
 msgid "Auxiliary (creation)"
 msgstr "Auxiliaire (création)"
 
-#: models/history.py:412
+#: models/history.py:413
 #, python-format
 msgid "Add <%(type)s>: “%(value)s”"
 msgstr "Ajout de <%(type)s>: “%(value)s”"
 
-#: models/history.py:420
+#: models/history.py:421
 msgid "Auxiliary (edition)"
 msgstr "Auxiliaire (édition)"
 
-#: models/history.py:439
+#: models/history.py:440
 #, python-format
 msgid "Edit <%(type)s>: “%(value)s”"
 msgstr "Édition de <%(type)s>: “%(value)s”"
 
-#: models/history.py:450
+#: models/history.py:451
 msgid "Auxiliary (deletion)"
 msgstr "Auxiliaire (suppression)"
 
-#: models/history.py:459
+#: models/history.py:460
 #, python-format
 msgid "Delete <%(type)s>: “%(value)s”"
 msgstr "Suppression de <%(type)s>: “%(value)s”"
@@ -1798,6 +1797,10 @@ msgstr "Modifier «%s»"
 #, python-format
 msgid "Modify %(object)s"
 msgstr "Modifier %(object)s"
+
+#: templates/creme_core/templatetags/block_history.html:12
+msgid "Date"
+msgstr "Date"
 
 #: templates/creme_core/templatetags/block_history.html:14
 msgid "Concerned entity"
@@ -2428,9 +2431,6 @@ msgstr "Vous n'avez pas accés à cette application: %s"
 
 #~ msgid "Is not empty"
 #~ msgstr "N'est pas vide"
-
-#~ msgid "Date range"
-#~ msgstr "Interval de date"
 
 #~ msgid "Begin date"
 #~ msgstr "Date de début"
