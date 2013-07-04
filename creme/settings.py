@@ -64,7 +64,7 @@ DEFAULT_ENCODING = 'UTF8'
 
 DATE_FORMAT         = 'd-m-Y'
 SHORT_DATE_FORMAT   = 'd-m-Y'
-DATE_FORMAT_VERBOSE = _(u'Format : Day-Month-Year (Ex:31-12-2010)')
+DATE_FORMAT_VERBOSE = _(u'Format: Day-Month-Year (Ex:31-12-2013)')
 DATE_FORMAT_JS      = {
     'd-m-Y': 'dd-mm-yy',
 }
@@ -77,7 +77,7 @@ DATE_INPUT_FORMATS = (
 )
 
 DATETIME_FORMAT         = '%s H:i:s' % DATE_FORMAT
-DATETIME_FORMAT_VERBOSE = _(u'Format : Day-Month-Year Hour:Minute:Second (Ex:31-12-2010 23:59:59)')
+DATETIME_FORMAT_VERBOSE = _(u'Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2013 23:59:59)')
 DATETIME_INPUT_FORMATS  = (
     '%d-%m-%Y', '%d/%m/%Y',
     '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%d',
