@@ -25,6 +25,7 @@ import logging
 from django.forms import IntegerField, BooleanField, ModelChoiceField, ModelMultipleChoiceField
 from django.forms.fields import ChoiceField # DateTimeField
 from django.forms.util import ValidationError, ErrorList
+from django.utils.timezone import localtime
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.contrib.auth.models import User
 
@@ -183,6 +184,9 @@ class ActivityEditForm(_ActivityForm):
         instance = self.instance
         return instance.type, instance.sub_type
 
+    def _localize(self, dt):
+        return localtime(dt) if dt else dt
+
     def __init__(self, *args, **kwargs):
         super(ActivityEditForm, self).__init__(*args, **kwargs)
         fields = self.fields
@@ -190,11 +194,14 @@ class ActivityEditForm(_ActivityForm):
 
         fields['sub_type'].queryset = ActivitySubType.objects.filter(type=instance.type)
 
-        if instance.start and not (instance.is_all_day or instance.floating_type == FLOATING_TIME):
-            fields['start_time'].initial = instance.start.time()
+        if instance.floating_type == NARROW:
+            start = self._localize(instance.start)
+            if start:
+                fields['start_time'].initial = start.time()
 
-        if instance.end:
-            fields['end_time'].initial = instance.end.time()
+            end = self._localize(instance.end)
+            if end:
+                fields['end_time'].initial = end.time()
 
     def _get_participants_2_check(self):
         return self.instance.get_related_entities(REL_OBJ_PART_2_ACTIVITY)
