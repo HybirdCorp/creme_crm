@@ -725,6 +725,32 @@ class ContactTestCase(_BaseTestCase):
                                 ]
                                )
 
+    def test_quickform12(self):
+        "Multiple Organisations found, only one is not deleted (so we use it)"
+        self.login()
+
+        orga_name = 'Bebop'
+        create_orga = partial(Organisation.objects.create, name=orga_name, user=self.user)
+        create_orga(is_deleted=True)
+        orga2 = create_orga()
+
+        first_name = 'Faye'
+        last_name = 'Valentine'
+        response = self.client.post(self._build_quickform_url(1),
+                                    data={'form-TOTAL_FORMS':    1,
+                                          'form-INITIAL_FORMS':  0,
+                                          'form-MAX_NUM_FORMS':  u'',
+                                          'form-0-user':         self.user.id,
+                                          'form-0-first_name':   first_name,
+                                          'form-0-last_name':    last_name,
+                                          'form-0-organisation': orga_name,
+                                         }
+                                   )
+        self.assertFormSetError(response, 'formset', 0, 'organisation', None)
+
+        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+        self.assertRelationCount(1, contact, REL_SUB_EMPLOYED_BY, orga2)
+
     def test_merge01(self):
         "Merging addresses"
         self.login()

@@ -76,6 +76,7 @@ class ContactQuickForm(CremeModelWithUserForm): #not CremeEntityForm to ignore c
                     orga = None
                 else:
                     has_perm = self.user.has_perm_to_link
+                    #NB: remember that deleted Organisations are not linkable
                     linkable_orgas = [o for o in orgas if has_perm(o)]
 
                     if not linkable_orgas:

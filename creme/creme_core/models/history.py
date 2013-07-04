@@ -87,6 +87,7 @@ def _fk_printer(field, val):
 
     model = field.rel.to
 
+    #TODO: improve this (allowed_unicode() on real_entity; test with Contact.image)
     if issubclass(model, CremeEntity):
         return ugettext(u'Entity #%s') % val
 
