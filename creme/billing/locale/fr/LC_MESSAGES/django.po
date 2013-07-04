@@ -2,13 +2,13 @@
 # Copyright (C) 2013 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin.py makemessages -l fr -e html -i "tests/*"
+# > django-admin.py makemessages -l fr -e html -i "tests/*" -i "migrations/*"
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-05-16 15:45+0200\n"
+"POT-Creation-Date: 2013-07-03 15:07+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -35,7 +35,7 @@ msgstr "Ajouter un avoir"
 msgid "Total"
 msgstr "Total"
 
-#: blocks.py:128 forms/base.py:50 models/other_models.py:126
+#: blocks.py:128 forms/base.py:60 models/other_models.py:126
 #: templates/billing/templatetags/block_target.html:10
 msgid "Target organisation"
 msgstr "Société réceptrice"
@@ -64,15 +64,15 @@ msgstr "Information de paiement par défaut"
 msgid "Generate the number of the Invoice"
 msgstr "Générer le numéro de facture"
 
-#: buttons.py:67
+#: buttons.py:68
 msgid "Add a related invoice"
 msgstr "Nouvelle facture"
 
-#: buttons.py:75
+#: buttons.py:76
 msgid "Add a related sales order"
 msgstr "Nouveau bon de commande"
 
-#: buttons.py:83
+#: buttons.py:84
 msgid "Add a related quote"
 msgstr "Nouveau devis"
 
@@ -84,39 +84,39 @@ msgstr "Pourcentage"
 msgid "Amount"
 msgstr "Montant"
 
-#: creme_core_register.py:31
+#: creme_core_register.py:33
 msgid "Billing"
 msgstr "Facturation"
 
-#: creme_core_register.py:35
+#: creme_core_register.py:37
 msgid "Portal of billing"
 msgstr "Portail de facturation"
 
-#: creme_core_register.py:37
+#: creme_core_register.py:39
 msgid "All invoices"
 msgstr "Lister les factures"
 
-#: creme_core_register.py:39
+#: creme_core_register.py:41
 msgid "All sales orders"
 msgstr "Lister les bons de commande"
 
-#: creme_core_register.py:41
+#: creme_core_register.py:43
 msgid "All quotes"
 msgstr "Lister les devis"
 
-#: creme_core_register.py:43
+#: creme_core_register.py:45
 msgid "All credit notes"
 msgstr "Lister les avoirs"
 
-#: creme_core_register.py:44
+#: creme_core_register.py:46
 msgid "All lines"
 msgstr "Lister les lignes"
 
-#: creme_core_register.py:45
+#: creme_core_register.py:47
 msgid "All product lines"
 msgstr "Lister les lignes produit"
 
-#: creme_core_register.py:46
+#: creme_core_register.py:48
 msgid "All service lines"
 msgstr "Lister les lignes service"
 
@@ -333,7 +333,7 @@ msgstr "Factures impayées"
 msgid "Invoices unpaid and late"
 msgstr "Factures impayées et en retard"
 
-#: populate.py:225
+#: populate.py:231
 msgid ""
 "Display payment information block only on the detailview of organisations "
 "managed by Creme"
@@ -341,67 +341,66 @@ msgstr ""
 "Afficher le bloc d'informations de paiement uniquement sur les fiches des "
 "sociétés gérées par Creme"
 
-#: populate.py:251
+#: populate.py:257
 msgid "Current year invoices"
 msgstr "Factures de l'année en cours"
 
-#: populate.py:254
+#: populate.py:260
 msgid "Current year and unpaid invoices"
 msgstr "Factures impayées de l'année en cours"
 
-#: populate.py:273
+#: populate.py:279
 msgid "All invoices of the current year"
 msgstr "Toutes les factures de l'année en cours"
 
-#: populate.py:280
+#: populate.py:286
 msgid "Sum of current year invoices total without taxes / month"
 msgstr "Somme des totaux HT des factures de l'année en cours / mois"
 
-#: populate.py:281
+#: populate.py:287
 msgid "Sum of current year invoices total without taxes / invoices status"
 msgstr "Somme des totaux HT des factures de l'année en cours / statut"
 
-#: populate.py:289
+#: populate.py:295
 msgid "Invoices unpaid of the current year"
 msgstr "Factures impayées de l'année en cours"
 
-#: populate.py:296
+#: populate.py:302
 msgid "Sum of current year and unpaid invoices total without taxes / month"
 msgstr "Somme des totaux HT des factures impayées de l'année en cours / mois"
 
-#: forms/base.py:49 templates/billing/templatetags/block_target.html:16
+#: forms/base.py:59 forms/lv_import.py:36
+#: templates/billing/templatetags/block_target.html:16
 msgid "Source organisation"
 msgstr "Société émettrice"
 
-#: forms/base.py:52 models/base.py:53
+#: forms/base.py:62 models/base.py:53
 #: templates/billing/templatetags/block_billing.html:39
 #: templates/billing/templatetags/block_credit_note.html:25
 msgid "Issuing date"
 msgstr "Émission"
 
-#: forms/base.py:53 models/base.py:54
+#: forms/base.py:63 models/base.py:54
 #: templates/billing/templatetags/block_credit_note.html:26
 #: templates/billing/templatetags/block_received_billing_document.html:15
 #: templates/billing/templatetags/block_received_invoices.html:17
 msgid "Expiration date"
 msgstr "Échéance"
 
-#: forms/base.py:56 models/algo.py:36 models/algo.py:46
+#: forms/base.py:66 models/algo.py:36 models/algo.py:46
 msgid "Organisation"
 msgstr "Société"
 
-#: forms/base.py:100
+#: forms/base.py:110
 msgid "Your discount is a %. It must be between 1 and 100%"
 msgstr ""
 "Cette remise est un pourcentage %. Sa valeur doit se situer entre 1 et 100%"
 
-#: forms/base.py:178 migrations/0012_v1_2__copy_adresses.py:35
-#: models/base.py:56
+#: forms/base.py:196 forms/lv_import.py:58 models/base.py:56
 msgid "Billing address"
 msgstr "Adresse de facturation"
 
-#: forms/base.py:179 migrations/0012_v1_2__copy_adresses.py:36
-#: models/base.py:57
+#: forms/base.py:197 forms/lv_import.py:59 models/base.py:57
 msgid "Shipping address"
 msgstr "Adresse de livraison"
 
@@ -502,6 +501,10 @@ msgstr ""
 "Ceci vous permet d'enregistrer un service à la volée en tant que service à "
 "part entière, dans ce cas là, la catégorie et sous-catégorie sont "
 "obligatoires."
+
+#: forms/lv_import.py:38 templates/billing/templatetags/block_target.html:5
+msgid "Target"
+msgstr "Cible"
 
 #: forms/templatebase.py:31 models/other_models.py:44
 #: templates/billing/templatetags/block_billing.html:80
@@ -697,43 +700,35 @@ msgid "Order"
 msgstr "Ordre"
 
 #: models/other_models.py:60
-msgctxt "billing-singular"
 msgid "Invoice status"
 msgstr "Statut de facture"
 
 #: models/other_models.py:61
-msgctxt "billing-plural"
-msgid "Invoice status"
+msgid "Invoice statuses"
 msgstr "Statuts de facture"
 
 #: models/other_models.py:67
-msgctxt "billing-singular"
 msgid "Quote status"
 msgstr "Statut de devis"
 
 #: models/other_models.py:68
-msgctxt "billing-plural"
-msgid "Quote status"
+msgid "Quote statuses"
 msgstr "Statuts de devis"
 
 #: models/other_models.py:74
-msgctxt "billing-singular"
 msgid "Sales order status"
 msgstr "Statut de bon de commande"
 
 #: models/other_models.py:75
-msgctxt "billing-plural"
-msgid "Sales order status"
+msgid "Sales order statuses"
 msgstr "Statuts de bon de commande"
 
 #: models/other_models.py:81
-msgctxt "billing-singular"
 msgid "Credit note status"
 msgstr "Statut d'avoir"
 
 #: models/other_models.py:82
-msgctxt "billing-plural"
-msgid "Credit note status"
+msgid "Credit note statuses"
 msgstr "Statuts d'avoir"
 
 #: models/other_models.py:87 models/other_models.py:101
@@ -805,7 +800,7 @@ msgstr "Information de paiement"
 
 #: models/other_models.py:134
 msgctxt "billing-plural"
-msgid "Payments information"
+msgid "Payment information"
 msgstr "Informations de paiement"
 
 #: models/product_line.py:29
@@ -1096,10 +1091,6 @@ msgstr "Liste des Services relatifs"
 msgid "No service in this document"
 msgstr "Aucun service dans ce document"
 
-#: templates/billing/templatetags/block_target.html:5
-msgid "Target"
-msgstr "Cible"
-
 #: templates/billing/templatetags/block_total.html:5
 msgid "Totals"
 msgstr "Totaux"
@@ -1144,7 +1135,7 @@ msgstr "%(src)s (converti en patron de <%(dest)s>)"
 msgid "%(src)s (converted into  %(dest)s)"
 msgstr "%(src)s (converti en %(dest)s)"
 
-#: views/credit_note.py:68
+#: views/credit_note.py:69
 #, python-format
 msgid "Credit notes for <%s>"
 msgstr "Avoirs consommables par <%s>"
@@ -1169,12 +1160,12 @@ msgstr "Ajouter un ou plusieurs produits à <%s>"
 msgid "Add one or more service to <%s>"
 msgstr "Ajouter un ou plusieurs services à <%s>"
 
-#: views/payment_information.py:36
+#: views/payment_information.py:37
 #, python-format
 msgid "New payment information in the organisation <%s>"
 msgstr "Nouvelle information de paiement pour la société <%s>"
 
-#: views/payment_information.py:41
+#: views/payment_information.py:45
 #, python-format
 msgid "Payment information for <%s>"
 msgstr "Information de paiement pour <%s>"

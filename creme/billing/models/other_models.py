@@ -57,29 +57,29 @@ class AbstractStatus(CremeModel):
 class InvoiceStatus(AbstractStatus):
     class Meta(AbstractStatus.Meta):
         abstract = False
-        verbose_name        = pgettext_lazy('billing-singular', u'Invoice status')
-        verbose_name_plural = pgettext_lazy('billing-plural',   u'Invoice status')
+        verbose_name        = _(u'Invoice status')
+        verbose_name_plural = _(u'Invoice statuses')
 
 
 class QuoteStatus(AbstractStatus):
     class Meta(AbstractStatus.Meta):
         abstract = False
-        verbose_name        = pgettext_lazy('billing-singular', u'Quote status')
-        verbose_name_plural = pgettext_lazy('billing-plural',   u'Quote status')
+        verbose_name        = _(u'Quote status')
+        verbose_name_plural = _(u'Quote statuses')
 
 
 class SalesOrderStatus(AbstractStatus):
     class Meta(AbstractStatus.Meta):
         abstract = False
-        verbose_name        = pgettext_lazy('billing-singular', u'Sales order status')
-        verbose_name_plural = pgettext_lazy('billing-plural',   u'Sales order status')
+        verbose_name        = _(u'Sales order status')
+        verbose_name_plural = _(u'Sales order statuses')
 
 
 class CreditNoteStatus(AbstractStatus):
     class Meta(AbstractStatus.Meta):
         abstract = False
-        verbose_name        = pgettext_lazy('billing-singular', u"Credit note status")
-        verbose_name_plural = pgettext_lazy('billing-plural',   u"Credit note status")
+        verbose_name        = _(u'Credit note status')
+        verbose_name_plural = _(u'Credit note statuses')
 
 
 class AdditionalInformation(CremeModel):
@@ -131,7 +131,7 @@ class PaymentInformation(CremeModel):
     class Meta:
         app_label = 'billing'
         verbose_name        = pgettext_lazy('billing-singular', u'Payment information')
-        verbose_name_plural = pgettext_lazy('billing-plural',   u'Payments information')
+        verbose_name_plural = pgettext_lazy('billing-plural',   u'Payment information')
 
     #TODO: see Vat.save()
     #TODO: create a function/ an abstract model for saving model with is_default attribute (and use it for Vat too)

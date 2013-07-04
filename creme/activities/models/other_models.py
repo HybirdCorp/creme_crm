@@ -77,8 +77,8 @@ class Status(CremeModel):
 
     class Meta:
         app_label = 'activities'
-        verbose_name = _(u'Status')
-        verbose_name_plural = _(u'Status') #arf plural....
+        verbose_name = _(u'Status of activity')
+        verbose_name_plural = _(u'Statuses of activity')
 
 
 #class PhoneCallType(CremeModel):
