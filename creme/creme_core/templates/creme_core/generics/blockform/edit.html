@@ -4,12 +4,13 @@
 
 {% block page_title %}
     {% if object %}
-        - {% blocktrans %}Modify {{object}}{% endblocktrans  %}
+        - {% blocktrans %}Edit «{{object}}»{% endblocktrans %}
     {% else %}
         - {% trans "Edit" %}
     {% endif %}
 {% endblock %}
 
 {% block content %}
-    {% include "creme_core/generics/blockform/base.html" with logo='images/edit_64.png' title=_("Edit") %}{# TODO: {% templatize "Edit: {{object}}" as title %} #}
+    {% trans 'Edit «%s»' as fmt %}
+    {% include "creme_core/generics/blockform/base.html" with logo='images/edit_64.png' title=object|format:fmt %}
 {% endblock %}
