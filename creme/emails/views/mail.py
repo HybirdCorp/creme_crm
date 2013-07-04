@@ -204,13 +204,13 @@ def create_from_template_n_send(request, entity_id):
                                delegate_reload=True,
                               )
 
-@jsonify
 @login_required
 @permission_required('emails')
-def resend_mails(request):
+@jsonify
+def resend_mails(request): #TODO: unit test
     ids = get_from_POST_or_404(request.POST, 'ids').split(',')
 
-    for email in EntityEmail.objects.get(pk__in=ids):
+    for email in EntityEmail.objects.filter(pk__in=ids):
         email.send()
 
     return {}
