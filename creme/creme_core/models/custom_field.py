@@ -239,7 +239,7 @@ class CustomFieldFloat(CustomFieldValue):
 class CustomFieldDateTime(CustomFieldValue):
     value = DateTimeField()
 
-    verbose_name = _(u'Date')
+    verbose_name = _(u'Date and time')
 
     class Meta:
         app_label = 'creme_core'
@@ -252,10 +252,10 @@ class CustomFieldDateTime(CustomFieldValue):
 
     @staticmethod
     def _get_formfield(**kwargs):
-        # TODO don't know why but this widget does not allow datetime, only date (spaces, ':' are forbidden characters)
-        # So it's not really a CustomFieldDateTime for the moment but a CustomFieldDate until this problem is fixed
-        from creme.creme_core.forms.fields import CremeDateTimeField #avoid cyclic import
-        return CremeDateTimeField(**kwargs)
+        #TODO: hook DateTimeField to automatically use DateTimeWidget
+        from creme.creme_core.forms.widgets import DateTimeWidget
+        kwargs['widget'] = DateTimeWidget
+        return forms.DateTimeField(**kwargs)
 
 
 class CustomFieldBoolean(CustomFieldValue):
