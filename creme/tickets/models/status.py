@@ -38,7 +38,7 @@ BASE_STATUS = ((OPEN_PK,        pgettext_lazy('tickets-status', 'Open')),
               )
 
 class Status(CremeModel):
-    """Status of a ticket: open, closed, invalid... """
+    "Status of a ticket: open, closed, invalid..."
     name      = CharField(_(u'Name'), max_length=100, blank=False, null=False, unique=True)
     is_custom = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
 
@@ -48,4 +48,4 @@ class Status(CremeModel):
     class Meta:
         app_label = 'tickets'
         verbose_name = _(u'Ticket status')
-        verbose_name_plural  = _(u'Ticket status')
+        verbose_name_plural  = _(u'Ticket statuses')

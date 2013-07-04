@@ -33,7 +33,7 @@ class TaskStatus(CremeModel):
     class Meta:
         app_label = 'projects'
         verbose_name = _(u'Status of task')
-        verbose_name_plural = _(u'Status of task')
+        verbose_name_plural = _(u'Statuses of task')
 
     def __unicode__(self):
         return self.name

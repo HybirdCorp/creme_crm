@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Projects 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-07-01 15:41+0200\n"
+"POT-Creation-Date: 2013-07-03 15:10+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -185,11 +185,11 @@ msgstr "Responsable(s) du projet"
 msgid "Contact to be assigned to this task"
 msgstr "Contact à affecter à cette tâche"
 
-#: forms/task.py:48
+#: forms/task.py:47
 msgid "Start"
 msgstr "Début"
 
-#: forms/task.py:49
+#: forms/task.py:48
 msgid "End"
 msgstr "Fin"
 
@@ -197,15 +197,11 @@ msgstr "Fin"
 msgid "Activity type"
 msgstr "Type d'activité"
 
-#: forms/task.py:79 forms/task.py:100
-msgid "General information"
-msgstr "Informations Générales"
-
 #: forms/task.py:95
 msgid "Task's nomenclature"
 msgstr "Nomenclature de tâche"
 
-#: forms/task.py:96 forms/task.py:147
+#: forms/task.py:96 forms/task.py:155
 #: templates/projects/templatetags/block_tasks.html:21
 msgid "Parent tasks"
 msgstr "Tâche(s) parente(s)"
@@ -323,9 +319,13 @@ msgstr "Tâche d'un projet"
 msgid "Tasks of project"
 msgstr "Tâches d'un projet"
 
-#: models/taskstatus.py:35 models/taskstatus.py:36
+#: models/taskstatus.py:35
 msgid "Status of task"
-msgstr "Statut(s) de tâche"
+msgstr "Statut de tâche"
+
+#: models/taskstatus.py:36
+msgid "Statuses of task"
+msgstr "Statuts de tâche"
 
 #: models/workingperiod.py:33
 msgid "Duration (in hours)"
@@ -566,6 +566,9 @@ msgstr ""
 #: views/workingperiod.py:42
 msgid "Edition of a working period"
 msgstr "Modification d'une période travaillée"
+
+#~ msgid "General information"
+#~ msgstr "Informations Générales"
 
 #~ msgid "Calendars"
 #~ msgstr "Calendriers"
