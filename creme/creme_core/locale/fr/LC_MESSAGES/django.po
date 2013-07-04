@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-07-02 15:06+0200\n"
+"POT-Creation-Date: 2013-07-03 23:45+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1145,7 +1145,6 @@ msgid "Entity #%s (not viewable)"
 msgstr "Fiche #%s (non visible)"
 
 #: models/entity.py:262 templates/creme_core/generics/blockform/edit.html:9
-#: templates/creme_core/generics/blockform/edit.html:14
 #: templates/creme_core/generics/form/edit.html:8
 #: templates/creme_core/generics/form/edit.html:13
 #: templates/creme_core/templatetags/widgets/block_field_editor.html:4
@@ -1785,6 +1784,16 @@ msgid "Submit"
 msgstr "Envoyer"
 
 #: templates/creme_core/generics/blockform/edit.html:7
+#, python-format
+msgid "Edit «%(object)s»"
+msgstr "Modifier «%(object)s»"
+
+# beware makemessages seems to add a '%' (msgid "Edit «%%s»") => remove it
+#: templates/creme_core/generics/blockform/edit.html:14
+#, python-format
+msgid "Edit «%s»"
+msgstr "Modifier «%s»"
+
 #: templates/creme_core/generics/form/edit.html:6
 #, python-format
 msgid "Modify %(object)s"
