@@ -1,3 +1,116 @@
+== Version 1.3 ==
+
+  Users side :
+  ------------
+    # Form widgets improvements :
+        * New selector widgets, that can also create instances (and automatically
+          select the newly created instances).
+            - For small models, like persons.Sector or billing.InvoiceStatus (used almost everywhere).
+            - For Entities, like the Document chosen in the CSV import (used only in a few places).
+        * Auto-completion (thanks to chosen.js) in some widgets (Relationships creators).
+        * Cache system used by some widgets (Relationships creators, Entities selectors).
+    # New feature : Trash, that contains deleted Entities. These entities are generally not displayed (in list views for example), they have a different detailview, and can be definitively deleted.
+    # Credentials improvements:
+        * New implementation that is much faster (no more SQL JOIN).
+        * The GUI to set the credentials has been improved.
+    # History: new events are logged.
+        - Relationship deletion.
+        - Property deletion.
+        - Creation, edition & deletion of auxiliary instances (ToDo, Bill line etc...).
+    # The version of Django is now 1.4 :
+        - All datetimes use now timezones. Each user can choose its own timezone in its configuration panel.
+        - Translations contexts are now possible in the templates, so several labels have been fixed.
+    # Entities can now be imported & exported with the XLS format (previously, only CSV format was available).
+    # The theme 'Icecream' has been reworked (icons, css).
+    # The 403 view has been improved : it is more beautiful, and it now displays
+      the problematic dependencies when a deletion fails.
+    # Many fallbacks for IE(7,8) were added.
+    # Apps :
+        * Activities :
+            - PhoneCall, Meeting & Tasks models has been removed, their data were moved in the Activity model.
+            - Activities can now have a SubType (eg: 'Incoming' for PhoneCalls).
+            - You can now omit the start & end dates (then, Activity is floating) or only give the dates but not the hours (floating time).
+            - The Relationship "is subject of activity" is now only compatible with the following types :
+              Contact, Organisation, Invoice, Quote, SalesOrder, Opportunity, Ticket.
+            - There is no more popup to choose the RelationType when you create a related Activity (it is automatically chosen).
+        * Reports :
+            - You can click on the shapes of a graph to go to the corresponding list view.
+            - The graph code uses now the lib 'jqplot'.
+            - A new graph type is available : tube.
+            - Reports can now be downloaded as XLS files (previously, only CSV format was available).
+        * Persons :
+            - 'Civility.short_cut' field has been added.
+            - You can create billing & shipping addresses directly from their block.
+        * Billing:
+            - CSV import for Invoice/Quote/SalesOrder is now OK.
+            - 'expiration_date' field is no more required in forms.
+        * Opportunities :
+            - The fields 'Origin.description' & 'SalesPhase.description' have been removed.
+            - CSV import is now OK.
+        * Commercial:
+            - Objectives: Entities can now be counted with a Filter.
+        * Documents :
+            - 'Folder.description' field is now nullable (ie: no more required).
+        * VCFS :
+            - Can export a Contact as a VCF file.
+
+  Developpers side :
+  ------------------
+      # The project layout has changed with Django 1.4 :
+        - Apps are imported with namespace 'creme' (eg: 'creme.persons' instead of 'persons').
+        - The script 'manage.py' is now at the root of the project.
+      # Root 'urls.py' generates now automatically urls of all Creme apps : so you have not to modify this file when you add an app any more.
+      # Credentials changes:
+        * Permissions method in CremeEntity are now deprecated, and replaced by new methods in User.
+            - CremeEntity.can_*{_or_die} method are deprecated : use User.has_perm_to_*{_or_die} methods instead.
+            - CremeEntity.populate_credentials is deprecated (delete the uses, because they are now useless).
+        * The view creme_core.views.generic.edit.edit_model_with_popup() checks now the CremeEntity edition credentials (when the given model is a CremeEntity of course).
+        * The credentials on models are now possible (eg: you can know if the user could link a Contact that is not created yet).
+      # Lots of changes in creme_core.utils.meta :
+        - New system of tags for models fields. Right now, 2 tags are available : 'viewable' & 'clonable'.
+        - The following functions have been removed : get_flds_with_fk_flds(), get_flds_with_fk_flds_str().
+        - The following functions have been renamed : 
+            get_field_infos() became get_instance_field_info()
+            get_model_field_infos() became get_model_field_info()
+      # In CremeAbstractEntity class 'excluded_fields_in_html_output' and 'header_filter_exclude_fields' attributes have been removed (tags are used instead).
+      # The code manages better the invalidation of model fields. 
+        HeaderFilters, EntityFilters & Histories check now at runtime if they handle invalid fields (and they modificate themselves to ignore them).
+      # New model field : 'CTypeForeignKey'. It uses the cache of ContentType manager, when ForeignKey(ContentType, ...) does not.
+      # Unit tests for JavaScript code.
+      # Blocks system :
+        - Dependencies can be '*' (that means: "all models").
+        - New attribute 'read_only' (boolean) ; if it is set to True, reloading this block will not force the blocks which share its dependencies to be reloaded too.
+        - The 2 previous features are used by creme_core.blocks.HistoryBlock.
+        - New templatetag 'get_block_footer'.
+      # Relation model:
+        - The method update_links() is now deprecated.
+        - The unused method getCreateLang() has been removed.
+        - __unicode__() no more returns an HTML string.
+      # The arguments of the command 'creme_populate' has changed, in order to be like other django commands.
+      # New command : 'i18n_overload'. It can generate a .po file with all MSGIDs that contain a given word (in order to overload a term).
+        - 'verbosity' is now an integer, given with 'verbosity=VERBOSITY' (no more '-v' argument).
+        - App names are simply the final arguments (no more '-a' argument).
+      # FormBlock has been improved : you can now iterate on blocks that have not been retrieved 'manually'.
+      # The unused view '/creme_core/entity/json' has been removed.
+      # The form widget 'UploadedFileWidget' has been removed.
+      # The setting DEFAULT_EMAIL_FOR_REMIND has been deleted ; DEFAULT_USER_EMAIL is used instead.
+      # Apps :
+        * Opportunities :
+            - Opportunit.emitter & Opportunit.target properties added.
+        * Emails : settings have changed.
+            - CREME_EMAIL_SERVER => EMAILCAMPAIGN_HOST
+            - CREME_EMAIL_PORT => EMAILCAMPAIGN_PORT
+            - CREME_EMAIL_USERNAME => EMAILCAMPAIGN_HOST_USER
+            - CREME_EMAIL_PASSWORD => EMAILCAMPAIGN_PASSWORD
+            - EMAILCAMPAIGN_USE_TLS => added
+            - SENDING_SIZE => EMAILCAMPAIGN_SIZE
+            - SENDING_SLEEP_TIME => EMAILCAMPAIGN_SLEEP_TIME
+      # Reports :
+        - The templatetags files 'report_tags.py' and 'graph_tags.py' have been merged in 'reports_tags.py'
+        - Several templatetags have been removed: get_column_header, get_html_column_value, get_value_at.
+
+
+
 == Version 1.2 ==
 
   Users side :
