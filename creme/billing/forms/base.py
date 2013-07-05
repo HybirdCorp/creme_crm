@@ -57,7 +57,7 @@ class BaseEditForm(CremeEntityForm):
     #payment_terms    = CreatorModelChoiceField(label=_(u'Payment Terms'), queryset=PaymentTerms.objects.all(), required=False, initial=None)
 
     source = CreatorEntityField(label=_(u"Source organisation"), model=Organisation)
-    target = GenericEntityField(label=_(u"Target organisation"), models=[Organisation, Contact]) #, required=True
+    target = GenericEntityField(label=_(u"Target"), models=[Organisation, Contact]) #, required=True
 
     issuing_date    = CremeDateField(label=_(u"Issuing date"), required=False)
     expiration_date = CremeDateField(label=_(u"Expiration date"), required=False)
