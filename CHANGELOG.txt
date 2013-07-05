@@ -59,10 +59,10 @@
       # The project layout has changed with Django 1.4 :
         - Apps are imported with namespace 'creme' (eg: 'creme.persons' instead of 'persons').
         - The script 'manage.py' is now at the root of the project.
-      # Root 'urls.py' generates now automatically urls of all Creme apps : so you have not to modify this file when you add an app any more.
+      # Root 'urls.py' generates now automatically urls of all Creme apps : so you don't have to modify this file when you add an app anymore.
       # Credentials changes:
         * Permissions method in CremeEntity are now deprecated, and replaced by new methods in User.
-            - CremeEntity.can_*{_or_die} method are deprecated : use User.has_perm_to_*{_or_die} methods instead.
+            - CremeEntity.can_*{_or_die} methods are deprecated : use User.has_perm_to_*{_or_die} methods instead.
             - CremeEntity.populate_credentials is deprecated (delete the uses, because they are now useless).
         * The view creme_core.views.generic.edit.edit_model_with_popup() checks now the CremeEntity edition credentials (when the given model is a CremeEntity of course).
         * The credentials on models are now possible (eg: you can know if the user could link a Contact that is not created yet).
@@ -86,7 +86,7 @@
         - The method update_links() is now deprecated.
         - The unused method getCreateLang() has been removed.
         - __unicode__() no more returns an HTML string.
-      # The arguments of the command 'creme_populate' has changed, in order to be like other django commands.
+      # The arguments of the command 'creme_populate' have changed, in order to be like other django commands.
       # New command : 'i18n_overload'. It can generate a .po file with all MSGIDs that contain a given word (in order to overload a term).
         - 'verbosity' is now an integer, given with 'verbosity=VERBOSITY' (no more '-v' argument).
         - App names are simply the final arguments (no more '-a' argument).

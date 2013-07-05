@@ -405,7 +405,8 @@ class BlocksManager(object):
                         continue
 
                     if dep == Relation:
-                        if not set(block.relation_type_deps) & set(other_block.relation_type_deps):
+                        if other_block.dependencies != '*' and \
+                           not set(block.relation_type_deps) & set(other_block.relation_type_deps):
                             continue
 
                     depblocks_ids.add(other_block.id_)
