@@ -247,7 +247,8 @@ class BlockRegistryTestCase(CremeTestCase):
         self.assertEqual([foobar_block1, foobar_block4], blocks[:2])
         self.assertEqual([ibci1.block_id, ibci2.block_id], [block.id_ for block in blocks[2:]])
 
-    def test_get_compatible_portal_blocks02(self): #home
+    def test_get_compatible_portal_blocks02(self):
+        "Home"
         class FoobarBlock1(Block):
             id_           = Block.generate_id('creme_core', 'BlockRegistryTestCase__test_get_compatible_portal_blocks02_1')
             verbose_name  = u'Testing purpose'
@@ -573,38 +574,46 @@ class BlocksManagerTestCase(CremeTestCase):
 
     def test_wildcard01(self):
         "Wilcard dependencies, read-only"
+        id_fmt = 'BlocksManagerTestCase__wildcard01_%s'
+
         class FoobarBlock1(SimpleBlock):
-            id_ = SimpleBlock.generate_id('creme_core', 'BlocksManagerTestCase__wildcard01_1')
+            id_ = SimpleBlock.generate_id('creme_core', id_fmt % 1)
 
         class FoobarBlock2(SimpleBlock):
-            id_ = SimpleBlock.generate_id('creme_core', 'BlocksManagerTestCase__wildcard01_2')
+            id_ = SimpleBlock.generate_id('creme_core', id_fmt % 2)
             dependencies = (Contact,)
 
         class FoobarBlock3(SimpleBlock):
-            id_ = SimpleBlock.generate_id('creme_core', 'BlocksManagerTestCase__wildcard01_3')
+            id_ = SimpleBlock.generate_id('creme_core', id_fmt % 3)
             dependencies = (Organisation,)
 
         class FoobarBlock4(SimpleBlock):
-            id_ = SimpleBlock.generate_id('creme_core', 'BlocksManagerTestCase__wildcard01_4')
+            id_ = SimpleBlock.generate_id('creme_core', id_fmt % 4)
             dependencies = '*'
 
         class FoobarBlock5(SimpleBlock):
-            id_ = SimpleBlock.generate_id('creme_core', 'BlocksManagerTestCase__wildcard01_5')
+            id_ = SimpleBlock.generate_id('creme_core', id_fmt % 5)
             dependencies = '*'
+
+        class FoobarBlock6(SimpleBlock):
+            id_ = SimpleBlock.generate_id('creme_core', id_fmt % 6)
+            dependencies = (Relation,)
 
         block1 = FoobarBlock1(); block2 = FoobarBlock2()
         block3 = FoobarBlock3(); block4 = FoobarBlock4()
-        block5 = FoobarBlock5()
+        block5 = FoobarBlock5(); block6 = FoobarBlock6()
 
         mngr = BlocksManager()
         #notice that block4 is before block3, but the dependencies are still OK
-        mngr.add_group('gname', block1, block2, block4, block3, block5)
+        mngr.add_group('gname', block1, block2, block4, block3, block5, block6)
 
+        self.maxDiff = None
         self.assertDictEqual({block1.id_: set(),
                               block2.id_: set([block4.id_, block5.id_]),
                               block3.id_: set([block4.id_, block5.id_]),
                               block4.id_: set([block2.id_, block3.id_, block5.id_]),
                               block5.id_: set([block2.id_, block3.id_, block4.id_]),
+                              block6.id_: set([block4.id_, block5.id_]),
                              },
                              mngr.get_dependencies_map()
                             )
