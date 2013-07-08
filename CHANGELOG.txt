@@ -20,7 +20,7 @@
     # The version of Django is now 1.4 :
         - All datetimes use now timezones. Each user can choose its own timezone in its configuration panel.
         - Translations contexts are now possible in the templates, so several labels have been fixed.
-    # Entities can now be imported & exported with the XLS format (previously, only CSV format was available).
+    # Entities can now be imported & exported with the XLS format (previously, only CSV format was available) ; thanks to libs 'xlrd' & 'xlwt'.
     # The theme 'Icecream' has been reworked (icons, css).
     # The 403 view has been improved : it is more beautiful, and it now displays
       the problematic dependencies when a deletion fails.

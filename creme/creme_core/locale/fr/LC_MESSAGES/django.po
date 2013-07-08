@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-07-04 15:49+0200\n"
+"POT-Creation-Date: 2013-07-08 15:32+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -241,7 +241,7 @@ msgstr "Informations générales"
 msgid "Owner user"
 msgstr "Utilisateur propriétaire"
 
-#: forms/batch_process.py:67 forms/entity_filter.py:199
+#: forms/batch_process.py:67 forms/entity_filter.py:200
 msgid "This field is invalid with this model."
 msgstr "Ce champ n'existe pas dans ce type de fiche."
 
@@ -250,8 +250,8 @@ msgstr "Ce champ n'existe pas dans ce type de fiche."
 msgid "The field '%s' can not be used twice."
 msgstr "Le champ '%s' ne peut pas être utilise deux fois."
 
-#: forms/batch_process.py:69 forms/entity_filter.py:200
-#: forms/entity_filter.py:413
+#: forms/batch_process.py:69 forms/entity_filter.py:201
+#: forms/entity_filter.py:414
 msgid "This operator is invalid."
 msgstr "Cette opérateur est invalide."
 
@@ -347,129 +347,137 @@ msgstr "Pas de type de propriété"
 msgid "Some property types doesn't not exist"
 msgstr "Certains types de propriété n'existent pas"
 
-#: forms/entity_filter.py:44
+#: forms/entity_filter.py:45
 msgid "Has the property"
 msgstr "A la propriété"
 
-#: forms/entity_filter.py:45
+#: forms/entity_filter.py:46
 msgid "Does not have the property"
 msgstr "N'a pas la propriété"
 
-#: forms/entity_filter.py:49
+#: forms/entity_filter.py:50
 msgid "Has the relationship"
 msgstr "A la relation"
 
-#: forms/entity_filter.py:50
+#: forms/entity_filter.py:51
 msgid "Does not have the relationship"
 msgstr "N'a pas la relation"
 
-#: forms/entity_filter.py:56 forms/entity_filter.py:59 models/history.py:103
+#: forms/entity_filter.py:57 forms/entity_filter.py:60 models/history.py:103
 msgid "True"
 msgstr "Vrai"
 
-#: forms/entity_filter.py:56 forms/entity_filter.py:59 models/history.py:103
+#: forms/entity_filter.py:57 forms/entity_filter.py:60 models/history.py:103
 msgid "False"
 msgstr "Faux"
 
-#: forms/entity_filter.py:315
+#: forms/entity_filter.py:316
 msgid "This field is not a date field for this model."
 msgstr "Ce champ n'est pas un choix valide."
 
-#: forms/entity_filter.py:316
+#: forms/entity_filter.py:317
 msgid "This date range is invalid."
 msgstr "Cet interval de date n'est pas valide."
 
-#: forms/entity_filter.py:317
+#: forms/entity_filter.py:318
 msgid "Please enter a start date and/or a end date."
 msgstr "Veuillez une date de début et/ou de fin."
 
-#: forms/entity_filter.py:412
+#: forms/entity_filter.py:413
 msgid "This custom field is invalid with this model."
 msgstr "Ce champ personnalisé est invalide pour ce type de fiche."
 
-#: forms/entity_filter.py:474
+#: forms/entity_filter.py:432
+msgid "No custom field at present."
+msgstr "Aucun champ personnalisé pour le moment."
+
+#: forms/entity_filter.py:489
 msgid "This date custom field is invalid with this model."
 msgstr "Ce champ personnalisé de date est invalide pour ce type de fiche."
 
-#: forms/entity_filter.py:517
+#: forms/entity_filter.py:505
+msgid "No date custom field at present."
+msgstr "Aucun champ personnalisé de date pour le moment."
+
+#: forms/entity_filter.py:546
 msgid "This type of relationship type is invalid with this model."
 msgstr "Cette relation est invalide avec ce type de fiche."
 
-#: forms/entity_filter.py:518
+#: forms/entity_filter.py:547
 msgid "This content type is invalid."
 msgstr "Ce type de resource n'est pas autorisé."
 
-#: forms/entity_filter.py:519
+#: forms/entity_filter.py:548
 msgid "This entity is invalid."
 msgstr "Cette fiche est invalide."
 
-#: forms/entity_filter.py:623 forms/fields.py:837
+#: forms/entity_filter.py:652 forms/fields.py:837
 msgid "This filter is invalid."
 msgstr "Ce filtre est invalide."
 
-#: forms/entity_filter.py:679
+#: forms/entity_filter.py:708
 msgid "This property type is invalid with this model."
 msgstr "Ce type de propriété est invalide avec ce type de fiche."
 
-#: forms/entity_filter.py:745
+#: forms/entity_filter.py:774
 msgid "On regular fields"
 msgstr "Sur les champs normaux"
 
-#: forms/entity_filter.py:746
+#: forms/entity_filter.py:775
 msgid "You can write several values, separated by commas."
 msgstr "Vous pouvez écrire plusieurs valeurs, séparées par des virgules."
 
-#: forms/entity_filter.py:748
+#: forms/entity_filter.py:777
 msgid "On date fields"
 msgstr "Sur les champs de date"
 
-#: forms/entity_filter.py:749
+#: forms/entity_filter.py:778
 msgid "On custom fields"
 msgstr "Sur les champs personnalisés"
 
-#: forms/entity_filter.py:750
+#: forms/entity_filter.py:779
 msgid "(Only integers, strings and decimals for now)"
 msgstr ""
 "(Seulement les nombres entiers, les nombres décimaux, et les chaînes de "
 "caractères pour le monent.)"
 
-#: forms/entity_filter.py:752
+#: forms/entity_filter.py:781
 msgid "On date custom fields"
 msgstr "Sur les champs personnalisés de date"
 
-#: forms/entity_filter.py:753
+#: forms/entity_filter.py:782
 msgid "On relationships"
 msgstr "Sur les relations"
 
-#: forms/entity_filter.py:754
+#: forms/entity_filter.py:783
 msgid "Do not select any entity if you want to match them all."
 msgstr "Ne sélectionnez aucune fiche si vous voulez chercher parmi toutes."
 
-#: forms/entity_filter.py:756
+#: forms/entity_filter.py:785
 msgid "On relationships with results of other filters"
 msgstr "Sur les relations avec les résultats d'autres filtres"
 
-#: forms/entity_filter.py:757
+#: forms/entity_filter.py:786
 msgid "On properties"
 msgstr "Sur les propriétés"
 
-#: forms/entity_filter.py:758
+#: forms/entity_filter.py:787
 msgid "Sub-filters"
 msgstr "Sous-filtres"
 
-#: forms/entity_filter.py:766
+#: forms/entity_filter.py:795
 msgid "Conditions"
 msgstr "Conditions"
 
-#: forms/entity_filter.py:774 forms/header_filter.py:56
+#: forms/entity_filter.py:803 forms/header_filter.py:56
 msgid "All users"
 msgstr "Tous les utilisateurs"
 
-#: forms/entity_filter.py:775
+#: forms/entity_filter.py:804
 msgid "Use \"OR\" between the conditions (else \"AND\" is used)."
 msgstr "Utiliser \"OU\" entre les conditions (sinon \"ET\" est utilisé)."
 
-#: forms/entity_filter.py:790
+#: forms/entity_filter.py:819
 msgid "The filter must have at least one condition."
 msgstr "Le filtre doit avoir au moins une condition."
 
@@ -845,12 +853,12 @@ msgstr "Minute(s)"
 msgid "Second(s)"
 msgstr "Seconde(s)"
 
-#: gui/block.py:511
+#: gui/block.py:512
 #, python-format
 msgid "Block of instance: %s"
 msgstr "Bloc d'instance: %s"
 
-#: gui/block.py:591
+#: gui/block.py:592
 #, python-format
 msgid "Relationship block: %s"
 msgstr "Bloc de relation: %s"
