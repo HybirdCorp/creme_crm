@@ -9,18 +9,18 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-07-03 15:03+0200\n"
+"POT-Creation-Date: 2013-07-08 16:11+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: blocks.py:37 forms/activity.py:255 forms/activity.py:424 forms/blocks.py:54
+#: blocks.py:37 forms/activity.py:271 forms/activity.py:440 forms/blocks.py:54
 msgid "Participants"
 msgstr "Participants"
 
-#: blocks.py:69 forms/activity.py:234 forms/blocks.py:154
+#: blocks.py:69 forms/activity.py:250 forms/blocks.py:154
 msgid "Subjects"
 msgstr "Sujets"
 
@@ -229,85 +229,89 @@ msgstr ""
 "%(participant)s participe déjà à l'activité «%(activity)s» entre %(start)s "
 "et %(end)s."
 
-#: forms/activity.py:55 models/activity.py:40
+#: forms/activity.py:56 models/activity.py:40
 msgid "Start"
 msgstr "Début"
 
-#: forms/activity.py:56
+#: forms/activity.py:57
 msgid "Start time"
 msgstr "Heure de début"
 
-#: forms/activity.py:57 models/activity.py:41
+#: forms/activity.py:58 models/activity.py:41
 msgid "End"
 msgstr "Fin"
 
-#: forms/activity.py:58
+#: forms/activity.py:59
 msgid "Default duration of the type will be used if you leave blank."
 msgstr "La durée par défaut du type sera utilisée si vous laissez vide."
 
-#: forms/activity.py:60
+#: forms/activity.py:61
 msgid "End time"
 msgstr "Heure de fin"
 
-#: forms/activity.py:107
+#: forms/activity.py:72
+msgid "It is only informative and is not used to compute the end time."
+msgstr "Seulement informative et pas utilisée pour calculer l'heure de fin."
+
+#: forms/activity.py:114
 msgid "A floating on the day activity can't busy its participants"
 msgstr ""
 "Une activité flottante dans une journée ne peut marquer comme 'occupés' ses "
 "participants"
 
-#: forms/activity.py:112
+#: forms/activity.py:119
 msgid "You can't set the end of your activity without setting its start"
 msgstr "Vous en pouvez préciser la fin de l'activité sans préciser son début"
 
-#: forms/activity.py:143
+#: forms/activity.py:153
 msgid "End time is before start time"
 msgstr "L'heure de fin est avant le début"
 
-#: forms/activity.py:171 models/activity.py:49 models/other_models.py:66
+#: forms/activity.py:181 models/activity.py:49 models/other_models.py:66
 msgid "Activity type"
 msgstr "Type d'activité"
 
-#: forms/activity.py:176 forms/activity.py:254
+#: forms/activity.py:186 forms/activity.py:270
 msgid "When"
 msgstr "Quand"
 
-#: forms/activity.py:201 forms/blocks.py:51
+#: forms/activity.py:217 forms/blocks.py:51
 msgid "Other participating users"
 msgstr "Autres utilsateurs participants"
 
-#: forms/activity.py:224
+#: forms/activity.py:240
 msgid "Activity's nomenclature"
 msgstr "Nomenclature d'activité"
 
-#: forms/activity.py:228 forms/blocks.py:47
+#: forms/activity.py:244 forms/blocks.py:47
 msgid "Do I participate to this meeting?"
 msgstr "Est-ce que je participe à ce rendez-vous ?"
 
-#: forms/activity.py:230
+#: forms/activity.py:246
 msgid "On which of my calendar this activity will appears?"
 msgstr "Sur lequel de mes calendriers cette activité doit apparaître ?"
 
-#: forms/activity.py:233
+#: forms/activity.py:249
 msgid "Other participants"
 msgstr "Autres participants"
 
-#: forms/activity.py:235
+#: forms/activity.py:251
 msgid "Entities linked to this activity"
 msgstr "Fiches reliées à l'activité"
 
-#: forms/activity.py:237
+#: forms/activity.py:253
 msgid "Alert day"
 msgstr "Jour de l'alerte"
 
-#: forms/activity.py:238
+#: forms/activity.py:254
 msgid "Alert time"
 msgstr "Heure de l'alerte"
 
-#: forms/activity.py:239
+#: forms/activity.py:255
 msgid "Value"
 msgstr "Valeur"
 
-#: forms/activity.py:240
+#: forms/activity.py:256
 msgid ""
 "Your alert will be raised X units (X = Value) before the start of the "
 "activity"
@@ -315,57 +319,57 @@ msgstr ""
 "Votre alerte sera déclenchée X unité(s) (X = Valeur) avant le début de "
 "l'activité"
 
-#: forms/activity.py:242
+#: forms/activity.py:258
 msgid "Unit"
 msgstr "Unité"
 
-#: forms/activity.py:243
+#: forms/activity.py:259
 msgid "Minute"
 msgstr "Minute"
 
-#: forms/activity.py:244
+#: forms/activity.py:260
 msgid "Hour"
 msgstr "Heure"
 
-#: forms/activity.py:245 templates/activities/calendar.html:75
+#: forms/activity.py:261 templates/activities/calendar.html:75
 msgid "Day"
 msgstr "Jour"
 
-#: forms/activity.py:246 templates/activities/calendar.html:74
+#: forms/activity.py:262 templates/activities/calendar.html:74
 msgid "Week"
 msgstr "Semaine"
 
-#: forms/activity.py:257
+#: forms/activity.py:273
 msgid "Generate an alert on a specific date"
 msgstr "Générer une alerte à une date spécifique"
 
-#: forms/activity.py:258
+#: forms/activity.py:274
 msgid "Generate an alert in a while"
 msgstr "Générer une alerte dans un certain temps"
 
-#: forms/activity.py:317
+#: forms/activity.py:333
 msgid "If you participate, you have to choose one of your calendars."
 msgstr "Si vous participez, vous devez choisir un de vos calendriers."
 
-#: forms/activity.py:320
+#: forms/activity.py:336
 msgid "If you want this alert you must specify date and time"
 msgstr ""
 "Si vous souhaitez une alerte vous devez spécifier une date et une heure"
 
-#: forms/activity.py:351
+#: forms/activity.py:367
 msgid "Alert of activity"
 msgstr "Alerte d'activité"
 
-#: forms/activity.py:352
+#: forms/activity.py:368
 #, python-format
 msgid "Alert related to %s"
 msgstr "Alerte en rapport avec %s"
 
-#: forms/activity.py:413
+#: forms/activity.py:429
 msgid "Indisponibility type"
 msgstr "Type d'indisponibilité"
 
-#: forms/activity.py:432
+#: forms/activity.py:448
 msgid "Unavailable users"
 msgstr "Utilisateurs non-disponibles"
 

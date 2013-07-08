@@ -67,6 +67,12 @@ class _ActivityForm(CremeEntityForm):
         super(_ActivityForm, self).__init__(*args, **kwargs)
         self.participants = [] #all Contacts who participate: me, other users, other contacts
 
+        duration_field = self.fields.get('duration')
+        if duration_field:
+            duration_field.help_text = _('It is only informative '
+                                         'and is not used to compute the end time.'
+                                        )
+
     def clean(self):
         cdata = self.cleaned_data
 
