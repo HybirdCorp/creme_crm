@@ -25,3 +25,5 @@ from .history import HistoryLine, HistoryConfigItem
 from .search import SearchField, SearchConfigItem
 
 from .auth import EntityCredentials, UserRole, SetCredentials, UserProfile, TeamM2M
+
+from .version import Version
