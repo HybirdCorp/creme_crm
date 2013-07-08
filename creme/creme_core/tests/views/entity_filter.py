@@ -63,7 +63,17 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         self.role.allowed_apps = ['persons']
         self.role.save()
-        self.assertGET200(uri)
+        response = self.assertGET200(uri)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            cf_f = fields['customfields_conditions']
+            dcf_f = fields['datecustomfields_conditions']
+
+        self.assertEqual('', cf_f.initial)
+        self.assertEqual('', dcf_f.initial)
+        self.assertEqual(_('No custom field at present.'), cf_f.help_text)
+        self.assertEqual(_('No date custom field at present.'), dcf_f.help_text)
 
         name = 'Filter 01'
         operator = EntityFilterCondition.IEQUALS
@@ -121,8 +131,19 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         datecfield   = create_cf(name='Last gathering', field_type=CustomField.DATETIME, content_type=ct)
 
         url = self._build_add_url(ct)
-        form = self.client.get(url).context['form']
-        self.assertEqual([subfilter.id], [f.id for f in form.fields['subfilters_conditions'].queryset])
+        response = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            cf_f  = fields['customfields_conditions']
+            dcf_f = fields['datecustomfields_conditions']
+            sb_f  = fields['subfilters_conditions']
+
+        self.assertEqual('', cf_f.initial)
+        self.assertEqual('', dcf_f.initial)
+        self.assertEqual([subfilter.id], [f.id for f in sb_f.queryset])
+        self.assertEqual(_('(Only integers, strings and decimals for now)'), cf_f.help_text)
+        self.assertEqual('', dcf_f.help_text)
 
         name = 'Filter 03'
         field_operator = EntityFilterCondition.CONTAINS
@@ -254,30 +275,34 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         name = 'Filter 03'
         efilter = EntityFilter.create('test-filter03', name, Contact, is_custom=True)
-        efilter.set_conditions([EntityFilterCondition.build_4_field(model=Contact,
-                                                                    operator=EntityFilterCondition.CONTAINS,
-                                                                    name='first_name', values=['Atom']
-                                                                   ),
-                                EntityFilterCondition.build_4_field(model=Contact,
-                                                                    operator=EntityFilterCondition.ISEMPTY,
-                                                                    name='description', values=[False]
-                                                                   ),
-                                EntityFilterCondition.build_4_date(model=Contact, name='birthday',
-                                                                   start=date(year=2001, month=1, day=1),
-                                                                   end=date(year=2010, month=12, day=31),
-                                                                  ),
-                                EntityFilterCondition.build_4_customfield(custom_field=custom_field,
-                                                                          operator=EntityFilterCondition.ICONTAINS,
-                                                                          value='Ed'
-                                                                         ),
-                                EntityFilterCondition.build_4_datecustomfield(custom_field=datecfield,
-                                                                              start=date(year=2010, month=1, day=1),
-                                                                             ),
-                                EntityFilterCondition.build_4_relation(rtype=rtype, has=True),
-                                EntityFilterCondition.build_4_relation_subfilter(rtype=srtype, has=True, subfilter=relsubfilfer),
-                                EntityFilterCondition.build_4_property(ptype, True),
-                                EntityFilterCondition.build_4_subfilter(subfilter),
-                               ])
+        cf_cond = EntityFilterCondition.build_4_customfield(custom_field=custom_field,
+                                                            operator=EntityFilterCondition.ICONTAINS,
+                                                            value='Ed',
+                                                           )
+        datecf_cond = EntityFilterCondition.build_4_datecustomfield(custom_field=datecfield,
+                                                                    start=date(year=2010, month=1, day=1),
+                                                                   )
+        efilter.set_conditions(
+            [EntityFilterCondition.build_4_field(model=Contact,
+                                                 operator=EntityFilterCondition.CONTAINS,
+                                                 name='first_name', values=['Atom']
+                                                ),
+             EntityFilterCondition.build_4_field(model=Contact,
+                                                 operator=EntityFilterCondition.ISEMPTY,
+                                                 name='description', values=[False]
+                                                ),
+             EntityFilterCondition.build_4_date(model=Contact, name='birthday',
+                                                start=date(year=2001, month=1, day=1),
+                                                end=date(year=2010, month=12, day=31),
+                                               ),
+             cf_cond, datecf_cond,
+             EntityFilterCondition.build_4_relation(rtype=rtype, has=True),
+             EntityFilterCondition.build_4_relation_subfilter(rtype=srtype, has=True,
+                                                              subfilter=relsubfilfer,
+                                                             ),
+             EntityFilterCondition.build_4_property(ptype, True),
+             EntityFilterCondition.build_4_subfilter(subfilter),
+            ])
 
         parent_filter = EntityFilter.create('test-filter04', 'Filter 04', Contact, is_custom=True)
         parent_filter.set_conditions([EntityFilterCondition.build_4_subfilter(efilter)])
@@ -291,6 +316,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertEqual(Contact,        formfields['relsubfilfers_conditions'].model)
         self.assertEqual(Contact,        formfields['properties_conditions'].model)
         self.assertEqual([subfilter.id], [f.id for f in formfields['subfilters_conditions'].queryset])
+        self.assertEqual([cf_cond],      formfields['customfields_conditions'].initial)
+        self.assertEqual([datecf_cond],  formfields['datecustomfields_conditions'].initial)
 
         name += ' (edited)'
         field_operator = EntityFilterCondition.IEQUALS

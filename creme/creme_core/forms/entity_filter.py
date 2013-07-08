@@ -33,6 +33,7 @@ from ..utils.meta import is_date_field
 from ..utils.date_range import date_range_registry
 from .base import CremeModelForm
 from .fields import JSONField
+from .widgets import Label
 from .widgets import (DynamicInput, SelectorList, ChainedInput, EntitySelector,
                       UnorderedMultipleChoiceWidget, DateRangeSelect, DynamicSelect, PolymorphicInput)
 
@@ -418,13 +419,27 @@ class CustomFieldsConditionsField(_ConditionsField):
     @_ConditionsField.model.setter
     def model(self, model):
         self._model = model
-        self._cfields = dict((cf.id, cf) for cf in CustomField.objects.filter(content_type=ContentType.objects.get_for_model(model),
-                                                                              field_type__in=self._ACCEPTED_TYPES
-                                                                             )
-                            )
+        self._cfields = cfields = \
+            dict((cf.id, cf)
+                    for cf in CustomField.objects
+                                         .filter(content_type=ContentType.objects.get_for_model(model),
+                                                 field_type__in=self._ACCEPTED_TYPES,
+                                                )
+                )
+
+        if not cfields:
+            self._initial_help_text = self.help_text
+            self.help_text = _('No custom field at present.')
+            self.initial = ''
+        else:
+            self.help_text = getattr(self, '_initial_help_text', '')
+
         self._build_widget()
 
     def _create_widget(self):
+        if not self._cfields:
+            return Label()
+
         return CustomFieldsConditionsWidget(self._cfields)
 
     def _value_to_jsonifiable(self, value):
@@ -475,15 +490,29 @@ class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsCon
     }
 
     @CustomFieldsConditionsField.model.setter
-    def model(self, model):
+    def model(self, model): #TODO: factorise ??
         self._model = model
-        self._cfields = dict((cf.id, cf) for cf in CustomField.objects.filter(content_type=ContentType.objects.get_for_model(model),
-                                                                              field_type=CustomField.DATETIME
-                                                                             )
-                            )
+        self._cfields = cfields = \
+            dict((cf.id, cf)
+                    for cf in CustomField.objects
+                                         .filter(content_type=ContentType.objects.get_for_model(model),
+                                                 field_type=CustomField.DATETIME,
+                                                )
+                )
+
+        if not cfields:
+            self._initial_help_text = self.help_text
+            self.help_text = _('No date custom field at present.')
+            self.initial = ''
+        else:
+            self.help_text = getattr(self, '_initial_help_text', '')
+
         self._build_widget()
 
     def _create_widget(self):
+        if not self._cfields:
+            return Label()
+
         return DateFieldsConditionsWidget(self._cfields.iteritems())
 
     def _value_to_jsonifiable(self, value):
