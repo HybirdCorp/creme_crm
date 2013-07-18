@@ -18,7 +18,11 @@
     };
 </script>
 <fieldset title="{% trans "Filter the lines of the table" %}">
-    <legend>
+    <div class="legend"> <!-- legend for IceCream theme -->
+        <img border="0" src="{% creme_media_url 'images/filter_32.png' %}" alt="{% trans "Filter" %}" title="{% trans "Filter" %}"/>
+        {% trans "Filters" %}
+    </div>
+    <legend> <!-- legend for Chantilly theme -->
         <img border="0" src="{% creme_media_url 'images/filter_32.png' %}" alt="{% trans "Filter" %}" title="{% trans "Filter" %}"/>
         {% trans "Filter" %}
     </legend>
@@ -31,16 +35,10 @@
         {% endfor %}
     </select>
     {% if not is_popup_view %}
-        <a href="/creme_core/entity_filter/add/{{content_type_id}}">
-            <img border="0" src="{% creme_media_url 'images/add_22.png' %}" alt="{% trans "Create a custom filter" %}" title="{% trans "Create a custom filter" %}"/>
-        </a>
+        <a href="/creme_core/entity_filter/add/{{content_type_id}}"><img border="0" src="{% creme_media_url 'images/add_22.png' %}" alt="{% trans "Create a custom filter" %}" title="{% trans "Create a custom filter" %}"/></a>
         {% if can_edit_or_delete %}
-            <a href="/creme_core/entity_filter/edit/{{efilter_id}}" id="filter_edit">
-                <img border="0" src="{% creme_media_url 'images/edit_22.png' %}" alt="{% trans "Edit custom filter" %}" title="{% trans "Edit custom filter" %}"/>
-            </a>
-            <a onclick="lv_efilter_delete(this, '{{efilter_id}}');">
-                <img border="0" src="{% creme_media_url 'images/delete_22.png' %}" alt="{% trans "Delete custom filter" %}" title="{% trans "Delete custom filter" %}"/>
-            </a>
+            <a href="/creme_core/entity_filter/edit/{{efilter_id}}" id="filter_edit"><img border="0" src="{% creme_media_url 'images/edit_22.png' %}" alt="{% trans "Edit custom filter" %}" title="{% trans "Edit custom filter" %}"/></a>
+            <a onclick="lv_efilter_delete(this, '{{efilter_id}}');"><img border="0" src="{% creme_media_url 'images/delete_22.png' %}" alt="{% trans "Delete custom filter" %}" title="{% trans "Delete custom filter" %}"/></a>
         {% endif %}
     {% endif %}
 </fieldset>

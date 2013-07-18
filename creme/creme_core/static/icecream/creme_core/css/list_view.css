@@ -22,6 +22,10 @@
     padding-bottom:0.6em;
 }*/
 
+.list_view > thead .title h2 {
+    margin-bottom: 5px;
+}
+
 .list_view thead th.title h2 {
     float: left;
     margin: 0;
@@ -36,9 +40,9 @@
     margin-right: 10px;
 }
 
-.list_view .filters img {
+.list_view .filters img, .list_view .views img {
     position: relative;
-    top: 6px;
+    top: 5px;
 }
 
 .list_view .filters fieldset > img:first-child {
@@ -64,6 +68,19 @@
    padding:0 10px 2px 10px;*/
     border: 0px;
     padding: 0px;
+}
+
+/** Hide the temporary legend used by the Chantilly theme */
+.list_view fieldset legend {
+  display: none;
+}
+
+.list_view fieldset .legend {
+  display: inline-block;
+}
+
+.list_view .views .legend {
+  margin-left: 20px;
 }
 
 /*.list_view fieldset legend {
