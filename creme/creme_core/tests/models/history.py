@@ -277,6 +277,18 @@ about this fantastic animation studio."""
         self.assertEqual(TYPE_EDITION, hline.type)
         self.assertEqual([['capital', old_capital, capital]], hline.modifications)
 
+    def test_edition05(self):
+        "Type coercion"
+        capital = 12000
+        gainax = Organisation.objects.create(user=self.user, name='Gainax', capital=capital)
+        old_count = HistoryLine.objects.count()
+
+        gainax = self.refresh(gainax)
+        gainax.capital = str(capital)
+        gainax.save()
+        self.assertEqual(capital, self.refresh(gainax).capital) #'capital' attribute is now an integer
+        self.assertEqual(old_count, HistoryLine.objects.count())
+
     def test_deletion01(self):
         old_count = HistoryLine.objects.count()
         gainax = Organisation.objects.create(user=self.other_user, name='Gainax')

@@ -53,7 +53,7 @@ class ReportGraphForm(CremeEntityForm):
                                    ) #TODO: DependentSelect is kept until *Selector widgets accept optgroup
     abscissa_group_by = AjaxChoiceField(label=_(u'Abscissa : Group by'), choices=(),
                                         widget=Select(attrs={'id': 'id_abscissa_group_by'}),
-                                       )
+                                       ) #TODO: coerce to int
 
     is_count = BooleanField(label=_(u'Entities count'), help_text=_(u'Make a count instead of aggregate ?'), required=False,
                             widget=CheckboxInput(attrs={'onchange': "creme.reports.toggleDisableOthers(this, ['#id_aggregates', '#id_aggregates_fields']);"}),

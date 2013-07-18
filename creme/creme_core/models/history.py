@@ -23,6 +23,7 @@ from decimal import Decimal
 from functools import partial
 import logging
 
+from django.core.exceptions import ValidationError
 from django.db.models import (Model, PositiveSmallIntegerField, CharField, TextField,
                               ForeignKey, SET_NULL, FieldDoesNotExist) #DateTimeField
 from django.db.models.signals import post_save, post_init, pre_delete
@@ -170,6 +171,14 @@ class _HistoryLineType(object):
                 if isinstance(field, ForeignKey):
                     old_value = old_value and old_value.pk
                     new_value = new_value and new_value.pk
+                else:
+                    try:
+                        # Sometimes a form sets a unicode representing an int in an IntegerField (for example)
+                        # => the type difference leads to a useless log like: Set field “My field” from “X” to “X”
+                        new_value = field.clean(new_value, instance)
+                    except ValidationError as e:
+                        logger.debug('Error in _HistoryLineType._build_fields_modifs() [%s]: %s', __name__, e)
+                        continue
 
                 if old_value != new_value:
                     if not new_value and not old_value: #ignore useless changes like : None -> ""
