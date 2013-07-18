@@ -146,7 +146,7 @@ def decode_AS_timezone(tz):
     )
 
 #    unpack('cxcxc59x' daylightName standardName
-    tz_dict = dict(zip(tz_infos_keys, unpack('l64s8hl64s8hl', base64.b64decode(tz))))
+    tz_dict = dict(zip(tz_infos_keys, unpack('<l64s8hl64s8hl', base64.b64decode(tz))))
 
     tz_dict['daylight_name'] = "".join(unpack('cxcxc59x', tz_dict['daylight_name']))
     tz_dict['standard_name'] = "".join(unpack('cxcxc59x', tz_dict['standard_name']))
