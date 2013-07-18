@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-06-14 15:12+0200\n"
+"POT-Creation-Date: 2013-07-18 15:47+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -92,45 +92,44 @@ msgstr "Gestion des utilisateurs"
 msgid "Roles and credentials settings"
 msgstr "Gestion des rôles et des droits"
 
-#: forms/blocks.py:100 forms/button_menu.py:37 forms/custom_fields.py:68
-#: forms/search.py:36
+#: forms/blocks.py:99 forms/button_menu.py:37 forms/custom_fields.py:67
 msgid "Related resource"
 msgstr "Ressource associée"
 
-#: forms/blocks.py:117
+#: forms/blocks.py:118
 msgid "Blocks to display on top"
 msgstr "Blocs à afficher en haut"
 
-#: forms/blocks.py:118
+#: forms/blocks.py:119
 msgid "Blocks to display on left side"
 msgstr "Blocs à afficher à gauche"
 
-#: forms/blocks.py:119
+#: forms/blocks.py:120
 msgid "Blocks to display on right side"
 msgstr "Blocs à afficher à droite"
 
-#: forms/blocks.py:120
+#: forms/blocks.py:121
 msgid "Blocks to display on bottom"
 msgstr "Blocs à afficher en bas"
 
-#: forms/blocks.py:133
+#: forms/blocks.py:134
 msgid "Information on the entity"
 msgstr "Informations sur la fiche"
 
-#: forms/blocks.py:151
+#: forms/blocks.py:152
 #, python-format
 msgid "The following block should be displayed only once: <%s>"
 msgstr "Le bloc suivant ne devrait être affiché qu'une seule fois: <%s>"
 
-#: forms/blocks.py:176
+#: forms/blocks.py:177
 msgid "Related application"
 msgstr "Application associée"
 
-#: forms/blocks.py:194
+#: forms/blocks.py:195
 msgid "Blocks to display on the portal"
 msgstr "Blocs à afficher sur le portail"
 
-#: forms/blocks.py:208
+#: forms/blocks.py:209
 msgid "Blocks to display on the \"My Page\" of the users"
 msgstr "Blocs à afficher sur le \"Ma page\" des utilisateurs"
 
@@ -142,7 +141,7 @@ msgstr ""
 "Les boutons associés à ce type de ressource seront choisis en modifiant la "
 "configuration"
 
-#: forms/button_menu.py:57
+#: forms/button_menu.py:59
 msgid "Buttons to display"
 msgstr "Boutons à afficher"
 
@@ -167,15 +166,15 @@ msgstr "Aucun type séléctionné signifiera que tous les types sont acceptés"
 msgid "A property type with this name already exists"
 msgstr "Un type de propriété avec ce nom existe déjà"
 
-#: forms/custom_fields.py:36
+#: forms/custom_fields.py:34
 msgid "Type of field"
 msgstr "Type du champ"
 
-#: forms/custom_fields.py:39
+#: forms/custom_fields.py:37
 msgid "List content"
 msgstr "Contenu de la liste"
 
-#: forms/custom_fields.py:40
+#: forms/custom_fields.py:38
 msgid ""
 "Give the possible  choices (one per line) if you choose the type \"Choices "
 "list\"."
@@ -183,14 +182,14 @@ msgstr ""
 "Mettez les choix possibles (un par ligne) si vous avez choisi le type  "
 "\"Liste de choix\"."
 
-#: forms/custom_fields.py:50
+#: forms/custom_fields.py:48
 msgid ""
 "The choices list must not be empty if you choose the type \"Choices list\"."
 msgstr ""
 "La liste de choix ne doit pas être vide si vous choisissez un type \"Liste "
 "de choix\""
 
-#: forms/custom_fields.py:69
+#: forms/custom_fields.py:68
 msgid ""
 "The other custom fields for this type of resource will be chosen by editing "
 "the configuration"
@@ -198,19 +197,19 @@ msgstr ""
 "Les autres champs personnalisés de ce type de ressource seront choisis en "
 "modifiant la configuration"
 
-#: forms/custom_fields.py:106
+#: forms/custom_fields.py:107
 msgid "Existing choices of the list"
 msgstr "Choix existants de la liste"
 
-#: forms/custom_fields.py:107
+#: forms/custom_fields.py:108
 msgid "Uncheck the choices you want to delete."
 msgstr "Décochez les choix que vous voulez supprimer."
 
-#: forms/custom_fields.py:110
+#: forms/custom_fields.py:111
 msgid "New choices of the list"
 msgstr "Nouveaux choix de la liste"
 
-#: forms/custom_fields.py:111
+#: forms/custom_fields.py:112
 msgid "Give the new possible choices (one per line)."
 msgstr "Rentrez les nouveaux choix possibles (un par ligne)."
 
@@ -285,21 +284,21 @@ msgid ""
 "exists."
 msgstr "Un type de relation semi-fixé avec ce type et cet objet existe déjà."
 
-#: forms/search.py:37
+#: forms/search.py:31
 #: templates/creme_config/templatetags/block_searchconfig.html:20
 msgid "User"
 msgstr "Utilisateur"
 
-#: forms/search.py:37
+#: forms/search.py:32
 #: templates/creme_config/templatetags/block_searchconfig.html:30
 msgid "All users"
 msgstr "Tous les utilisateurs"
 
-#: forms/search.py:55
+#: forms/search.py:45
 msgid "The pair search configuration/user(s) already exists !"
 msgstr "Le couple configuration de recherche/utilisateur(s) existe déjà !"
 
-#: forms/search.py:65
+#: forms/search.py:51
 #: templates/creme_config/templatetags/block_searchconfig.html:17
 msgid "Concerned fields"
 msgstr "Champs concernés"
@@ -402,23 +401,23 @@ msgstr "Applications autorisées"
 msgid "Administrated applications"
 msgstr "Applications administrées"
 
-#: forms/user_role.py:109
+#: forms/user_role.py:111
 msgid "Can view"
 msgstr "Peut voir"
 
-#: forms/user_role.py:110
+#: forms/user_role.py:112
 msgid "Can change"
 msgstr "Peut changer"
 
-#: forms/user_role.py:111
+#: forms/user_role.py:113
 msgid "Can delete"
 msgstr "Peut supprimer"
 
-#: forms/user_role.py:112
+#: forms/user_role.py:114
 msgid "Can link"
 msgstr "Peut lier"
 
-#: forms/user_role.py:112
+#: forms/user_role.py:114
 msgid ""
 "You must have the permission to link on 2 entities to create a relationship "
 "between them."
@@ -426,11 +425,11 @@ msgstr ""
 "Vous devez avoir le droit de relier sur 2 fiches pour créer une relation "
 "entre elles"
 
-#: forms/user_role.py:113
+#: forms/user_role.py:115
 msgid "Can unlink"
 msgstr "Peut délier"
 
-#: forms/user_role.py:113
+#: forms/user_role.py:115
 msgid ""
 "You must have the permission to unlink on 2 entities to delete a "
 "relationship between them."
@@ -438,40 +437,44 @@ msgstr ""
 "Vous devez avoir le droit de délier 2 fiches pour supprimer une relation "
 "entre elles"
 
-#: forms/user_role.py:114
+#: forms/user_role.py:116
 msgid "Type of entities set"
 msgstr "Type d'ensemble de fiches"
 
-#: forms/user_role.py:115
+#: forms/user_role.py:117
 msgid "Apply to a specific type"
 msgstr "Appliquer à un type spécifique"
 
-#: forms/user_role.py:125
+#: forms/user_role.py:127
 msgctxt "content_type"
 msgid "None"
 msgstr "Aucun"
 
-#: forms/user_role.py:152
+#: forms/user_role.py:154
 msgid "Choose a role to transfer to"
 msgstr "Choisissez un rôle auquel transférer"
 
-#: forms/user_role.py:156
+#: forms/user_role.py:158
 msgid "Information"
 msgstr "Informations"
 
-#: forms/user_role.py:157
+#: forms/user_role.py:159
 msgid "This role is not used by any user, you can delete it safely."
 msgstr ""
 "Ce rôle n'est utilisé par aucun utilisateur, vous pouvez le supprimer en "
 "toute sécurité."
 
-#: forms/user_settings.py:34
+#: forms/user_settings.py:38
 msgid "Choose your theme"
 msgstr "Choisissez votre thème"
 
-#: forms/user_settings.py:36
+#: forms/user_settings.py:40
 msgid "Think to reload the page once you changed the theme."
 msgstr "Pensez à recharger la page une fois le thème changé."
+
+#: forms/user_settings.py:62
+msgid "Choose your time zone"
+msgstr "Choisissez votre fuseau horaire"
 
 #: templates/creme_config/blocks_portal.html:6
 #: templates/creme_config/button_menu_portal.html:6

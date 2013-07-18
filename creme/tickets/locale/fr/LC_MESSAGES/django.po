@@ -36,7 +36,7 @@ msgid "is linked to the ticket"
 msgstr "est lié au ticket"
 
 #: populate.py:47
-msgid "(ticket) linked to the entitity"
+msgid "(ticket) linked to the entity"
 msgstr "(ticket) lié à la fiche"
 
 #: populate.py:52

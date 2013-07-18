@@ -44,7 +44,7 @@ class Populator(BasePopulator):
 
     def populate(self):
         RelationType.create((REL_SUB_LINKED_2_TICKET, _(u'is linked to the ticket')),
-                            (REL_OBJ_LINKED_2_TICKET, _(u'(ticket) linked to the entitity'), [Ticket]))
+                            (REL_OBJ_LINKED_2_TICKET, _(u'(ticket) linked to the entity'), [Ticket]))
 
         for pk, name in BASE_STATUS:
             create_if_needed(Status, {'pk': pk}, name=unicode(name), is_custom=False)
