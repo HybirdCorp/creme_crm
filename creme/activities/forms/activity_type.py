@@ -79,8 +79,8 @@ class ActivityTypeWidget(ChainedInput):
 
 class ActivityTypeField(JSONField):
     default_error_messages = {
-        'typenotallowed':    _('This kind causes constraint error.'),
-        'subtyperequired': _('Type is required.'),
+        'typenotallowed':  _('This type causes constraint error.'),
+        'subtyperequired': _('Sub-type is required.'),
     }
     value_type = dict
 

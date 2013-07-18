@@ -6,6 +6,10 @@
             {% include "creme_core/generics/blockform/content.html" %}
         {% endwith %}
 
+        {% with form_block=blocks.datetime %}
+            {% include "creme_core/generics/blockform/content.html" %}
+        {% endwith %}
+
         {% with form_block=blocks.participants %}
             {% include "creme_core/generics/blockform/content.html" %}
         {% endwith %}

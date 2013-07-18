@@ -234,14 +234,14 @@ class ActivityTestCase(_ActivitiesTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'my_participation',
-                             [_(u'You are not allowed to link this entity: %s') % kirika]
+                             _(u'You are not allowed to link this entity: %s') % kirika
                             )
 
         msg = _(u'Some entities are not linkable: %s')
-        self.assertFormError(response, 'form', 'participating_users', [msg % mireille])
-        self.assertFormError(response, 'form', 'other_participants',  [msg % genma])
-        self.assertFormError(response, 'form', 'subjects',            [msg % akane])
-        self.assertFormError(response, 'form', 'linked_entities',     [msg % dojo])
+        self.assertFormError(response, 'form', 'participating_users', msg % mireille)
+        self.assertFormError(response, 'form', 'other_participants',  msg % genma)
+        self.assertFormError(response, 'form', 'subjects',            msg % akane)
+        self.assertFormError(response, 'form', 'linked_entities',     msg % dojo)
 
     def test_createview03(self):
         self.login()
@@ -603,7 +603,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'type_selector',
-                             [_(u'This kind causes constraint error.')]
+                             _(u'This type causes constraint error.')
                             )
 
     def test_create_view_task01(self):
@@ -757,7 +757,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                            }
                                      )
         self.assertFormError(response, 'form', 'type_selector',
-                             [_(u'This kind causes constraint error.')]
+                             _(u'This type causes constraint error.'),
                             )
 
     def test_createview_related_other01(self):
@@ -788,8 +788,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         create_dt = partial(self.create_datetime, year=2013, month=10, day=1)
         start = create_dt(hour=22, minute=0)
         end = create_dt(hour=23, minute=0)
+        type_id = ACTIVITYTYPE_MEETING
+        sub_type_id = ACTIVITYSUBTYPE_MEETING_MEETING
         activity = Activity.objects.create(user=self.user, title=title,
-                                           type_id=ACTIVITYTYPE_MEETING,
+                                           type_id=type_id, sub_type_id=sub_type_id,
                                            start=start, end=end,
                                           )
         rel = Relation.objects.create(subject_entity=self.contact, user=self.user,
@@ -809,18 +811,21 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(23, end_time_f.initial.hour)
 
         title += '_edited'
-        self.assertNoFormError(self.client.post(url, follow=True,
-                                                data={'user':  self.user.pk,
-                                                      'title': title,
-                                                      'start': '2011-2-22',
-                                                     }
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+                url, follow=True,
+                data={'user':          self.user.pk,
+                      'title':         title,
+                      'start':         '2011-2-22',
+                      'type_selector': self._acttype_field_value(type_id, sub_type_id),
+                     }
+            ))
 
         activity = self.refresh(activity)
         self.assertEqual(title, activity.title)
         #self.assertEqual(date(year=2011, month=2, day=22), activity.start.date())
         self.assertEqual(create_dt(year=2011, month=2, day=22), activity.start)
+        self.assertEqual(type_id,     activity.type.id)
+        self.assertEqual(sub_type_id, activity.sub_type.id)
 
         relations = Relation.objects.filter(type=REL_SUB_PART_2_ACTIVITY)
         self.assertEqual(1, len(relations))
@@ -849,15 +854,31 @@ class ActivityTestCase(_ActivitiesTestCase):
                                            type_id=ACTIVITYTYPE_PHONECALL,
                                            sub_type_id=ACTIVITYSUBTYPE_PHONECALL_INCOMING
                                           )
+
+        url = self._buid_edit_url(activity)
         title += '_edited'
-        response = self.client.post(self._buid_edit_url(activity), follow=True,
-                                    data={'user':  self.user.pk,
-                                          'title': title,
-                                          'start': '2011-2-22',
-                                          'sub_type' : ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-                                         }
-                                   )
-        self.assertNoFormError(response)
+        data = {'user':  self.user.pk,
+                'title': title,
+                'start': '2011-2-22',
+               }
+        fvalue = self._acttype_field_value
+        response = self.assertPOST200(url, follow=True,
+                                      data=dict(data, type_selector=fvalue(ACTIVITYTYPE_MEETING,
+                                                                           ACTIVITYSUBTYPE_MEETING_NETWORK,
+                                                                          )
+                                               )
+                                     )
+        self.assertFormError(response, 'form', 'type_selector', 
+                             _('This type causes constraint error.'),
+                            )
+
+        self.assertNoFormError(self.client.post(
+                self._buid_edit_url(activity), follow=True,
+                 data=dict(data, type_selector=fvalue(ACTIVITYTYPE_PHONECALL,
+                                                      ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+                                                      )
+                          )
+            ))
 
         activity = self.refresh(activity)
         self.assertEqual(title, activity.title)
@@ -889,16 +910,20 @@ class ActivityTestCase(_ActivitiesTestCase):
                              end=create_dt(year=2013,   month=4, day=17, hour=15, minute=0),
                             )
 
-        response = self.assertPOST200(self._buid_edit_url(task01), follow=True,
-                                      data={'user':       user.pk,
-                                            'title':      task01.title,
-                                            'busy':       True,
-                                            'start':      '2013-4-17',
-                                            'start_time': '14:30:00',
-                                            'end':        '2013-4-17',
-                                            'end_time':   '16:00:00',
-                                           }
-                                     )
+        response = self.assertPOST200(
+                self._buid_edit_url(task01), follow=True,
+                data={'user':          user.pk,
+                      'title':         task01.title,
+                      'busy':          True,
+                      'start':         '2013-4-17',
+                      'start_time':    '14:30:00',
+                      'end':           '2013-4-17',
+                      'end_time':      '16:00:00',
+                      'type_selector': self._acttype_field_value(task01.type_id,
+                                                                 task01.sub_type_id,
+                                                                ),
+                     }
+            )
         self.assertFormError(response, 'form', None,
                              [_(u"%(participant)s already participates to the activity «%(activity)s» between %(start)s and %(end)s.") % {
                                     'participant': contact,
@@ -1370,7 +1395,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                            }
                                     )
         self.assertFormError(response, 'form', 'type_selector',
-                             [_('This kind causes constraint error.')]
+                             _('This type causes constraint error.'),
                             )
 
     def test_indisponibility_createview02(self):
@@ -1379,7 +1404,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         contact2 = self.other_contact
 
         user = self.user
-        title  = 'Away'
+        title = 'Away'
         #my_calendar = Calendar.get_user_default_calendar(user)
         response = self.client.post(self.ADD_INDISPO_URL, follow=True,
                                     data={'user':               user.pk,
@@ -1432,6 +1457,21 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertTrue(act.is_all_day)
         self.assertEqual(self.create_datetime(year=2010, month=1, day=10, hour=0,  minute=0),  act.start)
         self.assertEqual(self.create_datetime(year=2010, month=1, day=12, hour=23, minute=59), act.end)
+
+    def test_indisponibility_createview04(self):
+        "Start & end are required"
+        self.login()
+
+        user = self.user
+        response = self.assertPOST200(self.ADD_INDISPO_URL, follow=True,
+                                      data={'user':                user.pk,
+                                            'title':               'AFK',
+                                            'participating_users': [user.id],
+                                           }
+                                     )
+        msg = _('This field is required.')
+        self.assertFormError(response, 'form', 'start', msg)
+        self.assertFormError(response, 'form', 'end',   msg)
 
     def test_detete_activity_type01(self):
         self.login()

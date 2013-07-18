@@ -43,10 +43,10 @@ class Activity(CremeEntity):
     minutes       = TextField(_(u'Minutes'), blank=True, null=True)
     place         = CharField(_(u'Activity place'), max_length=100, blank=True, null=True)
     duration      = PositiveIntegerField(_(u'Duration (in hour)'), blank=True, null=True)
-    type          = ForeignKey(ActivityType, verbose_name=_(u'Kind of activity'),
+    type          = ForeignKey(ActivityType, verbose_name=_(u'Activity type'),
                                on_delete=PROTECT, editable=False,
                               )
-    sub_type      = ForeignKey(ActivitySubType, verbose_name=_(u'Activity type'),
+    sub_type      = ForeignKey(ActivitySubType, verbose_name=_(u'Activity sub-type'),
                                blank=True, null=True, on_delete=SET_NULL,
                               )
     status        = ForeignKey(Status, verbose_name=_(u'Status'), blank=True, null=True)
