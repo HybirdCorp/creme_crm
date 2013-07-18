@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-07-08 15:32+0200\n"
+"POT-Creation-Date: 2013-07-18 17:13+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -262,6 +262,7 @@ msgstr "Valeur invalide => %s"
 
 #: forms/batch_process.py:142 templates/creme_core/entity_filters.html:4
 #: templates/creme_core/templatetags/listview_entityfilters.html:22
+#: templates/creme_core/templatetags/listview_entityfilters.html:23
 msgid "Filter"
 msgstr "Filtre"
 
@@ -696,7 +697,7 @@ msgstr ""
 
 #: forms/list_view_import.py:637
 msgid "The entity"
-msgstr "L'entité"
+msgstr "La fiche"
 
 #: forms/list_view_import.py:640
 msgid "which field"
@@ -1399,12 +1400,12 @@ msgstr "Ajout de <%(type)s>: “%(value)s”"
 
 #: models/history.py:421
 msgid "Auxiliary (edition)"
-msgstr "Auxiliaire (édition)"
+msgstr "Auxiliaire (modification)"
 
 #: models/history.py:440
 #, python-format
 msgid "Edit <%(type)s>: “%(value)s”"
-msgstr "Édition de <%(type)s>: “%(value)s”"
+msgstr "Modification de <%(type)s>: “%(value)s”"
 
 #: models/history.py:451
 msgid "Auxiliary (deletion)"
@@ -1991,10 +1992,6 @@ msgstr "Modification multiple"
 msgid "Filter the lines of the table"
 msgstr "Filtrer les lignes de la table"
 
-#: templates/creme_core/templatetags/listview_entityfilters.html:23
-msgid "Filters"
-msgstr "Filtres"
-
 #: templates/creme_core/templatetags/listview_entityfilters.html:35
 msgid "Create a custom filter"
 msgstr "Créer un filtre personnalisé"
@@ -2365,6 +2362,9 @@ msgstr "La liste souhaitée n'a aucune vue, veuillez en créer au moins une."
 #, python-format
 msgid "You are not allowed to access to the app: %s"
 msgstr "Vous n'avez pas accés à cette application: %s"
+
+#~ msgid "Filters"
+#~ msgstr "Filtres"
 
 #~ msgid "Form"
 #~ msgstr "Formulaire"
