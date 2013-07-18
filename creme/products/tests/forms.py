@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    import copy
     from functools import partial
 
     from creme.creme_core.tests.forms import FieldTestCase
@@ -16,6 +17,11 @@ __all__ = ('CategoryFieldTestCase',)
 
 class CategoryFieldTestCase(FieldTestCase):
     format_str = '{"category": %s, "subcategory": %s}'
+
+    @classmethod
+    def setUpClass(cls):
+        SubCategory.objects.all().delete()
+        Category.objects.all().delete()
 
     def test_categories(self):
         create_cat = partial(Category.objects.create, description='description')
@@ -36,6 +42,24 @@ class CategoryFieldTestCase(FieldTestCase):
         cats = CategoryField()._get_categories_objects()
         self.assertEqual(len(cat_qs), len(cats))
         self.assertEqual(set(cat_qs), set(cats))
+
+    def test_deepcopy(self):
+        "Widget must be re-built when field is copied, to refresh the categories list."
+        field = CategoryField()
+
+        #new category create after the instanciation of the initial field
+        cat = Category.objects.create(name='Xtra cat', description='...')
+        SubCategory.objects.create(name='Xtra subcat', description='...', category=cat)
+
+        inputs = copy.deepcopy(field).widget.inputs
+        self.assertEqual(2, len(inputs))
+
+        cat_input = inputs[0]
+        self.assertIsInstance(cat_input, tuple)
+        self.assertEqual(2, len(cat_input))
+        self.assertEqual('category', cat_input[0])
+
+        self.assertEqual([(cat.id, cat.name)], cat_input[1].options)
 
     def test_format_object(self):
         cat1 = Category.objects.create(name='cat1', description='description')

@@ -52,6 +52,11 @@ class CategoryField(JSONField):
         super(CategoryField, self).__init__(*args, **kwargs)
         self.categories = categories
 
+    def __deepcopy__(self, memo):
+        result = super(CategoryField, self).__deepcopy__(memo)
+        result._build_widget() #refresh the list of categories
+        return result
+
     def _create_widget(self):
         return CategorySelector(self._get_categories_options(self._get_categories_objects()),
                                 attrs={'reset': False, 'direction': ChainedInput.VERTICAL},
