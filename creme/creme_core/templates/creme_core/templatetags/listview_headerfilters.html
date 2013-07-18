@@ -46,7 +46,7 @@
             {% endfor %}
         </select>
         {% if not is_popup_view %}
-            <a href="/creme_core/header_filter/add/{{content_type_id}}"><img border="0" src="{% creme_media_url 'images/add_22.png' %}" alt="{% trans "Create a custom view" %}" title="{% trans "Create a custom view" %}"/></a>
+            <a href="/creme_core/header_filter/add/{{content_type_id}}"><img border="0" src="{% creme_media_url 'images/add_22_button.png' %}" alt="{% trans "Create a custom view" %}" title="{% trans "Create a custom view" %}"/></a>
             {% if can_edit_or_delete %}
                 <a href="/creme_core/header_filter/edit/{{hfilter_id}}" id="header_filter_edit"><img border="0" src="{% creme_media_url 'images/edit_22.png' %}" alt="{% trans "Edit custom view" %}" title="{% trans "Edit custom view" %}"/></a>
                 <a onclick="lv_hf_delete(this);"><img border="0" src="{% creme_media_url 'images/delete_22.png' %}" alt="{% trans "Delete custom view" %}" title="{% trans "Delete custom view" %}"/></a>

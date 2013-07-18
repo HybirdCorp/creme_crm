@@ -35,7 +35,7 @@
         {% endfor %}
     </select>
     {% if not is_popup_view %}
-        <a href="/creme_core/entity_filter/add/{{content_type_id}}"><img border="0" src="{% creme_media_url 'images/add_22.png' %}" alt="{% trans "Create a custom filter" %}" title="{% trans "Create a custom filter" %}"/></a>
+        <a href="/creme_core/entity_filter/add/{{content_type_id}}"><img border="0" src="{% creme_media_url 'images/add_22_button.png' %}" alt="{% trans "Create a custom filter" %}" title="{% trans "Create a custom filter" %}"/></a>
         {% if can_edit_or_delete %}
             <a href="/creme_core/entity_filter/edit/{{efilter_id}}" id="filter_edit"><img border="0" src="{% creme_media_url 'images/edit_22.png' %}" alt="{% trans "Edit custom filter" %}" title="{% trans "Edit custom filter" %}"/></a>
             <a onclick="lv_efilter_delete(this, '{{efilter_id}}');"><img border="0" src="{% creme_media_url 'images/delete_22.png' %}" alt="{% trans "Delete custom filter" %}" title="{% trans "Delete custom filter" %}"/></a>
