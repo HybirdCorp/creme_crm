@@ -41,8 +41,8 @@ class ActivityType(CremeModel):
 
     class Meta:
         app_label = 'activities'
-        verbose_name = _(u"Kind of activity")
-        verbose_name_plural = _(u"Kinds of activity")
+        verbose_name = _(u"Type of activity")
+        verbose_name_plural = _(u"Types of activity")
 
     def as_timedelta(self):
         hours, minutes, seconds = self.default_hour_duration.split(':')
@@ -55,7 +55,7 @@ class ActivityType(CremeModel):
 class ActivitySubType(CremeModel):
     id        = CharField(primary_key=True, max_length=100, editable=False).set_tags(viewable=False)
     name      = CharField(_(u'Name'), max_length=100)
-    type      = ForeignKey(ActivityType, verbose_name=_(u'Kind of activity'))
+    type      = ForeignKey(ActivityType, verbose_name=_(u'Type of activity'))
     is_custom = BooleanField(default=True, editable=False).set_tags(viewable=False) #used by creme_config
 
     def __unicode__(self):
@@ -63,8 +63,8 @@ class ActivitySubType(CremeModel):
 
     class Meta:
         app_label = 'activities'
-        verbose_name = _(u'Activity type')
-        verbose_name_plural = _(u'Activity types')
+        verbose_name = _(u'Sub-type of activity')
+        verbose_name_plural = _(u'Sub-types of activity')
 
 
 class Status(CremeModel):

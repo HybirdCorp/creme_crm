@@ -53,6 +53,8 @@ logger = logging.getLogger(__name__)
 
 
 class _ActivityForm(CremeEntityForm):
+    type_selector = ActivityTypeField(label=_(u'Type'), types=ActivityType.objects.exclude(pk=ACTIVITYTYPE_INDISPO))
+
     start      = CremeDateTimeField(label=_(u'Start'), required=False)
     start_time = CremeTimeField(label=_(u'Start time'), required=False)
     end        = CremeDateTimeField(label=_(u'End'), required=False,
@@ -62,6 +64,7 @@ class _ActivityForm(CremeEntityForm):
 
     class Meta(CremeEntityForm.Meta):
         model = Activity
+        exclude = CremeEntityForm.Meta.exclude + ('sub_type',)
 
     def __init__(self, *args, **kwargs):
         super(_ActivityForm, self).__init__(*args, **kwargs)
@@ -158,7 +161,8 @@ class _ActivityForm(CremeEntityForm):
         return floating_type
 
     def _get_activity_type_n_subtype(self):
-        raise NotImplementedError
+        #raise NotImplementedError
+        return self.cleaned_data['type_selector']
 
     def _get_participants_2_check(self):
         return self.participants
@@ -178,17 +182,17 @@ class _ActivityForm(CremeEntityForm):
 
 
 class ActivityEditForm(_ActivityForm):
-    sub_type = ModelChoiceField(label=_('Activity type'), required=False,
-                                queryset=ActivitySubType.objects.none(),
-                               ) #TODO: CreatorModelChoiceField
+    #sub_type = ModelChoiceField(label=_('Activity type'), required=False,
+                                #queryset=ActivitySubType.objects.none(),
+                               #) #todo: CreatorModelChoiceField
 
     blocks = _ActivityForm.blocks.new(
         ('datetime', _(u'When'), ['is_all_day', 'start', 'start_time', 'end', 'end_time']),
     )
 
-    def _get_activity_type_n_subtype(self):
-        instance = self.instance
-        return instance.type, instance.sub_type
+    #def _get_activity_type_n_subtype(self):
+        #instance = self.instance
+        #return instance.type, instance.sub_type
 
     def _localize(self, dt):
         return localtime(dt) if dt else dt
@@ -198,7 +202,10 @@ class ActivityEditForm(_ActivityForm):
         fields = self.fields
         instance = self.instance
 
-        fields['sub_type'].queryset = ActivitySubType.objects.filter(type=instance.type)
+        #fields['sub_type'].queryset = ActivitySubType.objects.filter(type=instance.type)
+        type_f = fields['type_selector']
+        type_f.types = ActivityType.objects.filter(pk=instance.type_id)
+        type_f.initial = (instance.type_id, instance.sub_type_id)
 
         if instance.floating_type == NARROW:
             start = self._localize(instance.start)
@@ -237,9 +244,7 @@ class _ActivityCreateForm(_ActivityForm):
 MINUTES = 'minutes'
 
 class ActivityCreateForm(_ActivityCreateForm):
-    type_selector = ActivityTypeField(label=_(u"Activity's nomenclature"),
-                                      types=ActivityType.objects.exclude(pk=ACTIVITYTYPE_INDISPO),
-                                     )
+    #type_selector = ActivityTypeField(label=_(u'Type'), types=ActivityType.objects.exclude(pk=ACTIVITYTYPE_INDISPO))
 
     my_participation    = BooleanField(required=False, label=_(u'Do I participate to this meeting?'), initial=True)
     my_calendar         = ModelChoiceField(queryset=Calendar.objects.none(), required=False,
@@ -263,8 +268,8 @@ class ActivityCreateForm(_ActivityCreateForm):
                                                ],
                                       )
 
-    class Meta(_ActivityForm.Meta):
-        exclude = _ActivityForm.Meta.exclude + ('sub_type',)
+    #class Meta(_ActivityForm.Meta):
+        #exclude = _ActivityForm.Meta.exclude + ('sub_type',)
 
     blocks = _ActivityForm.blocks.new(
         ('datetime',       _(u'When'),         ['start', 'start_time', 'end', 'end_time', 'is_all_day']),
@@ -337,8 +342,8 @@ class ActivityCreateForm(_ActivityCreateForm):
 
         return super(ActivityCreateForm, self).clean()
 
-    def _get_activity_type_n_subtype(self):
-        return self.cleaned_data['type_selector']
+    #def _get_activity_type_n_subtype(self):
+        #return self.cleaned_data['type_selector']
 
     def save(self, *args, **kwargs):
         instance = super(ActivityCreateForm, self).save(*args, **kwargs)
@@ -433,20 +438,29 @@ class IndisponibilityCreateForm(_ActivityCreateForm):
     class Meta(_ActivityCreateForm.Meta):
         exclude = _ActivityCreateForm.Meta.exclude + (
                         'place', 'description', 'minutes', 'busy', 'status',
-                        'sub_type', 'duration',
-                    ) #TODO: test
+                        'duration',
+                    ) #'sub_type' #TODO: test
 
     blocks = _ActivityCreateForm.blocks.new(
+        ('datetime',     _(u'When'),         ['is_all_day', 'start', 'start_time', 'end', 'end_time']),
         ('participants', _(u'Participants'), ['participating_users']),
     )
 
     def __init__(self, activity_type_id=None, *args, **kwargs):
         assert activity_type_id == ACTIVITYTYPE_INDISPO
         super(IndisponibilityCreateForm, self).__init__(*args, **kwargs)
+        fields = self.fields
 
-        p_users_field = self.fields['participating_users']
+        fields['start'].required = True
+
+        end_f = fields['end']
+        end_f.required = True
+        end_f.help_text = None
+
+        p_users_field = fields['participating_users']
         p_users_field.label = _(u'Unavailable users')
         p_users_field.required = True
+
 
     def clean(self):
         self.cleaned_data['busy'] = True
