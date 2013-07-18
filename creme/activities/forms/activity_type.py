@@ -89,7 +89,9 @@ class ActivityTypeField(JSONField):
         self.types = types if types is not None else ActivityType.objects.all()
 
     def _create_widget(self):
-        return ActivityTypeWidget((atype.pk, unicode(atype)) for atype in self.types)
+        return ActivityTypeWidget(((atype.pk, unicode(atype)) for atype in self.types),
+                                  attrs={'reset': not self.required},
+                                 )
 #        return ActivityTypeWidget(self._get_types_options(self._get_types_objects()),
 #                                  attrs={'reset':False, 'direction':ChainedInput.VERTICAL})
 
