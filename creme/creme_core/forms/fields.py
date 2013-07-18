@@ -240,7 +240,9 @@ class GenericEntityField(JSONField):
         self._build_widget()
 
     def _create_widget(self):
-        return CTEntitySelector(self._get_ctypes_options(self.get_ctypes()))
+        return CTEntitySelector(self._get_ctypes_options(self.get_ctypes()),
+                                attrs={'reset': not self.required},
+                               )
 
     def _value_to_jsonifiable(self, value):
         if isinstance(value, CremeEntity):
@@ -392,7 +394,8 @@ class RelationEntityField(JSONField):
     def _create_widget(self):
         return RelationSelector(self._get_options,
                                 '/creme_core/relation/predicate/${rtype}/content_types/json',
-                                autocomplete=self.autocomplete
+                                autocomplete=self.autocomplete,
+                                attrs={'reset': not self.required},
                                )
 
     def _value_to_jsonifiable(self, value):
