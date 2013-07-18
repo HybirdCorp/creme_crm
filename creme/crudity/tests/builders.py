@@ -632,18 +632,11 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
                                             },
                                    )
         builder = self._get_builder(backend)
-        list(builder.render())#list is really not useful in reality, but as builder.render() create a generator it has to be parsed once
+        content = str(builder.render().content)
 
-        backend_dir = builder._get_backend_dir()
-        self.assertTrue(path_exists(backend_dir))
-        self.assertTrue(path_exists(path_join(backend_dir, 'creme.png')))
-        self.assertTrue(path_exists(path_join(backend_dir, 'manifest.xsf')))
-        self.assertTrue(path_exists(path_join(backend_dir, 'myschema.xsd')))
-        self.assertTrue(path_exists(path_join(backend_dir, 'template.xml')))
-        self.assertTrue(path_exists(path_join(backend_dir, 'upgrade.xsl')))
-        self.assertTrue(path_exists(path_join(backend_dir, 'view1.xsl')))
-
-        self.assertTrue(path_exists(path_join(backend_dir, '%s.xsn' % backend.subject)))
+        self.assertIn('<my:first_name></my:first_name>',            content)
+        self.assertIn('<my:last_name></my:last_name>',              content)
+        self.assertIn('<my:birthday xsi:nil="true"></my:birthday>', content)
 
     def test_get_create_form_view01(self):
         "Backend not registered"
