@@ -73,6 +73,7 @@
             get_field_infos() became get_instance_field_info()
             get_model_field_infos() became get_model_field_info()
       # In CremeAbstractEntity class 'excluded_fields_in_html_output' and 'header_filter_exclude_fields' attributes have been removed (tags are used instead).
+      # New attribute in CremeModel (so, in CremeEntity), 'creation_label', that contains the (localized) string used by forms, buttons etc... that create instances.
       # The code manages better the invalidation of model fields. 
         HeaderFilters, EntityFilters & Histories check now at runtime if they handle invalid fields (and they modificate themselves to ignore them).
       # New model field : 'CTypeForeignKey'. It uses the cache of ContentType manager, when ForeignKey(ContentType, ...) does not.
