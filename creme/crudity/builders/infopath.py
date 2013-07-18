@@ -24,7 +24,7 @@ import os
 import sys
 import shutil
 import subprocess
-from tempfile import gettempdir
+from tempfile import mkdtemp
 from unicodedata import normalize
 
 from django.conf import settings
@@ -244,11 +244,6 @@ class InfopathFormBuilder(object):
         """
         return [field for field in self.fields if field.is_file_field]
 
-    def _get_backend_dir(self):
-        dir = gettempdir()
-        backend_dir = "infopath_%s" % self.backend.subject
-        return os.path.join(dir, backend_dir)
-
     def _render(self):
         request = self.request
         cab_files = {"manifest.xsf": self._render_manifest_xsf(request),
@@ -259,59 +254,62 @@ class InfopathFormBuilder(object):
                     }
 
         media_files = set(["creme.png"])
+        backend_path = None
 
-        backend_path = self._get_backend_dir()
-        os_path = os.path
-        path_join = os_path.join
-        copy2 = shutil.copy2
+        try:
+            backend_path = mkdtemp(prefix='creme_crudity_infopath')
+            os_path = os.path
+            path_join = os_path.join
+            copy2 = shutil.copy2
 
-        if not os_path.exists(backend_path):
-            os.mkdir(backend_path)
+            crudity_media_path = path_join(settings.CREME_ROOT, "crudity", "templates", "crudity", "infopath", "create_template")
 
-        crudity_media_path = path_join(settings.CREME_ROOT, "crudity", "templates", "crudity", "infopath", "create_template")
+            for name in media_files:
+                media_path = path_join(crudity_media_path, name)
+                copy2(media_path, path_join(backend_path, name))
 
-        for name in media_files:
-            media_path = path_join(crudity_media_path, name)
-            copy2(media_path, path_join(backend_path, name))
+            for file_name, content in cab_files.items():
+                with open(path_join(backend_path, file_name), 'wb') as f:
+                    f.write(content.encode('utf8'))
 
-        for file_name, content in cab_files.items():
-            with open(path_join(backend_path, file_name), 'wb') as f:
-                f.write(content.encode('utf8'))
+            final_files_paths = (path_join(backend_path, cab_file) for cab_file in chain(cab_files.iterkeys(), media_files))
+            infopath_form_filepath = path_join(backend_path, "%s.xsn" % self.backend.subject)
 
-        final_files_paths = (path_join(backend_path, cab_file) for cab_file in chain(cab_files.iterkeys(), media_files))
-        infopath_form_filepath = path_join(backend_path, "%s.xsn" % self.backend.subject)
+            if sys.platform.startswith('win'):
+                ddf_file_content = render_to_string("crudity/infopath/create_template/create_cab.ddf",
+                                                    {'file_name': "%s.xsn" % self.backend.subject,
+                                                     'backend_path':backend_path,
+                                                    },
+                                                    context_instance=RequestContext(request)
+                                                   )
 
-        if sys.platform.startswith('win'):
-            ddf_file_content = render_to_string("crudity/infopath/create_template/create_cab.ddf",
-                                                {'file_name': "%s.xsn" % self.backend.subject,
-                                                 'backend_path':backend_path,
-                                                },
-                                                context_instance=RequestContext(request)
-                                               )
+                ddf_path = path_join(backend_path, "create_cab.ddf")
+                with open(ddf_path, 'wb') as f:
+                    f.write(ddf_file_content)
 
-            ddf_path = path_join(backend_path, "create_cab.ddf")
-            with open(ddf_path, 'wb') as f:
-                f.write(ddf_file_content)
+                cabify_content = render_to_string("crudity/infopath/create_template/cabify.bat",
+                                                  {'ddf_path': ddf_path},
+                                                  context_instance=RequestContext(request)
+                                                 )
 
-            cabify_content = render_to_string("crudity/infopath/create_template/cabify.bat",
-                                              {'ddf_path': ddf_path},
-                                              context_instance=RequestContext(request)
-                                             )
+                cabify_path = path_join(backend_path, "cabify.bat")
+                with open(cabify_path, 'wb') as f:
+                    f.write(cabify_content)
 
-            cabify_path = path_join(backend_path, "cabify.bat")
-            with open(cabify_path, 'wb') as f:
-                f.write(cabify_content)
+                subprocess.call([cabify_path])
+                #clean because  .Set GenerateInf=off doesn't seems to work...
+                os.unlink(path_join(settings.CREME_ROOT, "setup.inf"))
+                os.unlink(path_join(settings.CREME_ROOT, "setup.rpt"))
+            else:
+                subprocess.call(chain(["lcab", "-qn"], final_files_paths, [infopath_form_filepath]))
 
-            subprocess.call([cabify_path])
-            #clean because  .Set GenerateInf=off doesn't seems to work...
-            os.unlink(path_join(settings.CREME_ROOT, "setup.inf"))
-            os.unlink(path_join(settings.CREME_ROOT, "setup.rpt"))
-        else:
-            subprocess.call(chain(["lcab", "-qn"], final_files_paths, [infopath_form_filepath]))
+            with open(infopath_form_filepath, 'rb') as f:
+                for chunk in f.read(File.DEFAULT_CHUNK_SIZE):
+                    yield chunk
 
-        with open(infopath_form_filepath, 'rb') as f:
-            for chunk in f.read(File.DEFAULT_CHUNK_SIZE):
-                yield chunk
+        finally:
+            if backend_path:
+                shutil.rmtree(backend_path)
 
     def render(self):
         response =  HttpResponse(self._render(), mimetype="application/vnd.ms-infopath")
