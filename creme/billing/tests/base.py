@@ -138,7 +138,8 @@ class _BillingTestCase(_BillingTestCaseMixin, CremeTestCase, CSVImportBaseTestCa
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        cls.populate('creme_core', 'creme_config', 'billing')
+        #cls.populate('creme_core', 'creme_config', 'billing')
+        cls.populate('creme_config', 'billing')
 
     def _aux_test_csv_import(self, model, status_model):
         count = model.objects.count()
