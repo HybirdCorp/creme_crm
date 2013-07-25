@@ -44,7 +44,7 @@ logger = logging.getLogger(__name__)
 
 
 class ParticipantCreateForm(CremeForm):
-    my_participation    = BooleanField(required=False, label=_(u"Do I participate to this meeting?"), initial=False)
+    my_participation    = BooleanField(required=False, label=_(u"Do I participate to this activity?"), initial=False)
     my_calendar         = ModelChoiceField(queryset=Calendar.objects.none(), required=False, empty_label=None,
                                            label=_(u"On which of my calendar this activity will appear?"),
                                           )
