@@ -162,6 +162,7 @@ def _get_entity_predicates(request, id):
     #TODO: use CremePropertyType constraints too
     return predicates.filter(Q(subject_ctypes=entity.entity_type)|Q(subject_ctypes__isnull=True)).distinct()
 
+@login_required
 def add_relations(request, subject_id, relation_type_id=None):
     """
         NB: In case of relation_type_id=None is internal relation type is verified in RelationCreateForm clean
