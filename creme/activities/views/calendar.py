@@ -171,7 +171,7 @@ def get_users_activities(request, usernames, calendars_ids):
                                                   relations__type=REL_OBJ_PART_2_ACTIVITY,
                                                   relations__object_entity__in=contacts,
                                                  )
-                                               )
+                                               ).distinct()
                     )
 
     #return HttpResponse(JSONEncoder().encode([_activity_2_dict(activity, user)
