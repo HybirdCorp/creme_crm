@@ -629,14 +629,6 @@ a {
     height: 50px;
 }
 
-.table_header td:last-child a:nth-child(1) img {
-    top: 4px;
-}
-
-.table_header td:last-child a:nth-child(2) img {
-    top: 5px;
-}
-
 div#sub_content > div:nth-child(3) {
     padding-bottom: 10px;
     border-bottom: 1px solid rgba(0, 0, 0, 0.2);
