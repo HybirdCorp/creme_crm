@@ -246,7 +246,7 @@ MINUTES = 'minutes'
 class ActivityCreateForm(_ActivityCreateForm):
     #type_selector = ActivityTypeField(label=_(u'Type'), types=ActivityType.objects.exclude(pk=ACTIVITYTYPE_INDISPO))
 
-    my_participation    = BooleanField(required=False, label=_(u'Do I participate to this meeting?'), initial=True)
+    my_participation    = BooleanField(required=False, label=_(u'Do I participate to this activity?'), initial=True)
     my_calendar         = ModelChoiceField(queryset=Calendar.objects.none(), required=False,
                                            label=_(u'On which of my calendar this activity will appears?'),
                                            empty_label=None,
