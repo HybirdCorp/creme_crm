@@ -326,6 +326,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         user = self.user
 
         cal = Calendar.get_user_default_calendar(user)
+        Calendar.objects.create(user=user, name='Other Cal #1', is_custom=True)
 
         #start = datetime(year=2013, month=3, day=1)
         #end   = datetime(year=2013, month=3, day=31, hour=23, minute=59)
@@ -347,6 +348,10 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         for act in (act1, act3, act4, act5):
             act.calendars = [cal]
+
+        create_rel = partial(Relation.objects.create, user=user, type_id=REL_SUB_PART_2_ACTIVITY)
+        create_rel(subject_entity=self.contact, object_entity=act3)
+        create_rel(subject_entity=self.other_contact, object_entity=act3)
 
         response = self._get_cal_activities([user], [cal],
                                             start=start.strftime('%s'),
