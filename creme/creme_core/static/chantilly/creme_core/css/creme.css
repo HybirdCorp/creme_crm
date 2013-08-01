@@ -729,7 +729,11 @@ a img:hover {
     width: auto !important;
 }
 
-.research_box {padding : 7px;}
+.research_box {
+    padding: 7px;
+    display: inline-block;
+}
+
 .research_box span {
     padding : 7px;
 
@@ -741,9 +745,13 @@ a img:hover {
     -webkit-border-radius: 4px;
 }
 
-.quickform_box {padding: 4px;}
+.quickform_box {
+    padding: 4px 4px 4px 15px;
+    display: inline-block;
+}
+
 .quickform_box span {
-    padding : 4px;
+    padding: 7px;
 
     color: #2c596c;
     background: #E6F2F7 none repeat scroll 0 0;
