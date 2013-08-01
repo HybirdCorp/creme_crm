@@ -186,16 +186,16 @@ class Base(CremeEntity):
         return klass.objects.filter(relations__object_entity=self.id)
 
     def get_product_lines_total_price_exclusive_of_tax(self): #TODO: inline ???
-        return round_to_2(sum(l.get_price_exclusive_of_tax() for l in self.product_lines))
+        return round_to_2(sum(l.get_price_exclusive_of_tax(self) for l in self.product_lines))
 
     def get_product_lines_total_price_inclusive_of_tax(self):
-        return round_to_2(sum(l.get_price_inclusive_of_tax() for l in self.product_lines))
+        return round_to_2(sum(l.get_price_inclusive_of_tax(self) for l in self.product_lines))
 
     def get_service_lines_total_price_exclusive_of_tax(self):
-        return round_to_2(sum(l.get_price_exclusive_of_tax() for l in self.service_lines))
+        return round_to_2(sum(l.get_price_exclusive_of_tax(self) for l in self.service_lines))
 
     def get_service_lines_total_price_inclusive_of_tax(self):
-        return round_to_2(sum(l.get_price_inclusive_of_tax() for l in self.service_lines))
+        return round_to_2(sum(l.get_price_inclusive_of_tax(self) for l in self.service_lines))
 
     def _get_total(self):
         total_credits = sum(credit_note.total_no_vat for credit_note in self.get_credit_notes())

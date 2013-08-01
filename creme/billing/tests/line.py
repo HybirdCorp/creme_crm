@@ -589,3 +589,27 @@ class LineTestCase(_BillingTestCase):
         self.assertGET404(self._build_import_url(Line))
         self.assertGET404(self._build_import_url(ServiceLine))
         self.assertGET404(self._build_import_url(ProductLine))
+
+    def test_global_discount_change(self):
+        self.login()
+
+        invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
+
+        ProductLine.objects.create(user=self.user, unit_price=Decimal("10"),
+                                   vat_value=Vat.get_default_vat(),
+                                   related_document=invoice, on_the_fly_item='Flyyyyy',
+                                  )
+
+        discount_zero = Decimal('0.0')
+        full_discount = Decimal('100.0')
+
+        self.assertEqual(invoice.discount, discount_zero)
+
+        invoice.discount = full_discount
+        invoice.save()
+
+        invoice = self.refresh(invoice)
+
+        self.assertEqual(invoice.discount, full_discount)
+        self.assertEqual(invoice.total_no_vat, discount_zero)
+        self.assertEqual(invoice.total_vat, discount_zero)

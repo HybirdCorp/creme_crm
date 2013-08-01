@@ -124,8 +124,8 @@ class Line(CremeEntity):
         #return self._clone_object() #NB: it does not copy our 2 internal relations
         return super(Line, self).clone()
 
-    def get_price_inclusive_of_tax(self):
-        total_ht = self.get_price_exclusive_of_tax()
+    def get_price_inclusive_of_tax(self, document=None):
+        total_ht = self.get_price_exclusive_of_tax(document)
         vat_value = self.vat_value
         vat = (total_ht * vat_value.value / 100) if vat_value else 0
         return round_to_2(total_ht + vat)
@@ -133,8 +133,8 @@ class Line(CremeEntity):
     def get_raw_price(self):
         return round_to_2(self.quantity * self.unit_price)
 
-    def get_price_exclusive_of_tax(self):
-        document                = self.related_document
+    def get_price_exclusive_of_tax(self, document=None):
+        document                = document if document else self.related_document
         discount_document       = document.discount
         discount_line           = self.discount
         global_discount_line    = self.total_discount
