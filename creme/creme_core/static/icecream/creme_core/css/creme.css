@@ -776,8 +776,12 @@ a img:hover {
     width: auto !important;
 }
 
-.research_box {padding : 7px; display:inline-block;}
-.research_box span{
+.research_box {
+    padding: 7px;
+    display: inline-block;
+}
+
+.research_box span {
     padding : 7px;
 
     color : #2c596c;
@@ -788,8 +792,12 @@ a img:hover {
     -webkit-border-radius: 4px;
 }
 
-.quickform_box {padding: 4px; display: inline-block;}
-.quickform_box span{
+.quickform_box {
+    padding: 4px;
+    display: inline-block;
+}
+
+.quickform_box span {
     padding : 7px;
 
     color: #2c596c;
