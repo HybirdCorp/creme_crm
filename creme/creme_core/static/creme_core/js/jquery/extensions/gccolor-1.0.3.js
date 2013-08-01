@@ -286,6 +286,19 @@
 				closeDialog(data.target, data.options, true);
 			}
 		},
+		closeOnOutsideClick = function(e){
+		    if ($('#gccolor-dialog').is(':visible') === false)
+		        return;
+
+		    var data = $(document).data('gccolor');
+		    var is_target = $(e.target).is(data.target);
+		    var is_togglebutton = $(e.target).is(data.target.parent().find("a.gccolor-button:first"));
+		    var is_inside = $(e.target).is("#gccolor-dialog") || $(e.target).parents('#gccolor-dialog').length > 0;
+
+		    if (!is_target && !is_togglebutton && !is_inside) {
+		        closeDialog(data.target, data.options, true);
+		    }
+		},
 		toggleDialog = function(target, options) {
 		    if ($('#gccolor-dialog').is(':visible')) {
 		        closeDialog(target, options, false);
@@ -322,7 +335,9 @@
 			$('#gccolor-dialog').css('left', $(target).offset().left);
 			//$('#gccolor-dialog').show('slide', {direction: 'up'}, 1000);
 			$('#gccolor-dialog').show();
-			$(document).keyup(closeOnEsc);
+			
+            $(document).keyup(closeOnEsc);
+            $(document).bind('mousedown', closeOnOutsideClick);
 		},
 		changeColor = function(){
 			if (typeof $(document).data('gccolor').options.onChange == 'function'){
@@ -331,6 +346,8 @@
 		},
 		closeDialog = function(target, options, cancel){
 			$(document).unbind('keyup', closeOnEsc);
+			$(document).unbind('mousedown', closeOnOutsideClick);
+
 			if (typeof options.onClose == 'function'){
 				options.onClose(target, $('#gccolor-hex input').val(), cancel);
 			}
