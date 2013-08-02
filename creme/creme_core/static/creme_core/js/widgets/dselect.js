@@ -59,7 +59,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
             sortable: options.sortable !== undefined
         }, chosen_options)
 
-        var component = new creme.widget.component.Chosen(chosen_options);
+        var component = new creme.component.Chosen(chosen_options);
         component.activate(element);
 
         return component;

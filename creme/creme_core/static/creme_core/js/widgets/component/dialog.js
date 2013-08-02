@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-creme.widget.component.Dialog = function(options) {
+creme.component.Dialog = function(options) {
     this.options = $.extend({
         url:       '',
         debug:     false,
@@ -30,7 +30,7 @@ creme.widget.component.Dialog = function(options) {
     }, options || {});
 };
 
-creme.widget.component.Dialog.prototype = {
+creme.component.Dialog.prototype = {
     _on_close: function(dialog)
     {
         dialog.dialog('close');
@@ -88,7 +88,7 @@ creme.widget.component.Dialog.prototype = {
 };
 
 
-creme.widget.component.FormDialog = function(options) {
+creme.component.FormDialog = function(options) {
     $.extend(this.options, {
         success:  function() {},
         validate: function(data, statusText, dataType) {
@@ -97,10 +97,10 @@ creme.widget.component.FormDialog = function(options) {
     }, options || {});
 }
 
-creme.widget.component.FormDialog.prototype = new creme.widget.component.Dialog();
-creme.widget.component.FormDialog.prototype.constructor = creme.widget.component.FormDialog;
+creme.component.FormDialog.prototype = new creme.component.Dialog();
+creme.component.FormDialog.prototype.constructor = creme.component.FormDialog;
 
-$.extend(creme.widget.component.FormDialog.prototype, {
+$.extend(creme.component.FormDialog.prototype, {
     _on_submit: function(dialog, url)
     {
         var self = this;
@@ -135,7 +135,7 @@ $.extend(creme.widget.component.FormDialog.prototype, {
             self._update_buttons("send", dialog, true);
         });
 
-        creme.widget.component.Dialog.prototype._on_open.call(this, dialog, frame, options);
+        creme.component.Dialog.prototype._on_open.call(this, dialog, frame, options);
     },
 
     _update_buttons: function(name, dialog, enabled)
@@ -154,7 +154,7 @@ $.extend(creme.widget.component.FormDialog.prototype, {
     {
         var self = this;
 
-        creme.widget.component.Dialog.prototype._populate_buttons.call(this, buttons, options);
+        creme.component.Dialog.prototype._populate_buttons.call(this, buttons, options);
 
         buttons[gettext('Send')] = {'name':'send',
                                     'text': gettext('Send'),
@@ -165,7 +165,7 @@ $.extend(creme.widget.component.FormDialog.prototype, {
 });
 
 
-creme.widget.component.Dialogs = {
+creme.component.Dialogs = {
     openImage: function(image, options, close_cb) {
         var options = $.extend({
             buttons:   {},
@@ -191,7 +191,7 @@ creme.widget.component.Dialogs = {
     },
 
     openUrl: function(url, options, close_cb) {
-        var dialog = new creme.widget.component.Dialog();
+        var dialog = new creme.component.Dialog();
 
         return dialog.open($.extend({
             url: url,

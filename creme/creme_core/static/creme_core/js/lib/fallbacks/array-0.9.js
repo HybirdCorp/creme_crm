@@ -19,17 +19,24 @@
 
 (function($){
 
-	/**
-	* Extend the array prototype with the method under the given name if it doesn't currently exist.
-	*
-	* @private
-	*/
-	function append(name, method)
-	{
-		if(!Array.prototype[name]) {
-			Array.prototype[name] = method;
-		}
-	};
+    /**
+    * Extend the array prototype with the method under the given name if it doesn't currently exist.
+    *
+    * @private
+    */
+    function append(name, method)
+    {
+        if(!Array.prototype[name]) {
+            Array.prototype[name] = method;
+        }
+    };
+
+    function appendStatic(name, method)
+    {
+        if(!Array[name])
+            Array[name] = method;
+    };
+
     /**
     * Returns the first index at which a given element can be found in the array, or -1 if it is not present.
     *
@@ -59,6 +66,18 @@
             return (obj !== undefined && obj !== null && obj.toString() === "[object Array]") || obj instanceof Array;
         };
     }
+
+    appendStatic('copy', function(iterable, start, end) {
+        var res = [];
+        var start = Math.min(Math.max(0, start || 0), iterable.length);
+        var end = end !== undefined ? Math.min(Math.max(0, end), iterable.length) : iterable.length;
+
+        for(var i = start; i < end; ++i) {
+            res.push(iterable[i]);
+        }
+
+        return res;
+    });
 
     /**
     * Creates a new array with the results of calling a provided function on every element in this array.
@@ -271,7 +290,7 @@
 	* @param Number index The index within the array of the item to remove.
 	* @return Array
 	*/
-	append("removeAt", function(index){
+	append("removeAt", function(index) {
 		for(var k = index; k < this.length-1; k++)
 			this[k] = this[k+1];
 		this.length--;

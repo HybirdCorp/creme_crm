@@ -68,7 +68,7 @@ creme.widget.PlotEventHandlers.register('popup', function(event, seriesIndex, po
     var url = options.url.format(value);
 
     if (options.url !== url && !creme.object.isempty(url)) {
-        creme.widget.component.Dialogs.openUrl(options.url.format(value), {'title': options.url.format(value)});
+        creme.component.Dialogs.openUrl(options.url.format(value), {'title': options.url.format(value)});
     }
 });
 
@@ -109,7 +109,7 @@ creme.widget.Plot = creme.widget.declare('ui-creme-jqueryplot', {
     _popupRasterImage: function(element)
     {
         this._rasterImage(this._plot, function(image) {
-            creme.widget.component.Dialogs.openImage(image, 
+            creme.component.Dialogs.openImage(image, 
                                                      {title: gettext('Canvas image')});
         });
     },

@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-creme.widget.component.Chosen = function(options) {
+creme.component.Chosen = function(options) {
     this.options = $.extend({
         multiple:  false,
         sortable:  false,
@@ -25,7 +25,7 @@ creme.widget.component.Chosen = function(options) {
     }, options || {});
 };
 
-creme.widget.component.Chosen.prototype = {
+creme.component.Chosen.prototype = {
     activate: function(element)
     {
         if (this.chosen !== undefined)
