@@ -64,9 +64,12 @@ test('creme.widget.DynamicSelect.create (static)', function() {
     mock_dselect_add_choice(element, 'b', 5);
     mock_dselect_add_choice(element, 'c', 3);
 
-    creme.widget.create(element);
+    var widget = creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
+
+    equal(widget.delegate._enabled, true);
+    equal(element.is('[disabled]'), false);
 
     equal(3, $('option', element).length);
     equal(element.is(':disabled'), false);
@@ -77,6 +80,33 @@ test('creme.widget.DynamicSelect.create (static)', function() {
     deepEqual([1, 'a'], element.creme().widget().choice(1));
     deepEqual([5, 'b'], element.creme().widget().choice(5));
     deepEqual([3, 'c'], element.creme().widget().choice(3));
+});
+
+test('creme.widget.DynamicSelect.create (static, disabled)', function() {
+    var element = mock_dselect_create();
+    mock_dselect_add_choice(element, 'a', 1);
+    mock_dselect_add_choice(element, 'b', 5);
+
+    element.attr('disabled', '');
+    equal(element.is('[disabled]'), true);
+
+    var widget = creme.widget.create(element);
+
+    equal(element.hasClass('widget-ready'), true);
+
+    equal(widget.delegate._enabled, false);
+    equal(element.is('[disabled]'), true);
+
+    var element = mock_dselect_create();
+    mock_dselect_add_choice(element, 'a', 1);
+    mock_dselect_add_choice(element, 'b', 5);
+
+    equal(element.is('[disabled]'), false);
+
+    var widget = creme.widget.create(element, {disabled: true});
+
+    equal(widget.delegate._enabled, false);
+    equal(element.is('[disabled]'), true);
 });
 
 test('creme.widget.DynamicSelect.create (static, empty url)', function() {

@@ -25,10 +25,17 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
     {
         var self = this;
 
-        this._isCloneLast = !Object.isNone(options.cloneLast) && options.cloneLast !== false;
+        this._isCloneLast = creme.object.isTrue(options.cloneLast);
+        this._enabled = creme.object.isFalse(options.disabled) && element.is(':not([disabled])');
+
+        if (!this._enabled) {
+            element.attr('disabled', '');
+        }
 
         $('div.add', element).click(function() {
-            self.appendLastSelector(element);
+            if (self._enabled) {
+                self.appendLastSelector(element);
+            }
         });
 
         var value = this.val(element);
@@ -125,7 +132,9 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
                                        .attr('style', 'vertical-align:middle;')
                                        .addClass('delete')
                                        .click(function() {
-                                            self.removeSelector(element, $('> ul > li > .ui-creme-widget', selector_item));
+                                            if (self._enabled) {
+                                                self.removeSelector(element, $('> ul > li > .ui-creme-widget', selector_item));
+                                            }
                                         });
 
         selector_layout.append($('<li>').append(selector_model));
@@ -137,7 +146,7 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
             self._update(element);
         });
 
-        var selector = creme.widget.create(selector_model, {}, function() {
+        var selector = creme.widget.create(selector_model, {disabled: !this._enabled}, function() {
             selector_model.css('display', 'inline');
         }, true);
 

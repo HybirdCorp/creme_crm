@@ -24,7 +24,13 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
     _create: function(element, options, cb, sync)
     {
         var self = this;
-        this._selector = creme.widget.create(self.selector(element));
+        this._enabled = creme.object.isFalse(options.disabled) && element.is(':not([disabled])');
+        this._selector = creme.widget.create(self.selector(element), {disabled: !self._enabled});
+
+        if (!this._enabled) {
+            element.attr('disabled', '');
+            self.actions(element).attr('disabled', '')
+        }
 
         self.actions(element).click(function() {
             return self._handle_action(element, $(this));
@@ -95,6 +101,9 @@ creme.widget.ActionButtonList = creme.widget.declare('ui-creme-actionbuttonlist'
         var action = creme.widget.parseopt(button, {action:'popup'}).action;
 
         var handler = self['_handle_action_' + action];
+
+        if (!this._enabled)
+            return false;
 
         if (handler !== undefined)
             self['_handle_action_' + action](element, button);
