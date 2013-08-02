@@ -106,18 +106,18 @@ class RegularFieldsConditionsWidget(SelectorList):
 
 
 class DateFieldsConditionsWidget(SelectorList):
-    def __init__(self, date_fields_options, attrs=None):
+    def __init__(self, date_fields_options, attrs=None, enabled=True):
         chained_input = ChainedInput(attrs)
         attrs = {'auto': False}
 
         chained_input.add_dselect('field', options=date_fields_options, attrs=attrs)
         chained_input.add_input('range', DateRangeSelect, attrs=attrs)
 
-        super(DateFieldsConditionsWidget, self).__init__(chained_input)
+        super(DateFieldsConditionsWidget, self).__init__(chained_input, enabled=enabled)
 
 
 class CustomFieldsConditionsWidget(SelectorList): #TODO: factorise with RegularFieldsConditionsWidget ???
-    def __init__(self, cfields, attrs=None):
+    def __init__(self, cfields, attrs=None, enabled=True):
         chained_input = ChainedInput(attrs)
         attrs = {'auto': False}
 
@@ -125,7 +125,7 @@ class CustomFieldsConditionsWidget(SelectorList): #TODO: factorise with RegularF
         chained_input.add_dselect('operator', options=EntityFilterCondition._OPERATOR_MAP.iteritems(), attrs=attrs)
         chained_input.add_input('value', DynamicInput, attrs=attrs)
 
-        super(CustomFieldsConditionsWidget, self).__init__(chained_input)
+        super(CustomFieldsConditionsWidget, self).__init__(chained_input, enabled=enabled)
 
 
 class RelationsConditionsWidget(SelectorList):
@@ -325,7 +325,8 @@ class DateFieldsConditionsField(_ConditionsField):
         self._build_widget()
 
     def _create_widget(self):
-        return DateFieldsConditionsWidget([(fname, f.verbose_name) for fname, f in self._fields.iteritems()])
+        return DateFieldsConditionsWidget([(fname, f.verbose_name) for fname, f in self._fields.iteritems()],
+                                          enabled=len(self._fields) > 0)
 
     def _format_date(self, date_dict):
         """@param date_dict dict or None; if not None => {"year": 2011, "month": 7, "day": 25}"""

@@ -324,25 +324,28 @@ class ChainedInput(TextInput):
 
 
 class SelectorList(TextInput):
-    def __init__(self, selector, attrs=None):
+    def __init__(self, selector, attrs=None, enabled=True):
         super(SelectorList, self).__init__(attrs)
         self.selector = selector
+        self.enabled = enabled
         self.from_python = None #TODO : wait for django 1.2 and new widget api to remove this hack
 
     def render(self, name, value, attrs=None):
         value = self.from_python(value) if self.from_python is not None else value # TODO : wait for django 1.2 and new widget api to remove this hack
         attrs = self.build_attrs(attrs, name=name, type='hidden')
         clonelast = 'cloneLast' if attrs.pop('clonelast', True) else ''
+        disabled = 'disabled' if not self.enabled else ''
 
         context = widget_render_context('ui-creme-selectorlist', attrs,
                                         add=_(u'Add'),
                                         clonelast=clonelast,
+                                        disabled=disabled,
                                         selector=self.selector.render('', '', {'auto': False,'reset': False}))
 
         context['input'] = widget_render_hidden_input(self, name, value, context)
         context['img_url'] = media_url('images/add_16.png')
 
-        return mark_safe("""<div class="%(css)s" style="%(style)s" widget="%(typename)s" %(clonelast)s>
+        return mark_safe("""<div class="%(css)s" style="%(style)s" widget="%(typename)s" %(clonelast)s %(disabled)s>
                                 %(input)s
                                 <div class="inner-selector-model" style="display:none;">%(selector)s</div>
                                 <ul class="selectors ui-layout"></ul>

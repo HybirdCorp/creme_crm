@@ -29,8 +29,10 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
     {
         var self = this;
 
+        this._enabled = creme.object.isFalse(options.disabled) && element.is(':not([disabled])');
+
         this.selectors(element).each(function() {
-            $(this).creme().create({backend: self.options.backend}, undefined, true);
+            $(this).creme().create({backend: self.options.backend, disabled: !self._enabled}, undefined, true);
         });
 
         this._dependency_change = function() {
@@ -40,7 +42,9 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
         };
 
         $('img.reset', element).click(function() {
-            self.reset(element);
+            if (self._enabled) {
+                self.reset(element);
+            }
         });
 
         var data = this.cleanedval(element);

@@ -57,12 +57,41 @@ test('creme.widget.EntitySelector.create (not empty, auto)', function() {
     equal(element.hasClass('widget-ready'), true);
 
     equal("John Doe", $('button', element).text());
+    equal($('button', element).is('[disabled]'), false);
+    equal(element.creme().widget().delegate._enabled, true);
+
     equal("1", element.creme().widget().val());
     equal("", element.creme().widget().options().popupURL);
     equal("mock/label/${id}", element.creme().widget().options().labelURL);
     equal("select a mock", element.creme().widget().options().label);
     equal(creme.widget.EntitySelectorMode.SINGLE, element.creme().widget().options().popupSelection);
     equal("", element.creme().widget().options().qfilter);
+});
+
+test('creme.widget.EntitySelector.create (auto, disabled)', function() {
+    var element = mock_entityselector_create({disabled:''});
+    creme.widget.input(element).val('1');
+
+    var widget = creme.widget.create(element);
+    equal(element.hasClass('widget-ready'), true);
+
+    equal($('button', element).is('[disabled]'), true);
+    equal("1", element.creme().widget().val());
+    equal(element.creme().widget().delegate._enabled, false);
+
+    var element = mock_entityselector_create();
+    creme.widget.input(element).val('2');
+
+    equal(element.is('[disabled]'), false);
+
+    var widget = creme.widget.create(element, {disabled: true});
+
+    equal(element.hasClass('widget-ready'), true);
+    equal(element.is('[disabled]'), true);
+    equal(widget.delegate._enabled, false);
+
+    equal($('button', element).is('[disabled]'), true);
+    equal("2", element.creme().widget().val());
 });
 
 test('creme.widget.EntitySelector.create (empty, popup url, auto)', function() {

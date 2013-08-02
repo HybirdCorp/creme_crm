@@ -1,6 +1,6 @@
-function mock_selectorlist_create(value, noauto)
+function mock_selectorlist_create(value, noauto, options)
 {
-    var element = creme.widget.buildTag($('<div/>'), 'ui-creme-selectorlist', {}, !noauto)
+    var element = creme.widget.buildTag($('<div/>'), 'ui-creme-selectorlist', options, !noauto)
                        .append('<input type="hidden" class="ui-creme-input ui-creme-selectorlist"/>')
                        .append('<div class="inner-selector-model" style="display:none;"/>')
                        .append('<ul class="selectors ui-layout"/>')
@@ -101,12 +101,39 @@ test('creme.widets.selectorlist.create (empty, model)', function() {
     mock_selectorlist_model(element, ctype);
 
     var widget = creme.widget.create(element);
+    equal(widget.delegate._enabled, true);
     equal(widget.val(), $.toJSON([]));
     equal(widget.selectorModel().length, 1);
     equal(widget.lastSelector().length, 0);
     equal(widget.selectors().length, 0);
 
     equal(widget.selectorModel().creme().isActive(), false);
+});
+
+test('creme.widets.selectorlist.create (empty, model, disabled)', function() {
+    var element = mock_selectorlist_create('', false, {disabled: ''});
+    var ctype = mock_dselect_create();
+    mock_dselect_add_choice(ctype, 'a', 15);
+    mock_selectorlist_model(element, ctype);
+
+    equal(element.is('[disabled]'), true);
+
+    var widget = creme.widget.create(element);
+
+    equal(element.is('[disabled]'), true);
+    equal(widget.delegate._enabled, false);
+
+    var element = mock_selectorlist_create();
+    var ctype = mock_dselect_create();
+    mock_dselect_add_choice(ctype, 'a', 15);
+    mock_selectorlist_model(element, ctype);
+
+    equal(element.is('[disabled]'), false);
+
+    var widget = creme.widget.create(element, {disabled: true});
+
+    equal(element.is('[disabled]'), true);
+    equal(widget.delegate._enabled, false);
 });
 
 test('creme.widets.selectorlist.create (empty, chained selector)', function() {

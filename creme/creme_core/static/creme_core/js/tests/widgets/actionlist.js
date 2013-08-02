@@ -1,6 +1,6 @@
-function mock_actionlist_create(noauto)
+function mock_actionlist_create(noauto, options)
 {
-    var element = creme.widget.buildTag($('<ul/>'), 'ui-creme-actionbuttonlist', {}, !noauto)
+    var element = creme.widget.buildTag($('<ul/>'), 'ui-creme-actionbuttonlist', options, !noauto)
                        .append($('<li class="delegate"/>'));
 
     return element;
@@ -98,6 +98,50 @@ test('creme.widgets.actionlist.create', function() {
 
     equal(delegate.creme().widget().val(), 1);
     deepEqual(delegate.creme().widget().dependencies(), []);
+});
+
+test('creme.widgets.actionlist.create (disabled)', function() {
+    var delegate = mock_dselect_create();
+    mock_dselect_add_choice(delegate, 'a', 1);
+
+    var element = mock_actionlist_create(false, {disabled: ''});
+    mock_actionlist_delegate(element, delegate);
+    mock_actionlist_add(element, {name: 'create', label: 'create', url: 'mock/create/popup'});
+
+    equal(element.is('[disabled]'), true);
+    equal(delegate.is('[disabled]'), false);
+
+    var widget = creme.widget.create(element);
+
+    equal(element.hasClass('widget-ready'), true);
+    equal(widget.selector().length, 1);
+    equal(widget.actions().length, 1);
+
+    equal(element.is('[disabled]'), true);
+    equal(widget.delegate._enabled, false);
+    equal(widget.selector().is('[disabled]'), true);
+    equal(widget.actions().is('[disabled]'), true);
+
+    var delegate = mock_dselect_create();
+    mock_dselect_add_choice(delegate, 'a', 1);
+
+    var element = mock_actionlist_create();
+    mock_actionlist_delegate(element, delegate);
+    mock_actionlist_add(element, {name: 'create', label: 'create', url: 'mock/create/popup'});
+    
+    equal(element.is('[disabled]'), false);
+    equal(delegate.is('[disabled]'), false);
+
+    var widget = creme.widget.create(element, {disabled: true});
+
+    equal(element.hasClass('widget-ready'), true);
+    equal(widget.selector().length, 1);
+    equal(widget.actions().length, 1);
+
+    equal(element.is('[disabled]'), true);
+    equal(widget.delegate._enabled, false);
+    equal(widget.selector().is('[disabled]'), true);
+    equal(widget.actions().is('[disabled]'), true);
 });
 
 test('creme.widgets.actionlist.dependencies (url delegate)', function() {

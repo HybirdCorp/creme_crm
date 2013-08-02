@@ -49,6 +49,13 @@ ul.ui-layout.vbox li { position:relative; display:block; }
 .ui-creme-selectorlist img.delete { border:0; vertical-align:middle; }
 .ui-creme-selectorlist img.delete:hover { cursor:pointer; }
 
+.ui-creme-selectorlist[disabled] img.delete { display: none; }
+.ui-creme-selectorlist[disabled] div.add {
+    opacity: .50;
+    filter: Alpha(Opacity=50);
+    cursor: default;
+}
+
 /*----------------------------------*/
 .ui-creme-chainedselect img.reset { border:0; vertical-align:middle; }
 .ui-creme-chainedselect img.reset:hover { cursor:pointer; }

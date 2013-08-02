@@ -125,6 +125,14 @@ creme.object = {
 
     uuid: function() {
         return $.uidGen({prefix: 'jqplot_target_', mode:'random'})
+    },
+
+    isFalse: function(value) {
+        return Object.isNone(value) || value === false;
+    },
+
+    isTrue: function(value) {
+        return !Object.isNone(value) && value !== false;
     }
 }
 

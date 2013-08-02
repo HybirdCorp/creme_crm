@@ -40,9 +40,20 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
     {
         var self = this;
 
+        this._enabled = creme.object.isFalse(options.disabled) && element.is(':not([disabled])');
+
+        if (!this._enabled) {
+            $(element).attr('disabled', '');
+            $('button', element).attr('disabled', '');
+        }
+
         $(element).bind('click', function() {
-            self._select(element, $(this));
+            if (self._enabled) {
+                self._select(element, $(this));
+            }
         });
+
+        this
 
         $(element).bind('selectorlist-added', function(e, selector) {
             self._autoselect(element);

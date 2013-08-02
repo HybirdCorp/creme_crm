@@ -22,6 +22,12 @@ creme.widget.DynamicInput = creme.widget.declare('ui-creme-dinput', {
     },
 
     _create: function(element, options, cb, sync) {
+        this._enabled = creme.object.isFalse(options.disabled) && element.is(':not([disabled])');
+
+        if (!this._enabled) {
+            $(element).attr('disabled', '');
+        }
+
         element.addClass('widget-ready');
     },
 

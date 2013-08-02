@@ -33,7 +33,12 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     _create: function(element, options, cb, sync)
     {
         this._initial = element.html();
+        this._enabled = creme.object.isFalse(options.disabled) && element.is(':not([disabled])');
         this._url = new creme.string.Template(options.url);
+
+        if (!this._enabled) {
+            element.attr('disabled', '');
+        }
 
         if (this._url.iscomplete()) {
             this._fill(element, this.url(element), cb, undefined, sync);
@@ -66,7 +71,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     },
 
     _update_disabled_state: function(element) {
-        ($('option', element).length > 1) ? element.removeAttr('disabled') : element.attr('disabled', 'disabled');
+        ($('option', element).length > 1) && this._enabled ? element.removeAttr('disabled') : element.attr('disabled', 'disabled');
     },
 
     url: function(element) {
