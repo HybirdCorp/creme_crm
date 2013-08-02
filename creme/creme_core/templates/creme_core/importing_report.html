@@ -1,6 +1,6 @@
 {% extends "creme_core/base.html" %}
 {% load i18n %}
-{% load creme_core_tags creme_block %}
+{% load creme_core_tags creme_block creme_widgets %}
 
 {% block content %}
     <table class="table_header" cellpadding="0" cellspacing="0">
@@ -16,28 +16,39 @@
 
     <p>
         {% with form|get_meta_value:'model'|get_meta_value:'verbose_name' as verbose_name %}
-            {% blocktrans count form.imported_objects_count as counter %}{{counter}} entity with type "{{verbose_name}}" has been sucessfully imported.{% plural %}{{counter}} entities with type "{{verbose_name}}" have been sucessfully imported.{% endblocktrans %}
+            {% blocktrans count form.imported_objects_count as counter %}{{counter}} entity with type "{{verbose_name}}" has been sucessfully imported.{% plural %}{{counter}} entities with type "{{verbose_name}}" have been sucessfully imported.{% endblocktrans %}<br>
+            {% blocktrans count form.updated_objects_count as counter %}{{counter}} entity with type "{{verbose_name}}" has been sucessfully updated.{% plural %}{{counter}} entities with type "{{verbose_name}}" have been sucessfully updated.{% endblocktrans %}
         {% endwith %}
         <br/>{% blocktrans count form.lines_count as counter %}({{counter}} line in the file.){% plural %}({{counter}} lines in the file.){% endblocktrans %}
     </p>
 
-    {% with form.import_errors as errors %}
+    {% with errors=form.import_errors %}
         {% if errors %}
+            <div class="help_box">
+                <span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span></td>
+                {% trans 'You should open the links to the concerned entities in new tabs, because this page is volatile.' %}<br/>
+            </div>
             {% with errors|length as count %}
                 <table class="table_detail_view ui-corner-all with-header">
-                    {% get_block_header colspan=2 %}
-                        <th class="collapser label">{% get_block_title  _('%s Error') _('%s Errors') 'info_48.png' 'Infos' count %}</th>{# TODO: i18n #}
+                    {% get_block_header colspan=3 %}
+                        <th class="collapser label">{% get_block_title  _('%s Error') _('%s Errors') 'info_48.png' 'Info' count %}</th>
                         <th class="actions"></th>
                     {% end_get_block_header %}
                     <tbody class="collapsable">
                         <tr class="header">
                             <th class="block_header_line_dark">{% trans "Line of the file" %}</th>
                             <th class="block_header_line_dark">{% trans "Induced error" %}</th>
+                            <th class="block_header_line_dark">{% trans "Concerned entity" %}</th>
                         </tr>
                         {% for error in errors %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
                             <tr class="content">
-                                <td class="{{row_color}}">{{error.0}}</td>
-                                <td class="{{row_color}}">{{error.1}}</td>
+                                <td class="{{row_color}}">{{error.line}}</td>
+                                <td class="{{row_color}}">{{error.message}}</td>
+                                <td class="{{row_color}}">
+                                    {% with entity=error.instance %}
+                                        {% if entity and entity.pk %}{% widget_entity_hyperlink entity user %}{% endif %}
+                                    {% endwith %}
+                                </td>
                             </tr>
                         {% endfor %}
                     </tbody>

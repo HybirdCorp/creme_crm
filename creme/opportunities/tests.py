@@ -42,10 +42,6 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
     @classmethod
     def setUpClass(cls):
         CremeTestCase.setUpClass()
-        #cls.populate('creme_core', 'creme_config', 'documents',
-                     #'persons', 'commercial', 'billing',
-                     #'activities', 'opportunities',
-                    #)
         cls.populate('opportunities', 'documents', 'commercial')
 
         cls.lvimport_data = {'step':     1,
@@ -1093,8 +1089,8 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
 
         errors = list(form.import_errors)
         self.assertEqual(4, len(errors)) #4 errors: retrieving of Organisation/Contact failed, creation of Opportunities failed
-        self.assertIn(_('Organisation'), errors[0][1])
-        self.assertIn(_('Contact'),      errors[2][1])
+        self.assertIn(_('Organisation'), errors[0].message)
+        self.assertIn(_('Contact'),      errors[2].message)
 
         self.assertEqual(0, form.imported_objects_count)
 
@@ -1144,6 +1140,53 @@ class OpportunitiesTestCase(CremeTestCase, CSVImportBaseTestCaseMixin):
         self.assertFormError(response, 'form', 'sales_phase',
                              u'You are not allowed to create "Sales phase"'
                             )
+
+    def test_csv_import06(self):
+        "Update"
+        self.login()
+
+        opp1, target1, emitter = self._create_opportunity_n_organisations()
+        target2 = Organisation.objects.create(user=self.user, name='Acme')
+
+        count = Opportunity.objects.count()
+
+        phase1 = opp1.sales_phase
+        phase2 = SalesPhase.objects.exclude(id=phase1.id)[0]
+
+        doc = self._build_csv_doc([(opp1.name, '1000', '2000', target2.name, phase1.name), #should be updated
+                                   (opp1.name, '1000', '2000', target2.name, phase2.name), #phase is different => not updated
+                                  ]
+                                 )
+        response = self.client.post(self._build_import_url(Opportunity),
+                                    data=dict(self.lvimport_data,
+                                              document=doc.id,
+                                              user=self.user.id,
+                                              emitter=emitter.id,
+
+                                              key_fields=['name', 'sales_phase'],
+
+                                              name_colselect=1,
+                                              estimated_sales_colselect=2,
+                                              made_sales_colselect=3,
+
+                                              sales_phase_colselect=5,
+
+                                              target_persons_organisation_colselect=4,
+                                              target_persons_organisation_create=True,
+                                              target_persons_contact_colselect=0,
+                                              target_persons_contact_create='',
+                                             )
+                                     )
+        self.assertNoFormError(response)
+        self.assertEqual(count + 1, Opportunity.objects.count())
+
+        with self.assertNoException():
+            opp2 = Opportunity.objects.exclude(id=opp1.id).get(name=opp1.name)
+
+        self.assertEqual(target2, opp2.target)
+
+        opp1 = self.refresh(opp1)
+        self.assertEqual(target2, opp1.target)
 
 
 class SalesPhaseTestCase(CremeTestCase):

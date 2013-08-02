@@ -29,7 +29,7 @@ from .models import Contact, Organisation
 from .buttons import button_list
 from .blocks import block_list, ContactBlock, OrganisationBlock
 from .forms.quick import ContactQuickForm, OrganisationQuickForm
-from .forms.csv_import import get_csv_form_builder
+from .forms.lv_import import get_csv_form_builder
 from .forms.merge import get_merge_form_builder
 
 

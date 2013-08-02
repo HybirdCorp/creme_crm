@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 try:
+    from functools import partial
     from tempfile import NamedTemporaryFile
 
     from django.utils.translation import ugettext as _
@@ -9,7 +10,6 @@ try:
 
     from creme.creme_core.models import CremePropertyType, CremeProperty, RelationType, Relation
     from creme.creme_core.tests.views.base import ViewsTestCase
-
 
     from creme.persons.models import Contact, Organisation, Position, Sector
 
@@ -179,7 +179,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
             form = response.context['form']
 
         lines_count = len(lines)
-        self.assertEqual(0,           len(form.import_errors))
+        self.assertFalse(list(form.import_errors))
         self.assertEqual(lines_count, form.imported_objects_count)
         self.assertEqual(lines_count, form.lines_count)
 
@@ -188,7 +188,7 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         for first_name, last_name in lines:
             contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
             self.assertEqual(self.user, contact.user)
-            #self.assert_(contact.billing_address is None) #TODO: fail ?!
+            self.assertIsNone(contact.billing_address)
 
     def _test_import02(self, builder): #use header, default value, model search and create, properties, fixed and dynamic relations
         self.login()
@@ -444,3 +444,107 @@ class CSVImportViewsTestCase(ViewsTestCase, CSVImportBaseTestCaseMixin):
         self.assertFormError(response, 'form', 'dyn_relations', 
                              _(u'You are not allowed to create: %s') % _(u'Organisation')
                             )
+
+    def test_import_with_update01(self):
+        self.login()
+        user = self.user
+
+        rei_info   = {'first_name': 'Rei',   'last_name': 'Ayanami', 'phone': '111111'}
+        asuka_info = {'first_name': 'Asuka', 'last_name': 'Langley', 'phone': '222222'}
+
+        rei = Contact.objects.get_or_create(first_name=rei_info['first_name'],
+                                            last_name=rei_info['last_name'],
+                                            defaults={'user': user},
+                                           )[0]
+        self.assertNotEqual(rei_info['phone'], rei.phone)
+
+        #Should not be modified, even is 'first_name' is searched
+        rei2 = Contact.objects.get_or_create(first_name=rei_info['first_name'],
+                                            last_name='Iyanima',
+                                            defaults={'user': user},
+                                           )[0]
+
+        self.assertFalse(Contact.objects.filter(last_name=asuka_info['last_name'])
+                                        .exists()
+                        )
+
+        count = Contact.objects.count()
+        doc = self._build_csv_doc([(d['first_name'], d['last_name'], d['phone'])
+                                    for d in (rei_info, asuka_info)
+                                  ]
+                                 )
+        response = self.client.post(self._build_import_url(Contact),
+                                    data=dict(self.data, document=doc.id,
+                                              user=user.id,
+                                              key_fields=['first_name', 'last_name'],
+                                              first_name_colselect=1,
+                                              last_name_colselect=2,
+                                              phone_colselect=3,
+                                             ),
+                                   )
+        self.assertNoFormError(response)
+
+        with self.assertNoException():
+            form = response.context['form']
+
+        self.assertEqual(0, len(form.import_errors))
+        self.assertEqual(2, form.lines_count)
+        self.assertEqual(1, form.imported_objects_count)
+        self.assertEqual(1, form.updated_objects_count)
+
+        self.assertEqual(count + 1, Contact.objects.count())
+        self.assertEqual(rei_info['phone'], self.refresh(rei).phone)
+        self.assertIsNone(self.refresh(rei2).phone)
+        self.get_object_or_fail(Contact, **asuka_info)
+
+    def test_import_with_update02(self):
+        "Several existing entities found"
+        self.login()
+        user = self.user
+
+        last_name = 'Ayanami'
+        first_name = 'Rei'
+
+        create_contact = partial(Contact.objects.get_or_create, user=user,
+                                 last_name=last_name,
+                                )
+        lei = create_contact(first_name='Lei')
+        rey = create_contact(first_name='Rey')
+
+        count = Contact.objects.count()
+
+        doc = self._build_csv_doc([(last_name, first_name)])
+        response = self.client.post(self._build_import_url(Contact),
+                                    data=dict(self.data, document=doc.id,
+                                              user=user.id,
+                                              key_fields=['last_name'],
+                                              last_name_colselect=1,
+                                              first_name_colselect=2,
+                                             ),
+                                   )
+        self.assertNoFormError(response)
+
+        with self.assertNoException():
+            form = response.context['form']
+
+        self.assertEqual(1, form.lines_count)
+        self.assertEqual(1, form.imported_objects_count)
+        self.assertEqual(0, form.updated_objects_count)
+
+        self.assertEqual(count + 1, Contact.objects.count())
+        rei = self.get_object_or_fail(Contact, last_name=last_name, first_name=first_name)
+
+        errors = form.import_errors
+        self.assertEqual(1, len(errors))
+
+        error = iter(errors).next()
+        self.assertEqual([last_name, first_name], error.line)
+        self.assertEqual(_('Several entities corresponding to the research have been found. '
+                           'So a new entity have been created to avoid errors.'
+                          ),
+                         unicode(error.message)
+                        )
+        self.assertEqual(rei, error.instance)
+
+
+    #def test_import_with_updateXX(self): TODO: test search on FK ? exclude them ??
