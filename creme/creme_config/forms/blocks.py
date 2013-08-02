@@ -102,11 +102,11 @@ class BlockDetailviewLocationsAddForm(_BlockDetailviewLocationsForm):
         super(BlockDetailviewLocationsAddForm, self).__init__(*args, **kwargs)
 
         #TODO: factorise (ButtonMenuAddForm etc...)
-        used_ct_ids   = set(BlockDetailviewLocation.objects
-                                                   .exclude(content_type=None)
-                                                   .distinct()
-                                                   .values_list('content_type_id', flat=True)
-                           )
+        used_ct_ids = set(BlockDetailviewLocation.objects
+                                                 .exclude(content_type=None)
+                                                 .distinct()
+                                                 .values_list('content_type_id', flat=True)
+                         )
         ct_field = self.fields['ctype']
         ct_field.ctypes = (ct for ct in ct_field.ctypes if ct.id not in used_ct_ids)
 

@@ -25,7 +25,6 @@ from django.forms import ModelChoiceField, IntegerField
 
 from creme.creme_core.forms import CremeForm, CremeEntityForm, CremeModelForm
 from creme.creme_core.forms.fields import CremeDateTimeField, FilteredEntityTypeField
-#from creme.creme_core.utils import Q_creme_entity_content_types
 
 from ..models import Act, ActObjective, ActObjectivePattern, ActObjectivePatternComponent
 

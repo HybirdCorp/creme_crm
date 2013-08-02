@@ -18,24 +18,19 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import CharField, ModelMultipleChoiceField, ValidationError
+from django.forms import CharField, ValidationError
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.models import CremePropertyType
-from creme.creme_core.forms import CremeForm
-from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
-from creme.creme_core.utils import Q_creme_entity_content_types
+from creme.creme_core.forms import CremeForm, MultiEntityCTypeChoiceField
 
 
 class _CremePropertyTypeBaseForm(CremeForm):
     text           = CharField(label=_(u'Text'), help_text=_("For example: 'is pretty'"))
-    subject_ctypes = ModelMultipleChoiceField(label=_(u"Related to types of entities"),
-                                              help_text=_(u'No selected type means that all types are accepted'),
-                                              queryset=Q_creme_entity_content_types(),
-                                              widget=UnorderedMultipleChoiceWidget,
-                                              required=False,
-                                             )
-
+    subject_ctypes = MultiEntityCTypeChoiceField(label=_(u'Related to types of entities'),
+                                                 help_text=_(u'No selected type means that all types are accepted'),
+                                                 required=False,
+                                                )
 
 class CremePropertyTypeAddForm(_CremePropertyTypeBaseForm):
     def clean_text(self):

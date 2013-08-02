@@ -1,5 +1,3 @@
-#TODO: test views are allowed to admin only...
-
 from .blocks import *
 from .button_menu import *
 from .creme_property_type import *

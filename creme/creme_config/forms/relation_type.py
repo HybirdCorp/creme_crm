@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,88 +18,83 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from functools import partial
+
 from django.forms import CharField, ModelMultipleChoiceField
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import CremePropertyType, RelationType, SemiFixedRelationType
-from creme.creme_core.forms import CremeForm, CremeModelForm, FieldBlockManager
-from creme.creme_core.forms.fields import RelationEntityField
+from creme.creme_core.forms import (CremeForm, CremeModelForm,
+        FieldBlockManager, RelationEntityField, MultiEntityCTypeChoiceField)
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
-from creme.creme_core.utils import Q_creme_entity_content_types
 
 
-_entities_ct = Q_creme_entity_content_types()
-_ct_helptext = _(u'No constraint means that all types are accepted')
-_ct_label    = _(u'Type constraint')
+_CTypesField = partial(MultiEntityCTypeChoiceField, required=False,
+                      label=_(u'Type constraint'),
+                      help_text=_(u'No constraint means that all types are accepted'),
+                     )
+_PropertyTypesField = partial(ModelMultipleChoiceField, required=False,
+                              label=_(u'Properties constraint'),
+                              queryset=CremePropertyType.objects.all(),
+                              widget=UnorderedMultipleChoiceWidget,
+                             )
 
-_all_props   = CremePropertyType.objects.all()
-_prop_label  = _(u'Properties constraint')
 
-
-class _RelationTypeBaseForm(CremeForm):
-    subject_ctypes     = ModelMultipleChoiceField(label=_ct_label, queryset=_entities_ct, help_text=_ct_helptext,
-                                                  widget=UnorderedMultipleChoiceWidget, required=False)
-    subject_properties = ModelMultipleChoiceField(label=_prop_label, queryset=_all_props,
-                                                  widget=UnorderedMultipleChoiceWidget, required=False)
+class RelationTypeCreateForm(CremeForm):
+    CremeModelForm
+    subject_ctypes     = _CTypesField()
+    subject_properties = _PropertyTypesField()
 
     #TODO: language....
     subject_predicate  = CharField(label=_(u'Subject => object'))
     object_predicate   = CharField(label=_(u'Object => subject'))
 
-    object_ctypes      = ModelMultipleChoiceField(label=_ct_label, queryset=_entities_ct, help_text=_ct_helptext,
-                                                  widget=UnorderedMultipleChoiceWidget, required=False)
-    object_properties  = ModelMultipleChoiceField(label=_prop_label, queryset=_all_props,
-                                                  widget=UnorderedMultipleChoiceWidget, required=False)
+    object_ctypes      = _CTypesField()
+    object_properties  = _PropertyTypesField()
 
     blocks = FieldBlockManager(('subject',   _(u'Subject'),        ('subject_ctypes', 'subject_properties')),
                                ('predicate', _(u'Verb/Predicate'), ('subject_predicate', 'object_predicate')),
                                ('object',    _(u'Object'),         ('object_ctypes', 'object_properties')),
                               )
 
-
-class RelationTypeCreateForm(_RelationTypeBaseForm):
-    def save(self):
+    def save(self, pk_subject='creme_config-subject_userrelationtype',
+              pk_object='creme_config-object_userrelationtype',
+              generate_pk=True, *args, **kwargs
+             ):
         get_data = self.cleaned_data.get
 
         subject_ctypes = [ct.model_class() for ct in get_data('subject_ctypes')]
         object_ctypes  = [ct.model_class() for ct in get_data('object_ctypes')]
 
-        RelationType.create(('creme_config-subject_userrelationtype', get_data('subject_predicate'), subject_ctypes, get_data('subject_properties')),
-                            ('creme_config-object_userrelationtype',  get_data('object_predicate'),  object_ctypes,  get_data('object_properties')),
-                            is_custom=True, generate_pk=True,
-                           )
+        return RelationType.create((pk_subject, get_data('subject_predicate'), subject_ctypes, get_data('subject_properties')),
+                                   (pk_object,  get_data('object_predicate'),  object_ctypes,  get_data('object_properties')),
+                                   is_custom=True, generate_pk=generate_pk,
+                                  )
 
 
-class RelationTypeEditForm(_RelationTypeBaseForm):
+class RelationTypeEditForm(RelationTypeCreateForm):
     def __init__(self, instance, *args, **kwargs):
         super(RelationTypeEditForm, self).__init__(*args, **kwargs)
-
         self.instance = instance
         fields = self.fields
 
-        #TODO: use values_list() ???
-        fields['subject_ctypes'].initial     = [ct.id for ct in instance.subject_ctypes.all()]
-        fields['subject_properties'].initial = [pt.id for pt in instance.subject_properties.all()]
+        fields['subject_ctypes'].initial     = instance.subject_ctypes.values_list('id', flat=True)
+        fields['subject_properties'].initial = instance.subject_properties.values_list('id', flat=True)
 
         fields['subject_predicate'].initial = instance.predicate
         fields['object_predicate'].initial  = instance.symmetric_type.predicate
 
-        fields['object_ctypes'].initial     = [ct.id for ct in instance.object_ctypes.all()]
-        fields['object_properties'].initial = [pt.id for pt in instance.object_properties.all()]
+        fields['object_ctypes'].initial     = instance.object_ctypes.values_list('id', flat=True)
+        fields['object_properties'].initial = instance.object_properties.values_list('id', flat=True)
 
-    def save(self): #factorise with RelationTypeCreateForm.save()
+    def save(self,  *args, **kwargs):
         instance = self.instance
 
-        get_data = self.cleaned_data.get
-
-        subject_ctypes = [ct.model_class() for ct in get_data('subject_ctypes')]
-        object_ctypes  = [ct.model_class() for ct in get_data('object_ctypes')]
-
-        RelationType.create((instance.id,                get_data('subject_predicate'), subject_ctypes, get_data('subject_properties')),
-                            (instance.symmetric_type_id, get_data('object_predicate'),  object_ctypes,  get_data('object_properties')),
-                            is_custom=True,
-                           )
+        return super(RelationTypeEditForm, self).save(pk_subject=instance.id, 
+                                                      pk_object=instance.symmetric_type_id,
+                                                      generate_pk=False,
+                                                     )
 
 
 class SemiFixedRelationTypeCreateForm(CremeModelForm):
@@ -110,13 +105,6 @@ class SemiFixedRelationTypeCreateForm(CremeModelForm):
     class Meta:
         model = SemiFixedRelationType
         exclude = ('relation_type', 'object_entity')
-
-    #def __init__(self, *args, **kwargs):
-        #super(SemiFixedRelationTypeCreateForm, self).__init__(*args, **kwargs)
-        #TODO: improve RelationEntityField in order to put this queryset in the declaration
-        #      for now the queryset is immediately executed, so RelationTypes create after are not used.
-        #self.fields['semi_relation'].allowed_rtypes = RelationType.objects.filter(is_internal=False) \
-        #                                                                  .values_list('id', flat=True)
 
     def clean(self):
         cdata = super(SemiFixedRelationTypeCreateForm, self).clean()
