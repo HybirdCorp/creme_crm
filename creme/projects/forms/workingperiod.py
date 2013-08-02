@@ -22,7 +22,7 @@ from django.forms import IntegerField , DateTimeField
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeModelForm
-from creme.creme_core.forms.fields import CremeEntityField
+from creme.creme_core.forms.fields import CreatorEntityField
 from creme.creme_core.forms.widgets import DateTimeWidget
 
 from ..models import WorkingPeriod, Resource
@@ -30,7 +30,7 @@ from ..constants import NOT_STARTED_PK, IN_PROGRESS_PK
 
 
 class WorkingPeriodForm(CremeModelForm):
-    resource   = CremeEntityField(label=_(u'Resources allocated to this task'), required=True, model=Resource)
+    resource   = CreatorEntityField(label=_(u'Resources allocated to this task'), required=True, model=Resource)
     start_date = DateTimeField(label=_(u'Between'), widget=DateTimeWidget(), required=False)
     end_date   = DateTimeField(label=_(u'And'), widget=DateTimeWidget(), required=False)
     duration   = IntegerField(label=_(u'Period duration'), required=True)

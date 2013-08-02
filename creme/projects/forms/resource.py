@@ -21,7 +21,7 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeEntityForm
-from creme.creme_core.forms.fields import CremeEntityField
+from creme.creme_core.forms.fields import CreatorEntityField
 
 from creme.persons.models import Contact
 
@@ -39,8 +39,8 @@ class ResourceEditForm(CremeEntityForm):
 
 
 class ResourceCreateForm(ResourceEditForm):
-    linked_contact = CremeEntityField(label=_(u'Contact to be assigned to this task'),
-                                      required=True, model=Contact)
+    linked_contact = CreatorEntityField(label=_(u'Contact to be assigned to this task'),
+                                        required=True, model=Contact)
 
     class Meta(ResourceEditForm.Meta):
         exclude = CremeEntityForm.Meta.exclude + ('task',)

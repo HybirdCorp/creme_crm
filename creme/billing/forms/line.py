@@ -24,7 +24,7 @@ from django.forms import ModelChoiceField, DecimalField, BooleanField, Validatio
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeForm, CremeModelForm, FieldBlockManager
-from creme.creme_core.forms.fields import MultiCremeEntityField
+from creme.creme_core.forms.fields import MultiCreatorEntityField
 from creme.creme_core.forms.validators import validate_linkable_entities
 
 from creme.products.models import Product, Service
@@ -130,7 +130,7 @@ class _LineOnTheFlyForm(CremeModelForm):
 
 
 class ProductLineMultipleAddForm(_LineMultipleAddForm):
-    items = MultiCremeEntityField(label=_(u'Products'), model=Product)
+    items = MultiCreatorEntityField(label=_(u'Products'), model=Product)
 
     blocks = FieldBlockManager(
         ('general',     _(u'Products choice'), ['items']),
@@ -142,7 +142,7 @@ class ProductLineMultipleAddForm(_LineMultipleAddForm):
 
 
 class ServiceLineMultipleAddForm(_LineMultipleAddForm):
-    items = MultiCremeEntityField(label=_(u'Services'), model=Service)
+    items = MultiCreatorEntityField(label=_(u'Services'), model=Service)
 
     blocks = FieldBlockManager(
         ('general',     _(u'Services choice'), ['items']),

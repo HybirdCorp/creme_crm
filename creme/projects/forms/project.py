@@ -25,7 +25,7 @@ from django.forms import DateTimeField
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.models import Relation
-from creme.creme_core.forms import CremeEntityForm, MultiCremeEntityField
+from creme.creme_core.forms import CremeEntityForm, MultiCreatorEntityField
 from creme.creme_core.forms.widgets import DateTimeWidget
 from creme.creme_core.forms.validators import validate_linkable_entities
 
@@ -45,7 +45,7 @@ class ProjectEditForm(CremeEntityForm):
 
 
 class ProjectCreateForm(ProjectEditForm):
-    responsibles = MultiCremeEntityField(label=_(u'Project leaders'), required=True, model=Contact)
+    responsibles = MultiCreatorEntityField(label=_(u'Project leaders'), required=True, model=Contact)
 
     def clean_responsibles(self):
         return validate_linkable_entities(self.cleaned_data['responsibles'], self.user)

@@ -29,10 +29,10 @@ class BatchActionsFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_data_type(self):
         clean = BatchActionsField().clean
-        self.assertFieldValidationError(BatchActionsField, 'invalidformat', clean, '"this is a string"')
-        self.assertFieldValidationError(BatchActionsField, 'invalidformat', clean, '"{}"')
-        self.assertFieldValidationError(BatchActionsField, 'invalidformat', clean, '{"foobar":{"operator": "3", "name": "first_name"}}')
-        self.assertFieldValidationError(BatchActionsField, 'invalidformat', clean, '1') #not iterable
+        self.assertFieldValidationError(BatchActionsField, 'invalidtype', clean, '"this is a string"')
+        self.assertFieldValidationError(BatchActionsField, 'invalidtype', clean, '"{}"')
+        self.assertFieldValidationError(BatchActionsField, 'invalidtype', clean, '{"foobar":{"operator": "3", "name": "first_name"}}')
+        self.assertFieldValidationError(BatchActionsField, 'invalidtype', clean, '1') #not iterable
 
     def test_clean_invalid_data(self):
         clean = BatchActionsField(model=Contact).clean

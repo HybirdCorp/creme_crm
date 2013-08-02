@@ -29,7 +29,7 @@ from django.contrib.auth.models import User
 
 from creme.creme_core.models import RelationType, Relation
 from creme.creme_core.forms import CremeForm
-from creme.creme_core.forms.fields import MultiCremeEntityField, MultiGenericEntityField
+from creme.creme_core.forms.fields import MultiCreatorEntityField, MultiGenericEntityField
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.forms.validators import validate_linkable_entities, validate_linkable_entity
 
@@ -51,7 +51,7 @@ class ParticipantCreateForm(CremeForm):
     participating_users = ModelMultipleChoiceField(label=_(u'Other participating users'), queryset=User.objects.all(),
                                                    required=False, widget=UnorderedMultipleChoiceWidget,
                                                   )
-    participants        = MultiCremeEntityField(label=_(u'Participants'), model=Contact, required=False)
+    participants        = MultiCreatorEntityField(label=_(u'Participants'), model=Contact, required=False)
 
     def __init__(self, entity, *args, **kwargs):
         super(ParticipantCreateForm, self).__init__(*args, **kwargs)
@@ -66,9 +66,9 @@ class ParticipantCreateForm(CremeForm):
         existing = Contact.objects.filter(relations__type=REL_SUB_PART_2_ACTIVITY,
                                           relations__object_entity=entity.id,
                                          )
-        fields['participants'].q_filter = {'~pk__in': [c.id for c in existing],
-                                           'is_user__isnull': True,
-                                          }
+        fields['participants'].qfilter_options({'~pk__in': [c.id for c in existing],
+                                                'is_user__isnull': True,
+                                               })
 
         existing_users = [c.is_user.pk for c in existing if c.is_user]
         user_qs = User.objects.exclude(pk__in=existing_users).exclude(pk=user_pk)

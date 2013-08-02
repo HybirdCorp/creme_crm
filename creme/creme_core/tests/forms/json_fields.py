@@ -3,11 +3,13 @@
 try:
     from django.contrib.contenttypes.models import ContentType
     from django.db.models.query import Q, QuerySet
+    from django.utils.translation import ugettext as _
 
     from creme.creme_core.tests.forms.base import FieldTestCase
     from creme.creme_core.forms.fields import (JSONField, GenericEntityField, MultiGenericEntityField,
                                                RelationEntityField, MultiRelationEntityField,
-                                               CreatorEntityField, FilteredEntityTypeField)
+                                               CreatorEntityField, MultiCreatorEntityField,
+                                               FilteredEntityTypeField)
     from creme.creme_core.utils import creme_entity_content_types
     from creme.creme_core.models import CremeProperty, CremePropertyType, RelationType, EntityFilter
     from creme.creme_core.constants import REL_SUB_HAS
@@ -22,7 +24,8 @@ except Exception as e:
 __all__ = ('JSONFieldTestCase',
            'GenericEntityFieldTestCase', 'MultiGenericEntityFieldTestCase',
            'RelationEntityFieldTestCase', 'MultiRelationEntityFieldTestCase',
-           'CreatorEntityFieldTestCase', 'FilteredEntityTypeFieldTestCase',
+           'CreatorEntityFieldTestCase', 'MultiCreatorEntityFieldTestCase',
+           'FilteredEntityTypeFieldTestCase',
           )
 
 
@@ -100,9 +103,9 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_json_invalid_type(self):
         clean = JSONField(required=True).clean_json
 
-        self.assertFieldValidationError(JSONField, 'invalidformat', clean, '["a", "b"]', int)
-        self.assertFieldValidationError(JSONField, 'invalidformat', clean, '["a", "b"]', dict)
-        self.assertFieldValidationError(JSONField, 'invalidformat', clean, '152', list)
+        self.assertFieldValidationError(JSONField, 'invalidtype', clean, '["a", "b"]', int)
+        self.assertFieldValidationError(JSONField, 'invalidtype', clean, '["a", "b"]', dict)
+        self.assertFieldValidationError(JSONField, 'invalidtype', clean, '152', list)
 
     def test_FMTing_to_json(self):
         self.assertEqual('', JSONField().from_python(''))
@@ -201,8 +204,8 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_invalid_data_type(self):
         clean = GenericEntityField(required=False).clean
-        self.assertFieldValidationError(GenericEntityField, 'invalidformat', clean, '"this is a string"')
-        self.assertFieldValidationError(GenericEntityField, 'invalidformat', clean, "[]")
+        self.assertFieldValidationError(GenericEntityField, 'invalidtype', clean, '"this is a string"')
+        self.assertFieldValidationError(GenericEntityField, 'invalidtype', clean, "[]")
 
     def test_clean_invalid_data(self):
         clean = GenericEntityField(required=False).clean
@@ -332,8 +335,8 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_invalid_data_type(self):
         clean = MultiGenericEntityField(required=False).clean
-        self.assertFieldValidationError(MultiGenericEntityField, 'invalidformat', clean, '"this is a string"')
-        self.assertFieldValidationError(MultiGenericEntityField, 'invalidformat', clean, "{}")
+        self.assertFieldValidationError(MultiGenericEntityField, 'invalidtype', clean, '"this is a string"')
+        self.assertFieldValidationError(MultiGenericEntityField, 'invalidtype', clean, "{}")
 
     def test_clean_invalid_data(self):
         clean = MultiGenericEntityField(required=False).clean
@@ -569,8 +572,8 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_invalid_data_type(self):
         clean = RelationEntityField(required=False).clean
-        self.assertFieldValidationError(RelationEntityField, 'invalidformat', clean, '"this is a string"')
-        self.assertFieldValidationError(RelationEntityField, 'invalidformat', clean, '"[]"')
+        self.assertFieldValidationError(RelationEntityField, 'invalidtype', clean, '"this is a string"')
+        self.assertFieldValidationError(RelationEntityField, 'invalidtype', clean, '"[]"')
 
     def test_clean_invalid_data(self):
         clean = RelationEntityField(required=False).clean
@@ -818,9 +821,9 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_invalid_data_type(self):
         clean = MultiRelationEntityField(required=False).clean
-        self.assertFieldValidationError(MultiRelationEntityField, 'invalidformat', clean, '"this is a string"')
-        self.assertFieldValidationError(MultiRelationEntityField, 'invalidformat', clean, '"{}"')
-        self.assertFieldValidationError(MultiRelationEntityField, 'invalidformat', clean, '{"rtype":"10", "ctype":"12","entity":"1"}')
+        self.assertFieldValidationError(MultiRelationEntityField, 'invalidtype', clean, '"this is a string"')
+        self.assertFieldValidationError(MultiRelationEntityField, 'invalidtype', clean, '"{}"')
+        self.assertFieldValidationError(MultiRelationEntityField, 'invalidtype', clean, '{"rtype":"10", "ctype":"12","entity":"1"}')
 
     def test_clean_invalid_data(self):
         clean = MultiRelationEntityField(required=False).clean
@@ -1089,9 +1092,12 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.login()
         contact = self.create_contact()
         from_python = CreatorEntityField(Contact).from_python
-        str_pk = str(contact.pk)
-        self.assertEqual(str_pk, from_python(str_pk))
-        self.assertEqual(str_pk, from_python(contact))
+
+        jsonified = str(contact.pk)
+
+        self.assertEqual(jsonified, from_python(jsonified))
+        self.assertEqual(jsonified, from_python(contact))
+        self.assertEqual(jsonified, from_python(contact.pk))
 
     def test_qfilter(self):
         self.login()
@@ -1107,6 +1113,46 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         field = CreatorEntityField(Contact, q_filter=qfilter, create_action_url=action_url)
         self.assertIsNotNone(field.qfilter)
         self.assertEqual(field.create_action_url, action_url)
+
+    def test_format_object_with_qfilter(self):
+        self.login()
+        contact = self.create_contact()
+        qfilter = {'~pk': contact.pk}
+        field = CreatorEntityField(Contact, q_filter=qfilter)
+
+        jsonified = str(contact.pk)
+
+        self.assertEqual(jsonified, field.from_python(jsonified))
+        self.assertEqual(jsonified, field.from_python(contact))
+
+        with self.assertRaises(ValueError) as error:
+            field.from_python(contact.pk)
+
+        self.assertIn(str(error.exception),
+                      ("No such entity with id %d." % contact.pk,
+                       "No such entity with id %dL." % contact.pk,
+                      )
+                     )
+
+    def test_format_object_from_other_model(self):
+        self.login()
+        contact = self.create_contact()
+        orga = self.create_orga()
+        field = CreatorEntityField(Contact)
+
+        jsonified = str(contact.pk)
+
+        self.assertEqual(jsonified, field.from_python(jsonified))
+        self.assertEqual(jsonified, field.from_python(contact))
+
+        with self.assertRaises(ValueError) as error:
+            field.from_python(orga.pk)
+
+        self.assertIn(str(error.exception),
+                      ("No such entity with id %d." % orga.pk,
+                       "No such entity with id %dL." % orga.pk,
+                      )
+                     )
 
     def test_invalid_qfilter(self):
         self.login()
@@ -1134,22 +1180,102 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
                       )
                      )
 
-    def test_qfilter_no_custom_quickform(self):
+    def test_action_buttons_no_custom_quickform(self):
+        self.autodiscover()
         self.login()
         contact = self.create_contact()
 
+        field = CreatorEntityField(Contact, required=False)
+        field.user = self.user
+
+        from creme.creme_core.gui import quickforms_registry
+
+        self.assertTrue(field.user.has_perm_to_create(Contact))
+        self.assertIsNotNone(quickforms_registry.get_form(Contact))
+
+        self.assertEqual(field.widget.actions,
+                         [('reset', _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''}),
+                          ('create', _(u'Add'), True, {'title':_(u'Add'), 'url':field.create_action_url})]
+                        )
+
+        field.qfilter_options({'~pk': contact.pk}, None)
+
+        self.assertEqual(field.widget.actions,
+                         [('reset', _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''})]
+                        )
+
+        field = CreatorEntityField(Contact, q_filter={'~pk': contact.pk}, required=False)
+        field.user = self.user
+
+        self.assertEqual(field.widget.actions,
+                         [('reset', _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''})]
+                        )
+
+    def test_action_buttons_no_user(self):
+        self.login()
+        field = CreatorEntityField(Contact, required=False)
+
+        self.assertIsNone(field.user)
+        self.assertEqual(field.widget.actions,
+                         [('reset', _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''})]
+                        )
+
+    def test_action_buttons_required(self):
+        self.login()
         field = CreatorEntityField(Contact)
 
-        with self.assertRaises(ValueError) as error:
-            field.qfilter_options({'~pk': contact.pk}, None)
+        self.assertIsNone(field.user)
+        self.assertTrue(field.required)
+        self.assertEqual(field.widget.actions, [])
 
-        msg = 'If qfilter is set, a custom entity creation view is needed'
-        self.assertEqual(msg, str(error.exception))
+    def test_action_buttons_no_quickform(self):
+        self.login()
 
-        with self.assertRaises(ValueError) as error:
-            field = CreatorEntityField(Contact, q_filter={'~pk': contact.pk})
+        from creme.creme_core.models import CremeEntity
+        from creme.creme_core.gui import quickforms_registry
 
-        self.assertEqual(msg, str(error.exception))
+        field = CreatorEntityField(CremeEntity, required=False)
+        field.user = self.user
+
+        self.assertTrue(field.user.has_perm_to_create(CremeEntity))
+        self.assertIsNone(quickforms_registry.get_form(CremeEntity))
+        self.assertEqual(field.widget.actions,
+                         [('reset', _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''})]
+                        )
+
+    def test_action_buttons_not_allowed(self):
+        self.autodiscover()
+        self.login()
+
+        field = CreatorEntityField(Contact, required=False)
+        field.user = self.other_user
+
+        from creme.creme_core.gui import quickforms_registry
+
+        self.assertFalse(field.user.has_perm_to_create(Contact))
+        self.assertIsNotNone(quickforms_registry.get_form(Contact))
+
+        self.assertEqual(field.widget.actions,
+                         [('reset', _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''}),
+                          ('create', _(u'Add'), False, {'title':_(u"Can't add"), 'url':field.create_action_url})]
+                        )
+
+    def test_action_buttons_allowed(self):
+        self.autodiscover()
+        self.login()
+
+        field = CreatorEntityField(Contact, required=False)
+        field.user = self.user
+
+        from creme.creme_core.gui import quickforms_registry
+
+        self.assertTrue(field.user.has_perm_to_create(Contact))
+        self.assertIsNotNone(quickforms_registry.get_form(Contact))
+
+        self.assertEqual(field.widget.actions,
+                         [('reset', _(u'Clear'), True, {'title':_(u'Clear'), 'action':'reset', 'value':''}),
+                          ('create', _(u'Add'), True, {'title':_(u'Add'), 'url':field.create_action_url})]
+                        )
 
     def test_create_action_url(self):
         self.login()
@@ -1179,8 +1305,8 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_invalid_data_type(self):
         clean = CreatorEntityField(Contact, required=False).clean
-        self.assertFieldValidationError(CreatorEntityField, 'invalidformat', clean, '[]')
-        self.assertFieldValidationError(CreatorEntityField, 'invalidformat', clean, "{}")
+        self.assertFieldValidationError(CreatorEntityField, 'invalidtype', clean, '[]')
+        self.assertFieldValidationError(CreatorEntityField, 'invalidtype', clean, "{}")
 
     def test_clean_unknown_entity(self):
         self.login()
@@ -1217,6 +1343,214 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual(contact, field.clean(str(contact.pk)))
 
 
+class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
+    def test_format_object(self):
+        self.login()
+
+        contact = self.create_contact()
+
+        field = MultiCreatorEntityField(Contact)
+        from_python = field.from_python
+
+        self.assertEqual(field.value_type, list)
+
+        jsonified = '[%d]' % contact.pk
+
+        self.assertEqual(jsonified, from_python(jsonified))
+        self.assertEqual(jsonified, from_python([contact]))
+        self.assertEqual(jsonified, from_python([contact.pk]))
+        self.assertEqual('', from_python([]))
+
+    def test_format_object_list(self):
+        self.login()
+
+        contact = self.create_contact()
+        contact2 = self.create_contact()
+        contact3 = self.create_contact()
+
+        field = MultiCreatorEntityField(Contact)
+        from_python = field.from_python
+
+        self.assertEqual(field.value_type, list)
+
+        jsonified = '[%d, %d, %d]' % (contact.pk, contact2.pk, contact3.pk)
+
+        self.assertEqual(jsonified, from_python(jsonified))
+        self.assertEqual(jsonified, from_python([contact, contact2, contact3]))
+        self.assertEqual(jsonified, from_python([contact.pk, contact2.pk, contact3.pk]))
+
+    def test_qfilter(self):
+        self.login()
+        contact = self.create_contact()
+        qfilter = {'~pk': contact.pk}
+        action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
+
+        field = MultiCreatorEntityField(Contact)
+        field.qfilter_options(qfilter, action_url)
+        self.assertIsNotNone(field.qfilter)
+        self.assertEqual(field.create_action_url, action_url)
+
+        field = MultiCreatorEntityField(Contact, q_filter=qfilter, create_action_url=action_url)
+        self.assertIsNotNone(field.qfilter)
+        self.assertEqual(field.create_action_url, action_url)
+
+
+    def test_format_object_with_qfilter(self):
+        self.login()
+
+        contact = self.create_contact()
+        contact2 = self.create_contact()
+        contact3 = self.create_contact()
+
+        qfilter = {'~pk': contact.pk}
+        field = MultiCreatorEntityField(Contact, q_filter=qfilter)
+
+        jsonified = '[%d, %d, %d]' % (contact.pk, contact2.pk, contact3.pk)
+
+        self.assertEqual(jsonified, field.from_python(jsonified))
+        self.assertEqual(jsonified, field.from_python([contact, contact2, contact3]))
+        self.assertEqual('[%d, %d]' % (contact2.pk, contact3.pk), field.from_python([contact2.pk, contact3.pk]))
+
+        with self.assertRaises(ValueError) as error:
+            field.from_python([contact.pk, contact2.pk, contact3.pk])
+
+        self.assertIn(str(error.exception),
+                      ("One or more entities with ids [%s] doesn't exists." % ', '.join(str(e.id) for e in [contact, contact2, contact3]),
+                       "One or more entities with ids [%s] doesn't exists." % 'L, '.join(str(e.id) for e in [contact, contact2, contact3]),
+                      )
+                     )
+
+    def test_format_object_from_other_model(self):
+        self.login()
+
+        contact = self.create_contact()
+        contact2 = self.create_contact()
+        orga = self.create_orga()
+
+        field = MultiCreatorEntityField(Contact)
+
+        jsonified = '[%d, %d, %d]' % (orga.pk, contact.pk, contact2.pk)
+
+        self.assertEqual(jsonified, field.from_python(jsonified))
+        self.assertEqual(jsonified, field.from_python([orga, contact, contact2]))
+
+        with self.assertRaises(ValueError) as error:
+            field.from_python([orga.pk, contact.pk, contact2.pk])
+
+        self.assertIn(str(error.exception),
+                      ("One or more entities with ids [%s] doesn't exists." % ', '.join(str(e.id) for e in [orga, contact, contact2]),
+                       "One or more entities with ids [%s] doesn't exists." % 'L, '.join(str(e.id) for e in [orga, contact, contact2]),
+                      )
+                     )
+
+    def test_invalid_qfilter(self):
+        self.login()
+        contact = self.create_contact()
+        action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
+
+        field = MultiCreatorEntityField(Contact)
+
+        with self.assertRaises(ValueError) as error:
+            field.qfilter_options(['~pk', contact.pk], action_url)
+
+        # do this hack for MySql database that uses longs and alter json format result
+        self.assertIn(str(error.exception),
+                      ("Unable to set an invalid qfilter ['~pk', %d]" % contact.pk,
+                       "Unable to set an invalid qfilter ['~pk', %dL]" % contact.pk,
+                      )
+                     )
+
+        with self.assertRaises(ValueError) as error:
+            field = MultiCreatorEntityField(Contact, q_filter=['~pk', contact.pk], create_action_url=action_url)
+
+        self.assertIn(str(error.exception),
+                      ("Unable to set an invalid qfilter ['~pk', %d]" % contact.pk,
+                       "Unable to set an invalid qfilter ['~pk', %dL]" % contact.pk,
+                      )
+                     )
+
+    def test_create_action_url(self):
+        self.login()
+
+        field = MultiCreatorEntityField(Contact)
+        self.assertEqual('/creme_core/quickforms/from_widget/%s/add/1' % ContentType.objects.get_for_model(Contact).pk,
+                         field.create_action_url
+                        )
+
+        field.create_action_url = '/persons/quickforms/from_widget/contact/add/1'
+        self.assertEqual('/persons/quickforms/from_widget/contact/add/1', field.create_action_url)
+
+    def test_clean_empty_required(self):
+        clean = MultiCreatorEntityField(Contact, required=True).clean
+        self.assertFieldValidationError(MultiCreatorEntityField, 'required', clean, None)
+        self.assertFieldValidationError(MultiCreatorEntityField, 'required', clean, "")
+        self.assertFieldValidationError(MultiCreatorEntityField, 'required', clean, "[]")
+
+    def test_clean_empty_not_required(self):
+        with self.assertNoException():
+            value = MultiCreatorEntityField(Contact, required=False).clean(None)
+
+        self.assertEquals(value, [])
+
+        with self.assertNoException():
+            value = MultiCreatorEntityField(Contact, required=False).clean("[]")
+
+        self.assertEquals(value, [])
+
+    def test_clean_invalid_json(self):
+        field = MultiCreatorEntityField(Contact, required=False)
+        self.assertFieldValidationError(MultiCreatorEntityField, 'invalidformat', field.clean, '{12')
+        self.assertFieldValidationError(MultiCreatorEntityField, 'invalidformat', field.clean, '[12')
+
+    def test_clean_invalid_data_type(self):
+        clean = MultiCreatorEntityField(Contact, required=False).clean
+        self.assertFieldValidationError(MultiCreatorEntityField, 'invalidtype', clean, '""')
+        self.assertFieldValidationError(MultiCreatorEntityField, 'invalidtype', clean, "{}")
+        self.assertFieldValidationError(MultiCreatorEntityField, 'invalidtype', clean, "[{}]")
+
+    def test_clean_unknown_entity(self):
+        self.login()
+        contact = self.create_contact()
+        orga = self.create_orga()
+
+        self.assertFieldValidationError(MultiCreatorEntityField, 'doesnotexist',
+                                        MultiCreatorEntityField(model=Contact).clean,
+                                        '[%d]' % orga.pk
+                                       )
+        self.assertFieldValidationError(MultiCreatorEntityField, 'doesnotexist',
+                                        MultiCreatorEntityField(model=Organisation).clean,
+                                        '[%d]' % contact.pk
+                                       )
+
+    def test_clean_deleted_entity(self):
+        self.login()
+        self.assertFieldValidationError(MultiCreatorEntityField, 'doesnotexist',
+                                        MultiCreatorEntityField(model=Contact).clean,
+                                        '[%d]' % self.create_contact(is_deleted=True).pk
+                                       )
+
+    def test_clean_entities(self):
+        self.login()
+        contact = self.create_contact()
+        contact2 = self.create_contact()
+
+        field = MultiCreatorEntityField(Contact)
+        self.assertEqual([contact, contact2], field.clean('[%d, %d]' % (contact.pk, contact2.pk)))
+
+    def test_clean_filtered_entities(self):
+        self.login()
+        contact = self.create_contact()
+        action_url = '/persons/quickforms/from_widget/%s/1' % contact.entity_type_id
+
+        field = MultiCreatorEntityField(Contact)
+        field.qfilter_options({'~pk': contact.pk}, action_url)
+
+        self.assertFieldValidationError(MultiCreatorEntityField, 'doesnotexist', field.clean, '[%d]' % contact.pk)
+
+        field.qfilter_options({'pk': contact.pk}, action_url)
+        self.assertEqual([contact], field.clean('[%d]' % contact.pk))
+
+
 class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
     format_str = '{"ctype": "%s", "efilter": "%s"}'
 
@@ -1241,8 +1575,8 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
 
     def test_clean_invalid_data_type(self):
         clean = FilteredEntityTypeField(required=False).clean
-        self.assertFieldValidationError(FilteredEntityTypeField, 'invalidformat', clean, '"this is a string"')
-        self.assertFieldValidationError(FilteredEntityTypeField, 'invalidformat', clean, '"{}"')
+        self.assertFieldValidationError(FilteredEntityTypeField, 'invalidtype', clean, '"this is a string"')
+        self.assertFieldValidationError(FilteredEntityTypeField, 'invalidtype', clean, '"{}"')
         self.assertFieldValidationError(FilteredEntityTypeField, 'invalidformat', clean, '{"ctype":"not_an_int", "efilter":"creme_core-testfilter"}')
 
     def test_clean_required_ctype(self):

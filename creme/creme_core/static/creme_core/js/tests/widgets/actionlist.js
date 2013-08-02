@@ -54,7 +54,7 @@ test('creme.widgets.actionlist.create (no delegate, no action)', function() {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
     equal(widget.val(), '');
-    equal(widget.delegate().length, 0);
+    equal(widget.selector().length, 0);
     equal(widget.actions().length, 0);
     deepEqual(widget.dependencies(), []);
 });
@@ -68,7 +68,7 @@ test('creme.widgets.actionlist.create (no delegate)', function() {
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
     equal(widget.val(), '');
-    equal(widget.delegate().length, 0);
+    equal(widget.selector().length, 0);
     equal(widget.actions().length, 1);
     deepEqual(widget.dependencies(), []);
 });
@@ -87,7 +87,7 @@ test('creme.widgets.actionlist.create', function() {
 
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
-    equal(widget.delegate().length, 1);
+    equal(widget.selector().length, 1);
     equal(widget.actions().length, 1);
 
     equal(widget.val(), 1);

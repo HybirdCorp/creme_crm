@@ -251,7 +251,7 @@ class StrategyTestCase(CommercialBaseTestCase):
 
         url = '/commercial/strategy/%s/add/organisation/' % strategy.id
         self.assertGET200(url)
-        self.assertPOST200(url, data={'organisations': orga.id})
+        self.assertPOST200(url, data={'organisations': '[%d]' % orga.id})
         self.assertEqual([orga], list(strategy.evaluated_orgas.all()))
 
         self.assertGET200('/commercial/strategy/%s/organisation/%s/evaluation' % (strategy.id, orga.id))

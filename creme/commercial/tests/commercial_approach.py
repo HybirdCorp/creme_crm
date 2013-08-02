@@ -155,7 +155,7 @@ class CommercialApproachTestCase(CremeTestCase):
                                           'my_participation': True,
                                           'my_calendar':      my_calendar.pk,
 
-                                          'other_participants': genma.id,
+                                          'other_participants': '[%d]' % genma.id,
                                           'subjects':           self._build_entity_field(ranma),
                                           'linked_entities':    self._build_entity_field(dojo),
 

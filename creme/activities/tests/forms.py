@@ -65,8 +65,8 @@ class ActivityTypeFieldTestCase(FieldTestCase):
 
     def test_clean_invalid_data_type(self):
         clean = ActivityTypeField(required=False).clean
-        self.assertFieldValidationError(ActivityTypeField, 'invalidformat', clean, '"this is a string"')
-        self.assertFieldValidationError(ActivityTypeField, 'invalidformat', clean, "12")
+        self.assertFieldValidationError(ActivityTypeField, 'invalidtype', clean, '"this is a string"')
+        self.assertFieldValidationError(ActivityTypeField, 'invalidtype', clean, "12")
 
     def test_clean_unknown_type(self):
         "Data injections"

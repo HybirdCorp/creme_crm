@@ -22,18 +22,17 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeModelForm
-from creme.creme_core.forms.fields import MultiCremeEntityField
+from creme.creme_core.forms.fields import MultiCreatorEntityField
 
 from creme.media_managers.models.image import Image
-from creme.media_managers.forms.widgets import ImageM2MWidget
 
 from ..models import EmailSignature
 
 
 class SignatureForm(CremeModelForm):
     #body   = CharField(label=_(u'Body')) #TODO: Use a rich text editor which works with innerpopup
-    images = MultiCremeEntityField(label=_(u'Images'), model=Image, required=False, widget=ImageM2MWidget,
-                                   help_text=_(u'Images embedded in emails (but not as attached).'))
+    images = MultiCreatorEntityField(label=_(u'Images'), model=Image, required=False,
+                                     help_text=_(u'Images embedded in emails (but not as attached).'))
 
     class Meta:
         model = EmailSignature

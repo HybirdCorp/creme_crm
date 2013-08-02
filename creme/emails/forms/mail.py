@@ -30,7 +30,7 @@ from django.utils.translation import ugettext_lazy as _, ugettext, pgettext_lazy
 
 from creme.creme_core.models.relation import Relation
 from creme.creme_core.forms.base import CremeForm, CremeEntityForm, FieldBlockManager
-from creme.creme_core.forms.fields import MultiCremeEntityField, CremeEntityField
+from creme.creme_core.forms.fields import MultiCreatorEntityField, CreatorEntityField
 #from creme.creme_core.forms.widgets import TinyMCEEditor
 from creme.creme_core.forms.validators import validate_linkable_entities
 
@@ -53,12 +53,12 @@ class EntityEmailForm(CremeEntityForm):
     sender       = EmailField(label=_(u'Sender'))
 
     #TODO: use the new GenericEntityField ?? When it manages q_filter
-    c_recipients = MultiCremeEntityField(label=_(u'Contacts'),      required=False, model=Contact,      q_filter={'email__isnull': False})
-    o_recipients = MultiCremeEntityField(label=_(u'Organisations'), required=False, model=Organisation, q_filter={'email__isnull': False})
+    c_recipients = MultiCreatorEntityField(label=_(u'Contacts'),      required=False, model=Contact,      q_filter={'email__isnull': False})
+    o_recipients = MultiCreatorEntityField(label=_(u'Organisations'), required=False, model=Organisation, q_filter={'email__isnull': False})
 
 #    body_html    = CharField(label=_(u'Body'), widget=TinyMCEEditor())
 
-    attachments  = MultiCremeEntityField(label=_(u'Attachments'), required=False, model=Document)
+    attachments  = MultiCreatorEntityField(label=_(u'Attachments'), required=False, model=Document)
     send_me      = BooleanField(label=_(u'Send me a copy of this mail'), required=False)
 
     blocks = FieldBlockManager(
@@ -162,7 +162,7 @@ class EntityEmailForm(CremeEntityForm):
 
 class TemplateSelectionForm(CremeForm):
     step     = IntegerField(widget=HiddenInput, initial=1)
-    template = CremeEntityField(label=pgettext_lazy('emails', 'Template'), model=EmailTemplate)
+    template = CreatorEntityField(label=pgettext_lazy('emails', 'Template'), model=EmailTemplate)
 
 
 class EntityEmailFromTemplateForm(EntityEmailForm):

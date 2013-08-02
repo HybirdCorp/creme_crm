@@ -31,7 +31,7 @@ from django.contrib.contenttypes.models import ContentType
 from creme.creme_core.registry import export_backend_registry #creme_registry
 from creme.creme_core.forms import CremeEntityForm, CremeForm
 from creme.creme_core.forms.widgets import OrderedMultipleChoiceWidget
-from creme.creme_core.forms.fields import AjaxMultipleChoiceField, AjaxModelChoiceField, CremeEntityField, DateRangeField
+from creme.creme_core.forms.fields import AjaxMultipleChoiceField, AjaxModelChoiceField, CreatorEntityField, DateRangeField
 from creme.creme_core.models import EntityFilter, RelationType, CustomField
 from creme.creme_core.models.header_filter import (HeaderFilter, HFI_FIELD, HFI_RELATION,
                                                    HFI_CUSTOM, HFI_FUNCTION, HFI_CALCULATED, HFI_RELATED)
@@ -296,7 +296,7 @@ class EditForm(CremeEntityForm):
 
 
 class LinkFieldToReportForm(CremeForm):
-    report = CremeEntityField(label=_(u"Sub-report linked to the column"), model=Report)
+    report = CreatorEntityField(label=_(u"Sub-report linked to the column"), model=Report)
 
     def __init__(self, report, field, ct, *args, **kwargs):
         super(LinkFieldToReportForm, self).__init__(*args, **kwargs)

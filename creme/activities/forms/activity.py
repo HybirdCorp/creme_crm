@@ -32,7 +32,7 @@ from django.contrib.auth.models import User
 from creme.creme_core.models import RelationType, Relation
 from creme.creme_core.forms import CremeEntityForm
 #from creme.creme_core.forms.base import FieldBlockManager
-from creme.creme_core.forms.fields import CremeDateTimeField, CremeTimeField, MultiCremeEntityField, MultiGenericEntityField
+from creme.creme_core.forms.fields import CremeDateTimeField, CremeTimeField, MultiCreatorEntityField, MultiGenericEntityField
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.forms.validators import validate_linkable_entities, validate_linkable_entity
 from creme.creme_core.utils.dates import make_aware_dt
@@ -251,7 +251,7 @@ class ActivityCreateForm(_ActivityCreateForm):
                                            label=_(u'On which of my calendar this activity will appears?'),
                                            empty_label=None,
                                           )
-    other_participants  = MultiCremeEntityField(label=_(u'Other participants'), model=Contact, required=False)
+    other_participants  = MultiCreatorEntityField(label=_(u'Other participants'), model=Contact, required=False)
     subjects            = MultiGenericEntityField(label=_(u'Subjects'), required=False)
     linked_entities     = MultiGenericEntityField(label=_(u'Entities linked to this activity'), required=False)
 
@@ -302,7 +302,7 @@ class ActivityCreateForm(_ActivityCreateForm):
                                                                       .subject_ctypes.all()
                                             ]
         fields['participating_users'].queryset = User.objects.exclude(pk=user.id)
-        fields['other_participants'].q_filter = {'is_user__isnull': True}
+        fields['other_participants'].qfilter_options({'is_user__isnull': True})
 
     def clean_my_participation(self):
         my_participation = self.cleaned_data.get('my_participation', False)
@@ -404,7 +404,7 @@ class RelatedActivityCreateForm(ActivityCreateForm):
             if related_entity.is_user:
                 self.fields['participating_users'].initial = [related_entity.is_user]
             else:
-                self.fields['other_participants'].initial = [related_entity.id]
+                self.fields['other_participants'].initial = [related_entity]
         elif relation_type_id == REL_SUB_ACTIVITY_SUBJECT:
             self.fields['subjects'].initial = [related_entity]
         else:

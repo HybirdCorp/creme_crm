@@ -26,7 +26,7 @@ from django.template import Template, VariableNode
 from django.utils.timezone import now
 from django.utils.translation import ugettext_lazy as _, ugettext
 
-from creme.creme_core.forms import CremeModelForm, CremeEntityField, CremeDateTimeField
+from creme.creme_core.forms import CremeModelForm, CreatorEntityField, CremeDateTimeField
 
 from ..constants import MAIL_STATUS_NOTSENT
 from ..models import EmailTemplate
@@ -35,7 +35,7 @@ from ..models.sending import EmailSending, LightWeightEmail, SENDING_TYPES, SEND
 
 class SendingCreateForm(CremeModelForm):
     type         = TypedChoiceField(label=_(u"Sending type"), choices=SENDING_TYPES.iteritems(), coerce=int)
-    template     = CremeEntityField(label=_(u'Email template'), model=EmailTemplate)
+    template     = CreatorEntityField(label=_(u'Email template'), model=EmailTemplate)
     sending_date = CremeDateTimeField(label=_(u"Sending date"), required=False,
                                       help_text=_(u"Required only of the sending is deferred."))
     hour         = IntegerField(label=_("Sending hour"), required=False, min_value=0, max_value=23)

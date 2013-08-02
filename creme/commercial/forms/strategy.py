@@ -22,7 +22,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.forms import CharField
 
 from creme.creme_core.models import CremePropertyType
-from creme.creme_core.forms import CremeForm, CremeModelForm, CremeEntityForm, FieldBlockManager, MultiCremeEntityField
+from creme.creme_core.forms import CremeForm, CremeModelForm, CremeEntityForm, FieldBlockManager, MultiCreatorEntityField
 
 from creme.persons.models import Organisation
 
@@ -118,7 +118,7 @@ class SegmentCreateForm(_SegmentForm):
 
 
 class AddOrganisationForm(CremeForm):
-    organisations = MultiCremeEntityField(label=_(u"Organisations"), model=Organisation)
+    organisations = MultiCreatorEntityField(label=_(u"Organisations"), model=Organisation)
 
     def __init__(self, entity, *args, **kwargs):
         super(AddOrganisationForm, self).__init__(*args, **kwargs)

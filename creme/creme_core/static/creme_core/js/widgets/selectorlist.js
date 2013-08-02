@@ -17,13 +17,17 @@
 *******************************************************************************/
 
 creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
-    options: {},
+    options: {
+        cloneLast: undefined
+    },
 
     _create: function(element, options, cb, sync)
     {
         var self = this;
 
-        $('div.add ul', element).click(function() {
+        this._isCloneLast = !Object.isNone(options.cloneLast) && options.cloneLast !== false;
+
+        $('div.add', element).click(function() {
             self.appendLastSelector(element);
         });
 
@@ -60,31 +64,46 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
     },
 
     selector: function(element, index) {
-        return $('ul.selectors > li.selector:nth(' + index + ') > ul > li > .ui-creme-widget', element);
+        return $('ul.selectors > li.selector:nth(' + (index || 0) + ') > ul > li > .ui-creme-widget', element);
     },
 
-    removeSelector: function(element, index)
+    removeSelectorAt: function(element, index) {
+        return this.removeSelector(element, this.selector(element, index));
+    },
+
+    removeSelector: function(element, selector)
     {
-        var selector = this.selector(element, index);
+        if (Object.isEmpty(selector))
+            return;
 
         selector.creme().destroy();
         selector.parents('li.selector:first').remove();
         this._update(element);
 
-        return selector.length ? selector[0] : undefined;
+        return selector;
     },
 
-    appendLastSelector: function(element)
+    appendLastSelector: function(element, cb)
     {
         var last = this.lastSelector(element);
-        return this.appendSelector(element, last.creme().isActive() ? last.creme().widget().val() : undefined);
+        var value = this._isCloneLast && last.creme().isActive() ? last.creme().widget().val() : undefined;
+        return this.appendSelector(element, value, cb);
     },
 
-    appendSelector: function(element, value)
+    appendSelector: function(element, value, cb)
     {
         var selector = this._appendSelector(element, value);
-        this._update(element);
-        return selector.element;
+
+        if (selector !== undefined)
+        {
+            this._update(element, cb);
+            selector.element.trigger('selectorlist-added', [selector]);
+
+            creme.object.invoke(cb, selector, value);
+            return selector.element;
+        }
+
+        return;
     },
 
     _appendSelector: function(element, value)
@@ -106,9 +125,7 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
                                        .attr('style', 'vertical-align:middle;')
                                        .addClass('delete')
                                        .click(function() {
-                                            self.removeSelector(selector_item)
-                                            selector_item.remove();
-                                            self._update(element);
+                                            self.removeSelector(element, $('> ul > li > .ui-creme-widget', selector_item));
                                         });
 
         selector_layout.append($('<li>').append(selector_model));

@@ -51,8 +51,9 @@ from .widgets import (CTEntitySelector, EntitySelector, FilteredEntityTypeWidget
 
 __all__ = ('GenericEntityField', 'MultiGenericEntityField',
            'RelationEntityField', 'MultiRelationEntityField',
+           'CreatorEntityField', 'MultiCreatorEntityField',
            'CremeEntityField', 'MultiCremeEntityField',
-           'FilteredEntityTypeField', 'CreatorEntityField',
+           'FilteredEntityTypeField',
            'ListEditionField',
            'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
            'CremeTimeField', 'CremeDateField', 'CremeDateTimeField',
@@ -64,6 +65,7 @@ __all__ = ('GenericEntityField', 'MultiGenericEntityField',
 class JSONField(CharField):
     default_error_messages = {
         'invalidformat': _(u'Invalid format'),
+        'invalidtype': _(u'Invalid type'),
         'doesnotexist':  _(u"This entity doesn't exist."),
     }
     value_type = None #Overload this: type of the value returned by the field.
@@ -121,7 +123,7 @@ class JSONField(CharField):
             raise ValidationError(self.error_messages['invalidformat'])
 
         if expected_type is not None and data is not None and not isinstance(data, expected_type):
-            raise ValidationError(self.error_messages['invalidformat']) #TODO: invalid type ??
+            raise ValidationError(self.error_messages['invalidtype']) #TODO: invalid type ??
 
         return data
 
@@ -177,14 +179,17 @@ class JSONField(CharField):
 
         return entity
 
-    def _clean_entity_from_model(self, model, entity_pk, qfilter=None):
-        qs = model.objects.filter(is_deleted=False)
+    def _entity_queryset(self, model, qfilter=None):
+        query = model.objects.filter(is_deleted=False)
 
         if qfilter is not None:
-            qs = qs.filter(qfilter)
+            query = query.filter(qfilter)
 
+        return query
+
+    def _clean_entity_from_model(self, model, entity_pk, qfilter=None):
         try:
-            return qs.get(pk=entity_pk)
+            return self._entity_queryset(model, qfilter).get(pk=entity_pk)
         except model.DoesNotExist:
             if self.required:
                 raise ValidationError(self.error_messages['doesnotexist'])
@@ -623,7 +628,7 @@ class CreatorEntityField(JSONField):
         self._user = user
         self._update_actions()
 
-    def qfilter_options(self, q_filter, create_action_url):
+    def qfilter_options(self, q_filter, create_action_url=None):
         try:
             self._q_filter = get_q_from_dict(q_filter) if q_filter is not None else None
             self._q_filter_data = q_filter
@@ -636,16 +641,25 @@ class CreatorEntityField(JSONField):
             self._update_actions()
 
     def _update_actions(self):
-        if self._q_filter is not None and self._create_action_url is None:
-            raise ValueError('If qfilter is set, a custom entity creation view is needed')
-
         user = self._user
-        self.widget.clear_actions()
-        self.widget.add_action('reset', _(u'Clear'), title=_(u'Clear'), action='reset', value='')
+        self._clear_actions()
 
-        if user is None:
+        if not self.required:
+            self._add_action('reset', _(u'Clear'), title=_(u'Clear'), action='reset', value='')
+
+        if self._q_filter is not None and self._create_action_url is None:
             return
 
+        if user is not None:
+            self._add_create_action(user)
+
+    def _clear_actions(self):
+        self.widget.clear_actions()
+
+    def _add_action(self, *args, **kwargs):
+        self.widget.add_action(*args, **kwargs)
+
+    def _add_create_action(self, user):
         model = self.model
 
         from creme.creme_core.gui import quickforms_registry
@@ -654,10 +668,10 @@ class CreatorEntityField(JSONField):
             return
 
         allowed = user.has_perm_to_create(model)
-        self.widget.add_action('create', _(u'Add'), enabled=allowed,
-                               title=_(u'Add') if allowed else _(u"Can't add"),
-                               url=self.create_action_url,
-                              )
+        self._add_action('create', _(u'Add'), enabled=allowed,
+                         title=_(u'Add') if allowed else _(u"Can't add"),
+                         url=self.create_action_url,
+                        )
 
     def _create_widget(self):
         return ActionButtonList(delegate=EntitySelector(unicode(self.get_ctype().pk),
@@ -666,8 +680,20 @@ class CreatorEntityField(JSONField):
                                                         },
                                                        )
                                )
+    
+    def _entity_query(self, model, qfilter):
+        qs = model.objects.filter(is_deleted=False)
+
+        if qfilter is not None:
+            qs = qs.filter(qfilter)
 
     def _value_to_jsonifiable(self, value):
+        if isinstance(value, (int, long)):
+            if not self._entity_queryset(self.model, self.qfilter).filter(pk=value).exists():
+                raise ValueError('No such entity with id %d.' % value)
+
+            return value
+
         assert isinstance(value, CremeEntity)
         return value.id
 
@@ -677,6 +703,55 @@ class CreatorEntityField(JSONField):
     def get_ctype(self):
         model = self.model
         return ContentType.objects.get_for_model(model) if model is not None else None
+
+
+class MultiCreatorEntityField(CreatorEntityField):
+    value_type = list
+
+    def _create_widget(self):
+        return SelectorList(EntitySelector(unicode(self.get_ctype().pk),
+                                           {'auto':       False,
+                                            'qfilter':    self._q_filter_data,
+                                            'multiple':   True,
+                                            'autoselect': True,
+                                           },
+                                          ),
+                            attrs={'clonelast' : False,}
+                           )
+
+    def _update_actions(self):
+        pass
+
+    def _value_to_jsonifiable(self, value):
+        if not value:
+            return []
+
+        if value and isinstance(value[0], (int, long)):
+            if self._entity_queryset(self.model, self.qfilter).filter(pk__in=value).count() < len(value):
+                raise ValueError("One or more entities with ids [%s] doesn't exists." % ', '.join(str(v) for v in value))
+
+            return value
+
+        return map(super(MultiCreatorEntityField, self)._value_to_jsonifiable, value)
+
+    def _value_from_unjsonfied(self, data):
+        entities = []
+
+        for entry in data:
+            if not isinstance(entry, int):
+                raise ValidationError(self.error_messages['invalidtype'])
+
+            entity = self._clean_entity_from_model(self.model, entry, self.qfilter)
+
+            if entity is None:
+                raise ValidationError(self.error_messages['doesnotexist'])
+
+            entities.append(entity)
+
+        if not entities:
+            return self._return_list_or_raise(self.entities)
+
+        return entities
 
 
 class _CommaMultiValueField(CharField): #TODO: Charfield and not Field ??!! #TODO2: Remove ?

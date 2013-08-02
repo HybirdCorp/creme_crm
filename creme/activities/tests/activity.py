@@ -174,7 +174,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'end_time':           '18:45:00',
                                           'my_participation':   True,
                                           'my_calendar':        my_calendar.pk,
-                                          'other_participants': genma.id,
+                                          'other_participants': '[%d]' % genma.id,
                                           'subjects':           self._relation_field_value(ranma),
                                           'linked_entities':    self._relation_field_value(dojo),
                                          }
@@ -228,7 +228,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                             'my_participation':    True,
                                             'my_calendar':         my_calendar.pk,
                                             'participating_users': other_user.pk,
-                                            'other_participants':  genma.id,
+                                            'other_participants':  '[%d]' % genma.id,
                                             'subjects':            self._relation_field_value(akane),
                                             'linked_entities':     self._relation_field_value(dojo),
                                            }
@@ -271,7 +271,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'start_time':         '12:10:00',
                                           'my_participation':   True,
                                           'my_calendar':        my_calendar.pk,
-                                          'other_participants': genma.id,
+                                          'other_participants': '[%d]' % genma.id,
                                           'subjects':           self._relation_field_value(ranma),
                                           'linked_entities':    self._relation_field_value(dojo),
                                           'type_selector':      self._acttype_field_value(type_id),
@@ -432,6 +432,29 @@ class ActivityTestCase(_ActivitiesTestCase):
                              [_(u"This content type is not allowed.")]
                             )
 
+    def test_createview_errors03(self):
+        "other_participants contains contact of user"
+        self.login()
+
+        user = self.user
+        
+        create_contact = partial(Contact.objects.create, user=user)
+        ranma = create_contact(first_name='Ranma', last_name='Saotome')
+        
+        response = self.assertPOST200(self.ADD_URL, follow=True,
+                                      data={'user':             user.pk,
+                                            'title':            'My task',
+                                            'type_selector':    self._acttype_field_value(ACTIVITYTYPE_TASK),
+                                            'my_participation': True,
+                                            'my_calendar':      Calendar.get_user_default_calendar(user).pk,
+                                            'subjects':         self._relation_field_value(ranma),
+                                            'other_participants': '[%d]' % self.other_contact.id,
+                                        }
+                                     )
+        self.assertFormError(response, 'form', 'other_participants',
+                             [_(u"This entity doesn't exist.")]
+                            )
+
     def test_createview_alert01(self):
         self.login()
 
@@ -537,7 +560,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                           'start_time':         '10:00:00',
                                           'my_participation':   True,
                                           'my_calendar':        my_calendar.pk,
-                                          'other_participants': genma.id,
+                                          'other_participants': '[%d]' % genma.id,
                                           'subjects':           self._relation_field_value(ranma),
                                           'linked_entities':    self._relation_field_value(dojo),
                                          }
@@ -644,7 +667,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         with self.assertNoException():
             other_participants = response.context['form'].fields['other_participants']
 
-        self.assertEqual([contact01.id], other_participants.initial)
+        self.assertEqual([contact01], other_participants.initial)
 
         title  = 'My meeting'
         response = self.client.post(uri, follow=True,
@@ -1209,7 +1232,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         uri = self._buid_add_participants_url(activity)
         self.assertGET200(uri)
-        self.assertNoFormError(self.client.post(uri, data={'participants': '%s,%s' % ids}))
+        self.assertNoFormError(self.client.post(uri, data={'participants': '[%d,%d]' % ids}))
 
         relations = Relation.objects.filter(subject_entity=activity.id, type=REL_OBJ_PART_2_ACTIVITY)
         self.assertEqual(2, len(relations))
@@ -1246,7 +1269,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         uri = self._buid_add_participants_url(activity)
         self.assertGET200(uri)
 
-        response = self.assertPOST200(uri, data={'participants': contact.id})
+        response = self.assertPOST200(uri, data={'participants': '[%d]' % contact.id})
         self.assertFormError(response, 'form', 'participants',
                              [_(u'Some entities are not linkable: %s') % contact]
                             )
@@ -1275,7 +1298,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                                       data={'my_participation':    True,
                                             'my_calendar':         Calendar.get_user_default_calendar(logged.is_user).pk,
                                             'participating_users': other.is_user_id,
-                                            'participants':        contact3.pk,
+                                            'participants':        '[%d]' % contact3.pk,
                                            }
                                      )
 

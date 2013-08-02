@@ -184,7 +184,7 @@ class CreditNoteTestCase(_BillingTestCase):
 
         self.assertGET200('/billing/credit_note/add_related_to/%d/' % invoice.id)
 
-        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003');
+        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
         credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source, target=invoice_target)
         create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("50"))
 
@@ -192,7 +192,7 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertInvoiceTotalToPay(invoice, 300)
 
         response = self.client.post('/billing/credit_note/add_related_to/%d/' % invoice.id, follow=True,
-                                    data={'credit_notes':    '%s' % credit_note.id,}
+                                    data={'credit_notes':    '[%s]' % credit_note.id,}
                                    )
         self.assertNoFormError(response)
 
@@ -219,7 +219,7 @@ class CreditNoteTestCase(_BillingTestCase):
 
         self.assertGET200('/billing/credit_note/add_related_to/%d/' % invoice.id)
 
-        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003');
+        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
         credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source, target=invoice_target, currency=us_dollar)
         create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("50"))
 
@@ -227,11 +227,9 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertInvoiceTotalToPay(invoice, 300)
 
         response = self.client.post('/billing/credit_note/add_related_to/%d/' % invoice.id, follow=True,
-                                    data={'credit_notes':    '%s' % credit_note.id,}
+                                    data={'credit_notes':    '[%s]' % credit_note.id,}
                                    )
-        self.assertFormError(response, 'form', 'credit_notes', 
-                             [_(u"Select a valid choice. %(value)s is not an available choice.") % {'value': credit_note.id}]
-                            )
+        self.assertFormError(response, 'form', 'credit_notes', [_(u"This entity doesn't exist.")])
 
         self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 300)
@@ -252,7 +250,7 @@ class CreditNoteTestCase(_BillingTestCase):
 
         self.assertGET200('/billing/credit_note/add_related_to/%d/' % invoice.id)
 
-        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003');
+        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
         credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source, target=invoice_target, currency=us_dollar)
         create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("50"))
 
@@ -264,11 +262,9 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertInvoiceTotalToPay(invoice, 250)
 
         response = self.client.post('/billing/credit_note/add_related_to/%d/' % invoice.id, follow=True,
-                                    data={'credit_notes':    '%s' % credit_note.id,}
+                                    data={'credit_notes':    '[%s]' % credit_note.id,}
                                    )
-        self.assertFormError(response, 'form', 'credit_notes', 
-                             [_(u"Select a valid choice. %(value)s is not an available choice.") % {'value': credit_note.id}]
-                            )
+        self.assertFormError(response, 'form', 'credit_notes', [_(u"This entity doesn't exist.")])
 
         self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 250)
@@ -287,8 +283,8 @@ class CreditNoteTestCase(_BillingTestCase):
 
         self.assertGET200('/billing/credit_note/add_related_to/%d/' % invoice.id)
 
-        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003');
-        credit_note_target = Organisation.objects.create(user=user, name='Organisation 004');
+        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
+        credit_note_target = Organisation.objects.create(user=user, name='Organisation 004')
         credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source, target=credit_note_target)
         create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("50"))
 
@@ -296,11 +292,9 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertInvoiceTotalToPay(invoice, 300)
 
         response = self.client.post('/billing/credit_note/add_related_to/%d/' % invoice.id, follow=True,
-                                    data={'credit_notes':    '%s' % credit_note.id,}
+                                    data={'credit_notes':    '[%s]' % credit_note.id,}
                                    )
-        self.assertFormError(response, 'form', 'credit_notes', 
-                             [_(u"Select a valid choice. %(value)s is not an available choice.") % {'value': credit_note.id}]
-                            )
+        self.assertFormError(response, 'form', 'credit_notes', [_(u"This entity doesn't exist.")])
 
         self.assertEqual(0, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 300)
@@ -313,7 +307,7 @@ class CreditNoteTestCase(_BillingTestCase):
         invoice_target = invoice.get_target()
         create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
 
-        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003');
+        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
         credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source, target=invoice_target)
         create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("50"))
 
@@ -339,7 +333,7 @@ class CreditNoteTestCase(_BillingTestCase):
         invoice_target = invoice.get_target()
         create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
 
-        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003');
+        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
         credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source, target=invoice_target)
         create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("50"))
 
@@ -359,7 +353,7 @@ class CreditNoteTestCase(_BillingTestCase):
         invoice_target = invoice.get_target()
         create_line(related_document=invoice, on_the_fly_item='Otf1', unit_price=Decimal("100"))
 
-        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003');
+        credit_note_source = Organisation.objects.create(user=user, name='Organisation 003')
         credit_note = self.create_credit_note('Credit Note 001', source=credit_note_source, target=invoice_target)
         create_line(related_document=credit_note, on_the_fly_item='Otf3', unit_price=Decimal("50"))
 
@@ -370,7 +364,7 @@ class CreditNoteTestCase(_BillingTestCase):
         self.assertEqual(1, Relation.objects.filter(object_entity=invoice, subject_entity=credit_note).count())
         self.assertInvoiceTotalToPay(invoice, 50)
 
-        self.client.logout();
+        self.client.logout()
         self.client.login(username=self.other_user.username, password='test')
 
         self.assertPOST403(self._build_deleterelated_url(credit_note, invoice), follow=True)

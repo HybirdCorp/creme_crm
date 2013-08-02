@@ -28,7 +28,7 @@ from django.utils.functional import lazy
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeEntityForm, CremeForm, FieldBlockManager
-from creme.creme_core.forms.fields import MultiCremeEntityField
+from creme.creme_core.forms.fields import MultiCreatorEntityField
 from creme.creme_core.forms.widgets import TinyMCEEditor
 
 from creme.documents.models import Document
@@ -49,7 +49,7 @@ _help_text = lazy((lambda: ugettext(u'You can use variables: %s') % _TEMPLATES_V
 class EmailTemplateForm(CremeEntityForm):
     body        = CharField(label=_(u'Body'), widget=Textarea, help_text=_help_text())
     body_html   = CharField(label=_(u'Body (HTML)'), required=False, widget=TinyMCEEditor(), help_text=_help_text())
-    attachments = MultiCremeEntityField(label=_(u'Attachments'), required=False, model=Document)
+    attachments = MultiCreatorEntityField(label=_(u'Attachments'), required=False, model=Document)
 
     class Meta(CremeEntityForm.Meta):
         model = EmailTemplate
@@ -84,7 +84,7 @@ class EmailTemplateForm(CremeEntityForm):
 
 
 class EmailTemplateAddAttachment(CremeForm):
-    attachments = MultiCremeEntityField(label=_(u'Attachments'), required=False, model=Document)
+    attachments = MultiCreatorEntityField(label=_(u'Attachments'), required=False, model=Document)
 
     blocks = FieldBlockManager(('general', _(u'Attachments'), '*'))
 

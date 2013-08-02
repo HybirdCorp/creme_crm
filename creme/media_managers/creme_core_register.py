@@ -21,11 +21,11 @@
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.registry import creme_registry
-from creme.creme_core.gui import creme_menu, block_registry, icon_registry, bulk_update_registry
+from creme.creme_core.gui import creme_menu, block_registry, icon_registry, bulk_update_registry, quickforms_registry
 
 from .models import Image
 from .blocks import ImageBlock, last_images_block, image_view_block
-
+from .forms.quick import ImageQuickForm
 
 creme_registry.register_app('media_managers', _(u'Media managers'), '/media')
 creme_registry.register_entity_models(Image)
@@ -43,3 +43,5 @@ icon_registry.register(Image, 'images/image_%(size)s.png')
 bulk_update_registry.register(
     (Image, ['image']),
 )
+
+quickforms_registry.register(Image, ImageQuickForm)
