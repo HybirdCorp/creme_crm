@@ -19,8 +19,11 @@
 ################################################################################
 
 import logging
+from functools import partial
+import warnings
 
 from django.core.exceptions import ValidationError
+from django.db.transaction import commit_on_success
 from django.db.models import (CharField, TextField, ForeignKey, PositiveIntegerField,
                               DateField, PROTECT, SET_NULL)
 from django.db.models.signals import post_save
@@ -99,6 +102,7 @@ class Opportunity(CremeEntity):
 
     _opp_emitter = None
     _opp_target  = None
+    _opp_target_rel = None
 
     class Meta:
         app_label = "opportunities"
@@ -175,9 +179,15 @@ class Opportunity(CremeEntity):
 
     def get_target(self):
         #NB: this one generates 2 queries instead of one Organisation.objects.get(relations__object_entity=SELF, ...) !!
+        warnings.warn("Opportunity.get_target() method is deprecated; use Opportunity.target instead",
+                      DeprecationWarning
+                     )
         return CremeEntity.objects.get(relations__object_entity=self.id, relations__type=REL_OBJ_TARGETS).get_real_entity()
 
     def get_source(self):
+        warnings.warn("Opportunity.get_source() method is deprecated; use Opportunity.emitter instead",
+                      DeprecationWarning
+                     )
         return Organisation.objects.get(relations__object_entity=self.id, relations__type=REL_SUB_EMIT_ORGA)
 
     #TODO: test
@@ -253,7 +263,9 @@ class Opportunity(CremeEntity):
     @property
     def emitter(self):
         if not self._opp_emitter:
-            self._opp_emitter = Organisation.objects.get(relations__type=REL_SUB_EMIT_ORGA, relations__object_entity=self.id)
+            self._opp_emitter = Organisation.objects.get(relations__type=REL_SUB_EMIT_ORGA,
+                                                         relations__object_entity=self.id,
+                                                        )
 
         return self._opp_emitter
 
@@ -265,36 +277,47 @@ class Opportunity(CremeEntity):
     @property
     def target(self):
         if not self._opp_target:
-            self._opp_target = self.relations.get(type=REL_SUB_TARGETS).object_entity.get_real_entity()
+            self._opp_target_rel = rel = self.relations.get(type=REL_SUB_TARGETS)
+            self._opp_target = rel.object_entity.get_real_entity()
 
         return self._opp_target
 
     @target.setter
     def target(self, organisation):
-        assert self.pk is None, 'Opportunity.target(setter): emitter is already saved (can not change any more).'
-        self._opp_target = organisation
+        if self.pk: #edition:
+            old_target = self.target
+            if old_target != organisation:
+                self._opp_target = organisation
+        else:
+            self._opp_target = organisation
 
     def update_estimated_sales(self, document):
         self.estimated_sales = document.total_no_vat
         self.save()
 
+    @commit_on_success
     def save(self, *args, **kwargs):
+        create_relation = partial(Relation.objects.create, object_entity=self, user=self.user)
+        target = self._opp_target
+
         if not self.pk: #creation
             self._clean_emitter_n_target()
 
             super(Opportunity, self).save(*args, **kwargs)
 
-            create_relation = Relation.objects.create
-            create_relation(subject_entity=self._opp_emitter, type_id=REL_SUB_EMIT_ORGA,
-                            object_entity=self, user=self.user
-                           )
-            create_relation(subject_entity=self._opp_target, type_id=REL_OBJ_TARGETS,
-                            object_entity=self, user=self.user
-                           )
+            create_relation(subject_entity=self._opp_emitter, type_id=REL_SUB_EMIT_ORGA)
+            create_relation(subject_entity=target,            type_id=REL_OBJ_TARGETS)
 
-            transform_target_into_prospect(self._opp_emitter, self._opp_target, self.user)
+            transform_target_into_prospect(self._opp_emitter, target, self.user)
         else:
             super(Opportunity, self).save(*args, **kwargs)
+
+            old_relation = self._opp_target_rel
+
+            if old_relation and old_relation.object_entity_id != target.id:
+                old_relation.delete()
+                create_relation(subject_entity=self._opp_target, type_id=REL_OBJ_TARGETS)
+                transform_target_into_prospect(self.emitter, target, self.user)
 
 
 # Adding "current" feature to other billing document (sales order, invoice) does not really make sense.
