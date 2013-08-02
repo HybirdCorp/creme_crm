@@ -364,11 +364,11 @@ class ModelFieldEnumerator(object):
         self._ffilters.append(_ExcludeModelFieldQuery(function, **kwargs))
         return self
 
-    def choices(self):
+    def choices(self, printer=lambda field: unicode(field.verbose_name)):
         """@return A list of tuple (field_name, field_verbose_name)."""
         return [('__'.join(field.name for field in fields_info),
                  ' - '.join(chain((u'[%s]' % field.verbose_name for field in fields_info[:-1]),
-                                  [unicode(fields_info[-1].verbose_name)]
+                                  [printer(fields_info[-1])]
                                  )
                            )
                 ) for fields_info in self

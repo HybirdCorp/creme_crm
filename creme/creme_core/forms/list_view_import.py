@@ -41,7 +41,7 @@ from creme.creme_core.models import (CremePropertyType, CremeProperty,
                        RelationType, Relation, CremeEntity, EntityCredentials)
 from creme.creme_core.gui.list_view_import import import_form_registry
 from creme.creme_core.utils.collections import LimitedList
-from creme.creme_core.views.entity import EXCLUDED_FIELDS
+#from creme.creme_core.views.entity import EXCLUDED_FIELDS
 from creme.creme_core.registry import import_backend_registry
 
 from creme.documents.models import Document
@@ -286,32 +286,23 @@ class ExtractorField(Field):
 
     @user.setter
     def user(self, user):
-        from creme.creme_config.registry import config_registry, NotRegisteredInConfig
         rel = self._modelfield.rel
 
         if rel:
+            from creme.creme_config.registry import config_registry, NotRegisteredInConfig
             model = rel.to
             creation_perm = False
+            app_name = model._meta.app_label
 
-            if issubclass(model, CremeEntity):
-                excluded = EXCLUDED_FIELDS #TODO: use tags
+            try:
+                config_registry.get_app(app_name) \
+                               .get_model_conf(ContentType.objects.get_for_model(model).id)
+            except (KeyError, NotRegisteredInConfig):
+                pass
             else:
-                excluded = ('id',) #TODO: use tags ??
-                app_name = model._meta.app_label
+                creation_perm = user.has_perm_to_admin(app_name)
 
-                try:
-                    config_registry.get_app(app_name) \
-                                   .get_model_conf(ContentType.objects.get_for_model(model).id)
-                except (KeyError, NotRegisteredInConfig):
-                    pass
-                else:
-                    creation_perm = user.has_perm_to_admin(app_name)
-
-            #TODO: use utils.meta.ModelFieldEnumerator ??
-            sf_choices = [(field.name, field.verbose_name) 
-                            for field in model._meta.fields 
-                                if field.name not in excluded
-                         ]
+            sf_choices = ModelFieldEnumerator(model).filter(viewable=True).choices()
 
             widget = self.widget
             widget.subfield_select = sf_choices

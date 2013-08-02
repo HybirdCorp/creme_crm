@@ -60,7 +60,7 @@ def get_creme_entities_repr(request, entities_ids):
             } for entity in entities
            ]
 
-#Commented 1/7/2013 (if uncomment: check possible security problem (not viewable fields etc...))
+#Commented 7/1/2013 (if uncomment: check possible security problem (not viewable fields etc...))
 #@login_required
 #def get_creme_entity_as_json(request):
     #POST   = request.POST
@@ -85,9 +85,7 @@ def get_creme_entities_repr(request, entities_ids):
                        #)
 
 
-#TODO: use fields tags
-EXCLUDED_FIELDS = frozenset(('id', 'entity_type', 'is_deleted', 'is_actived', 'cremeentity_ptr', 'header_filter_search_field'))
-
+#TODO: bake the result in HTML instead of ajax view ??
 @jsonify
 @login_required
 def get_info_fields(request, ct_id):
@@ -103,18 +101,15 @@ def get_info_fields(request, ct_id):
                            if field.required and name != 'user'
                       ]
 
+    kwargs = {}
     if len(required_fields) == 1:
         required_field = required_fields[0]
-        format  = _(u'%s [CREATION]')
-        printer = lambda field: unicode(field.verbose_name) if field.name != required_field else \
-                                format % field.verbose_name
-    else:
-        printer = lambda field: unicode(field.verbose_name)
+        kwargs['printer'] = lambda field: unicode(field.verbose_name) \
+                                            if field.name != required_field else \
+                                          _(u'%s [CREATION]') % field.verbose_name
 
-    return [(field.name, printer(field))
-                for field in model._meta.fields
-                    if field.name not in EXCLUDED_FIELDS and not isinstance(field, ForeignKey)
-           ]
+    return ModelFieldEnumerator(model).filter(viewable=True).choices(**kwargs)
+
 
 @login_required
 def bulk_update(request, ct_id):#TODO: Factorise with add_properties_bulk and add_relations_bulk?
@@ -222,25 +217,26 @@ def get_function_fields(request):
 @login_required
 @jsonify
 def get_widget(request, ct_id):
-    model               = get_ct_or_404(ct_id).model_class()
-    POST                = request.POST
-    field_name          = get_from_POST_or_404(POST, 'field_name')
-    field_value_name    = get_from_POST_or_404(POST, 'field_value_name')
-    inner_edit_obj_id   = POST.get('object_id')
+    model             = get_ct_or_404(ct_id).model_class()
+    POST              = request.POST
+    field_name        = get_from_POST_or_404(POST, 'field_name')
+    field_value_name  = get_from_POST_or_404(POST, 'field_value_name')
+    inner_edit_obj_id = POST.get('object_id')
 
     model_field, is_custom = EntitiesBulkUpdateForm.get_field(model, field_name)
 
-    # Check if model field really exists
     if model_field is None:
         raise Http404(u'Unknown field')
 
-    # Set up context and credentials for inner edit case
-    if inner_edit_obj_id:
-        instance = model.objects.get(pk=inner_edit_obj_id)
+    if inner_edit_obj_id: # Inner edition
+        instance = get_object_or_404(model, pk=inner_edit_obj_id)
+
+        #TODO: factorise this credentials test ?
         owner = instance.get_related_entity() if hasattr(instance, 'get_related_entity') else instance
         request.user.has_perm_to_change_or_die(owner)
+
         is_updatable = bulk_update_registry.is_bulk_updatable(model, field_name, exclude_unique=False)
-    else:
+    else: # Bulk edition
         is_updatable = bulk_update_registry.is_bulk_updatable(model, field_name)
 
     # Prepare form field with custom widget if needed and initial value according to edit type

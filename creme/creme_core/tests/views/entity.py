@@ -442,8 +442,13 @@ class EntityViewsTestCase(ViewsTestCase):
                 ]
         diff = set(names) - set(name for name, vname in json_data)
         self.assertFalse(diff, diff)
-
         self.assertEqual(len(names), len(json_data))
+
+        json_dict = dict(json_data)
+        self.assertEqual(_(u'First name'), json_dict['first_name'])
+        self.assertEqual(_(u'%s [CREATION]') % _(u'Last name'),
+                         json_dict['last_name']
+                        )
 
     def test_get_info_fields02(self):
         self.login()
@@ -461,9 +466,10 @@ class EntityViewsTestCase(ViewsTestCase):
         self.assertEqual(len(names), len(json_data))
 
         json_dict = dict(json_data)
-        translation = _(u'Name')
-        self.assertTrue(json_dict['name'].startswith(translation))
-        self.assertNotEqual(translation, json_dict['name'])
+        self.assertEqual(_(u'Description'), json_dict['description'])
+        self.assertEqual(_(u'%s [CREATION]') % _(u'Name'), 
+                         json_dict['name']
+                        )
 
     def test_clone01(self):
         self.login()
