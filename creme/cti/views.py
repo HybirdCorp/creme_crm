@@ -21,8 +21,8 @@
 from datetime import timedelta # datetime
 
 from django.db.models.query_utils import Q
-from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.http import Http404
+from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.timezone import now
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
@@ -145,4 +145,4 @@ def add_orga(request, number):
 def add_phonecall(request, entity_id):
     pcall = _build_phonecall(request.user, entity_id, ACTIVITYSUBTYPE_PHONECALL_INCOMING, _(u'Call from %s'))
 
-    return HttpResponseRedirect(pcall.get_absolute_url())
+    return redirect(pcall)

@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponse, Http404, HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.http import HttpResponse, Http404
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
@@ -57,7 +57,7 @@ def delete_participant(request):
 
     relation.delete()
 
-    return HttpResponseRedirect(subject.get_real_entity().get_absolute_url())
+    return redirect(subject.get_real_entity())
 
 @login_required
 @permission_required('activities')

@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
@@ -101,7 +101,7 @@ def _delete_aux(request, ml_id, deletor):
     if request.is_ajax():
         return HttpResponse("", mimetype="text/javascript")
 
-    return HttpResponseRedirect(ml.get_absolute_url())
+    return redirect(ml)
 
 def delete_contact(request, ml_id):
     return _delete_aux(request, ml_id, lambda ml, contact_id: ml.contacts.remove(contact_id))

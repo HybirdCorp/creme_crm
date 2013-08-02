@@ -22,8 +22,8 @@ from datetime import datetime
 from functools import partial
 
 from django.db.models import Q
-from django.http import HttpResponseRedirect, Http404, HttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import ugettext_lazy as _
 
@@ -53,7 +53,7 @@ def _add_activity(request, form_class,
             form.save()
             entity = form_args.get('related_entity', form.instance)
 
-            return HttpResponseRedirect(entity.get_absolute_url())
+            return redirect(entity)
     else:
         form = form_class(activity_type_id=type_id, user=request.user, **form_args)
 

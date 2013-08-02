@@ -20,8 +20,8 @@
 
 from functools import partial
 
-from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import get_object_or_404
+from django.http import HttpResponse, Http404
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.timezone import now
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
@@ -172,4 +172,4 @@ def generate_new_doc(request, opp_id, ct_id):
     if request.is_ajax():
         return HttpResponse("", mimetype="text/javascript")
 
-    return HttpResponseRedirect(opp.get_absolute_url())
+    return redirect(opp)

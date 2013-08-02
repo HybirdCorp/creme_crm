@@ -20,8 +20,7 @@
 
 #from datetime import datetime
 
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.timezone import now
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
@@ -52,4 +51,4 @@ def validate(request, action_id):
     action.validation_date = now()
     action.save()
 
-    return HttpResponseRedirect(entity.get_absolute_url())
+    return redirect(entity)

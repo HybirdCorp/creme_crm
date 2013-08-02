@@ -19,8 +19,8 @@
 ################################################################################
 
 from django.forms import DateTimeField, ModelChoiceField
+from django.shortcuts import redirect
 from django.utils.translation import ugettext_lazy as _
-from django.http import HttpResponseRedirect
 from django.contrib.formtools.wizard import FormWizard
 
 from creme.creme_core.forms import CremeEntityForm
@@ -82,7 +82,7 @@ class RecurrentGeneratorWizard(FormWizard):
         if generator_form.is_valid():
             generator_form.save()
 
-        return HttpResponseRedirect(resource_form.instance.get_absolute_url())
+        return redirect(resource_form.instance)
 
     #def process_step(self, request, form, step):
         #if step == 0 and form.is_valid():

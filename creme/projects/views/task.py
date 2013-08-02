@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import get_object_or_404
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
@@ -77,7 +77,7 @@ def delete(request):
     if request.is_ajax():
         return HttpResponse()
 
-    return HttpResponseRedirect(project.get_absolute_url())
+    return redirect(project)
 
 @login_required
 @permission_required('projects')

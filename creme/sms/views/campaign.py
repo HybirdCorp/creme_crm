@@ -19,7 +19,7 @@
 ################################################################################
 
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
 
@@ -80,4 +80,4 @@ def delete_messaging_list(request, campaign_id):
     if request.is_ajax():
         return HttpResponse("", mimetype="text/javascript")
 
-    return HttpResponseRedirect(campaign.get_absolute_url())
+    return redirect(campaign)
