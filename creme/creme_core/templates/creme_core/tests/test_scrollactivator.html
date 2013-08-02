@@ -1,0 +1,50 @@
+{% extends "creme_core/tests/testbase.html" %}
+{% load creme_core_tags %}
+
+{% block test_title %}Creme Scroll Activator Widget{% endblock %}
+{% block test_header %}
+{% endblock %}
+{% block test_content %}
+    <div class="ui-layout vbox ui-widget-content ui-creme-widget ui-creme-scrollactivator widget-auto" widget="ui-creme-scrollactivator" style="height: 300px;overflow-y: scroll;" scroll="relative">
+        {% for widget_index in 20|xrange:1 %}
+            <div class="ui-widget-content ui-creme-widget ui-creme-jqueryplot" widget="ui-creme-jqueryplot" style="width:500px; height:200px; padding:2px;" plotmode="raster">
+                <script type="text/json">
+                {
+                    "options": {
+                        "seriesDefaults": {
+                            "renderer": "jqplot.PieRenderer", 
+                            "rendererOptions": {
+                                "showDataLabels": true
+                            }
+                        },
+                        "legend": {"show":true, "location": "e"},
+                        "title": "This is a Pie"
+                    },
+                    "data": [[{% for value in 3|xrange:1 %}["{{value|add:widget_index}}", {{value|add:widget_index}}], {% endfor %}["other", {{widget_index|mult:5}}]]]
+                }
+                </script>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="ui-layout vbox ui-widget-content ui-creme-widget ui-creme-scrollactivator widget-auto" widget="ui-creme-scrollactivator" style="margin-top:10px;">
+        {% for widget_index in 20|xrange:1 %}
+            <div class="ui-widget-content ui-creme-widget ui-creme-jqueryplot" widget="ui-creme-jqueryplot" style="width:500px; height:200px; padding:2px;" plotmode="raster">
+                <script type="text/json">
+                {
+	                "options": {
+	                    "seriesDefaults": {
+	                        "renderer": "jqplot.PieRenderer", 
+	                        "rendererOptions": {
+	                            "showDataLabels": true
+	                        }
+	                    },
+	                    "legend": {"show":true, "location": "e"},
+	                    "title": "This is a Pie"
+	                },
+	                "data": [[{% for value in 3|xrange:1 %}["{{value|add:widget_index}}", {{value|add:widget_index}}], {% endfor %}["other", {{widget_index|mult:5}}]]]
+	            }
+	            </script>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}
