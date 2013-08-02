@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+import warnings
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.serializers.json import DjangoJSONEncoder as JSONEncoder
@@ -39,6 +40,9 @@ def creme_entity_content_types():
     return (get_for_model(model) for model in creme_registry.iter_entity_models())
 
 def Q_creme_entity_content_types():
+    warnings.warn("Q_creme_entity_content_types() function is deprecated.",
+                  DeprecationWarning
+                 )
     return ContentType.objects.filter(pk__in=[ct_model.pk for ct_model in creme_entity_content_types()])
 
 def get_ct_or_404(ct_id):
