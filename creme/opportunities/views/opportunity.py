@@ -28,7 +28,8 @@ from django.contrib.auth.decorators import login_required, permission_required
 
 from creme.creme_core.models import Relation, CremeEntity
 from creme.creme_core.utils.queries import get_first_or_None
-from creme.creme_core.views.generic import add_entity, add_model_with_popup, edit_entity, view_entity, list_view
+from creme.creme_core.views.generic import (add_entity, add_model_with_popup,
+                                          edit_entity, view_entity, list_view)
 from creme.creme_core.utils import get_ct_or_404
 
 from creme.persons.workflow import transform_target_into_customer, transform_target_into_prospect
@@ -133,8 +134,8 @@ def generate_new_doc(request, opp_id, ct_id):
                                    )
 
     create_relation = partial(Relation.objects.create, subject_entity=document, user=user)
-    create_relation(type_id=REL_SUB_BILL_ISSUED,   object_entity=opp.get_source())
-    create_relation(type_id=REL_SUB_BILL_RECEIVED, object_entity=opp.get_target())
+    create_relation(type_id=REL_SUB_BILL_ISSUED,   object_entity=opp.emitter)
+    create_relation(type_id=REL_SUB_BILL_RECEIVED, object_entity=opp.target)
     create_relation(type_id=rtype_id,              object_entity=opp)
 
     document.generate_number() #Need the relation with emitter orga
@@ -166,7 +167,7 @@ def generate_new_doc(request, opp_id, ct_id):
         create_relation(type_id=REL_SUB_CURRENT_DOC, object_entity=opp)
 
     if workflow_action:
-        workflow_action(opp.get_source(), opp.get_target(), user)
+        workflow_action(opp.emitter, opp.target, user)
 
     if request.is_ajax():
         return HttpResponse("", mimetype="text/javascript")
