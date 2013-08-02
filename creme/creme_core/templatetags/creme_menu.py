@@ -30,6 +30,7 @@ from ..models import PreferedMenuItem, ButtonMenuItem
 from ..gui.menu import creme_menu, new_creme_menu
 from ..gui.last_viewed import LastViewedItem
 from ..gui.button_menu import button_registry
+from ..utils.unicode_collation import collator
 
 
 register = Library()
@@ -47,7 +48,7 @@ class MenuItem(object):
 
 
 class MenuAppItem(object):
-    __slots__ = ('app_name', 'url', 'force_order', 'items')
+    __slots__ = ('app_name', 'url', 'force_order', 'items', 'sort_key')
 
     def __init__(self, name, url, force_order, items, user):
         #self.app_name = name
@@ -56,6 +57,8 @@ class MenuAppItem(object):
         self.force_order = force_order
         has_perm = user.has_perm
         self.items = [MenuItem(item.url, item.name, has_perm(item.perm)) for item in items]
+        if force_order is None:
+            self.sort_key = collator.sort_key(self.app_name)
 
     def __unicode__(self):
         return u'<MenuAppItem: app:%s url:%s>' % (self.app_name, self.app_url)
@@ -71,7 +74,8 @@ class MenuAppItem(object):
             return 1
 
         #return cmp(smart_unicode(self.app_name), smart_unicode(other.app_name))
-        return cmp(self.app_name, other.app_name)
+        #return cmp(self.app_name, other.app_name)
+        return cmp(self.sort_key, other.sort_key)
 
 
 if settings.USE_STRUCT_MENU:

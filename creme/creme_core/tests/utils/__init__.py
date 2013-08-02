@@ -3,6 +3,7 @@
 try:
     import string
     from datetime import datetime, date
+    from functools import partial
 
     #import pytz
 
@@ -407,6 +408,45 @@ class QueriesTestCase(CremeTestCase):
 
     #TODO: test get_q_from_dict()
 
+
+class UnicodeCollationTestCase(CremeTestCase):
+    def test_uca01(self):
+        from creme.creme_core.utils.unicode_collation import collator
+
+        sort = partial(sorted, key=collator.sort_key)
+        words = ['Caff', 'Cafe', 'Cafard', u'Café']
+        self.assertEqual(['Cafard', 'Cafe', 'Caff', u'Café'], sorted(words)) # standard sort
+        self.assertEqual(['Cafard', 'Cafe', u'Café', 'Caff'], sort(words))
+
+        self.assertEqual(['La', u'Là', u'Lä', 'Las', 'Le'],
+                         sort(['La', u'Là', 'Le', u'Lä', 'Las'])
+                        )
+        self.assertEqual(['gloves', u'ĝloves', 'hats', 'shoes'],
+                         sort(['hats', 'gloves', 'shoes', u'ĝloves']),
+                        )
+
+    #def test_uca02(self):
+        #"Orignal lib"
+        #from os.path import join
+        #from pyuca import Collator
+
+        #path = join(settings.CREME_ROOT, 'creme_core', 'utils', 'allkeys.txt')
+        #collator = Collator(path)
+        #sort = partial(sorted, key=collator.sort_key)
+        #words = ['Caff', 'Cafe', 'Cafard', u'Café']
+        #self.assertEqual(['Cafard', 'Cafe', 'Caff', u'Café'], sorted(words)) # standard sort
+        #self.assertEqual(['Cafard', 'Cafe', u'Café', 'Caff'], sort(words))
+
+        #self.assertEqual(['La', u'Là', u'Lä', 'Las', 'Le'],
+                         #sort(['La', u'Là', 'Le', u'Lä', 'Las'])
+                        #)
+        #self.assertEqual(['gloves', u'ĝloves', 'hats', 'shoes'],
+                         #sort(['hats', 'gloves', 'shoes', u'ĝloves']),
+                        #)
+
+        ##test memory comsumption
+        ##from time import sleep
+        ##sleep(10)
 
 from .meta import *
 from .chunktools import *
