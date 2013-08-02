@@ -435,6 +435,7 @@ CREME_CORE_JS = ('main.js',
                     'creme_core/js/widgets/plotdata.js',
                     'creme_core/js/widgets/plot.js',
                     'creme_core/js/widgets/plotselector.js',
+                    'creme_core/js/widgets/scrollactivator.js',
 
                     'creme_core/js/properties.js',
                     'creme_core/js/relations.js',
