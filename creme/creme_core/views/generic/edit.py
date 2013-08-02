@@ -19,8 +19,7 @@
 ################################################################################
 
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.utils.translation import ugettext as _
 
 from creme.creme_core.models import CremeEntity
@@ -39,7 +38,7 @@ def edit_entity(request, object_id, model, edit_form, template='creme_core/gener
         if form.is_valid():
             form.save()
 
-            return HttpResponseRedirect(entity.get_absolute_url())
+            return redirect(entity)
     else:
         form = edit_form(user=user, instance=entity)
 

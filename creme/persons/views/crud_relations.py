@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponseRedirect, Http404
-from django.shortcuts import get_object_or_404
+from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme.creme_core.models import CremeEntity, Relation, RelationType
@@ -54,7 +54,7 @@ def _link(request, entity_id, relation_type_id):
                             object_entity=managed_orga, user=user,
                            )
 
-    return HttpResponseRedirect(entity.get_absolute_url())
+    return redirect(entity)
 
 def become_customer(request, entity_id):
     return _link(request, entity_id, REL_SUB_CUSTOMER_SUPPLIER)

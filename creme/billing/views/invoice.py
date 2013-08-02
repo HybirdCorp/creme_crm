@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2011  Hybird
+#    Copyright (C) 2009-2013  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,8 +20,8 @@
 
 from datetime import date
 
-from django.http import HttpResponseRedirect, Http404
-from django.shortcuts import get_object_or_404
+from django.http import Http404
+from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import ugettext as _
 
@@ -101,4 +101,4 @@ def generate_number(request, invoice_id):
     else:
         raise Http404('This invoice has already a number: %s.' % invoice)
 
-    return HttpResponseRedirect(invoice.get_absolute_url())
+    return redirect(invoice)

@@ -21,8 +21,8 @@
 from collections import defaultdict
 
 from django.db.models.query_utils import Q
-from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, get_list_or_404
+from django.http import Http404, HttpResponse
+from django.shortcuts import get_object_or_404, get_list_or_404, redirect
 from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
@@ -252,7 +252,7 @@ def delete(request):
     if request.is_ajax():
         return HttpResponse("", mimetype="text/javascript")
 
-    return HttpResponseRedirect(subject.get_real_entity().get_absolute_url())
+    return redirect(subject.get_real_entity())
 
 @login_required
 def delete_similar(request):
@@ -278,7 +278,7 @@ def delete_similar(request):
     if request.is_ajax():
         return HttpResponse("", mimetype="text/javascript")
 
-    return HttpResponseRedirect(subject.get_real_entity().get_absolute_url())
+    return redirect(subject.get_real_entity())
 
 @login_required
 def delete_all(request):

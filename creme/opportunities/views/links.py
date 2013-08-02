@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import get_object_or_404
+from django.http import HttpResponse, Http404
+from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib.contenttypes.models import ContentType
 
@@ -61,4 +61,4 @@ def set_current_quote(request, opp_id, quote_id):
     if request.is_ajax():
         return HttpResponse("", mimetype="text/javascript")
 
-    return HttpResponseRedirect(opp.get_absolute_url())
+    return redirect(opp)

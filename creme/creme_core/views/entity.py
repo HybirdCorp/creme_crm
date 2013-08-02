@@ -24,7 +24,7 @@ from collections import defaultdict
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q, FieldDoesNotExist, ForeignKey, ProtectedError
 from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import get_object_or_404, get_list_or_404, render
+from django.shortcuts import get_object_or_404, get_list_or_404, render, redirect
 #from django.core import serializers
 from django.forms.models import modelform_factory, model_to_dict
 #from django.utils.encoding import smart_unicode
@@ -277,7 +277,7 @@ def clone(request):
 
     new_entity = entity.clone()
 
-    return HttpResponseRedirect(new_entity.get_absolute_url())
+    return redirect(new_entity)
 
 @login_required
 def search_and_view(request):
@@ -325,7 +325,7 @@ def search_and_view(request):
             found = EntityCredentials.filter(user, model.objects.filter(query))[:1]
 
             if found:
-                return HttpResponseRedirect(found[0].get_absolute_url())
+                return redirect(found[0])
 
     raise Http404(_(u'No entity corresponding to your search was found.'))
 
@@ -407,7 +407,7 @@ def merge(request, entity1_id, entity2_id):
         if merge_form.is_valid():
             merge_form.save()
 
-            return HttpResponseRedirect(entity1.get_absolute_url())
+            return redirect(entity1)
     else:
         try:
             merge_form = EntitiesMergeForm(user=request.user, entity1=entity1, entity2=entity2)
@@ -489,7 +489,7 @@ def restore_entity(request, entity_id):
     if request.is_ajax():
         return HttpResponse(mimetype='text/javascript')
 
-    return HttpResponseRedirect(entity.get_absolute_url())
+    return redirect(entity)
 
 
 def _delete_entity(user, entity):
@@ -620,4 +620,4 @@ def delete_related_to_entity(request, ct_id):
     if request.is_ajax():
         return HttpResponse(mimetype='text/javascript')
 
-    return HttpResponseRedirect(entity.get_absolute_url())
+    return redirect(entity)

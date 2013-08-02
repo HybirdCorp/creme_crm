@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404, redirect
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
@@ -54,7 +54,7 @@ def delete(request):
     if request.is_ajax():
         return HttpResponse("success", mimetype="text/javascript")
 
-    return HttpResponseRedirect(campaign.get_absolute_url())
+    return redirect(campaign)
 
 @login_required
 @permission_required('sms')
@@ -103,8 +103,8 @@ def delete_message(request, id):
     if request.is_ajax():
         return HttpResponse("success", mimetype="text/javascript")
 
-    #TODO: better with a named url.....
-    return HttpResponseRedirect('/sms/campaign/sending/%s' % message.sending_id)
+    #return HttpResponseRedirect('/sms/campaign/sending/%s' % message.sending_id)
+    return redirect(campaign)
 
 #@login_required
 #@permission_required('sms')

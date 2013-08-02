@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponseRedirect, HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404, redirect
 from django.utils.encoding import smart_str
 from django.contrib.auth.decorators import permission_required, login_required
 
@@ -53,7 +53,7 @@ def vcf_import(request):
 
             if form.is_valid():
                 contact = form.save()
-                return HttpResponseRedirect(contact.get_absolute_url())
+                return redirect(contact)
 
     else:
         form = VcfForm(user=user, initial={'vcf_step': 0})

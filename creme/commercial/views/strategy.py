@@ -18,8 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import get_object_or_404, render
+from django.http import HttpResponse, Http404
+from django.shortcuts import get_object_or_404, render, redirect
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required, permission_required
@@ -134,7 +134,7 @@ def delete_evalorga(request, strategy_id):
     if request.is_ajax():
         return HttpResponse("", mimetype="text/javascript")
 
-    return HttpResponseRedirect(strategy.get_absolute_url())
+    return redirect(strategy)
 
 def _get_strategy_n_orga(request, strategy_id, orga_id):
     strategy = get_object_or_404(Strategy, pk=strategy_id)

@@ -18,7 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.http import HttpResponseRedirect, Http404
+from django.http import Http404
+from django.shortcuts import redirect
 from django.contrib.auth.decorators import login_required, permission_required
 
 from creme.creme_core.views.generic import view_entity, add_entity, list_view, edit_entity
@@ -66,4 +67,4 @@ def close(request, project_id):
 
     project.save()
 
-    return HttpResponseRedirect(project.get_absolute_url())
+    return redirect(project)
