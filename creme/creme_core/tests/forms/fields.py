@@ -5,15 +5,19 @@ try:
 
     from django.core.exceptions import ValidationError
     from django.utils.timezone import now
+    from django.utils.translation import ugettext as _
 
-    from creme.creme_core.forms.fields import DateRangeField, ColorField, DurationField
+    from creme.creme_core.forms.fields import (DateRangeField, ColorField,
+                                             DurationField, ChoiceOrCharField)
     from creme.creme_core.utils.date_range import DateRange, CustomRange, CurrentYearRange
     from .base import FieldTestCase
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
 
-__all__ = ('DateRangeFieldTestCase', 'ColorFieldTestCase', 'DurationFieldTestCase')
+__all__ = ('DateRangeFieldTestCase', 'ColorFieldTestCase',
+           'DurationFieldTestCase', 'ChoiceOrCharFieldTestCase',
+          )
 
 
 class DateRangeFieldTestCase(FieldTestCase):
@@ -95,3 +99,42 @@ class DurationFieldTestCase(FieldTestCase):
         clean = DurationField().clean
         self.assertEqual('10:2:0', clean([u'10', u'2', u'0']))
         self.assertEqual('10:2:0', clean([10, 2, 0]))
+
+
+class ChoiceOrCharFieldTestCase(FieldTestCase):
+    _team = ['Naruto', 'Sakura', 'Sasuke', 'Kakashi']
+
+    def test_empty_required(self):
+        clean = ChoiceOrCharField(choices=enumerate(self._team, start=1)).clean
+        self.assertFieldValidationError(ChoiceOrCharField, 'required', clean, None)
+        self.assertFieldValidationError(ChoiceOrCharField, 'required', clean, '')
+        self.assertFieldValidationError(ChoiceOrCharField, 'required', clean, [])
+
+    def test_empty_other(self):
+        field = ChoiceOrCharField(choices=enumerate(self._team, start=1))
+        self.assertFieldValidationError(ChoiceOrCharField, 'invalid_other', field.clean, [0, ''])
+
+    def test_ok_choice(self):
+        field = ChoiceOrCharField(choices=enumerate(self._team, start=1))
+        self.assertEqual((1, 'Naruto'), field.clean([1, '']))
+
+    def test_ok_other(self):
+        field = ChoiceOrCharField(choices=enumerate(self._team, start=1))
+
+        with self.assertNoException():
+            choices = field.choices
+
+        self.assertIn((0, _('Other')), choices)
+
+        other = 'Shikamaru'
+        self.assertEqual((0, other), field.clean([0, other]))
+
+    def test_empty_ok(self):
+        field = ChoiceOrCharField(choices=enumerate(self._team, start=1), required=False)
+
+        with self.assertNoException():
+            cleaned = field.clean(['', ''])
+
+        self.assertEqual((None, None), cleaned)
+
+    #TODO: set 'Other' label

@@ -1,0 +1,22 @@
+{% extends 'polls/templatetags/block_preplies.html'  %}
+{% load i18n %}
+{% load creme_core_tags creme_block %}
+
+{% comment %}{% block title %}
+    <th class="collapser label">{% get_block_title _('%s Filled form reply') _('%s Filled form replies') 'poll_48.png' _('Form reply') %}</th>
+{% endblock %}{% endcomment %}
+
+{% block line_adders %}
+    {% has_perm_to link object as link_perm %}{% has_perm_to create ct_reply as creation_perm %}
+    {% get_line_adder at_url '/polls/poll_reply/add_from_campaign/{{object.id}}' with_label _("Add replies") with_perms link_perm|and_op:creation_perm %}
+{% endblock  %}
+
+{% block empty_footer %}{% endblock %}
+
+{% block extra_info %}
+    <tr class="content">
+        {% with count=page.object_list.count expected=object.expected_count %}
+            <td colspan="{{count|yesno:'2,1'}}" class="{% if count >= expected %}td_valid{% else %}td_error{% endif %}"><strong>{% trans "Goal" %} :</strong> {{count}} / {{expected}} </td>
+        {% endwith %}
+    </tr>
+{% endblock %}

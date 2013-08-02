@@ -11,11 +11,12 @@ try:
 
     from ..base import CremeTestCase
     from creme.creme_core.models import CremePropertyType, PreferedMenuItem
-    from creme.creme_core.utils import (find_first, truncate_str, create_if_needed, update_model_instance,
-                                        get_from_GET_or_404, get_from_POST_or_404,
-                                        safe_unicode, safe_unicode_error)
+    from creme.creme_core.utils import (find_first, truncate_str, split_filter,
+        create_if_needed, update_model_instance, get_from_GET_or_404, get_from_POST_or_404,
+        safe_unicode, safe_unicode_error, int_2_roman)
+    from creme.creme_core.utils.collections import OrderedSet
     from creme.creme_core.utils.dates import (get_dt_from_str, get_date_from_str,
-                              get_dt_from_iso8601_str, get_dt_to_iso8601_str)
+        get_dt_from_iso8601_str, get_dt_to_iso8601_str, date_2_dict)
                               #get_creme_dt_from_utc_dt get_utc_dt_from_creme_dt get_naive_dt_from_tzdate
     from creme.creme_core.utils.dependence_sort import dependence_sort, DependenciesLoopError
     from creme.creme_core.utils.queries import get_first_or_None
@@ -39,6 +40,15 @@ class MiscTestCase(CremeTestCase):
 
         self.assertIsNone(find_first(l, lambda i: i.data == 12, None))
         self.assertRaises(IndexError, find_first, l, lambda i: i.data == 12)
+
+    def test_split_filter(self):
+        ok, ko = split_filter((lambda x: x % 2), xrange(5))
+        self.assertEqual([1, 3], ok)
+        self.assertEqual([0, 2, 4], ko)
+
+        ok, ko = split_filter((lambda x: 'k' in x), ['Naruto', 'Sasuke', 'Sakura', 'Kakashi'])
+        self.assertEqual(['Sasuke', 'Sakura', 'Kakashi'], ok)
+        self.assertEqual(['Naruto'], ko)
 
     def test_truncate_str_01(self):
         s = string.letters #Assuming len(s) == 52
@@ -204,6 +214,59 @@ class MiscTestCase(CremeTestCase):
                 return unicode(self.message)
 
         self.assertEqual(u'My message', safe_unicode_error(MyAnnoyingException()))
+
+    def test_date_2_dict(self):
+        d = {'year': 2012, 'month': 6, 'day': 6}
+        self.assertEqual(d, date_2_dict(date(**d)))
+
+    def test_int_2_roman(self):
+        self.assertEqual(['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X',
+                          'XI', 'XII', 'XIII', 'XIV', 'XV', 'XVI', 'XVII', 'XVIII', 'XIX', 'XX'
+                         ],
+                         [int_2_roman(i) for i in xrange(1, 21)]
+                        )
+        self.assertEqual('MM',      int_2_roman(2000))
+        self.assertEqual('MCMXCIX', int_2_roman(1999))
+
+
+#TODO: SimpleTestCase
+#TODO: LimitedList
+class CollectionsTestCase(CremeTestCase):
+    def test_ordered_set01(self):
+        s1 = OrderedSet('Futurama')
+        self.assertEqual(['F','u', 't', 'r', 'a', 'm'], list(s1))
+
+        s2 = OrderedSet([2, 1, 6, 5, 4, 6, 5, 4, 2, 1])
+        self.assertEqual([2, 1, 6, 5, 4], list(s2))
+
+    def test_ordered_set02(self):
+        "| operator and __eq__"
+        s3 = OrderedSet('Futurama') | OrderedSet('Simpsons')
+        self.assertIsInstance(s3, OrderedSet)
+
+        content = ['F', 'u', 't', 'r', 'a', 'm', 'S', 'i', 'p', 's', 'o', 'n']
+        self.assertEqual(content, list(s3))
+        self.assertEqual(OrderedSet(content), s3)
+
+        new_content = list(content)
+        new_content[3], new_content[4] = new_content[4], new_content[3]
+        self.assertNotEqual(OrderedSet(new_content), s3)
+
+        self.assertNotEqual(OrderedSet(content[:-1]), s3)
+
+    def test_ordered_set03(self):
+        "& operator"
+        s3 = OrderedSet('Groening') & OrderedSet('Simpsons')
+        self.assertIsInstance(s3, OrderedSet)
+        self.assertEqual(['i', 'o', 'n'], list(s3))
+
+    def test_ordered_set04(self):
+        "- operator"
+        s3 = OrderedSet('Groening') | OrderedSet('Simpsons')
+        self.assertIsInstance(s3, OrderedSet)
+        self.assertEqual(['G', 'r', 'o', 'e', 'n', 'i', 'g', 'S', 'm', 'p', 's'],
+                         list(s3)
+                        )
 
 
 class DependenceSortTestCase(CremeTestCase): #TODO: SimpleTestCase

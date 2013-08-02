@@ -605,7 +605,17 @@ def delete_related_to_entity(request, ct_id):
     entity = auxiliary.get_related_entity()
 
     request.user.has_perm_to_change_or_die(entity)
-    auxiliary.delete()
+
+    try:
+        auxiliary.delete()
+    except ProtectedError as e:
+        #msg = e.args[0]
+
+        #if request.is_ajax():
+            #return HttpResponse(smart_unicode(msg), mimetype="text/javascript", status=400)
+
+        #raise Http404(unicode(msg)) #todo enhance 404 rendering to use the message...
+        raise PermissionDenied(e.args[0])
 
     if request.is_ajax():
         return HttpResponse(mimetype='text/javascript')

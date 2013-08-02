@@ -1,0 +1,670 @@
+# FR LOCALISATION OF 'POLLS' APP
+# Copyright (C) 2013 Hybird
+# This file is distributed under the same license as the Creme package.
+#
+# > django-admin.py makemessages -l fr -e html -i "tests/*"
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Creme Polls 1.3\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2013-08-02 17:53+0200\n"
+"Last-Translator: Hybird <contact@hybird.org>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+
+#: blocks.py:42
+msgid "Form lines"
+msgstr "Lignes de formulaire"
+
+#: blocks.py:66
+msgid "Reply lines"
+msgstr "Lignes de réponse"
+
+#: blocks.py:88 models/poll_reply.py:58
+msgid "Form replies"
+msgstr "Réponses à des formulaires"
+
+#: blocks.py:107
+msgid "Related form replies"
+msgstr "Réponses de formulaires reliées"
+
+#: core.py:145
+msgid "Integer"
+msgstr "Nombre entier"
+
+#: core.py:163
+msgid "The upper bound must be greater than the lower bound."
+msgstr "La borne supérieure doit être plus grande que la borne inférieure."
+
+#: core.py:175
+#, python-format
+msgid "Integer lesser than %(max_value)s"
+msgstr "Nombre entier plus petit que %(max_value)s"
+
+#: core.py:178
+#, python-format
+msgid "Integer greater than %(min_value)s"
+msgstr "Nombre entier plus grand que %(min_value)s"
+
+#: core.py:180
+#, python-format
+msgid "Integer between %(min_value)s and %(max_value)s"
+msgstr "Nombre entier entre  %(min_value)s et %(max_value)s"
+
+#: core.py:194
+msgid "Boolean (Yes/No)"
+msgstr "Booléen (Oui/Non)"
+
+#: core.py:195
+msgid "Yes"
+msgstr "Oui"
+
+#: core.py:196
+msgid "No"
+msgstr "Non"
+
+#: core.py:217
+msgid "String"
+msgstr "Chaîne de caractère"
+
+#: core.py:227
+msgid "Text area"
+msgstr "Zone de texte"
+
+#: core.py:237
+msgid "Date"
+msgstr "Date"
+
+#: core.py:253
+msgid "Hour"
+msgstr "Heure"
+
+#: core.py:260 forms/poll_form.py:104
+msgid "List of choices"
+msgstr "Liste des choix"
+
+#: core.py:261
+#, python-format
+msgid "List of choices (%s)"
+msgstr "Liste de choix (%s)"
+
+#: core.py:262
+#, python-format
+msgid "List of choices (%(choices)s) (deleted: %(del_choices)s)"
+msgstr "Liste de choix  (%(choices)s) (supprimé: %(del_choices)s)"
+
+#: core.py:269
+msgid "Give 2 choices at least."
+msgstr "Donnez au moins 2 choix."
+
+#: core.py:321
+msgid "List of multiple choices"
+msgstr "Liste de choix multiples"
+
+#: core.py:322
+#, python-format
+msgid "List of multiple choices (%s)"
+msgstr "Liste de choix multiples (%s)"
+
+#: core.py:323
+#, python-format
+msgid "List of multiple choices (%(choices)s) (deleted: %(del_choices)s)"
+msgstr "Liste de choix multiples (%(choices)s) (supprimé: %(del_choices)s)"
+
+#: core.py:349
+msgid "List of choices with free choice"
+msgstr "Liste de choix avec choix libre"
+
+#: core.py:350
+#, python-format
+msgid "List of choices with free choice (%s)"
+msgstr "Liste de choix avec choix libre (%s)"
+
+#: core.py:351
+#, python-format
+msgid ""
+"List of choices with free choice (%(choices)s) (deleted: %(del_choices)s)"
+msgstr ""
+"Liste de choix avec choix libre (%(choices)s) (supprimé: %(del_choices)s)"
+
+#: core.py:367 core.py:378 core.py:404
+msgid "Other"
+msgstr "Autre"
+
+#: core.py:410 forms/poll_reply.py:183
+msgid "Comment"
+msgstr "Commentaire"
+
+#: creme_core_register.py:30 templates/polls/portal.html:4
+msgid "Polls"
+msgstr "Sondages"
+
+#: creme_core_register.py:34
+msgid "Portal of polls"
+msgstr "Portail des sondages"
+
+#: creme_core_register.py:35
+msgid "All forms"
+msgstr "Lister les formulaires"
+
+#: creme_core_register.py:37
+msgid "All replies"
+msgstr "Lister les réponses"
+
+#: creme_core_register.py:39
+msgid "All campaigns"
+msgstr "Lister les campagnes"
+
+#: populate.py:45
+msgid "Survey"
+msgstr "Enquête"
+
+#: populate.py:46
+msgid "Monitoring"
+msgstr "Suivi"
+
+#: populate.py:47
+msgid "Assessment"
+msgstr "Contrôle des connaissances"
+
+#: populate.py:50
+msgid "Form view"
+msgstr "Vue de formulaire"
+
+#: populate.py:54
+msgid "Reply view"
+msgstr "Vue de réponse"
+
+#: populate.py:60
+msgid "Campaign view"
+msgstr "Vue de campagne"
+
+#: forms/fields.py:43
+msgid "This source is invalid."
+msgstr "Cette source est invalide."
+
+#: forms/fields.py:44
+msgid "This choice is invalid."
+msgstr "Ce choix est invalide."
+
+#: forms/poll_form.py:95 models/poll_form.py:37 models/poll_form.py:173
+#: models/poll_reply.py:46
+msgid "Type"
+msgstr "Type"
+
+#: forms/poll_form.py:98
+msgid "Lower bound"
+msgstr "Borne inférieure"
+
+#: forms/poll_form.py:99 forms/poll_form.py:102
+msgid "For integer type only."
+msgstr "Pour les nombres entiers uniquement."
+
+#: forms/poll_form.py:101
+msgid "Upper bound"
+msgstr "Borne supérieure"
+
+#: forms/poll_form.py:105
+msgid ""
+"Give the possible choices (one per line) if you choose the type \"Choices "
+"list\"."
+msgstr ""
+"Mettez les choix possibles (un par ligne) si vous avez choisi le type  "
+"\"Liste de choix\"."
+
+#: forms/poll_form.py:142
+msgid "Start of section"
+msgstr "Début de section"
+
+#: forms/poll_form.py:143
+#, python-format
+msgid "Before: «%(question)s» (#%(number)s)"
+msgstr "Avant: «%(question)s» (n°%(number)s)"
+
+#: forms/poll_form.py:148
+msgid "End of section"
+msgstr "Fin de section"
+
+#: forms/poll_form.py:150
+msgid "Order"
+msgstr "Ordre"
+
+#: forms/poll_form.py:218
+msgid "Existing choices"
+msgstr "Choix existants"
+
+#: forms/poll_form.py:219
+msgid "Uncheck the choices you want to delete."
+msgstr "Décochez les choix que vous voulez supprimer."
+
+#: forms/poll_form.py:222
+msgid "New choices of the list"
+msgstr "Nouveaux choix de la liste"
+
+#: forms/poll_form.py:223
+msgid "Give the new possible choices (one per line)."
+msgstr "Mettez les nouveaux choix possibles (un par ligne)."
+
+#: forms/poll_form.py:238
+msgid "Choices can not be empty."
+msgstr "Les choix ne peuvent pas être vides."
+
+#: forms/poll_form.py:251
+#, python-format
+msgid ""
+"You can not delete the choice \"%(choice)s\" because it is used in a "
+"condition by the question \"%(question)s\"."
+msgstr ""
+"vous ne pouvez pas supprimer le choix \"%(choice)s\" car il est utilisé dans "
+"une condition par la question \"%(question)s\"."
+
+#: forms/poll_form.py:291 models/poll_form.py:176 models/poll_reply.py:100
+msgid "Use OR or AND between conditions"
+msgstr "Utiliser OU ou ET entre les conditions"
+
+#: forms/poll_form.py:292 models/poll_form.py:221
+msgid "AND"
+msgstr "ET"
+
+#: forms/poll_form.py:292 models/poll_form.py:221
+msgid "OR"
+msgstr "OU"
+
+#: forms/poll_form.py:295
+#: templates/polls/templatetags/block_pollform_lines.html:59
+msgid "Conditions"
+msgstr "Conditions"
+
+# in creme_core
+#: forms/poll_reply.py:41
+msgid "User"
+msgstr ""
+
+#: forms/poll_reply.py:42 models/campaign.py:31 models/poll_form.py:36
+#: models/poll_form.py:136 models/poll_reply.py:35 models/poll_reply.py:79
+#: models/poll_type.py:28 templates/polls/templatetags/block_preplies.html:22
+msgid "Name"
+msgstr "Nom"
+
+#: forms/poll_reply.py:43 models/poll_reply.py:39
+msgid "Related campaign"
+msgstr "Campagne liée"
+
+#: forms/poll_reply.py:44 views/portal.py:32
+msgid "Number of replies"
+msgstr "Nombre de réponses"
+
+#: forms/poll_reply.py:45
+msgid "Persons who filled"
+msgstr "Personnes qui ont rempli"
+
+#: forms/poll_reply.py:47
+msgid ""
+"Each reply will be linked to a person (and \"Number of replies\" will be "
+"ignored)"
+msgstr ""
+"Chaque réponse sera liée à une personne (et \"Nombre de réponses\" sera "
+"ignoré)"
+
+#: forms/poll_reply.py:51 models/poll_reply.py:36
+msgid "Related form"
+msgstr "Formulaire lié"
+
+#: forms/poll_reply.py:100
+msgid "The form must contain one line at least."
+msgstr "Le formulaire doit contenir au moins une ligne."
+
+#: forms/poll_reply.py:144
+msgid "Replies"
+msgstr "Réponses"
+
+#: forms/poll_reply.py:164 models/poll_form.py:177 models/poll_form.py:181
+#: models/poll_reply.py:101
+#: templates/polls/templatetags/block_pollform_lines.html:7
+#: views/poll_reply.py:160
+msgid "Question"
+msgstr "Question"
+
+#: forms/poll_reply.py:178
+msgid "Not applicable"
+msgstr "Sans objet"
+
+#: forms/poll_reply.py:197
+msgid "The answer is required."
+msgstr "La réponse est obligatoire."
+
+#: models/campaign.py:32
+msgid "Goal of the campaign"
+msgstr "But de la campagne"
+
+# in commercial
+#: models/campaign.py:33
+msgid "Start"
+msgstr ""
+
+# in commercial
+#: models/campaign.py:34
+msgid "Due date"
+msgstr ""
+
+#: models/campaign.py:35
+msgid "Related segment"
+msgstr "Segment lié"
+
+#: models/campaign.py:38
+msgid "Expected replies number"
+msgstr "Nombre de réponses attendu"
+
+#: models/campaign.py:40
+msgid "Add a campaign"
+msgstr "Ajouter une campagne"
+
+#: models/campaign.py:44
+msgid "Campaign of polls"
+msgstr "Campagne de sondages"
+
+#: models/campaign.py:45
+msgid "Campaigns of polls"
+msgstr "Campagnes de sondage"
+
+#: models/poll_form.py:39
+msgid "Add a form"
+msgstr "Ajouter un formulaire"
+
+#: models/poll_form.py:43
+msgid "Form of poll"
+msgstr "Formulaire de sondage"
+
+#: models/poll_form.py:44
+msgid "Forms of poll"
+msgstr "Formulaires de sondage"
+
+#: models/poll_form.py:137 models/poll_reply.py:80
+msgid "Section body"
+msgstr "Corps de section"
+
+#: models/poll_form.py:141 models/poll_reply.py:84
+msgid "Section"
+msgstr "Section"
+
+#: models/poll_form.py:142 models/poll_reply.py:85
+msgid "Sections"
+msgstr "Sections"
+
+#: models/poll_form.py:160
+msgid "There is at least one question in this section."
+msgstr "Il y a au moins une question dans cette section."
+
+#: models/poll_form.py:182
+#: templates/polls/templatetags/block_pollform_lines.html:7
+msgid "Questions"
+msgstr "Questions"
+
+#: models/poll_form.py:201 models/poll_form.py:210
+msgid "There is at least one other question which depends on this question."
+msgstr "Il y a au moins une autre question qui dépend de celle-ci."
+
+#: models/poll_form.py:207
+msgid "This question is already disabled."
+msgstr "Cette question est déjà désactivée."
+
+#: models/poll_reply.py:42
+msgid "Person who filled"
+msgstr "Personne qui a rempli"
+
+#: models/poll_reply.py:50
+msgid "Is complete"
+msgstr "Est complet"
+
+#: models/poll_reply.py:53
+#: templates/polls/templatetags/block_campaign_preplies.html:12
+#: templates/polls/templatetags/block_person_preplies.html:12
+#: templates/polls/templatetags/block_preplies.html:13
+msgid "Add replies"
+msgstr "Ajouter des réponses"
+
+#: models/poll_reply.py:57
+#: templates/polls/templatetags/block_person_preplies.html:6
+#: templates/polls/templatetags/block_preplies.html:6
+msgid "Form reply"
+msgstr "Réponse à un formulaire"
+
+#: models/poll_reply.py:99
+msgid "Applicable"
+msgstr "Applicable"
+
+#: models/poll_reply.py:102 models/poll_reply.py:135 views/poll_reply.py:163
+msgid "Answer"
+msgstr "Réponse"
+
+#: models/poll_type.py:32
+msgid "Type of poll"
+msgstr "Type de sondage"
+
+#: models/poll_type.py:33
+msgid "Types of poll"
+msgstr "Types de sondage"
+
+#: templates/polls/portal.html:5
+msgid "Polls portal"
+msgstr "Portail des sondages"
+
+#: templates/polls/portal.html:7
+msgid "List of forms"
+msgstr "Liste des formulaires"
+
+#: templates/polls/stats.html:6
+msgid "Poll statistics"
+msgstr "Statistiques de sondage"
+
+#: templates/polls/stats.html:11
+msgid "Statistics"
+msgstr "Statistiques"
+
+#: templates/polls/stats.html:65
+#: templates/polls/templatetags/block_pollform_lines.html:82
+msgid "No question or section for the moment"
+msgstr "Pas de question ou de section pour le moment"
+
+#: templates/polls/view_pollform.html:7
+msgid "View statistics"
+msgstr "Voir les statistiques"
+
+# in commercial
+#: templates/polls/templatetags/block_campaign_preplies.html:20
+msgid "Goal"
+msgstr ""
+
+#: templates/polls/templatetags/block_person_preplies.html:6
+#, python-format
+msgid "%s Filled form reply"
+msgstr "%s Réponse à un formulaire remplie "
+
+#: templates/polls/templatetags/block_person_preplies.html:6
+#, python-format
+msgid "%s Filled form replies"
+msgstr "%s Réponses à un formulaire remplies"
+
+#: templates/polls/templatetags/block_person_preplies.html:11
+msgid "Link to existing replies"
+msgstr "Lier à des réponses existantes"
+
+#: templates/polls/templatetags/block_pollform_lines.html:10
+#: templates/polls/templatetags/block_pollform_lines.html:28
+msgid "New question"
+msgstr "Nouvelle question"
+
+#: templates/polls/templatetags/block_pollform_lines.html:11
+msgid "New section"
+msgstr "Nouvelle section"
+
+#: templates/polls/templatetags/block_pollform_lines.html:29
+msgid "New sub-section"
+msgstr "Nouvelle sous-section"
+
+#: templates/polls/templatetags/block_pollform_lines.html:48
+msgid "Disable"
+msgstr "Désactiver"
+
+#: templates/polls/templatetags/block_pollform_lines.html:51
+msgid "Can't disable"
+msgstr "Désactivation interdite"
+
+#: templates/polls/templatetags/block_pollform_lines.html:65
+msgid "Edit conditions"
+msgstr "Modifier les conditions"
+
+#: templates/polls/templatetags/block_pollform_lines.html:69
+msgid "Add conditions"
+msgstr "Ajouter des conditions"
+
+#: templates/polls/templatetags/block_pollreply_lines.html:7
+msgid "Questions and Answers"
+msgstr "Questions et Réponses"
+
+#: templates/polls/templatetags/block_pollreply_lines.html:7
+msgid "Answers"
+msgstr "Réponses"
+
+#: templates/polls/templatetags/block_pollreply_lines.html:14
+#: templates/polls/templatetags/block_preplies.html:23
+#: templates/polls/templatetags/block_preplies.html:33
+msgid "Fill"
+msgstr "Remplir"
+
+#: templates/polls/templatetags/block_pollreply_lines.html:14
+#: templates/polls/templatetags/block_pollreply_lines.html:18
+msgid "Fill the Form Reply"
+msgstr "Remplir les réponses"
+
+#: templates/polls/templatetags/block_pollreply_lines.html:18
+#: templates/polls/templatetags/block_preplies.html:37
+msgid "Can't fill"
+msgstr "Remplissage interdit"
+
+#: templates/polls/templatetags/block_pollreply_lines.html:24
+msgid "Clean"
+msgstr "Nettoyer"
+
+#: templates/polls/templatetags/block_pollreply_lines.html:24
+#: templates/polls/templatetags/block_pollreply_lines.html:28
+msgid "Clean all answers"
+msgstr "Effacer toutes les réponses"
+
+#: templates/polls/templatetags/block_pollreply_lines.html:28
+msgid "Can't clean"
+msgstr "Nettoyage interdit"
+
+#: templates/polls/templatetags/block_pollreply_lines.html:55
+#: views/poll_reply.py:149
+msgid "N/A"
+msgstr "Sans objet"
+
+#: templates/polls/templatetags/block_pollreply_lines.html:72
+msgid "No question or section"
+msgstr "Pas de question ou de section"
+
+#: templates/polls/templatetags/block_preplies.html:6
+#, python-format
+msgid "%s Reply"
+msgstr "%s Réponses"
+
+#: templates/polls/templatetags/block_preplies.html:6
+#, python-format
+msgid "%s Replies"
+msgstr "%s Réponses"
+
+#: templates/polls/templatetags/block_preplies.html:41
+msgid "Already filled"
+msgstr "Déjà rempli"
+
+#: templates/polls/templatetags/block_preplies.html:49
+msgid "No related reply for the moment"
+msgstr "Pas de réponse reliée pour le moment"
+
+#: templatetags/polls_tags.py:41
+#, python-format
+msgid "The answer to the question #%(number)s contains «%(answer)s»."
+msgstr "La réponse à la question n°%(number)s contient «%(answer)s»."
+
+#: templatetags/polls_tags.py:44
+#, python-format
+msgid "The answer to the question #%(number)s is «%(answer)s»."
+msgstr "La réponse à la question n°%(number)s est «%(answer)s»."
+
+#: templatetags/polls_tags.py:76
+msgid "No available answer"
+msgstr "Pas de réponse disponible"
+
+#: views/poll_form.py:65 views/poll_form.py:136
+#, python-format
+msgid "New question for <%s>"
+msgstr "Nouvelle question pour <%s>"
+
+#: views/poll_form.py:71
+#, python-format
+msgid "Question for <%s>"
+msgstr "Question pour <%s>"
+
+#: views/poll_form.py:104
+#, python-format
+msgid "Condition for <%s>"
+msgstr "Condition pour <%s>"
+
+#: views/poll_form.py:111 views/poll_form.py:126
+#, python-format
+msgid "New section for <%s>"
+msgstr "Nouvelle section pour <%s>"
+
+#: views/poll_form.py:117
+#, python-format
+msgid "Section for <%s>"
+msgstr "Section pour <%s>"
+
+#: views/poll_reply.py:82 views/poll_reply.py:97 views/poll_reply.py:117
+#, python-format
+msgid "New replies for <%s>"
+msgstr "Nouvelles réponses pour <%s>"
+
+#: views/poll_reply.py:143
+#, python-format
+msgid "Existing replies for <%s>"
+msgstr "Réponses existantes pour <%s>"
+
+#: views/poll_reply.py:159
+msgid "Reminder of the previous answered question :"
+msgstr "Rappel de la Question/Réponse précédente :"
+
+#: views/poll_reply.py:224 views/poll_reply.py:276
+#, python-format
+msgid "Answers of the form : %s"
+msgstr "Réponses à un formulaire : %s"
+
+#: views/poll_reply.py:239
+msgid "All questions have been answered."
+msgstr "Les questions ont déjà toute une réponse."
+
+#: views/poll_reply.py:347
+msgid "Answer edition"
+msgstr "Modification de réponse"
+
+#: views/portal.py:31
+msgid "Number of forms"
+msgstr "Nombre de formulaires"
+
+#~ msgid "Linked persons"
+#~ msgstr "Personne liée"
+
+#~ msgid "Related person"
+#~ msgstr "Personne liée"
+
+#~ msgid "Add a reply"
+#~ msgstr "Ajouter une réponse"
+
+#~ msgid "New reply"
+#~ msgstr "Ajouter une réponse"

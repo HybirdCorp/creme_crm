@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 1.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-07-18 17:13+0200\n"
+"POT-Creation-Date: 2013-07-09 16:03+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -200,7 +200,7 @@ msgstr "Enlever le début (N caractères)"
 msgid "Remove the end (N characters)"
 msgstr "Enlever la fin (N caractères)"
 
-#: core/batch_process.py:93 forms/fields.py:654 forms/fields.py:655
+#: core/batch_process.py:93 forms/fields.py:655 forms/fields.py:656
 #: forms/widgets.py:337 models/base.py:42
 #: templates/creme_core/generics/blockform/add_popup.html:27
 #: templates/creme_core/generics/form/add.html:4
@@ -412,7 +412,7 @@ msgstr "Ce type de resource n'est pas autorisé."
 msgid "This entity is invalid."
 msgstr "Cette fiche est invalide."
 
-#: forms/entity_filter.py:652 forms/fields.py:837
+#: forms/entity_filter.py:652 forms/fields.py:838
 msgid "This filter is invalid."
 msgstr "Ce filtre est invalide."
 
@@ -482,42 +482,42 @@ msgstr "Utiliser \"OU\" entre les conditions (sinon \"ET\" est utilisé)."
 msgid "The filter must have at least one condition."
 msgstr "Le filtre doit avoir au moins une condition."
 
-#: forms/fields.py:66
+#: forms/fields.py:67
 msgid "Invalid format"
 msgstr "Format invalide"
 
-#: forms/fields.py:67 forms/fields.py:214 forms/fields.py:358
-#: forms/fields.py:577 forms/fields.py:775
+#: forms/fields.py:68 forms/fields.py:215 forms/fields.py:359
+#: forms/fields.py:578 forms/fields.py:776
 msgid "This entity doesn't exist."
 msgstr "Cette fiche n'existe pas."
 
-#: forms/fields.py:212 forms/fields.py:836
+#: forms/fields.py:213 forms/fields.py:837
 msgid "This content type is not allowed."
 msgstr "Ce type de resource n'est pas autorisé'."
 
-#: forms/fields.py:213 forms/fields.py:355 forms/fields.py:835
+#: forms/fields.py:214 forms/fields.py:356 forms/fields.py:836
 msgid "The content type is required."
 msgstr "Le type de resource est obligatoire."
 
-#: forms/fields.py:215 forms/fields.py:357 forms/fields.py:578
+#: forms/fields.py:216 forms/fields.py:358 forms/fields.py:579
 msgid "The entity is required."
 msgstr "La fiche est obligatoire."
 
-#: forms/fields.py:353
+#: forms/fields.py:354
 msgid "This type of relationship doesn't exist."
 msgstr "Ce type de relation n'existe pas."
 
-#: forms/fields.py:354
+#: forms/fields.py:355
 msgid "This type of relationship causes a constraint error."
 msgstr "Ce type de relation provoque une erreur de contrainte."
 
-#: forms/fields.py:356
+#: forms/fields.py:357
 msgid "This content type cause constraint error with the type of relationship."
 msgstr ""
 "Ce type de resource provoque une erreur de contrainte avec le type de "
 "relation"
 
-#: forms/fields.py:359
+#: forms/fields.py:360
 msgid ""
 "This entity has no property that matches the constraints of the type of "
 "relationship."
@@ -525,49 +525,57 @@ msgstr ""
 "Cette fiche n'a aucune propriété qui convient avec les contrainte de type de "
 "relation"
 
-#: forms/fields.py:641
+#: forms/fields.py:642
 msgid "Clear"
 msgstr "Effacer"
 
-#: forms/fields.py:655
+#: forms/fields.py:656
 #: templates/creme_core/templatetags/widgets/add_button.html:10
 #: templates/creme_core/templatetags/widgets/block_line_adder.html:9
 msgid "Can't add"
 msgstr "Création interdite"
 
-#: forms/fields.py:707
+#: forms/fields.py:708
 #, python-format
 msgid "Select a valid choice. %(value)s is not an available choice."
 msgstr ""
 "Sélectionnez un choix valide. %(value)s n'est pas un des choix disponibles."
 
-#: forms/fields.py:1067
+#: forms/fields.py:1068
 msgid ""
 "If you select customized you have to specify a start date and/or an end date."
 msgstr ""
 "Si vous sélectionnez 'Personnalisé' vous devez spécifier une date de début "
 "et/ou une date de fin."
 
-#: forms/fields.py:1068
+#: forms/fields.py:1069
 msgid "Start date has to be before end date."
 msgstr "La date début doit être avant la date de fin."
 
-#: forms/fields.py:1072 forms/widgets.py:235 forms/widgets.py:914
+#: forms/fields.py:1073 forms/widgets.py:235 forms/widgets.py:914
 msgid "Customized"
 msgstr "Personnalisé"
 
 #  Translated in Django ; leave untranslated here...
-#: forms/fields.py:1117
+#: forms/fields.py:1118
 msgid "Enter a whole number."
 msgstr ""
 
 #  Translated in Django ; leave untranslated here...
-#: forms/fields.py:1118
+#: forms/fields.py:1119
 #, python-format
 msgid "Ensure this value is greater than or equal to %(limit_value)s."
 msgstr ""
 
-#: forms/fields.py:1147
+#: forms/fields.py:1148
+msgid "Enter a value for \"Other\" choice."
+msgstr "Entrez une valeur pour le choix \"Autre\""
+
+#: forms/fields.py:1172
+msgid "Other"
+msgstr "Autre"
+
+#: forms/fields.py:1208
 msgid "Select a valid choice. That choice is not one of the available choices."
 msgstr ""
 "Sélectionnez un choix valide. Ce choix n'est pas un des choix disponibles."
@@ -1797,7 +1805,7 @@ msgid "Edit «%(object)s»"
 msgstr "Modifier «%(object)s»"
 
 # beware makemessages seems to add a '%' (msgid "Edit «%%s»") => remove it
-#: templates/creme_core/generics/blockform/edit.html:14
+#: templates/creme_core/generics/blockform/edit.html:16
 #, python-format
 msgid "Edit «%s»"
 msgstr "Modifier «%s»"

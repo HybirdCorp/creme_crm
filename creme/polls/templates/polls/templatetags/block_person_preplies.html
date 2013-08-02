@@ -1,0 +1,13 @@
+{% extends 'polls/templatetags/block_preplies.html'  %}
+{% load i18n %}
+{% load creme_core_tags creme_block %}
+
+{% block title %}
+    <th class="collapser label">{% get_block_title _('%s Filled form reply') _('%s Filled form replies') 'poll_48.png' _('Form reply') %}</th>
+{% endblock %}
+
+{% block line_adders %}
+    {% has_perm_to link object as link_perm %}{% has_perm_to create ct_reply as creation_perm %}
+    {% get_line_linker at_url '/polls/poll_reply/link_to_person/{{object.id}}' with_label _("Link to existing replies") with_perms link_perm %}
+    {% get_line_adder at_url '/polls/poll_reply/add_from_person/{{object.id}}' with_label _("Add replies") with_perms link_perm|and_op:creation_perm %}
+{% endblock  %}
