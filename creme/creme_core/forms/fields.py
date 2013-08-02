@@ -23,6 +23,7 @@ from copy import deepcopy
 from itertools import chain
 from re import compile as compile_re
 
+from django.db.models.query import QuerySet
 from django.forms import (Field, CharField, MultipleChoiceField, ChoiceField,
                           ModelChoiceField, DateField, TimeField, DateTimeField, IntegerField)
 from django.forms.util import ValidationError
@@ -34,13 +35,10 @@ from django.utils.simplejson import loads as jsonloads
 from django.utils.simplejson.encoder import JSONEncoder
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import validate_email
-from django.db.models.query import QuerySet
 
 from ..constants import REL_SUB_HAS
 from ..models import RelationType, CremeEntity, EntityFilter
-#from ..registry import creme_registry
-from ..utils import (creme_entity_content_types, Q_creme_entity_content_types,
-                     build_ct_choices, find_first)
+from ..utils import creme_entity_content_types, build_ct_choices, find_first
 from ..utils.collections import OrderedSet
 from ..utils.date_range import date_range_registry
 from ..utils.queries import get_q_from_dict
@@ -921,8 +919,7 @@ class FilteredEntityTypeField(JSONField):
         """Constructor.
         @param ctypes Allowed types.
                         - None : all CremeEntity types.
-                        - Sequence of ContentTypes ID.
-                        - A QuerySet of ContentTypes.
+                        - Sequence of ContentType IDs / isntances.
         """
         super(FilteredEntityTypeField, self).__init__(*args, **kwargs)
         self._empty_label = empty_label #TODO: setter property ??
@@ -932,10 +929,9 @@ class FilteredEntityTypeField(JSONField):
         return None, None
 
     def _clean_ctype(self, ctype_pk):
-        try:
-            return self._ctypes.get(pk=ctype_pk)
-        except ContentType.DoesNotExist:
-            pass
+        for ct in self._ctypes:
+            if ctype_pk == ct.id:
+                return ct
 
     @property
     def ctypes(self):
@@ -944,23 +940,23 @@ class FilteredEntityTypeField(JSONField):
     @ctypes.setter
     def ctypes(self, ctypes):
         if ctypes is None:
-            ctypes = Q_creme_entity_content_types()
-        elif not isinstance(ctypes, QuerySet):
-            ctypes = ContentType.objects.filter(pk__in=ctypes)
+            ctypes = list(creme_entity_content_types())
+        else:
+            ctypes = [ct_or_ctid if isinstance(ct_or_ctid, ContentType) else
+                      ContentType.objects.get_for_id(ct_or_ctid)
+                        for ct_or_ctid in ctypes
+                     ]
 
         self._ctypes = ctypes
 
         self._build_widget()
 
     def _create_widget(self):
-        #TODO: improve ChoiceModelIterator to manage empty_label ??
-        #return FilteredEntityTypeWidget(ChoiceModelIterator(self._ctypes))
-
         choices = []
         if self._empty_label is not None:
             choices.append((0, unicode(self._empty_label))) #TODO: improve widget to do not make a request for '0'
 
-        choices.extend(((ct.pk, unicode(ct)) for ct in self._ctypes.all()))
+        choices.extend(build_ct_choices(self._ctypes))
 
         return FilteredEntityTypeWidget(choices)
 

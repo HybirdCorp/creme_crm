@@ -1612,8 +1612,8 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
                                        )
 
     def test_clean_unallowed_ctype01(self):
-        "Allowed ContentTypes given as a queryset"
-        ctypes = ContentType.objects.filter(pk__in=[self.ct_contact.id])
+        "Allowed ContentTypes given as a list of ContentType instances"
+        ctypes = [self.ct_contact]
         error_msg = self.format_str % (self.ct_orga.id, '')
 
         field = FilteredEntityTypeField(ctypes=ctypes)
@@ -1634,7 +1634,7 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
                                        )
 
     def test_clean_unallowed_ctype02(self):
-        "Allowed ContentTypes given as a list"
+        "Allowed ContentTypes given as a list of ID"
         ctypes = [self.ct_contact.id]
         error_msg = self.format_str % (self.ct_orga.id, '')
 
@@ -1648,6 +1648,15 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
         field.ctypes = ctypes
         self.assertFieldValidationError(FilteredEntityTypeField, 'ctypenotallowed',
                                         field.clean, error_msg
+                                       )
+
+    def test_clean_unallowed_ctype03(self):
+        "Allowed ContentTypes given as a list of ID & instances"
+        ctypes = [self.ct_contact.id, self.ct_orga]
+
+        self.assertFieldValidationError(FilteredEntityTypeField, 'ctypenotallowed',
+                                        FilteredEntityTypeField(ctypes=ctypes).clean,
+                                        self.format_str % (ContentType.objects.get_for_model(Document).id, '')
                                        )
 
     def test_clean_unknown_efilter01(self):
@@ -1678,19 +1687,16 @@ class FilteredEntityTypeFieldTestCase(_JSONFieldBaseTestCase):
                         )
 
     def test_clean_only_ctype02(self):
-        "Allowed ContentTypes given as a queryset"
-        ct = self.ct_contact
-        field = FilteredEntityTypeField(ContentType.objects.filter(pk__in=[ct.id, self.ct_orga.id]))
-        self.assertEqual((self.ct_contact, None),
-                         field.clean(self.format_str % (self.ct_contact.id, ''))
-                        )
+        "Allowed ContentTypes given as a sequence of instance/id"
+        ct_contact = self.ct_contact
+        ct_orga    = self.ct_orga
 
-    def test_clean_only_ctype03(self):
-        "Allowed ContentTypes given as a list"
-        ct = self.ct_contact
-        field = FilteredEntityTypeField(ctypes=[ct.id, self.ct_orga.id])
-        self.assertEqual((ct, None),
-                         field.clean(self.format_str % (ct.id, ''))
+        field = FilteredEntityTypeField([ct_contact, ct_orga.id])
+        self.assertEqual((ct_contact, None),
+                         field.clean(self.format_str % (ct_contact.id, ''))
+                        )
+        self.assertEqual((ct_orga, None),
+                         field.clean(self.format_str % (ct_orga.id, ''))
                         )
 
     def test_clean_with_filter01(self):
