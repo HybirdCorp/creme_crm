@@ -29,6 +29,9 @@ from django.utils.dateparse import parse_datetime
 from django.utils.timezone import get_current_timezone, make_aware, is_naive
 
 
+def date_2_dict(d):
+    return {'year': d.year, 'month': d.month, 'day': d.day}
+
 #creme_tz = pytz.timezone(settings.TIME_ZONE)
 #utc_tz   = pytz.utc
 

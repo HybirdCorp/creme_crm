@@ -28,10 +28,10 @@ from django.forms import (Field, CharField, MultipleChoiceField, ChoiceField,
 from django.forms.util import ValidationError
 from django.forms.widgets import Select, Textarea
 from django.forms.fields import EMPTY_VALUES, MultiValueField, RegexField
+from django.utils.encoding import smart_unicode
 from django.utils.translation import ugettext_lazy as _
 from django.utils.simplejson import loads as jsonloads
 from django.utils.simplejson.encoder import JSONEncoder
-from django.utils.encoding import smart_unicode
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import validate_email
 from django.db.models.query import QuerySet
@@ -39,14 +39,16 @@ from django.db.models.query import QuerySet
 from ..constants import REL_SUB_HAS
 from ..models import RelationType, CremeEntity, EntityFilter
 #from ..registry import creme_registry
-from ..utils import creme_entity_content_types, Q_creme_entity_content_types, build_ct_choices
-from ..utils.queries import get_q_from_dict
+from ..utils import (creme_entity_content_types, Q_creme_entity_content_types,
+                     build_ct_choices, find_first)
+from ..utils.collections import OrderedSet
 from ..utils.date_range import date_range_registry
-from .widgets import (CTEntitySelector, EntitySelector, FilteredEntityTypeWidget, 
+from ..utils.queries import get_q_from_dict
+from .widgets import (CTEntitySelector, EntitySelector, FilteredEntityTypeWidget,
                       SelectorList, RelationSelector, ActionButtonList,
                       ListViewWidget, ListEditionWidget, 
                       CalendarWidget, TimeWidget, DateRangeWidget,
-                      ColorPickerWidget, DurationWidget)
+                      ColorPickerWidget, DurationWidget, ChoiceOrCharWidget)
 
 
 __all__ = ('GenericEntityField', 'MultiGenericEntityField',
@@ -123,7 +125,7 @@ class JSONField(CharField):
             raise ValidationError(self.error_messages['invalidformat'])
 
         if expected_type is not None and data is not None and not isinstance(data, expected_type):
-            raise ValidationError(self.error_messages['invalidtype']) #TODO: invalid type ??
+            raise ValidationError(self.error_messages['invalidtype'])
 
         return data
 
@@ -287,6 +289,7 @@ class GenericEntityField(JSONField):
 
 
 #TODO: Add a q_filter, see utilization in EntityEmailForm
+#TODO: propose to allow duplicates ???
 class MultiGenericEntityField(GenericEntityField):
     value_type = list
 
@@ -297,17 +300,14 @@ class MultiGenericEntityField(GenericEntityField):
         return SelectorList(CTEntitySelector(self._get_ctypes_options(self.get_ctypes()), multiple=True))
 
     def _value_to_jsonifiable(self, value):
-        #return [entry if not isinstance(entry, CremeEntity) else
-                #{'ctype': entry.entity_type_id, 'entity': entry.id}
-                    #for entry in value
-                #]
         return map(super(MultiGenericEntityField, self)._value_to_jsonifiable, value)
 
     def _value_from_unjsonfied(self, data):
-        entities_map = defaultdict(list)
+        entities_pks = OrderedSet() #in order to keep the global order (left by defaultdict)
+        entities_by_ctype = defaultdict(list)
         clean_value = self.clean_value
 
-        #TODO : the entities order can be lost, see for refactor.-
+        #group entity PKs by ctype, in order to make efficient queries
         for entry in data:
             ctype_pk = clean_value(entry, 'ctype', int, required=False)
             if not ctype_pk:
@@ -317,28 +317,27 @@ class MultiGenericEntityField(GenericEntityField):
             if not entity_pk:
                 continue
 
-            entities_map[ctype_pk].append(entity_pk)
+            entities_pks.add(entity_pk)
+            entities_by_ctype[ctype_pk].append(entity_pk)
 
-        entities = []
+        entities = {}
 
         #build the list of entities (ignore invalid entries)
-        for ct_id, entity_pks in entities_map.iteritems():
-            ctype = self._clean_ctype(ct_id)
-            ctype_entities = dict((entity.pk, entity)
-                                    for entity in ctype.model_class()
-                                                       .objects
-                                                       .filter(is_deleted=False, pk__in=entity_pks)
-                                 )
+        for ct_id, ctype_entity_pks in entities_by_ctype.iteritems():
+            ctype_entities = self._clean_ctype(ct_id).model_class() \
+                                                     .objects \
+                                                     .filter(is_deleted=False) \
+                                                     .in_bulk(ctype_entity_pks)
 
-            if not all(entity_pk in ctype_entities for entity_pk in entity_pks):
+            if not all(pk in ctype_entities for pk in ctype_entity_pks):
                 raise ValidationError(self.error_messages['doesnotexist'])
 
-            entities.extend(ctype_entities.itervalues())
+            entities.update(ctype_entities)
 
         if not entities:
             return self._return_list_or_raise(self.required)
 
-        return entities
+        return [entities[pk] for pk in entities_pks]
 
 
 class ChoiceModelIterator(object):
@@ -1217,6 +1216,66 @@ class DurationField(MultiValueField):
         seconds = seconds or 0
         return ':'.join([str(hours), str(minutes), str(seconds)])
 
+
+class ChoiceOrCharField(MultiValueField):
+    widget = ChoiceOrCharWidget
+
+    default_error_messages = {
+        'invalid_other': _(u'Enter a value for "Other" choice.'),
+    }
+
+    def __init__(self, choices=(), *args, **kwargs):
+        """@param choices Sequence of tuples (id, value).
+                          BEWARE: id should not be a null value (like '', 0, etc..).
+        """
+        self.choice_field = choice_field = ChoiceField()
+        fields = (choice_field, CharField())
+
+        super(ChoiceOrCharField, self).__init__(fields=fields, *args, **kwargs)
+        self.original_required = self.required
+        self.required = False #MultiValueField.clean does not used the 'required' attr of internal fields
+                              #so the CharField could not return ''if self.required was True
+
+        self.choices = choices
+
+    @property
+    def choices(self):
+        return self._choices
+
+    @choices.setter
+    def choices(self, value):
+        """See ChoiceField._set_choices()"""
+        choices = [(0, _('Other'))]
+        choices.extend(value)
+        self._choices = self.choice_field.choices = self.widget.choices = choices
+
+    def compress(self, data_list):
+        index = None
+        strval = None
+
+        if data_list:
+            index = data_list[0]
+
+            if index == '0':
+                index = 0
+                strval = data_list[1]
+            elif index:
+                index, strval = find_first(self.choices, lambda item: str(item[0]) == index)
+
+        return (index, strval)
+
+    def clean(self, value):
+        value = super(ChoiceOrCharField, self).clean(value)
+
+        index = value[0]
+
+        if self.original_required and index is None:
+            raise ValidationError(self.error_messages['required'])
+
+        if index == 0 and not value[1]:
+            raise ValidationError(self.error_messages['invalid_other'])
+
+        return value
 
 class CTypeChoiceField(Field):
     "A ChoiceField whose choices are a ContentType instances."

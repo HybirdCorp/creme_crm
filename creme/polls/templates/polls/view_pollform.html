@@ -1,0 +1,10 @@
+{% extends "creme_core/generics/view_entity.html" %}
+{% load i18n %}
+{% load creme_core_tags %}
+
+{% block entity_buttons %}
+    <a href="/polls/poll_form/stats/{{object.id}}">
+        <img src="{% creme_media_url 'images/view_64.png' %}" title="{% trans "View statistics" %}" alt="{% trans "View statistics" %}"/>
+    </a>&nbsp;
+    {{block.super}}
+{% endblock %}

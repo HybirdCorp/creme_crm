@@ -1,0 +1,56 @@
+{% load i18n %}
+{% load creme_core_tags creme_block creme_widgets %}
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
+    {% get_block_header colspan=2 %}
+        {% block title %}
+            <th class="collapser label">{% get_block_title _('%s Reply') _('%s Replies') 'poll_48.png' _('Form reply') %}</th>
+        {% endblock %}
+        <th class="actions">
+            {% if propose_creation %}
+                <div class="buttons">
+                    {% block line_adders %}
+                        {% has_perm_to link object as link_perm %}{% has_perm_to create ct_reply as creation_perm %}
+                        {% get_line_adder at_url '/polls/poll_reply/add_from_pform/{{object.id}}' with_label _("Add replies") with_perms link_perm|and_op:creation_perm %}
+                    {% endblock  %}
+                </div>
+            {% endif %}
+        </th>
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+        {% if page.paginator.count %}
+            <tr class="header">
+                {% get_column_header _('Name') 'name' %}
+                <th class="block_header_line_dark action">{% trans "Fill" %}</th>
+            </tr>
+            {% for preply in page.object_list %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
+                <tr class="content">
+                    <td class="{{row_color}}">{% widget_entity_hyperlink preply user %}</td>
+                    <td class="{{row_color}} action">
+                        {% if not preply.is_complete %}
+                            {% has_perm_to change preply as fill_perm %}
+                            {% if fill_perm %}
+                                <a class="add" href="/polls/poll_reply/fill/{{preply.id}}">
+                                    <img src="{% creme_media_url 'images/edit_22.png' %}" border="0" title="{% trans "Fill" %}" alt="{% trans "Fill" %}" />
+                                </a>
+                            {% else %}
+                                <span class="add forbidden">
+                                    <img src="{% creme_media_url 'images/edit_22.png' %}" border="0" title="{% trans "Can't fill" %}" alt="{% trans "Can't fill" %}" />
+                                </span>
+                            {% endif %}
+                        {% else %}
+                            {% trans "Already filled" %}
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        {% else %}
+            {% block empty_footer %}
+                <tr class="content empty">
+                    <td class="block_line_dark">{% trans "No related reply for the moment" %}</td>
+                </tr>
+            {% endblock %}
+        {% endif %}
+        {% block extra_info %}{% endblock %}
+    </tbody>
+    {% get_block_footer 2 %}
+</table>

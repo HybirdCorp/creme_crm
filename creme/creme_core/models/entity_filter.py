@@ -35,7 +35,7 @@ from django.utils.timezone import now
 
 from ..utils.meta import is_date_field, get_model_field_info
 from ..utils.date_range import date_range_registry
-from ..utils.dates import make_aware_dt
+from ..utils.dates import make_aware_dt, date_2_dict
 from .relation import RelationType, Relation
 from .custom_field import CustomField
 from .fields import CremeUserForeignKey, CTypeForeignKey
@@ -43,8 +43,8 @@ from .fields import CremeUserForeignKey, CTypeForeignKey
 
 logger = logging.getLogger(__name__)
 
-def date_2_dict(d): #move to utils ???
-    return {'year': d.year, 'month': d.month, 'day': d.day}
+#def date_2_dict(d): #move to utils ???
+    #return {'year': d.year, 'month': d.month, 'day': d.day}
 
 
 class EntityFilterList(list):

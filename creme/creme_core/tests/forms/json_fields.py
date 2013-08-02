@@ -384,13 +384,33 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         orga    = self.create_orga()
 
         field = MultiGenericEntityField(models=[Organisation, Contact])
-        entities = field.clean('[{"ctype":"%s","entity":"%s"}, {"ctype":"%s","entity":"%s"}]' % (
-                                    contact.entity_type_id, contact.pk,
-                                    orga.entity_type_id,    orga.pk
-                                )
-                              )
-        self.assertEqual(2, len(entities))
-        self.assertEqual(set([contact, orga]), set(entities))
+        self.assertEqual([contact, orga],
+                         field.clean('[{"ctype":"%s","entity":"%s"},'
+                                     ' {"ctype":"%s","entity":"%s"}]' % (
+                                            contact.entity_type_id, contact.pk,
+                                            orga.entity_type_id,    orga.pk
+                                        )
+                                    )
+                        )
+
+    def test_clean_duplicates(self):
+        "Duplicates are removed"
+        self.login()
+        contact = self.create_contact()
+        orga    = self.create_orga()
+
+        field = MultiGenericEntityField(models=[Organisation, Contact])
+        self.assertEqual([contact, orga], # <= contact once
+                         field.clean('[{"ctype":"%(contact_ctid)s","entity":"%(contact_id)s"},'
+                                     ' {"ctype":"%(orga_ctid)s","entity":"%(orga_id)s"},'
+                                     ' {"ctype":"%(contact_ctid)s","entity":"%(contact_id)s"}]'% {
+                                            'contact_ctid': contact.entity_type_id,
+                                            'contact_id':   contact.pk,
+                                            'orga_ctid':    orga.entity_type_id,
+                                            'orga_id':      orga.pk,
+                                        }
+                                    )
+                        )
 
     def test_clean_incomplete_not_required(self):
         "Not required"
@@ -402,18 +422,18 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual([], clean('[{"ctype": "%s"}]' % contact.entity_type_id))
         self.assertEqual([], clean('[{"ctype": "%s", "entity": null}]' % contact.entity_type_id))
 
-        entities = clean('[{"ctype": "%s"},'
-                         ' {"ctype": "%s", "entity": null},'
-                         ' {"ctype": "%s", "entity": "%s"},'
-                         ' {"ctype": "%s", "entity": "%s"}]' % (
-                                     contact.entity_type_id,
-                                     contact.entity_type_id,
-                                     contact.entity_type_id, contact.pk,
-                                     orga.entity_type_id, orga.pk,
+        self.assertEqual([contact, orga], 
+                         clean('[{"ctype": "%s"},'
+                               ' {"ctype": "%s", "entity": null},'
+                               ' {"ctype": "%s", "entity": "%s"},'
+                               ' {"ctype": "%s", "entity": "%s"}]' % (
+                                        contact.entity_type_id,
+                                        contact.entity_type_id,
+                                        contact.entity_type_id, contact.pk,
+                                        orga.entity_type_id, orga.pk,
                                     )
+                              )
                         )
-        self.assertEqual(2, len(entities))
-        self.assertEqual(set([contact, orga]), set(entities))
 
     def test_clean_incomplete_required(self):
         "Required -> 'friendly' errors :)"
@@ -424,22 +444,22 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         clean = MultiGenericEntityField(models=[Organisation, Contact], required=True).clean
         self.assertFieldValidationError(RelationEntityField, 'required', clean,
                                         '[{"ctype": "%s"}, {"ctype": "%s", "entity": null}]' % (
-                                             contact.entity_type_id,
-                                             contact.entity_type_id,
+                                                contact.entity_type_id,
+                                                contact.entity_type_id,
                                             )
                                        )
-        entities = clean('[{"ctype": "%s"},'
-                         ' {"ctype": "%s", "entity": null},'
-                         ' {"ctype": "%s", "entity": "%s"},'
-                         ' {"ctype": "%s", "entity":"%s"}]' % (
-                               contact.entity_type_id,
-                               contact.entity_type_id,
-                               contact.entity_type_id, contact.pk,
-                               orga.entity_type_id, orga.pk,
+        self.assertEqual([contact, orga],
+                         clean('[{"ctype": "%s"},'
+                               ' {"ctype": "%s", "entity": null},'
+                               ' {"ctype": "%s", "entity": "%s"},'
+                               ' {"ctype": "%s", "entity":"%s"}]' % (
+                                        contact.entity_type_id,
+                                        contact.entity_type_id,
+                                        contact.entity_type_id, contact.pk,
+                                        orga.entity_type_id, orga.pk,
+                                    )
                               )
                         )
-        self.assertEqual(2, len(entities))
-        self.assertEqual(set([contact, orga]), set(entities))
 
     def test_autocomplete_property(self):
         field = MultiGenericEntityField()

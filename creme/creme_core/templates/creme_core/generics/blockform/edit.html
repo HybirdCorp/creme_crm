@@ -11,6 +11,12 @@
 {% endblock %}
 
 {% block content %}
-    {% trans 'Edit «%s»' as fmt %}
-    {% include "creme_core/generics/blockform/base.html" with logo='images/edit_64.png' title=object|format:fmt %}
+    {% with logo='images/edit_64.png' %}
+        {% if not title %}
+            {% trans 'Edit «%s»' as fmt %}
+            {% include "creme_core/generics/blockform/base.html" with title=object|format:fmt %}
+        {% else %}
+            {% include "creme_core/generics/blockform/base.html" %}
+        {% endif %}
+    {% endwith %}
 {% endblock %}

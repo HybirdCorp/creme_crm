@@ -1,0 +1,70 @@
+{% extends "creme_core/base.html" %}
+{% load i18n %}
+{% load creme_core_tags creme_block %}
+{% load polls_tags %}
+
+{% block page_title %} - {% trans "Poll statistics" %}{% endblock %}
+
+{% block content %}
+    <table class="table_detail_view ui-corner-all with-header">
+        {% get_block_header colspan=1 %}
+            <th class="collapser label">{% get_basic_block_header _('Statistics') 'info_48.png' _('Statistics') %}</th>
+        {% end_get_block_header %}
+        <tbody class="table_detail_view ui-corner-all with-header ui-creme-widget ui-creme-scrollactivator widget-auto" widget="ui-creme-scrollactivator">
+            {% for node in nodes %}<!--{% cycle "block_line_dark" "block_line_light" as row_color %}-->
+                <tr class="content">
+                    {% if node.is_section %}
+                        <td class="block_header_line_dark" style="{% print_node_css style node %}">
+                            <div style="float:left; width:{{node.deep|mult:3}}%; height:1px"></div>
+                            <div style="float:left;">
+                                <strong>{% print_node_number style node %})&nbsp;{% print_field object=node field='name' %}</strong>
+                            </div>
+                        </td>
+                    {% else %}
+                        <td class="{{row_color}}" style="{% print_node_css style node %}">
+                            <div style="float:left; width:{{node.deep|mult:3}}%; height:1px"></div>
+                            {% if node.answer_stats %}
+                            <div style="float:left; width:{{node.deep|mult:-3|add:50}}%;">
+                            {% else %}
+                            <div style="float:left; width:{{node.deep|mult:-3|add:100}}%;">
+                            {% endif %}
+                                <table style="width: 100%;">
+                                    <thead>
+                                        <tr><th colspan="3">
+                                            <div style="position: relative;">
+	                                            <div style="text-align:left;float:left;width:70%;color:black;">
+	                                                {% print_node_number style node %}&nbsp;-&nbsp;{{node.question|linebreaksbr}}
+	                                            </div>
+	                                            <div style="float:right;text-align:right;font-weight: normal;">
+	                                                {{node.poll_line_type.verbose_name}}
+	                                            </div>
+                                            </div>
+                                        </th></tr>
+                                    </thead>
+                                    <tbody class="table_detail_view ui-corner-all">
+                                        {% for answer, count, percent in node.answer_stats %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
+                                        <tr class="content">
+                                            <th class="block_header_line_light" style="text-align:left;font-weight: normal;">{{answer}}</th>
+                                            <td class="{{row_color}}" style="text-align:right;width:6em;">{{count}}</td>
+                                            <td class="{{row_color}}" style="text-align:right;width:5em;">{{percent}} %</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% if node.answer_stats %}
+                            <div style="float:left; width:50%;">
+                                {% print_node_chart node 160 %}
+                            </div>
+                            {% endif %}
+                        </td>
+                    {% endif %}
+                </tr>
+            {% empty %}
+                <tr class="content empty">
+                    <td class="block_line_dark">{% trans "No question or section for the moment" %}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

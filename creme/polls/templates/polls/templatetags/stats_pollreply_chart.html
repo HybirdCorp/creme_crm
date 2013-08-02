@@ -1,0 +1,30 @@
+<div class="ui-widget-content ui-creme-widget ui-creme-jqueryplot" widget="ui-creme-jqueryplot" style="width:{{chart_width}}px; height:{{chart_height}}px; padding:2px;border:0px;" plotmode="raster" savable="true">
+    <script type="text/json">
+    {
+        "options": {
+             "seriesDefaults": {
+                 "shadow": false,
+                 "renderer": "jqplot.PieRenderer", 
+                 "rendererOptions": {
+                     "showDataLabels": true,
+                     "padding": 25,
+                     "diameter": {{chart_diameter}},
+                     "dataLabels": "value",
+                     "dataLabelPositionFactor": 1.0,
+                     "dataLabelNudge": 7,
+                     "dataLabelCenterOn": false,
+                     "dataLabelThreshold": 5
+                 }
+             },
+             "legend": {
+                 "show": true, 
+                 "location": "e",
+                 "xoffset": 5,
+                 "fontSize": "11px",
+                 "labels": {{chart_labels}}
+             }
+         },
+         "data": {{chart_data}}
+    }
+    </script>
+</div>

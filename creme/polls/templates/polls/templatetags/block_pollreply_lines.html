@@ -1,0 +1,74 @@
+{% load i18n %}
+{% load creme_core_tags creme_block %}
+{% load polls_tags %}
+{% has_perm_to change object as has_perm %}
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
+    {% get_block_header colspan=3 %}
+        <th class="collapser label">{% get_basic_block_header _('Questions and Answers') 'info_48.png' _('Answers') %}</th>
+        <th class="actions">
+            <div class="buttons">
+                {% if not object.is_complete %}{% comment %}{% if object.line_order %}{% endcomment %}
+                    {% if has_perm %}
+                        <a class="add" href="/polls/poll_reply/fill/{{object.id}}">
+                            <img src="{% creme_media_url 'images/edit_22.png' %}" border="0" title="{% trans "Fill" %}" alt="{% trans "Fill" %}" />{% trans "Fill the Form Reply" %}
+                        </a>
+                    {% else %}
+                        <span class="add forbidden">
+                            <img src="{% creme_media_url 'images/edit_22.png' %}" border="0" title="{% trans "Can't fill" %}" alt="{% trans "Can't fill" %}" />{% trans "Fill the Form Reply" %}
+                        </span>
+                    {% endif %}
+                {% else %}
+                    {% if has_perm %}
+                        <a class="negative" onclick="creme.utils.ajaxDelete('/polls/poll_reply/clean', {'id' : {{object.id}} }, {complete: function(req, st){if(st!='error'){creme.utils.loadBlock({% get_block_reload_uri %});}creme.utils.loading('loading', true);}});">
+                            <img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{% trans "Clean" %}" alt="{% trans "Clean" %}">{% trans "Clean all answers" %}
+                        </a>
+                    {% else %}
+                        <span class="negative forbidden">
+                            <img src="{% creme_media_url 'images/delete_22.png' %}" border="0" title="{% trans "Can't clean" %}" alt="{% trans "Can't clean" %}">{% trans "Clean all answers" %}
+                        </span>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </th>
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+        {% for node in nodes %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
+            <tr class="content">
+                {% if node.is_section %}
+                    <td class="block_header_line_dark" style="{% print_node_css style node %}" colspan="3">
+                        <div style="float:left; width:{{node.deep|mult:10}}%; height:1px"></div>
+                        <div style="float:left;">
+                            <strong>{% print_node_number style node %})&nbsp;{% print_field object=node field='name' %}</strong>
+                            {% print_field object=node field='body' %}
+                        </div>
+                    </td>
+                {% else %}
+                    <td class="{{row_color}}" style="{% print_node_css style node %}">
+                        <div style="float:left; width:{{node.deep|mult:10}}%; height:1px"></div>
+                        <div style="float:left;">
+                            {% if node.number %}{% print_node_number style node %}&nbsp;-&nbsp;{% endif %}{{node.question|linebreaksbr}}
+                        </div>
+                    </td>
+                    <td class="{{row_color}}" style="{% print_node_css style node %}">
+                        {% if not node.applicable %}
+                            <em>{% trans "N/A" %}<em>
+                        {% else %}{% if node.type == 101 %}{% comment %}MULTI_ENUM{% endcomment %}
+                            <ul>{% for item in node.answer %}<li>{{item}}</li>{% endfor %}</ul>
+                        {% else %}
+                            {{node.answer|default_if_none:''|linebreaksbr}}
+                        {% endif %}{% endif %}
+                    </td>
+                    <td class="{{row_color}}" style="{% print_node_css style node %}">
+                        {% if node.conditions_are_met %}
+                            {% get_line_editor at_url '/polls/poll_reply/{{object.id}}/line/{{node.id}}/edit' with_perms has_perm %}
+                        {% endif %}
+                    </td>
+                {% endif %}
+            </tr>
+        {% empty %}
+            <tr class="content empty">
+                <td class="block_line_dark">{% trans "No question or section" %}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

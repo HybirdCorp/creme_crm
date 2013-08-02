@@ -92,6 +92,8 @@ class _CremeTestCase(object):
         logged = self.client.login(username=self.user.username, password=password)
         self.assertTrue(logged, 'Not logged in')
 
+        return self.user
+
     @classmethod
     def populate(cls, *args):
         PopulateCommand().handle(*args, verbosity=0)

@@ -1,0 +1,86 @@
+{% load i18n %}
+{% load creme_core_tags creme_block creme_widgets %}
+{% load polls_tags %}
+{% has_perm_to change object as has_perm %}
+<table class="table_detail_view ui-corner-all with-header {{state.classes}}" id="{{block_name}}">
+    {% get_block_header colspan=1 %}
+        <th class="collapser label">{% get_basic_block_header _('Questions') 'info_48.png' _('Question') %}</th>
+        <th class="actions">
+            <div class="buttons">
+                {% get_line_adder at_url '/polls/poll_form/{{object.id}}/add/line' with_label _("New question") with_perms has_perm %}
+                {% get_line_adder at_url '/polls/poll_form/{{object.id}}/add/section' with_label _("New section") with_perms has_perm %}
+            </div>
+        </th>
+    {% end_get_block_header %}
+    <tbody class="collapsable">
+        {% for node in nodes %}{% cycle "block_line_dark" "block_line_light" as row_color silent %}
+            <tr class="content">
+                {% if node.is_section %}
+                    <td class="block_header_line_dark" style="{% print_node_css style node %}">
+                        <div style="float:left; width:{{node.deep|mult:10}}%; height:1px"></div>
+                        <div style="float:left;">
+                            <h3>{% print_node_number style node %})&nbsp;{% print_field object=node field='name' %}</h3>
+                            {% print_field object=node field='body' %}
+                            {% get_line_editor at_url '/polls/pform_section/{{node.id}}/edit' with_perms has_perm %}
+                            {% if not node.has_line %}
+                                {% get_line_deletor at_url '/creme_core/entity/delete_related/{{section_ct_id}}' with_args "{'id' : {{node.id}} }" with_perms has_perm %}
+                            {% endif %}
+                            {% get_line_adder at_url '/polls/pform_section/{{node.id}}/add/line' with_label _("New question") with_perms has_perm %}
+                            {% get_line_adder at_url '/polls/pform_section/{{node.id}}/add/child' with_label _("New sub-section") with_perms has_perm %}
+                        </div>
+                    </td>
+                {% else %}
+                    <td class="{{row_color}}" style="{% print_node_css style node %}">
+                        <div style="float:left; width:{{node.deep|mult:10}}%; height:1px"></div>
+                        <div style="float:left;">
+                            {% if node.disabled %}
+                                <div class="forbidden">{{node.question|linebreaksbr}}&nbsp;[{{node.poll_line_type.description}}]</div>
+                            {% else %}
+                                {% with number=node.number %}
+                                    <strong>{% if number %}{% print_node_number style node %}&nbsp;-&nbsp;{% endif %}{{node.question|linebreaksbr}}</strong>
+                                    <p>[{{node.poll_line_type.description}}]</p>
+                                    <p>
+                                        {% with conditions=node.get_conditions no_deps=node.get_reversed_conditions|length_is:"0" %}
+                                            {% get_line_editor at_url '/polls/pform_line/{{node.id}}/edit' with_perms has_perm %}
+
+                                            {% if has_perm|and_op:no_deps %}
+                                                <a class="pointer" onclick="creme.utils.ajaxDelete('/polls/pform_line/{{node.id}}/disable', {}, {complete:function(req, st){if(st!='error'){creme.utils.loadBlock({% get_block_reload_uri %});}creme.utils.loading('loading', true);}});">
+                                                    <img src="{% creme_media_url 'images/cancel_22.png' %}" border="0" title="{% trans "Disable" %}" alt="{% trans "Disable" %}">
+                                                </a>
+                                            {% else %}
+                                                <img class="forbidden" src="{% creme_media_url 'images/cancel_22.png' %}" border="0" title="{% trans "Can't disable" %}" alt="{% trans "Can't disable" %}">
+                                            {% endif %}
+
+                                            {% get_line_deletor at_url '/creme_core/entity/delete_related/{{line_ct_id}}' with_args "{'id' : {{node.id}} }" with_perms has_perm|and_op:no_deps %}
+                                            {% if number != 1 %}
+                                                {% if conditions %}
+                                                    {% with OR_or_AND=node.verbose_conds_use_or %}
+                                                        <fieldset>
+                                                            <legend>{% trans "Conditions" %}</legend>
+                                                            <ul>
+                                                                {% for condition in conditions %}
+                                                                    <li>{% if not forloop.first %}{{OR_or_AND}} : {% endif %}{% print_line_condition nodes condition %}</li>
+                                                                {% endfor %}
+                                                            </ul>
+                                                            {% get_line_adder at_url '/polls/pform_line/{{node.id}}/conditions/edit' with_label _("Edit conditions") with_perms has_perm %}
+                                                        </fieldset>
+                                                    {% endwith %}
+                                                {% else %}
+                                                    {% get_line_adder at_url '/polls/pform_line/{{node.id}}/conditions/edit' with_label _("Add conditions") with_perms has_perm %}
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endwith %}
+                                    </p>
+                                {% endwith %}
+                            {% endif %}
+                        </div>
+                    </td>
+                {% endif %}
+            </tr>
+        {% empty %}
+            <tr class="content empty">
+                <td class="block_line_dark">{% trans "No question or section for the moment" %}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

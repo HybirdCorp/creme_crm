@@ -969,3 +969,25 @@ class DurationWidget(MultiWidget):
                       }
 
 
+class ChoiceOrCharWidget(MultiWidget):
+    def __init__(self, attrs=None, choices=()):
+        self.select_widget = select = Select(choices=choices)
+        super(ChoiceOrCharWidget, self).__init__((select, TextInput()), attrs)
+
+    @property
+    def choices(self):
+        return self.select_widget.choices
+
+    @choices.setter
+    def choices(self, choices):
+        self.select_widget.choices = choices
+
+    def decompress(self, value):
+        if value:
+            return value[0], value[1]
+
+        return None, None
+
+    #def format_output(self, rendered_widgets):
+        #return u'<div>%s</div>' % (u''.join(u'<div>%s</div>' % w for w in rendered_widgets))
+

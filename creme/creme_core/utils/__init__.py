@@ -85,6 +85,18 @@ def create_if_needed(model, get_dict, **attrs):
 
     return instance
 
+def update_model_instance(obj, **fields): #TODO: django 1.5: save only modified fields
+    """Update the field values of an instance, and save it only if it has changed."""
+    save = False
+
+    for f_name, f_value in fields.iteritems():
+        if getattr(obj, f_name) != f_value:
+            setattr(obj, f_name, f_value)
+            save = True
+
+    if save:
+        obj.save()
+
 def update_model_instance(obj, **fields):
     """Update the field values of an instance, and save it only if it has changed."""
     save = False
@@ -161,6 +173,18 @@ def find_first(iterable, function, *default):
 
     raise IndexError
 
+def split_filter(predicate, iterable):
+    ok = []
+    ko = []
+
+    for x in iterable:
+        if predicate(x):
+            ok.append(x)
+        else:
+            ko.append(x)
+
+    return ok, ko
+
 def entities2unicode(entities, user):
     """Return a unicode objects representing a sequence of CremeEntities,
     with care of permissions.
@@ -185,6 +209,26 @@ def bool_from_str(string):
         return b
 
     raise ValueError('Can not be coerced to a boolean value: %s' % str(string))
+
+
+_I2R_NUMERAL_MAP = [(1000, 'M'),  (900, 'CM'), (500, 'D'),  (400, 'CD'), (100, 'C'),
+                    (90,   'XC'), (50,  'L'),  (40,  'XL'), (10,  'X'),  (9,   'IX'),
+                    (5,    'V'),  (4,   'IV'), (1,   'I'),
+                   ]
+
+#thx to: http://www.daniweb.com/software-development/python/code/216865/roman-numerals-python
+def int_2_roman(i):
+    "Convert an integer to its roman representation (string)"
+    assert i < 4000
+
+    result = []
+
+    for value, numeral in _I2R_NUMERAL_MAP:
+        while i >= value:
+            result.append(numeral)
+            i -= value
+
+    return ''.join(result)
 
 def truncate_str(str, max_length, suffix=""):
     if max_length <= 0:

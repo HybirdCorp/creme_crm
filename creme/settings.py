@@ -198,6 +198,7 @@ INSTALLED_CREME_APPS = (
     #creme.'cti',
     'creme.activesync',
     'creme.vcfs',
+    #'creme.polls',
 )
 
 
