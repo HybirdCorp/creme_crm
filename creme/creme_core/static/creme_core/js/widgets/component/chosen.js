@@ -93,7 +93,6 @@ creme.widget.component.Chosen.prototype = {
                     }
                 });
 
-                console.log(sorted.join(','))
                 element.attr('sorted', sorted.join(','));
             }
         });
