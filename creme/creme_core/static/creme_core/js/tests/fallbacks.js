@@ -134,9 +134,31 @@ test('fallbacks.Object.isType (function)', function() {
 });
 
 test('fallbacks.Object.keys', function() {
+    equal(typeof Object.keys, 'function');
+    equal({}.keys, undefined);
+
     deepEqual([], Object.keys({}));
     deepEqual(['a', 'b'], Object.keys({a:1, b:2}));
     deepEqual(['a', 'b', 'c', 'd', 'z'], Object.keys({a:1, b:2, c:5, d:7, z:8}));
+});
+
+test('fallbacks.Object.values', function() {
+    equal(typeof Object.values, 'function');
+    equal({}.values, undefined);
+
+    deepEqual([], Object.values({}));
+    deepEqual([1, 2], Object.values({a:1, b:2}));
+    deepEqual([1, 2, 5, 7, 8], Object.values({a:1, b:2, c:5, d:7, z:8}));
+});
+
+
+test('fallbacks.Object.entries', function() {
+    equal(typeof Object.entries, 'function');
+    equal({}.entries, undefined);
+
+    deepEqual([], Object.entries({}));
+    deepEqual([['a', 1], ['b', 2]], Object.entries({a:1, b:2}));
+    deepEqual([['a', 1], ['b', 2], ['c', 5], ['d', 7], ['z', 8]], Object.entries({a:1, b:2, c:5, d:7, z:8}));
 });
 
 test('fallbacks.Object.proxy (no context)', function() {
@@ -146,8 +168,10 @@ test('fallbacks.Object.proxy (no context)', function() {
     var proxy = Object.proxy(a);
 
     equal(a == proxy, false);
+    equal(a == proxy.__context__, true);
+
     equal(a.b, 5);
-    equal(proxy.b, undefined);
+    equal(proxy.__context__.b, 5);
 
     equal(a.add(2), 2 + 5);
     equal(proxy.add(2), 2 + 5);
@@ -163,8 +187,10 @@ test('fallbacks.Object.proxy (context)', function() {
     var proxy = Object.proxy(a, {b: 12});
 
     equal(a == proxy, false);
+    equal(a == proxy.__context__, false);
+
     equal(a.b, 5);
-    equal(proxy.b, 12);
+    equal(proxy.__context__.b, 12);
 
     equal(a.add(2), 2 + 5);
     equal(proxy.add(2), 2 + 12);
@@ -180,6 +206,10 @@ test('fallbacks.Object.proxy (filter)', function() {
     var proxy = Object.proxy(a, undefined, {filter: function(key) {return key !== 'mult';}});
 
     equal(a == proxy, false);
+    equal(a == proxy.__context__, true);
+
+    equal(a.b, 5);
+    equal(proxy.__context__.b, 5);
 
     equal(a.add(2), 2 + 5);
     equal(proxy.add(2), 2 + 5);
@@ -195,6 +225,10 @@ test('fallbacks.Object.proxy (filter, context)', function() {
     var proxy = Object.proxy(a, {b: 12}, {filter: function(key) {return key !== 'mult';}});
 
     equal(a == proxy, false);
+    equal(a == proxy.__context__, false);
+
+    equal(a.b, 5);
+    equal(proxy.__context__.b, 12);
 
     equal(a.add(2), 2 + 5);
     equal(proxy.add(2), 2 + 12);
@@ -210,6 +244,7 @@ test('fallbacks.Object.proxy (arguments)', function() {
     var proxy = Object.proxy(a, undefined, {arguments: function(args) {return [args[0] * 0.8];}});
 
     equal(a == proxy, false);
+    equal(a == proxy.__context__, true);
 
     equal(a.add(2), 2 + 5);
     equal(proxy.add(2), (2 * 0.8) + 5);
@@ -283,32 +318,6 @@ test('fallbacks.Object.getPrototypeOf (object)', function() {
     equal(Object.getPrototypeOf(b).constructor, MockObjectB, 'b.constructor');
 });
 
-test('fallbacks.Object._super (object)', function() {
-    equal(typeof Object._super, 'function');
-
-    var a = new MockObjectA(5);
-    var b = new MockObjectB(8, 3);
-
-    equal(b.add(2), (2 + 8)*3);
-    equal(b.mult(2), 2 * 8);
-
-    equal(Object._super(MockObjectB, b).add(2), 2 + 8);
-    equal(Object._super(MockObjectB, b).mult(2), 2 * 8);
-});
-
-test('fallbacks.Object._super (method)', function() {
-    equal(typeof Object._super, 'function');
-
-    var a = new MockObjectA(5);
-    var b = new MockObjectB(8, 3);
-
-    equal(b.add(2), (2 + 8)*3);
-    equal(b.mult(2), 2 * 8);
-
-    equal(Object._super(MockObjectB, b, 'add', 2), 2 + 8);
-    equal(Object._super(MockObjectB, b, 'mult', 2), 2 * 8);
-});
-
 test('fallbacks.Array.indexOf', function() {
     equal(typeof Array.prototype.indexOf, 'function');
     equal(typeof [].indexOf, 'function');
@@ -367,6 +376,46 @@ test('fallbacks.Array.isArray', function() {
 
     equal(Array.isArray({}), false);
     equal(Array.isArray({'test': 1}), false);
+});
+
+test('fallbacks.Array.copy', function() {
+    equal(typeof Array.copy, 'function');
+
+    deepEqual([], Array.copy([]));
+    deepEqual(['a', 'b'], Array.copy(['a', 'b']));
+
+    deepEqual(['b', 'c'], Array.copy(['a', 'b', 'c'], 1));
+    deepEqual([], Array.copy(['a', 'b', 'c'], 10));
+
+    deepEqual(['b'], Array.copy(['a', 'b', 'c'], 1, 2));
+    deepEqual([], Array.copy(['a', 'b', 'c'], 1, 1));
+    deepEqual(['b', 'c'], Array.copy(['a', 'b', 'c'], 1, 10));
+});
+
+test('fallbacks.Array.copy (arguments)', function() {
+    var f = function() {
+        return Array.copy(arguments);
+    };
+
+    var f_1 = function() {
+        return Array.copy(arguments, 1);
+    };
+
+    var f_1_2 = function() {
+        return Array.copy(arguments, 1, 2);
+    };
+
+    deepEqual([], f());
+    deepEqual(['a', 'b', 'c'], f('a', 'b', 'c'));
+    deepEqual([['a', 'b', 'c']], f(['a', 'b', 'c']));
+
+    deepEqual([], f_1());
+    deepEqual(['b', 'c'], f_1('a', 'b', 'c'));
+    deepEqual([], f_1(['a', 'b', 'c']));
+
+    deepEqual([], f_1_2());
+    deepEqual(['b'], f_1_2('a', 'b', 'c'));
+    deepEqual([], f_1_2(['a', 'b', 'c']));
 });
 
 if (jQuery === undefined)

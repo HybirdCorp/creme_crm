@@ -1,3 +1,21 @@
+/*******************************************************************************
+ Creme is a free/open-source Customer Relationship Management software
+ Copyright (C) 2009-2013  Hybird
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
+
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *******************************************************************************/
+
 
 (function() {
     function appendStatic(name, method)
@@ -5,24 +23,56 @@
         if(!Object[name])
             Object[name] = method;
     };
-    
+
     function append(name, method)
     {
         if(!Object.prototype[name])
             Object.prototype[name] = method;
     };
 
-    appendStatic('keys', function(obj) {
+    appendStatic('property', function(obj, key, value) {
+        if (value === undefined)
+            return obj[key];
+
+        obj[key] = value;
+        return obj;
+    });
+
+    appendStatic('keys', function(obj, all) {
         var keys = [];
         var key;
 
         for (key in obj) {
-            if (obj.hasOwnProperty(key)) {
+            if (all || obj.hasOwnProperty(key)) {
                 keys.push(key);
             }
         }
 
         return keys;
+    });
+
+    appendStatic('values', function(obj, all) {
+        values = [];
+
+        for(key in obj) {
+            if (all || obj.hasOwnProperty(key)) {
+                values.push(obj[key]);
+            }
+        }
+
+        return values;
+    });
+
+    appendStatic('entries', function(obj, all) {
+        entries = [];
+
+        for(key in obj) {
+            if (all || obj.hasOwnProperty(key)) {
+                entries.push([key, obj[key]]);
+            }
+        }
+
+        return entries;
     });
 
     appendStatic('isNone', function(obj) {
@@ -51,26 +101,16 @@
         return (typeof obj === 'function');
     });
 
-    var cloneArguments = function(args, start) {
-        var res = [];
-
-        for(var i = start || 0; i < args.length; ++i) {
-            res.push(args[i]);
-        }
-
-        return res;
-    };
-
     appendStatic('proxy', function(delegate, context, options) {
         if (Object.isNone(delegate))
             return;
 
         var options = options || {};
 
-        var proxy = context || {};
         var context = context || delegate;
+        var proxy = {__context__: context || {}};
         var filter = Object.isFunc(options.filter) ? options.filter : function() {return true}
-        var parameters = Object.isFunc(options.arguments) ? function(args) {return options.arguments(cloneArguments(args));} : cloneArguments;
+        var parameters = Object.isFunc(options.arguments) ? function(args) {return options.arguments(Array.copy(args));} : Array.copy;
 
         for(key in delegate)
         {
@@ -80,23 +120,14 @@
                 continue;
 
             // use a function to 'keep' the current loop step context
-            (function(fn, key, context) {
+            (function(proxy, fn, key) {
                 proxy[key] = function() {
-                    return fn.apply(context, parameters(arguments));
+                    return fn.apply(this.__context__, parameters(arguments));
                 };
-            })(value, key, context);
+            })(proxy, value, key);
         }
 
         return proxy;
-    });
-
-    appendStatic('_super', function(type, delegate, method) {
-        var proto = Object.getPrototypeOf(type.prototype);
-
-        if (method === undefined)
-            return Object.proxy(proto, delegate);
-
-        return proto[method].apply(delegate, cloneArguments(arguments, 3));
     });
 
     appendStatic('getPrototypeOf', function(object) {
