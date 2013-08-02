@@ -397,7 +397,7 @@ class RelationEntityField(JSONField):
 
     def _create_widget(self):
         return RelationSelector(self._get_options,
-                                '/creme_core/relation/predicate/${rtype}/content_types/json',
+                                '/creme_core/relation/type/${rtype}/content_types/json',
                                 autocomplete=self.autocomplete,
                                 attrs={'reset': not self.required},
                                )
@@ -466,7 +466,7 @@ class MultiRelationEntityField(RelationEntityField):
 
     def _create_widget(self):
         return SelectorList(RelationSelector(self._get_options,
-                                             '/creme_core/relation/predicate/${rtype}/content_types/json',
+                                             '/creme_core/relation/type/${rtype}/content_types/json',
                                              multiple=True,
                                              autocomplete=self.autocomplete
                                             )

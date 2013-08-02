@@ -151,7 +151,7 @@ class RelationSubfiltersConditionsWidget(SelectorList):
 
         rtype_name = 'rtype'
         ctype_name = 'ctype'
-        ctype_url  = '/creme_core/relation/predicate/${%s}/content_types/json' % rtype_name
+        ctype_url  = '/creme_core/relation/type/${%s}/content_types/json' % rtype_name
         filter_url = '/creme_core/entity_filter/get_for_ctype/${%s}' % ctype_name
 
         add_dselect = chained_input.add_dselect #TODO: functools.partial

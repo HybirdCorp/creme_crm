@@ -20,9 +20,12 @@
 
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, HttpResponseForbidden
+from django.shortcuts import render
 from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.utils.encoding import smart_unicode
+
+from creme.creme_core.core.exceptions import ConflictError
 
 
 class Beautiful403Middleware(object):
@@ -51,3 +54,16 @@ class Beautiful403Middleware(object):
                                                                         )
                                                          )
                                         )
+
+
+class Beautiful409Middleware(object):
+    def process_exception(self, request, exception):
+        if isinstance(exception, ConflictError):
+            msg = smart_unicode(exception)
+
+            if request.is_ajax():
+                return HttpResponse(msg, mimetype='text/javascript', status=409)
+
+            return render(request, 'creme_core/conflict_error.html',
+                          {'error_message': msg}, status=409,
+                         )

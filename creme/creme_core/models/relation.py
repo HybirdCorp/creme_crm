@@ -42,8 +42,8 @@ logger = logging.getLogger(__name__)
 
 class RelationType(CremeModel):
     """
-    If *_ctypes = null --> all contenttypes are valid.
-    If *_properties = null --> all properties are valid.
+    If *_ctypes = null --> all ContentTypes are valid.
+    If *_properties = null --> all CremeProperties are valid.
     """
     id = CharField(primary_key=True, max_length=100) #NB: convention: 'app_name-foobar'
                                                      #BEWARE: 'id' MUST only contain alphanumeric '-' and '_'
@@ -79,17 +79,8 @@ class RelationType(CremeModel):
     def delete(self):
         sym_type = self.symmetric_type
 
-        #RelationPredicate_i18n.objects.filter(relation_type__in=(self.pk, sym_type.pk)).delete()
-
         super(RelationType, sym_type).delete()
         super(RelationType, self).delete()
-
-    #def getCreateLang(self):
-        ##P = RelationPredicate_i18n.objects.get(predicate=self.predicate)
-        ##code = P.language_code
-        ###print 'LANG CODE : ', code
-        ##return code
-        #return 'FRA'
 
     @staticmethod
     def get_compatible_ones(ct, include_internals=False):
@@ -128,13 +119,6 @@ class RelationType(CremeModel):
 
             generate_string_id_and_save(RelationType, [sub_relation_type], pk_subject)
             generate_string_id_and_save(RelationType, [obj_relation_type], pk_object)
-
-        #TODO: i18n.....
-        #Commented 24 may 2011
-#        sub_relation_type.predicate_i18n_set.all().delete()
-#        obj_relation_type.predicate_i18n_set.all().delete()
-#        create_or_update(RelationPredicate_i18n, relation_type_id=pk_subject, language_code='FRA', text=pred_subject)
-#        create_or_update(RelationPredicate_i18n, relation_type_id=pk_subject, language_code='FRA', text=pred_subject)
 
         sub_relation_type.symmetric_type = obj_relation_type
         obj_relation_type.symmetric_type = sub_relation_type
@@ -182,15 +166,6 @@ class RelationType(CremeModel):
     def is_not_internal_or_die(self):
         if self.is_internal:
             raise Http404(ugettext("You can't add/delete the relationships with this type (internal type)"))
-
-#Commented 24 may 2011
-#class RelationPredicate_i18n(CremeModel):
-#    relation_type = ForeignKey(RelationType, related_name='predicate_i18n_set')
-#    language_code = CharField(max_length=5)
-#    text          = CharField(max_length=100)
-#
-#    class Meta:
-#        app_label = 'creme_core'
 
 
 #TODO: remove CremeAbstractEntity inheritage (user/modified not useful any more ??) ??
