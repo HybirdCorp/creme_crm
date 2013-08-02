@@ -20,7 +20,7 @@
 
 from datetime import datetime, time
 
-from django.utils.timezone import now, localtime
+from django.utils.timezone import localtime #now
 from django.utils.translation import ugettext_lazy as _
 
 from creme.creme_core.forms import CremeModelWithUserForm, CremeDateTimeField, CremeTimeField
@@ -30,7 +30,7 @@ from ..models import Action
 
 
 #TODO: alright, we need a real date time widget that this shit !
-class ActionEditForm(CremeModelWithUserForm):
+class ActionForm(CremeModelWithUserForm):
     deadline      = CremeDateTimeField(label=_(u"Deadline"))
     deadline_time = CremeTimeField(label=_(u'Hour'), required=False)
 
@@ -38,39 +38,24 @@ class ActionEditForm(CremeModelWithUserForm):
         model = Action
 
     def __init__(self, entity, *args, **kwargs):
-        super(ActionEditForm, self).__init__(*args, **kwargs)
-        self.entity = entity
+        super(ActionForm, self).__init__(*args, **kwargs)
+        self.instance.creme_entity = entity
 
-        #deadline = self.instance.deadline
-        #self.fields['deadline_time'].initial = deadline.time() if deadline else time()
         deadline = localtime(self.instance.deadline)
         self.fields['deadline_time'].initial = time(hour=deadline.hour,
                                                     minute=deadline.minute,
                                                    ) if deadline else time()
 
     def clean(self):
-        if self._errors:
-            return self.cleaned_data
+        cdata = self.cleaned_data
 
-        cleaned_data = self.cleaned_data
+        if not self._errors:
+            deadline_time = cdata.get('deadline_time')
 
-        #deadline = cleaned_data.get("deadline")
-        #deadline_time = cleaned_data.get('deadline_time') or time()
-        #cleaned_data["deadline"] = deadline.replace(hour=deadline_time.hour, minute=deadline_time.minute)
+            if deadline_time:
+                cdata['deadline'] = make_aware_dt(datetime.combine(cdata['deadline'],
+                                                                   deadline_time
+                                                                  )
+                                                 )
 
-        deadline_time = cleaned_data.get('deadline_time')
-        if deadline_time:
-            cleaned_data['deadline'] = make_aware_dt(datetime.combine(cleaned_data['deadline'], deadline_time))
-
-        return cleaned_data
-
-    def save(self, *args, **kwargs):
-        self.instance.creme_entity = self.entity
-        return super(ActionEditForm, self).save(*args, **kwargs)
-
-
-class ActionCreateForm(ActionEditForm):
-    def save(self, *args, **kwargs):
-        #self.instance.creation_date = datetime.today()
-        self.instance.creation_date = now()
-        return super(ActionCreateForm, self).save(*args, **kwargs)
+        return cdata

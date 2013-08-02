@@ -18,27 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.utils.timezone import now
-
 from creme.creme_core.forms import CremeModelWithUserForm
 
 from ..models import Memo
 
 
-class MemoEditForm(CremeModelWithUserForm):
+class MemoForm(CremeModelWithUserForm):
     class Meta:
         model = Memo
 
     def __init__(self, entity, *args, **kwargs):
-        super(MemoEditForm, self).__init__(*args, **kwargs)
-        self.entity = entity
-
-    def save (self, *args, **kwargs):
-        self.instance.creme_entity = self.entity
-        return super(MemoEditForm, self).save(*args, **kwargs)
-
-
-class MemoCreateForm(MemoEditForm):
-    def save(self, *args, **kwargs):
-        self.instance.creation_date = now()
-        return super(MemoCreateForm, self).save(*args, **kwargs)
+        super(MemoForm, self).__init__(*args, **kwargs)
+        self.instance.creme_entity = entity

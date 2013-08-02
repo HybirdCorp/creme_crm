@@ -21,7 +21,7 @@
 from datetime import datetime, time
 
 from django.forms import TypedChoiceField
-from django.utils.timezone import now, localtime
+from django.utils.timezone import localtime
 from django.utils.translation import ugettext_lazy as _, ugettext
 
 from creme.creme_core.forms import CremeModelWithUserForm, CremeDateTimeField
@@ -30,7 +30,7 @@ from creme.creme_core.utils.dates import make_aware_dt
 from ..models import ToDo
 
 
-class ToDoEditForm(CremeModelWithUserForm):
+class ToDoForm(CremeModelWithUserForm):
     deadline      = CremeDateTimeField(label=_(u'Deadline'), required=False)
     deadline_hour = TypedChoiceField(label=_(u'Deadline hour'), coerce=int,
                                      choices=[(i, '%ih' % i) for i in xrange(0, 24)],
@@ -42,8 +42,8 @@ class ToDoEditForm(CremeModelWithUserForm):
         model = ToDo
 
     def __init__(self, entity, *args, **kwargs):
-        super(ToDoEditForm, self).__init__(*args, **kwargs)
-        self.entity = entity
+        super(ToDoForm, self).__init__(*args, **kwargs)
+        self.instance.creme_entity = entity
 
         deadline = self.instance.deadline
         if deadline:
@@ -70,13 +70,3 @@ class ToDoEditForm(CremeModelWithUserForm):
                                                      )
 
         return cdata
-
-    def save(self, *args, **kwargs):
-        self.instance.creme_entity = self.entity
-        return super(ToDoEditForm, self).save(*args, **kwargs)
-
-
-class ToDoCreateForm(ToDoEditForm):
-    def save(self, *args, **kwargs):
-        self.instance.creation_date = now()
-        return super(ToDoCreateForm, self).save(*args, **kwargs)

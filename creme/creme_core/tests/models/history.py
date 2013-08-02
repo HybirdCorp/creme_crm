@@ -324,9 +324,7 @@ about this fantastic animation studio."""
         "With auxiliary models"
         user = self.user
         gainax = Organisation.objects.create(user=user, name='Gainax')
-        ToDo.objects.create(user=user, creme_entity=gainax, title='Todo#1',
-                            creation_date=now(),
-                           )
+        ToDo.objects.create(user=user, creme_entity=gainax, title='Todo#1')
         old_count = HistoryLine.objects.count()
 
         gainax.delete()
@@ -554,9 +552,7 @@ about this fantastic animation studio."""
         nerv = Organisation.objects.create(user=user, name='Nerv')
         old_count = HistoryLine.objects.count()
 
-        ToDo.objects.create(user=user, creme_entity=nerv, title='Todo#1',
-                            creation_date=now(),
-                           )
+        ToDo.objects.create(user=user, creme_entity=nerv, title='Todo#1')
         hlines = self._get_hlines()
         self.assertEqual(old_count + 1, len(hlines))
 
@@ -570,9 +566,7 @@ about this fantastic animation studio."""
         "ToDo"
         user = self.user
         nerv = Organisation.objects.create(user=user, name='Nerv')
-        todo = ToDo.objects.create(user=user, creme_entity=nerv, title='Todo#1',
-                                   creation_date=now(),
-                                  )
+        todo = ToDo.objects.create(user=user, creme_entity=nerv, title='Todo#1')
         old_count = HistoryLine.objects.count()
 
         todo.description = 'Conquier the world'
@@ -706,9 +700,7 @@ about this fantastic animation studio."""
         "ToDo"
         user = self.user
         nerv = Organisation.objects.create(user=user, name='Nerv')
-        todo = ToDo.objects.create(user=user, creme_entity=nerv, title='Todo#1',
-                                   creation_date=now(),
-                                  )
+        todo = ToDo.objects.create(user=user, creme_entity=nerv, title='Todo#1')
         old_count = HistoryLine.objects.count()
 
         todo.delete()

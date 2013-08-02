@@ -28,16 +28,16 @@ from django.contrib.auth.decorators import login_required
 from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
 
 from ..models import Action
-from ..forms.action import ActionCreateForm, ActionEditForm
+from ..forms.action import ActionForm
 
 
 @login_required
 def add(request, entity_id):
-    return add_to_entity(request, entity_id, ActionCreateForm, _(u'New action for <%s>'))
+    return add_to_entity(request, entity_id, ActionForm, _(u'New action for <%s>'))
 
 @login_required
 def edit(request, action_id):
-    return edit_related_to_entity(request, action_id, Action, ActionEditForm, _(u"Action for <%s>"))
+    return edit_related_to_entity(request, action_id, Action, ActionForm, _(u"Action for <%s>"))
 
 @login_required
 def validate(request, action_id):

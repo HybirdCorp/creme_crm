@@ -25,7 +25,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
 
 from creme.creme_core.models import CremeModel, CremeEntity
-from creme.creme_core.models.fields import CremeUserForeignKey
+from creme.creme_core.models.fields import CremeUserForeignKey, CreationDateTimeField
 from creme.creme_core.signals import pre_merge_related
 
 
@@ -33,7 +33,7 @@ class Action(CremeModel):
     title               = CharField(_(u'Title'), max_length=200)
     is_ok               = BooleanField(_('Expected reaction has been done'), editable=False)
     description         = TextField(_(u'Source action'), blank=True, null=True)
-    creation_date       = DateTimeField(_(u'Creation date'), editable=False)
+    creation_date       = CreationDateTimeField(_(u'Creation date'), editable=False)
     expected_reaction   = TextField(_(u'Target action'), blank=True, null=True)
     deadline            = DateTimeField(_(u"Deadline"))
     validation_date     = DateTimeField(_(u'Validation date'), blank=True, null=True, editable=False)
