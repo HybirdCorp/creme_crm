@@ -16,16 +16,16 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-creme.component.Chosen = function(options) {
-    this.options = $.extend({
-        multiple:  false,
-        sortable:  false,
-        allow_single_deselect: true, 
-        no_results_text:       gettext("No result")
-    }, options || {});
-};
+creme.component.Chosen = creme.component.Component.sub({
+    _init_: function(options) {
+        this.options = $.extend({
+            multiple:  false,
+            sortable:  false,
+            allow_single_deselect: true, 
+            no_results_text:       gettext("No result")
+        }, options || {});
+    },
 
-creme.component.Chosen.prototype = {
     activate: function(element)
     {
         if (this.chosen !== undefined)
@@ -99,4 +99,4 @@ creme.component.Chosen.prototype = {
 
         choicelist.addClass('sortable').disableSelection();
     }
-};
+});

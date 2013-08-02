@@ -28,7 +28,7 @@ creme.component.extend = function(parent, content)
 
     // inherit parent prototype and add changes
     constructor.prototype = $.extend({}, parent.prototype, {
-        _init_: parent.prototype._init_ || function() {},
+        _init_: parent.prototype._init_ || function() {}
     }, content || {});
 
     // store parent prototype and force constructor (needed by some browsers).

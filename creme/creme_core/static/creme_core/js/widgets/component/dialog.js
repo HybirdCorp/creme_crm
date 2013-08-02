@@ -16,21 +16,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-creme.component.Dialog = function(options) {
-    this.options = $.extend({
-        url:       '',
-        debug:     false,
-        backend:   undefined,
-        resizable: true,
-        draggable: true,
-        width:     640,
-        height:    480,
-        open:      function() {},
-        close:     function() {}
-    }, options || {});
-};
+creme.component.Dialog = creme.component.Component.sub({
+    _init_: function(options) {
+        this.options = $.extend({
+            url:       '',
+            debug:     false,
+            backend:   undefined,
+            resizable: true,
+            draggable: true,
+            width:     640,
+            height:    480,
+            open:      function() {},
+            close:     function() {}
+        }, options || {});
+    },
 
-creme.component.Dialog.prototype = {
     _on_close: function(dialog)
     {
         dialog.dialog('close');
@@ -85,22 +85,21 @@ creme.component.Dialog.prototype = {
 
         return this;
     }
-};
+});
 
 
-creme.component.FormDialog = function(options) {
-    $.extend(this.options, {
-        success:  function() {},
-        validate: function(data, statusText, dataType) {
-            return $('form', $('<div>' + data + '</div>')).length == 0;
-        }
-    }, options || {});
-}
+creme.component.FormDialog = creme.component.Dialog.sub({
+    _init_: function(options) {
+        var options = $.extend({
+            success:  function() {},
+            validate: function(data, statusText, dataType) {
+                return $('form', $('<div>' + data + '</div>')).length == 0;
+            }
+        }, options || {})
 
-creme.component.FormDialog.prototype = new creme.component.Dialog();
-creme.component.FormDialog.prototype.constructor = creme.component.FormDialog;
+        this._super_(creme.component.Dialog, '_init_', options);
+    },
 
-$.extend(creme.component.FormDialog.prototype, {
     _on_submit: function(dialog, url)
     {
         var self = this;
@@ -135,7 +134,7 @@ $.extend(creme.component.FormDialog.prototype, {
             self._update_buttons("send", dialog, true);
         });
 
-        creme.component.Dialog.prototype._on_open.call(this, dialog, frame, options);
+        this._super_(creme.component.Dialog, '_on_open', dialog, frame, options);
     },
 
     _update_buttons: function(name, dialog, enabled)
@@ -154,7 +153,7 @@ $.extend(creme.component.FormDialog.prototype, {
     {
         var self = this;
 
-        creme.component.Dialog.prototype._populate_buttons.call(this, buttons, options);
+        this._super_()._populate_buttons(buttons, options);
 
         buttons[gettext('Send')] = {'name':'send',
                                     'text': gettext('Send'),
