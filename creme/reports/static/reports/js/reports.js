@@ -232,7 +232,7 @@ creme.reports.link_related_report = function(report_id, field_id, block_url) {
 }
 
 creme.reports.getContentTypeForPredicate = function(predicate, success_cb, error_cb) {
-    creme.ajax.json.get('/creme_core/relation/predicate/' + predicate + '/content_types/json',
+    creme.ajax.json.get('/creme_core/relation/type/' + predicate + '/content_types/json',
             {
                 fields:['id', 'unicode'],
                 sort:'name'

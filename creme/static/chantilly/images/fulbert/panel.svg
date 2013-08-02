@@ -16,7 +16,7 @@
    inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="panel.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   inkscape:export-filename="403_texture.png"
+   inkscape:export-filename="409_texture.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <metadata
@@ -67,11 +67,11 @@
      id="base"
      showgrid="false"
      inkscape:zoom="0.96484375"
-     inkscape:cx="282.31164"
+     inkscape:cx="151.20233"
      inkscape:cy="282.41976"
      inkscape:window-x="0"
      inkscape:window-y="31"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer5"
      inkscape:window-maximized="0" />
   <desc
      id="desc4">UV-Map from Object: panel. Exported from Blender3D with UV Exportscript</desc>
@@ -239,7 +239,7 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="text403"
-     style="display:inline">
+     style="display:none">
     <text
        xml:space="preserve"
        style="font-size:172.14581299px;font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:normal;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:0.94684388;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Purisa;-inkscape-font-specification:Purisa Light"
@@ -250,5 +250,20 @@
          id="tspan3730-8"
          x="157.51741"
          y="277.22791">403</tspan></text>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer5"
+     inkscape:label="text409">
+    <text
+       xml:space="preserve"
+       style="font-size:172.14581299px;font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;text-indent:0;text-align:start;text-decoration:none;line-height:normal;letter-spacing:normal;word-spacing:normal;text-transform:none;direction:ltr;block-progression:tb;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:0.94684388;fill-rule:nonzero;stroke:none;stroke-width:1px;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;font-family:Purisa;-inkscape-font-specification:Purisa Light"
+       x="157.51741"
+       y="277.22791"
+       id="text3728-8-4"><tspan
+         sodipodi:role="line"
+         id="tspan3730-8-3"
+         x="157.51741"
+         y="277.22791">409</tspan></text>
   </g>
 </svg>

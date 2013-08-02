@@ -26,7 +26,7 @@ entity_patterns = patterns('creme.creme_core.views.entity',
 
 relation_patterns = patterns('creme.creme_core.views.relation',
     (r'^add/(?P<subject_id>\d+)$',                                                                         'add_relations'),
-    (r'^add/(?P<subject_id>\d+)/(?P<relation_type_id>[\w-]+)$',                                            'add_relations'),
+    (r'^add/(?P<subject_id>\d+)/(?P<rtype_id>[\w-]+)$',                                                    'add_relations'),
     (r'^add_from_predicate/save$',                                                                         'add_relations_with_same_type'),
     (r'^add_to_entities/(?P<model_ct_id>\d+)/(?P<relations_types>([-_\w]+[,]*)+)/$',                       'add_relations_bulk'),#Beware of the order!!!
     (r'^add_to_entities/(?P<model_ct_id>\d+)/$',                                                           'add_relations_bulk'),
@@ -36,9 +36,9 @@ relation_patterns = patterns('creme.creme_core.views.relation',
     (r'^delete$',                                                                                          'delete'),
     (r'^delete/similar$',                                                                                  'delete_similar'),
     (r'^delete/all',                                                                                       'delete_all'),
-    (r'^entity/(?P<id>\d+)/json$',                                                                         'json_entity_get'),
-    (r'^entity/(?P<id>\d+)/predicates/json$',                                                              'json_entity_predicates'),
-    (r'^predicate/(?P<id>[\w-]+)/content_types/json$',                                                     'json_predicate_content_types'),
+    (r'^entity/(?P<entity_id>\d+)/json$',                                                                  'json_entity_get'),
+    (r'^entity/(?P<entity_id>\d+)/rtypes/json$',                                                           'json_entity_rtypes'),
+    (r'^type/(?P<rtype_id>[\w-]+)/content_types/json$',                                                    'json_rtype_ctypes'),
 )
 
 property_patterns = patterns('creme.creme_core.views.creme_property',

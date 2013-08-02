@@ -182,6 +182,33 @@ class EntityViewsTestCase(ViewsTestCase):
         #self.assertEqual(self.user.id, user)
         #self.assertEqual(ContentType.objects.get_for_model(CremeEntity).id, entity_type)
 
+    def test_json_entity_get01(self):
+        self.login()
+        url_fmt = '/creme_core/relation/entity/%s/json'
+        rei = Contact.objects.create(user=self.user, first_name='Rei', last_name='Ayanami')
+        nerv = Organisation.objects.create(user=self.user, name='Nerv')
+
+        url = url_fmt % rei.id
+        self.assertGET(400, url)
+
+        response = self.assertGET200(url, data={'fields': ['id']})
+        self.assertEqual([[rei.id]], simplejson.loads(response.content))
+
+        response = self.assertGET200(url, data={'fields': ['unicode']})
+        self.assertEqual([[unicode(rei)]], simplejson.loads(response.content))
+
+        response = self.assertGET200(url_fmt % nerv.id, data={'fields': ['id', 'unicode']})
+        self.assertEqual([[nerv.id, unicode(nerv)]], simplejson.loads(response.content))
+
+        self.assertGET(400, url_fmt % 1024)
+        self.assertGET403(url, data={'fields': ['id', 'unknown']})
+
+    def test_json_entity_get02(self):
+        self.login(is_superuser=False)
+
+        nerv = Organisation.objects.create(user=self.other_user, name='Nerv')
+        self.assertGET(400, '/creme_core/relation/entity/%s/json' % nerv.id)
+
     def test_get_creme_entities_repr(self): #TODO: test with no permissons
         self.login()
 

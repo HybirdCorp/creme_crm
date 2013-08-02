@@ -636,7 +636,7 @@ class RelationExtractorSelector(SelectorList):
 
         add = partial(chained_input.add_dselect, attrs=attrs)
         add("rtype",       options=relation_types, label=ugettext(u"The entity"))
-        add("ctype",       options='/creme_core/relation/predicate/${rtype}/content_types/json')
+        add("ctype",       options='/creme_core/relation/type/${rtype}/content_types/json')
         add("searchfield", options='/creme_core/entity/get_info_fields/${ctype}/json',
             label=ugettext(u"which field")
            )

@@ -20,169 +20,142 @@
 
 from collections import defaultdict
 
+from django.core.exceptions import PermissionDenied
 from django.db.models.query_utils import Q
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, get_list_or_404, redirect
-from django.utils.simplejson.encoder import JSONEncoder
 from django.utils.translation import ugettext as _
 from django.contrib.auth.decorators import login_required
-from django.contrib.contenttypes.models import ContentType
 
+from ..core.exceptions import ConflictError
 from ..forms.relation import RelationCreateForm, MultiEntitiesRelationCreateForm
 from ..models import Relation, RelationType, CremeEntity, EntityCredentials
-from ..registry import creme_registry
-from ..utils import get_from_POST_or_404, get_ct_or_404
+from ..utils import get_from_POST_or_404, get_ct_or_404, creme_entity_content_types, jsonify
 from .generic import inner_popup, list_view_popup_from_widget
 
 
-class JSONSelectError(Exception):
-    def __init__(self, message, status):
-        super(Exception, self).__init__(message)
-        self.status = status
+def _fields_values(instances, getters, range, sort_getter=None):
+    start, end = range
+    result = []
 
-def _json_select(query, fields, range, sort_field=None, use_columns=False):
-    try:
-        start, end = range
+    def values(i):
+        return [getter(i) for getter in getters]
 
-        if not use_columns:
-            result = []
+    if sort_getter:
+        sorted_result = [(sort_getter(instance), values(instance)) for instance in instances]
+        sorted_result.sort(key=lambda x: x[0])
+        result.extend(e[1] for e in sorted_result[start:end])
+    else:
+        result.extend(values(instance) for instance in instances[start:end])
 
-            if sort_field:
-                sorted_result = [(sort_field(entity), [getter(entity) for getter in fields]) for entity in query]
-                sorted_result.sort(cmp=lambda a, b:cmp(a[0], b[0])) #TODO: use 'key' param instead
-                result = [e[1] for e in sorted_result[start:end]]
-            else:
-                for entity in query[start:end]:
-                    result.append([getter(entity) for getter in fields]) #TODO: use extend + genexpr ?
-        else:
-            query = query.order_by(sort_field) if sort_field else query
-            flat = len(fields) == 1
-            result = list(query.values_list(flat=flat, *fields)[start:end])
+    return result
 
-        return JSONEncoder().encode(result) #TODO: move out the 'try' block
-    except Exception as err:
-        raise JSONSelectError(unicode(err), 500)
-
-def _json_parse_field(field, allowed_fields, use_columns=False):
-    if field not in allowed_fields.keys():
-        raise JSONSelectError("forbidden field '%s'" % field, 403)
-
-    if use_columns:
-        return field
-
+def _clean_getters_arg(field, allowed_fields):
     getter = allowed_fields.get(field)
 
     if not getter:
-        raise JSONSelectError("forbidden fields '%s'" % field, 403)
+        raise PermissionDenied("Forbidden field '%s'" % field)
 
     return getter
 
-def _json_parse_fields(fields, allowed_fields, use_columns=False):
-    if not fields:
-        raise JSONSelectError("no such field", 400)
+def _clean_fields_values_args(data, allowed_fields):
+    if not data:
+        raise ValueError('Not such parameter')
 
-    #return list(_json_parse_field(field, allowed_fields, use_columns) for field in fields)
-    return [_json_parse_field(field, allowed_fields, use_columns) for field in fields]
+    get = data.get
+    range = [int(i) if i is not None else None for i in (get('start'), get('end'))]
+    getters = [_clean_getters_arg(field, allowed_fields) for field in data.getlist('fields')]
 
-def _json_parse_select_request(request, allowed_fields):
-    if not request:
-        raise JSONSelectError("not such parameter", 400)
+    if not getters:
+        raise ValueError('No such field')
 
-    use_columns = bool(request.get('value_list', 0))
-    range = [int(i) if i is not None else None for i in (request.get('start'), request.get('end'))]
-    fields = _json_parse_fields(request.getlist('fields'), allowed_fields, use_columns)
-    sort = request.get('sort')
-    sort = _json_parse_field(sort, allowed_fields, use_columns) if sort is not None else None
+    sort_getter = get('sort')
+    if sort_getter is not None:
+        sort_getter = _clean_getters_arg(sort_getter, allowed_fields)
 
-    return (fields, range, sort, use_columns)
+    return getters, range, sort_getter
+
 
 JSON_ENTITY_FIELDS = {'unicode':     unicode,
                       'id':          lambda e: e.id,
                       'entity_type': lambda e: e.entity_type_id
                      }
 
+#TODO: move to entity.py, (rename ?) & change also url
 @login_required
-def json_entity_get(request, id):
-    try:
-        fields, range, sort, use_columns = _json_parse_select_request(request.GET, JSON_ENTITY_FIELDS)
-        query = EntityCredentials.filter(request.user, CremeEntity.objects.filter(pk=id))
-        return HttpResponse(_json_select(query, fields, (0, 1), sort, use_columns), mimetype="text/javascript") #TODO: move out the 'try' block
-    except JSONSelectError as err:
-        return HttpResponse(err.message, mimetype="text/javascript", status=err.status)
+@jsonify
+def json_entity_get(request, entity_id):
+    getters, range, sort = _clean_fields_values_args(request.GET, JSON_ENTITY_FIELDS)
+    query = EntityCredentials.filter(request.user, CremeEntity.objects.filter(pk=entity_id))
+
+    return _fields_values(query, getters, (0, 1), sort)
+
 
 JSON_PREDICATE_FIELDS = {'unicode': unicode,
                          'id':      lambda e: e.id
                         }
 
 @login_required
-def json_entity_predicates(request, id):
-    try:
-        predicates = _get_entity_predicates(request, id)
-        parameters = _json_parse_select_request(request.GET, JSON_PREDICATE_FIELDS)
-        return HttpResponse(_json_select(predicates, *parameters), mimetype="text/javascript")
-    except JSONSelectError as err:
-        return HttpResponse(err.message, mimetype="text/javascript", status=err.status)
-    except Http404 as err:
-        return HttpResponse(err, mimetype="text/javascript", status=404)
-    except Exception as err:
-        return HttpResponse(err, mimetype="text/javascript", status=500)
+@jsonify
+def json_entity_rtypes(request, entity_id): #TODO: seems unused
+    entity = get_object_or_404(CremeEntity, pk=entity_id)
+    request.user.has_perm_to_view_or_die(entity)
+
+    #TODO: use CremePropertyType constraints too
+    rtypes = RelationType.objects.filter(is_internal=False) \
+                                 .filter(Q(subject_ctypes=entity.entity_type) |
+                                         Q(subject_ctypes__isnull=True)
+                                        ) \
+                                 .order_by('predicate') \
+                                 .distinct() #TODO: distinct useful ??
+
+    #TODO: use unicode collation ?
+
+    return _fields_values(rtypes, *_clean_fields_values_args(request.GET, JSON_PREDICATE_FIELDS))
+
 
 JSON_CONTENT_TYPE_FIELDS = {'unicode':  unicode,
-                            'name':     lambda e: e.name,
+                            #'name':     lambda e: e.name, #deprecated field
                             'id':       lambda e: e.id
                            }
 
 @login_required
-def json_predicate_content_types(request, id):
-    try:
-        content_types = get_object_or_404(RelationType, pk=id).object_ctypes.all()
-        fields, range, sort, use_columns = _json_parse_select_request(request.GET, JSON_CONTENT_TYPE_FIELDS)
+@jsonify
+def json_rtype_ctypes(request, rtype_id):
+    content_types = get_object_or_404(RelationType, pk=rtype_id).object_ctypes.all()
+    getters, range, sort = _clean_fields_values_args(request.GET, JSON_CONTENT_TYPE_FIELDS)
 
-        if not content_types:
-            content_type_from_model = ContentType.objects.get_for_model
-            content_types = [content_type_from_model(model) for model in creme_registry.iter_entity_models()]
-            return HttpResponse(_json_select(content_types, fields, range, sort))
+    if not content_types:
+        content_types = list(creme_entity_content_types())
 
-        return HttpResponse(_json_select(content_types, fields, range, sort, use_columns), mimetype="text/javascript")
-    except JSONSelectError as err:
-        return HttpResponse(err.message, mimetype="text/javascript", status=err.status)
-    except Http404 as err:
-        return HttpResponse(err, mimetype="text/javascript", status=404)
-    except Exception as err:
-        return HttpResponse(err, mimetype="text/javascript", status=500)
-
-def _get_entity_predicates(request, id):
-    #entity = get_object_or_404(CremeEntity, pk=id).get_real_entity()
-    entity = get_object_or_404(CremeEntity, pk=id)
-
-    request.user.has_perm_to_view_or_die(entity)
-
-    predicates = RelationType.objects.filter(is_internal=False).order_by('predicate')
-
-    #TODO: use CremePropertyType constraints too
-    return predicates.filter(Q(subject_ctypes=entity.entity_type)|Q(subject_ctypes__isnull=True)).distinct()
+    return _fields_values(content_types, getters, range, sort)
 
 @login_required
-def add_relations(request, subject_id, relation_type_id=None):
+def add_relations(request, subject_id, rtype_id=None):
     """
-        NB: In case of relation_type_id=None is internal relation type is verified in RelationCreateForm clean
+        NB: In case of rtype_id=None is internal relation type is verified in RelationCreateForm clean
     """
     subject = get_object_or_404(CremeEntity, pk=subject_id)
     request.user.has_perm_to_link_or_die(subject)
 
     relations_types = None
 
-    if relation_type_id:
-        get_object_or_404(RelationType, pk=relation_type_id).is_not_internal_or_die()
-        relations_types = [relation_type_id]
+    if rtype_id:
+        get_object_or_404(RelationType, pk=rtype_id).is_not_internal_or_die()
+        relations_types = [rtype_id]
 
     if request.method == 'POST':
-        form = RelationCreateForm(subject=subject, user=request.user, relations_types=relations_types, data=request.POST)
+        form = RelationCreateForm(subject=subject, user=request.user,
+                                  relations_types=relations_types,
+                                  data=request.POST,
+                                 )
 
         if form.is_valid():
             form.save()
     else:
-        form = RelationCreateForm(subject=subject, user=request.user, relations_types=relations_types)
+        form = RelationCreateForm(subject=subject, user=request.user,
+                                  relations_types=relations_types,
+                                 )
 
     return inner_popup(request, 'creme_core/generics/blockform/add_popup2.html',
                        {'form':  form,
@@ -256,7 +229,7 @@ def delete(request):
 
 @login_required
 def delete_similar(request):
-    """Delete relations with the same type between 2 entities"""
+    "Delete relations with the same type between 2 entities"
     POST = request.POST
     subject_id = get_from_POST_or_404(POST, 'subject_id')
     rtype_id   = get_from_POST_or_404(POST, 'type')
@@ -322,7 +295,11 @@ def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=F
 
     #TODO: filter with relation creds too
     #extra_q = ~Q(relations__type=rtype.symmetric_type_id, relations__object_entity=subject_id) #It seems that way causes some entities linked with another reelation type to be skipped...
-    extra_q = ~Q(pk__in=CremeEntity.objects.filter(relations__type=rtype.symmetric_type_id, relations__object_entity=subject_id).values_list('id', flat=True))
+    extra_q = ~Q(pk__in=CremeEntity.objects.filter(relations__type=rtype.symmetric_type_id,
+                                                   relations__object_entity=subject_id,
+                                                  )
+                                           .values_list('id', flat=True)
+                )
 
     prop_types = list(rtype.object_properties.all())
     if prop_types:
@@ -333,7 +310,6 @@ def objects_to_link_selection(request, rtype_id, subject_id, object_ct_id, o2m=F
         extra_q &= extra_q_kw
 
     return list_view_popup_from_widget(request, object_ct_id, o2m, extra_q=extra_q)
-
 
 #TODO: factorise code (with RelatedEntitiesField for example) ?  With a smart static method method in RelationType ?
 @login_required
@@ -384,10 +360,10 @@ def add_relations_with_same_type(request):
     #TODO: move in a RelationType method ??
     subject_ctypes = frozenset(int(ct_id) for ct_id in rtype.subject_ctypes.values_list('id', flat=True))
     if subject_ctypes and subject.entity_type_id not in subject_ctypes:
-        raise Http404('Incompatible type for subject') #404 ??
+        raise ConflictError('Incompatible type for subject')
 
     if subject_properties and not any(p.type_id in subject_properties for p in subject.get_properties()):
-        raise Http404('Missing compatible property for subject') #404 ??
+        raise ConflictError('Missing compatible property for subject')
 
     #TODO: move in a RelationType method ??
     object_ctypes = frozenset(int(ct_id) for ct_id in rtype.object_ctypes.values_list('id', flat=True))
@@ -400,9 +376,9 @@ def add_relations_with_same_type(request):
     create_relation = Relation.objects.create
     for entity in entities:
         if not check_ctype(entity):
-            errors[404].append(_(u"Incompatible type for object entity with id=%s") % entity.id) #404 ??
+            errors[409].append(_(u"Incompatible type for object entity with id=%s") % entity.id)
         elif not check_properties(entity):
-            errors[404].append(_(u"Missing compatible property for object entity with id=%s") % entity.id) #404 ??
+            errors[409].append(_(u"Missing compatible property for object entity with id=%s") % entity.id)
         elif not user.has_perm_to_link(entity):
             errors[403].append(_("Permission denied to entity with id=%s") % entity.id)
         else:

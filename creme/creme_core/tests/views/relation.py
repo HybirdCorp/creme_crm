@@ -15,6 +15,8 @@ try:
 
     from creme.persons.models import Contact, Organisation
     from creme.persons.constants import REL_OBJ_CUSTOMER_SUPPLIER
+
+    from creme.tickets.models import Ticket
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
@@ -37,11 +39,16 @@ class RelationViewsTestCase(ViewsTestCase):
     def setUpClass(cls):
         cls.populate('creme_core', 'creme_config', 'persons')
 
-    def test_get_ctypes_of_relation(self):
+    def _build_get_ctypes_url(self, rtype_id):
+        return '/creme_core/relation/type/%s/content_types/json' % rtype_id
+
+    def _build_predicates_json_url(self, entity):
+        return'/creme_core/relation/entity/%s/rtypes/json' % entity.id
+
+    def test_get_ctypes_of_relation01(self):
         self.login()
 
-        response = self.assertGET200('/creme_core/relation/predicate/%s/content_types/json' %
-                                        REL_OBJ_CUSTOMER_SUPPLIER,
+        response = self.assertGET200(self._build_get_ctypes_url(REL_OBJ_CUSTOMER_SUPPLIER),
                                      data={'fields': ['id', 'unicode']}
                                     )
         self.assertEqual('text/javascript', response['Content-Type'])
@@ -52,6 +59,23 @@ class RelationViewsTestCase(ViewsTestCase):
                                      [get_ct(Organisation).id, Organisation._meta.verbose_name]
                                     ]
                         )
+
+    def test_get_ctypes_of_relation02(self):
+        self.login()
+
+        rtype = RelationType.create(('test-subject_foobar1', 'is loving'),
+                                    ('test-object_foobar1',  'is loved by')
+                                   )[0]
+        response = self.assertGET200(self._build_get_ctypes_url(rtype.id),
+                                     data={'fields': ['id']}
+                                    )
+        self.assertEqual('text/javascript', response['Content-Type'])
+
+        json_data = simplejson.loads(response.content)
+        get_ct = ContentType.objects.get_for_model
+        self.assertIn([get_ct(Contact).id], json_data)
+        self.assertIn([get_ct(Organisation).id], json_data)
+        self.assertIn([get_ct(Ticket).id], json_data)
 
     def _aux_test_add_relations(self, is_superuser=True):
         self.login(is_superuser)
@@ -795,20 +819,20 @@ class RelationViewsTestCase(ViewsTestCase):
                                     ('test-object_foobar',  'is managed by', [Organisation])
                                    )[0]
 
-        self.assertPOST404(self.ADD_FROM_PRED_URL,
-                           data={'subject_id':   orga01.id,
-                                 'predicate_id': rtype.id,
-                                 'entities':     [orga02.id],
-                                }
+        self.assertPOST(409, self.ADD_FROM_PRED_URL,
+                        data={'subject_id':   orga01.id,
+                              'predicate_id': rtype.id,
+                              'entities':     [orga02.id],
+                             }
                         )
         self.assertFalse(Relation.objects.filter(type=rtype.id))
 
-        self.assertPOST404(self.ADD_FROM_PRED_URL,
-                           data={'subject_id':   contact01.id,
-                                 'predicate_id': rtype.id,
-                                 'entities':     [orga01.id, contact02.id],
-                                }
-                        )
+        self.assertPOST(409, self.ADD_FROM_PRED_URL,
+                        data={'subject_id':   contact01.id,
+                              'predicate_id': rtype.id,
+                              'entities':     [orga01.id, contact02.id],
+                             }
+                       )
         relations = Relation.objects.filter(type=rtype)
         self.assertEqual(1,         len(relations))
         self.assertEqual(orga01.id, relations[0].object_entity_id)
@@ -834,20 +858,20 @@ class RelationViewsTestCase(ViewsTestCase):
                                                ('test-object_foobar',  'is managed by', [], [object_ptype])
                                               )
 
-        self.assertPOST404(self.ADD_FROM_PRED_URL,
-                           data={'subject_id':   bad_subject.id,
-                                 'predicate_id': rtype.id,
-                                 'entities':     [good_object.id],
-                                }
-                          )
+        self.assertPOST(409, self.ADD_FROM_PRED_URL,
+                        data={'subject_id':   bad_subject.id,
+                              'predicate_id': rtype.id,
+                              'entities':     [good_object.id],
+                             }
+                        )
         self.assertFalse(Relation.objects.filter(type=rtype))
 
-        self.assertPOST404(self.ADD_FROM_PRED_URL,
-                           data={'subject_id':   good_subject.id,
-                                 'predicate_id': rtype.id,
-                                 'entities':     [good_object.id, bad_object.id],
-                                }
-                          )
+        self.assertPOST(409, self.ADD_FROM_PRED_URL,
+                        data={'subject_id':   good_subject.id,
+                              'predicate_id': rtype.id,
+                              'entities':     [good_object.id, bad_object.id],
+                             }
+                        )
         relations = Relation.objects.filter(type=rtype)
         self.assertEqual(1,              len(relations))
         self.assertEqual(good_object.id, relations[0].object_entity_id)
@@ -998,7 +1022,8 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(403, self._delete_similar(forbidden, rtype, allowed).status_code)
         self.assertEqual(4,   Relation.objects.count())
 
-    def test_delete_similar03(self): #is internal
+    def test_delete_similar03(self):
+        "Is internal"
         self.login()
 
         create_entity = partial(CremeEntity.objects.create, user=self.user)
@@ -1062,4 +1087,48 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertPOST403(self.DELETE_ALL_URL, data={'subject_id': self.subject.id})
         self.assertEqual(4 + 4, Relation.objects.count())#4 internals and 4 the user can't unlink because there are not his
 
-    #TODO: test other relation views...
+    def test_json_entity_rtypes01(self):
+        self.login()
+
+        rei = Contact.objects.create(user=self.user, first_name='Rei', last_name='Ayanami')
+
+        create_rtype = RelationType.create
+        rtype1, rtype2 = create_rtype(('test-subject_JSP01_1', 'Predicate#1'),
+                                      ('test-object_JSP01_2',  'Predicate#2'),
+                                      is_internal=True
+                                     )
+        rtype3, rtype4 = create_rtype(('test-subject__JSP01_3', 'Predicate#3', [Contact, Organisation]),
+                                      ('test-object__JSP01_4',  'Predicate#4', [Ticket]),
+                                     )
+        rtype5, rtype6 = create_rtype(('test-subject__JSP01_5', 'Predicate#5'),
+                                      ('test-object__JSP01_6',  'Predicate#6', [Contact]),
+                                     )
+
+        url = self._build_predicates_json_url(rei)
+        self.assertGET(400, url)
+        self.assertGET(400, url, data={'wedontcare': 'unknown'})
+        self.assertGET403(url, data={'fields': ['unknown']})
+
+        response = self.assertGET200(url, data={'fields': ['id']})
+        json_data = simplejson.loads(response.content)
+        self.assertIsInstance(json_data, list)
+        self.assertIn([rtype3.id], json_data)
+        self.assertIn([rtype5.id], json_data)
+        self.assertIn([rtype6.id], json_data)
+        self.assertNotIn([rtype1.id], json_data) #internal
+        self.assertNotIn([rtype4.id], json_data) #CT constraint
+
+        nerv = Organisation.objects.create(user=self.user, name='Nerv')
+        response = self.assertGET200(self._build_predicates_json_url(nerv),
+                                     data={'fields': ['id', 'unicode']}
+                                    )
+        self.assertIn([rtype3.id, unicode(rtype3)],
+                      simplejson.loads(response.content)
+                     )
+
+    def test_json_entity_rtypes02(self):
+        self.login(is_superuser=False)
+        rei = Contact.objects.create(user=self.user, first_name='Rei', last_name='Ayanami')
+        self.assertGET403(self._build_predicates_json_url(rei),
+                          data={'fields': ['id']}
+                         )

@@ -148,6 +148,7 @@ MIDDLEWARE_CLASSES = (
     'creme.creme_core.middleware.global_info.GlobalInfoMiddleware', #after AuthenticationMiddleware
     'creme.creme_core.middleware.timezone.TimezoneMiddleware',
     'creme.creme_core.middleware.exceptions.Beautiful403Middleware',
+    'creme.creme_core.middleware.exceptions.Beautiful409Middleware',
     #'creme.creme_core.middleware.module_logger.LogImportedModulesMiddleware', #debuging purpose
 )
 
