@@ -20,14 +20,14 @@
 
 from collections import defaultdict
 
-from django.db.models import TextField, BooleanField, DateTimeField, ForeignKey, PositiveIntegerField
+from django.db.models import TextField, BooleanField, ForeignKey, PositiveIntegerField
 from django.db.models.signals import pre_delete
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
 
 from creme.creme_core.models import CremeModel, CremeEntity
-from creme.creme_core.models.fields import CremeUserForeignKey
+from creme.creme_core.models.fields import CremeUserForeignKey, CreationDateTimeField
 from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
 from creme.creme_core.signals import pre_merge_related
 from creme.creme_core.utils import ellipsis
@@ -36,7 +36,7 @@ from creme.creme_core.utils import ellipsis
 class Memo(CremeModel):
     content       = TextField(_(u'Content'), blank=True, null=True)
     on_homepage   = BooleanField(_(u"Displayed on homepage"), blank=True, default=False)
-    creation_date = DateTimeField(_(u'Creation date'), editable=False)
+    creation_date = CreationDateTimeField(_(u'Creation date'), editable=False)
     user          = CremeUserForeignKey(verbose_name=_('Owner user')) #verbose_name=_(u"Assigned to")
 
     entity_content_type = ForeignKey(ContentType, related_name="memo_entity_set", editable=False)

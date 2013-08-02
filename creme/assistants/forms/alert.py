@@ -39,7 +39,7 @@ class AlertForm(CremeModelWithUserForm):
 
     def __init__(self, entity, *args, **kwargs):
         super(AlertForm, self).__init__(*args, **kwargs)
-        self.entity = entity
+        self.instance.creme_entity = entity
 
         #trigger_date = self.instance.trigger_date
         #self.fields['trigger_time'].initial = trigger_date.time() if trigger_date else time()
@@ -61,7 +61,3 @@ class AlertForm(CremeModelWithUserForm):
                 cleaned_data['trigger_date'] = make_aware_dt(datetime.combine(cleaned_data['trigger_date'], trigger_time))
 
         return cleaned_data
-
-    def save(self, *args, **kwargs):
-        self.instance.creme_entity = self.entity
-        return super(AlertForm, self).save(*args, **kwargs)

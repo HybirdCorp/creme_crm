@@ -27,7 +27,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
 
 from creme.creme_core.models import CremeEntity, CremeModel
-from creme.creme_core.models.fields import CremeUserForeignKey
+from creme.creme_core.models.fields import CremeUserForeignKey, CreationDateTimeField
 from creme.creme_core.core.function_field import FunctionField, FunctionFieldResult, FunctionFieldResultsList
 from creme.creme_core.signals import pre_merge_related
 
@@ -37,9 +37,9 @@ class ToDo(CremeModel):
     is_ok         = BooleanField(_("Done ?"), editable=False)
     has_deadline  = BooleanField(editable=False) #TODO: useful ??? (deadline can be NULL)
     description   = TextField(_(u'Description'), blank=True, null=True)
-    creation_date = DateTimeField(_(u'Creation date'), editable=False)
+    creation_date = CreationDateTimeField(_(u'Creation date'), editable=False)
     deadline      = DateTimeField(_(u"Deadline"), blank=True, null=True)
-    user           = CremeUserForeignKey(verbose_name=_('Owner user')) #verbose_name=_(u"Assigned to")
+    user          = CremeUserForeignKey(verbose_name=_('Owner user')) #verbose_name=_(u"Assigned to")
 
     entity_content_type = ForeignKey(ContentType, related_name="todo_entity_set", editable=False)
     entity_id           = PositiveIntegerField(editable=False)

@@ -25,16 +25,16 @@ from django.contrib.auth.decorators import login_required
 from creme.creme_core.views.generic import add_to_entity, edit_related_to_entity
 
 from ..models import ToDo
-from ..forms.todo import ToDoCreateForm, ToDoEditForm
+from ..forms.todo import ToDoForm
 
 
 @login_required
 def add(request, entity_id):
-    return add_to_entity(request, entity_id, ToDoCreateForm, _(u'New Todo for <%s>'))
+    return add_to_entity(request, entity_id, ToDoForm, _(u'New Todo for <%s>'))
 
 @login_required
 def edit(request, todo_id):
-    return edit_related_to_entity(request, todo_id, ToDo, ToDoEditForm, _(u"Todo for <%s>"))
+    return edit_related_to_entity(request, todo_id, ToDo, ToDoForm, _(u"Todo for <%s>"))
 
 @login_required
 def validate(request, todo_id):
