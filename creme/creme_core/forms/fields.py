@@ -46,7 +46,8 @@ from ..utils.date_range import date_range_registry
 from ..utils.queries import get_q_from_dict
 from .widgets import (CTEntitySelector, EntitySelector, FilteredEntityTypeWidget,
                       SelectorList, RelationSelector, ActionButtonList,
-                      ListViewWidget, ListEditionWidget, 
+                      ListViewWidget, ListEditionWidget,
+                      UnorderedMultipleChoiceWidget,
                       CalendarWidget, TimeWidget, DateRangeWidget,
                       ColorPickerWidget, DurationWidget, ChoiceOrCharWidget)
 
@@ -60,7 +61,8 @@ __all__ = ('GenericEntityField', 'MultiGenericEntityField',
            'AjaxChoiceField', 'AjaxMultipleChoiceField', 'AjaxModelChoiceField',
            'CremeTimeField', 'CremeDateField', 'CremeDateTimeField',
            'DateRangeField', 'ColorField', 'DurationField',
-           'CTypeChoiceField',
+           'CTypeChoiceField', 'EntityCTypeChoiceField',
+           'MultiCTypeChoiceField', 'MultiEntityCTypeChoiceField',
           )
 
 
@@ -1277,6 +1279,7 @@ class ChoiceOrCharField(MultiValueField):
 
         return value
 
+
 class CTypeChoiceField(Field):
     "A ChoiceField whose choices are a ContentType instances."
     widget = Select
@@ -1325,11 +1328,26 @@ class CTypeChoiceField(Field):
         raise ValidationError(self.error_messages['invalid_choice'])
 
 
-#TODO: MultiCTypeChoiceField
+class MultiCTypeChoiceField(CTypeChoiceField):
+    widget = UnorderedMultipleChoiceWidget
+
+    def to_python(self, value):
+        ctypes = []
+
+        if value not in EMPTY_VALUES:
+            to_python = super(MultiCTypeChoiceField, self).to_python
+            ctypes.extend(to_python(ct_id) for ct_id in value)
+
+        return ctypes
 
 
 class EntityCTypeChoiceField(CTypeChoiceField):
-    def __init__(self, *args, **kwargs):
-        super(EntityCTypeChoiceField, self).__init__(ctypes=creme_entity_content_types(),
-                                                     *args, **kwargs
-                                                    )
+    def __init__(self, ctypes=None, *args, **kwargs):
+        ctypes = ctypes or creme_entity_content_types()
+        super(EntityCTypeChoiceField, self).__init__(ctypes=ctypes, *args, **kwargs)
+
+
+class MultiEntityCTypeChoiceField(MultiCTypeChoiceField):
+    def __init__(self, ctypes=None, *args, **kwargs):
+        ctypes = ctypes or creme_entity_content_types()
+        super(MultiEntityCTypeChoiceField, self).__init__(ctypes=ctypes, *args, **kwargs)

@@ -4,19 +4,27 @@ try:
     from datetime import datetime
 
     from django.core.exceptions import ValidationError
+    from django.contrib.contenttypes.models import ContentType
     from django.utils.timezone import now
     from django.utils.translation import ugettext as _
 
     from creme.creme_core.forms.fields import (DateRangeField, ColorField,
-                                             DurationField, ChoiceOrCharField)
+        DurationField, ChoiceOrCharField,
+        CTypeChoiceField, EntityCTypeChoiceField,
+        MultiCTypeChoiceField, MultiEntityCTypeChoiceField)
+    from creme.creme_core.models import RelationType, CremePropertyType, Currency
     from creme.creme_core.utils.date_range import DateRange, CustomRange, CurrentYearRange
     from .base import FieldTestCase
+
+    from creme.persons.models import Contact, Organisation
 except Exception as e:
     print 'Error in <%s>: %s' % (__name__, e)
 
 
 __all__ = ('DateRangeFieldTestCase', 'ColorFieldTestCase',
            'DurationFieldTestCase', 'ChoiceOrCharFieldTestCase',
+           'CTypeChoiceFieldTestCase', 'EntityCTypeChoiceFieldTestCase',
+           'MultiCTypeChoiceFieldTestCase', 'MultiEntityCTypeChoiceFieldTestCase',
           )
 
 
@@ -138,3 +146,166 @@ class ChoiceOrCharFieldTestCase(FieldTestCase):
         self.assertEqual((None, None), cleaned)
 
     #TODO: set 'Other' label
+
+
+class _CTypeChoiceFieldTestCase(FieldTestCase):
+    @classmethod
+    def setUpClass(cls):
+        get_ct = ContentType.objects.get_for_model
+        cls.ct1 = get_ct(RelationType)
+        cls.ct2 = get_ct(CremePropertyType)
+        cls.ct3 = get_ct(Currency)
+
+
+class CTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
+    def test_required(self):
+        ct1 = self.ct1
+        ct2 = self.ct2
+        clean = CTypeChoiceField(ctypes=[ct1, ct2]).clean
+
+        self.assertEqual(ct1, clean(ct1.id))
+        self.assertEqual(ct2, clean(ct2.id))
+        self.assertFieldValidationError(CTypeChoiceField, 'required', clean, '')
+
+    def test_not_required(self):
+        ct1 = self.ct1
+        ct2 = self.ct2
+        clean = CTypeChoiceField(ctypes=[ct1, ct2], required=False).clean
+
+        self.assertEqual(ct1, clean(ct1.id))
+        self.assertEqual(ct2, clean(ct2.id))
+        self.assertEqual(None, clean(''))
+
+    def test_invalid(self):
+        clean = CTypeChoiceField(ctypes=[self.ct1, self.ct2]).clean
+        self.assertFieldValidationError(CTypeChoiceField, 'invalid_choice',
+                                        clean, self.ct3.id,
+                                       )
+
+
+class _EntityCTypeChoiceFieldTestCase(FieldTestCase):
+    @classmethod
+    def setUpClass(cls):
+        get_ct = ContentType.objects.get_for_model
+        cls.ct1 = get_ct(Contact)
+        cls.ct2 = get_ct(Organisation)
+        cls.ct3 = get_ct(Currency)
+
+        cls.autodiscover()
+
+
+class EntityCTypeChoiceFieldTestCase(_EntityCTypeChoiceFieldTestCase):
+    def test_required(self):
+        ct1 = self.ct1
+        ct2 = self.ct2
+        clean = EntityCTypeChoiceField().clean
+        self.assertEqual(ct1, clean(ct1.id))
+        self.assertEqual(ct2, clean(ct2.id))
+        self.assertFieldValidationError(EntityCTypeChoiceField, 'required', clean, '')
+
+    def test_not_required(self):
+        ct1 = self.ct1
+        ct2 = self.ct2
+        clean = EntityCTypeChoiceField(required=False).clean
+        self.assertEqual(ct1, clean(ct1.id))
+        self.assertEqual(ct2, clean(ct2.id))
+        self.assertEqual(None, clean(''))
+
+    def test_invalid(self):
+        self.assertFieldValidationError(EntityCTypeChoiceField, 'invalid_choice',
+                                        EntityCTypeChoiceField().clean, self.ct3.id,
+                                       )
+
+    def test_ctypes01(self):
+        "Constructor"
+        ct1 = self.ct1
+        clean = EntityCTypeChoiceField(ctypes=[ct1]).clean
+        self.assertEqual(ct1, clean(ct1.id))
+        self.assertFieldValidationError(EntityCTypeChoiceField,
+                                        'invalid_choice', clean, self.ct2.id,
+                                       )
+
+    def test_ctypes02(self):
+        "Setter"
+        ct1 = self.ct1
+        field = EntityCTypeChoiceField()
+        field.ctypes = [ct1]
+
+        clean = field.clean
+        self.assertEqual(ct1, clean(ct1.id))
+        self.assertFieldValidationError(EntityCTypeChoiceField,
+                                        'invalid_choice', clean, self.ct2.id,
+                                       )
+
+
+class MultiCTypeChoiceFieldTestCase(_CTypeChoiceFieldTestCase):
+    def test_required(self):
+        ct1 = self.ct1
+        ct2 = self.ct2
+        clean = MultiCTypeChoiceField(ctypes=[ct1, ct2]).clean
+
+        self.assertEqual([ct1], clean([ct1.id]))
+        self.assertEqual([ct2], clean([ct2.id]))
+        self.assertFieldValidationError(MultiCTypeChoiceField, 'required', clean, '')
+        self.assertFieldValidationError(MultiCTypeChoiceField, 'required', clean, [])
+        self.assertFieldValidationError(MultiCTypeChoiceField, 'required', clean, None)
+
+    def test_not_required(self):
+        ct1 = self.ct1
+        ct2 = self.ct2
+        clean = MultiCTypeChoiceField(ctypes=[ct1, ct2], required=False).clean
+
+        self.assertEqual([ct1], clean([ct1.id]))
+        self.assertEqual([ct2], clean([ct2.id]))
+        self.assertEqual([],    clean(''))
+        self.assertEqual([],    clean([]))
+
+    def test_invalid(self):
+        ct1 = self.ct1
+        clean = MultiCTypeChoiceField(ctypes=[ct1, self.ct2]).clean
+        self.assertFieldValidationError(MultiCTypeChoiceField, 'invalid_choice',
+                                        clean, [ct1.id, self.ct3.id],
+                                       )
+        self.assertFieldValidationError(MultiCTypeChoiceField, 'invalid_choice',
+                                        clean, ['not an int'],
+                                       )
+
+
+class MultiEntityCTypeChoiceFieldTestCase(_EntityCTypeChoiceFieldTestCase):
+    def test_required(self):
+        ct1 = self.ct1
+        ct2 = self.ct2
+        clean = MultiEntityCTypeChoiceField().clean
+
+        self.assertEqual([ct1], clean([ct1.id]))
+        self.assertEqual([ct2], clean([ct2.id]))
+        self.assertFieldValidationError(MultiEntityCTypeChoiceField, 'required', clean, '')
+        self.assertFieldValidationError(MultiEntityCTypeChoiceField, 'required', clean, [])
+        self.assertFieldValidationError(MultiEntityCTypeChoiceField, 'required', clean, None)
+
+    def test_not_required(self):
+        ct1 = self.ct1
+        ct2 = self.ct2
+        clean = MultiEntityCTypeChoiceField(ctypes=[ct1, ct2], required=False).clean
+
+        self.assertEqual([ct1], clean([ct1.id]))
+        self.assertEqual([ct2], clean([ct2.id]))
+        self.assertEqual([],    clean(''))
+        self.assertEqual([],    clean([]))
+
+    def test_invalid(self):
+        clean = MultiEntityCTypeChoiceField().clean
+        self.assertFieldValidationError(MultiEntityCTypeChoiceField, 'invalid_choice',
+                                        clean, [self.ct1.id, self.ct3.id],
+                                       )
+        self.assertFieldValidationError(MultiEntityCTypeChoiceField, 'invalid_choice',
+                                        clean, ['not an int'],
+                                       )
+
+    def test_ctypes(self):
+        ct1 = self.ct1
+        clean = MultiEntityCTypeChoiceField(ctypes=[ct1]).clean
+        self.assertEqual([ct1], clean([ct1.id]))
+        self.assertFieldValidationError(MultiEntityCTypeChoiceField,
+                                        'invalid_choice', clean, [self.ct2.id],
+                                       )
